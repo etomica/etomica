@@ -9,10 +9,12 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public static String VERSION = "01.07.09";
 
     public final int D;
+    private final double rD; // reciprocal of D
     
     public Space(int d) {
         if(d < 1 || d > 3) throw new IllegalArgumentException("Illegal dimension for space");
         D = d;
+        rD = 1.0/D;
     }
     
     public int D() {return D;}
@@ -20,10 +22,15 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
      * Returns the given value raised to the Dth power, where D is the dimension of the space.
      */
     public abstract int powerD(int a);
-    /*
+    /**
      * Returns the given value raised to the Dth power, where D is the dimension of the space.
      */
     public abstract double powerD(double a);
+    
+    /**
+     * Returns the Dth root of the given value, a^(1/D), where D is the dimension of the space.
+     */
+    public double rootD(double a) {return Math.pow(a, rD);}
     
     public abstract Vector origin();
     

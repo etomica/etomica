@@ -14,6 +14,8 @@ import etomica.units.*;
   *         (?) unknown changes to Orientation
   * 09/01/02 (DAK) added accelerateTo method to Coordinate
   *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
+  * 09/05/02 (DAK) fixed error in accelerateTo (still probably does not do what one expects
+  *                if accelerating to nonzero momentum).
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -381,13 +383,13 @@ public class Space3D extends Space implements EtomicaElement {
    //         dry = dr.y;
    //         drz = dr.z;
             r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
-            /*
+            /*  comment here if not doing hard dynamics
             double rm1 = c1.rm();
             double rm2 = c2.rm();
             dvx = rm2*c2.p.x - rm1*c1.p.x;
             dvy = rm2*c2.p.y - rm1*c1.p.y;
             dvz = rm2*c2.p.z - rm1*c1.p.z;
-            */
+          //  */  //end of non-dynamics commenting
         }
             
         public void reset(Space3D.Vector M) {
@@ -667,7 +669,7 @@ public static class CoordinateGroup extends Coordinate {
         }
     }
     public void accelerateTo(Space.Vector u) {
-        work.Ea1Tv1(-1,momentum());//probably need this first
+        work.Ea1Tv1(-1.0/childIterator.size(),momentum());//probably need this first
         work.PE(u);
         accelerateBy(work);
     }

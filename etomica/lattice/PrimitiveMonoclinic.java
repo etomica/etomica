@@ -2,26 +2,26 @@ package etomica.lattice;
 import etomica.*;
 
 /**
- * Primitive group for an orthorhombic system.  All primitive
- * vectors orthogonal but not necessarily of equal length.
- * a != b != c; alpha = beta = gamma = 90deg
+ * Primitive group for a monoclinic system.  One primitive-vector
+ * angle not normal, and vectors not necessarily of equal length.
+ * a != b != c; alpha = gamma = 90deg, beta >= 90deg
  */
-public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
+public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     
     private double[] sizeCopy;
-    private double a, b, c;
+    private double a, b, c, beta, sinBeta, cosBeta;
     
-    public PrimitiveOrthorhombic(Simulation sim) {
-        this(sim, 1.0, 1.0, 1.0);
+    public PrimitiveMonoclinic(Simulation sim) {
+        this(sim, 1.0, 1.0, 1.0, rightAngle);
     }
-    public PrimitiveOrthorhombic(Simulation sim, double a, double b, double c) {
+    public PrimitiveMonoclinic(Simulation sim, double a, double b, double c, double beta) {
         super(sim);
         size = new double[sim.space.D()];
         sizeCopy = new double[sim.space.D()];
-        //set up orthogonal vectors of unit size
         setA(a);
         setB(b);
         setC(c);
+        setBeta(beta);
     }
     
     public void setA(double a) {
@@ -40,7 +40,8 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         
     public void setC(double c) {
         this.c = c;
-        latticeVectors[2].setX(2,c);
+        latticeVectors[2].setX(0,c*cosBeta);
+        latticeVectors[2].setX(2,c*sinBeta);
         if(lattice != null) lattice.update();
     }
     public double getC() {return c;}
@@ -48,8 +49,15 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     public void setAlpha(double t) {}//no adjustment of angle permitted
     public double getAlpha() {return rightAngle;}
     
-    public void setBeta(double t) {}
-    public double getBeta() {return rightAngle;}
+    public void setBeta(double t) {
+        if(t < rightAngle) t = rightAngle;
+        if(t > Math.PI) t = Math.PI;
+        beta = t;
+        cosBeta = Math.cos(beta);
+        sinBeta = Math.sin(beta);
+        setC(c);
+    }
+    public double getBeta() {return beta;}
     
     public void setGamma(double t) {}
     public double getGamma() {return rightAngle;}
@@ -59,21 +67,10 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      * Returns a new, identical instance of this primitive.
      */
     public Primitive copy() {
-        return new PrimitiveOrthorhombic(simulation, a, b, c);
+        return new PrimitiveMonoclinic(simulation, a, b, c, beta);
     }
     
-    
-    /**
-     * Sets the length of all primitive vectors to the given value.
-     */
-    public void setSize(double size) {
-        for(int i=0; i<D; i++) {
-            latticeVectors[i].setX(i,size);
-            this.size[i] = size;
-        }
-        if(lattice != null) lattice.update();
-    }
-    
+        
     /**
      * Returns a copy of the array of primitive-vector sizes.
      */
@@ -84,10 +81,9 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     }
     
     public void scaleSize(double scale) {
-        for(int i=0; i<D; i++) {
-            this.size[i] *= scale;
-            latticeVectors[i].setX(i,size[i]);
-        }
+        setA(a*scale);
+        setB(b*scale);
+        setC(c*scale);
         if(lattice != null) lattice.update();
     }        
     
@@ -123,7 +119,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     
     private double[] size;
     
-    public String toString() {return "Orthorhombic";}
+    public String toString() {return "Monoclinic";}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 

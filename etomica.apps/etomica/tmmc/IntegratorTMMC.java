@@ -100,6 +100,7 @@ public class IntegratorTMMC extends IntegratorMC {
         }
         weight[0] = 0.0;
         for(int i=1; i<nStates; i++) {
+            //w_i = w_(i-1) - log( C[(N-1)->N] / C[N->(N-1)]
             weight[i] = weight[i-1] - Math.log((C[i-1][2]/H[i-1])/(C[i][0]/H[i]));
         }
         doStepCount = weightUpdateInterval;

@@ -6,6 +6,8 @@ import etomica.units.*;
  /* History of changes
   * 09/01/02 (DAK) added accelerateTo method to Coordinate
   *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
+  * 09/05/02 (DAK) fixed error in accelerateTo (still probably does not do what one expects
+  *                if accelerating to nonzero momentum).
   */
 public class Space1D extends Space implements EtomicaElement {
     
@@ -474,10 +476,11 @@ public class Space1D extends Space implements EtomicaElement {
             }
         }
         public void accelerateTo(Space.Vector u) {
-            work.Ea1Tv1(-1,momentum());//probably need this first
+            throw new RuntimeException("Space1D.CoordinateGroup.accelerateTo not implemented");
+       /*     work.Ea1Tv1(-1.0/childIterator.size(),momentum());//probably need this first
             work.PE(u);
             accelerateBy(work);
-        }
+        */}
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {

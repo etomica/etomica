@@ -5,6 +5,9 @@ package etomica.simulations;
 import etomica.*;
 import etomica.graphics.*;
 
+//remember to set up Space3D.CoordinatePair.reset if experiencing 
+//problems with this simulation hanging
+
 public class HSMD3D extends SimulationGraphic {
 
   public HSMD3D() {
@@ -17,6 +20,8 @@ public class HSMD3D extends SimulationGraphic {
 //    phase0.setConfiguration(new ConfigurationFcc());
     etomica.P2HardSphere potentialHardSphere0  = new etomica.P2HardSphere();
     etomica.Controller controller0  = new etomica.Controller();
+    new DeviceTrioControllerButton(this, controller0);
+		
     etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
 //    etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
       speciesSpheres0.setNMolecules(32);
@@ -25,12 +30,14 @@ public class HSMD3D extends SimulationGraphic {
 
     displayPhase0.setColorScheme(new ColorSchemeByType());
     //this is awkward!
-    ((ParameterColor)((AtomFactoryMono)speciesSpheres0.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(java.awt.Color.blue);
+    ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
+ //   ((ParameterColor)((AtomFactoryMono)speciesSpheres0.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(java.awt.Color.blue);
 
     etomica.IntegratorHard integratorHard0  = new etomica.IntegratorHard();
-      integratorHard0.setIsothermal(true);
-      integratorHard0.setTemperature(1500.);
-    
+ //     integratorHard0.setIsothermal(true);
+ //     integratorHard0.setTemperature(1500.);
+    mediator().go();
+    System.out.println(phase0.getAgent(speciesSpheres0).coord.momentum().toString());
   } //end of constructor
 
   public static void main(String[] args) {

@@ -11,28 +11,97 @@ public abstract class Primitive {
     protected final Space.Vector[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     public final int D;
+    protected final double[] size;
+    protected final double[] angle;
+    private final double[] sizeCopy;
     protected Space space;
     protected Simulation simulation;
     protected BravaisLattice lattice;
+    protected static final double rightAngle = 0.5*Math.PI;
     
     public Primitive(Simulation sim) {
         simulation = sim;
         space = sim.space;
         D = space.D();
+        if(!( (this instanceof Primitive2D && D==2) || (this instanceof Primitive3D && D==3))) throw new RuntimeException("Error: inconsistency between spatial dimension and interface of Primitive");
         latticeVectors = new Space.Vector[D];
         latticeVectorsCopy = new Space.Vector[D];
         idx = new int[D];
+        size = new double[D];
+        sizeCopy = new double[D];
+        angle = new double[D];
         for(int i=0; i<D; i++) {
             latticeVectors[i] = space.makeVector();
             latticeVectorsCopy[i] = space.makeVector();
+            angle[i] = rightAngle;
         }
     }
 
     /**
      * Sets the length of each primitive vector to the corresponding
-     * value in the given array.
+     * value in the given array.  Calls set[ABC] methods (defined in subclass)
+     * for any lengths that are not equal to current values.
      */
-    public abstract void setSize(double[] size);
+    public void setSize(double[] newSize) {
+        double size0, size1, size2;
+        switch(D) {
+            case 2:
+                Primitive2D p2 = (Primitive2D)this;
+                size0 = size[0];//save because might change with any of the set calls
+                size1 = size[1];
+                if(size0 != newSize[0]) p2.setA(newSize[0]);
+                if(size1 != newSize[1]) p2.setB(newSize[1]);
+                break;
+            case 3:
+                Primitive3D p3 = (Primitive3D)this;
+                size0 = size[0];//save because might change with any of the set calls
+                size1 = size[1];
+                size2 = size[2];
+                if(size0 != newSize[0]) p3.setA(newSize[0]);
+                if(size1 != newSize[1]) p3.setB(newSize[1]);
+                if(size2 != newSize[2]) p3.setC(newSize[2]);
+                break;
+            default:
+                throw new RuntimeException("Didn't expect to get here in Primitive.setSize");
+        }
+        if(lattice != null) lattice.update();
+    }
+    
+    /**
+     * Sets the angles between the primitive vector to the corresponding
+     * values in the given array.  Calls set[alpha/beta/gamma] methods (defined in subclass)
+     * for any angles that are not equal to current values.
+     */
+    public void setAngles(double[] newAngle) {
+        double t0, t1, t2;
+        switch(D) {
+            case 2:
+                Primitive2D p2 = (Primitive2D)this;
+                if(angle[0] != newAngle[0]) p2.setAlpha(newAngle[0]);
+                break;
+            case 3:
+                Primitive3D p3 = (Primitive3D)this;
+                t0 = angle[0];//save because might change with any of the set calls
+                t1 = angle[1];
+                t2 = angle[2];
+                if(t0 != newAngle[0]) p3.setAlpha(newAngle[0]);
+                if(t1 != newAngle[1]) p3.setBeta(newAngle[1]);
+                if(t2 != newAngle[2]) p3.setGamma(newAngle[2]);
+                break;
+            default:
+                throw new RuntimeException("Didn't expect to get here in Primitive.setSize");
+        }
+        if(lattice != null) lattice.update();
+    }
+
+    /**
+     * Returns a copy of the array of primitive-vector sizes.
+     */
+/*    public double[] getSize() {
+        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
+        return sizeCopy;
+    }
+*/    
     
     /**
      * Scales (multiplies) the size of each primitive vector by the given value.

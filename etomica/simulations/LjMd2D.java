@@ -32,6 +32,8 @@ public class LjMd2D extends SimulationGraphic {
 	    timer.setUpdateInterval(10);
 		panel().setBackground(java.awt.Color.yellow);
 		
+		new DeviceTrioControllerButton(this, controller);
+		
 		energy = new MeterEnergy(this);
 		energy.setHistorying(true);
 		energy.setActive(true);
