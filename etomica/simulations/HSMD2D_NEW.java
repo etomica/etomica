@@ -207,14 +207,12 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 
 	}
 	
-	class MyModifier extends Modifier {
-        public MyModifier() {
-            super(Dimension.LENGTH); // VELOCITY???
-        }
+	class MyModifier implements Modifier {
 		public void setValue(double v) {speed = (v+1)/10.;}
 		public double getValue() {return speed*10-1;}
 		public etomica.units.Dimension getDimension() {return etomica.units.Dimension.UNDEFINED;}
-	}
+		public String getLabel() {return "speed";}
+    }
 	
 	class MyMeter extends MeterScalar {
 
