@@ -13,13 +13,12 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.action.PhaseInflate;
-import etomica.data.meter.MeterGroup;
+import etomica.data.meter.MeterArray;
 import etomica.data.meter.MeterTemperature;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
-import etomica.space.CoordinatePair;
-import etomica.space.ICoordinateKinetic;
+import etomica.space.CoordinatePairKinetic;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
@@ -33,18 +32,17 @@ import etomica.units.Kelvin;
 public final class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElement {
 
     double vol1, vol2, vol3, vol4;
-    private /*final*/ ForceSumNPH forceSumNPH;//MeterTPH won't permit this to be final (?)
+    protected /*final*/ ForceSumNPH forceSumNPH;//MeterTPH won't permit this to be final (?)
     private final IteratorDirective allAtoms = new IteratorDirective();
     protected PhaseInflate inflate;
     double targetH;
     double targetP;
     double targetT = Kelvin.UNIT.toSim(300.);
-    private double kineticT;
     private double rrp = 300.;
     private double rrh = 300.;
     private double kp, kh;
-    private int D;
-    private final MeterTemperature meterTemperature = new MeterTemperature();
+    protected int D;
+    protected final MeterTemperature meterTemperature = new MeterTemperature();
     
     public IntegratorGear4NPH(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, space);
@@ -113,7 +111,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }//end of doStep
     
     public void drivePT() {
-        kineticT = meterTemperature.getData()[0];
+        double kineticT = meterTemperature.getData()[0];
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -125,7 +123,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     public void drivePH() {
-        kineticT = meterTemperature.getDataAsScalar(firstPhase);
+        double kineticT = meterTemperature.getDataAsScalar(firstPhase);
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -163,8 +161,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         vol2 += c2*corvol;
         vol3 += c3*corvol;
         vol4 += c4*corvol;
-        double rScale = Math.pow(volNew/volOld,1.0/(double)D);
-        firstPhase.boundary().inflate(rScale);
+        double rScale = Math.pow(volNew/volOld,1.0/D);
+        inflate.setScale(rScale);
+        inflate.actionPerformed();
     }//end of corrector
         
     protected void predictor() {
@@ -175,7 +174,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         vol2 += p1*vol3 + p2*vol4;
         vol3 += p1*vol4;
         double rScale = Math.pow(volNew/volOld,1.0/D);
-        firstPhase.boundary().inflate(rScale);
+        inflate.setScale(rScale);
+        inflate.actionPerformed();
     }
 //--------------------------------------------------------------
 
@@ -219,24 +219,21 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
     //meter group for temperature, pressure, enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public final class MeterTPH extends MeterGroup {
+    public final class MeterTPH extends MeterArray {
         
         public MeterTPH() {
             super(3);//3 is number of meters in group
-            labels[0] = "Temperature";
-            labels[1] = "Pressure";
-            labels[2] = "Enthalpy";
         }
-        public void updateValues() {
-            if(firstPhase == null) return;
-            kineticT = meterTemperature.getDataAsScalar(firstPhase);
-            double mvsq = kineticT * D * firstPhase.atomCount();
-            double volume = firstPhase.volume();
-            double pCurrent = firstPhase.getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);
+        public double[] getDataAsArray(Phase p) {
+            double kineticT = meterTemperature.getDataAsScalar(p);
+            double mvsq = kineticT* D * p.atomCount();
+            double volume = p.volume();
+            double pCurrent = p.getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);
             double hCurrent = 0.5*mvsq + IntegratorGear4NPH.this.forceSumNPH.u + pCurrent*volume;
-            currentValues[0] = kineticT;
-            currentValues[1] = pCurrent;
-            currentValues[2] = hCurrent/firstPhase.moleculeCount();
+            phaseData[0] = kineticT;
+            phaseData[1] = pCurrent;
+            phaseData[2] = hCurrent/p.moleculeCount();
+            return phaseData;
         }
         public Dimension getDimension() {return Dimension.NULL;}
     }
@@ -248,12 +245,12 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private CoordinatePair cPair;
+        private CoordinatePairKinetic cPair;
 
         private final Vector f;
         public ForceSumNPH(Space space) {
             f = space.makeVector();
-            cPair = space.makeCoordinatePair();
+            cPair = (CoordinatePairKinetic)space.makeCoordinatePair();
         }
         
         //pair
@@ -267,9 +264,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;
-                rvx += hv * ((ICoordinateKinetic)cPair).vDotr()/r2;
+                rvx += hv * cPair.vDotr()/r2;
                 f.E(potentialSoft.gradient(pair));
-                vf -= cPair.vDot(f); //maybe should be (-)?
+                vf -= cPair.dv().dot(f); //maybe should be (-)?
                 ((Integrator.Forcible)pair.atom0.ia).force().PE(f);
                 ((Integrator.Forcible)pair.atom1.ia).force().ME(f);
             }//end while
