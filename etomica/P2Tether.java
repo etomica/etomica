@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
-public class P2Tether extends Potential2 implements PotentialHard {
+public class P2Tether extends Potential2HardSpherical {
 
   private double tetherLength, tetherLengthSquared;
   private double lastCollisionVirial = 0.0;
@@ -85,10 +85,8 @@ public class P2Tether extends Potential2 implements PotentialHard {
   /**
    * Returns infinity if separation is greater than tether distance, zero otherwise
    */
-    public double energy(Atom[] pair) {
-//        System.out.println(pair.atom1.toString()+"  "+pair.atom2.toString()+"   "+pair.r2()+"   "+tetherLengthSquared);
-    	cPair.reset(pair[0].coord,pair[1].coord);
-        return (cPair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
+    public double u(double r2) {
+        return (r2 > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
     
     public double energyChange() {return 0.0;}

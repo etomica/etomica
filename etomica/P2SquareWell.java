@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
  */
-public class P2SquareWell extends Potential2 implements PotentialHard {
+public class P2SquareWell extends Potential2HardSpherical {
 
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
@@ -162,14 +162,12 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
         return tij + falseTime;
     }
 
-    /**
-     * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
-     */
-    public double energy(Atom[] pair) {
-        cPair.reset(pair[0].coord,pair[1].coord);
-        double r2 = cPair.r2();
+  /**
+   * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
+   */
+    public double u(double r2) {
         return ( r2 < wellDiameterSquared) ? 
-            ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
+            ((r2 < coreDiameterSquared) ? Double.POSITIVE_INFITY : -epsilon) : 0.0;
     }
 
     public double energyChange() {return lastEnergyChange;}

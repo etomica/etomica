@@ -14,7 +14,7 @@ package etomica;
   * 08/11/03 modified gradient method to colsolidate two vector operations
   * into one method call
   */
-public abstract class Potential2SoftSpherical extends Potential2 implements Potential2.Soft {
+public abstract class Potential2SoftSpherical extends Potential2 implements Potential2.Soft, Potential2Spherical {
    
    private final Space.Vector work1;
    private final double rD;// = 1/D

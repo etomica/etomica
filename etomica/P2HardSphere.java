@@ -8,7 +8,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class P2HardSphere extends Potential2 implements PotentialHard {
+public class P2HardSphere extends Potential2HardSpherical {
     
    /**
     * Separation at which spheres first overlap
@@ -83,9 +83,6 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
         dr.E(cPair.dr());  //used by lastCollisionVirialTensor
         lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(pair)) {
-            System.out.println("I'm here");
-        }
         dr.TE(lastCollisionVirialr2);
         cPair.truePush(dr,falseTime);
     }
@@ -119,12 +116,8 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
      * Interaction energy of the pair.
      * Zero if separation is greater than collision diameter, infinity otherwise
      */
-    public double energy(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
-    	if(cPair.r2() < sig2) {
-//    		System.out.println("uh oh in p2hardsphere");
-    	}
-        return (cPair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
+    public double u(double r2) {
+        return (r2 < sig2) ? Double.MAX_VALUE : 0.0;
     }
     
     public double energyChange() {return 0.0;}
