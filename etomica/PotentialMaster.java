@@ -20,13 +20,10 @@ import etomica.PotentialGroup.PotentialLinker;
   */
 public final class PotentialMaster extends PotentialGroup {
     
-    public String getVersion() {return "PotentialMaster:02.08.13";}
-
-    private SpeciesMaster speciesMaster;
-    private PotentialGroupLrc lrcMaster;
+	private PotentialGroupLrc lrcMaster;
 
     public PotentialMaster(Simulation sim) {
-        super(sim);
+        super(-1, sim);
     } 
     
 	/**
@@ -39,7 +36,7 @@ public final class PotentialMaster extends PotentialGroup {
 	 }
 
 	 public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-	 	throw new RuntimeException("Method inappriopriate for PotentialMaster class");
+	 	throw new RuntimeException("Method inappropriate for PotentialMaster class");
 	 }
 	 
 	//should build on this to do more filtering of potentials based on directive
@@ -51,16 +48,16 @@ public final class PotentialMaster extends PotentialGroup {
         }//end for
         for(PotentialLinker link=firstGroup; link!=null; link=link.next) {
         	((AtomIteratorPhaseDependent)link.iterator).setPhase(phase);
-            link.potential.calculate(link.iterator, id, pc);
+            ((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
         }
     }//end calculate
     
     public void setSpecies(Potential potential, Species[] species) {
-    	if (species.length == 0 || potential.nBody < species.length) {
+    	if (species.length == 0 || potential.nBody() < species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
     	AtomsetIterator iterator;
-    	switch (potential.nBody) {
+    	switch (potential.nBody()) {
     	    case 0: break;
     	    case 1:
     	    	iterator = new AtomIteratorMolecule();

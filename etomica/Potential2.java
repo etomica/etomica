@@ -19,7 +19,7 @@ package etomica;
 
 public abstract class Potential2 extends Potential {
   
-    protected Space.CoordinatePair cPair;
+    protected final Space.CoordinatePair cPair;
     
     public Potential2(SimulationElement parent) {
         this(parent, Default.TRUNCATE_POTENTIALS ? 
@@ -39,8 +39,6 @@ public abstract class Potential2 extends Potential {
     }
     public Potential2(SimulationElement parent, PotentialTruncation potentialTruncation) {
         super(2, parent, potentialTruncation);
-        iterator = new Api1A(new ApiIntergroup1A(simulation()),
-        						new ApiIntergroupAA(simulation()));
         if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null
             && (this instanceof Potential2SoftSpherical)) ) {
             PotentialMaster potentialMaster = simulation().hamiltonian.potential;
@@ -53,7 +51,7 @@ public abstract class Potential2 extends Potential {
     	cPair.setBoundary(phase.boundary());
     }
     
-    public abstract double energy(AtomPair pair);
+    public abstract double energy(Atom[] pair);
     
 	/**
 	 * Interface for all hard pair potentials.
@@ -62,20 +60,20 @@ public abstract class Potential2 extends Potential {
 	 */
 	public interface Hard extends Potential.Hard {
     
-    	public double energy(AtomPair pair);
+    	public double energy(Atom[] pair);
 		/**
 		 * Implements the collision dynamics.
 		 * The given atoms are assumed to be at the point of collision.  This method is called
 		 * to change their momentum according to the action of the collision.  Extensions can be defined to
 		 * instead implement other, perhaps unphysical changes.
 		 */
-		public void bump(AtomPair pair);
+		public void bump(Atom[] pair);
     
 		/**
 		 * Computes the time of collision of the given atoms , assuming no intervening collisions.
 		 * Usually assumes free-flight between collisions
 		 */ 
-		public double collisionTime(AtomPair pair);
+		public double collisionTime(Atom[] pair);
     
 	}//end of Potential2.Hard
 
@@ -87,18 +85,18 @@ public abstract class Potential2 extends Potential {
 
 	public interface Soft{
     
-    	public double energy(AtomPair pair);
+    	public double energy(Atom[] pair);
 		/**
 		 * Returns r dot grad(u), with any truncation applied.  Does not include
 		 * division by D, to avoid repeated multiplication of this term when summing
 		 * over all pairs.  Negation and division by D in most cases is required 
 		 * at some point when using this quantity.
 		 */
-		public double virial(AtomPair pair);
+		public double virial(Atom[] pair);
     
-		public double hyperVirial(AtomPair pair);
+		public double hyperVirial(Atom[] pair);
     
-		public Space.Vector gradient(AtomPair pair);
+		public Space.Vector gradient(Atom[] pair);
     
 		/**
 		 * Integral used to evaluate correction to truncation of potential.

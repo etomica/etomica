@@ -17,13 +17,6 @@ package etomica;
 public class PotentialGroup extends Potential {
     
     /**
-     * Constructor for use only by PotentialMaster subclass.
-	 * @param sim Simulation instance in which potential is used.
-     */
-    PotentialGroup(Simulation sim) {
-    	super(sim);
-     }
-    /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
      * Parent potential is potential master for current value of Simulation.instance.
      */
@@ -41,14 +34,7 @@ public class PotentialGroup extends Potential {
      */
     public PotentialGroup(int nBody, SimulationElement parent, PotentialTruncation truncation) {
         super(nBody, parent, truncation);
-        switch(nBody) {
-        	case 1: iterator = simulation().iteratorFactory.makeGroupIteratorSequential();
-        			break;
-        	case 2: iterator = new Api1A(new ApiIntergroup1A(simulation()),
-											new ApiIntergroupAA(simulation()));
-					break;
-			default: throw new etomica.exception.MethodNotImplementedException("Potential group not developed to handle more than one- or two-body interactions");
-        }//end switch
+        if(nBody < 0 && !(this instanceof PotentialMaster)) throw new IllegalArgumentException("Cannot instantiate negative-body potential");
     }
 
 	/**
@@ -62,32 +48,6 @@ public class PotentialGroup extends Potential {
         }//end for
         return false;
     }
-
-	/**
-	  * Extends superclass setSpecies method to instantiate iterators based on
-	  * number of species in array.  If this is a one-body potential, iterator
-	  * is instantiated as in Potential1, if a two-body, iterator is as in
-	  * Potential2.
-	  * @see etomica.Potential#setSpecies(Species[])
-	  * @see etomica.Potential1#setSpecies(Species[])
-	  * @see etomica.Potential2#setSpecies(Species[])
-	  */
-	 public void setSpecies(Species[] species) {
-		 super.setSpecies(species);
-		 switch(nBody) {
-		 	case 1:
-		 			break;
-		 	case 2:
-				 if(species.length == 1 || species[0] == species[1]) {
-					 iterator = new Api1A(new ApiIntragroup1A(simulation()),
-											 new ApiIntragroupAA(simulation()));
-				 } else {
-					 iterator = new Api1A(new ApiIntergroup1A(simulation()),
-											 new ApiIntergroupAA(simulation()));
-				 }
-				 break;
-		 }//end switch
-	 }
  
 	/**
 	 * Adds the given potential to this group, but should not be called directly.  Instead,
@@ -95,8 +55,12 @@ public class PotentialGroup extends Potential {
 	 * in the constructor) of the given potential.  
 	 */
 	synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
-		if(potential == null || potential.parentPotential() != this) 
-			throw new IllegalArgumentException("Improper call to addPotential; should use setParentPotential method in child instead of addPotential method in parent group"); 
+		if(potential == null || iterator == null) {
+			throw new NullPointerException(); 
+		}
+		if(potential.nBody() != iterator.nBody()) {
+			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
+		}
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
 		//to be configured for calculation (i.e., iterators set up) first
 		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
@@ -105,7 +69,7 @@ public class PotentialGroup extends Potential {
 				lastGroup = lastGroup.next;
 			}
 			else {
-				last.next = makeLinker(potential, null);
+				last.next = makeLinker(potential, iterator, null);
 				last = last.next;
 			}
 		} else {//put other potentials at beginning of list
@@ -154,30 +118,36 @@ public class PotentialGroup extends Potential {
      * Performs the specified calculation over the iterates of this potential
      * that comply with the iterator directive.
      */
-    //wrapper is used to avoid problems that might arise if more than one thread
-    //is accessing the potential.  Wrapper is obtained from the potential calculation,
-    //which assumes that it would be exclusive to a given thread.  Wrapper is
-    //a PotentialCalculation subclass with an actionPerformed method that loops
-    //over the sub-potentials of this PotentialGroup.
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
 		//loop over sub-potentials
     	iterator.reset();
+    	boolean firstIterate = true;
     	while (iterator.hasNext()) {
     		Atom[] basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
-    			link.iterator.setBasis(basisAtoms);
-    			link.iterator.setDirective(id);
+    			if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+    			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);   			
     			pc.doCalculation(link.iterator,link.potential);
     		}
     		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-    			link.iterator.setBasis(basisAtoms);
-    			link.iterator.setDirective(id);
-    			link.potential.calculate(basisAtoms, id, pc);
+    			if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+    			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);   			
+     			((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
     		}
+    		firstIterate = false;
     	}
     }//end calculate
     
+    public void setPhase(Phase phase) {
+    	this.phase = phase;
+  		for (PotentialLinker link=first; link!= null; link=link.next) {
+			link.potential.setPhase(phase);
+		}
+		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
+			link.potential.setPhase(phase);
+		}
+    }
     
 	/**
 	 * Returns the enabled flag, which if false will cause potential to not
@@ -200,13 +170,13 @@ public class PotentialGroup extends Potential {
 	protected PotentialLinker first, last;
 	protected PotentialLinker firstGroup, lastGroup;
 	protected boolean enabled = true;
+	protected Phase phase;
 
 	protected static class PotentialLinker implements java.io.Serializable {
 	    protected final Potential potential;
 	    protected final AtomsetIterator iterator;
 	    protected PotentialLinker next;
 	    //Constructors
-//	    public PotentialLinker(Potential a) {potential = a;}
 	    public PotentialLinker(Potential a, AtomsetIterator i, PotentialLinker l) {
 	    	potential = a;
 	    	iterator = i;

@@ -16,10 +16,8 @@ package etomica;
   */
 public abstract class Potential extends SimulationElement {
     
-    private PotentialGroup parentPotential;
 	public final PotentialTruncation potentialTruncation;
-	protected boolean enabled = true;
-	public final int nBody;
+	private final int nBody;
 	private Potential0Lrc p0Lrc;
 
 	/**
@@ -56,31 +54,14 @@ public abstract class Potential extends SimulationElement {
         super(parent, Potential.class);
         this.nBody = nBody;
         potentialTruncation = truncation;
-        if(parent instanceof PotentialGroup) {
-	        parentPotential = (PotentialGroup)parent;
-	        parentPotential.addPotential(this);
-        }
     }
 
     public abstract double energy(Atom[] atoms);
     
     public abstract void setPhase(Phase phase);
     
-    public final PotentialGroup parentPotential() {return parentPotential;}
-     
-    /**
-     * Adds this potential to the given potential group.  No action is taken
-     * if the new parent is the same as the current parent.  Otherwise, if
-     * current parent is not null, this is removed from it.  Then this is
-     * added via addPotential to the new parent.  If new parent is null, this
-     * is removed from current parent and no new parent is set.
-     */
-    public void setParentPotential(PotentialGroup newParent) {
-        if(newParent == parentPotential) return;
-        if(parentPotential != null) parentPotential.removePotential(this);
-        parentPotential = newParent;
-        if(newParent != null) parentPotential.addPotential(this);
-    }
+    public final int nBody() {return nBody;}
+    
  	/**
 	 * Accessor method for potential cutoff implementation.
 	 */

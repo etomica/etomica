@@ -13,8 +13,6 @@ package etomica;
 
 public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
 
-    public String getVersion() {return "P2Fene:02.08.31/"+Potential2SoftSpherical.VERSION;}
-
     private double r0, r02, h, prefactor;
     
     public P2Fene(SimulationElement parent) {

@@ -11,8 +11,6 @@ package etomica;
  */
 public class P2Anharmonic extends Potential2SoftSpherical implements EtomicaElement {
 
-    public String getVersion() {return "PotentialHarmonic:01.07.07/"+Potential2SoftSpherical.VERSION;}
-
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
     private double a = 0;	// Anharmonic spring constant
     public P2Anharmonic(double w) {

@@ -6,65 +6,16 @@ package etomica;
  * @author David Kofke
  */
 public abstract class Potential1 extends Potential {
-  
-    public static String VERSION = "Potential1:01.07.26/"+Potential.VERSION;
-    
-    protected AtomIterator iterator;
-    private final IteratorDirective localDirective = new IteratorDirective();
-    
+      
     public Potential1(SimulationElement parent) {
         super(1, parent);
-        iterator = simulation().iteratorFactory.makeGroupIteratorSequential();
-        localDirective.setSkipFirst(false);
     }
     
-	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
-		if(!enabled) return;
-		localDirective.copy(id);
-		if(id.atomCount()==1) localDirective.set(IteratorDirective.NEITHER);
-		iterator.all(basis, localDirective, (AtomActive)pc.set(this));
-//		switch(id.atomCount()) {
-//			case 0: iterator.all(basis, id, (AtomActive)pc.set(this)); break;
-//			case 1: singletIterator.all(basis, id, (AtomActive)pc.set(this)); break;
-//		}
-	}//end of calculate
-    
-	private final AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
-    
-    /**
-     * Convenience method for setting species.  Makes array with argument as
-     * passes it to setSpecies(Species[]) method.
-     * @param s The species to which this potential applies.
-     */
-    public void setSpecies(Species s) {
-        setSpecies(new Species[] {s});
-    }
-    
-	/**
-	 * Checks that argument is allowed, and simply passes it to superclass
-	 * method. No change in iterator is performed.
-	 * @param species An array of exactly one element, the species to which this
-	 * potential applies.
-	 */
-    public void setSpecies(Species[] species) {
-    	if(species.length != 1) throw new IllegalArgumentException("setSpecies in Potential1 must take an array containing only one species instance");
-        super.setSpecies(species);
-    }
-
     /**
      * Returns the energy of the given atom.
      */
     public abstract double energy(Atom atom);
-                      
-	public void setIterator(AtomSetIterator iterator) {
-		if(iterator instanceof AtomIterator) this.setIterator((AtomIterator)iterator);
-		else throw new IllegalArgumentException("Inappropriate type of iterator set for potential");
-	}
-	public void setIterator(AtomIterator iterator) {
-		this.iterator = iterator;
-	}
-	public AtomSetIterator getIterator() {return iterator;}
-    
+                          
     /**
      * Marker interface indicating that a one-body potential is an intramolecular
      * potential, and not, e.g., a potential of interaction with an external field.

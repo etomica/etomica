@@ -11,8 +11,6 @@ import etomica.units.Dimension;
  */
 public final class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
 
-  public String getVersion() {return "PotentialLJ:01.07.05/"+Potential2SoftSpherical.VERSION;}
-
     public P2LennardJones() {
         this(Default.ATOM_SIZE, Default.POTENTIAL_WELL);
     }

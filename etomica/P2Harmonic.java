@@ -14,8 +14,6 @@ package etomica;
  */
 public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElement {
 
-    public String getVersion() {return "PotentialHarmonic:01.07.07/"+Potential2SoftSpherical.VERSION;}
-
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
 	private final boolean r0Zero;
 	private double r0;
