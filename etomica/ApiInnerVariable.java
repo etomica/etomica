@@ -16,7 +16,7 @@ import etomica.action.AtomsetAction;
   * 08/25/04 (DAK et al) new
   */
   
-public final class ApiInnerVariable implements AtomsetIterator {
+public class ApiInnerVariable implements AtomsetIterator {
     
     /**
      * Construct a pair iterator using the given atom iterators.  Requires
@@ -39,7 +39,7 @@ public final class ApiInnerVariable implements AtomsetIterator {
      * Accessor method for the inner-loop atom iterator.
      * @return the current inner-loop iterator
      */
-    public AtomIteratorAtomDependent getInnerIterator() {return aiInner;}
+    public AtomIterator getInnerIterator() {return aiInner;}
 
     /**
      * Defines the atom iterator that performs the inner-loop iteration to
@@ -80,7 +80,8 @@ public final class ApiInnerVariable implements AtomsetIterator {
     	if(aiOuter.contains(new Atom[] {pair[0]})) {
     		aiInner.setAtom(pair[0]);
     		return aiInner.contains(new Atom[] {pair[1]});
-    	} else return false;
+    	}
+        return false;
     }
 
     /**
@@ -176,16 +177,16 @@ public final class ApiInnerVariable implements AtomsetIterator {
     
     public final int nBody() {return 2;}
     
-    private final Atom[] pair = new Atom[2];
-    private boolean hasNext, needUpdate1;
-    private Atom atom1;
+    protected final Atom[] pair = new Atom[2];
+    protected boolean hasNext, needUpdate1;
+    protected Atom atom1;
 
     /**
      * The iterators used to generate the sets of atoms.
      * The inner one is not necessarily atom dependent.
      */
-    private AtomIteratorAtomDependent aiInner;
-	private AtomIterator aiOuter;
+    protected AtomIteratorAtomDependent aiInner;
+	protected AtomIterator aiOuter;
     
 /*    public static void main(String[] args) throws java.io.IOException {
         
