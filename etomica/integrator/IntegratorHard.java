@@ -13,6 +13,7 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.atom.AtomArrayList;
+import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.space.CoordinatePair;
@@ -74,6 +75,9 @@ public class IntegratorHard extends IntegratorMD {
     public boolean addPhase(Phase phase) {
         if(!super.addPhase(phase)) return false;
         atomIterator.setPhase(phase);
+        if (nullPotential != null) {
+            ((Potential1)nullPotential).setPhase(phase);
+        }
         return true;
     }
     
@@ -82,7 +86,7 @@ public class IntegratorHard extends IntegratorMD {
      */
     public void setTemperature(double temperature) {
         super.setTemperature(temperature);
-        minDelta = -1.e-10/Math.sqrt(temperature);
+        minDelta = -5.e-10/Math.sqrt(temperature);
     }
     
     public IntegratorHard.Agent colliderAgent() {
@@ -429,8 +433,11 @@ public class IntegratorHard extends IntegratorMD {
      * periodic boundaries when neighbor listing is not used.
      * @param nullPotential The nullPotential to set.
      */
-    public void setNullPotential(PotentialHard nullPotential) {
-        this.nullPotential = nullPotential;
+    public void setNullPotential(Potential1 nullPotential) {
+        this.nullPotential = (PotentialHard)nullPotential;
+        if (nullPotential != null && phase.length > 0) {
+            nullPotential.setPhase(phase[0]);
+        }
     }
     
     //collision handler is passed to the potential and is notified of each collision
