@@ -2,6 +2,13 @@ package etomica.graphics;
 import etomica.*;
 
 import java.awt.*;
+
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomTypeOrientedSphere;
+import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeWall;
+import etomica.atom.AtomTypeWell;
+import etomica.atom.iterator.AtomIteratorList;
 import etomica.utility.java2.Iterator;
 
     /* History of changes

@@ -3,7 +3,13 @@ package etomica.simulations;
 import etomica.*;
 import etomica.action.PhaseImposePbc;
 import etomica.action.PhaseActionAdapter;
+import etomica.data.DataSourceAcceptanceRatio;
+import etomica.data.DataSourceCountSteps;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorPT;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.P2LennardJones;
 import etomica.utility.HistoryScrolling;
 
 /**

@@ -8,8 +8,8 @@ import java.util.Locale;
 import etomica.Action;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.IntegratorHard;
 import etomica.Simulation;
+import etomica.integrator.IntegratorHard;
 import etomica.utility.NameMaker;
 
 /**

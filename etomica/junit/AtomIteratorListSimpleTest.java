@@ -2,6 +2,7 @@ package etomica.junit;
 
 import etomica.*;
 import etomica.action.AtomActionAdapter;
+import etomica.atom.iterator.AtomIteratorListSimple;
 
 import java.util.LinkedList;
 

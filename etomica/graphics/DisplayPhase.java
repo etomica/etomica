@@ -2,6 +2,9 @@ package etomica.graphics;
 import etomica.*;
 import java.awt.*;
 import java.awt.event.*;
+
+import etomica.atom.AtomFilter;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.units.BaseUnit;
 
 //Java2 imports

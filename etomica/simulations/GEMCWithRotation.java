@@ -1,9 +1,5 @@
 package etomica.simulations;
 import etomica.Default;
-import etomica.IntegratorGEMC;
-import etomica.MCMoveRotate;
-import etomica.MeterDensity;
-import etomica.P2LennardJones;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
@@ -13,6 +9,10 @@ import etomica.Species;
 import etomica.SpeciesSpheresRotating;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.data.meter.MeterDensity;
+import etomica.integrator.IntegratorGEMC;
+import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.potential.P2LennardJones;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.

@@ -5,7 +5,6 @@
 package etomica.nbr;
 
 import etomica.Atom;
-import etomica.AtomIteratorTree;
 import etomica.Debug;
 import etomica.Integrator;
 import etomica.IteratorDirective;
@@ -14,6 +13,7 @@ import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
+import etomica.atom.iterator.AtomIteratorTree;
 import etomica.utility.Arrays;
 
 /**

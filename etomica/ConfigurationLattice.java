@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;

@@ -1,4 +1,5 @@
 package etomica;
+import etomica.data.DataSourceAdapter;
 import etomica.units.Dimension;
 
 /**

@@ -1,5 +1,12 @@
 package etomica;
 
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
+import etomica.potential.Potential0;
+import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialGroupLrc;
+
 
 /**
  * Manager of all potentials in simulation.

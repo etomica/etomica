@@ -5,12 +5,12 @@
 package etomica.action;
 
 import etomica.AtomIterator;
-import etomica.AtomIteratorLeafAtoms;
-import etomica.AtomIteratorAllMolecules;
-import etomica.AtomIteratorPhaseDependent;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorPhaseDependent;
 
 /**
  * Action that imposes the central-image effect of a phase having periodic

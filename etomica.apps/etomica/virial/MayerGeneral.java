@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.AtomPair;
-import etomica.Potential2;
+import etomica.potential.Potential2;
 
 /**
  * @author kofke

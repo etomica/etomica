@@ -1,5 +1,6 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.atom.AtomTypeWall;
 
 import java.awt.Color;
 /**

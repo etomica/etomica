@@ -1,8 +1,6 @@
 package etomica.simulations;
 import etomica.Controller;
 import etomica.Default;
-import etomica.IntegratorHard;
-import etomica.P2SquareWell;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
@@ -12,6 +10,8 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.graphics.DisplayPhase;
+import etomica.integrator.IntegratorHard;
+import etomica.potential.P2SquareWell;
 
 /**
  * Simple square-well molecular dynamics simulation in 2D

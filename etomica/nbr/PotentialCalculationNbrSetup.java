@@ -6,12 +6,12 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomsetIterator;
-import etomica.AtomsetIteratorDirectable;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Potential;
-import etomica.PotentialCalculation;
 import etomica.Space;
+import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.potential.PotentialCalculation;
 
 /**
  * PotentialCalculation that performs setup of neighbor lists.  Takes all pair iterates

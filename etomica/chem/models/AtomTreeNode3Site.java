@@ -1,8 +1,8 @@
 package etomica.chem.models;
 
 import etomica.Atom;
-import etomica.AtomTreeNodeGroup;
-import etomica.AtomTreeNode;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * A group node having three child atoms, which for convenience can be
@@ -24,7 +24,7 @@ public class AtomTreeNode3Site extends AtomTreeNodeGroup {
 	public Atom atom1, atom2, atom3 ;
 	
 	public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-		public etomica.AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
+		public etomica.atom.AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
 			return new AtomTreeNode3Site(atom, parent);
 		}
 	};
@@ -44,7 +44,7 @@ public class AtomTreeNode3Site extends AtomTreeNodeGroup {
 	
 
 	/**
-	 * @see etomica.AtomTreeNodeGroup#removeAtomNotify(etomica.Atom)
+	 * @see etomica.atom.AtomTreeNodeGroup#removeAtomNotify(etomica.Atom)
 	 */
 	public void removeAtomNotify(Atom atom) {
 		super.removeAtomNotify(atom);

@@ -1,5 +1,7 @@
 package etomica.tmmc;
 import etomica.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.MCMove;
 import etomica.log.*;
 
 /**

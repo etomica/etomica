@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomType;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.statmech.MaxwellBoltzmann;
 
 /**

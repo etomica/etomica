@@ -1,5 +1,6 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.integrator.IntegratorMD;
 import etomica.units.*;
 
 /** 

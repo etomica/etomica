@@ -3,6 +3,8 @@ package etomica.virial.overlap;
 import etomica.*;
 import etomica.virial.*;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
 
 /**
  * @author kofke

@@ -1,4 +1,10 @@
 package etomica;
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomTypeGroup;
 import etomica.units.Dimension;
 
 /**

@@ -5,8 +5,6 @@
 package etomica.nbr.cell;
 
 import etomica.Atom;
-import etomica.AtomIteratorAllMolecules;
-import etomica.AtomIteratorPhaseDependent;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.PhaseEvent;
@@ -14,6 +12,8 @@ import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
 import etomica.SpeciesAgent;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
 
 /**

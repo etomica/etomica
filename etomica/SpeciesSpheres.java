@@ -1,5 +1,10 @@
 package etomica;
 import etomica.action.AtomActionAdapter;
+import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeSphere;
 import etomica.units.Dimension;
 
 /**

@@ -1,6 +1,8 @@
 package etomica.virial;
 
 import etomica.*;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorList;
 
 /**
  * @author David Kofke

@@ -1,5 +1,7 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.*;
 import etomica.math.geometry.Polyhedron;
 import etomica.nbr.cell.IteratorFactoryCell;

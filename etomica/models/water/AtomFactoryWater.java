@@ -1,12 +1,12 @@
 package etomica.models.water;
 
 import etomica.Atom;
-import etomica.AtomFactory;
-import etomica.AtomFactoryMono;
-import etomica.AtomSequencerFactory;
-import etomica.AtomType;
-import etomica.AtomTypeSphere;
 import etomica.Space;
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeSphere;
 
 /**
  * Factory that constructs a water molecule, with three child atoms of two
@@ -40,7 +40,7 @@ public class AtomFactoryWater extends AtomFactory {
 	}
 
 	/**
-	 * @see etomica.AtomFactory#build(etomica.Atom)
+	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
 	 */
 	public Atom build(Atom group) {
 		AtomTreeNodeWater waterNode = (AtomTreeNodeWater)group.node;
@@ -52,7 +52,7 @@ public class AtomFactoryWater extends AtomFactory {
 	}
 
 	/**
-	 * @see etomica.AtomFactory#isGroupFactory()
+	 * @see etomica.atom.AtomFactory#isGroupFactory()
 	 */
 	public boolean isGroupFactory() {
 		return true;

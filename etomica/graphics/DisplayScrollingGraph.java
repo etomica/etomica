@@ -1,5 +1,7 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.data.meter.MeterScalar;
+
 import java.awt.*;
 
     public class DisplayScrollingGraph extends Display implements etomica.MeterScalar.User {

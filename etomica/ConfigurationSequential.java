@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.atom.iterator.AtomIteratorCompound;
+
 /**
  * Fills phase with molecules on a lattice, taking each molecule in successive order
  * from the linked list of molecules.  Takes no special action when list moves from

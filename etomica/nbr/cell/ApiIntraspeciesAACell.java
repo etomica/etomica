@@ -4,14 +4,8 @@
  */
 package etomica.nbr.cell;
 
-import etomica.ApiBuilder;
-import etomica.ApiInnerFixed;
-import etomica.ApiListSimple;
 import etomica.Atom;
-import etomica.AtomIteratorListSimple;
-import etomica.AtomList;
 import etomica.AtomsetIterator;
-import etomica.AtomsetIteratorPhaseDependent;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
@@ -20,6 +14,12 @@ import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.ApiBuilder;
+import etomica.atom.iterator.ApiInnerFixed;
+import etomica.atom.iterator.ApiListSimple;
+import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 

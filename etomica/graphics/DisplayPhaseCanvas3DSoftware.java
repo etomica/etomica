@@ -6,6 +6,11 @@ import java.awt.image.MemoryImageSource;
 
 import java.util.Hashtable;
 //java2 replacement
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomTypeOrientedSphere;
+import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeWall;
+import etomica.atom.AtomTypeWell;
 import etomica.utility.java2.Iterator;
 
     /* History of changes

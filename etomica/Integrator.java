@@ -5,6 +5,8 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 

@@ -1,5 +1,6 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.data.meter.MeterScalar;
 
 // Writes current values of all meters to console
 

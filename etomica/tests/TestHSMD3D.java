@@ -2,20 +2,20 @@ package etomica.tests;
 
 import etomica.ConfigurationFile;
 import etomica.Default;
-import etomica.IntegratorHard;
-import etomica.MeterPressureHard;
-import etomica.P2HardSphere;
 import etomica.Phase;
-import etomica.Potential2;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Space3D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.data.meter.MeterPressureHard;
+import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.PotentialMasterNbr;
+import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.

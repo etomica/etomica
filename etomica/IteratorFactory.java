@@ -1,5 +1,9 @@
 package etomica;
 
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.iterator.AtomIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorMolecule;
+
 /**
  * Class for construction of iterators of molecules.  Iterators are given for looping
  * over single molecules and pairs of molecules.  Different pair iterators are provided

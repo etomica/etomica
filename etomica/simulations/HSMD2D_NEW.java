@@ -5,9 +5,13 @@ import java.awt.GridLayout;
 
 import etomica.*;
 import etomica.action.PhaseQuench;
+import etomica.data.meter.MeterScalar;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorHard;
 import etomica.units.Dimension;
 import etomica.log.LoggerAbstract;
+import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2;
 
 
 /**
@@ -210,7 +214,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		}
 
 		/**
-		 * @see etomica.MeterScalar#getData()
+		 * @see etomica.data.meter.MeterScalar#getData()
 		 */
 		public double getDataAsScalar(Phase p) {
 			double w = -(action.ke1 - action.ke0)/HSMD2D_NEW.this.integrator.temperature();

@@ -1,6 +1,8 @@
 package etomica.virial;
 
 import etomica.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveMolecule;
 
 /**
  * @author kofke
@@ -92,7 +94,7 @@ public class MCMoveMoleculeMulti extends MCMoveMolecule {
 		}
 	}//end of main
 	/**
-	 * @see etomica.MCMove#adjustStepSize()
+	 * @see etomica.integrator.MCMove#adjustStepSize()
 	 */
 	public void adjustStepSize() {
 		super.adjustStepSize();

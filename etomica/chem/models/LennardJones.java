@@ -5,6 +5,7 @@ package etomica.chem.models;
 
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
+import etomica.potential.P2LennardJones;
 import etomica.*;
 
 /**

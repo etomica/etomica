@@ -1,0 +1,18 @@
+/*
+ * History
+ * Created on Aug 31, 2004 by kofke
+ */
+package etomica.atom.iterator;
+
+import etomica.Species;
+
+/**
+ * Atom iterator that is set using an array of Species.  Extends
+ * AtomIteratorPhaseDependent because the species-dependent
+ * iterates are necessarily phase-dependent too.
+ */
+public interface AtomIteratorSpeciesDependent extends
+		AtomIteratorPhaseDependent, AtomsetIteratorSpeciesDependent {
+
+	public void setSpecies(Species[] species);
+}

@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.*;
+import etomica.potential.Potential2;
 import etomica.virial.cluster.Ring;
 
 /**

@@ -2,6 +2,10 @@ package etomica.junit;
 
 import etomica.*;
 import etomica.action.AtomAction;
+import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorTree;
 import junit.framework.*;
 import java.util.*;
 

@@ -1,9 +1,5 @@
 package etomica.simulations;
 import etomica.Controller;
-import etomica.DataSourceCountSteps;
-import etomica.IntegratorMC;
-import etomica.MCMoveAtom;
-import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space2D;
@@ -11,6 +7,10 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.data.DataSourceCountSteps;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.P2HardSphere;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.

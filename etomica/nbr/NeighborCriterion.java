@@ -4,9 +4,9 @@
  */
 package etomica.nbr;
 import etomica.Atom;
-import etomica.AtomsetFilter;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
+import etomica.atom.AtomsetFilter;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**

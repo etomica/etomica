@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.utility.IntegerRange;

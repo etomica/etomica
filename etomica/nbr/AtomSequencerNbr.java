@@ -7,11 +7,11 @@ package etomica.nbr;
 import java.util.ArrayList;
 
 import etomica.Atom;
-import etomica.AtomArrayList;
-import etomica.AtomLinker;
-import etomica.AtomSequencerFactory;
 import etomica.Potential;
 import etomica.Space;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomSequencerFactory;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.utility.Arrays;
 

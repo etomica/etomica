@@ -1,5 +1,8 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
+
 import java.awt.Graphics;
 
 /**

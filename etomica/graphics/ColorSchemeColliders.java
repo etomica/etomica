@@ -1,5 +1,7 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.integrator.IntegratorHard;
+
 import java.awt.Color;
 
 /**

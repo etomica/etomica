@@ -2,6 +2,13 @@
 package etomica;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomsetAction;
+import etomica.atom.AtomFactoryHetero;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeWall;
+import etomica.atom.iterator.AtomIteratorList;
 import etomica.units.Dimension;
 
 /* History

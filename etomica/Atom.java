@@ -1,5 +1,14 @@
 package etomica;
 
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomTreeNodeLeaf;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeSphere;
+
  /**
   * Object corresponding to one physical atom or (in subclasses) group of atoms.
   * Each atom holds one instance of a Coordinate that is constructed by the governing

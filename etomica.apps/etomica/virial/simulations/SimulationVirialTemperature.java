@@ -1,5 +1,6 @@
 package etomica.virial.simulations;
 
+import etomica.potential.P2LennardJones;
 import etomica.virial.*;
 import etomica.*;
 

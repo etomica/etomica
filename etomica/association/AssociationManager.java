@@ -1,5 +1,11 @@
 package etomica.association;
 import etomica.*;
+import etomica.atom.AtomList;
+import etomica.atom.AtomListRestorable;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveListener;
 
 /**
  * Manages information about the association of atoms with each other.  

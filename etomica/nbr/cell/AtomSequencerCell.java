@@ -5,8 +5,8 @@
 package etomica.nbr.cell;
 
 import etomica.Atom;
-import etomica.AtomLinker;
-import etomica.AtomSequencerFactory;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomSequencerFactory;
 
 
 /**

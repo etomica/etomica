@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.Integrator.IntervalEvent;
+import etomica.data.AccumulatorAverage;
 import etomica.log.DataLogger;
 
 /**

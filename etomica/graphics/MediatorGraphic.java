@@ -6,6 +6,8 @@ import etomica.*;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
+import etomica.data.meter.MeterFunction;
+import etomica.data.meter.MeterScalar;
 import etomica.utility.java2.Iterator;
     
 /** 

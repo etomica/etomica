@@ -1,6 +1,9 @@
 package etomica.junit;
 
 import etomica.*;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorList;
 import junit.framework.*;
 import java.util.*;
 

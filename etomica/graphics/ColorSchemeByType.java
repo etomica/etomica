@@ -1,5 +1,8 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomType;
+
 import java.awt.Color;
 
 /**

@@ -1,6 +1,9 @@
 package etomica.junit;
 
 import etomica.*;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorList;
+
 import java.util.LinkedList;
 
 /**

@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.atom.iterator.AtomIteratorTree;
+
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a phase
  */

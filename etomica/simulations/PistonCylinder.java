@@ -1,6 +1,12 @@
 package etomica.simulations;
 import etomica.*;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorHardField;
+import etomica.potential.P2HardSphere;
+import etomica.potential.P2HardSphereWall;
+import etomica.potential.PotentialGroup;
 import etomica.units.*;
 
 /**
@@ -52,7 +58,7 @@ public class PistonCylinder extends SimulationGraphic {
         phase.setBoundary(speciesPC.new Boundary(phase)); //have piston-cylinder system define boundary of phase
         
         //part unique to this class
-        etomica.MeterScalar thermometer = new MeterTemperature();
+        etomica.data.meter.MeterScalar thermometer = new MeterTemperature();
         DisplayBox tBox = new DisplayBox();
         tBox.setMeter(thermometer);
         tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));

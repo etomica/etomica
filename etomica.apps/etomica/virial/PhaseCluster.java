@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.*;
+import etomica.atom.AtomList;
 
 /**
  * @author kofke

@@ -1,4 +1,12 @@
 package etomica;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveListener;
+import etomica.integrator.mcmove.MCMoveVolume;
+import etomica.potential.P2LennardJones;
+import etomica.potential.Potential2;
+import etomica.potential.PotentialCalculationEnergySum;
 import etomica.units.*;
 
 /**

@@ -6,30 +6,30 @@ package etomica.nbr;
 
 import java.util.ArrayList;
 
-import etomica.ApiInnerFixed;
-import etomica.ApiMolecule;
 import etomica.Atom;
-import etomica.AtomArrayList;
-import etomica.AtomIteratorArrayList;
-import etomica.AtomIteratorListSimple;
-import etomica.AtomIteratorSinglet;
-import etomica.AtomSequencerFactory;
-import etomica.AtomTreeNodeGroup;
-import etomica.AtomsetIteratorMolecule;
 import etomica.Default;
 import etomica.IteratorDirective;
 import etomica.NearestImageTransformerVector;
 import etomica.Phase;
 import etomica.Potential;
-import etomica.Potential2;
-import etomica.PotentialCalculation;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.ApiInnerFixed;
+import etomica.atom.iterator.ApiMolecule;
+import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.Potential2;
+import etomica.potential.PotentialCalculation;
 import etomica.utility.Arrays;
 
 /**

@@ -4,6 +4,8 @@
  */
 package etomica.dpd;
 import etomica.*;
+import etomica.data.meter.MeterEnergy;
+import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.nbr.cell.IteratorFactoryCell;
 

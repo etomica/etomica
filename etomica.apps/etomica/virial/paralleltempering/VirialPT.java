@@ -1,7 +1,13 @@
 package etomica.virial.paralleltempering;
 
 import etomica.*;
+import etomica.data.DataSourceAcceptanceRatio;
+import etomica.data.DataSourceCountSteps;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorPT;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.P2LennardJones;
 import etomica.virial.*;
 import etomica.virial.cluster.*;
 

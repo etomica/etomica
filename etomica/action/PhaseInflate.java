@@ -4,8 +4,8 @@
  */
 package etomica.action;
 
-import etomica.AtomIteratorAllMolecules;
 import etomica.Phase;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
 
 /**
  * Performs actions that cause volume of system to expand, with molecule

@@ -1,9 +1,9 @@
 package etomica.action;
 
-import etomica.AtomIteratorLeafAtoms;
 import etomica.Default;
-import etomica.MeterTemperature;
 import etomica.Phase;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.meter.MeterTemperature;
 
 /**
  * Scales all velocities of a phase so that its kinetic temperature is equal to

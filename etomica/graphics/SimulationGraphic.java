@@ -140,7 +140,7 @@ public class SimulationGraphic implements SimulationContainer {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Default.DO_SLEEP = true;
+        Default.DO_SLEEP = false;
 //        etomica.simulations.SwMd2D sim = new etomica.simulations.SwMd2D();
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();

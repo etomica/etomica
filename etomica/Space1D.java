@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.statmech.MaxwellBoltzmann;
 
 //CoordinateGroup is not updated to the same structure as used in Space2D and Space3D

@@ -1,4 +1,6 @@
 package etomica;
+import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.*;
 
 /**

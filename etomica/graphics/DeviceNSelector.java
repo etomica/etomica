@@ -2,14 +2,14 @@ package etomica.graphics;
 
 import etomica.Controller;
 import etomica.Integrator;
-import etomica.IntegratorHard;
 import etomica.ModulatorAbstract;
-import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space2D;
 import etomica.SpeciesAgent;
 import etomica.SpeciesSpheresMono;
+import etomica.integrator.IntegratorHard;
+import etomica.potential.P2HardSphere;
 import etomica.units.Dimension;
 
 /**

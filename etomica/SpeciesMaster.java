@@ -1,6 +1,15 @@
 package etomica;
 
-import etomica.AtomLinker.Tab;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomList;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomTreeNodeLeaf;
+import etomica.atom.AtomType;
+import etomica.atom.AtomLinker.Tab;
+import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorTree;
 
 /**
  * Coordinator of all species agents in a phase.  

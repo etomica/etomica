@@ -1,5 +1,7 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.atom.AtomFilter;
+
 import java.awt.*;
 import java.awt.event.*;
 

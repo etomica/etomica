@@ -2,19 +2,18 @@
 
 package etomica.simulations;
 
-import etomica.DataManager;
 import etomica.Default;
-import etomica.IntegratorHard;
-import etomica.MeterPressureHard;
-import etomica.P2HardSphere;
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IntegratorHard;
+import etomica.nbr.NeighborCriterion;
+import etomica.nbr.NeighborCriterionSimple;
+import etomica.nbr.PotentialMasterNbr;
+import etomica.potential.P2HardSphere;
 
 public class HSMD3D extends Simulation {
 
@@ -27,36 +26,52 @@ public class HSMD3D extends Simulation {
         this(new etomica.Space3D());
     }
     private HSMD3D(Space space) {
-        super(space, new PotentialMaster(space));
-//        super(space, new PotentialMasterNbr(space));
+//        super(space, new PotentialMaster(space));
+        super(space, new PotentialMasterNbr(space));
+
+        int numAtoms = 256;
+        double neighborRangeFac = 1.6;
         Default.makeLJDefaults();
+        Default.ATOM_SIZE = 1.0;
+        Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
+        int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
+        System.out.println("nCells: "+nCells);
+        ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
+        ((PotentialMasterNbr)potentialMaster).setMaxNeighborRange(neighborRangeFac);
+
         integrator = new IntegratorHard(potentialMaster);
-//        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+        integrator.setIsothermal(false);
+        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setDoSleep(true);
+        activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(108);
+        species.setNMolecules(numAtoms);
         phase = new Phase(space);
 //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
 //        phase.setConfiguration(configuration);
         potential = new P2HardSphere(space);
-        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
-        
+//        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+
+        NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
+
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
-        integrator.addIntervalListener(new PhaseImposePbc(phase));
+ //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 
-        MeterPressureHard meterPressure = new MeterPressureHard(integrator);
-        DataManager accumulatorManager = new DataManager(meterPressure);
+ //       MeterPressureHard meterPressure = new MeterPressureHard(integrator);
+ //       DataManager accumulatorManager = new DataManager(meterPressure);
         // 	DisplayBox box = new DisplayBox();
         // 	box.setDatumSource(meterPressure);
- //       phase.setDensity(0.5);
+ //       phase.setDensity(0.7);
     } //end of constructor
 
 }//end of class

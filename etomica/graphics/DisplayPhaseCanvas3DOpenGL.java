@@ -12,6 +12,12 @@ package etomica.graphics;
 import etomica.*;
 
 import gl4java.utils.glut.*;
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomTypeOrientedSphere;
+import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeWall;
+import etomica.atom.AtomTypeWell;
+import etomica.atom.iterator.AtomIteratorList;
 import etomica.utility.java2.Iterator;
 
     /* History of changes
@@ -694,7 +700,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     if(t - T0 >= 5000) {
       double seconds = (double)(t - T0) / 1000.0;
       double fps = (double)Frames / seconds;
-      System.out.println(Frames+" frames in "+seconds+" seconds = "+fps+" FPS");
+//      System.out.println(Frames+" frames in "+seconds+" seconds = "+fps+" FPS");
       T0 = t;
       Frames = 0;
     }

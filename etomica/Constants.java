@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.data.AccumulatorAverage;
+
 /**
  * Collection of assorted physical constants.  All values
  * are in simulations units in which time is in picoseconds, length is in Angstroms,

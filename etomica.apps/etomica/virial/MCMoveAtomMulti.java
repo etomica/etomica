@@ -1,6 +1,8 @@
 package etomica.virial;
 
 import etomica.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
 
 /**
  * @author kofke
@@ -97,7 +99,7 @@ public class MCMoveAtomMulti extends MCMoveAtom {
 		}
 	}//end of main
 	/**
-	 * @see etomica.MCMove#adjustStepSize()
+	 * @see etomica.integrator.MCMove#adjustStepSize()
 	 */
 	public void adjustStepSize() {
 		super.adjustStepSize();

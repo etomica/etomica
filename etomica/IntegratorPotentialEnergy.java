@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.Integrator.IntervalEvent;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.units.Dimension;
 
 /**

@@ -7,13 +7,13 @@ package etomica.dpd;
 import etomica.AtomPair;
 import etomica.Bond;
 import etomica.EtomicaElement;
-import etomica.Potential2SoftSpherical;
 import etomica.Simulation;
 import etomica.SimulationElement;
-import etomica.Potential2Soft;
 import etomica.Space;
 import etomica.Default;
-import etomica.Potential2;
+import etomica.potential.Potential2;
+import etomica.potential.Potential2Soft;
+import etomica.potential.Potential2SoftSpherical;
 
 /**
  * The potential used for dissipative particle dynamic simulations.
@@ -32,7 +32,7 @@ public class P2DPD extends Potential2 implements Potential2Soft, EtomicaElement 
 	Space.Vector rHat, fDissipative, fConservative, fRandom, grad;
 	double bondStrength = 10.0;
 	
-	public String getVersion() {return "P2DPD:03.04.25/"+Potential2SoftSpherical.VERSION;}
+	public String getVersion() {return "P2DPD:03.04.25/"+etomica.potential.VERSION;}
 	
 	public P2DPD(){
 		this(3.0, 1.0, 1.0);
@@ -81,7 +81,7 @@ public class P2DPD extends Potential2 implements Potential2Soft, EtomicaElement 
 	}
 	/**
 	 * Not implemented
-	 * @see etomica.Potential2Soft#integral(double)
+	 * @see etomica.potential.Potential2Soft#integral(double)
 	 */
 	public double integral(double rCut) {
 		throw new etomica.exception.MethodNotImplementedException();

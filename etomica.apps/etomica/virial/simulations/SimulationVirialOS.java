@@ -1,7 +1,11 @@
 package etomica.virial.simulations;
 
 import etomica.*;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.P2LennardJones;
 import etomica.virial.*;
 import etomica.virial.overlap.*;
 import etomica.virial.cluster.*;

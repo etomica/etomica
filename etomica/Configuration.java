@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorList;
+
 /**
  * General class for assignment of coordinates to a group of atoms.
  * 

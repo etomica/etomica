@@ -5,6 +5,8 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.*;
 import etomica.models.water.*;
+import etomica.potential.Potential2;
+import etomica.potential.Potential2Soft;
 
 /** 
  * 

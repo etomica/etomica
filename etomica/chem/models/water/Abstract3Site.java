@@ -4,11 +4,15 @@
  */
 package etomica.chem.models.water;
 
+import etomica.atom.AtomTreeNodeGroupArray;
 import etomica.chem.Model;
 import etomica.chem.electrostatics.Charge;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.chem.models.*;
+import etomica.potential.Potential2;
+import etomica.potential.Potential2Soft;
+import etomica.potential.PotentialTruncation;
 import etomica.*;
 
 /**

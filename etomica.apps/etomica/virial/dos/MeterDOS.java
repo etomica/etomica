@@ -2,6 +2,7 @@ package etomica.virial.dos;
 
 import etomica.*;
 import etomica.virial.*;
+import etomica.data.meter.MeterFunction;
 import etomica.units.Dimension;
 
 /**
@@ -33,7 +34,7 @@ public class MeterDOS extends MeterFunction {
 	}
 
 	/**
-	 * @see etomica.MeterScalar#getData()
+	 * @see etomica.data.meter.MeterScalar#getData()
 	 */
 	public double[] getData() {
 		for(int i=0; i<nPoints; i++) y[i] = 0.0;

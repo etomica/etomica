@@ -3,6 +3,9 @@
  */
 package etomica.chem;
 import etomica.*;
+import etomica.atom.AtomFactory;
+import etomica.potential.PotentialTruncation;
+import etomica.potential.PotentialTruncationSimple;
 
 /**
  * Top-level class for a molecular model.

@@ -1,4 +1,5 @@
 package etomica;
+import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.units.Dimension;
 
 /**

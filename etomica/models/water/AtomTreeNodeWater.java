@@ -1,8 +1,8 @@
 package etomica.models.water;
 
 import etomica.Atom;
-import etomica.AtomTreeNodeGroup;
-import etomica.AtomTreeNode;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * To change this generated comment edit the template variable "typecomment":
@@ -28,7 +28,7 @@ public class AtomTreeNodeWater extends AtomTreeNodeGroup {
 	public Atom H1, H2, O;
 	
 	public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-		public etomica.AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
+		public etomica.atom.AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
 			return new AtomTreeNodeWater(atom, parent);
 		}
 	};

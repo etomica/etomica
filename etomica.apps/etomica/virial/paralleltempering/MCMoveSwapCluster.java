@@ -1,6 +1,11 @@
 package etomica.virial.paralleltempering;
 
 import etomica.*;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorPT;
+import etomica.integrator.MCMove;
 import etomica.virial.*;
 
 /**

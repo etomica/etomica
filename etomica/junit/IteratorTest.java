@@ -4,6 +4,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import etomica.*;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorList;
 import junit.framework.*;
 
 /**

@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.potential.Potential0Lrc;
+import etomica.potential.PotentialTruncation;
 import etomica.utility.NameMaker;
 
 /**

@@ -3,6 +3,11 @@ import etomica.*;
 
 import java.awt.*;
 //import java.util.Hashtable;
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomTypeWall;
+import etomica.atom.AtomTypeWell;
+import etomica.atom.iterator.AtomIteratorList;
 import etomica.utility.java2.Iterator;
 
     /* History of changes

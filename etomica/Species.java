@@ -1,6 +1,7 @@
 package etomica;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
+import etomica.atom.AtomFactory;
 import etomica.chem.Model;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;

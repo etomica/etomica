@@ -5,18 +5,18 @@ package etomica.dpd;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.AtomIteratorLeafAtoms;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.IntegratorMD;
 import etomica.IteratorDirective;
-import etomica.MeterTemperature;
 import etomica.Phase;
-import etomica.PotentialCalculationForceSum;
 import etomica.Simulation;
 import etomica.SimulationElement;
 import etomica.Space;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.meter.MeterTemperature;
+import etomica.integrator.IntegratorMD;
+import etomica.potential.PotentialCalculationForceSum;
 
 /**
  * Dissipative particle dynamic integrator.
@@ -36,7 +36,7 @@ import etomica.Space;
 
 public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 	
-	public String getVersion() {return "IntegratorDPD:03.04.22/"+IntegratorMD.VERSION;}
+	public String getVersion() {return "IntegratorDPD:03.04.22/"+etomica.integrator.VERSION;}
 	AtomIterator atomIterator;
 	private double t2;
 	public final PotentialCalculationForceSum forceSum;

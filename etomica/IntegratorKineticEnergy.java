@@ -1,6 +1,8 @@
 package etomica;
 
 import etomica.Integrator.IntervalEvent;
+import etomica.data.meter.MeterKineticEnergy;
+import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 
 /**

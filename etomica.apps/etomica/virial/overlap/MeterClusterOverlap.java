@@ -1,7 +1,7 @@
 package etomica.virial.overlap;
 
-import etomica.MeterScalar;
 import etomica.SimulationElement;
+import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;
 
 /**
@@ -27,7 +27,7 @@ public class MeterClusterOverlap extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.MeterScalar#getData()
+	 * @see etomica.data.meter.MeterScalar#getData()
 	 */
 	public double getData() {
 		double[] refNegative = referenceMeter.allMeters()[0].average();

@@ -1,6 +1,10 @@
 package etomica.virial;
 
 import etomica.*;
+import etomica.data.meter.MeterGroup;
+import etomica.data.meter.MeterScalar;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.units.Dimension;
 
 /**
@@ -45,7 +49,7 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	}
 
 	/**
-	 * @see etomica.MeterGroup#updateValues()
+	 * @see etomica.data.meter.MeterGroup#updateValues()
 	 */
 	public void updateValues() {
 		double pi = simulationPotential.pi((PhaseCluster)phase);

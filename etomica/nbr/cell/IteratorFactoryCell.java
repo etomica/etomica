@@ -1,11 +1,11 @@
 package etomica.nbr.cell;
 
-import etomica.ApiMolecule;
-import etomica.AtomSequencerFactory;
-import etomica.AtomsetIteratorMolecule;
-import etomica.AtomsetIteratorPhaseDependent;
 import etomica.IteratorFactory;
 import etomica.Species;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.iterator.ApiMolecule;
+import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 
 public class IteratorFactoryCell extends IteratorFactory {
 

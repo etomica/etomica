@@ -2,10 +2,10 @@ package etomica.virial;
 
 import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.Potential0;
-import etomica.PotentialCalculation;
-import etomica.PotentialCalculationEnergySum;
 import etomica.SimulationElement;
+import etomica.potential.Potential0;
+import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialCalculationEnergySum;
 
 /**
  * @author David Kofke

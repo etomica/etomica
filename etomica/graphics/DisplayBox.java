@@ -1,6 +1,7 @@
 //class includes a main method to demonstrate and test its use
 package etomica.graphics;
 import etomica.*;
+import etomica.data.meter.MeterScalar;
 
 //import etomica.units.*;
 import javax.swing.JPanel;
@@ -229,7 +230,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     public void setMeter(MeterScalar m) {
         setDatumSource(m);
     }
-    public etomica.MeterScalar getMeter() {return (etomica.MeterScalar)getDatumSource();}
+    public etomica.data.meter.MeterScalar getMeter() {return (etomica.data.meter.MeterScalar)getDatumSource();}
     
     /**
      * Demonstrates how this class is implemented.

@@ -1,4 +1,8 @@
 package etomica;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeSphere;
 import etomica.units.Dimension;
 
 /**

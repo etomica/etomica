@@ -7,6 +7,7 @@ import java.beans.*;
 //Java2 imports
 //import java.util.Iterator;
 
+import etomica.data.meter.MeterScalar;
 import etomica.utility.java2.Iterator;
 
 

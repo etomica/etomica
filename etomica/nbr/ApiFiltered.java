@@ -4,10 +4,7 @@
  */
 package etomica.nbr;
 
-import etomica.ApiMolecule;
 import etomica.Atom;
-import etomica.AtomsetFilter;
-import etomica.AtomsetIteratorMolecule;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
@@ -16,6 +13,9 @@ import etomica.Space.Vector;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
+import etomica.atom.AtomsetFilter;
+import etomica.atom.iterator.ApiMolecule;
+import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**

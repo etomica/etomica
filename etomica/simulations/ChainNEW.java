@@ -2,7 +2,16 @@ package etomica.simulations;
 import java.awt.Component;
 
 import etomica.*;
+import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorHard;
+import etomica.potential.P1TetheredHardSpheres;
+import etomica.potential.P2HardSphere;
+import etomica.potential.Potential2;
+import etomica.potential.PotentialGroup;
+
 import java.awt.*;
 import javax.swing.*;
 

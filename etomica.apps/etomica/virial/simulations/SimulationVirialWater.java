@@ -2,7 +2,14 @@ package etomica.virial.simulations;
 
 import etomica.*;
 import etomica.units.*;
+import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorList;
+import etomica.data.DataSourceCountSteps;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.virial.*;
 import etomica.virial.cluster.*;
 import etomica.virial.simulations.*;
