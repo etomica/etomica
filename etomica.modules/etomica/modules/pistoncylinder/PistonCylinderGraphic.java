@@ -353,8 +353,10 @@ public class PistonCylinderGraphic {
         pc = sim;
 
         BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
-        pc.ai.setDoSleep(true);
-        pc.ai.setSleepPeriod(1);
+        if (pc.space.D() == 2) {
+            pc.ai.setDoSleep(true);
+            pc.ai.setSleepPeriod(1);
+        }
 
         pc.integrator.setThermostatInterval(1000);
         pc.integrator.setTimeStep(0.5);
