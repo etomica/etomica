@@ -1,45 +1,22 @@
 package simulate;
 
 public abstract class Lattice {
-    
-    protected double neighborIndexCutoff;
-    
-    public Lattice() {
-        setNeighborIndexCutoff(2.5);
-    }
-    
-    public final void setNeighborIndexCutoff(double c) {neighborIndexCutoff = c; setupNeighbors();}
-    public final double getNeighborIndexCutoff() {return neighborIndexCutoff;}
-    
-    public abstract int[] dimensions();
-    public abstract int siteCount();
-    public abstract void setupNeighbors();
-    
-    public abstract double[][] getBasis();
-    public abstract void setBasis(double[][] b);
         
-    public interface Occupant {
-        public Site site();
-    }
+    public abstract int siteCount();              //total number of sites on lattice
+    public abstract Site site(Coordinate coord);  //obtain a site given some specification in coordinate
+    public abstract Site randomSite();            //get a random site
+    public abstract Site.Iterator iterator();     //iterator for all sites in lattice
+//    public abstract void draw(Graphics g, int[] origin, double scale);
+    
+    public static abstract class Coordinate {}
     
     public interface Site {
-        public Occupant first();
-        public void setFirst(Occupant o);
+        public Iterator neighborIterator();
         
-//        public Linker firstUpNeighbor();
-//        public Linker firstDownNeighbor();
-        public int[] coordinate();
-        public void setCoordinate(int[] i, double[][] basis);
-        public double neighborIndex(Site s, int[] d);
+        public interface Iterator {
+            public boolean hasNext();
+            public void reset();
+            public Site next();
+        }
     }
-    
-    public interface Point extends Site {
-        public double[] position();
-    }
-    
-    public interface Cell extends Point {
-        public double[][] vertices();
-        public double volume();
-    }
-
 }
