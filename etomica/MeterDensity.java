@@ -22,10 +22,22 @@ public class MeterDensity extends MeterScalar implements EtomicaElement
         EtomicaInfo info = new EtomicaInfo("Number density (molecules/volume) in a phase");
         return info;
     }
+    
+    public void setSpecies(Species s) {
+        species = s;
+    }
+    public Species getSpecies() {
+    	return species;
+    }
 
     public double getDataAsScalar(Phase phase) {
-        return phase.moleculeCount()/phase.volume();
+        return (species == null ? 
+        			phase.moleculeCount() : 
+        			phase.getAgent(species).moleculeCount())
+				/phase.volume();
    }
     
     public Dimension getDimension() {return new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME);}
+
+    private Species species;
 }

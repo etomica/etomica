@@ -26,7 +26,7 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
         setLabel("Pressure");
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
-        potential = simulation().hamiltonian.potential;
+        potential = simulation().potentialMaster;
         virial = new PotentialCalculationVirialSum();
     }
       
@@ -54,7 +54,7 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
   * Currently, does not include long-range correction to truncation of energy.
   */
     public double getDataAsScalar(Phase phase) {
-        double dbv = potential.calculate(phase, iteratorDirective.set(), virial.reset()).sum();
+        double dbv = potential.calculate(phase, iteratorDirective.set(), virial.zeroSum()).sum();
         return phase.getDensity()*integrator.temperature() - dbv*rD/phase.boundary().volume();
     }
     

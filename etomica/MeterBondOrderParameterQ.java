@@ -5,28 +5,21 @@ import etomica.utility.*;
 
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
    * Appropriate for 3-dimensional system only.
-   * Refer:journal Of Chemical Physics Vol.104 No.24,22nd June,1996__ Rate of crystal nucleation
+   * Refer: Journal of Chemical Physics Vol.104 No.24,22nd June,1996__ Rate of crystal nucleation
    *
    * @author Jhumpa Adhikari
    */
 
-public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElement 
-{
-    private SphericalHarmonics sh;
-    private double[] Qreal, Qimag;
-    private int L;
-    private ApiList pairIterator = new ApiList();
-    private double r2Cut;
-    private double[] rThetaPhi = new double[3];
-    private double coeff;
-    
-    public MeterBondOrderParameterQ() {this(Simulation.instance);}
+public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaElement {
+	
+    public MeterBondOrderParameterQ() {this(Simulation.getDefault());}
     
     public MeterBondOrderParameterQ(Simulation sim) {
-        super(sim);
+        super(sim, 1);
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
         setLabel("Bond Q Order Parameter");
+        cPair = sim.space.makeCoordinatePair();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -34,21 +27,27 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
         return info;
     }
 
-    public double getDataAsScalar(Phase phase) {
+    /**
+     * Returns the value of the bond-order parameter for the given phase
+     * in its current configuration.  Returned array has only one element.
+     */
+    public double[] getData(Phase phase) {
         int nbSum = 0;
         for(int m=-L; m<=L; m++) {
             int idx = m+L;
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        pairIterator.setList(phase);
+        cPair.setBoundary(phase.boundary());
+        pairIterator.setPhase(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {
-            AtomPair pair = pairIterator.next();
-            double r2 = pair.r2();
+            Atom[] pair = pairIterator.next();
+        	cPair.reset(pair[0].coord,pair[1].coord);
+        	double r2 = cPair.r2();
             if(r2 < r2Cut) {
                 nbSum += 2;
-                Space.Vector rVec = pair.dr();
+                Space.Vector rVec = cPair.dr();
                 rVec.sphericalCoordinates(rThetaPhi);
                 double theta = rThetaPhi[1];
                 double phi = rThetaPhi[2];
@@ -68,8 +67,8 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
             int idx = m+L;
             QL += Qreal[idx]*Qreal[idx] - Qimag[idx]*Qimag[idx];
         }
-        QL = Math.sqrt(coeff*QL)/(double)nbSum;
-        return QL;
+        value[0] = Math.sqrt(coeff*QL)/(double)nbSum;
+        return value;
         
     }//end of currentValue
     
@@ -88,12 +87,42 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
         
     public Dimension getDimension() {return Dimension.NULL;}
 
-    public void setIterator(AtomPairIterator iter) {pairIterator = iter;}
-    public AtomPairIterator getIterator() {return pairIterator;}
+    /**
+     * Sets the iterator that gives the atoms over which the order parameter
+     * will be calculated.  Default iterator is ApiLeafAtoms.
+     * @param iter
+     */
+    public void setIterator(AtomsetIteratorPhaseDependent iter) {
+    	if(iter.nBody() != 2) throw new IllegalArgumentException("Illegal attempt to use a non-pair iterator");
+    	pairIterator = iter;
+    }
+    /**
+     * @return the iterator giving the atoms over which the order parameter
+     * is defined.
+     */
+    public AtomsetIteratorPhaseDependent getIterator() {
+    	return pairIterator;
+    }
     
-    public double getR2Cut(){return r2Cut;}
-    public void setR2Cut(double r2c){r2Cut = r2c;}
+    public double getR2Cut(){
+    	return r2Cut;
+    }
+    
+    public void setR2Cut(double r2c){
+    	r2Cut = r2c;
+    }
 	
+    private SphericalHarmonics sh;
+    private double[] Qreal, Qimag;
+    private int L;
+    private AtomsetIteratorPhaseDependent pairIterator = new ApiLeafAtoms();
+    private double r2Cut;
+    private double[] rThetaPhi = new double[3];
+    private final double[] value = new double[1];
+    private double coeff;
+    private final Space.CoordinatePair cPair;
+    
+
 /*    public static void main(String[] args) {
         
         Default.ATOM_SIZE = 1.0;

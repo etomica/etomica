@@ -11,38 +11,34 @@ package etomica;
   * 08/29/03 (DAK) added actionPerformed(AtomSet) method because method made
   * abstract in PotentialCalculation
   */
-public class PotentialCalculationVirialSum implements PotentialCalculation {
+public class PotentialCalculationVirialSum extends PotentialCalculation {
 											 	
-	private Potential2.Soft p2Soft;
+	/**
+	 * Adds to the virial sum the energy values obtained from application of the given potential to the
+	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
+	 */
+	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
+		iterator.reset();
+		while(iterator.hasNext()) {
+			sum += ((Potential2.Soft)potential).virial(iterator.next());
+		}
+	}
 	
-    protected double sum = 0.0;
-        
-    public PotentialCalculationVirialSum() {}
-        
-    public PotentialCalculation.Summable reset() {sum = 0.0; return this;}
-    public double sum() {return sum;}
-
-	public PotentialCalculation set(Potential2 p2) {
-		if(!(p2 instanceof Potential2.Soft)) throw new RuntimeException("Error: PotentialCalculationVirialSum being used with potential that is not soft 2-body type");
-		p2Soft = (Potential2.Soft)p2;
-		return super.set(p2);
-	}
-    
-    //pair
-    public void actionPerformed(AtomPair pair) {
-         sum += p2Soft.virial(pair);
-    }//end of calculate
-    
-	public void actionPerformed(Atom atom) {
-		throw new etomica.exception.MethodNotImplementedException();
+	/**
+	 * Sets the virial sum to zero, typically to begin a new virial-sum calculation.
+	 * @return this instance, so the method can be called in-line as the instance is
+	 * passed to the PotentialMaster.
+	 */
+	public PotentialCalculationVirialSum zeroSum() {
+		sum = 0.0;
+		return this;
 	}
 
-	public void actionPerformed(Atom3 atom3) {
-		throw new etomica.exception.MethodNotImplementedException();
-	}
-
-	public void actionPerformed(AtomSet atomN) {
-		throw new etomica.exception.MethodNotImplementedException();
-	}
+	/**
+	 * Returns the current value of the energy sum.
+	 */
+	public double getSum() {return sum;}
+	
+	private double sum = 0.0;
 
  }//end VirialSum

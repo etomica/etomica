@@ -7,27 +7,33 @@ package etomica;
 import etomica.units.Dimension;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Convenience class to permit easy implementation of DataSource
+ * interface.  Defines methods to set and get labels, constructor
+ * that defines the dimension, and a simple identity translator.
+ * Subclasses need implement only the getData() method.  If a different
+ * DataTranslator is appropriate, subclass should override the getTranslator method.
  */
 public abstract class DataSourceAdapter implements DataSource {
 
-	private String label;
-	private final Dimension dimension;
-	
+	/**
+	 * Constructs a data source that returns data of the given dimension.
+	 * @param dimension physical dimension of the data from this source
+	 */
 	public DataSourceAdapter(Dimension dimension) {
 		this.dimension = dimension;
 	}
 	
-	/* (non-Javadoc)
-	 * @see etomica.DataSource#getLabel()
+	/**
+	 * Returns a string the describes the data given by this source.
 	 */
 	public String getLabel() {
 		return label;
 	}
 	
+	/**
+	 * Sets the descriptive label for this source.
+	 * @param label new value for the label
+	 */
 	public void setLabel(String label) {
 		this.label = label;
 	}
@@ -45,5 +51,8 @@ public abstract class DataSourceAdapter implements DataSource {
 	public DataTranslator getTranslator() {
 		return DataTranslator.IDENTITY;
 	}
-
+	
+	private String label;
+	private final Dimension dimension;
+	
 }

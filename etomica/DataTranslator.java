@@ -11,7 +11,9 @@ package etomica;
  * The double[] form is used internally for accumulating averages, and
  * the translator converts this simple data structure into an object
  * (such as a Space.Vector) that would more appropriately represent
- * the data.
+ * the data.  Typically the object returned by the translator will be
+ * re-used, so the client should copy the object if persistence of
+ * its data is needed.
  */
 public interface DataTranslator {
 
