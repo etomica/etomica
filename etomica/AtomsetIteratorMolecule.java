@@ -27,9 +27,6 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
 	 * two species are specified, an IllegalArgumentException is thrown.
 	 */
 	public AtomsetIteratorMolecule(Species[] species) {
-		this(species, false);
-	}
-	public AtomsetIteratorMolecule(Species[] species, boolean dummy) {
 		super(makeIterator(species));
 		this.species = (Species[])species.clone();
 		basisIterator = (AtomsetIteratorBasisDependent)iterator;

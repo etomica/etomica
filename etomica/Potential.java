@@ -27,6 +27,7 @@ public abstract class Potential {
 	 * @param sim Simulation instance in which potential is used.
 	 */
 	Potential(Simulation sim) {
+		space = sim.space;
 		nBody = 0;
 		potentialTruncation = PotentialTruncation.NULL;
 		if(!(this instanceof PotentialMaster)) throw new RuntimeException("Invalid attempt to instantiate potential");

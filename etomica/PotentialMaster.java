@@ -63,6 +63,10 @@ public class PotentialMaster extends PotentialGroup {
      * same species).
      */
     public void setSpecies(Potential potential, Species[] species) {
+    	if (potential.nBody() == 0) {
+    		addPotential(potential, new AtomsetIteratorSpeciesAgent(species));
+    		return;
+    	}
     	if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}

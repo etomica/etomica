@@ -70,7 +70,7 @@ public class PotentialGroup extends Potential {
 			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
 		}*/
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
-		//to be configured for calculation (i.e., iterators set up) first
+		//to be configured for calculation first
 		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
 			last.next = makeLinker(potential, iterator, null);
 			last = last.next;
@@ -169,7 +169,7 @@ public class PotentialGroup extends Potential {
 			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
 			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
 		}
-    	iterator.reset();
+    	iterator.reset();//loop over atom groups affected by this potential group
 		while (iterator.hasNext()) {
     		Atom[] basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {

@@ -1,5 +1,7 @@
 package etomica;
 
+import java.util.Arrays;
+
 /**
  * Iterator that expires after returning a single atom, which is
  * specified by a call to the setAtom method, or via the constructor.
@@ -15,28 +17,37 @@ package etomica;
   * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
   * 08/26/04 (DAK) revised with overhaul of iterators
   */
-public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
+public final class AtomsetIteratorSinglet implements AtomsetIterator {
     
     /**
      * Constructs iterator without defining atom.  No atoms will
      * be given by this iterator until a call to setAtom is performed.
      */
-    public AtomIteratorSinglet() {hasNext = false;}
+    public AtomsetIteratorSinglet(int nBody) {
+    	atom = new Atom[nBody];
+    	this.nBody = nBody;
+    	hasNext = false;
+    }
     
     /**
      * Constructs iterator specifying that it return the given atom.  Call
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomIteratorSinglet(Atom a) {setAtom(a);}
+    public AtomsetIteratorSinglet(Atom[] a) {
+    	this(a.length);
+    	setAtom(a);
+    }
         
     /**
      * Defines atom returned by iterator and leaves iterator unset.
      * Call to reset() must be performed before beginning iteration.
      */
-    public void setAtom(Atom a) {
-    	if (a == null) throw new NullPointerException("cannot set a null atom"); 
-    	atom[0] = a;
+    public void setAtom(Atom[] a) {
+    	for (int i=0; i<nBody; i++) {
+    		if (a[i] == null) throw new NullPointerException("cannot set a null atom");
+    	}
+    	System.arraycopy(a,0,atom,0,nBody);
     	unset();
     }
     
@@ -48,12 +59,12 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
 	public void allAtoms(AtomsetActive action) {
 		action.actionPerformed(atom);
 	}
-        
+    
     /**
      * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
      */
     public boolean contains(Atom[] a) {
-    	return (a != null && a[0] != null && a[0].equals(atom));
+    	return Arrays.equals(a,atom);
     }
     
     /**
@@ -77,12 +88,6 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public Atom nextAtom() {
-    	if (!hasNext) return null;
-    	hasNext = false;
-    	return atom[0];
-    }
-    
     public Atom[] next() {
     	if (!hasNext) return null;
     	hasNext = false;
@@ -97,9 +102,11 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     	return hasNext ? null : atom;
     }
     
-    public final int nBody() {return 1;}
+    public final int nBody() {return nBody;}
     
+    private final int nBody;
     private boolean hasNext = false;
-    private final Atom[] atom = new Atom[1];
+    private final Atom[] atom;
 
 }//end of AtomIteratorSinglet
+        
