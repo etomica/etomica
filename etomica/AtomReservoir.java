@@ -8,7 +8,7 @@ package etomica;
  */
 public class AtomReservoir extends Atom {
     
-    private int maximumCapacity;
+    private int capacity;
     private final AtomList atomList = new AtomList();
     public final AtomFactory factory;
 //    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
@@ -22,11 +22,11 @@ public class AtomReservoir extends Atom {
     /**
      * Construct reservoir that will accept up to the given number of atoms.
      */
-    public AtomReservoir(AtomFactory factory, int maximumCapacity) {
+    public AtomReservoir(AtomFactory factory, int capacity) {
         super(factory.parentSimulation().space, AtomType.NULL, new NodeFactory(), null);
         this.factory = factory;
-        if(maximumCapacity < 0) maximumCapacity = 0;
-        this.maximumCapacity = maximumCapacity;
+        if(capacity < 0) capacity = 0;
+        this.capacity = capacity;
  //       node = (AtomTreeNodeGroup)super.node;
     }
     
@@ -36,7 +36,7 @@ public class AtomReservoir extends Atom {
      */
     public void addAtom(Atom atom) {
         if(atom == null) return;
-        if(((AtomTreeNodeGroup)node).childList.size() >= maximumCapacity) atom.node.destroy();
+        if(((AtomTreeNodeGroup)node).childList.size() >= capacity) atom.node.destroy();
         else atom.node.setParent(((AtomTreeNodeGroup)node));
         //restore atom to condition when built
 //        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
@@ -58,15 +58,15 @@ public class AtomReservoir extends Atom {
      * If current number is greater, it removes atoms (least recently added
      * removed first) until maximum is reached.
      */
-    public void setMaximumCapacity(int i) {
-        maximumCapacity = i; 
-        if(maximumCapacity < 0) maximumCapacity = 0;
-        while(atomList.size() > maximumCapacity) atomList.removeFirst();
+    public void setCapacity(int i) {
+        capacity = i; 
+        if(capacity < 0) capacity = 0;
+        while(atomList.size() > capacity) atomList.removeFirst();
     }
     /**
      * Returns the maximum number of atoms the reservoir will hold.
      */
-    public int getMaximumCapacity() {return maximumCapacity;}
+    public int getCapacity() {return capacity;}
 
     /**
      * Special AtomTreeNode class for AtomReservoir.
@@ -82,7 +82,7 @@ public class AtomReservoir extends Atom {
         }
         
         public void addAtomNotify(Atom atom) {
-            if(childList.size() > reservoir.getMaximumCapacity()) {
+            if(childList.size() > reservoir.getCapacity()) {
                 atom.node.destroy();
             }
         }

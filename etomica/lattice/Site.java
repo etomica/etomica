@@ -72,6 +72,11 @@ public static class Factory extends AtomFactory {
     protected Atom build(AtomTreeNodeGroup parent) {
         return new Site(parentSimulation().space, atomType, parent);
     }
+
+    public Atom build(Atom atom) {
+        if(atom.creator() != this) throw new IllegalArgumentException("Site.factory.build(Atom) attempted using an atom that was not built by the same factory");
+        return atom;
+    }
     
 }//end of AtomFactorySite
         

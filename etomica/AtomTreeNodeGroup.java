@@ -111,6 +111,13 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         return childList.toArray();
     }
     
+    public void removeAllChildren() {
+        Atom[] array = childAtomArray();
+        for(int i=0; i<array.length; i++) {
+            array[i].sendToReservoir();
+        }
+    }
+    
     public boolean isResizable() {return true;}
     
     /**

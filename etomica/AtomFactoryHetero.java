@@ -33,7 +33,7 @@ public class AtomFactoryHetero extends AtomFactory {
     /**
      * Constructs a new group.
      */
-    protected Atom build(Atom group) {
+    public Atom build(Atom group) {
         for(int i=0; i<childFactory.length; i++) {
             childFactory[i].build((AtomTreeNodeGroup)group.node);//builds child atom with group as parent
         }

@@ -236,6 +236,8 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
  /**
   * Factory to construct an arbitrary-dimension Bravais lattice.
   */
+  //need to update to permit modification of dimensions
+  //make build(Atom) work using atom's parameters
 public static class Factory extends AtomFactoryTree {
     
      //dimension of lattice equals the number of primitive vectors
@@ -262,7 +264,7 @@ public static class Factory extends AtomFactoryTree {
         leafIterator.reset();
         group.siteList = new AtomList(leafIterator);
         //assign primitive if not already set for group (would be set if this is a rebuild call)
-        if(group.getPrimitive() != null) group.setPrimitive(primitive.copy());
+        if(group.getPrimitive() == null) group.setPrimitive(primitive.copy());
         else group.update();
         return group;
     }

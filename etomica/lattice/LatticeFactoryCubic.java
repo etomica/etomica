@@ -2,6 +2,10 @@ package etomica.lattice;
 import etomica.*;
 
 //02.04.02
+/**
+ * Trivial subclass of BravaisLattice.Factory that selects a PrimitiveCubic
+ * primitive and provides methods for setting lattice constant.
+ */
 
 public class LatticeFactoryCubic extends BravaisLattice.Factory {
     
@@ -23,6 +27,14 @@ public class LatticeFactoryCubic extends BravaisLattice.Factory {
                                 int[] dimensions, double latticeConstant) {
         super(sim, siteFactory, dimensions, new PrimitiveCubic(sim));
         ((PrimitiveCubic)primitive).setSize(latticeConstant);
+    }
+    
+       
+    public void setLatticeConstant(double a) {
+        ((PrimitiveCubic)primitive).setSize(a);
+    }
+    public double getLatticeConstant() {
+        return ((PrimitiveCubic)primitive).getSize();
     }
     
     /**

@@ -1,24 +1,26 @@
 package etomica.lattice;
 import etomica.*;
 
-public class LatticeCubicFcc extends Atom {
+public class LatticeCubicFcc extends Atom implements AbstractLattice {
     
    private double latticeConstant;
     
-   private AtomList siteList;
+   private final AtomList siteList = new AtomList();
    private int[] dimensions;
    private final int D = 3;
+   private int[] idx = new int[D];
    
    /**
     * Constructor should be invoked only within a build() method of the
     * Factory class.  The build method handles the construction of the
     * substructure under this instance, which forms the lattice.
     */
-   private LatticeCubicFcc(Space space, AtomType type, int[] dimensions, AtomTreeNodeGroup parent) {
+   private LatticeCubicFcc(Space space, AtomType type, int[] dimensions, AtomTreeNodeGroup parent,
+                            double a) {
         super(space, type, parent);
-        if(space.D() != 3) throw IllegalArgumentException("Error in LatticeCubicFcc constructor:  Given space is not 3D");
-        idx = new int[D];
+        if(space.D() != 3) throw new IllegalArgumentException("Error in LatticeCubicFcc constructor:  Given space is not 3D");
         this.dimensions = new int[dimensions.length];
+        latticeConstant = a;
         System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
    }
    
@@ -27,7 +29,8 @@ public class LatticeCubicFcc extends Atom {
      * using a simple site factory (Site.Factory).
      */
     public static LatticeCubicFcc makeLattice(Simulation sim, int nSites, double boxSize) {
-        return makeLattice(sim, getSize(nSites), getLatticeConstant(nSites,boxSize), new Site.Factory()); 
+        return makeLattice(sim, new Site.Factory(sim), calculateSize(nSites), 
+                            calculateLatticeConstant(nSites,boxSize)); 
     }
     /**
      * Creates an fcc lattice with the given number of sites in a box of the given size,
@@ -35,14 +38,15 @@ public class LatticeCubicFcc extends Atom {
      */
     public static LatticeCubicFcc makeLattice(Simulation sim, AtomFactory siteFactory, 
                                                 int nSites, double boxSize) {
-        return makeLattice(sim, getSize(nSites), getLatticeConstant(nSites,boxSize), factory); 
+        return makeLattice(sim, siteFactory, calculateSize(nSites), 
+                            calculateLatticeConstant(nSites,boxSize)); 
     }
     /**
      * Creates an fcc lattice with 4*dimensions[1]*dimensions[2]*dimensions[3] sites, using the given lattice constant
      * and a simple site factory.
      */
     public static LatticeCubicFcc makeLattice(Simulation sim, int[] dimensions, double latticeConstant) {
-        return makeLattice(sim, new Site.Factory(), dimensions, latticeConstant);
+        return makeLattice(sim, new Site.Factory(sim), dimensions, latticeConstant);
     }
     
     public static LatticeCubicFcc makeLattice(Simulation sim, AtomFactory siteFactory, 
@@ -55,7 +59,7 @@ public class LatticeCubicFcc extends Atom {
      * the given number of sites.  
      * Returns the smallest k such that 4*k^3 is greater than or equal to n.
      */
-    private static int[] getSize(int n) {
+    private static int[] calculateSize(int n) {
         if(n <= 0) return new int[] {0, 0, 0};
         int nLat = 0;
         int k = 0;
@@ -66,18 +70,28 @@ public class LatticeCubicFcc extends Atom {
         return new int[] {k, k, k};
     }
     
-    private static double getLatticeConstant(int nSites, double boxSize) {
-        int n = getSize(nSites)[0];
+    private static double calculateLatticeConstant(int nSites, double boxSize) {
+        int n = calculateSize(nSites)[0];
         return boxSize/(double)n;
     }
 
-    
+
     public int[] dimensions() {return dimensions;}
+    public int[] getDimensions() {return dimensions;}
+    public void setDimensions(int[] dim) {
+        if(dim.length != 3) throw new IllegalArgumentException("Incorrect length of dimensions array given to LatticeCubicFcc.setDimensions");
+        for(int i=0; i<dim.length; i++) {
+            dimensions[i] = dim[i];
+        }
+        rebuild();
+    }
     
     public void setLatticeConstant(double a) {
+        if(a < 0) throw new IllegalArgumentException("Invalid (negative) value given to LatticeCubicFcc.setLatticeConstant");
         latticeConstant = a;
         update();
     }
+    public double getLatticeConstant() {return latticeConstant;}
     
     
     /**
@@ -95,11 +109,15 @@ public class LatticeCubicFcc extends Atom {
     }
     
     /**
-     * Returns the site corresponding to the given index.
+     * Returns the site corresponding to the given index.  First index entry
+     * indicates one of the four simple-cubic sublattices (acceptable values
+     * for this entry are 0, 1, 2, or 3); the remaining three entries indicate
+     * the element of selected simple-cubic sublattice. 
      */
      //needs work to improve probable inefficiency with list.get
      //and to handle index values out of size of lattice
     public Site site(int[] idx) {
+        if(idx.length != 4) throw new IllegalArgumentException("Length of array given to LatticeCubicFcc.site(int[]) is incorrect; must be of length 4");
         Atom site = this;
         int i=0;
         do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
@@ -114,6 +132,8 @@ public class LatticeCubicFcc extends Atom {
      */
     public AtomList siteList() {return siteList;}
     
+    public int siteCount() {return siteList.size();}
+    
     /**
      * Returns the spatial dimension of this lattice.
      */
@@ -127,12 +147,21 @@ public class LatticeCubicFcc extends Atom {
     public String signature() {return "LatticeCubicFcc";}
     
     /**
+     * Reconstructs all sites of the lattice.  Invoked when dimensions of
+     * lattice are changed.
+     */
+    public void rebuild() {
+        creator().build(this);
+    }
+     
+    
+    /**
      * Causes all coordinates to update their position vectors, and
      * notifies any observers that a change has occurred.
      */
     public void update() {
-        type.creator().getConfiguration().initializePositions(this);
-        notifyObservers();
+        creator().getConfiguration().initializePositions(this);
+//        notifyObservers();
     }//end of update
     
     public void setupNeighbors(NeighborManager.Criterion criterion) {
@@ -148,12 +177,12 @@ public class LatticeCubicFcc extends Atom {
         int n = siteCount();
         Space.Vector[] r = new Space.Vector[n];
         for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
-        SiteIterator iteratorsites = iterator();
+        AtomIteratorList iteratorsites = new AtomIteratorList(siteList);
         iteratorsites.reset();
         int i = 0;
         while (iteratorsites.hasNext()){
-            Site site = iteratorsites.next();
-            r[i++].E(((AbstractLattice.PositionCoordinate)site.coordinate()).position());
+            Atom site = iteratorsites.next();
+            r[i++].E(site.coord.position());
         }
         return r;
     }//end of positions
@@ -179,6 +208,9 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
     
     public AdjacencyCriterion(BravaisLattice lattice) {
         this.lattice = lattice;
+        
+        //need to rewrite areNeighbors method
+        throw new RuntimeException("LatticeCubicFcc.AdjacencyCriterion not yet implemented");
     }
     
     /**
@@ -224,6 +256,9 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
 public static class Factory extends AtomFactory {
         
     private LatticeFactoryCubic subFactory;
+    private double latticeConstant;
+    private int[] dimensions;
+    private AtomFactory siteFactory;
     
     /**
      * Creates an fcc lattice with 4*dimensions[1]*dimensions[2]*dimensions[3] sites, 
@@ -231,26 +266,60 @@ public static class Factory extends AtomFactory {
      */
     public Factory(Simulation sim, AtomFactory siteFactory, int[] dimensions, double latticeConstant) {
         super(sim);
+        this.siteFactory = siteFactory;
+        this.dimensions = new int[dimensions.length];
+        System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
         this.latticeConstant = latticeConstant;
-        subFactory = new LatticeFactoryCubic(sim, siteFactory, dimensions, latticeConstant);
-        configuration = new Configuration4();
+        configuration = new Configuration4(sim.space,latticeConstant);
     }
     
+    /**
+     * Instantiates and builds a new fcc lattice using the latticeConstant, dimensions,
+     * and atomFactory as currently set in this factory.
+     */
     public Atom build(AtomTreeNodeGroup parent) {
-        AtomGroup group = new LatticeCubicFcc(parentSimulation.space, groupType, parent);
+        Atom group = new LatticeCubicFcc(parentSimulation.space, groupType, dimensions, parent, latticeConstant);
         return build(group);
     }
     
+    /**
+     * Builds the given atom into an fcc lattice.  Uses the current values of latticeConstant
+     * and dimensions of the atom, and constructs sites using this factory's atomFactory.
+     */
     public Atom build(Atom atom) {
         if(!(atom instanceof LatticeCubicFcc)) throw new IllegalArgumentException("Error in LatticeFactoryCubicFcc.build(Atom):  Attempt to build atom group from a leaf atom");
-        for(int i=0; i<4; i++) subFactory.makeAtom(group);
-        new Configuration4(((LatticeCubicFcc)group).latticeConstant).initializePositions(group);
+        LatticeCubicFcc group = (LatticeCubicFcc)atom;
+        ((AtomTreeNodeGroup)group.node).removeAllChildren();
+        LatticeFactoryCubic subFactory = 
+            new LatticeFactoryCubic(parentSimulation, siteFactory, group.getDimensions(), group.getLatticeConstant());
+        for(int i=0; i<4; i++) subFactory.makeAtom((AtomTreeNodeGroup)group.node);
+        //set up siteList
+        AtomIteratorTree leafIterator = new AtomIteratorTree(group);
+        leafIterator.reset();
+        group.siteList.clear();
+        group.siteList.addAll(leafIterator);
+        //position sites
+        configuration.initializePositions(group);
+        return atom;
     }
     
-    public double latticeConstant() {return latticeConstant;}
+    public double getLatticeConstant() {return latticeConstant;}
+    public void setLatticeConstant(double a) {latticeConstant = a;}
     
-    private class Configuration4 extends Configuration {
+    private static class Configuration4 extends Configuration {
 
+        private double latticeConstant;
+        Configuration4(Space s, double a) {
+            super(s);
+            latticeConstant = a;
+        }
+        
+        public void initializePositions(Atom atom) {
+            LatticeCubicFcc lattice = (LatticeCubicFcc)atom;
+            latticeConstant = lattice.getLatticeConstant();
+            super.initializePositions(atom);
+        }
+        
         public void initializePositions(AtomIterator[] iterators) {
             AtomIterator iterator = iterators[0];
             int i = 0;
@@ -280,7 +349,7 @@ public static class Factory extends AtomFactory {
             return p;
         }//end of unitCell  
     }//end of Configuration4
-        
+}//end of Factory   
  /*     public static class Criterion1 implements SiteIterator.Neighbor.Criterion{
                 Space3D.BoundaryPeriodicSquare periodicBoundary = new Space3D.BoundaryPeriodicSquare(8.0,8.0,8.0);
                 public boolean areNeighbors(Site site1,Site site2){
@@ -297,5 +366,144 @@ public static class Factory extends AtomFactory {
                 }
       }
    */ 
+   
+    /**
+     * Main method to demonstrate use of BravaisLattice and to aid debugging
+     */
+    public static void main(String[] args) {
+        System.out.println("main method for LatticeCubicFcc");
+        Space space = new Space3D();
+        Simulation sim = new Simulation(space);
+        Simulation.instance = sim;
+        int D = space.D();
+        final int nx = 2, ny = 1, nz = 2;
+        LatticeCubicFcc lattice = LatticeCubicFcc.makeLattice(sim, 
+                                new Site.Factory(sim),
+                                new int[] {nx,ny,nz},
+                                1.0);        
+        System.out.println("Total number of sites: "+lattice.siteList().size());
+        System.out.println();
+        System.out.println("Coordinate printout");
+        AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
+        iterator.reset();
+        while(iterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(iterator.next().coord.position().toString()+" ");
+        }
+        System.out.println();
+        
+        System.out.println("Same, using allAtoms method");
+        AtomAction printSites = new AtomAction() {
+            public void actionPerformed(Atom s) {
+                System.out.print(s.coord.position().toString()+" ");
+       //         System.out.println(((Site)s).latticeCoordinate()[1]);
+                if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
+            }
+        };
+        iterator.allAtoms(printSites);
+        System.out.println();
+        
+        System.out.println();
+        System.out.println("Changing dimensions");
+        lattice.setDimensions(new int[] {nx, ny+1, nz});
+        iterator.allAtoms(printSites);
+        System.out.println();
+        
+        Atom testSite = lattice.site(new int[] {0,1,0,1});
+        int[] idx = null;
+        
+        System.out.println();
+        System.out.println("Translating lattice by (-1.0, 2.0, 0.0)");
+        lattice.coord.translateBy(Space.makeVector(new double[] {-1.0, 2.0, 0.0}));
+        iterator.allAtoms(printSites);
+        System.out.println();
+ 
+        System.out.println();
+        System.out.println("Translating to origin");
+        lattice.shiftFirstToOrigin();
+        iterator.allAtoms(printSites);
+        System.out.println();
+   /*     
+        System.out.print("Accessing site (1,1): ");
+        testSite = lattice.site(new int[] {1,1});
+        idx = ((Site)testSite).latticeCoordinate();
+        System.out.println(testSite.toString()+testSite.coord.position().toString());
+        System.out.print("latticeCoordinate: ");
+        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+        System.out.println();
+        System.out.println();
+        
+        System.out.print("Accessing site (2,0): ");
+        testSite = lattice.site(new int[] {2,0});
+        idx = ((Site)testSite).latticeCoordinate();
+        System.out.println(testSite.toString()+testSite.coord.position().toString());
+        System.out.print("latticeCoordinate: ");
+        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+        System.out.println();
+        System.out.println();
+ /*       
+        lattice.setupNeighbors(new AdjacencyCriterion(lattice));
+        SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
+        nbrIterator.setBasis(testSite);
+
+        System.out.println("Sites up-neighbor to this site:");
+        nbrIterator.reset(IteratorDirective.UP);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("Sites down-neighbor to this site:");
+        nbrIterator.reset(IteratorDirective.DOWN);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("All neighbors of this site:");
+        nbrIterator.reset(IteratorDirective.BOTH);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+
+        System.out.print("A randomly selected site: ");
+        testSite = lattice.siteList().getRandom();
+        idx = ((Site)testSite).latticeCoordinate();       
+        System.out.println(testSite.toString());
+        System.out.print("latticeCoordinate: ");
+        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+        System.out.println();
+        
+        nbrIterator.setBasis(testSite);
+
+        System.out.println("Sites up-neighbor to this site:");
+        nbrIterator.reset(IteratorDirective.UP);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("Sites down-neighbor to this site:");
+        nbrIterator.reset(IteratorDirective.DOWN);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("All neighbors of this site:");
+        nbrIterator.reset(IteratorDirective.BOTH);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+ */      
+    }//end of main
+   
     
-}
+}//end of LatticeCubicFcc

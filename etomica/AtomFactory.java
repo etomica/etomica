@@ -66,7 +66,7 @@ public abstract class AtomFactory {
      * Builds an atom from the one given, attaching child atoms as appropriate
      * for the definition of the concrete subclass.
      */
-    protected abstract Atom build(Atom atom);
+    public abstract Atom build(Atom atom);
     
 //    protected abstract void renew(Atom a);
     

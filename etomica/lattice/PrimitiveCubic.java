@@ -32,6 +32,10 @@ public class PrimitiveCubic extends Primitive {
         this.size = size;
         if(lattice != null) lattice.update();
     }
+    /**
+     * Returns the common length of all primitive vectors.
+     */
+    public double getSize() {return size;}
     
     public int[] latticeIndex(Space.Vector q) {
         for(int i=0; i<D; i++) idx[i] = (int)(q.component(i)/size);
@@ -79,7 +83,10 @@ public class UnitCellFactory extends AtomFactory {
     protected Atom build(AtomTreeNodeGroup parent) {
         return new UnitCell(space, atomType, parent);
     }
-    
+    public Atom build(Atom atom) {
+        if(!(atom instanceof UnitCell)) throw new IllegalArgumentException("PrimitiveCubic.UnitCellFactory.build(Atom) attempted using an atom that is not an instance of UnitCell");
+        return atom;
+    }
 }//end of UnitCellFactory
 
 ///////////////////////////////////////////////////////////////////////////////////////////

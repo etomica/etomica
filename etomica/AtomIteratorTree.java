@@ -168,7 +168,7 @@ public class AtomIteratorTree implements AtomIterator {
     public Atom getBasis() {return basis.atom();}
     
     /**
-     * Not yet implemented.
+     * Returns the number of iterates given by a full cycle of this iterator.
      */
     public int size() {
         if(basis == null) return 0;

@@ -35,7 +35,7 @@ public class AtomFactoryMono extends AtomFactory {
     /**
      * Simply returns the given atom.
      */
-    protected Atom build(Atom atom) {return atom;}
+    public Atom build(Atom atom) {return atom;}
     
     public boolean vetoAddition(Atom a) {return (a.type != atomType);}
     

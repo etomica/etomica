@@ -9,6 +9,7 @@ public class PrimitiveOrthorhombic extends Primitive {
     
     public PrimitiveOrthorhombic(Simulation sim) {
         super(sim);
+        size = new double[sim.space.D()];
         //set up orthogonal vectors of unit size
         setSize(1.0);
     }
@@ -93,6 +94,11 @@ public class UnitCellFactory extends AtomFactory {
      */
     protected Atom build(AtomTreeNodeGroup parent) {
         return new UnitCell(space, atomType, parent);
+    }
+
+    public Atom build(Atom atom) {
+        if(!(atom instanceof UnitCell)) throw new IllegalArgumentException("PrimitiveCubic.UnitCellFactory.build(Atom) attempted using an atom that is not an instance of UnitCell");
+        return atom;
     }
     
 }//end of UnitCellFactory
