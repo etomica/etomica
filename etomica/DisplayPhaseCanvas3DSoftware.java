@@ -352,7 +352,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
                 RenderingHints.VALUE_RENDER_SPEED);
             g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
                 RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            if(highQuality) {
+            if(quality>=DRAW_QUALITY_HIGH) {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                     RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
@@ -367,7 +367,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         displayPhase.computeImageParameters2(w, h);
 
         //Draw other features if indicated
-        if(displayPhase.getDrawBoundary()) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
+        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 
         // Update Atom Positions
         for(int i = 0, k = 0; i < atoms.length; i++, k+=3) {

@@ -3,6 +3,21 @@ import java.awt.*;
 import java.awt.event.*;
 
 public interface DisplayCanvasInterface {
+
+    //Quality Constants
+    static final int DRAW_QUALITY_VERY_LOW = 0;
+    static final int DRAW_QUALITY_LOW = 1;
+    static final int DRAW_QUALITY_NORMAL = 2;
+    static final int DRAW_QUALITY_HIGH = 3;
+    static final int DRAW_QUALITY_VERY_HIGH = 4;
+    static final int DRAW_QUALITY_MAX = 5;
+    //Boundary Constants
+    static final int DRAW_BOUNDARY_NONE = 0;
+    static final int DRAW_BOUNDARY_OUTLINE = 1;
+    static final int DRAW_BOUNDARY_SHELL = 2;
+    static final int DRAW_BOUNDARY_ALL = 3;
+    static final int DRAW_BOUNDARY_MAX = 4;
+    
     public void createOffScreen();
     public void createOffScreen(int p);
     public void createOffScreen(int w, int h);
@@ -16,8 +31,16 @@ public interface DisplayCanvasInterface {
     public boolean isResizable();
     public void setWriteScale(boolean s);
     public boolean getWriteScale();
-    public void setHighQuality(boolean q);
-    public boolean getHighQuality();
+    public void setQuality(int q);
+    public int getQuality();
+    public void setDrawBoundary(int b);
+    public int getDrawBoundary();
+    //public boolean getDrawOverflow();
+    //public void setDrawOverflow(boolean b);
+    //public double getScale();
+    //public void setScale(double s);
+    //public int getImageShells();
+    //public void setImageShells(int n);
     public void initialize();
     public void addMouseListener(MouseListener listener);
     public void addMouseMotionListener(MouseMotionListener listener);

@@ -405,7 +405,7 @@ public final class Phase extends SimulationElement {
      * (children of the species agents) in this phase.
      */
     public AtomIterator makeMoleculeIterator() {
-        return new AtomIteratorGrandchildren(speciesMaster);
+        return new AtomIteratorCompound(speciesMaster);
     }//end of makeMoleculeIterator
     
     /**

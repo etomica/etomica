@@ -1,26 +1,30 @@
 package etomica;
-import etomica.units.*;
-import etomica.lattice.*;
+import etomica.units.Dimension;
 
 /**
  * General class for assignment of coordinates to a group of atoms.
+ * 
+ * @author David Kofke
  */
 public abstract class Configuration implements java.io.Serializable {
 
-    private AtomIteratorSequential iterator = new AtomIteratorSequential();
     protected double temperature = Default.TEMPERATURE;
-    protected final Space.Vector work;
     protected final Space space;
     
     public Configuration(Space space) {
         this.space = space;
-        work = space.makeVector();
     }
 
     public final void setTemperature(double t) {temperature = t;}
     public final double getTemperature() {return temperature;}
     public final Dimension getTemperatureDimension() {return Dimension.TEMPERATURE;}
-
+        
+    public abstract void initializePositions(AtomIterator[] iterator);
+    
+    public void initializePositions(AtomIterator iterator) {
+        initializePositions(new AtomIterator[] {iterator});
+    }
+    
  /**   
   * All atom velocities are set such that all have the same total momentum (corresponding to
   * the current value of temperature), with the direction at random
@@ -28,17 +32,20 @@ public abstract class Configuration implements java.io.Serializable {
     public void initializeMomenta(Atom atom) {
         atom.coord.randomizeMomentum(temperature);
     }//end of initializeMomenta
-        
     
     public void initializeCoordinates(Atom group) {
-        iterator.setBasis(group);
-        initializeCoordinates(iterator);
+        initializePositions(new AtomIteratorSequential(group));
+        initializeMomenta(group);
     }
     
-    public abstract void initializeCoordinates(AtomIterator iterator);
-    
-    public final static boolean HORIZONTAL = false;
-    public final static boolean VERTICAL = true;
+    public void initializeCoordinates(Atom[] group) {
+        AtomIterator[] iterators = new AtomIterator[group.length];
+        for(int i=0; i<group.length; i++) {
+            iterators[i] = new AtomIteratorSequential(group[i]);
+            initializeMomenta(group[i]);
+        }
+        initializePositions(iterators);
+    }
 
     public static Space1D.Vector[] lineLattice(int n, double Lx) {
         Space1D.Vector[] r = new Space1D.Vector[n];
@@ -104,5 +111,5 @@ public abstract class Configuration implements java.io.Serializable {
 	        }
 	    }
 	    return r;
-    }
+    }//end of squareLattice
 }//end of Configuration

@@ -49,8 +49,9 @@ public class ConfigurationLinear extends Configuration {
     * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
     * center of mass unchanged from the value before method was called
     */
-    public void initializeCoordinates(AtomIterator iterator) {
+    public void initializePositions(AtomIterator[] iterators) {
         
+        AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);
         int size = iterator.size();
         if(iterator.size() == 0) return;
             

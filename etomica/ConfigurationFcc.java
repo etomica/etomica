@@ -7,25 +7,17 @@ public class ConfigurationFcc extends Configuration {
         super(space);
     }
     
-    //need to revise so that coordinates of given group are
-    //initialized, instead of parentphase object
-    public void initializeCoordinates(AtomIterator iterator){
+    public void initializePositions(AtomIterator[] iterators){
+        AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);//lump 'em all together
         if(iterator == null || iterator.size() == 0) {return;}
         if(iterator.size() == 1) {
             iterator.reset();
             iterator.next().coord.translateTo(space.origin());
             return;
         }
-        
-///        Phase parentPhase = group.parentPhase();
     
     // Count number of molecules
-      int sumOfMolecules = iterator.size();
- /* ///       for(SpeciesAgent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            sumOfMolecules += s.moleculeCount();
-        }
-        */
+        int sumOfMolecules = iterator.size();
         if(sumOfMolecules == 0) {return;}
         
         Space3D.Vector[] rLat = new Space3D.Vector[sumOfMolecules];
@@ -37,17 +29,7 @@ public class ConfigurationFcc extends Configuration {
         while(iterator.hasNext()) {
             iterator.next().coord.translateTo(rLat[i++]);
         }
-        /*
-        for(SpeciesAgent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            iterator.setBasis(s);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                iterator.next().coord.translateTo(rLat[i++]);
-            }
-        }*/
-        initializeMomenta(iterator.getBasis());
-    }
+    }//end of initializePositions
     
     public static Space3D.Vector[] lattice(int n) { 
         Space3D.Vector[] r = new Space3D.Vector[n];
@@ -62,6 +44,5 @@ public class ConfigurationFcc extends Configuration {
             i++ ;
         }
         return r;
-    }
-    
-}
+    }//end of lattice
+}//end of ConfigurationFcc

@@ -285,8 +285,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         }
     }
             
-    public void setDrawBoundary(boolean b) {drawBoundary = b;}
-    public boolean getDrawBoundary() {return drawBoundary;}
+//    public void setDrawBoundary(boolean b) {drawBoundary = b;}
+//    public boolean getDrawBoundary() {return drawBoundary;}
 
     /**
     * Flag specifying whether a line tracing the boundary of the display should be drawn
@@ -358,8 +358,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         
         public void mouseClicked(MouseEvent evt) {
             canvas.requestFocus();
-            if(parentSimulation().space().D() == 3 && Default.DISPLAY_USE_OPENGL)
-            ((DisplayPhaseCanvas3DOpenGL)canvas).start();
+            //if(parentSimulation().space().D() == 3 && Default.DISPLAY_USE_OPENGL)
+            //((DisplayPhaseCanvas3DOpenGL)canvas).start();
         }
         public void mouseEntered(MouseEvent evt) {canvas.requestFocus();}
         public void mouseExited(MouseEvent evt) {canvas.transferFocus();}
@@ -380,13 +380,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
              if(atomSelected || moleculeSelected) mouseAction(evt);
            float x = evt.getX();
             float y = evt.getY();
-            
-            if(false && (rotate || zoom || translate)) {
-                for(Iterator iter=parentSimulation().controllerList().iterator(); iter.hasNext(); ) {
-                    Controller obj = (Controller)iter.next();
-                    obj.getButton().clickForPause();
-                }
-            }
             
             if (rotate  && parentSimulation().space().D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
@@ -556,10 +549,12 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                         drawOverflow = !drawOverflow;
                         break;
                     case 'b':
-                        setDrawBoundary(!getDrawBoundary());
+                        canvas.setDrawBoundary(canvas.getDrawBoundary()+1);
+//                        setDrawBoundary(!getDrawBoundary());
                         break;
                     case 'q':
-                        canvas.setHighQuality(!canvas.getHighQuality());
+                        canvas.setQuality(canvas.getQuality()+1);
+//                        canvas.setHighQuality(!canvas.getHighQuality());
                         break;
                     default:
                         break;

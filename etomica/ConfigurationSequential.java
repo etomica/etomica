@@ -15,25 +15,29 @@ public class ConfigurationSequential extends Configuration {
 
     private boolean fill;
     private final AtomIteratorSequential iterator = new AtomIteratorSequential();
+    private Space.Vector dimensions;
     
     public ConfigurationSequential(Space space) {
         super(space);
         setFillVertical(true);
+        dimensions = space.makeVector();
+        dimensions.E(Default.BOX_SIZE);
     }
+    
+    public void setDimensions(Space.Vector dimensions) {this.dimensions = dimensions;}
     
     public void setFillVertical(boolean b) {fill = b;}
     public boolean getFillVertical() {return fill;}
     
-    public void initializeCoordinates(AtomIterator iterator) {
-        
-        Phase phase = iterator.getBasis().parentPhase();
-        
-        if(phase == null) return;
-        double Lx = phase.dimensions().component(0);
+    public void initializePositions(AtomIterator[] iterators) {
+
+        AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);//lump 'em all together
+
+        double Lx = dimensions.component(0);
         double Ly = 0.0;
         double Lz = 0.0;
-        if(phase.parentSimulation().space().D()>1)  Ly = phase.dimensions().component(1);
-        if(phase.parentSimulation().space().D()>2)  Lz = phase.dimensions().component(2);
+        if(dimensions.length()>1)  Ly = dimensions.component(1);
+        if(dimensions.length()>2)  Lz = dimensions.component(2);
 
         int sumOfMolecules = iterator.size();
         
@@ -63,6 +67,5 @@ public class ConfigurationSequential extends Configuration {
             i++;
         }
    //     initializeMomenta(phase.speciesMaster());
-        initializeMomenta(iterator.getBasis());
     }
 }

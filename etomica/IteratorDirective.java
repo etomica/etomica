@@ -22,6 +22,17 @@ public final class IteratorDirective implements java.io.Serializable {
     }
     
     /**
+     * Puts directive in default state of no atoms specified, up direction, no
+     * potential criteria applied.
+     */
+    public IteratorDirective clear() {
+        set(UP);
+        set();
+        potentialCriteriaHead = null;
+        return this;
+    }
+    
+    /**
      * Puts all settings of this directive to equal those of the given directive.
      */
     public void copy(IteratorDirective id) {

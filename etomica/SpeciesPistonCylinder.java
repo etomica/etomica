@@ -241,7 +241,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
       PistonCylinderConfiguration(Space s) {
         super(s);
       }
-      public void initializeCoordinates(AtomIterator iter) {/*no implementation*/}
+      public void initializePositions(AtomIterator[] iter) {/*no implementation*/}
       public void initializeCoordinates(Atom atom) {
         AtomGroup m = (AtomGroup)atom;
         AtomIterator iterator = new AtomIteratorSequential(m);

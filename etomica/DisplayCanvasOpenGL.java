@@ -31,9 +31,16 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     boolean writeScale = false;
     
     /**
-     *  Sets the quality of the rendered image, false = low, true = high
+     * Variable that sets the quality of the rendered image.
      */
-    boolean highQuality = false;
+    int quality = DRAW_QUALITY_NORMAL;
+          
+    /**
+     * Variable specifying whether a line tracing the boundary of the display should be drawn
+     * Default value is <code>BOUNDARY_OUTLINE</code>
+     */
+    int drawBoundary = DRAW_BOUNDARY_OUTLINE;
+        
 
     public DisplayCanvasOpenGL(int width, int height) {
         super(width, height);
@@ -75,8 +82,23 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     public boolean isResizable() {return resizable;}
     public void setWriteScale(boolean s) {writeScale = s;}
     public boolean getWriteScale() {return(writeScale);}
-    public void setHighQuality(boolean q) {highQuality = q;}
-    public boolean getHighQuality() {return(highQuality);}
+
+    public void setQuality(int q) {
+      if(q>DRAW_QUALITY_VERY_HIGH)
+        q-=DRAW_QUALITY_MAX;
+      if(q<DRAW_QUALITY_VERY_LOW)
+        q+=DRAW_QUALITY_MAX;
+      quality = q;
+    }
+    public int getQuality() {return(quality);}
+    public void setDrawBoundary(int b) {
+      if(b>DRAW_BOUNDARY_ALL)
+        b-=DRAW_BOUNDARY_MAX;
+      else if(b<DRAW_BOUNDARY_NONE)
+        b+=DRAW_BOUNDARY_MAX;
+      drawBoundary = b;
+    }
+    public int getDrawBoundary() {return drawBoundary;}
 
     public void setMinimumSize(Dimension temp) {}
     public void setMaximumSize(Dimension temp) {}

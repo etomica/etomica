@@ -143,7 +143,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
                 RenderingHints.VALUE_RENDER_SPEED);
             g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
                 RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            if(highQuality) {
+            if(quality>=DRAW_QUALITY_HIGH) {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                     RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
@@ -158,7 +158,8 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         displayPhase.computeImageParameters2(w, h);
 
         //Draw other features if indicated
-        if(displayPhase.getDrawBoundary()) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
+        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
+//        if(displayPhase.getDrawBoundary()) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 
         //do drawing of all drawing objects that have been added to the display
         for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {

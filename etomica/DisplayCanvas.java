@@ -19,6 +19,12 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
     protected PhaseAction.Inflate inflate;
 
     /**
+    * Variable specifying whether a line tracing the boundary of the display should be drawn
+    * Default value is <code>BOUNDARY_OUTLINE</code>
+    */
+    int drawBoundary = DRAW_BOUNDARY_OUTLINE;
+
+    /**
      * Flag to indicate if display can be resized
      */
     boolean resizable = false;
@@ -26,6 +32,11 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
      * Flag to indicate if display can be moved
      */
     boolean movable = false;
+
+    /**
+     * Variable that sets the quality of the rendered image.
+     */
+    int quality = DRAW_QUALITY_NORMAL;
 
     /** 
      * Flag to indicate if value of scale should be superimposed on image
@@ -79,8 +90,24 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
 
     public void setWriteScale(boolean s) {writeScale = s;}
     public boolean getWriteScale() {return(writeScale);}
-    public void setHighQuality(boolean q) {highQuality = q;}
-    public boolean getHighQuality() {return(highQuality);}
+
+    public void setQuality(int q) {
+      if(q > DRAW_QUALITY_VERY_HIGH)
+        q -= DRAW_QUALITY_MAX;
+      if(q < DRAW_QUALITY_VERY_LOW)
+        q += DRAW_QUALITY_MAX;
+      quality = q;
+    }
+    public int getQuality() {return(quality);}
+    
+    public void setDrawBoundary(int b) {
+      if(b>DRAW_BOUNDARY_ALL)
+        b-=DRAW_BOUNDARY_MAX;
+      else if(b<DRAW_BOUNDARY_NONE)
+        b+=DRAW_BOUNDARY_MAX;
+      drawBoundary = b;
+    }
+    public int getDrawBoundary() {return drawBoundary;}
 
     public void initialize() {}
 

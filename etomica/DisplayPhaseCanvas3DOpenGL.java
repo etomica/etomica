@@ -35,8 +35,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private final float LightSpecular[] = { 1f, 1f, 1f, 1f };
   private final float LightDiffuse[] = { 0.93f, 0.93f, 0.93f, 1f };
   private final float LightPosition[] = { 1f, 1f, 3f, 0f };
-  private int sphereList; // Storage number for our sphere
-  private int wellList; // Storage number for our wells
+  private int sphereList[]; // Storage number for our sphere
+  private int wellList[]; // Storage number for our wells
   private int displayList; // Storage number for displaying image shells
   private double sphereListRadius = 0f;
   private double wellListRadius = 0f;
@@ -48,7 +48,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private final static byte mR=(byte)255, mG=(byte)10, mB=(byte)60;
   
   //Variables for translations and zooms
-  private float shiftZ = -30f, shiftX = 0f, shiftY = 0f;
+  private float shiftZ = -70f, shiftX = 0f, shiftY = 0f;
   //Rotation Variables
   private float prevx, prevy, xRot = 0f, yRot = 0f;
   //Centers the phase in the canvas
@@ -69,15 +69,14 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private float[][] originShifts;
   private double[][] shellOrigins;
 
-  //Local function variables (primarily used in display())
+  //Local function variables (primarily used in display(), drawDisplay(), and drawBoundary())
+  private float xCent, yCent, zCent;
   private java.awt.Color lastColor;
   private long T0 = 0, Frames = 0;
   private java.awt.Color c;
   private etomica.Atom a;
   private Space.Vector r;
-  private int i, j;
-      
-  float cva[][];
+  private int i, j, k;
   
   //private TextField scaleText = new TextField();
   //private Font font = new Font("sansserif", Font.PLAIN, 10);
@@ -165,9 +164,15 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Enables Smooth Color Shading
     gl.glShadeModel(GL_SMOOTH);
     
-    sphereList = gl.glGenLists(3);
-    wellList = sphereList + 1;
-    displayList = wellList + 1;
+    sphereList = new int[DRAW_QUALITY_MAX];
+    wellList = new int[DRAW_QUALITY_MAX];
+    sphereList[0] = gl.glGenLists(11);
+    wellList[0] = sphereList[0] + 1;
+    for(j = 1; j < DRAW_QUALITY_MAX; j++) {
+      sphereList[j] = wellList[j-1] + 1;
+      wellList[j] = sphereList[j] + 1;
+    }
+    displayList = wellList[DRAW_QUALITY_MAX-1] + 1;
     
     setUseRepaint(true);
     setUseFpsSleep(true);
@@ -258,25 +263,43 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //glu.gluPerspective(45, (float)width/(float)height, 0.1, 100.0);//orig
     gl.glMatrixMode(GL_MODELVIEW);
     gl.glLoadIdentity();
-    gl.glViewport(0,0,width,height);
+//    gl.glViewport(0,0,width,height);
   }
 
   private void initSphereList(double sphereRadius) {
-    //cva = gluSphere.gluSmoothSphere(this.gl, sphereRadius, 7);
-    //gl.glEnableClientState (GL_VERTEX_ARRAY);
-    //gl.glEnableClientState (GL_NORMAL_ARRAY);
-    //gl.glNormalPointer (GL_FLOAT, 0, cva[0]);
-    //gl.glVertexPointer (3, GL_FLOAT, 0, cva[1]);
-    gl.glNewList(sphereList, GL_COMPILE);
-    gluSphere.gluSmoothSphere(this.gl, sphereRadius, 7);
-    //gl.glDrawArrays (GL_TRIANGLE_STRIP, 0, cva[0].length);
+    gl.glNewList(sphereList[DRAW_QUALITY_VERY_LOW], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, sphereRadius, 2);
+    gl.glEndList();
+    gl.glNewList(sphereList[DRAW_QUALITY_LOW], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, sphereRadius, 4);
+    gl.glEndList();
+    gl.glNewList(sphereList[DRAW_QUALITY_NORMAL], GL_COMPILE);
+     gluSphere.gluSmoothSphere(this.gl, sphereRadius, 7);
+    gl.glEndList();
+    gl.glNewList(sphereList[DRAW_QUALITY_HIGH], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, sphereRadius, 9);
+    gl.glEndList();
+    gl.glNewList(sphereList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, sphereRadius, 11);
     gl.glEndList();
     sphereListRadius = sphereRadius;
   }
       
   private void initWellList(double wellRadius) {
-    gl.glNewList(wellList, GL_COMPILE);
+    gl.glNewList(wellList[DRAW_QUALITY_VERY_LOW], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, wellRadius, 2);
+    gl.glEndList();
+    gl.glNewList(wellList[DRAW_QUALITY_LOW], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, wellRadius, 4);
+    gl.glEndList();
+    gl.glNewList(wellList[DRAW_QUALITY_NORMAL], GL_COMPILE);
     gluSphere.gluSmoothSphere(this.gl, wellRadius, 7);
+    gl.glEndList();
+    gl.glNewList(wellList[DRAW_QUALITY_HIGH], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, wellRadius, 10);
+    gl.glEndList();
+    gl.glNewList(wellList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
+    gluSphere.gluSmoothSphere(this.gl, wellRadius, 13);
     gl.glEndList();
     wellListRadius = wellRadius;
   }
@@ -298,26 +321,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   }
 
   private void drawDisplay() {
-    rightClipPlane[3] = leftClipPlane[3] = (displayPhase.getPhase().boundary().dimensions().component(0)*.5);
-    topClipPlane[3] = bottomClipPlane[3] = (displayPhase.getPhase().boundary().dimensions().component(1)*.5);
-    backClipPlane[3] = frontClipPlane[3] = (displayPhase.getPhase().boundary().dimensions().component(2)*.5);
-    xCenter = (float)leftClipPlane[3];
-    yCenter = (float)bottomClipPlane[3];
-    zCenter = (float)frontClipPlane[3];
-    
-    gl.glClipPlane(GL_CLIP_PLANE0, rightClipPlane);
-    gl.glClipPlane(GL_CLIP_PLANE1, leftClipPlane);
-    gl.glClipPlane(GL_CLIP_PLANE2, topClipPlane);
-    gl.glClipPlane(GL_CLIP_PLANE3, bottomClipPlane);
-    gl.glClipPlane(GL_CLIP_PLANE4, backClipPlane);
-    gl.glClipPlane(GL_CLIP_PLANE5, frontClipPlane);
-    
-    gl.glEnable(GL_CLIP_PLANE0);
-    gl.glEnable(GL_CLIP_PLANE1);
-    gl.glEnable(GL_CLIP_PLANE2);
-    gl.glEnable(GL_CLIP_PLANE3);
-    gl.glEnable(GL_CLIP_PLANE4);
-    gl.glEnable(GL_CLIP_PLANE5);
 
     /* do drawing of all drawing objects that have been added to the display */
     /*for(java.util.Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
@@ -342,7 +345,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
           lastColor = c;
         }
         gl.glPushMatrix();
-        gl.glTranslatef(vertWalls[i],vertWalls[i+1],vertWalls[i+2]);
+        gl.glTranslatef(vertWalls[i], vertWalls[i+1], vertWalls[i+2]);
         //!!! Draw wall here
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
@@ -350,7 +353,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
             j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0],originShifts[j][1],originShifts[j][2]);
+              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
               //!!! Draw wall here
               gl.glPopMatrix();
             }
@@ -382,8 +385,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(sphereListRadius != ((AtomType.Sphere)a.type).radius())
           initSphereList(((AtomType.Sphere)a.type).radius());
         gl.glPushMatrix();
-        gl.glTranslatef(vertSphereCores[i],vertSphereCores[i+1],vertSphereCores[i+2]);
-        gl.glCallList(sphereList);
+        gl.glTranslatef(vertSphereCores[i], vertSphereCores[i+1], vertSphereCores[i+2]);
+        gl.glCallList(sphereList[getQuality()]);
         //gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
@@ -391,8 +394,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
             j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0],originShifts[j][1],originShifts[j][2]);
-              gl.glCallList(sphereList);
+              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+              gl.glCallList(sphereList[getQuality()]);
               gl.glPopMatrix();
             }
           }
@@ -409,16 +412,16 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(wellListRadius != ((AtomType.Well)a.type).wellRadius())
           initWellList(((AtomType.Well)a.type).wellRadius());
         gl.glPushMatrix();
-        gl.glTranslatef(vertSphereCores[vertSphereWellBase[i]],vertSphereCores[vertSphereWellBase[i]+1],vertSphereCores[vertSphereWellBase[i]+2]);
-        gl.glCallList(wellList);
+        gl.glTranslatef(vertSphereCores[vertSphereWellBase[i]], vertSphereCores[vertSphereWellBase[i]+1], vertSphereCores[vertSphereWellBase[i]+2]);
+        gl.glCallList(wellList[getQuality()]);
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0],originShifts[j][1],originShifts[j][2]);
-              gl.glCallList(wellList);
+              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+              gl.glCallList(wellList[getQuality()]);
               gl.glPopMatrix();
             }
           }
@@ -432,7 +435,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       while((--i) >= 0) {
         a = sphereRotators[i];
         gl.glPushMatrix();
-        gl.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]],vertSphereCores[vertSphereRotatorBase[i]+1],vertSphereCores[vertSphereRotatorBase[i]+2]);
+        gl.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]], vertSphereCores[vertSphereRotatorBase[i]+1], vertSphereCores[vertSphereRotatorBase[i]+2]);
         ///!!! Draw rotator orientation here
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
@@ -440,7 +443,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
             j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0],originShifts[j][1],originShifts[j][2]);
+              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
               ///!!! Draw rotator orientation here
               gl.glPopMatrix();
             }
@@ -450,21 +453,26 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       }
     }
     
-    gl.glDisable(GL_CLIP_PLANE0);
-    gl.glDisable(GL_CLIP_PLANE1);
-    gl.glDisable(GL_CLIP_PLANE2);
-    gl.glDisable(GL_CLIP_PLANE3);
-    gl.glDisable(GL_CLIP_PLANE4);
-    gl.glDisable(GL_CLIP_PLANE5);
-    
     //Draw other features if indicated
-    if(displayPhase.getDrawBoundary()) {
+    if(drawBoundary >= DRAW_BOUNDARY_ALL) {
+      gl.glDisable(GL_CLIP_PLANE0);
+      gl.glDisable(GL_CLIP_PLANE1);
+      gl.glDisable(GL_CLIP_PLANE2);
+      gl.glDisable(GL_CLIP_PLANE3);
+      gl.glDisable(GL_CLIP_PLANE4);
+      gl.glDisable(GL_CLIP_PLANE5);
       gl.glDisable(GL_LIGHT0);
       gl.glDisable(GL_LIGHTING);
       gl.glColor3ub((byte)0, (byte)-1, (byte)-1);
-      drawBoundary();
+      drawBoundary(0);
       gl.glEnable(GL_LIGHT0);
       gl.glEnable(GL_LIGHTING);
+      gl.glEnable(GL_CLIP_PLANE0);
+      gl.glEnable(GL_CLIP_PLANE1);
+      gl.glEnable(GL_CLIP_PLANE2);
+      gl.glEnable(GL_CLIP_PLANE3);
+      gl.glEnable(GL_CLIP_PLANE4);
+      gl.glEnable(GL_CLIP_PLANE5);
     }
   }
               
@@ -494,7 +502,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Reset The View
     gl.glLoadIdentity();
     //Translate & Zoom to the desired position
-    gl.glTranslatef(shiftX, shiftY, shiftZ);
+    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<7));
     //Rotate accordingly
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);
@@ -502,9 +510,34 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Color all atoms according to colorScheme in DisplayPhase
     displayPhase.getColorScheme().colorAllAtoms();
 
+    xCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(0)*.5);
+    yCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(1)*.5);
+    zCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(2)*.5);
+    rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
+    topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
+    backClipPlane[3] = frontClipPlane[3] = zCenter + ((2*zCenter)*displayPhase.getImageShells());
+
+    gl.glClipPlane(GL_CLIP_PLANE0, rightClipPlane);
+    gl.glClipPlane(GL_CLIP_PLANE1, leftClipPlane);
+    gl.glClipPlane(GL_CLIP_PLANE2, topClipPlane);
+    gl.glClipPlane(GL_CLIP_PLANE3, bottomClipPlane);
+    gl.glClipPlane(GL_CLIP_PLANE4, backClipPlane);
+    gl.glClipPlane(GL_CLIP_PLANE5, frontClipPlane);
+
+    gl.glEnable(GL_CLIP_PLANE0);
+    gl.glEnable(GL_CLIP_PLANE1);
+    gl.glEnable(GL_CLIP_PLANE2);
+    gl.glEnable(GL_CLIP_PLANE3);
+    gl.glEnable(GL_CLIP_PLANE4);
+    gl.glEnable(GL_CLIP_PLANE5);
+
     //Draw periodic images if indicated
     // The following if() block sets up the display list.
     if(displayPhase.getImageShells() > 0) {
+      if(displayPhase.getImageShells() == 1) j=DRAW_QUALITY_LOW;
+      else if(displayPhase.getImageShells() > 1) j=DRAW_QUALITY_VERY_LOW;
+      k = getQuality();
+      setQuality(j);
       shellOrigins = displayPhase.getPhase().boundary().imageOrigins(displayPhase.getImageShells());
       //more efficient to save rather than recompute each time
       gl.glNewList(displayList, GL_COMPILE_AND_EXECUTE);
@@ -521,7 +554,32 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         gl.glCallList(displayList);
         gl.glPopMatrix();
       }
+      setQuality(k);
     }
+
+    gl.glDisable(GL_CLIP_PLANE0);
+    gl.glDisable(GL_CLIP_PLANE1);
+    gl.glDisable(GL_CLIP_PLANE2);
+    gl.glDisable(GL_CLIP_PLANE3);
+    gl.glDisable(GL_CLIP_PLANE4);
+    gl.glDisable(GL_CLIP_PLANE5);
+    
+    //Draw other features if indicated
+    if(drawBoundary >= DRAW_BOUNDARY_OUTLINE) {
+      gl.glDisable(GL_LIGHT0);
+      gl.glDisable(GL_LIGHTING);
+      gl.glColor3ub((byte)0, (byte)-1, (byte)-1);
+      drawBoundary(displayPhase.getImageShells());
+      if (drawBoundary == DRAW_BOUNDARY_SHELL) {
+        j = displayPhase.getImageShells();
+        while((--j) >= 0) {
+          drawBoundary(j);
+        } 
+      }
+      gl.glEnable(GL_LIGHT0);
+      gl.glEnable(GL_LIGHTING);
+    }
+    
 
     Frames++;
     long t=System.currentTimeMillis();
@@ -539,32 +597,35 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //!!!glj.gljCheckGL();
   }
         
-  private void drawBoundary() {
+  private void drawBoundary(int num) {
+    xCent = xCenter+((2*xCenter)*num);
+    yCent = yCenter+((2*yCenter)*num);
+    zCent = zCenter+((2*zCenter)*num);
     gl.glBegin(GL_LINES);
-    gl.glVertex3f(-xCenter, yCenter, zCenter);
-    gl.glVertex3f(xCenter, yCenter, zCenter);
-    gl.glVertex3f(xCenter, yCenter, zCenter);
-    gl.glVertex3f(xCenter, -yCenter, zCenter);
-    gl.glVertex3f(xCenter, -yCenter, zCenter);
-    gl.glVertex3f(-xCenter, -yCenter, zCenter);
-    gl.glVertex3f(-xCenter, -yCenter, zCenter);
-    gl.glVertex3f(-xCenter, -yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, -yCenter, -zCenter);
-    gl.glVertex3f(xCenter, -yCenter, -zCenter);
-    gl.glVertex3f(xCenter, -yCenter, -zCenter);
-    gl.glVertex3f(xCenter, yCenter, -zCenter);
-    gl.glVertex3f(xCenter, yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, yCenter, zCenter);
-    gl.glVertex3f(xCenter, yCenter, zCenter);
-    gl.glVertex3f(xCenter, yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, -yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, yCenter, -zCenter);
-    gl.glVertex3f(xCenter, -yCenter, zCenter);
-    gl.glVertex3f(xCenter, -yCenter, -zCenter);
-    gl.glVertex3f(-xCenter, yCenter, zCenter);
-    gl.glVertex3f(-xCenter, -yCenter, zCenter);
+    gl.glVertex3f(-xCent, yCent, zCent);
+    gl.glVertex3f(xCent, yCent, zCent);
+    gl.glVertex3f(xCent, yCent, zCent);
+    gl.glVertex3f(xCent, -yCent, zCent);
+    gl.glVertex3f(xCent, -yCent, zCent);
+    gl.glVertex3f(-xCent, -yCent, zCent);
+    gl.glVertex3f(-xCent, -yCent, zCent);
+    gl.glVertex3f(-xCent, -yCent, -zCent);
+    gl.glVertex3f(-xCent, -yCent, -zCent);
+    gl.glVertex3f(xCent, -yCent, -zCent);
+    gl.glVertex3f(xCent, -yCent, -zCent);
+    gl.glVertex3f(xCent, yCent, -zCent);
+    gl.glVertex3f(xCent, yCent, -zCent);
+    gl.glVertex3f(-xCent, yCent, -zCent);
+    gl.glVertex3f(-xCent, yCent, -zCent);
+    gl.glVertex3f(-xCent, yCent, zCent);
+    gl.glVertex3f(xCent, yCent, zCent);
+    gl.glVertex3f(xCent, yCent, -zCent);
+    gl.glVertex3f(-xCent, -yCent, -zCent);
+    gl.glVertex3f(-xCent, yCent, -zCent);
+    gl.glVertex3f(xCent, -yCent, zCent);
+    gl.glVertex3f(xCent, -yCent, -zCent);
+    gl.glVertex3f(-xCent, yCent, zCent);
+    gl.glVertex3f(-xCent, -yCent, zCent);
     gl.glEnd();
   }
     
