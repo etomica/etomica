@@ -36,14 +36,11 @@ public class Atom implements java.io.Serializable {
         	node.setIndex(NO_PARENT_INSTANCE_COUNT++);
         }
         
-//        coord.setMass(type.getMass());//handled in type.initialize statement
-        
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
         for(int i=0; i<agentSource.length; i++) {
             allatomAgents[i] = agentSource[i].makeAgent(this);
         }
         seq.setParentNotify(parent);//added 08/11/03 (DAK)
-        type.initialize(this);
     }
     
     /**

@@ -26,7 +26,7 @@ import etomica.nbr.NeighborManagerAgent;
   */
 
 public class AtomType implements java.io.Serializable {
-    public static String getVersion() {return "AtomType:01.11.20";}
+
     public static Parameter.Source[] parameterSource = new Parameter.Source[0];
     private final AtomFactory creator;
     public Parameter[] parameter;
@@ -40,7 +40,7 @@ public class AtomType implements java.io.Serializable {
     
     private final NeighborManagerAgent neighborManagerAgent;
     
-    public double mass;
+    public double mass, rm;
     
 //    private Parameter.Electrostatic electroParameter;
     
@@ -50,7 +50,6 @@ public class AtomType implements java.io.Serializable {
     public AtomType(AtomFactory creator, double mass) {
         this.creator = creator;
         
-        this.mass = mass;
         //update linked list of instances
         this.previousInstance = lastInstance;
         lastInstance = this;
@@ -60,6 +59,8 @@ public class AtomType implements java.io.Serializable {
         for(int i=0; i<parameter.length; i++) {
             parameter[i] = parameterSource[i].makeParameter();
         }
+        setMass(mass);
+
 //        System.out.println("AtomType constructor:"+mass);
         neighborManagerAgent = new NeighborManagerAgent();
     }
@@ -92,20 +93,6 @@ public class AtomType implements java.io.Serializable {
     
     public AtomFactory creator() {return creator;}
     
-    public Simulation simulation() {return creator.simulation();}
-
-    /**
-     * Returns default coordinate type, which has no orientational component.
-     * Override for atom types that require other coordinate features.
-     */
-/*    public Space.Coordinate makeCoordinate(Atom a) {
-        return a.parentSimulation().space().makeCoordinate(a);
-    }
-*/
-    public void initialize(Atom a) {
-        a.coord.setMass(mass);
-    }
-            
     /**
     * Sets  mass of this atom and updates reciprocal mass accordingly.  Setting
     * mass to largest machine double (Double.MAX_VALUE) causes reciprocal mass 
@@ -113,9 +100,14 @@ public class AtomType implements java.io.Serializable {
     * 
     * @param mass   new value for mass
     */
-    public void setMass(double m) {massParameter.setMass(m);}
+    public void setMass(double m) {
+        massParameter.setMass(m);
+        mass = m;
+        rm = (m==Double.MAX_VALUE) ? 0.0 : 1.0/mass;
+    }
     public final double getMass() {return massParameter.getMass();}
     public final Dimension getMassDimension() {return Dimension.MASS;}
+    public final double rm() {return rm;}
 
     public NeighborManagerAgent getNbrManagerAgent() {
     	return neighborManagerAgent;
@@ -181,10 +173,6 @@ public class AtomType implements java.io.Serializable {
             updateI();
         }
         public double[] momentOfInertia() {return I;}
-        
-        public Space.Coordinate makeCoordinate(Atom a) {
-            return a.node.parentSimulation().space().makeCoordinate(a); //override changes nothing, but this may change if revise method in Space
-        }
         
         private void updateI() {
             if(I == null) return;
@@ -350,10 +338,7 @@ public class AtomType implements java.io.Serializable {
             
             private double timeSum;
             public MeterPressure() {
-                this(Simulation.instance);
-            }
-            public MeterPressure(Simulation sim) {
-                super(sim);
+               super();
             }
             public etomica.units.Dimension getDimension() {return etomica.units.Dimension.PRESSURE;}
 

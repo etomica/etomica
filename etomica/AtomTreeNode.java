@@ -128,10 +128,6 @@ public abstract class AtomTreeNode {
     }
                 
     /**
-     * Simulation in which this atom resides
-     */
-    public Simulation parentSimulation() {return atom.type.simulation();}        
-    /**
      * Phase in which this atom resides
      */
     public Phase parentPhase() {//return parentPhase;}//parentNode.parentPhase();}
