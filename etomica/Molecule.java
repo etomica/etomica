@@ -67,6 +67,7 @@ public class Molecule implements Space.Occupant, Serializable {
     }
   }
   
+  public final Phase parentPhase() {return parentPhase;}
   public final Space.Coordinate coordinate() {return coordinate;}
 
  /**
@@ -119,7 +120,7 @@ public class Molecule implements Space.Occupant, Serializable {
  /**
   * @return the phase in which this molecule resides
   */
-  public final Phase getPhase() {return parentPhase;}
+//  public final Phase getPhase() {return parentPhase;}
   
   public final double mass() {
     if(nAtoms==1) {return firstAtom.type.mass();}

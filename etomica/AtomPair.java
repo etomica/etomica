@@ -2,7 +2,7 @@ package simulate;
 
 public class AtomPair {
     public Atom atom1, atom2;
-    public final Space.CoordinatePair cPair;
+    public Space.CoordinatePair cPair;
     public Potential potential;
     public AtomPair() {cPair = null;}
     public AtomPair(Phase phase) {
@@ -15,6 +15,11 @@ public class AtomPair {
     }
     public void reset() {
         cPair.reset(atom1.coordinate(), atom2.coordinate());
+    }
+    public void reset(Atom a1, Atom a2, Space.CoordinatePair cp) {
+        atom1 = a1;
+        atom2 = a2;
+        cPair = cp;
     }
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}

@@ -12,6 +12,7 @@ public abstract class Space {
 
     interface Occupant {
         public Coordinate coordinate();
+        public Phase parentPhase();
         public double mass();
         public double rm();
     }
@@ -42,6 +43,7 @@ public abstract class Space {
         protected final Space.Occupant parent;        
         Coordinate(Occupant p) {parent = p;}          //constructor
         public final Space.Occupant parent() {return parent;}
+        public final Phase parentPhase() {return parent.parentPhase();}
         public abstract Vector makeVector();
         public abstract Vector position();
         public abstract Vector momentum();

@@ -19,7 +19,7 @@ public class Space2D extends Space {
         }
     }
         
-    public static final class Vector implements Space.Vector {  //declared final for efficient method calls
+    public static class Vector implements Space.Vector {  //declared final for efficient method calls
         public static final Random random = new Random();
         public static final Vector ORIGIN = new Vector(0.0,0.0);
         double x, y;
