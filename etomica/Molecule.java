@@ -414,7 +414,7 @@ public class Molecule implements Space.Occupant, Serializable {
    * Molecule.Container
    * Interface for molecule reservoirs and phases
    */
-  public interface Container extends Simulation.Element {
+  public interface Container {
  /** addMolecule should first remove molecule from original container, then
   *  do what is necessary to add molecule to new container
   */

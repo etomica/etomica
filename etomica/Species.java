@@ -670,12 +670,12 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
             species = s;
         }
         
-        //Simulation.Element interface extended by Molecule.Container
+/*        //Simulation.Element interface extended by Molecule.Container
         public Simulation parentSimulation() {return species.parentSimulation();}
         public Class baseClass() {return Species.Reservoir.class;}
         public final boolean wasAdded() {return added;}
         public final void setAdded(boolean b) {added = b;}
-
+*/
         public Molecule nextMolecule() {return next;}  //peek
 
       /**

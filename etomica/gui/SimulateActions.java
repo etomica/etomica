@@ -29,12 +29,7 @@ import java.io.FilenameFilter;
 import simulate.*;
 
 public class SimulateActions {
-    
-    /**
-     * Static action listener for select the space of a simulation
-     */
-    public static final ActionListener SELECTSPACE = new SelectSpaceAction();
-    
+        
     /**
      * Static action listener for opening the editor window corresponding to the current simulation
      */
@@ -101,150 +96,14 @@ public class SimulateActions {
     private static SimulationEditorFrame editorFrame;
 
     /**
-     * Static mutator method for setting the JInternalFrame that contains the simulation.instance object
-     */
-    public static void setApplet(SimulationFrame applet) {appletFrame = applet;}
-    
-    /**
-     * Static accessor method that returns the JInternalFrame that contains the simulation.instance object
-     */
-    public static JInternalFrame getApplet(){ return appletFrame; }
-
-    /**
-     * Static mutator method that sets the editor window that corresponds to the current simulation
-     */
-    public static void setSimulationEditorFrame(SimulationEditorFrame frame){ editorFrame = frame; }
-    
-    /**
-     * Static accessor method that gets the editor window that corresponds to the current simulation
-     */
-    public static SimulationEditorFrame getSimulationEditorFrame(){ return editorFrame; }
-
-    /**
-     * Static class that handles the select space action
-     */
-    public static class SelectSpaceAction implements ActionListener, java.io.Serializable {
-        
-        public void actionPerformed(ActionEvent event) {
-	        final JInternalFrame spaceFrame = new JInternalFrame("Space",
-	            true, // resizable
-	            true, // closable
-	            true, // maximizable
-	            true); // iconifiable
-    	        
-            //BasicInternalFrameUI bifUI = new BasicInternalFrameUI(spaceFrame);
-            //BasicToolBarUI btbUI = new BasicToolBarUI();
-		    spaceFrame.getContentPane().setLayout(new GridLayout(0,1));
-		    //((JComponent)spaceFrame).setUI(btbUI.createUI(((JComponent)spaceFrame)));
-		    ButtonGroup dimension = new ButtonGroup();
-		    
-		    /**
-		     * This section creates the radio buttons for all the classes that subclass space.class, makes
-		     * them mutually exclusive, and adds buttonlisteners so that the selected button is known
-		     */
-		    for(int i=0; i<spaceClasses.length; i++) {
-                String name = spaceClasses[i].getName();
-                int idx = 13;//name.indexOf("r");  //strip off simulate.Space prefix
-                name = name.substring(idx+1);
-                JRadioButton button = new JRadioButton(name,i==0);
-                dimension.add(button);
-                spaceFrame.getContentPane().add(button);
-            }// end of radio button creation
-            
-            /**
-             * This section creates the "OK" button that when pressed creates an instance of 
-             * simulation.instance, adds it to an internal frame, and opens the corresponding editor 
-             * window. 
-             */
-            JButton oK = new JButton("OK");
-            oK.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e){
-                        try{
-                            EtomicaMenuBar.editSimulationItem.setEnabled(true);
-                            spaceFrame.setClosed(true);
-                            java.awt.Component[] allComponents = spaceFrame.getContentPane().getComponents();
-                            // Run through all the space radio buttons
-                            for(int j = 0; j < allComponents.length-1; j++){
-                                // See which one is selected
-                                if (((javax.swing.JRadioButton)allComponents[j]).isSelected()){
-                                // Create SimulationFrame
-                                    setApplet(new SimulationFrame(((javax.swing.AbstractButton)allComponents[j]).getText()));
-                                    getApplet().addInternalFrameListener(new MyInternalFrameAdapter(){
-                                        // When the simulation is closed, all of the tabs in the simulation editor
-                                        // pane are reset to get ready for a new simulation
-                                        public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt){
-                                            EtomicaMenuBar.selectSpaceItem.setEnabled(true);
-                                            EtomicaMenuBar.editSimulationItem.setEnabled(false);
-                                            getSimulationEditorFrame().getSimulationEditor().resetAllComponentLists();
-                                            getSimulationEditorFrame().getSimulationEditor().setAllStart(false);
-                                            getSimulationEditorFrame().getSimulationEditor().setAllRemove(false);
-                                            getSimulationEditorFrame().getSimulationEditor().potential1Editor.setNumOSpecies(0);
-                                            getSimulationEditorFrame().getSimulationEditor().potential2Editor.setNumOSpecies(0);
-                                            getSimulationEditorFrame().getSimulationEditor().potential1Editor.update();
-                                            getSimulationEditorFrame().getSimulationEditor().potential2Editor.update();
-                                            try {
-                                                getSimulationEditorFrame().setClosed(true);
-                                            }
-                                            catch(java.beans.PropertyVetoException pve){}
-                                        }});// end of resetting simulation editor pane
-                                    getApplet().reshape(520, 60, 470, 600);
-                                    getApplet().setVisible(false);
-                                    Etomica.DesktopFrame.desktop.add(getApplet());
-                                // End creation of SimulationFrame    
-                                    
-                                // Create SimulationEditorFrame
-                                    setSimulationEditorFrame(new SimulationEditorFrame());
-                                    getSimulationEditorFrame().addInternalFrameListener(new MyInternalFrameAdapter(){
-                                        public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt){
-                                            EtomicaMenuBar.editSimulationItem.setEnabled(true);
-                                        }});
-                                    getSimulationEditorFrame().setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-                                    getSimulationEditorFrame().reshape(10, 60, 500, 600);
-                                    getSimulationEditorFrame().setVisible(true);
-                                    Etomica.DesktopFrame.desktop.add(getSimulationEditorFrame());
-                                // End creation of SimulationEditorFrame
-                                
-                                // Update MenuBars
-                                    EtomicaMenuBar.editSimulationItem.setEnabled(false);
-                                    EtomicaMenuBar.serEditItem.setEnabled(true);
-                                    EtomicaMenuBar.serAppletItem.setEnabled(true);
-                                    try{ 
-                                        getSimulationEditorFrame().setSelected(true);
-                                    }
-                                    catch(PropertyVetoException exc){} // attempt was vetoed
-                                }// end of manipulations necessary based on the selected space class
-                            }// end of loop that runs through all of the space classes
-                        }
-                        catch(PropertyVetoException pve){}
-                    }// end of actionPerformed
-                    });// end of OK Button
-            spaceFrame.getContentPane().add(oK);
-		    spaceFrame.reshape(412, 200, 200, 200);
-		    spaceFrame.setVisible(true);
-		    Etomica.DesktopFrame.desktop.add(spaceFrame);
-
-		    try{
-		        spaceFrame.setSelected(true);
-		    }
-		    catch(PropertyVetoException e){} // attempt was vetoed
-		}// end of actionPerformed
-	
-	    public static class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {}
-    }// end of SelectSpaceAction class
-
-    /**
      * Static class that handles the edit simulation action
      */
     private static class EditSimulationAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
             EtomicaMenuBar.editSimulationItem.setEnabled(false);
-            try {
-                SimulateActions.getSimulationEditorFrame().setClosed(false);
-                SimulateActions.getSimulationEditorFrame().setSelected(true);
-            }
-            catch(PropertyVetoException pve){}
-            Etomica.DesktopFrame.desktop.add(SimulateActions.getSimulationEditorFrame());
+            Etomica.simulationEditorFrame.setSimulationEditor(new SimulationEditor(Simulation.instance));
+            Etomica.simulationEditorFrame.setVisible(true);
         }// end of actionPerformed
     }// end of EditSimulationAction class
     
@@ -272,6 +131,8 @@ public class SimulateActions {
      */
     static {
         // Initialization of spaceClasses array
+        
+        //spaceclasses is moved to Etomica, so if everything works this segment can be deleted
 	    File dir = new File(simulate.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {

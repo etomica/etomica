@@ -445,7 +445,12 @@ public class Mediator implements java.io.Serializable {
              */
             public void add(Device device) {
                 java.awt.Component component = device.graphic(null);
-                mediator.parentSimulation().devicePanel.add(component);
+                if(device instanceof DeviceTable) {
+                    mediator.parentSimulation().displayPanel.add(component);
+                }
+                else {
+                    mediator.parentSimulation().devicePanel.add(component);
+                }
             }
         }//end of Default
     }//end of DeviceNull

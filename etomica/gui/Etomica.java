@@ -22,6 +22,10 @@ import javax.swing.JMenuItem;
 public class Etomica {
     
     public static java.util.LinkedList simulationList = new java.util.LinkedList();
+    public static Class[] spaceClasses;
+    public static final SimulationEditorFrame simulationEditorFrame = new SimulationEditorFrame();
+    public static java.util.HashMap simulationFrames = new java.util.HashMap(8);
+    public static int instanceCount = 0;
     
     /**
      * This static main method creates an instance DesktopFrame which is a JFrame that contains all 
@@ -33,6 +37,7 @@ public class Etomica {
         simulate.Simulation.inEtomica = true;
         DesktopFrame frame = new DesktopFrame();
         frame.show();
+        addSimulation(Simulation.instance);  //uncomment to run in debugger
     }
     
     /**
@@ -41,12 +46,44 @@ public class Etomica {
      */
     public static void addSimulation(Simulation sim) {
         simulationList.add(sim);
+        //Give name to simulation if it doesn't have one, or if its present name begins with Simulation
+        if(sim.getName()==null || sim.getName().startsWith("Simulation")) 
+                    sim.setName("Simulation" + Integer.toString(instanceCount));
+        instanceCount++;
+        sim.elementCoordinator.go();
+        
         JMenuItem item = new JMenuItem(sim.toString());
         java.awt.event.ActionListener listener = new SimulateActions.SelectSimulationAction(sim);
         item.addActionListener(listener);
         listener.actionPerformed(null); //make new simulation the current one
+        
         EtomicaMenuBar.simulationMenu.add(item);
-    }
+        EtomicaMenuBar.editSimulationItem.setEnabled(true);
+        
+    // Create SimulationFrame
+        SimulationFrame simulationFrame = new SimulationFrame(sim);
+        simulationFrames.put(sim, simulationFrame);
+        simulationFrame.reshape(520, 60, 470, 600);
+        simulationFrame.setVisible(false);
+        Etomica.DesktopFrame.desktop.add(simulationFrame);
+    // End creation of SimulationFrame   
+    
+        SimulationEditor simulationEditor = new SimulationEditor(sim);
+        simulationEditorFrame.setSimulationEditor(simulationEditor);
+        simulationEditorFrame.setVisible(true);
+        simulationEditor.speciesEditor.accountForNewSpecies(sim.speciesList().size());
+                                    
+                                
+    // Update MenuBars
+        EtomicaMenuBar.editSimulationItem.setEnabled(false);
+        EtomicaMenuBar.serEditItem.setEnabled(true);
+        EtomicaMenuBar.serAppletItem.setEnabled(true);
+        //end of new stuff
+    }//end of addSimulation
+    
+    public static SimulationFrame getSimulationFrame(Simulation sim) {
+        return (SimulationFrame)simulationFrames.get(sim);
+    } 
 
     /**
      * Class that forms the basis of the Etomica environment.  It contains all components used to 
@@ -92,6 +129,21 @@ public class Etomica {
 		    
 		    // Add Tabbed Menu
     	    getContentPane().add(BorderLayout.NORTH, tabMenuBar);
+    	    
+    	    
+            // Create SimulationEditorFrame
+            simulationEditorFrame.addInternalFrameListener(new MyInternalFrameAdapter(){
+                public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt){
+                    EtomicaMenuBar.editSimulationItem.setEnabled(true);
+                }
+                public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt){
+                    EtomicaMenuBar.editSimulationItem.setEnabled(false);
+                }});
+            simulationEditorFrame.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+            simulationEditorFrame.reshape(10, 60, 500, 600);
+            simulationEditorFrame.setVisible(false);
+            desktop.add(simulationEditorFrame);
+            // End creation of SimulationEditorFrame
         }// end of DesktopFrame constructor
 
         /**
@@ -113,5 +165,31 @@ public class Etomica {
                     throw new java.beans.PropertyVetoException("User canceled close", event);
             }
         }// end of vetoableChange
+    }//end of DesktopFrame
+    
+    public static class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {
     }
+    
+    static {
+	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY);
+	    String[] files = dir.list(new java.io.FilenameFilter() {
+	        public boolean accept(java.io.File d, String name) {
+	                return name.startsWith("Space")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.equals("Space.class");}
+	        });
+	    spaceClasses = new Class[files.length];
+	    for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        spaceClasses[i] = null;
+	        try{
+	            spaceClasses[i] = Class.forName("simulate."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End of initialization of spaceClasses array
+    }//end of static block
 }

@@ -1,5 +1,4 @@
 package simulate;
-import simulate.gui.SimEditorTabMenu;
 import java.beans.PropertyEditorSupport;
 import java.util.LinkedList;
 
@@ -38,13 +37,15 @@ public class MeterEditor extends PropertyEditorSupport implements java.io.Serial
     }
 
     protected void makeMeterLists() {
-        int nMeters = SimEditorTabMenu.getMeterEditor().getComponentList().size()+1;
+        java.util.LinkedList meterList = Simulation.instance.meterList();
+        int nMeters = meterList.size()+1;
         meterNames = new String[nMeters];
         meterObjects = new Object[nMeters];
         meterNames[0] = "";
         meterObjects[0] = null;
-        for(int i=1; i<nMeters; i++) {
-            meterObjects[i] = ((MeterAbstract)SimEditorTabMenu.getMeterEditor().getComponentList().elementAt(i-1));
+        int i=1;
+        for(java.util.Iterator iter=meterList.iterator(); iter.hasNext(); i++) {
+            meterObjects[i] = (MeterAbstract)iter.next();
             meterNames[i] = meterObjects[i].toString();
         }
     }

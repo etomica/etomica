@@ -1,6 +1,5 @@
 package simulate;
 import simulate.units.*;
-import simulate.gui.SimEditorTabMenu;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import javax.swing.JComboBox;
@@ -68,6 +67,8 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
             }
         }
     }
+    
+    public Unit getUnit() {return unit;}
     
     /**
      * ItemListener interface implementation.

@@ -1,5 +1,4 @@
 package simulate;
-import simulate.gui.SimEditorTabMenu;
 import java.beans.PropertyEditorSupport;
 
 /**
@@ -37,11 +36,12 @@ public class MeterFunctionEditor extends PropertyEditorSupport implements java.i
     }
 
     protected void makeMeterLists() {
-        javax.swing.DefaultListModel list = SimEditorTabMenu.getMeterEditor().getComponentList();
+        java.util.LinkedList list = Simulation.instance.meterList();
         //count how many of all MeterAbstract objects are MeterFunction objects
         int nMeters = 1;
-        for(int i=0; i<list.size(); i++) {
-            if(list.elementAt(i) instanceof MeterFunction) nMeters++;
+
+        for(java.util.Iterator iter=list.iterator(); iter.hasNext(); ) {
+            if(iter.next() instanceof MeterFunction) nMeters++;
         }
         //loop again, save all the MeterFunction objects in the arrays
         meterNames = new String[nMeters];
@@ -49,9 +49,10 @@ public class MeterFunctionEditor extends PropertyEditorSupport implements java.i
         meterNames[0] = "";
         meterObjects[0] = null;
         nMeters = 1;
-        for(int i=0; i<list.size(); i++) {
-            if(list.elementAt(i) instanceof MeterFunction) {
-                meterObjects[nMeters] = list.elementAt(i);
+        for(java.util.Iterator iter=list.iterator(); iter.hasNext(); ) {
+            MeterAbstract meter = (MeterAbstract)iter.next();
+            if(meter instanceof MeterFunction) {
+                meterObjects[nMeters] = meter;
                 meterNames[nMeters] = meterObjects[nMeters].toString();
                 nMeters++;
             }

@@ -25,11 +25,11 @@ import javax.swing.event.InternalFrameEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
+public abstract class SimulationEditorPane extends javax.swing.JSplitPane implements SimulationEditor.EditorPane {
     /**
      * Determines format of the JList on the right pane of the SimulationEditorPane
      */
-    final javax.swing.DefaultListModel componentList = new javax.swing.DefaultListModel();    
+    protected final javax.swing.DefaultListModel componentList = new javax.swing.DefaultListModel();    
     
     /**
      * JList that contains all of the simulation components that were added from the left pane's choices
@@ -260,14 +260,6 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
     }
     
-    public final void checkSimFeasibility(){
-        // Check if a sufficient number of components are added to allow a working simulation.
-        // If so, enable the start button.
-	    if (simulationEditor.allRemoveEnabled())
-	        simulationEditor.setAllStart(true);
-	    else simulationEditor.setAllStart(false);
-    }
-    
     public final void accountForNewSpecies(int i) {
         simulationEditor.potential1Editor.setNumOSpecies(simulationEditor.potential1Editor.getNumOSpecies() + i);
         simulationEditor.potential2Editor.setNumOSpecies(simulationEditor.potential2Editor.getNumOSpecies() + i);
@@ -298,11 +290,11 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
 	    start.setEnabled(false);
 	    start.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
-	            SimulateActions.getApplet().setVisible(true);
-//                simulationEditor.getSimulation().elementCoordinator.go();
-                SimulateActions.getApplet().getContentPane().repaint();
-                try { SimulateActions.getApplet().setSelected(true); }
+	            SimulationFrame frame = (SimulationFrame)Etomica.simulationFrames.get(simulationEditor.getSimulation());
+	            frame.setVisible(true);
+                try { frame.setSelected(true); }
                 catch (java.beans.PropertyVetoException exc){} // attempt was vetoed
+ //               frame.getContentPane().repaint();
             }});
         gbl.setConstraints(start, gbc);
 	    leftPanePanel.add(start);
@@ -318,6 +310,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
 	    gbl.setConstraints(remove, gbc);
 	    leftPanePanel.add(remove);
     }// end of remove button
+    public void setEnabled(boolean b) {remove.setEnabled(b);}
     
 	/**
 	 * This section creates the property sheet button which displays the properties of the currently

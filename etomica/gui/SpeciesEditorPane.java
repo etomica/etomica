@@ -47,7 +47,6 @@ public class SpeciesEditorPane extends SimulationEditorPane {
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
                     
                     // If currentButton.cls == null, that means the 'Define Molecule' radioButton was
@@ -83,7 +82,7 @@ public class SpeciesEditorPane extends SimulationEditorPane {
                     
                     // Check if the addition of the new species will complete the list of necessary
                     // components for a feasible simulation.  If so, it will enable the 'start' button.
-                    checkSimFeasibility();
+                    simulationEditor.checkSimFeasibility();
              }});
         addAddButton();     // Creates and adds the new JButton 'Add'
         addStartButton();   // Creates and adds the new JButton 'Start'
@@ -107,7 +106,7 @@ public class SpeciesEditorPane extends SimulationEditorPane {
                 
                 // Check if the deletion of the species will make it impossible for a simulation to
                 // exist.  If so, it will disable the 'start' button.
-                checkSimFeasibility();
+                simulationEditor.checkSimFeasibility();
 	        }});
         addRemoveButton();  // Creates and adds the new JButton 'Remove'
         addPropertyButton();// Creates and adds the new JButton 'Property Sheet'

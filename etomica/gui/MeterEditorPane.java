@@ -41,7 +41,6 @@ public class MeterEditorPane extends SimulationEditorPane {
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
 
 	                try {   // Try to make an instance of the selected class
@@ -55,7 +54,7 @@ public class MeterEditorPane extends SimulationEditorPane {
 
                     // Check if the addition of the new species will complete the list of necessary
                     // components for a feasible simulation.  If so, it will enable the 'start' button.
-                    checkSimFeasibility();
+                    simulationEditor.checkSimFeasibility();
              }});
         addAddButton();     // Creates and adds the new JButton 'Add'
         addStartButton();   // Creates and adds the new JButton 'Start'
@@ -72,7 +71,7 @@ public class MeterEditorPane extends SimulationEditorPane {
                 if (componentList.getSize() == 0)
                     ((JButton)e.getSource()).setEnabled(false);
                 
-                checkSimFeasibility();
+                simulationEditor.checkSimFeasibility();
 	        }});
         addRemoveButton();  // Creates and adds the new JButton 'Remove'
         addPropertyButton();// Creates and adds the new JButton 'Property Sheet'

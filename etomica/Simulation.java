@@ -31,6 +31,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * Default choice is the CoordinatorOneIntegrator.
      */
     public Mediator elementCoordinator;
+    private java.util.HashMap elementLists = new java.util.HashMap(16);
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
@@ -74,10 +75,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public LinkedList meterList = new LinkedList();
     /**
-     * List of all graphicalElements (Devices or Displays) that have been instantiated.
-     */
-    public LinkedList graphicalElementList = new LinkedList();
-    /**
      * List of all simulation elements.
      */
      private LinkedList allElements = new LinkedList();
@@ -109,8 +106,16 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public Simulation(Space s) {
         super();
         space = s;
-        name = "Simulation" + Integer.toString(instanceCount);
-        instanceCount++;
+        setName("Simulation" + Integer.toString(instanceCount++));
+        elementLists.put(Potential1.class, potential1List);
+        elementLists.put(Potential2.class, potential2List);
+        elementLists.put(Species.class, speciesList);
+        elementLists.put(Integrator.class, integratorList);
+        elementLists.put(Phase.class, phaseList);
+        elementLists.put(Controller.class, controllerList);
+        elementLists.put(Display.class, displayList);
+        elementLists.put(MeterAbstract.class, meterList);
+        elementLists.put(Device.class, deviceList);
         p1Null = new P1Null(this);
         p2IdealGas = new P2IdealGas(this);
 //        elementCoordinator = new MediatorOneIntegrator(this);
@@ -128,6 +133,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
                     displayPanel.validate();
                 }
         });
+        
     }
     
     /**
@@ -176,157 +182,62 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * @return the <code>nth</code> instantiated device (indexing from zero)
      */
     public final Device device(int n) {return (Device)deviceList.get(n);}
+    
+    public final LinkedList phaseList() {return phaseList;}
+    public final LinkedList meterList() {return meterList;}
+    public final LinkedList speciesList() {return speciesList;}
+    public final LinkedList integratorList() {return integratorList;}
+    public final LinkedList controllerList() {return controllerList;}
+    public final LinkedList potential1List() {return potential1List;}
+    public final LinkedList potential2List() {return potential2List;}
+    public final LinkedList displayList() {return displayList;}
+    public final LinkedList deviceList() {return deviceList;}
   
-    /**
-     * Method invoked in the constructor of a Controller object to list it with the simulation
-     */
-    public void register(Controller c) {
-        if(controllerList.contains(c)) return;
-        controllerList.add(c);
-        allElements.add(c);
-    }
-                
-    /**
-     * Method invoked in the constructor of a Display object to list it with the simulation
-     */
-    public void register(Display d) {
-        if(displayList.contains(d)) return;
-        displayList.add(d);
-        allElements.add(d);
-        graphicalElementList.add(d);
-    }
-    
-    /**
-     * Method invoked in the constructor of a Device object to list it with the simulation
-     */
-    public void register(Device d) {
-        if(deviceList.contains(d)) return;
-        deviceList.add(d);
-        allElements.add(d);
-        graphicalElementList.add(d);
-    }
-              
-    /**
-     * Method invoked in the constructor of a Phase object to list it with the simulation
-     */
-    public void register(Phase p) {
-        if(phaseList.contains(p)) return;
-        phaseList.add(p);
-        allElements.add(p);
+    public void register(Simulation.Element element) {
+        LinkedList list = (LinkedList)elementLists.get(element.baseClass());
+        if(list.contains(element)) return;
+        if(element instanceof P1Null) return;
+        if(element instanceof P2IdealGas) return;
+        element.setName(element.getClass().getName().substring(9) + Integer.toString(list.size()));
+        list.add(element);
+        allElements.add(element);
         
-/*        if(Beans.isDesignTime()) {
-            for(java.util.Iterator is=Simulation.speciesList.iterator(); is.hasNext(); ) {
-                Species species = (Species)is.next();
-                p.addSpecies(species.makeAgent(p));
+        if(element instanceof Species) {
+            Species species = (Species)element;
+            
+            //update linked list of species
+            if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
+            else {firstSpecies = species;}
+            lastSpecies = species;
+            
+            //set default index of species
+            species.setSpeciesIndex(speciesCount()-1);
+            
+            //resize potential arrays
+            int n = speciesCount()-1; //size of old arrayss
+            Potential1[] new1 = new Potential1[n+1];
+            Potential2[][] new2 = new Potential2[n+1][n+1];
+            
+            for(int i=0; i<n; i++) {
+                new1[i] = potential1[i];
+                new2[n][i] = p2IdealGas;
+                new2[i][n] = p2IdealGas;
+                for(int j=0; j<n; j++) {       
+                    new2[i][j] = potential2[i][j];
+                }
             }
-        }*/
-    }
-    
-    /**
-     * Method invoked in the constructor of an Integrator object to list it with the simulation
-     */
-    public void register(Integrator i) {
-        if(integratorList.contains(i)) return;
-        integratorList.add(i); 
-        allElements.add(i);
-    }
-    
-    /**
-     * Method invoked in the constructor of a MeterAbstract object to list it with the simulation
-     */
-    public void register(MeterAbstract m) {
-        if(meterList.contains(m)) return;
-        meterList.add(m); 
-        allElements.add(m);
-    }
-                  
-    /**
-     * Method invoked in the constructor of a Species object to list it with the simulation
-     */
-    public void register(Species species) {
-        if(speciesList.contains(species)) return;
-        //register with manager
-        speciesList.add(species);
-        allElements.add(species);
-        
-        //update linked list of species
-        if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
-        else {firstSpecies = species;}
-        lastSpecies = species;
-        
-        //set default index of species
-        species.setSpeciesIndex(speciesCount()-1);
-        
-        //resize potential arrays
-        int n = speciesCount()-1; //size of old arrayss
-        Potential1[] new1 = new Potential1[n+1];
-        Potential2[][] new2 = new Potential2[n+1][n+1];
-        
-        for(int i=0; i<n; i++) {
-            new1[i] = potential1[i];
-            new2[n][i] = p2IdealGas;
-            new2[i][n] = p2IdealGas;
-            for(int j=0; j<n; j++) {       
-                new2[i][j] = potential2[i][j];
-            }
-        }
-        new1[n] = p1Null;
-        new2[n][n] = p2IdealGas;
-        
-/*        if(Beans.isDesignTime()) {
-            for(java.util.Iterator ip=Simulation.phaseList.iterator(); ip.hasNext(); ) {
-                Phase p = (Phase)ip.next();
-                p.addSpecies(species.makeAgent(p));
-            }
-        }*/
-        potential1 = new1;
-        potential2 = new2;
-    }
+            new1[n] = p1Null;
+            new2[n][n] = p2IdealGas;
+            potential1 = new1;
+            potential2 = new2;
+        }//end of if(element instanceof Species)
+    }//end of register method
                 
-    /**
-     * Method invoked in the constructor of a Potential1 object to list it with the simulation
-     */
-    public void register(Potential1 p1) {
-        if(potential1List.contains(p1)) return;
-        if(p1 instanceof P1Null) return;
-        potential1List.add(p1);
-        allElements.add(p1);
-    }
-                
-    /**
-     * Method invoked in the constructor of a Potential2 object to list it with the simulation
-     */
-    public void register(Potential2 p2) {
-        if(potential2List.contains(p2)) return;
-        if(p2 instanceof P2IdealGas) return;  //to get an ideal-gas potential registered, make one using P2SimpleWrapper
-        potential2List.add(p2);
-        allElements.add(p2);
-    }
-                
-/*****
- *
- * Beginning of Bryan's Remove methods
- *
- */    
- 
-    /**
-     * Method invoked in the constructor of a Controller object to list it with the simulation
-     */
-    public void unregister(Controller c) {
-        if(!controllerList.contains(c)) return;
-        controllerList.remove(c);
-        allElements.remove(c);
-        
-        /*for (int i = 0; i < Simulation.instance.getComponentCount(); i++) {
-            System.out.println(Simulation.instance.getComponent(i).getName());
-	        if (Simulation.instance.getComponent(i).getName() == "displayPanel"){
-	            System.out.println("eat one");
-                javax.swing.JPanel dp = ((javax.swing.JPanel)Simulation.instance.getComponent(i));
-                dp.remove(dp.getComponent(0));
-                dp.repaint();
-                elementCoordinator.completed = false;
-            }
-        }*/
+    public void unregister(Simulation.Element element) {
+        LinkedList list = (LinkedList)elementLists.get(element.baseClass());
+        if(!list.contains(element)) return;
+        list.remove(element);
+        allElements.remove(element);
     }
                 
     /**
@@ -346,7 +257,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 	            
 	        }
 	    }
-        graphicalElementList.remove(d);
     }
     
     /**
@@ -364,42 +274,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
                 elementCoordinator.completed = false;
             }
         }
-        graphicalElementList.remove(d);
     }
               
-    /**
-     * Method invoked in the constructor of a Phase object to list it with the simulation
-     */
-    public void unregister(Phase p) {
-        if(!phaseList.contains(p)) return;
-        phaseList.remove(p);
-        allElements.remove(p);
-        
-        /*if(Beans.isDesignTime()) {
-            for(java.util.Iterator is=Simulation.speciesList.iterator(); is.hasNext(); ) {
-                Species species = (Species)is.next();
-                p.add(species.makeAgent(p));
-            }
-        }*/
-    }
-    
-    /**
-     * Method invoked in the constructor of an Integrator object to list it with the simulation
-     */
-    public void unregister(Integrator i) {
-        if(!integratorList.contains(i)) return;
-        integratorList.remove(i); 
-        allElements.remove(i);
-    }
-    
-    /**
-     * Method invoked in the constructor of a MeterAbstract object to list it with the simulation
-     */
-    public void unregister(MeterAbstract m) {
-        if(!meterList.contains(m)) return;
-        meterList.remove(m); 
-        allElements.remove(m);
-    }
                   
     /**
      * Method invoked in the constructor of a Species object to list it with the simulation
@@ -449,11 +325,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         allElements.remove(p2);
     }
  
-/*****
- *
- * Endof Bryan's Remove methods
- *
- */                
     public LinkedList allElements() {
         LinkedList list;
  //       synchronized(this) {
@@ -553,6 +424,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         public Class baseClass();
         public boolean wasAdded(); //indicates whether element was added to simulation (mediator)
         public void setAdded(boolean b);
+        public void setName(String name);
+        public String getName();
     }
     
     /**

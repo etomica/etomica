@@ -13,6 +13,7 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
   
     private final Simulation parentSimulation;
     private boolean added = false;
+    private String name;
     
     public Potential(Simulation sim) {
         parentSimulation = sim;
@@ -22,6 +23,8 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
     public final Class baseClass() {return Potential.class;}
     public final boolean wasAdded() {return added;}
     public final void setAdded(boolean b) {added = b;}
+    public final String getName() {return name;}
+    public final void setName(String name) {this.name = name;}
     
     /**
      * Returns the energy of interaction of the pair of atoms passed to the method
