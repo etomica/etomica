@@ -66,6 +66,16 @@ public abstract class Integrator extends Container implements Observer, PhaseInt
     firstPhase = phase[0];
   }
   
+  public void registerPhase(Phase p) {
+    if(nPhases == nPhasesMax) {return;}
+    phase[nPhases] = p;
+    nPhases++;
+    firstPhase = phase[0];
+    for(Meter m=p.firstMeter; m!=null; m=m.getNextMeter()) {
+        addIntegrationIntervalListener(m);
+    }
+  }
+  
   public synchronized void addIntegrationIntervalListener(IntegrationIntervalListener iil) {
     integrationIntervalListeners.addElement(iil);
   }
@@ -81,7 +91,7 @@ public abstract class Integrator extends Container implements Observer, PhaseInt
     }
     for(int i = 0; i < currentListeners.size(); i++) {
         IntegrationIntervalListener listener = (IntegrationIntervalListener)currentListeners.elementAt(i);
-        listener.updateData(iie);
+        listener.integrationIntervalAction(iie);
     }
   }
   

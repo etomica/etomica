@@ -28,9 +28,6 @@ import java.beans.Beans;
         }
     }
     
-//    public void update(Graphics g) {
-//        paint(g);}
-    
     public void paint(Graphics g) {
       if(Beans.isDesignTime()) {
         g.setColor(Color.red);
@@ -42,8 +39,9 @@ import java.beans.Beans;
       g.drawImage(offScreen, 0, 0, null);
     }
 
-    public void updateData(IntegrationIntervalEvent evt) {
+    public void integrationIntervalAction(IntegrationIntervalEvent evt) {
         view.updateView();
+        repaint();
     }
 
 }

@@ -44,11 +44,6 @@ public final class Phase extends Container {
   public  boolean useNeighborList;
  
  /**
-  * Used to coordinate connection between Phase and Integrator
-  */
-  private Vector phaseIntegratorListeners = new Vector(3);
- 
- /**
   * Flag specifying whether a line tracing the boundary of the phase should be 
   * included when drawing the phase to the screen.
   * Default value is <code>false</code>
@@ -200,23 +195,7 @@ public final class Phase extends Container {
   
   private Potential1 p1Null = new P1Null();
   private Potential2 p2IdealGas = new P2IdealGas();
-  /********************Eliza's Code**********************/
-  /*//Frame for choosing Initial Configuration
-  Frame choice = new Frame();
-
-  //Index of Configuration chosen from list
-  int c=-99;
-  
-  //Panel for list
-  Panel mypanel = new Panel();
-  
-  //List of configuration on frame
-  List configlist = new List();
-  */
-  //Configuration object chosen (defaults to cover whole phase)
   Configuration configuration = new Configuration1();
-
-  /****************End of Eliza's Code*******************/
     
   public Phase() {
     setLayout(null);
@@ -402,27 +381,7 @@ public final class Phase extends Container {
   public int[] getPhaseSize() {return phaseSize;}
    
   // end of size-change method overrides
- 
-  public synchronized void addPhaseIntegratorListener(PhaseIntegratorListener pil) {
-    phaseIntegratorListeners.addElement(pil);
-    firePhaseIntegratorEvent(new PhaseIntegratorEvent(this));
-  }
 
-  public synchronized void removePhaseIntegratorListener(PhaseIntegratorListener pil) {
-    phaseIntegratorListeners.removeElement(pil);
-  }
-
-  public void firePhaseIntegratorEvent(PhaseIntegratorEvent pie) {
-    Vector currentListeners = null;
-    synchronized(this){
-        currentListeners = (Vector)phaseIntegratorListeners.clone();
-    }
-    for(int i = 0; i < currentListeners.size(); i++) {
-        PhaseIntegratorListener listener = (PhaseIntegratorListener)currentListeners.elementAt(i);
-        listener.phaseIntegratorNotify(pie);
-    }
-  }
- 
     public void add(Species species) {
         super.add(species);
         if(space != null) species.initializeSpecies(this);
@@ -436,20 +395,6 @@ public final class Phase extends Container {
         for(Molecule m=species.firstMolecule; m!=null; m=m.getNextMolecule()) {nMoleculeTotal++;}
         for(Atom a=species.firstAtom; a!=null; a=a.getNextAtom()) {nAtomTotal++;}
         if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
-/*        speciesCount++;
-        potential1 = new Potential1[speciesCount];
-        potential2 = new Potential2[speciesCount][speciesCount];
-        potential1[0] = new P1Null();
-        potential2[0][0] = new P2IdealGas();
-        for(int i = 0; i < speciesCount; i++) {
-            potential1[i] = potential1[0];
-            potential2[i][i] = potential2[0][0];
-            for(int j = i + 1; j < speciesCount; j++) {
-                potential2[i][j] = potential2[0][0];
-                potential2[j][i] = potential2[i][j];
-            }
-        }
-        */
     }
     
     /* Resizes potential arrays, keeping all elements already filled in, and

@@ -2,7 +2,7 @@ package simulate;
 import java.awt.*;
 import java.beans.*;
 
-public class DataViewJTableBeanInfo extends SimpleBeanInfo {
+public class ViewJTableBeanInfo extends SimpleBeanInfo {
     public Image getIcon(int iconType){
         String name = "";
         if(iconType == BeanInfo.ICON_COLOR_16x16){

@@ -5,19 +5,19 @@ import java.beans.*;
 import jclass.table3.*;
 import java.awt.*;
 
-public class DataViewJTable extends simulate.View
+public class ViewJTable extends simulate.View
 {
     Table table;
     MyTableData dataSource;
     
-    public DataViewJTable()
+    public ViewJTable()
     {
         table = new jclass.table3.Table();
         dataSource = new MyTableData();   //inner class, defined below
         table.setDataSource(dataSource);
     }
     
-    public void updateView() {;}
+    public void doUpdate() {;}
     
     public void paint(Graphics g) {table.paint(g);}
 

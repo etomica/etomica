@@ -21,10 +21,11 @@ public class Simulation extends Container {
     c.parentSimulation = this;
   }
   
-  public void registerPhases(PhaseIntegratorListener pil) {
+  public void registerPhases(Integrator i) {
     Enumeration e = phases.elements();
     while(e.hasMoreElements()) {
-      ((Phase)e.nextElement()).addPhaseIntegratorListener(pil);
+        
+//      ((Phase)e.nextElement()).addPhaseIntegratorListener(pil);
     }
   }
   
@@ -33,7 +34,8 @@ public class Simulation extends Container {
     phases.addElement(p);
     p.parentSimulation = this;
     if(haveIntegrator()) {
-        p.addPhaseIntegratorListener(controller.integrator);
+        controller.integrator.registerPhase(p);
+//        p.addPhaseIntegratorListener(controller.integrator);
         p.gravity.addObserver(controller.integrator);
     }
   }

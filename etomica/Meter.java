@@ -12,7 +12,6 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     double sum, sumSquare;
     int count = 0;
     private Meter nextMeter, previousMeter;
-    public DataDisplay parentDisplay;
     public Phase phase;
 
 	public Meter() {
@@ -33,7 +32,7 @@ public abstract class Meter extends Component implements IntegrationIntervalList
 	    }
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;
-	        double value = currentValue(phase);
+	        double value = currentValue();
 	        sum += value;
 	        sumSquare += value*value;
 	        count++;
@@ -44,7 +43,7 @@ public abstract class Meter extends Component implements IntegrationIntervalList
 	    return (count>0) ? sum/(double)count : 0.0;
 	}
 	
-	public double error() {
+	public double error() {    //needs to be rewritten to do block averaging
 	    double avg = average();
 	    return (count>1) ? Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1)) : 0.0;
 	}
@@ -65,6 +64,6 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     public final Meter getNextMeter() {return nextMeter;}
     public final Meter getPreviousMeter() {return previousMeter;}
     
-    public void updateData(IntegrationIntervalEvent evt) {updateStatistics(phase);}
+    public void integrationIntervalAction(IntegrationIntervalEvent evt) {updateStatistics(phase);}
 
 }	 

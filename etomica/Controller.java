@@ -18,13 +18,14 @@ public class Controller extends Container implements Runnable {
   }
 
   public void add(Integrator i) {
-    super.add(i);
+//    super.add(i);
     this.integrator = i;
-    parentSimulation.registerPhases(i);
-    
-    Enumeration e = parentSimulation.phases.elements();  //could use this loop to replace phaseIntegratorEvent structure
+
+    Enumeration e = parentSimulation.phases.elements();
     while(e.hasMoreElements()) {
-      ((Phase)e.nextElement()).gravity.addObserver(i);
+        Phase p = (Phase)e.nextElement();
+        i.registerPhase(p);
+        p.gravity.addObserver(i);
     }
   }
   
