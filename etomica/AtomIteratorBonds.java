@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.action.AtomAction;
+import etomica.action.AtomActionAdapter;
+
 /**
 * Loops over the atoms in the bond list of a given atom, which
 * is identified via the setBasis method or as atom1 in an iteratorDirective.
@@ -15,7 +18,7 @@ public class AtomIteratorBonds implements AtomIteratorAtomDependent {
     protected IteratorDirective.Direction direction;
     private Atom basis;
     
-	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		
         boolean lUpListNow = id.direction().doUp();
@@ -119,7 +122,7 @@ public class AtomIteratorBonds implements AtomIteratorAtomDependent {
     }
     
     //not implemented
-    public void allAtoms(AtomAction act) {
+    public void allAtoms(AtomActionAdapter act) {
         throw new etomica.exception.MethodNotImplementedException();
     }
 
@@ -140,8 +143,8 @@ public class AtomIteratorBonds implements AtomIteratorAtomDependent {
 	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
 	 */
 	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
-		 all((Atom)basis, id, (AtomActive)action);
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
 	}
 
     

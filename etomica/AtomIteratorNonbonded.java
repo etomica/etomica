@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.action.AtomAction;
+import etomica.action.AtomActionAdapter;
+
 /**
  * Loops over all the atoms in a basis which are not bonded to 
  * an atom specified in the iterator directive.
@@ -23,14 +26,14 @@ public class AtomIteratorNonbonded implements AtomIteratorAtomDependent {
     }
     
 	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
-		 all((Atom)basis, id, (AtomActive)action);
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
 	}
     
 	/**
 	 * this throws because it can't work!!!!
 	 */
-	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 //		iterator.all(basis, id, action);
 		throw new RuntimeException("Method all not implemented in AtomIteratorNonbonded");
@@ -73,7 +76,7 @@ public class AtomIteratorNonbonded implements AtomIteratorAtomDependent {
     }
     
     //not implemented
-    public void allAtoms(AtomAction act) {}
+    public void allAtoms(AtomActionAdapter act) {}
     
     public void setBasis(Atom atom) {
         iterator.setBasis(atom);

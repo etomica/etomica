@@ -60,7 +60,7 @@ package etomica;
     /**
      * Extends AtomAction class to add a method to set the time.
      */
-    public static abstract class AtomAction extends etomica.AtomAction {
+    public static abstract class AtomAction extends etomica.action.AtomActionAdapter {
         protected double time;
         public void setTime(double t) {time = t;}
     }

@@ -1,5 +1,6 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.action.AtomActionAdapter;
 import etomica.action.Undoable;
 
 import java.util.EventListener;
@@ -28,14 +29,14 @@ public interface DisplayPhaseListener extends EventListener {
      * method of that AtomAction to be called.  This wrapper may be configured to have a MOUSE_RELEASED
      * event or a right-click invoke the retractAction method of the AtomAction (if it implements the
      * <code>Retractable</code> interface).
-     * @see AtomAction
+     * @see AtomActionAdapter
      */
      //A main method demonstrating the use of this wrapper is included in AtomAction
     public static class AtomActionWrapper implements DisplayPhaseListener {
-        private AtomAction atomAction;
+        private AtomActionAdapter atomAction;
         private boolean retractOnRelease = false;
         private boolean retractOnRightClick = false;
-        public AtomActionWrapper(AtomAction aa) {atomAction = aa;}
+        public AtomActionWrapper(AtomActionAdapter aa) {atomAction = aa;}
         /**
          * Accessor method for flag that causes retractAction method to be called on release of the mouse button
          */

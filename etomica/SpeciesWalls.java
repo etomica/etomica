@@ -1,5 +1,6 @@
 //This class includes a main method to demonstrate its use
 package etomica;
+import etomica.action.AtomActionAdapter;
 import etomica.units.*;
 
 /* History
@@ -89,12 +90,12 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     public double getMass() {return mass;}
     public void setMass(double m) {
         mass = m;
-        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+        allAtoms(new AtomActionAdapter() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
     }
     public boolean isStationary() {return stationary;}
     public void setStationary(boolean b) {
         stationary = b;
-        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setStationary(stationary);}});
+        allAtoms(new AtomActionAdapter() {public void actionPerformed(Atom a) {a.coord.setStationary(stationary);}});
     }
     public Dimension getMassDimension() {return Dimension.MASS;}
                 

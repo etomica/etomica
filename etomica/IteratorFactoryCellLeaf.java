@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomAction;
+import etomica.action.AtomActionAdapter;
 import etomica.lattice.*;
 
 /**
@@ -99,7 +101,7 @@ public static final class SequentialIterator extends AtomIterator {
 		factory = f;
 	}
         
-	public void all(Atom atom, IteratorDirective id, final AtomActive action) {
+	public void all(Atom atom, IteratorDirective id, final AtomAction action) {
 		if(atom == null || atom.node.isLeaf() || action == null) return;
 		basis = (atom != null) ? (AtomTreeNodeGroup)atom.node : null;
 		Phase phase = basis.parentPhase();
@@ -169,7 +171,7 @@ public static final class SequentialIterator extends AtomIterator {
 		return listIterator.next();
 	}
     
-	public void allAtoms(AtomAction act) {
+	public void allAtoms(AtomActionAdapter act) {
 		listIterator.allAtoms(act);
 	}
     
@@ -243,15 +245,15 @@ public static final class IntragroupNbrIterator extends AtomIterator {
 	}
     
 	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
-		 all((Atom)basis, id, (AtomActive)action);
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
 	}
     
     /**
      * Atom basis is ignored
      * @see etomica.AtomIterator#all(Atom, IteratorDirective, AtomActive)
      */
-	public void all(Atom dummy, IteratorDirective id, final AtomActive action) {
+	public void all(Atom dummy, IteratorDirective id, final AtomAction action) {
 		if(action == null) return;
 		Atom atom = id.atom1();
 		if(atom == null) return;
@@ -382,7 +384,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
 	/**
 	 * Performs given action for each child atom of basis.
 	 */
-	public void allAtoms(AtomAction act) {
+	public void allAtoms(AtomActionAdapter act) {
 		doReset();
 		if(iterateCells) {
 			while(listIterator.hasNext()) {

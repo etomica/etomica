@@ -1,4 +1,5 @@
 package etomica;
+import etomica.action.AtomActionAdapter;
 import etomica.chem.Model;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
@@ -145,7 +146,7 @@ public class Species {
      */
     public void setNMolecules(int n) {
         nMolecules = n;
-        allAgents(new AtomAction() {public void actionPerformed(Atom a) {((SpeciesAgent)a).setNMolecules(nMolecules);}});
+        allAgents(new AtomActionAdapter() {public void actionPerformed(Atom a) {((SpeciesAgent)a).setNMolecules(nMolecules);}});
     }
     
     public Atom makeMolecule() {
@@ -155,7 +156,7 @@ public class Species {
     /**
      * Performs the given action on all of this species agents in all phases.
      */
-    public void allAgents(AtomAction action) {
+    public void allAgents(AtomActionAdapter action) {
         if(action == null) return;
         agents.doToAll(action);
         /*
@@ -224,7 +225,7 @@ public class Species {
         SpeciesAgent get(Phase phase) {return agentArray[phase.index];}
         SpeciesAgent get(SpeciesMaster s) {return agentArray[s.index];}
         
-        void doToAll(AtomAction action) {
+        void doToAll(AtomActionAdapter action) {
             for(int i=agentArray.length-1; i>=0; i--) action.actionPerformed(agentArray[i]);
         }
         

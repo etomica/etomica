@@ -1,4 +1,5 @@
 package etomica;
+import etomica.action.AtomActionAdapter;
 import etomica.units.Dimension;
 
 /**
@@ -85,7 +86,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     public void setAtomsPerMolecule(final int n) {
         if(n == getAtomsPerMolecule()) return;
         ((AtomFactoryHomo)factory).setAtomsPerGroup(n);
-        allAgents(new AtomAction() {public void actionPerformed(Atom a) {
+        allAgents(new AtomActionAdapter() {public void actionPerformed(Atom a) {
             SpeciesAgent agent = (SpeciesAgent)a;
             agent.setNMolecules(agent.getNMolecules(),true);}});
     }

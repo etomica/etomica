@@ -1,5 +1,6 @@
 //This class includes a main method to demonstrate its use
 package etomica;
+import etomica.action.AtomAction;
 import etomica.units.*;
 import etomica.units.Dimension;
 
@@ -219,7 +220,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 		/**
 		 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
 		 */
-		public void all(Atom basis, IteratorDirective id, AtomActive action) {
+		public void all(Atom basis, IteratorDirective id, AtomAction action) {
 			super.all(((AtomTreeNodeGroup)basis.node).firstLeafAtom(), id, action);
 		}
 

@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomAction;
+
 /**
  * Iterates over all the atoms given across an array of iterators.  
  *
@@ -24,7 +26,7 @@ public final class AtomIteratorCompound implements AtomIterator {
         atoms = new Atom[1];
     }
 
-	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in AtomIteratorCompound");
 	}

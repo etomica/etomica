@@ -1,7 +1,7 @@
 package etomica.action;
 import etomica.*;
 
-public class AtomActionTransform extends AtomAction {
+public class AtomActionTransform extends AtomActionAdapter {
     
  //   private final AtomIteratorSequential iterator = new AtomIteratorSequential();
     
