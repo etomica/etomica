@@ -25,10 +25,10 @@ public final class SpeciesAgent extends Atom {
     
     public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
         super(s.simulation().space(), new AtomType.Group(null), new NodeFactory(s), 
-                s.simulation().getIteratorFactory().simpleSequencerFactory(), parent);
+                s.simulation().potentialMaster.sequencerFactory(), parent);
         factory = s.moleculeFactory();
         ((AtomType.Group)type).childrenAreGroups = factory.isGroupFactory();
-        ((AtomType.Group)type).childSequencerClass = s.simulation().iteratorFactory.neighborSequencerClass();
+//        ((AtomType.Group)type).childSequencerClass = s.simulation().potentialMaster.sequencerClass();
     }
         
     public final AtomFactory moleculeFactory() {return factory;}

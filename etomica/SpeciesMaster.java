@@ -26,7 +26,7 @@ public final class SpeciesMaster extends Atom {
 
     public SpeciesMaster(Phase p) {
         super(p.simulation().space(), AtomType.NULL, new NodeFactory(p), 
-                p.simulation().getIteratorFactory().simpleSequencerFactory(), null);//parent is null
+                p.simulation().potentialMaster.sequencerFactory(), null);//parent is null
         index = p.index;
         node = (AtomTreeNodeGroup)super.node;
   //      ((MasterAtomTreeNode)node).speciesMaster = this;

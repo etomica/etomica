@@ -45,12 +45,6 @@ public class Simulation extends SimulationElement {
     
     private static final LinkedList instances = new LinkedList();
     
-    public PotentialCalculationEnergySum energySum;
-    
-
-    //default unit system for I/O (internal calculations are all done in simulation units)
-    private static UnitSystem unitSystem = new UnitSystem.Sim();
-    
     /**
      * A static instance of a Simulation, for which the current value at any time is
      * used as a default simulation in many places.  Any new instance of a Simulation
@@ -75,7 +69,6 @@ public class Simulation extends SimulationElement {
         instance = this;
         instances.add(this);
         setName("Simulation" + Integer.toString(instanceCount));
-        elementLists.put(Potential.class, new LinkedList());
         elementLists.put(Species.class, new LinkedList());
         elementLists.put(Integrator.class, new LinkedList());
         elementLists.put(Phase.class, new LinkedList());
@@ -84,17 +77,9 @@ public class Simulation extends SimulationElement {
 		elementLists.put(LoggerAbstract.class, new LinkedList());
         elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
+        instantiationEventManager.fireEvent(new SimulationEvent(this));
     }//end of constructor
-    
-    /**
-     * Accessor method for the default I/O unit system.
-     */
-    public static final UnitSystem unitSystem() {return unitSystem;}
-    /**
-     * Accessor method for the default I/O unit system.
-     */
-    public static final void setUnitSystem(UnitSystem us) {unitSystem = us;}
-              
+                 
     public final Space space() {return space;}
     /**
      * @return the <code>nth</code> instantiated phase (indexing from zero)
@@ -104,10 +89,6 @@ public class Simulation extends SimulationElement {
      * @return the <code>nth</code> instantiated species (indexing from zero)
      */
     public final Species species(int n) {return (Species)speciesList().get(n);}
-    /**
-     * @return the <code>nth</code> instantiated potential (indexing from zero)
-     */
-    public final Potential potential(int n) {return (Potential)potentialList().get(n);}
     /**
      * @return the <code>nth</code> instantiated controller (indexing from zero)
      */
@@ -131,7 +112,6 @@ public class Simulation extends SimulationElement {
     public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
     public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
     public final LinkedList controllerList() {return (LinkedList)elementLists.get(Controller.class);}
-    public final LinkedList potentialList() {return (LinkedList)elementLists.get(Potential.class);}
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
     
     public static Simulation getDefault() {
@@ -153,11 +133,8 @@ public class Simulation extends SimulationElement {
     
     int register(SimulationElement element) {
     	super.register(element);
-//        if(hamiltonian == null || element == hamiltonian.potential) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return -1;
-//        if(element instanceof Potential && !(element instanceof Potential.Null))
-//                hamiltonian.potential.addPotential((Potential)element);
         list.add(element);
         return list.size() - 1;
     }//end of register method
@@ -176,25 +153,6 @@ public class Simulation extends SimulationElement {
         }
     }
     
-    /**
-     * Returns the energy-sum object used by all Integrator, Meters, MCMoves, etc.
-     * Returns the object last passed to setEnergySum, or if no such call was
-     * made (or if the call set energySum to null) a new instance of 
-     * PotentialCalculationEnergySum is returned with each call.
-     */
-    public PotentialCalculationEnergySum energySum(Object obj) {
-        if(energySum != null) return energySum;
-        else return new PotentialCalculationEnergySum();
-    }
-    /**
-     * Sets the energy-sum object that will be given to all Integrators, Meters, etc.
-     * that require one for their operation.  Other such instances may perform additional
-     * calculations with the energy measurement. May be set to null.
-     */
-    public void setEnergySum(PotentialCalculationEnergySum sum) {
-        energySum = sum;
-    }
-    
     private static int instanceCount = 0;
     
 //    public static final java.util.Random random = new java.util.Random();
@@ -209,6 +167,8 @@ public class Simulation extends SimulationElement {
      public Mediator mediator() {return elementCoordinator;}
      
      public Simulation simulation() {return this;}
+     
+     public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
  
      /**
      * Demonstrates how this class is implemented.
