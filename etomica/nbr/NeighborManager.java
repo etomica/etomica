@@ -34,6 +34,7 @@ public class NeighborManager implements IntervalListener {
 		iterator.setDoAllNodes(true);
 		neighborCheck = new NeighborCheck();
 		neighborReset = new NeighborReset();
+        setPriority(200);
 	}
 
 	/* (non-Javadoc)
@@ -41,10 +42,10 @@ public class NeighborManager implements IntervalListener {
 	 */
 	public void intervalAction(IntervalEvent evt) {
 		if(evt.type() == IntervalEvent.START) {
-			reset(((Integrator)evt.getSource()).getPhases());
+			reset(((Integrator)evt.getSource()).getPhase());
 		} else if(evt.type() == IntervalEvent.INTERVAL) {
 			if (--iieCount == 0) {
-				updateNbrsIfNeeded(((Integrator)evt.getSource()).getPhases());
+				updateNbrsIfNeeded((Integrator)evt.getSource());
 				iieCount = updateInterval;
 			}
 		}
@@ -65,7 +66,9 @@ public class NeighborManager implements IntervalListener {
 		}
 	}
 
-	public void updateNbrsIfNeeded(Phase[] phase) {
+	public void updateNbrsIfNeeded(Integrator integrator) {
+        boolean resetIntegrator = false;
+        Phase[] phase = integrator.getPhase();
 		for (int i=0; i<phase.length; i++) {
 			neighborCheck.reset();
 			for (int j=0; j<criteria.length; j++) {
@@ -83,9 +86,11 @@ public class NeighborManager implements IntervalListener {
 				boundary = phase[i].boundary();
 				iterator.allAtoms(neighborReset);
 				potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
-				phase[i].integrator().reset();
+				resetIntegrator = true;
 			}
 		}
+        //TODO consider a reset(Phase) method for integrator to reset relative to just the affected phase
+        if(resetIntegrator) integrator.reset();
 	}
 	
 	public int getUpdateInterval() {
@@ -115,6 +120,22 @@ public class NeighborManager implements IntervalListener {
     	}
     	return false;
     }
+    
+    /**
+     * @return Returns the interval-listener priority.
+     */
+    public int getPriority() {
+        return priority;
+    }
+    /**
+     * Sets the interval-listener priority.  Default value is 300, which
+     * puts this after central-image enforcement.
+     * @param priority The priority to set.
+     */
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
 
 	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
@@ -126,7 +147,8 @@ public class NeighborManager implements IntervalListener {
 	private final NeighborReset neighborReset;
 	private final IteratorDirective id = new IteratorDirective();
 	private final PotentialCalculationNbrSetup potentialCalculationNbrSetup = new PotentialCalculationNbrSetup();
-
+	private int priority;
+    
 	private static class NeighborCheck implements AtomsetActive {
 		private boolean needUpdate = false, unsafe = false;
 		public void actionPerformed(Atom[] atom) {
@@ -151,6 +173,7 @@ public class NeighborManager implements IntervalListener {
 	
 	private class NeighborReset implements AtomsetActive {
 		public void actionPerformed(Atom[] atom) {
+            if(atom[0].node.depth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)atom[0].seq).clearNbrs();
 			if (criterion != null) {

@@ -149,6 +149,12 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 			this.integrator = integrator;
 			integrator.addIntervalListener(this);
 		}
+        
+        /**
+         * Priority is 1, which ensures that counters are updated before
+         * any meters might be called to use them.
+         */
+        public int getPriority() {return 1;}
 
 		/**
 		 * Causes incrementing of counter by current value of evt.getInterval,

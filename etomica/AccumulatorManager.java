@@ -19,6 +19,7 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 	private final DataSource dataSource;
 	private final LinkedList accumulatorList;
 	private final Iterator iterator;
+    private int priority;
 	
 	/**
 	 * Constructs AccumulatorManager with the given DataSource and
@@ -30,6 +31,7 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 		accumulatorList = new LinkedList(); 
 		iterator = accumulatorList.iterator();
 		setAccumulators(accumulators);
+        setPriority(200);
 	}
 	
 	/**
@@ -129,6 +131,20 @@ public class AccumulatorManager implements Integrator.IntervalListener {
         }
     }
     
+    /**
+     * @return Returns the interval-listener priority.
+     */
+    public int getPriority() {
+        return priority;
+    }
+    /**
+     * Sets the interval-listener priority.  Default value is 200, which
+     * puts this after central-image enforcement.
+     * @param priority The priority to set.
+     */
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 	/**
 	 * Counter that keeps track of the number of interval events received since last call to updateSums
 	 */

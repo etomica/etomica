@@ -21,7 +21,7 @@ import etomica.Space;
  */
 
 public final class PhaseImposePbc extends PhaseActionAdapter implements
-		Integrator.IntervalListener.ImposePbc {
+		Integrator.IntervalListener {
 
 	/**
 	 * Creates the action without specifying a phase. Requires call to setPhase
@@ -32,6 +32,8 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 		super("Impose PBC");
 		setApplyToMolecules(false);
 	}
+    
+    public int getPriority() {return 100;}//100-199 is priority range for classes imposing PBC
 
 	/**
 	 * Creates the action ready to perform on the given phase.

@@ -37,11 +37,13 @@ public abstract class Display implements GraphicalElement, Integrator.IntervalLi
     
     protected Phase phase;  //consider removing this and putting in subclasses only as needed
                             //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph, DisplayToConsole
+    private int priority;
     
     // Constructor
     public Display() {
         setName(NameMaker.makeName(this.getClass()));
 	    setUpdateInterval(1);
+        setPriority(300);
     }
     
     /**
@@ -160,6 +162,21 @@ public abstract class Display implements GraphicalElement, Integrator.IntervalLi
         support.removePropertyChangeListener(listener);
     }
     
+    /**
+     * @return Returns the interval-listener priority.
+     */
+    public int getPriority() {
+        return priority;
+    }
+    /**
+     * Sets the interval-listener priority.  Default value is 300, which
+     * puts this after central-image enforcement and accumulator updates.
+     * @param priority The priority to set.
+     */
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
     protected PropertyChangeSupport support = new PropertyChangeSupport(this);
     
     private String name;

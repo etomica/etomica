@@ -20,8 +20,6 @@ import etomica.units.Count;
   */
 
 public class MeterMeanSquareDisplacementFixed extends MeterFunction implements 
-                                                Integrator.IntervalListener.BeforePbc, 
-                                                Integrator.IntervalListener.AfterPbc, 
                                                 EtomicaElement {
 
     public static final String getVersion() {return "MeterMeanSquareDisplacementFixed:02.09.08/"+MeterScalar.VERSION;}
@@ -140,28 +138,32 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
         
         return y;
     }
-    /**
-     *  Override superclass method to perform update of atom displacements.
-     */
-    public void intervalAction(Integrator.IntervalEvent evt) {
-        if(!active) return;
-        if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
-	    //ignore iieCount; want to update every interval
-	    
-        iterator.reset();
-        int i = 0;
-        //evaluate difference from last coordinate before pbc applied
-        if(evt.isBeforePbc()) { 
+    
+    private class BeforePbc implements Integrator.IntervalListener {
+        public int getPriority() {return 50;}//PBC is 100-199
+        public void intervalAction(Integrator.IntervalEvent evt) {
+            if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
+            iterator.reset();
+            int i = 0;
+            //accumulate difference from last coordinate before pbc applied
             while(iterator.hasNext()) {
-                Space.Vector r = iterator.next().coord.position();
+                Space.Vector r = iterator.nextAtom().coord.position();
                 rDelta[i][iPtr].Ev1Mv2(r,rLast[i]);
                 i++;
             }
-        }
-        //store last coordinate after pbc applied
-        else { 
-           while(iterator.hasNext()) {rLast[i++].E(iterator.next().coord.position());}
-           super.intervalAction(evt);
-        }   
-    }//end of intervalAction	    
+        }//end of intervalAction    
+    }//end of BeforePbc
+    
+    private class AfterPbc implements Integrator.IntervalListener {
+        public int getPriority() {return 200;}//PBC is 100-199
+        public void intervalAction(Integrator.IntervalEvent evt) {
+            if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
+            iterator.reset();
+            int i = 0;
+            //accumulate difference from last coordinate before pbc applied
+            //store last coordinate after pbc applied
+            while(iterator.hasNext()) {rLast[i++].E(iterator.nextAtom().coord.position());}
+        }//end of intervalAction    
+    }//end of AfterPbc
+
 }//end of class

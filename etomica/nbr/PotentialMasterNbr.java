@@ -49,10 +49,10 @@ public class PotentialMasterNbr extends PotentialMaster {
 	}//end calculate
 	
 	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
-		AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
 		Potential[] potentials = atom.type.getNbrManagerAgent().getPotentials();
 		int length = potentials.length;
 		if (length > 0) {
+            AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
 			singletIterator.setAtom(atom);
 			IteratorDirective.Direction direction = id.direction();
 			AtomArrayList[] list;

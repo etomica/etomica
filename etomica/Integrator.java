@@ -1,6 +1,9 @@
 package etomica;
 
+import java.util.Collections;
 import java.util.EventObject;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Vector;
 
 import etomica.units.Dimension;
@@ -41,13 +44,9 @@ public abstract class Integrator implements java.io.Serializable {
 
 	protected int sleepPeriod = 10;
 
-	//should use a different collection structure
-	private Vector intervalListenersBeforePbc = new Vector();
-
-	private Vector intervalListenersImposePbc = new Vector();
-
-	private Vector intervalListenersAfterPbc = new Vector();
-
+    private final LinkedList intervalListeners = new LinkedList();
+    private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
+    
 	int integrationCount = 0;
 
 	protected double temperature = Default.TEMPERATURE;
@@ -226,44 +225,63 @@ public abstract class Integrator implements java.io.Serializable {
 			}
 		}
 	}
+    
+    public Phase[] getPhase() {
+        return phase;
+    }
 
+    
+    /**
+     * Arranges listeners registered with this iterator in order such that
+     * those with the smallest (closer to zero) priority value are performed
+     * before those with a larger priority value.  This is invoked automatically
+     * whenever a listener is added or removed.  It should be invoked explicitly if
+     * the priority setting of a registered listener is changed.
+     */
+    public synchronized void sortListeners() {
+        //sort using linked list, but put into array afterwards
+        //for rapid looping (avoid repeated construction of iterator)
+        Collections.sort(intervalListeners);
+        listenerWrapperArray = (ListenerWrapper[])intervalListeners.toArray(new ListenerWrapper[0]);
+    }
+
+    /**
+     * Adds the given listener to those that receive interval events fired by
+     * this integrator.  If listener has already been added to integrator, it is
+     * not added again.  If listener is null, NullPointerException is thrown.
+     */
 	public synchronized void addIntervalListener(IntervalListener iil) {
-		boolean added = false;
-		//must check all possibilities because listener may implement multiple
-		// pbc interfaces
-		if (iil instanceof IntervalListener.BeforePbc) {
-			intervalListenersBeforePbc.addElement(iil);
-			added = true;
-		}
-		if (iil instanceof IntervalListener.ImposePbc) {
-			intervalListenersImposePbc.addElement(iil);
-			added = true;
-		}
-		if (iil instanceof IntervalListener.AfterPbc) {
-			intervalListenersAfterPbc.addElement(iil);
-			added = true;
-		}
-		//if not implementing any of the pbc interfaces, default is afterPbc
-		if (!added)
-			intervalListenersAfterPbc.addElement(iil);
+        if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
+        ListenerWrapper wrapper = findWrapper(iil);
+        if(wrapper == null) { //listener not already in list, so OK to add it now
+            intervalListeners.add(new ListenerWrapper(iil));
+            sortListeners();
+        }
 	}
+    
+    /**
+     * Finds and returns the ListenerWrapper used to put the given listener in the list.
+     * Returns null if listener is not in list.
+     */
+    private ListenerWrapper findWrapper(IntervalListener iil) {
+        Iterator iterator = intervalListeners.iterator();
+        while(iterator.hasNext()) {
+            ListenerWrapper wrapper = (ListenerWrapper)iterator.next();
+            if(wrapper.listener == iil) return wrapper;//found it
+        }
+        return null;//didn't find it in list
+       
+    }
 
+    /**
+     * Removes given listener from those notified of interval events fired
+     * by this integrator.  No action results if given listener is null or is not registered
+     * with this integrator.
+     */
 	public synchronized void removeIntervalListener(IntervalListener iil) {
-		boolean removed = false;
-		if (iil instanceof IntervalListener.BeforePbc) {
-			intervalListenersBeforePbc.removeElement(iil);
-			removed = true;
-		}
-		if (iil instanceof IntervalListener.ImposePbc) {
-			intervalListenersImposePbc.removeElement(iil);
-			removed = true;
-		}
-		if (iil instanceof IntervalListener.AfterPbc) {
-			intervalListenersAfterPbc.removeElement(iil);
-			removed = true;
-		}
-		if (!removed)
-			intervalListenersAfterPbc.removeElement(iil);
+        ListenerWrapper wrapper = findWrapper(iil);
+	    intervalListeners.remove(wrapper);
+        sortListeners();
 	}
 
 	/**
@@ -272,25 +290,8 @@ public abstract class Integrator implements java.io.Serializable {
 	 * notification is in process (this should be rare).
 	 */
 	public void fireIntervalEvent(IntervalEvent iie) {
-		iie.setBeforePbc(true);
-		int n = intervalListenersBeforePbc.size();
-		for (int i = 0; i < n; i++) {
-			IntervalListener listener = (IntervalListener) intervalListenersBeforePbc
-					.elementAt(i);
-			listener.intervalAction(iie);
-		}
-		n = intervalListenersImposePbc.size();
-		for (int i = 0; i < n; i++) {
-			IntervalListener listener = (IntervalListener) intervalListenersImposePbc
-					.elementAt(i);
-			listener.intervalAction(iie);
-		}
-		iie.setBeforePbc(false);
-		n = intervalListenersAfterPbc.size();
-		for (int i = 0; i < n; i++) {
-			IntervalListener listener = (IntervalListener) intervalListenersAfterPbc
-					.elementAt(i);
-			listener.intervalAction(iie);
+        for(int i=0; i<listenerWrapperArray.length; i++) {
+			listenerWrapperArray[i].listener.intervalAction(iie);
 		}
 	}
 
@@ -299,33 +300,15 @@ public abstract class Integrator implements java.io.Serializable {
 	 * with this integrator. Removes all listeners from this integrator.
 	 */
 	public synchronized void transferListenersTo(Integrator anotherIntegrator) {
-		if (anotherIntegrator == this)
-			return;
-		int n = intervalListenersBeforePbc.size();
-		for (int i = 0; i < n; i++) {
-			IntervalListener listener = (IntervalListener) intervalListenersBeforePbc
-					.elementAt(i);
-			anotherIntegrator.addIntervalListener(listener);
-		}
-		n = intervalListenersImposePbc.size();
-		for (int i = 0; i < n; i++) {
-			IntervalListener listener = (IntervalListener) intervalListenersImposePbc
-					.elementAt(i);
-			anotherIntegrator.addIntervalListener(listener);
-		}
-		n = intervalListenersAfterPbc.size();
-		for (int i = 0; i < n; i++) {
-			IntervalListener listener = (IntervalListener) intervalListenersAfterPbc
-					.elementAt(i);
-			anotherIntegrator.addIntervalListener(listener);
-		}
-		intervalListenersBeforePbc.removeAllElements();
-		intervalListenersImposePbc.removeAllElements();
-		intervalListenersAfterPbc.removeAllElements();
-	}
-
-	public Phase[] getPhase() {
-		return phase;
+		if (anotherIntegrator == this) return;
+        synchronized(anotherIntegrator) {
+            for(int i=0; i<listenerWrapperArray.length; i++) {
+                anotherIntegrator.intervalListeners.add(listenerWrapperArray[i]);
+            }
+        }
+        anotherIntegrator.sortListeners();
+		intervalListeners.clear();
+        sortListeners();
 	}
 
 	/**
@@ -356,8 +339,6 @@ public abstract class Integrator implements java.io.Serializable {
 
 		private final Type type;
 
-		private boolean beforePbc;
-
 		private int interval;
 
 		public IntervalEvent(Integrator source, Type t) {
@@ -372,24 +353,6 @@ public abstract class Integrator implements java.io.Serializable {
 
 		public int getInterval() {
 			return interval;
-		}
-
-		/**
-		 * Indicates if notification is before or after the PhaseImposePbc
-		 * listeners have been notified. Returns true if notifying BeforePbc or
-		 * PhaseImposePbc listeners; return false if notifying AfterPbc
-		 * listeners.
-		 */
-		public final boolean isBeforePbc() {
-			return beforePbc;
-		}
-
-		/**
-		 * Sets the before/after status relative to imposePbc listeners. Should
-		 * be used only by Integrator that is firing event.
-		 */
-		final void setBeforePbc(boolean b) {
-			beforePbc = b;
 		}
 
 		public Type type() {
@@ -412,31 +375,39 @@ public abstract class Integrator implements java.io.Serializable {
 	}
 
 	public interface IntervalListener extends java.util.EventListener {
+        /**
+         * Action performed by the listener when integrator fires its interval event.
+         */
 		public void intervalAction(IntervalEvent evt);
-
-		/**
-		 * Marker interface that indicates an IntervalListener that should be
-		 * notified before any application of periodic boundary conditions.
-		 */
-		public interface BeforePbc extends IntervalListener {
-		}
-
-		/**
-		 * Marker interface that indicates an IntervalListener that will invoke
-		 * periodic boundary conditions when notified.
-		 */
-		public interface ImposePbc extends IntervalListener {
-		}
-
-		/**
-		 * Marker interface that indicates an IntervalListener that should be
-		 * notified after any application of periodic boundary conditions. This
-		 * is the default for any IntervalListener that doesn't have a
-		 * IntervalListenerPBC marker interface.
-		 */
-		public interface AfterPbc extends IntervalListener {
-		}
-	}
-
+        /**
+         * Priority assigned to the listener.  A small value will cause the 
+         * listener's action to be performed earlier, before another listener having
+         * a larger priority value (e.g., priority 100 action is performed before
+         * one having a priority of 200).  Listeners that cause periodic boundaries
+         * to be applied are given priorities in the range 100-199.  Ordering 
+         * is performed only when a listener is added to the integrator, or when
+         * the sortListeners method of integrator is called.
+         */
+        public int getPriority();
+    }
+    
+    /**
+     * This class has a natural ordering that is inconsistent with equals.
+     */
+    private static class ListenerWrapper implements Comparable {
+        private final IntervalListener listener;
+        private ListenerWrapper(IntervalListener listener) {
+            this.listener = listener;
+        }
+        public int compareTo(Object obj) {
+            int priority = listener.getPriority();
+            int objPriority = ((ListenerWrapper)obj).listener.getPriority();
+            //we do explicit comparison of values (rather than returning
+            //their difference) to avoid potential problems with large integers.
+            if(priority < objPriority) return -1;
+            else if(priority == objPriority) return 0;
+            else return +1;
+         }
+    }
 }
 

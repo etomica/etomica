@@ -22,7 +22,7 @@ public class DeviceNSelector extends DeviceSlider {
     private DisplayPhase display;
     
     public DeviceNSelector(SpeciesAgent agent) {
-        super(agent.node.parentSimulation());
+        super();
         this.speciesAgent = agent;
         this.integrator = agent.node.parentPhase().integrator();
         restartAction = new etomica.action.SimulationRestart(agent.node.parentSimulation());

@@ -34,7 +34,7 @@ public abstract class LoggerAbstract implements Integrator.IntervalListener,
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);
         }
-
+        setPriority(300);
     }  
     
     /**
@@ -196,6 +196,22 @@ public abstract class LoggerAbstract implements Integrator.IntervalListener,
     public void setName(String name) {
         this.name = name;
     }
+    /**
+     * @return Returns the interval-listener priority.
+     */
+    public int getPriority() {
+        return priority;
+    }
+    /**
+     * Sets the interval-listener priority.  Default value is 300, which
+     * puts this after central-image enforcement and accumulator updates.
+     * @param priority The priority to set.
+     */
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+
     private int count; //counts number of events received before calling doAction().
     private int updateInterval; //number of times specified by the user between two actions.
                                 //could be set by setUpdateInterval() method.
@@ -209,6 +225,7 @@ public abstract class LoggerAbstract implements Integrator.IntervalListener,
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private boolean fileIsOpen = false; //at the beginning, it is false.
     private String name;
+    private int priority;
 	private class WriteAction implements etomica.Action {
 		public WriteAction() {
 			setLabel("Write");

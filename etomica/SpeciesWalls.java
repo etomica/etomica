@@ -7,8 +7,6 @@ import etomica.units.*;
  */
 public class SpeciesWalls extends Species implements EtomicaElement {
 
-    public String getVersion() {return "SpeciesWalls:01.07.19/"+Species.VERSION;}
-
     private double mass = Default.ATOM_MASS;
     private boolean stationary = false;
 /** 
