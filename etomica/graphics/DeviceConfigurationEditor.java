@@ -95,9 +95,9 @@ public class DeviceConfigurationEditor extends Device {
 	    public void displayPhaseAction(DisplayPhaseEvent dpe) {
 	        Atom molecule = dpe.atom();
 	        if(molecule == null) return;
-	        display.phase().removeMolecule(molecule);
+	        display.getPhase().removeMolecule(molecule);
 	        display.repaint();
-	        display.phase().integrator().initialize();
+	        display.getPhase().integrator().initialize();
 	    }
 	}
     
@@ -107,7 +107,7 @@ public class DeviceConfigurationEditor extends Device {
 	        if(molecule == null) return;
 	        molecule.coord.translateTo(dpe.point());
 	        display.repaint();
-	        display.phase().integrator().initialize();
+	        display.getPhase().integrator().initialize();
 	    }
 	}
     

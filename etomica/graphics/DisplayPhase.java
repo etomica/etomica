@@ -53,6 +53,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     protected ColorScheme colorScheme = new ColorSchemeByType();
     protected AtomFilter atomFilter = AtomFilter.ACCEPT_ALL;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
+    private Phase phase;
             
     public DisplayCanvasInterface canvas;  //do not instantiate here; instead must be in graphic method
 
@@ -142,6 +143,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         repaint();
     }
     
+    
     /**
      * Amount (in pixels) of a simple shift (translation) applied in determing origin.
      * Usually zero, but can be set to any value by setting elements in returned array.
@@ -196,13 +198,17 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     
     public void initialize() { if(canvas!=null)canvas.initialize(); }
 
-    
+    /**
+     * @return the phase associated with this display
+     */
+    public final Phase getPhase() {return phase;}
+
     /**
      * Specifies the phase for this display.  Updates atomIterator appropriately.
      */
     public void setPhase(Phase p) {
         if(p == null) return;
-        super.setPhase(p);
+        phase = p;
         
         int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
         int boxY = 1;
@@ -249,7 +255,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
 
         canvas.setPhase(p);
         atomIterator = new AtomIteratorLeafAtoms(p);
-        initialize();
     }
     
     /**
@@ -331,8 +336,8 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         //Compute factor converting simulation units to pixels for this display
         toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*phase().boundary().dimensions().x(0));
-        drawSize[1] = (phase.space().D==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().x(1));
+        drawSize[0] = (int)(toPixels*getPhase().boundary().dimensions().x(0));
+        drawSize[1] = (phase.space().D==1) ? Space1D.drawingHeight: (int)(toPixels*getPhase().boundary().dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -500,7 +505,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             point.setX(0, x);
             point.setX(1, y);
    //         phase().boundary().centralImage(point);
-            dpe.setPhase(phase());
+            dpe.setPhase(getPhase());
             dpe.setPoint(point);
             dpe.setKeyEvent(null);
             dpe.setMouseEvent(evt);
@@ -524,7 +529,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom atom = atomIterator.nextAtom();
-                double r2 = Space.r2(point,atom.coord.position(),phase().boundary());
+                double r2 = Space.r2(point,atom.coord.position(),getPhase().boundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;
                     r2Min = r2;
@@ -674,7 +679,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         }
         
         private void keyAction(KeyEvent evt) {
-            dpe.setPhase(phase());
+            dpe.setPhase(getPhase());
             dpe.setKeyEvent(evt);
             dpe.setMouseEvent(null);
             fireDisplayPhaseEvent(dpe);

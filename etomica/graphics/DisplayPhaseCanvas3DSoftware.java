@@ -76,7 +76,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
     
     public void initialize() {
-        nvert = displayPhase.phase().speciesMaster.moleculeCount();
+        nvert = displayPhase.getPhase().speciesMaster.moleculeCount();
         vert = new double[nvert*3];
         tvert = new int[nvert*3];
         atoms = new Atom[nvert];
