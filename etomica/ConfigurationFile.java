@@ -12,6 +12,7 @@ public class ConfigurationFile extends Configuration {
     public ConfigurationFile(Space space, String aConfName) {
         super();
         confName = aConfName;
+        newPos = space.makeVector();
     }
     
     public void initializePositions(AtomIterator[] iterators){
@@ -34,19 +35,16 @@ public class ConfigurationFile extends Configuration {
                 iterator.reset();
             }
             while (iterator.hasNext()) {
-                leafIterator.setRoot(iterator.nextAtom());
-                leafIterator.reset();
-                while (leafIterator.hasNext()) {
-                    String string = bufReader.readLine();
-                    Atom atom = leafIterator.nextAtom();
-                    Space.Vector newPos = (Space.Vector)atom.coord.position().clone();
-                    String[] coordStr = string.split(" +");
-                    double[] coord = new double[coordStr.length];
-                    for (int i=0; i<coord.length; i++) {
-                        coord[i] = Double.valueOf(coordStr[i]).doubleValue();
+                Atom molecule = iterator.nextAtom();
+                if (molecule.node.isLeaf()) {
+                    setPosition(molecule,bufReader.readLine());
+                }
+                else {
+                    leafIterator.setRoot(molecule);
+                    leafIterator.reset();
+                    while (leafIterator.hasNext()) {
+                        setPosition(leafIterator.nextAtom(),bufReader.readLine());
                     }
-                    newPos.E(coord);
-                    atom.coord.displaceTo(newPos);
                 }
                 while (!iterator.hasNext() && iIterator < iterators.length-1) {
                     iterator = iterators[++iIterator];
@@ -58,6 +56,17 @@ public class ConfigurationFile extends Configuration {
             throw new RuntimeException("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
         }
     }
-        
+    
+    private void setPosition(Atom atom, String string) {
+        String[] coordStr = string.split(" +");
+        double[] coord = new double[coordStr.length];
+        for (int i=0; i<coord.length; i++) {
+            coord[i] = Double.valueOf(coordStr[i]).doubleValue();
+        }
+        newPos.E(coord);
+        atom.coord.displaceTo(newPos);
+    }
+    
     private String confName;
+    private Space.Vector newPos;
 }
