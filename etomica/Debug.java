@@ -22,35 +22,35 @@ public final class Debug {
 	 * to get debugging to start before Integrator.run, explicitly
 	 * set DEBUG_NOW to true. 
 	 */
-	public static final int START = 4255;
+	public static final int START = 0;
 	
 	/**
 	 * what step of the integrator should the simulation bail
 	 * set this to prevent Etomica from running for a long time while 
 	 * outputting debugging information (potentially filling up the disk)  
 	 */
-	public static final int STOP = 4265;
+	public static final int STOP = -1;
 	
 	/**
 	 * debugging level.  A higher level means more debugging
 	 * performance should suffer as the level goes up, and
 	 * finding useful information might get difficult.
 	 */
-	public static final int LEVEL = 3;
+	public static final int LEVEL = 1;
 	
 	/**
 	 * leaf atom number of first atom of interest.  The atom is the nth leaf atom 
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = 13;
+	public static final int ATOM1_NUM = -1;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = 18;
+	public static final int ATOM2_NUM = -1;
 	
     /**
      * index of phase of interest.  -1 indicates no particular phase.
@@ -79,9 +79,9 @@ public final class Debug {
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if any of the atoms in the atoms array should be debugged
 	 */
-	public static boolean anyAtom(Atom[] atoms) {
-		for (int i=0; i<atoms.length; i++) {
-			if ((ATOM1 != null && atoms[i] == ATOM1) || (ATOM2 != null && atoms[i] == ATOM2)) return true;
+	public static boolean anyAtom(AtomSet atoms) {
+		for (int i=0; i<atoms.count(); i++) {
+			if ((ATOM1 != null && atoms.getAtom(i) == ATOM1) || (ATOM2 != null && atoms.getAtom(i) == ATOM2)) return true;
 		}
 		return false;
 	}
@@ -92,9 +92,9 @@ public final class Debug {
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if all of the atoms in the atoms array should be debugged
 	 */
-	public static boolean allAtoms(Atom[] atoms) {
-		for (int i=0; i<atoms.length; i++) {
-			if (atoms[i] != ATOM1 && atoms[i] != ATOM2) return false;
+	public static boolean allAtoms(AtomSet atoms) {
+		for (int i=0; i<atoms.count(); i++) {
+			if (atoms.getAtom(i) != ATOM1 && atoms.getAtom(i) != ATOM2) return false;
 		}
 		return true;
 	}
