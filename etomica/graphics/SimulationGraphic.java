@@ -10,6 +10,7 @@ import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationContainer;
+import etomica.integrator.IntervalActionAdapter;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.
@@ -69,7 +70,7 @@ public class SimulationGraphic implements SimulationContainer {
              Phase phase = (Phase)iterator.next();
              Display display = new DisplayPhase(phase);
              add(display);
-             if(integrator != null) integrator.addIntervalListener(display);
+             if(integrator != null) integrator.addIntervalListener(new IntervalActionAdapter(display));
          }
          
      }
@@ -77,7 +78,7 @@ public class SimulationGraphic implements SimulationContainer {
      public void add(Display display) {
          final java.awt.Component component = display.graphic(null);
          if(component == null) return; //display is not graphic
-         if(display instanceof DisplayBox) {
+         if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
              final java.awt.GridBagConstraints gbcBox = new java.awt.GridBagConstraints();
              gbcBox.gridx = 0;
              panel().displayBoxPanel.add(component, gbcBox);
@@ -146,15 +147,16 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
 //          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
-      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
-//        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+//      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+//      etomica.simulations.ChainHSMD3D sim = new etomica.simulations.ChainHSMD3D();
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 //        etomica.simulations.HSMD2D_noNbr sim = new etomica.simulations.HSMD2D_noNbr();
 //        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
-        ColorSchemeByType.setColor(sim.species, java.awt.Color.red);
+        ColorSchemeByType.setColor(sim.species.protoType, java.awt.Color.red);
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
     }//end of main
