@@ -1,24 +1,18 @@
 package etomica;
 
-import etomica.action.AtomsetAction;
 
 /**
  * 
  */
 public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
 
-    public void allAtoms(AtomsetAction action) {
-        reset();
-        if (listIterator.hasNext()) {
-            action.actionPerformed(listIterator.next());
-        }
-    }
-
     public boolean contains(Atom[] atom) {
+        reset();
         return listIterator.peek()[0] == atom[0]; 
     }
 
     public int size() {
+        reset();
         return listIterator.hasNext() ? 1 : 0;
     }
 

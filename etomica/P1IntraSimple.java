@@ -15,7 +15,7 @@ package etomica;
 public class P1IntraSimple extends PotentialGroup implements Potential1.Intramolecular {
     
     public Potential2 bonded;
-    public Potential2 nonbonded;
+    public Potential2 nonBonded;
     
     public P1IntraSimple() {
         this(Simulation.getDefault().space);
@@ -25,13 +25,21 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         super(1, space);
     }
     
+    public P1IntraSimple(Space space, Potential2 bonded, Potential2 nonbonded) {
+        this(space);
+        setBonded(bonded);
+        setNonbonded(nonbonded);
+    }
+    
     /**
      * After constructing bonded potential with this group as its parent, this method
      * must be called with it as an argument to identify it as the bonded potential.
      */
     public void setBonded(Potential2 potential) {
-        addPotential(potential, new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
-                new AtomIteratorSequencerBonded())));
+        if(potential == null) return;
+        if(bonded != null) removePotential(bonded);
+        bonded = potential;
+        addPotential(potential, ApiBuilder.makeAdjacentPairIterator());
     }
     
     /**
@@ -39,20 +47,15 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
      * must be called with it as an argument to identify it as the nonbonded potential.
      */
     public void setNonbonded(Potential2 potential) {
-        ApiIntragroup nonBonded = new ApiIntragroup();
-        nonBonded.getInnerIterator().setNumToSkip(2);
-        addPotential(potential, nonBonded);
+        if(potential == null) return;
+        if(nonBonded != null) removePotential(nonBonded);
+        nonBonded = potential;
+        addPotential(potential, ApiBuilder.makeNonAdjacentPairIterator());
     }
+    
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("General intramolecular potential with one bonded and one nonbonded potential");
         return info;
-    }
-
-    /**
-     * Not implemented
-     */
-    public double energy(Atom a) {
-        throw new etomica.exception.MethodNotImplementedException();
     }
 
     /**

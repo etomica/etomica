@@ -11,7 +11,7 @@ package etomica;
  * childList atoms with the basis' child from which the directive atom is descended.  
  */
 public final class ApiIntragroup extends AtomsetIteratorAdapter implements
-		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable {
+		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable, ApiComposite {
 
 	/**
 	 * Constructor makes iterator that must have basis specified and then be 
@@ -21,14 +21,13 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		this(new ApiInnerVariable(
 					new AtomIteratorBasis(),
 					new AtomIteratorSequencerList()));
+        ((AtomIteratorSequencerList)aiInner).setNumToSkip(1);
     }
     
-    public ApiIntragroup(ApiInnerVariable pairIterator) {
+    public ApiIntragroup(ApiComposite pairIterator) {
         super(pairIterator);
-		this.pairIterator = pairIterator;
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
-		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
-		aiInner.setNumToSkip(1);
+		aiInner = (AtomsetIteratorDirectable)pairIterator.getInnerIterator();
 	}
 
 	public void setTarget(Atom[] targetAtoms) {
@@ -50,11 +49,11 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		else {
 			aiInner.setDirection(IteratorDirective.DOWN);
 		}
-		pairIterator.reset();
-		if(doBoth && !pairIterator.hasNext()) {
+		iterator.reset();
+		if(doBoth && !iterator.hasNext()) {
 			aiInner.setDirection(IteratorDirective.DOWN);
 			upListNow = false;
-			pairIterator.reset();
+			iterator.reset();
 		}		
 	}
 
@@ -80,11 +79,11 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 * Returns the next atom pair from the iterator.
 	 */
 	public Atom[] next() {
-		Atom[] next = pairIterator.next();
-		if(upListNow && doBoth && !pairIterator.hasNext()) {
+		Atom[] next = iterator.next();
+		if(upListNow && doBoth && !iterator.hasNext()) {
 			aiInner.setDirection(IteratorDirective.DOWN);
 			upListNow = false;
-			pairIterator.reset();
+			iterator.reset();
 		}
 		return next;
 	}
@@ -119,11 +118,16 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		return 1;
 	}
 	
-    public AtomIteratorSequencerList getInnerIterator() {return aiInner;}
+    public AtomIterator getInnerIterator() {
+        return (AtomIterator)aiInner;
+    }
     
-	protected final ApiInnerVariable pairIterator;//local, specifically typed copy
+    public AtomIterator getOuterIterator() {
+        return aiOuter;
+    }
+    
 	private final AtomIteratorBasis aiOuter;//local, specifically typed copy
-	private final AtomIteratorSequencerList aiInner;//local, specifically typed copy
+	private final AtomsetIteratorDirectable aiInner;//local, specifically typed copy
 	private boolean doBoth;//indicates if inner iteration should proceed UP and then DOWN from atom
     private boolean oneTarget;
     private IteratorDirective.Direction direction;

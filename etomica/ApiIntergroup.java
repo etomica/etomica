@@ -9,15 +9,18 @@ package etomica;
  * that the iterates are taken from two atom different groups.  
  */
 public final class ApiIntergroup extends AtomsetIteratorAdapter implements
-		AtomsetIteratorBasisDependent {
+		AtomsetIteratorBasisDependent, ApiComposite {
 
 	public ApiIntergroup() {
-		super(new ApiInnerFixed(
+		this(new ApiInnerFixed(
 				new AtomIteratorBasis(),
 				new AtomIteratorBasis()));
-		ApiInnerFixed pairIterator = (ApiInnerFixed)iterator;
-		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
-		aiInner = (AtomIteratorBasis)pairIterator.getInnerIterator();
+    }
+    
+    public ApiIntergroup(ApiComposite pairIterator) {
+        super(pairIterator);
+		aiOuter = (AtomsetIteratorBasisDependent)pairIterator.getOuterIterator();
+		aiInner = (AtomsetIteratorBasisDependent)pairIterator.getInnerIterator();
 	}
 
 	/* (non-Javadoc)
@@ -56,9 +59,20 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 	public int basisSize() {
 		return 2;
 	}
+    
+    
 
-	private final AtomIteratorBasis aiOuter;
-	private final AtomIteratorBasis aiInner;
+    public AtomIterator getInnerIterator() {
+        return (AtomIterator)aiInner;
+    }
+    
+    public AtomIterator getOuterIterator() {
+        return (AtomIterator)aiOuter;
+    }
+    
+    
+	private final AtomsetIteratorBasisDependent aiOuter;
+	private final AtomsetIteratorBasisDependent aiInner;
 	private final Atom[] atom = new Atom[1];
 
 }

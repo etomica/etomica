@@ -16,7 +16,7 @@ import etomica.action.AtomsetAction;
   * 08/25/04 (DAK et al) new
   */
   
-public class ApiInnerVariable implements AtomsetIterator {
+public class ApiInnerVariable implements AtomsetIterator, ApiComposite {
     
     /**
      * Construct a pair iterator using the given atom iterators.  Requires

@@ -7,48 +7,19 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1BondedHardSpheres extends PotentialGroup implements Potential1.Intramolecular {
-    
-    private Potential2 p2HardNonbonded;
-    private Potential2 p2HardBond;
-    
+public class P1BondedHardSpheres extends P1IntraSimple {
+
     public P1BondedHardSpheres() {
         this(Simulation.getDefault().space);
     }
     
     public P1BondedHardSpheres(Space space) {
-        super(1, space);
-        p2HardBond= new P2HardBond(space);
-        addPotential(p2HardBond, new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
-                new AtomIteratorSequencerBonded())));
-        p2HardNonbonded = new P2HardSphere(space);
-        ApiIntragroup nonBonded = new ApiIntragroup();
-        nonBonded.getInnerIterator().setNumToSkip(2);
-	    addPotential(p2HardNonbonded, nonBonded);
+        super(space, new P2HardBond(space), new P2HardSphere(space));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Bonded atoms tethered, nonbonded interact as hard spheres");
         return info;
-    }
-    
-    public void setBonded(Potential2 potential) {
-        removePotential(p2HardBond);
-        p2HardBond = potential;
-        addPotential(potential, new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
-                new AtomIteratorSequencerBonded())));
-    }
-    
-    public void setNonBondedPotential(Potential2 potential) {
-        removePotential(p2HardNonbonded);
-        p2HardNonbonded = potential;
-        ApiIntragroup nonBonded = new ApiIntragroup();
-        nonBonded.getInnerIterator().setNumToSkip(2);
-        addPotential(potential, nonBonded);
-    }
-    
-    public double energy(Atom a) {
-        return 0.0;
     }
 
     /**
