@@ -76,9 +76,9 @@ public abstract class Configuration extends Component{
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public static Space2DCell.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        Space2DCell.Vector[] r = new Space2DCell.Vector[n];
-        for(int i=0; i<n; i++) {r[i] = new Space2DCell.Vector();}
+    public static Space2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+        Space2D.Vector[] r = new Space2D.Vector[n];
+        for(int i=0; i<n; i++) {r[i] = new Space2D.Vector();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;

@@ -25,7 +25,7 @@ public final class Atom implements Space.Occupant {
         type = t;
         atomIndex = index;
         coordinate = parentMolecule.parentSpecies.parentSimulation.space.makeCoordinate(this);
-        r = coordinate.position();
+        r = coordinate.r();
         p = coordinate.momentum();
         workVector = coordinate.makeVector();
         rLast = coordinate.makeVector();

@@ -146,7 +146,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
                 while(neighborCoordinate == null) {
                     if(nextLinker == null) {hasNext = false; return;} //no more neighbor cells; no upNeighbors for atom
                     neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
-                    neighborCoordinate = (Coordinate)neighborCell.first;   //get first atom of another neighbor cell; this is null if cell is empty
+                    neighborCoordinate = (Coordinate)neighborCell.first();   //get first atom of another neighbor cell; this is null if cell is empty
                     nextLinker = nextLinker.next();
                 }
             }

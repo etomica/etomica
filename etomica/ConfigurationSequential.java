@@ -24,8 +24,10 @@ public class ConfigurationSequential extends Configuration {
     public void initializeCoordinates() {
         if(parentPhase == null) {return;}
         
-        double Lx = parentPhase.getBounds().width/DisplayConfiguration.SIM2PIXELS;
-        double Ly = parentPhase.getBounds().height/DisplayConfiguration.SIM2PIXELS;
+//        double Lx = parentPhase.getBounds().width/DisplayConfiguration.SIM2PIXELS;
+//        double Ly = parentPhase.getBounds().height/DisplayConfiguration.SIM2PIXELS;
+        double Lx = parentPhase.dimensions().component(0);
+        double Ly = parentPhase.dimensions().component(1);
 
         int sumOfMolecules = 0;
         for(int j=0; j<species.size(); j++) {   

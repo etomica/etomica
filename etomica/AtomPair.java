@@ -50,19 +50,32 @@ public class AtomPair {
          * Uses atom iterator and atomPair iterator given by the phase.iterator class.
          */
          public static class All implements Iterator {
-            private final Iterator.A apiUp;
+            private Iterator.A apiUp, apiReserve;
             private final Atom.Iterator atomUp;
             private boolean intra;
             private boolean hasNext;
             private AtomPair thisPair, nextPair;
             public All(Phase p) {
                 apiUp = p.iterator.makeAtomPairIteratorUp();
+                apiReserve = p.iterator.makeAtomPairIteratorUp();
                 atomUp = p.iterator.makeAtomIteratorUp();
                 reset(true);
             }
             public boolean hasNext() {return hasNext;}
             public AtomPair next() {
-                thisPair = nextPair;
+                thisPair = apiUp.next();  //need to take care not to advance apiUp again before return
+                if(!apiUp.hasNext()) {    //if so, this is last pair for current atom
+                    do {                  //advance up list of atoms until one with a pair is found
+                        if(atomUp.hasNext()) {apiReserve.reset(atomUp.next(),intra);}  //work with apiReserve so not to change pair of apiUp
+                        else {hasNext = false; return thisPair;}}   //end of list of atoms; no more pairs after this one
+                    while(!apiReserve.hasNext());
+                    Iterator.A temp = apiUp;      //apiReserve is ready to serve another pair
+                    apiUp = apiReserve;           // so swap handle with apiUp
+                    apiReserve = temp;            // (this doesn't advance apiUp, so it is safe)
+                }
+                return thisPair;
+                
+       /*         thisPair = nextPair;
                 if(apiUp.hasNext()) {nextPair = apiUp.next();}
                 else {
                     do {  //advance up list of atoms until one with a pair is found
@@ -71,7 +84,7 @@ public class AtomPair {
                     while(!apiUp.hasNext());
                     nextPair = apiUp.next();
                 }
-                return thisPair;
+                return thisPair;   */
             }
             public void reset() {reset(intra);}
             public void reset(boolean i) {

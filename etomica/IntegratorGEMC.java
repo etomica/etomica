@@ -49,24 +49,6 @@ public class IntegratorGEMC extends Integrator {
         }
     }
         
-/*    private void trialDisplace(Phase p) {
-        if(p.nMoleculeTotal == 0) {return;}
-        double uOld, uNew;
-        int i = (int)(rand.nextDouble()*p.nAtomTotal);
-        AtomC a = (AtomC)p.firstAtom();
-        for(int j=i; --j>=0; ) {a = a.getNextAtomC();}  //get ith atom in list
-        uOld = p.potentialEnergy.currentValue(a);
-        Space.randomVector(dr, maxRStep, rand);
-        a.displace(dr);
-        uNew = p.potentialEnergy.currentValue(a);
-        if(uNew < uOld) {return;}   //accept
-        if(uNew >= Double.MAX_VALUE || 
-           Math.exp(-(uNew-uOld)/temperature) < rand.nextDouble()) { //reject
-             a.replace();
-             return;
-        }           
-    }
-    */
     private void trialVolume() {
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
@@ -114,7 +96,7 @@ public class IntegratorGEMC extends Integrator {
         
         Molecule m = dSpecies.randomMolecule();
         uOld = dPhase.potentialEnergy.currentValue(m);
-        m.displaceToRandom(iPhase);
+        m.displaceTo(iPhase.randomPosition());
         uNew = iPhase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {  //overlap
             m.replace(); 
@@ -131,7 +113,6 @@ public class IntegratorGEMC extends Integrator {
         }
         else {              //reject
             m.replace();
-            return;
         }
     }
            

@@ -66,12 +66,14 @@ public class Space2D extends Space {
         Coordinate c1;
         Coordinate c2;
         final Boundary boundary;
+        final Vector dimensions;   //assumes this is not transferred between phases
         private final Vector dr = new Vector();
         private double drx, dry, dvx, dvy;
-        public CoordinatePair() {boundary = new BoundaryNone();}
-        public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b;}
+        public CoordinatePair() {boundary = new BoundaryNone(); dimensions = (Vector)boundary.dimensions();}
+        public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b; dimensions = (Vector)boundary.dimensions();}
         public CoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary b) {
             boundary = (Boundary)b;
+            dimensions = (Vector)boundary.dimensions();           
             if(c1 != null && c2 != null) {reset(c1,c2);}
         }
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
@@ -85,12 +87,13 @@ public class Space2D extends Space {
 //                dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
 //                dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
             boundary.apply(dr);
-            drx = dr.x; dry = dr.y;
+            drx = dr.x * dimensions.x; 
+            dry = dr.y * dimensions.y;
             r2 = drx*drx + dry*dry;
             double rm1 = c1.parent().rm();
             double rm2 = c2.parent().rm();
-            dvx = rm2*c2.p.x - rm1*c1.p.x;
-            dvy = rm2*c2.p.y - rm1*c1.p.y;  
+            dvx = (rm2*c2.p.x - rm1*c1.p.x);  //momenta are not reduced by the volume
+            dvy = (rm2*c2.p.y - rm1*c1.p.y);  
         }
                 
 //        public double r2() {
@@ -126,13 +129,18 @@ public class Space2D extends Space {
     }
 
     static class Coordinate extends Space.Coordinate {
-        public final Vector r = new Vector();  //Cartesian coordinates
+        public final Vector r = new Vector();  //Cartesian coordinates, scaled by volume
         public final Vector p = new Vector();  //Momentum vector
+        public final Vector posn = new Vector();  //Unscaled coordinates
         public Coordinate(Space.Occupant o) {super(o);}
-        public Space.Vector position() {return r;}
+        public Space.Vector position() {
+            posn.x = position(0);
+            posn.y = position(1);
+            return posn;}
         public Space.Vector momentum() {return p;}
-        public double position(int i) {return r.component(i);}
+        public double position(int i) {return r.component(i) * parentPhase().dimensions().component(i);}
         public double momentum(int i) {return p.component(i);}
+        public Space.Vector r() {return r;}
         public Space.Vector makeVector() {return new Vector();}
         public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
     } 
