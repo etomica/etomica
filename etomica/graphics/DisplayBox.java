@@ -135,7 +135,9 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
         if (unit==null) {
             setUnit(m.getDimension().defaultIOUnit());
         }
-        setLabel();
+        if (label==null) {
+            setLabel();
+        }
     }
     
     /**
@@ -158,6 +160,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      * Sets the value of a descriptive label using the given string.
      */
     public void setLabel(String s) {
+        super.setLabel(s);
         jLabel.setText(s);
         if(labelType == BORDER) {
             panel.setBorder(new javax.swing.border.TitledBorder(s));
