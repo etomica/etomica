@@ -7,18 +7,11 @@ import etomica.units.*;
  * set the time step.
  */
 
-//TODO consider making an interface
-
 public abstract class IntegratorMD extends Integrator {
     
     public IntegratorMD(PotentialMaster potentialMaster) {
         super(potentialMaster);
         setTimeStep(Default.TIME_STEP);
-    }
-    
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        return true;
     }
 
     /**
@@ -29,7 +22,6 @@ public abstract class IntegratorMD extends Integrator {
         timeStep = t;
     }
     public final double getTimeStep() {return timeStep;}
-    public final double timeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Dimension.TIME;}
     
     /**

@@ -29,8 +29,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     
     public IntegratorGear4NPH(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, space);
-        kp = 1.0/rrp/timeStep();
-        kh = 1.0/rrh/timeStep();
+        kp = 1.0/rrp/getTimeStep();
+        kh = 1.0/rrh/getTimeStep();
         D = space.D();
         setIsothermal(true);
         forceSumNPH = new ForceSumNPH(space);
