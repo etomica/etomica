@@ -56,7 +56,7 @@ public class Simulation extends SimulationElement {
      * used as a default simulation in many places.  Any new instance of a Simulation
      * is assigned to this field upon construction.
      */
-    public static Simulation instance = new Simulation(new Space2D());
+    public static Simulation instance;// = new Simulation(new Space2D());
        
     public Simulation() {
         this(new Space2D());
@@ -74,7 +74,7 @@ public class Simulation extends SimulationElement {
         super(space, instanceCount++, Simulation.class);
         instance = this;
         instances.add(this);
-        setName("Simulation" + Integer.toString(instanceCount++));
+        setName("Simulation" + Integer.toString(instanceCount));
         elementLists.put(Potential.class, new LinkedList());
         elementLists.put(Species.class, new LinkedList());
         elementLists.put(Integrator.class, new LinkedList());
@@ -135,6 +135,7 @@ public class Simulation extends SimulationElement {
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
     
     public static Simulation getDefault() {
+    	if(instance == null) instance = new Simulation(new Space2D());
     	return instance;
     }
     
