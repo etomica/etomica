@@ -6,7 +6,7 @@ import java.beans.Beans;
 
 	Simulation parentSimulation;
 	Phase phase;
-    int pixels = 200;
+    int pixels = 300;
     Image offScreen;
     Graphics osg;
     int updateInterval;

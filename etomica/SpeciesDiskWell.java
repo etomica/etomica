@@ -38,7 +38,7 @@ public class SpeciesDiskWell extends SpeciesDisks {
         g.drawOval(xP,yP,wellP,wellP);
     }
 
-    if(parentPhase.drawOverflowImages) {
+    if(DisplayConfiguration.DRAW_OVERFLOW) {
         for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
             double[][] shifts = parentPhase.space.getOverflowShifts(a.r,halfWell);
             for(int i=0; i<shifts.length; i++) {

@@ -27,39 +27,30 @@ public class SpacePeriodicHSlit extends Space {
         return dr[0]*dr[0] + dr[1]*dr[1];
     }
 
-    public void repositionMolecules(Species species) {
-       Atom nextSpeciesAtom = species.lastAtom().getNextAtom();
-       for (Atom a=species.firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()){
+    public void repositionMolecules() {
+       for(Atom a=parentPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
            for(int i=Space.D-1; --i>=0; ) {
               if(a.r[i] < 0.0) {a.translate(i,dimensions[i]);}
               else if(a.r[i] > dimensions[i]) {a.translate(i,-dimensions[i]);}
            }
        }
     }
-
-  public void setScale(double s, int n) {   
-      if(s>0 && n>=0) {
-        scale = s/(double)(2*n+1);
-        nShells = n;
-        computeDrawSize();
-      }
-  }
     
     
     /** Computes origins for periodic images
     */
-    public void resetImageOrigins() {
-        nImages = 2*nShells;
-        origins = new int[nImages][];
+    public double[][] imageOrigins(int nShells) {
+        int nImages = 2*nShells;
+        double[][] origins = new double[nImages][D];
         int k = 0;
-        for(int i=0; i<nImages; i++) {origins[i] = new int[D];}
         int j = 0;
         for(int i=-nShells; i<=nShells; i++) {
            if(i==0) {continue;}
-           origins[k][0] = (int)(i*(drawSize[0]-1));
-           origins[k][1] = (int)(j*(drawSize[1]-1));
+           origins[k][0] = i*(dimensions[0]-1);
+           origins[k][1] = j*(dimensions[1]-1);
            k++;
         }
+        return origins;
     }
 
     /** Returns coordinate shifts needed to draw all images that overflow into central image

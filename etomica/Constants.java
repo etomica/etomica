@@ -19,8 +19,8 @@ public class Constants extends Object {
     */
     
     // Scaling factor from simulation length scale to Angstroms (for temporary use) (ha ha!)
-    public static final double SCALE = 35.;
-    public static final double DEPTH = 3.5;
+    public static double SCALE = 35.;
+    public static double DEPTH = 3.5;
     
     public static final double AVOGADRO = 6.022e23;
     

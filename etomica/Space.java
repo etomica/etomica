@@ -70,29 +70,12 @@ public class Space extends Component {
   * True for spaces that have periodic boundaries
   */
     public boolean periodic;
-  
  
  /**
   * Size of Phase (width, height) in Angstroms
   * Default value is 1.0 for each dimension.
   */
     protected final double[] dimensions = new double[D];
-    
- /**
-  * Size of Space, in pixels
-  *
-  * @see #computeDrawSize
-  */
-    protected final int[] drawSize = new int[D];
-  
- /**
-  * Factor used to scale the size of the image within the phase. May be used
-  * to scale up or down the image within one phase without affecting those
-  * in other phases.  Default value is 1.0.
-  *
-  * @see Phase#paint
-  */
-    protected double scale = 1.0;
     
     private static final double[] work = new double[D];       //temporary work vector
  
@@ -112,29 +95,7 @@ public class Space extends Component {
     * @see #computeVolume
     */
     public double volume;
-   
-   /**
-    * Number of period-image shells to be drawn about central image
-    */
-    protected int nShells = 0;
-   
-   /**
-    * Number of period images to be drawn about the central image.  Determined
-    * by the shape/dimensionality of the central image (i.e., the coordination
-    * number of the periodic lattice) and the value of nShells.
-    */
-    protected int nImages;
-   
-   /**
-    * Coordinate origin for central image
-    */
-    protected final int[] centralOrigin = new int[D];
-    
-   /**
-    * Coordinate origins for all images about central image.
-    */
-    protected int[][] origins;
-
+      
     protected Random randomGenerator = new Random();
     
    /**
@@ -148,75 +109,17 @@ public class Space extends Component {
     }
     
    /**
-    * Sets parentPhase and invokes setDimensions to permit Phase to adjust
-    * TO_PIXELS.
+    * Sets parentPhase 
     *
     * @param p the phase to be identified as this Space's parentPhase
     * @see #setDimensions
     */
     public void setParentPhase(Phase p) {
         parentPhase = p;
-        setDimensions(0,dimensions[0]);
     }
     
     public final boolean isPeriodic() {return periodic;}  
-    
-   /**
-    * Draws a light gray outline of the space if <code>visible</code> is set to
-    * <code>true</code>.  The size of the outline is determined by 
-    * <code>drawSize[]</code>.
-    *
-    * @param g      the graphics object to which the image is drawn
-    * @param origin the coordinate origin (in pixels) for drawing the image
-    * @see Phase#paint
-    * @see #computeDrawSize
-    */
-    public void draw(Graphics g, int[] origin) {
-        if(isVisible()) {
-            g.setColor(Color.gray.brighter());
-            g.drawRect(origin[0],origin[1],drawSize[0]-1,drawSize[1]-1);
-        }
-    }
-    
-   /**
-    * @return the current value of scale
-    * @see #setScale
-    */
-    public double getScale() {return scale;}
-    
-   /**
-    * Sets scale and nShells and updates drawSize.  Likely to be overridden
-    * in subclasses of Space.
-    *
-    * @param s   the nominal drawing scale.  No action is taken if s <= 0.0.
-    * @param n   the new value of nShells.  No action is taken if n < 0.
-    * @see #computeDrawSize
-    * @see Phase#paint
-    */
-    public void setScale(double s, int n) {   //likely to override
-        if(s>0 && n>=0) {
-          scale = s;
-          nShells = n;
-          computeDrawSize();
-        }
-    }
-   
-   /**
-    * Updates drawSize according to the current values of scale, dimensions,
-    * and Phase.TO_PIXELS.
-    * drawsize[i] = Phase.TO_PIXELS * scale * dimensions[i]
-    */
-    protected void computeDrawSize() {
-        drawSize[0] = Phase.toPixels(scale*dimensions[0]);
-        drawSize[1] = Phase.toPixels(scale*dimensions[1]);
-        resetOrigins(nShells);
-    }
-    
-   /**
-    * @return the drawSize[] array
-    */
-    public int[] getDrawSize() {return drawSize;}
-
+        
    /**
     * @return the dimensions[] array
     */
@@ -237,20 +140,17 @@ public class Space extends Component {
     */
     public void setDimensions(int i, double dim) {
         dimensions[i] = dim;
-        if(parentPhase != null) {parentPhase.resetTO_PIXELS();}
-        computeDrawSize();
         computeVolume();
     }
    
    /**
-    * Scales all dimensions by a constant multiplicative factor
-    * Calls setDimensions(i,scale*dimensions[i]) for all i=1..D
+    * Scales all dimensions by a constant multiplicative factor and recomputes volume
     *
     * @param scale the scaling factor. 
     */
     public void inflate(double scale) {
-        setDimensions(0,scale*dimensions[0]);
-        setDimensions(1,scale*dimensions[1]);
+        Space.uTEa1(dimensions,scale);
+        computeVolume();
     }
    
    /**
@@ -261,50 +161,19 @@ public class Space extends Component {
     protected void computeVolume() {
         volume = dimensions[0]*dimensions[1];
     }
-    
-   /**
-    * Computes origins needed to draw central and periodic images.
-    */
-    protected void resetOrigins(int n) {    //likely to override
-        nShells = n;
-        if(parentPhase != null) resetCentralOrigin(parentPhase.getPhaseSize());
-        resetImageOrigins();
-    }
-    
-   /**Likely to override
-    * in subclasses.
-    */
-    public void resetImageOrigins() {
-        nImages = 0;
-        origins = new int[nImages][];
-    }
-   
-    protected void resetCentralOrigin(int[] phaseSize) {
-        Space.uEa1T_v1Mv2_(centralOrigin,0.5,phaseSize,drawSize);  // Maybe get this from space;  origin = 0.5*(phaseSize - spaceSize)
-    }
         
-    public final int[] getCentralOrigin() {
-        return centralOrigin;
-    }
-    
-    public int[] getCopyOrigin() {  //Origin for original copy used to produce periodic images
-        return centralOrigin;
-    }
-    
-   /**
-    * Takes value for nShells, checks to see if it matches current value,
-    * resets value and origins if they differ, then returns imageOrigins array for
-    * new nShells value
+   /** Set of vectors describing the displacements needed to translate the central image
+    *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
+    *  first index specifies each perioidic image, while the second index indicates the
+    *  x and y components of the translation vector.
+    *  Likely to override in subclasses.
     *
-    * @param n  new value of nShells
-    * @return origins[][] array
-    * @see Phase#paint
+    *  @param nShells the number of shells of images to be computed
     */
-    public int[][] getImageOrigins(int n) {
-        if(n != nShells) {resetOrigins(n);}
-        return origins;
+    public double[][] imageOrigins(int nShells) {
+        return new double[0][D];
     }
-    
+       
    /**
     * @return shift0
     * @see #shift0
@@ -326,7 +195,7 @@ public class Space extends Component {
     * 
     * @see Phase#paint
     */
-    public void repositionMolecules(Species species) {return;}  
+    public void repositionMolecules() {return;}  
 
    /**
     * Method to draw Space at design time.  Draws a yellow rectangle to
@@ -341,6 +210,20 @@ public class Space extends Component {
         }
     }
  
+   /**
+    * Draws a light gray outline of the space if <code>visible</code> is set to
+    * <code>true</code>.  The size of the outline is determined by 
+    * <code>drawSize[]</code>.
+    *
+    * @param g      the graphics object to which the image is drawn
+    * @param origin the coordinate origin (in pixels) for drawing the image
+    * @see Phase#paint
+    * @see #computeDrawSize
+    */
+    public void drawFrame(Graphics g, int[] origin, double scale) {
+        g.setColor(Color.gray.brighter());
+        g.drawRect(origin[0],origin[1],(int)(scale*dimensions[0])-1,(int)(scale*dimensions[1])-1);
+    }
     /* The remainder of the methods do vector arithmetic.
     
     */  
@@ -398,6 +281,12 @@ public class Space extends Component {
     public static void uEa1Tv1(double[] u, double a1, double[] v1) {
         u[0] = a1*v1[0];
         u[1] = a1*v1[1];
+        return;
+    }
+    
+    public static void uEa1Tv1(int[] u, double a1, double[] v1) {
+        u[0] = (int)(a1*v1[0]);
+        u[1] = (int)(a1*v1[1]);
         return;
     }
     

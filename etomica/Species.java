@@ -427,7 +427,7 @@ public abstract class Species extends Container {
             Phase par = (Phase)getParent();
             initializeSpecies(par);
             int[] origin = new int[Space.D];
-            double scale = par.getNominalScale()/(2.0*par.getImageShells()+1);
+            double scale = 1.0;
             origin[0] = (par.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
             origin[1] = (par.getSize().height - Phase.toPixels(scale*designTimeYDim))/2;
             draw(g,origin,scale);
@@ -484,7 +484,7 @@ public abstract class Species extends Container {
         g.fillOval(xP,yP,diameterP,diameterP);
         */
     }
-    if(parentPhase.drawOverflowImages) {
+    if(DisplayConfiguration.DRAW_OVERFLOW) {
         for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
             double[][] shifts = parentPhase.space.getOverflowShifts(a.r,a.radius);
             for(int i=0; i<shifts.length; i++) {

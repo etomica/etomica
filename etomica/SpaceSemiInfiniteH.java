@@ -11,7 +11,7 @@ public class SpaceSemiInfiniteH extends simulate.SpacePeriodicHSlit
 	    super();
 	}
 
-    protected void resetCentralOrigin(int[] phaseSize) {
+/*    protected void resetCentralOrigin(int[] phaseSize) {
         Space.uEa1T_v1Mv2_(centralOrigin,0.5,phaseSize,drawSize);  // Maybe get this from space;  origin = 0.5*(phaseSize - spaceSize)
         centralOrigin[D-1] = phaseSize[D-1] - drawSize[D-1];  //D-1 index is "height"
         uEv1(fullDrawSize,drawSize);
@@ -19,7 +19,7 @@ public class SpaceSemiInfiniteH extends simulate.SpacePeriodicHSlit
         uEv1(specialCopyOrigin,centralOrigin);
         specialCopyOrigin[D-1] = 0;
     }
-    
+  */  
     public int[] getDrawSize() {return fullDrawSize;}  // drawSize height is full height of phase, regardless of imageShells
 
     public int[] getCopyOrigin() {return specialCopyOrigin;}

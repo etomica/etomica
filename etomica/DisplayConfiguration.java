@@ -4,20 +4,32 @@ import java.beans.Beans;
 
     public class DisplayConfiguration extends Display {
 
-	Simulation parentSimulation;
-    int pixels = 200;
-    Image offScreen;
-    Graphics osg;
-    int updateInterval;
-    int iieCount;
-    Component displayTool = null;
+    public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
+    public static final int CENTER = 0;
+    public static final int RIGHT = +1;
+    public static final int TOP = -1;
+    public static final int BOTTOM = +1;
 
+    public final int align[] = new int[Space.D];
+    
  /**
-  * Flag specifying whether a line tracing the boundary of the phase should be 
-  * included when drawing the phase to the screen.
+  * Size of drawing region of central image, in pixels
+  *
+  * @see #computeDrawSize
+  */
+    protected final int[] drawSize = new int[Space.D];
+  
+ /**
+  * Flag specifying whether a line tracing the boundary of the display should be drawn
+  * Default value is <code>true</code>
+  */
+  private boolean drawBoundingBox = true;
+  
+ /**
+  * Flag specifying whether a line tracing the boundary of the space should be drawn
   * Default value is <code>false</code>
   */
-  private boolean drawBoundingBox = false;
+  private boolean drawSpaceFrame = false;
   
  /**
   * Number of periodic-image shells to be drawn when drawing this phase to the
@@ -28,63 +40,62 @@ import java.beans.Beans;
   private int imageShells = 0;
  
  /**
-  * The nominal scaling factor that determines the size of this phase when drawn to the screen.
-  * 
-  * @see #paint
+  * Factor used to scale the size of the image. May be used
+  * to scale up or down the image within one phase without affecting those
+  * in other displays.  Default value is 1.0.
+  *
+  * @see Phase#paint
   */
-  private double nominalScale = 1.0;
-  
-  private transient int[] origin;     //origin for drawing space and species
-  private transient final int[] phaseSize = new int[Space.D];  //array form of width, height
+    protected double scale = 1.0;
+      
+   /**
+    * Coordinate origin for central image
+    */
+    protected final int[] centralOrigin = new int[Space.D];
+
  /**
   * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
   * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
   * included in the central image.  Setting this flag to <code>true</code> causes extra drawing
   * to be done so that the overflow portions are properly rendered.  This is particularly helpful
-  * to have on when nShells is non-zero.  Default value is <code>false</code>.
+  * to have on when imageShells is non-zero.  Default value is <code>false</code>.
   */
-  boolean drawOverflowImages = false;
+  public static boolean DRAW_OVERFLOW = false;
  
 
     public DisplayConfiguration () {
-        setSize(pixels, pixels);
-        setBackground(Color.white);
-	    setUpdateInterval(1);
+        super();
+	    Space.uEa1(align,CENTER);   //default alignment is centered in x and y directions
     }
-
-    public void paint(Graphics g) {
-      if(Beans.isDesignTime()) {
-        g.setColor(Color.red);
-        g.drawRect(0,0,getSize().width-1,getSize().height-1);
-        g.drawRect(1,1,getSize().width-3,getSize().height-3);
-      } 
-      createOffScreen();
-      doPaint(osg);
-      g.drawImage(offScreen, 0, 0, null);
+    
+    public void setAlign(int i, int value) {
+        align[i] = value;
     }
+    public int getAlign(int i) {return align[i];}
 
-  public final boolean getDrawOverflowImages() {return drawOverflowImages;}
-  public final void setDrawOverflowImages(boolean b) {drawOverflowImages = b;}
+  public final boolean getDRAW_OVERFLOW() {return DRAW_OVERFLOW;}
+  public final void setDRAW_OVERFLOW(boolean b) {DRAW_OVERFLOW = b;}
 
-  public double getNominalScale() {return nominalScale;}
-  public void setNominalScale(double s) {
+  public double getScale() {return scale;}
+  public void setScale(double s) {
       if(s>0) {
-        nominalScale = s;
-        if(phase.space != null) {phase.space.setScale(nominalScale,imageShells);}
+        scale = s;
       }
   }
     
   //Override superclass methods for changing size so that TO_PIXELS is reset with any size change  
   // this setBound is ultimately called by all other setSize, setBounds methods
   public void setBounds(int x, int y, int width, int height) {
+    if(getBounds().width * getBounds().height != 0) {  //reset scale based on larger size change
+        double ratio1 = (double)width/(double)getBounds().width;
+        double ratio2 = (double)height/(double)getBounds().height;
+        double factor = Math.min(ratio1, ratio2);
+//        double factor = (Math.abs(Math.log(ratio1)) > Math.abs(Math.log(ratio2))) ? ratio1 : ratio2;
+        scale *= factor;
+    }
     super.setBounds(x,y,width,height);
-    phaseSize[0] = width;
-    phaseSize[1] = height;
-    phase.resetTO_PIXELS();
-    if(phase.space != null) {phase.space.resetOrigins(imageShells);}
+//    if(phase != null) phase.resetTO_PIXELS();
   }
-  
-  public int[] getPhaseSize() {return phaseSize;}
    
  /**
   * @return the current value of imageShells
@@ -92,20 +103,30 @@ import java.beans.Beans;
   public int getImageShells() {return imageShells;}
  
  /**
-  * Changes the value of image shells, and calls the setScale method of the Phase's Space
+  * Changes the value of image shells, and increases/decreases scale accordingly
   *
   * @param n the new value of imageShells
-  * @see Space#setScale
   */
   public void setImageShells(int n) {
       if(n>=0) {
+        scale *= (double)(2*imageShells+1)/(double)(2*n+1);
         imageShells = n;
-        if(phase.space != null) {phase.space.setScale(nominalScale,imageShells);}
       }
   }
   
+    protected int computeOrigin(int align, int drawSize, int size) {
+        switch(align) {
+            case   LEFT: return 0;    //same as TOP
+            case CENTER: return (size-drawSize)/2;
+            case  RIGHT: return size-drawSize; //same as BOTTOM
+            default: return 0;
+        }
+    }
+        
   public void setDrawBoundingBox(boolean b) {drawBoundingBox = b;}
   public boolean getDrawBoundingBox() {return drawBoundingBox;}
+  public void setDrawSpaceFrame(boolean b) {drawSpaceFrame = b;}
+  public boolean getDrawSpaceFrame() {return drawSpaceFrame;}
 
   public void doUpdate() {;}
     
@@ -147,13 +168,7 @@ import java.beans.Beans;
   * @see Space
   * @see Species
   */
-  public void doPaint(Graphics g) {
-    if(Beans.isDesignTime()){
-        g.setColor(getBackground());
-        g.drawRect(0,0,getSize().width-1,getSize().height-1);
-        g.drawRect(1,1,getSize().width-3,getSize().height-3);
-    }
-    else {
+  public void doPaint(Graphics g) {  //specific to 2-D
         if(phase == null) {return;}
         int w = getSize().width;
         int h = getSize().height;
@@ -165,22 +180,20 @@ import java.beans.Beans;
             }
         Space space = phase.space;
         if(space == null) {return;}
-        origin = space.getCentralOrigin();
+        double toPixels = scale*Phase.TO_PIXELS;
+        Space.uEa1Tv1(drawSize,toPixels,space.dimensions);
+        centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
+        centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
         for(Species s=phase.firstSpecies(); s!=null; s=s.getNextSpecies()) {
             if(s.firstAtom() == null) {continue;}
-            space.repositionMolecules(s);
-            s.draw(g, origin, space.getScale());
-            }
-        space.draw(g, origin);
-        origin = space.getCopyOrigin();
+            s.draw(g, centralOrigin, scale);
+        }
+        if(drawSpaceFrame) {space.drawFrame(g, centralOrigin, scale);}
         if(imageShells > 0) {
-            int[][] origins = space.getImageOrigins(imageShells);
-            int[] spaceSize = space.getDrawSize();
+            double[][] origins = space.imageOrigins(imageShells);  //more efficient to save rather than recompute each time
             for(int i=0; i<origins.length; i++) {
-                g.copyArea(origin[0],origin[1],spaceSize[0],spaceSize[1],origins[i][0],origins[i][1]);
+                g.copyArea(centralOrigin[0],centralOrigin[1],drawSize[0],drawSize[1],(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
             }
         }
-    }
-  }    
-    
+  }        
 }

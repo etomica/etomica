@@ -296,8 +296,6 @@ public final class Phase extends Container {
         space.setParentPhase(this);
         int w = getSize().width;
         int h = getSize().height;
-        space.setBounds(0,0,w,h);
-        space.setScale(nominalScale, imageShells);
         resetTO_PIXELS();
         for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {s.initializeSpecies(this);}
         for(int i = 0; i < speciesCount; i++) {
