@@ -11,18 +11,13 @@ package etomica;
  */
 
     public class IteratorFactory implements java.io.Serializable {
-        public static final boolean INTRA = true;
-        public static final boolean INTER = false;
         private Phase phase;
         public IteratorFactory(Phase p) {phase = p;}
-        public Atom.Iterator makeAtomIterator() {return makeAtomIteratorUp();}
-        public Atom.Iterator makeAtomIteratorUp() {return new Atom.Iterator.Up(phase);}
-        public Atom.Iterator makeAtomIteratorDown() {return new Atom.Iterator.Down(phase);}
-        public Atom.Iterator makeAtomIteratorUpNeighbor() {return new Atom.Iterator.UpNeighbor(phase);}
-        public Atom.Iterator makeAtomIteratorDownNeighbor() {return new Atom.Iterator.DownNeighbor(phase);}
-        public AtomPair.Iterator makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
-        public AtomPair.Iterator makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
-        public AtomPair.Iterator makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
+        public AtomIterator makeAtomIterator() {return makeAtomIteratorUp();}
+        public AtomIterator makeAtomIteratorUp() {return new AtomIterator.Up(phase);}
+        public AtomIterator makeAtomIteratorDown() {return new AtomIterator.Down(phase);}
+        public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIterator.UpNeighbor(phase);}
+        public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIterator.DownNeighbor(phase);}
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved

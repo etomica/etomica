@@ -64,7 +64,7 @@ public class Constants extends Object {
             new Direction("West")
         };
         public final TypedConstant[] choices() {return CHOICES;}
-    }
+    }//end of Direction
     public static final Direction NORTH = Direction.CHOICES[0];
     public static final Direction EAST = Direction.CHOICES[1];
     public static final Direction SOUTH = Direction.CHOICES[2];

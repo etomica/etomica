@@ -24,19 +24,19 @@ public abstract class Potential2 extends PotentialAbstract {
     //Potential2.Agent
     public class Agent extends PotentialAgent {
         
-        protected AtomPair.Iterator iterator;
+        protected AtomPairIterator iterator;
         /**
          * @param p The phase in which this agent will be placed
          */
         public Agent(Phase p) {
             super(p);
-            iterator = new AtomPair.Iterator(p);
+            iterator = new AtomPairIterator(p);
         }
             
-        public void setIterator(AtomPair.Iterator iterator) {
+        public void setIterator(AtomPairIterator iterator) {
             this.iterator = iterator;
         }
-        public AtomPair.Iterator iterator() {return iterator;}
+        public AtomPairIterator iterator() {return iterator;}
     
         public final PotentialAbstract parentPotential() {return Potential2.this;}
         

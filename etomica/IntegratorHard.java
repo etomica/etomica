@@ -16,8 +16,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 
     public String getVersion() {return "IntegratorHard:01.06.14/"+IntegratorHardAbstract.VERSION;}
     
-    private static final IteratorDirective upList = new IteratorDirective.Up();
-    private static final IteratorDirective downList = new IteratorDirective.Down();
+    private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
+    private static final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
+    private static final IteratorDirective.Bounds ALL = IteratorDirective.ALL;
 
     //collision handler is passed to the potential and is notified of each collision
     //the potential detects.  The collision handler contains the necessary logic to
@@ -124,7 +125,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             if(a == partner) break; //finished with atoms before partner; we're done
             Atom aPartner = ((IntegratorHardAbstract.Agent)a.ia).collisionPartner();
             if(aPartner == collider || aPartner == partner) {
-                phasePotential.findCollisions(upList.setAtom(a), collisionHandlerUp);
+                phasePotential.findCollisions(upList.set(a), collisionHandlerUp);
             }
         }//end while
             //reset collision partners of atoms that are now up from this atom but still list it as their
@@ -143,11 +144,11 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             //atom on its neighbor list, but no longer do because it has moved away
 
 
-        phasePotential.findCollisions(upList.setAtom(collider), collisionHandlerUp);
-        phasePotential.findCollisions(downList.setAtom(collider), collisionHandlerDown);
+        phasePotential.findCollisions(upList.set(collider), collisionHandlerUp);
+        phasePotential.findCollisions(downList.set(collider), collisionHandlerDown);
         if(partner != null) {
-            phasePotential.findCollisions(upList.setAtom(partner), collisionHandlerUp);
-            phasePotential.findCollisions(downList.setAtom(partner), collisionHandlerDown);
+            phasePotential.findCollisions(upList.set(partner), collisionHandlerUp);
+            phasePotential.findCollisions(downList.set(partner), collisionHandlerDown);
         }
 
     }//end of processCollision
@@ -172,7 +173,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     */
     protected void doReset() {
         if(isothermal) scaleMomenta(Math.sqrt(this.temperature/(firstPhase.kineticTemperature())));
-        phasePotential.findCollisions(ALL, collisionHandlerUp);
+        phasePotential.findCollisions(upList.set(ALL), collisionHandlerUp);
         findNextCollider();
     }
                 
