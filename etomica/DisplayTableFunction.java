@@ -121,7 +121,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
     public static void main(String[] args) {
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesDisks speciesDisks = new SpeciesDisks();
+	    SpeciesSpheres speciesDisks = new SpeciesSpheres();
 	    speciesDisks.setNMolecules(300);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();

@@ -102,7 +102,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     public static void main(String[] args) {
         
 	    IntegratorVerlet integrator = new IntegratorVerlet();
-	    SpeciesDisks species = new SpeciesDisks();
+	    SpeciesSpheres species = new SpeciesSpheres();
 	    Phase phase = new Phase();
 	    P2LennardJones potential = new P2LennardJones();
 	    Controller controller = new Controller();

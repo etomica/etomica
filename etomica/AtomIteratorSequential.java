@@ -85,7 +85,7 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
         Simulation.instance = new Simulation();
         Phase phase = new Phase();
         Phase phase2 = new Phase();
-        Species species = new SpeciesDisks();
+        Species species = new SpeciesSpheres();
         species.setNMolecules(8);
         Simulation.instance.elementCoordinator.go();
         AtomIterator iterator = phase.iteratorFactory().makeAtomIterator();
@@ -168,7 +168,7 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
         while(iterator.hasNext()) System.out.println(iterator.next().toString()); iterator.setAsNeighbor(true);
         iterator.reset(directive); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().toString());
 
-        Species species2 = new SpeciesDisks();
+        Species species2 = new SpeciesSpheres();
         species.setNMolecules(4);
         species2.setNMolecules(5);
         Simulation.instance.elementCoordinator.go();

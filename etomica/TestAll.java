@@ -98,7 +98,7 @@ public class TestAll {
     
     public static Phase setupTestPhase(int nMolecules) {
         Simulation.instance = new Simulation();
-        SpeciesDisks species1 = new SpeciesDisks(nMolecules);
+        SpeciesSpheres species1 = new SpeciesSpheres(nMolecules);
         Phase phase = new Phase();
         Simulation.instance.elementCoordinator.go();
         return phase;

@@ -1,6 +1,5 @@
 package etomica;
 
-import java.util.Random;
 import etomica.units.Dimension;
 import etomica.lattice.*;
 import etomica.utility.OdeSolver;
@@ -92,7 +91,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
         setDeformationScale(deformationScale);
         lnJTot = 0.0;
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
-            s.E(a.position());
+            s.E(a.coord.position());
             s.ME(r0);
             phase.boundary().centralImage(s);
             s.DE(phase.dimensions());
@@ -111,7 +110,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
             s.PE(r0);
             phase.boundary().centralImage(s);
             s.TE(scale);
-            a.displaceTo(s);
+            a.coord.displaceTo(s);
         }
         phase.dimensions().TE(scale);
     }
@@ -120,7 +119,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
     
     public void undo() {
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
-            a.replace();
+            a.coord.replace();
         }
         phase.dimensions().DE(expand ? lattice.scale : 1.0/lattice.scale);
     }
@@ -178,7 +177,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
         }//end while
     }//end of drawCells
     
-/*    public static void main(String args[]) {
+    public static void main(String args[]) {
         
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
@@ -189,7 +188,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
         final Phase phase = new Phase(sim);
         final DisplayPhase displayPhase = new DisplayPhase(sim);
         Integrator integrator = new IntegratorHard();
-        Potential2 p2 = new P2SimpleWrapper(new PotentialHardDisk());
+        Potential2 p2 = new P2HardSphere();
         Controller controller = new Controller();
         displayPhase.setScale(0.7);
         
@@ -202,13 +201,13 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
         actionPointVolume.setDrawCells(true);
     //    actionPointVolume.setFillCells(true);
         
-        SpeciesDisks species = new SpeciesDisks(0);
+        SpeciesSpheres species = new SpeciesSpheres(0);
 		Simulation.instance.elementCoordinator.go();
 		
 	//	This listener allows interactive testing of lattice getCell methods
 		displayPhase.addDisplayPhaseListener(new DisplayPhaseListener() {
 		    public void displayPhaseAction(DisplayPhaseEvent evt) {
-    		    Space2D.Vector r = (Space2D.Vector)evt.getPoint();
+    		    Space2D.Vector r = (Space2D.Vector)evt.point();
 		        MouseEvent mevt = evt.getMouseEvent();
 		        int id = mevt.getID();
 		        if(id == MouseEvent.MOUSE_PRESSED) {
@@ -258,16 +257,10 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
 		            displayPhase.getOrigin(), 
 		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
 		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
-		*/  //  }
-//		});
-		
-        f.getContentPane().add(Simulation.instance.panel()); //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+		*/    }
+		});
+
+		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
     
     /**
@@ -633,7 +626,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
             return triangle;
         }//end of getDeformedPolygon
         
-    }
+    }//end of MyCell
 }
 
 class VelocityField {

@@ -3,12 +3,12 @@ import java.awt.Color;
 import etomica.units.Dimension;
 
 /**
- * Species in which molecules are made of arbitrary number of disks,
+ * Species in which molecules are made of arbitrary number of spheres,
  * with each disk having the same mass and size (same type).
  * 
  * @author David Kofke
  */
-public class SpeciesDisks extends Species implements EtomicaElement {
+public class SpeciesSpheres extends Species implements EtomicaElement {
 
     private double mass;
     public AtomType.Disk protoType;
@@ -23,25 +23,25 @@ public class SpeciesDisks extends Species implements EtomicaElement {
  //       return f;
     }
         
-    public SpeciesDisks() {
+    public SpeciesSpheres() {
         this(Simulation.instance);
     }
-    public SpeciesDisks(int n) {
+    public SpeciesSpheres(int n) {
         this(Simulation.instance, n);
     }
-    public SpeciesDisks(Simulation sim) {
+    public SpeciesSpheres(Simulation sim) {
         this(sim, Default.MOLECULE_COUNT);
     }
-    public SpeciesDisks(Simulation sim, int n) {
+    public SpeciesSpheres(Simulation sim, int n) {
         this(sim, n, 1);
     }
-    public SpeciesDisks(int nM, int nA) {
+    public SpeciesSpheres(int nM, int nA) {
         this(Simulation.instance, nM, nA);
     }
-    public SpeciesDisks(Simulation sim, int nM, int nA) {
+    public SpeciesSpheres(Simulation sim, int nM, int nA) {
         this(sim, nM, nA, new BondInitializerChain(), new ConfigurationLinear(sim.space));
     }
-    public SpeciesDisks(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
+    public SpeciesSpheres(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
         super(sim, makeFactory(sim, nA, bondInitializer, config));
         protoType = (AtomType.Disk)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
@@ -73,8 +73,8 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,6);//10 molecules, 3 atoms per molecule
-	    SpeciesDisks speciesDisks2 = new SpeciesDisks(3);
+	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres(10,6);//10 molecules, 3 atoms per molecule
+	    SpeciesSpheres speciesDisks2 = new SpeciesSpheres(3);
 	    speciesDisks2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();

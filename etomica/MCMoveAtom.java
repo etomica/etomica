@@ -54,7 +54,7 @@ public class MCMoveAtom extends MCMove {
         
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom();
-	    SpeciesDisks species = new SpeciesDisks();
+	    SpeciesSpheres species = new SpeciesSpheres();
 	    Phase phase = new Phase();
 	    P2LennardJones potential = new P2LennardJones();
 	    Controller controller = new Controller();

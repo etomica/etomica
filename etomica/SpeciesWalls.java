@@ -205,7 +205,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         Simulation sim = new Simulation();
         Simulation.instance = sim;
 //	    SpeciesSpheresMono species = new SpeciesSpheresMono();
-        SpeciesDisks species = new SpeciesDisks();
+        SpeciesSpheres species = new SpeciesSpheres();
         species.setNMolecules(5);
         SpeciesWalls walls = new SpeciesWalls();
         walls.setStationary(true);

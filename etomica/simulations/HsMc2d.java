@@ -11,7 +11,7 @@ public class HsMc2d extends Simulation {
     
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesDisks species;
+    public SpeciesSpheres species;
     public Phase phase;
     public P2HardSphere potential;
     public Controller controller;
@@ -26,7 +26,7 @@ public class HsMc2d extends Simulation {
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom();
 	    integrator.add(mcMoveAtom);
-	    species = new SpeciesDisks(this);
+	    species = new SpeciesSpheres(this);
 	    potential = new P2HardSphere();
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);

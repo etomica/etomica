@@ -89,6 +89,14 @@ public class P2Tether extends Potential2Hard implements EtomicaElement {
     public double energy(AtomPair pair) {
         return (pair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
+    
+    /**
+     * Method to demonstrate use of this potential is given as the
+     * main method of the SpeciesSpheres class.
+     */
+    public static void main(String[] args) {
+        SpeciesSpheres.main(args);
+    }
       
 }//end of P2Tether
   

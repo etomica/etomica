@@ -23,6 +23,7 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
     private SpeciesAgent speciesAgent;
     private Species species;
     private double volume;
+    private AtomIterator iterator = new AtomIteratorSequential();
     /**
      * If <code>true</code> average mole fraction (n<sub>i</sub>/n<sub>total</sub>), if <code>false</code>, average total number density (n<sub>i</sub>/V)
      * Default is <code>false</code>
@@ -127,7 +128,7 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
                 }
             }
             else {                              //species density
-                AtomIterator iterator = ((SpeciesAgent)species.getAgent(phase)).childIterator;
+                iterator.setBasis(species.getAgent(phase));
                 while(iterator.hasNext()) {
                     Atom m = iterator.next();
                     if(this.contains(m)) nSum++;

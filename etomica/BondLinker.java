@@ -4,6 +4,8 @@ package etomica;
  * Class for making linked-lists of Bond instances.  Each bond linker
  * points to the bond, the atom using this linker, and linkers preceding
  * and following it in the linked list of bonds for an atom.
+ *
+ * @author David Kofke
  */
 public class BondLinker implements java.io.Serializable {
     

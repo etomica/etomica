@@ -19,6 +19,8 @@ public class MCMovePointVolume extends MCMove {
     protected double pressure;
     private ActionPointVolume action = new ActionPointVolume();
     private Space.Vector r0;
+    private final IteratorDirective iteratorDirective = new IteratorDirective();
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
     public MCMovePointVolume() {
         super();
@@ -36,7 +38,7 @@ public class MCMovePointVolume extends MCMove {
     public void thisTrial() {
         double hOld, hNew, vOld, vNew;
         vOld = phase.volume();
-        hOld = phase.energy.potential() + pressure*vOld;
+        hOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum() + pressure*vOld;
         r0 = phase.randomPosition();
         double step = rand.nextDouble()*stepSizeMax;
         if(Math.random() < 0.5) { //transform square to distorted
@@ -46,7 +48,7 @@ public class MCMovePointVolume extends MCMove {
             action.actionPerformed(phase, false, step, r0);
         }
         vNew = phase.volume();
-        hNew = phase.energy.potential() + pressure*vNew;
+        hNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum() + pressure*vNew;
         if(hNew >= Double.MAX_VALUE ||  //not correct yet
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature + action.lastLnJacobian())
                 < Math.random()) 
@@ -62,18 +64,15 @@ public class MCMovePointVolume extends MCMove {
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
     public final void setLogPressure(int lp) {setPressure(Math.pow(10.,(double)lp));}
         
- /*   public static void main(String args[]) {
-        
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
+    public static void main(String args[]) {
         
         Default.ATOM_SIZE = 1.0;
         
         Simulation sim = new Simulation(new Space2D());
         sim.setUnitSystem(new etomica.units.UnitSystem.LJ());
         Simulation.instance = sim;
-        Species species = new SpeciesDisks(sim);
-        Potential2 potential = new P2SimpleWrapper(sim,new PotentialHardDisk(sim));
+        Species species = new SpeciesSpheres(sim);
+        Potential2 potential = new P2HardSphere();
         IntegratorMC integrator = new IntegratorMC(sim);
         MCMove mcMoveAtom = new MCMoveAtom();
         MCMovePointVolume mcMovePointVolume = new MCMovePointVolume();
@@ -104,13 +103,6 @@ public class MCMovePointVolume extends MCMove {
         dMeter.setHistorying(true);
                 
 		Simulation.instance.elementCoordinator.go();
-		
-        f.getContentPane().add(Simulation.instance.panel()); //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }*/
+		Simulation.makeAndDisplayFrame(Simulation.instance);
+    }
 }

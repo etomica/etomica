@@ -63,7 +63,7 @@ public class MCMoveVolume extends MCMove {
                     
         Simulation sim = new Simulation(new Space2D());
         Simulation.instance = sim;
-        Species species = new SpeciesDisks(sim);
+        Species species = new SpeciesSpheres(sim);
 //        species.setNMolecules(2);
 //        P2HardSphere potential = new P2HardSphere();
         Potential potential = new P2LennardJones();

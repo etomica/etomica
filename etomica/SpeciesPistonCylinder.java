@@ -369,7 +369,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(20);
+	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres(20);
 	    Phase phase1 = new Phase();
 	    P2HardSphere P2HardDisk1 = new P2HardSphere();
 	    Controller controller1 = new Controller();

@@ -104,7 +104,7 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
         Simulation sim = new Simulation(new Space3D());
         Simulation.instance = sim;
         
-        Species species = new SpeciesDisks(32);
+        Species species = new SpeciesSpheres(32);
         P2HardSphere potential = new P2HardSphere();
         Integrator integrator = new IntegratorHard();
         Controller controller = new Controller();
