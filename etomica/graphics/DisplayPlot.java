@@ -120,6 +120,12 @@ public class DisplayPlot extends Display implements EtomicaElement {
         x.y = xSource.getData();
     }
     
+    public DataSink makeDataSink(Unit u) {
+        DataGroup newGroup = (DataGroup)makeDataSink();
+        newGroup.unit = u;
+        return newGroup;
+    }
+    
     public DataSink makeDataSink() {
         DataGroup newGroup = new DataGroup(x.y.length);
         data = (DataGroup[])Arrays.addObject(data, newGroup);
