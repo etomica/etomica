@@ -159,11 +159,11 @@ public class PotentialGroup extends Potential {
 		//loop over sub-potentials
     	//TODO set up separate linked list for this, merging both loops
  		for (PotentialLinker link=first; link!= null; link=link.next) {
-			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
 			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
 		}
 		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
 			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
 		}
     	iterator.reset();

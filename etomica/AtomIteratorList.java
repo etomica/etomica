@@ -74,7 +74,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     public void setList(AtomList newList) {
         list = (newList != null) ? newList : new AtomList();
         next = terminator = list.header;
-        first = list.header.next;
+        first = list.header;
     }
     
     public AtomList getList() {
@@ -86,9 +86,10 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      */
     public void reset() {
     	next = first;
-    	while(next.atom == null && next != terminator && next != list.header) {
+    	if(next.atom == null) next = upList ? next.next : next.previous;
+        if(terminator == null) return;
+        while(next.atom == null && next != terminator && next != list.header) {
             next = upList ? next.next : next.previous;
-            if(terminator == null) break;
         }
     }
 
@@ -99,7 +100,8 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      */
     public void allAtoms(AtomsetActive action){
     	AtomLinker.Tab header = list.header;
-    	for(AtomLinker link=first; link!=terminator && link!=header; link=(upList ? link.next : link.previous)) {
+    	for(AtomLinker link = (first.atom==null) ? (upList ? first.next : first.previous) : first; 
+    			link!=terminator && link!=header; link=(upList ? link.next : link.previous)) {
     		if(link.atom != null) {
     			atoms[0] = link.atom;
     			action.actionPerformed(atoms);
@@ -136,7 +138,8 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      * or is null, hasNext will be false.
      */
     public void setFirst(Atom atom) {
-        setFirst(list.entry(atom));
+    	if(atom == null) setFirst((AtomLinker)null);
+        else setFirst(list.entry(atom));
     }
 
     public AtomLinker getFirst() {return first;}
@@ -155,27 +158,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     public AtomLinker.Tab getTerminator() {
     	return terminator;
     }
-    
-    /**
-     * Resets to begin iteration in the given direction, stopping when the specified tab
-     * is encountered.  If direction is UP, iteration proceeds up list and ends when terminator
-     * or header is encountered; likewise if direction is DOWN.  If direction is BOTH, 
-     * proceeds up list from starting point until encountering header or terminator, 
-     * and then down it from the starting point, again until encountering header or terminator.
-     * If terminator is null, iteration halts in each direction when any tab (or the header) 
-     * is encountered.<br>
-     * To iterate completely in either or both directions (ignoring all tabs), use the 
-     * reset(AtomLinker, Direction) method.<br>
-     * Up iteration always begins by returning the given first linker
-     * (unless it is a tab); down iteration always begins with the linker before the given
-     * first one.
-     */
-    public void set(AtomLinker first, AtomLinker.Tab terminator, IteratorDirective.Direction direction) {
-        this.first = first;
-        this.terminator = terminator;
-        setDirection(direction);
-    }
-    
+        
     /**
      * Sets iterator such that hasNext() will return false.
      */
@@ -187,6 +170,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      * Returns true if the given atom is in the list of iterates, false otherwise.
      */
 	public boolean contains(Atom[] atom){
+		if(atom == null || atom.length == 0) return false;
         if(first == list.header && terminator == list.header) return list.contains(atom[0]);
 		AtomsetActiveDetect detector = new AtomsetActiveDetect(atom[0]);
 		allAtoms(detector);

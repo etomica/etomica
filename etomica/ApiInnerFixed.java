@@ -98,6 +98,7 @@ public final class ApiInnerFixed implements AtomsetIterator {
         aiOuter.reset();
         aiInner.reset();
         hasNext = aiOuter.hasNext() && aiInner.hasNext();
+        if(hasNext) pair[0] = aiOuter.nextAtom();
     }
     
     /**

@@ -14,43 +14,19 @@ package etomica;
 public interface IteratorFactory {
 
     /**
-     * Returns iterator that loops over all atoms in a group without
-     * reference to another atom and using any convenient order.  Does not
-     * necessarily adhere to up/down ordering.  This iterator is required
-     * if looping over atoms while performing operations on them that might
-     * cause the sequencing to be shuffled during iteration.  In general
-     * it is also more simply implemented and presumably faster than the
-     * analogous sequential iterator (given by makeGroupIteratorSequential).
+     * creates a pair iterator which loops over all pairs in a neighbor list
+     * between two groups
+     * @return the pair iterator
      */
-    //public AtomIterator makeGroupIteratorSimple();
+    public AtomsetIterator makeIntergroupNbrPairIterator();
     
     /**
-     * Returns iterator that loops over all atoms in a group, without
-     * reference to another atom.  Adheres to atom sequence, so that
-     * instructions for up or down iteration are followed using ordering
-     * consistent with that followed by neighbor iterators (e.g., IntergroupIterator).
+     * creates a pair iterator which loops over all pairs in a neighbor list
+     * within one group
+     * @return the pair iterator
      */
-    public AtomIterator makeGroupIteratorSequential();
+    public AtomsetIterator makeIntragroupNbrPairIterator();
     
-    /**
-     * Returns iterator that loops over all atoms in a group, with reference
-     * to an atom in another group.  The atoms returned by the iterator
-     * would then be "neighbors" of the given atom.  Definition of "neighbor"
-     * depends on iteration scheme defined by the IteratorFactory.  Atoms
-     * are returned in an order that is consistent with that given by
-     * the iterator from makeGroupIteratorSequential (except that this
-     * neighbor iterator may return fewer atoms).
-     */
-    public AtomIterator makeIntergroupNbrIterator();
-
-    /**
-     * Returns iterator that loops over all atoms in a group, with reference
-     * to one of the atoms in the group.  The atoms returned by the iterator
-     * would then be "neighbors" of the given atom.  Definition of "neighbor"
-     * depends on iteration scheme defined by the IteratorFactory.
-     */
-    public AtomIterator makeIntragroupNbrIterator();
-
     /**
      * Returns an atom sequencer that does not base ordering on any type
      * of neighbor scheme.  Sequencer is assigned by atom factory when

@@ -34,13 +34,13 @@ public class ChainNEW extends SimulationGraphic {
 		species.setNMolecules(100);
 		phase = new Phase(this);
 		potential = new P2HardSphere();
-		potential.setSpecies(species,species);
+		this.hamiltonian.potential.setSpecies(potential, new Species[] {species,species});
 		P1TetheredHardSpheres potentialChainIntra = new P1TetheredHardSpheres();
 		PotentialGroup p2Inter = new PotentialGroup(2);
 		P2HardSphere chainSphere = new P2HardSphere(p2Inter);
 		potentialChainIntra.p2Tether.setTetherLength(Default.ATOM_SIZE);
-		potentialChainIntra.setSpecies(new Species[] {speciesChain});
-		p2Inter.setSpecies(new Species[] {species, speciesChain});
+		hamiltonian.potential.setSpecies(potentialChainIntra, new Species[] {speciesChain});
+		hamiltonian.potential.setSpecies(p2Inter, new Species[] {species, speciesChain});
 		controller = new Controller(this);
 		new DeviceTrioControllerButton(this, controller);
 		display = new DisplayPhase(this);

@@ -146,7 +146,7 @@ public abstract class AtomTreeNode {
      * Returns the depth of this atom in the atom hierarchy.  That is, returns
      * the number of parent relations between this atom and the species master.
      */
-    public int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
+    public final int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
     
     /**
      * Integer assigned to this atom by its parent molecule.

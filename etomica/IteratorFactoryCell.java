@@ -164,7 +164,8 @@ public class IteratorFactoryCell implements IteratorFactory {
                     Phase p = getPhase((BravaisLattice)evt.lattice());
                     if(p == null) return;
                     AtomIteratorMolecule iterator = new AtomIteratorMolecule(p);
-                    while(iterator.hasNext()) ((CellSequencer)iterator.next().seq).latticeChangeNotify();
+					iterator.reset();
+                    while(iterator.hasNext()) ((CellSequencer)iterator.nextAtom().seq).latticeChangeNotify();
                 }//end if
             }
         });
@@ -185,7 +186,7 @@ public class IteratorFactoryCell implements IteratorFactory {
                     cellIterator.setList(lattice.siteList());
                     cellIterator.reset();
                     while(cellIterator.hasNext()) {
-                        cellIterator.next().coord.inflate(evt.isoScale);
+                        cellIterator.nextAtom().coord.inflate(evt.isoScale);
                     }
                 } else {//anisotropic inflation
                     if(primitiveCopy instanceof PrimitiveCubic) throw new RuntimeException("Cannot handle anisotropic inflate with cubic primitive used in IteratorFactoryCell");
@@ -195,7 +196,7 @@ public class IteratorFactoryCell implements IteratorFactory {
                     cellIterator.setList(lattice.siteList());
                     cellIterator.reset();
                     while(cellIterator.hasNext()) {
-                        cellIterator.next().coord.inflate(evt.anisoScale);
+                        cellIterator.nextAtom().coord.inflate(evt.anisoScale);
                     }
                 }
             }//end actionPerformed
@@ -252,8 +253,8 @@ public class IteratorFactoryCell implements IteratorFactory {
         return new SequentialIterator(this);
     }
         
-    public AtomIterator makeIntragroupNbrIterator() {return new IntragroupNbrIterator(this);}
-    public AtomIterator makeIntergroupNbrIterator() {return new IntergroupNbrIterator(this);}
+    public AtomIteratorAtomDependent makeIntragroupNbrIterator() {return new IntragroupNbrIterator(this);}
+    public AtomIteratorAtomDependent makeIntergroupNbrIterator() {return new IntergroupNbrIterator(this);}
     
     public AtomSequencer makeSimpleSequencer(Atom atom) {return new SimpleSequencer(atom);}
     
@@ -1217,7 +1218,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
     iterator.reset();
     AtomLinker.Tab[] headerList = null;
     while(iterator.hasNext()) {//loop over cells
-        Site site = (Site)iterator.next();
+        Site site = (Site)iterator.nextAtom();
         if(site.agents == null || site.agents[0] == null) {
             site.agents = new Object[1];
             site.agents[0] = new AtomLinker.Tab[0];
@@ -1281,7 +1282,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	        if(doDisplay) etomica.graphics.ColorSchemeByType.setColor(speciesSpheres, java.awt.Color.green);
 	    	    
 	        Potential2 potential = new P2HardSphere();
-	        potential.setSpecies(speciesSpheres);
+	        sim.hamiltonian.potential.setSpecies(potential, new Species[] {speciesSpheres,speciesSpheres});
 	    } else {
 	        SpeciesSpheresMono speciesSpheres1 = new SpeciesSpheresMono();
 	        SpeciesSpheresMono speciesSpheres2 = new SpeciesSpheresMono();
@@ -1296,9 +1297,9 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	     //   Potential2 potential12 = new P2HardSphere();
 	        Potential2 potential12 = new P2SquareWell();
 	        Potential2 potential22 = new P2HardSphere();
-	        potential11.setSpecies(speciesSpheres1, speciesSpheres1);
-	        potential12.setSpecies(speciesSpheres2, speciesSpheres1);
-	        potential22.setSpecies(speciesSpheres2, speciesSpheres2);
+	        sim.hamiltonian.potential.setSpecies(potential11, new Species[] {speciesSpheres1, speciesSpheres1});
+	        sim.hamiltonian.potential.setSpecies(potential12, new Species[] {speciesSpheres2, speciesSpheres1});
+	        sim.hamiltonian.potential.setSpecies(potential22, new Species[] {speciesSpheres2, speciesSpheres2});
         }
         
 	    Phase phase = new Phase();//must come after species!

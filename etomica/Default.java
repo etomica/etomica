@@ -44,6 +44,8 @@ public final class Default {
     
     public static boolean IS_GRAPHIC = false;
     
+    public static boolean USE_MOLECULE_NEIGHBORS = false;
+    
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
      * atom hierarchy.  Maximum depth is given by the size of the array.  Each

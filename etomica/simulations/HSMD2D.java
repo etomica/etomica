@@ -11,7 +11,7 @@ import etomica.graphics.*;
 public class HSMD2D extends SimulationGraphic {
     
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesSpheresMono species, species2;
     public Phase phase;
     public Potential2 potential;
     public Controller controller;
@@ -24,16 +24,22 @@ public class HSMD2D extends SimulationGraphic {
         Simulation.instance = this;
 	    integrator = new IntegratorHard(this);
 	    species = new SpeciesSpheresMono(this);
+	    species2 = new SpeciesSpheresMono(this);
 	    species.setNMolecules(26);
+	    species2.setNMolecules(5);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();
+//	    potential = new P2HardSphere();
 	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species,species});
+	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species2,species2});
+	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species,species2});
 	    controller = new Controller(this);
 	    new DeviceTrioControllerButton(this, controller);
 	    display = new DisplayPhase(this);
 //	    DisplayTimer timer = new DisplayTimer(integrator);
 //	    timer.setUpdateInterval(10);
 	    ColorSchemeByType.setColor(species, java.awt.Color.red);
+	    ColorSchemeByType.setColor(species2, java.awt.Color.blue);
 		panel().setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
     }

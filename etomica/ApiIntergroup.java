@@ -5,10 +5,8 @@
 package etomica;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Iterator that returns pairs formed using two different basis atoms, so 
+ * that the iterates are taken from two atom different groups.  
  */
 public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 		AtomsetIteratorBasisDependent {
@@ -16,10 +14,10 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 	public ApiIntergroup() {
 		super(new ApiInnerFixed(
 				new AtomIteratorBasis(),
-				new AtomIteratorSequencerList()));
-		pairIterator = (ApiInnerFixed)iterator;
+				new AtomIteratorBasis()));
+		ApiInnerFixed pairIterator = (ApiInnerFixed)iterator;
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
-		aiInner = (AtomIteratorListSimple)pairIterator.getInnerIterator();
+		aiInner = (AtomIteratorBasis)pairIterator.getInnerIterator();
 	}
 
 	/* (non-Javadoc)
@@ -29,25 +27,38 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 		aiOuter.setTarget(targetAtoms);
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorBasisDependent#setBasis(etomica.Atom[])
+	/**
+	 * Specifies the basis, which identifies the atoms subject
+	 * to iteration. The given array should be of length 2 (at least);
+	 * first atom in array specifies the basis for the outer-loop
+	 * iteration, and second atom specifies the basis for the inner-loop
+	 * iteration.  In each case, if the basis atom is not a leaf atom, its children will
+	 * be the subject of iteration.  If the basis atom is a leaf, it
+	 * will itself be the iterate.  If given array is null, or if its length
+	 * is not at least 2, iterator will give no iterates until a proper basis
+	 * is specified via another call to this method.
 	 */
-	public void setBasis(Atom[] atoms) {
-		atom[0] = atoms[0];
-		aiOuter.setBasis(atom);
-		aiInner.setList(((AtomTreeNodeGroup)atoms[1].node).childList);
+	public void setBasis(Atom[] basisAtoms) {
+		if(basisAtoms == null || basisAtoms.length < 2) {
+			aiOuter.setBasis(null);
+		} else {
+			atom[0] = basisAtoms[0];
+			aiOuter.setBasis(atom);
+			atom[0] = basisAtoms[1];
+			aiInner.setBasis(atom);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorBasisDependent#basisSize()
+	/**
+	 * Returns 2, indicating that the setBasis method expects an 
+	 * array of two atoms.
 	 */
 	public int basisSize() {
 		return 2;
 	}
 
-	private final ApiInnerFixed pairIterator;
 	private final AtomIteratorBasis aiOuter;
-	private final AtomIteratorListSimple aiInner;
+	private final AtomIteratorBasis aiInner;
 	private final Atom[] atom = new Atom[1];
 
 }

@@ -92,6 +92,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     						if (targetAgent == agents[i]) {
     							agents[i] = agents[0];
     							agents[0] = targetAgent;
+    							break;
     						}
     					}
     				}

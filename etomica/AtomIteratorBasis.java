@@ -6,7 +6,8 @@ package etomica;
 
 /**
  * Basic atom iterator that yields the child atoms of a basis that satisfy
- * a target specification (if given one).
+ * a target specification (if given one). If the basis atom is a leaf (and
+ * thus has no child atoms), iterator takes basis atom itself as its only iterate.
  */
 public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 		AtomsetIteratorBasisDependent {
@@ -25,6 +26,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 * only that atom, or its parent in the hierarchy that is a child 
 	 * of the current basis.  Iterator yields no iterates if the specified 
 	 * target is not in the hierarchy below the basis at the time of reset.
+	 * On the other hand, specification is ignored if the target is at or 
+	 * above the hierarchy depth of the basis at time of reset.
 	 * Specifying a null or zero-length array causes releases any target
 	 * restrictions, and specifies that the iterator should give all of the
 	 * child atoms of the basis.  Only first atom in given array is relevant.
@@ -33,6 +36,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 */
 	public void setTarget(Atom[] targetAtoms) {
 		targetAtom = (targetAtoms == null || targetAtoms.length == 0) ? null : targetAtoms[0];
+		if(targetAtom != null) targetDepth = targetAtom.node.depth();
 		needSetupIterator = (basis != null);//flag to setup iterator only if presently has a non-null basis
 		listIterator.unset();
 	}
@@ -41,7 +45,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 * Sets the basis for iteration, such that the childList atoms of 
 	 * the first atom in the given array will be subject to iteration (within
 	 * any specifications given by a prior or subsequent call to setTarget).
-	 * If argument is null or otherwise does not specify a non-leaf atom, 
+	 * If given atom is a leaf, it will itself be the sole iterate given by the iterator.
+	 * If argument is null or otherwise does not specify an atom, 
 	 * iterator will be conditioned to give no iterates until a new basis 
 	 * is specified.  Any atoms beyond the first one in the given array are ignored.
 	 */
@@ -73,8 +78,14 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	private void setupIterator() {
 		needSetupIterator = false;
 		try {
-			if(targetAtom == null) {
-				listIterator.setList(((AtomTreeNodeGroup)basis.node).childList);
+			if(targetAtom == null || targetDepth <= basis.node.depth()) {
+				if(basis.node.isLeaf()) {//if the basis is a leaf atom, we define the iterates to be just the basis atom itself
+					littleList.clear();
+					littleList.add(basis);
+					listIterator.setList(littleList);
+				} else {
+					listIterator.setList(((AtomTreeNodeGroup)basis.node).childList);
+				}
 			} else {
 				//return child of basis that is or is above targetAtom (if in hierarchy of basis)
 				//do no looping if not in hierarchy of basis				
@@ -83,12 +94,12 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 				littleList.add(targetNode);
 				listIterator.setList(littleList);
 			}		
-		} catch(Exception e) {listIterator.setList(null);}//this could happen if childWhereDescendedFrom returns null
+		} catch(Exception e) {listIterator.setList(null);}//this could happen if basis==null or childWhereDescendedFrom returns null
 
 	}
 
 	/**
-	 * Return 1, indicating that only a single-atom basis is appropriate.
+	 * Returns 1, indicating that only a single-atom basis is appropriate.
 	 */
 	public int basisSize() {
 		return 1;
@@ -97,6 +108,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	private final AtomIteratorListSimple listIterator;//the wrapped iterator
 	private final AtomList littleList = new AtomList();//used to form a list of one iterate if target is specified
 	private Atom targetAtom;
+	private int targetDepth;
 	private Atom basis;
 	private boolean needSetupIterator = true;//flag to indicate if setupIterator must be called upon reset
 }
