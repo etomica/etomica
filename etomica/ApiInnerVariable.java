@@ -83,7 +83,10 @@ public final class ApiInnerVariable implements AtomsetIterator {
 
     /**
      * Returns the number of pairs given by this iterator.  Independent
-     * of state of hasNext, but clobbers the iteration state.
+     * of state of hasNext. Clobbers the iteration state (i.e., status
+     * of hasNext/next) but does not recondition iterator (i.e., does not 
+     * change set of iterates that would be given on iteration after reset).
+     * Must perform reset if attempting iteration after using size() method.
      */
     public int size() {
     	int sum = 0;

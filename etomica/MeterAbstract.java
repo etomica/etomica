@@ -148,30 +148,7 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
 	    public MeterScalar[] getMeters();
 	    public void addMeter(MeterScalar m);
 	 }
-	     
-    
-	 /**
-	  * Function that can be added to a meter to make it return molar (intensive)
-	  * rather than total (extensive) property.  Example usage:
-	  *     meter.setFunction(new MeterScalar.Molar(phase));
-	  *
-	  */
-	 public static class Molar implements Function {
-	    private Phase phase;
-	    public Molar(Phase phase) {
-	        this.phase = phase;
-	    }
-	    public double f(double x) {
-	        return x/phase.moleculeCount();
-	    }
-	    public double dfdx(double x) {
-	        return 1.0/phase.moleculeCount();
-	    }
-	    public double inverse(double x) {
-	        throw new RuntimeException("dfdx method not implemented in MeterScalar.Molar");
-	    }
-	 }//end of Molar
 
-	 public DataTranslator GetTranslator() {return DataTranslator.IDENTITY;}
+	 public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
 	 
 }//end of MeterAbstract	 
