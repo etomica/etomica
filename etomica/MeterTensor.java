@@ -8,138 +8,41 @@ import javax.swing.JScrollPane;
 */
 
 /**
- * Meter for recording and averaging tensor data.  Includes a DisplayTensorTable method to show results.
- * 
- * @author Rob Riggleman
+ * Meter for recording and averaging tensor data.  
+ * Includes a DisplayTensorTable method to show results.
  */
 
 public abstract class MeterTensor extends MeterAbstract {
     
-    MeterAbstract.Accumulator[][] accumulator;
-    Space.Tensor values, average, error, y;
-    private int D;
-    
-    
+    /**
+     * Constructs meter, indicating to superclass that nDataPerPhase is D^2.
+     */
     public MeterTensor(Space space) {
-        super();
-        D = space.D();
-        accumulator = new MeterAbstract.Accumulator[D][D];
-        setActive(true);
-        for (int i=0; i<D; i++) {
-            for (int j=0; j<D; j++) {
-                accumulator[i][j] = new MeterAbstract.Accumulator();
-            }
-        }
-        values = space.makeTensor();
-        average = space.makeTensor();
-        error = space.makeTensor();
-        y = space.makeTensor();
-    }    
-    
-    public abstract Space.Tensor getData();
+        super(space.D()*space.D());
+        translator = new DataTranslatorTensor(space);
+    }
     
     /**
-     * Current value of the i,j component of the virial tensor
+     * Returns a tensor value as the measurement for the given phase.
+     * Subclasses define this method to specify the measurement they make.
      */
-    public double currentValue(int i, int j) {
-        return getData().component(i, j);
+    public abstract double getDataAsScalar(Phase phase);
+    
+    /**
+     * Causes the single getDataAsScalar(Phase) value to be computed and
+     * returned for the given phase. In response to a getData() call,
+     * MeterAbstract superclass will loop over all phases previously specified
+     * via setPhase and collect these values into a vector and return them in
+     * response to a getData() call.
+     */
+    public final double[] getData(Phase phase) {
+        phaseData[0] = getDataAsScalar(phase);
+        return phaseData;
     }
     
-    public void updateSums() {
-        values.E(getData());
-        for (int i=0; i<accumulator.length; i++) {
-            for (int j=0; j<accumulator.length; j++) {
-                accumulator[i][j].add(values.component(i, j));
-            }
-        }
-    }
+    public DataTranslator getTranslator() {return translator;}
     
-    protected Accumulator[] allAccumulators() {
-        Accumulator[] a = new Accumulator[accumulator.length*accumulator.length];
-        int k = 0;
-        for (int i=0; i<accumulator.length; i++) {
-            for (int j=0; j<accumulator.length; j++) {
-                a[k++] = accumulator[i][j];
-            }
-        }
-        return a;
-    }
-        
-        
-	/**
-	 * Returns the value indicated by the argument.
-	 */
-	public Space.Tensor value(MeterAbstract.ValueType type) {
-	    if(type==MeterAbstract.AVERAGE) return average();
-	    else if(type==MeterAbstract.MOST_RECENT) return mostRecent();
-	    else if(type==MeterAbstract.CURRENT) return getData();
-	    else if(type==MeterAbstract.MOST_RECENT_BLOCK) return mostRecentBlock();
-	    else if(type==MeterAbstract.ERROR) return error();
-	    else if(type==MeterAbstract.VARIANCE) return variance();
-	    else return null;
-	}
-    
-    public Space.Tensor average() {
-        for (int i=0; i<D; i++) {
-            for (int j=0; j<D; j++) {
-                average.setComponent(i, j, accumulator[i][j].average());
-            }
-        }
-        return average;
-    }
-    
-    public double average(int i, int j) {
-        return average().component(i, j);        
-    }
-    
-    public Space.Tensor error() {
-        for (int i=0; i<D; i++) {
-            for (int j=0; j<D; j++) {
-                error.setComponent(i, j, accumulator[i][j].error());
-            }
-        }
-        return error;
-    }
-    
-    public double error(int i, int j) {
-        return error().component(i, j);
-    }
-    
-    public Space.Tensor variance() {
-        for (int i=0; i<accumulator.length; i++) {
-            for (int j=0; j<accumulator.length; j++) {
-                y.setComponent(i, j, accumulator[i][j].variance());
-            }
-        }
-        return y;
-    }
-
-    public Space.Tensor mostRecent() {
-        for (int i=0; i<accumulator.length; i++) {
-            for (int j=0; j<accumulator.length; j++) {
-                y.setComponent(i, j, accumulator[i][j].mostRecent());
-            }
-        }
-        return y;
-    }
-    
-    public Space.Tensor mostRecentBlock() {
-        for (int i=0; i<accumulator.length; i++) {
-            for (int j=0; j<accumulator.length; j++) {
-                y.setComponent(i, j, accumulator[i][j].mostRecentBlock());
-            }
-        }
-        return y;
-    }
-
-	public interface Atomic {
-	    public Space.Tensor currentValue(Atom a);
-	}
-	
-//	public interface MeterCollisional extends IntegratorHard.CollisionListener {
-//	    public Space.Tensor collisionValue(IntegratorHard.Agent agent);
-//	}
-//    
+    private final DataTranslatorTensor translator;
     
    /**
     * Creates a table to display the values of the tensor.  

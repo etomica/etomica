@@ -19,6 +19,9 @@ public interface DataTranslator {
 
 	/**
 	 * Converts the given array of doubles into the object.
+     * The returned object is subject to re-use (a new instance is
+     * not necessarily constructed at each invocation), so object
+     * should be copied if not used immediately.
 	 */
 	public Object fromArray(double[] x);
 	
