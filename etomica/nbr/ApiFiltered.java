@@ -4,6 +4,8 @@
  */
 package etomica.nbr;
 
+import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
@@ -22,7 +24,7 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
  */
 //maybe make an AtomsetIteratorMoleculeFiltered that implements AtomsetIteratorMolecule
 //and leave this to implement just AtomsetIterator
-public class ApiFiltered implements AtomsetIteratorMolecule {
+public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
     /**
      * Default constructor that causes no atoms to be filtered.
      * Iterator will give all iterates of the given iterator
@@ -80,12 +82,16 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
         iterator.unset();
         next = null;
     }
+    
+    public AtomSet next() {
+        return nextPair();
+    }
 
     /**
      * Returns the next atom from the iterator that meets the 
      * filter's criteria.
      */
-    public AtomSet next() {
+    public AtomPair nextPair() {
         if(next == null) return null;
         next.copyTo(nextAtoms);
         next = null;

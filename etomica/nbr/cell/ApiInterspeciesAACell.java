@@ -5,11 +5,10 @@
 package etomica.nbr.cell;
 
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.IteratorDirective;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
-import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
@@ -22,7 +21,6 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.space.Vector;
 
 /**
  * Returns iterates formed from all molecule pairs of two species. Looping is
@@ -32,7 +30,7 @@ import etomica.space.Vector;
  */
 
 public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, AtomsetIteratorCellular, 
-        NearestImageVectorSource {
+        AtomPairIterator {
 
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -51,7 +49,6 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         index0 = species[0].getIndex();
         index1 = species[1].getIndex();
         if(index0 == index1) throw new IllegalArgumentException("Intergroup iterator cannot be constructed with a single species");
-        nearestImageVector = Space.makeVector(D);
 	}
 
 	public void setPhase(Phase phase) {
@@ -60,10 +57,6 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         neighborIterator.setPeriod(phase.boundary().dimensions());
         unset();
 	}
-
-    public Vector getNearestImageVector() {
-        return nearestImageVector;
-    }
 
     /**
      * Performs action on all iterates.
@@ -156,6 +149,10 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     }
     
     public AtomSet next() {
+        return nextPair();
+    }
+    
+    public AtomPair nextPair() {
         if(!hasNext()) return null;
         AtomPair nextPair = listIterator.nextPair();//returns AtomPair
         nextPair.copyTo(pair);//copy to AtomPairVector
@@ -298,6 +295,4 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     private boolean doListSwap;
     private final AtomPairVector pair = new AtomPairVector();
     private int innerIndex;
-    
-    private Vector nearestImageVector;
 }

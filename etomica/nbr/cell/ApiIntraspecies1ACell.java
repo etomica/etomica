@@ -7,11 +7,10 @@ package etomica.nbr.cell;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.IteratorDirective;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
-import etomica.Space;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
@@ -28,7 +27,6 @@ import etomica.atom.iterator.AtomIteratorSequencerList;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.lattice.CellLattice;
-import etomica.space.Vector;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase, taking one
@@ -40,7 +38,7 @@ import etomica.space.Vector;
  */
 
 public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
-        NearestImageVectorSource {
+        AtomPairIterator {
 
     /**
      * @param species species whose molecules will form the pair iterates
@@ -78,8 +76,6 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         aiInnerSeq.setNumToSkip(1);
         neighborIterator.setDirection(null);
         setPhase(null);
-        
-        nearestImageVector = Space.makeVector(D);
 	}
 
 	public void setPhase(Phase phase) {
@@ -91,10 +87,6 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         }
         identifyTargetMolecule();
 	}
-
-    public Vector getNearestImageVector() {
-        return nearestImageVector;
-    }
 
     /**
      * Performs action on all iterates.
@@ -278,5 +270,4 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private AtomIterator aiInner;
     private boolean finishedCentralCell;
 
-    private Vector nearestImageVector;
 }

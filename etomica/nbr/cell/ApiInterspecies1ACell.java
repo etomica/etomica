@@ -6,11 +6,10 @@ package etomica.nbr.cell;
 
 import etomica.Atom;
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.IteratorDirective;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
-import etomica.Space;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
@@ -25,7 +24,6 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.lattice.CellLattice;
-import etomica.space.Vector;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,
@@ -38,7 +36,7 @@ import etomica.space.Vector;
  */
 
 public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
-        NearestImageVectorSource {
+        AtomPairIterator {
 
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -74,8 +72,6 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         // in contrast, for intraspecies iteration direction is related to the cell ordering
         neighborIterator.setDirection(null);
         setPhase(null);
-        
-        nearestImageVector = Space.makeVector(D);
 	}
 
 	public void setPhase(Phase phase) {
@@ -88,10 +84,6 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         }
         identifyTargetMolecule();
 	}
-    
-    public Vector getNearestImageVector() {
-        return nearestImageVector;
-    }
 
     /**
      * Performs action on all iterates.
@@ -146,6 +138,10 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     }
     
     public AtomSet next() {
+        return nextPair();
+    }
+    
+    public AtomPair nextPair() {
         if(!hasNext()) return null;
         pair.atom1 = aiInner.nextAtom();
         pair.nearestImageVector = neighborIterator.getNearestImageVector();
@@ -303,6 +299,4 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private Phase phase;
     private IteratorDirective.Direction allowedDirection, direction;
     private CellLattice lattice;
-    
-    private Vector nearestImageVector;
 }

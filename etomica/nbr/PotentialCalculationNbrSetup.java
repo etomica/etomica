@@ -5,6 +5,7 @@
 package etomica.nbr;
 
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Potential;
@@ -41,7 +42,7 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
         }
 		iterator.reset();
 		while(iterator.hasNext()) {
-			AtomPair atoms = (AtomPair)iterator.next();
+			AtomPair atoms = ((AtomPairIterator)iterator).nextPair();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
 			((AtomSequencerNbr)atoms.atom0.seq).addUpNbr(atoms.atom1, potential);

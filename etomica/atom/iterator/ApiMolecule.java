@@ -4,12 +4,12 @@
  */
 package etomica.atom.iterator;
 
+import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
-import etomica.space.Vector;
 
 /**
  * Adapater class that wraps two atomPair iterators, one suitable for
@@ -20,7 +20,7 @@ import etomica.space.Vector;
  * This class may be set up to do inter- or intra-species iteration, depending
  * on choice of inner iterators given at construction.
  */
-public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorSource {
+public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator {
 
     /**
      * @param api1A iterator for all pairs formed with a target molecule
@@ -30,22 +30,22 @@ public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorS
                           AtomsetIteratorPhaseDependent apiAA) {
 		this.api1A = api1A;
         this.apiAA = apiAA;
-        iterator = apiAA;
+        iterator = (AtomPairIterator)apiAA;
 	}
     
     public void setTarget(AtomSet targetAtoms) {
         if(targetAtoms == null) {
-            iterator = apiAA;
+            iterator = (AtomPairIterator)apiAA;
         } else {
-            iterator = api1A;
+            iterator = (AtomPairIterator)api1A;
             api1A.setTarget(targetAtoms);
         }
-        iterator.setPhase(phase);
+        getCurrentIterator().setPhase(phase);
     }
     
     public void setPhase(Phase phase) {
         this.phase = phase;
-        iterator.setPhase(phase);
+        getCurrentIterator().setPhase(phase);
     }
        
     public void setDirection(Direction direction) {
@@ -85,6 +85,10 @@ public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorS
 	public AtomSet next() {
 		return iterator.next();
 	}
+    
+    public AtomPair nextPair() {
+        return iterator.nextPair();
+    }
 	
 	public AtomSet peek() {
 		return iterator.peek();
@@ -114,14 +118,10 @@ public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorS
      * Api1A iterator, otherwise it will be the ApiAA iterator.
      */
     public AtomsetIteratorPhaseDependent getCurrentIterator() {
-        return iterator;
+        return (AtomsetIteratorPhaseDependent)iterator;
     }
     
-    public Vector getNearestImageVector() {
-        return ((NearestImageVectorSource)iterator).getNearestImageVector();
-    }
-    
-    private AtomsetIteratorPhaseDependent iterator;
+    private AtomPairIterator iterator;
     private final AtomsetIteratorMolecule api1A; 
     private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;
