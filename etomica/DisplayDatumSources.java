@@ -20,7 +20,7 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
     public String getVersion() {return "DisplayDatumSources:01.05.29/"+Display.VERSION;}
 
     protected DatumSource[] ySource;
-    protected Unit yUnit;//ignored for now
+    protected Unit[] yUnit;
     protected double[][] y;
     protected String[] labels;
     protected DataSource.ValueType[] whichValues;//values shown for every source
@@ -59,8 +59,15 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
         if(s == null || s.length == 0) return;
         y = new double[ySource.length][whichValues.length];
         //change unit if dimension of new source is different from current source        
-        if(yUnit.dimension() != ySource[0].getDimension()) 
-            setYUnit(ySource[0].getDimension().defaultIOUnit());
+        //set up default units, but try to keep old units if possible
+        if(yUnit == null || yUnit.length != y.length) yUnit = new Unit[ySource.length];
+        for(int i=0; i<yUnit.length; i++) {
+            if(yUnit[i]==null || yUnit[i].dimension() != ySource[i].getDimension()) {
+                //no unit presently defined, or existing unit is not 
+                //of same Dimension as corresponding ySource
+                yUnit[i] = ySource[i].getDimension().defaultIOUnit();
+            }//end if
+        }//end for
         setupLabels();
         setupDisplay();
     }
@@ -70,6 +77,11 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
         else if(ySource == null && i == 0) {setDatumSources(s); return;}
         if(i < 0 || i >= ySource.length) throw new ArrayIndexOutOfBoundsException();
         else ySource[i] = s;
+        if(yUnit[i]==null || yUnit[i].dimension() != ySource[i].getDimension()) {
+            //no unit presently defined, or existing unit is not 
+            //of same Dimension as corresponding ySource
+            yUnit[i] = ySource[i].getDimension().defaultIOUnit();
+        }//end if
         setupLabels();
         setupDisplay();
     }
@@ -124,11 +136,16 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
     }
     
     private void setupLabels() {
-        if(labels == null || (labels.length != ySource.length) && ySource != null) {
+        if(labels == null || labels.length == 0 || (labels.length != ySource.length) && ySource != null) {
             labels = new String[ySource.length];
-            for(int i=0; i<ySource.length; i++) {
-                if(ySource[i] != null) labels[i] = ySource[i].getLabel();
-            }
+        }
+        for(int i=0; i<ySource.length; i++) {
+            if(ySource[i] != null) labels[i] = ySource[i].getLabel();
+        }
+        labels[0] += " (" + yUnit[0].symbol() + ")";
+        for(int i=1; i<ySource.length; i++) {
+            if(ySource[i] == null || yUnit[i].symbol().equals(yUnit[i-1].symbol())) continue;
+            labels[i] += " (" + yUnit[i].symbol() + ")";
         }
     }
     
@@ -146,9 +163,28 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
     }
     public DataSource.ValueType[] getWhichValues() {return whichValues;}
      
-    public void setYUnit(Unit u) {yUnit = u;}
-    public Unit getYUnits() {return yUnit;}
-    
+    /**
+     * Sets all units to the given value.
+     */
+    public void setYUnit(Unit u) {
+        if(ySource == null) return;
+        yUnit = new Unit[ySource.length];
+        for(int i=0; i<yUnit.length; i++) yUnit[i] = u;
+        setupLabels();
+    }
+    /**
+     * Sets the array of units for the y-data.
+     */
+    public void setYUnit(Unit[] u) {
+        if(ySource == null || u == null) return;
+        if(u.length != ySource.length) return;
+        yUnit = new Unit[ySource.length];
+        for(int i=0; i<yUnit.length; i++) yUnit[i] = u[i];
+        setupLabels();
+    }
+    public Unit[] getYUnit() {return yUnit;}
+    public Unit getYUnit(int i) {return yUnit[i];}
+
     public void doUpdate() {
         if(ySource == null) return;
         //update all y values at once so not to invoke calculation of all

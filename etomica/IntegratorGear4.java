@@ -14,7 +14,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     public String getVersion() {return "IntegratorGear4:01.07.05/"+IntegratorMD.VERSION;}
 
     protected AtomIterator atomIterator;
-    protected final PotentialCalculationForceSum forceSum;
+    private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     final Space.Vector work1, work2;
     double zeta = 0.0;
@@ -75,7 +75,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         
     }//end of doStep
     
-    private void calculateForces() {
+    protected void calculateForces() {
         
         //Compute all forces
         atomIterator.reset();
@@ -158,6 +158,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
 
     protected void doReset() {
+        if(potential == null || firstPhase == null) return;
         potential.set(firstPhase);//assumes only one phase
         calculateForces();
         atomIterator.reset();

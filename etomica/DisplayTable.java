@@ -117,7 +117,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
             //or average for each function entry
         public Object getValueAt(int row, int column) {
             if(showLabels && column == 0) return labels[row];
-            else return new Double(y[row][column-y0]);
+            else return new Double(yUnit[row].fromSim(y[row][column-y0]));
         }
         
         public int getRowCount() {return ySource.length;}

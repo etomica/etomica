@@ -284,7 +284,7 @@ public class Simulation implements java.io.Serializable {
 
     public static final void makeAndDisplayFrame(Simulation sim) {
         javax.swing.JFrame f = new javax.swing.JFrame();
-        f.setSize(600,500);
+        f.setSize(700,500);
         f.getContentPane().add(sim.panel());
         f.pack();
         f.show();

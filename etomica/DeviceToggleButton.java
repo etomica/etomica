@@ -24,6 +24,10 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
         this(Simulation.instance, modulator);
     }
     public DeviceToggleButton(Simulation sim, ModulatorBoolean modulator) {
+        this(sim, modulator, "True", "False");
+    }
+    public DeviceToggleButton(Simulation sim, ModulatorBoolean modulator, 
+                                String trueText, String falseText) {
         super(sim);
         button = new JButton();
         button.addActionListener( new java.awt.event.ActionListener() {
@@ -33,6 +37,8 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
         });
         currentValue = modulator.getBoolean();
         setModulator(modulator);
+        setTrueLabel(trueText);
+        setFalseLabel(falseText);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

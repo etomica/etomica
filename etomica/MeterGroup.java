@@ -10,7 +10,7 @@ import etomica.utility.Function;
  * Exists to permit several properties to be measured at the same time, perhaps because
  * it is more efficient than computing them in separate meters.  Differs from a simple
  * Meter in that the data-access methods (currentValue, average, etc.), take an integer
- * argument indicating "which Meter's" value is requested.  Often there won't acutally
+ * argument indicating "which Meter's" value is requested.  Often there won't actually
  * exist a separate Meter for each measured property, but "PseudoMeters" can be constructed
  * and returned as an array of all meters by the allMeters() method.  Each meter in this
  * array behaves as a stand-alone meter would.
@@ -203,7 +203,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	 public Histogram histogram(int i) {return accumulator[i].histogram();}
 	 
 	 /**
-	  * Meter facade the gives the impression of providing data independently,
+	  * Meter facade that gives the impression of providing data independently,
 	  * although it is actually serving as a wrapper for the one of the data values
 	  * collected by the meter group.
 	  */
@@ -219,10 +219,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
         public boolean usesPhaseBoundary() {return false;}
         public String getLabel() {return labels[index];}
         public Dimension getDimension() {return Dimension.NULL;}//temporary
-        public void updateSums() {//do nothing since this is taken care of by the group
-        }
-        
-        
-	 }
+        public void updateSums() {/*do nothing since this is taken care of by the group*/}
+	 }//end of PseudoMeter
 	 
 }//end of MeterGroup class	 

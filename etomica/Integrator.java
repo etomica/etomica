@@ -107,6 +107,8 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     addPhase(p);
   }
   
+  public Phase getPhase(int i) {return phase[i];}
+  
   /**
    * Performs activities needed to set up integrator to work on given phase.
    * This method should not be called directly; instead it is invoked by the phase in its setIntegrator method.
@@ -137,6 +139,16 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
             firstPhase = phase[0];
             break;
         }
+    }
+  }
+  
+  /**
+   * Attempts to set the given integrator as the integrator for all phases
+   * that were added to this phase.
+   */
+  public void transferPhasesTo(Integrator anotherIntegrator) {
+    for(int i=0; i<phaseCount; i++) {
+        phase[i].setIntegrator(anotherIntegrator);
     }
   }
 
@@ -220,11 +232,39 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     }
   }
   
+  /**
+   * Registers with the given integrator all listeners currently registered with
+   * this integrator.  Removes all listeners from this integrator.
+   */
+  public synchronized void transferListenersTo(Integrator anotherIntegrator) {
+    if(anotherIntegrator == this) return;
+    int n = intervalListenersBeforePbc.size();
+    for(int i = 0; i < n; i++) {
+        IntervalListener listener = (IntervalListener)intervalListenersBeforePbc.elementAt(i);
+        anotherIntegrator.addIntervalListener(listener);
+    }
+    n = intervalListenersImposePbc.size();
+    for(int i = 0; i < n; i++) {
+        IntervalListener listener = (IntervalListener)intervalListenersImposePbc.elementAt(i);
+        anotherIntegrator.addIntervalListener(listener);
+    }
+    n = intervalListenersAfterPbc.size();
+    for(int i = 0; i < n; i++) {
+        IntervalListener listener = (IntervalListener)intervalListenersAfterPbc.elementAt(i);
+        anotherIntegrator.addIntervalListener(listener);
+    }
+    intervalListenersBeforePbc.removeAllElements();
+    intervalListenersImposePbc.removeAllElements();
+    intervalListenersAfterPbc.removeAllElements();
+  }
+    
+  
     public int getMaxSteps() {return maxSteps;}
     public void setMaxSteps(int m) {maxSteps = m;}
     
     public void start() {
         if(running) return;
+        running = true;
         fireIntervalEvent(new IntervalEvent(this, IntervalEvent.START));
         haltRequested = false;
         isPaused = false;
@@ -234,7 +274,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     }
 
     public void run() {
-        if(running) return; //do not allow two threads
+//        if(running) return; //do not allow two threads
         running = true;
         stepCount = 0;
         int iieCount = interval+1;
@@ -304,6 +344,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
      * Method to make the calling thread wait until this integrator thread has finished.
      */
     public void join() {
+        if(!running) return;
         try {
             runner.join();
         } catch(InterruptedException e) {}
