@@ -1,66 +1,77 @@
 package etomica;
 
 /**
- * Pair iterator synthesized from two atom iterators.  Pairs are formed from
- * the atoms yielded by the two atom iterators.
- * Different types of pair iterators can be constructed with different choices
- * of the atom iterators.
- *
- * @author David Kofke
- */
+ * Pair iterator synthesized from two atom iterators, such that the inner-loop
+ * iteration is independent of the outer-loop atom.  Pairs are formed from
+ * the atoms yielded by the two atom iterators.  It is expected that the inner-loop
+ * iterator will yield the same set of atoms with each pass of the outer loop.
+ * All pairs returned by iterator are the same AtomPair instance, and
+ * differ only in the Atom instances held by it.
+*/
  
  /* History of changes
-  * 8/4/02 (DAK) special-purpose modification to setBasis method to in attempt to work with PistonCylinder
-  * 08/29/03 (DAK) using reset2 method
+  * 08/25/04 (DAK et al) new
   */
   
-public final class ApiGeneral implements AtomPairIterator {
-    
-    private final AtomPair pair;
-    private IteratorDirective.Direction direction;
-    private final IteratorDirective localDirective = new IteratorDirective();
-
-    /**
-     * The iterators used to generate the sets of atoms.
-     * The inner one is not necessarily atom dependent.
-     */
-    private AtomIterator aiInner, aiOuter;
-    
-    protected boolean hasNext;
-
+public final class ApiInnerFixed implements AtomPairIterator {
     
     /**
-     * Construct a pair iterator using the given atom iterators
+     * Construct a pair iterator using the given atom iterators.  Requires
+     * call to reset() before beginning iteration.
      */
-    public ApiGeneral(Space s, AtomIterator aiOuter, AtomIterator aiInner) {
-        pair = new AtomPair(s);
-        hasNext = false;
+    public ApiInnerFixed(Space space, AtomIterator aiOuter, AtomIterator aiInner) {
+        pair = new AtomPair(space);
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;
+        unset();
     }
     
-    public AtomIterator aiOuter() {return aiOuter;}
-    public AtomIterator aiInner() {return aiInner;}
+    /**
+     * Accessor method for the outer-loop atom iterator.
+     * @return the current outer-loop iterator
+     */
+    public AtomIterator getOuterIterator() {return aiOuter;}
+    
+    /**
+     * Accessor method for the inner-loop atom iterator.
+     * @return the current inner-loop iterator
+     */
+    public AtomIterator getInnerIterator() {return aiInner;}
 
+    /**
+     * Defines the atom iterator that performs the inner-loop iteration to
+     * generate the pairs.
+     * @param inner The new inner-loop iterator.
+     */
     public void setInnerIterator(AtomIterator inner) {
     	this.aiInner = inner;
     	unset();
     }
     
+    /**
+     * Defines the iterator the performs the outer-loop iteration to
+     * generate the pairs.
+     * @param outer The new outer-loop iterator.
+     */
     public void setOuterIterator(AtomIterator outer) {
     	this.aiOuter = outer;
     	unset();
     }
     
+    /**
+     * Sets the iterator such that hasNext is false.
+     */
     public void unset() {
     	hasNext = false;
     }
     
     /**
-     * Returns whether or not an AtomPair is contained by the
-     * iterator. The first atom of the pair must be contained in
-     * the outer loop.  The second atom of the pair must be contained
-     * in the inner loop.
+     * Indicates whether the given atom pair will be returned by the
+     * iterator during its iteration. The order of the atoms in the pair
+     * is significant (this means that a value of true is returned only if
+     * one of the pairs returned by the iterator will have the same two 
+     * atoms in the same atom1/atom2 position as the given pair). Not
+     * dependent on state of hasNext.
      */
     public boolean contains(AtomPair pair) {
     	return aiOuter.contains(pair.atom1) && aiInner.contains(pair.atom2());
@@ -68,13 +79,17 @@ public final class ApiGeneral implements AtomPairIterator {
     
     
     /**
-     * Returns the number of pairs given by this iterator.
+     * Returns the number of pairs given by this iterator.  Not dependent
+     * on state of hasNext.
      */
     public int size() {
     	return aiOuter.size() * aiInner.size();
     }        
     
-    public final boolean hasNext() {return hasNext;}
+    /**
+     * Indicates whether the iterator has completed its iteration.
+     */
+    public boolean hasNext() {return hasNext;}
 
     /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
@@ -94,52 +109,61 @@ public final class ApiGeneral implements AtomPairIterator {
     	if(!hasNext) {return null;}
     	
     	if(aiInner.hasNext()) {
-    		pair.reset2(aiInner.peek());
+    		pair.setAtom2(aiInner.peek());
     	}
     	else {
-    		// We can reset the inner loop, because it has
-    		// reached its end, and the next() method
-    		// will see the inner loop at its
-    		// start, and advance from there.
+    		// Althouth we advance aiOuter, we 
+    		// are not advancing the pair iterator.
+    		// Outcome of next() is not changed
     		aiInner.reset();
-    		pair.reset(aiOuter.next(), aiInner.peek());
+    		pair.setAtoms(aiOuter.next(), aiInner.peek());
     	}
     	return pair;
     }
     
     /**
-     * Returns the next pair of atoms.  Advances the outer loop to 
-     * the next atom when the inner loop has reached its last atom.
+     * Returns the next pair of atoms. The same AtomPair instance
+     * is returned every time, but the Atoms it holds are (of course)
+     * different for each iterate. 
      */
-    public final AtomPair next() {
+    public AtomPair next() {
     	if(!hasNext) {return null;}
     	//Advance the inner loop, if it is not at its end.
     	if(aiInner.hasNext()) {
-    		pair.reset2(aiInner.next());
+    		pair.setAtom2(aiInner.next());
     	}
     	//Advance the outer loop, if the inner loop has reached its end.
     	else {
     		aiInner.reset();
-			pair.reset(aiOuter.next() , aiInner.next());
-    	} 
-    	
+			pair.setAtoms(aiOuter.next() , aiInner.next());
+    	}   	
     	hasNext = aiInner.hasNext() || aiOuter.hasNext();
         return pair;
     }
 
-    /**
-     * Performs the given action on all pairs returned by this iterator.
-     */
-    public void allPairs(AtomPairActive act) {  
-       reset();
+	/**
+	 * Performs the given action on all pairs returned by this iterator.
+	 */
+    public void allPairs(AtomPairActive action) {  
+       aiOuter.reset();
        while(aiOuter.hasNext()) {
-       		pair.setAtom1(aiOuter.next());
-       		aiInner.reset();
-       		while(aiInner.hasNext()){
-       			act.actionPerformed(pair.reset2(aiInner.next()));
-       		}
+	       pair.setAtom1(aiOuter.next());
+	       aiInner.reset();
+	       while(aiInner.hasNext()){
+		       pair.setAtom2(aiInner.next());
+		       action.actionPerformed(pair);
+	       }
        }
     }
+    
+    private final AtomPair pair;
+    private boolean hasNext;
+
+    /**
+     * The iterators used to generate the sets of atoms.
+     * The inner one is not necessarily atom dependent.
+     */
+    private AtomIterator aiInner, aiOuter;
     
 /*    public static void main(String[] args) throws java.io.IOException {
         

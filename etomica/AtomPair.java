@@ -93,6 +93,15 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
 		cPair.reset();
         return this;
     }
+    
+    public void setAtom1(Atom atom) {atom1 = atom;}
+    
+    public void setAtom2(Atom atom) {atom2 = atom;}
+    
+    public void setAtoms(Atom atom1, Atom atom2) {
+    	this.atom1 = atom1;
+    	this.atom2 = atom2;
+    }
     /**
      * @return the square of the distance between the atoms, |r1 - r2|^2
      */

@@ -5,12 +5,10 @@
 package etomica;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Interface for an atom iterator that can be altered by setting
+ * of an atom.  A neighbor iterator, for example. 
  */
 public interface AtomIteratorAtomDependent extends AtomIterator {
 
-	public void setBasis(Atom atom);
+	public void setAtom(Atom atom);
 }
