@@ -10,7 +10,8 @@ import java.util.Hashtable;
 import etomica.utility.Iterator;
 
     /* History of changes
-     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     * 09/07/02 (DAK) Added atom filter.
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -48,6 +49,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     public float getPrevY() {return(prevy);}
     
     private ColorScheme colorScheme;
+    private AtomFilter atomFilter;
         
     public DisplayPhaseCanvas3DSoftware(DisplayPhase _phase) {
         tvert = new int[4];
@@ -56,7 +58,10 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         scaleText.setBounds(0,0,100,50);
         displayPhase = _phase;
         colorScheme = displayPhase.getColorScheme();
+        atomFilter = displayPhase.getAtomFilter();
     }
+    
+    public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
     
     public void initialize() {
         nvert = 0;
@@ -233,6 +238,9 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     }
         
     private void drawAtom(Graphics g, int origin[], Atom a, int sorted) {
+        
+        if(!atomFilter.accept(a)) return;
+        
 	    /*  Place the light source for shaded atoms to the upper right of
 	    * the atoms and out of the plane. */
         float[] lightSource = {1.0f, -1.0f, 2.0f};

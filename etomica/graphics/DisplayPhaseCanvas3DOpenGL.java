@@ -24,6 +24,7 @@ import etomica.utility.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     * 09/07/02 (DAK) added atomFilter
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -104,6 +105,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   public float getZoom() {return(shiftZ);}
   
   private ColorScheme colorScheme;
+  private AtomFilter atomFilter;
           
   public DisplayPhaseCanvas3DOpenGL(DisplayPhase newDisplayPhase, int w, int h) {
     super(w, h);
@@ -113,6 +115,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     setAnimateFps(24.);
     displayPhase = newDisplayPhase;
     if(displayPhase != null) colorScheme = displayPhase.getColorScheme();
+    if(displayPhase != null) atomFilter = displayPhase.getAtomFilter();
   }
       
   //public void preInit() {
@@ -333,6 +336,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       setSize(width, height);
     }*/
   }
+  
+  public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
 
   private void drawDisplay() {
 
@@ -351,6 +356,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       i += i<<1;
       while(i >= 0) {
         a = walls[i/3];
+        if(!atomFilter.accept(a)) {i-=3; continue;}
         c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
@@ -387,6 +393,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       i += i<<1;
       while(i >= 0) {
         a = sphereCores[i/3];
+        if(!atomFilter.accept(a)) {i-=3; continue;}
         Space.Vector r3 = a.coord.position();
 //        System.out.println(a.toString()+", "+r3.x+", "+r3.y+", "+r3.z);
         c = colorScheme.atomColor(a);
@@ -427,6 +434,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       gl.glColor4ub(wR, wG, wB, wA);
       while((--i) >= 0) {
         a = sphereWells[i];
+        if(!atomFilter.accept(a)) {continue;}
         if(wellListRadius != ((AtomType.Well)a.type).wellRadius())
           initWellList(((AtomType.Well)a.type).wellRadius());
         gl.glPushMatrix();
@@ -452,6 +460,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       gl.glColor3ub(mR, mG, mB);
       while((--i) >= 0) {
         a = sphereRotators[i];
+        if(!atomFilter.accept(a)) {continue;}
         gl.glPushMatrix();
         gl.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]], vertSphereCores[vertSphereRotatorBase[i]+1], vertSphereCores[vertSphereRotatorBase[i]+2]);
         ///!!! Draw rotator orientation here

@@ -10,6 +10,7 @@ import gl4java.awt.GLAnimCanvas;
  *
  * @author Steve Hotchkiss
  */
+ 
 public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.io.Serializable, DisplayCanvasInterface, PhaseListener {
     //protected Image offScreen;
     //protected Graphics osg;

@@ -9,6 +9,7 @@ import etomica.utility.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     * 09/07/02 (DAK) added atomFilter
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -20,15 +21,19 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
     private final AtomIteratorList atomIterator = new AtomIteratorList();
+    private AtomFilter atomFilter;
     
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {
         displayPhase = _phase;
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
+        atomFilter = _phase.getAtomFilter();
     }
     
     public void initialize() {}
+    
+    public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
         
     /**
     * Sets the size of the display to a new value and scales the image so that
@@ -55,6 +60,8 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     }
        
     private void drawAtom(Graphics g, int origin[], Atom a) {
+        if(!atomFilter.accept(a)) return;
+        
         Space.Vector r = a.coord.position();
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;

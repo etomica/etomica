@@ -3,6 +3,10 @@ import etomica.*;
 import java.awt.*;
 import java.awt.event.*;
 
+ /* History of changes
+  * 09/07/02 (DAK) added atomFilter
+  */
+  
 public interface DisplayCanvasInterface {
 
     //Quality Constants
@@ -19,6 +23,7 @@ public interface DisplayCanvasInterface {
     static final int DRAW_BOUNDARY_ALL = 3;
     static final int DRAW_BOUNDARY_MAX = 4;
     
+    void setAtomFilter(AtomFilter filter);
     public void createOffScreen();
     public void createOffScreen(int p);
     public void createOffScreen(int w, int h);

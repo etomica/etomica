@@ -33,6 +33,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     public static boolean _3dEnabled;
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
+    protected AtomFilter atomFilter = AtomFilter.ALL;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
             
     public DisplayCanvasInterface canvas;  //do not instantiate here; instead must be in graphic method
@@ -233,6 +234,22 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
      * Accessor method for the color scheme used for this display
      */
     public ColorScheme getColorScheme() {return colorScheme;}
+    
+    /**
+     * Mutator method for the atom filter that determines which atoms 
+     * are displayed.  Atoms for which the filter returns false are not displayed.
+     * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     */
+    public void setAtomFilter(AtomFilter filter) {
+        atomFilter = (filter == null) ? AtomFilter.ALL : filter;
+        if(canvas != null) canvas.setAtomFilter(atomFilter);
+    }
+    /**
+     * Accessor method for the atom filter that determines which atoms 
+     * are displayed.  Atoms for which the filter returns false are not displayed.
+     * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     */
+    public AtomFilter getAtomFilter() {return atomFilter;}
     
     public LinkedList getDrawables() {return(drawables);}
     
