@@ -221,7 +221,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void reset() {
             dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
-            c1.atom.parentPhase().boundary().nearestImage(dr);
+            c1.atom.node.parentPhase().boundary().nearestImage(dr);
             drx = dr.x; 
             dry = dr.y;
             r2 = drx*drx + dry*dry;
@@ -299,7 +299,7 @@ public class Space2D extends Space implements EtomicaElement {
             r.y += p.y*tM;
         }
         public void transform(Space.Vector r0, Space.Tensor A) {
-            r.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
+            r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
         /**
         * Moves the atom by some vector distance
         * 
@@ -364,7 +364,7 @@ public class Space2D extends Space implements EtomicaElement {
          */
         public void transform(Space.Vector r0, Space.Tensor A) {
             work.E(position()); //work = r
-            work.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);
+            work.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);
             work.ME(r);//now work vector contains translation vector for COM
             translateBy(work);
         }
@@ -481,7 +481,7 @@ public class Space2D extends Space implements EtomicaElement {
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {
-            switch(((AtomGroup)atom).childAtomCount()) {
+            switch(((AtomGroup)atom).node.childAtomCount()) {
                 case 0: return;
                 case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                         return;

@@ -36,7 +36,7 @@ public class MeterMoleFraction extends Meter implements EtomicaElement
     }
     
     public double currentValue(Atom a) {
-        return (a.parentSpecies()==species) ? 1.0/(double)phase.moleculeCount() : 0.0;
+        return (a.node.parentSpecies()==species) ? 1.0/(double)phase.moleculeCount() : 0.0;
     }
     
     public etomica.units.Dimension getDimension() {return etomica.units.Dimension.NULL;}

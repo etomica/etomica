@@ -24,9 +24,8 @@ public abstract class PotentialBase extends Potential
        // dimensions = new double[3];
     }
     
-    public  Potential set(Atom a){return this;}
-    public  Potential set(Atom a1, Atom a2){return this;}
-    public  Potential set(SpeciesMaster s){return this;}    
+    public  Potential set(SpeciesMaster s){return this;} 
+    public  Potential set(Atom[] atoms) {return this;}
     public abstract double energy(int l, int m);
     public void setArray(Phase phase1){
         phase=phase1;
@@ -102,7 +101,7 @@ public abstract class PotentialBase extends Potential
         switch(id.atomCount()) {
             case 0: all=true;
                      break;
-            case 1:  index=id.atom1().index(); 
+            case 1:  index=id.atom1().node.index(); 
                 all = false;
                 break;
         }

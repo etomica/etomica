@@ -139,7 +139,7 @@ public abstract class AtomType implements java.io.Serializable {
         public double[] momentOfInertia() {return I;}
         
         public Space.Coordinate makeCoordinate(Atom a) {
-            return a.parentSimulation().space().makeCoordinate(a); //override changes nothing, but this may change if revise method in Space
+            return a.node.parentSimulation().space().makeCoordinate(a); //override changes nothing, but this may change if revise method in Space
         }
         
         private void updateI() {

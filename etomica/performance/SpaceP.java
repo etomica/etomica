@@ -401,7 +401,7 @@ public class SpaceP extends Space{
 
         public void transform(Space.Vector r0, Space.Tensor A) {
 
-            r.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
+            r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
 
         /**
 
@@ -503,7 +503,7 @@ public class SpaceP extends Space{
          */
         public void transform(Space.Vector r0, Space.Tensor A) {
             work.E(position()); //work = r
-            work.transform((Boundary)atom.parentPhase().boundary(),(Vector)r0, (Tensor)A);
+            work.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);
             work.ME(r);//now work vector contains translation vector for COM
             translateBy(work);
         }
@@ -620,7 +620,7 @@ public class SpaceP extends Space{
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {
-            switch(((AtomGroup)atom).childAtomCount()) {
+            switch(((AtomGroup)atom).node.childAtomCount()) {
                 case 0: return;
                 case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                         return;

@@ -16,6 +16,7 @@ public class Potential2Group extends Potential2 implements PotentialGroup {
 //    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     private PotentialLinker first;
     private final PotentialTruncation potentialTruncation;
+    private final Atom[] atoms = new Atom[2];
     
     public Potential2Group() {
         this(Simulation.instance.hamiltonian.potential);
@@ -27,7 +28,7 @@ public class Potential2Group extends Potential2 implements PotentialGroup {
         super(parent);
         potentialTruncation = truncation;
         //overwrite iterator with one that doesn't force looping over leaf atoms
-        iterator = new AtomPairIterator(parentSimulation().space(),
+        iterator = new AtomPairIteratorSynthetic(parentSimulation().space(),
                 new AtomIteratorSequential(false), new AtomIteratorSequential(false));
     }
     /**
@@ -46,12 +47,14 @@ public class Potential2Group extends Potential2 implements PotentialGroup {
             //if the atom of the pair is the one specified for calculation, then
             //it becomes the basis for the sub-potential iterations, and is no longer
             //specified to them via the iterator directive
-            if(pair.atom1 == id.atom1()) localDirective.set();
+            if(pair.atom1 == id.atom1() || pair.atom2 == id.atom1()) localDirective.set();
             
             //loop over sub-potentials
+            atoms[0] = pair.atom1;
+            atoms[1] = pair.atom2;
             for(PotentialLinker link=first; link!=null; link=link.next) {
                 if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-                link.potential.set(pair.atom1, pair.atom2).calculate(localDirective, pc);
+                link.potential.set(atoms).calculate(localDirective, pc);
             }//end for
         }//end while
     }//end calculate

@@ -17,10 +17,13 @@ public abstract class Potential1 extends Potential {
         iterator = new AtomIteratorSequential(true);
     }
     
+    
     public Potential set(Atom a) {iterator.setBasis(a); return this;}
 
-    public Potential set(Atom a1, Atom a2) {return null;} //throw an exception? redesign?
-    
+    public Potential set(Atom[] atoms) {
+        if(atoms.length != 1) throw new IllegalArgumentException("Too many atoms in Potential1.set");
+        return set(atoms[0]);
+    }
     public Potential set(SpeciesMaster s) {
         if(species != null) iterator.setBasis(species.getAgent(s));
         else iterator.setBasis(s);

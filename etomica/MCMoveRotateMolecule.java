@@ -42,7 +42,7 @@ public class MCMoveRotateMolecule extends MCMove {
         rotationTensor.setAxial(2,dTheta);
        // molecule.coord.transform(molecule.coord.position(), rotationTensor);
         affectedAtomIterator.reset();
-        r0.E(molecule.firstLeafAtom().coord.position());
+        r0.E(molecule.node.firstLeafAtom().coord.position());
 //        AtomActionTransform.doAction(affectedAtomIterator, molecule.coord.position(), rotationTensor);
         AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
         double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();

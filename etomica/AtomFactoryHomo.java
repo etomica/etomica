@@ -44,7 +44,7 @@ public class AtomFactoryHomo extends AtomFactory {
     protected Atom build() {
         AtomGroup group = new AtomGroup(space, groupType);
         for(int i=0; i<atomsPerGroup; i++) {
-            group.addAtom(childFactory.build());
+            group.node.addAtom(childFactory.build());
         }
         bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);

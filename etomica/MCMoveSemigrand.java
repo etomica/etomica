@@ -140,7 +140,7 @@ public class MCMoveSemigrand extends MCMove {
   
         deleteMolecule = deleteAgent.randomMolecule();
         uOld = potential.set(phase).calculate(iteratorDirective.set(deleteMolecule), energy.reset()).sum();
-        deleteAgent.removeAtom(deleteMolecule);
+        deleteAgent.node.removeAtom(deleteMolecule);
         
         insertMolecule = insertAgent.addNewAtom();
         insertMolecule.coord.translateTo(deleteMolecule.coord.position());
@@ -150,7 +150,7 @@ public class MCMoveSemigrand extends MCMove {
 //        if(iInsert==0) System.out.println(iDelete + "   "+ iInsert + "   "+uOld+"   "+uNew);
 
         if(uNew == Double.MAX_VALUE) {//reject
-            deleteAgent.addAtom(deleteMolecule);
+            deleteAgent.node.addAtom(deleteMolecule);
             insertMolecule.sendToReservoir();
             return false;
         }
@@ -164,7 +164,7 @@ public class MCMoveSemigrand extends MCMove {
         }
         
         //reject
-        deleteAgent.addAtom(deleteMolecule);
+        deleteAgent.node.addAtom(deleteMolecule);
         insertMolecule.sendToReservoir();
         return false;
         

@@ -217,7 +217,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         //time to "collision" to update colliders for periodic boundaries
         protected double periodCollisionTime() {
-            Space.Boundary boundary = atom.parentPhase().boundary();
+            Space.Boundary boundary = atom.node.parentPhase().boundary();
             if(boundary instanceof Space.Boundary.Periodic) {
                 if(!(atom.type instanceof AtomType.Sphere)) {return Double.MAX_VALUE;}
                 Space.Vector p = atom.coord.momentum();

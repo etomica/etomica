@@ -23,10 +23,10 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
      * iterators, which loop over the children (molecules) of all species
      * agents in a phase (which are the child atoms of the phase's species master).
      */      
-    public AtomIteratorCompound(AtomGroup group) {
+    public AtomIteratorCompound(Atom group) {
         this(makeIteratorArray(group));
         basis = group;
-        group.parentPhase().speciesMaster.addListener(this);//sets iterator to update if group has addition or removal of child atoms
+        group.node.parentPhase().speciesMaster.addListener(this);//sets iterator to update if group has addition or removal of child atoms
     }
     /**
      * Construct iterator to loop over all iterates obtained from each iterator 
@@ -37,10 +37,10 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
 //        reset();
     }
     
-    private static AtomIterator[] makeIteratorArray(AtomGroup group) {
-        if(group == null || group.childAtomCount() == 0) return null;
+    private static AtomIterator[] makeIteratorArray(Atom group) {
+        if(group == null || group.node.childAtomCount() == 0) return null;
         AtomIteratorSequential groupIterator = new AtomIteratorSequential(group);
-        AtomIterator[] iterators = new AtomIterator[group.childAtomCount()];
+        AtomIterator[] iterators = new AtomIterator[group.node.childAtomCount()];
         groupIterator.reset();
         int i = 0;
         while(groupIterator.hasNext()) {
@@ -72,8 +72,8 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
         }
         iteratorSet = makeIteratorArray((AtomGroup)a);
         if(a == basis) return;//don't do this before makeIteratorArray, because this method can be called to update the iterator array for the same basis
-        if(basis != null) basis.parentPhase().speciesMaster.removeListener(this);
-        a.parentPhase().speciesMaster.addListener(this);
+        if(basis != null) basis.node.parentPhase().speciesMaster.removeListener(this);
+        a.node.parentPhase().speciesMaster.addListener(this);
         basis = a;
     }
     public Atom getBasis() {return basis;}
@@ -146,7 +146,7 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
     public void actionPerformed(PhaseEvent evt) {
         if(basis == null) return;
         if(evt.type() == PhaseEvent.ATOM_ADDED || evt.type() == PhaseEvent.ATOM_REMOVED) {
-            if(evt.atom().parentGroup() == basis) setBasis(basis);
+            if(evt.atom().node.parentGroup() == basis) setBasis(basis);
         }
     }
     public void actionPerformed(SimulationEvent evt) {

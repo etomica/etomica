@@ -19,7 +19,7 @@ public abstract class Potential2 extends Potential {
 
     public Potential2(PotentialGroup parent) {
         super(parent);
-        iterator = new AtomPairIterator(parentSimulation().space());
+        iterator = new AtomPairIteratorSynthetic(parentSimulation().space());
         if(Default.TRUNCATE_POTENTIALS) {//can't use other constructor because of "this" in constructor of PotentialTruncationSimple
             truncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
         } else {
@@ -28,7 +28,7 @@ public abstract class Potential2 extends Potential {
     }
     public Potential2(PotentialGroup parent, PotentialTruncation trunc) {
         super(parent);
-        iterator = new AtomPairIterator(parentSimulation().space());
+        iterator = new AtomPairIteratorSynthetic(parentSimulation().space());
         truncation = trunc;
     }
     
@@ -36,7 +36,14 @@ public abstract class Potential2 extends Potential {
 
     public Potential set(Atom a) {return set(a,a);}
     public Potential set(Atom a1, Atom a2) {iterator.setBasis(a1, a2); return this;}
-             
+    
+    public Potential set(Atom[] atoms) {
+        switch (atoms.length) {
+            case 1: return set(atoms[0], atoms[0]);
+            case 2: return set(atoms[0], atoms[1]);
+            default: throw new IllegalArgumentException("Wrong number of atoms in Potentia2.set");
+        }
+    }
     public Potential set(SpeciesMaster s) {
         if(species1 != null) {//if species were previously set, use them as basis
             iterator.setBasis(species1.getAgent(s), species2.getAgent(s));
@@ -46,7 +53,8 @@ public abstract class Potential2 extends Potential {
       //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);
     }
     
-    public void setSpecies(Species s1, Species s2) {//should throw exception if either are null
+    public void setSpecies(Species s1, Species s2) {
+        if(s1 == null || s2 == null) throw new NullPointerException("Cannot set null Species in Potential2");
         species1 = s1;
         species2 = s2;
     }

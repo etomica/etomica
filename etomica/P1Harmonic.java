@@ -44,7 +44,7 @@ public class P1Harmonic extends Potential1Soft implements EtomicaElement {
 
     public double energy(Atom a) {
         Space.Vector r = a.coord.position();
-        Space.Vector d = a.parentPhase().boundary().dimensions();
+        Space.Vector d = a.node.parentPhase().boundary().dimensions();
         double aSum = 0.0;
         for(int i=0; i<D; i++) {
             double x = r.component(i);
@@ -57,7 +57,7 @@ public class P1Harmonic extends Potential1Soft implements EtomicaElement {
 
     public Space.Vector gradient(Atom a){
         Space.Vector r = a.coord.position();
-        Space.Vector d = a.parentPhase().boundary().dimensions();
+        Space.Vector d = a.node.parentPhase().boundary().dimensions();
         force.E(0.0);
         for(int i=0; i<D; i++) {
             double x = r.component(i);

@@ -18,8 +18,14 @@ public class Atom implements java.io.Serializable {
     public static String getVersion() {return "Atom:01.08.08";}
     
     public Atom(Space space, AtomType t) {
+        this(space, t, new AtomTreeNodeGroup());
+    }
+    public Atom(Space space, AtomType t, AtomTreeNode node) {
         type = t;
         coord = space.makeCoordinate(this);//must follow setting of type field
+        this.node = node;
+        node.setAtom(this);
+        
 //        coord.setMass(type.getMass());//handled in type.initialize statement
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];//this is to be removed
         if(atomListCount > 0) atomList = new AtomList[atomListCount];
@@ -28,54 +34,19 @@ public class Atom implements java.io.Serializable {
         }
         type.initialize(this);
     }
-                    
+                        
     /**
      * Assigns the atom's integrator agent to the given instance.
      */
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
             
-    public final AtomGroup parentGroup() {return parentGroup;}
-    
-    /**
-     * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
-     * that is one step below a species agent in the hierarchy of atomgroups.
-     */
-    public Atom parentMolecule() {
-        return (parentGroup instanceof SpeciesAgent) ? this : parentGroup.parentMolecule();
-    }
-    
-    public void setParentGroup(AtomGroup parent) {
-        parentGroup = parent;
-        if(parent != null) depth = parent.depth() + 1;
-    }
-    public void setDepth(int d) {depth = d;}
-    
-    public int leafAtomCount() {return (type instanceof AtomType.Wall) ? 0 : 1;}
-    
-    public Atom firstChildAtom() {return this;}
-    public Atom lastChildAtom() {return this;}
-    public Atom firstLeafAtom() {return this;}
-    public Atom lastLeafAtom() {return this;}
-
-    /**
-     * Simulation in which this atom resides
-     */
-    public Simulation parentSimulation() {return parentSpecies().parentSimulation();}        
-    /**
-     * Phase in which this atom resides
-     */
-    public Phase parentPhase() {return parentGroup.parentPhase();}
-
-    public Species parentSpecies() {return parentSpeciesAgent().parentSpecies();}
-    
-    public SpeciesAgent parentSpeciesAgent() {return parentGroup.parentSpeciesAgent();}
 
 //   linked lists of bonds
     public BondLinker firstUpBond;
     public BondLinker firstDownBond;
     
     public void sendToReservoir() {
-        if(parentGroup != null) parentGroup.removeAtom(this);
+        if(node.parentGroup() != null) node.parentGroup().node.removeAtom(this);
         creator().reservoir().addAtom(this);
     }
     public AtomFactory creator() {return type.creator();}
@@ -87,13 +58,7 @@ public class Atom implements java.io.Serializable {
      */
     public final Space.Coordinate coord;
             
-    /**
-     * Integer assigned to this atom by its parent molecule.
-     * Assigned during construction of atom.
-     */
-    public final int index() {return atomIndex;}
-    public final void setIndex(int i) {atomIndex = i;}
-    public String signature() {return atomIndex + " " + parentGroup.signature();}
+    public String signature() {return node.index() + " " + node.parentGroup().signature();}
     public final String toString() {return "Atom(" + signature() + ")";}
         
     /**
@@ -129,12 +94,6 @@ public class Atom implements java.io.Serializable {
     public final Atom previousAtom() {return coord.previousAtom();} 
     
     /**
-     * Returns the depth of this atom in the atom hierarchy.  That is, returns
-     * the number of parent relations between this atom and the species master.
-     */
-    public final int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
-    
-    /**
      * Returns true if this atom preceeds the given atom in the atom sequence.
      * Returns false if the given atom is this atom, or (of course) if the
      * given atom instead preceeds this one.
@@ -142,42 +101,21 @@ public class Atom implements java.io.Serializable {
     public final boolean preceeds(Atom atom) {
         //want to return false if atoms are the same atoms
         if(atom == null) return true;
-        if(this.parentGroup == atom.parentGroup()) return this.index() < atom.index();//works also if both parentGroups are null
-        int thisDepth = depth();
-        int atomDepth = atom.depth();
-        if(thisDepth == atomDepth) return this.parentGroup.preceeds(atom.parentGroup());
-        else if(thisDepth < atomDepth) return this.preceeds(atom.parentGroup());
-        else /*if(this.depth > atom.depth)*/ return this.parentGroup.preceeds(atom);
+        if(this.node.parentGroup() == atom.node.parentGroup()) return this.node.index() < atom.node.index();//works also if both parentGroups are null
+        int thisDepth = node.depth();
+        int atomDepth = atom.node.depth();
+        if(thisDepth == atomDepth) return this.node.parentGroup().preceeds(atom.node.parentGroup());
+        else if(thisDepth < atomDepth) return this.preceeds(atom.node.parentGroup());
+        else /*if(this.depth > atom.depth)*/ return this.node.parentGroup().preceeds(atom);
     }
 
-    /**
-     * Returns true if the given atom is in the hierarchy of parents of this atom,
-     * or if the given atom is this atom.  Returns true, for example, if the given
-     * atom is this atom's parent, or its parent's parent, etc.
-     */ 
-    public final boolean isDescendedFrom(Atom group) {
-        return (this == group) || (parentGroup != null && parentGroup.isDescendedFrom(group));
-    }
-     /*   AtomGroup ancestor = parentGroup;
-        while(ancestor != null) {
-            if(ancestor == group) return true;
-            ancestor = ancestor.parentGroup();
-        }
-        return false;
-    }*/
-    
     public Integrator.Agent ia;
                 
-    /**
-    * Identifier of atom within molecule.
-    * Assigned by parent molecule when invoking Atom constructor.
-    */
-     int atomIndex;
-     protected int depth;
 //    private Atom nextAtom, previousAtom;
+
+    public final AtomTreeNode node;
         
     public final AtomType type;
-    protected AtomGroup parentGroup;
     
     public Object[] agents;
     

@@ -49,7 +49,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         if(dPhase.moleculeCount() == 0) {return false;} //no molecules to delete; trial is over
         
         molecule = dPhase.randomMolecule();  //select random molecule to delete
-        Species species = molecule.parentSpecies();
+        Species species = molecule.node.parentSpecies();
         
         SpeciesAgent iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         SpeciesAgent dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent

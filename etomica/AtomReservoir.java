@@ -69,7 +69,7 @@ public class AtomReservoir extends AtomGroup {
         while(atom == null && count > 0) {
             atom = atoms[--count];
             //check that atom wasn't placed in another group without taking it from reservoir
-            if(atom.parentGroup() != this) atom = null; 
+            if(atom.node.parentGroup() != this) atom = null; 
         }
         return atom;
     }

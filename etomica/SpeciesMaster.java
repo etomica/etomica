@@ -7,62 +7,36 @@ package etomica;
  */
 public final class SpeciesMaster extends AtomGroup {
     
-    private final Phase parentPhase;
     private int moleculeCount;
     //manager and events for addition/removal of descendant atoms
     private final SimulationEventManager eventManager = new SimulationEventManager();
     private final PhaseEvent additionEvent = new PhaseEvent(this, PhaseEvent.ATOM_ADDED);
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
-    public final int index;
+    public int index;
     
     public SpeciesMaster(Phase p) {
-        super(p.parentSimulation().space(), AtomType.NULL);
-        parentPhase = p;
+        super(p.parentSimulation().space(), AtomType.NULL, new AtomTreeNode(p));
         index = p.index;
-        depth = 0;
+        ((AtomTreeNode)node).speciesMaster = this;
     }
         
     public void addSpecies(Species species) {
         SpeciesAgent agent = species.makeAgent(this);
-        addAtom(agent);
-        Configuration config = parentPhase.getConfiguration();
-        config.initializeCoordinates(childAtomArray());
+        node.addAtom(agent);
+        Configuration config = node.parentPhase().getConfiguration();
+        config.initializeCoordinates(node.childAtomArray());
 
 //        parentPhase.getConfiguration().initializePositions(parentPhase.makeMoleculeIterator());
     }
     
-//    public int depth() {return 0;}
-    
-    public SpeciesAgent firstSpecies() {return (SpeciesAgent)firstChildAtom();}
-    public SpeciesAgent lastSpecies() {return (SpeciesAgent)lastChildAtom();}
+    public SpeciesAgent firstSpecies() {return (SpeciesAgent)node.firstChildAtom();}
+    public SpeciesAgent lastSpecies() {return (SpeciesAgent)node.lastChildAtom();}
         
-    public Phase parentPhase() {return parentPhase;}
-    public Species parentSpecies() {return null;} //never called
-    public SpeciesAgent parentSpeciesAgent() {return null;}//never called
-    public Simulation parentSimulation() {return parentPhase.parentSimulation();}
-    /**
-     * Returns null, since a species master is not contained within a molecule.
-     */
-    public final Atom parentMolecule() {return null;}
     
-    protected void addAtomNotify(Atom atom) {
-        if(atom.parentGroup() instanceof SpeciesAgent) {moleculeCount++;}
-        else if(atom instanceof SpeciesAgent) {moleculeCount += ((SpeciesAgent)atom).moleculeCount();}
-        leafAtomCount += atom.leafAtomCount();
-        eventManager.fireEvent(additionEvent.setAtom(atom));
-    }
-
-    protected void removeAtomNotify(Atom atom) {
-        if(atom.parentGroup() instanceof SpeciesAgent) {moleculeCount--;}
-        else if(atom instanceof SpeciesAgent) {moleculeCount -= ((SpeciesAgent)atom).moleculeCount();}
-        leafAtomCount -= atom.leafAtomCount();
-        eventManager.fireEvent(removalEvent.setAtom(atom));
-    }
-    
-    public int atomCount() {return leafAtomCount;}
+    public int atomCount() {return node.leafAtomCount();}
     public int moleculeCount() {return moleculeCount;}
     
-    public String signature() {return parentPhase.getName();}
+    public String signature() {return node.parentPhase().getName();}
     
     
     //event management
@@ -73,5 +47,37 @@ public final class SpeciesMaster extends AtomGroup {
     public synchronized void removeListener(PhaseListener listener) {
         eventManager.removeListener(listener);
     }
+    
+    private static final class AtomTreeNode extends AtomTreeNodeRecursive {
+        
+        private final Phase parentPhase;
+        SpeciesMaster speciesMaster;
+        AtomTreeNode(Phase parentPhase) {
+            this.parentPhase = parentPhase;
+            depth = 0;
+        }
+        public Phase parentPhase() {return parentPhase;}
+        public Species parentSpecies() {return null;} //never called
+        public SpeciesAgent parentSpeciesAgent() {return null;}//never called
+        public Simulation parentSimulation() {return parentPhase.parentSimulation();}
+        /**
+        * Returns null, since a species master is not contained within a molecule.
+        */
+        public final Atom parentMolecule() {return null;}
+        
+        public void addAtomNotify(Atom atom) {
+            if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount++;}
+            else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();}
+            leafAtomCount += atom.node.leafAtomCount();
+            speciesMaster.eventManager.fireEvent(speciesMaster.additionEvent.setAtom(atom));
+        }
+
+        public void removeAtomNotify(Atom atom) {
+            if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount--;}
+            else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount -= ((SpeciesAgent)atom).moleculeCount();}
+            leafAtomCount -= atom.node.leafAtomCount();
+            speciesMaster.eventManager.fireEvent(speciesMaster.removalEvent.setAtom(atom));
+        }
+    }            
 
 }//end of SpeciesMaster

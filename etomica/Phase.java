@@ -141,10 +141,10 @@ public final class Phase extends SimulationElement {
         int sum = 0;
         SpeciesAgent s;
         for(s=speciesMaster.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            sum += s.childAtomCount();
+            sum += s.node.childAtomCount();
             if(sum > i) break;
         }
-        return s.getAtom(i-(sum-s.childAtomCount()));
+        return s.node.getAtom(i-(sum-s.node.childAtomCount()));
     }
     
     /**
@@ -238,29 +238,29 @@ public final class Phase extends SimulationElement {
      * @return the first atom in the linked list of atoms in this Phase
      */
     public final Atom firstAtom() {
-        return speciesMaster.firstLeafAtom();
+        return speciesMaster.node.firstLeafAtom();
     }
     
     /**
      * @return the last atom in the linked list of atoms in this Phase
      */
     public final Atom lastAtom() {
-        return speciesMaster.lastLeafAtom();
+        return speciesMaster.node.lastLeafAtom();
     }
     
     /**
      * @return the first Agent in the linked list of Species.Agents in this phase
      */
-    public final SpeciesAgent firstSpecies() {return (SpeciesAgent)speciesMaster.firstChildAtom();}
+    public final SpeciesAgent firstSpecies() {return (SpeciesAgent)speciesMaster.node.firstChildAtom();}
     
     /**
      * @return the last Agent in the linked list of Species.Agents in this phase
      */
-    public final SpeciesAgent lastSpecies() {return (SpeciesAgent)speciesMaster.lastChildAtom();}
+    public final SpeciesAgent lastSpecies() {return (SpeciesAgent)speciesMaster.node.lastChildAtom();}
     
     public int moleculeCount() {return speciesMaster.moleculeCount();}
     
-    public int atomCount() {return speciesMaster.leafAtomCount();}
+    public int atomCount() {return speciesMaster.node.leafAtomCount();}
     
     /**
     * Returns the temperature (in simulation units) of this phase as computed via the equipartition
@@ -272,7 +272,7 @@ public final class Phase extends SimulationElement {
     
     public void setConfiguration(Configuration c) {
         configuration = c;
-        configuration.initializeCoordinates(speciesMaster.childAtomArray());
+        configuration.initializeCoordinates(speciesMaster.node.childAtomArray());
         iteratorFactory.reset();
     }
     
@@ -323,7 +323,7 @@ public final class Phase extends SimulationElement {
      */
     public void addMolecule(Atom a, SpeciesAgent s) {
         if(a == null || s == null) return;
-        s.addAtom(a);
+        s.node.addAtom(a);
     }
     
     /**
@@ -331,11 +331,11 @@ public final class Phase extends SimulationElement {
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
-        removeMolecule(a, a.parentSpeciesAgent());
+        removeMolecule(a, a.node.parentSpeciesAgent());
     }
     public void removeMolecule(Atom a, SpeciesAgent s) {
         if(a == null || s == null) return;
-        s.removeAtom(a);
+        s.node.removeAtom(a);
     }
 
 //need a better way

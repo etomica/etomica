@@ -36,7 +36,7 @@ public class AtomFactoryHetero extends AtomFactory {
     protected Atom build() {
         AtomGroup group = new AtomGroup(space, groupType);
         for(int i=0; i<childFactory.length; i++) {
-            group.addAtom(childFactory[i].build());
+            group.node.addAtom(childFactory[i].build());
         }
         bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);

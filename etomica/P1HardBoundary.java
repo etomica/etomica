@@ -43,7 +43,7 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     public double collisionTime(Atom a) {
         Space.Vector r = a.coord.position();
         Space.Vector p = a.coord.momentum();
-        Space.Vector dimensions = a.parentPhase().dimensions();
+        Space.Vector dimensions = a.node.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
         for(int i=r.length(); i>=0; i--) {
             double px = p.component(i);
@@ -64,7 +64,7 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     public void bump(Atom a) {
         Space.Vector r = a.coord.position();
         Space.Vector p = a.coord.momentum();
-        Space.Vector dimensions = a.parentPhase().dimensions();
+        Space.Vector dimensions = a.node.parentPhase().dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding

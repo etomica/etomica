@@ -34,14 +34,14 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     
     public void setBasis(Atom basis) {
         this.basis = basis;
-        iterateDepth = basis.depth() + 1;
+        iterateDepth = basis.node.depth() + 1;
     }
     public Atom getBasis() {return basis;}
     
     public int size() {
         if(basis == null) return 0;
         if(!(basis instanceof AtomGroup)) return 1;
-        return isLeafIterator ? basis.leafAtomCount() : ((AtomGroup)basis).childAtomCount();
+        return isLeafIterator ? basis.node.leafAtomCount() : ((AtomGroup)basis).node.childAtomCount();
     }
     
     /**
@@ -50,7 +50,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * isAsNeighbor flag indicates skipping first atom.
      */
     public final Atom defaultFirstAtom() {
-        return isLeafIterator ? basis.firstLeafAtom() : basis.firstChildAtom();
+        return isLeafIterator ? basis.node.firstLeafAtom() : basis.node.firstChildAtom();
     }
     
     /**
@@ -58,7 +58,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * due to call to reset(Atom, Atom).
      */
     public final Atom defaultLastAtom() {
-        return isLeafIterator ? basis.lastLeafAtom() : basis.lastChildAtom();
+        return isLeafIterator ? basis.node.lastLeafAtom() : basis.node.lastChildAtom();
     }
     
     /**
@@ -68,8 +68,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      */
     public boolean contains(Atom atom) {
         if(atom == null) return false;
-        if(!(basis instanceof AtomGroup)) return atom == basis;
-        else return (atom != null) && atom.isDescendedFrom((AtomGroup)basis);
+        return atom.node.isDescendedFrom(basis);
 /*        else if(isLeafIterator) return (atom != null) && 
                                   !(atom instanceof AtomGroup) &&
                                   atom.isDescendedFrom((AtomGroup)basis);
@@ -181,8 +180,8 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
         if(isLeafIterator) {
             if(a instanceof AtomGroup) {hasNext = false; return null;}
         } else {
-            int j = a.depth() - iterateDepth;
-            while(j-- > 0) a = a.parentGroup();
+            int j = a.node.depth() - iterateDepth;
+            while(j-- > 0) a = a.node.parentGroup();
         }
         if(isNeighborIterator) atom = firstNeighbor(a);
         else atom = (this.contains(a) ? a : null); //also ensures that a is not null

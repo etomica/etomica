@@ -39,7 +39,7 @@ public class AtomIteratorSinglet implements AtomIterator {
     /**
      * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).
      */
-    public boolean contains(Atom a) {return (a != null && a.isDescendedFrom(atom));}
+    public boolean contains(Atom a) {return (a != null && a.node.isDescendedFrom(atom));}
     
     public boolean hasNext() {return hasNext;}
     

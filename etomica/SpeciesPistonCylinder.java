@@ -212,7 +212,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         //the first leaf atom of this agent.  This is the only atom acted
         //on by this potential.
         public void setBasis(Atom a) {
-            setAtom(((AtomGroup)a).firstLeafAtom());
+            setAtom(((AtomGroup)a).node.firstLeafAtom());
         }
     }
     
@@ -329,8 +329,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             int index31 = 1-index20;//0 or 1, opposite of index20
               //volume is diameter of cylinder times distance between piston (first atom) and base (atom 2) of cylinder
  //           return (diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS)
-            double dx = m.getAtom(3).coord.position().component(index31) - m.getAtom(1).coord.position().component(index31);
-            double dy = m.getAtom(0).coord.position().component(index20) - m.getAtom(2).coord.position().component(index20);
+            double dx = m.node.getAtom(3).coord.position().component(index31) - m.node.getAtom(1).coord.position().component(index31);
+            double dy = m.node.getAtom(0).coord.position().component(index20) - m.node.getAtom(2).coord.position().component(index20);
 //            System.out.println(dx + " " + dy);
             return Math.abs(dx*dy);
         }
@@ -345,7 +345,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         Phase phase;
         public ActionFixPiston(Phase phase) {
             SpeciesAgent agent = SpeciesPistonCylinder.this.getAgent(phase);
-            piston = agent.firstLeafAtom();
+            piston = agent.node.firstLeafAtom();
             setLabel("Hold/Release piston");
             this.phase = phase;
         }

@@ -155,7 +155,7 @@ public class Species extends SimulationElement {
      * @see Species.Agent
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
-        Phase phase = parent.parentPhase();
+        Phase phase = parent.node.parentPhase();
         SpeciesAgent a = new SpeciesAgent(this, nMolecules);
         agents.put(phase,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;

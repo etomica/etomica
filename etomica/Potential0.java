@@ -30,16 +30,14 @@ public abstract class Potential0 extends Potential {
     
     public abstract Potential set(Phase phase);
     
+    public Potential set(Atom[] atoms) {
+        if(atoms.length != 0) throw new IllegalArgumentException("Too many atoms in Potential0");
+        return this;
+    }
     public Potential set(SpeciesMaster speciesMaster) {
-        return set(speciesMaster.parentPhase());
+        return set(speciesMaster.node.parentPhase());
     }
     
-    public Potential set(Atom a) {//throw exception or redesign?
-        return this;
-    }
-    public Potential set(Atom a1, Atom a2) {//throw exception or redesign?
-        return this;
-    }
         
 }//end of Potential0
 

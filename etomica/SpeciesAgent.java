@@ -11,57 +11,34 @@ import etomica.units.Dimension;
 
 public final class SpeciesAgent extends AtomGroup {
 
-    private final Species parentSpecies;
     protected final AtomFactory factory;
     
     protected Integrator integrator;
     
     public SpeciesAgent(Species s, int nMolecules) {
-        super(s.parentSimulation().space(), AtomType.NULL);
-        depth = 1;
-        parentSpecies = s;
+        super(s.parentSimulation().space(), AtomType.NULL, new AtomTreeNode(s));
         factory = s.moleculeFactory();
         for(int i=0; i<nMolecules; i++) {
-            addAtom(factory.makeAtom());
+            node.addAtom(factory.makeAtom());
         }
-        setDepth(1);
+        node.setDepth(1);
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
     
-    /**
-     * Overrides super class method and terminates recursive call to identify
-     * a constituent atom's species.
-     */
-    public final Species parentSpecies() {return parentSpecies;}
-    /**
-     * Overrides super class method and terminates recursive call to identify
-     * a constituent atom's simulation.
-     */
-    public Simulation parentSimulation() {return parentSpecies.parentSimulation();}    
-    /**
-     * Overrides parent class method and terminates recursive call to identify this
-     * as a constituent atom's species agent.
-     */
-    public final SpeciesAgent parentSpeciesAgent() {return this;}
-    
-    /**
-     * Returns null, since a species agent is not contained within a molecule.
-     */
-    public final Atom parentMolecule() {return null;}
     
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)nextAtom();}
-    public int moleculeCount() {return childAtomCount();}
-    public Atom firstMolecule() {return firstChildAtom();}
-    public Atom lastMolecule() {return lastChildAtom();}
-    public Atom randomMolecule() {return randomAtom();}
+    public int moleculeCount() {return node.childAtomCount();}
+    public Atom firstMolecule() {return node.firstChildAtom();}
+    public Atom lastMolecule() {return node.lastChildAtom();}
+    public Atom randomMolecule() {return node.randomAtom();}
     
 //    public final int depth() {return 1;}
         
     public Atom addNewAtom() {
         if(!resizable) return null; //should define an exeception 
         Atom aNew = moleculeFactory().makeAtom();
-        addAtom(aNew);
+        node.addAtom(aNew);
         return aNew;
     }
     
@@ -69,8 +46,8 @@ public final class SpeciesAgent extends AtomGroup {
      * Performs the given action on all children (molecules) of this species agent.
      */
     public void allMolecules(AtomAction action) {
-        Atom last = lastChildAtom();
-        for(Atom a=firstChildAtom(); a!=null; a=a.nextAtom()) {
+        Atom last = node.lastChildAtom();
+        for(Atom a=node.firstChildAtom(); a!=null; a=a.nextAtom()) {
             action.actionPerformed(a);
             if(a == last) break;
         }
@@ -80,8 +57,8 @@ public final class SpeciesAgent extends AtomGroup {
      * Performs the given action on all (leaf) atoms of this species agent.
      */
     public void allAtoms(AtomAction action) {
-        Atom last = lastLeafAtom();
-        for(Atom a=firstLeafAtom(); a!=null; a=a.nextAtom()) {
+        Atom last = node.lastLeafAtom();
+        for(Atom a=node.firstLeafAtom(); a!=null; a=a.nextAtom()) {
             action.actionPerformed(a);
             if(a == last) break;
         }
@@ -110,19 +87,19 @@ public final class SpeciesAgent extends AtomGroup {
     public void setNMolecules(int n, boolean forceRebuild) {
         if(!resizable) return;
         boolean wasPaused = pauseIntegrator();
-        if(forceRebuild) removeAll();
+        if(forceRebuild) node.removeAll();
         
-        if(n <= 0) removeAll();
-        else if(n > childAtomCount) {
-            for(int i=childAtomCount; i<n; i++) addAtom(factory.makeAtom());
+        if(n <= 0) node.removeAll();
+        else if(n > node.childAtomCount()) {
+            for(int i=node.childAtomCount(); i<n; i++) node.addAtom(factory.makeAtom());
         }
-        else if(n < childAtomCount) {
-            for(int i=childAtomCount; i>n; i--) removeAtom(lastChildAtom());
+        else if(n < node.childAtomCount()) {
+            for(int i=node.childAtomCount(); i>n; i--) node.removeAtom(node.lastChildAtom());
         }
         
         //reconsider this
-        parentPhase().configuration.initializeCoordinates(this);
-        parentPhase().iteratorFactory().reset();
+        node.parentPhase().configuration.initializeCoordinates(this);
+        node.parentPhase().iteratorFactory().reset();
         
         unpauseIntegrator(wasPaused);
     }
@@ -131,7 +108,7 @@ public final class SpeciesAgent extends AtomGroup {
     public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
 
     private boolean pauseIntegrator() {
-        Phase phase = parentPhase();
+        Phase phase = node.parentPhase();
         integrator = (phase != null) ? phase.integrator() : null;
         boolean wasPaused = true;
         if(integrator != null) {
@@ -147,5 +124,38 @@ public final class SpeciesAgent extends AtomGroup {
             if(!wasPaused) integrator.unPause();//resume if was not paused originally
         }
     }
-              
+    
+    /**
+     * Special AtomTreeNode class for SpeciesAgent.
+     */
+    private static final class AtomTreeNode extends AtomTreeNodeRecursive {
+        
+        private final Species parentSpecies;
+        AtomTreeNode(Species parentSpecies) {
+            this.parentSpecies = parentSpecies;
+            depth = 1;
+        }
+
+        /**
+        * Overrides super class method and terminates recursive call to identify
+        * a constituent atom's species.
+        */
+        public final Species parentSpecies() {return parentSpecies;}
+        /**
+        * Overrides super class method and terminates recursive call to identify
+        * a constituent atom's simulation.
+        */
+        public Simulation parentSimulation() {return parentSpecies.parentSimulation();}    
+        /**
+        * Overrides parent class method and terminates recursive call to identify this
+        * as a constituent atom's species agent.
+        */
+        public final SpeciesAgent parentSpeciesAgent() {return (SpeciesAgent)this.atom;}
+        
+        /**
+        * Returns null, since a species agent is not contained within a molecule.
+        */
+        public final Atom parentMolecule() {return null;}
+    }
+
 } //end of SpeciesAgent
