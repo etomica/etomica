@@ -27,13 +27,13 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 		this(new ApiInnerVariable(
 					new AtomIteratorBasis(),
 					new AtomIteratorSequencerList()));
-        aiInner.setNumToSkip(1);
+        ((AtomIteratorSequencerList)aiInner).setNumToSkip(1);
     }
     
     public ApiIntragroup(ApiComposite pairIterator) {
         super(pairIterator);
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
-		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
+		aiInner = (AtomsetIteratorDirectable)pairIterator.getInnerIterator();
 	}
 
 	public void setTarget(AtomSet targetAtoms) {
@@ -94,7 +94,7 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	}
 	
     public AtomIterator getInnerIterator() {
-        return aiInner;
+        return (AtomIterator)aiInner;
     }
     
     public AtomIterator getOuterIterator() {
@@ -102,7 +102,7 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
     }
     
 	private final AtomIteratorBasis aiOuter;//local, specifically typed copy
-	private final AtomIteratorSequencerList aiInner;//local, specifically typed copy
+	private final AtomsetIteratorDirectable aiInner;//local, specifically typed copy
 	private boolean oneTarget;
     private IteratorDirective.Direction direction;
 	private Atom basis;//atom most recently specified in setBasis; used by size() and contains(Atom[]) methods
