@@ -109,4 +109,10 @@ public class ApiMolecule implements AtomsetIteratorMolecule {
     private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;
 
+    public AtomsetIteratorMolecule getApi1A() {
+        return api1A;
+    }
+    public AtomsetIteratorPhaseDependent getApiAA() {
+        return apiAA;
+    }
 }
