@@ -45,6 +45,7 @@ public class EtomicaMenuBar extends JMenuBar {
 	static final JMenuItem newSimulationItem = new JMenuItem("New Simulation");
 	static final JMenu librarySimulationMenu = new JMenu("Library Simulation");
 	static final JMenuItem openItem = new JMenuItem("Open");
+	static final JMenuItem javaWriteItem = new JMenuItem("Write Java source");
 	static final JMenuItem serAppletItem = new JMenuItem("Export (Applet Form)");
 	static final JMenuItem serEditItem = new JMenuItem("Export (Edit Form)");
 	static final JMenuItem printItem = new JMenuItem("Print");
@@ -155,6 +156,12 @@ public class EtomicaMenuBar extends JMenuBar {
         fileMenu.add(librarySimulationMenu);
         
         fileMenu.add(JSeparator1);
+        
+        javaWriteItem.addActionListener(FileActions.WRITE_JAVA);
+		javaWriteItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.Event.CTRL_MASK));
+        javaWriteItem.setEnabled(false);
+        fileMenu.add(javaWriteItem);
+        
         
         serEditItem.addActionListener(FileActions.SEREDIT);
 		serEditItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK));

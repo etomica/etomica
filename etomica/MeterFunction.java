@@ -9,8 +9,9 @@ import etomica.utility.Histogram;
  * Anticipated use of function meters is to measure some functional quantity (e.g. g(r)) when asked 
  * by a Display object.  To enable averages, call setActive(true)
  */
-public abstract class MeterFunction extends MeterAbstract {
+public abstract class MeterFunction extends MeterAbstract implements DataSource {
     
+    public static final String VERSION = "MeterFunction:01.03.25.0/"+MeterAbstract.VERSION;
     /**
      * Abscissa values of the function
      */
@@ -86,7 +87,27 @@ public abstract class MeterFunction extends MeterAbstract {
 	        accumulator[i].add(values[i]);
 	    }
 	}
+	
+	/**
+	 * For internal use.
+	 */
+	 protected Accumulator[] allAccumulators() {return accumulator;}
+
 		
+	/**
+	 * Returns the value indicated by the argument.
+	 */
+	public double[] values(MeterAbstract.ValueType type) {
+	    if(type==MeterAbstract.ValueType.AVERAGE) return average();
+	    else if(type==MeterAbstract.ValueType.MOST_RECENT) return mostRecent();
+	    else if(type==MeterAbstract.ValueType.CURRENT) return currentValue();
+	    else if(type==MeterAbstract.ValueType.MOST_RECENT_BLOCK) return mostRecentBlock();
+	    else if(type==MeterAbstract.ValueType.ERROR) return error();
+	    else if(type==MeterAbstract.ValueType.VARIANCE) return variance();
+	    else return null;
+	}
+	public final double[] values(DataSource.ValueType type) {return values((MeterAbstract.ValueType)type);}
+
     /**
      * Returns the current value of the averages
      */
@@ -103,6 +124,15 @@ public abstract class MeterFunction extends MeterAbstract {
 	    return error;
 	}
 	/**
+	 * Returns the variance of each function value.
+	 * Note that this is not the variance of the function.  A set of variances
+	 * is returned, taken for each value over the simulation.
+	 */
+	public double[] variance() {
+	    for(int i=0; i<nPoints; i++) {y[i] = accumulator[i].variance();}
+	    return y;
+	}
+	/**
 	 * Returns the value passed most recently obtained via an integrator intervalEvent
 	 * (does not give the value last returned by any direct call to currentValue
 	 *  i.e. by a call to currentValue that was not made in response to an interval event)
@@ -111,22 +141,15 @@ public abstract class MeterFunction extends MeterAbstract {
 	    for(int i=0; i<nPoints; i++) {y[i] = accumulator[i].mostRecent();}
 	    return y;
 	}
-	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Default is false (do not keep histogram).
-	*/
-	public boolean isHistogramming() {
-	    if(accumulator[0] != null) return accumulator[0].isHistogramming();
-	    else return false;
-	}
     	 
 	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Default is false (do not keep histogram).
-	*/
-	public void setHistogramming(boolean b) {
-	    for(int i=0; i<nPoints; i++) {accumulator[i].setHistogramming(b);}
+	 * Returns the most recent block average
+	 */
+	public double[] mostRecentBlock() {
+	    for(int i=0; i<nPoints; i++) {y[i] = accumulator[i].mostRecentBlock();}
+	    return y;
 	}
+
 	/**
 	 * Returns the current histograms of measured values.
 	 * Histograms are recorded only if histogramming is set to true.  
@@ -139,23 +162,6 @@ public abstract class MeterFunction extends MeterAbstract {
 	 }
 	 
 	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Default is false (do not keep histogram).
-	*/
-	public boolean isHistogramming(int i) {
-	    if(i < accumulator.length && accumulator[i] != null) return accumulator[i].isHistogramming();
-	    else return false;
-	}
-    	 
-	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Default is false (do not keep histogram).
-	*/
-	public void setHistogramming(int i, boolean b) {
-	    if(i < accumulator.length && accumulator[i] != null) accumulator[i].setHistogramming(b);
-	}
-	
-	/**
 	 * Returns the current histogram of the given measured value.
 	 * Histograms are recorded only if histogramming is set to true.  
 	 * If histogram was never kept for this meter, all-zero histograms are returned.
@@ -165,14 +171,6 @@ public abstract class MeterFunction extends MeterAbstract {
 	    else return null;
 	 }
 	 
-	/**
-	 * Zeros all sums used for averages
-	 */
-	public void reset() {
-	    if (!isActive()) {return;}
-	    for(int i=0; i<nPoints; i++) {accumulator[i].reset();}
-	}
-
     /**
      * The abscissa values corresponding to the array of measured Y values
      */

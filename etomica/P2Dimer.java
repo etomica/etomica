@@ -1,5 +1,9 @@
 package etomica;
 
+/**
+ * Dissociable dimer potential
+ */
+ 
 public class P2Dimer extends Potential2 {
     
     Potential bonded;

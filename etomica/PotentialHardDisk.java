@@ -8,6 +8,8 @@ package etomica;
  */
 public class PotentialHardDisk extends Potential implements Potential.Hard, EtomicaElement
 {
+    public final String getVersion() {return "PotentialHardDisk:01.02.11.0/"+Potential.VERSION;}
+
    /**
     * Separation at which disks first overlap
     */
@@ -95,6 +97,9 @@ public class PotentialHardDisk extends Potential implements Potential.Hard, Etom
     public void setCollisionDiameter(double c) {
         collisionDiameter = c;
         sig2 = c*c;
+    }
+    public etomica.units.Dimension getCollisionDiameterDimension() {
+        return etomica.units.Dimension.LENGTH;
     }
     
     /**

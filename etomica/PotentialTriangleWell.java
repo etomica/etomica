@@ -79,6 +79,9 @@ public class PotentialTriangleWell extends Potential implements EtomicaElement {
         wellDiameterSquared = wellDiameter*wellDiameter;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
+    public final etomica.units.Dimension getCoreDiameterDimension() {
+        return etomica.units.Dimension.LENGTH;
+    }
 
     public double getLambda() {return lambda;}
     public final void setLambda(double lam) {
@@ -87,11 +90,17 @@ public class PotentialTriangleWell extends Potential implements EtomicaElement {
         wellDiameterSquared = wellDiameter*wellDiameter;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
+    public final etomica.units.Dimension getLambdaDimension() {
+        return etomica.units.Dimension.NULL;
+    }
 
     public double getEpsilon() {return epsilon;}
     public final void setEpsilon(double eps) {
         epsilon = eps;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
+    }
+    public final etomica.units.Dimension getEpsilonDimension() {
+        return etomica.units.Dimension.ENERGY;
     }
 }
 

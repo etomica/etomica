@@ -294,6 +294,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
     	                    
 	            if (instantiate == true){
                     if (currentButton.cls != null){
+                        Potential potential = null;
 	                    try {
 	                        if (getTitle() == "P1 Potentials"){
 	                            component = ((Class)currentButton.cls).newInstance();
@@ -301,9 +302,13 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	                            ((Potential1)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
                             else {
-	                            if (currentButton.cls.toString().startsWith("class etomica.Potential"))
-	                                component = new P2SimpleWrapper((Potential)((Class)currentButton.cls).newInstance());
+	                            if (currentButton.cls.toString().startsWith("class etomica.Potential")) {
+	                                potential = (Potential)((Class)currentButton.cls).newInstance();
+	                                component = new P2SimpleWrapper(potential);
+    	                            potential.setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
+	                            }
 	                            else component = ((Class)currentButton.cls).newInstance();
+	                            
                                 ((Potential2)component).setSpecies1Index(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
                                 ((Potential2)component).setSpecies2Index(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex2);
 	                            ((Potential2)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
@@ -311,21 +316,26 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	                    }
 	                    catch(InstantiationException exc) {System.out.println(e.toString()); System.exit(1);}
 	                    catch(IllegalAccessException exc) {System.out.println(e.toString()); System.exit(1);}
-      
+                        
+                        Simulation currentSimulation = simulationEditor.getSimulation();
 	                    if (getTitle() == "P1 Potentials"){
                             for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                                simulationEditor.getSimulation().potential1[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential1)component;
+                                currentSimulation.potential1[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential1)component;
                                 potentialEditor.currentButtons[i] = null;
                             }
                         }
                         else {
                             for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                                simulationEditor.getSimulation().potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2] = (Potential2)component;
-                                simulationEditor.getSimulation().potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential2)component;
+                                currentSimulation.potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2] = (Potential2)component;
+                                currentSimulation.potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential2)component;
                                 potentialEditor.currentButtons[i] = null;
                             }
                         }
-                        potentialEditor.componentList.addElement(component); 
+                        potentialEditor.componentList.addElement(component);
+                        
+                        JavaWriter javaWriter = (JavaWriter)Etomica.javaWriters.get(currentSimulation);
+                        javaWriter.add((Simulation.Element)component);
+                        if(potential != null) javaWriter.add(potential);
                     }
                     else {
                         DefinePotentialFrame newPotFrame = new DefinePotentialFrame(simulationEditor);

@@ -17,8 +17,10 @@ import javax.swing.JScrollPane;
  * Does not permit display of combination of Meters and MeterFunctions.
  */
  
+ //need to clean up DataSource interface methods
+ 
  //setPhase method needs repairing
-public class DisplayTable extends Display implements Meter.MultiUser, MeterFunction.User, EtomicaElement
+public class DisplayTable extends Display implements Meter.MultiUser, MeterFunction.User, DataSource.User, EtomicaElement
 {
     public String getVersion() {return "DisplayTable:01.03.11.0/"+Display.VERSION;}
     public JTable table;
@@ -124,6 +126,14 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         setupTable();
     }
     public Meter[] getMeters() {return meter;}
+    
+    public void setDataSource(DataSource s) {
+        if(s instanceof MeterFunction) setMeterFunction((MeterFunction)s);
+    }
+    public DataSource getDataSource() {
+        return meterFunction;
+    }
+
     
     public void setMeterFunction(MeterFunction m) {
         meterFunction = m;

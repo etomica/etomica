@@ -56,8 +56,8 @@ public final class MCMoveVolumeExchange extends MCMove {
                        (secondPhase.moleculeCount+1)*Math.log(v2Scale))
                 < rand.nextDouble()) 
             {  //reject
-              inflate1.retractAction();
-              inflate2.retractAction();
+              inflate1.undo();
+              inflate2.undo();
         }
         else nAccept++;
     }//end of thisTrial

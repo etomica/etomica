@@ -23,8 +23,8 @@ public class PhaseEvent extends java.util.EventObject {
     public static int MOLECULE_SELECTED = 20;
     public static int MOLECULE_RELEASED = 21;
     
-    public void setPhase(Phase p) {phase = p;}
-    public Phase getPhase() {return phase;}
+    public final void setPhase(Phase p) {phase = p;}
+    public final Phase getPhase() {return phase;}
     
     public void setPoint(Space.Vector p) {point = p;}
     public Space.Vector getPoint() {return point;}

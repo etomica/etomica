@@ -214,6 +214,8 @@ public class Space2D extends Space implements EtomicaElement {
         public double v2() {
             return dvx*dvx + dvy*dvy;
         }
+        public double vDot(Space.Vector u) {return vDot((Space2D.Vector)u);}
+        public double vDot(Space2D.Vector u) {return dvx*u.x + dvy*u.y;}
         public double vDotr() {
             return drx*dvx + dry*dvy;
         }

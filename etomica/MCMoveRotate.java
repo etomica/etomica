@@ -70,9 +70,8 @@ public class MCMoveRotate extends MCMove {
 	        plot1.setMeterFunction(meterp);
 	       //plot1.setMeter(meterp);
 	       
-	        plot1.setUseCurrentValue(false);
-        	integratorMC1.setTemperature
-        	(Default.TEMPERATURE);  
+	        plot1.setWhichValue(MeterAbstract.ValueType.AVERAGE);
+        	integratorMC1.setTemperature(Default.TEMPERATURE);  
         	 System.out.println("temp"+ integratorMC1.getTemperature());
 	   // SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(80);
 	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(200);
@@ -96,7 +95,7 @@ public class MCMoveRotate extends MCMove {
 	    DisplayBox box1 = new DisplayBox();
 	    
 	    box1.setMeter(meterEnergy1);
-	    box1.setUseCurrentValue(false);
+	    box1.setWhichValue(MeterAbstract.ValueType.AVERAGE);
 		
 		displayPhase1.setPhase(phase1);
 		

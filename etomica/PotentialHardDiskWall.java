@@ -14,6 +14,8 @@ import etomica.statmech.MaxwellBoltzmann;
 
 public class PotentialHardDiskWall extends Potential implements Potential.Hard, EtomicaElement {
     
+    public final String getVersion() {return "PotentialHardDiskWall:01.02.15.0/"+Potential.VERSION;}
+
     protected double collisionDiameter, collisionRadius;
     
     private boolean isothermal = false;
@@ -137,7 +139,7 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
     /**
      * Hard-disk/piston collision dynamics
      */
-    public void bump(AtomPair pair)  //this needs updating to check for isStationary
+    public void bump(AtomPair pair) 
     {
         Atom disk;
         Atom wall;
@@ -155,6 +157,10 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
 
         if(wall.isStationary()) {
             if(isothermal) {//specific to 2D
+          //      double oldp2 = disk.momentum().squared();
+          //      double newp2 = disk.mass()*temperature*parentSimulation().space().D();
+          //      disk.momentum().TE(Math.sqrt(newp2/oldp2));
+          //      disk.momentum().TE(i,-1.0);
                 double px = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.mass());
                 double py = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.mass());
                 //enforce reflection from wall; new momentum must have opposite sign to old momentum
@@ -218,4 +224,7 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
     public boolean isIsothermal() {return isothermal;}
     public void setTemperature(double t) {temperature = t;}
     public double getTemperature() {return temperature;}
+    public etomica.units.Dimension getTemperatureDimension() {
+        return etomica.units.Dimension.TEMPERATURE;
+    }
 }

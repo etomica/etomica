@@ -32,16 +32,26 @@ import etomica.utility.Histogram;
  * @see MeterMultiFunction
  * @see MeterAbstract.Accumulator
  */
-public abstract class MeterAbstract implements Integrator.IntervalListener, Simulation.Element,  java.io.Serializable
-{
+public abstract class MeterAbstract implements Integrator.IntervalListener, Simulation.Element,  java.io.Serializable {
+
+    public static final String VERSION = "MeterAbstract:01.03.24.0";
+    
     /**
      * Number of integration interval events received before another call to updateSums
      */
     protected int updateInterval;
     /**
+     * Number of interval events received between additions to history.
+     */
+   // protected int historyInterval;
+    /**
      * Counter that keeps track of the number of interval events received since last call to updateSums
      */
     protected int iieCount;
+    /**
+     * Counter that keeps track of the interval events since last history accumulation.
+     */
+   // protected int historyCount;
     /**
      * The phase in which this meter is performing its measurements
      */
@@ -62,6 +72,8 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      */
     protected boolean active;
     
+    protected int historyWindow = 100;
+    
     /**
      * Size of subaveraging block used to evaluate confidence limits.
      * Default is 1000 updateIntervals.
@@ -77,6 +89,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     private transient Observer iteratorFactoryObserver;
     
     boolean histogramming = false;
+    boolean historying = false;
 
 	public MeterAbstract(Simulation sim) {
 	    parentSimulation = sim;
@@ -103,14 +116,12 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	public Unit defaultIOUnit() {return getDimension().defaultIOUnit();}
 	
 	/**
-	 * Method to set reset (discard accumulated values for) all averages and other sums
-	 */
-	public abstract void reset();
-	/**
 	 * Method called upon receiving updateInterval interval-events from the integrator
 	 */
 	public abstract void updateSums();
 
+	protected abstract Accumulator[] allAccumulators();
+ 
     /**
      * Sets the phase in which the meter is performing its measurements.
      * If given phase is null, meter is removed from current phase, if already in one.
@@ -276,7 +287,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      * Sets to given value and resets count of interval events
      * @see #updateInterval
      */
-    public final void setUpdateInterval(int i) {
+    public void setUpdateInterval(int i) {
         if(i > 0) {
             updateInterval = i;
             iieCount = updateInterval;
@@ -321,16 +332,67 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     }
     
 	/**
+	 * Method to set reset (discard accumulated values for) all averages and other sums
+	 */
+	public void reset() {
+	    Accumulator[] accumulators = allAccumulators();
+	    for(int i=0; i<accumulators.length; i++) {
+	        accumulators[i].reset();
+	    }
+	}
+
+	/**
 	* Accessor method to indicate if the meter should keep a histogram of all measured values.
 	* Default is false (do not keep histogram).
 	*/
-	public abstract boolean isHistogramming();
+	public boolean isHistogramming() {return histogramming;}
     	 
 	/**
 	* Accessor method to indicate if the meter should keep a histogram of all measured values.
 	* Default is false (do not keep histogram).
 	*/
-	public abstract void setHistogramming(boolean b);
+	public void setHistogramming(boolean b) {
+	    histogramming = b;
+	    Accumulator[] accumulators = allAccumulators();
+	    for(int i=0; i<accumulators.length; i++) {
+	        accumulators[i].setHistogramming();
+	    }
+	}
+
+	/**
+	* Accessor method to indicate if the meter should keep a history of all measured values.
+	* Default is false (do not keep history).
+	*/
+	public boolean isHistorying() {return historying;}
+    	 
+	/**
+	* Accessor method to indicate if the meter should keep a history of all measured values.
+	* Default is false (do not keep history).
+	*/
+	public void setHistorying(boolean b) {
+	    historying = true;
+	    setHistoryWindow(getHistoryWindow());
+	}
+	
+	/**
+	 * Accessor method for the period of the history, i.e., the number of values
+	 * that are kept recorded.
+	 */
+	public int getHistoryWindow() {return historyWindow;}
+
+	/**
+	 * Accessor method for the period of the history, i.e., the number of values
+	 * that are kept recorded.  Default is 100, minimum is 1.
+	 */
+	public void setHistoryWindow(int window) {
+	    if(window < 1) window = 1; 
+	    historyWindow = window;
+	    if(!isHistorying()) return;
+	    Accumulator[] accumulators = allAccumulators();
+	    for(int i=0; i<accumulators.length; i++) {
+	        accumulators[i].setHistoryWindow();
+	    }
+	}
 
     /**
      * Accessor method of the name of this object
@@ -362,12 +424,15 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     public final class Accumulator implements java.io.Serializable {
         private double sum, sumSquare, blockSum, error;
         private double mostRecent = Double.NaN;
+        private double mostRecentBlock = Double.NaN;
         private int count, blockCountDown;
         private Histogram histogram;
- //       private boolean histogramming = false;
+        private double[] history;
+        private int historyCursor; //index of next empty history value; last value is this value minus 1
         
         public Accumulator() {
             reset();
+            historyCursor = Integer.MAX_VALUE;
         }
         
         /**
@@ -388,10 +453,12 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     	            error = Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1));
     	        }
 	            //reset blocks
+	            mostRecentBlock = blockSum;
 	            blockCountDown = blockSize;
 	            blockSum = 0.0;
 	        }
 	        if(histogramming) histogram.addValue(value);
+	        if(historying) addToHistory(value);
         }
         
         /**
@@ -408,7 +475,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     	 * Return the 67% confidence limits of the average based on variance in block averages.
     	 */
 	    public double error() {
-	        return (count > 1) ? error : Double.NaN;
+	        return error;
 	    }
 	    
 	    /**
@@ -425,35 +492,95 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	    public double mostRecent() {return mostRecent;}
     	
     	/**
+    	 * Returns the value of the most recent block average.
+    	 */
+    	public double mostRecentBlock() {
+    	    return (mostRecentBlock!=Double.NaN) ? mostRecentBlock : blockSum/(blockSize - blockCountDown);
+        }
+        
+    	/**
     	 * Resets all sums to zero
     	 */
 	    public void reset() {
 	        count = 0;
 	        sum = 0.0;
 	        sumSquare = 0.0;
+	        error = Double.NaN;
 	        blockCountDown = blockSize;
 	        blockSum = 0.0;
 	        if(histogram != null) histogram.reset();
 	    }
+	    
 	    /**
 	     * Returns the histogram in its current state.
 	     */
 	    public Histogram histogram() {return histogram;}
 	    
 	    /**
-	    * Accessor method to indicate if the meter should keep a histogram of all measured values.
-	    * Default is false (do not keep histogram).
-	    */
-	    public boolean isHistogramming() {return histogramming;}
+	     * Returns the history of values recorded by the accumulator.
+	     */
+	    public double[] history() {return history;}
     	 
 	    /**
 	    * Accessor method to indicate if the meter should keep a histogram of all measured values.
 	    * Default is false (do not keep histogram).
 	    */
-	    public void setHistogramming(boolean b) {
-	        histogramming = b;
+	    public void setHistogramming() {
 	        if(histogramming && histogram == null) histogram = new Histogram();
 	    }
-    	 
+	    
+	    public void setHistoryWindow() {
+	        double[] oldHistory = history;
+	        history = new double[historyWindow];
+	        clearHistory(); //set to NaN
+	        if(oldHistory != null) {
+    	        int n = Math.min(oldHistory.length, historyWindow); //setHistoryWindow in MeterAbstract will not let this be less than 1
+	            for(int i=0; i<n; i++) {
+	                history[i] = oldHistory[i];
+	            }
+	            historyCursor = n;
+	        }
+	        else historyCursor = 0;
+	    }//end of setHistoryWindow
+	    
+	    /**
+	     * Sets all history values to NaN and puts cursor at first position.
+	     */
+	    public void clearHistory() {
+	        if(history == null) return;
+	        for(int i=0; i<history.length; i++) {history[i] = Double.NaN;}
+	        historyCursor = 0;
+	    }
+	            
+        public void addToHistory(double value) {
+            if(historyCursor < historyWindow) {
+                history[historyCursor++] = value;
+            }
+            else {
+                MeterAbstract.this.setHistoryWindow(2*historyWindow);
+                addToHistory(value);
+            }
+        }
+
+	}//end of Accumulator
+	
+	/**
+	 * Typed constant that can be used to indicated the quantity
+	 * to be taken from a meter (e.g., average, error, current value, etc.).
+	 * Used primarily by Display objects.
+	 */
+	public static class ValueType extends DataSource.ValueType {
+        public ValueType(String label) {super(label);}
+        public Constants.TypedConstant[] choices() {
+            return new Constants.TypedConstant[] {
+                AVERAGE, ERROR, MOST_RECENT, MOST_RECENT_BLOCK, VARIANCE};
+        }
+        public static final ValueType AVERAGE = new ValueType("Average");
+        public static final ValueType ERROR = new ValueType("67% Confidence Limits");
+        public static final ValueType CURRENT = new ValueType("Current value");
+        public static final ValueType MOST_RECENT = new ValueType("Latest value");
+        public static final ValueType MOST_RECENT_BLOCK = new ValueType("Latest block average");
+        public static final ValueType VARIANCE = new ValueType("Variance");
 	}
-}	 
+	
+}//end of MeterAbstract	 

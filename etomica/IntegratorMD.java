@@ -8,6 +8,7 @@ import etomica.units.*;
  */
 public abstract class IntegratorMD extends Integrator {
     
+    public static String VERSION = "IntegratorMD:01.03.01.0/"+Integrator.VERSION;
     /**
      * Elementary time step for the MD simulation
      */

@@ -1,9 +1,7 @@
 package etomica;
 import etomica.units.Unit;
-import java.io.*;
 import java.util.Random;
 import java.util.HashMap;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.beans.Beans;
 
@@ -57,7 +55,7 @@ import java.beans.Beans;
      
 public abstract class Species implements Simulation.Element, java.io.Serializable {
 
-    public static String getVersion() {return "01.02.14.0";}
+    public static final String VERSION = "Species:01.02.14.0";
     private boolean stationary;
     private Simulation parentSimulation;
     private boolean added = false;
@@ -445,7 +443,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
             parentPhase.configuration.initializeCoordinates(parentPhase);
             parentPhase.iteratorFactory().reset();
             if(integrator != null) {
-                integrator.initialize();
+                if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
                 if(!wasPaused) integrator.unPause();//resume if was not paused originally
             }
         }

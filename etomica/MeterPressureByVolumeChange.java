@@ -84,14 +84,15 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     public double[] currentValue() {
         for(int i=0; i<nPoints; i++) {
             double uOld = phase.energy.potential();
-            if(isotropic) inflater.actionPerformed(scale[i]);
-            else inflater.actionPerformed(phase,scale[i],inflateDimension);
+            inflater.setScale(scale[i]);
+            if(isotropic) inflater.attempt();
+            else inflater.attempt(inflateDimension);
             double uNew = phase.energy.potential();
             y[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
                               + phase.moleculeCount()*x[i]);
             
-            if (isotropic) inflater.retractAction();
-            else inflater.retractAction(inflateDimension);
+            if (isotropic) inflater.undo();
+            else inflater.undo(inflateDimension);
             //System.out.println( "  uNew " + uNew +" uOld " +uOld +" x " + x[i] +" scale" + scale[i]+ " y " +y[i] );
         }
         return y;
@@ -132,7 +133,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
 	    meterp.setPhase(phase1);
 	    meterp.setActive(true);
         plot1.setMeterFunction(meterp);
-	    plot1.setUseCurrentValue(false);
+	    plot1.setWhichValue(MeterAbstract.ValueType.AVERAGE);
 	    SpeciesDisks speciesDisk1 = new SpeciesDisks();
 	    speciesDisk1.setNMolecules(200);
 	    PotentialLJ potentialLJ = new PotentialLJ();
@@ -146,7 +147,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
 	    DisplayBox box1 = new DisplayBox();
 	    
 	    box1.setMeter(meterEnergy1);
-	    box1.setUseCurrentValue(false);
+	    box1.setWhichValue(MeterAbstract.ValueType.AVERAGE);
 		displayPhase1.setPhase(phase1);
 		DeviceSlider temperatureSlider = new DeviceSlider(integratorMC1, "temperature");
 	    temperatureSlider.setUnit(new Unit(Kelvin.UNIT));

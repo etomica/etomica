@@ -11,7 +11,7 @@ import java.awt.Frame;
 */
 public class ColorSchemeBySpecies extends ColorScheme {
     
-    public static String getVersion() {return "01.01.17.0/"+ColorScheme.getVersion();}
+    public static String getVersion() {return "01.01.17/"+ColorScheme.getVersion();}
     private SpeciesColor[] speciesColor = new SpeciesColor[0];
     
     public ColorSchemeBySpecies() {super();}
@@ -78,6 +78,8 @@ public class ColorSchemeBySpecies extends ColorScheme {
     public static void main(String[] args) {
         Frame f = new Frame();   //create a window
         f.setSize(600,350);
+        
+        Simulation.instance = new Simulation(new Space2D());
         
         //set up a system of three species
 	    IntegratorHard integratorHard1 = new IntegratorHard();

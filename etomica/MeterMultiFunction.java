@@ -35,6 +35,13 @@ public abstract class MeterMultiFunction extends MeterFunction {
      */
     public int nFunctions() {return nFunctions;}
     
+	/**
+	 * Returns the function value indicated by the arguments.
+	 */
+	public double[] values(int i, MeterAbstract.ValueType type) {
+	    return meters[i].values(type);
+	}
+
     /**
      * Current value of the <code>ith</code> function
      */

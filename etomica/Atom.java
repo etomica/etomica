@@ -281,6 +281,13 @@ public final class Atom implements Space.Occupant, java.io.Serializable {
         meterAgentCount++; 
         return meterAgentCount-1;
     }
+
+        public static int count(Atom.Iterator iter) {
+            int n = 0;
+            iter.reset();
+            while(iter.hasNext()) {iter.next(); n++;}
+            return n;
+        }
  
  //*********************** ATOM ITERATORS *************************//
  

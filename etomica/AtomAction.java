@@ -23,7 +23,7 @@ import java.awt.Frame;
 
 public abstract class AtomAction extends etomica.Action {
     
-    public static String getVersion() {return "01.01.17.0/"+Action.getVersion();}
+    public static String getVersion() {return "01.01.17.0/"+Action.VERSION;}
 
     protected Atom atom;
     public void setAtom(Atom a) {atom = a;}
@@ -46,9 +46,9 @@ public abstract class AtomAction extends etomica.Action {
     /**
      * Changes the color of an atom to some specified value.
      */
-    public static class ChangeColor extends AtomAction implements Action.Retractable {
-        private Color newColor;
-        private Color oldColor;
+    public static class ChangeColor extends AtomAction implements Action.Undoable {
+        private Color newColor = Color.blue;
+        private Color oldColor = Color.black;
         public ChangeColor() {this(Color.red);}
         public ChangeColor(Color c) {setNewColor(c);}
         public void setNewColor(Color c) {newColor = c;}
@@ -58,7 +58,10 @@ public abstract class AtomAction extends etomica.Action {
             oldColor = a.getColor();
             a.setColor(newColor);
         }
-        public void retractAction() {
+        public void attempt() {
+            if(atom != null) atom.setColor(newColor);
+        }
+        public void undo() {
             if(atom != null) atom.setColor(oldColor);
         }
     }
@@ -114,15 +117,17 @@ public abstract class AtomAction extends etomica.Action {
         f.setSize(600,350);
         
       //make a simple simulation for this example
-        Simulation.makeSimpleSimulation();
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
+        
       //get a handle to the display in the simple simulation
-        final DisplayPhase display = (DisplayPhase)Simulation.instance.displayList.get(0); 
+        final DisplayPhase display = sim.display; 
       //create an instance of the AtomAction that is being demonstrated here
         AtomAction.ChangeColor colorChanger = new AtomAction.ChangeColor();
       //wrap the action in a DisplayPhaseListener so it responds to MousePressed events
         DisplayPhaseListener.AtomActionWrapper wrapper = new DisplayPhaseListener.AtomActionWrapper(colorChanger);
       //set the wrapper so that release of the mouse button retracts the action
-        wrapper.setRetractOnRelease(true);
+        wrapper.setUndoOnRelease(true);
       //make the wrapper a listener to the DisplayPhase, and add listener to repaint display
         display.addDisplayPhaseListener(wrapper);
         display.addDisplayPhaseListener(new DisplayPhaseListener() {

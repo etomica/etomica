@@ -217,7 +217,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     public final Integrator integrator() {return integrator;}
 
     /**
-     * Sets the integrator of the phase
+     * Sets the integrator of the phase.
      * 
      * @param i The new integrator.
      */
@@ -229,6 +229,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
 //        integratorMonitor.fireEvent(new PhaseIntegratorEvent(i,PhaseIntegratorEvent.NEW_INTEGRATOR));
         if(integrator != null) integrator.removePhase(this);
         integrator = i;
+        integrator.addIntervalListener(new PhaseAction.ImposePbc(this));
     }
                         
     public final Space.Vector dimensions() {return boundary.dimensions();}
@@ -349,8 +350,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
         else {firstSpecies = species;}
         lastSpecies = species;
         //update molecule and atom counts
-        for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
-        for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
+        updateCounts();
         //add species to configuration for this phase and notify iteratorFactory
         configuration.initializeCoordinates(this);
         iteratorFactory.reset();  
@@ -395,13 +395,20 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
      public PotentialField firstField() {return firstField;}
     
     /**
-     * Updates all the molecule and atoms counts for this phase
+     * Updates all the molecule and atoms counts for this phase.
+     * Does not include wall atoms in the count.
      */
     public void updateCounts() {
         moleculeCount = 0;
         atomCount = 0;
-        for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
-        for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
+        for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
+            if(m.firstAtom.type instanceof AtomType.Wall) continue;
+            moleculeCount++;
+        }
+        for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {
+            if(a.type instanceof AtomType.Wall) continue;
+            atomCount++;
+        }
     }
     
     /**

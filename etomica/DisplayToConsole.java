@@ -1,14 +1,10 @@
 package etomica;
 
-import etomica.*;
-import java.awt.*;
-import java.util.Observer;
-import java.util.Observable;
-
 // Writes current values of all meters to console
 
 public class DisplayToConsole extends etomica.Display implements Meter.MultiUser, EtomicaElement
 {
+    public String getVersion() {return "DisplayToConsole:01.02.10.0/"+Display.VERSION;}
     Meter[] meter;
     int nMeters = 0;
         
@@ -25,8 +21,6 @@ public class DisplayToConsole extends etomica.Display implements Meter.MultiUser
         EtomicaInfo info = new EtomicaInfo("Pipes meter data to console");
         return info;
     }
-
-    
         
     public void doUpdate() {
         for(int i=0; i<meter.length; i++) {
@@ -58,6 +52,6 @@ public class DisplayToConsole extends etomica.Display implements Meter.MultiUser
 //        });
     }
         
-    public void doPaint(Graphics g) {
+    public void doPaint(java.awt.Graphics g) {
     }
 }

@@ -160,4 +160,14 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
     public void setValue(double value) {
         valueEditor.setValue(new Double(unit.fromSim(value)));
     }
+    
+    /**
+     * Returns value in simulation units.
+     */
+    public String getJavaInitializationString() {
+    //    String value = getAsText();
+    //   String unitName = unit.getClass().getName();
+    //    return unitName+".toSim("+value+")";
+        return getValue().toString();
+    }
 }

@@ -37,6 +37,7 @@ public final class Etomica {
     }
     public static Class[] spaceClasses;
     public static java.util.HashMap simulationFrames = new java.util.HashMap(8);
+    public static java.util.HashMap javaWriters = new java.util.HashMap(8);
     public static int instanceCount = 0;
     public static EtomicaMenuBar menuBar = null;
     public static EtomicaToolBar toolBar = null;
@@ -65,6 +66,7 @@ public final class Etomica {
     public static void addSimulation(Simulation sim) {
         
         simulationList.add(sim);
+        javaWriters.put(sim, new JavaWriter(sim));
         
         //Give name to simulation if it doesn't have one, or if its present name begins with Simulation
         if(sim.getName()==null || sim.getName().startsWith("Simulation")) 
@@ -103,6 +105,7 @@ public final class Etomica {
         
     // Update MenuBars
         EtomicaMenuBar.editSimulationItem.setEnabled(false);
+        EtomicaMenuBar.javaWriteItem.setEnabled(true);
         EtomicaMenuBar.serEditItem.setEnabled(true);
         EtomicaMenuBar.serAppletItem.setEnabled(true);
         //end of new stuff

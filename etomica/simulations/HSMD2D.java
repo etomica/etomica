@@ -7,16 +7,25 @@ import etomica.*;
  
 public class HSMD2D extends Simulation {
     
+    public IntegratorHard integrator;
+    public SpeciesDisks species;
+    public Phase phase;
+    public P2SimpleWrapper p2;
+    public PotentialHardDisk potential;
+    public Controller controller;
+    public DisplayPhase display;
+
     public HSMD2D() {
         super(new Space2D());
         Simulation.instance = this;
-	    IntegratorHard integratorHard1 = new IntegratorHard(this);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(this);
-	    Phase phase1 = new Phase(this);
-	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(this,new PotentialHardDisk(this));
-	    Controller controller1 = new Controller(this);
-	    DisplayPhase displayPhase1 = new DisplayPhase(this);
-	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+	    integrator = new IntegratorHard(this);
+	    species = new SpeciesDisks(this);
+	    phase = new Phase(this);
+	    potential = new PotentialHardDisk(this);
+	    p2 = new P2SimpleWrapper(this,potential);
+	    controller = new Controller(this);
+	    display = new DisplayPhase(this);
+	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
 	    timer.setUpdateInterval(10);
 		setBackground(java.awt.Color.yellow);
     }

@@ -249,6 +249,8 @@ public class Space3D extends Space implements EtomicaElement {
         public double dr(int i) {return (i==0) ? drx : ((i==1) ? dry : drz);}
         public double dv(int i) {return (i==0) ? dvx : ((i==1) ? dry : drz);}
         public double v2() {return dvx*dvx + dvy*dvy + dvz*dvz;}
+        public double vDot(Space.Vector u) {return vDot((Space3D.Vector)u);}
+        public double vDot(Space3D.Vector u) {return dvx*u.x + dvy*u.y + dvz*u.z;}
         public double vDotr() {return drx*dvx + dry*dvy + drz*dvz;}
         public void push(double impulse) {
             c1.p.x += impulse*drx;

@@ -17,7 +17,7 @@ import javax.swing.JDialog;
  * @see DisplayPhaseEvent
  * @author David Kofke
  */
-public class DisplayPhase extends Display implements EtomicaElement {
+public class DisplayPhase extends Display implements Integrator.IntervalListener.AfterPbc, EtomicaElement {
         
     public String getVersion() {return "DisplayPhase:01.03.11.0/"+Display.VERSION;}
     
@@ -314,7 +314,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 }
                 super.setSize(wh,wh);
             //    createOffScreen(wh);  //redundant with call now in setBounds
-                inflate.actionPerformed(phase,rScale);
+                inflate.actionPerformed(rScale);
                 phase.integrator().initialize();
             }
             else {                    //change scale of image
@@ -415,7 +415,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             //Draw all atoms
             Space.Boundary boundary = phase().boundary();
             for(Atom a = phase().firstAtom(); a!=null; a=a.nextAtom()) {
-                boundary.centralImage(a.coordinate);        //move atom to central image
+  //              boundary.centralImage(a.coordinate);        //move atom to central image
                 a.draw(g,centralOrigin,toPixels);
             }
             //Draw overflow images if so indicated

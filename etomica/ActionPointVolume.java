@@ -18,7 +18,7 @@ import java.awt.event.MouseEvent;
 
 public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawable {
     
-    public static String getVersion() {return "01.02.19.0"+PhaseAction.getVersion();}
+    public static String getVersion() {return "01.02.19"+PhaseAction.getVersion();}
 
     private boolean drawPoints = true;
     private boolean drawCells = false;
@@ -36,17 +36,32 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     }
     public double lastLnJacobian() {return lnJTot;}
     
-    public void actionPerformed(Space.Vector r, boolean expand) {
-        this.expand = expand;
+    public void setPhase(Phase p) {
+        r0.PEa1Tv1(-0.5, phase.boundary().dimensions());
+        super.setPhase(p);
+        r0.PEa1Tv1(0.5,phase.boundary().dimensions());
+    }
+    
+    public void setR0(Space.Vector r) {
+        r0.E(r);
+        r0.PEa1Tv1(0.5,phase.boundary().dimensions());
+    }
+    public Space.Vector getR0() {return r0;}
+    
+    public void setExpand(boolean b) {expand = b;}
+    public boolean isExpand() {return expand;}
+    
+    public void actionPerformed(Space.Vector r, boolean b) {
+        setExpand(b);
         actionPerformed(r);
     }
     public void actionPerformed(Space.Vector r) {
         r0.E(r);
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());
-        actionPerformed();
+        actionPerformed(phase);
     }
         
-    public void actionPerformed() {
+    public void actionPerformed(Phase p) {
         double scale = expand ? lattice.scale : 1.0/lattice.scale;
         lnJTot = 0.0;
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
@@ -74,7 +89,9 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
         phase.dimensions().TE(scale);
     }
     
-    public void retractAction() {
+    public void attmpt() {actionPerformed(phase);}
+    
+    public void undo() {
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
             a.replace();
         }
@@ -171,7 +188,7 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     		        actionPointVolume.actionPerformed(r);
     		    }
     		    else if(id == MouseEvent.MOUSE_RELEASED) {
-    		        actionPointVolume.retractAction();
+    		        actionPointVolume.undo();
     		    }
   		        
 		        displayPhase.repaint();

@@ -55,7 +55,31 @@ public abstract class MeterTensor extends MeterAbstract {
             }
         }
     }
+    
+    protected Accumulator[] allAccumulators() {
+        Accumulator[] a = new Accumulator[accumulator.length*accumulator.length];
+        int k = 0;
+        for (int i=0; i<accumulator.length; i++) {
+            for (int j=0; j<accumulator.length; j++) {
+                a[k++] = accumulator[i][j];
+            }
+        }
+        return a;
+    }
         
+        
+	/**
+	 * Returns the value indicated by the argument.
+	 */
+	public Space.Tensor value(MeterAbstract.ValueType type) {
+	    if(type==MeterAbstract.ValueType.AVERAGE) return average();
+	    else if(type==MeterAbstract.ValueType.MOST_RECENT) return mostRecent();
+	    else if(type==MeterAbstract.ValueType.CURRENT) return currentValue();
+	    else if(type==MeterAbstract.ValueType.MOST_RECENT_BLOCK) return mostRecentBlock();
+	    else if(type==MeterAbstract.ValueType.ERROR) return error();
+	    else if(type==MeterAbstract.ValueType.VARIANCE) return variance();
+	    else return null;
+	}
     
     public Space.Tensor average() {
         for (int i=0; i<D; i++) {
@@ -83,6 +107,15 @@ public abstract class MeterTensor extends MeterAbstract {
         return error().component(i, j);
     }
     
+    public Space.Tensor variance() {
+        for (int i=0; i<accumulator.length; i++) {
+            for (int j=0; j<accumulator.length; j++) {
+                y.setComponent(i, j, accumulator[i][j].variance());
+            }
+        }
+        return y;
+    }
+
     public Space.Tensor mostRecent() {
         for (int i=0; i<accumulator.length; i++) {
             for (int j=0; j<accumulator.length; j++) {
@@ -92,28 +125,15 @@ public abstract class MeterTensor extends MeterAbstract {
         return y;
     }
     
-	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Histogramming is not enabled for this type of meter (MeterTensor).
-	*/
-	public boolean isHistogramming() {return false;}
-    	 
-	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Histogramming is not enabled for this type of meter (MeterTensor).
-	*/
-	public void setHistogramming(boolean b) {
-	 //perform no action
-	}
-
-    public void reset() {
+    public Space.Tensor mostRecentBlock() {
         for (int i=0; i<accumulator.length; i++) {
             for (int j=0; j<accumulator.length; j++) {
-                accumulator[i][j].reset();
+                y.setComponent(i, j, accumulator[i][j].mostRecentBlock());
             }
         }
+        return y;
     }
-    
+
 	public interface Atomic {
 	    public Space.Tensor currentValue(Atom a);
 	}

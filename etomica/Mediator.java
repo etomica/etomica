@@ -242,6 +242,24 @@ public class Mediator implements java.io.Serializable {
             }
         }//end of Default
     }//end of IntegratorPhase
+
+    public abstract static class DeviceIntegrator extends Subset {
+        public DeviceIntegrator(Mediator m) {super(m);}
+
+        public Class[] elementClasses() {return new Class[] {Device.class, Integrator.class};}
+        
+        public void add(Simulation.Element element) {
+            if(!superceding && priorSubset != null) priorSubset.add(element);
+            if(element instanceof Device) add((Device)element);
+            if(element instanceof Integrator) add((Integrator)element);
+        }
+        
+        public abstract void add(Device d);
+        public abstract void add(Integrator i);
+        
+        //no default
+    }//end of DeviceIntegrator
+    
     public abstract static class DisplayIntegrator extends Subset {
         public DisplayIntegrator(Mediator m) {super(m);}
 
@@ -494,6 +512,21 @@ public class Mediator implements java.io.Serializable {
         }//end of Default
     }//end of DeviceNull
     
+    public abstract static class IntegratorNull extends Subset {
+        public IntegratorNull(Mediator m) {super(m);}
+
+        public Class[] elementClasses() {return new Class[] {Integrator.class, null};}
+        
+        public void add(Simulation.Element element) {
+            if(!superceding && priorSubset != null) priorSubset.add(element);
+            if(element instanceof Integrator) add((Integrator)element);
+        }
+        
+        public abstract void add(Integrator d);
+        
+        //no Default defined
+    }//end of IntegratorNull
+
     public abstract static class DisplayMeter extends Subset {
         public DisplayMeter(Mediator m) {super(m);}
 
@@ -540,8 +573,8 @@ public class Mediator implements java.io.Serializable {
                     }
                 }
                 else if(meter instanceof MeterFunction) {
-                    if(display instanceof MeterFunction.User && ((MeterFunction.User)display).getMeterFunction() == null) {
-                        ((MeterFunction.User)display).setMeterFunction((MeterFunction)meter);
+                    if(display instanceof DataSource.User && ((DataSource.User)display).getDataSource() == null) {
+                        ((DataSource.User)display).setDataSource((MeterFunction)meter);
                     }
                     else if(display instanceof MeterFunction.MultiUser) {
                         ((MeterFunction.MultiUser)display).addMeterFunction((MeterFunction)meter);

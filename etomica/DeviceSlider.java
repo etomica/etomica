@@ -21,6 +21,8 @@ import java.awt.event.WindowEvent;
  */
 public class DeviceSlider extends Device implements EtomicaElement {
     
+    public String getVersion() {return "DeviceSlider:01.04.10/"+Device.VERSION;}
+
     /**
      * Descriptive text label to be displayed with the value
      */
@@ -58,8 +60,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider.setValue(300);
-        slider.setMinimum(100);
-        slider.setMaximum(500);
+        setMinimum(100);
+        setMaximum(500);
         slider.setMajorTickSpacing(100);
 //        slider.setMinorTickSpacing(50);
         slider.addChangeListener(new SliderListener());  //SliderListener is an inner class defined below
@@ -218,10 +220,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public static void main(String[] args) {
         Frame f = new Frame();   //create a window
         f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  
+        
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
         
         //here's the part unique to this class
-        Integrator integrator = Simulation.instance.integrator(0);
+        Integrator integrator = sim.integrator;
         DeviceSlider mySlider = new DeviceSlider(integrator,"temperature");
         integrator.setIsothermal(true);
         //end of unique part

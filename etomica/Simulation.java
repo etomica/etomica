@@ -11,15 +11,14 @@ import java.beans.Beans;
  * Holds a single space object that is referenced in
  * many places to obtain spatial elements such as vectors and boundaries.  Also
  * holds an object that specifies the unit system used to default all I/O.  A single
- * instance of Simulation is held as a static field.  This instance is used to hold
- * graphic objects that might be displayed in a GUI.  These may be shown by adding 
- * this instance to a Container object.
+ * instance of Simulation is held as a static field, and which forms the default
+ * Simulation class needed in the constructor of all simulation elements.
  *
  * @author David Kofke
  */
 public class Simulation extends javax.swing.JPanel implements java.io.Serializable {
     
-    public String getVersion() {return "Simulation:01.03.11.0/";}
+    public String getVersion() {return "Simulation:01.03.23.0";}
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -83,15 +82,13 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     
 	public final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
 	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridLayout(0,1));
-    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1));
+    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
+//    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.FlowLayout());
     
 
     /**
-     * A static instance of a Simulation, suitable as a default Container of graphical simulation elements.
-     * The add method of Simulation (which is inherited from Panel) is not
-     * static, but it can be invoked for this static instance of Simulation.  In this way
-     * graphical elements can be collected in this instance by default.  This instance
-     * can then be added to an applet or application.
+     * A static instance of a Simulation, for which the current value at any time is
+     * used as a default simulation in many places.
      */
     public static Simulation instance = new Simulation(new Space2D());
        
@@ -117,10 +114,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         elementLists.put(Device.class, deviceList);
         p1Null = new P1Null(this);
         p2IdealGas = new P2IdealGas(this);
-//        elementCoordinator = new MediatorOneIntegrator(this);
         elementCoordinator = new Mediator(this);
         setSize(800,550);
-//        setLayout(new GridLayout(1,2));
         setLayout(new java.awt.FlowLayout());
         add(devicePanel);
         add(displayPanel);
@@ -414,6 +409,14 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
      public javax.swing.JPanel panel() {return this;}
      
+     /**
+      * Returns the mediator that coordinates the elements of the simulation.
+      * The is the same as the elementCoordinator field, but provides another
+      * way to access it.  This method may someday supercede direct access to
+      * the elementCoordinator field, so it is the preferred way to access it.
+      */
+     public Mediator mediator() {return elementCoordinator;}
+     
    /**
     * A marker interface to indicate that the class is an element of a Simulation
     */
@@ -449,6 +452,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * the constructed simulation.  This feature is meant to show how a simulation
      * is constructed and accessed, and to provide a convenient instance to
      * aid testing during development
+     *
+     * @deprecated.  Use a preconstructed extension of Simulation instead.
      */
     public static void makeSimpleSimulation() {
 	    IntegratorHard integratorHard1 = new IntegratorHard();

@@ -39,10 +39,10 @@ public class MCMovePointVolume extends MCMove {
         hOld = phase.energy.potential() + pressure*vOld;
         r0 = phase.randomPosition();
         if(Math.random() < 0.5) { //transform square to distorted
-            action.actionPerformed(r0,true);
+            action.actionPerformed(r0, true);
         }
         else { //transform distorted back to square
-            action.actionPerformed(r0,false);
+            action.actionPerformed(r0, false);
         }
         vNew = phase.volume();
         hNew = phase.energy.potential() + pressure*vNew;
@@ -50,7 +50,7 @@ public class MCMovePointVolume extends MCMove {
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature + action.lastLnJacobian())
                 < Math.random()) 
             {  //reject
-              action.retractAction();
+              action.undo();
             }
         nAccept++;   //accept
     }

@@ -9,6 +9,7 @@ import java.awt.Frame;
  * Colors atoms according to their kinetic energy.
  * Atoms with high KE are colored red, and those with low KE are colored blue.
  * Range of low..high is adjustable.
+ *
  * @author David Kofke
  *
  */
@@ -60,10 +61,12 @@ public class ColorSchemeTemperature extends ColorScheme {
     public static void main(String[] args) {
         Frame f = new Frame();   //create a window
         f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
+        
         //part unique to this example
              //get handles to components we need
-        DisplayPhase display = (DisplayPhase)Simulation.instance.display(0);
+        DisplayPhase display = sim.display;
              //instantiate color scheme and link appropriately
         ColorSchemeTemperature colorScheme = new ColorSchemeTemperature();
         colorScheme.setTLow(Kelvin.UNIT.toSim(100.)); //select low of temperature scale

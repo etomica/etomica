@@ -9,7 +9,7 @@ import etomica.units.*;
  * @author Ed Maginn
  * @author David Kofke
  */
-public final class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
+public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     AtomPair.Iterator pairIterator;
     Atom.Iterator atomIterator;
@@ -21,10 +21,10 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
     double p1, p2, p3, p4;
     double c0, c2, c3, c4;
     
-    private static final double GEAR0 = 251./720.;
-    private static final double GEAR2 = 11./12.;
-    private static final double GEAR3 = 1./3.;
-    private static final double GEAR4 = 1./24.;
+    static final double GEAR0 = 251./720.;
+    static final double GEAR2 = 11./12.;
+    static final double GEAR3 = 1./3.;
+    static final double GEAR4 = 1./24.;
                 
     public IntegratorGear4() {
         this(Simulation.instance);
@@ -37,8 +37,8 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
             private final Space.Vector f = sim.space.makeVector();
             public void action(AtomPair pair) {
                 f.E(((Potential.Soft)sim.getPotential(pair)).force(pair));
-                ((Agent)pair.atom1().ia).force.PE(f);
-                ((Agent)pair.atom2().ia).force.ME(f);
+                ((IntegratorGear4.Agent)pair.atom1().ia).force.PE(f);
+                ((IntegratorGear4.Agent)pair.atom2().ia).force.ME(f);
             }
         };
         work1 = sim.space().makeVector();
@@ -89,7 +89,7 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.next().ia).force.E(0.0);
+            ((IntegratorGear4.Agent)atomIterator.next().ia).force.E(0.0);
         }
         //Add in forces on each atom due to interaction with fields acting in the phase
         for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
@@ -99,7 +99,7 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
             iterator.reset();
             while(iterator.hasNext()) {
                 Atom a = iterator.next();
-                ((Agent)a.ia).force.PE(field.force(a));
+                ((IntegratorGear4.Agent)a.ia).force.PE(field.force(a));
             }
         }
         
@@ -107,12 +107,12 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         pairIterator.allPairs(forceSum);
     }//end of calculateForces
     
-    private void corrector() {
+    protected void corrector() {
         
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
-            Agent agent = (Agent)a.ia;
+            Agent agent = (IntegratorGear4.Agent)a.ia;
             work1.E(a.p);
             work1.PEa1Tv1(chi*a.mass(),a.r);
             work2.E(work1);
@@ -135,7 +135,7 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         }
     }//end of corrector
         
-    private void predictor() {
+    protected void predictor() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
@@ -177,7 +177,7 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
-            Agent agent = (Agent)a.ia;
+            Agent agent = (IntegratorGear4.Agent)a.ia;
             agent.dr1.E(a.p);
             agent.dr2.E(agent.force);
             agent.dr3.E(0.0);
@@ -191,11 +191,11 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
               
 //--------------------------------------------------------------
 
-    public final Integrator.Agent makeAgent(Atom a) {
+    public Integrator.Agent makeAgent(Atom a) {
         return new Agent(parentSimulation(),a);
     }
             
-    public final static class Agent implements Integrator.Agent {  //need public so to use with instanceof
+    public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
         public Space.Vector dr1, dr2, dr3, dr4;

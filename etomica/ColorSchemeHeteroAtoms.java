@@ -65,11 +65,13 @@ public class ColorSchemeHeteroAtoms extends ColorScheme {
     public static void main(String[] args) {
         Frame f = new Frame();   //create a window
         f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
+
         //part unique to this example
              //get handles to components we need
-        SpeciesDisks species = (SpeciesDisks)Simulation.instance.species(0);
-        DisplayPhase display = (DisplayPhase)Simulation.instance.display(0);
+        SpeciesDisks species = sim.species;
+        DisplayPhase display = sim.display;
              //set species to have 3 atoms per molecule to use this color scheme
         species.setAtomsPerMolecule(3);    
         P1TetherHardDisk potentialTether = new P1TetherHardDisk(); //an intramolecular potential

@@ -14,7 +14,7 @@ import java.awt.Graphics;
  
 public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement {
 
-    public static final String version() {return "01.03.04.0";}
+    public final String getVersion() {return "SpeciesPistonCylinder:01.03.15.0/"+super.getVersion();}
  
     private Constants.Direction direction = Constants.NORTH;
     private Space2D.Vector dimensions = new Space2D.Vector();
@@ -26,6 +26,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     private int pistonThickness = 8;//piston thickness
     private double diameter = 28.0;//diameter of cylinder
     private double length = 20.0;//length of cylinder
+    private java.util.HashMap deployedFields = new java.util.HashMap(5);
     
     public SpeciesPistonCylinder() {
         this(Simulation.instance);
@@ -69,7 +70,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      */
     protected Molecule makeMolecule(Phase phase) {
         Molecule m = new Molecule(this, phase, protoType);
-        phase.addField(new PistonPressureField(phase, new Atom.Iterator.Singlet(m.firstAtom())));
+        PistonPressureField field = (PistonPressureField)deployedFields.get(phase);
+        if(field != null) phase.removeField(field);
+        field = new PistonPressureField(phase, new Atom.Iterator.Singlet(m.firstAtom()));
+        phase.addField(field);
+        deployedFields.put(phase,field);
         return m;
     } 
               
@@ -84,6 +89,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Accessor method for the width of the piston chamber.
    */
   public double getDiameter() {return diameter;}
+  public Dimension getDiameterDimension() {return Dimension.LENGTH;}
   
   /**
    * Accessor method for the length of the piston chamber.
@@ -237,6 +243,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         int i=0;
         while(m.atomIterator.hasNext()) {atoms[i++] = m.atomIterator.next();}
         atoms[0].setStationary(false); //piston
+ //       atoms[0].setStationary(true); //piston
         atoms[1].setStationary(true);
         atoms[2].setStationary(true);
         atoms[3].setStationary(true);

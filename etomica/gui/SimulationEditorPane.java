@@ -170,7 +170,7 @@ public class SimulationEditorPane extends EditorPane {
 		
         // The new actionListener will add an instance of the class that corresponds to the currently
         // selected radioButton to the simulationEditor.getSimulation() object as well as to the SimulationEditorPane's
-        // componentList.  
+        // componentList and the javaWriter for the simulation.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
                     remove.setEnabled(true);                            // Enable 'Remove' button  
@@ -186,8 +186,11 @@ public class SimulationEditorPane extends EditorPane {
 	                            setComponent(((Class)currentButton.cls).newInstance());
 	                            ((Simulation.Element)getComponent()).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
     	                    }
-	                        componentList.addElement(getComponent()); // Add new object to the componentList
-                            simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
+    	                    Simulation currentSimulation = simulationEditor.getSimulation();
+    	                    Simulation.Element element = (Simulation.Element)getComponent();
+	                        componentList.addElement(element); // Add new object to the componentList
+                            currentSimulation.elementCoordinator.add(element);
+                            ((JavaWriter)Etomica.javaWriters.get(currentSimulation)).add(element);
 	                        if (getTitle() == "Controller"){
                                 etomica.Device button = ((Controller)getComponent()).getButton();
                                 if(button != null) simulationEditor.getSimulation().elementCoordinator.add(button);
@@ -215,7 +218,10 @@ public class SimulationEditorPane extends EditorPane {
         // componentList from the simulationEditor.getSimulation() object.
 	    remove.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
-                simulationEditor.getSimulation().unregister(((Simulation.Element)componentList.getElementAt(getCurrentSelection())));
+    	        Simulation currentSimulation = simulationEditor.getSimulation();
+    	        Simulation.Element element = (Simulation.Element)componentList.getElementAt(getCurrentSelection());
+                currentSimulation.unregister(element);
+                ((JavaWriter)Etomica.javaWriters.get(currentSimulation)).remove(element);
 	            componentList.remove(getCurrentSelection());
                 propertySheet.setTarget(null);
 

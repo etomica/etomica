@@ -11,7 +11,7 @@ public class PotentialLJ extends Potential implements Potential.Soft, EtomicaEle
     private double sigma, sigmaSquared;
     private double cutoffRadius, cutoffRadiusSquared;
     private double epsilon, cutoff;
-    private double epsilon4, epsilon48;
+    private double epsilon4, epsilon48, epsilon144;
     private double eLRC, pLRC;  //multipliers for long-range correction to energy and pressure, resp.
     private final Space.Vector force;
 
@@ -83,6 +83,19 @@ public class PotentialLJ extends Potential implements Potential.Soft, EtomicaEle
     }
     
     /**
+     * Hypervirial, defined r*du/dr + r^2*d2u/dr2.
+     * Used to compute the pressure
+     */
+    public double hyperVirial(AtomPair pair) {  //not carefully checked for correctness
+        double r2 = pair.r2();
+        if(r2 > cutoffRadiusSquared) {return 0.0;}
+        else {
+            double s2 = sigmaSquared/r2;
+            double s6 = s2*s2*s2;
+            return epsilon144*s6*(4.*s6 - 1.0);
+        }
+    }
+    /**
      * Returns the total (extensive) long-range correction to the energy
      * Input are the number of atoms of each type (i.e., x1*N and x2*N, where x1 and x2
      * are the mole fractions of each species interacting according to this potential), and the volume
@@ -141,6 +154,7 @@ public class PotentialLJ extends Potential implements Potential.Soft, EtomicaEle
         epsilon = eps;
         epsilon4 = eps*4.0;
         epsilon48 = eps*48.0;
+        epsilon144 = eps*144.0;
         calculateLRC();
     }
     public Dimension getEpsilonDimension() {return Dimension.ENERGY;}

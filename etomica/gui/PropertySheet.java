@@ -20,7 +20,7 @@ import javax.swing.event.TreeExpansionEvent;
 
 public class PropertySheet extends JInternalFrame {
     
-    public String getVersion() {return "01.03.11.0";}
+    public String getVersion() {return "PropertySheet:01.03.22.0";}
 
     static final javax.swing.border.EmptyBorder EMPTY_BORDER = new javax.swing.border.EmptyBorder(2,4,2,2);
     static ImageIcon LEAF_ICON;
@@ -450,6 +450,7 @@ class PropertySheetPanel extends JPanel {
                 value instanceof Character ||
                 value instanceof String ||
                 value instanceof Color ||
+                value instanceof etomica.Constants.TypedConstant ||
                 value instanceof java.awt.Font)) {/*add dummy child*/
                 child.add(new PropertyNode(null,new JLabel(),new EmptyPanel(), new EmptyPanel(), null, null));
             }
@@ -570,9 +571,14 @@ class PropertySheetPanel extends JPanel {
                 //found editor
 		        PropertyDescriptor property = node.descriptor();
 		        Object value = editor.getValue();
+		        
 		        node.setObject(value);
 		        Method setter = property.getWriteMethod();
 		        if(setter == null) continue;
+		        
+		        JavaWriter javaWriter = (JavaWriter)Etomica.javaWriters.get(target.parentSimulation());
+                javaWriter.propertyChange(target, setter, editor.getJavaInitializationString());
+		        
 		        try {
 		            Object args[] = { value };
 		            args[0] = value;
@@ -873,7 +879,7 @@ class PropertySheetPanel extends JPanel {
     // We need to cache the targets' wrapper so we can annoate it with
     // information about what target properties have changed during design
     // time.
-    private Object target;
+    private Simulation.Element target;
     private java.util.Vector groups = new java.util.Vector();
     private boolean processEvents;
     private static int hPad = 4;

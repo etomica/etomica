@@ -11,6 +11,8 @@ package etomica;
  */
 public abstract class Potential implements Simulation.Element, java.io.Serializable {
   
+    public static String VERSION = "Potential:01.01.17";
+    
     private final Simulation parentSimulation;
     private boolean added = false;
     private String name;
@@ -31,6 +33,7 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
      */
     public abstract double energy(AtomPair pair);
           
+    public double hyperVirial(AtomPair pair) {return 0.0;}
     /**
      * Returns true if the pair of atoms are considered by this potential to be overlapping in their current positions
      */
@@ -110,9 +113,25 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
         public double pressureLRC(int n1, int n2, double V);
 
         public double virial(AtomPair pair);
+        public double hyperVirial(AtomPair pair);
         
         
     } //end of Potential.Soft
+    
+    public interface Reactive {
+        
+        public BondChangeData[] getBondChangeData();
+        
+        public static class BondChangeData {
+            public Atom atom;
+            public Atom[] oldPartners;
+            public Atom[] newPartners;
+            public Atom getAtom() {return atom;}
+            public Atom[] getOldPartners() {return oldPartners;}
+            public Atom[] getNewPartners() {return newPartners;}
+        }
+        
+    }
         
 }
 

@@ -5,6 +5,8 @@ import etomica.units.*;
 
 public abstract class Integrator implements Simulation.Element, Runnable, java.io.Serializable {
 
+  public static String VERSION = "Integrator:01.03.24.0";
+  
   transient public Thread runner = new Thread(this);
   private boolean haltRequested = false;
   private boolean resetRequested = false;
@@ -19,7 +21,9 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
   int phaseCount = 0;
   int phaseCountMax = 1;
   protected int sleepPeriod = 10;
-  private Vector intervalListeners = new Vector();
+  private Vector intervalListenersBeforePbc = new Vector();
+  private Vector intervalListenersImposePbc = new Vector();
+  private Vector intervalListenersAfterPbc = new Vector();
   int interval = 10;  // number of steps between IntervalEvent firing
   int integrationCount = 0;
   boolean doSleep = true;
@@ -160,21 +164,62 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
 	    };
 	}
   public synchronized void addIntervalListener(IntervalListener iil) {
-    intervalListeners.addElement(iil);
+    boolean added = false;
+    //must check all possibilities because listener may implement multiple pbc interfaces
+    if(iil instanceof IntervalListener.BeforePbc) {
+        intervalListenersBeforePbc.addElement(iil);
+        added = true;
+    }
+    if(iil instanceof IntervalListener.ImposePbc) {
+        intervalListenersImposePbc.addElement(iil);
+        added = true;
+    }
+    if(iil instanceof IntervalListener.AfterPbc) {
+        intervalListenersAfterPbc.addElement(iil);
+        added = true;
+    }
+    //if not implementing any of the pbc interfaces, default is afterPbc
+    if(!added) intervalListenersAfterPbc.addElement(iil);
   }
 
   public synchronized void removeIntervalListener(IntervalListener iil) {
-    intervalListeners.removeElement(iil);
-  }
-
-    //may want to rewrite this so not synchronized
-  public void fireIntervalEvent(IntervalEvent iie) {
-    Vector currentListeners = null;
-    synchronized(this){
-        currentListeners = (Vector)intervalListeners.clone();
+    boolean removed = false;
+    if(iil instanceof IntervalListener.BeforePbc) {
+        intervalListenersBeforePbc.removeElement(iil);
+        removed = true;
     }
-    for(int i = 0; i < currentListeners.size(); i++) {
-        IntervalListener listener = (IntervalListener)currentListeners.elementAt(i);
+    if(iil instanceof IntervalListener.ImposePbc) {
+        intervalListenersImposePbc.removeElement(iil);
+        removed = true;
+    }
+    if(iil instanceof IntervalListener.AfterPbc) {
+        intervalListenersAfterPbc.removeElement(iil);
+        removed = true;
+    }
+    if(!removed) intervalListenersAfterPbc.removeElement(iil);
+  }
+  
+    /**
+     * Notifies registered listeners that an interval has passed.
+     * Not synchronized, so unpredictable behavior if listeners are added
+     * while notification is in process (this should be rare).
+     */
+  public void fireIntervalEvent(IntervalEvent iie) {
+    iie.setBeforePbc(true);
+    int n = intervalListenersBeforePbc.size();
+    for(int i = 0; i < n; i++) {
+        IntervalListener listener = (IntervalListener)intervalListenersBeforePbc.elementAt(i);
+        listener.intervalAction(iie);
+    }
+    n = intervalListenersImposePbc.size();
+    for(int i = 0; i < n; i++) {
+        IntervalListener listener = (IntervalListener)intervalListenersImposePbc.elementAt(i);
+        listener.intervalAction(iie);
+    }
+    iie.setBeforePbc(false);
+    n = intervalListenersAfterPbc.size();
+    for(int i = 0; i < n; i++) {
+        IntervalListener listener = (IntervalListener)intervalListenersAfterPbc.elementAt(i);
         listener.intervalAction(iie);
     }
   }
@@ -301,17 +346,31 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     public static class IntervalEvent extends EventObject{
         
         //Typed constants used to indicate the type of event integrator is announcing
-        public static final Type START = new Type("Start");       //simulation is startiing
+        public static final Type START = new Type("Start");       //simulation is starting
         public static final Type INTERVAL = new Type("Interval"); //routine interval event
         public static final Type DONE = new Type("Done");         //simulation is finished
         public static final Type INITIALIZE = new Type("Initialize"); //integrator is initializing
         
       //  private final Type type;//sometimes compiles, sometimes doesn't when declared final
         private Type type;
+        private boolean beforePbc;
+        
         public IntervalEvent(Integrator source, Type t) {
             super(source);
             type = t;
         }
+        
+        /**
+         * Indicates if notification is before or after the ImposePbc listeners have been
+         * notified.  Returns true if notifying BeforePbc or ImposePbc listeners;
+         * return false if notifying AfterPbc listeners.
+         */
+        public final boolean isBeforePbc() {return beforePbc;}
+        /**
+         * Sets the before/after status relative to imposePbc listeners.
+         * Should be used only by Integrator that is firing event.
+         */
+        final void setBeforePbc(boolean b) {beforePbc = b;}
         
         public Type type() {return type;}
         
@@ -325,6 +384,26 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     
     public interface IntervalListener extends java.util.EventListener {
         public void intervalAction(IntervalEvent evt);
+        
+        /**
+         * Marker interface that indicates an IntervalListener that should be notified before any
+         * application of periodic boundary conditions.
+         */
+        public interface BeforePbc extends IntervalListener {}
+
+        /**
+         * Marker interface that indicates an IntervalListener that will invoke 
+         * periodic boundary conditions when notified.
+         */
+        public interface ImposePbc extends IntervalListener {}
+
+        /**
+         * Marker interface that indicates an IntervalListener that should be notified after any
+         * application of periodic boundary conditions.
+         * This is the default for any IntervalListener that doesn't have a 
+         * IntervalListenerPBC marker interface.
+         */
+        public interface AfterPbc extends IntervalListener {}
     }
 
 }

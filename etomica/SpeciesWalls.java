@@ -7,7 +7,7 @@ import etomica.units.*;
 
 public class SpeciesWalls extends Species implements EtomicaElement {
 
-    public static String getVersion() {return "01.03.10.0/"+Species.getVersion();}
+    public String getVersion() {return "SpeciesWalls:01.03.10.0/"+Species.VERSION;}
 
 /** 
  *  Wall type array.  Each atom has its own type, which specifies its length and orientation.

@@ -168,6 +168,8 @@ public class Space1D extends Space implements EtomicaElement {
         public double v2() {
             return dvx*dvx;
         }
+        public double vDot(Space.Vector u) {return vDot((Space1D.Vector)u);}
+        public double vDot(Space1D.Vector u) {return dvx*u.x;}
         public double vDotr() {
             return drx*dvx;
         }

@@ -9,15 +9,17 @@ import java.awt.event.*;
  * Class for creating a plot of simulation data.
  * Data are obtained from a MeterFunction class that is identified via the
  * setMeter method.
+ *
+ * @author David Kofke
  */
 public class DisplayPlot extends Display implements MeterFunction.User, EtomicaElement {
     
-    public String getVersion() {return "DisplayPlot:01.03.11.0/"+Display.VERSION;}
+    public String getVersion() {return "DisplayPlot:01.03.24.0/"+Display.VERSION;}
 
     Plot plot;
     MeterFunction meter;
     Unit xUnit, yUnit;
-    boolean useCurrentValue;  //flag indicating if display should show meter's current value (if true) or average (if false: default value)
+    MeterAbstract.ValueType whichValue;
     private JButton resetButton = new JButton("Reset averages");
     private boolean makeResetButton = false;
    
@@ -30,8 +32,8 @@ public class DisplayPlot extends Display implements MeterFunction.User, EtomicaE
         add(plot);
         setXUnit(new Unit(BaseUnit.Null.UNIT));
         setYUnit(new Unit(BaseUnit.Null.UNIT));
-        setUseCurrentValue(false);
         setName("Plot");
+        setWhichValue(MeterAbstract.ValueType.AVERAGE);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -53,7 +55,7 @@ public class DisplayPlot extends Display implements MeterFunction.User, EtomicaE
         if(meter == null) return;
         plot.setXLabel(meter.getXLabel()+" ("+xUnit.symbol()+")");
         plot.setYLabel(meter.getLabel());
-        setUseCurrentValue(getUseCurrentValue());
+        setWhichValue(getWhichValue());
         if(m instanceof MeterMultiFunction) {
             int nF = ((MeterMultiFunction)m).nFunctions();
             for(int f=0; f<nF; f++) {
@@ -87,7 +89,7 @@ public class DisplayPlot extends Display implements MeterFunction.User, EtomicaE
             MeterMultiFunction m = (MeterMultiFunction)meter;
             for(int f=0; f<m.nFunctions(); f++) {
                 double[] x = m.X(f);
-                double[] y = (useCurrentValue) ? m.currentValue(f) : m.average(f);
+                double[] y = m.value(f,whichValue);
                 for(int i=0; i<x.length; i++) {
                     plot.addPoint(f,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
                 }
@@ -95,7 +97,8 @@ public class DisplayPlot extends Display implements MeterFunction.User, EtomicaE
         }
         else {
             double[] x = meter.X();
-            double[] y = (useCurrentValue) ? meter.currentValue() : meter.average();
+       //     double[] y = (useCurrentValue) ? meter.currentValue() : meter.average();
+            double[] y = meter.value(whichValue);
             for(int i=0; i<x.length; i++) {
                 plot.addPoint(0,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
             }
@@ -104,16 +107,16 @@ public class DisplayPlot extends Display implements MeterFunction.User, EtomicaE
     }
     
     /**
-     * Sets flag indicating if plot should be of instantaneous (current) value or running average
+     * Sets whether meter displays average, current value, last block average, etc.
      */
-    public void setUseCurrentValue(boolean b) {
-        useCurrentValue = b;
+    public void setWhichValue(MeterAbstract.ValueType type) {
+        whichValue = type;
         if(meter == null) return;
-//        if(!useCurrentValue && !meter.isActive()) {meter.setActive(true);}
-        if(!useCurrentValue && !meter.isActive()) {System.out.println("Warning: setting to use averages but meter is not active");}
+        if(!(whichValue==MeterAbstract.ValueType.MOST_RECENT) && !meter.isActive())
+            {System.out.println("Warning: setting to use averages but meter is not active");}
     }
-    public boolean getUseCurrentValue() {return useCurrentValue;}
- 
+    public MeterAbstract.ValueType getWhichValue() {return whichValue;}
+     
  /**
   * Define inner class as extension of ptolemy.plot.Plot
   * Does not override anything, but may want to later

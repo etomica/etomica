@@ -171,6 +171,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void reset(Space.Coordinate c1, Space.Coordinate c2);
         public abstract double v2();
         public abstract double vDotr();
+        public abstract double vDot(Space.Vector u);
         public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
         public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
         public final double r2() {return r2;}

@@ -52,6 +52,11 @@ public class FileActions {
     public static final ActionListener SERAPPLET = new SerAppletAction();
     
     /**
+     * Static action listener for writing a simulation as Java source
+     */
+    public static final ActionListener WRITE_JAVA = new WriteJavaAction();
+    
+    /**
      * Static action listener for loading a serialized component
      */
     public static final ActionListener OPEN = new OpenAction();
@@ -69,12 +74,17 @@ public class FileActions {
     /**
      * Static default file name for a serialized component
      */
-    public final static String defaultSerializeAppletFile = "SimulationApplet.ser";
+    private final static String defaultSerializeAppletFile = "SimulationApplet.ser";
 
+    /**
+     * Static default file name for a java source file
+     */
+    private final static String defaultJavaSourceFile = "MySimulation.java";
+    
     /**
      * Static default file name for a serialized component
      */
-    public final static String defaultSerializeEditFile = "EditableSimulation.ser";
+    private final static String defaultSerializeEditFile = "EditableSimulation.ser";
 
     /**
      * Static default file name for the stored file
@@ -101,6 +111,37 @@ public class FileActions {
         }//end of actionPerformed method
     }//end of NewSimulationAction class
     
+    /**
+     * Listener class that handles the action of writing a simulation as Java source
+     */
+    private static class WriteJavaAction implements ActionListener {
+        
+        public void actionPerformed(ActionEvent event) {
+    	    FileDialog fd = new FileDialog(Etomica.DesktopFrame.etomicaFrame, "Write Java Source to File", FileDialog.SAVE);
+	        // needed for a bug under Solaris...
+	        fd.setDirectory(System.getProperty("user.dir"));
+	        fd.setFile(defaultJavaSourceFile);
+	        fd.show();
+	        String fname = fd.getFile();
+	        if (fname == null) {
+	            return;
+	        }
+	        String dname = fd.getDirectory();
+	        File file = new File(dname, fname);
+            JavaWriter jWriter = (JavaWriter)Etomica.javaWriters.get(Simulation.instance);
+	        jWriter.writeToFile(file);
+        }// end of actionPerformed
+        
+        void error(String message, Throwable th) {
+	        String mess = message + ":\n" + th;
+	        System.err.println(message);
+	        th.printStackTrace();
+
+	        // Popup an ErrorDialog with the given error message.
+	        new ErrorDialog(Etomica.DesktopFrame.etomicaFrame, mess);
+        }// end of error
+    }// end of WriteJavaAction
+
     /**
      * Static class that handles the serialization action (Makes an editable version for the Etomica
      * environment

@@ -11,6 +11,8 @@ import java.awt.Component;
  */
 public abstract class Device implements Simulation.GraphicalElement, Dimensioned, java.io.Serializable {
     
+    public static final String VERSION = "Device:01.01.17";
+    
     protected Unit unit;
     private String name;
     private final Simulation parentSimulation;

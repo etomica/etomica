@@ -21,6 +21,8 @@ import etomica.units.*;
  
 public class IntegratorHard extends IntegratorMD implements EtomicaElement {
 
+public String getVersion() {return "IntegratorHard:01.03.17.0/"+IntegratorMD.VERSION;}
+
 //convenience handle to the agent holding information about the next collision
 private Agent nextCollider;
 //iterators for looping through atoms

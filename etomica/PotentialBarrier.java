@@ -2,8 +2,10 @@ package etomica;
 
 /**
  */
-public class PotentialBarrier extends Potential implements Potential.Hard {
+public class PotentialBarrier extends Potential implements Potential.Hard, Potential.Reactive {
 
+  private Potential.Reactive.BondChangeData[] bondData;
+  
   protected double barrierDiameter, barrierDiameterSquared;
   protected double barrier;
   protected double lastCollisionVirial, lastCollisionVirialr2;
@@ -18,6 +20,7 @@ public class PotentialBarrier extends Potential implements Potential.Hard {
   }
   public PotentialBarrier(double barrierDiameter, double barrier) {
     this(Simulation.instance, barrierDiameter, barrier);
+    makeBondData();
   }
   public PotentialBarrier(Simulation sim, double barrierDiameter, double barrier) {
     super(sim);
@@ -25,7 +28,20 @@ public class PotentialBarrier extends Potential implements Potential.Hard {
     setBarrierEnergy(barrier);
     dr = sim.space().makeVector();
     lastCollisionVirialTensor = sim.space().makeTensor();
+    makeBondData();
   }
+
+  //constructs 3 BondChangeData classes, one for each atom in possible bondchange event
+  private void makeBondData() {
+    bondData = new Potential.Reactive.BondChangeData[3];
+    for(int i=0; i<3; i++) {
+        bondData[i] = new Potential.Reactive.BondChangeData();
+        bondData[i].oldPartners = new Atom[1];
+        bondData[i].newPartners = new Atom[1];
+    }
+  }
+  
+  public Potential.Reactive.BondChangeData[] getBondChangeData() {return bondData;}
 
 /**
  * Returns true if separation of pair is less than core diameter, false otherwise
@@ -47,17 +63,28 @@ public class PotentialBarrier extends Potential implements Potential.Hard {
     double ke = bij*bij*reduced_m/(2.0*r2);
     double s, r2New;
 
-      if(r2 < barrierDiameterSquared) return;
+      if(r2 < barrierDiameterSquared) {
+        bondData[0].atom = null;
+        return;
+      }
       if(bij > 0.0) {         // Separating
 	    if(ke < barrier) {     // Not enough kinetic energy to escape
 	       lastCollisionVirial = 2.0*reduced_m*bij;
 	       r2New = (1-eps)*barrierDiameterSquared; 
+	       bondData[0].atom = null;
 	    }
 	    else {                 // Escape
 //	  s = (0.5*bij/r - Math.sqrt(0.5*(ke - barrier)))/r;
 	       lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*barrier/reduced_m));
 	       r2New = (1+eps)*barrierDiameterSquared;
 	       if(pair.atom1().atomLink != null) {
+	            bondData[0].atom = pair.atom1();
+	            bondData[0].oldPartners[0] = pair.atom2();
+	            bondData[0].newPartners[0] = null;
+	            bondData[1].atom = pair.atom2();
+	            bondData[1].oldPartners[0] = pair.atom1();
+	            bondData[1].newPartners[0] = null;
+	            bondData[2].atom = null;
 	            pair.atom1().atomLink[0] = null;
 	            pair.atom2().atomLink[0] = null;
 	       }
@@ -67,21 +94,31 @@ public class PotentialBarrier extends Potential implements Potential.Hard {
         if(ke < barrier) { //not enough kinetic energy to form bond
 	       lastCollisionVirial = 2.0*reduced_m*bij;
 	       r2New = (1+eps)*barrierDiameterSquared; 
+	       bondData[0] = null;
         }
         else {  //bonding
 	     lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*barrier/reduced_m));
 	     r2New = (1-eps)*barrierDiameterSquared;
 	     if(pair.atom1().atomLink != null) {
+	        bondData[0].atom = pair.atom1();
+	        bondData[1].atom = pair.atom2();
 	        //remove any existing bonds pair atoms have with other atoms
 	        if(pair.atom1().atomLink[0] != null) {
+	            bondData[0].oldPartners[0] = pair.atom1().atomLink[0].atom();
 	            pair.atom1().atomLink[0].atom().atomLink[0] = null;
 	        }
+	        else bondData[0].oldPartners[0] = null;
+	        
 	        if(pair.atom2().atomLink[0] != null) {
+	            bondData[1].oldPartners[0] = pair.atom2().atomLink[0].atom();
 	            pair.atom2().atomLink[0].atom().atomLink[0] = null;
 	        }
+	        else bondData[1].oldPartners[0] = null;
 	        //bond pair atoms
 	        pair.atom1().atomLink[0] = new Atom.Linker(pair.atom2());
 	        pair.atom2().atomLink[0] = new Atom.Linker(pair.atom1());
+	        bondData[0].newPartners[0] = pair.atom2();
+	        bondData[1].newPartners[0] = pair.atom1();
 	     }
 	    }
       }
@@ -119,6 +156,7 @@ public class PotentialBarrier extends Potential implements Potential.Hard {
     double tij = Double.MAX_VALUE;
 
     if(r2 < barrierDiameterSquared) {  // Already inside barriers
+//        System.out.println("bingo!");
         return Double.MAX_VALUE;
 //	      discr = bij*bij - v2 * ( r2 - barrierDiameterSquared );  // This is always > 0
 //	      tij = (-bij + Math.sqrt(discr))/v2;

@@ -15,7 +15,7 @@ import java.awt.event.InputEvent;
  
 public class DisplayBox extends Display implements Dimensioned, Meter.User, EtomicaElement {
     
-    public String getVersion() {return "DisplayBox:01.03.11.0/"+Display.VERSION;}
+    public String getVersion() {return "DisplayBox:01.03.23/"+Display.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
@@ -38,7 +38,8 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
      * Default is 4.
      */
     int precision;
-    private boolean useCurrentValue;  //need to set up flags for recent, average, current
+    private MeterAbstract.ValueType whichValue;
+    
     /**
      * Physical units associated with the displayed value.
      * Default is null (dimensionless).
@@ -60,11 +61,11 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
         label = new JLabel("Label");
         value = new JTextField("");
         value.setEditable(false);
+        setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
         setPrecision(4);
         panel.add(label);
         panel.add(value);
         unit = new Unit(BaseUnit.Null.UNIT);
-        setUseCurrentValue(true);
         setUpdateInterval(5);
         panel.setSize(100,60);
         
@@ -166,32 +167,29 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
     public String getLabel() {return label.getText();}
     
     /**
-     * Sets the display text to reflect the current or average value from the meter.
+     * Sets the display text to reflect the desired value from the meter.
      */
     public void doUpdate() {
         if(meter == null) return;
-        if(useCurrentValue) {
-            value.setText(format(unit.fromSim(meter.mostRecent()),precision));
-        }
-        else {
-            value.setText(format(unit.fromSim(meter.average()),precision));
-        }
+        value.setText(format(unit.fromSim(meter.value(whichValue)),precision));
     }
-    
     /**
-     * Sets flag indicating if plot should be of instantaneous (current) value or running average
+     *   @deprecated  Use setWhichValue instead
      */
     public void setUseCurrentValue(boolean b) {
-        useCurrentValue = b;
-        if(meter == null) return;
-        if(!useCurrentValue && !meter.isActive()) {System.out.println("Warning: setting to use averages but meter is not active");}
+        if(b) setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
+        else  setWhichValue(MeterAbstract.ValueType.AVERAGE);
     }
     /**
-     * Accessor method for currentValue field, which specifies if display should present current value
-     * or running average.
+     * Sets whether meter displays average, current value, last block average, etc.
      */
-    public boolean getUseCurrentValue() {return useCurrentValue;}
-
+    public void setWhichValue(MeterAbstract.ValueType type) {
+        whichValue = type;
+        if(meter == null) return;
+        if(!(whichValue==MeterAbstract.ValueType.MOST_RECENT) && !meter.isActive())
+            {System.out.println("Warning: setting to use averages but meter is not active");}
+    }
+    public MeterAbstract.ValueType getWhichValue() {return whichValue;}
     
     /**
      * Demonstrates how this class is implemented.
