@@ -104,25 +104,34 @@ public class IntegratorGEMC extends Integrator {
         double uNew, uOld;
         
         if(dSpecies.nMolecules == 0) {return;}
- 
-        iSpecies.parentPhase.space.randomVector(dr, rand);  //random point in volume
-        Molecule iM = new Molecule(iSpecies,iSpecies.nAtomsPerMolecule);
-        iM.translate(dr);
-        uNew = iM.potentialEnergy();
-        if(uNew == Double.MAX_VALUE) {return;}        //overlap
         
-        int i = (int)(rand.nextDouble()*dSpecies.nMolecules);
-        Molecule dM = dSpecies.firstMolecule;
-        for(int j=i; --j>=0; ) {dM = dM.getNextMolecule();}
-        uOld = dM.potentialEnergy();
-        
+        Molecule m = dSpecies.randomMolecule();
+        uOld = m.potentialEnergy();
+        Space.uEv1(dr,m.COM());
+        Space.uTEa1(dr,-1.0);
+        m.displace(dr);  //zero center-of-mass, saving old coordinates
+        iSpecies.parentPhase.space.randomVector(dr, rand);  //random point in insertion volume
+        m.translate(dr);
+        m.parentSpecies = iSpecies;
+        uNew = m.potentialEnergy();
+        if(uNew == Double.MAX_VALUE) {
+            m.replace(); 
+            m.parentSpecies = dSpecies; 
+            return;        //overlap
+        }        
         double bFactor = dSpecies.nMolecules/dSpecies.parentPhase.space.volume
                          * iSpecies.parentPhase.space.volume/(iSpecies.nMolecules+1)
                          * Math.exp(-(uNew-uOld)/temperature);
         if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
-            dSpecies.deleteMolecule(dM);
-            iSpecies.addMolecule(iM);
-        }                   
+            m.parentSpecies = dSpecies; 
+            dSpecies.deleteMolecule(m);
+            iSpecies.addMolecule(m);
+        }
+        else {              //reject
+            m.replace();
+            m.parentSpecies = dSpecies;
+            return;
+        }
     }
             
     public final int getFreqVolume() {return freqVolume;}

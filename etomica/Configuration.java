@@ -81,7 +81,7 @@ public abstract class Configuration extends Component{
     
     /**
      * Returns a set of n coordinates filling a square lattice of sides Lx and Ly
-     * If n is not suitable for square lattice, that last sites are left unfilled
+     * If n is not suitable for square lattice, then last sites are left unfilled
      * Lattice is centered between (0,0) and (Lx, Ly).
      * The first element of the returned array indicates the point (0...(n-1)) and the 
      *   second indicates the coordinate (x or y)

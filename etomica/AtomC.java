@@ -52,7 +52,6 @@ public abstract class AtomC extends Atom {
      * @see #mass
      */
     double rm;
-    
     /**
      * Constructs an atom with passed values for mass, diameter and default color.
      * Default value of color is black.
@@ -69,6 +68,7 @@ public abstract class AtomC extends Atom {
             setStationary(false);
             this.zeroForce();
         }
+    
     }
 
     public final double getRm() {return rm;}

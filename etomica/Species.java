@@ -2,6 +2,7 @@ package simulate;
 import java.io.*;
 import java.awt.*;
 import java.beans.*;//for Graphics
+import java.util.Random;
 
 /**
  * Each Phase contains one or more Species.
@@ -103,6 +104,11 @@ public abstract class Species extends Container {
   * @see Molecule
   */
   protected Molecule lastMolecule;
+  
+ /**
+  * Extra molecule for doing test insertions and facilitating molecule exchanges
+  */
+  public Molecule spareMolecule;   //no longer used
       
   private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
 
@@ -117,6 +123,8 @@ public abstract class Species extends Container {
   Atom atomGenerator;
   
   protected double mass;
+  
+  private final Random rand = new Random();  //for choosing molecule at random
   
  /**
   * Default constructor.  Creates species containing 20 molecules, each with 1 hard-disk atom.
@@ -197,24 +205,64 @@ public abstract class Species extends Container {
         lastMolecule.setNextMolecule(makeMolecule());
         lastMolecule = lastMolecule.getNextMolecule();
     }
+    spareMolecule = makeMolecule();
     initializeMolecules();
   }
   
  /**
-  * Creates new molecule from the Molecule class.  The number of atoms
-  * per molecule is given by the current value of nAtomsPerMolecule.
-  * The type of Atom used to form the molecule is given by makeAtom
+  * Creates new molecule of this species.  
+  * If spareMolecule is not null, it is returned; else a new molecule is created
+  * The coordinates of the molecule cannot be assumed to have any particular form
+  * (e.g., the molecule is not necessarily at the origin)
   */
   public Molecule makeMolecule() {
-    return new Molecule(this,nAtomsPerMolecule);
+    return new Molecule(this, nAtomsPerMolecule);
+/*    if(spareMolecule == null) {
+        return new Molecule(this, nAtomsPerMolecule);
+    }
+    else {
+        Molecule m = spareMolecule;
+        spareMolecule = null;
+        return m;
+    }
+ */ }
+  
+  /**
+   * Chooses a molecule randomly from Species
+   *
+   * @return the randomly seleted molecule
+   */
+  public final Molecule randomMolecule() {
+     int i = (int)(rand.nextDouble()*nMolecules);
+     Molecule m = firstMolecule;
+     for(int j=i; --j>=0; ) {m = m.getNextMolecule();}
+     return m;
   }
-   
+    
+  /**
+   * Chooses a molecule randomly from Species, and deletes it (removes it from the linked list)
+   *
+   * @return the deleted molecule
+   */
+  public final Molecule deleteMolecule() {
+    Molecule m = this.randomMolecule();
+    deleteMolecule(m);
+    return m;
+  }
+    
+  /**
+   * Synchronized version of deleteMolecule.  
+   * Useful if molecules are being deleted by GUI events, rather than by integrator 
+   */
+  public final synchronized void deleteMoleculeSafely(Molecule m) {  //will this make deleteMolecule synchronized?
+    deleteMolecule(m);
+  }
+  
  /**
   * Removes molecule from species, and updates atom and molecule linked lists.
   * Updates all values of first/last Molecule/Atom for species and
   * phase, if appropriate.  Also updates number-of-atom/molecule variables
   * for species and phase.
-  * The Molecule array in species is not updated.
   * No measures are taken to remove this species if it holds zero molecules
   * after this molecule is deleted.
   *
@@ -222,9 +270,7 @@ public abstract class Species extends Container {
   * @see #addMolecule
   */
   
-  // Need to make deleteMoleculeSafely method, which is syncrhonized, and unsync this one
-  // Likewise with addMolecule
-  public final synchronized void deleteMolecule(Molecule m) {
+  public final void deleteMolecule(Molecule m) {
     if(m.parentSpecies != this) {
         System.out.println("Error:  attempt to delete molecule from incorrect species");
         return;
@@ -242,13 +288,22 @@ public abstract class Species extends Container {
     if(previous != null) {previous.setNextMolecule(next);} //reconnect linked list if not at beginning
     else if(next != null) {next.clearPreviousMolecule();}  //beginning of list; no previous molecule for next
     nMolecules--;
-    m.parentSpecies = null;
+//    m.parentSpecies = null;        //line deleted because of spareMolecule
     m.setNextMolecule(null);
     m.clearPreviousMolecule();
     parentPhase.nMoleculeTotal--;
     parentPhase.nAtomTotal -= m.nAtoms;
+//    if(spareMolecule == null) spareMolecule = m;
   }
 
+  /**
+   * Synchronized version of addMolecule
+   * Useful if molecules are being added by GUI events, rather than by integrator 
+   */
+  public final synchronized void addMoleculeSafely(Molecule m) {
+    addMolecule(m);
+  }
+  
  /**
   * Adds a molecule to this species and updates linked lists.  Does not handle
   * creation of molecule.  New molecule
@@ -260,7 +315,7 @@ public abstract class Species extends Container {
   * @param m the molecule being added
   * @see deleteMolecule
   */
-  public final synchronized void addMolecule(Molecule m) {
+  public final void addMolecule(Molecule m) {
     if(nMolecules > 0) {
         m.setNextMolecule(lastMolecule.getNextMolecule());
         lastMolecule.setNextMolecule(m);
@@ -293,15 +348,17 @@ public abstract class Species extends Container {
   }
   
  /**
-  * Makes a new molecule, assigns it a random position and velocity,
-  * and adds it to the species
+  * Makes a new molecule, assigns it a random position and velocity, and adds it to the species.  
+  *
+  * @return the added molecule
   */
-  public void addMolecule() {
+  public Molecule addMolecule() {
     Molecule m = makeMolecule();
     configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
     m.setCOM(parentPhase.space.randomVector());       //place at random position
     parentPhase.configuration.initializeMomentum(m);  //initialize momentum
     addMolecule(m);
+    return m;
   }
         
  /**

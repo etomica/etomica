@@ -383,11 +383,15 @@ public class Molecule implements Serializable {
   }
   
   public final void setCOM(double[] newCOM) {
-    double[] oldCOM = new double[Space.D];
-    Space.uEv1(oldCOM,COM());
-    Space.uTEa1(oldCOM,-1.0);
-    translate(oldCOM);  //zero center-of-mass
+    zeroCOM();  //zero center-of-mass
     translate(newCOM);  //move to new COM
+  }
+  
+  // Zero the center-of-mass of the molecules
+  public final void zeroCOM() {
+    Space.uEv1(dr,COM());
+    Space.uTEa1(dr,-1.0);
+    translate(dr);  //zero center-of-mass
   }
   
  /* public final void accelerate(int i, double dp) {

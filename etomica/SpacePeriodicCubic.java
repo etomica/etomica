@@ -15,7 +15,16 @@ public class SpacePeriodicCubic extends Space {
     
     public final void uEr1Mr2(double[] u, double[] v1, double[] v2) {
         Space.uEv1Mv2(u, v1, v2);
-        for(int i=Space.D; --i>=0; ) {  // i=0..D-1
+        
+        double dim = dimensions[0];
+        double d2 = 0.5*dim;
+        double uu = u[0];
+        if(uu > 0) {u[0] = (uu > +d2) ? uu-dim : uu;}
+        else       {u[0] = (uu < -d2) ? uu+dim : uu;}
+        uu = u[1];
+        if(uu > 0) {u[1] = (uu > +d2) ? uu-dim : uu;}
+        else       {u[1] = (uu < -d2) ? uu+dim : uu;}
+   /*     for(int i=Space.D; --i>=0; ) {  // i=0..D-1
            double dim = dimensions[i];
            if(u[i] > 0.5*dim) {
               u[i] -= dim;}
@@ -23,6 +32,7 @@ public class SpacePeriodicCubic extends Space {
               u[i] += dim;
            }
         }
+    */
         return;
     }
     public final double r1Mr2_S(double[] v1, double[] v2) {
