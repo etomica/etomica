@@ -12,7 +12,7 @@ public class LJMC_Benchmark {
         // 1 = performance
         // 2 = molecule layer
         final int VERSION = 0;
-        final int nCycles = 10000;
+        final int nCycles = 1000;
         
         Default.BOX_SIZE=30.;
         Default.ATOM_SIZE=3.0;
@@ -26,8 +26,8 @@ public class LJMC_Benchmark {
             case 0:
             case 2:
 //                Simulation.instance = new Simulation(new SpaceP(3));
-//               Simulation.instance = new Simulation(new Space3D());
-               Simulation.instance = new Simulation(new etomica.space.continuum.Space(3));
+               Simulation.instance = new Simulation(new Space3D());
+//               Simulation.instance = new Simulation(new etomica.space.continuum.Space(3));
                break;
             case 1:
                 Simulation.instance = new Simulation(new SpaceP(3));

@@ -55,9 +55,9 @@ public final class Vector extends Space.Vector {
        
     public void E(double[] u) {//should check length of array for exception
         switch(D) {
-            case 3: x[2]=u[2];
-            case 2: x[1]=u[1];
-            case 1: x[0]=u[0];
+            case 3: x[2] = u[2];
+            case 2: x[1] = u[1];
+            case 1: x[0] = u[0];
         }
     }  
 
@@ -97,7 +97,10 @@ public final class Vector extends Space.Vector {
     }
 
     public void PE(double a) {
-        switch(D) {
+  /*          x[2] += a;
+            x[1] += a;
+            x[0] += a;
+*/        switch(D) {
             case 3: x[2] += a;
             case 2: x[1] += a;
             case 1: x[0] += a;
@@ -105,10 +108,14 @@ public final class Vector extends Space.Vector {
     }
 
     public void ME(Space.Vector u) {
-        switch(D) {
-            case 3: x[2] -= u.component(2);
-            case 2: x[1] -= u.component(1);
-            case 1: x[0] -= u.component(0);
+        double[] ux = ((Vector)u).x;
+ /*           x[2] -= ux[2];
+            x[1] -= ux[1];
+            x[0] -= ux[0];
+*/        switch(D) {
+            case 3: x[2] -= ux[2];
+            case 2: x[1] -= ux[1];
+            case 1: x[0] -= ux[0];
         }
     }
 
@@ -158,7 +165,10 @@ public final class Vector extends Space.Vector {
     public void Ev1Mv2(Space.Vector u1, Space.Vector u2) {
         double[] x1 = ((Vector)u1).x;
         double[] x2 = ((Vector)u2).x;
-        switch(D) {
+/*            x[2] = x1[2] - x2[2];
+            x[1] = x1[1] - x2[1];
+            x[0] = x1[0] - x2[0];
+*/        switch(D) {
             case 3: x[2] = x1[2] - x2[2];
             case 2: x[1] = x1[1] - x2[1];
             case 1: x[0] = x1[0] - x2[0];
@@ -363,7 +373,7 @@ public final class Vector extends Space.Vector {
     public void setRandom(Vector u) {System.out.println("Vector: shouldn't be here 4");;}
 
     /**
-     * Sets vector to a random point in a sphere of unit diameter, centered on the origin.
+     * Sets vector to a random point within a sphere of unit diameter, centered on the origin.
      */
     public void setRandomSphere() {
         switch(D) {

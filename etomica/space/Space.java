@@ -15,7 +15,13 @@ public class Space extends etomica.Space implements EtomicaElement {
         super(D);
     }
     public Space.Vector origin() {return null;}
-    public Space.Vector makeVector() {return new etomica.space.continuum.Vector(D);}
+//    public Space.Vector makeVector() {return new etomica.space.continuum.Vector(D);}
+    public Space.Vector makeVector() {
+        switch(D) {
+            case 3: return new etomica.space.continuum.Vector3D();
+            default: return new etomica.space.continuum.Vector(D);
+        }
+    }
     public Space.Orientation makeOrientation() {return new etomica.space.continuum.Orientation();}
     public Space.Tensor makeTensor() {return new etomica.space.continuum.Tensor();}
     public Space.Tensor makeRotationTensor() {return new etomica.space.continuum.RotationTensor();}

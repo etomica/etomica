@@ -13,11 +13,13 @@ public final class BoundaryPeriodicCubic extends Space.Boundary implements Space
     public final int D;
     
     public BoundaryPeriodicCubic(Space space) {
- /*       temp = (etomica.space.continuum.Vector)space.makeVector();
-        dimensions = (etomica.space.continuum.Vector)space.makeVector();
+/*        temp = (etomica.space.continuum.Vector3D)space.makeVector();
+        dimensions = (etomica.space.continuum.Vector3D)space.makeVector();
         dimensions.E(Default.BOX_SIZE);
-        dimensionsCopy = (etomica.space.continuum.Vector)space.makeVector();
-        dimensionsHalf = (etomica.space.continuum.Vector)space.makeVector();
+        dimensionsCopy = (etomica.space.continuum.Vector3D)space.makeVector();
+        dimensionsHalf = (etomica.space.continuum.Vector3D)space.makeVector();
+        D = 3;
+        updateDimensions();
 */        temp = space.makeVector();
         dimensions = space.makeVector();
         dimensions.E(Default.BOX_SIZE);
@@ -34,7 +36,7 @@ public final class BoundaryPeriodicCubic extends Space.Boundary implements Space
     private final Space.Vector dimensions;
     private final Space.Vector dimensionsCopy;
     private final Space.Vector dimensionsHalf;
-//    private final etomica.space.continuum.Vector temp, dimensions, dimensionsCopy, dimensionsHalf;
+//    private final etomica.space.continuum.Vector3D temp, dimensions, dimensionsCopy, dimensionsHalf;
     public final Space.Vector dimensions() {return dimensionsCopy;}
     
     public Space.Vector randomPosition() {
@@ -58,6 +60,7 @@ public final class BoundaryPeriodicCubic extends Space.Boundary implements Space
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);
+//        ((etomica.space.continuum.Vector3D)dr).mod(dimensionsHalf, dimensions);
         /*
         while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
         while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;

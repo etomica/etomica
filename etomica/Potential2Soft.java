@@ -41,7 +41,7 @@ public abstract class Potential2Soft extends Potential2 {
             
         //do we give the iterator to the calculation...
 //        ((Potential2Calculation)pc).calculate(iterator, this); 
-    ///    pc.calculate(iterator,this);
+     ///   pc.calculate(iterator,this);
             //inconvenience:  must put loop construct in every PotentialCalculation
             //problem:  must have different calculate methods for each Potentialx type
 
