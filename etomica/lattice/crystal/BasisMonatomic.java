@@ -28,7 +28,7 @@ public class BasisMonatomic implements Basis {
     /**
      * Returns an array with a single vector at the origin.
      */
-    public Space.Vector[] coordinates() {
+    public Space.Vector[] positions() {
         return coordinates;
     }
 

@@ -42,7 +42,7 @@ public class BasisCubic implements Basis {
      * Calculates coordinates by multiplying scaled coordinates by scalar
      * size (lattice constant) of the cubic primitive.
      */
-    public Space.Vector[] coordinates() {
+    public Space.Vector[] positions() {
         double latticeConstant = primitive.getSize();
         if(latticeConstant != oldLatticeConstant) {
             for(int i=0; i<size; i++) {

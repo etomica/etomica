@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 import etomica.*;
+import etomica.lattice.BravaisLattice;
 import etomica.lattice.Crystal;
 
 /**
@@ -16,33 +17,40 @@ import etomica.lattice.Crystal;
   */
 public class CrystalFcc extends Crystal {
 
-	/**
-	 * Cubic fcc crystal in which each fcc site is populated by a mono atom
-	 * @param space
-	 */
-	public CrystalFcc(Space space) {
-		this(space, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
-	}
+    /**
+     * Cubic bcc crystal with a lattice constant that gives a
+     * maximum-density structure for spheres of size Default.ATOM_SIZE. 
+     */
+    public CrystalFcc() {
+        this(Math.sqrt(2.0)*Default.ATOM_SIZE);
+    }
+    
+    public CrystalFcc(double latticeConstant) {
+        this(new PrimitiveCubic(Space3D.INSTANCE));
+        primitive = (PrimitiveCubic)((BravaisLattice)lattice).getPrimitive();
+        primitive.setSize(latticeConstant);
+    }
 
-	/**
-	 * Cubic fcc crystal in which each bcc site is populated by an atom made by
-	 * the given factory
-	 * @param space
-	 * @param factory
-	 */
-	public CrystalFcc(Space space, AtomFactory factory) {
-		this(new PrimitiveCubic(space), factory);
-	}
+    /**
+     * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
+     * new BasisCubicBcc (which needs the new primitive) to super.
+     */ 
+    private CrystalFcc(PrimitiveCubic primitive) {
+        super(new BravaisLattice(primitive), new BasisCubicFcc(primitive));
+    }
+    
+    /**
+     * Returns the primitive the determines the lattice constant.
+     * Set the lattice constant via primitive().setSize(value).
+     */
+    public PrimitiveCubic primitive() {
+        return primitive;
+    }
 
-	/**
-	 * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
-	 * new BasisCubicFcc (which needs the new primitive) to super.
-	 */	
-	private CrystalFcc(PrimitiveCubic primitive, AtomFactory factory) {
-		super(primitive, new BasisCubicFcc(primitive.space, factory, primitive));
-		primitive.setSize(Math.sqrt(2.0)*Default.ATOM_SIZE);
-	}
-   
+    /**
+     * Returns "Fcc".
+     */
     public String toString() {return "Fcc";}
     
+    private PrimitiveCubic primitive;
 }//end of CrystalFcc

@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 import etomica.*;
+import etomica.lattice.BravaisLattice;
 import etomica.lattice.Crystal;
 
 /**
@@ -13,34 +14,41 @@ import etomica.lattice.Crystal;
   */
 public class CrystalDiamond extends Crystal {
     
-	/**
-	 * Cubic diamond crystal in which each diamond site is populated by an atom
-	 * made by the given factory
-	 * @param space
-	 */
-	public CrystalDiamond(Space space) {
-		this(space, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
-	}
+    /**
+     * Cubic bcc crystal with a lattice constant that gives a
+     * maximum-density structure for spheres of size Default.ATOM_SIZE. 
+     */
+    public CrystalDiamond() {
+        this(4.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
+    }
+    
+    public CrystalDiamond(double latticeConstant) {
+        this(new PrimitiveCubic(Space3D.INSTANCE));
+        primitive = (PrimitiveCubic)((BravaisLattice)lattice).getPrimitive();
+        primitive.setSize(latticeConstant);
+    }
 
-	/**
-	 * Cubic diamond crystal in which each diamond site is populated by an atom
-	 * made by the given factory
-	 * @param space
-	 * @param factory
-	 */
-	public CrystalDiamond(Space space, AtomFactory factory) {
-		this(new PrimitiveCubic(space), factory);
-	}
+    /**
+     * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
+     * new BasisCubicBcc (which needs the new primitive) to super.
+     */ 
+    private CrystalDiamond(PrimitiveCubic primitive) {
+        super(new BravaisLattice(primitive), new BasisCubicDiamond(primitive));
+    }
+    
+    /**
+     * Returns the primitive the determines the lattice constant.
+     * Set the lattice constant via primitive().setSize(value).
+     */
+    public PrimitiveCubic primitive() {
+        return primitive;
+    }
 
-	/**
-	 * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
-	 * new BasisCubicDiamond (which needs the new primitive) to super.
-	 */	
-	private CrystalDiamond(PrimitiveCubic primitive, AtomFactory factory) {
-		super(primitive, new BasisCubicDiamond(primitive.space, factory, primitive));
-		((PrimitiveCubic)primitive).setSize(4.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
-	}
-   
+    /**
+     * Returns "Diamond".
+     */
     public String toString() {return "Diamond";}
+    
+    private PrimitiveCubic primitive;
     
 }//end of CrystalDiamond

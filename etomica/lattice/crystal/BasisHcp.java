@@ -39,7 +39,7 @@ public class BasisHcp implements Basis {
      * Calculates coordinates by multiplying scaled coordinates by scalar
      * size (lattice constant) of the cubic primitive.
      */
-    public Space.Vector[] coordinates() {
+    public Space.Vector[] positions() {
         Space.Vector[] a = primitive.vectors();
         coordinates[1].Ea1Tv1(factors[0], a[0]);
         coordinates[1].PEa1Tv1(factors[1], a[1]);

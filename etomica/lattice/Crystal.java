@@ -1,45 +1,49 @@
 package etomica.lattice;
 
+import etomica.Space;
+
 /**
  * A class packaging together a Primitive and a Basis.
  */
- 
 public class Crystal implements AbstractLattice {
     
-    public Crystal(BravaisLattice lattice, Basis basis) {
+    public Crystal(SpaceLattice lattice, Basis basis) {
         this.basis = basis;
         this.lattice = lattice;
+        this.space = lattice.space();
+        latticeIndex = new int[lattice.D()];
     }
     
     public int D() {
-        return lattice.D() + 1;
+        return lattice.D();
     }
     
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#getSize()
-     */
-    public int[] getSize() {
-        // TODO Auto-generated method stub
-        return null;
+    public Space space() {
+        return space;
     }
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#site(int[])
+    
+    /**
+     * Returns the basis at the Bravais-lattice site corresponding
+     * to the given index.
+     * 
+     * @return a Space.Vector array with the positions of the basis sites
      */
     public Object site(int[] index) {
-        // TODO Auto-generated method stub
-        return null;
+        Space.Vector latticePosition = (Space.Vector)lattice.site(index);
+        Space.Vector[] basisPositions = basis.positions();
+        Space.Vector[] positions = space.makeVectorArray(basis.size());
+        for(int i=basis.size()-1; i>=0; i--) {
+            positions[i].Ev1Pv2(latticePosition,basisPositions[i]);
+        }
+        return positions;
     }
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#sites()
-     */
-    public Object[] sites() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    
     public Basis getBasis() {return basis;}
     
-    public BravaisLattice getLattice() {return lattice;}
+    public SpaceLattice getLattice() {return lattice;}
 
-    protected Basis basis;
-    protected BravaisLattice lattice;
+    protected final Basis basis;
+    protected final SpaceLattice lattice;
+    private final int[] latticeIndex;
+    private final Space space;
 }//end of Crystal
