@@ -5,9 +5,8 @@ import etomica.data.DataSourceVelocityAverage;
 import etomica.space.Vector;
 
 /**
- * Moves (translates) an atom to a specified position.  Location of the
- * atom (which may be an atom group) is determined by an AtomPositionDefinition
- * instance that may be set for this class.
+ * Sets the velocity of an atom to a specified vector value.  If applied
+ * to a molecule, works with the average velocity of the atoms it comprises.
  */
 public class AtomActionAccelerateTo extends AtomActionAdapter {
     

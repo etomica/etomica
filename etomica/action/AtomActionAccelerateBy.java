@@ -6,8 +6,8 @@ import etomica.space.Vector;
 
 /**
  * 
- * Moves (translates) an atom by a specified vector amount.
- * To move all atoms in a molecule (or atom group), wrap an
+ * Changes the velocity of an atom by a specified vector amount.
+ * To accelerate all atoms in a molecule (or atom group), wrap an
  * instance of this class in an AtomGroupAction.
  * 
  * @author David Kofke
