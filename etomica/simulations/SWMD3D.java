@@ -10,14 +10,12 @@ import etomica.ModulatorAbstract;
 import etomica.P2SquareWell;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space3DFalse;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPhase;
-import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.units.Dimension;
 
@@ -63,8 +61,7 @@ public class SWMD3D extends Simulation {
 
 
     phase = new Phase(space);
-    Crystal crystal = new LatticeCubicFcc(space);
-    ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
+    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
     phase.setConfiguration(configuration);
 
     potential  = new etomica.P2SquareWell();
