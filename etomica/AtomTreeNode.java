@@ -48,7 +48,7 @@ public abstract class AtomTreeNode {
     public abstract int leafAtomCount();
     public abstract int childAtomCount();
     
-    public void destroy() {
+    public void dispose() {
         if(parentNode != null && !parentNode.isResizable()) return;  //throw an exception?
         //remove from current parent
         if(parentNode != null) {

@@ -70,9 +70,11 @@ public final class BoundaryPeriodicCubic extends Space.Boundary implements Space
         while(dr.z < -dimensionsHalf.z) dr.z += dimensions.z;
         */
     }
-    public void centralImage(Coordinate c) {centralImage(c.r);}
-    public void centralImage(Space.Vector r) {
+    public boolean centralImage(Coordinate c) {return centralImage(c.r);}
+    public boolean centralImage(Space.Vector r) {
+        temp.E(r);
         r.mod(dimensions);
+        return temp.equals(r);
      /*   while(r.x > dimensions.x) r.x -= dimensions.x;
         while(r.x < 0.0)          r.x += dimensions.x;
         while(r.y > dimensions.y) r.y -= dimensions.y;

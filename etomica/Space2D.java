@@ -57,6 +57,8 @@ public class Space2D extends Space implements EtomicaElement {
         public Vector (Vector u) {this.E(u);}
         public String toString() {return "("+x+", "+y+")";}
         public double[] toArray() {return new double[] {x, y};}
+        public boolean equals(Space.Vector v) {return equals((Vector)v);}
+        public boolean equals(Vector v) {return (x == v.x) && (y == v.y);}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y);
             result[1] = Math.atan2(y,x);  //theta
@@ -295,7 +297,7 @@ public class Space2D extends Space implements EtomicaElement {
             c1.r.y -= ratio*delta*dry;
             c2.r.x += delta*drx;
             c2.r.y += delta*dry;
-            //need call reset?
+            //need call reset, moveNotify?
         }
     }
 
@@ -334,7 +336,9 @@ public class Space2D extends Space implements EtomicaElement {
         public void inflate(Space.Vector s) {Vector u = (Vector)s; r.x *= u.x; r.y *= u.y;}
         
         public void transform(Space.Vector r0, Space.Tensor A) {
-            r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
+            r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);
+            atom.seq.moveNotify();
+        }
         /**
         * Moves the atom by some vector distance
         * 
@@ -350,8 +354,8 @@ public class Space2D extends Space implements EtomicaElement {
         * @param u
         */
         public void translateBy(double d, Space.Vector u) {
-            atom.seq.moveNotify();
             r.PEa1Tv1(d,(Vector)u);
+            atom.seq.moveNotify();
         }
         /**
         * Moves the atom by some vector distance
@@ -459,17 +463,18 @@ public class Space2D extends Space implements EtomicaElement {
             while(childIterator.hasNext()) {
                 childIterator.next().coord.freeFlight(t);
             }
+            atom.seq.moveNotify();
         }
         public void inflate(double scale) {
             work.E(position());
             work.TE(scale-1.0);
-            displaceBy(work);
+            translateBy(work);
         }
         public void inflate(Space.Vector scale) {
             scale.PE(-1.0);
             work.E(position());
             work.TE(scale);
-            displaceBy(work);
+            translateBy(work);
             scale.PE(1.0);
         }
         public void translateBy(Space.Vector u) {
@@ -499,6 +504,7 @@ public class Space2D extends Space implements EtomicaElement {
                 Atom a = childIterator.next();
                 a.coord.displaceBy(u);
             }
+            atom.seq.moveNotify();
         }
         public void displaceBy(double d, Space.Vector u) {
             childIterator.reset();
@@ -506,6 +512,7 @@ public class Space2D extends Space implements EtomicaElement {
                 Atom a = childIterator.next();
                 a.coord.displaceBy(d, u);
             }
+            atom.seq.moveNotify();
         }
         public void displaceTo(Space.Vector u) {
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -521,6 +528,7 @@ public class Space2D extends Space implements EtomicaElement {
                 Atom a = childIterator.next();
                 a.coord.replace();
             }
+            atom.seq.moveNotify();
         }
         public void accelerateBy(Space.Vector u) {
             childIterator.reset();
@@ -648,8 +656,8 @@ public class Space2D extends Space implements EtomicaElement {
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
-        public abstract void centralImage(Vector r);
-        public abstract void centralImage(Coordinate c);
+        public abstract boolean centralImage(Vector r);
+        public abstract boolean centralImage(Coordinate c);
     }
 
     /**
@@ -664,10 +672,10 @@ public class Space2D extends Space implements EtomicaElement {
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
         public final void nearestImage(Space.Vector dr) {}
-        public final void centralImage(Space.Vector r) {}
+        public final boolean centralImage(Space.Vector r) {return false;}
         public final void nearestImage(Vector dr) {}
-        public final void centralImage(Vector r) {}
-        public final void centralImage(Coordinate c) {}
+        public final boolean centralImage(Vector r) {return false;}
+        public final boolean centralImage(Coordinate c) {return false;}
         public double volume() {return dimensions.x*dimensions.y;}
         public void inflate(double s) {dimensions.TE(s);}
         public void inflate(Space.Vector s) {dimensions.TE(s);}
@@ -715,13 +723,19 @@ public class Space2D extends Space implements EtomicaElement {
             while(dr.y > +dimensionsHalf.y) dr.y -= dimensions.y;
             while(dr.y < -dimensionsHalf.y) dr.y += dimensions.y;
         }
-        public void centralImage(Coordinate c) {centralImage(c.r);}
-        public void centralImage(Space.Vector r) {centralImage((Vector)r);}
-        public void centralImage(Vector r) {
-            while(r.x > dimensions.x) r.x -= dimensions.x;
+        public boolean centralImage(Coordinate c) {return centralImage(c.r);}
+        public boolean centralImage(Space.Vector r) {return centralImage((Vector)r);}
+        public boolean centralImage(Vector r) {
+        /*    while(r.x > dimensions.x) r.x -= dimensions.x;
             while(r.x < 0.0)          r.x += dimensions.x;
             while(r.y > dimensions.y) r.y -= dimensions.y;
             while(r.y < 0.0)          r.y += dimensions.y;
+        */  boolean changed = false;
+            while(r.x > dimensions.x) {r.x -= dimensions.x; changed = true;}
+            while(r.x < 0.0)          {r.x += dimensions.x; changed = true;}
+            while(r.y > dimensions.y) {r.y -= dimensions.y; changed = true;}
+            while(r.y < 0.0)          {r.y += dimensions.y; changed = true;}
+            return changed;  
             //r.x -= dimensions.x * ((r.x >= 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
             //r.y -= dimensions.y * ((r.y >= 0.0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y-1.0));
         }

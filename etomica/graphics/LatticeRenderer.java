@@ -58,4 +58,60 @@ public class LatticeRenderer implements Drawable {
     
     private AbstractLattice lattice;
     private AtomIteratorListSimple iterator = new AtomIteratorListSimple();
-}
+    
+/////////////////////////////////////////////////////////////////////////////////////    
+    
+    public static class ColorSchemeNeighbor extends ColorSchemeCollective {
+        
+        private Atom referenceAtom;
+        private final AtomIterator nbrIterator;
+        private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
+        private final IteratorDirective directive = new IteratorDirective(IteratorDirective.BOTH);
+    //    private final IteratorDirective directive = new IteratorDirective(IteratorDirective.UP);
+        
+        public ColorSchemeNeighbor(Simulation sim) {
+            nbrIterator = sim.iteratorFactory.makeIntragroupIterator();
+        }
+        
+        public void colorAllAtoms(Phase phase) {
+            allIterator.setBasis(phase.speciesMaster.atomList);
+            allIterator.reset();
+            while(allIterator.hasNext()) allIterator.next().allatomAgents[agentIndex] = Color.black;
+            nbrIterator.reset(directive);
+            while(nbrIterator.hasNext()) nbrIterator.next().allatomAgents[agentIndex] = Color.blue;
+            referenceAtom.allatomAgents[agentIndex] = Color.red;
+        }
+        
+        public void setAtom(Atom a) {
+            referenceAtom = a;
+            directive.set(a);
+            nbrIterator.setBasis(a.node.parentGroup());
+        }
+        public Atom getAtom() {return referenceAtom;}
+    }//end of ColorSchemeNeighbor
+    
+/////////////////////////////////////////////////////////////////////////////////////  
+
+    public static class ColorSchemeCell extends ColorSchemeCollective {
+        
+        private int cellColorIndex = Atom.requestAgentIndex(this);
+        private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
+        
+        public void setLattice(AbstractLattice lattice) {
+            AtomIteratorListSimple iterator = new AtomIteratorListSimple(lattice.siteList());
+            while(iterator.hasNext()) {
+                iterator.next().allatomAgents[cellColorIndex] = ConstantsGraphic.randomColor();
+            }
+        }
+        
+        public void colorAllAtoms(Phase phase) {
+            allIterator.setBasis(phase.speciesMaster.atomList);
+            allIterator.reset();
+            while(allIterator.hasNext()) {
+                Atom atom = allIterator.next();
+                Atom cell = ((IteratorFactoryCell.NeighborSequencer)atom.seq).cell;
+                atom.allatomAgents[agentIndex] = cell.allatomAgents[cellColorIndex];
+            }
+        }
+    }//end of ColorSchemeCell
+}//end of LatticeRenderer

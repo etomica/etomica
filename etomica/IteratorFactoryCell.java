@@ -101,12 +101,14 @@ public class IteratorFactoryCell implements IteratorFactory {
         if(phase.parentSimulation() != simulation) throw new IllegalArgumentException("Attempt to apply iterator factory to a phase from a different simulation"); 
         //make the unit cell factory and set it to produce cells of the appropriate size
         final PrimitiveCubic primitiveCopy = (PrimitiveCubic)primitive.copy();//each new lattice works with its own primitive
-        AtomFactory cellFactory = primitiveCopy.unitCellFactory();
+///        AtomFactory cellFactory = primitiveCopy.unitCellFactory();
         ((PrimitiveCubic)primitiveCopy).setSize(phase.boundary().dimensions().component(0)/(double)dimensions[0]);//this needs work
         //construct the lattice
-        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitiveCopy);
-        final BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
+///        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitiveCopy);
+///        final BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
+        final BravaisLattice lattice = BravaisLattice.makeUnitCellLattice(simulation, dimensions, primitiveCopy);
         lattice.shiftFirstToOrigin();
+        primitiveCopy.setLattice(null);
         
         //set up the neighbor lists for each cell in the lattice
         NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
@@ -143,7 +145,10 @@ public class IteratorFactoryCell implements IteratorFactory {
         });
         
         //add listener to phase to update the size and placement of the lattice
-        //cells if the phase undergoes an inflation of its boundary
+        //cells if the phase undergoes an inflation of its boundary.
+        //An inflation event should not, however, cause the molecules to be reassigned
+        //to their lattice cells, since the atom positions and the cells scale proportionately
+        //Atoms in molecules may be reassigned, if they are the focus of neighbor listing (which is not usually the case0
         phase.boundaryEventManager.addListener(new PhaseListener() {
             public void actionPerformed(PhaseEvent evt) {
                 if(!evt.type().equals(PhaseEvent.BOUNDARY_INFLATE)) return;
@@ -151,7 +156,9 @@ public class IteratorFactoryCell implements IteratorFactory {
                     //we expect that primitive.lattice() == null, so change of size doesn't cause replacement of atoms in cells
                 primitiveCopy.setSize(evt.isoScale * primitiveCopy.getSize());
                 AtomIteratorListSimple cellIterator = new AtomIteratorListSimple(lattice.siteList());
-                while(cellIterator.hasNext()) cellIterator.next().coord.inflate(evt.isoScale);
+                while(cellIterator.hasNext()) {
+                    cellIterator.next().coord.inflate(evt.isoScale);
+                }
             }
         });
         return lattice;
@@ -209,16 +216,16 @@ public class IteratorFactoryCell implements IteratorFactory {
     
     public AtomSequencer makeAtomSequencer(Atom atom) {return new SimpleSequencer(atom);}
     
-    public AtomSequencer makeNeighborSequencer(Atom atom) {return new NbrSequencer(atom);}
+    public AtomSequencer makeNeighborSequencer(Atom atom) {return new NeighborSequencer(atom);}
     //maybe need an "AboveNbrLayerSequencer" and "BelowNbrLayerSequencer"
     
     public Class atomSequencerClass() {return SimpleSequencer.class;}
     
-    public Class neighborSequencerClass() {return NbrSequencer.class;}
+    public Class neighborSequencerClass() {return NeighborSequencer.class;}
     
     public AtomSequencer.Factory atomSequencerFactory() {return SimpleSequencer.FACTORY;}
     
-    public AtomSequencer.Factory neighborSequencerFactory() {return NbrSequencer.FACTORY;}
+    public AtomSequencer.Factory neighborSequencerFactory() {return NeighborSequencer.FACTORY;}
     
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -240,7 +247,7 @@ public static final class SequentialIterator implements AtomIterator {
     
     public void setBasis(Atom a) {
         AtomTreeNodeGroup basis = (AtomTreeNodeGroup)a.node;
-        iterateCells = basis.childSequencerClass().equals(NbrSequencer.class);
+        iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
         if(iterateCells) {
             BravaisLattice lattice = factory.getLattice(basis.parentPhase());
             Atom cell = lattice.siteList().getFirst();
@@ -347,12 +354,12 @@ public static final class IntragroupIterator implements AtomIterator {
             throw new IllegalArgumentException("Cannot return IteratorFactoryCell.IntragroupIterator referencing an atom not in group of basis");
         }
         if(iterateCells) {
-            referenceCell = (AbstractCell)((NbrSequencer)atom.seq).site();
+            referenceCell = (AbstractCell)((NeighborSequencer)atom.seq).site();
             cellIterator.setBasis(referenceCell);
             listIterator.unset();
             if(upListNow) {
                 cellIterator.reset(IteratorDirective.UP);//set cell iterator to return first up-neighbor of reference cell
-                listIterator.reset(((NbrSequencer)referenceAtom.seq).nbrLink, null, IteratorDirective.UP);
+                listIterator.reset(((NeighborSequencer)referenceAtom.seq).nbrLink, null, IteratorDirective.UP);
                 listIterator.next();//advance so not to return reference atom
             }
             if(!listIterator.hasNext()) advanceCell();
@@ -386,7 +393,7 @@ public static final class IntragroupIterator implements AtomIterator {
                 }
             } else if(doGoDown) {//no more cells that way; see if should now reset to look at down-cells
                 cellIterator.reset(IteratorDirective.DOWN);//set cell iterator to return first down neighbor of reference cell
-                listIterator.reset(((NbrSequencer)referenceAtom.seq).nbrLink, null, IteratorDirective.DOWN);
+                listIterator.reset(((NeighborSequencer)referenceAtom.seq).nbrLink, null, IteratorDirective.DOWN);
                 listIterator.next();//advance so not to return reference atom
                 upListNow = false;
                 doGoDown = false;
@@ -438,7 +445,7 @@ public static final class IntragroupIterator implements AtomIterator {
         basis = node;
         //can base decision whether to iterate over cells on type of sequencer
         //for given atom, because it is in the group of atoms being iterated
-        iterateCells = basis.childSequencerClass().equals(NbrSequencer.class);
+        iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
         BravaisLattice lattice = iteratorFactory.getLattice(basis.parentPhase());
         listIterator.setBasis(node.childList);
         if(iterateCells) {
@@ -538,14 +545,14 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-public static final class NbrSequencer extends AtomSequencer implements CellSequencer {
+public static final class NeighborSequencer extends AtomSequencer implements CellSequencer {
     
     public AbstractCell cell;         //cell currently occupied by this coordinate
     public BravaisLattice lattice;    //cell lattice in the phase occupied by this coordinate
     private int listIndex;
     public final AtomLinker nbrLink;  //linker used to arrange atom in sequence according to cells
     
-    public NbrSequencer(Atom a) {
+    public NeighborSequencer(Atom a) {
         super(a);
         nbrLink = new AtomLinker(a);
     }
@@ -622,7 +629,8 @@ public static final class NbrSequencer extends AtomSequencer implements CellSequ
      * Method called when a translate method of coordinate is invoked.
      */
     public void moveNotify() {
-        if(!cell.inCell(atom.coord.position())) assignCell();
+    //    if(!cell.inCell(atom.coord.position())) assignCell();
+        assignCell();
     }
     
     /**
@@ -664,41 +672,9 @@ public static final class NbrSequencer extends AtomSequencer implements CellSequ
     }//end of assignCell
     
     public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
-        public AtomSequencer makeSequencer(Atom atom) {return new NbrSequencer(atom);}
+        public AtomSequencer makeSequencer(Atom atom) {return new NeighborSequencer(atom);}
     };
-}//end of Sequencer
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * A factory that makes Sites of type AtomCell
- */
-/*private static final class AtomCellFactory extends AtomFactory {
-    public AtomCellFactory(Space space) {
-        super(space);
-    }
-    public Atom build() {
-        return new AtomCell();
-    }
-}//end of AtomCellFactory
-    
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Wraps a lattice cell and holds a reference to a sequence of atoms.
- */
-/*private static final class AtomCell extends AbstractCell {
-    public final AbstractCell cell;
-    private AtomLinker.Tab[] firstTab, lastTab;
-    public AtomCell() {
-//        this.cell = cell;
-//        color = Constants.RandomColor();
-//            position = (Space2D.Vector)coord.position();
-    }
-    public AtomLinker.Tab first(int speciesIndex) {return firstTab[speciesIndex];}
-    public AtomLinker.Tab last(int speciesIndex) {return lastTab[speciesIndex];}
-}//end of AtomCell
-*/
+}//end of NeighborSequencer
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -739,8 +715,8 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 
         sim.setIteratorFactory(new IteratorFactoryCell(sim));
         
-	    //IntegratorHard integrator = new IntegratorHard();
-        //integrator.setTimeStep(0.01);
+	  //  IntegratorHard integrator = new IntegratorHard();
+      //  integrator.setTimeStep(0.01);
         IntegratorMC integrator = new IntegratorMC();
         MCMoveAtom mcMoveAtom = new MCMoveAtom(integrator);
         MCMoveVolume mcMoveVolume = new MCMoveVolume(integrator);
@@ -753,7 +729,13 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();
-	    integrator.setSleepPeriod(1);
+	    
+	    etomica.graphics.LatticeRenderer.ColorSchemeNeighbor colorSchemeNbr = 
+	        new etomica.graphics.LatticeRenderer.ColorSchemeNeighbor(sim);
+	    etomica.graphics.LatticeRenderer.ColorSchemeCell colorSchemeCell =
+	        new etomica.graphics.LatticeRenderer.ColorSchemeCell();
+	    
+	    integrator.setSleepPeriod(2);
 	    
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
@@ -762,6 +744,11 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	    etomica.graphics.LatticeRenderer latticeRenderer = 
 	            new etomica.graphics.LatticeRenderer(lattice);
 	    displayPhase.addDrawable(latticeRenderer);
+	    
+	    colorSchemeNbr.setAtom(phase.speciesMaster.atomList.getRandom());
+//	    displayPhase.setColorScheme(colorSchemeNbr);
+        colorSchemeCell.setLattice(lattice);
+	    displayPhase.setColorScheme(colorSchemeCell);
         
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
         

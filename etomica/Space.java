@@ -87,6 +87,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract int length();                         //number of components to vector; equal to the dimension of the space
         public abstract int D();                              //dimension of the space occupied by vector
         public abstract double[] toArray();                   //converts components to array of double
+        public abstract boolean equals(Vector v);               //return true if all corresponding elements of this and the given vector are equal
         public abstract void sphericalCoordinates(double[] result); //computes the spherical coordinate representation of the vector; return in the given array to avoid construction of new array with each call
         public double[] toSphericalCoordinateArray() {        //computes spherical coordinates and returns them in a new array
             double[] array = new double[D()];
@@ -315,8 +316,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public Phase phase() {return phase;}
         public void setPhase(Phase p) {phase = p;}
         public abstract Space.Boundary.Type type();
-        public abstract void centralImage(Vector r);
-        public void centralImage(Coordinate c) {centralImage(c.position());}
+        public abstract boolean centralImage(Vector r);//returns true if r is changed by applying central image
+        public boolean centralImage(Coordinate c) {return centralImage(c.position());}
         public abstract void nearestImage(Space.Vector dr);
         public abstract double volume();
  //       public void setVolume(double newVolume) {inflate(Math.pow(newVolume/volume(),1.0/D()));}
@@ -374,7 +375,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             public Space.Vector dimensions() {return null;}
             public Space.Boundary.Type type() {return null;}
             public final void nearestImage(Space.Vector dr) {}
-            public final void centralImage(Space.Vector r) {}
+            public final boolean centralImage(Space.Vector r) {return false;}
             public double volume() {return 0.0;}
             public void inflate(double s) {}
             public void inflate(Space.Vector s) {}

@@ -22,8 +22,8 @@ public final class BoundaryNone extends Space.Boundary {
     public Space.Boundary.Type type() {return NONE;}
     public final Space.Vector dimensions() {return dimensions;}
     public void nearestImage(Space.Vector dr) {}
-    public void centralImage(Space.Vector r) {}
-    public void centralImage(Space.Coordinate c) {}
+    public boolean centralImage(Space.Vector r) {return false;}
+    public boolean centralImage(Space.Coordinate c) {return false;}
     public double volume() {//find a better way
         double[] d = dimensions.toArray();
         double prod = 1.0;

@@ -36,7 +36,7 @@ public class AtomReservoir extends Atom {
      */
     public void addAtom(Atom atom) {
         if(atom == null) return;
-        if(((AtomTreeNodeGroup)node).childList.size() >= capacity) atom.node.destroy();
+        if(((AtomTreeNodeGroup)node).childList.size() >= capacity) atom.node.dispose();
         else atom.node.setParent(((AtomTreeNodeGroup)node));
         //restore atom to condition when built
 //        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
@@ -88,7 +88,7 @@ public class AtomReservoir extends Atom {
         
         public void addAtomNotify(Atom atom) {
             if(childList.size() > reservoir.getCapacity()) {
-                atom.node.destroy();
+                atom.node.dispose();
             }
         }
         

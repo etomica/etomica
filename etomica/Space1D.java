@@ -55,6 +55,8 @@ public class Space1D extends Space implements EtomicaElement {
         public Vector (double a1) {x = a1;}
         public Vector (double[] a) {x = a[0];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
+        public boolean equals(Space.Vector v) {return equals((Vector)v);}
+        public boolean equals(Vector v) {return (x == v.x);}
         public String toString() {return "("+x+")";}
         public int length() {return D;}
         public int D() {return D;}
@@ -490,7 +492,7 @@ public class Space1D extends Space implements EtomicaElement {
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
-        public abstract void centralImage(Vector r);
+        public abstract boolean centralImage(Vector r);
     }
 
     /**
@@ -505,9 +507,9 @@ public class Space1D extends Space implements EtomicaElement {
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
         public void nearestImage(Space.Vector dr) {}
-        public void centralImage(Space.Vector r) {}
+        public boolean centralImage(Space.Vector r) {return false;}
         public void nearestImage(Vector dr) {}
-        public void centralImage(Vector r) {}
+        public boolean centralImage(Vector r) {return false;}
         public double volume() {return dimensions.x;}
         public void inflate(double s) {dimensions.TE(s);}
         public void inflate(Space.Vector s) {dimensions.TE(s);}
@@ -548,10 +550,12 @@ public class Space1D extends Space implements EtomicaElement {
             while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
             while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
         }
-        public void centralImage(Space.Vector r) {centralImage((Vector)r);}
-        public void centralImage(Vector r) {
-            while(r.x > dimensions.x) r.x -= dimensions.x;
-            while(r.x < 0.0)          r.x += dimensions.x;
+        public boolean centralImage(Space.Vector r) {return centralImage((Vector)r);}
+        public boolean centralImage(Vector r) {
+            boolean changed = false;
+            while(r.x > dimensions.x) {r.x -= dimensions.x; changed = true;}
+            while(r.x < 0.0)          {r.x += dimensions.x; changed = true;}
+            return changed;
         }
         public void inflate(double scale) {
             dimensions.TE(scale); 

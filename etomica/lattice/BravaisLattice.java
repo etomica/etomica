@@ -47,7 +47,9 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
      public static BravaisLattice makeUnitCellLattice(
                 Simulation sim, int[] dimensions, Primitive primitive) {
-        return makeLattice(sim, primitive.unitCellFactory(), dimensions, primitive);
+        BravaisLattice lattice = makeLattice(sim, primitive.unitCellFactory(), dimensions, primitive);
+        lattice.setPrimitive(primitive);
+        return lattice;
      }
            
     public int[] getDimensions() {return dimensions;}

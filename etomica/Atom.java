@@ -40,6 +40,12 @@ public class Atom implements java.io.Serializable {
         for(int i=0; i<atomListCount; i++) {
             atomList[i] = new AtomList();
         }
+        
+        if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
+        for(int i=0; i<agentSource.length; i++) {
+            allatomAgents[i] = agentSource[i].makeAgent(this);
+        }
+        
         type.initialize(this);
     }
                         
@@ -94,6 +100,23 @@ public class Atom implements java.io.Serializable {
   */
     public AtomLinker[] atomLink;
     public AtomList[] atomList;
+    public Object[] allatomAgents;
+    
+    private static AgentSource[] agentSource = new AgentSource[0];
+    
+    /**
+     * Adds given agent source to allatomAgent-source array and returns index
+     * indicating where in atom's allatomAgent-array the source's agent will
+     * be placed.
+     */
+    public static int requestAgentIndex(AgentSource aSource) {
+        AgentSource[] newSource = new AgentSource[agentSource.length+1];
+        for(int i=0; i<agentSource.length; i++) newSource[i] = agentSource[i];
+        int index = agentSource.length;
+        newSource[index] = aSource;
+        agentSource = newSource;
+        return index;
+    }    
     
     /**
      * Counter of the number of atom link index requests that have been fielded so far.
@@ -106,7 +129,6 @@ public class Atom implements java.io.Serializable {
     
     //replaces AtomLinkIndex
     public static int requestAtomListIndex() {return atomListCount++;}
-    
     /**
      * Returns a unique index that can be used by a simulation element to set up a linked
      * list of atoms associated with each atom.  If idx is the value returned by this

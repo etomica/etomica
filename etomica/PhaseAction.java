@@ -99,6 +99,9 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         
         double scale = 1.0;
         
+        public Inflate() {
+            super();
+        }
         public Inflate(Phase p) {
             super(p);
         }

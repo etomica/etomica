@@ -32,6 +32,10 @@ public final class Vector3D extends Space.Vector {
         this(u.toArray());
     }
     
+    public boolean equals(Space.Vector v) {return equals((Vector3D)v);}
+    public boolean equals(Vector3D v) {return x==v.x && y==v.y && z==v.z;}
+
+    
     private void copy() {
         X[0] = x;
         X[1] = y;

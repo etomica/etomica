@@ -70,6 +70,8 @@ public class Space3D extends Space implements EtomicaElement {
         public String toString() {return "("+x+", "+y+", "+z+")";}
         public double component(int i) {return((i==0) ? x : (i==1) ? y : z);}
         public double[] toArray() {return new double[] {x, y, z};}
+        public boolean equals(Space.Vector v) {return equals((Vector)v);}
+        public boolean equals(Vector v) {return (x == v.x) && (y == v.y) && (z == v.z);}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y + z*z);
             result[1] = Math.acos(z/result[0]); //theta
@@ -513,13 +515,13 @@ public static class CoordinateGroup extends Coordinate {
     public void inflate(double scale) {
         work.E(position());
         work.TE(scale-1.0);
-        displaceBy(work);
+        translateBy(work);
     }
     public void inflate(Space.Vector scale) {
         scale.PE(-1.0);
         work.E(position());
         work.TE(scale);
-        displaceBy(work);
+        translateBy(work);
         scale.PE(1.0);
     }
     
@@ -528,12 +530,14 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.next().coord.translateBy(u);
         }
+        atom.seq.moveNotify();
     }
     public void translateBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
             childIterator.next().coord.translateBy(d, u);
         }
+        atom.seq.moveNotify();
     }
     public void translateTo(Space.Vector u) {
         work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -545,12 +549,14 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.next().coord.displaceBy(u);
         }
+        atom.seq.moveNotify();
     }
     public void displaceBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
             childIterator.next().coord.displaceBy(d, u);
         }
+        atom.seq.moveNotify();
     }
     public void displaceTo(Space.Vector u) {
         work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -565,6 +571,7 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.next().coord.replace();
         }
+        atom.seq.moveNotify();
     }
     public void accelerateBy(Space.Vector u) {
         childIterator.reset();
@@ -917,8 +924,8 @@ public static class CoordinateGroup extends Coordinate {
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
-        public abstract void centralImage(Vector r);
-        public abstract void centralImage(Coordinate c);
+        public abstract boolean centralImage(Vector r);
+        public abstract boolean centralImage(Coordinate c);
     }
     
     
@@ -930,10 +937,10 @@ public static class CoordinateGroup extends Coordinate {
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
         public void nearestImage(Space.Vector dr) {}
-        public void centralImage(Space.Vector r) {}
+        public boolean centralImage(Space.Vector r) {return false;}
         public void nearestImage(Vector dr) {}
-        public void centralImage(Vector r) {}
-        public void centralImage(Coordinate c) {}
+        public boolean centralImage(Vector r) {return false;}
+        public boolean centralImage(Coordinate c) {return false;}
         public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
         public void inflate(double s) {dimensions.TE(s);}
         public void inflate(Space.Vector s) {dimensions.TE(s);}
@@ -992,10 +999,12 @@ public static class CoordinateGroup extends Coordinate {
         //    dr.y = ((dr.y + dimensions.y) % dimensions.y) - dimensionsHalf.y;
         //    dr.z = ((dr.z + dimensions.z) % dimensions.z) - dimensionsHalf.z;
         }
-        public void centralImage(Coordinate c) {centralImage(c.r);}
-        public void centralImage(Space.Vector r) {centralImage((Vector) r);}
-        public void centralImage(Vector r) {
+        public boolean centralImage(Coordinate c) {return centralImage(c.r);}
+        public boolean centralImage(Space.Vector r) {return centralImage((Vector) r);}
+        public boolean centralImage(Vector r) {
+            temp.E(r);
             r.mod(dimensions);
+            return temp.equals(r);
        /*     while(r.x > dimensions.x) r.x -= dimensions.x;
             while(r.x < 0.0)          r.x += dimensions.x;
             while(r.y > dimensions.y) r.y -= dimensions.y;

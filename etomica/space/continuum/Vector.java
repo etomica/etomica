@@ -27,6 +27,9 @@ public final class Vector extends Space.Vector {
         this(u.toArray());
     }
 
+        public boolean equals(Space.Vector v) {return equals((Vector)v);}
+        public boolean equals(Vector v) {for(int i=0;i<D;i++) if(x[i] != v.x[i]) return false; return true;}
+
     public double[] toArray() {return x;}
 
     public void sphericalCoordinates(double[] result) {

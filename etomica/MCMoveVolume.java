@@ -11,7 +11,7 @@ import etomica.units.Dimension;
 public class MCMoveVolume extends MCMove {
     
     protected double pressure;
-    protected PhaseAction.Inflate inflate;
+    protected final PhaseAction.Inflate inflate = new PhaseAction.Inflate();
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private AtomIterator affectedAtomIterator;
 
@@ -26,7 +26,7 @@ public class MCMoveVolume extends MCMove {
     public void setPhase(Phase p) {
         if(p == null) return;
         super.setPhase(p);
-        inflate = new PhaseAction.Inflate(phase);
+        inflate.setPhase(phase);
         affectedAtomIterator = phase.makeAtomIterator();
     }
     

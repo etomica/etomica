@@ -153,6 +153,9 @@ public class SpaceP extends Space{
         public Vector (double[] a) {for(int i=0;i<D;i++)X[i]=a[i];}//should check length of a for exception
 
         public Vector (Vector u) {this.E(u);}
+        
+        public boolean equals(Space.Vector v) {return equals((Vector)v);}
+        public boolean equals(Vector v) {for(int i=0;i<D;i++) if(X[i] != v.X[i]) return false; return true;}
 
         public double[] toArray() {return X;}
 
@@ -353,7 +356,8 @@ public class SpaceP extends Space{
 
         protected final Vector work = new Vector(); 
 
-
+        public void inflate(Space.Vector d) {}
+        public void inflate(double d) {}
 
         public Coordinate(Atom a) {super(a);}
 
@@ -572,7 +576,8 @@ public class SpaceP extends Space{
         public final void setFirstAtom(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
         public final Atom lastAtom() {return (lastChild != null) ? lastChild.atom : null;}
         public final void setLastAtom(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
-                
+        public void inflate(Space.Vector d) {}        
+        public void inflate(double d) {}        
         public double mass() {
             double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
@@ -990,20 +995,20 @@ public class SpaceP extends Space{
         
        // public void centralImage(Coordinate c) {centralImage(c.r);}
        
-        public void centralImage(Coordinate c) {            
+        public boolean centralImage(Coordinate c) {            
         System.out.println(" I am here in centralImage");
             Vector r = (Vector)c.position();
             temp.X[0] = (r.X[0] > dimensions.X[0]) ? -dimensions.X[0] : (r.X[0] < 0.0) ? dimensions.X[0] : 0.0;
             temp.X[1] = (r.X[1] > dimensions.X[1]) ? -dimensions.X[1] : (r.X[1] < 0.0) ? dimensions.X[1] : 0.0;
             temp.X[2] =  (r.X[2] >dimensions.X[2]) ? -dimensions.X[2] : (r.X[2] < 0.0) ? dimensions.X[2] : 0.0;
             if(temp.X[0] != 0.0 || temp.X[1]!= 0.0 || temp.X[2]!=0.0) c.translateBy(temp);
-       
+            return false;//this is not correct in general
         }
 
         
         
-        public void centralImage(Space.Vector r) {centralImage((Vector) r);}
-        public void centralImage(Vector r) {
+        public boolean centralImage(Space.Vector r) {return centralImage((Vector) r);}
+        public boolean centralImage(Vector r) {
             
             while(r.X[0] > dimensions.X[0]) r.X[0] -= dimensions.X[0];
             while(r.X[0] < 0.0)          r.X[0] += dimensions.X[0];
@@ -1011,6 +1016,7 @@ public class SpaceP extends Space{
             while(r.X[1] < 0.0)          r.X[1] += dimensions.X[1];
             while(r.X[2] > dimensions.X[2]) r.X[2] -= dimensions.X[2];
             while(r.X[2] < 0.0)          r.X[2] += dimensions.X[2];
+            return false;//this is not correct in general
             //System.out.println(" here I am in central Image");
     //        r.X[0] -= dimensions.X[0]* ((r.X[0]>0) ? Math.floor(r.X[0]/dimensions.X[0]) : Math.ceil(r.X[0]/dimensions.X[0] - 1.0));
     //        r.X[1] -= dimensions.X[1]*((r.X[1]>0) ? Math.floor(r.X[1]/dimensions.X[1]) : Math.ceil(r.X[1]/dimensions.X[1] - 1.0));

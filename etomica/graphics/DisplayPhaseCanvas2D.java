@@ -183,9 +183,11 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();
+        if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
+            ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
+        }
         atomIterator.setBasis(displayPhase.getPhase().speciesMaster.atomList);
         atomIterator.reset();
-        if(displayPhase.getColorScheme() == null) {}
         while(atomIterator.hasNext()) {
             drawAtom(g, displayPhase.getOrigin(), atomIterator.next());
         }

@@ -26,15 +26,7 @@ public abstract class ColorScheme implements java.io.Serializable {
     
     public final void setBaseColor(Color c) {baseColor = c;}
     public final Color getBaseColor() {return baseColor;}
-    
-/*    public abstract class Collective extends ColorScheme {
-        private final int index;
-        public Collective() {
-            super();
-            index = ??? Atom.requestAgentIndex();
-        }
-    }
-*/
+
     /**
      * Colors all atoms with baseColor.
      */
