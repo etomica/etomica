@@ -404,10 +404,10 @@ public class Atom {
    * @see #updateCOMFraction
    */
   public final double getCOMFraction() {return COMFraction;}
-    
+
   /**
    * Draws this atom using current values of its position, diameter and color.
-   * Drawing position is determined as follows.  The atoms coordinates in 
+   * Drawing position is determined as follows.  The atoms coordinates in
    * Angstroms are converted to pixels by applying a scaling factor; these
    * drawing coordinates may be shifted by some amount as given by the array
    * <code>origin</code> before the atom is drawn.
@@ -420,6 +420,7 @@ public class Atom {
   public void draw(Graphics g, int[] origin, double scale) {
     double toPixels = scale*Phase.TO_PIXELS;
     int sigmaP = (int)(toPixels*diameter);
+//    parentMolecule.parentSpecies.colorScheme.setAtomColor(this);
     g.setColor(color);
     int xP = origin[0] + (int)(toPixels*(r[0]-radius));
     int yP = origin[1] + (int)(toPixels*(r[1]-radius));

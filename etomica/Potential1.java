@@ -13,7 +13,7 @@ public abstract class Potential1 extends Component {
     
   public abstract Potential getPotential(Atom a1, Atom a2);
   
-  public final void setSpace(Space s) {
+  public void setSpace(Space s) {
     this.space = s;
     for(int i=0; i<nAtoms-1; i++) {
         for(int j=0; j<nAtoms-1; j++) {

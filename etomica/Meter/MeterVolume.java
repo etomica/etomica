@@ -199,7 +199,7 @@ public class MeterVolume extends Panel implements JCActionListener, IntegrationI
      */
 	private AtomWall leftWall, rightWall, bottomWall, piston;
 	private int nAtoms;
-	private double scale3, scale2, scale, atomDiameter;
+	private double scale3, scale2, scale, atomDiameter, simAtomDiameter;
 	public void updateAverage(IntegrationIntervalEvent iie) {
 	    iieCount++;
 	    if(firstCall && (iieCount - updateInterval)== 0) {
@@ -217,14 +217,15 @@ public class MeterVolume extends Panel implements JCActionListener, IntegrationI
             iieCount = 0;
             nAtoms = iie.phase.nAtomTotal;
             atomDiameter = 3.5;
-            scale = atomDiameter/((SpeciesDisk)species.elementAt(0)).diameter;
+            simAtomDiameter = ((SpeciesDisk)species.elementAt(0)).diameter;
+            scale = atomDiameter/simAtomDiameter;
             scale2 = scale*scale;
             scale3 = scale2*scale;
 	    }
 	    else if(iieCount == updateInterval) {
 	        iieCount = 0;
     	    blockCount++;
-    	    energy = nAtoms/(((bottomWall.r[1]-piston.r[1]-0.05)*(rightWall.r[0]-leftWall.r[0]-0.05)*scale2)*atomDiameter);
+    	    energy = nAtoms/(((bottomWall.r[1]-piston.r[1]-simAtomDiameter/2.)*(rightWall.r[0]-leftWall.r[0]-simAtomDiameter/2.)*scale2)*atomDiameter);
             energy *= 1e30/1e3/Constants.AVOGADRO;
             double temperature = iie.phase.getKineticTemperature();
             double pressure = piston.f[1]/(piston.diameter*scale2*atomDiameter)/Constants.BAR2SIM;

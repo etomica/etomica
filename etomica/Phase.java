@@ -66,14 +66,14 @@ public final class Phase extends Container {
   * Number of periodic-image shells to be drawn when drawing this phase to the
   * screen.  Default value is 0.
   *
-  * @see #draw
+  * @see #paint
   */
   private int imageShells = 0;
  
  /**
   * The nominal scaling factor that determines the size of this phase when drawn to the screen.
   * 
-  * @see #draw
+  * @see #paint
   */
   private double nominalScale = 1.0;
   
@@ -214,7 +214,7 @@ public final class Phase extends Container {
    * space exactly fills this Phase's drawing region when space is unscaled
    * setTO_PIXELS = (width of this Phase, in pixels)/(width of Space, in Angstroms)
    *
-   * @see #draw
+   * @see #paint
    */
   public void resetTO_PIXELS() {
     if(maySetTO_PIXELS && space!=null) {

@@ -1,6 +1,5 @@
 package simulate;
 
-import simulate.*;
 import java.beans.*;
 import java.awt.*;
 
@@ -41,7 +40,7 @@ public class PotentialHardDiskPiston extends simulate.Potential
             disk.r[i] = 0.5*((2+eps)*disk.r[i] - eps*wall.r[i]);
             dr *= 1+eps;
         }
-*/            return time;}  //inside wall; no collision
+*/            return 0.0;}  //inside wall; no collision
         dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
         dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
         double a = wall.f[i]*wall.rm;
@@ -79,7 +78,9 @@ public class PotentialHardDiskPiston extends simulate.Potential
         double dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
         double dp = -2.0/(atom1.rm + atom2.rm)*dv;
         wall.p[i] += dp;
-        disk.p[i] -= dp;        
+        disk.p[i] -= dp; 
+        double dr = wall.r[i] - disk.r[i];
+        disk.r[i] = wall.r[i] - (1.+1.e-5)*collisionRadius*Math.abs(dr)/dr;
     }
     
     public double getCollisionDiameter() {return collisionDiameter;}

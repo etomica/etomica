@@ -122,8 +122,8 @@ public class IntegratorHard extends Integrator {
     //Loop through remaining downlist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
     for(Atom a=atom.getPreviousAtom(); a!=previousMoleculeAtom; a=a.getPreviousAtom()) {
-        Potential potential = p1.getPotential(atom,a);
-        double time = potential.collisionTime(atom,a);
+        Potential potential = p1.getPotential(a,atom);
+        double time = potential.collisionTime(a,atom);
         if(time < a.getCollisionTime()) {
             a.setCollision(time,atom,potential);
         }
@@ -152,7 +152,7 @@ public class IntegratorHard extends Integrator {
   
 //--------------------------------------------------------------
 
-    public final void scaleMomenta(double s) {
+    public void scaleMomenta(double s) {
       double rs = 1.0/s;
       for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
         Space.uTEa1(a.p,s);

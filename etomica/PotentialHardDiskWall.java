@@ -1,6 +1,5 @@
 package simulate;
 
-import simulate.*;
 import java.beans.*;
 import java.awt.*;
 

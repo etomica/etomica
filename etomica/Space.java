@@ -90,7 +90,7 @@ public class Space extends Component {
   * to scale up or down the image within one phase without affecting those
   * in other phases.  Default value is 1.0.
   *
-  * @see Phase#draw
+  * @see Phase#paint
   */
     protected double scale = 1.0;
     
@@ -161,7 +161,7 @@ public class Space extends Component {
     *
     * @param g      the graphics object to which the image is drawn
     * @param origin the coordinate origin (in pixels) for drawing the image
-    * @see Phase#draw
+    * @see Phase#paint
     * @see #computeDrawSize
     */
     public void draw(Graphics g, int[] origin) {
@@ -184,7 +184,7 @@ public class Space extends Component {
     * @param s   the nominal drawing scale.  No action is taken if s <= 0.0.
     * @param n   the new value of nShells.  No action is taken if n < 0.
     * @see #computeDrawSize
-    * @see Phase#draw
+    * @see Phase#paint
     */
     public void setScale(double s, int n) {   //likely to override
         if(s>0 && n>=0) {
@@ -272,7 +272,7 @@ public class Space extends Component {
     *
     * @param n  new value of nShells
     * @return origins[][] array
-    * @see Phase#draw
+    * @see Phase#paint
     */
     public int[][] getImageOrigins(int n) {
         if(n != nShells) {resetOrigins(n);}
@@ -282,7 +282,7 @@ public class Space extends Component {
    /**
     * @return shift0
     * @see #shift0
-    * @see Phase#draw
+    * @see Phase#paint
     */
     public double[][] getOverflowShifts(double[] r, double distance) {return shift0;}  //called only if periodic
     
@@ -298,7 +298,7 @@ public class Space extends Component {
     * Method to handle placement of molecules that go beyond boundaries of Space.
     * Used by periodic-boundary subclasses.
     * 
-    * @see Phase#draw
+    * @see Phase#paint
     */
     public void repositionMolecules(Species species) {return;}  
 

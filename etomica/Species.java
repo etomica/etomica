@@ -29,12 +29,31 @@ import java.beans.*;//for Graphics
  * @see Phase
  */
  
-public abstract class Species extends Component {
+public abstract class Species extends Container {
+    public void setNAtomsPerMolecule(int na)
+    {
+        nAtomsPerMolecule = na;
+        setNMolecules(nMolecules);
+    }
+    
+    public int getNAtomsPerMolecule() {return nAtomsPerMolecule;}
+    
+    public Species(int n, int na)
+    {
+        setSpeciesIndex(0);
+        setFillVolume(true);
+        nAtomsPerMolecule = na;
+        setNMolecules(n);
+        this.add(new ColorSchemeDefault(Color.red));
+    }
+
 
  /**
   * A name to be associated with the species.  Use is optional.
   */
   String name;
+  
+  public ColorScheme colorScheme;
  
  /**
   * A unique integer that identifies the species.  Used to associate
@@ -59,7 +78,7 @@ public abstract class Species extends Component {
  /**
   * Number of atoms in each molecule of this species
   */
-  public int nAtomsPerMolecule;
+  protected int nAtomsPerMolecule;
   
  /**
   * Don't quite remember what this is used for; hope to deprecate it.
@@ -136,11 +155,13 @@ public abstract class Species extends Component {
   */
   double neighborUpdateSquareDisplacement = Double.MAX_VALUE;
   
+  private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
+
  /**
-  * Default constructor.  Creates species containing 20 molecules.
+  * Default constructor.  Creates species containing 20 molecules, each with 1 atom.
   */
   public Species() {
-    this(20);
+    this(20,1);
   }
 
  /**
@@ -149,25 +170,15 @@ public abstract class Species extends Component {
   * @param n number of molecules in species
   */
   public Species(int n) {
-    setSpeciesIndex(0);
-    setFillVolume(true);
-    setDefaults();
-    setNMolecules(n);    
+    this(n,1);
   }
-
- /**
-  * Sets all default values for the species.  This includes things like atomic
-  * masses and sizes, number of atoms per molecule, and so on.  Customarily
-  * these things would simply be put into the constructor of the particular
-  * species subclass.  This cannot be done here because the number of atoms per molecule must
-  * be set before making the molecules.  Molecules are made upon calling
-  * the constructor of this (abstract) class.  Since this call must precede
-  * anything else in the subclass constructor, the defaults cannot be set
-  * there before making the molecules.  
-  * setDefaults is invoked by the abstract-class constructor before it makes 
-  * the molecules.
-  */
-  abstract void setDefaults();
+  
+  public void add(ColorScheme cs) {
+    this.colorScheme = cs;
+    for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {
+        colorScheme.initializeAtomColor(a);
+    }
+  }
   
  /**
   * Copies all values for atoms sizes, masses, colors, etc., to the corresponding
@@ -185,10 +196,11 @@ public abstract class Species extends Component {
  /**
   * Sets the number of molecules for this species.  Makes the given number
   * of new molecules, linked-list orders and initializes them.
-  * Any previously existing molecules for this species are abandoned.
+  * Any previously existing molecules for this species are abandoned, as are
+  * their links to molecules of next or previous species.
   *
   * @param n  the new number of molecules for this species
-  * @see #makeMolecules
+  * @see #makeMolecule
   * @see #orderMolecules
   * @see #initializeMolecules
   * @see #deleteMolecule
@@ -196,21 +208,20 @@ public abstract class Species extends Component {
   */
   public final void setNMolecules(int n) {
     nMolecules = n;
-    makeMolecules();
+    molecule = new Molecule[nMolecules];    //this array is to be deprecated
+    for(int i=0; i<nMolecules; i++) {molecule[i] = makeMolecule();}
     orderMolecules();
     initializeMolecules();
   }
   
  /**
-  * Creates new molecules from the Molecule class.  The number of molecules 
-  * made is given by the current value of nMolecules, and the number of atoms
+  * Creates new molecule from the Molecule class.  The number of atoms
   * per molecule is given by the current value of nAtomsPerMolecule.  
   * This class can be overridden to make molecules from a class other than
   * Molecule ("molecule" walls, for example).
   */
-  void makeMolecules() {
-    molecule = new Molecule[nMolecules];
-    for(int i=0; i<nMolecules; i++) {molecule[i] = new Molecule(this,nAtomsPerMolecule);}
+  public Molecule makeMolecule() {
+    return new Molecule(this,nAtomsPerMolecule);
   }
  
  /**
@@ -250,7 +261,7 @@ public abstract class Species extends Component {
     parentPhase.nAtomTotal -= m.nAtoms;
     m = null;
   }
- 
+
  /**
   * Adds a molecule to this species and updates linked lists.  Does not handle
   * creation of molecule.  New molecule
@@ -278,6 +289,7 @@ public abstract class Species extends Component {
     nMolecules++;
     parentPhase.nMoleculeTotal++;
     parentPhase.nAtomTotal += m.nAtoms;
+    colorScheme.initializeMoleculeColor(m);
   }
         
  /**
@@ -411,9 +423,6 @@ public abstract class Species extends Component {
     public double getDesignTimeXDim() {return designTimeXDim;}
     public void setDesignTimeYDim(double y) {designTimeYDim = y;}
     public double getDesignTimeYDim() {return designTimeYDim;}
-    
-  
-// Abstract Methods
   
   /**
    * Draws all molecules of the species using current values of their positions.
@@ -423,11 +432,44 @@ public abstract class Species extends Component {
    * @param scale     factor determining size of drawn image relative to
    *                  nominal drawing size
    * @see Atom#draw
-   * @see Molecules#draw
+   * @see Molecule#draw
    * @see Phase#paint
    */
   
-  public abstract void draw(Graphics g, int[] origin, double scale);
+  public void draw(Graphics g, int[] origin, double scale) {
+
+    double toPixels = scale*Phase.TO_PIXELS;
+ /*   
+    int diameterP = (int)(toPixels*diameter);
+    g.setColor(color);
+    */
+    Atom nextSpeciesAtom = lastAtom.getNextAtom();
+    Molecule last = lastMolecule.getNextMolecule();
+    for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
+        colorScheme.setAtomColor(a);
+        a.draw(g,origin,scale);
+        /*
+        int xP = origin[0] + (int)(toPixels*(a.r[0]-radius));
+        int yP = origin[1] + (int)(toPixels*(a.r[1]-radius));
+        g.fillOval(xP,yP,diameterP,diameterP);
+        */
+    }
+    if(parentPhase.drawOverflowImages) {
+        for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
+            double[][] shifts = parentPhase.space.getOverflowShifts(a.r,a.radius);
+            for(int i=0; i<shifts.length; i++) {
+                /*
+               int xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-radius));
+               int yP = origin[1] + (int)(toPixels*(shifts[i][1]+a.r[1]-radius));
+               g.fillOval(xP,yP,diameterP,diameterP);
+               */
+               shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
+               shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
+               a.draw(g,shiftOrigin,scale);
+            }
+        }
+    }     
+  }
   
  /**
   * Method that sets the initial coordinates of the molecules in the

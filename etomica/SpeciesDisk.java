@@ -6,7 +6,6 @@ import java.beans.*;
 public class SpeciesDisk extends Species {
 
   double[] speciesOrigin = {0,0}; //origin less depth of boundaries, shifts origin to accomodate boundaries.
-  private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
   double mass;
   double diameter;
   double radius;
@@ -59,38 +58,6 @@ public class SpeciesDisk extends Species {
         for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
     }
         
-  public void draw(Graphics g, int[] origin, double scale) {
-
-    double toPixels = scale*Phase.TO_PIXELS;
- /*   
-    int diameterP = (int)(toPixels*diameter);
-    g.setColor(color);
-    */
-    Atom nextSpeciesAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
-        a.draw(g,origin,scale);
-        /*
-        int xP = origin[0] + (int)(toPixels*(a.r[0]-radius));
-        int yP = origin[1] + (int)(toPixels*(a.r[1]-radius));
-        g.fillOval(xP,yP,diameterP,diameterP);
-        */
-    }
-    if(parentPhase.drawOverflowImages) {
-        for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
-            double[][] shifts = parentPhase.space.getOverflowShifts(a.r,radius);
-            for(int i=0; i<shifts.length; i++) {
-                /*
-               int xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-radius));
-               int yP = origin[1] + (int)(toPixels*(shifts[i][1]+a.r[1]-radius));
-               g.fillOval(xP,yP,diameterP,diameterP);
-               */
-               shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
-               shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
-               a.draw(g,shiftOrigin,scale);
-            }
-        }
-    }     
-  }
 
   //for default boundary widths of zero
   public void initializeCoordinates(double[] simulationRunDimensions) {

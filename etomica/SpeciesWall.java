@@ -6,6 +6,7 @@ public class SpeciesWall extends Species {
 
     int borderTol;
     boolean boundary;
+    int coordinateIndex;
 
     public SpeciesWall() {
         super(1);
@@ -37,10 +38,16 @@ public class SpeciesWall extends Species {
     public final void setBorderTol(int borderTol) {this.borderTol = borderTol;}
 
     public final boolean isVertical() {return ((AtomWall)firstAtom).isVertical();}
-    public void setVertical(boolean b) {((AtomWall)firstAtom).setVertical(b);}
+    public void setVertical(boolean b) {
+        ((AtomWall)firstAtom).setVertical(b);
+        coordinateIndex = 0;
+    }
 
     public final boolean isHorizontal() {return ((AtomWall)firstAtom).isHorizontal();}
-    public void setHorizontal(boolean b) {((AtomWall)firstAtom).setHorizontal(b);}
+    public void setHorizontal(boolean b) {
+        ((AtomWall)firstAtom).setHorizontal(b);
+        coordinateIndex = 1;
+    }
 
     public final int getThickness() {return ((AtomWall)firstAtom).getThickness();}
     public final void setThickness(int t) {((AtomWall)firstAtom).setThickness(t);}
