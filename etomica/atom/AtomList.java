@@ -76,6 +76,17 @@ public class AtomList implements java.io.Serializable
     public AtomList() {}
 
     /**
+     * 
+     * @param atoms array of atoms that will populate the list at construction.
+     */
+    public AtomList(Atom[] atoms) {
+        if(atoms == null) return;
+        for(int i=0; i<atoms.length; i++) {
+            addLast(atoms[i]);
+        }
+    }
+    
+    /**
      * Constructs a list containing the elements of the specified
      * collection, in the order they are returned by the collection's
      * iterator.
