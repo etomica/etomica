@@ -37,7 +37,6 @@ public class HSMD3D extends Simulation {
         int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
         System.out.println("nCells: "+nCells);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
-        ((PotentialMasterNbr)potentialMaster).setMaxNeighborRange(neighborRangeFac);
 
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);

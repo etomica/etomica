@@ -46,7 +46,6 @@ public class ChainHSMD3D extends Simulation {
         int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
         System.out.println("nCells: "+nCells);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
-        ((PotentialMasterNbr)potentialMaster).setMaxNeighborRange(neighborRangeFac);
         ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
         integrator = new IntegratorHard(potentialMaster);
@@ -74,7 +73,7 @@ public class ChainHSMD3D extends Simulation {
         NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
         moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
-        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
+        ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
         
         //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
