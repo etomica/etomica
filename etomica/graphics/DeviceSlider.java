@@ -24,6 +24,9 @@ import etomica.event.ChangeEventManager;
  /* History
   * 10/08/02 (SKK) modified for DecimalSlider, textBox
   * 10/12/02 (DAK) added init method
+  * 10/13/02 (DAK) restored nMajor and its accessor/mutator methods
+  *                changed graphic method to always return panel, never just slider
+  *                always adding slider to panel
   */
   
 public class DeviceSlider extends Device implements EtomicaElement {
@@ -82,6 +85,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private GridBagLayout gbLayout;    
     private GridBagConstraints gbConst; 
     private boolean showBorder = false;
+    private int nMajor = 3;
     
     protected final ChangeEventManager changeEventManager = new ChangeEventManager(this);
     
@@ -115,6 +119,14 @@ public class DeviceSlider extends Device implements EtomicaElement {
         //set component and property in some way
         setModulator(m);
     }
+    /**
+     * Constructs a slider connected to the get/set Value methods of the given Modulator
+     */
+    public DeviceSlider(Space s, ModulatorAbstract m) {
+        this(s);
+        //set component and property in some way
+        setModulator(m);
+    }
 
     private void init() {
         textField = new JTextField("");
@@ -137,6 +149,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
         slider.setDecimalSliderMajorTickSpacing(100);
         slider.setDecimalSliderMinorTickSpacing(50);
         slider.addChangeListener(new SliderListener());  //SliderListener is an inner class defined below
+
+        gbConst.gridx = 0; gbConst.gridy = 0;
+        gbLayout.setConstraints(getSlider(), gbConst);
+        panel.add(getSlider());        
+
         setShowValues(false); // default is false to show values of slider
         setEditValues(false); // default is false to edit values of slider thru textField
     }
@@ -199,10 +216,16 @@ public class DeviceSlider extends Device implements EtomicaElement {
         showMinorValues = b;
     }
     
+    public void setNMajor(int n) {
+        nMajor = n;
+        setTicks();
+    }
+    public int getNMajor() {return nMajor;}
+    
     private void setTicks() {
         double minorTick = 1.0 ;
        if(showMinorValues){ minorTick = 2;}
-       double spacing = (getMaximum()-getMinimum())/2.0; 
+       double spacing = (getMaximum()-getMinimum())/(double)nMajor; 
        if(spacing <= 0) return;
         slider.setDecimalSliderMajorTickSpacing(spacing);
         slider.setDecimalSliderMinorTickSpacing(spacing/2.0);
@@ -223,21 +246,20 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
 
     public void setSliderValueShape(String s){
-        if(s=="HORIZONTAL"){panel.removeAll();textField.setColumns(column);                                                                  
-              gbConst.gridx = 0;gbConst.gridy = 0;
-              gbLayout.setConstraints(getSlider(), gbConst);
-                panel.add(getSlider()); 
-              gbConst.gridx = 1;gbConst.gridy = 0; 
-              gbLayout.setConstraints(textField, gbConst);
-                panel.add(textField);}
-        if(s=="VERTICAL"){ panel.removeAll();textField.setColumns(column);  
-              gbConst.gridx = 0;gbConst.gridy = 0;
-              gbLayout.setConstraints(getSlider(), gbConst);
-                panel.add(getSlider()); 
-              gbConst.fill = GridBagConstraints.HORIZONTAL;
-              gbConst.gridx = 0;gbConst.gridy = 1; 
-              gbLayout.setConstraints(textField, gbConst);
-                panel.add(textField);
+        panel.removeAll();
+        textField.setColumns(column);                                                                  
+        gbConst.gridx = 0; gbConst.gridy = 0;
+        gbLayout.setConstraints(getSlider(), gbConst);
+        panel.add(getSlider());        
+        if(s=="HORIZONTAL") {
+            gbConst.gridx = 1; gbConst.gridy = 0; 
+            gbLayout.setConstraints(textField, gbConst);
+            panel.add(textField);}
+        if(s=="VERTICAL") { 
+            gbConst.fill = GridBagConstraints.HORIZONTAL;
+            gbConst.gridx = 0; gbConst.gridy = 1; 
+            gbLayout.setConstraints(textField, gbConst);
+            panel.add(textField);
         }
     }
     
@@ -266,8 +288,9 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * Returns the GUI element for display in the simulation.
      */
     public java.awt.Component graphic(Object obj) {
-        if(showValues){ return panel;
-        } else {return slider;} 
+//        if(showValues){ return panel;
+//        } else {return slider;}
+        return panel;
     }
     
     
