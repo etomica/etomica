@@ -21,10 +21,18 @@ public class SpeciesLattice extends Species {
     }
     /**
      * Constructs species with default factory that makes a cubic lattice of spherical atoms.
+     * Uses 3 atoms per edge.
      */
     public SpeciesLattice(Simulation sim) {
+        this(sim, 3);
+    }
+    /**
+     * Constructs species with default factory that makes a cubic lattice of spherical
+     * atoms, with "size" atoms on each edge.
+     */
+    public SpeciesLattice(Simulation sim, int size) {
         this(sim, 
-             new BravaisLattice.Factory(sim, new AtomFactoryMono(sim), sim.space.makeArrayD(3), 
+             new BravaisLattice.Factory(sim, new AtomFactoryMono(sim), sim.space.makeArrayD(size), 
              new PrimitiveCubic(sim,10.)));
     }
     public SpeciesLattice(Simulation sim, BravaisLattice.Factory factory) {

@@ -40,10 +40,10 @@ public class MeterVelocityRms extends MeterScalar implements MeterScalar.Atomic 
     }
     
     /**
-     * Returns the square of the velocity of the given atom.
+     * Returns the speed of the given atom.
      */
     public double currentValue(Atom a) {
-        return Math.sqrt(a.coord.momentum().squared());
+        return a.coord.rm()*Math.sqrt(a.coord.momentum().squared());
     }
     
     /**

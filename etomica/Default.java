@@ -44,7 +44,7 @@ public final class Default {
         POTENTIAL_WELL = 1.0;
         TEMPERATURE = 1.0;
 //        PRESSURE = 1.0;
-        TIME_STEP = 0.3;
+        TIME_STEP = 0.04;
         BOX_SIZE = 10.0;
         etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30;
     }

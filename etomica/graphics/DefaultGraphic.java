@@ -26,8 +26,10 @@ public final class DefaultGraphic {
 	public static Color SLIDER_COLOR = BACKGROUND_COLOR;//ConstantsGraphic.TAN;
 	public static Color TAB_COLOR = ConstantsGraphic.DARK_RED;
 	public static Color TAB_TEXT_COLOR = BACKGROUND_COLOR;
-	public static Color BUTTON_COLOR = TAB_COLOR;
-	public static Color BUTTON_TEXT_COLOR = TAB_TEXT_COLOR;
+//	public static Color BUTTON_COLOR = TAB_COLOR;
+//	public static Color BUTTON_TEXT_COLOR = TAB_TEXT_COLOR;
+    public static Color BUTTON_COLOR = java.awt.Color.white;
+	public static Color BUTTON_TEXT_COLOR = java.awt.Color.black;
 	public static Color PANEL_COLOR = ConstantsGraphic.TAN;
     
     

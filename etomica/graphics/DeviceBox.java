@@ -64,6 +64,14 @@ public class DeviceBox extends Device implements EtomicaElement {
     }
     public DeviceBox(Simulation sim) {
         super(sim);
+        init();
+    }
+    public DeviceBox(Space space, ModulatorAbstract m) {
+        super(space);
+        init();
+        setModulator(m);
+    }
+    private void init() {
         label = new JLabel("Label");
         value = new JTextField("");
         value.setEditable(true);

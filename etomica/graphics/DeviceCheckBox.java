@@ -27,6 +27,14 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
     }
     public DeviceCheckBox(Simulation sim, String label, ModulatorBoolean modulator) {
         super(sim);
+        init(label, modulator);
+    }
+    public DeviceCheckBox(Space space, String label, ModulatorBoolean modulator) {
+        super(space);
+        init(label, modulator);
+    }
+    
+    private void init(String label, ModulatorBoolean modulator) {
         this.modulator = modulator;
         currentValue = modulator.getBoolean();
         box = new JCheckBox(label,currentValue);
@@ -36,7 +44,7 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
             }
         });
     }
-    
+        
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
         info.setDescription("Check box that toggles a boolean value");

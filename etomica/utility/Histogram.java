@@ -4,6 +4,10 @@ import etomica.DataSource;
 import etomica.units.Dimension;
 //import ptolemy.plot.Plot;
 
+/* History
+ * 09/08/02 (DAK) added set/get methods for xMin, xMax, nValues
+ */
+
 public class Histogram implements DataSource.X {
 	private double deltaX;
 	private int  sum;
@@ -113,7 +117,25 @@ public class Histogram implements DataSource.X {
 	    counts[i]++;
 	    sum++;
     }
+    
+    public void setXMin(double xMin) {
+        this.xMin = xMin;
+        setAutoScale(false);
+        reset();
+    }
+    public double getXMin() {return xMin;}
+    public void setXMax(double xMax) {
+        this.xMax = xMax;
+        setAutoScale(false);
+        reset();
+    }
+    public double getXMax() {return xMax;}
   
+    public int getNValues() {return nValues;}
+    public void setNValues(int n) {
+        this.nValues = n;
+        reset();
+    }
     
     private void redistribute() {
         double[] newX = new double[nValues];

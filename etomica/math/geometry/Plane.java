@@ -79,6 +79,19 @@ public class Plane {
     public void setDistanceToOrigin(double d) {this.d = d;}
 
     /**
+     * Reorients and positions the plane so that its intercepts with the
+     * x-, y-, and z-axes are the given values, respectively.
+     */
+    public void setIntercepts(double u, double v, double w) {
+        if(u == 0 || v == 0 || w == 0) throw new IllegalArgumentException("Arguments to setIntercept do not define a plane"); 
+        a = 1.0/u;
+        b = 1.0/v;
+        c = 1.0/w;
+        d = -1.0;
+        normalize();
+    }
+
+    /**
      * Returns the intercept of the plane with the x-axis.
      */
     public double xIntercept() {return -d/a;}
@@ -108,11 +121,23 @@ public class Plane {
     
     /**
      * Returns true if the given point is on the side of the 
-     * plane toward +infinity in x.  If the plane is parallel 
-     * to the x-axis, applies the test to y instead.
+     * plane toward which the normal vector points.  The direction
+     * of the normal vector can be inverted using the invert method.
      */
     public boolean isPositiveSide(Space3D.Vector p) {
-        
+        return distanceTo(p) > 0.0;
+    }
+    
+    /**
+     * Changes the direction of the normal vector so that it points
+     * toward the other side of the plane from its present orientation.
+     * Does not affect the location or absolute orientation of the plane.
+     */
+    public void invert() {
+        a = -a;
+        b = -b;
+        c = -c;
+        d = -d;
     }
     
      
