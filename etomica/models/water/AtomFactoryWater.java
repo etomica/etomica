@@ -59,6 +59,12 @@ public class AtomFactoryWater extends AtomFactory {
         hFactory.setSpecies(species);
         oFactory.setSpecies(species);
     }
+    
+    public void setDepth(int depth) {
+        atomType.setDepth(depth);
+        hFactory.setDepth(depth+1);
+        oFactory.setDepth(depth+1);
+    }
 
 	public final AtomFactoryMono hFactory, oFactory;
 }
