@@ -47,7 +47,7 @@ public final class Default {
     
     public static boolean IS_GRAPHIC = false;
     
-    public static final boolean FIX_OVERLAP = false;
+    public static boolean FIX_OVERLAP = false;
     
     public static boolean AUTO_REGISTER = true;
     
