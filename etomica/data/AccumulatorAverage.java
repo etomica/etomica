@@ -211,7 +211,33 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
         };
     }
 	
-	/**
+    /**
+     * Makes and returns a data source that gives the stochastic recorded by 
+     * this accumulator.
+     */
+    public DataSource makeDataSourceError() {
+        return new DataSource() {
+            public String getLabel() {return AccumulatorAverage.this.getLabel() + "error";}
+            public double[] getData() {return error();}
+            public Dimension getDimension() {return AccumulatorAverage.this.getDimension();}
+            public DataTranslator getTranslator() {return AccumulatorAverage.this.getTranslator();}
+        };
+    }
+
+    /**
+     * Makes and returns a data source that gives the most recent value recorded by 
+     * this accumulator.
+     */
+    public DataSource makeDataSourceMostRecent() {
+        return new DataSource() {
+            public String getLabel() {return AccumulatorAverage.this.getLabel() + "most recent";}
+            public double[] getData() {return mostRecent();}
+            public Dimension getDimension() {return AccumulatorAverage.this.getDimension();}
+            public DataTranslator getTranslator() {return AccumulatorAverage.this.getTranslator();}
+        };
+    }
+
+    /**
 	 * Typed constant that can be used to indicated the quantity
 	 * to be taken from a meter (e.g., average, error, current value, etc.).
 	 * Used primarily by Display objects.
