@@ -28,8 +28,7 @@ public class DataSourceRmsVelocity extends DataSourceAdapter {
 		value[0] = 0.0;
 		while (iterator.hasNext()) {
 			Atom atom = iterator.nextAtom();
-			value[0] = atom.type.rm()
-					* Math.sqrt(((ICoordinateKinetic)atom.coord).momentum().squared());
+			value[0] += Math.sqrt(((ICoordinateKinetic)atom.coord).velocity().squared());
 			count++;
 		}
 		value[0] /= (double) count;

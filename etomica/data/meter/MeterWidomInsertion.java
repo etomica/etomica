@@ -6,7 +6,9 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.Space;
 import etomica.Species;
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.units.Dimension;
 
@@ -29,13 +31,14 @@ import etomica.units.Dimension;
  */
 public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 
-	public MeterWidomInsertion(PotentialMaster potentialMaster) {
+	public MeterWidomInsertion(Space space, PotentialMaster potentialMaster) {
 		super();
 		energyMeter = new MeterPotentialEnergy(potentialMaster);
 		setLabel("exp(-\u03BC/kT)"); //"\u03BC" is Unicode for greek "mu"
 		nInsert = 100;
 		setResidual(true);
 		setTemperature(Default.TEMPERATURE);
+        atomTranslator = new AtomActionTranslateTo(space); 
 
 		//add mediator so that by default first species added to simulation is
 		// used for sampling
@@ -170,9 +173,8 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 		testMolecule.node.setParent(phase.getAgent(species));
 		energyMeter.setTarget(testMoleculeInArray);
 		for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
-			testMolecule.coord.translateTo(phase.randomPosition()); //select
-			// random
-			// position
+            atomTranslator.setDestination(phase.randomPosition());
+            atomTranslator.actionPerformed(testMolecule);
 			//            if(display != null && i % 10 ==0) display.repaint();
 			double u = energyMeter.getDataAsScalar(phase);
 			if (u < Double.MAX_VALUE) //add to test-particle average
@@ -193,18 +195,14 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	 * 100
 	 */
 	private int nInsert;
-
 	private Species species;
-
 	private Atom testMolecule; //prototype insertion molecule
-
 	private final Atom[] testMoleculeInArray = new Atom[1];
-
 	private double temperature;
-
 	private boolean residual; //flag to specify if total or residual chemical
 								// potential evaluated. Default true
-
+	private AtomActionTranslateTo atomTranslator;
+    
 	MeterPotentialEnergy energyMeter;
 	//  private DisplayPhase display; //used to show location of inserted atoms
 	// in the display
