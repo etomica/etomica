@@ -1,11 +1,10 @@
 package etomica.virial.cluster;
 import etomica.math.SpecialFunctions;
 import etomica.utility.Arrays;
-import etomica.virial.Cluster;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.MayerFunction;
-import etomica.virial.Cluster.BondGroup;
 
 /**
  * @author kofke
@@ -102,6 +101,10 @@ public final class Standard {
         return virialCluster(nBody,f,true,new FTilde(f));
     }
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e) {
+        if (nBody < 4) {
+            e = null;
+        }
+        int nBondTypes = (e == null) ? 1 : 2;
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
         ClusterGenerator generator = new ClusterGenerator(clusterD);
         generator.setAllPermutations(!usePermutations);
@@ -112,16 +115,17 @@ public final class Standard {
         generator.setMakeReeHover(e != null);
         clusterD.reset();
         generator.reset();
-        generator.calcReeHoover();
-        ClusterAbstract[] clusters = new ClusterAbstract[0];
+        if (e != null) {
+            generator.calcReeHoover();
+        }
+        ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
         int fullSymmetry = usePermutations ? SpecialFunctions.factorial(nBody) : 1;
         double weightPrefactor = -fullSymmetry*nBody/(double)(nBody-1);
         do {
             int iBond = 0, iEBond = 0;
             int numBonds = clusterD.getNumConnections();
-            int[][] bondList = new int[numBonds][2];
-            int[][] eBondList = new int[nBody*(nBody-1)/2-numBonds][2];
+            int[][][] bondList = new int[nBondTypes][numBonds][2];
             for (int i = 0; i < nBody; i++) {
                 int lastBond = i;
                 int[] iConnections = clusterD.mConnections[i];
@@ -130,18 +134,18 @@ public final class Standard {
                         if (e != null) {
                             
                             for (int k=lastBond+1; k<iConnections[j]; k++) {
-                                eBondList[iEBond][0] = i;
-                                eBondList[iEBond++][1] = k;
+                                bondList[1][iEBond][0] = i;
+                                bondList[1][iEBond++][1] = k;
                             }
                         }
-                        bondList[iBond][0] = i;
-                        bondList[iBond++][1] = iConnections[j];
+                        bondList[0][iBond][0] = i;
+                        bondList[0][iBond++][1] = iConnections[j];
                         lastBond = iConnections[j];
                     }
                     else if ((lastBond>i || iConnections[j] == -1) && e != null) {
                         for (int k=lastBond+1; k<nBody; k++) {
-                            eBondList[iEBond][0] = i;
-                            eBondList[iEBond++][1] = k;
+                            bondList[1][iEBond][0] = i;
+                            bondList[1][iEBond++][1] = k;
                         }
                     }
                     if (iConnections[j] == -1) break;
@@ -150,21 +154,18 @@ public final class Standard {
             // only use permutations if the diagram has permutations
             boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < fullSymmetry;
             // only use e-bonds if one of the diagrms has some
-            int nBondTypes = (iEBond > 0) ? 2 : 1;
-            BondGroup[] bondGroups = new BondGroup[nBondTypes];
-            bondGroups[0] = new BondGroup(f,bondList);
-            if (iEBond > 0) {
-                bondGroups[1] = new BondGroup(e,eBondList);
-            }
-            clusters = (ClusterAbstract[])Arrays.addObject(clusters,new Cluster(nBody, bondGroups, thisUsePermutations));
+            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
             double [] newWeights = new double[weights.length+1];
             System.arraycopy(weights,0,newWeights,0,weights.length);
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
-
-        if (clusters.length == 1) return clusters[0];
-        return new ClusterSum(clusters,weights);
+        MayerFunction[] allF = new MayerFunction[nBondTypes];
+        allF[0] = f;
+        if (e != null) {
+            allF[1] = e;
+        }
+        return new ClusterSum(clusters,weights,allF);
 
     }
     
@@ -188,91 +189,91 @@ public final class Standard {
         return (219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0)))*b0*b0*b0;
     }
 	
-	public static Cluster[] B6Clusters(MayerFunction f) {
-
-		int[][] FRH1 = new int[][] {{0,1},{0,2},{0,4},{0,5},{1,2},{1,3},{1,5}
-										,{2,3},{2,4},{2,5},{3,4},{3,5},{4,5}};
-		int[][] FRH2 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,4},{3,5}};
-		int[][] FRH3 = new int[][] {{0,2},{0,3},{0,4},{1,2},{1,3},{1,4},{1,5}
-										,{2,3},{2,5},{3,4},{3,5},{4,5}};
-		int[][] FRH4 = new int[][] {{0,1},{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,4},{3,5}};
-		int[][] FRH5 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,5}};										
-		int[][] FRH6 = new int[][] {{0,1},{0,2},{0,3},{1,2},{1,4},{1,5}
-										,{2,3},{2,4},{2,5},{3,4},{3,5}};
-										
-		int[][] FRH7 = new int[][] {{0,1},{0,3},{0,4},{0,5},{1,2},{1,3},{1,5}
-										,{2,3},{2,4},{2,5},{3,5}};
-		int[][] FRH8 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,4},{3,5}};
-		int[][] FRH9 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-										,{2,4},{3,5}};		
-		int[][] FRH10 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,3},{2,5},{3,4},{3,5}};	
-		int[][] FRH11 = new int[][] {{0,1},{0,3},{0,4},{0,5},{1,2},{1,3},{1,5}
-										,{2,3},{2,4},{2,5}};	
-		int[][] FRH12 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,5}};		
-		int[][] FRH13 = new int[][] {{0,2},{0,3},{1,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,4},{3,5}};		
-		int[][] FRH14 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,5},{3,4},{3,5}};	
-		int[][] FRH15 = new int[][] {{0,2},{0,3},{0,4},{1,4},{1,5}
-										,{2,4},{2,5},{3,5}};	
-		int[][] FRH16 = new int[][] {{0,2},{0,3},{1,4},{1,5}
-										,{2,4},{2,5},{3,4},{3,5}};	
-//error		int[][] FRH17 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//error										,{2,5},{3,5}};		
-		int[][] FRH17 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,5},{3,4}};		
-		int[][] FRH18 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-										,{2,5}};
-		int[][] FRH19 = new int[][] {{0,2},{0,3},{1,4},{1,5}
-										,{2,4},{3,5}};		
-										
-		// rest which are negligible in hard spheres
-		int[][] FRH20 = new  int[][]{{0,1},{0,2},{0,3},{1,4},{1,5},{2,4},{2,5}
-										,{3,4},{3,5}};
-		
-		int[][] FRH21  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-										,{2,4}};
-										
-//error		int[][] FRH22  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,3},{1,4},{1,5}};						
-		int[][] FRH22  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}};						
-		
-										
-																																																														
-		Cluster f0 = new Cluster(6, new Cluster.BondGroup(f, Standard.full(6)));
-		
-		Cluster f1 = new ReeHoover(6, new Cluster.BondGroup(f, FRH1));
-		Cluster f2 = new ReeHoover(6, new Cluster.BondGroup(f, FRH2));
-		Cluster f3 = new ReeHoover(6, new Cluster.BondGroup(f, FRH3));
-		Cluster f4 = new ReeHoover(6, new Cluster.BondGroup(f, FRH4));
-		Cluster f5 = new ReeHoover(6, new Cluster.BondGroup(f, FRH5));
-		Cluster f6 = new ReeHoover(6, new Cluster.BondGroup(f, FRH6));
-		Cluster f7 = new ReeHoover(6, new Cluster.BondGroup(f, FRH7));
-		Cluster f8 = new ReeHoover(6, new Cluster.BondGroup(f, FRH8));
-		Cluster f9 = new ReeHoover(6, new Cluster.BondGroup(f, FRH9));	
-		Cluster f10 = new ReeHoover(6, new Cluster.BondGroup(f, FRH10));	
-		Cluster f11 = new ReeHoover(6, new Cluster.BondGroup(f, FRH11));		
-		Cluster f12 = new ReeHoover(6, new Cluster.BondGroup(f, FRH12));	
-		Cluster f13 = new ReeHoover(6, new Cluster.BondGroup(f, FRH13));	
-		Cluster f14 = new ReeHoover(6, new Cluster.BondGroup(f, FRH14));
-		Cluster f15 = new ReeHoover(6, new Cluster.BondGroup(f, FRH15));	
-		Cluster f16 = new ReeHoover(6, new Cluster.BondGroup(f, FRH16));		
-		Cluster f17 = new ReeHoover(6, new Cluster.BondGroup(f, FRH17));	
-		Cluster f18 = new ReeHoover(6, new Cluster.BondGroup(f, FRH18));		
-		Cluster f19 = new ReeHoover(6, new Cluster.BondGroup(f, FRH19));	
-		Cluster f20 = new ReeHoover(6, new Cluster.BondGroup(f, FRH20));	
-		Cluster f21 = new ReeHoover(6, new Cluster.BondGroup(f, FRH21));	
-		Cluster f22 = new ReeHoover(6, new Cluster.BondGroup(f, FRH22));	
-				
-		Cluster[] clusters = new Cluster[] {f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22};
-		for(int i=0; i<clusters.length; i++) clusters[i].setUsePermutations(true);
-		return clusters;
-	}
+//	public static Cluster[] B6Clusters(MayerFunction f) {
+//
+//		int[][] FRH1 = new int[][] {{0,1},{0,2},{0,4},{0,5},{1,2},{1,3},{1,5}
+//										,{2,3},{2,4},{2,5},{3,4},{3,5},{4,5}};
+//		int[][] FRH2 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,4},{3,5}};
+//		int[][] FRH3 = new int[][] {{0,2},{0,3},{0,4},{1,2},{1,3},{1,4},{1,5}
+//										,{2,3},{2,5},{3,4},{3,5},{4,5}};
+//		int[][] FRH4 = new int[][] {{0,1},{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,4},{3,5}};
+//		int[][] FRH5 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,5}};										
+//		int[][] FRH6 = new int[][] {{0,1},{0,2},{0,3},{1,2},{1,4},{1,5}
+//										,{2,3},{2,4},{2,5},{3,4},{3,5}};
+//										
+//		int[][] FRH7 = new int[][] {{0,1},{0,3},{0,4},{0,5},{1,2},{1,3},{1,5}
+//										,{2,3},{2,4},{2,5},{3,5}};
+//		int[][] FRH8 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,4},{3,5}};
+//		int[][] FRH9 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
+//										,{2,4},{3,5}};		
+//		int[][] FRH10 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,3},{2,5},{3,4},{3,5}};	
+//		int[][] FRH11 = new int[][] {{0,1},{0,3},{0,4},{0,5},{1,2},{1,3},{1,5}
+//										,{2,3},{2,4},{2,5}};	
+//		int[][] FRH12 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,5}};		
+//		int[][] FRH13 = new int[][] {{0,2},{0,3},{1,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,4},{3,5}};		
+//		int[][] FRH14 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,5},{3,4},{3,5}};	
+//		int[][] FRH15 = new int[][] {{0,2},{0,3},{0,4},{1,4},{1,5}
+//										,{2,4},{2,5},{3,5}};	
+//		int[][] FRH16 = new int[][] {{0,2},{0,3},{1,4},{1,5}
+//										,{2,4},{2,5},{3,4},{3,5}};	
+////error		int[][] FRH17 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+////error										,{2,5},{3,5}};		
+//		int[][] FRH17 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,5},{3,4}};		
+//		int[][] FRH18 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
+//										,{2,5}};
+//		int[][] FRH19 = new int[][] {{0,2},{0,3},{1,4},{1,5}
+//										,{2,4},{3,5}};		
+//										
+//		// rest which are negligible in hard spheres
+//		int[][] FRH20 = new  int[][]{{0,1},{0,2},{0,3},{1,4},{1,5},{2,4},{2,5}
+//										,{3,4},{3,5}};
+//		
+//		int[][] FRH21  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
+//										,{2,4}};
+//										
+////error		int[][] FRH22  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,3},{1,4},{1,5}};						
+//		int[][] FRH22  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}};						
+//		
+//										
+//																																																														
+//		Cluster f0 = new Cluster(6, new Cluster.BondGroup(f, Standard.full(6)));
+//		
+//		Cluster f1 = new ReeHoover(6, new Cluster.BondGroup(f, FRH1));
+//		Cluster f2 = new ReeHoover(6, new Cluster.BondGroup(f, FRH2));
+//		Cluster f3 = new ReeHoover(6, new Cluster.BondGroup(f, FRH3));
+//		Cluster f4 = new ReeHoover(6, new Cluster.BondGroup(f, FRH4));
+//		Cluster f5 = new ReeHoover(6, new Cluster.BondGroup(f, FRH5));
+//		Cluster f6 = new ReeHoover(6, new Cluster.BondGroup(f, FRH6));
+//		Cluster f7 = new ReeHoover(6, new Cluster.BondGroup(f, FRH7));
+//		Cluster f8 = new ReeHoover(6, new Cluster.BondGroup(f, FRH8));
+//		Cluster f9 = new ReeHoover(6, new Cluster.BondGroup(f, FRH9));	
+//		Cluster f10 = new ReeHoover(6, new Cluster.BondGroup(f, FRH10));	
+//		Cluster f11 = new ReeHoover(6, new Cluster.BondGroup(f, FRH11));		
+//		Cluster f12 = new ReeHoover(6, new Cluster.BondGroup(f, FRH12));	
+//		Cluster f13 = new ReeHoover(6, new Cluster.BondGroup(f, FRH13));	
+//		Cluster f14 = new ReeHoover(6, new Cluster.BondGroup(f, FRH14));
+//		Cluster f15 = new ReeHoover(6, new Cluster.BondGroup(f, FRH15));	
+//		Cluster f16 = new ReeHoover(6, new Cluster.BondGroup(f, FRH16));		
+//		Cluster f17 = new ReeHoover(6, new Cluster.BondGroup(f, FRH17));	
+//		Cluster f18 = new ReeHoover(6, new Cluster.BondGroup(f, FRH18));		
+//		Cluster f19 = new ReeHoover(6, new Cluster.BondGroup(f, FRH19));	
+//		Cluster f20 = new ReeHoover(6, new Cluster.BondGroup(f, FRH20));	
+//		Cluster f21 = new ReeHoover(6, new Cluster.BondGroup(f, FRH21));	
+//		Cluster f22 = new ReeHoover(6, new Cluster.BondGroup(f, FRH22));	
+//				
+//		Cluster[] clusters = new Cluster[] {f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22};
+//		for(int i=0; i<clusters.length; i++) clusters[i].setUsePermutations(true);
+//		return clusters;
+//	}
     
     public static double[] B6ClusterWeights() {
         double[] weights = new double[]{-24, -240, -1440, -360, 900, 240, 360, 360, -180, 288, -540, -240, -360, -1080, 720, 90, 360, -180, -60, -40, -180, -15};
