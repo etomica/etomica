@@ -36,6 +36,7 @@ public abstract class Activity implements Action {
 		running = true;
 		haltRequested = false;
 		run();
+		running = false;
 		if (haltRequested) {
 			notifyHalt();
 			throw new etomica.exception.AbnormalCompletionException();
@@ -73,9 +74,9 @@ public abstract class Activity implements Action {
 	}
 
 	/**
-	 * Requests that the integrator pause its execution. The actual suspension
-	 * of execution occurs only after completion of the current integration
-	 * step. The calling thread is put in a wait state until the pause takes
+	 * Requests that the Activity pause its execution. The actual suspension
+	 * of execution occurs only after activity notices the pause request.
+	 * The calling thread is put in a wait state until the pause takes
 	 * effect.
 	 */
 	public synchronized void pause() {
@@ -118,13 +119,11 @@ public abstract class Activity implements Action {
 
 	/**
 	 * Request that the integrator terminate its thread on the next integration
-	 * step. Does not cause calling thread to wait until this is completed, so
-	 * it would be prudent to have the calling thread join() to suspend it until
-	 * the halt is in effect.
+	 * step. Causes calling thread to wait until this is completed.
 	 */
 	public synchronized void halt() {
-		if (running)
-			haltRequested = true;
+		if (!running) return;
+		haltRequested = true;
 		if (pauseRequested)
 			unPause();
 		try {
@@ -141,16 +140,9 @@ public abstract class Activity implements Action {
 		this.label = label;
 	}
 
-	transient public Thread runner;
-
 	private boolean running = false;
-
 	private boolean haltRequested = false;
-
-	private boolean resetRequested = false;
-
 	protected boolean pauseRequested = false;
-
 	private String label;
 
 }
