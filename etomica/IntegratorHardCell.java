@@ -42,10 +42,24 @@ public void doStep(double tStep) {
 
     double tStepNew = tStep - nextCollider.getCollisionTime();
     advanceToCollision();
+//    Atom a = checkInCells();
+//    if(a!=null) {
+//        System.out.println("outside");
+//    }
     doStep(tStepNew);
     return;
 }
 
+//debugging tool
+private Atom checkInCells() {
+    for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
+        a.phase().boundary().centralImage(a.coordinate.position());
+        if(!((LatticeSquare.Cell)((Space2DCell.AtomCoordinate)a.coordinate).cell).inCell(a)) {
+            return a;
+        }
+    }
+    return null;
+}
 //--------------------------------------------------------------
          
 protected void findNextCollider() {
@@ -60,6 +74,10 @@ protected void findNextCollider() {
             nextCollider = ia;
         }
     }
+//    if(minCollisionTime <= 0.0) {
+//        AtomPair pair = firstPhase.makeAtomPair(nextCollider.atom,nextCollider.collisionPartner);
+//        System.out.println("collision time "+minCollisionTime);
+//    }
 //    if(nextCollider.getCollisionPartner()!=null) {nextCollider.atom.setColor(Color.green);}
 //    else if(bb) {nextCollider.atom.setColor(Color.blue); bb=!bb;}
 //    else {nextCollider.atom.setColor(Color.red); bb=!bb;}
@@ -73,13 +91,17 @@ protected void advanceToCollision() {
     advanceAcrossTimeStep(nextCollider.getCollisionTime());
     Atom partner = nextCollider.getCollisionPartner();
     if(partner == nextCollider.atom) {
+//        System.out.println("space collision");
         Atom a = nextCollider.atom;
 //        a.parentMolecule.parentPhase.boundary().centralImage(a.coordinate.position());  //put atom at central image
 //        a.coordinate.assignCell();
+        atomPair.reset(a,a);
+        nextCollider.getCollisionPotential().bump(atomPair);
         upList(nextCollider.atom);
         downList(nextCollider.atom);
     }
     else {
+//        System.out.println("atom collision");
 //        Atom partnerNextAtom = partner.nextMoleculeFirstAtom();  //put this back in for multiatomic speciesSwitch; also need to do more work with loop below
 //        Atom partnerNextAtom = partner.coordinate.nextNeighbor().atom();
         Atom partnerNextAtom = null;  //remove this -- temporary
@@ -171,8 +193,8 @@ protected void upList(Atom atom) {  //specific to 2D
 //    }
     aia.setCollision(minCollisionTime, null, null);
             
-    Atom nextMoleculeAtom = atom.nextMoleculeFirstAtom();  //first atom on next molecule
-    int atomSpeciesIndex = atom.getSpeciesIndex();
+//    Atom nextMoleculeAtom = atom.nextMoleculeFirstAtom();  //first atom on next molecule
+//    int atomSpeciesIndex = atom.getSpeciesIndex();
             
     //Loop through remaining uplist atoms in this atom's molecule
 /*    if(atom != atom.parentMolecule.lastAtom) {
@@ -197,6 +219,7 @@ protected void upList(Atom atom) {  //specific to 2D
         upPairIterator.reset(atom,null,null);
         while(upPairIterator.hasNext()) {
             AtomPair pair = upPairIterator.next();
+            if(((Agent)pair.atom2().ia).getCollisionPartner() == atom.coordinate) upList(pair.atom2());  //upList atom could have atom as collision partner if atom was just moved down list
             PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
 //            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
             double time = potential.collisionTime(pair);
@@ -286,24 +309,6 @@ public void initialize() {
         upList(a);
     }
     findNextCollider();
-   
-   //debugging code
-   
-        upAtomIterator.reset(firstPhase.firstAtom());
-        int i=0;
-        while(upAtomIterator.hasNext()) {
-            Atom a = upAtomIterator.next().atom();
-            i++;
-            if(a.ia == null) System.out.println(i+" null agent");
-        } 
-        System.out.println("Cell list atoms: "+ i);
-        i=0;
-        for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-            upList(a);
-            i++;
-            if(a.ia == null) System.out.println(i+" null agent");
-        } 
-        System.out.println("Atom list atoms: " + i);
 }
           
 //--------------------------------------------------------------

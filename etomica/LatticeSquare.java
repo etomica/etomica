@@ -1,4 +1,5 @@
 package simulate;
+import java.awt.Color;
 
 public class LatticeSquare extends Lattice {
     
@@ -80,6 +81,7 @@ public class LatticeSquare extends Lattice {
         public Space.AtomCoordinate firstAtom;
         private Linker firstUpNeighbor;
         private Linker firstDownNeighbor;
+        public final Color color = Constants.RandomColor();
         private Site nextSite, previousSite;
         private int[] coordinate;
         Site n, e, s, w;
@@ -88,10 +90,10 @@ public class LatticeSquare extends Lattice {
         public Site S() {return s;}
         public Site E() {return e;}
         public Site W() {return w;}
-        private void setN(Site k) {n = k; k.s = this;}
-        private void setE(Site k) {e = k; k.w = this;}
-        private void setW(Site k) {w = k; k.e = this;}
-        private void setS(Site k) {s = k; k.n = this;}
+        protected void setN(Site k) {n = k; k.s = this;}
+        protected void setE(Site k) {e = k; k.w = this;}
+        protected void setW(Site k) {w = k; k.e = this;}
+        protected void setS(Site k) {s = k; k.n = this;}
         public final Space.AtomCoordinate firstAtom() {return firstAtom;}
         public final void setFirstAtom(Space.AtomCoordinate a) {firstAtom = a;}
         public final Linker firstUpNeighbor() {return firstUpNeighbor;}
@@ -112,7 +114,7 @@ public class LatticeSquare extends Lattice {
     }
     
     public static class Point extends Site implements Lattice.Point {
-        private final double[] position = new double[2];
+        protected final double[] position = new double[2];
         public void setCoordinate(int[] i, double[][] basis) {
             super.setCoordinate(i,basis);
             position[0] = coordinate()[0]*basis[0][0] + coordinate()[1]*basis[1][0];
@@ -136,13 +138,26 @@ public class LatticeSquare extends Lattice {
         public Cell() {}
         public void setCoordinate(int[] i, double[][] basis) {
             super.setCoordinate(i,basis);
+            position[0] += 0.5*basis[0][0];     //shift position to center of cell
+            position[1] += 0.5*basis[1][1];
             volume = basis[0][0]*basis[1][1];   //square cell
             for(int k=0; k<nVertices; k++) {
                 vertices[k][0] *= basis[0][0];
                 vertices[k][1] *= basis[1][1];
-                vertices[k][0] += position()[0];
-                vertices[k][1] += position()[1];
+                vertices[k][0] += position[0];
+                vertices[k][1] += position[1];
             }
+        }
+        
+//        protected void setN(Site k) {super.setN(k); vertices[1]=((Cell)k).vertices[0]; vertices[2]=((Cell)k).vertices[3];}
+//        protected void setE(Site k) {super.setE(k); vertices[0]=((Cell)k).vertices[3]; vertices[1]=((Cell)k).vertices[2];}
+//        protected void setW(Site k) {super.setW(k); vertices[3]=((Cell)k).vertices[0]; vertices[2]=((Cell)k).vertices[1];}
+//        protected void setS(Site k) {super.setS(k); vertices[3]=((Cell)k).vertices[2]; vertices[0]=((Cell)k).vertices[1];}
+ 
+        public boolean inCell(Atom a) {
+            double x = a.coordinate.position().component(0);
+            double y = a.coordinate.position().component(1);
+            return 0.99999*vertices[2][0] <= x && x <= 1.000001*vertices[0][0] && 0.99999*vertices[2][1] <= y && y <= 1.00001*vertices[0][1];
         }
         
         //Returns square distances between nearest vertices of the two cells

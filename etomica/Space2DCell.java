@@ -95,8 +95,8 @@ public class Space2DCell extends Space {
         }
         public void centralImage(Space.Vector r) {centralImage((Vector)r);}
         public void centralImage(Vector r) {
-            r.x -= (r.x > 0.0) ? Math.floor(r.x) : Math.ceil(r.x-1.0);
-            r.y -= (r.y > 0.0) ? Math.floor(r.y) : Math.ceil(r.y-1.0);
+            r.x -= (r.x >= 0.0) ? Math.floor(r.x) : Math.ceil(r.x-1.0);
+            r.y -= (r.y >= 0.0) ? Math.floor(r.y) : Math.ceil(r.y-1.0);
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
@@ -376,9 +376,14 @@ public class Space2DCell extends Space {
         public void assignCell() {             //assumes coordinates ranges [0,1)
             int ix = (int)Math.floor(r.x * xCells);
             int iy = (int)Math.floor(r.y * yCells);
-            System.out.println(ix+"  "+iy);
+//            System.out.println(ix+"  "+iy);
             LatticeSquare.Site newCell = (LatticeSquare.Site)cells.sites()[ix][iy];
             if(newCell != cell) {assignCell(newCell);}
+            //debugging code
+//            LatticeSquare.Cell cellCell = (LatticeSquare.Cell)newCell;
+//            System.out.println(cellCell.vertices()[2][0] + "  " + r.x + "  " + cellCell.vertices()[0][0]);
+//            System.out.println(cellCell.vertices()[2][1] + "  " + r.y + "  " + cellCell.vertices()[0][1]);
+//            System.out.println();
         }
    //Assigns atom to given cell
         public void assignCell(LatticeSquare.Site newCell) {
@@ -387,6 +392,8 @@ public class Space2DCell extends Space {
             cell = newCell;
             setNextNeighbor(cell.firstAtom());
             cell.setFirstAtom(this);
+            clearPreviousNeighbor();
+            atom.setColor(cell.color);
         }
             
         public final Atom atom() {return atom;}
@@ -438,7 +445,9 @@ public class Space2DCell extends Space {
             }
         }
         public simulate.AtomPair next() {
-            pair.c2 = neighborAtom;
+            Atom a = neighborAtom.atom();
+            pair.c2 = (AtomCoordinate)a.coordinate;
+//            pair.c2 = neighborAtom;
             pair.reset();
             neighborAtom = neighborAtom.nextNeighbor;
             if(neighborAtom == null) {advanceCell();}
@@ -675,12 +684,12 @@ public class Space2DCell extends Space {
             double dx = atomC.r.x - cell.position()[0];
             double dy = atomC.r.y - cell.position()[1];
             if(Math.abs(dx) > Math.abs(dy)) { //collision with left or right wall
-                if(dx > 0) {atomC.assignCell(cell.E());}
-                else {atomC.assignCell(cell.W());}
+                if(dx > 0) {atomC.r.x = ((LatticeSquare.Cell)cell.E()).vertices()[2][0]; atomC.assignCell(cell.E());}
+                else {atomC.r.x = ((LatticeSquare.Cell)cell.W()).vertices()[0][0]; atomC.assignCell(cell.W());}
             }
             else {
-                if(dy > 0) {atomC.assignCell(cell.S());}
-                else {atomC.assignCell(cell.N());}
+                if(dy > 0) {atomC.r.y = ((LatticeSquare.Cell)cell.S()).vertices()[2][1]; atomC.assignCell(cell.S());}
+                else {atomC.r.y = ((LatticeSquare.Cell)cell.N()).vertices()[0][1]; atomC.assignCell(cell.N());}
             }
         }
         
