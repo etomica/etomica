@@ -16,10 +16,9 @@ import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Initiates the process of update the neighbor lists.  Acts as a
+ * listener of the integrator, and performs the update at regular intervals
+ * upon receiving interval events.
  */
 public class NeighborManager implements IntervalListener {
 

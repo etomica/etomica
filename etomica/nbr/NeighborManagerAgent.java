@@ -7,10 +7,9 @@ package etomica.nbr;
 import etomica.Potential;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Instances of this class are created by AtomType classes to
+ * store the list of potentials and criteria that apply to 
+ * the atoms of that type.
  */
 public class NeighborManagerAgent {
 

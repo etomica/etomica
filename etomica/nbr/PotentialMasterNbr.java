@@ -97,20 +97,28 @@ public class PotentialMasterNbr extends PotentialMaster {
 			//TODO remove from list of concrete potentials
 		}
 	}
+	
 
 	//TODO update nbr radius for all criteria as more are added
     public void setSpecies(Potential potential, Species[] species) {
-    	if (species.length == 0 || potential.nBody() != species.length) {
+    	if(potential.nBody() == 2) {
+		    NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),2.0*potential.getRange());
+	    	setSpecies(potential, species, criterion);
+    	} else {
+    	   	AtomsetIterator iterator = new AtomsetIteratorMolecule(species);
+    	    addPotential(potential, iterator);
+    	}
+    }
+    
+    public void setSpecies(Potential potential, Species[] species, NeighborCriterion criterion) {
+    	if (species.length <= 1 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
     	AtomsetIterator iterator = new AtomsetIteratorMolecule(species);
-    	if(species.length == 2) {
- 	    	NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),2.0*potential.getRange());
-	    	iterator = new AtomsetIteratorFiltered(iterator, criterion);
-    		neighborManager.addCriterion(criterion);
-	    	for(int i=0; i<species.length; i++) {
-	    		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
-	    	}
+    	iterator = new AtomsetIteratorFiltered(iterator, criterion);
+		neighborManager.addCriterion(criterion);
+    	for(int i=0; i<species.length; i++) {
+    		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
     	}
     	addPotential(potential, iterator);
     }
