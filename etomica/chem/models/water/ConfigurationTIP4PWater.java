@@ -1,24 +1,26 @@
 
 package etomica.chem.models.water;
 import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Configuration;
 import etomica.Space;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
 
 public class ConfigurationTIP4PWater extends Configuration {
 
     private double bondLengthOH = 0.9572;
     private double angleHOH = 104.52*Math.PI/180.;
     private double bondLengthOcharge = 0.15;
+    private AtomIteratorListSimple iterator;
     
     public ConfigurationTIP4PWater(Space space) {
         super(space);
+        iterator = new AtomIteratorListSimple();
     }
     
-    public void initializePositions(AtomIterator[] iterators){
-        if(iterators == null || iterators.length == 0) return;
+    public void initializePositions(AtomList list){
         
-        AtomIterator iterator = iterators[0];
+        iterator.setList(list);
         double x = 0.0;
         double y = 0.0;
         

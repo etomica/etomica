@@ -1,8 +1,9 @@
 package etomica.chem.models.water;
 import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Configuration;
 import etomica.Space;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
 
 public class ConfigurationTIP5PWater extends Configuration {
 
@@ -10,15 +11,16 @@ public class ConfigurationTIP5PWater extends Configuration {
 	private double angleHOH = 104.52*Math.PI/180.;
 	private double angleChargeOCharge = 109.47*Math.PI/180;
 	private double bondLengthOcharge = 0.70;
+    private final AtomIteratorListSimple iterator; 
     
 	public ConfigurationTIP5PWater(Space space) {
 		super(space);
+        iterator = new AtomIteratorListSimple();
 	}
     
-	public void initializePositions(AtomIterator[] iterators){
-		if(iterators == null || iterators.length == 0) return;
-        
-		AtomIterator iterator = iterators[0];
+	public void initializePositions(AtomList list){
+
+		iterator.setList(list);
 		double x = 0.0;
 		double y = 0.0;
         double z = 0.0;

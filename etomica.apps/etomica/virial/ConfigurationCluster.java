@@ -1,8 +1,9 @@
 package etomica.virial;
 
-import etomica.AtomIterator;
-import etomica.Configuration;
+import etomica.ConfigurationMolecule;
 import etomica.Space;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.space.Vector;
 
 /**
@@ -11,37 +12,39 @@ import etomica.space.Vector;
  * Generates a configuration such that the value of the phase's
  * sampling cluster is positive at beta = 1.
  */
-public class ConfigurationCluster extends Configuration {
+public class ConfigurationCluster extends ConfigurationMolecule {
 
 	/**
 	 * Constructor for ConfigurationCluster.
 	 */
 	public ConfigurationCluster(Space space) {
 		super(space);
+        iterator = new AtomIteratorListCompound();
 	}
 
 	/**
 	 * @see etomica.Configuration#initializePositions(etomica.AtomIterator)
 	 */
-	public void initializePositions(AtomIterator[] iterator) {
+    //XXX this can't actually handle multi-atom molecules
+	public void initializePositions(AtomList[] lists) {
 		Vector translationVector = phase.space().makeVector();
         Vector dimVector = Space.makeVector(dimensions);
 		Vector center = phase.space().makeVector();
-		AtomIterator iter = iterator[0];
-		iter.reset();
-		while(iter.hasNext()) iter.nextAtom().coord.position().E(center);//put all at center of box
+		iterator.setLists(lists);
+		iterator.reset();
+		while(iterator.hasNext()) iterator.nextAtom().coord.position().E(center);//put all at center of box
 		double value = phase.getSampleCluster().value(phase.getCPairSet(), 1.0);
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
         }
 		while( value == 0 ) { //if center is not ok, keep trying random positions until ok
 		    // if we make it in here we probably won't make it out!
-            iter.reset();
-			iter.nextAtom();
-			while(iter.hasNext()) {
+            iterator.reset();
+			iterator.nextAtom();
+			while(iterator.hasNext()) {
                 translationVector.setRandomCube();
                 translationVector.TE(dimVector);
-                iter.nextAtom().coord.position().PE(translationVector);
+                iterator.nextAtom().coord.position().PE(translationVector);
 			}
 			value = phase.getSampleCluster().value(phase.getCPairSet(),1.0);
 		}
@@ -64,4 +67,5 @@ public class ConfigurationCluster extends Configuration {
 	}
 
     private PhaseCluster phase;
+    private final AtomIteratorListCompound iterator;
 }
