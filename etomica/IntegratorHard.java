@@ -56,7 +56,7 @@ public class IntegratorHard extends Integrator {
     }
     else {
 //        Atom partnerNextAtom = partner.nextMoleculeFirstAtom();  //put this back in for multiatomic speciesSwitch; also need to do more work with loop below
-        AtomHard partnerNextAtom = (AtomHard)partner.getNextAtom();
+        AtomHard partnerNextAtom = partner.getNextAtomHard();
         nextCollider.getCollisionPotential().bump(nextCollider,partner);
         
         boolean upListedN = false;
