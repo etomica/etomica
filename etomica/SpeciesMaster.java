@@ -8,9 +8,6 @@ import etomica.AtomLinker.Tab;
  * @author David Kofke
  */
  
- /* History
-  * 12/06/02 (DAK) added childWhereDescendedFrom method to MasterNode subclass.
-  */
 public final class SpeciesMaster extends Atom {
     
     private int moleculeCount;
@@ -21,6 +18,7 @@ public final class SpeciesMaster extends Atom {
     public int index;
     public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     public final static int SPECIES_TAB = Tab.requestTabType();
+    //reference to phase is kept in node
     
     /**
      * List of leaf atoms in phase, suitable for iteration via an AtomIteratorList.

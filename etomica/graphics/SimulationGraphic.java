@@ -1,4 +1,3 @@
-//This class includes a main method to demonstrate its use
 package etomica.graphics;
 import java.util.Iterator;
 import java.util.LinkedList;

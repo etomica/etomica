@@ -5,16 +5,8 @@ import java.util.Observer;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.PhaseInflate;
-import etomica.lattice.BravaisLattice;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.utility.NameMaker;
-
-//Java2 imports
-//import java.util.LinkedList;
-//import java.util.Iterator;
-
-//import etomica.utility.java2.LinkedList;
-//import etomica.utility.java2.Iterator;
 
 /* History of changes
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
@@ -27,33 +19,34 @@ import etomica.utility.NameMaker;
  */
 
 /**
- * This description is out of date.
- *
- * A Phase collects all atoms that interact with one another; atoms in different phases do
- * not interact.  These are the important features of a Phase:<p> 
- * 
- * 1. It maintains an IteratorFactory that can be used to obtain iterators that loop over all
- * or some atoms and atom pairs in the phase.<p>
- * 
- * 2. It provides methods for addition and removal of molecules in the phase.<p>
- * 
- * 3. It holds a Boundary object, obtained from the governing Space, that defines the behavior
- * of atoms as they move into or across the boundary of the phase.<p>
- * 
- * 4. It holds a set of Meter objects that can be used to measure properties of that atoms
- * held by the phase.  An EnergyMeter is constructed by default to permit evaluation of
- * potential and kinetic energies of the atoms in the phase.<p>
- * 
- * 5. It has a Configuration object that determines the default initial configuration of the
- * atoms in the phase.<p>
- *
- * 6. It holds a potential agent that manages all potentials governing the interactions
- * among the atoms in the phase.<p>
- *
+ * A Phase collects all atoms that interact with one another; atoms in different
+ * phases do not interact. These are the important features of a Phase:
+ * <p>
+ * <ol>
+ * <li>It holds a SpeciesMaster instance, which provides the root of a
+ * hierarchy of atoms that represent the physical object that interact.
+ * <li>It holds a Boundary object, obtained from the governing Space, that
+ * defines the volume of the phase and the behavio of atoms as they move into or
+ * across the boundary of the phase.
+ * <li>It has a Configuration object that determines the default initial
+ * configuration of the atoms in the phase.
+ * <li>It maintains a list of listeners that are informed when significant
+ * events happen in the phase (such as a change in its boundary).
+ * <li>Each Phase has a unique species index assigned when it is constructed.
+ * The index assignment begins at 0 and is incremented after each Phase
+ * construction. This index is useful when collecting things in reference to the
+ * phase.
+ * </ol>
+ * A phase acted upon by an Integrator instance to move its atoms around and
+ * generate configurations. Properties of a phase are measured by MeterAbstract
+ * instances which are simply DataSource objects that require a phase to
+ * generate their data. <br>
+ * A simulation may involve more than one phase. All Phase instances are
+ * normally registered with the default simulation upon their construction, and
+ * may be accessed via the simulation's getPhaseList method.
  * 
  * @author David Kofke
  * @see Space.Boundary
- * @see MeterAbstract
  */
  
  /* History of changes
