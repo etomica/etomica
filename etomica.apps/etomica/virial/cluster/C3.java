@@ -16,6 +16,6 @@ public final class C3 extends Cluster {
 	 * @param pairs
 	 */
 	public C3(MayerFunction f) {
-		super(3, -1./3.,new BondGroup(f, Standard.C3));
+		super(3, new BondGroup(f, Standard.C3));
 	}
 }

@@ -19,10 +19,10 @@ public class Bz3 extends ClusterSum {
 	 * @param clusters
 	 */
 	public Bz3(MayerE e) {
-		super(1./6., new ClusterAbstract[] {
-						new Cluster(3, +1.0, new Cluster.BondGroup(e, Standard.C3)),
-						new Cluster(3, -3.0, new Cluster.BondGroup[] {new Cluster.BondGroup(e, Standard.B2)}, true),
-						new ClusterUnity(3, +2.0)} );
+		super(new ClusterAbstract[] {
+						new Cluster(3, new Cluster.BondGroup(e, Standard.C3)),
+						new Cluster(3, new Cluster.BondGroup[] {new Cluster.BondGroup(e, Standard.B2)}, true),
+						new ClusterUnity(3)}, new double[] {+1.0, -3.0, +2.0} );
 	}
 
 }

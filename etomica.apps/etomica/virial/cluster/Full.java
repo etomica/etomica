@@ -13,10 +13,9 @@ public class Full extends Cluster {
 	/**
 	 * Constructor for a fully joined cluster
 	 * @param n number of points in ring
-	 * @param weight weight associated with cluster
 	 * @param MayerFunction bond joining each pair in ring
 	 */
-	public Full(int n, double weight, MayerFunction f) {
-		super(n, weight, new Cluster.BondGroup(f, Standard.full(n)));
+	public Full(int n, MayerFunction f) {
+		super(n, new BondGroup(f, Standard.full(n)));
 	}
 }

@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.Atom;
 
 /**
  * @author andrew
@@ -32,10 +31,6 @@ public class ClusterWeightAbs implements ClusterWeight {
 	
 	public int pointCount() {
 		return weightCluster.pointCount();
-	}
-	
-	public double weight() {
-		return weightCluster.weight();
 	}
 	
 	public double value(CoordinatePairSet cPairSet, double beta) {

@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.Atom;
 
 public interface ClusterAbstract {
 
@@ -15,11 +14,5 @@ public interface ClusterAbstract {
 	 * temperature.
 	 */
 	public double value(CoordinatePairSet cPairs, double beta);
-	
-    /**
-     * Weight coefficient of the given cluster.
-     * TODO: move this into ClusterSum, which is the only thing that uses it
-     */
-	public double weight();
-	
+
 }

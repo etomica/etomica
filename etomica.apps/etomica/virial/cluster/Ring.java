@@ -16,7 +16,7 @@ public class Ring extends Cluster {
 	 * @param weight weight associated with cluster
 	 * @param MayerFunction bond joining each pair in ring
 	 */
-	public Ring(int n, double weight, MayerFunction f) {
-		super(n, weight, new Cluster.BondGroup(f, Standard.ring(n)));
+	public Ring(int n, MayerFunction f) {
+		super(n, new Cluster.BondGroup(f, Standard.ring(n)));
 	}
 }

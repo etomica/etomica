@@ -10,17 +10,9 @@ import etomica.virial.CoordinatePairSet;
  */
 public class ClusterUnity extends Cluster {
 
-	/**
-	 * Constructor for PrefixedUnit, using default weight of 1.0
-	 */
 	public ClusterUnity(int nPoints) {
-		this(nPoints, 1.0);
-	}
-	
-	public ClusterUnity(int nPoints, double weight) {
-		super(1,1.0,new BondGroup[0]);
+		super(1,new BondGroup[0]);
 		this.nPoints = nPoints;
-		this.weight = weight;
 	}
 
 	/**

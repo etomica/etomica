@@ -13,6 +13,6 @@ public final class D4 extends Cluster {
 		this(f, false);
 	}
 	public D4(MayerFunction f, boolean usePermutations) {
-		super(4, -3./8., new BondGroup[] {new BondGroup(f, Standard.D4)}, usePermutations);
+		super(4, new BondGroup[] {new BondGroup(f, Standard.D4)}, usePermutations);
 	}
 }

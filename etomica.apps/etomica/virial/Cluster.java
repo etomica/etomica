@@ -6,7 +6,7 @@ import etomica.math.discrete.PermutationIterator;
 /**
  * @author kofke
  *
- * Defines the interactions and weight associated with a cluster integral.
+ * Defines the interactions associated with a cluster integral.
  */
 
 /* History
@@ -24,25 +24,24 @@ public class Cluster implements ClusterAbstract {
 	 * Constructs cluster using a single bondgroup, which it wraps in an array
 	 * and passes to other constructor.
 	 */
-	public Cluster(int n, double weight, BondGroup bonds) {
-		this(n, weight, new BondGroup[] {bonds});
+	public Cluster(int n, BondGroup bonds) {
+		this(n, new BondGroup[] {bonds});
 	}
 	/**
 	 * Constructor for Cluster, with default to not using permutations (this can
 	 * be changed after construction if desired).
 	 */
-	public Cluster(int n, double weight, BondGroup[] bonds) {
-		this(n, weight, bonds, false);
+	public Cluster(int n, BondGroup[] bonds) {
+		this(n, bonds, false);
 	}
 	
 	/**
 	 * Constructor for Cluster.  Each BondGroup in the given array defines a set
 	 * of pairs and a single bond function defined between each.  
 	 */	
-	public Cluster(int n, double weight, BondGroup[] bonds, boolean usePermutations) {
+	public Cluster(int n, BondGroup[] bonds, boolean usePermutations) {
 		super();
 		this.n = n;
-		this.weight = weight;
 		bondCount = 0;
 		for(int i=0; i<bonds.length; i++) bondCount += bonds[i].pairs.length;
 		bondArray = new MayerFunction[n][n];
@@ -78,11 +77,11 @@ public class Cluster implements ClusterAbstract {
 	 * applied.
 	 */
 	public Cluster(MayerFunction f, Cluster cluster) {
-		this(cluster.pointCount(), cluster.weight(), new BondGroup(f, cluster.bondGroup[0].pairs));
+		this(cluster.pointCount(), new BondGroup(f, cluster.bondGroup[0].pairs));
 	}
 	
 	public String toString() {
-		String string = "Cluster \n Number of points: " + n + " \n Weight: " + weight +"\n";
+		String string = "Cluster \n Number of points: " + n + "\n";
 		if(!usePermutations) {
 			for(int i=0; i<n; i++) {
 				for(int j=0; j<n; j++) {
@@ -110,8 +109,6 @@ public class Cluster implements ClusterAbstract {
 		return string;
 	}
 	
-	
-	public double weight() {return weight;}
 	
 	public int pointCount() {return n;}
 	
@@ -239,7 +236,6 @@ public class Cluster implements ClusterAbstract {
 		return (bondArray[i][j]==null) ? 1.0 : bondArray[i][j].f(cPairs.getCPair(i,j),beta);
 	}
 
-	private final double weight; //weight assigned to cluster
 	private final int n; //number of points (molecules) in cluster
 	protected int bondCount;//number of bonds in cluster (not to be confused with number of types of bonds, nBondTypes)
  	protected final MayerFunction[][] bondArray;//array of bonds between pairs in prototype (unpermuted) cluster 
@@ -276,7 +272,7 @@ public class Cluster implements ClusterAbstract {
 	}
 	/**
 	 * Checks for equality of this cluster with another.  Returns true if they
-	 * have the same number of points, the same weight, and if all bonds between
+	 * have the same number of points, and if all bonds between
 	 * pairs are equal.  Not a test of topological equality (i.e., equality
 	 * without considering labels or indexes of points); each point is
 	 * considered labeled and clusters must have corresponding bonds between
@@ -287,7 +283,6 @@ public class Cluster implements ClusterAbstract {
 		if(!(obj instanceof Cluster)) return false;
 		Cluster test = (Cluster)obj;
 		if(this.n != test.n) return false;
-		if(this.weight != test.weight) return false;
 		for(int i=0; i<n-1; i++) {
 			for(int j=i+1; j<n; j++) {
 				MayerFunction thisBond = this.bondArray[i][j];
@@ -355,8 +350,8 @@ public class Cluster implements ClusterAbstract {
 	public static void main(String[] args) {
 		
 //		Cluster cluster = new etomica.virial.cluster.D6(new MayerHardSphere(1.0));
-//		Cluster cluster = new etomica.virial.cluster.Ring(5, 1.0, new MayerHardSphere(1.0));
-		Cluster cluster = new etomica.virial.cluster.ReeHoover(4, 1.0, new BondGroup(new MayerHardSphere(1.0),etomica.virial.cluster.Standard.chain(4)));
+//		Cluster cluster = new etomica.virial.cluster.Ring(5, new MayerHardSphere(1.0));
+		Cluster cluster = new etomica.virial.cluster.ReeHoover(4, new BondGroup(new MayerHardSphere(1.0),etomica.virial.cluster.Standard.chain(4)));
 		cluster.setUsePermutations(true);
 		System.out.println(cluster.toString());
 	}

@@ -16,7 +16,7 @@ public class Chain extends Cluster {
 	 * @param weight weight associated with cluster
 	 * @param MayerFunction bond joining each pair in ring
 	 */
-	public Chain(int n, double weight, MayerFunction f) {
-		super(n, weight, new Cluster.BondGroup(f, Standard.chain(n)));
+	public Chain(int n, MayerFunction f) {
+		super(n, new Cluster.BondGroup(f, Standard.chain(n)));
 	}
 }

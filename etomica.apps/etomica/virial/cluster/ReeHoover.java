@@ -21,8 +21,8 @@ public class ReeHoover extends Cluster {
 	 * an f-bond.  The first bondgroup of this cluster will be the given one,
 	 * and the second bondgroup will be the f-tilde bonds.
 	 */
-	public ReeHoover(int n, double weight, BondGroup fGroup) {
-		super(n, weight, fullBondGroup(n, fGroup));
+	public ReeHoover(int n, BondGroup fGroup) {
+		super(n, fullBondGroup(n, fGroup));
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class ReeHoover extends Cluster {
 	}//end of FTilde
 	
 	public static void main(String args[]) {
-		Cluster c = new ReeHoover(4, 1.0, new BondGroup(new etomica.virial.MayerHardSphere(1.0), Standard.ring(4)));
+		Cluster c = new ReeHoover(4, new BondGroup(new etomica.virial.MayerHardSphere(1.0), Standard.ring(4)));
 		System.out.println(c.toString());
 	}
 

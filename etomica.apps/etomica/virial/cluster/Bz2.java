@@ -18,7 +18,7 @@ public class Bz2 extends Cluster {
 	 * @param bonds
 	 */
 	public Bz2(MayerFunction f) {
-		super(2, 0.5, new BondGroup(f, Standard.B2));
+		super(2, new BondGroup(f, Standard.B2));
 	}
 
 }

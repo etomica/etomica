@@ -1,5 +1,7 @@
 package etomica.virial.cluster;
 
+import java.util.LinkedList;
+
 import etomica.math.SpecialFunctions;
 import etomica.virial.Cluster;
 import etomica.virial.ClusterAbstract;
@@ -12,27 +14,33 @@ import etomica.virial.MayerE;
  * Cluster sum that forms the coefficient for an arbitrary coefficient in the
  * activity (z) expansion of the pressure.
  */
-public class ClusterBz extends ClusterSum {
+public class ClusterBz {
 
 	/**
 	 * Constructor for ClusterBz.
 	 * @param weight
 	 * @param clusters
 	 */
-	public ClusterBz(int n, MayerE e) {
-		super(1.0, makeClusters(n,e));
+	public static ClusterSum makeClusterBz(int n, MayerE e) {
+		ClusterAbstract[] clusters = makeClusters(n,e);
+        return new ClusterSum(clusters,weights);
 	}
 
 	private static ClusterAbstract[] makeClusters(int j, MayerE e) {
 		IntegerSet iSet = new IntegerSet(j);
 		int jFact = SpecialFunctions.factorial(j);
-		java.util.LinkedList list = new java.util.LinkedList();
+		LinkedList list = new LinkedList();
+        weights = new double[0];
 		do {
 			if(!acceptableSet(iSet.set)) continue;
 			System.out.println("Setting up "+iSet.toString());
-			double weight = (double)coefficient(iSet.set)/(double)jFact;
+			double currentWeight = (double)coefficient(iSet.set)/(double)jFact;
+            double[] weightsTmp = new double[weights.length+1];
+            System.arraycopy(weights,0,weightsTmp,0,weights.length);
+            weightsTmp[weights.length] = currentWeight;
+            weights = weightsTmp;
 			Cluster.BondGroup bonds = new Cluster.BondGroup(e, Standard.product(iSet.set));
-			Cluster next = new Cluster(j, weight, new Cluster.BondGroup[] {bonds}, true);
+			Cluster next = new Cluster(j, new Cluster.BondGroup[] {bonds}, true);
 			list.add(next);
 		} while(iSet.advance());
 		int nC = list.size();
@@ -40,6 +48,8 @@ public class ClusterBz extends ClusterSum {
 		clusters = (ClusterAbstract[])list.toArray(clusters);
 		return clusters;
 	}
+
+    private static double[] weights;
 	
 	private static boolean acceptableSet(int[] set) {
 		int sum = 0;
@@ -72,7 +82,6 @@ public class ClusterBz extends ClusterSum {
 		return prod;
 	}
 		
-
 	
 	//class holding a set of integers, with methods to advance 
 	//them through all possible values as needed by the cluster

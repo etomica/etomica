@@ -1,29 +1,17 @@
 package etomica.virial;
 
-import etomica.Atom;
-
-/**
- * @author kofke
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
- */
 public class ClusterSum implements ClusterAbstract {
 
 	/**
 	 * Constructor for ClusterSum.
 	 */
-	public ClusterSum(double weight, ClusterAbstract[] clusters) {
-		super();
-		this.weight = weight;
-		nCluster = clusters.length;
-		this.clusters = new ClusterAbstract[nCluster];
-		nPoint = clusters[0].pointCount();
-		for(int i=0; i<nCluster; i++) {
-			this.clusters[i] = clusters[i];
-			if(clusters[i].pointCount() != nPoint) throw new IllegalArgumentException("Attempt to construct ClusterSum with clusters having differing numbers of points");
+	public ClusterSum(ClusterAbstract[] subClusters, double[] subClusterWeights) {
+        if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
+		clusters = new ClusterAbstract[subClusters.length];
+        clusterWeights = subClusterWeights;
+		for(int i=0; i<clusters.length; i++) {
+			clusters[i] = subClusters[i];
+			if(clusters[i].pointCount() != clusters[0].pointCount()) throw new IllegalArgumentException("Attempt to construct ClusterSum with clusters having differing numbers of points");
 		}
 	}
 
@@ -31,7 +19,7 @@ public class ClusterSum implements ClusterAbstract {
 	 * @see etomica.virial.ClusterValuable#pointCount()
 	 */
 	public int pointCount() {
-		return nPoint;
+		return clusters[0].pointCount();
 	}
 
 	/**
@@ -39,22 +27,14 @@ public class ClusterSum implements ClusterAbstract {
 	 */
 	public double value(CoordinatePairSet cPairs, double beta) {
 		double sum = 0.0;
-		for(int i=0; i<nCluster; i++) {
-			sum += clusters[i].weight() * clusters[i].value(cPairs, beta);
+		for(int i=0; i<clusters.length; i++) {
+			sum += clusterWeights[i] * clusters[i].value(cPairs, beta);
 		}
 		return sum;
-	}
-
-	/**
-	 * @see etomica.virial.ClusterValuable#weight()
-	 */
-	public double weight() {
-		return weight;
 	}
 	
 	public ClusterAbstract[] cluster() {return clusters;}
 
 	private final ClusterAbstract[] clusters;
-	private final int nCluster, nPoint;
-	final double weight;
+    private final double[] clusterWeights;
 }

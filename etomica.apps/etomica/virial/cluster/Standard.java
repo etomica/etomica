@@ -107,6 +107,11 @@ public final class Standard {
 		double b0 = B2HS(sigma);
 		return 5./8. * b0 * b0;
 	}
+    
+    public static double D4HS(double sigma) {
+        double b0 = B2HS(sigma);
+        return (219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0)))*b0*b0*b0;
+    }
 	
 	public static Cluster[] B6Clusters(MayerFunction f) {
 
@@ -164,35 +169,43 @@ public final class Standard {
 		
 										
 																																																														
-		Cluster f0 = new Cluster(6, -24.0/144.0, new Cluster.BondGroup(f, Standard.full(6)));
+		Cluster f0 = new Cluster(6, new Cluster.BondGroup(f, Standard.full(6)));
 		
-		Cluster f1 = new ReeHoover(6, 540.0/144.0, new Cluster.BondGroup(f, FRH1));
-		Cluster f2 = new ReeHoover(6, -240/144.0, new Cluster.BondGroup(f, FRH2));
-		Cluster f3 = new ReeHoover(6, -1440.0/144.0, new Cluster.BondGroup(f, FRH3));
-		Cluster f4 = new ReeHoover(6, 360.0/144.0, new Cluster.BondGroup(f, FRH4));
-		Cluster f5 = new ReeHoover(6, 900.0/144.0, new Cluster.BondGroup(f, FRH5));
-		Cluster f6 = new ReeHoover(6, 240.0/144.0, new Cluster.BondGroup(f, FRH6));
-		Cluster f7 = new ReeHoover(6, 360.0/144.0, new Cluster.BondGroup(f, FRH7));
-		Cluster f8 = new ReeHoover(6, 360.0/144.0, new Cluster.BondGroup(f, FRH8));
-		Cluster f9 = new ReeHoover(6, -180.0/144.0, new Cluster.BondGroup(f, FRH9));	
-		Cluster f10 = new ReeHoover(6, 288.0/144.0, new Cluster.BondGroup(f, FRH10));	
-		Cluster f11 = new ReeHoover(6, -540.0/144.0, new Cluster.BondGroup(f, FRH11));		
-		Cluster f12 = new ReeHoover(6, -240.0/144.0, new Cluster.BondGroup(f, FRH12));	
-		Cluster f13 = new ReeHoover(6, -360.0/144.0, new Cluster.BondGroup(f, FRH13));	
-		Cluster f14 = new ReeHoover(6, -1080.0/144.0, new Cluster.BondGroup(f, FRH14));
-		Cluster f15 = new ReeHoover(6, 720.0/144.0, new Cluster.BondGroup(f, FRH15));	
-		Cluster f16 = new ReeHoover(6, 90.0/144.0, new Cluster.BondGroup(f, FRH16));		
-		Cluster f17 = new ReeHoover(6, 360.0/144.0, new Cluster.BondGroup(f, FRH17));	
-		Cluster f18 = new ReeHoover(6, -180.0/144.0, new Cluster.BondGroup(f, FRH18));		
-		Cluster f19 = new ReeHoover(6, -60.0/144.0, new Cluster.BondGroup(f, FRH19));	
-		Cluster f20 = new ReeHoover(6, -40.0/144.0, new Cluster.BondGroup(f, FRH20));	
-		Cluster f21 = new ReeHoover(6, 180.0/144.0, new Cluster.BondGroup(f, FRH21));	
-		Cluster f22 = new ReeHoover(6, -15.0/144.0, new Cluster.BondGroup(f, FRH22));	
+		Cluster f1 = new ReeHoover(6, new Cluster.BondGroup(f, FRH1));
+		Cluster f2 = new ReeHoover(6, new Cluster.BondGroup(f, FRH2));
+		Cluster f3 = new ReeHoover(6, new Cluster.BondGroup(f, FRH3));
+		Cluster f4 = new ReeHoover(6, new Cluster.BondGroup(f, FRH4));
+		Cluster f5 = new ReeHoover(6, new Cluster.BondGroup(f, FRH5));
+		Cluster f6 = new ReeHoover(6, new Cluster.BondGroup(f, FRH6));
+		Cluster f7 = new ReeHoover(6, new Cluster.BondGroup(f, FRH7));
+		Cluster f8 = new ReeHoover(6, new Cluster.BondGroup(f, FRH8));
+		Cluster f9 = new ReeHoover(6, new Cluster.BondGroup(f, FRH9));	
+		Cluster f10 = new ReeHoover(6, new Cluster.BondGroup(f, FRH10));	
+		Cluster f11 = new ReeHoover(6, new Cluster.BondGroup(f, FRH11));		
+		Cluster f12 = new ReeHoover(6, new Cluster.BondGroup(f, FRH12));	
+		Cluster f13 = new ReeHoover(6, new Cluster.BondGroup(f, FRH13));	
+		Cluster f14 = new ReeHoover(6, new Cluster.BondGroup(f, FRH14));
+		Cluster f15 = new ReeHoover(6, new Cluster.BondGroup(f, FRH15));	
+		Cluster f16 = new ReeHoover(6, new Cluster.BondGroup(f, FRH16));		
+		Cluster f17 = new ReeHoover(6, new Cluster.BondGroup(f, FRH17));	
+		Cluster f18 = new ReeHoover(6, new Cluster.BondGroup(f, FRH18));		
+		Cluster f19 = new ReeHoover(6, new Cluster.BondGroup(f, FRH19));	
+		Cluster f20 = new ReeHoover(6, new Cluster.BondGroup(f, FRH20));	
+		Cluster f21 = new ReeHoover(6, new Cluster.BondGroup(f, FRH21));	
+		Cluster f22 = new ReeHoover(6, new Cluster.BondGroup(f, FRH22));	
 				
 		Cluster[] clusters = new Cluster[] {f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22};
 		for(int i=0; i<clusters.length; i++) clusters[i].setUsePermutations(true);
 		return clusters;
 	}
+    
+    public static double[] B6ClusterWeights() {
+        double[] weights = new double[]{-24, -240, -1440, -360, 900, 240, 360, 360, -180, 288, -540, -240, -360, -1080, 720, 90, 360, -180, -60, -40, -180, -15};
+        for (int i=0; i<weights.length; i++) {
+            weights[i] /= 144.0;
+        }
+        return weights;
+    }
 	
 	public static void main(String[] args) {
 		int[] iSet = new int[] {5,0,0,0,0};

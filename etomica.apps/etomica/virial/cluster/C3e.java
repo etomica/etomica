@@ -16,7 +16,7 @@ import etomica.virial.MayerFunction;
 public class C3e extends Cluster {
 
 	public C3e(MayerFunction f) {
-		super(3, -1./3.,new BondGroup(f, Standard.C3));
+		super(3, new BondGroup(f, Standard.C3));
 	}
 
 

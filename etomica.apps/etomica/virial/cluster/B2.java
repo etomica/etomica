@@ -16,6 +16,6 @@ public final class B2 extends Cluster {
 	 * @param pairs
 	 */
 	public B2(MayerFunction f) {
-		super(2, -1./2.,new BondGroup(f, Standard.B2));
+		super(2, new BondGroup(f, Standard.B2));
 	}
 }
