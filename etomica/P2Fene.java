@@ -25,7 +25,7 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
     }
 
     public double u(double r2) {
-        return (r2 < r02) ? prefactor * Math.log(r02 - r2) : Double.POSITIVE_INFINITY;
+        return (r2 < r02) ? prefactor * Math.log(1 - r2/r02) : Double.POSITIVE_INFINITY;
     }
 
     /**
@@ -54,7 +54,7 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
     public double getAmplitude() {return h;}
     public void setAmplitude(double H) {
         this.h = H;
-        prefactor = -0.5*h*r02;
+        prefactor = -0.5*h*r02-Math.log(r02);
     }
 
     /**
