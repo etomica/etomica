@@ -81,10 +81,16 @@ public class PotentialMasterNbr extends PotentialMaster {
     	if (targetAtoms == null) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
     		calculate(phase.speciesMaster, idUp, pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
-    	}
+            if(lrcMaster != null) {
+                lrcMaster.calculate(phase, id, pc);
+            }
+   	}
     	else if (targetAtoms instanceof Atom) {
     		// one target atom
 			calculate((Atom)targetAtoms, id, pc, ((Atom)targetAtoms).type.getNbrManagerAgent().getPotentials());
+            if(lrcMaster != null) {
+                lrcMaster.calculate(phase, id, pc);
+            }
     	}
     	else {
     		//more than one target atom

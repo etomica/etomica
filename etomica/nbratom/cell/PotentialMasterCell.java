@@ -72,12 +72,18 @@ public class PotentialMasterCell extends PotentialMaster {
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(IteratorDirective.UP);
     		calculate(phase.speciesMaster, idUp, pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
-    	}
+            if(lrcMaster != null) {
+                lrcMaster.calculate(phase, id, pc);
+            }
+   	}
     	else if (targetAtoms instanceof Atom) {
     		// one target atom
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(id.direction());
 			calculate((Atom)targetAtoms, id, pc, ((Atom)targetAtoms).type.getNbrManagerAgent().getPotentials());
+            if(lrcMaster != null) {
+                lrcMaster.calculate(phase, id, pc);
+            }
     	}
     	else {
     		//more than one target atom
