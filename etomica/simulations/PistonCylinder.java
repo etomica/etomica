@@ -1,19 +1,20 @@
 package etomica.simulations;
-import etomica.data.DataSourceCountSteps;
 import etomica.Default;
-import etomica.integrator.IntegratorHard;
-import etomica.data.meter.MeterTemperature;
-import etomica.potential.P1HardBoundary;
-import etomica.potential.P2SquareWell;
 import etomica.Phase;
-import etomica.potential.Potential2;
 import etomica.Simulation;
-import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorHard;
+import etomica.potential.P1HardBoundary;
+import etomica.potential.P2SquareWell;
+import etomica.potential.Potential2;
+import etomica.space.BoundaryNone;
+import etomica.space2d.Space2D;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
@@ -38,7 +39,7 @@ public class PistonCylinder extends Simulation {
         
 	    phase = new Phase(space);
 //        phase.setConfiguration(new ConfigurationFile(space,"pc"));
-        phase.setBoundary(space.makeBoundary(etomica.space2d.Boundary.NONE));
+        phase.setBoundary(new BoundaryNone(space));
         phase.speciesMaster.addSpecies(species);
 	    
 	    potential = new P2SquareWell(space,Default.ATOM_SIZE,lambda,Default.POTENTIAL_WELL);
