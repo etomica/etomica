@@ -182,7 +182,7 @@ public class MCMoveSemigrand extends MCMove {
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
-/*
+
     public static void main(String[] args) {
         
         Simulation.instance = new etomica.graphics.SimulationGraphic(new Space2D());
@@ -209,13 +209,13 @@ public class MCMoveSemigrand extends MCMove {
 	    //intramolecular potential for 3-atom molecules
 	    P1TetheredHardSpheres potential0 = new P1TetheredHardSpheres();
 	    //hard-sphere intermolecular potential for 3-atom molecules
-	    Potential2Group potential00 = new Potential2Group();
+	    PotentialGroup potential00 = new PotentialGroup(2);
 	        Potential2 potential00a = new P2HardSphere(potential00, 3.0);
 	    //0-1 species potential
-	    Potential2Group potential01 = new Potential2Group();
+	    PotentialGroup potential01 = new PotentialGroup(2);
 	        Potential2 potential01a = new P2HardSphere(potential01, 4.0);
 	    //0-2 species potential
-	    Potential2Group potential02 = new Potential2Group();
+	    PotentialGroup potential02 = new PotentialGroup(2);
 	        Potential2 potential02a =new P2HardSphere(potential02, 2.0);
 	    //1-1 species potential
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
@@ -223,10 +223,10 @@ public class MCMoveSemigrand extends MCMove {
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
 	    //2-2 species potential
 	    P2HardSphere potential22 = new P2HardSphere(1.0);
-	    potential0.setSpecies(species0);
-	    potential00.setSpecies(species0, species0);
-	    potential01.setSpecies(species0, species1);
-	    potential02.setSpecies(species0, species2);
+	    potential0.setSpecies(new Species[] {species0});
+	    potential00.setSpecies(new Species[] {species0, species0});
+	    potential01.setSpecies(new Species[] {species0, species1});
+	    potential02.setSpecies(new Species[] {species0, species2});
 	    potential11.setSpecies(species1, species1);
 	    potential12.setSpecies(species1, species2);
 	    potential22.setSpecies(species2, species2);

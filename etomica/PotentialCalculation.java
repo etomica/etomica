@@ -59,6 +59,10 @@ public abstract class PotentialCalculation implements AtomSetActive,
 	public abstract void actionPerformed(AtomPair pair);
 	
 	public abstract void actionPerformed(Atom3 atom3);
+	
+	public void doCalculation(AtomPairIterator iterator, Potential2 potential) {
+		while(iterator.hasNext()) actionPerformed(iterator.next());
+	}
 
 	/**
 	 * @see etomica.AtomPairActive#innerWrapper()

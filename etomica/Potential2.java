@@ -52,7 +52,16 @@ public abstract class Potential2 extends Potential {
 
 	public final void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
 	   if(!enabled) return;
-	   iterator.all(basis, id, (AtomPairActive)pc.set(this));
+	   if(Default.EXPLICIT_LOOP) {
+		switch(basis.nBody()) {
+		   case 1: iterator.setBasis((Atom)basis, (Atom)basis); break;
+		   case 2: iterator.setBasis(((AtomPair)basis).atom1(), ((AtomPair)basis).atom2());
+		}
+	   	   iterator.reset(id);
+	   	   pc.set(this).doCalculation(iterator, this);
+	   } else {
+		   iterator.all(basis, id, (AtomPairActive)pc.set(this));
+	   }
     }//end of calculate
 
 	/**

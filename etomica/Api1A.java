@@ -13,7 +13,7 @@ package etomica;
  * 01/25/03 (DAK) new
  */
  
-public class Api1A extends AtomPairIterator {
+public final class Api1A extends AtomPairIterator {
 
 	public Api1A(AtomPairIterator api1, AtomPairIterator apiA) {
 		this.api1 = api1;
@@ -22,26 +22,33 @@ public class Api1A extends AtomPairIterator {
 	/**
 	 * @see etomica.AtomPairIterator#setBasis(etomica.Atom, etomica.Atom)
 	 */
-	public void setBasis(Atom a1, Atom a2) {throw new etomica.exception.MethodNotImplementedException();}
+	public void setBasis(Atom a1, Atom a2) {
+		basis1 = a1;
+		basis2 = a2;
+	}
 
 	/**
 	 * @see etomica.AtomPairIterator#size()
 	 */
 	public int size() {
-		throw new etomica.exception.MethodNotImplementedException();
+		return api.size();
 	}
 
 	/**
 	 * @see etomica.AtomPairIterator#hasNext()
 	 */
 	public boolean hasNext() {
-		throw new etomica.exception.MethodNotImplementedException();
+		return api.hasNext();
 	}
 
 	/**
 	 * @see etomica.AtomPairIterator#reset(etomica.IteratorDirective)
 	 */
-	public void reset(IteratorDirective id) {throw new etomica.exception.MethodNotImplementedException();}
+	public void reset(IteratorDirective id) {
+		api = (id.atomCount() == 0) ? apiA : api1;
+		api.setBasis(basis1, basis2);
+		api.reset(id);
+	}
 
 	/**
 	 * @see etomica.AtomPairIterator#reset()
@@ -52,7 +59,7 @@ public class Api1A extends AtomPairIterator {
 	 * @see etomica.AtomPairIterator#next()
 	 */
 	public AtomPair next() {
-		throw new etomica.exception.MethodNotImplementedException();
+		return api.next();
 	}
 
 	/**
@@ -71,5 +78,7 @@ public class Api1A extends AtomPairIterator {
 	
 	private AtomPairIterator api1 = AtomPairIterator.NULL;
 	private AtomPairIterator apiA = AtomPairIterator.NULL;
+	private AtomPairIterator api = api1;
+	private Atom basis1, basis2;
 
 }

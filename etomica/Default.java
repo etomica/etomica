@@ -35,6 +35,13 @@ public final class Default {
     public static boolean IS_GRAPHIC = false;
     
     /**
+     * Flag indicating how iteration is done in potential calculations.  If
+     * true, then hasNext()/next() construct is used, if false, all() construct
+     * is used.
+     */
+    public static boolean EXPLICIT_LOOP = true;
+    
+    /**
      * Sets default atom size, mass, and potential-well to unity, and scales
      * other defaults appropriately.
      */
