@@ -68,7 +68,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(STRING);
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
-        unit = new etomica.units.Unit(etomica.units.BaseUnit.Null.UNIT);
+        unit = new etomica.units.PrefixedUnit(etomica.units.BaseUnit.Null.UNIT);
         setUpdateInterval(5);
         setPrecision(4);
         

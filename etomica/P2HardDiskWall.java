@@ -103,11 +103,11 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
             dv *= -1;
         }
         double a = 0.0;
-        if(wall.ia instanceof Integrator.Agent.Forcible  && !wall.coord.isStationary()) {
-            a = ((Integrator.Agent.Forcible)wall.ia).force().x(i) * wall.coord.rm();
+        if(wall.ia instanceof Integrator.Forcible  && !wall.coord.isStationary()) {
+            a = ((Integrator.Forcible)wall.ia).force().x(i) * wall.coord.rm();
         }
-        if(disk.ia instanceof Integrator.Agent.Forcible  && !disk.coord.isStationary()) {
-            a -= ((Integrator.Agent.Forcible)disk.ia).force().x(i) * disk.coord.rm();
+        if(disk.ia instanceof Integrator.Forcible  && !disk.coord.isStationary()) {
+            a -= ((Integrator.Forcible)disk.ia).force().x(i) * disk.coord.rm();
         }
         //wall or disk has non-zero force
         double time = 0.0;

@@ -43,7 +43,7 @@ public class MeterMeanSquareDisplacement extends MeterScalar implements
         return info;
     }
 
-    public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
+    public Unit defaultIOUnit() {return Count.UNIT;}
     
     /**
      * Overrides superclass method so that updateInterval is always 1.

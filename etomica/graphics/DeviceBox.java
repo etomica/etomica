@@ -80,7 +80,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(STRING);
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
-        unit = new etomica.units.Unit(etomica.units.BaseUnit.Null.UNIT);
+        unit = etomica.units.BaseUnit.Null.UNIT;
         setPrecision(4);
         
         BoxListener listener = new BoxListener();

@@ -29,7 +29,7 @@ public final class MeterCycles extends MeterScalar implements EtomicaElement
         return info;
     }
 
-    public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
+    public Unit defaultIOUnit() {return Count.UNIT;}
         
     /**
      * Returns dimensions of this meter's output, which in this case is QUANTITY.

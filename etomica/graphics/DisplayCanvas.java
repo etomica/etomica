@@ -1,7 +1,6 @@
 package etomica.graphics;
 import etomica.*;
 import java.awt.*;
-import java.awt.event.*;
 
 /**
  * Superclass for classes that display information from simulation by painting to a canvas.

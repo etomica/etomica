@@ -1,17 +1,20 @@
 package etomica.units;
 
+/**
+ * Simulation unit for the measure of an angle.
+ */
 public final class Radian extends BaseUnit.Angle {
 
   /**
-   * Convenience instance of this unit to permit unit to be assigned
-   * without creating a new instance of it each time
+   * Singleton instance of this unit.
    */
     public static final Radian UNIT = new Radian();
     
-    public Radian() {
-        to = 1.0; 
-        from = 1.0/to;
-        name = "Radians";
-        symbol = "rad";   
+    private Radian() {
+        super(
+        	1.0, 
+	        "Radians",
+        	"rad"
+        	);   
     }
 }

@@ -11,7 +11,7 @@ import etomica.virial.PairSet;
 public class Unit implements ClusterAbstract {
 
 	/**
-	 * Constructor for Unit, using default weight of 1.0
+	 * Constructor for PrefixedUnit, using default weight of 1.0
 	 */
 	public Unit(int nPoints) {
 		this(nPoints, 1.0);

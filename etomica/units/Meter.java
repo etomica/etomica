@@ -3,15 +3,15 @@ package etomica.units;
 public final class Meter extends BaseUnit.Length {
 
   /**
-   * Convenience instance of this unit to permit unit to be assigned
-   * without creating a new instance of it each time
+   * Singleton instance of this unit.
    */
     public static final Meter UNIT = new Meter();
     
-    public Meter() {
-        to = 1e+10; //conversion from meters to Angstroms
-        from = 1.0/to;
-        name = "meters";
-        symbol = "m";   
+    private Meter() {
+    	super(
+        	1e+10, //conversion from meters to Angstroms
+	        "meters",
+	        "m"
+    	);
     }
 }

@@ -100,11 +100,11 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
             dv *= -1;
         }
         double a = 0.0;
-        if(wall.ia instanceof Integrator.Agent.Forcible  && !wall.coord.isStationary()) {
-            a = ((Integrator.Agent.Forcible)wall.ia).force().x(i) * wall.coord.rm();
+        if(wall.ia instanceof Integrator.Forcible  && !wall.coord.isStationary()) {
+            a = ((Integrator.Forcible)wall.ia).force().x(i) * wall.coord.rm();
         }
-        if(sphere.ia instanceof Integrator.Agent.Forcible  && !sphere.coord.isStationary()) {
-            a -= ((Integrator.Agent.Forcible)sphere.ia).force().x(i) * sphere.coord.rm();
+        if(sphere.ia instanceof Integrator.Forcible  && !sphere.coord.isStationary()) {
+            a -= ((Integrator.Forcible)sphere.ia).force().x(i) * sphere.coord.rm();
         }
         //wall or sphere has non-zero force
         double time = 0.0;

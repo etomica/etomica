@@ -517,7 +517,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom atom = atomIterator.next();
-                double r2 = simulation().space().r2(point,atom.coord.position(),phase().boundary());
+                double r2 = Space.r2(point,atom.coord.position(),phase().boundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;
                     r2Min = r2;

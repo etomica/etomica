@@ -4,7 +4,6 @@ import etomica.units.*;
 import javax.swing.JTable;
 import javax.swing.table.*;
 import javax.swing.JPanel;
-import javax.swing.Box;
 import javax.swing.JScrollPane;
 
 /**

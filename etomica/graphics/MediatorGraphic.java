@@ -1,13 +1,11 @@
 package etomica.graphics;
 import etomica.*;
-import etomica.utility.HashMap2;
 
 //Java2 imports
 //import java.util.HashMap;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.java2.HashMap;
 import etomica.utility.java2.Iterator;
     
 /** 

@@ -164,7 +164,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         eventManager.removeListener(listener);
     }
     
-    public Integrator.Agent makeAgent(Atom a) {
+    public Object makeAgent(Atom a) {
         return null;
     }
 }//end of IntegratorMC

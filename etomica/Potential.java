@@ -170,7 +170,6 @@ public abstract class Potential extends SimulationElement {
      */    
 	public interface Hard {
     
-		public static Hard NULL = new Potential2.HardNull();
     	/**
     	 * Value of the virial from the most recent collision.
     	 * @return double virial value
@@ -211,9 +210,10 @@ public abstract class Potential extends SimulationElement {
 		this.p0Lrc = p0Lrc;
 	}
 
+
 	public static final Potential NullPotential(Simulation parent) {return new MyNull(parent);}
 	
-	private static final class MyNull extends Potential implements Potential1.Hard, Potential2.Hard, Potential2.Soft {
+	private static final class MyNull extends Potential implements Potential.Hard, Potential1.Hard, Potential2.Hard, Potential2.Soft {
 		
 		private final Space.Vector zero;
 		private final Space.Tensor zeroT;

@@ -58,7 +58,7 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
     
     public etomica.units.Dimension getXDimension() {return etomica.units.Dimension.TIME;}
 
-    public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
+    public Unit defaultIOUnit() {return Count.UNIT;}
     
     public void setPhaseIntegrator(Integrator integrator) {
         super.setPhaseIntegrator(integrator);

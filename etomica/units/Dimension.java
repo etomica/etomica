@@ -39,8 +39,9 @@ public abstract class Dimension implements java.io.Serializable {
     public abstract Class baseUnit();
     
     /**
-     * The signature are the exponents of each of the base dimensions forming
-     * the given dimension.  Base dimensions are, in order: mass, length, time, number.
+     * The signature is the exponents of each of the base dimensions forming the
+     * given dimension.  Base dimensions are, in order: mass, length, time,
+     * number.
      */
     public abstract double[] signature();
     
@@ -52,7 +53,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 0., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Dimensionless";}
-        public Unit defaultIOUnit() {return new Unit(BaseUnit.Null.UNIT);}
+        public Unit defaultIOUnit() {return Unit.NULL;}
         public Class baseUnit() {return BaseUnit.Null.class;}
     }
     
@@ -64,7 +65,7 @@ public abstract class Dimension implements java.io.Serializable {
 		static double[] signature = {0., 0., 0., 0.};
 		public double[] signature() {return signature;}
 		public String toString() {return "Undefined";}
-		public Unit defaultIOUnit() {return new Unit(BaseUnit.Null.UNIT);}
+		public Unit defaultIOUnit() {return Unit.NULL;}
 		public Class baseUnit() {return BaseUnit.Null.class;}
 	}
 

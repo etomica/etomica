@@ -6,7 +6,6 @@ import javax.swing.JTable;
 import javax.swing.table.*;
 import javax.swing.Box;
 import javax.swing.JScrollPane;
-import etomica.units.Unit;
 import java.awt.event.*;
 
 /**

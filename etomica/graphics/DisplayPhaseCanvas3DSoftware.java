@@ -2,7 +2,6 @@ package etomica.graphics;
 import etomica.*;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.MemoryImageSource;
 
 import java.util.Hashtable;

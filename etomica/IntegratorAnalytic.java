@@ -50,7 +50,7 @@ package etomica;
         return true;
     }
     
-    public Integrator.Agent makeAgent(Atom a) {return null;}
+    public Object makeAgent(Atom a) {return null;}
     
     
     /**

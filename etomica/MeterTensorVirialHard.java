@@ -8,6 +8,11 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
+/* History
+ * 03/12/04 (DAK) modified collisionValue method to not check explicitly
+ * for instance of PotentialNull
+ */
+
 public class MeterTensorVirialHard extends MeterTensor implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
     
     /**
@@ -92,13 +97,9 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
     public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent) {
-        if(agent.collisionPotential == Potential.Hard.NULL) {
-            collisionVirial.E(0.0);
-        } else {
-            collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
-            collisionVirial.TE(1/(double)phase.atomCount());
-        }
-        return collisionVirial;
+        collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
+        collisionVirial.TE(1/(double)phase.atomCount());
+       return collisionVirial;
     }
                 
     /**

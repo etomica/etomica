@@ -124,14 +124,14 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     * Produces the Agent defined by this integrator.
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
-    public final Integrator.Agent makeAgent(Atom a) {
+    public final Object makeAgent(Atom a) {
         return new Agent(simulation(),a);
     }
      
     /**
     * Extends IntegratorHardAbstract.Agent to hold a force vector.
     */
-    public static class Agent extends IntegratorHardAbstract.Agent implements Integrator.Agent.Forcible { 
+    public static class Agent extends IntegratorHardAbstract.Agent implements Integrator.Forcible { 
     
         public final Space.Vector force;
         public boolean forceFree = true;

@@ -47,7 +47,7 @@ public class Atom implements AtomSet, java.io.Serializable {
     /**
      * Assigns the atom's integrator agent to the given instance.
      */
-    public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
+    public void setIntegratorAgent(Object ia) {this.ia = ia;}
             
 	/**
 	 *  Returns true if this is the given atom.  Part of AtomSet interface.
@@ -80,7 +80,7 @@ public class Atom implements AtomSet, java.io.Serializable {
     public String signature() {return node.parentGroup().signature() + " " + node.index();}
     public final String toString() {return "Atom(" + signature() + ")";}    
 
-    public Integrator.Agent ia;
+    public Object ia;//integrator agent
                 
     public final AtomTreeNode node;
         

@@ -29,7 +29,7 @@ public final class MeterAcceptanceRatio extends MeterScalar {
         EtomicaInfo info = new EtomicaInfo("Records the acceptance rate performed by the MCMove");
         return info;
     }
-    public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
+    public Unit defaultIOUnit() {return Count.UNIT;}
         
     /**
      * Returns dimensions of this meter's output, which in this case is QUANTITY.

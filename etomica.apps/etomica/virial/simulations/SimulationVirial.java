@@ -177,7 +177,7 @@ public class SimulationVirial extends SimulationGraphic {
 		DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(this);
 		integrator = new IntegratorMC(this);
 		integrator.setSleepPeriod(1);
-		integrator.setDoSleep(false);
+		integrator.setDoSleep(true);
 		integrator.setTemperature(simTemperature);
 		integrator.setInterval(1);
 		MCMoveAtom mcMoveAtom = new MeterVirial.MyMCMoveAtom(integrator);

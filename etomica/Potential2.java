@@ -25,7 +25,7 @@ public abstract class Potential2 extends Potential {
     
     public Potential2(SimulationElement parent) {
         this(parent, Default.TRUNCATE_POTENTIALS ? 
-                        new PotentialTruncationSimple(parent.simulation().space)
+                        new PotentialTruncationSimple()
                       : PotentialTruncation.NULL);
       /*                  
         super(parent);
@@ -167,20 +167,7 @@ public abstract class Potential2 extends Potential {
 		public abstract double integral(double rC);
     
 	}//end of Potential2.Soft 
-	
-	//static instance of this class is made in Potential.Hard
-	//inconsistency is indicated if this class is defined in Potential instead of here
-	final static class HardNull implements Potential1.Hard, Potential2.Hard, Potential.Null {
-		public void bump(Atom a) {}
-		public double collisionTime(Atom a) {return Double.MAX_VALUE;}
-		public double energy(Atom a) {return 0.0;}
-		public void bump(AtomPair pair) {}
-		public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
-		public double energy(AtomPair pair) {return 0.0;}
-		public double lastCollisionVirial() {return 0.0;}
-		public Space.Tensor lastCollisionVirialTensor() {throw new etomica.exception.MethodNotImplementedException();} //need to know D to return zero tensor
-	}//end of NULL
-           
+	           
 }//end of Potential2
 
 

@@ -23,7 +23,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         super(sim);
         forceSum = new PotentialCalculationForceSum(sim.space());
         work = sim.space().makeVector();
-        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
+        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -87,11 +87,11 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
               
 //--------------------------------------------------------------
 
-    public final Integrator.Agent makeAgent(Atom a) {
+    public final Object makeAgent(Atom a) {
         return new Agent(simulation(),a);
     }
             
-	public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
         public Space.Vector rMrLast;  //r - rLast

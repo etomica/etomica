@@ -9,10 +9,11 @@ public final class Esu extends BaseUnit.Charge {
    */
     public static final Esu UNIT = new Esu();
     
-    public Esu() {
-        to = Math.sqrt(Constants.AVOGADRO*1e24*1e-24); //7.76e11; conversion from (g-cm^3/s^2)^(1/2) to (amu-A^3/ps^2)^(1/2)
-        from = 1.0/to;
-        name = "electrostatic units";
-        symbol = "esu";   
+    private Esu() {
+        super(
+        	Math.sqrt(Constants.AVOGADRO*1e24*1e-24), //7.76e11; conversion from (g-cm^3/s^2)^(1/2) to (amu-A^3/ps^2)^(1/2)
+		    "electrostatic units",
+        	"esu"
+        	);   
     }
 }

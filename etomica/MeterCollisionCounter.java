@@ -31,7 +31,7 @@ public class MeterCollisionCounter extends MeterScalar implements IntegratorHard
     
     public double error() {return Double.NaN;}
         
-    public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
+    public Unit defaultIOUnit() {return Count.UNIT;}
     
     public Dimension getDimension() {return Dimension.QUANTITY;}
     

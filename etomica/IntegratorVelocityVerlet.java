@@ -27,7 +27,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         super(parent);
         forceSum = new PotentialCalculationForceSum(space);
         
-        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
+        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -132,11 +132,11 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
               
 //--------------------------------------------------------------
 
-    public final Integrator.Agent makeAgent(Atom a) {
+    public final Object makeAgent(Atom a) {
         return new MyAgent(simulation(),a);
     }
             
-    public final static class MyAgent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+    public final static class MyAgent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
 

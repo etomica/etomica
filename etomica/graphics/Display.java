@@ -1,10 +1,6 @@
 package etomica.graphics;
 import etomica.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.Observer;
-import java.util.Observable;
-import java.beans.Beans;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;

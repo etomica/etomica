@@ -37,7 +37,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
         label = new javax.swing.JLabel("");
-        setUnit(new Unit(Kelvin.UNIT));
+        setUnit(new PrefixedUnit(Kelvin.UNIT));
         
         panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
         panel.add(label, java.awt.BorderLayout.NORTH);
@@ -127,7 +127,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     /**
      * Override superclass setUnit method to update label when unit is changed
      */
-    public void setUnit(Unit u) {
+    public void setUnit(PrefixedUnit u) {
         super.setUnit(u);
         label.setText("Temperature ("+unit.symbol()+")");
     }

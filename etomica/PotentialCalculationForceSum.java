@@ -27,14 +27,14 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
     //atom
     public void actionPerformed(Atom atom) {
         f.E(p1Soft.gradient(atom));
-        ((Integrator.Agent.Forcible)atom.ia).force().ME(f);
+        ((Integrator.Forcible)atom.ia).force().ME(f);
     }//end of calculate
 
     //pair
     public void actionPerformed(AtomPair pair) {
         f.E(p2Soft.gradient(pair));
-        ((Integrator.Agent.Forcible)pair.atom1().ia).force().PE(f);
-        ((Integrator.Agent.Forcible)pair.atom2().ia).force().ME(f);
+        ((Integrator.Forcible)pair.atom1().ia).force().PE(f);
+        ((Integrator.Forcible)pair.atom2().ia).force().ME(f);
     }//end of calculate
     
 	public void actionPerformed(Atom3 atom3) {

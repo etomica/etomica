@@ -132,7 +132,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
              
 //	  --------------------------------------------------------------
 
-	public final Integrator.Agent makeAgent(Atom a) {
+	public final Object makeAgent(Atom a) {
 		return new MyAgent(simulation(),a);
 	}
             

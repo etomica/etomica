@@ -3,8 +3,9 @@ package etomica.units;
 /**
  * Superclass for all base unit classes.  These classes provide a means for indicating
  * the physical units of a given quantity, and present methods for converting between units.
- * A BaseUnit is combined with a Prefix to form a Unit, which is then employed by I/O classes
- * (usually a Device or Display) to handle unit conversions and labeling of graphic elements.
+ * A BaseUnit can be used as is, or combined with a Prefix to form a
+ * PrefixedUnit.  Units are employed by I/O classes (usually a Device or
+ * Display) to handle unit conversions and labeling of graphic elements.
  * <br>
  * By convention, each subclass of any base unit will contain a static field named UNIT, which is a handle
  * to an instance of that unit.  One can access an instance of any unit class through this static member.
@@ -12,36 +13,57 @@ package etomica.units;
  * Each general base unit type (i.e., dimension) is defined as an abstract class.  Each of these abstract classes
  * contains an inner static subclass (named Sim) that defines the unit as derived from the basic simulation units (Dalton-A-ps)
  * Thus an instance of the base simulation units for any dimensioned quantity can be accessed by 
- * the handle BaseUnit.Energy.Sim.UNIT (e.g. for the energy unit).  
- * <br>
- * Each base unit has a toPixels method that can be used to specify how a value of
- * a quantity in that unit would be scaled to render it some way on screen.
- * The scaling factor is declared static in the Sim subclass of that unit.
+ * the handle BaseUnit.Energy.Sim.UNIT (e.g. for the energy unit).
  */
-public abstract class BaseUnit implements java.io.Serializable {
+
+/* History
+ * 03/11/04 (DAK) modified with changes introducing Unit interface, PrefixedUnit
+ * class
+ */
+public abstract class BaseUnit implements Unit {
     
-    public BaseUnit() {}  //constructor
+    /**
+     * Constructor defaulting to allow a prefix.
+     * @param to conversion factor from this unit to simulation units
+     * @param name string describing this unit
+     * @param symbol symbol for this unit
+     */
+    public BaseUnit(double to, String name, String symbol, Dimension dimension) {
+    	this(to, name, symbol, dimension, Prefix.ALLOWED);
+    }
+    public BaseUnit(double to, String name, String symbol, Dimension dimension, boolean prefixAllowed) {
+    	setToSimConversionFactor(to);
+    	this.name = name;
+    	this.symbol = symbol;
+    	this.dimension = dimension;
+    	this.prefixAllowed = prefixAllowed;
+    }
     
     /**
      * Conversion factor from the class unit to simulation units.
      * Set in constructor of subclass.
      */
-    protected double to = 1.0;
+    private double to;
     /**
      * Conversion factor from simulation units to the class unit
      * Set in constructor of subclass.
      */
-    protected double from = 1.0;
+    private double from;
     /**
      * A common name for the unit (e.g., Kelvins).  Written in plural.
      * Set in constructor of subclass.
      */
-    protected String name = "";
+    private final String name;
     /**
      * A symbol for the unit (e.g., K for Kelvins)
      * Set in constructor of subclass.
      */
-    protected String symbol = "";
+    private final String symbol;
+    
+    /**
+     * Dimensions of this unit.
+     */
+    private final Dimension dimension;
     
     /**
      * Flag indicating whether setting a prefix (other than Null) is allowed.
@@ -52,18 +74,29 @@ public abstract class BaseUnit implements java.io.Serializable {
     protected boolean prefixAllowed = true;       
     
     /**
-     * Takes the given value in class units (considering prefix) and converts it to simulation units.
+     * Takes the given value in class units and converts it to simulation units.
      * @param x a value in units of this class
      * @return the value converted to simulation units
      */
     public final double toSim(double x) {return to*x;}
     
     /**
-     * Takes the given value in simulation units and converts it to class units (considering prefix).
+     * Takes the given value in simulation units and converts it to class units.
      * @param x a value in simulation units
      * @return the value converted to units of this class
      */
     public final double fromSim(double x) {return from*x;}
+    
+    /**
+     * Allows subclass to change the conversion factor for this unit.  Used for
+     * adjustable unit classes, such as Lennard-Jones units, for which the
+     * conversion factor might be variable.
+     * @param to  The new value of the conversion factor
+     */
+    protected void setToSimConversionFactor(double to) {
+    	this.to = to;
+    	from = 1.0/to;
+    }
     
     /**
      * Accessor for common name of unit
@@ -74,14 +107,6 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Accessor for symbol of unit
      */
     public String symbol() {return symbol;};
-
-    /**
-     * Convert given value from units of this class to display pixels.
-     * Used perhaps if some representation of this value is displayed as a graphic to the screen.
-     * Conversion factor for each dimension is held as a static constant in the Sim subclass 
-     * of the general Unit subclass (e.g., Mass.Sim.TO_PIXELS is the factor for mass).
-     */
-    public abstract double toPixels(double x);
     
     /**
      * Returns flag indicating whether a prefix is allowed with this unit.
@@ -95,7 +120,7 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Returns the dimension of this base unit.
      * For example, the dimension of grams is mass
      */
-    public abstract Dimension dimension();
+    public Dimension dimension() {return dimension;}
  
     //***** end of methods and fields of BaseUnit class *****//
     
@@ -112,14 +137,10 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Null unit used for dimensionless quantities
      */
     public static class Null extends BaseUnit {
-        public Dimension dimension() {return Dimension.NULL;}
         public static final Null UNIT = new Null();
-        public static double TO_PIXELS = 1.0;
         public Null() {
-            prefixAllowed = false;
-            name = "dimensionless";
+        	super(1.0, "dimensionless", "", Dimension.NULL, Prefix.NOT_ALLOWED);
         }
-        public double toPixels(double x) {return x*TO_PIXELS;}
     }
     
     /**
@@ -127,14 +148,14 @@ public abstract class BaseUnit implements java.io.Serializable {
      * An examplle of another unit of this type is the mole.
      */
     public static abstract class Quantity extends BaseUnit {
-        public Dimension dimension() {return Dimension.QUANTITY;}
+		public Quantity(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.QUANTITY, prefixAllowed);}
+		public Quantity(double to, String name, String symbol) {super(to, name, symbol, Dimension.QUANTITY);}
         public double to(Quantity u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Quantity u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
+        
         public static final class Sim extends Quantity {
             public static final Quantity UNIT = Count.UNIT;
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = UNIT.toString();  symbol = UNIT.symbol();}
+			public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
         }
     }
     
@@ -142,15 +163,14 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of mass is the Dalton (1/AVOGADRO grams)
      */
     public static abstract class Mass extends BaseUnit {
-        public Dimension dimension() {return Dimension.MASS;}
+		public Mass(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.MASS, prefixAllowed);}
+		public Mass(double to, String name, String symbol) {super(to, name, symbol, Dimension.MASS);}
         public double to(Mass u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Mass u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
-        
+                
         public static final class Sim extends Mass {
             public static final Mass UNIT = Dalton.UNIT;
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = UNIT.toString();  symbol = UNIT.symbol();}
+			public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
         }
     }
 
@@ -158,15 +178,15 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of length is the Angstrom
      */
     public static abstract class Length extends BaseUnit {
-        public Dimension dimension() {return Dimension.LENGTH;}
+		public Length(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.LENGTH, prefixAllowed);}
+		public Length(double to, String name, String symbol) {super(to, name, symbol, Dimension.LENGTH);}
         public double to(Length u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Length u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Length {
             public static final Length UNIT = Angstrom.UNIT;
             public static double TO_PIXELS = 10.0;
-            public Sim() {prefixAllowed = false; name = UNIT.toString();  symbol = UNIT.symbol();}
+            public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
         }
     }
 
@@ -174,15 +194,14 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of time is the picosecond
      */
     public static abstract class Time extends BaseUnit {
-        public Dimension dimension() {return Dimension.TIME;}
+		public Time(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.TIME, prefixAllowed);}
+		public Time(double to, String name, String symbol) {super(to, name, symbol, Dimension.TIME);}
         public double to(Time u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Time u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Time {
             public static final Time UNIT = Picosecond.UNIT;
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = UNIT.toString();  symbol = UNIT.symbol();}
+			public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
         }
     }
     
@@ -190,15 +209,14 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation angular units are radians
      */
     public static abstract class Angle extends BaseUnit {
-        public Dimension dimension() {return Dimension.ANGLE;}
+		public Angle(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.ANGLE, prefixAllowed);}
+		public Angle(double to, String name, String symbol) {super(to, name, symbol, Dimension.ANGLE);}
         public double to(Angle u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Angle u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Angle {
             public static final Angle UNIT = Radian.UNIT;
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = true; name = UNIT.toString(); symbol = UNIT.symbol();}
+			public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
         }
     }
         
@@ -206,15 +224,14 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of charge is (D-A^3/ps^2)^(1/2)
      */
     public static abstract class Charge extends BaseUnit {
-        public Dimension dimension() {return Dimension.CHARGE;}
+		public Charge(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.CHARGE, prefixAllowed);}
+		public Charge(double to, String name, String symbol) {super(to, name, symbol, Dimension.CHARGE);}
         public double to(Charge u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Charge u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Charge {
             public static final Charge UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim charge units";  symbol = "(D-A^3/ps^2)^(1/2)";}
+			public Sim() {super(1.0, "sim charge units", "(D-A^3/ps^2)^(1/2)", Prefix.NOT_ALLOWED);}
         }
     }
 
@@ -222,31 +239,31 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of electrostatic dipole moment is (Daltons-A^5/ps^2)^(1/2)
      */
     public static abstract class Dipole extends BaseUnit {
-        public Dimension dimension() {return Dimension.DIPOLE;}
+		public Dipole(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.DIPOLE, prefixAllowed);}
+		public Dipole(double to, String name, String symbol) {super(to, name, symbol, Dimension.DIPOLE);}
         public double to(Dipole u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Dipole u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Dipole {
             public static final Dipole UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim dipole units";  symbol = "(D-A^5/ps^2)^(1/2)";}
-        }
+            public Sim() {super(1.0, "sim dipole units", "(D-A^5/ps^2)^(1/2)", Prefix.NOT_ALLOWED);}
+		}
     }
 
     /**
      * Simulation unit of energy is D-A^2/ps^2
      */
     public static abstract class Energy extends BaseUnit {
-        public Dimension dimension() {return Dimension.ENERGY;}
+		public Energy(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.ENERGY, prefixAllowed);}
+		public Energy(double to, String name, String symbol) {super(to, name, symbol, Dimension.ENERGY);}
+		private Energy(double to, String name, String symbol, Dimension dimension, boolean prefixAllowed) {super(to, name, symbol, dimension, prefixAllowed);}
+		private Energy(double to, String name, String symbol, Dimension dimension) {super(to, name, symbol, dimension);}
         public double to(Energy u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Energy u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Energy {
             public static final Energy UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim energy units";  symbol = "D-A^2/ps^2";}
+            public Sim() {super(1.0, "sim energy units", "D-A^2/ps^2", Prefix.NOT_ALLOWED);}
         }
     }
     
@@ -255,12 +272,11 @@ public abstract class BaseUnit implements java.io.Serializable {
      * obtained by multiplying the temperature by Boltzmann's constant
      */
     public static abstract class Temperature extends Energy {
-        public Dimension dimension() {return Dimension.TEMPERATURE;}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
+		public Temperature(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.TEMPERATURE, prefixAllowed);}
+		public Temperature(double to, String name, String symbol) {super(to, name, symbol, Dimension.TEMPERATURE);}
         public static final class Sim extends Temperature {
             public static final Temperature UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim temperature units";  symbol = "kB amu-A^2/ps^2";}
+            public Sim() {super(1.0, "sim temperature units", "kB amu-A^2/ps^2", Prefix.NOT_ALLOWED);}
         }
     }
     
@@ -268,15 +284,16 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of (3D) pressure is (D-A/ps^2)/A^2 = D/(A-ps^2)
      */
     public static abstract class Pressure extends BaseUnit {
-        public Dimension dimension() {return Dimension.PRESSURE;}
+		public Pressure(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.PRESSURE, prefixAllowed);}
+		public Pressure(double to, String name, String symbol) {super(to, name, symbol, Dimension.PRESSURE);}
+		private Pressure(double to, String name, String symbol, Dimension dimension, boolean prefixAllowed) {super(to, name, symbol, dimension, prefixAllowed);}
+		private Pressure(double to, String name, String symbol, Dimension dimension) {super(to, name, symbol, dimension);}
         public double to(Pressure u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Pressure u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Pressure {
             public static final Pressure UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim pressure units";  symbol = "D/(A-ps^2)";}
+            public Sim() {super(1.0, "sim pressure units", "D/(A-ps^2)", Prefix.NOT_ALLOWED);}
         }
     }
     
@@ -284,6 +301,8 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of (2D) pressure is (amu-A/ps^2)/A = amu/ps^2
      */
     public static abstract class Pressure2D extends Pressure implements D2 {
+		public Pressure2D(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.PRESSURE2D, prefixAllowed);}
+		public Pressure2D(double to, String name, String symbol) {super(to, name, symbol, Dimension.PRESSURE2D);}
         public Dimension dimension() {return Dimension.PRESSURE2D;}
         //if converting to a "false" 3D pressure, divide by false depth
         public double to(Pressure u, double x) {
@@ -292,12 +311,10 @@ public abstract class BaseUnit implements java.io.Serializable {
         //if converting from a "false" 3D pressure, multiply by false depth
         public double from(Pressure u, double x) {
             return (u instanceof D3) ? u.toSim(this.fromSim(x*BaseUnitPseudo3D.FALSE_DEPTH)) : u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Pressure2D {
             public static final Pressure2D UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim 2-D pressure units";  symbol = "D/ps^2";}
+            public Sim() {super(1.0, "sim 2-D pressure units", "D/ps^2", Prefix.NOT_ALLOWED);}
         }
     }
     
@@ -305,15 +322,16 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of (3D) volume is A^3
      */
     public static abstract class Volume extends BaseUnit {
-        public Dimension dimension() {return Dimension.VOLUME;}
+		public Volume(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.VOLUME, prefixAllowed);}
+		public Volume(double to, String name, String symbol) {super(to, name, symbol, Dimension.VOLUME);}
+		public Volume(double to, String name, String symbol, Dimension dimension, boolean prefixAllowed) {super(to, name, symbol, dimension, prefixAllowed);}
+		public Volume(double to, String name, String symbol, Dimension dimension) {super(to, name, symbol, dimension);}
         public double to(Volume u, double x) {return u.fromSim(this.toSim(x));}
         public double from(Volume u, double x) {return u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Volume {
             public static final Volume UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim volume units";  symbol = Angstrom.UNIT.symbol()+"^3";}
+            public Sim() {super(1.0, "sim volume units", Angstrom.UNIT.symbol()+"^3", Prefix.NOT_ALLOWED);}
         }
     }
     
@@ -321,7 +339,8 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Simulation unit of (2D) volume is A^2
      */
     public static abstract class Volume2D extends Volume implements D2 {
-        public Dimension dimension() {return Dimension.VOLUME2D;}
+		public Volume2D(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.VOLUME2D, prefixAllowed);}
+		public Volume2D(double to, String name, String symbol) {super(to, name, symbol, Dimension.VOLUME2D);}
         //if converting to a "false" 3D volume, multiply by false depth
         public double to(Volume u, double x) {
             return (u instanceof D3) ? u.fromSim(this.toSim(x*BaseUnitPseudo3D.FALSE_DEPTH)) : u.fromSim(this.toSim(x));
@@ -329,12 +348,10 @@ public abstract class BaseUnit implements java.io.Serializable {
         //if converting from a "false" 3D volume, divide by false depth
         public double from(Volume u, double x) {
             return (u instanceof D3) ? u.toSim(this.fromSim(x/BaseUnitPseudo3D.FALSE_DEPTH)) : u.toSim(this.fromSim(x));}
-        public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
-        
+       
         public static final class Sim extends Volume2D {
             public static final Volume2D UNIT = new Sim();
-            public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim 2-D volume units";  symbol = Angstrom.UNIT.symbol()+"^2";}
+           public Sim() {super(1.0, "sim 2-D volume units", Angstrom.UNIT.symbol()+"^2", Prefix.NOT_ALLOWED);}
         }
     }
     

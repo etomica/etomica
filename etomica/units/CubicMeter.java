@@ -3,15 +3,16 @@ package etomica.units;
 public final class CubicMeter extends BaseUnit.Volume {
 
   /**
-   * Convenience instance of this unit to permit unit to be assigned
-   * without creating a new instance of it each time
+   * Singleton instance of this unit.
    */
     public static final CubicMeter UNIT = new CubicMeter();
     
-    public CubicMeter() {
-        to = 1e+30; //conversion from meters^3 to Angstroms^3
-        from = 1.0/to;
-        name = "cubic meters";
-        symbol = "m^3";   
+    private CubicMeter() {
+    	super(
+        	1e+30, //conversion from meters^3 to Angstroms^3
+			"cubic meters",
+        	"m^3",
+        	Prefix.NOT_ALLOWED
+        	);   
     }
 }

@@ -70,7 +70,7 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
      */
     public static void main(String[] args) {
   //      Default.makeLJDefaults();//WHY DOESN'T THIS WORK?
-        Default.TIME_STEP = etomica.units.LennardJones.Time.UNIT.fromSim(0.001);
+        Default.TIME_STEP = etomica.units.systems.LJ.SYSTEM.time().toSim(0.001);
         System.out.println("Time step: "+Default.TIME_STEP);
         Default.ATOM_SIZE = 1.0;
         Default.ATOM_MASS = 1.0;

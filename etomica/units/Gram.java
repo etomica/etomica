@@ -10,9 +10,10 @@ public final class Gram extends BaseUnit.Mass {
     public static final Gram UNIT = new Gram();
     
     public Gram() {
-        to = Constants.AVOGADRO; //conversion from grams to Daltons
-        from = 1.0/to;
-        name = "grams";
-        symbol = "g";   
+        super(
+        	Constants.AVOGADRO, //conversion from grams to Daltons
+        	"grams",
+        	"g"
+        	);   
     }
 }

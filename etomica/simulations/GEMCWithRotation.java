@@ -13,9 +13,8 @@ public class GEMCWithRotation extends SimulationGraphic {
         super(new Space2D()/*new Space2DCell()*/);
         setIteratorFactory(new IteratorFactoryCell(this));
         Default.ATOM_SIZE = 1.2;
-        Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(0.420);
-        Simulation.instance = this;
-        setUnitSystem(new UnitSystem.LJ());
+        setUnitSystem(new etomica.units.systems.LJ());
+        Default.TEMPERATURE = unitSystem().temperature().toSim(0.420);
         IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 	    integratorGEMC1.setDoSleep(false);
 	    integratorGEMC1.setInterval(400);
@@ -54,7 +53,7 @@ public class GEMCWithRotation extends SimulationGraphic {
 	    
 	    //Slider to adjust temperature
 	    DeviceSlider temperatureSlider = new DeviceSlider(integratorGEMC1, "temperature");
-	    temperatureSlider.setUnit(new Unit(Kelvin.UNIT));
+	    temperatureSlider.setUnit(new PrefixedUnit(Kelvin.UNIT));
 	    temperatureSlider.setMinimum(50);
 	    temperatureSlider.setMaximum(500);
 

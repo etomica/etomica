@@ -55,7 +55,7 @@ public class PistonCylinder extends SimulationGraphic {
         etomica.MeterScalar thermometer = new MeterTemperature();
         DisplayBox tBox = new DisplayBox();
         tBox.setMeter(thermometer);
-        tBox.setUnit(new Unit(Kelvin.UNIT));
+        tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));
         display.setAlign(1,DisplayPhase.BOTTOM);
         
 	    DisplayTimer timer = new DisplayTimer(integrator);

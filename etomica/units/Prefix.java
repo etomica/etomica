@@ -2,19 +2,19 @@ package etomica.units;
 
 /**
  * Base class for all unit prefixes, such as kilo, micro, nano, etc.
- * A prefix class is specified (usually with a BaseUnit) to form a Unit object.
+ * A prefix class is specified (usually with a BaseUnit) to form a PrefixedUnit object.
  * 
- * @see Unit
+ * @see PrefixedUnit
  */
 public abstract class Prefix implements java.io.Serializable {
  
     /**
-     * Constant used when invoking multi-argument constructor of Unit class to indicate
+     * Constant used when invoking multi-argument constructor of PrefixedUnit class to indicate
      * that the unit permits the use of a prefix.
      */
     public static final boolean ALLOWED = true;
     /**
-     * Constant used when invoking multi-argument constructor of Unit class to indicate
+     * Constant used when invoking multi-argument constructor of PrefixedUnit class to indicate
      * that the unit does not permit the use of a prefix.
      */
     public static final boolean NOT_ALLOWED = false;

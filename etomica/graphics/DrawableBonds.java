@@ -1,6 +1,5 @@
 package etomica.graphics;
 import etomica.*;
-import etomica.units.*;
 import java.awt.Graphics;
 
 /**

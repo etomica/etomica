@@ -9,9 +9,10 @@ public final class Liter extends BaseUnit.Volume {
     public static final Liter UNIT = new Liter();
     
     public Liter() {
-        to = 1e+27; //conversion from liters to Angstroms^3
-        from = 1.0/to;
-        name = "liters";
-        symbol = "l";   
+        super(
+        	1e+27, //conversion from liters to Angstroms^3
+        	"liters",
+        	"l"
+        	);   
     }
 }

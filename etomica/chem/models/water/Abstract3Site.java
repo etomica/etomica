@@ -52,7 +52,7 @@ public class Abstract3Site extends ModelMolecular {
 		sim.makeAndDisplayFrame();
 	}
 	
-	public class PotentialWW extends Potential2 implements Potential2.Soft {
+	public static class PotentialWW extends Potential2 implements Potential2.Soft {
 
 		public PotentialWW(SimulationElement parent, PotentialTruncation potentialTruncation) {
 			super(parent);

@@ -1,29 +1,9 @@
 package etomica.graphics;
 import java.awt.*;
 
-import java.net.*;
-
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.*;
-
-import java.awt.geom.*;
-
-import javax.swing.text.View;
-
-import java.util.*;
-
 import java.awt.event.*;
-
-import java.io.*;
-
-import java.awt.print.*;
-
-import java.beans.*;
-
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import javax.swing.plaf.basic.*;
 import javax.swing.plaf.metal.*;
 import javax.swing.plaf.*;
 

@@ -35,6 +35,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
+        Agent.nullPotential = (Potential.Hard)Potential.NullPotential(sim);
         atomPair = new AtomPair(sim.space);
     }//end of constructor
     
@@ -219,7 +220,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
 	* Produces the Agent defined by this integrator.
 	* One instance of an Agent is placed in each atom controlled by this integrator.
 	*/
-		public Integrator.Agent makeAgent(Atom a) {
+		public Object makeAgent(Atom a) {
 			return new IntegratorHardAbstract.Agent(a);
 		}
  
@@ -232,7 +233,8 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
   * is processed).
   */
   //Do not use encapsulation since the fields are for referencing by the integrator
-    public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
+    public static class Agent {  //need public so to use with instanceof
+    	static Potential.Hard nullPotential;
         public Atom atom, collisionPartner;
         public double collisionTime = Double.MAX_VALUE; //time to next collision
         public Potential.Hard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
@@ -248,7 +250,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         public void resetCollision() {
             collisionTime = periodCollisionTime();
-            collisionPotential = Potential.Hard.NULL;
+            collisionPotential = nullPotential;
             collisionPartner = null;
         }
         
@@ -300,7 +302,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
      * Accessor method for the time to next collision of this atom
      */
         public final double collisionTime() {return collisionTime;}
-    }
+    }//end of Agent
     
     public interface CollisionListener {
         public void collisionAction(Agent colliderAgent);

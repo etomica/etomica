@@ -32,63 +32,18 @@ public abstract class UnitSystem implements java.io.Serializable {
   */
     public static class Sim extends UnitSystem {
         
-        public Unit quantity() {return new Unit(Count.UNIT);}
-        public Unit mass() {return new Unit(Dalton.UNIT);}
-        public Unit length() {return new Unit(Angstrom.UNIT);}
-        public Unit time() {return new Unit(Picosecond.UNIT);}
-        public Unit angle() {return new Unit(Radian.UNIT);}
-        public Unit charge() {return new Unit(BaseUnit.Charge.Sim.UNIT);}
-        public Unit dipole() {return new Unit(BaseUnit.Dipole.Sim.UNIT);}
-        public Unit energy() {return new Unit(BaseUnit.Energy.Sim.UNIT);}
-        public Unit temperature() {return new Unit(BaseUnit.Temperature.Sim.UNIT);}
-        public Unit pressure(int D) {return (D==2) ? new Unit(BaseUnit.Pressure2D.Sim.UNIT) : new Unit(BaseUnit.Pressure.Sim.UNIT);}
-        public Unit volume(int D) {return (D==2) ? new Unit(BaseUnit.Volume2D.Sim.UNIT) : new Unit(BaseUnit.Volume.Sim.UNIT);}
+        public Unit quantity() {return Count.UNIT;}
+        public Unit mass() {return Dalton.UNIT;}
+        public Unit length() {return Angstrom.UNIT;}
+        public Unit time() {return Picosecond.UNIT;}
+        public Unit angle() {return Radian.UNIT;}
+        public Unit charge() {return BaseUnit.Charge.Sim.UNIT;}
+        public Unit dipole() {return BaseUnit.Dipole.Sim.UNIT;}
+        public Unit energy() {return BaseUnit.Energy.Sim.UNIT;}
+        public Unit temperature() {return BaseUnit.Temperature.Sim.UNIT;}
+        public Unit pressure(int D) {return (D==2) ? BaseUnit.Pressure2D.Sim.UNIT : BaseUnit.Pressure.Sim.UNIT;}
+        public Unit volume(int D) {return (D==2) ? BaseUnit.Volume2D.Sim.UNIT : BaseUnit.Volume.Sim.UNIT;}
     }
- /**
-  * Meter-Kilogram-Second system of units
-  */
-    public static class MKS extends UnitSystem {
-        public Unit quantity() {return new Unit(Mole.UNIT);}
-        public Unit mass() {return new Unit(Prefix.KILO, Gram.UNIT);}
-        public Unit length() {return new Unit(Meter.UNIT);}
-        public Unit time() {return new Unit(Second.UNIT);}
-        public Unit angle() {return new Unit(Radian.UNIT);}
-        public Unit charge() {return new Unit(Coulomb.UNIT);}  //need to define Coulomb
-        public Unit dipole() {return new Unit(Debye.UNIT);}  //??
-        public Unit energy() {return new Unit(Joule.UNIT);}
-        public Unit temperature() {return new Unit(Kelvin.UNIT);}
-        public Unit pressure(int D) {return (D==2) ?
-            new Unit(new BaseUnitPseudo3D.Pressure(Bar.UNIT)) :
-            new Unit(Bar.UNIT);}
-        public Unit volume(int D) {return (D==2) ?
-            new Unit(new BaseUnitPseudo3D.Volume(CubicMeter.UNIT)) :
-            new Unit(CubicMeter.UNIT);}
-    }
-    
-    /**
-     * Lennard-Jones units.
-     * All quantities are made dimensionless with respect to a characteristic
-     * size (sigma), energy (epsilon) and mass.
-     * Values of sigma, epsilon, and mass are set via the corresponding static
-     * set methods in etomica.units.LennardJones class.
-     */
-     public static class LJ extends UnitSystem {        
-        public Unit quantity() {return new Unit(Count.UNIT);}
-        public Unit mass() {return new Unit(LennardJones.Mass.UNIT);}
-        public Unit length() {return new Unit(LennardJones.Length.UNIT);}
-        public Unit time() {return new Unit(LennardJones.Time.UNIT);}
-        public Unit angle() {return new Unit(Radian.UNIT);}
-        public Unit charge() {return new Unit(LennardJones.Charge.UNIT);}  
-        public Unit dipole() {return new Unit(LennardJones.Dipole.UNIT);}  
-        public Unit energy() {return new Unit(LennardJones.Energy.UNIT);}
-        public Unit temperature() {return new Unit(LennardJones.Energy.UNIT);}
-        public Unit pressure(int D) {return (D==2) ? new Unit(LennardJones.Pressure2D.UNIT) : new Unit(LennardJones.Pressure.UNIT);}  
-        public Unit volume(int D) {return (D==2) ? new Unit(LennardJones.Volume2D.UNIT) : new Unit(LennardJones.Volume.UNIT);} 
-        
-     }   
-   
-    public static final UnitSystem MKS = new MKS();
-    public static final UnitSystem LJ = new LJ();
     public static final UnitSystem SIM = new Sim();
     //will also define CGS, atomic, English
 }

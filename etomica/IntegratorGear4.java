@@ -35,7 +35,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         forceSum = new PotentialCalculationForceSum(sim.space());
         work1 = sim.space().makeVector();
         work2 = sim.space().makeVector();
-        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
+        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -175,11 +175,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
               
 //--------------------------------------------------------------
 
-    public Integrator.Agent makeAgent(Atom a) {
+    public Object makeAgent(Atom a) {
         return new Agent(simulation(),a);
     }
             
-    public static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+    public static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
         public Space.Vector dr1, dr2, dr3, dr4;

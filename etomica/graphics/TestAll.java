@@ -1,6 +1,5 @@
 package etomica.graphics;
 import etomica.*;
-import javax.swing.*;
 
 /**
  * Class that permits selection and execution of the of any etomica class

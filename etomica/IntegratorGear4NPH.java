@@ -174,7 +174,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
               
 //--------------------------------------------------------------
 
-    public Integrator.Agent makeAgent(Atom a) {
+    public Object makeAgent(Atom a) {
         return new Agent(simulation(),a);
     }
             
@@ -255,7 +255,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         public void actionPerformed(Atom atom) {
             u += p1Soft.energy(atom);
             f.E(p1Soft.gradient(atom));
-            ((Integrator.Agent.Forcible)atom.ia).force().ME(f);
+            ((Integrator.Forcible)atom.ia).force().ME(f);
         }//end of calculate
         
         public void actionPerformed(AtomPair pair) {
@@ -267,8 +267,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 			rvx += hv * pair.vDotr()/r2;
 			f.E(p2Soft.gradient(pair));
 			vf -= pair.cPair.vDot(f); //maybe should be (-)?
-			((Integrator.Agent.Forcible)pair.atom1().ia).force().PE(f);
-			((Integrator.Agent.Forcible)pair.atom2().ia).force().ME(f);       	
+			((Integrator.Forcible)pair.atom1().ia).force().PE(f);
+			((Integrator.Forcible)pair.atom2().ia).force().ME(f);       	
         }
         
         public void actionPerformed(Atom3 triplet) {
@@ -291,8 +291,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 rvx += hv * pair.vDotr()/r2;
                 f.E(potentialSoft.gradient(pair));
                 vf -= pair.cPair.vDot(f); //maybe should be (-)?
-                ((Integrator.Agent.Forcible)pair.atom1().ia).force().PE(f);
-                ((Integrator.Agent.Forcible)pair.atom2().ia).force().ME(f);
+                ((Integrator.Forcible)pair.atom1().ia).force().PE(f);
+                ((Integrator.Forcible)pair.atom2().ia).force().ME(f);
             }//end while
         }//end of calculate
     }//end ForceSums

@@ -1,5 +1,4 @@
 package etomica.graphics;
-import java.awt.Color;
 
 public class ParameterColor extends ParameterGraphic implements ParameterGraphic.Color {
     

@@ -1,10 +1,8 @@
 package etomica.graphics;
-import etomica.*;
 import etomica.units.*;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
 
 /**
  * Editor to set the value of a double-type property having units associated with it.
@@ -26,9 +24,9 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
     private PropertyEditor valueEditor;
     
 //    private JTextField editor;
-    private Unit unit;
+    private PrefixedUnit unit;
     private Prefix prefix;
-    private BaseUnit baseUnit;
+    private Unit baseUnit;
     private Class[] availableUnits;
     private StringBuffer[] availableUnitNames;
     private JComboBox unitList;
@@ -37,9 +35,10 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
         super();
         valueEditor = java.beans.PropertyEditorManager.findEditor(Double.TYPE);
         if(dimension == null) dimension = Dimension.NULL;
-        unit = dimension.defaultIOUnit();
+        Unit defaultUnit = dimension.defaultIOUnit();
+        unit = (defaultUnit instanceof PrefixedUnit) ? (PrefixedUnit)defaultUnit : new PrefixedUnit(defaultUnit);
         prefix = unit.prefix();
-        baseUnit = unit.baseUnit();
+        baseUnit = unit.unit();
         availableUnits = BaseUnit.all(dimension); //all BaseUnit classes of the given dimensions
         availableUnitNames = new StringBuffer[availableUnits.length];
         for(int i=0; i<availableUnitNames.length; i++) {
@@ -69,7 +68,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	        catch(IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
             if(base != null) {
                 availableUnitNames[i].replace(0,availableUnitNames[i].length(),
-                                            new Unit(prefix, base).toString());
+                                            new PrefixedUnit(prefix, base).toString());
             }
             else {
                 availableUnitNames[i] = null;
@@ -90,7 +89,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	    }
 	    catch(InstantiationException e) {System.out.println(e.toString()); System.exit(1);}
 	    catch(IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
-	    unit = new Unit(prefix, baseUnit);
+	    unit = new PrefixedUnit(prefix, baseUnit);
 	    setValue(value);
 	 }
 	 
@@ -103,7 +102,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	    Prefix newPrefix = Prefix.keySelect(aKey);
 	    if(newPrefix != null) { //update unit if an appropriate key was pressed
 	        prefix = newPrefix;
-	        unit = new Unit(prefix, baseUnit);
+	        unit = new PrefixedUnit(prefix, baseUnit);
     	    setupNames();
 	        setValue(value);
 	        unitList.getTopLevelAncestor().repaint();

@@ -37,7 +37,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         work3 = sim.space().makeVector();
        	work4 = sim.space().makeVector();
        	
-        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
+        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
 
 	
@@ -157,11 +157,11 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
               
 //--------------------------------------------------------------
 
-    public final Integrator.Agent makeAgent(Atom a) {
+    public final Object makeAgent(Atom a) {
         return new Agent(simulation(),a);
     }
             
-	public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
     

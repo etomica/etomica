@@ -6,10 +6,8 @@ package etomica.units;
  * Conversion factor and labels are determined from the values given by the
  * constituent units.
  */
-public class UnitRatio extends Unit {
+public class UnitRatio extends BaseUnit {
         
-    private double toPixels;
-
     /**
      * Constructs the compound unit using conversion factors and labels from the
      * constituent units.  These factors/labels are computed once during construction,
@@ -18,12 +16,11 @@ public class UnitRatio extends Unit {
      * @param denominator the unit in the denominator of the compount unit
      */
     public UnitRatio(Unit numerator, Unit denominator) {
-        super(Prefix.NULL,                                                        //prefix
-              numerator.toSim(1.0)/denominator.toSim(1.0),                        //baseTo
+        super(numerator.toSim(1.0)/denominator.toSim(1.0),                        //baseTo
               numerator.toString() + " per " + denominator.toString(),            //name
               numerator.symbol() + "/" + denominator.symbol(),                    //symbol
-              Prefix.NOT_ALLOWED,                                                 //prefixAllowed
-              new DimensionRatio(numerator.dimension(), denominator.dimension()) //dimension
+			  new DimensionRatio(numerator.dimension(), denominator.dimension()), //dimension
+              Prefix.ALLOWED                                                 //prefixAllowed
               );
     }
     /**
@@ -33,11 +30,12 @@ public class UnitRatio extends Unit {
      * @param symbol an abbreviated description of the unit (e.g., J/mol)
      */
     public UnitRatio(Unit numerator, Unit denominator, String name, String symbol) {
-        this(numerator, denominator);
-        this.name = name;
-        this.symbol = symbol;
+		super(numerator.toSim(1.0)/denominator.toSim(1.0),                        //baseTo
+			  name,            													  //name
+			  symbol,                    										  //symbol
+			  new DimensionRatio(numerator.dimension(), denominator.dimension()), //dimension
+			  Prefix.ALLOWED                                                 //prefixAllowed
+			  );
     }
-    
-    public void setToPixels(double t) {toPixels = t;}
-    public double toPixels(double x) {return x*toPixels;}
 }
+    
