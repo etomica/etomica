@@ -22,7 +22,7 @@ import etomica.atom.AtomTreeNodeGroup;
  * Created on Dec 30, 2004 by kofke
  */
 
-public class ApiInterspecies1A extends AtomsetIteratorAdapter implements
+public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
         AtomsetIteratorMolecule {
 
     /**

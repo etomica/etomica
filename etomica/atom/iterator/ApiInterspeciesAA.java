@@ -13,7 +13,7 @@ import etomica.atom.AtomTreeNodeGroup;
  * Gives pairs formed from the molecules of two different species in a phase.
  * Species are specified at construction and cannot be changed afterwards.
  */
-public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
+public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
         AtomsetIteratorPhaseDependent {
 
     /**

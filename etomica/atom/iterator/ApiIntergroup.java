@@ -12,7 +12,7 @@ import etomica.AtomSet;
  * Iterator that returns pairs formed using two different basis atoms, so that
  * the iterates are taken from two different groups.
  */
-public final class ApiIntergroup extends AtomsetIteratorAdapter implements
+public final class ApiIntergroup extends AtomPairIteratorAdapter implements
         AtomsetIteratorBasisDependent, ApiComposite {
 
     public ApiIntergroup() {

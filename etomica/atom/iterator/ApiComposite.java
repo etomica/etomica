@@ -5,12 +5,12 @@
 package etomica.atom.iterator;
 
 import etomica.AtomIterator;
-import etomica.AtomsetIterator;
+import etomica.AtomPairIterator;
 
 /**
  * Interface for an atom pair iterator that is formed from two atom iterators.
  */
-public interface ApiComposite extends AtomsetIterator {
+public interface ApiComposite extends AtomPairIterator {
 
     /**
      * @return inner-loop iterator
