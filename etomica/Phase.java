@@ -202,7 +202,7 @@ public class Phase {
       * Fires PhaseEvent of type RESET after completing action.
       */
      public void reset() {
-         Configuration c = getConfiguration();
+         ConfigurationMolecule c = getConfiguration();
          if (c != null) {
              c.initializeCoordinates(this);
          }
@@ -250,14 +250,14 @@ public class Phase {
     
     public int atomCount() {return speciesMaster.node.leafAtomCount();}
         
-    public void setConfiguration(Configuration c) {
+    public void setConfiguration(ConfigurationMolecule c) {
         configuration = c;
         if (c != null) {
             c.initializeCoordinates(this);
         }
     }
     
-    public Configuration getConfiguration() {return configuration;}
+    public ConfigurationMolecule getConfiguration() {return configuration;}
     
     /**
      * Adds the given molecule to this phase.
@@ -306,7 +306,7 @@ public class Phase {
     //temporary construct for cell neighbor listing
     private RectangularLattice lattice;
     
-    public Configuration configuration;
+    public ConfigurationMolecule configuration;
           
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();
 //    public SimulationEventManager integratorMonitor = new SimulationEventManager();

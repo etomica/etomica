@@ -1,6 +1,7 @@
 package etomica;
 
-import etomica.atom.iterator.AtomIteratorCompound;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.space.Vector;
 
 /**
@@ -17,15 +18,17 @@ import etomica.space.Vector;
  * 01/14/03 (DAK) fixed typo in name of getSquareConfig method
  */
  
-public class ConfigurationSequential extends Configuration {
+public class ConfigurationSequential extends ConfigurationMolecule {
 
 	private boolean fill;
 	private boolean squareConfig;
+    private final AtomIteratorListCompound atomIterator;
     
 	public ConfigurationSequential(Space space) {
 		super(space);
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
+        atomIterator = new AtomIteratorListCompound();
 	}
     
 	public void setFillVertical(boolean b) {fill = b;}
@@ -34,54 +37,52 @@ public class ConfigurationSequential extends Configuration {
 	public void setSquareConfig(boolean b){ squareConfig = b;}
 	public boolean getSquareConfig() {return squareConfig;}
     
-	public void initializePositions(AtomIterator[] iterators) {
+    public void initializePositions(AtomList[] lists) {
+        atomIterator.setLists(lists);
 
-		AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);//lump 'em all together
+        double Lx = dimensions[0];
+        double Ly = 0.0;
+        if(dimensions.length>1)  Ly = dimensions[1];
 
-		double Lx = dimensions[0];
-		double Ly = 0.0;
-		double Lz = 0.0;
-		if(dimensions.length>1)  Ly = dimensions[1];
-		if(dimensions.length>2)  Lz = dimensions[2];
-
-		int sumOfMolecules = iterator.size();
+        int sumOfMolecules = atomIterator.size();
          
-		if(sumOfMolecules == 0) return;
+        if(sumOfMolecules == 0) return;
  //       System.out.println("ConfigurationSequential sumOfMolecules = "+sumOfMolecules);
         
-		Vector[] rLat;
+        Vector[] rLat;
         
-		switch(space.D()) {
-			case 1:
-				rLat = lineLattice(sumOfMolecules, Lx);
-				break;
-			default:
-			case 2:
+        switch(space.D()) {
+            case 1:
+                rLat = lineLattice(sumOfMolecules, Lx);
+                break;
+            default:
+            case 2:
 //skkwak
-				if(squareConfig){rLat = squareLattice(sumOfMolecules, Lx, Ly, fill);
-				} else {rLat = hexagonalLattice(sumOfMolecules,Lx,Ly,fill);}
+                if(squareConfig){rLat = squareLattice(sumOfMolecules, Lx, Ly, fill);
+                } else {rLat = hexagonalLattice(sumOfMolecules,Lx,Ly,fill);}
          
-				break;
-			case 3:
-				rLat = null;
+                break;
+            case 3:
+                rLat = null;
 ///                rLat = new etomica.lattice.LatticeFCC(sumOfMolecules, Default.BOX_SIZE).positions();//ConfigurationFcc.lattice(sumOfMolecules);
-				break;
-		}
+                break;
+        }
         
    // Place molecules     
-		int i = 0;
-		iterator.reset();
-		while(iterator.hasNext()) {
-			Atom a = iterator.nextAtom();
-			//initialize coordinates of child atoms
-			Configuration config = a.type.creator().getConfiguration();
-			if (config != null) {
-				config.initializeCoordinates(a);
-			}
+        int i = 0;
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.nextAtom();
+            //initialize coordinates of child atoms
+            Configuration config = a.type.creator().getConfiguration();
+            if (config != null) {
+                config.initializeCoordinates(a);
+            }
             a.coord.position().E(rLat[i]);
  //           System.out.println("configurationsequential: "+rLat[i].toString());
-			i++;
-		}
+            i++;
+        }
    //     initializeMomenta(phase.speciesMaster());
-	}
+    }
+    
 }

@@ -1,7 +1,8 @@
 package etomica;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.iterator.AtomIteratorCompound;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
@@ -14,7 +15,7 @@ import etomica.space3d.Space3D;
  * capability to assign lattice site to atoms when specifying their coordinates.
  * See setAssigningSitesToAtoms method.
  */
-public class ConfigurationLattice extends Configuration implements Atom.AgentSource {
+public class ConfigurationLattice extends ConfigurationMolecule implements Atom.AgentSource {
 
     public ConfigurationLattice(CubicLattice lattice) {
         this(lattice, new IndexIteratorSequential(lattice.D()));//need a default iterator
@@ -28,25 +29,21 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
+        atomIterator = new AtomIteratorListCompound();
 	}
 	
-	/**
-	 * @see etomica.Configuration#initializePositions(etomica.AtomIterator)
-	 */
-	public void initializePositions(AtomIterator[] iterators) {
-		if(iterators == null || iterators.length == 0) return;
-		AtomIterator iterator = (iterators.length == 1) ?
-                                    iterator = iterators[0] :
-                                    new AtomIteratorCompound(iterators);
-        int sumOfMolecules = iterator.size();
+    public void initializePositions(AtomList[] lists) {
+        if(lists.length == 0) return;
+        atomIterator.setLists(lists);
+        int sumOfMolecules = atomIterator.size();
         if(sumOfMolecules == 0) {return;}
-		if(sumOfMolecules == 1) {
-			iterator.reset();
+        if(sumOfMolecules == 1) {
+            atomIterator.reset();
             work.E(0.0);
             atomActionTranslateTo.setDestination(work);
-			atomActionTranslateTo.actionPerformed(iterator.nextAtom());
-			return;
-		}
+            atomActionTranslateTo.actionPerformed(atomIterator.nextAtom());
+            return;
+        }
         int nCells = (int)Math.ceil((double)sumOfMolecules/(double)lattice.getBasisSize());
         
         //determine scaled shape of simulation volume
@@ -99,10 +96,10 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         Vector offsetVector = Space.makeVector(offset);
         
         // Place molecules  
-		iterator.reset();
+		atomIterator.reset();
         indexIterator.reset();
-        while(iterator.hasNext()) {
-            Atom a = iterator.nextAtom();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
                 Configuration config = a.type.creator().getConfiguration();
@@ -141,6 +138,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	private boolean assigningSitesToAtoms = false;
 	private int siteIndex = -1;
     private final AtomActionTranslateTo atomActionTranslateTo;
+    private final AtomIteratorListCompound atomIterator;
 
 //  /**
 //  * Sets the size of the lattice (number of atoms in each direction) so that

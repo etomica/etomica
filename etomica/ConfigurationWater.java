@@ -1,35 +1,37 @@
 package etomica;
 
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
+
 
 public class ConfigurationWater extends Configuration {
 
     private double bondLengthOH = 4.0;
     private double angleHOH = 109.5*Math.PI/180.;
+    private final AtomIteratorListSimple moleculeIterator;
 
     public ConfigurationWater(Space space) {
         super(space);
+        moleculeIterator = new AtomIteratorListSimple();
     }
     
-    public void initializePositions(AtomIterator[] iterators){
-        if(iterators == null || iterators.length == 0) return;
+    public void initializePositions(AtomList list) {
+        moleculeIterator.setList(list);
         
-        AtomIterator iterator = iterators[0];
         double x = 6.0;
         double y = 6.0;
         
-        iterator.reset();
+        moleculeIterator.reset();
         
-        Atom o = iterator.nextAtom();
+        Atom o = moleculeIterator.nextAtom();
         o.coord.position().E(new double[] {x, y, 0.0});
                
-        Atom h1 = iterator.nextAtom();
+        Atom h1 = moleculeIterator.nextAtom();
         h1.coord.position().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        Atom h2 = iterator.nextAtom();
+        Atom h2 = moleculeIterator.nextAtom();
         h2.coord.position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
 
-    }//end of initializePositions
-    
-    
-
+    }
+        
 }

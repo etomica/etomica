@@ -4,22 +4,25 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.space.Vector;
 
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a phase
  */
-public class ConfigurationFile extends Configuration {
+public class ConfigurationFile extends ConfigurationMolecule {
 
     public ConfigurationFile(Space space, String aConfName) {
         super(space);
         confName = aConfName;
         newPos = space.makeVector();
+        atomIterator = new AtomIteratorListCompound();
     }
     
-    public void initializePositions(AtomIterator[] iterators){
-        if (iterators.length == 0) return;
+    public void initializePositions(AtomList[] atomLists) {
+        if (atomLists.length == 0) return;
         String fileName = confName+".pos";
         FileReader fileReader;
         try {
@@ -29,16 +32,11 @@ public class ConfigurationFile extends Configuration {
         }
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
-            AtomIterator iterator = iterators[0];
+            atomIterator.setLists(atomLists);
             AtomIteratorTree leafIterator = new AtomIteratorTree();
-            int iIterator = 0;
-            iterator.reset();
-            while (!iterator.hasNext() && iIterator < iterators.length-1) {
-                iterator = iterators[++iIterator];
-                iterator.reset();
-            }
-            while (iterator.hasNext()) {
-                Atom molecule = iterator.nextAtom();
+            atomIterator.reset();
+            while (atomIterator.hasNext()) {
+                Atom molecule = atomIterator.nextAtom();
                 if (molecule.node.isLeaf()) {
                     setPosition(molecule,bufReader.readLine());
                 }
@@ -49,17 +47,13 @@ public class ConfigurationFile extends Configuration {
                         setPosition(leafIterator.nextAtom(),bufReader.readLine());
                     }
                 }
-                while (!iterator.hasNext() && iIterator < iterators.length-1) {
-                    iterator = iterators[++iIterator];
-                    iterator.reset();
-                }
             }
             fileReader.close();
         } catch(IOException e) {
             throw new RuntimeException("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
         }
     }
-    
+        
     private void setPosition(Atom atom, String string) {
         String[] coordStr = string.split(" +");
         double[] coord = new double[coordStr.length];
@@ -72,4 +66,5 @@ public class ConfigurationFile extends Configuration {
     
     private String confName;
     private Vector newPos;
+    private final AtomIteratorListCompound atomIterator;
 }

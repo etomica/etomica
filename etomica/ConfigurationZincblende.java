@@ -2,6 +2,8 @@ package etomica;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -11,33 +13,36 @@ import etomica.space3d.Vector3D;
  * of two fcc lattices, with one shifted in each direction by one-quarter
  * of the lattice constant.
  */
-public class ConfigurationZincblende extends Configuration {
+public class ConfigurationZincblende extends ConfigurationMolecule {
     
     private final ConfigurationLattice fcc;
     private final AtomGroupAction translator;
+    private final AtomIteratorListSimple iterator0, iterator1;
     
     public ConfigurationZincblende(Space space) {
         super(space);
         fcc = new ConfigurationLattice(new LatticeCubicFcc());
         translator = new AtomGroupAction(new AtomActionTranslateBy(space));
+        iterator0 = new AtomIteratorListSimple();
+        iterator1 = new AtomIteratorListSimple();
     }
     
     /**
      * Initializes positions of atoms to the zincblende structure.  The given
-     * array should hold exactly two iterators, each with the same number of iterates.
+     * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializePositions(AtomIterator[] iterators){
-        if(iterators == null || iterators.length != 2) {//need an exception for this
+    public void initializePositions(AtomList[] lists) {
+        if(lists == null || lists.length != 2) {//need an exception for this
             System.err.println("inappropriate argument to ConfigurationZincBlende");
             return;
         }
-        if(iterators[0].size() != iterators[1].size()) {
+        if(lists[0].size() != lists[1].size()) {
             System.err.println("Warning: different numbers of molecules for two species in ConfigurationZincBlende");
         }
         
         //create fcc lattice each species at same positions
-        fcc.initializePositions(iterators[0]);
-        fcc.initializePositions(iterators[1]);
+        fcc.initializePositions(lists[0]);
+        fcc.initializePositions(lists[1]);
         
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();
@@ -45,17 +50,20 @@ public class ConfigurationZincblende extends Configuration {
         
         ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
 
-        iterators[0].reset();
-        while(iterators[0].hasNext()) {
-            translator.actionPerformed(iterators[0].nextAtom());
+        iterator0.setList(lists[0]);
+        iterator0.reset();
+        while(iterator0.hasNext()) {
+            translator.actionPerformed(iterator0.nextAtom());
         }
         shift.TE(-1.0);
         ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
-        iterators[1].reset();
-        while(iterators[1].hasNext()) {
-            translator.actionPerformed(iterators[1].nextAtom());
+        
+        iterator1.setList(lists[1]);
+        iterator1.reset();
+        while(iterator1.hasNext()) {
+            translator.actionPerformed(iterator1.nextAtom());
         }
-    }
+    }        
     
     public void setDimensions(double[] dimensions) {
         super.setDimensions(dimensions);

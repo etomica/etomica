@@ -1,7 +1,8 @@
 package etomica;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.iterator.AtomIteratorCompound;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -29,6 +30,7 @@ public class ConfigurationLinear extends Configuration {
         translator = new AtomActionTranslateBy(space);
         moveToOrigin = new AtomActionTranslateTo(space);
         translationVector = translator.getTranslationVector();
+        atomIterator = new AtomIteratorListSimple();
     }
 
     public void setBondLength(double b) {
@@ -61,22 +63,17 @@ public class ConfigurationLinear extends Configuration {
         bondLength = Math.sqrt(v.squared());
         orientation.TE(1.0/bondLength);
     }
-              
-    /**
-     * Sets all atoms coordinates to lie on a straight line at the set angle
-     * from the the x-axis, with the center of mass unchanged from the value
-     * before method was called
-     */
-    public void initializePositions(AtomIterator[] iterators) {
-        
-        AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);
-        int size = iterator.size();
-        if(iterator.size() == 0) return;
+
+    public void initializePositions(AtomList atomList) {
+        int size = atomList.size();
+        if(size == 0) return;
+
+        atomIterator.setList(atomList);
             
         double xNext = -bondLength*0.5*(double)(size-1);
-        iterator.reset();
-        while(iterator.hasNext()) {
-            Atom a = iterator.nextAtom();
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
                 Configuration config = a.type.creator().getConfiguration();
@@ -90,14 +87,14 @@ public class ConfigurationLinear extends Configuration {
             translator.actionPerformed(a);
             xNext += bondLength;
         }
-    }//end of initializeCoordinates
-    
+    }
+
     private double bondLength;
     private Vector orientation;
     private double[] angle;
-    private Space space;
     private Vector translationVector;
     private AtomActionTranslateBy translator;
     private AtomActionTranslateTo moveToOrigin;
+    private final AtomIteratorListSimple atomIterator;
 }//end of ConfigurationLinear
       
