@@ -2,7 +2,7 @@ package etomica;
 import etomica.units.Dimension;
 
 /**
- * Meter for evaluation of the potential energy in a phase
+ * Meter for evaluation of the potential energy in a phase.
  * Includes several related methods for computing the potential energy of a single
  * atom or molecule with all neighboring atoms
  *
@@ -18,8 +18,7 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
         super(sim);
         setLabel("Potential Energy");
         iteratorDirective.includeLrc = true;
-        potential = sim.hamiltonian.potential;
-        energy = sim.energySum(this);
+        potential = sim.potentialMaster;
     }
       
     public static EtomicaInfo getEtomicaInfo() {
@@ -55,7 +54,7 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
     }
     
     private final IteratorDirective iteratorDirective = new IteratorDirective();
-    private final PotentialCalculationEnergySum energy;
+    private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private final PotentialMaster potential;
     private final Atom[] singleAtom = new Atom[1];
     

@@ -56,6 +56,7 @@ public class SimulationGraphic extends Simulation {
         elementLists.put(Display.class, new LinkedList());
         elementLists.put(Device.class, new LinkedList());
         elementCoordinator = new MediatorGraphic(this);
+        potentialMaster.setSimulation(this);
     }//end of constructor
     
     /**
@@ -148,41 +149,41 @@ public class SimulationGraphic extends Simulation {
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
-        Simulation.instance = new SimulationGraphic(new Space2D());
-        DefaultGraphic.ATOM_COLOR = java.awt.Color.green;
-   //     Default.ATOM_SIZE = 1.0;                   
-	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
-	    speciesSpheres.setNMolecules(16);
-	    Phase phase = new Phase();
-	    Potential2 potential = new P2HardSphere();
-	    potential.setSpecies(speciesSpheres, speciesSpheres);
-	    Controller controller = new Controller();
-	    DisplayPhase displayPhase = new DisplayPhase();
-	    DisplayTimer timer = new DisplayTimer(integratorHard);
-	    timer.setUpdateInterval(10);
-//        integratorHard.setTimeStep(0.01);
-        displayPhase.setColorScheme(new ColorSchemeColliders(integratorHard));
-/*        displayPhase.setColorScheme(new ColorSchemeNull());
-        for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
-            atom.setColor(ConstantsGraphic.randomColor());
-        }*/
-        
-     //   p1HardBoundary.setSpecies(speciesSpheres);
-    //    PotentialGroup p1Group = new PotentialGroup(1);
-        P1HardBoundary p1HardBoundary = new P1HardBoundary();
-	    p1HardBoundary.setSpecies(speciesSpheres);
-        //p1Group.setSpecies(new Species[] {speciesSpheres});
-        
-        //this method call invokes the mediator to tie together all the assembled components.
-		Simulation.instance.elementCoordinator.go();
-		                                    
-		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
-        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-                
-     //   controller.start();
-    }//end of main
+//    public static void main(String[] args) {
+//        Simulation.instance = new SimulationGraphic(new Space2D());
+//        DefaultGraphic.ATOM_COLOR = java.awt.Color.green;
+//   //     Default.ATOM_SIZE = 1.0;                   
+//	    IntegratorHard integratorHard = new IntegratorHard();
+//	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
+//	    speciesSpheres.setNMolecules(16);
+//	    Phase phase = new Phase();
+//	    Potential2 potential = new P2HardSphere();
+//	    potential.setSpecies(speciesSpheres, speciesSpheres);
+//	    Controller controller = new Controller();
+//	    DisplayPhase displayPhase = new DisplayPhase();
+//	    DisplayTimer timer = new DisplayTimer(integratorHard);
+//	    timer.setUpdateInterval(10);
+////        integratorHard.setTimeStep(0.01);
+//        displayPhase.setColorScheme(new ColorSchemeColliders(integratorHard));
+///*        displayPhase.setColorScheme(new ColorSchemeNull());
+//        for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
+//            atom.setColor(ConstantsGraphic.randomColor());
+//        }*/
+//        
+//     //   p1HardBoundary.setSpecies(speciesSpheres);
+//    //    PotentialGroup p1Group = new PotentialGroup(1);
+//        P1HardBoundary p1HardBoundary = new P1HardBoundary();
+//	    p1HardBoundary.setSpecies(speciesSpheres);
+//        //p1Group.setSpecies(new Species[] {speciesSpheres});
+//        
+//        //this method call invokes the mediator to tie together all the assembled components.
+//		Simulation.instance.elementCoordinator.go();
+//		                                    
+//		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
+//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+//                
+//     //   controller.start();
+//    }//end of main
     
 }
 

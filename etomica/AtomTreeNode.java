@@ -162,12 +162,14 @@ public abstract class AtomTreeNode {
      * atom is this atom's parent, or its parent's parent, etc.
      */ 
     public boolean isDescendedFrom(Atom group) {
-        return this.isDescendedFrom(group.node);
+    	if(group == null) return false;
+        else return this.isDescendedFrom(group.node);
      //   return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
     }
     
     public boolean isDescendedFrom(AtomTreeNode node) {
-        return (this == node) || (parentNode != null && parentNode.isDescendedFrom(node));
+    	if(node == null) return false;
+        else return (this == node) || (parentNode != null && parentNode.isDescendedFrom(node));
     }
     
     /**

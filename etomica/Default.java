@@ -45,7 +45,7 @@ public final class Default {
     
     public static boolean IS_GRAPHIC = false;
     
-    public static final boolean FIX_OVERLAP = true;
+    public static final boolean FIX_OVERLAP = false;
     
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
