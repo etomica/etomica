@@ -10,6 +10,8 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
+import etomica.WriteConfiguration;
+import etomica.WritePDB;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -40,9 +42,10 @@ public class TestSWMC3D extends Simulation {
         super(space, new PotentialMasterCell(space));
         space.setKinetic(false);
         Default.makeLJDefaults();
+        double sqwLambda = 1.5;
 	    integrator = new IntegratorMC(potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(potentialMaster);
-        mcMoveAtom.setStepSize(2*Default.ATOM_SIZE);
+        mcMoveAtom.setStepSize(Default.ATOM_SIZE);
         integrator.addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -53,7 +56,7 @@ public class TestSWMC3D extends Simulation {
 	    phase = new Phase(this);
         phase.setDensity(0.7);
         integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
-        potential = new P2SquareWell(space);
+        potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,Default.POTENTIAL_WELL);
         ((PotentialMasterCell)potentialMaster).setNCells((int)(phase.boundary().dimensions().x(0)/potential.getRange()));
         ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());
         potential.setCriterion(etomica.nbr.NeighborCriterion.ALL);
@@ -64,8 +67,10 @@ public class TestSWMC3D extends Simulation {
         integrator.addPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
-//        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
-//        integrator.addIntervalListener(writeConfig);
+        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
+        integrator.addIntervalListener(writeConfig);
+        WritePDB writePDB = new WritePDB("SWMC3D"+Integer.toString(numAtoms),phase,1);
+        integrator.addIntervalListener(writePDB);
     }
  
     public static void main(String[] args) {
