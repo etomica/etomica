@@ -13,10 +13,11 @@ public final class MeterPressureHard extends MeterScalar implements
                                                 MeterCollisional,
                                                 EtomicaElement {
     
-    public MeterPressureHard() {
+    public MeterPressureHard(IntegratorHard integrator) {
         super();
         setLabel("PV/NkT");
         timer = new DataSourceCountTime();
+        setIntegrator(integrator);
     }
         
     public static EtomicaInfo getEtomicaInfo() {
@@ -70,7 +71,7 @@ public final class MeterPressureHard extends MeterScalar implements
 		if(newIntegrator == integratorHard) return;
 		if(integratorHard != null) integratorHard.removeCollisionListener(this);
 		integratorHard = newIntegrator;
-	    timer.setIntegrator(new IntegratorMD[] {(IntegratorMD)newIntegrator});
+	    timer.setIntegrator(new IntegratorMD[] {newIntegrator});
 	    if(newIntegrator != null) integratorHard.addCollisionListener(this);
 	}
    
