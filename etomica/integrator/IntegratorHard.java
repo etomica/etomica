@@ -323,9 +323,18 @@ public class IntegratorHard extends IntegratorMD {
 		}
 	}
 
+    public void initialize() {
+        super.initialize();
+        // call reset for real
+        reset();
+    }
+    
     public void reset() {
-        super.reset();
-        neighborsUpdated();
+        // block call from Integrator.initialize() since IntegratorMD hasn't thermostatted yet
+        if (initialized) {
+            super.reset();
+            neighborsUpdated();
+        }
     }
 
     /**
@@ -545,7 +554,7 @@ public class IntegratorHard extends IntegratorMD {
                     System.out.println(pair.atom1+" thought it would collide with "+aPartner);
                 }
                 if(aPartner == pair.atom0) {
-                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 1)) {
+                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 2)) {
                         System.out.println("Will update "+pair.atom1+" because it wanted to collide with "+aPartner);
                     }
                     listToUpdate.add(pair.atom1);
