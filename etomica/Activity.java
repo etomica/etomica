@@ -25,20 +25,20 @@ public abstract class Activity implements Action {
 	public abstract void run();
 
 	/**
-	 * Sets integrator to begin running on its own thread. This is the normal
+	 * Sets integrator to begin isActive on its own thread. This is the normal
 	 * way to begin the integrator's activity. Fires an event to listeners
 	 * indicating that integrator has started, calls the initialize method, and
 	 * starts a new thread that then enters the integrators run() method. If
-	 * integrator is already running, method call return immediately and has no
+	 * integrator is already isActive, method call return immediately and has no
 	 * effect.
 	 */
 	public void actionPerformed() {
 		haltRequested = false;
 		pauseRequested = false;
 		isPaused = false;
-		running = true;
+		isActive = true;
 		run();
-		running = false;
+		isActive = false;
 		if (haltRequested) {
 			synchronized(this) {notifyAll();}//release thread waiting for halt to take effect
 			throw new etomica.exception.AbnormalCompletionException();
@@ -116,8 +116,8 @@ public abstract class Activity implements Action {
 
 	/**
 	 * Queries whether the integrator is in a state of being paused. This may
-	 * occur independent of whether the integrator is running or not. If paused
-	 * but not running, then pause will take effect upon start.
+	 * occur independent of whether the integrator is isActive or not. If paused
+	 * but not isActive, then pause will take effect upon start.
 	 */
 	public boolean isPaused() {
 		return isPaused;
@@ -128,8 +128,8 @@ public abstract class Activity implements Action {
 	 * If so, returns true, even if integrator is presently paused (but not
 	 * halted).
 	 */
-	public final boolean isActive() {
-		return running;
+	public boolean isActive() {
+		return isActive;
 	}
 
 
@@ -141,7 +141,7 @@ public abstract class Activity implements Action {
 		this.label = label;
 	}
 
-	private boolean running = false;
+	private boolean isActive = false;
 
 	private boolean haltRequested = false;
 

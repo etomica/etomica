@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.activity.ActivityGroupSeries;
+
 /**
  * Organizer of actions of the integrators.  Controller sets the protocol for
  * conduct of the simulation.  For example, the simulation might start and stop 
@@ -8,7 +10,7 @@ package etomica;
  * The Controller runs on its own thread, and it spawns Integrator processes
  * each on its own thread.
  */
-public class Controller extends ActivityGroupSeries implements Runnable, java.io.Serializable, EtomicaElement {
+public class Controller extends ActivityGroupSeries implements java.io.Serializable, EtomicaElement {
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
@@ -21,12 +23,16 @@ public class Controller extends ActivityGroupSeries implements Runnable, java.io
      * No action is performed if a thread is already running this controller (i.e., if
      * start was called before, and actions remain to be completed).
      */
-    public void start() {
+    public synchronized void start() {
         if(isActive()) return;
-        Thread runner = new Thread(new Runnable() {
+        runner = new Thread(new Runnable() {
         	public void run() {actionPerformed();}
         });
         runner.start();
+    }
+    
+    public boolean isActive() {
+    	return (runner != null) && runner.isAlive();
     }
 
     public synchronized void addListener(ControllerListener listener) {

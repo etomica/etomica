@@ -1,5 +1,7 @@
-package etomica;
+package etomica.action.activity;
 
+import etomica.Action;
+import etomica.Activity;
 import etomica.utility.Arrays;
 
 /**

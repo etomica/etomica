@@ -2,10 +2,12 @@
  * History
  * Created on Oct 28, 2004 by kofke
  */
-package etomica;
+package etomica.action.activity;
 
 import java.util.LinkedList;
 
+import etomica.Action;
+import etomica.Activity;
 import etomica.utility.Arrays;
 
 /**
