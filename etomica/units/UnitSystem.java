@@ -83,5 +83,8 @@ public abstract class UnitSystem implements java.io.Serializable {
         
      }   
    
+    public static final UnitSystem MKS = new MKS();
+    public static final UnitSystem LJ = new LJ();
+    public static final UnitSystem SIM = new Sim();
     //will also define CGS, atomic, English
 }

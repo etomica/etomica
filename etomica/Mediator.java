@@ -72,7 +72,7 @@ public class Mediator implements java.io.Serializable {
     * field is set to <code>false</code>.
     */
     public void go() {
-        if(completed) return;
+ //       if(completed) return;
         completed = true;
         for(Iterator iter=parentSimulation().allElements().iterator(); iter.hasNext();) {
             add((Simulation.Element)iter.next());

@@ -32,7 +32,7 @@ public interface DataSource {
      * or average value from a Meter).
      */
     public static abstract class ValueType extends Constants.TypedConstant {
-        public ValueType(String label) {super(label);}
+        protected ValueType(String label) {super(label);}
     }
     
     /**

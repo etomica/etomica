@@ -31,7 +31,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     }
     public DeviceThermoSelector(Simulation sim) {
         super(sim);
-        selector = new javax.swing.JComboBox();
+        selector = new javax.swing.JComboBox(new Object[] {new Object()}); //swingall JComboBox doesn't chokes if we don't give initialize without an object in the list
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
         label = new javax.swing.JLabel("");
@@ -61,6 +61,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
 		        else {
 		            integrator.setIsothermal(true);
 		            integrator.setTemperature(unit.toSim(((Double)item).doubleValue()));
+		            integrator.reset();
 		        }
 		    }
 		});//end of addItemListener

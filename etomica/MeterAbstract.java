@@ -242,18 +242,20 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	 * Flags whether the meter uses the phase boundary when making its measurements.
 	 * If so, then the meter will be registered (within the setPhase method) as an observer of the phase's boundaryMonitor,
 	 * which notifies if the boundary object in the phase is changed to another boundary.
-	 * This method is declared abstract, rather than given a default value, to minimize 
-	 * typographical errors in subclasses that try to declare it to return <code>true</code>.
+	 * This method returns <code>false</code> by default. Subclasses that use the 
+	 * phase boundary should override this method to return <code>true</code> (and take care
+	 * not to make a typographical error in the name and thereby just define a different method).
 	 */
-	protected abstract boolean usesPhaseBoundary();
+	protected boolean usesPhaseBoundary() {return false;}
 	/**
 	 * Flags whether the meter uses the phase iteratorFactory when making its measurements.
-	 * If so, then the meter will be registered (within the setPhae method) as an observer of the phase's iteratorFactoryMonitor,
+	 * If so, then the meter will be registered (within the setPhase method) as an observer of the phase's iteratorFactoryMonitor,
 	 * which notifies if the iteratorFactory object in the phase is changed to another iteratorFactory.
-	 * This method is declared abstract, rather than given a default value, to minimize 
-	 * typographical errors in subclasses that try to declare it to return <code>true</code>.
+	 * This method returns <code>false</code> by default.  Subclasses that use the 
+	 * phase iteratorFactory should override this method to return <code>true</code> (and take care
+	 * not to make a typographical error in the name and thereby just define a different method).
 	 */
-	protected abstract boolean usesPhaseIteratorFactory();
+	protected boolean usesPhaseIteratorFactory() {return false;}
 	
 	/**
 	 * Method performs no action, but can be overridden in subclasses to handle setting or change of boundary in phase
@@ -551,7 +553,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	 * Used primarily by Display objects.
 	 */
 	public static class ValueType extends DataSource.ValueType {
-        public ValueType(String label) {super(label);}       
+        private ValueType(String label) {super(label);}       
         public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
         public static final ValueType[] CHOICES = 
             new ValueType[] {

@@ -137,6 +137,7 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
      */
     public void setWhichValues(DataSource.ValueType[] types) {
         whichValues = types;
+        if(ySource == null) return;
         y = new double[ySource.length][whichValues.length];
         setupDisplay();
     }

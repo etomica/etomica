@@ -14,9 +14,10 @@ import etomica.statmech.MaxwellBoltzmann;
 
 public class PotentialHardDiskWall extends Potential implements Potential.Hard, EtomicaElement {
     
-    public final String getVersion() {return "PotentialHardDiskWall:01.02.15.0/"+Potential.VERSION;}
+    public final String getVersion() {return "PotentialHardDiskWall:01.02.15/"+Potential.VERSION;}
 
     protected double collisionDiameter, collisionRadius;
+    private double lastCollisionVirial;
     
     private boolean isothermal = false;
     private double temperature = Default.TEMPERATURE;
@@ -98,10 +99,10 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
             dv *= -1;
         }
         double a = 0.0;
-        if(wall.ia instanceof Integrator.Agent.Forcible) {
+        if(wall.ia instanceof Integrator.Agent.Forcible  && !wall.isStationary()) {
             a = ((Integrator.Agent.Forcible)wall.ia).force().component(i) * wall.rm();
         }
-        if(disk.ia instanceof Integrator.Agent.Forcible) {
+        if(disk.ia instanceof Integrator.Agent.Forcible  && !disk.isStationary()) {
             a -= ((Integrator.Agent.Forcible)disk.ia).force().component(i) * disk.rm();
         }
         //wall or disk has non-zero force
@@ -175,7 +176,8 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
           double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
           double dp = -2.0/(wall.rm() + disk.rm())*dv;
           wall.momentum().PE(i,+dp);  
-          disk.momentum().PE(i,-dp);  
+          disk.momentum().PE(i,-dp);
+          wallType.pAccumulator -= dp;
         }
         
         moveToContact(i, pair);

@@ -23,6 +23,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
  
     private Constants.Direction direction = Constants.NORTH;
     Space2D.Vector dimensions = new Space2D.Vector();
+    private Atom piston;
+    
    /**
     * Vector giving the unit normal to the piston, away from the inside of the cylinder.
     */
@@ -333,6 +335,27 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             return diameter * Math.abs(m.firstAtom().r.component(index) - m.getAtom(2).r.component(index));
         }
     }//end of Boundary class
+    
+    /**
+     * An extension of the Action class that toggles the piston between
+     * being stationary (fixed) and freely movable.
+     */
+    public class ActionFixPiston extends etomica.Action {
+        Atom piston;
+        Phase phase;
+        public ActionFixPiston(Phase phase) {
+            Species.Agent agent = SpeciesPistonCylinder.this.getAgent(phase);
+            piston = agent.firstAtom();
+            setLabel("Hold/release piston");
+            this.phase = phase;
+        }
+        
+        public void actionPerformed() {
+            piston.setStationary(!piston.isStationary()); //set stationary
+            piston.p.E(0.0);                              //set momentum to zero
+            phase.integrator().reset();                   //update integrator
+        }
+    }
     
     /**
      * Demonstrates and tests this class.

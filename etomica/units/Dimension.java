@@ -18,6 +18,12 @@ import etomica.Simulation;
  *
  * @author David Kofke
  */
+
+//Java2 imports
+//import java.util.LinkedList;
+
+import etomica.utility.LinkedList;
+
 public abstract class Dimension implements java.io.Serializable {
     
     public Dimension() {}
@@ -181,7 +187,8 @@ public abstract class Dimension implements java.io.Serializable {
      * Returns all dimension classes with the same signature as the one given.
      */
     public static Dimension[] convertSignature(double[] sig) {
-        java.util.ArrayList dimList = new java.util.ArrayList(5);
+ //       java.util.ArrayList dimList = new java.util.ArrayList(5);
+        LinkedList dimList = new LinkedList();
         for(int i=0; i<ALL.length; i++) {
             double[] dSig = ALL[i].signature();
             if(sig[0]==dSig[0] && sig[1]==dSig[1] && sig[2]==dSig[2] && sig[3]==dSig[3]) {

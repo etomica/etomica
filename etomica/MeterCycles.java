@@ -30,16 +30,7 @@ public final class MeterCycles extends Meter implements EtomicaElement
     }
 
     public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
-    
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-    
+        
     /**
      * Returns dimensions of this meter's output, which in this case is QUANTITY.
      */

@@ -21,9 +21,10 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
 
     protected DataSource[] ySource;
     protected DataSource xSource;
-    protected Unit yUnit, xUnit;
+    protected Unit[] yUnit;
+    protected Unit xUnit;
     String xLabel;
-    protected double x[];
+    protected double[] x;
     protected double[][] y;
     protected DataSource.ValueType whichValueX, whichValue;
         
@@ -64,9 +65,16 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
         }
         ySource = s;
         y = new double[ySource.length][];
-        //change unit if dimension of new source is different from current source        
-        if(yUnit.dimension() != ySource[0].getDimension()) 
-            setYUnit(ySource[0].getDimension().defaultIOUnit());
+        
+        //set up default units, but try to keep old units if possible
+        if(yUnit == null || yUnit.length != y.length) yUnit = new Unit[ySource.length];
+        for(int i=0; i<yUnit.length; i++) {
+            if(yUnit[i]==null || yUnit[i].dimension() != ySource[i].getDimension()) {
+                //no unit presently defined, or existing unit is not 
+                //of same Dimension as corresponding ySource
+               yUnit[i] = ySource[i].getDimension().defaultIOUnit();
+            }//end if
+        }//end for
         if(xSource == null && ySource[0] instanceof DataSource.X) 
             xSource = ySource[0];
         setupX();
@@ -78,6 +86,11 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
         else if(ySource == null && i == 0) {setDataSources(s); return;}
         if(i < 0 || i >= ySource.length) throw new ArrayIndexOutOfBoundsException();
         else ySource[i] = s;
+        if(yUnit[i]==null || yUnit[i].dimension() != ySource[i].getDimension()) {
+            //no unit presently defined, or existing unit is not 
+            //of same Dimension as corresponding ySource
+            yUnit[i] = ySource[i].getDimension().defaultIOUnit();
+        }//end if
         setupX();
         setupDisplay();
     }
@@ -200,8 +213,34 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     
     public void setXUnit(Unit u) {xUnit = u;}
     public Unit getXUnit() {return xUnit;}
-    public void setYUnit(Unit u) {yUnit = u;}
-    public Unit getYUnit() {return yUnit;}
+    /**
+     * Sets all units to the given value.
+     */
+    public void setYUnit(Unit u) {
+        if(ySource == null) return;
+        yUnit = new Unit[ySource.length];
+        for(int i=0; i<yUnit.length; i++) yUnit[i] = u;
+    }
+    /**
+     * Sets the array of units for the y-data.
+     */
+    public void setYUnit(Unit[] u) {
+        if(ySource == null || u == null) return;
+        if(u.length != ySource.length) return;
+        yUnit = new Unit[ySource.length];
+        for(int i=0; i<yUnit.length; i++) yUnit[i] = u[i];
+    }
+    public Unit[] getYUnit() {return yUnit;}
+    public Unit getYUnit(int i) {return yUnit[i];}
+    
+    /**
+     * Same as setYUnit.
+     */
+    public void setUnit(Unit u) {setYUnit(u);}
+    /**
+     * Same as getYUnit(0).
+     */
+    public Unit getUnit() {return getYUnit(0);}
     public void setXLabel(String text) {xLabel = text;}
     public String getXLabel() {return xLabel;}
     

@@ -16,7 +16,7 @@ import javax.swing.JPanel;
  */
 public abstract class Display extends Panel implements Simulation.GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
 
-    public static final String VERSION = "Display:01.03.11";
+    public static final String VERSION = "Display:01.06.07";
     private String name;
     
   /**
@@ -71,6 +71,11 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
      * May override in subclass to return a more appropriate graphical element, or none at all.
      */
     public Component graphic(Object obj) {return this;}
+    
+    /**
+     * Same as graphic method with a null argument.
+     */
+    public final Component graphic() {return graphic(null);}
     
     /**
      * Method called to update the display.  

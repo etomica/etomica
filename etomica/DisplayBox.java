@@ -70,7 +70,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         setUpdateInterval(5);
         setPrecision(4);
         
-        addMouseListener(new MouseAdapter() {
+/*        addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {//right-click
                     Device editor = new DeviceUnitEditor(DisplayBox.this);
@@ -80,7 +80,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
                     parentSimulation().repaint();
                 }
             }
-        });
+        });  */
     }//end of constructor
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -60,12 +60,8 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         }
         setLabel(ySource[0].getLabel());
         plot.setYLabel(ySource[0].getLabel());
-        //change unit if dimension of new source is different from current source        
-        if(yUnit.dimension() != ySource[0].getDimension()) 
-            setYUnit(ySource[0].getDimension().defaultIOUnit());
 
         if(xSource == null) {
-            setXUnit(Unit.NULL);
             plot.setXLabel("");
         }
         else {
@@ -83,7 +79,7 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         ///new stuff
         for(int k=0; k<nSource; k++) {
             for(int i=0; i<x.length; i++) {
-              plot.addPoint(k, xUnit.fromSim(x[i]), yUnit.fromSim(y[k][i]), true);
+              plot.addPoint(k, xUnit.fromSim(x[i]), yUnit[k].fromSim(y[k][i]), true);
             }//for i
         }//for k
         plot.repaint();

@@ -18,7 +18,7 @@ import etomica.electrostatics.*;
  */
 
 public abstract class AtomType implements java.io.Serializable {
-    public static String getVersion() {return "01.03.05.0";}
+    public static String getVersion() {return "01.03.05";}
     private double mass, rm;
     private Color color;
     private ElectroType electroType;
@@ -297,6 +297,7 @@ public abstract class AtomType implements java.io.Serializable {
         protected double temperature = Kelvin.UNIT.toSim(300.);
         protected boolean adiabatic = true;
         private Constants.Alignment alignment;
+        public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
         public Wall(double m, Color c, double l, double a) {
             super(m, c);
@@ -372,7 +373,40 @@ public abstract class AtomType implements java.io.Serializable {
                 int hP = horizontal ? t : (int)(toPixels*length);
                 g.fillRect(xP,yP,wP,hP);
             }
-        }
+        }//end of draw method
+        
+        //Meter that evaluates pressure based on accumulated momentum from collisions with wall
+        public class MeterPressure extends etomica.Meter {
+            
+            private double timeSum;
+            public MeterPressure() {
+                this(Simulation.instance);
+            }
+            public MeterPressure(Simulation sim) {
+                super(sim);
+            }
+            public etomica.units.Dimension getDimension() {return etomica.units.Dimension.PRESSURE;}
+
+            public void intervalAction(Integrator.IntervalEvent evt) {
+                IntegratorMD integrator = (IntegratorMD)evt.getSource();
+                if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
+                timeSum += integrator.timeStep * integrator.interval;
+	            if(--iieCount == 0) {
+	                iieCount = updateInterval;
+	                updateSums();
+	                timeSum = 0.0;
+	                pAccumulator = 0.0;
+	            }
+            }
+
+            public double currentValue() {
+                double flux = pAccumulator/timeSum;   //divide by time interval
+                flux /= (length*etomica.units.BaseUnit.D2.FALSE_DEPTH); //divide by area
+//                timeSum = 0.0;          //zeroing should be moved to intervalAction?
+//                pAccumulator = 0.0;
+                return flux;
+            }
+        }//end of MeterPressure
     }
     
     //prototype of 3D type

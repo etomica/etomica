@@ -1,4 +1,8 @@
 package etomica.utility;
+//Java2 imports
+//import java.util.LinkedList;
+
+import etomica.utility.LinkedList;
 
 public class OdeSolver {
     
@@ -64,7 +68,7 @@ public class OdeSolver {
         double[] ys = new double[ny];
         int n = 100; //initial choice for number of steps
         double h = (xf - xy0.x)/(double)n;
-        java.util.ArrayList values = new java.util.ArrayList(n);
+        LinkedList values = new LinkedList();
         values.add(xy0);
         boolean last = false;
         while(true) {

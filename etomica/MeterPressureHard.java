@@ -31,15 +31,6 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
         EtomicaInfo info = new EtomicaInfo("Pressure measured via impulsive virial averaged over interatomic hard collisions");
         return info;
     }
-
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
         
     /**
      * Indicator that this meter returns quantity of dimension TEMPERATURE (note: returns PV/Nk, not P)
