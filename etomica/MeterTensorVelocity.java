@@ -9,6 +9,11 @@ import etomica.units.*;
  * 
  * @author Rob Riggleman
  */
+
+/* History
+ * 04/08/04 (JKS) fixed velocityTensor.TE call in current value to make sure
+ * argument isn't made zero by ratio of two integers (1 -> 1.0)
+ */
 public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atomic {
     /**
      * Iterator of atoms.
@@ -70,7 +75,7 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
             velocity.TE(a.coord.rm());
             velocityTensor.PE(velocity);
         }
-        velocityTensor.TE(1/phase.atomCount());
+        velocityTensor.TE(1.0/phase.atomCount());
         return velocityTensor;
     }
     

@@ -14,18 +14,18 @@ package etomica;
 public class MCMoveInsertDelete extends MCMove {
     
     //chemical potential
-    private double mu;
+    protected double mu;
     
     //directive must specify "BOTH" to get energy with all atom pairs
-    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private Species species;
-    private SpeciesAgent speciesAgent;
-    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private Atom testMolecule;
-    private double uOld;
-    private double uNew = Double.NaN;
-    private boolean insert;
-    private AtomReservoir reservoir;
+    protected final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+	protected Species species;
+	protected SpeciesAgent speciesAgent;
+	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+	protected Atom testMolecule;
+	protected double uOld;
+	protected double uNew = Double.NaN;
+	protected boolean insert;
+	protected AtomReservoir reservoir;
 
     public MCMoveInsertDelete(IntegratorMC parent) {
         super(parent);

@@ -13,7 +13,7 @@ public abstract class Primitive {
     public final int D;
     protected final double[] size;
     protected final double[] angle;
-    private final double[] sizeCopy;
+//    private final double[] sizeCopy;
     public final Space space;
 //    protected Simulation simulation;
     protected BravaisLattice lattice;
@@ -40,7 +40,7 @@ public abstract class Primitive {
         latticeVectorsCopy = new Space.Vector[D];
         idx = new int[D];
         size = new double[D];
-        sizeCopy = new double[D];
+//        sizeCopy = new double[D];
         angle = new double[D];
         for(int i=0; i<D; i++) {
             latticeVectors[i] = space.makeVector();
@@ -129,11 +129,12 @@ public abstract class Primitive {
     /**
      * Returns a copy of the array of primitive-vector sizes.
      */
-/*    public double[] getSize() {
-        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
-        return sizeCopy;
-    }
-*/    
+    //deleted because getSize is defined to return double in PrimitiveBcc, etc.
+//    public double[] getSize() {
+//        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
+//        return sizeCopy;
+//    }
+    
 
     protected void update() {
         if(immutable) return;

@@ -184,7 +184,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 //		double sigmaHSMod = sigmaW*SimulationVirial.sigmaLJ1B(epsW/simTemperature); //range in which modified-f for sampling will apply abs() function
 		System.out.println((epsW/simTemperature)+" "+sigmaHSRef);
 //		System.out.println((epsW/temperature)+" "+sigmaHSMod);
-		int nMolecules = 4;
+		int nMolecules = 2;
 		SimulationVirialWater sim = new SimulationVirialWater(nMolecules, simTemperature);
 		
 		//set up simulation potential

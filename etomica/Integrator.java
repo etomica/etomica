@@ -18,6 +18,7 @@ import etomica.units.*;
  * 08/25/03 (DAK) changed default for doSleep to <false>
  * 01/27/04 (DAK) initialized iieCount to inverval (instead of interval+1) in
  * run method; changed setInterval do disallow non-positive interval
+ * 04/13/04 (DAK) modified reset such that doReset is called if running is false
  */
 public abstract class Integrator extends SimulationElement implements Runnable, java.io.Serializable {
 
@@ -360,13 +361,17 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     }//end of run method
     
     /**
-     * Requests that the integrator reset itself.  The actual action an
-     * integrator takes to do this differs with the type of integrator.
-     * The reset is not performed until the completion of the current 
-     * integration step, or until the integrator is unpaused if currently
-     * in a paused state.
+     * Requests that the integrator reset itself; if integrator is not running,
+     * then reset will be performed immediately. The actual action an integrator
+     * takes to do this differs with the type of integrator. The reset is not
+     * performed until the completion of the current integration step, or until
+     * the integrator is unpaused if currently in a paused state.
      */
-    public void reset() {resetRequested = true;}
+    public void reset() {
+    	if(!initialized) return;
+    	if(running) resetRequested = true;
+    	else doReset();
+    }
     
     /**
      * Method to put integrator in a condition of being paused.
