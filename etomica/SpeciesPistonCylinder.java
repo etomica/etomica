@@ -3,8 +3,6 @@ package etomica;
 import etomica.units.*;
 import etomica.units.Dimension;
 
-import java.awt.Graphics;
-
 /** 
  * Four walls arranged as a piston-cylinder apparatus.  All but one
  * wall (the piston) is stationary.
@@ -38,7 +36,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     }
     public SpeciesPistonCylinder(Simulation sim) {
         super(sim,1,4);  //1 molecule, 4 atoms
-        java.awt.Color color = Constants.DARK_RED;
         double longLength = length;
         double shortLength = diameter;
         double angle = 0;
@@ -48,7 +45,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         protoType[3].setLength(longLength);
         for(int i=0; i<4; i++) {
             protoType[i].setThickness(thickness);
-            protoType[i].setColor(color);
         }
         protoType[0].setThickness(pistonThickness);
         protoType[0].setLongWall(false);
@@ -364,7 +360,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     /**
      * Demonstrates and tests this class.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         
@@ -423,7 +419,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         //pressure field on piston
         Potential1.Agent potential1Agent = (Potential1.Agent)pressureField.getAgent(phase1);
         potential1Agent.setIterator(new AtomIteratorSinglet(((SpeciesAgent)pistonCylinder.getAgent(phase1)).firstLeafAtom()));
-   */     
+   * /     
 		Simulation.instance.elementCoordinator.go();
 //		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.momentum().E(0.0);
 		pistonCylinder.setStationary(true);
@@ -449,7 +445,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 	                g.drawString(Integer.toString(a.index()), xP-20, yP-20);
 	            }
 	        }
-	    });  */
+	    });  * /
     }//end of main
-  
+  */
 }

@@ -1,8 +1,7 @@
 package etomica;
-import java.util.EventObject;
 
 /**
- * Event that conveys some activity with respect to a phase or the things it contains.
+ * Event that conveys some happening with respect to a phase or the things it contains.
  *
  * @see PhaseListener
  * @see DisplayPhaseListener

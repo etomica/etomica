@@ -1,6 +1,4 @@
 package etomica;
-import java.awt.Graphics;
-import java.awt.Color;
 import etomica.units.*;
 import etomica.electrostatics.*;
 
@@ -18,25 +16,19 @@ import etomica.electrostatics.*;
  */
 
 public abstract class AtomType implements java.io.Serializable {
-    public static String getVersion() {return "AtomType:01.07.10";}
+    public static String getVersion() {return "AtomType:01.11.20";}
     private double mass, rm;
-    private Color color;
     private ElectroType electroType;
-    private static int CarbonID = 0;
-    private static int HydrogenID = 0;
-    private static int OxygenID = 0;
-    private static int NitrogenID = 0;
     private String name;
     private /*final*/ AtomFactory creator;
     
     public AtomType(AtomFactory creator) {
-        this(creator, Default.ATOM_MASS, Default.ATOM_COLOR);
+        this(creator, Default.ATOM_MASS);
     }
     
-    public AtomType(AtomFactory creator, double m, Color c) {
+    public AtomType(AtomFactory creator, double m) {
         this.creator = creator;
         setMass(m);
-        setColor(c);
         setElectroType(new ElectroType.Null());
     }
     
@@ -77,10 +69,6 @@ public abstract class AtomType implements java.io.Serializable {
     }
     public final double rm() {return rm;}
 
-    // AtomType color may or may not determine atom.color (and thus drawn color), depending on ColorScheme
-    public final Color color() {return color;}
-    public final void setColor(Color c) {color = c;}
-    
 
     // Sphere-shaped atom.  Assumed to be in 2D
     public static class Sphere extends AtomType {
@@ -88,10 +76,10 @@ public abstract class AtomType implements java.io.Serializable {
         double diameter, radius;
         
         public Sphere(AtomFactory creator) {
-            this(creator, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+            this(creator, Default.ATOM_MASS, Default.ATOM_SIZE);
         }
-        public Sphere(AtomFactory creator, double m, Color c, double d) {
-            super(creator, m, c);
+        public Sphere(AtomFactory creator, double m, double d) {
+            super(creator, m);
             setDiameter(d);
         }
                     
@@ -113,8 +101,8 @@ public abstract class AtomType implements java.io.Serializable {
     public final static class OrientedSphere extends Sphere implements SphericalTop {
         
         private final double[] I = new double[3];
-        public OrientedSphere(AtomFactory creator, double m, Color c, double d) {
-            super(creator,m,c,d);
+        public OrientedSphere(AtomFactory creator, double m, double d) {
+            super(creator,m,d);
             updateI();
         }
         public double[] momentOfInertia() {return I;}
@@ -146,8 +134,8 @@ public abstract class AtomType implements java.io.Serializable {
         private double lambda;                    //diameter of well, in units of core diameter
         private double wellDiameter, wellRadius;  //size of well, in simulation units
         
-        public Well(AtomFactory creator, double m, Color c, double d, double l) {
-            super(creator, m, c, d);
+        public Well(AtomFactory creator, double m, double d, double l) {
+            super(creator, m, d);
             setDiameter(d);
             setLambda(l);
         }
@@ -184,8 +172,8 @@ public abstract class AtomType implements java.io.Serializable {
         private Constants.Alignment alignment;
         public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
-        public Wall(AtomFactory creator, double m, Color c, double l, double x, double y, double z) {
-            super(creator, m, c);
+        public Wall(AtomFactory creator, double m, double l, double x, double y, double z) {
+            super(creator, m);
             setLength(l);
             setXAngle(x);
             setYAngle(y);
@@ -360,12 +348,10 @@ public abstract class AtomType implements java.io.Serializable {
         public Group(AtomFactory creator) {
             super(creator);
         }
-        public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}
     }
 
     private static class Null extends AtomType.Group {
         public Null() {super(null);}
-        public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}
     }
     public static final AtomType.Null NULL = new Null();
         

@@ -196,7 +196,7 @@ import etomica.units.Dimension;
      * main method to demonstrate and check class.
      * Should output the values described in the comments for the LimitType class.
      */
-    public static void main(String args[]) {
+/*    public static void main(String args[]) {
         
         DataSourceUniform source = new DataSourceUniform();
         
@@ -217,4 +217,5 @@ import etomica.units.Dimension;
         System.out.println("Done");
         
     }//end of main
+    */
  }//end of class

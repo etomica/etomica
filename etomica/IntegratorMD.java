@@ -98,7 +98,7 @@ public abstract class IntegratorMD extends Integrator {
     /** 
      * DisplayBox to present the elapsed time
      */
-    public class Timer extends DisplayBox {
+/*    public class Timer extends DisplayBox {
     
         public Timer() {this(chronoMeter());}
         public Timer(ChronoMeter meter) {
@@ -108,6 +108,6 @@ public abstract class IntegratorMD extends Integrator {
             this.setPrecision(7);
             graphic().setSize(100,60);
         }
-    }
+    }*/
 }
     

@@ -15,7 +15,7 @@ import etomica.*;
  *       integrator.addMCMoveListener(associationManager);
  *
  */
-public class AssociationManager implements MCMoveEventListener {
+public class AssociationManager implements MCMoveListener {
     
     private AssociationDefinition associationDefinition;
     private final int index = Atom.requestAtomListIndex();

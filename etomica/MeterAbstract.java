@@ -1,6 +1,5 @@
 package etomica;
 
-import java.awt.Graphics;
 import java.util.Observable;
 import java.util.Observer;
 import etomica.units.Dimension;

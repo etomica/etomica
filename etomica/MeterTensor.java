@@ -1,12 +1,12 @@
 package etomica;
 import etomica.units.Dimension;
-import javax.swing.JTable;
+/*import javax.swing.JTable;
 import javax.swing.table.*;
 import javax.swing.Box;
-import java.awt.event.*;
+//import java.awt.event.*;
 import java.awt.*;
 import javax.swing.JScrollPane;
-import etomica.utility.Histogram;
+*/import etomica.utility.Histogram;
 
 
 /**
@@ -147,7 +147,7 @@ public abstract class MeterTensor extends MeterAbstract {
     * Creates a table to display the values of the tensor.  
     */    
     
-    public class DisplayTensorTable extends Display {
+/*    public class DisplayTensorTable extends Display {
         public JTable table;
         MyTableData dataSource;
         MeterTensor meterT;
@@ -281,7 +281,7 @@ public abstract class MeterTensor extends MeterAbstract {
         
         void DisplayTable_FocusGained(java.awt.event.FocusEvent event) {
         }
-    }
+    }*/
 }
     
     

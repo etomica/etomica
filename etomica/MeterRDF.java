@@ -102,7 +102,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	/**
 	 * main method to demonstrate and test use of class.
 	 */
-	 public static void main(String[] args) {
+/*	 public static void main(String[] args) {
 	    
 	    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 	    Simulation.instance = sim;
@@ -116,6 +116,6 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    
 	    Simulation.makeAndDisplayFrame(sim);
 	 }//end of main
-	    
+	*/    
 }
     

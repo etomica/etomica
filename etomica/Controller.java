@@ -1,10 +1,5 @@
 package etomica;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Component;
-import java.awt.event.*;
 //Java2 imports
 //import java.util.LinkedList;
 //import java.util.Iterator;
@@ -33,7 +28,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     private boolean initialized = false;
     private boolean autoStart = false;
     private int maxSteps;
-    private Button startStopButton;
+    private boolean paused = true;
     
     private SimulationEventManager eventManager = new SimulationEventManager();
 
@@ -43,7 +38,6 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     public Controller(Simulation sim) {
         super(sim, Controller.class);
         maxSteps = Integer.MAX_VALUE;
-        setMakeButton(true);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -56,9 +50,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     * Resets the controller in some manner.
     * Performs no action for this controller, but may do something in subclasses
     */
-    public void reset() {
-        if(startStopButton != null) startStopButton.reset();
-    }
+    public void reset() {}
  
    /**
     * Adds an integrator to the list of integrators managed by this controller.
@@ -109,6 +101,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     public void start() {
         if(runner != null) return;
         parentSimulation().elementCoordinator.go();
+        paused = false;
         runner = new Thread(this);
         runner.start();
     }
@@ -124,7 +117,8 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     public void run() {
         parentSimulation().elementCoordinator.go();  //perhaps redundant, but safe since it returns without performing any action if already completed
         for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
-            ((Integrator)iter.next()).start();
+            Integrator integrator = (Integrator)iter.next();
+            if(!integrator.isActive()) integrator.start();
         }
         runner = null;
     }
@@ -134,135 +128,65 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
      */
     public void halt() {
         for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
-            ((Integrator)iter.next()).halt();
+            Integrator integrator = (Integrator)iter.next();
+            if(integrator.isActive()) integrator.halt();
         }
-    }        
+        paused = true;
+    }
     
-    public synchronized void addListener(ControllerEventListener listener) {
+    /**
+     * Sends a pause signal to all active integrators.
+     */
+    public void pause() {
+        if(paused) return;
+        paused = true;
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+            Integrator integrator = (Integrator)iter.next();
+            if(integrator.isActive()) integrator.pause();
+        }
+    }
+
+    /**
+     * Sends a resume signal to all active integrators.
+     */
+    public void unPause() {
+        if(!paused) return;
+        paused = false;
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+            Integrator integrator = (Integrator)iter.next();
+            if(integrator.isActive()) integrator.unPause();
+        }
+    }
+    
+    /**
+     * Returns true if any integrator governed by this controller is active.
+     * Returns false if none are active.
+     */
+    public boolean isActive() {
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+            if(((Integrator)iter.next()).isActive()) return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Returns true if controller is not active or if pause() was last called
+     * without an intervening call to unPause().
+     */
+    public boolean isPaused() {return paused;}
+        
+    
+    public synchronized void addListener(ControllerListener listener) {
         eventManager.addListener(listener);
     }
 
-    public synchronized void removeListener(ControllerEventListener listener) {
+    public synchronized void removeListener(ControllerListener listener) {
         eventManager.removeListener(listener);
     }
 
     protected void fireEvent(ControllerEvent event) {
         eventManager.fireEvent(event);
     }    
-    
-    private boolean makeButton = false;
-    
-    public void setMakeButton(boolean b) {
-        if(!b || makeButton) return; //return if argument is false or already made button
-        startStopButton = new Button();
-        makeButton = true;
-    }
-    public boolean getMakeButton() {return makeButton;}
-    
-    public Button getButton() {return startStopButton;}
-    
-    /**
-     * A device that presents a button to pause and resume all integrators
-     * operated by this controller.  This is a member class of this controller.
-     * An instance of it is created by the syntax<br>
-     *   Controller.Button button = controller.new Button()<br>
-     * where "controller" is the name of the instance of this controller
-     */
-    public class Button extends Device implements ActionListener {
-        
-        /**
-         * The awt Button that the user interacts with to control the Controller
-         */
-        public javax.swing.JButton button;
-        private boolean firstClick = true;
-        private boolean running = false;
-
-        public Button() {
-            super(Controller.this.parentSimulation());
-            if(button == null) button = new javax.swing.JButton("Start");
- //           button.setSize(60,40);
-            autoStart = false;
-            button.addActionListener(this);  //register this as a listener to the awt Button
-        }
-        
-        /**
-         * Sets the button to the state when it is first created, and before it has
-         * started the controller
-         */
-        public void reset() {
-            firstClick = true;
-            button.setText("Start");
-        }
-        /**
-         * A method that mimics the action of a button click.  Useful if another
-         * object wants to pause the simulation in a way that leaves the button in
-         * a consistent state
-         */
-        public void clickButton() {  
-            actionPerformed(new ActionEvent(button,0,""));
-        }
-        
-        /**
-         * A method that mimics the action of a button click, but only if the integrators are not already paused.
-         * If the integrators are currently paused, the method has no action.
-         */
-        public void clickForPause() {  //clicks button to pause if not already paused
-            if(running) clickButton();
-        }
-              
-        /**
-         * A method that mimics the action of a button click, but only if the integrators are already paused.
-         * If the integrators are not currently paused, the method has no action.
-         */
-        public void clickForUnpause() {  //clicks button to unpause if already paused
-            if(!running) clickButton();
-        }
-
-        public void setButtonColor(Color c) {button.setBackground(c);}
-        public Color getButtonColor() {return button.getBackground();}
-              
-        public void setButtonTextColor(Color c) {button.setForeground(c);}
-        public Color getButtonTextColor() {return button.getForeground();}
-        
-        /**
-         * ActionListener interface method (button is a self-listener).  
-         * First click invokes the controller's start() method, while subsequent clicks 
-         * toggle between calling pause() and unpause() methods of all integrators.
-         * Label on button is modified accordingly.
-         */
-        public void actionPerformed(ActionEvent evt) {
-            if(firstClick) {
-                start();
-                running = true;
-                firstClick = false;
-                button.setText("Pause");
-//                etomica.gui.EtomicaToolBar.startButton.setEnabled(false);
-            }
-            else if(running) {
-                running = false;
-                for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
-                    ((Integrator)iter.next()).pause();
-                }
-                button.setText("Continue");
-            }
-            else {
-                for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
-                    ((Integrator)iter.next()).unPause();
-                }
-                running = true;
-	            button.setText("Pause");
-	        }
-	    }
-        
-        /**
-         * Simulation.GraphicElement method that returns a handle to the awt Button instance used by this class.
-         */
-        public Component graphic(Object obj) {
-            if(button == null) button = new javax.swing.JButton("Start");
-            return button;
-        }
-            
-    }//end of Controller.Button
-}
+}//end of Controller
 
 

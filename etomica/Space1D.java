@@ -1,6 +1,4 @@
 package etomica;
-import java.awt.Graphics;
-import java.awt.Color;
 import etomica.units.*;
 
 public class Space1D extends Space implements EtomicaElement {
@@ -466,7 +464,6 @@ public class Space1D extends Space implements EtomicaElement {
             temp.x = Simulation.random.nextDouble(); 
             return temp;
         }
-        public void draw(Graphics g, int[] origin, double scale) {}
     }
 
 
@@ -495,13 +492,8 @@ public class Space1D extends Space implements EtomicaElement {
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x;}
-        public void draw(Graphics g, int[] origin, double scale) {
-            g.setColor(Color.gray);
-            double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
-            g.drawRect(origin[0],origin[1],(int)(toPixels*dimensions.component(0))-1,(int)(toPixels*dimensions.component(1))-1);
-            }
         /** Computes origins for periodic images
-        */
+         */
         public double[][] imageOrigins(int nShells) {
             int nImages = 2*nShells;
             double[][] origins = new double[nImages][D];

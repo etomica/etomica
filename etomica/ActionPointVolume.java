@@ -177,7 +177,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
         }//end while
     }//end of drawCells
     
-    public static void main(String args[]) {
+/*    public static void main(String args[]) {
         
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
@@ -257,12 +257,12 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
 		            displayPhase.getOrigin(), 
 		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
 		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
-		*/    }
+		* /    }
 		});
 
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-    
+    */
     /**
      * Array of 2D triangular cells formed by bisecting the cells of a square lattice.
      */

@@ -112,11 +112,11 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         }
     }
     
-    public void addMCMoveListener(MCMoveEventListener listener) {
+    public void addMCMoveListener(MCMoveListener listener) {
         if(eventManager == null) eventManager = new SimulationEventManager();
         eventManager.addListener(listener);
     }
-    public void removeMCMoveListener(MCMoveEventListener listener) {
+    public void removeMCMoveListener(MCMoveListener listener) {
         if(eventManager == null) return; //should define an exception
         eventManager.removeListener(listener);
     }

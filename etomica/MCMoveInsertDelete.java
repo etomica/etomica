@@ -96,7 +96,7 @@ public class MCMoveInsertDelete extends MCMove {
      */
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
     
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
         Simulation.instance = sim;
 
@@ -112,4 +112,5 @@ public class MCMoveInsertDelete extends MCMove {
 		                                    
         Simulation.makeAndDisplayFrame(sim);
     }//end of main
+    */
 }//end of MCMoveInsertDelete

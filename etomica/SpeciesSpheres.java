@@ -1,5 +1,4 @@
 package etomica;
-import java.awt.Color;
 import etomica.units.Dimension;
 
 /**
@@ -16,7 +15,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryHomo makeFactory(Space space, int na, BondInitializer bondInit, Configuration config) {
         AtomFactoryMono f = new AtomFactoryMono(space);
-        AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         AtomFactoryHomo fm = new AtomFactoryHomo(space, f, na, bondInit, config);
         return fm;
@@ -65,9 +64,6 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     public void setDiameter(double d) {protoType.setDiameter(d);}
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
                     
-    public final Color getColor() {return protoType.color();}
-    public final void setColor(Color c) {protoType.setColor(c);}
-    
     public void setAtomsPerMolecule(final int n) {
         ((AtomFactoryHomo)factory).setAtomsPerGroup(n);
         allAgents(new AtomAction() {public void actionPerformed(Atom a) {
@@ -81,7 +77,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(10,6);//10 molecules, 3 atoms per molecule
@@ -121,7 +117,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
 	}//end of main
-
+*/
 }
 
 

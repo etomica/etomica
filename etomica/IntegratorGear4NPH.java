@@ -262,7 +262,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         }//end of calculate
     }//end ForceSums
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
 	    IntegratorGear4 integratorGear4 = new IntegratorGear4();
 	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres();
 //	    speciesDisks1.setMass(1.0);
@@ -297,5 +297,6 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 		
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
+    */
 }
 

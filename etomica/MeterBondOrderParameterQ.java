@@ -98,7 +98,7 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
     public double getR2Cut(){return r2Cut;}
     public void setR2Cut(double r2c){r2Cut = r2c;}
 	
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
         Default.ATOM_SIZE = 1.0;
         Simulation sim = new Simulation(new Space3D());
@@ -127,5 +127,6 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
 
         Simulation.makeAndDisplayFrame(sim);
     }//end of main
+    */
 }//end of MeterBondOrderParameterQ
 

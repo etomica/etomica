@@ -49,7 +49,7 @@ public class ConfigurationZincblende extends Configuration {
     /**
      * Displays configuration without setting up full simulation.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Simulation sim = new Simulation(new etomica.Space3D());
         Simulation.instance = sim;
         Default.ATOM_SIZE = 5.0;
@@ -66,5 +66,5 @@ public class ConfigurationZincblende extends Configuration {
         sim.mediator().go(); 
         Simulation.makeAndDisplayFrame(sim);
     }//end of main
-    
+  */  
 }//end of ConfigurationZincBlende

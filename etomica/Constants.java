@@ -1,10 +1,14 @@
 package etomica;
-import java.awt.Color;
-import java.util.Random;
 
+/**
+ * Collection of assorted physical constants given as static final fields.  All values
+ * are in simulations units in which time is in picoseconds, length is in Angstroms,
+ * and mass is in Daltons (amu).  Also defines several enumerated constants (or typed
+ * constants).
+ */
 public class Constants extends Object {
     
-    public String getVersion() {return "01.03.10";}    
+    public String getVersion() {return "01.11.20";}    
     
     private Constants() {}   // can't instantiate class
     
@@ -17,23 +21,22 @@ public class Constants extends Object {
             mass: amu
     */
     
+    /**
+     * Avogadro's number.
+     */
     public static final double AVOGADRO = 6.0221367e23;
         
     
+    /**
+     * The standard acceleration of gravity on Earth.
+     */
     public static final double G = 9.8*1e10/1e24;  //acceleration of gravity (on Earth), in A/ps^2
+
+    /**
+     * Boltzmann's constant.
+     */
     public static final double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; //Boltzmann's constant, converted from J/K to amu-A^2/ps^2 (where it equals 0.8314)
 
-  /* Colors adopted in the web textbook on molecular simulation */
-    public static final Color KHAKI = new Color(153,153,102);
-    public static final Color DARK_KHAKI = new Color(102,102,051);
-    public static final Color BRIGHT_RED = new Color(153,000,000);
-    public static final Color DARK_RED = new Color(102,000,000);
-    public static final Color BLUSH = new Color(153,102,102);
-    public static final Color TAN = new Color(204,204,153);
-    public static final Color randomColor() {
-        return new Color(Simulation.random.nextFloat(),Simulation.random.nextFloat(),Simulation.random.nextFloat());
-    }
-  
     /**
      * TypedConstant classes are used to define a fixed set of specific values that can be taken by a field.
      * For example,  north/south/east/west.  Subclasses of this abstract class declare the general category

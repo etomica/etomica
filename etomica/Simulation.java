@@ -24,7 +24,7 @@ import etomica.utility.Iterator;
  */
 public class Simulation implements java.io.Serializable {
     
-    public String getVersion() {return "Simulation:01.07.25";}
+    public static final String VERSION = "Simulation:01.11.20";
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -35,13 +35,11 @@ public class Simulation implements java.io.Serializable {
      * Default choice is the CoordinatorOneIntegrator.
      */
     public Mediator elementCoordinator;
-    private HashMap elementLists = new HashMap(16);
+    protected HashMap elementLists = new HashMap(16);
     
     public final Hamiltonian hamiltonian = new Hamiltonian(this);
     
     public PotentialCalculationEnergySum energySum;
-    
-    private SimulationPanel simulationPanel;
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
@@ -78,9 +76,7 @@ public class Simulation implements java.io.Serializable {
         elementLists.put(Integrator.class, new LinkedList());
         elementLists.put(Phase.class, new LinkedList());
         elementLists.put(Controller.class, new LinkedList());
-        elementLists.put(Display.class, new LinkedList());
         elementLists.put(MeterAbstract.class, new LinkedList());
-        elementLists.put(Device.class, new LinkedList());
         elementCoordinator = new Mediator(this);
     }//end of constructor
     
@@ -118,23 +114,13 @@ public class Simulation implements java.io.Serializable {
      * @return the <code>nth</code> instantiated meter (indexing from zero)
      */
     public final MeterAbstract meter(int n) {return (MeterAbstract)meterList().get(n);}
-    /**
-     * @return the <code>nth</code> instantiated display (indexing from zero)
-     */
-    public final Display display(int n) {return (Display)displayList().get(n);}
-    /**
-     * @return the <code>nth</code> instantiated device (indexing from zero)
-     */
-    public final Device device(int n) {return (Device)deviceList().get(n);}
-    
+
     public final LinkedList phaseList() {return (LinkedList)elementLists.get(Phase.class);}
     public final LinkedList meterList() {return (LinkedList)elementLists.get(MeterAbstract.class);}
     public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
     public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
     public final LinkedList controllerList() {return (LinkedList)elementLists.get(Controller.class);}
     public final LinkedList potentialList() {return (LinkedList)elementLists.get(Potential.class);}
-    public final LinkedList displayList() {return (LinkedList)elementLists.get(Display.class);}
-    public final LinkedList deviceList() {return (LinkedList)elementLists.get(Device.class);}
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
   
     int register(SimulationElement element) {
@@ -166,53 +152,7 @@ public class Simulation implements java.io.Serializable {
             integrator.reset();
         }
     }
-    /**
-     * Method invoked in the constructor of a Display object to list it with the simulation
-     */
- /*   public void unregister(Display d) {
-        if(!displayList.contains(d)) return;
-        displayList.remove(d);
-        allElements.remove(d);
-        integrator(0).removeIntervalListener(d);
-        for (int i = 0; i < getComponentCount(); i++) {
-	        if (getComponent(i).getName() == "displayPanel"){
-	            javax.swing.JTabbedPane tp = ((javax.swing.JTabbedPane)getComponent(i));
-	            tp.remove(tp.getSelectedComponent());
-	            tp.repaint();
-	            elementCoordinator.completed = false;
-	            
-	        }
-	    }
-    }
-    
-    /**
-     * Method invoked in the constructor of a Device object to list it with the simulation
-     */
-/*    public void unregister(Device d) {
-        if(!deviceList.contains(d)) return;
-        deviceList.remove(d);
-        allElements.remove(d);
-        for (int i = 0; i < getComponentCount(); i++) {
-	        if (Simulation.instance.getComponent(i).getName() == "devicePanel"){
-                javax.swing.JPanel dp = ((javax.swing.JPanel)getComponent(i));
-                dp.remove(dp.getComponent(1));
-                dp.repaint();
-                elementCoordinator.completed = false;
-            }
-        }
-    }
- */             
-                
-    /**
-     * Method invoked in the constructor of a Potential2 object to list it with the simulation
-     */
-/*    public void unregister(Potential2 p2) {
-        if(!potential2List.contains(p2)) return;
-        if(p2 instanceof P2IdealGas) return;
-        potential2List.remove(p2);
-        allElements.remove(p2);
-    }
-*/ 
+
     public LinkedList allElements() {
         LinkedList list;
  //       synchronized(this) {
@@ -248,15 +188,6 @@ public class Simulation implements java.io.Serializable {
     
     public static final java.util.Random random = new java.util.Random();
         
-    /**
-     * A visual display of the simulation via a JPanel.
-     * This may become more important if Simulation itself is revised to not extend JPanel.
-     */
-     public SimulationPanel panel() {
-        if(simulationPanel == null) simulationPanel = new SimulationPanel(this);
-        return simulationPanel;
-     }
-     
      /**
       * Returns the mediator that coordinates the elements of the simulation.
       * The is the same as the elementCoordinator field, but provides another
@@ -266,42 +197,9 @@ public class Simulation implements java.io.Serializable {
      public Mediator mediator() {return elementCoordinator;}
      
     /**
-     * Interface for a simulation element that can make a graphical component
-     */
-    public interface GraphicalElement {
-
-        /**
-         * Interface for a Simulation element that would be used in a simulation graphical user interface (GUI)
-         * 
-         * @param obj An object that might be used to specify the graphic that the GraphicalElement is to return.
-         * In most cases the GraphicalElement ignores this parameter, and it can be set to null.
-         * @return A Component that can be used in the GUI of a graphical simulation
-         * @see Device
-         * @see Display
-         */
-        public java.awt.Component graphic(Object obj);
-    }//end of GraphicalElement
-
-    public void makeAndDisplayFrame() {Simulation.makeAndDisplayFrame(this);}
-    
-    public static final void makeAndDisplayFrame(Simulation sim) {
-        javax.swing.JFrame f = new javax.swing.JFrame();
-        f.setSize(700,500);
-        f.getContentPane().add(sim.panel());
-        f.pack();
-        f.show();
-        f.addWindowListener(Simulation.WINDOW_CLOSER);
-    }
-    
-    public static final java.awt.event.WindowAdapter WINDOW_CLOSER 
-        = new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        };
-        
-    /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
@@ -326,7 +224,7 @@ public class Simulation implements java.io.Serializable {
         
      //   controller.start();
     }//end of main
-    
+ */   
 }
 
 

@@ -55,9 +55,9 @@ public class MCMoveRotate extends MCMove {
         return affectedAtomIterator;
     }
 
-   public static void main(String[] args) {
+/*   public static void main(String[] args) {
         Default.ATOM_SIZE =1.2;
-        Simulation.instance = new Simulation(/*new Space2DCell()*/);
+        Simulation.instance = new Simulation(/*new Space2DCell()* /);
         Phase phase1 = new Phase();
         
         IntegratorMC integratorMC1 = new IntegratorMC();
@@ -121,5 +121,5 @@ public class MCMoveRotate extends MCMove {
     //    ((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(6,10);
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-   
+   */
 }

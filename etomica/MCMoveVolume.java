@@ -63,7 +63,7 @@ public class MCMoveVolume extends MCMove {
     /**
      * main method to test and demonstrate this class
      */
-    public static void main(String args[]) {
+/*    public static void main(String args[]) {
                     
         Simulation sim = new Simulation(new Space2D());
         Simulation.instance = sim;
@@ -95,5 +95,6 @@ public class MCMoveVolume extends MCMove {
   //      phase.setDensity(0.1);
     		                                    
         Simulation.makeAndDisplayFrame(sim);
-    }//end of main     
+    }//end of main  
+    */
 }

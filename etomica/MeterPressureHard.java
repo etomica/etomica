@@ -80,7 +80,7 @@ public final class MeterPressureHard extends Meter implements IntegratorHardAbst
      * Method to demonstrate and test the use of this class.  
      * Pressure is measured in a hard-sphere MD simulation.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         
@@ -110,5 +110,5 @@ public final class MeterPressureHard extends Meter implements IntegratorHardAbst
         
         Simulation.makeAndDisplayFrame(sim);
     }//end of main
-    
+ */   
 }

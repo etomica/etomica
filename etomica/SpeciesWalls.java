@@ -1,7 +1,5 @@
 //This class includes a main method to demonstrate its use
 package etomica;
-import java.awt.Color;
-import java.awt.Rectangle;
 import etomica.units.*;
 
 public class SpeciesWalls extends Species implements EtomicaElement {
@@ -22,7 +20,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
             f[i] = new AtomFactoryMono(space);
-            AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Default.ATOM_COLOR, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
+            AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
             f[i].setType(type);
         }
         AtomFactoryHetero fm = new AtomFactoryHetero(space,f);
@@ -103,11 +101,6 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         for(int i=0; i<protoType.length; i++) protoType[i].setLength(d);
     }                    
     public Dimension getLengthDimension() {return Dimension.LENGTH;}
-
-    public Color getColor() {return protoType[0].color();}
-    public void setColor(Color c) {
-        for(int i=0; i<protoType.length; i++) protoType[i].setColor(c);
-    }
     
     public double getXAngle() {return(protoType[0].getXAngle());}
     public void setXAngle(double t) { protoType[0].setXAngle(t);}
@@ -225,7 +218,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
    * Method to demonstrate the use of this class.
    * Simulates a system of hard spheres and a wall.
    */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
 
         Simulation sim = new Simulation();
         Simulation.instance = sim;
@@ -259,4 +252,5 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         Simulation.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
+    */
 }

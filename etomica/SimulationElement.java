@@ -14,7 +14,7 @@ public class SimulationElement implements java.io.Serializable {
     public final int index;
     private boolean added = false;
     private final Class baseClass;
-    String name;
+    protected String name;
     
     public SimulationElement(Simulation sim, Class baseClass) {
         parentSimulation = sim;

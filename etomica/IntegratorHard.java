@@ -240,7 +240,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Simulation.instance = new Simulation(new Space2D());
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 	 //   integratorHard1.setTimeStep(0.02);
@@ -276,7 +276,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         potential0.setIterator(new AtomPairIterator(Simulation.instance.space,
                 new AtomIteratorSequential(speciesSpheres1.getAgent(phase),true),
                 new AtomIteratorSequential(speciesSpheres1.getAgent(phase),true)));
-                */
+                * /
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    
 	    displayPhase1.addDrawable(new Drawable() {
@@ -313,9 +313,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 }
                 System.out.println();
 	        }
-	    });*/
+	    });* /
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-
+*/
 }//end of IntegratorHard
 

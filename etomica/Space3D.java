@@ -1,6 +1,4 @@
 package etomica;
-import java.awt.Graphics;
-import java.awt.Color;
 import etomica.units.*;
 
 /**
@@ -727,7 +725,6 @@ public class Space3D extends Space implements EtomicaElement {
             temp.z = Simulation.random.nextDouble();
             return temp;
         }
-        public void draw(Graphics g, int[] origin, double scale) {}
     }//end of BoundaryNone
         
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
@@ -762,12 +759,6 @@ public class Space3D extends Space implements EtomicaElement {
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
                 
-        public void draw(Graphics g, int[] origin, double scale) {
-            g.setColor(Color.gray);
-            double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
-            g.drawRect(origin[0], origin[1], (int)(toPixels*dimensions.component(0))-1, (int)(toPixels*dimensions.component(1))-1);
-        }
-        
         /**
          * imageOrigins and getOverFlowShifts are both probably incorrect, if they are
          * even completed.  They should definitely be checked before being implemented.
@@ -893,7 +884,7 @@ public class Space3D extends Space implements EtomicaElement {
             r.z -= dimensions.z * corz;
         }
         
-        public void centralImagine(Coordinate c) {
+        public void centralImage(Coordinate c) {
             Vector r = c.r;
             double cory = ((r.y > 0.0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y-1.0));
             double corx = ((r.x > 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));

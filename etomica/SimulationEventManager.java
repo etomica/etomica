@@ -7,23 +7,23 @@ package etomica;
  * and could be used by Integrator.
  *
  * @see SimulationEvent
- * @see SimulationEventListener
+ * @see SimulationListener
  */
 public class SimulationEventManager implements java.io.Serializable {
     
     //A Linker class is used to construct a linked list of listeners.
-    private SimulationEventListener.Linker first, last;
+    private SimulationListener.Linker first, last;
     
     /**
      * Adds a listener.  Synchronized to avoid conflict with removeListener.
      */
-    public synchronized void addListener(SimulationEventListener listener) {
+    public synchronized void addListener(SimulationListener listener) {
         if(first == null) { //adding first listener
-            first = new SimulationEventListener.Linker(listener, null, null);
+            first = new SimulationListener.Linker(listener, null, null);
             last = first;
         }
         else { //add listener to end of list
-            last.next = new SimulationEventListener.Linker(listener, null, last);
+            last.next = new SimulationListener.Linker(listener, null, last);
             last = last.next;
         }
     }
@@ -31,8 +31,8 @@ public class SimulationEventManager implements java.io.Serializable {
     /**
      * Removes a listener.  Synchronized to avoid conflict with addListener.
      */
-    public synchronized void removeListener(SimulationEventListener listener) {
-        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
+    public synchronized void removeListener(SimulationListener listener) {
+        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
             if(link.listener == listener) {
                 if(link == first) {first = link.next;}
                 if(link == last) {last = link.previous;}
@@ -53,20 +53,20 @@ public class SimulationEventManager implements java.io.Serializable {
     }
 */
     public void fireEvent(PhaseEvent event) {
-        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
-            ((PhaseEventListener)link.listener).phaseAction(event);
+        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+            ((PhaseListener)link.listener).actionPerformed(event);
         }
     }
 
     public void fireEvent(ControllerEvent event) {
-        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
-            ((ControllerEventListener)link.listener).controllerAction(event);
+        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+            ((ControllerListener)link.listener).actionPerformed(event);
         }
     }
 
     public void fireEvent(MCMoveEvent event) {
-        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
-            ((MCMoveEventListener)link.listener).mcMoveAction(event);
+        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+            ((MCMoveListener)link.listener).actionPerformed(event);
         }
     }
 

@@ -1,5 +1,4 @@
 package etomica;
-import java.awt.Color;
 import etomica.units.Dimension;
 
 //Java2 imports
@@ -26,7 +25,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
     private SpeciesAgent speciesAgent;
     private Atom testMolecule;  //prototype insertion molecule
     private boolean residual;   //flag to specify if total or residual chemical potential evaluated. Default true
-    private DisplayPhase display; //used to show location of inserted atoms in the display
+//    private DisplayPhase display; //used to show location of inserted atoms in the display
     //directive must specify "BOTH" to get energy with all atom pairs
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculationEnergySum energy;
@@ -71,13 +70,13 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
     /**
      * Constructor used if desired to display inserted positions in the given DisplayConfiguration object
      */
-    public MeterWidomInsertion(Species s, DisplayPhase d) {
+/*    public MeterWidomInsertion(Species s, DisplayPhase d) {
         this();
         display = d;
         setSpecies(s);
         setActive(false);
     }
-    
+    */
     public Dimension getDimension() {return Dimension.NULL;}  //need to modify to check for isResidual
     
     /**
@@ -105,8 +104,6 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
         species = s;
         testMolecule = s.moleculeFactory().makeAtom();
         iteratorDirective.set(testMolecule);
-        if(testMolecule instanceof AtomGroup) ((AtomGroup)testMolecule).firstLeafAtom().setColor(Color.red);
-        else testMolecule.setColor(Color.red);
         if(phase != null) speciesAgent = species.getAgent(phase);
     }
     /**
@@ -133,7 +130,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
         phase.addMolecule(testMolecule,speciesAgent); //place molecule in phase (removing it from this meter, thus setting molecule to null)
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
             testMolecule.coord.translateTo(phase.randomPosition());  //select random position
-            if(display != null && i % 10 ==0) display.repaint();
+//            if(display != null && i % 10 ==0) display.repaint();
             double u = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
             if(u < Double.MAX_VALUE)              //add to test-particle average
                 sum += Math.exp(-u/(phase.integrator().temperature()));
@@ -143,7 +140,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
         return sum/(double)nInsert;               //return average
     }
     
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         MeterWidomInsertion meter = new MeterWidomInsertion();
@@ -152,4 +149,5 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
         sim.elementCoordinator.go();
         Simulation.makeAndDisplayFrame(sim);
     }
+    */
 }//end of MeterWidomInsertion   

@@ -99,7 +99,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         public Space.Vector force() {return force;}
     }//end of Agent
     
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
 	    IntegratorVerlet integrator = new IntegratorVerlet();
 	    SpeciesSpheres species = new SpeciesSpheres();
@@ -124,6 +124,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 		Simulation.instance.elementCoordinator.go();
         Simulation.makeAndDisplayFrame(Simulation.instance);
 
-    }//end of main
+    }//end of main 
+    */
 }//end of IntegratorVerlet
 

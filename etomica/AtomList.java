@@ -434,7 +434,7 @@ public class AtomList implements java.io.Serializable
 
     
     //main method to demonstrate and test this class
-    public static void main(String[] args) throws java.io.IOException {
+/*    public static void main(String[] args) throws java.io.IOException {
         
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
         Simulation.instance = new Simulation(new Space1D());
@@ -477,7 +477,7 @@ public class AtomList implements java.io.Serializable
         i++;
        }
     }//end of main
-    
+   */ 
     //meant to be a permanently empty list that can be used as a place holder when needed
     public static final AtomList NULL = new AtomList();
     

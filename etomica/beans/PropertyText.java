@@ -1,7 +1,8 @@
 
 // Support for a PropertyEditor that uses text.
 
-package etomica;
+package etomica.graphics;
+import etomica.*;
 
 import java.awt.*;
 import java.awt.event.*;

@@ -1,7 +1,5 @@
 package etomica;
 
-import java.awt.Graphics;
-
 public abstract class Space implements Space.Boundary.Maker, java.io.Serializable {
     
     public static String VERSION = "01.07.09";
@@ -305,7 +303,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract Vector randomPosition();
         public abstract float[][] getOverflowShifts(Vector r, double distance);
         public abstract void inflate(double s);
-        public abstract void draw(Graphics g, int[] origin, double scale);
        /** Set of vectors describing the displacements needed to translate the central image
         *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
         *  first index specifies each perioidic image, while the second index indicates the
@@ -342,6 +339,4 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
          public interface Periodic {}
         
     }//end of Space.Boundary
-        
-    public void draw(Graphics g, int[] origin, double scale) {}
 }//end of Space    

@@ -100,7 +100,7 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
 
     
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
@@ -113,6 +113,6 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
         
         Simulation.makeAndDisplayFrame(sim);
     }//end of main
-
+*/
 }//end of P1HardBoundary
    

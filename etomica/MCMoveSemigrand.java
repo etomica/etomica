@@ -176,7 +176,7 @@ public class MCMoveSemigrand extends MCMove {
         return affectedAtomIterator;
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
@@ -201,7 +201,7 @@ public class MCMoveSemigrand extends MCMove {
 	    P2HardSphere potential02 = new P2HardSphere(2.0);
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
-	    P2HardSphere potential22 = new P2HardSphere(1.0);*/
+	    P2HardSphere potential22 = new P2HardSphere(1.0);* /
 	    
 	    //intramolecular potential for 3-atom molecules
 	    P1TetheredHardSpheres potential0 = new P1TetheredHardSpheres();
@@ -210,7 +210,7 @@ public class MCMoveSemigrand extends MCMove {
 	    p2Tether.setIterator(new AtomPairIterator(Simulation.instance.space,
 	            new AtomIteratorSequential(false),
 	            new AtomIteratorBonds()));
-*/	    
+* /	    
 	    //hard-sphere intermolecular potential for 3-atom molecules
 	    Potential2Group potential00 = new Potential2Group();
 	    potential00.addPotential(new P2HardSphere(potential00, 3.0));
@@ -262,5 +262,5 @@ public class MCMoveSemigrand extends MCMove {
         Simulation.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
-    
+    */
 }//end of MCMoveSemigrand

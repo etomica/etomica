@@ -67,7 +67,7 @@ public class MCMovePointVolume extends MCMove {
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
     public final void setLogPressure(int lp) {setPressure(Math.pow(10.,(double)lp));}
         
-    public static void main(String args[]) {
+/*    public static void main(String args[]) {
         
         Default.ATOM_SIZE = 1.0;
         
@@ -105,4 +105,5 @@ public class MCMovePointVolume extends MCMove {
 		Simulation.instance.elementCoordinator.go();
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }
+    */
 }

@@ -1,13 +1,12 @@
 package etomica;
 
-import java.awt.event.ActionEvent;
+//import java.awt.event.ActionEvent;
 
  /**
   * Superclass of classes that apply some elementary action (transformation) to a phase.
-  * Inherits from javax.swing.AbstractAction, so may be registered as a listener to GUI components
   * 
   */
-public abstract class PhaseAction extends etomica.Action {
+public abstract class PhaseAction extends etomica.Action implements PhaseListener {
 
     public static String getVersion() {return "PhaseAction:01.03.28/"+Action.VERSION;}
 
@@ -20,7 +19,10 @@ public abstract class PhaseAction extends etomica.Action {
         
     public void setPhase(Phase p) {phase = p;}
     public Phase getPhase() {return phase;}
-        
+    
+    public void actionPerformed(SimulationEvent evt) {
+        actionPerformed((PhaseEvent)evt);
+    }
     public void actionPerformed(PhaseEvent pe) {
         actionPerformed(pe.phase());
     }

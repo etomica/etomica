@@ -79,7 +79,7 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
     }
     
     //main method to demonstrate and test this class
-    public static void main(String[] args) throws java.io.IOException {
+/*    public static void main(String[] args) throws java.io.IOException {
         
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
         Simulation.instance = new Simulation();
@@ -210,5 +210,5 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
 
         line = in.readLine();  System.exit(0);
     }//end of main
-        
+       */ 
 } //end of AtomIteratorSequence

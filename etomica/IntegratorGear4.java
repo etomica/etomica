@@ -204,7 +204,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         public Space.Vector force() {return force;}
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
 	    IntegratorGear4 integratorGear4 = new IntegratorGear4();
 	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres();
@@ -246,6 +246,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 				
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-    
+   */ 
 }//end of IntegratorGear4
 

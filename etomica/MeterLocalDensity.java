@@ -1,7 +1,5 @@
 package etomica;
 
-import java.awt.Rectangle;
-import java.awt.Graphics;
 import etomica.units.*;
 
 /**
@@ -179,14 +177,14 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
             /**
              * Method to render the local volume on the screen
              */
-            public void draw(Graphics g, int[] origin, double scale) {
+ /*           public void draw(Graphics g, int[] origin, double scale) {
 /* NEEDS REPAIR                Rectangle rectangle = getBounds();
                 int x0 = origin[0]+(int)(rectangle.x*scale);
                 int y0 = origin[1]+(int)(rectangle.y*scale);
                 int w = (int)(rectangle.width*scale);
                 int h = (int)(rectangle.height*scale);
                 g.drawRect(x0,y0,w,h);
- */           } 
-        }
+           }  */
+        }//end of Cube
             
 }

@@ -95,9 +95,9 @@ public class P2Tether extends Potential2Hard implements EtomicaElement {
      * Method to demonstrate use of this potential is given as the
      * main method of the SpeciesSpheres class.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         SpeciesSpheres.main(args);
     }
-      
+ */     
 }//end of P2Tether
   

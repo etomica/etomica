@@ -1,5 +1,4 @@
 package etomica;
-import java.awt.Color;
 
  /**
   * Object corresponding to one physical atom or (in subclasses) group of atoms.
@@ -149,32 +148,8 @@ public class Atom implements java.io.Serializable {
         return false;
     }*/
     
-    /**
-     * The color of the atom when drawn to the screen.
-     * The atom color is often decided by the ColorScheme class, via the atom's setColor method.
-     * If the ColorScheme does nothing, the color is given by the atom's type field.
-     * 
-     * @see ColorScheme
-     */
-    public final Color getColor() {return color;}
-
-    /**
-     * Sets the color of the atom for drawing to the screen.
-     * 
-     * @param c
-     * @see ColorScheme
-     * @see getColor
-     */
-    public final void setColor(Color c) {this.color = c;}
-
     public Integrator.Agent ia;
-        
-    /**
-    * Color of the atom when drawn on the screen
-    * This color is set by the colorScheme object in the atom's species
-    */
-    Color color = Default.ATOM_COLOR;
-        
+                
     /**
     * Identifier of atom within molecule.
     * Assigned by parent molecule when invoking Atom constructor.

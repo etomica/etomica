@@ -44,11 +44,11 @@ public final class SimulationRestart extends SimulationAction {
             meter.setResetHistoryOnMeterReset(resetHistory);
             meter.setResetHistogramOnMeterReset(resetHistogram);
         }
-        for(Iterator iter=sim.displayList().iterator(); iter.hasNext(); ) {
+/*        for(Iterator iter=sim.displayList().iterator(); iter.hasNext(); ) {
             Display display = (Display)iter.next();
             display.doUpdate();
             display.graphic().repaint();
-        }
+        }*/
     }
     
     public void actionPerformed(Simulation sim) {

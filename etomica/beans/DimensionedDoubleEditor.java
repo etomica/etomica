@@ -1,4 +1,5 @@
-package etomica;
+package etomica.graphics;
+import etomica.*;
 import etomica.units.*;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;

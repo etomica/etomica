@@ -54,7 +54,7 @@ public class MCMoveAtom extends MCMove {
         return affectedAtomIterator;
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);//comment this line to examine LRC by itself
@@ -89,5 +89,5 @@ public class MCMoveAtom extends MCMove {
         
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-    
+   */ 
 }

@@ -46,6 +46,10 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         atomIterator = factory.makeAtomIterator();
     }
     
+    public IntegratorHardAbstract.Agent colliderAgent() {
+        return colliderAgent;
+    }
+    
     /** 
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
@@ -261,33 +265,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         public final double collisionTime() {return collisionTime;}
     }
     
-    /**
-     * This colorScheme acts to color differently the two atoms that are scheduled to collide next.
-     * Highlight colors are specified by the colliderColor and partnerColor fields; all other
-     * atoms are colored with the baseColor
-     */
-    public class HighlightColliders extends ColorScheme {
-        
-        public HighlightColliders() {super();}
-        /**
-         * Color applied to the downList atom of the colliding pair
-         */
-        public java.awt.Color colliderColor = java.awt.Color.red;
-        /**
-         * Color applied to the upList atom of the colliding pair
-         */
-        public java.awt.Color partnerColor = java.awt.Color.blue;
-        /**
-         * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
-         */ 
-        public void colorAtom(Atom a) {
-            if(colliderAgent == null) a.setColor(baseColor);
-            else if(a == colliderAgent.atom) a.setColor(colliderColor);
-            else if(a == colliderAgent.collisionPartner) a.setColor(partnerColor);
-            else a.setColor(baseColor);
-        }
-    }//end of HighlightColliders
-
     public interface CollisionListener {
         public void collisionAction(Agent colliderAgent);
     }

@@ -1,10 +1,5 @@
 // This class includes a main method demonstrating its use.
 package etomica;
-import java.awt.Color;  //for the color-change action
-//imports for main method
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Frame;
 
 /**
  * Base class for classes that perform some elementary action on an atom.
@@ -44,29 +39,6 @@ public abstract class AtomAction extends etomica.Action {
         
     //***** end of Action methods; begin definition of subclasses *****//
 
-    /**
-     * Changes the color of an atom to some specified value.
-     */
-    public static class ChangeColor extends AtomAction implements Action.Undoable {
-        private Color newColor = Color.blue;
-        private Color oldColor = Color.black;
-        public ChangeColor() {this(Color.red);}
-        public ChangeColor(Color c) {setNewColor(c);}
-        public void setNewColor(Color c) {newColor = c;}
-        public Color getNewColor() {return newColor;}
-        public void actionPerformed(Atom a) {
-            atom = a;
-            oldColor = a.getColor();
-            a.setColor(newColor);
-        }
-        public void attempt() {
-            if(atom != null) atom.setColor(newColor);
-        }
-        public void undo() {
-            if(atom != null) atom.setColor(oldColor);
-        }
-    }
-    
     /**
      * Translates the atom by the amount it would move in free (ballistic) flight for a specified time interval.
      * Uses the atom's current momentum to determine this displacement.
@@ -113,7 +85,7 @@ public abstract class AtomAction extends etomica.Action {
      * Hold the 'a' key while pressing mouse button near an atom to change its color; relase of the 
      * mouse button reverts to original color.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         final Frame f = new Frame();   //create a window
         f.setSize(600,350);
         
@@ -145,4 +117,5 @@ public abstract class AtomAction extends etomica.Action {
             public void windowClosing(WindowEvent e) {System.exit(0);}
         });
     }
+    */
 } //end of AtomAction   

@@ -76,7 +76,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
    */
   public MCMoveAtom getMCMoveAtom(int i) {return (i==0) ? atomDisplace1 : atomDisplace2;}
         
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Simulation.setUnitSystem(new etomica.units.UnitSystem.LJ());
 	    IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 //	    SpeciesSpheres speciesSphere1 = new SpeciesSphere();
@@ -119,7 +119,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         potentialAgent.setIterator(new AtomPairIterator(phase1));
         potentialAgent = (Potential2.Agent)P2LennardJones1.getAgent(phase2);
         potentialAgent.setIterator(new AtomPairIterator(phase2));
-*/
+* /
 	    meter1.setPhase(phase1);
 	    meter2.setPhase(phase2);
 	    phase1.setIntegrator(integratorGEMC1);
@@ -134,5 +134,6 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 		
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
+    */
     
 }

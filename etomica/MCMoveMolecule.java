@@ -51,7 +51,7 @@ public class MCMoveMolecule extends MCMove {
         return affectedAtomIterator;
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveMolecule mcMove = new MCMoveMolecule(integrator);
@@ -79,5 +79,5 @@ public class MCMoveMolecule extends MCMove {
         
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-    
+  */  
 }

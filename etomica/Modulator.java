@@ -149,7 +149,7 @@ public class Modulator extends ModulatorAbstract {
     /**
      * Method to demonstrate how to implement and use a modulator
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
       //A typical class to demonstrate use of the Modulator.
       //Modulator will be used to set and get the pressure field of this class.
@@ -170,6 +170,7 @@ public class Modulator extends ModulatorAbstract {
         boolean isPressure = modulator.getDimension() instanceof Dimension.Pressure;
         System.out.println("Does the field have dimensions of PRESSURE? "+isPressure);
     }
+    */
 }
     
     

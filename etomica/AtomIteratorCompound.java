@@ -6,7 +6,7 @@ package etomica;
  * @author David Kofke
  */
  
-public final class AtomIteratorCompound implements AtomIterator, PhaseEventListener {
+public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
     
     private AtomIterator[] iteratorSet;
     private boolean hasNext;
@@ -142,10 +142,13 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseEventListe
      * by the species master of the basis group when it fires an event
      * in its addNotify method.
      */
-    public void phaseAction(PhaseEvent evt) {
+    public void actionPerformed(PhaseEvent evt) {
         if(basis == null) return;
         if(evt.type() == PhaseEvent.ATOM_ADDED || evt.type() == PhaseEvent.ATOM_REMOVED) {
             if(evt.atom().parentGroup() == basis) setBasis(basis);
         }
+    }
+    public void actionPerformed(SimulationEvent evt) {
+        actionPerformed((PhaseEvent)evt);
     }
 }//end of AtomIteratorCompound

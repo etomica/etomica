@@ -1,6 +1,5 @@
 package etomica;
 
-import java.awt.Color;
 import etomica.units.Dimension;
 
 /**
@@ -18,7 +17,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Space space) {
         AtomFactoryMono f = new AtomFactoryMono(space);
-        AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         return f;
     }
@@ -54,14 +53,11 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public final double getDiameter() {return protoType.diameter();}
     public void setDiameter(double d) {protoType.setDiameter(d);}
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
-                    
-    public final Color getColor() {return protoType.color();}
-    public final void setColor(Color c) {protoType.setColor(c);}
     
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         P2RoughSphere.main(args);
     }
-    
+*/    
 }
 
 

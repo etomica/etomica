@@ -1,11 +1,9 @@
 package etomica;
 
-import java.awt.event.*;
-
 //need to update to extend simulation element
-public abstract class Action implements ActionListener, java.io.Serializable {  //still not sure if should extend AbstractAction just implement ActionListener
+public abstract class Action {
     
-    public static String VERSION = "Action:01.06.04";
+    public static String VERSION = "Action:01.11.20";
     
     private String label = "Action";
     
@@ -17,7 +15,7 @@ public abstract class Action implements ActionListener, java.io.Serializable {  
      * 
      * @param evt ignored in this default implementation, but may be used in subclasses that override this method
      */
-    public void actionPerformed(ActionEvent evt) {actionPerformed();}
+    public void actionPerformed(SimulationEvent evt) {actionPerformed();}
     
     public abstract void actionPerformed();
     

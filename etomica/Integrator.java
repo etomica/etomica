@@ -1,5 +1,5 @@
 package etomica;
-import java.awt.event.*;
+//import java.awt.event.*;
 import java.util.*;
 import etomica.units.*;
 
@@ -333,6 +333,12 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
      * Queries whether the integrator has actually reached the state of being paused.
      */
     public boolean isPaused() {return isPaused;}
+    
+    /**
+     * Indicates if the integrator has been started and has not yet completed.
+     * If so, returns true, even if integrator is presently paused (but not halted).
+     */
+    public boolean isActive() {return running;}
     
     //stop function
     public void halt() {

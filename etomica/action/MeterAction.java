@@ -1,6 +1,6 @@
 package etomica;
 
-import java.awt.event.ActionEvent;
+//import java.awt.event.ActionEvent;
 
 //Java2 imports
 //import java.util.LinkedList;

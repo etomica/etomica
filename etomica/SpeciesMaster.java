@@ -65,11 +65,11 @@ public final class SpeciesMaster extends AtomGroup {
     
     
     //event management
-    public synchronized void addListener(PhaseEventListener listener) {
+    public synchronized void addListener(PhaseListener listener) {
         eventManager.addListener(listener);
     }
 
-    public synchronized void removeListener(PhaseEventListener listener) {
+    public synchronized void removeListener(PhaseListener listener) {
         eventManager.removeListener(listener);
     }
 
