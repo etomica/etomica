@@ -43,7 +43,8 @@ public class IntegratorHard extends IntegratorMD {
     protected IntegratorHard.Agent colliderAgent;
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
-    private Atom[] atoms;
+    private final Atom[] atoms;
+    private double minDelta;
     Vector c3;
     CoordinatePair cPairDebug;
 
@@ -76,6 +77,14 @@ public class IntegratorHard extends IntegratorMD {
         return true;
     }
     
+    /* (non-Javadoc)
+     * @see etomica.Integrator#setTemperature(double)
+     */
+    public void setTemperature(double temperature) {
+        super.setTemperature(temperature);
+        minDelta = -1.e-10/Math.sqrt(temperature);
+    }
+    
     public IntegratorHard.Agent colliderAgent() {
         return colliderAgent;
     }
@@ -90,7 +99,7 @@ public class IntegratorHard extends IntegratorMD {
         while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
             atoms[0] = colliderAgent.atom();
             atoms[1] = colliderAgent.collisionPartner();
-            if (collisionTimeStep - oldTime < -1.e-10/Math.sqrt(temperature)) {
+            if (collisionTimeStep - oldTime < minDelta) {
                 System.out.println("previous collision occured before current one");
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision between "+atoms[0]+" and "+atoms[1]+" potential "+colliderAgent.collisionPotential.getClass());
@@ -338,9 +347,9 @@ public class IntegratorHard extends IntegratorMD {
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
-            ((Agent)a.ia).collisionTime *= rs;
-            ((Agent)a.ia).eventLinker.sortKey = ((Agent)a.ia).collisionTime; 
+            final Agent agent = (Agent)atomIterator.nextAtom().ia;
+            agent.collisionTime *= rs;
+            agent.eventLinker.sortKey = agent.collisionTime; 
         }
         // don't need to update eventTree because event order didn't change
         return s;
@@ -441,6 +450,7 @@ public class IntegratorHard extends IntegratorMD {
 
         //atom pair
         public void doCalculation(AtomsetIterator iterator, Potential potential) {
+            final boolean notPairIterator = (iterator.nBody() != 2);
             iterator.reset();
             PotentialHard pHard = (PotentialHard)potential; 
             while (iterator.hasNext()) {
@@ -455,7 +465,7 @@ public class IntegratorHard extends IntegratorMD {
                         System.out.println("setting up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
                     }
                     minCollisionTime = collisionTime;
-                    aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
+                    aia.setCollision(collisionTime, notPairIterator ? null : atoms[1], pHard);
                 }//end if
             }
         }//end of calculate(AtomPair...
@@ -507,8 +517,7 @@ public class IntegratorHard extends IntegratorMD {
             // look for pairs in which pair[0] is the collision partner of pair[1]
             while (iterator.hasNext()) {
                 Atom[] pair = iterator.next();
-                Agent aAgent = (Agent)pair[1].ia;
-                Atom aPartner = aAgent.collisionPartner();
+                Atom aPartner = ((Agent)pair[1].ia).collisionPartner();
                 if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
                     System.out.println(pair[1]+" thought it would collide with "+aPartner);
                 }
