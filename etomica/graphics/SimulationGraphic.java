@@ -149,10 +149,11 @@ public class SimulationGraphic extends Simulation {
         DefaultGraphic.ATOM_COLOR = java.awt.Color.green;
    //     Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
+	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
 	    speciesSpheres.setNMolecules(16);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
+	    potential.setSpecies(speciesSpheres, speciesSpheres);
 	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
 	    DisplayTimer timer = new DisplayTimer(integratorHard);
@@ -165,9 +166,10 @@ public class SimulationGraphic extends Simulation {
         }*/
         
      //   p1HardBoundary.setSpecies(speciesSpheres);
-        PotentialGroup p1Group = new PotentialGroup(1);
-        P1HardBoundary p1HardBoundary = new P1HardBoundary(p1Group);
-        p1Group.setSpecies(new Species[] {speciesSpheres});
+    //    PotentialGroup p1Group = new PotentialGroup(1);
+        P1HardBoundary p1HardBoundary = new P1HardBoundary();
+	    p1HardBoundary.setSpecies(speciesSpheres);
+        //p1Group.setSpecies(new Species[] {speciesSpheres});
         
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();

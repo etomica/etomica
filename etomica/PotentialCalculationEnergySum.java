@@ -21,6 +21,7 @@ public class PotentialCalculationEnergySum extends PotentialCalculation
     }
     
     public void actionPerformed(AtomPair pair) {
+//    	System.out.println(pair.toString());
         sum += potential2.energy(pair);
     }
     

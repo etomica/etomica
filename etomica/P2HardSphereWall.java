@@ -34,7 +34,7 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
     public P2HardSphereWall(PotentialGroup parent, double d) {
         super(parent);
         setCollisionDiameter(d);
-        ZERO = parentSimulation().space.makeTensor();//temporary
+        ZERO = simulation().space.makeTensor();//temporary
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -189,7 +189,7 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
         if(wall.coord.isStationary()) {//randomize x-y components of sphere momentum
             if(isothermal) {
                 double oldp2 = sphere.coord.momentum().squared();
-                double newp2 = sphere.coord.mass()*temperature*parentSimulation().space().D();
+                double newp2 = sphere.coord.mass()*temperature*simulation().space().D();
                 sphere.coord.momentum().TE(Math.sqrt(newp2/oldp2));
             }
 

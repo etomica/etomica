@@ -35,7 +35,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     public Controller() {
         this(Simulation.instance);
     }
-    public Controller(Simulation sim) {
+    public Controller(SimulationElement sim) {
         super(sim, Controller.class);
         maxSteps = Integer.MAX_VALUE;
     }
@@ -100,7 +100,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
      */
     public void start() {
         if(runner != null) return;
-        parentSimulation().elementCoordinator.go();
+        simulation().elementCoordinator.go();
         paused = false;
         runner = new Thread(this);
         runner.start();
@@ -115,7 +115,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
      * the run() method of the integrator.
      */
     public void run() {
-        parentSimulation().elementCoordinator.go();  //perhaps redundant, but safe since it returns without performing any action if already completed
+        simulation().elementCoordinator.go();  //perhaps redundant, but safe since it returns without performing any action if already completed
         for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
             if(!integrator.isActive()) integrator.start();

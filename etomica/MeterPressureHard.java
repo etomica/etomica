@@ -25,7 +25,7 @@ public final class MeterPressureHard extends MeterScalar implements
     }
     public MeterPressureHard(Simulation sim) {
         super(sim);
-        D = parentSimulation().space().D();
+        D = simulation().space().D();
         setLabel("PV/Nk");
     }
         

@@ -26,13 +26,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     public IntegratorMC() {
         this(Simulation.instance);
     }
-    public IntegratorMC(Simulation sim) {
-        super(sim);
+    public IntegratorMC(SimulationElement parent) {
+        super(parent);
         setIsothermal(true); //has no practical effect, but sets value of isothermal to be consistent with way integrator is sampling
-    }
-    public IntegratorMC(Space space, PotentialMaster potential) {
-        super(space, potential);
-        setIsothermal(true);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -1,6 +1,5 @@
 package etomica;
 
-import etomica.units.Unit;
 import etomica.units.Dimension;
 
 /**

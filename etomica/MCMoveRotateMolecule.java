@@ -29,8 +29,8 @@ public class MCMoveRotateMolecule extends MCMove {
 
     public MCMoveRotateMolecule(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
-        rotationTensor = (Space.RotationTensor)parentIntegrator.parentSimulation().space.makeRotationTensor();
-        r0 = parentIntegrator.parentSimulation().space.makeVector();
+        rotationTensor = (Space.RotationTensor)parentIntegrator.simulation().space.makeRotationTensor();
+        r0 = parentIntegrator.simulation().space.makeVector();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);

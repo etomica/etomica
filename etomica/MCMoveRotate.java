@@ -21,7 +21,7 @@ public class MCMoveRotate extends MCMove {
 
     public MCMoveRotate(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
-        oldOrientation = parentIntegrator.parentSimulation().space().makeOrientation();
+        oldOrientation = parentIntegrator.simulation().space().makeOrientation();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);

@@ -57,7 +57,7 @@ public class DisplayToLog extends Display {
     
     private void writeHeading() {
         logFile.println("Heading");
-        for(Iterator iter=parentSimulation().allElements().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation().allElements().iterator(); iter.hasNext(); ) {
             printProperties(iter.next());
         }
         logFile.println("=========================");
@@ -69,7 +69,7 @@ public class DisplayToLog extends Display {
     }
     
     public void doUpdate() {
-        for(Iterator iter=parentSimulation().meterList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation().meterList().iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             if(!(meter instanceof MeterScalar)) continue;
             logFile.print(((MeterScalar)meter).average() + " " + ((MeterScalar)meter).error()+ "  ");

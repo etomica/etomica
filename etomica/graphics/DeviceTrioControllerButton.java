@@ -37,11 +37,11 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Constructor if instance of controller is not added.
      */
-    public DeviceTrioControllerButton(Simulation sim) {
-        super(sim);
-        simulation = sim;
-        simReset = new SimulationRestart(sim);
-        meterAverageReset = new MeterReset(sim);
+    public DeviceTrioControllerButton(SimulationElement parent) {
+        super(parent);
+        simulation = parent.simulation();
+        simReset = new SimulationRestart(simulation);
+        meterAverageReset = new MeterReset(simulation);
         
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
@@ -56,11 +56,11 @@ public class DeviceTrioControllerButton extends Device {
                              ,new java.awt.Font(null,java.awt.Font.BOLD,15)
                              ,java.awt.Color.black));
                              */
-        button1 = new DeviceControllerButton(sim.space);
-        button2 = new DeviceButton(sim.space);
+        button1 = new DeviceControllerButton(this);
+        button2 = new DeviceButton(this);
         button2.setAction(new ActionGraphic(simReset));
         
-        button3 = new DeviceButton(sim.space);
+        button3 = new DeviceButton(this);
         button3.setAction(new ActionGraphic(meterAverageReset));
         
         jp.add(button1.graphic()); 
@@ -83,7 +83,7 @@ public class DeviceTrioControllerButton extends Device {
             }
         }//end of MyMediator
         
-        sim.elementCoordinator.addMediatorPair(new MyMediator(sim.elementCoordinator)); 
+        simulation.elementCoordinator.addMediatorPair(new MyMediator(simulation.elementCoordinator)); 
         
         setShape("VERTICAL");
     }

@@ -27,8 +27,8 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
         super(parent);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
-        dr = parentSimulation().space().makeVector();
-        lastCollisionVirialTensor = parentSimulation().space().makeTensor();
+        dr = simulation().space().makeVector();
+        lastCollisionVirialTensor = simulation().space().makeTensor();
     }
     
    /**

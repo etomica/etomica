@@ -17,15 +17,8 @@ public abstract class Device extends SimulationElement implements GraphicalEleme
     protected Unit unit;
     private static int nonSimCount = 0;//number of times instantiated without a parent simulation
     
-    public Device(Simulation sim) {
-        super(sim, Device.class);
-    }
-    /**
-     * Constructor for situtions when Device is not to be used
-     * stand-alone as part of a simulation, but is part of another device.
-     */
-    public Device(Space space) {
-        super(space, Device.class, nonSimCount++);
+    public Device(SimulationElement parent) {
+        super(parent, Device.class);
     }
         
     public abstract Component graphic(Object obj);

@@ -30,7 +30,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
     private AtomPair atomPair;
-    protected final MeterTemperature meterTemperature = new MeterTemperature((Space)null);
+    protected final MeterTemperature meterTemperature = new MeterTemperature(this);
     Space.Vector c3;
                 
     public IntegratorHardAbstract(Simulation sim) {
@@ -214,6 +214,14 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         }
     }//end of CollisionListenerLinker
 
+	/**
+	* Produces the Agent defined by this integrator.
+	* One instance of an Agent is placed in each atom controlled by this integrator.
+	*/
+		public Integrator.Agent makeAgent(Atom a) {
+			return new IntegratorHardAbstract.Agent(a);
+		}
+ 
  /**
   * Agent defined by this integrator.
   * Holds information about the time to next collision (considering only atoms

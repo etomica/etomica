@@ -22,7 +22,7 @@ import etomica.utility.java2.Iterator;
  *
  * @author David Kofke
  */
-public class Simulation implements java.io.Serializable {
+public class Simulation extends SimulationElement {
     
     public static final String VERSION = "Simulation:01.11.20";
     /**
@@ -37,19 +37,15 @@ public class Simulation implements java.io.Serializable {
     public Mediator elementCoordinator;
     protected HashMap elementLists = new HashMap(16);
     
-    public final Hamiltonian hamiltonian = new Hamiltonian(this);
+    public final Hamiltonian hamiltonian;
     
     public PotentialCalculationEnergySum energySum;
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
     */
-    public final Space space;
+ //   public final Space space;
     
-    /**
-     * List of all simulation elements.
-     */
-     private LinkedList allElements = new LinkedList();
 
     //default unit system for I/O (internal calculations are all done in simulation units)
     private static UnitSystem unitSystem = new UnitSystem.Sim();
@@ -70,8 +66,7 @@ public class Simulation implements java.io.Serializable {
      * instance field equal to the new instance.
      */
     public Simulation(Space s) {
-        super();
-        space = s;
+        super(s, instanceCount++, Simulation.class);
         instance = this;
         setName("Simulation" + Integer.toString(instanceCount++));
         elementLists.put(Potential.class, new LinkedList());
@@ -81,6 +76,7 @@ public class Simulation implements java.io.Serializable {
         elementLists.put(Controller.class, new LinkedList());
         elementLists.put(MeterAbstract.class, new LinkedList());
         elementCoordinator = new Mediator(this);
+        hamiltonian = new Hamiltonian(this);
     }//end of constructor
     
     /**
@@ -127,26 +123,21 @@ public class Simulation implements java.io.Serializable {
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
   
     int register(SimulationElement element) {
+    	super.register(element);
 //        if(hamiltonian == null || element == hamiltonian.potential) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return -1;
 //        if(element instanceof Potential && !(element instanceof Potential.Null))
 //                hamiltonian.potential.addPotential((Potential)element);
         list.add(element);
-        //add to list of all elements.  Put Species and Phase classes first in list
-        //so that all species agents are deployed in phases by mediator before it processes
-        //other elements.
-        if(element.baseClass() == Phase.class || 
-            element.baseClass() == Species.class) allElements.addFirst(element);
-        else allElements.addLast(element);
         return list.size() - 1;
     }//end of register method
                 
     public void unregister(SimulationElement element) {
+    	super.unregister(element);
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(!list.contains(element)) return;
         list.remove(element);
-        allElements.remove(element);
     }
      
     public void resetIntegrators() {
@@ -154,14 +145,6 @@ public class Simulation implements java.io.Serializable {
             Integrator integrator = (Integrator)is.next();
             integrator.reset();
         }
-    }
-
-    public LinkedList allElements() {
-        LinkedList list;
- //       synchronized(this) {
-            list = (LinkedList)allElements.clone();
- //       }
-        return list;
     }
     
     /**
@@ -184,10 +167,6 @@ public class Simulation implements java.io.Serializable {
     }
     
     private static int instanceCount = 0;
-    private String name;
-    public void setName(String newName) {name = newName;}
-    public String getName() {return name;}
-    public String toString() {return getName();}
     
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
@@ -207,7 +186,7 @@ public class Simulation implements java.io.Serializable {
      
      public IteratorFactory iteratorFactory = IteratorFactorySimple.INSTANCE;
      
-     public Simulation parentSimulation() {return this;}
+     public Simulation simulation() {return this;}
  
      /**
      * Demonstrates how this class is implemented.

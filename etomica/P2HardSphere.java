@@ -39,8 +39,8 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
     public P2HardSphere(PotentialGroup parent, double d) {
         super(parent);
         setCollisionDiameter(d);
-        lastCollisionVirialTensor = parentSimulation().space().makeTensor();
-        dr = parentSimulation().space().makeVector();
+        lastCollisionVirialTensor = simulation().space().makeTensor();
+        dr = simulation().space().makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {

@@ -22,12 +22,12 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
         super(1, parent);
         p2HardSphere = new P2HardSphere(this);
         p2Tether = new P2Tether(this);
-	    p2Tether.setIterator(new ApiGeneral(parentSimulation().space,
+	    p2Tether.setIterator(new ApiGeneral(simulation().space,
 	            new AtomIteratorList(),
 	            new AtomIteratorBonds()));
-	    p2HardSphere.setIterator(new ApiGeneral(parentSimulation().space,
+	    p2HardSphere.setIterator(new ApiGeneral(simulation().space,
 	            new AtomIteratorList(),
-	            new AtomIteratorNonbonded(parent.parentSimulation())));
+	            new AtomIteratorNonbonded(parent.simulation())));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

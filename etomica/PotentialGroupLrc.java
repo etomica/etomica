@@ -16,13 +16,18 @@ public class PotentialGroupLrc extends PotentialGroup {
         super(0, parent);
     }
     
+	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+		this.calculate((SpeciesMaster)basis, id, pc);
+	}
+	
     /**
      * Performs given PotentialCalculation on all LRC potentials added to this group.
      * Checks that group is enabled, phase is not null, that it has lrcEnabled,
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(SpeciesMaster speciesMaster, IteratorDirective id, PotentialCalculation pc) {
+ 		Phase phase = speciesMaster.node.parentPhase();
         if(!enabled || phase == null || !phase.isLrcEnabled() || !id.includeLrc) return;
 		for(PotentialLinker link=first; link!=null; link=link.next) {
 			if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive

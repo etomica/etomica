@@ -1,6 +1,5 @@
 package etomica;
 
-import etomica.units.*;
 import etomica.utility.Histogram;
 import etomica.utility.History;
 import etomica.utility.Function;
@@ -25,13 +24,9 @@ public abstract class MeterScalar extends MeterAbstract implements DataSource.Wr
     MeterAbstract.Accumulator accumulator = new MeterAbstract.Accumulator();
     private Function function;
     
-	public MeterScalar(Simulation sim) {
-	    super(sim);
+	public MeterScalar(SimulationElement parent) {
+	    super(parent);
 	    setActive(true);  //default is to have meter do averages after some number of integrationIntervalEvents
-	}
-	public MeterScalar(Space space) {
-	    super(space);
-	    setActive(false);
 	}
 	
 	/**

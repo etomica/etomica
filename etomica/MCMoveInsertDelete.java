@@ -129,7 +129,7 @@ public class MCMoveInsertDelete extends MCMove {
         Simulation.instance = sim;
 
         MeterNMolecules meterN = new MeterNMolecules();
-        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox(meterN);
+        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox((DatumSource)meterN);
         box.setUpdateInterval(10);
         
         MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);

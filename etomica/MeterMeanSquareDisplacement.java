@@ -70,8 +70,8 @@ public class MeterMeanSquareDisplacement extends MeterScalar implements
         iter.reset();
         int i=0;
         while(iter.hasNext()) {
-            rAccum[i] = parentSimulation().space().makeVector();
-            rLast[i] = parentSimulation().space().makeVector();
+            rAccum[i] = simulation().space().makeVector();
+            rLast[i] = simulation().space().makeVector();
             rLast[i].E(iter.next().coord.position());
             i++;
         }

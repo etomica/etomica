@@ -18,7 +18,7 @@ public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
         setLabel("Number density");
     }
     public MeterDensitySpecies(Species s) {
-        this(s.parentSimulation());
+        this(s.simulation());
         setSpecies(s);
     }
     

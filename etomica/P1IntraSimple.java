@@ -34,7 +34,7 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         if(!this.contains(potential)) {
             throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the bonded potential");
         }
-        potential.setIterator(new ApiGeneral(parentSimulation().space,
+        potential.setIterator(new ApiGeneral(simulation().space,
 	            new AtomIteratorList(),
 	            new AtomIteratorBonds()));
     }
@@ -47,9 +47,9 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         if(!this.contains(potential)) {
             throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the nonbonded potential");
         }
-        potential.setIterator(new ApiGeneral(parentSimulation().space,
+        potential.setIterator(new ApiGeneral(simulation().space,
 	            new AtomIteratorList(),
-	            new AtomIteratorNonbonded(parentSimulation())));
+	            new AtomIteratorNonbonded(simulation())));
     }
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("General intramolecular potential with one bonded and one nonbonded potential");
@@ -94,12 +94,12 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
 	    Potential2 p2 = new P2HardSphere(potential2);
 	    potential2.setSpecies(speciesSpheres, speciesSpheres);
 */	    
-	    P1IntraSimple p1 = new P1IntraSimple();
-	    p1.setSpecies(new Species[] {speciesSpheres});
-	    P2Fene p2Fene = new P2Fene(p1);
-	    P2LennardJones p2LennardJones = new P2LennardJones(p1);
-	    p1.setBonded(p2Fene);
-	    p1.setNonbonded(p2LennardJones);
+//	    P1IntraSimple p1 = new P1IntraSimple();
+//	    p1.setSpecies(new Species[] {speciesSpheres});
+//	    P2Fene p2Fene = new P2Fene(p1);
+//	    P2LennardJones p2LennardJones = new P2LennardJones(p1);
+//	    p1.setBonded(p2Fene);
+//	    p1.setNonbonded(p2LennardJones);
 	    
 	    PotentialGroup p2 = new PotentialGroup(2);
 	    p2.setSpecies(new Species[] {speciesSpheres});

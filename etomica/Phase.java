@@ -7,8 +7,8 @@ import java.util.Observer;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.java2.LinkedList;
-import etomica.utility.java2.Iterator;
+//import etomica.utility.java2.LinkedList;
+//import etomica.utility.java2.Iterator;
 
 /* History of changes
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
@@ -68,20 +68,10 @@ public class Phase extends SimulationElement {
     }
     
     /**
-     * Constructor for situtions when Phase is not to be used
-     * directly as part of a simulation.
-     */
-    public Phase(Space space) {
-        super(space, Phase.class, nonSimCount++);
-        speciesMaster = new SpeciesMaster(this);
-        boundary = Space.Boundary.NULL;
-    }
-    
-    /**
      * Constructs phase and registers it as part of the given simulation.
      */
-    public Phase(Simulation sim) {
-        super(sim, Phase.class);
+    public Phase(SimulationElement parent) {
+        super(parent, Phase.class);
         
         speciesMaster = new SpeciesMaster(this);
                 
@@ -91,9 +81,9 @@ public class Phase extends SimulationElement {
         setBoundary(space.makeBoundary());
 
         if(space.D() < 3) 
-            setConfiguration(new ConfigurationSequential(sim));  //default configuration
+            setConfiguration(new ConfigurationSequential(parent.simulation()));  //default configuration
         else
-            setConfiguration(new ConfigurationFcc(sim));
+            setConfiguration(new ConfigurationFcc(parent.simulation()));
     }//end of constructor
    
     /**

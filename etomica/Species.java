@@ -58,10 +58,9 @@ import etomica.units.Dimension;
      
 public class Species extends SimulationElement {
 
-    public static final String VERSION = "Species:01.07.25";
+    public static final String VERSION = "Species:03.01.25";
     
     protected final AtomFactory factory;
-    private static int nonSimCount = 0;
     
     /**
      * Constructs species and registers it as part of the given simulation, with
@@ -71,16 +70,7 @@ public class Species extends SimulationElement {
         super(sim, Species.class);
         this.factory = factory;
     }
-    
-    /**
-     * Constructor for situtions when Species is not to be used
-     * directly as part of a simulation.
-     */
-    public Species(Space space, AtomFactory factory) {
-        super(space, Species.class, nonSimCount++);
-        this.factory = factory;
-    }
-              
+                  
     public AtomFactory moleculeFactory() {return factory;}
     
     /**

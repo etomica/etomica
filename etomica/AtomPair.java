@@ -109,6 +109,10 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
     public final Atom atom2() {return atom2;}
     
     /**
+     * @return a String formed from the toString methods of atom1 and atom2.
+     */
+    public String toString() {return atom1.toString()+" "+atom2.toString();}
+    /**
      * Sorts by separation distance all the atom pairs produced by an atomPair iterator.
      * Returns the first element of a linked list of atomPair(Linker)s, sorted by increasing distance
      * Perhaps better to do this using java.util.Collections (in java 1.2 API)

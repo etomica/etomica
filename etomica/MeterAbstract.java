@@ -89,22 +89,11 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
     boolean histogramming = false;
     boolean historying = false;
     
-    private static int nonSimCount = 0;//number of times instantiated without a parent simulation
-
-	public MeterAbstract(Simulation sim) {
-	    super(sim, MeterAbstract.class);
+	public MeterAbstract(SimulationElement parent) {
+	    super(parent, MeterAbstract.class);
 	    setUpdateInterval(1);
 	}
-	
-    /**
-     * Constructor for situtions when Meter is not to be used
-     * directly as part of a simulation.
-     */
-	public MeterAbstract(Space space) {
-	    super(space, MeterAbstract.class, nonSimCount++);
-	    setUpdateInterval(1);
-	}
-    	
+	    	
 	/**
 	 * Returns the physical dimensions (e.g., mass, length, pressure, etc.) of the quantity being measured
 	 */

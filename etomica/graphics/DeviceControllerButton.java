@@ -14,26 +14,15 @@ public class DeviceControllerButton extends DeviceButton {
     
     private Controller controller;
     
-    public DeviceControllerButton(Simulation sim) {
-        super(sim);
+    public DeviceControllerButton(SimulationElement parent) {
+        super(parent);
     }
-    public DeviceControllerButton(Simulation sim, Controller c) {
-        this(sim);
-        setController(c);
-    }
-    public DeviceControllerButton(Space space) {
-        super(space);
-    }
-    /**
-     * Constructor if button is to be used as part of another device.
-     * Does not register with simulation.
-     */
-    public DeviceControllerButton(Space space, Controller c) {
-        super(space);
+    public DeviceControllerButton(SimulationElement parent, Controller c) {
+        this(parent);
         setController(c);
     }
     
-    //final because called by contructor
+    //final because called by constructor
     public final void setController(Controller c) {
         controller = c;
         setAction(new ActionGraphic(new Toggle(c)));

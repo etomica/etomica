@@ -25,12 +25,8 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
     public DeviceCheckBox(String label, ModulatorBoolean modulator) {
         this(Simulation.instance, label, modulator);
     }
-    public DeviceCheckBox(Simulation sim, String label, ModulatorBoolean modulator) {
-        super(sim);
-        init(label, modulator);
-    }
-    public DeviceCheckBox(Space space, String label, ModulatorBoolean modulator) {
-        super(space);
+    public DeviceCheckBox(SimulationElement parent, String label, ModulatorBoolean modulator) {
+        super(parent);
         init(label, modulator);
     }
     

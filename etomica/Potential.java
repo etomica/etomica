@@ -20,8 +20,9 @@ public abstract class Potential extends SimulationElement {
     private PotentialGroup parentPotential;
 	public final PotentialTruncation potentialTruncation;
 	protected boolean enabled = true;
-	private Species[] species;
+	protected Species[] species;
 	public final int nBody;
+	private Potential0Lrc p0Lrc;
 //	protected AtomSetIterator iterator;
 
 	/**
@@ -29,17 +30,32 @@ public abstract class Potential extends SimulationElement {
 	 * @param sim Simulation instance in which potential is used.
 	 */
 	Potential(Simulation sim) {
-		super(sim.space, Potential.class, -1);//index = -1 is arbitrary choice
+		super(sim, Potential.class);
 		nBody = 0;
 		potentialTruncation = PotentialTruncation.NULL;
 		if(!(this instanceof PotentialMaster)) throw new RuntimeException("Invalid attempt to instantiate potential");
 	}
 	
+	/**
+	 * Constructor with default potential truncation given
+	 * as PotentialTruncation. NULL.
+	 * @param nBody number of atoms to which potential is applied at a time
+	 * @param parent potential group in which this potential resides
+	 */
     public Potential(int nBody, PotentialGroup parent) {
     	this(nBody, parent, PotentialTruncation.NULL);
     }
+    /**
+     * General constructor for a potential instance
+     * @param nBody number of atoms to which this potential applies at a time;
+     * for example with a pair potential nBody = 2; for a single-body potential,
+     * nBody = 1.
+     * @param parent potential group in which this potential reside
+     * @param truncation instance of a truncation class that specifies the
+     * scheme for truncating the potential
+     */
     public Potential(int nBody, PotentialGroup parent, PotentialTruncation truncation) {
-        super(parent.parentSimulation(), Potential.class);
+        super(parent, Potential.class);
         this.nBody = nBody;
         potentialTruncation = truncation;
         parentPotential = parent;
@@ -62,6 +78,7 @@ public abstract class Potential extends SimulationElement {
         if(newParent != null) parentPotential.addPotential(this);
     }
     
+    
     public abstract void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc);
             
 //	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
@@ -77,7 +94,8 @@ public abstract class Potential extends SimulationElement {
 	 * species is registered appropriately with potential master.  An exception
 	 * is thrown if the parent of this potential is not the potential master
 	 * (only child potentials of potential master apply to the molecule- level
-	 * interactions).
+	 * interactions).  Also sets the species of the potential used for the long-
+	 * range correction, if it is not null.
 	 */
     public void setSpecies(Species[] s) {
     	if(s == null || s.length == 0) throw new IllegalArgumentException("Error: setSpecies called without specifying any species instances");
@@ -89,6 +107,7 @@ public abstract class Potential extends SimulationElement {
     	}
     	species = new Species[s.length];
     	System.arraycopy(s, 0, species, 0, s.length);
+    	if(p0Lrc != null) p0Lrc.setSpecies(s);
     }
     /**
      * Returns the species to which this potential applies, if it is
@@ -144,6 +163,7 @@ public abstract class Potential extends SimulationElement {
      */    
 	public interface Hard {
     
+		public static Hard NULL = new Potential2.HardNull();
     	/**
     	 * Value of the virial from the most recent collision.
     	 * @return double virial value
@@ -160,11 +180,29 @@ public abstract class Potential extends SimulationElement {
 		/**
 		 * Instance of hard pair potential corresponding to no interaction between atoms.
 		 */
-		public static Hard NULL = new NULL();
-		static class NULL implements Potential.Hard, Potential.Null {
-			private NULL() {}
-			public double lastCollisionVirial() {return 0.0;}
-			public Space.Tensor lastCollisionVirialTensor() {throw new etomica.exception.MethodNotImplementedException();} //need to know D to return zero tensor
-		}//end of NULL
 	}//end of interface Hard
+	
+	/**
+	 * Returns the zero-body potential used to apply a long-range correction
+	 * for truncation of this potential.
+	 * @return Potential0Lrc
+	 */
+	public Potential0Lrc getLrc() {
+		return p0Lrc;
+	}
+
+	/**
+	 * Sets the zero-body potential used to apply a long-range correction (lrc)
+	 * for truncation of this potential.  This is invoked in the constructor of
+	 * Potential0Lrc, which itself is routinely invoked during the construction
+	 * of this potential, so this method is declared final to guard against
+	 * subclasses performing some action that is inappropriate while this class
+	 * is being constructed.
+	 * @param p0Lrc The lrc potential to set
+	 */
+	final void setLrc(Potential0Lrc p0Lrc) {
+		this.p0Lrc = p0Lrc;
+	}
+
 }//end of Potential
+

@@ -90,15 +90,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
         this(Simulation.instance);
     }
     
-    public DeviceSlider(Simulation sim) {
-        super(sim);
+    public DeviceSlider(SimulationElement parent) {
+        super(parent);
         init();
     }
 
-    public DeviceSlider(Space space) {
-        super(space);
-        init();
-    }
     
     /**
      * Constructs a slider connected to the given property of the given object
@@ -116,19 +112,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
         //set component and property in some way
         setModulator(m);
     }
-    /**
-     * Constructs a slider connected to the get/set Value methods of the given Modulator
-     */
-    public DeviceSlider(Space s, ModulatorAbstract m) {
-        this(s);
-        //set component and property in some way
-        setModulator(m);
-    }
 
     private void init() {
         textField = new JTextField("");
         textField.setFont(new java.awt.Font("",0,15));
-        textField.setHorizontalAlignment(textField.CENTER);
+        textField.setHorizontalAlignment(JTextField.CENTER);
         gbLayout = new GridBagLayout();
         gbConst = new GridBagConstraints();    
         panel = new JPanel();  
@@ -271,7 +259,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     
     public void setSliderVerticalOrientation(boolean b){
-        if(b){getSlider().setOrientation(getSlider().VERTICAL);}
+        if(b){getSlider().setOrientation(DecimalSlider.VERTICAL);}
     }
     
     public boolean getEditValues(){ return editValues;}

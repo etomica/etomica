@@ -42,7 +42,7 @@ public class MCMoveVolume extends MCMove {
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
-        double rScale = Math.exp(vScale/(double)phase.parentSimulation().space().D());
+        double rScale = Math.exp(vScale/(double)phase.simulation().space().D());
         inflate.setScale(rScale);
         inflate.attempt();
         uNew = Double.NaN;

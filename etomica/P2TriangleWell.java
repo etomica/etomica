@@ -27,7 +27,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
     setEpsilon(epsilon);
-    force = parentSimulation().space.makeVector();
+    force = simulation().space.makeVector();
   }
   
     public static EtomicaInfo getEtomicaInfo() {

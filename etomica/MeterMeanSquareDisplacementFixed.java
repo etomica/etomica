@@ -105,9 +105,9 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
         int i=0;
         while(iter.hasNext()) {
             for(int j=0; j<nPoints; j++) {
-                rDelta[i][j] = parentSimulation().space.makeVector();
+                rDelta[i][j] = simulation().space.makeVector();
             }
-            rLast[i] = parentSimulation().space().makeVector();
+            rLast[i] = simulation().space().makeVector();
             rLast[i].E(iter.next().coord.position());
             i++;
         }

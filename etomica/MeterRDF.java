@@ -1,6 +1,4 @@
 package etomica;
-import java.util.Observer;
-import java.util.Observable;
 import etomica.units.Dimension;
 
 /**
@@ -91,7 +89,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    if(phase == null) return;
 	    //Compute normalization constants for RDF, including shell volumes for ideal-gas particle numbers
 	    vShell = new double[n];         
-	    Space space = phase.parentSimulation().space();
+	    Space space = phase.simulation().space();
 	    double dx2 = 0.5*(xMax - xMin)/(double)nPoints;
 	    for(int i=0; i<nPoints-1; i++) {
 	        vShell[i] = space.sphereVolume(x[i]+dx2)-space.sphereVolume(x[i]-dx2);

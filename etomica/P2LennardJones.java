@@ -82,8 +82,8 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     public double uInt(double rC) {
         if(rC != rCLast) { //recompute if something changed, otherwise used saved value
             rCLast = rC;
-            double A = parentSimulation().space().sphereArea(1.0);  //multiplier for differential surface element
-            int D = parentSimulation().space().D();                 //spatial dimension
+            double A = simulation().space().sphereArea(1.0);  //multiplier for differential surface element
+            int D = simulation().space().D();                 //spatial dimension
             double sigmaD = 1.0;  //will be sigma^D
             double rcD = 1.0;     //will be (sigam/rc)^D
             double rc = sigma/rC;

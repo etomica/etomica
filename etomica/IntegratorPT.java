@@ -32,11 +32,11 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     public IntegratorPT() {
         this(Simulation.instance);
     }
-    public IntegratorPT(Simulation sim) {
-        this(sim, new MCMoveSwapFactoryDefault());
+    public IntegratorPT(SimulationElement parent) {
+        this(parent, new MCMoveSwapFactoryDefault());
     }
-    public IntegratorPT(Simulation sim, MCMoveSwapFactory swapFactory) {
-        super(sim);
+    public IntegratorPT(SimulationElement parent, MCMoveSwapFactory swapFactory) {
+        super(parent);
         setSwapInterval(100);
         mcMoveSwapFactory = swapFactory;
     }
@@ -199,7 +199,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 	public MCMoveSwapConfiguration(IntegratorMC integratorMC, 
 	                                Integrator integrator1, Integrator integrator2) {
   		super(integratorMC);
-		r = integratorMC.parentSimulation().space.makeVector();
+		r = integratorMC.space.makeVector();
 		setTunable(false);
 		this.integrator1 = integrator1;
 		this.integrator2 = integrator2;
@@ -289,7 +289,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
         private int[] track;
         
         public MeterPhaseTracker() {
-            super(IntegratorPT.this.parentSimulation());
+            super(IntegratorPT.this.simulation());
             setActive(true);
             IntegratorPT.this.addMCMoveListener(this);
         }

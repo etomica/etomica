@@ -14,7 +14,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    private final MeterTemperature meterTemperature = new MeterTemperature((Space)null);
+    private final MeterTemperature meterTemperature = new MeterTemperature(this);
     
     //Fields for Andersen thermostat
     double nu = 0.001;  //heat bath "collision" frequency
@@ -23,9 +23,9 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     public IntegratorVelocityVerlet() {
         this(Simulation.instance);
     }
-    public IntegratorVelocityVerlet(Simulation sim) {
-        super(sim);
-        forceSum = new PotentialCalculationForceSum(sim.space());
+    public IntegratorVelocityVerlet(SimulationElement parent) {
+        super(parent);
+        forceSum = new PotentialCalculationForceSum(space);
         
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }
@@ -76,7 +76,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();              //reset iterator of atoms
         while(atomIterator.hasNext()) {    //loop over all atoms
             Atom a = atomIterator.next();  //  advancing positions full step
-            Agent agent = (Agent)a.ia;     //  and momenta half step
+            MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
             Space.Vector r = a.coord.position();
             Space.Vector p = a.coord.momentum();
             p.PEa1Tv1(0.5*timeStep,agent.force);  // p += f(old)*dt/2
@@ -91,7 +91,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();
         while(atomIterator.hasNext()) {     //loop over atoms again
             Atom a = atomIterator.next();   //  finishing the momentum step
-            a.coord.momentum().PEa1Tv1(0.5*timeStep,((Agent)a.ia).force);  //p += f(new)*dt/2
+            a.coord.momentum().PEa1Tv1(0.5*timeStep,((MyAgent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
         	if(!andersenThermostat) {
@@ -124,7 +124,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
-            Agent agent = (Agent)a.ia;
+            MyAgent agent = (MyAgent)a.ia;
             agent.force.E(0.0);
         }
         potential.calculate(firstPhase, allAtoms, forceSum);//assumes only one phase
@@ -133,20 +133,20 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 //--------------------------------------------------------------
 
     public final Integrator.Agent makeAgent(Atom a) {
-        return new Agent(parentSimulation(),a);
+        return new MyAgent(simulation(),a);
     }
             
-    public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+    public final static class MyAgent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
 
-        public Agent(Simulation sim, Atom a) {
+        public MyAgent(Simulation sim, Atom a) {
             atom = a;
             force = sim.space().makeVector();
         }
         
         public Space.Vector force() {return force;}
-    }//end of Agent
+    }//end of MyAgent
     
 }//end of IntegratorVelocityVerlet
 

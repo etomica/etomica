@@ -21,8 +21,8 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     
     public P2HardAssociationCone(PotentialGroup parent) {
         super(parent);
-        e1 = parentSimulation().space().makeVector();
-        e2 = parentSimulation().space().makeVector();
+        e1 = simulation().space().makeVector();
+        e2 = simulation().space().makeVector();
 
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);

@@ -74,6 +74,7 @@ public interface AtomPairActive extends AtomSetActive {
 			public AtomIterator aiInner;
 			private final AtomPairActive action;
 			private final InnerWrapper wrapper;
+			public boolean innerSkipFirst = false;
 			public OuterWrapper(AtomPairActive action) {
 				this.action = action;
 				wrapper = action.innerWrapper();
@@ -83,6 +84,7 @@ public interface AtomPairActive extends AtomSetActive {
 			}
 			public void actionPerformed(Atom a) {
 				wrapper.pair.atom1 = a;
+				directive.skipFirst = innerSkipFirst;
 				aiInner.all(innerBasis, directive.set(a), wrapper);
 			}
 		}//end of OuterWrapper

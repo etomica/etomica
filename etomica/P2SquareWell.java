@@ -34,8 +34,8 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
     setEpsilon(epsilon);
-    dr = parentSimulation().space().makeVector();
-    lastCollisionVirialTensor = parentSimulation().space().makeTensor();
+    dr = simulation().space().makeVector();
+    lastCollisionVirialTensor = simulation().space().makeTensor();
   }
 
     public static EtomicaInfo getEtomicaInfo() {

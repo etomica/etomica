@@ -32,7 +32,7 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
     public P1HardBoundary(PotentialGroup parent) {
         super(parent);
         temperature = Default.TEMPERATURE;
-        D = parent.parentSimulation().space.D();
+        D = parent.simulation().space.D();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

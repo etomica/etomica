@@ -42,10 +42,10 @@ public class PotentialGroup extends Potential {
     public PotentialGroup(int nBody, PotentialGroup parent, PotentialTruncation truncation) {
         super(nBody, parent, truncation);
         switch(nBody) {
-        	case 1: iterator = parentSimulation().iteratorFactory.makeGroupIteratorSequential();
+        	case 1: iterator = simulation().iteratorFactory.makeGroupIteratorSequential();
         			break;
-        	case 2: iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
-											new ApiIntergroupAA(parentSimulation()));
+        	case 2: iterator = new Api1A(new ApiIntergroup1A(simulation()),
+											new ApiIntergroupAA(simulation()));
 					break;
         }//end switch
     }
@@ -72,12 +72,12 @@ public class PotentialGroup extends Potential {
 		 	case 1:
 		 			break;
 		 	case 2:
-				 if(species[0] == species[1]) {
-					 iterator = new Api1A(new ApiIntragroup1A(parentSimulation()),
-											 new ApiIntragroupAA(parentSimulation()));
+				 if(species.length == 1 || species[0] == species[1]) {
+					 iterator = new Api1A(new ApiIntragroup1A(simulation()),
+											 new ApiIntragroupAA(simulation()));
 				 } else {
-					 iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
-											 new ApiIntergroupAA(parentSimulation()));
+					 iterator = new Api1A(new ApiIntergroup1A(simulation()),
+											 new ApiIntergroupAA(simulation()));
 				 }
 				 break;
 		 }//end switch
@@ -93,7 +93,7 @@ public class PotentialGroup extends Potential {
 			throw new IllegalArgumentException("Improper call to addPotential; should use setParentPotential method in child instead of addPotential method in parent group"); 
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
 		//to be configured for calculation (i.e., iterators set up) first
-		if((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc) && last != null) {//put zero-body potential at end of list
+		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
 			last.next = makeLinker(potential, null);
 			last = last.next;
 		} else {//put other potentials at beginning of list

@@ -20,16 +20,16 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
    
    public Potential2SoftSpherical(PotentialGroup parent) {
         super(parent);
-        rD = 1.0/(double)parentSimulation().space.D();
-        work1 = parentSimulation().space().makeVector();
+        rD = 1.0/(double)simulation().space.D();
+        work1 = simulation().space().makeVector();
    }
    public Potential2SoftSpherical(PotentialGroup parent, PotentialTruncation trunc) {
      //constructors repeat code rather than call the other because superclass constructors
      //define truncation differently.  Since truncation field is final it cannot be
      //subsequently changed
         super(parent, trunc);
-        rD = 1.0/(double)parentSimulation().space.D();
-        work1 = parentSimulation().space.makeVector();
+        rD = 1.0/(double)simulation().space.D();
+        work1 = simulation().space.makeVector();
    }
         
    

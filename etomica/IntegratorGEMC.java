@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.Kelvin;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator.

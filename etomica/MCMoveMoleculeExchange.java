@@ -26,7 +26,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {
         super(parent);
-        ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();
+        ROOT = 1.0/(double)parentIntegrator.simulation().space().D();
         setTunable(false);
         setPerParticleFrequency(true);
         iteratorDirective.includeLrc = true;

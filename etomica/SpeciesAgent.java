@@ -24,12 +24,12 @@ public final class SpeciesAgent extends Atom {
     protected Integrator integrator;
     
     public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
-        super(s.parentSimulation().space(), new AtomType.Group(null), new NodeFactory(s), 
-                s.parentSimulation().getIteratorFactory().simpleSequencerFactory(), parent);
+        super(s.simulation().space(), new AtomType.Group(null), new NodeFactory(s), 
+                s.simulation().getIteratorFactory().simpleSequencerFactory(), parent);
         factory = s.moleculeFactory();
 //        node = (AtomTreeNodeGroup)super.node;
         ((AtomType.Group)type).childrenAreGroups = factory.isGroupFactory();
-        ((AtomType.Group)type).childSequencerClass = s.parentSimulation().iteratorFactory.neighborSequencerClass();
+        ((AtomType.Group)type).childSequencerClass = s.simulation().iteratorFactory.neighborSequencerClass();
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
@@ -151,7 +151,7 @@ public final class SpeciesAgent extends Atom {
         * Overrides super class method and terminates recursive call to identify
         * a constituent atom's simulation.
         */
-        public Simulation parentSimulation() {return parentSpecies.parentSimulation();}    
+        public Simulation parentSimulation() {return parentSpecies.simulation();}    
         /**
         * Overrides parent class method and terminates recursive call to identify this
         * as a constituent atom's species agent.

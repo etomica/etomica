@@ -153,9 +153,9 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         public InflateAnisotropic(Phase p) {
             super(p);
             if(p != null) {
-                scale = p.parentSimulation().space().makeVector();
-                temp = p.parentSimulation().space().makeVector();
-                oldDimensions = p.parentSimulation().space().makeVector();
+                scale = p.simulation().space().makeVector();
+                temp = p.simulation().space().makeVector();
+                oldDimensions = p.simulation().space().makeVector();
             }
         }
                 
@@ -164,7 +164,7 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
 
         public void setPhase(Phase p) {
             super.setPhase(p);
-            if(p != null && temp == null) temp = p.parentSimulation().space().makeVector();
+            if(p != null && temp == null) temp = p.simulation().space().makeVector();
         }
  
         public void actionPerformed(Phase p) {doAction(p, scale, temp);}

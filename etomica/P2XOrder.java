@@ -21,7 +21,7 @@ public class P2XOrder extends Potential2 implements Potential2.Hard {
 
     public P2XOrder(PotentialGroup parent) {
         super(parent);
-        dr = parentSimulation().space().makeVector();
+        dr = simulation().space().makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {

@@ -53,6 +53,7 @@ package etomica;
 public abstract class Potential0Lrc extends Potential0 {
     
     public static String VERSION = "Potential0Lrc:01.11.09/"+Potential0.VERSION;
+    public final Potential potential;
     
     /**
      * Constructor requires PotentialMaster argument, and calls superclass
@@ -60,9 +61,17 @@ public abstract class Potential0Lrc extends Potential0 {
      * lrcMaster instance, which manages the lrc potentials.
      * @param parent  Potential master for the simulation.
      */
-    public Potential0Lrc(PotentialMaster parent) {
+    public Potential0Lrc(PotentialMaster parent, Potential potential) {
         super(parent.lrcMaster());
-    }    
+        this.potential = potential;
+        potential.setLrc(this);
+    }  
+    
+	public void setSpecies(Species[] species) {
+		this.species = new Species[species.length];
+		System.arraycopy(species, 0, this.species, 0, species.length);
+	}
+  
     
     /**
      * Long-range correction to the energy u.

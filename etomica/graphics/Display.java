@@ -41,8 +41,8 @@ public abstract class Display extends SimulationElement implements GraphicalElem
                             //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph, DisplayToConsole
     
     // Constructor
-    public Display(Simulation sim) {
-        super(sim, Display.class);
+    public Display(SimulationElement parent) {
+        super(parent, Display.class);
 	    setUpdateInterval(1);
     }
     

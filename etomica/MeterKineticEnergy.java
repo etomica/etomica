@@ -1,6 +1,4 @@
 package etomica;
-import java.util.Observable;
-import java.util.Observer;
 
 import etomica.units.Dimension;
 
@@ -19,15 +17,8 @@ public class MeterKineticEnergy extends MeterScalar
     public MeterKineticEnergy() {
         this(Simulation.instance);
     }
-    public MeterKineticEnergy(Simulation sim) {
-        super(sim);
-        setLabel("Kinetic Energy");
-    }
-    /**
-     * Constructor that doesn't register meter with simulation.
-     */
-    public MeterKineticEnergy(Space space) {
-        super(space);
+    public MeterKineticEnergy(SimulationElement parent) {
+        super(parent);
         setLabel("Kinetic Energy");
     }
 

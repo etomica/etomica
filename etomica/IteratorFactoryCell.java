@@ -101,7 +101,7 @@ public class IteratorFactoryCell implements IteratorFactory {
      * the reference in each neighbor sequencer to the cell containing its atom.
      */
     public BravaisLattice makeCellLattice(final Phase phase) {
-        if(phase.parentSimulation() != simulation) throw new IllegalArgumentException("Attempt to apply iterator factory to a phase from a different simulation"); 
+        if(phase.simulation() != simulation) throw new IllegalArgumentException("Attempt to apply iterator factory to a phase from a different simulation"); 
         //make the unit cell factory and set it to produce cells of the appropriate size
         final Primitive primitiveCopy = primitive.copy();//each new lattice works with its own primitive
 ///        AtomFactory cellFactory = primitiveCopy.unitCellFactory();

@@ -65,7 +65,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     
     public void initialize() {
         nvert = 0;
-        for(Iterator iter=displayPhase.parentSimulation().speciesList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=displayPhase.simulation().speciesList().iterator(); iter.hasNext(); ) {
             Species obj = (Species)iter.next();
             nvert += obj.getNMolecules();
         }

@@ -20,13 +20,13 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
     }*/
     //requires Integrator for temperature
     public MeterPressure(Integrator integrator) {
-        super(integrator.parentSimulation());
+        super(integrator.simulation());
         this.integrator = integrator;
-        rD = 1.0/(double)parentSimulation().space.D();
+        rD = 1.0/(double)simulation().space.D();
         setLabel("Pressure");
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
-        potential = parentSimulation().hamiltonian.potential;
+        potential = simulation().hamiltonian.potential;
         virial = new PotentialCalculationVirialSum();
     }
       

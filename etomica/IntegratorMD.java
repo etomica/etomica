@@ -27,8 +27,8 @@ public abstract class IntegratorMD extends Integrator {
      */
     private double t0 = 0.0;
     
-    public IntegratorMD(Simulation sim) {
-        super(sim);
+    public IntegratorMD(SimulationElement parent) {
+        super(parent);
         setTimeStep(Default.TIME_STEP);
     }
     
@@ -89,7 +89,7 @@ public abstract class IntegratorMD extends Integrator {
          * Constructor for a time-meter associated with this IntegratorMD class.
          */
         ChronoMeter() {
-            super(IntegratorMD.this.parentSimulation());
+            super(IntegratorMD.this.simulation());
             setActive(false);
             this.reset();
             setLabel("Elapsed time");

@@ -99,7 +99,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    if(meters == null) {
 	        meters = new MeterScalar[nMeters];
 	        for(int i=0; i<nMeters; i++) {
-	            meters[i] = new PseudoMeter(parentSimulation(), i);
+	            meters[i] = new PseudoMeter(simulation(), i);
 	        }
 	    }
 	    return meters;

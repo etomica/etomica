@@ -24,8 +24,8 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   public P2Tether(PotentialGroup parent) {
     super(parent);
     setTetherLength(0.75*Default.ATOM_SIZE);
-    lastCollisionVirialTensor = parentSimulation().space().makeTensor();
-    dr = parentSimulation().space().makeVector();
+    lastCollisionVirialTensor = simulation().space().makeTensor();
+    dr = simulation().space().makeVector();
   }
 
     public static EtomicaInfo getEtomicaInfo() {

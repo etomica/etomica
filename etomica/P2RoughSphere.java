@@ -22,10 +22,10 @@ public class P2RoughSphere extends P2HardSphere {
     }
     public P2RoughSphere(PotentialGroup parent, double d) {
         super(parent,d);
-        v12Surface = parentSimulation().space.makeVector();
-        v12Par = parentSimulation().space.makeVector();
-        v12Perp = parentSimulation().space.makeVector();
-        impulse = parentSimulation().space.makeVector();
+        v12Surface = simulation().space.makeVector();
+        v12Par = simulation().space.makeVector();
+        v12Perp = simulation().space.makeVector();
+        impulse = simulation().space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {

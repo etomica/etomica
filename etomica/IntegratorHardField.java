@@ -7,7 +7,7 @@ package etomica;
  * @author David Kofke
  *
  */
-public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
+public final class IntegratorHardField extends XIntegratorHard implements EtomicaElement {
 
     public String getVersion() {return "IntegratorHardField:01.03.17/"+super.getVersion();}
     public final IntegratorHardField.ForceSum forceSum;
@@ -116,7 +116,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
     public final Integrator.Agent makeAgent(Atom a) {
-        return new Agent(parentSimulation(),a);
+        return new Agent(simulation(),a);
     }
      
     /**

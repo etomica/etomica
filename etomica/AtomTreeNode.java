@@ -126,7 +126,7 @@ public abstract class AtomTreeNode {
     /**
      * Simulation in which this atom resides
      */
-    public Simulation parentSimulation() {return parentSpecies().parentSimulation();}        
+    public Simulation parentSimulation() {return parentSpecies().simulation();}        
     /**
      * Phase in which this atom resides
      */

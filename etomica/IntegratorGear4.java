@@ -1,7 +1,7 @@
 // includes a main method
 
 package etomica;
-import etomica.units.*;
+//import etomica.units.*;
 
 /**
  * Gear 4th-order predictor-corrector integrator.
@@ -176,7 +176,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 //--------------------------------------------------------------
 
     public Integrator.Agent makeAgent(Atom a) {
-        return new Agent(parentSimulation(),a);
+        return new Agent(simulation(),a);
     }
             
     public static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof

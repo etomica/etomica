@@ -23,8 +23,8 @@ public class P1Harmonic extends Potential1 implements Potential1.Soft {
     
     public P1Harmonic(PotentialGroup parent) {
         super(parent);
-        D = parentSimulation().space().D();
-        force = parentSimulation().space().makeVector();
+        D = simulation().space().D();
+        force = simulation().space().makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.*;
 
 /**
  * Profile meter for a collision-based property.

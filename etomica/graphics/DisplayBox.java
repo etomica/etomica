@@ -56,12 +56,12 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     public DisplayBox(DatumSource m) {
         this(Simulation.instance, m);
     }
-    public DisplayBox(Simulation sim, DatumSource m) {
-        this(sim);
+    public DisplayBox(SimulationElement parent, DatumSource m) {
+        this(parent);
         setDatumSource(m);
     }
-    public DisplayBox(Simulation sim) {
-        super(sim);
+    public DisplayBox(SimulationElement parent) {
+        super(parent);
         label = new JLabel("Label");
         value = new JTextField("");
         value.setEditable(false);

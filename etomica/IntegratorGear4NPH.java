@@ -25,7 +25,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     private double rrh = 300.;
     private double kp, kh;
     private int D;
-    private final MeterTemperature meterTemperature = new MeterTemperature((Space)null);
+    private final MeterTemperature meterTemperature = new MeterTemperature(this);
     
     public IntegratorGear4NPH() {
         this(Simulation.instance);
@@ -174,7 +174,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 //--------------------------------------------------------------
 
     public Integrator.Agent makeAgent(Atom a) {
-        return new Agent(parentSimulation(),a);
+        return new Agent(simulation(),a);
     }
             
     public static class Agent extends IntegratorGear4.Agent {  //need public so to use with instanceof

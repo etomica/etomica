@@ -34,8 +34,9 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
     public MeterWidomInsertion() {
         this(Simulation.instance);
     }
-    public MeterWidomInsertion(Simulation sim) {
-        super(sim);
+    public MeterWidomInsertion(SimulationElement parent) {
+        super(parent);
+        Simulation sim = parent.simulation();
         potential = sim.hamiltonian.potential;
         energy = sim.energySum(this);
         setLabel("exp(-\u03BC/kT)");  //"\u03BC" is Unicode for greek "mu"
@@ -149,7 +150,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
     public static void main(String[] args) {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         MeterWidomInsertion meter = new MeterWidomInsertion();
-        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox(meter);
+        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox((DatumSource)meter);
         box.setWhichValue(MeterAbstract.AVERAGE);
         sim.elementCoordinator.go();
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);

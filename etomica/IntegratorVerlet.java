@@ -83,7 +83,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 //--------------------------------------------------------------
 
     public final Integrator.Agent makeAgent(Atom a) {
-        return new Agent(parentSimulation(),a);
+        return new Agent(simulation(),a);
     }
             
 	public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof

@@ -28,9 +28,9 @@ public class DeviceConfigurationEditor extends Device {
         
         buttonPane = new JInternalFrame() {
             public void dispose() {
-                ((SimulationGraphic)parentSimulation()).panel().remove(this);
-                ((SimulationGraphic)parentSimulation()).panel().validate();
-                ((SimulationGraphic)parentSimulation()).panel().repaint();
+                ((SimulationGraphic)simulation()).panel().remove(this);
+                ((SimulationGraphic)simulation()).panel().validate();
+                ((SimulationGraphic)simulation()).panel().repaint();
                 DeviceConfigurationEditor.exists = false;
                 removeDisplayListeners();
                 super.dispose();

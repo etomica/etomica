@@ -23,7 +23,7 @@ public abstract class Potential2 extends Potential {
     
     public Potential2(PotentialGroup parent) {
         this(parent, Default.TRUNCATE_POTENTIALS ? 
-                        new PotentialTruncationSimple(parent.parentSimulation().space)
+                        new PotentialTruncationSimple(parent.simulation().space)
                       : PotentialTruncation.NULL);
       /*                  
         super(parent);
@@ -39,11 +39,11 @@ public abstract class Potential2 extends Potential {
     }
     public Potential2(PotentialGroup parent, PotentialTruncation potentialTruncation) {
         super(2, parent, potentialTruncation);
-        iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
-        						new ApiIntergroupAA(parentSimulation()));
+        iterator = new Api1A(new ApiIntergroup1A(simulation()),
+        						new ApiIntergroupAA(simulation()));
         if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null
             && (this instanceof Potential2SoftSpherical)) ) {
-            PotentialMaster potentialMaster = parentSimulation().hamiltonian.potential;
+            PotentialMaster potentialMaster = simulation().hamiltonian.potential;
             potentialTruncation.makeLrcPotential(potentialMaster, this); //constructor of lrcPotential adds it to lrcMaster of potentialMaster
         }
     }
@@ -74,12 +74,12 @@ public abstract class Potential2 extends Potential {
      */
     public void setSpecies(Species[] species) {
         super.setSpecies(species);
-        if(species[0] == species[1]) {
-        	iterator = new Api1A(new ApiIntragroup1A(parentSimulation()),
-									new ApiIntragroupAA(parentSimulation()));
+        if(species.length < 2 || species[0] == species[1]) {
+        	iterator = new Api1A(new ApiIntragroup1A(simulation()),
+									new ApiIntragroupAA(simulation()));
         } else {
-			iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
-									new ApiIntergroupAA(parentSimulation()));
+			iterator = new Api1A(new ApiIntergroup1A(simulation()),
+									new ApiIntergroupAA(simulation()));
         }
     }
 
@@ -142,7 +142,21 @@ public abstract class Potential2 extends Potential {
 		 */
 		public abstract double integral(double rC);
     
-	}//end of Potential2.Soft            
+	}//end of Potential2.Soft 
+	
+	//static instance of this class is made in Potential.Hard
+	//inconsistency is indicated if this class is defined in Potential instead of here
+	final static class HardNull implements Potential1.Hard, Potential2.Hard, Potential.Null {
+		public void bump(Atom a) {}
+		public double collisionTime(Atom a) {return Double.MAX_VALUE;}
+		public double energy(Atom a) {return 0.0;}
+		public void bump(AtomPair pair) {}
+		public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
+		public double energy(AtomPair pair) {return 0.0;}
+		public double lastCollisionVirial() {return 0.0;}
+		public Space.Tensor lastCollisionVirialTensor() {throw new etomica.exception.MethodNotImplementedException();} //need to know D to return zero tensor
+	}//end of NULL
+           
 }//end of Potential2
 
 

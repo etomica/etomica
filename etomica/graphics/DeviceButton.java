@@ -24,27 +24,18 @@ public class DeviceButton extends Device implements EtomicaElement {
     public DeviceButton() {
         this(Simulation.instance);
     }
-    public DeviceButton(Simulation sim) {
-        super(sim);
+    public DeviceButton(SimulationElement parent) {
+        super(parent);
         button = new JButton();
 //        button.setBackground(DefaultGraphic.BUTTON_COLOR);
 //        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
     }
-    /**
-     * Constructor if button is to be used as part of another device.
-     * Does not register with simulation.
-     */
-    public DeviceButton(Space space) {
-        super(space);
-        button = new JButton();
-//        button.setBackground(DefaultGraphic.BUTTON_COLOR);
-//        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
-    }
+
     /**
      * Constructs button connected to the given action, without registering it with a simulation.
      */
-    public DeviceButton(Space space, ActionGraphic action) {
-        this(space);
+    public DeviceButton(SimulationElement parent, ActionGraphic action) {
+        this(parent);
         setAction(action);
     }
     

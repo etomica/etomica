@@ -22,6 +22,7 @@ public final class ApiIntragroupAA extends AtomPairIterator {
 		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
 		outerWrapper.aiInner = aiInner;
 		outerWrapper.innerBasis = basis;
+		outerWrapper.innerSkipFirst = true;
 		aiOuter.all(basis, dummy, outerWrapper);
 	}
 	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {

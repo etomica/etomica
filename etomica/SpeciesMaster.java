@@ -25,8 +25,8 @@ public final class SpeciesMaster extends Atom {
     public final AtomList atomList = new AtomList();
 
     public SpeciesMaster(Phase p) {
-        super(p.parentSimulation().space(), AtomType.NULL, new NodeFactory(p), 
-                p.parentSimulation().getIteratorFactory().simpleSequencerFactory(), null);//parent is null
+        super(p.simulation().space(), AtomType.NULL, new NodeFactory(p), 
+                p.simulation().getIteratorFactory().simpleSequencerFactory(), null);//parent is null
         index = p.index;
         node = (AtomTreeNodeGroup)super.node;
   //      ((MasterAtomTreeNode)node).speciesMaster = this;
@@ -79,7 +79,7 @@ public final class SpeciesMaster extends Atom {
         public SpeciesAgent parentSpeciesAgent() {
             throw new RuntimeException("Error:  Unexpected call to parentSpeciesAgent in SpeciesMaster");
         }
-        public Simulation parentSimulation() {return parentPhase.parentSimulation();}
+        public Simulation parentSimulation() {return parentPhase.simulation();}
         /**
         * Returns null, because a species master is not contained within a molecule.
         */

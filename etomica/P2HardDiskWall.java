@@ -39,7 +39,7 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
     public P2HardDiskWall(PotentialGroup parent, double d) {
         super(parent);
         setCollisionDiameter(d);
-        ZERO = parentSimulation().space.makeTensor();//temporary
+        ZERO = simulation().space.makeTensor();//temporary
     }
     
     public static EtomicaInfo getEtomicaInfo() {

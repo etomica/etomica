@@ -1,6 +1,6 @@
 package etomica.action;
 
-import java.awt.event.ActionEvent;
+//import java.awt.event.ActionEvent;
 import etomica.Simulation;
 import etomica.Action;
 import etomica.SimulationEvent;

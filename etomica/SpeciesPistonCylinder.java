@@ -165,7 +165,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    */
   public final class PistonPressureField extends Potential1 implements Potential1.Soft, Potential2.Hard {
     private double pressure = 0.0;
-    private Space.Vector gradientVector = parentSimulation().space().makeVector();
+    private Space.Vector gradientVector = simulation().space().makeVector();
     private double force = 0.0;
     public PistonPressureField() {this(Simulation.instance.hamiltonian.potential);}
     public PistonPressureField(PotentialGroup parent) {
@@ -181,7 +181,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         pressure = p;
         force = pressure*diameter; //compute force as pressure * length
 //        System.out.println("pressure, diameter, force: "+pressure+" "+diameter+" "+force);
-        parentSimulation().resetIntegrators();
+        simulation().resetIntegrators();
 //        if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
 //                    phase().integrator().reset();
     }

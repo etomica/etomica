@@ -62,7 +62,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
      * exceeding the truncation radius.
      */
     public Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential) {
-        return new P0Lrc(parent, potential);
+        return new P0Lrc(parent, (Potential2SoftSpherical)potential);
     }
     
     /**
@@ -71,15 +71,35 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
     private class P0Lrc extends Potential0Lrc {
         
         private Phase phase;
-        private Potential2SoftSpherical potential;
+        private final Potential2SoftSpherical potential;//shadow superclass field (ok because final)
         
-        public P0Lrc(PotentialMaster parent, Potential2 potential) {
-            super(parent);
-            this.potential = (Potential2SoftSpherical)potential;
+        public P0Lrc(PotentialMaster parent, Potential2SoftSpherical potential) {
+            super(parent, potential);
+            this.potential = potential;
+        }
+        
+        /**
+         * Returns the number of pairs formed from molecules of the current
+         * species, in the given phase.
+         * @param phase
+         * @return int
+         */
+        private int nPairs(Phase phase) {
+        	switch(species.length) {
+        		case 1: 
+        			int n = species[0].getAgent(phase).getNMolecules();
+        			return n*(n-1)/2;
+        		case 2: 
+        			int n0 = species[0].getAgent(phase).getNMolecules();
+        			int n1 = species[1].getAgent(phase).getNMolecules();
+        			return n0*n1;
+        		default: return 0;
+        	}
         }
         
         public double energy(Phase phase) {
-            return uCorrection(((AtomPairIterator)potential.getIterator()).size()/phase.volume());
+        	if(species == null) return 0.0;
+            return uCorrection(nPairs(phase)/phase.volume());
         }
         
         /**
@@ -87,7 +107,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
          * @param pairDensity average pairs-per-volume affected by the potential.
          */
         public double uCorrection(double pairDensity) {
-            double integral = ((Potential2SoftSpherical)potential).integral(rCutoff);
+            double integral = potential.integral(rCutoff);
             return pairDensity*integral;
         }
         

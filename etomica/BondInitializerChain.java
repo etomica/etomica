@@ -27,7 +27,7 @@ public class BondInitializerChain extends BondInitializer {
         iterator.reset();
         while(iterator.hasNext()) {
             a2 = iterator.next();
-            if(a1 != null && a2 != null) bondType.makeBond(a1, a2);
+            if(a1 != null && a2 != null) Bond.makeBond(a1, a2);
             a1 = a2;
         }
     }

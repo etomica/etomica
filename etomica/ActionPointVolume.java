@@ -1,6 +1,5 @@
 package etomica;
 
-import etomica.units.Dimension;
 import etomica.lattice.*;
 import etomica.utility.OdeSolver;
 import java.awt.*;

@@ -31,7 +31,7 @@ public final class MCMoveVolumeExchange extends MCMove {
 
     public MCMoveVolumeExchange(IntegratorMC parent) {
         super(parent);
-        ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();
+        ROOT = 1.0/(double)parentIntegrator.simulation().space().D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.3);

@@ -12,7 +12,7 @@ public class DisplayTimer extends DisplayBox {
         this(integrator.chronoMeter());
     }
     public DisplayTimer(IntegratorMD.ChronoMeter meter) {
-        super(meter.integrator().parentSimulation());
+        super(meter.integrator().simulation());
         this.setMeter(meter);
         this.setUnit(new Unit(Picosecond.UNIT));
         this.setPrecision(7);

@@ -13,7 +13,7 @@ public abstract class Potential1 extends Potential {
     
     public Potential1(PotentialGroup parent) {
         super(1, parent);
-        iterator = parentSimulation().iteratorFactory.makeGroupIteratorSequential();
+        iterator = simulation().iteratorFactory.makeGroupIteratorSequential();
     }
     
 	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
