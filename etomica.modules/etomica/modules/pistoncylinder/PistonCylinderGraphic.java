@@ -24,7 +24,6 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSelector;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
@@ -68,16 +67,16 @@ public class PistonCylinderGraphic {
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
     public DeviceTrioControllerButton controlButtons;
-    public DeviceThermoSelector tSelect;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
-    public DeviceSlider scaleSlider, pressureSlider;
+    public DeviceSlider scaleSlider, pressureSlider, temperatureSlider;
     public JPanel pressureSliderPanel;
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plot;
     public final javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox;
+    final JRadioButton buttonAdiabatic, buttonIsothermal;
     
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
@@ -86,8 +85,6 @@ public class PistonCylinderGraphic {
 
         displayCycles = new DisplayBox();
 
-        Unit tUnit = Kelvin.UNIT;
-        
         Default.ATOM_SIZE = 3.0;
         
         final int p0 = 500;
@@ -95,13 +92,30 @@ public class PistonCylinderGraphic {
         //restart action and button
         controlButtons = new DeviceTrioControllerButton();
         
+        //adiabatic/isothermal radio button
+        ButtonGroup thermalGroup = new ButtonGroup();
+        buttonAdiabatic = new JRadioButton("Adiabatic");
+        buttonIsothermal = new JRadioButton("Isothermal");
+        buttonAdiabatic.setSelected(true);
+        thermalGroup.add(buttonAdiabatic);
+        thermalGroup.add(buttonIsothermal);
+        buttonIsothermal.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent evt) {
+                pc.integrator.setIsothermal(buttonIsothermal.isSelected());
+            }
+        });
+        
         //temperature selector
-        tSelect = new DeviceThermoSelector();
-	    tSelect.setTemperatures(new double[] {5.,10.,50.,100.,200.,500.});
-	    tSelect.setUnit(tUnit);
-	    tSelect.setSelected(0); //sets adiabatic as selected temperature
-	    tSelect.getLabel().setText("Set value");
-	    
+        temperatureSlider = new DeviceSlider(null);
+        temperatureSlider.setShowValues(true);
+        temperatureSlider.setEditValues(true);
+        temperatureSlider.setMinimum(0);
+        temperatureSlider.setMaximum(1000);
+        temperatureSlider.getSlider().setMajorTickSpacing(200);
+        temperatureSlider.getSlider().setMinorTickSpacing(50);
+        temperatureSlider.getSlider().setLabelTable(
+        temperatureSlider.getSlider().createStandardLabels(200,100));
+        temperatureSlider.setValue(300);
 
 	    //combo box to select potentials
 //	    final AtomPairIterator iterator = potentialDisks.iterator();
@@ -145,7 +159,6 @@ public class PistonCylinderGraphic {
 		tBox = new DisplayBox();
         tBox.setUpdateInterval(10);
 //		tBox.setWhichValue(MeterAbstract.CURRENT);
-		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(Constants.NORTH);
 
@@ -192,12 +205,12 @@ public class PistonCylinderGraphic {
         pressureSlider = new DeviceSlider(null);
         pressureSlider.setShowValues(true);
         pressureSlider.setEditValues(true);
-        pressureSlider.setMinimum(00);
+        pressureSlider.setMinimum(0);
         pressureSlider.setMaximum(1000);
 	    pressureSlider.getSlider().setMajorTickSpacing(200);
 	    pressureSlider.getSlider().setMinorTickSpacing(50);
 	    pressureSlider.getSlider().setLabelTable(
-	        pressureSlider.getSlider().createStandardLabels(200,100));
+        pressureSlider.getSlider().createStandardLabels(200,100));
 	    pressureSlider.setValue(p0);
         
         //set-pressure history
@@ -276,9 +289,15 @@ public class PistonCylinderGraphic {
         java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
         gbc1.gridx = 0;  gbc1.gridy = 1;
         gbc1.gridwidth = 1;
-        temperaturePanel.add(tSelect.graphic(null),gbc1);
+        temperaturePanel.add(buttonAdiabatic,gbc1);
         gbc1.gridx = 1;  gbc1.gridy = 1;
-        temperaturePanel.add(tBox.graphic(null),gbc1);
+        gbc1.gridwidth = 1;
+        temperaturePanel.add(buttonIsothermal,gbc1);
+        gbc1.gridx = 0;  gbc1.gridy = 2;
+        gbc1.gridwidth = 2;
+        temperaturePanel.add(temperatureSlider.graphic(),gbc1);
+        gbc1.gridx = 0;  gbc1.gridy = 3;
+        temperaturePanel.add(tBox.graphic(),gbc1);
         
         //panel for pressure slider
         pressureSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
@@ -406,10 +425,15 @@ public class PistonCylinderGraphic {
         displayCycles.setLabel("Integrator steps");
         pc.integrator.addIntervalListener(displayCycles);
         controlButtons.setSimulation(pc);
+
+        Unit tUnit = Kelvin.UNIT;
         
-        tSelect.setController(pc.controller);
-        tSelect.setIntegrator(pc.integrator);
-        tSelect.updateIntegrator();
+        
+        pc.integrator.setIsothermal(buttonIsothermal.isSelected());
+        pc.integrator.setTemperature(tUnit.toSim(temperatureSlider.getValue()));
+        temperatureSlider.setUnit(tUnit);
+        temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
+        temperatureSlider.setController(pc.getController());
 
         //initialize for ideal gas
         potentialSW = new P2SquareWell();
@@ -447,6 +471,7 @@ public class PistonCylinderGraphic {
         temperatureManager.setUpdateInterval(10);
         DataManager temperaturePlotManager = new DataManager(temperatureHistory, plot.makeDataSink());
         tBox.setDataSource(thermometer);
+        tBox.setUnit(tUnit);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
         AccumulatorAverage densityAvg = new AccumulatorAverage();
