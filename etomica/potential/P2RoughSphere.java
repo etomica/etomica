@@ -6,8 +6,9 @@ import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.AtomType;
-import etomica.space.ICoordinateAngular;
-import etomica.space.ICoordinate;
+import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateAngularKinetic;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -51,20 +52,25 @@ public class P2RoughSphere extends P2HardSphere {
     public void bump(Atom[] pair, double falseTime) {
         Atom a1 = pair[0];
         Atom a2 = pair[1];
-		cPair.trueReset(a1.coord,a2.coord,falseTime);
-        double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
-        double r2 = cPair.r2();
-        Vector p1 = a1.coord.momentum();
-        Vector p2 = a2.coord.momentum();
+		cPair.reset(a1.coord,a2.coord);
+        ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
-        omegaSum.E(((ICoordinateAngular)a1.coord).angularVelocity());
-        omegaSum.PE(((ICoordinateAngular)a2.coord).angularVelocity());
+        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        dr.PEa1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.type.rm()/(collisionDiameter*collisionDiameter);
+        Vector v1 = ((ICoordinateKinetic)a1.coord).velocity();
+        Vector v2 = ((ICoordinateKinetic)a2.coord).velocity();
+        dr.E(cPair.dr());
+        omegaSum.E(((ICoordinateAngularKinetic)a1.coord).angularVelocity());
+        omegaSum.PE(((ICoordinateAngularKinetic)a2.coord).angularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
         v12Surface.E(dr); // (r2 - r1)
         v12Surface.XE(omegaSum); //(r2-r1) X (omega2+omega1)
         v12Surface.TE(0.5); // +1/2 (r2-r1) X (omega2+omega1) [which equals -1/2*(omega2+omega1) X (r2-r1)]
-        v12Surface.PEa1Tv1(+a2.coord.rm(),p2);// p2/m2 +1/2 (r2-r1) X (omega2+omega1)
-        v12Surface.PEa1Tv1(-a1.coord.rm(),p1);// p2/m2 - p1/m1 +1/2 (r2-r1) X (omega2+omega1)
+        v12Surface.PE(v2);// p2/m2 +1/2 (r2-r1) X (omega2+omega1)
+        v12Surface.ME(v1);// p2/m2 - p1/m1 +1/2 (r2-r1) X (omega2+omega1)
         //component of v12Surface parallel to r2-r1: v12Par = (v12Surface . dr) dr / |dr|^2
         v12Par.E(dr);
         v12Par.TE(v12Surface.dot(dr)/r2);
@@ -74,17 +80,20 @@ public class P2RoughSphere extends P2HardSphere {
         
         impulse.E(v12Par);
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
-        impulse.TE(a1.coord.mass());
+        impulse.TE(a1.type.getMass());
         
-        cPair.truePush(impulse,falseTime);
+        ((ICoordinateKinetic)a1.coord).velocity().PE(impulse);
+        ((ICoordinateKinetic)a2.coord).velocity().ME(impulse);
+        a1.coord.position().Ea1Tv1(-falseTime,impulse);
+        a2.coord.position().Ea1Tv1(falseTime,impulse);
         
         //here omegaSum is used to hold the angular impulse
         omegaSum.E(dr.cross(impulse));
         omegaSum.TE(-0.5);
-        ((ICoordinateAngular)a1.coord).angularAccelerateBy(omegaSum);
-        ((ICoordinateAngular)a2.coord).angularAccelerateBy(omegaSum);
+        ((ICoordinateAngularKinetic)a1.coord).angularVelocity().PE(omegaSum);
+        ((ICoordinateAngularKinetic)a2.coord).angularVelocity().PE(omegaSum);
         
-        lastCollisionVirial = 2.0/(a1.coord.rm() + a2.coord.rm())*cPair.vDotr();
+        lastCollisionVirial = 2.0/(a1.type.rm() + a2.type.rm())*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
     }
     
