@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.AtomLinker.Tab;
+
 /**
  * Coordinator of all species agents in a phase.  
  *
@@ -18,6 +20,7 @@ public final class SpeciesMaster extends Atom {
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
     public int index;
     public /*final*/ AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
+    public final static int SPECIES_TAB = Tab.requestTabType();
     
     /**
      * List of leaf atoms in phase, suitable for iteration via an AtomIteratorList.
@@ -107,7 +110,7 @@ public final class SpeciesMaster extends Atom {
             }
             else if(atom instanceof SpeciesAgent) {
             	speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();
-            	AtomLinker.Tab newTab = AtomLinker.Tab.newTab(speciesMaster.atomList);
+            	AtomLinker.Tab newTab = AtomLinker.Tab.newTab(speciesMaster.atomList, SPECIES_TAB);
             	speciesMaster.atomList.add(newTab);
             	((SpeciesAgent)atom).firstLeafAtomTab = newTab;
             }

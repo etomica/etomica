@@ -8,6 +8,7 @@ package etomica;
 public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
     public AtomLinker next, previous;
+    public static int HEADER_TAB = Tab.requestTabType();
     
     /**
      * Constructor throws exception if given atom is null.  Only
@@ -58,15 +59,15 @@ public class AtomLinker implements java.io.Serializable {
 	 * Creates a new tab that is flagged as not a header.
 	 * @return Tab
 	 */
-	public static Tab newTab(AtomList list) {
-		return new Tab(false, list);
+	public static Tab newTab(AtomList list, int type) {
+		return new Tab(list, type);
 	}
 	/**
 	 * Creates a new tab that is flagged as being a header of a list.
 	 * @return Tab
 	 */
 	public static Tab newHeader(AtomList list) {
-		return new Tab(true, list);
+		return new Tab(list, HEADER_TAB);
 	}
 
     /**
@@ -79,26 +80,41 @@ public class AtomLinker implements java.io.Serializable {
     public static class Tab extends AtomLinker {
         public Tab nextTab, previousTab;
         public AtomList list;
-        private final boolean isHeader;
+        private static int lastType = 0;
+        public final int type;
+        public final static int ANY_TAB = 0xFFFFFFFF;
         /**
          * Private constructor.  Use AtomLinker methods newTab or newHeader, as
          * appropriate, to make new instance.
          * @param isHeader
          */
-        private Tab(boolean isHeader, AtomList list) {
+        private Tab(AtomList list, int type) {
             super(null);
             nextTab = previousTab = this;
-            this.isHeader = isHeader;
             this.list = list;
+            this.type = type;
         }
         
-        public final boolean isHeader() {return isHeader;}
+        public static int requestTabType() {
+        	if (lastType == 0) {
+        		lastType = 1;
+        		return lastType;
+        	}
+        	// would java allow 32?
+        	if (lastType == 1<<31) {
+        		throw new RuntimeException("too many tab types.  You can only have 31");
+        	}
+        	lastType = lastType << 1;
+        	return lastType;
+        }
+        
+        public final boolean isHeader() {return type == HEADER_TAB;}
         
         /**
          * Removes references to previous/next tabs while removing linker from list.
          */
         public void remove() {
-        	if(isHeader) throw new RuntimeException("Illegal attempt to remove header from list");
+        	if(type == HEADER_TAB) throw new RuntimeException("Illegal attempt to remove header from list");
             super.remove();
 	        previousTab.nextTab = nextTab;
 	        nextTab.previousTab = previousTab;

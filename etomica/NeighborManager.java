@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.AtomLinker.Tab;
+
 /**
  * Determines and keeps lists of neighbors uplist and downlist of a 
  * reference atom.  "up" and "down" distinguish neighbor by whether they
@@ -13,11 +15,12 @@ public class NeighborManager {
     private final Atom atom;
  //   public final AtomLinker.Tab tab;
     public final AtomLinker tab;
+    public final static int NEIGHBOR_TAB = Tab.requestTabType(); 
     
     public NeighborManager(Atom s) {
         atom = s;
         neighborList = new AtomList();
-        tab = AtomLinker.Tab.newTab(neighborList);
+        tab = AtomLinker.Tab.newTab(neighborList, NEIGHBOR_TAB);
  //       tab = new AtomLinker(s);
         neighborList.add(tab);
     }
