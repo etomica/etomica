@@ -66,7 +66,7 @@ public class Phase {
     private boolean lrcEnabled = true;
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private String name;
-    private final Space space;
+    protected final Space space;
     
     /**
      * Constructs phase.
