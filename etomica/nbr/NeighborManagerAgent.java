@@ -55,10 +55,7 @@ public class NeighborManagerAgent {
     	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
-    	Potential[] newArray = new Potential[potentials.length+1];
-    	System.arraycopy(potentials, 0, newArray, 0, potentials.length);
-    	newArray[potentials.length] = newPotential;
-    	potentials = newArray;
+        potentials = (Potential[])Arrays.addObject(potentials, newPotential);
     	return potentials.length-1;
     }
 
@@ -68,7 +65,7 @@ public class NeighborManagerAgent {
      * not previously added to this instance, returns -1.
      */
     public int removePotential(Potential potential) {
-    	for (int i=0; i<potentials.length; i++) {
+        for (int i=0; i<potentials.length; i++) {
     		if (potentials[i] == potential) {
     	    	Potential[] newPotentials = new Potential[potentials.length-1];
     	    	System.arraycopy(potentials,0,newPotentials,0,i);
