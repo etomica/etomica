@@ -133,7 +133,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double discr = -1.0;
         if (dr*dv < 0.0 || dr*a < 0.0) {
             // either moving toward or accelerating toward each other
-            if (Math.abs(dr) < collisionRadius && dr*dv < 0.0) {
+            if ((Debug.ON || Default.FIX_OVERLAP) && Math.abs(dr) < collisionRadius && dr*dv < 0.0) {
+                if (Default.FIX_OVERLAP) return falseTime;
                 throw new RuntimeException("overlap "+atom+" "+dr+" "+dv+" "+a);
             }
             double drc;
