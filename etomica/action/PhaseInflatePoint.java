@@ -1,7 +1,19 @@
-package etomica;
+package etomica.action;
 
-import etomica.action.PhaseActionAdapter;
-import etomica.action.Undoable;
+import etomica.Atom;
+import etomica.AtomFactoryMono;
+import etomica.AtomIterator;
+import etomica.AtomIteratorList;
+import etomica.AtomIteratorMolecule;
+import etomica.AtomList;
+import etomica.AtomTreeNodeGroup;
+import etomica.AtomType;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SimulationEventManager;
+import etomica.Space;
+import etomica.Space2D;
+import etomica.Space2D.Vector;
 import etomica.lattice.*;
 import etomica.utility.OdeSolver;
 import java.awt.*;
@@ -16,10 +28,8 @@ import java.awt.event.MouseEvent;
  * @author David Kofke
  */
 
-public class ActionPointVolume extends PhaseActionAdapter implements Undoable, etomica.graphics.Drawable {
+public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, etomica.graphics.Drawable {
     
-    public static String getVersion() {return "ActionPointVolume:02.07.30"+PhaseActionAdapter.getVersion();}
-
     private boolean drawPoints = true;
     private boolean drawCells = false;
     private boolean fillCells = false;
@@ -30,23 +40,24 @@ public class ActionPointVolume extends PhaseActionAdapter implements Undoable, e
     private double lnJTot;
     private double deformationScale = 1.0;
     private Simulation simulation;
-    private AtomIterator moleculeIterator;
+    private AtomIteratorMolecule moleculeIterator;
 
-    public ActionPointVolume() {
+    public PhaseInflatePoint() {
         this(Simulation.instance);
     }
-    public ActionPointVolume(Simulation sim) {
-        super();
+    public PhaseInflatePoint(Simulation sim) {
+        super("Point volume expansion");
         simulation = sim;
 //        lattice = new MyLattice(sim, 10,new VelocityField(2,20), 0.1);
         lattice = new MyLattice(sim,12,new VelocityField(2,20), 0.002);
 //        setDeformationScale(0.01);
+        moleculeIterator = new AtomIteratorMolecule();
     }
     public double lastLnJacobian() {return lnJTot;}
     
     public void setPhase(Phase p) {
         if(p == null) return;
-        moleculeIterator = new AtomIteratorMolecule(p);
+        moleculeIterator.setPhase(p);
         r0.PEa1Tv1(-0.5, p.boundary().dimensions());//subtract old
         super.setPhase(p);
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());//add new
@@ -90,15 +101,12 @@ public class ActionPointVolume extends PhaseActionAdapter implements Undoable, e
     }
         
     public void actionPerformed(Phase p) {
-        actionPerformed(p, expand, 1.0, r0);
+    	setPhase(p);
+        actionPerformed();
     }
-    public void actionPerformed(Phase p, boolean expand, double deformationScale, Space.Vector r) {
-        setExpand(expand);
-        setR0(r);
+    public void actionPerformed() {
         double scale = expand ? lattice.scale : 1.0/lattice.scale;
-        setDeformationScale(deformationScale);
         lnJTot = 0.0;
-        moleculeIterator = new AtomIteratorMolecule(p);//change this so iterator isn't constructed with every call
         moleculeIterator.reset();
         while(moleculeIterator.hasNext()) {
             Atom a = moleculeIterator.nextAtom();
@@ -126,8 +134,6 @@ public class ActionPointVolume extends PhaseActionAdapter implements Undoable, e
   //      phase.dimensions().TE(scale);
         phase.boundary().inflate(scale);
     }
-    
-    public void attempt() {actionPerformed(phase);}
     
     public void undo() {
         moleculeIterator.reset();
@@ -192,88 +198,88 @@ public class ActionPointVolume extends PhaseActionAdapter implements Undoable, e
         }//end while
     }//end of drawCells
     
-    public static void main(String args[]) {
-        
-        Simulation sim = new etomica.graphics.SimulationGraphic(new Space2D());
-        Simulation.instance = sim;
-        final ActionPointVolume actionPointVolume = new ActionPointVolume();
-        final etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase(sim);
-        Integrator integrator = new IntegratorHard();
-        Potential2 p2 = new P2HardSphere();
-        Controller controller = new Controller();
-        displayPhase.setScale(0.7);
-        final Phase phase = new Phase(sim);
-        
-        actionPointVolume.setPhase(phase);
-
-		final MyLattice lattice = actionPointVolume.lattice;
-		System.out.println("Scale: "+lattice.scale);
-        
-       displayPhase.addDrawable(actionPointVolume);
-        actionPointVolume.setDrawCells(true);
-    //    actionPointVolume.setFillCells(true);
-        
-        SpeciesSpheres species = new SpeciesSpheres(0);
-		Simulation.instance.elementCoordinator.go();
-		
-	//	This listener allows interactive testing of lattice getCell methods
-		displayPhase.addDisplayPhaseListener(new etomica.graphics.DisplayPhaseListener() {
-		    public void displayPhaseAction(etomica.graphics.DisplayPhaseEvent evt) {
-    		    Space2D.Vector r = (Space2D.Vector)evt.point();
-		        MouseEvent mevt = evt.getMouseEvent();
-		        int id = mevt.getID();
-		        if(id == MouseEvent.MOUSE_PRESSED) {
-    //		        actionPointVolume.actionPerformed(r);
-    		    }
-    		    else if(id == MouseEvent.MOUSE_RELEASED) {
-    //		        actionPointVolume.undo();
-    		    }
-  		        
-		        displayPhase.repaint();
-  		        
-                Space2D.Vector dimensions = (Space2D.Vector)phase.boundary().dimensions();
-		        r.DE(dimensions);
-		        MyCell cell = lattice.getOriginalCell((Space2D.Vector)r);
-//		        MyCell cell = lattice.getDeformedCell((Space2D.Vector)r);
-    		    System.out.println(cell.jacobian*lattice.scale*lattice.scale);
-		        java.awt.Graphics g = displayPhase.graphic(null).getGraphics();
-		        g.fillPolygon(cell.getOriginalPolygon(
-	///*	        g.fillPolygon(cell.getDeformedPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
-
-                //fill in neighboring cells on original lattice
-	    /*       g.fillPolygon(cell.nbr[0].getOriginalPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
-		        g.fillPolygon(cell.nbr[1].getOriginalPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
-		        g.fillPolygon(cell.nbr[2].getOriginalPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));*/
-		        //fill in neighboring cells on deformed lattice
-	/*	        g.fillPolygon(cell.nbr[0].getDeformedPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
-		        g.fillPolygon(cell.nbr[1].getDeformedPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
-		        g.fillPolygon(cell.nbr[2].getDeformedPolygon(
-		            displayPhase.getOrigin(), 
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
-		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
-		*/    }
-		});
-
-		etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }//end of main
+//    public static void main(String args[]) {
+//        
+//        Simulation sim = new etomica.graphics.SimulationGraphic(new Space2D());
+//        Simulation.instance = sim;
+//        final PhaseInflatePoint actionPointVolume = new PhaseInflatePoint();
+//        final etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase(sim);
+//        Integrator integrator = new IntegratorHard();
+//        Potential2 p2 = new P2HardSphere();
+//        Controller controller = new Controller();
+//        displayPhase.setScale(0.7);
+//        final Phase phase = new Phase(sim);
+//        
+//        actionPointVolume.setPhase(phase);
+//
+//		final MyLattice lattice = actionPointVolume.lattice;
+//		System.out.println("Scale: "+lattice.scale);
+//        
+//       displayPhase.addDrawable(actionPointVolume);
+//        actionPointVolume.setDrawCells(true);
+//    //    actionPointVolume.setFillCells(true);
+//        
+//        SpeciesSpheres species = new SpeciesSpheres(0);
+//		Simulation.instance.elementCoordinator.go();
+//		
+//	//	This listener allows interactive testing of lattice getCell methods
+//		displayPhase.addDisplayPhaseListener(new etomica.graphics.DisplayPhaseListener() {
+//		    public void displayPhaseAction(etomica.graphics.DisplayPhaseEvent evt) {
+//    		    Space2D.Vector r = (Space2D.Vector)evt.point();
+//		        MouseEvent mevt = evt.getMouseEvent();
+//		        int id = mevt.getID();
+//		        if(id == MouseEvent.MOUSE_PRESSED) {
+//    //		        actionPointVolume.actionPerformed(r);
+//    		    }
+//    		    else if(id == MouseEvent.MOUSE_RELEASED) {
+//    //		        actionPointVolume.undo();
+//    		    }
+//  		        
+//		        displayPhase.repaint();
+//  		        
+//                Space2D.Vector dimensions = (Space2D.Vector)phase.boundary().dimensions();
+//		        r.DE(dimensions);
+//		        MyCell cell = lattice.getOriginalCell((Space2D.Vector)r);
+////		        MyCell cell = lattice.getDeformedCell((Space2D.Vector)r);
+//    		    System.out.println(cell.jacobian*lattice.scale*lattice.scale);
+//		        java.awt.Graphics g = displayPhase.graphic(null).getGraphics();
+//		        g.fillPolygon(cell.getOriginalPolygon(
+//	///*	        g.fillPolygon(cell.getDeformedPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
+//
+//                //fill in neighboring cells on original lattice
+//	    /*       g.fillPolygon(cell.nbr[0].getOriginalPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
+//		        g.fillPolygon(cell.nbr[1].getOriginalPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
+//		        g.fillPolygon(cell.nbr[2].getOriginalPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));*/
+//		        //fill in neighboring cells on deformed lattice
+//	/*	        g.fillPolygon(cell.nbr[0].getDeformedPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
+//		        g.fillPolygon(cell.nbr[1].getDeformedPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
+//		        g.fillPolygon(cell.nbr[2].getDeformedPolygon(
+//		            displayPhase.getOrigin(), 
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(0),
+//		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x(1)));
+//		*/    }
+//		});
+//
+//		etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+//    }//end of main
 //    */
     /**
      * Array of 2D triangular cells formed by bisecting the cells of a square lattice.

@@ -34,7 +34,6 @@ public class ActivityIntegrate extends Activity {
 	public void run() {
         integrator.fireIntervalEvent(new IntervalEvent(integrator, IntervalEvent.START));
 	    integrator.initialize();
-		IntervalEvent intervalEvent = new IntervalEvent(integrator, IntervalEvent.INTERVAL);
         int stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
         while(stepCount < maxSteps) {
@@ -91,6 +90,7 @@ public class ActivityIntegrate extends Activity {
 	 */
 	public void setInterval(int interval) {
 		this.interval = interval;
+		intervalEvent = new IntervalEvent(integrator, interval);
 	}
 	
 	/**
@@ -137,4 +137,6 @@ public class ActivityIntegrate extends Activity {
 	private boolean doSleep;
 	private int sleepPeriod;
 	protected int maxSteps = Integer.MAX_VALUE;
+	IntervalEvent intervalEvent;
+
 }
