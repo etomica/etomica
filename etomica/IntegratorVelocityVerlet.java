@@ -1,5 +1,9 @@
 package etomica;
 
+/* History of changes
+ * 08/29/02 (DAK) changed Andersen thermostat to velocity-scaling thermostat
+ */
+
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
 
     public String getVersion() {return "IntegratorVelocityVerlet:01.07.05/"+IntegratorMD.VERSION;}
@@ -8,6 +12,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
+    private final MeterTemperature meterTemperature = new MeterTemperature((Space)null);
     
     //Fields for Andersen thermostat
     double nu = 0.001;  //heat bath "collision" frequency
@@ -30,6 +35,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
         atomIterator = p.makeAtomIterator();
+        meterTemperature.setPhase(p);
         return true;
     }
      
@@ -66,13 +72,24 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             Atom a = atomIterator.next();   //  finishing the momentum step
             a.coord.momentum().PEa1Tv1(0.5*timeStep,((Agent)a.ia).force);  //p += f(new)*dt/2
         }
-        if(isothermal) {  //Andersen thermostat
+        if(isothermal) {
+            //velocity-rescaling thermostat
+            double s = Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster));
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {
+                Atom a = atomIterator.next();
+                a.coord.momentum().TE(s); //scale momentum
+            }
+            
+            //Andersen thermostat
+            /* 
             atomIterator.reset();
             double nut = nu*timeStep;
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.next();
                 if(Simulation.random.nextDouble() < nut) a.coord.randomizeMomentum(temperature);  //this method in Atom needs some work
             }
+            */
         }
         return;
     }

@@ -30,7 +30,7 @@ public class UnitRatio extends Unit {
      * @param numerator the unit in the numerator of the compound unit
      * @param denominator the unit in the denominator of the compount unit
      * @param name a description of the unit (e.g., Joules per mole)
-     * @param symbol an abbreviated description of the unit (e.g., J/mol)s
+     * @param symbol an abbreviated description of the unit (e.g., J/mol)
      */
     public UnitRatio(Unit numerator, Unit denominator, String name, String symbol) {
         this(numerator, denominator);

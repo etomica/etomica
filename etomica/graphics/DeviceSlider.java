@@ -82,6 +82,24 @@ public class DeviceSlider extends Device implements EtomicaElement {
         });*/
     }
     
+    /**
+     * Constructs a slider connected to the given property of the given object
+     */
+    public DeviceSlider(Object object, String property) {
+        this(new Modulator(object, property));
+        component = object;
+        this.property = property;
+    }
+    
+    /**
+     * Constructs a slider connected to the get/set Value methods of the given Modulator
+     */
+    public DeviceSlider(ModulatorAbstract m) {
+        this();
+        //set component and property in some way
+        setModulator(m);
+    }
+    
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
         info.setDescription("Slider-type device for changing a property");
@@ -94,23 +112,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public void setUnit(Unit u) {
         super.setUnit(u);
         setLabelDefault();
-    }
-    
-    /**
-     * Constructs a slider connected to the given property of the given object
-     */
-    public DeviceSlider(Object object, String property) {
-        this(new Modulator(object, property));
-        component = object;
-        this.property = property;
-    }
-    /**
-     * Constructs a slider connected to the get/set Value methods of the given Modulator
-     */
-    public DeviceSlider(ModulatorAbstract m) {
-        this();
-        //set component and property in some way
-        setModulator(m);
     }
     
     public final void setModulator(ModulatorAbstract m) {

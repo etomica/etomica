@@ -60,7 +60,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	public void setPhase(Phase p) {
 	    super.setPhase(p);
 	    setX(xMin, xMax, nPoints);
-//        iterator = new ApiGeneral(phase);
+ //       iterator = new ApiGeneral(phase);
 	}
 	
 	/**
@@ -102,20 +102,20 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	/**
 	 * main method to demonstrate and test use of class.
 	 */
-/*	 public static void main(String[] args) {
+	 public static void main(String[] args) {
 	    
 	    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 	    Simulation.instance = sim;
 	    
 	    MeterRDF meter = new MeterRDF(sim);
 	    meter.setActive(true);
-	    DisplayPlot plot = new DisplayPlot(sim);
-	    DisplayTableFunction table = new DisplayTableFunction(sim);
+	    etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot(sim);
+	    etomica.graphics.DisplayTableFunction table = new etomica.graphics.DisplayTableFunction(sim);
 	    
 	    sim.elementCoordinator.go();
 	    
-	    Simulation.makeAndDisplayFrame(sim);
+	    etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
 	 }//end of main
-	*/    
+	   
 }
     
