@@ -78,8 +78,9 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 			sim.ai.setMaxSteps(steps);
 			sim.ai.run();
             AccumulatorRatioAverage acc = (AccumulatorRatioAverage)sim.accumulator;
-            System.out.println("average: "+acc.getData(AccumulatorRatioAverage.RATIO)[1]
-                              +" error: "+acc.getData(AccumulatorRatioAverage.RATIO_ERROR)[1]);
+            double[][] allYourBase = (double[][])acc.getTranslator().fromArray(acc.getData());
+            System.out.println("average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
+                              +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
 		}
 	}
 }
