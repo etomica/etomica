@@ -16,6 +16,7 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
         setLabel("Potential Energy");
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
+        iteratorDirective.setDirection(null); // so that "both" will work
     }
       
     public static EtomicaInfo getEtomicaInfo() {
