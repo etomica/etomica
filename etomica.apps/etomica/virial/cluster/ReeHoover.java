@@ -18,7 +18,8 @@ public class ReeHoover extends Cluster {
 	 * @param weight weight associated with cluster
 	 * @param bonds BondGroup describing the f-bonds in the cluster.  This
 	 * constructor will add f-tilde bonds between all pairs not specified with
-	 * an f-bond
+	 * an f-bond.  The first bondgroup of this cluster will be the given one,
+	 * and the second bondgroup will be the f-tilde bonds.
 	 */
 	public ReeHoover(int n, double weight, BondGroup fGroup) {
 		super(n, weight, fullBondGroup(n, fGroup));

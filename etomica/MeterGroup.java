@@ -215,8 +215,6 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
             this.accumulator = MeterGroup.this.accumulator[i];
         } 
         public double  currentValue() {return MeterGroup.this.currentValue(index);}
-        public boolean usesPhaseIteratorFactory() {return false;}
-        public boolean usesPhaseBoundary() {return false;}
         public String getLabel() {return labels[index];}
         public Dimension getDimension() {return Dimension.NULL;}//temporary
         public void updateSums() {/*do nothing since this is taken care of by the group*/}

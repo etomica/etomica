@@ -1,6 +1,6 @@
 package etomica.virial.overlap;
 
-import etomica.MeterFunction;
+import etomica.MeterFunctionGroup;
 import etomica.Simulation;
 import etomica.units.Dimension;
 import etomica.virial.Cluster;
@@ -8,20 +8,22 @@ import etomica.virial.Cluster;
 /**
  * @author kofke
  *
- * Overlap-sampling evaluation of ratio of clusters.
+ * Overlap-sampling evaluation of ratio of clusters, simulating the reference
+ * cluster.
  */
-public class MeterOverlap extends MeterFunction implements etomica.DatumSource {
+public class MeterOverlapReference extends MeterFunctionGroup {
 
 	/**
 	 * Constructor for MeterOverlap.
 	 * @param sim
 	 */
-	public MeterOverlap(Simulation sim, Cluster cluster0, Cluster cluster1) {
-		super(sim);
+	public MeterOverlapReference(Simulation sim, Cluster cluster0, Cluster cluster1) {
+		super(sim, 2);
 		setX(-5, 5, 100);
 		this.cluster0 = cluster0;
 		this.cluster1 = cluster1;
-		System.out.println("MeterOverlap constructor: "+x[nPoints/2]);
+		allMeters()[0].setLabel("Negative");
+		allMeters()[1].setLabel("Positive");
 	}
 
 	/**
@@ -34,23 +36,19 @@ public class MeterOverlap extends MeterFunction implements etomica.DatumSource {
 	/**
 	 * @see etomica.MeterFunction#currentValue()
 	 */
-	public double[] currentValue() {
+	public void updateValues() {
 		double v0 = Math.abs(cluster0.value(beta));
 		double v1 = cluster1.value(beta);
-		if(signPositive != (v1>0)) v1 = 0.0;
-		else v1 = Math.abs(v1);
-//		System.out.println(v1);
+		boolean positive = (v1>0);
+		if(!positive) v1 *= -1;//abs(v1)
+		int i0 = (positive) ? 0 : 1;//index for average adding zero
+		int i1 = 1-i0; //index for average adding value; 1 or 0 for i0 = 0 or 1
 		for(int i=0; i<nPoints; i++) {
-//			y[i] = 1.0/v0/(1.0/v0 + Math.exp(x[i])/v1);
-			y[i] = 1.0/(1.0 + Math.exp(x[i])*v0/v1);
+			y[i0][i] = 0.0;
+			y[i1][i] = 1.0/(1.0 + Math.exp(meters[i1].X()[i])*v0/v1);
 		}
-		return y;
 	}
 	
-	public double value(etomica.DataSource.ValueType dummy) {
-		return average()[nPoints/2];
-	}
-
 	/**
 	 * @see etomica.MeterAbstract#getDimension()
 	 */
@@ -75,23 +73,6 @@ public class MeterOverlap extends MeterFunction implements etomica.DatumSource {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 		beta = 1.0/temperature;
-	}
-
-	private boolean signPositive;
-	/**
-	 * Returns the signPositive.
-	 * @return boolean
-	 */
-	public boolean isSignPositive() {
-		return signPositive;
-	}
-
-	/**
-	 * Sets the signPositive.
-	 * @param signPositive The signPositive to set
-	 */
-	public void setSignPositive(boolean signPositive) {
-		this.signPositive = signPositive;
 	}
 
 }

@@ -26,7 +26,9 @@ public class Cluster {
 		this.weight = weight;
 		for(int i=0; i<bonds.length; i++) bondCount += bonds[i].pairs.length;
 		bondArray = new MayerFunction[n][n];
+		bondGroup = new BondGroup[bonds.length];
 		for(int i=0; i<bonds.length; i++) {
+			bondGroup[i] = bonds[i];
 			int[][] idx = bonds[i].pairs;
 			if(idx == null) continue;
 			for(int j=0; j<idx.length; j++) {
@@ -38,6 +40,17 @@ public class Cluster {
 				} else throw new IllegalArgumentException("Attempting to construct cluster with two bonds defined for a single pair of atoms");
 			}
 		}
+	}
+	
+	/**
+	 * Makes this cluster using the given Mayer function joining the pairs given
+	 * by the first bondgroup of the given cluster.
+	 * @param f Mayer function for this cluster
+	 * @param cluster Cluster defining bonds to which the Mayer function is
+	 * applied.
+	 */
+	public Cluster(MayerFunction f, Cluster cluster) {
+		this(cluster.n, cluster.weight, new BondGroup(f, cluster.bondGroup[0].pairs));
 	}
 	
 	public String toString() {
@@ -52,9 +65,13 @@ public class Cluster {
 	}
 	public double weight() {return weight;}
 	
+	public int pointCount() {return n;}
+	
 	public int bondCount() {return bondCount;}
 	
-	public boolean hasOddBondNumber() {return (bondCount % 2) != 0;}
+	public BondGroup[] bondGroup() {return bondGroup;}
+	
+	public boolean hasOddBondCount() {return (bondCount % 2) != 0;}
 	
 	/**
 	 * Value of cluster using pairset last specified in setPairSet method.
@@ -79,6 +96,8 @@ public class Cluster {
 			for(int j=i+1; j<n; j++) {
 				if(bondArray[i][j]==null) continue;
 				else p *= bondArray[i][j].f(pairs.getPair(i,j).reset(),beta);
+				
+				if(p == 0.0) return 0.0;
 			}
 		}
 		return p;
@@ -127,6 +146,7 @@ public class Cluster {
 	private final int n;
 	protected int bondCount;
 	private MayerFunction[][] bondArray;
+	private BondGroup[] bondGroup;
 	private PairSet pairSet;
 	
 	/**
