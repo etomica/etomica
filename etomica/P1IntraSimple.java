@@ -30,11 +30,8 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
      * must be called with it as an argument to identify it as the bonded potential.
      */
     public void setBonded(Potential2 potential) {
-        if(!this.contains(potential)) {
-            throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the bonded potential");
-        }
-        addPotential(potential,new ApiInnerVariable(new AtomIteratorTree(),
-        		new AtomIteratorBonds()));
+        addPotential(potential, new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
+                new AtomIteratorSequencerBonded())));
     }
     
     /**
@@ -42,11 +39,9 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
      * must be called with it as an argument to identify it as the nonbonded potential.
      */
     public void setNonbonded(Potential2 potential) {
-        if(!this.contains(potential)) {
-            throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the nonbonded potential");
-        }
-        addPotential(potential,new ApiInnerVariable(new AtomIteratorTree(),
-        		new AtomIteratorNonbonded(simulation())));
+        ApiIntragroup nonBonded = new ApiIntragroup();
+        nonBonded.getInnerIterator().setNumToSkip(2);
+        addPotential(potential, nonBonded);
     }
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("General intramolecular potential with one bonded and one nonbonded potential");
@@ -63,14 +58,14 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
   //      Default.makeLJDefaults();//WHY DOESN'T THIS WORK?
         Default.TIME_STEP = etomica.units.systems.LJ.SYSTEM.time().toSim(0.001);
         System.out.println("Time step: "+Default.TIME_STEP);
         Default.ATOM_SIZE = 1.0;
         Default.ATOM_MASS = 1.0;
         Default.POTENTIAL_WELL = 1.0;
-        Default.TEMPERATURE = 1.0;//*/
+        Default.TEMPERATURE = 1.0;
         System.out.println(Default.ATOM_SIZE);
         System.out.println(Default.ATOM_MASS);
         System.out.println(Default.POTENTIAL_WELL);
@@ -87,10 +82,10 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
 	    Phase phase = new Phase();
 	    phase.setLrcEnabled(false);
 	    
-/*	    Potential2Group potential2 = new Potential2Group();
+	    Potential2Group potential2 = new Potential2Group();
 	    Potential2 p2 = new P2HardSphere(potential2);
 	    potential2.setSpecies(speciesSpheres, speciesSpheres);
-*/	    
+
 //	    P1IntraSimple p1 = new P1IntraSimple();
 //	    p1.setSpecies(new Species[] {speciesSpheres});
 //	    P2Fene p2Fene = new P2Fene(p1);
@@ -116,7 +111,7 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         sim.makeAndDisplayFrame();
         
      //   controller.start();
-    }//end of main
+    }//end of main*/
     
 }//end of P1TetheredHardSpheres
    
