@@ -117,7 +117,18 @@ public abstract class Space implements java.io.Serializable {
         for(int i=0; i<k.length; i++) {a[i] = (double)k[i];}
         return makeVector(a);
     }
-            
+    
+    /**
+     * Instance methods that makes and returns an array of vectors having the
+     * given number of elements.
+     * @param n number of vectors in the returned array
+     * @return an array of n new vectors made by the space instance
+     */
+    public Space.Vector[] makeVectorArray(int n) {
+        Space.Vector[] vectors = new Space.Vector[n];
+        for(int i=0; i<n; i++) vectors[i] = makeVector();
+        return vectors;
+    }
     
 //  Vector contains what is needed to describe a point in the space
     public static abstract class Vector implements java.io.Serializable, Cloneable { 
