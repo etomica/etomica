@@ -12,16 +12,14 @@ import etomica.units.Dimension;
 public final class SpeciesAgent extends AtomGroup {
 
     protected final AtomFactory factory;
+    public final AgentAtomTreeNode node;//shadow superclass field of same name to avoid casts
     
     protected Integrator integrator;
     
-    public SpeciesAgent(Species s, int nMolecules) {
-        super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s));
+    public SpeciesAgent(Species s, int nMolecules, SpeciesMaster parent) {
+        super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s), parent);
         factory = s.moleculeFactory();
- /*       for(int i=0; i<nMolecules; i++) {
-            node.addAtom(factory.makeAtom());
-        }*/
-        node.setDepth(1);
+        node = (AgentAtomTreeNode)super.node;
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
@@ -37,32 +35,31 @@ public final class SpeciesAgent extends AtomGroup {
         
     public Atom addNewAtom() {
         if(!resizable) return null; //should define an exeception 
-        Atom aNew = moleculeFactory().makeAtom();
-        node.addAtom(aNew);
+        Atom aNew = moleculeFactory().makeAtom(this.node);
         return aNew;
     }
     
     /**
      * Performs the given action on all children (molecules) of this species agent.
      */
-    public void allMolecules(AtomAction action) {
+/*    public void allMolecules(AtomAction action) {
         Atom last = node.lastChildAtom();
         for(Atom a=node.firstChildAtom(); a!=null; a=a.nextAtom()) {
             action.actionPerformed(a);
             if(a == last) break;
         }
     }
-    
+*/    
     /**
      * Performs the given action on all (leaf) atoms of this species agent.
      */
-    public void allAtoms(AtomAction action) {
+/*    public void allAtoms(AtomAction action) {
         Atom last = node.lastLeafAtom();
         for(Atom a=node.firstLeafAtom(); a!=null; a=a.nextAtom()) {
             action.actionPerformed(a);
             if(a == last) break;
         }
-    }
+    }*/
     
     /**
     * Sets the number of molecules for this species.  Makes the given number
@@ -91,10 +88,10 @@ public final class SpeciesAgent extends AtomGroup {
         
         if(n <= 0) node.removeAll();
         else if(n > node.childAtomCount()) {
-            for(int i=node.childAtomCount(); i<n; i++) node.addAtom(factory.makeAtom());
+            for(int i=node.childAtomCount(); i<n; i++) addNewAtom();
         }
         else if(n < node.childAtomCount()) {
-            for(int i=node.childAtomCount(); i>n; i--) node.removeAtom(node.lastChildAtom());
+            for(int i=node.childAtomCount(); i>n; i--) node.removeAtom(node.lastChildAtom().node.destroy());
         }
         
         //reconsider this

@@ -19,55 +19,138 @@ package etomica;
  * @author David Kofke
  */
 
-public interface AtomTreeNode {
+public abstract class AtomTreeNode {
     
-    public Atom parentGroup();
-    public AtomTreeNodeGroup parentNode();
-    public Atom parentMolecule();
-    public SpeciesAgent parentSpeciesAgent();
-    public Species parentSpecies();
-    public Phase parentPhase();
-    public Simulation parentSimulation();
+    public AtomTreeNode(Atom atom, AtomTreeNodeGroup parent) {
+        this.atom = atom;
+        if(parent == null && !(atom instanceof SpeciesMaster)) {//only SpeciesMaster can have null parent
+            throw new NullPointerException("Illegal specification of null parent in AtomTreeNode constructor");
+        } else if(parent != null) {
+            //(add check that parent is resizable)
+            parentNode = parent;
+            parentGroup = parent.atom;
+            depth = parent.depth() + 1;
+            parentPhase = parent.parentPhase();
+            setIndex(parent.newChildIndex());
+            parent.childList.add(atom.seq);
+            parent.addAtomNotify(atom);
+        }
+    }
     
-    public boolean isDescendedFrom(Atom a);
+    public abstract boolean isLeaf();
+    public abstract Atom firstLeafAtom();
     
-    public Atom atom();
+    /**
+     * Returns the last leaf atom descended from this group.
+     */
+    public abstract Atom lastLeafAtom();
     
-    public Atom firstChildAtom();
-    public Atom lastChildAtom();
-    public Atom firstLeafAtom();
-    public Atom lastLeafAtom();
-    public Atom getAtom(int n);
-    public Atom randomAtom();
-    public Atom[] childAtomArray();
+    public abstract int leafAtomCount();
+    public abstract int childAtomCount();
     
-    public void addAtom(Atom a);
-    public void removeAtom(Atom a);
-    public Atom removeAll();
+    public void destroy() {
+        if(parent != null && !parent.isResizable()) return;  //throw an exception?
+        //remove from current parent
+        if(parentNode != null) {
+            if(!parentNode.isResizable()) return;//exception
+            parentNode.childList.remove(atom.seq);        
+            parentNode.removeAtomNotify(atom);
+        }
+        parentNode = null;
+        parentGroup = null;
+        parentPhase = null;
+    }
+
+    public void setParent(Atom parent) {setParent((AtomTreeNodeGroup)parent.node);}
     
-    public void addAtomNotify(Atom a);
-    public void removeAtomNotify(Atom a);
+    public void setParent(AtomTreeNodeGroup parent) {
+        if(parent != null && !parent.isResizable()) return;  //throw an exception?
+        //remove from current parent
+        if(parentNode != null) {
+            if(!parentNode.isResizable()) return;//exception
+            parentNode.childList.remove(atom.seq);        
+            parentNode.removeAtomNotify(atom);
+        }
+        
+        parentNode = parent;
+        parentGroup = (parent != null) ? parent.atom : null;
+        if(parent == null) return;
+
+        depth = parentNode.depth() + 1;
+        parentPhase = parentNode.parentPhase();
+
+        setIndex(parentNode.newChildIndex());
+        
+        parentNode.childList.add(atom.seq);
+        
+        //should notify this node's children of change
+                
+        atom.seq.setParentNotify(parent);
+        parentNode.addAtomNotify(atom);
+    }//end of addAtom
+
+    public Atom atom() {return atom;}
+        
+    public Atom parentGroup() {
+        return parentGroup;
+    }
+    public AtomTreeNodeGroup parentNode() {
+        return parentNode;
+    }
+
+    /**
+     * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
+     * that is one step below a species agent in the hierarchy of atomgroups.
+     */
+    public Atom parentMolecule() {
+        return (parentNode.atom() instanceof SpeciesAgent) ? this.atom : parentNode.parentMolecule();
+    }
+                
+    /**
+     * Simulation in which this atom resides
+     */
+    public Simulation parentSimulation() {return parentSpecies().parentSimulation();}        
+    /**
+     * Phase in which this atom resides
+     */
+    public Phase parentPhase() {return parentPhase;}//parentNode.parentPhase();}
+
+    public Species parentSpecies() {return parentNode.parentSpecies();}
     
-    public int leafAtomCount();
-    public int childAtomCount();
-    public boolean childrenAreGroups();
-    public int depth();
-    public void setDepth(int d);
+    public SpeciesAgent parentSpeciesAgent() {return parentNode.parentSpeciesAgent();}
+
+    /**
+     * Returns the depth of this atom in the atom hierarchy.  That is, returns
+     * the number of parent relations between this atom and the species master.
+     */
+    public int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
+    
     /**
      * Integer assigned to this atom by its parent molecule.
      * Assigned during construction of atom.
      */
-    public int index();
-    public void setIndex(int i);
+    public final int index() {return atomIndex;}
+    public final void setIndex(int i) {atomIndex = i;}
+
+    /**
+     * Returns true if the given atom is in the hierarchy of parents of this atom,
+     * or if the given atom is this atom.  Returns true, for example, if the given
+     * atom is this atom's parent, or its parent's parent, etc.
+     */ 
+    public boolean isDescendedFrom(Atom group) {
+        return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
+    }
+        
+    protected final Atom atom;
+    protected int depth;
+    protected int atomIndex;
+    private AtomTreeNodeGroup parentNode;
+    private Atom parentGroup;
+    private Phase parentPhase;
+
     
-    public boolean isLeaf();
-    
-//    public void setParentGroup(AtomGroup group);
-    public void setParent(Atom parent);
-    public void setParent(AtomTreeNodeGroup parentNode);
- 
     public interface Factory {
-        public AtomTreeNode makeNode(Atom atom);
+        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent);
     }
     
-}
+}//end of AtomTreeNode

@@ -280,7 +280,7 @@ public class AtomIteratorTree implements AtomIterator {
         System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
-        treeIterator.setBasis(phase.speciesMaster.node.firstChildAtom());
+        treeIterator.setBasis(((AtomTreeNodeGroup)phase.speciesMaster.node).firstChildAtom());
         treeIterator.setLeafIterator();
         treeIterator.setIterationDepth(1);
         treeIterator.reset(); k = 0;

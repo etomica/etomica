@@ -15,12 +15,13 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      * Constructs an empty atom group with no associated factory.  Normally
      * the new group will be filled with atoms following its construction.
      */
-    public AtomGroup(Space space, AtomType.Group type) {
-        super(space, type);
+    public AtomGroup(Space space, AtomType.Group type, AtomTreeNodeGroup parent) {
+        super(space, type, parent);
         resizable = true;
     }
-    public AtomGroup(Space space, AtomType.Group type, AtomTreeNode.Factory nodeFactory) {
-        super(space, type, nodeFactory);
+    public AtomGroup(Space space, AtomType.Group type, AtomTreeNode.Factory nodeFactory,
+                        AtomTreeNodeGroup parent) {
+        super(space, type, nodeFactory, parent);
         resizable = true;
     }
     

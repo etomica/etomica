@@ -3,7 +3,12 @@ import etomica.*;
 
 public class CoordinateGroup extends Coordinate {
 
-    public CoordinateGroup(Space space, Atom a) {super(space,a);}
+    private final AtomIterator childIterator;
+    
+    public CoordinateGroup(Space space, Atom a) {
+        super(space,a);
+        childIterator = a.node.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
+    }
 
     /**
         * Applies transformation to COM of group, keeping all internal atoms at same relative
@@ -17,71 +22,68 @@ public class CoordinateGroup extends Coordinate {
     }
     public Space.Vector position() {
         r.E(0.0); double massSum = 0.0;
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.seq.nextAtom()) {
-            r.PEa1Tv1(a.coord.mass(), a.coord.position()); massSum += a.coord.mass();
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            Atom a = childIterator.next();
+            r.PEa1Tv1(a.coord.mass(), a.coord.position()); 
+            massSum += a.coord.mass();
         }
         r.DE(massSum);
         return r;
     }
     public Space.Vector momentum() {
         p.E(0.0);
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            p.PE(a.coord.momentum());
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            p.PE(childIterator.next().coord.momentum());
         }
         return p;
     }
     public double position(int i) {
         double sum = 0.0; double massSum = 0.0;
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            sum += a.coord.mass()*a.coord.position(i); massSum += a.coord.mass();
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            Atom a = childIterator.next();
+            sum += a.coord.mass()*a.coord.position(i); 
+            massSum += a.coord.mass();
         }
         sum /= massSum;
         return sum;
     }
     public double momentum(int i) {
         double sum = 0.0;
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            Atom a = childIterator.next();
             sum += a.coord.mass()*a.coord.momentum(i);
-            if(a == lastChild) break;
         }
         return sum;
     }
     public double kineticEnergy() {
         double sum = 0.0;
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            sum += a.coord.kineticEnergy();
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            sum += childIterator.next().coord.kineticEnergy();
         }
         return sum;
     }
     public void freeFlight(double t) {
         double sum = 0.0;
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.freeFlight(t);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.freeFlight(t);
         }
     }
     public void translateBy(Space.Vector u) {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.translateBy(u);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.translateBy(u);
         }
     }
     public void translateBy(double d, Space.Vector u) {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.translateBy(d, u);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.translateBy(d, u);
         }
     }
     public void translateTo(Space.Vector u) {
@@ -90,17 +92,15 @@ public class CoordinateGroup extends Coordinate {
         translateBy(work);
     }
     public void displaceBy(Space.Vector u) {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.displaceBy(u);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.displaceBy(u);
         }
     }
     public void displaceBy(double d, Space.Vector u) {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.displaceBy(d, u);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.displaceBy(d, u);
         }
     }
     public void displaceTo(Space.Vector u) {
@@ -112,24 +112,21 @@ public class CoordinateGroup extends Coordinate {
         displaceTo(p.boundary().randomPosition());
     }
     public void replace() {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.replace();
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.replace();
         }
     }
     public void accelerateBy(Space.Vector u) {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.accelerateBy(u);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.accelerateBy(u);
         }
     }
     public void accelerateBy(double d, Space.Vector u) {
-        Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.accelerateBy(d, u);
-            if(a == lastChild) break;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            childIterator.next().coord.accelerateBy(d, u);
         }
     }
     public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
@@ -141,17 +138,17 @@ public class CoordinateGroup extends Coordinate {
                     return;
             default://multi-atom group
                 work.E(0.0); double sum=0.0;
-                Atom lastChild = atom.node.lastChildAtom();
-                for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+                childIterator.reset();
+                while(childIterator.hasNext()) {
+                    Atom a = childIterator.next();
                     a.coord.randomizeMomentum(temperature);
                     work.PE(a.coord.momentum());
                     sum++;
-                    if(a == lastChild) break;
                 }
                 work.DE(-sum);
-                for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
-                    a.coord.accelerateBy(work);
-                    if(a == lastChild) break;
+                childIterator.reset();
+                while(childIterator.hasNext()) {
+                    childIterator.next().coord.accelerateBy(work);
                 }
         }//end switch
     }//end randomizeMomentum

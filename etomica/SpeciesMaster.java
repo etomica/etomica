@@ -27,7 +27,6 @@ public final class SpeciesMaster extends AtomGroup {
         
     public void addSpecies(Species species) {
         SpeciesAgent agent = species.makeAgent(this);
-        node.addAtom(agent);
         agent.setNMolecules(species.getNMolecules());
         Configuration config = node.parentPhase().getConfiguration();
         config.initializeCoordinates(node.childAtomArray());
@@ -58,11 +57,14 @@ public final class SpeciesMaster extends AtomGroup {
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
         
         MasterAtomTreeNode(Phase parentPhase, Atom atom) {
-            super(atom);
+            super(atom, null);
             speciesMaster = (SpeciesMaster)atom;
             this.parentPhase = parentPhase;
             leafIterator.setLeafIterator();
             depth = 0;
+            parentNode = null;
+            parentGroup = null;
+            setIndex(phase.index);
         }
         public Phase parentPhase() {return parentPhase;}
         

@@ -4,52 +4,29 @@ package etomica;
  * Implementation of AtomTreeNode for non-leaf node.
  */
 
-public class AtomTreeNodeGroup implements AtomTreeNode {
+public class AtomTreeNodeGroup extends AtomTreeNode {
     
-    public AtomTreeNodeGroup(Atom atom) {
-        this.atom = atom;
+    public AtomTreeNodeGroup(Atom atom, AtomTreeNodeGroup parent) {
+        super(atom, parent);
     }
-
-    public Atom atom() {return atom;}
         
-    public Atom parentGroup() {
-        return parentGroup;
-    }
-    public AtomTreeNodeGroup parentNode() {
-        return parentNode;
-    }
+    public void setParent(AtomTreeNodeGroup parent) {
+        super.setParent(parent);        
+        //should notify this node's children of change
+    }//end of addAtom
     
+    public int newChildIndex() {
+        if(childAtomCount() > 0) { //siblings
+            return (lastChildAtom().node.index()+1);
+        }
+        else {  //only child
+            return(0);
+        }
+    }
+            
     public Class childSequencerClass() {
         try { return firstChildAtom().seq.getClass();}
         catch(NullPointerException e) {return null;}//in case firstChild is null
-    }
-    
-    /**
-     * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
-     * that is one step below a species agent in the hierarchy of atomgroups.
-     */
-    public Atom parentMolecule() {
-        return (parentNode.atom() instanceof SpeciesAgent) ? this.atom : parentNode.parentMolecule();
-    }
-    
-    public void setParent(Atom parent) {setParent((AtomTreeNodeGroup)parent.node);}
-    
-    public void setParent(AtomTreeNodeGroup parent) {
-        parentNode = parent;
-        parentGroup = (parent != null) ? parent.atom : null;
-        if(parentNode != null) {
-            depth = parentNode.depth() + 1;
-            parentPhase = parentNode.parentPhase();
-        }
-        atom.seq.setParentNotify(parent);
-    }
-        
-
-    public void setDepth(int d) {
-        depth = d;
-        childIterator.reset();
-        while(childIterator.hasNext()) childIterator.next().node.setDepth(d+1);
-        if(parentNode != null) parentPhase = parentNode.parentPhase();
     }
     
     public final Atom firstChildAtom() {return childList.getFirst();}
@@ -73,50 +50,9 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         return childList.get(index);
     }//end of getAtom
             
-    /**
-     * Simulation in which this atom resides
-     */
-    public Simulation parentSimulation() {return parentPhase().parentSimulation();}        
-    /**
-     * Phase in which this atom resides
-     */
-    public Phase parentPhase() {return parentPhase;}//parentNode.parentPhase();}
 
-    public Species parentSpecies() {return parentNode.parentSpecies();}
-    
-    public SpeciesAgent parentSpeciesAgent() {return parentNode.parentSpeciesAgent();}
-
-    /**
-     * Returns the depth of this atom in the atom hierarchy.  That is, returns
-     * the number of parent relations between this atom and the species master.
-     */
-    public int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
-    
     public boolean isLeaf() {return false;}
     
-    /**
-     * Integer assigned to this atom by its parent molecule.
-     * Assigned during construction of atom.
-     */
-    public final int index() {return atomIndex;}
-    public final void setIndex(int i) {atomIndex = i;}
-
-    /**
-     * Returns true if the given atom is in the hierarchy of parents of this atom,
-     * or if the given atom is this atom.  Returns true, for example, if the given
-     * atom is this atom's parent, or its parent's parent, etc.
-     */ 
-    public boolean isDescendedFrom(Atom group) {
-        return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
-    }
-     /*   AtomGroup ancestor = parentGroup;
-        while(ancestor != null) {
-            if(ancestor == group) return true;
-            ancestor = ancestor.parentGroup();
-        }
-        return false;
-    }*/
-        
     public Atom firstLeafAtom() {
         return findFirstLeafAtom();//firstLeafAtom;  //firstLeafAtom is not updated correctly
                                                      //fix this if using stored value
@@ -175,140 +111,22 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         return childList.toArray();
     }
     
-            
-    public void addAtom(Atom aNew) {
-        if(!resizable) return; //should define an exception
-        //ensure that the given atom is compatible
-        //creator() is not defined for speciesAgent, so this creates a problem when adding
-        //new molecule; commented out vetoAddition call until this is fixed or abandoned.
-        if(aNew == null /* || creator().vetoAddition(aNew)*/) { //should ensure group/atom consistency with other children
-            throw new NullPointerException("Attempting to add null Atom in AtomTreeNodeGroup.addAtom");
-        }
-        if(childAtomCount() > 0) { //siblings
-            aNew.node.setIndex(lastChildAtom().node.index()+1);
-        }
-        else {  //only child
-            aNew.node.setIndex(0);
-        }  
-        
-        childList.add(aNew.seq);
-        
-        //set up links within this group
-        aNew.node.setParent(this);
-        aNew.node.setDepth(depth+1);
-        
-        //set up leaf links
-/*        if(aNew instanceof AtomGroup) {
-            AtomGroup aNewGroup = (AtomGroup)aNew;//copy to save multiple casts in calls to AtomGroup methods
-            Atom lastNewLeaf = aNewGroup.node.lastLeafAtom();
-            if(lastNewLeaf != null) {//also implies firstNewLeaf != null
-                lastNewLeaf.seq.setNextAtom(findNextLeafAtom(aNewGroup));
-                Atom previous = findPreviousLeafAtom(aNewGroup);
-                if(previous != null) previous.seq.setNextAtom(aNewGroup.node.firstLeafAtom());
-            } //no leaf changes anywhere if aNew has no leaf atoms 
-        }
-        else {//aNew is a leaf, not a group
-                //set next in case it wasn't set by aNew.setNextAtom(lastChildAtom.next()) line, above
-            if(aNew.nextAtom() == null) aNew.seq.setNextAtom(findNextLeafAtom(aNew.node.parentGroup()));
-               //set previous in case it wasn't set by lastChildAtom.setNextAtom(aNew) line, above
-            if(aNew.previousAtom() == null) {
-                Atom previous = findPreviousLeafAtom(aNew.node.parentGroup());
-                if(previous != null) previous.seq.setNextAtom(aNew);
-            }
-        }
-        */
-        addAtomNotify(aNew);
-    }//end of addAtom
-
-
-    public void removeAtom(Atom a) {
-        if(a == null || !resizable) return;
-        //ensure that the given atom is compatible
-        if(a.node.parentGroup() != atom) {
-            System.out.println("Error in AtomGroup.removeAtom:  See source code");  //should throw an exception
-            return;
-        }
-        childList.remove(a);
-        //childList.remove(a.seq); //could do this if method not private in AtomList
-        
-        removeAtomNotify(a);
-        a.node.setParent((AtomTreeNodeGroup)null);//must follow notify for SpeciesMaster moleculeCount to be updated
-    }//end of removeAtom
-
-    /**
-     * Removes all child atoms of this group.  Maintains their
-     * internal links, and returns the first child, so they may be recovered 
-     * for use elsewhere.
-     * Does not remove this group from its parent group.
-     */
-     //doesn't perform removeAtomNotify
-    public Atom removeAll() {
-        //save first child for return, then erase links to them
-        Atom first = firstChildAtom();
-        childList.clear();
-        return first;
-    }//end of removeAll
-
+    public boolean isResizable() {return true;}
+    
     /**
      * Notifies this atom group that an atom has been added to it or one of its descendants.
      */
     public void addAtomNotify(Atom atom) {
         leafAtomCount += atom.node.leafAtomCount();
-        if(parentGroup() != null) parentGroup().node.addAtomNotify(atom);
+        parentNode.addAtomNotify(atom);
     }
     
     public void removeAtomNotify(Atom atom) {
         leafAtomCount -= atom.node.leafAtomCount();
-        if(parentGroup() != null) parentGroup().node.removeAtomNotify(atom);
+        parentNode.removeAtomNotify(atom);
     }
-    
-
-    /**
-     * Searches the atom hierarchy up from (and not including) the given group 
-     * to find the closest (leaf) atom in that direction.
-     */
- /*   private static Atom findNextLeafAtom(Atom a) {
-        Atom parent = a; //search up siblings first
-        while(parent != null) {
-            Atom uncle = parent.nextAtom();
-            while(uncle != null) {
-                Atom first = uncle.node.firstLeafAtom();
-                if(first != null) return first; //found it
-                uncle = uncle.nextAtom();
-            }
-            parent = parent.node.parentGroup();
-        }
-        return null;
-    }//end of findNextLeafAtom
-        */
-    
-    /**
-     * Searches the atom hierarchy down from (and not including) the given group 
-     * to find the closest (leaf) atom in that direction.
-     * The first leaf atom of the given group will have the returned atom as its previous atom. 
-     */
-/*    private static Atom findPreviousLeafAtom(Atom a) {
-        Atom parent = a;
-        while(parent != null) {
-            Atom uncle = parent.previousAtom();
-            while(uncle != null) {
-                Atom last = uncle.node.lastLeafAtom();
-                if(last != null) return last;
-                uncle = uncle.previousAtom();
-            }
-            parent = parent.node.parentGroup();
-        }
-        return null;
-    }//end of findPreviousLeafAtom
-  */  
-  
-    protected final Atom atom;
-    protected int depth;
-    protected int atomIndex;
+      
     protected int leafAtomCount;
-    private AtomTreeNodeGroup parentNode;
-    private Atom parentGroup;
-    private Phase parentPhase;
     
     //childlist is public, but should not add/remove atoms except via node's methods.
     //consider a mechanism to ensure this; a inner mutator class made available only
@@ -316,11 +134,10 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     //access of entry classes).
     public final AtomList childList = new AtomList();
     private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple(childList);
-    private boolean resizable = true;
         
     public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-        public AtomTreeNode makeNode(Atom atom) {
-            return new AtomTreeNodeGroup(atom);
+        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
+            return new AtomTreeNodeGroup(atom, parent);
         }
     };
     

@@ -16,7 +16,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 
     public String getVersion() {return "IntegratorHard:01.07.08/"+IntegratorHardAbstract.VERSION;}
     
-    private AtomIterator upAtomIterator;
+    protected AtomIterator upAtomIterator;
     private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
     private static final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
     private final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
