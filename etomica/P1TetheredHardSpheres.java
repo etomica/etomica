@@ -7,23 +7,14 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.Intramolecular {
-    
-    public final P2HardSphere p2HardSphere;
-    public final P2Tether p2Tether;
+public class P1TetheredHardSpheres extends P1IntraSimple {
     
     public P1TetheredHardSpheres() {
         this(Simulation.getDefault().space);
     }
     
     public P1TetheredHardSpheres(Space space) {
-        super(1, space);
-        p2HardSphere = new P2HardSphere();
-        p2Tether = new P2Tether();
-        addPotential(p2Tether, new ApiInnerVariable(new AtomIteratorList(),
-	            new AtomIteratorBonds()));
-	    addPotential(p2HardSphere, new ApiInnerVariable(new AtomIteratorList(),
-	            new AtomIteratorNonbonded(parent.simulation())));
+        super(space, new P2HardSphere(), new P2Tether());
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -31,19 +22,15 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
         return info;
     }
 
-    public double energy(Atom a) {
-        return 0.0;
-    }
-
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic();
         Simulation.instance = sim;
-	    IntegratorHard integratorHard = new IntegratorHard();
+	    IntegratorHard integratorHard = new IntegratorHard(sim.potentialMaster);
 	    SpeciesSpheres speciesSpheres = new SpeciesSpheres(1, 3);
-	    Phase phase = new Phase();
+	    Phase phase = new Phase(sim.space);
 	    
 	    PotentialGroup potential2 = new PotentialGroup(2);
 	    Potential2 p2 = new P2HardSphere();
@@ -63,7 +50,7 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
         sim.makeAndDisplayFrame();
         
      //   controller.start();
-    }//end of main
+    }//end of main*/
     
 }//end of P1TetheredHardSpheres
    
