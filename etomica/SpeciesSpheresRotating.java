@@ -9,6 +9,9 @@ import etomica.units.Dimension;
  * @see AtomType.OrientedSphere
  * 
  */
+/* History
+ * 08/12/03 (DAK) use sim instead of space in AtomFactoryMono constructor
+ */
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public double mass;
@@ -16,7 +19,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public AtomType.OrientedSphere protoType;
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Simulation sim) {
-        AtomFactoryMono f = new AtomFactoryMono(sim.space, sim.iteratorFactory.neighborSequencerFactory());
+        AtomFactoryMono f = new AtomFactoryMono(sim, sim.iteratorFactory.neighborSequencerFactory());
         AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         return f;

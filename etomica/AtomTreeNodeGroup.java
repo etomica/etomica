@@ -5,7 +5,8 @@ package etomica;
  */
 
  /* History of changes
-  * 8/21/02 (DAK) sketched out flatten method, but not implemented yet.
+  * 08/21/02 (DAK) sketched out flatten method, but not implemented yet.
+  * 08/12/03 (DAK) modified setParent method to notify children
   */
   
 public class AtomTreeNodeGroup extends AtomTreeNode {
@@ -14,11 +15,6 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         super(atom, parent);
     }
         
-    public void setParent(AtomTreeNodeGroup parent) {
-        super.setParent(parent);        
-        //should notify this node's children of change
-    }//end of addAtom
-    
     public int newChildIndex() {
         if(childAtomCount() > 0) { //siblings
             return (lastChildAtom().node.index()+1);
@@ -27,7 +23,19 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
             return(0);
         }
     }
-            
+
+	/**
+	 * Invoke superclass method and then notify children.  Notification is
+	 * needed, for example, to ensure their phase field is up to date.
+	 * 
+	 * @see etomica.AtomTreeNode#setParent(AtomTreeNodeGroup)
+	 */
+	public void setParent(AtomTreeNodeGroup parent) {
+		super.setParent(parent);
+		childIterator.reset();
+		while(childIterator.hasNext()) childIterator.next().node.setParent(this);//notifies children that there was a change in the hierarchy
+	}            
+	
     public Class childSequencerClass() {
         return ((AtomType.Group)atom.type).childSequencerClass;
 //        try { return firstChildAtom().seq.getClass();}

@@ -16,15 +16,26 @@ public class AtomFactoryHetero extends AtomFactory {
     
     private AtomFactory[] childFactory;
     
-    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
-        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), factory);
-    }
+    //each constructor has a version that takes a Simulation, and one that takes a Space.
+    //Simulation version is preferred.  It causes a handle to the simulation to be put in 
+    //the AtomType, which is the way that the atom accesses the simulation
+	public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
+		this(sim, sim.iteratorFactory.simpleSequencerFactory(), factory);
+	}
+	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory) {
+		this(sim, sequencerFactory, factory, new ConfigurationLinear(sim.space));
+	}
+	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
+							Configuration config) {
+		super(sim, sequencerFactory);
+		init(factory, config);
+	}
     /**
      * @param factory array of atom factories, each of which makes a different child.
      */
-    public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory) {
-        this(space, sequencerFactory, factory, new ConfigurationLinear(space));
-    }
+	public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory) {
+		this(space, sequencerFactory, factory, new ConfigurationLinear(space));
+	}
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
@@ -34,6 +45,10 @@ public class AtomFactoryHetero extends AtomFactory {
     public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
                             Configuration config) {
         super(space, sequencerFactory);
+        init(factory, config);
+    }
+    
+    private void init(AtomFactory[] factory, Configuration config) {
         childFactory = factory;
         configuration = config;
         //set up fields of Group type

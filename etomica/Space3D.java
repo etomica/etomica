@@ -19,6 +19,7 @@ package etomica;
   * values were being used prematurely
   * 01/31/03 (JKS/DAK) modifications to make thread-safe
   * 07/10/03 (DAK) added resetV method to CoordinatePair
+  * 08/13/03 (DAK) added massSum check in CoordinateGroup.position()
 
   */
 
@@ -584,7 +585,8 @@ public static class CoordinateGroup extends Coordinate {
             r.PEa1Tv1(a.coord.mass(), a.coord.position()); 
             massSum += a.coord.mass();
         }
-        r.DE(massSum);
+        if(massSum == 0) r.E(0.0);//added this 08/13/03 (DAK)
+        else r.DE(massSum);
         return r;
     }
     public Space.Vector momentum() {
@@ -603,7 +605,8 @@ public static class CoordinateGroup extends Coordinate {
             sum += a.coord.mass()*a.coord.position(i); 
             massSum += a.coord.mass();
         }
-        sum /= massSum;
+        if(massSum == 0) sum = 0.0;
+        else sum /= massSum;
         return sum;
     }
     public double momentum(int i) {

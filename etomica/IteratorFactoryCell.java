@@ -53,6 +53,7 @@ import etomica.utility.java2.Iterator;
  * 03/19/03 (DAK) fixed makeCellLattice method to compare r2 to square of
  * neighbor range
  * 08/10/03 (DAK) made fields protected so can be seen by subclasses
+ * 08/12/03 (DAK) modified as indicated in comments in code
  * 
  */
 public class IteratorFactoryCell implements IteratorFactory {
@@ -988,7 +989,7 @@ public interface CellSequencer {
      * Method called to notify sequencer that the phase has a new cell lattice.
      */
 	public void latticeChangeNotify();
-//	public void setParentNotify(AtomTreeNodeGroup parent);
+	public void setParentNotify(AtomTreeNodeGroup parent);
     
     public AbstractCell cell();
     
@@ -1165,6 +1166,7 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
         if(newParent == null || newParent instanceof AtomReservoir.ReservoirAtomTreeNode) {
             cell = null;
             lattice = null;
+            nbrLink.remove();//08/12/03 (DAK) added this line
             return;
         }
         //get cell lattice for the phase containing the parent
@@ -1190,8 +1192,11 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
 //Assigns atom to given cell
     public void assignCell(AbstractCell newCell) {
         cell = newCell;
-        if(cell == null) return;
-        this.moveBefore(((AtomLinker.Tab[])newCell.agents[0])[listIndex].nextTab);
+        if(newCell == null) {
+        	nbrLink.remove();//08/12/03 (DAK) added this line
+        } else {
+	        this.moveBefore(((AtomLinker.Tab[])newCell.agents[0])[listIndex].nextTab);
+        }
     }//end of assignCell
     
     public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {

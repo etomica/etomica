@@ -10,14 +10,26 @@ public class AtomFactoryMono extends AtomFactory {
     AtomType atomType;
 //    private AtomSequencer.Factory seqFactory;
     
+	//each constructor has a version that takes a Simulation, and one that takes a Space.
+	//Simulation version is preferred.  It causes a handle to the simulation to be put in 
+	//the AtomType, which is the way that the atom accesses the simulation
+
     /**
      * Constructor with neighborSequencerFactory and AtomType.Sphere defaults.
      */
     public AtomFactoryMono(Simulation sim) {
-        this(sim.space, sim.iteratorFactory.neighborSequencerFactory());
+        this(sim, sim.iteratorFactory.neighborSequencerFactory());
     }
+	public AtomFactoryMono(Simulation sim, AtomSequencer.Factory seqFactory) {
+		super(sim, seqFactory);
+		init();
+	}
     public AtomFactoryMono(Space space, AtomSequencer.Factory seqFactory) {
         super(space, seqFactory);
+        init();
+    }
+    
+    private void init() {
         setType(new AtomType.Sphere(this));//default
     }
     

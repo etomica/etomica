@@ -18,6 +18,10 @@ package etomica;
   */
   
 public class AtomFactoryTree extends AtomFactoryHomo {
+
+
+//have not made versions of constructor that use the Simulation class.  All atoms
+//made by this factory will not have reference to the simulation.
     
     /**
      * Constructs atom tree.

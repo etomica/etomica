@@ -11,11 +11,15 @@ package etomica;
   * 10/18/02 (DAK) Modified to remove Simulation instance, using Space instance instead.
   *          Many other classes (other factories, lattice classes, modified to be consistent 
   *          with this change.
+  * 08/12/03 (DAK) Re-introduced simulation field, allowing it to be null.  Used
+  * by AtomType to determine simulation instance, which in turn is referenced by
+  * AtomTreeNode.
   */
 public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
     public final Space space;
+    public final Simulation simulation;
     private Species species;
     protected Configuration configuration;
     protected AtomSequencer.Factory sequencerFactory;
@@ -23,10 +27,14 @@ public abstract class AtomFactory {
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomType.Group groupType = new AtomType.Group(this);
     
-    /**
-     * @param sim the parent simulation using this factory
-     */
+    public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory) {
+    	this.simulation = sim;
+    	this.space = sim.space;
+    	this.sequencerFactory = sequencerFactory;
+    	reservoir = new AtomReservoir(this);
+    }
     public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {
+    	simulation = null;
         this.space = space;
         this.sequencerFactory = sequencerFactory;
         reservoir = new AtomReservoir(this);
@@ -90,6 +98,8 @@ public abstract class AtomFactory {
     public AtomReservoir reservoir() {return reservoir;}
     
     public Space space() {return space;}
+    
+    public Simulation simulation() {return simulation;}
     
     public void setSpecies(Species species) {this.species = species;}
     public Species species() {return species;}

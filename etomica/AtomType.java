@@ -16,10 +16,12 @@ import etomica.units.*;
  */
  
  /* History of changes
-  * 7/16/02 (DAK) AtomType.Sphere.diameter method modified to take atom as argument
-  *               Added AtomType.SphereVariable inner class
-  * 8/18/02 (DAK) added drawShift to AtomType.Wall 
-  * 10/18/02 (DAK) modified Wall to get space from creator not via parentSimulation
+  * 07/16/02 (DAK) AtomType.Sphere.diameter method modified to take atom as
+  * argument; Added AtomType.SphereVariable inner class 
+  * 08/18/02 (DAK) added drawShift to AtomType.Wall 
+  * 10/18/02 (DAK) modified Wall to get space from creator not via
+  * parentSimulation 
+  * 08/12/03 (DAK) added simulation() method
   */
 
 public class AtomType implements java.io.Serializable {
@@ -85,6 +87,9 @@ public class AtomType implements java.io.Serializable {
     }
     
     public AtomFactory creator() {return creator;}
+    
+    public Simulation simulation() {return creator.simulation();}
+
     /**
      * Returns default coordinate type, which has no orientational component.
      * Override for atom types that require other coordinate features.

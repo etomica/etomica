@@ -15,9 +15,23 @@ public class AtomFactoryHomo extends AtomFactory {
     protected AtomFactory childFactory;
     private int atomsPerGroup;
     
+	//each constructor has a version that takes a Simulation, and one that takes a Space.
+	//Simulation version is preferred.  It causes a handle to the simulation to be put in 
+	//the AtomType, which is the way that the atom accesses the simulation
     public AtomFactoryHomo(Simulation sim, AtomFactory factory) {
-        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), factory);
+        this(sim, sim.iteratorFactory.simpleSequencerFactory(), factory);
     }
+	public AtomFactoryHomo(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory factory) {
+		this(sim, sequencerFactory, factory, 1);
+	}
+	public AtomFactoryHomo(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory factory, int atoms) {
+		this(sim, sequencerFactory, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim.space));
+	}
+	public AtomFactoryHomo(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory factory, 
+							int atoms, BondInitializer bondInit, Configuration config) {    
+		super(sim, sequencerFactory);
+		init(factory, atoms, bondInit, config);
+	}
     /**
      * @param factory the factory that makes each of the identical children.
      */
@@ -39,6 +53,11 @@ public class AtomFactoryHomo extends AtomFactory {
     public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory, 
                             int atoms, BondInitializer bondInit, Configuration config) {    
         super(space, sequencerFactory);
+        init(factory, atoms, bondInit, config);
+    }
+    
+    private void init(AtomFactory factory, int atoms, 
+    					BondInitializer bondInit, Configuration config) {                      
         childFactory = factory;
         atomsPerGroup = atoms;
         bondInitializer = bondInit;

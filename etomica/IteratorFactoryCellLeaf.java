@@ -1,8 +1,6 @@
 package etomica;
-import etomica.utility.java2.HashMap;
 
 import etomica.lattice.*;
-import etomica.utility.java2.Iterator;
 
 /**
  * Variant of IteratorFactoryCell class, modified to work with leaf atoms
@@ -15,6 +13,7 @@ import etomica.utility.java2.Iterator;
 
 /* History
  * 08/10/03 (DAK) new, built from IteratorFactoryCell
+ * 08/12/03 (DAK) modified as indicated in comments in code
  * 
  */
 public class IteratorFactoryCellLeaf extends IteratorFactoryCell {
@@ -59,6 +58,7 @@ public class IteratorFactoryCellLeaf extends IteratorFactoryCell {
 	// use makeCellLattice method inherited from IteratorFactoryCell, even though lattice.agents is not used
 	public BravaisLattice makeCellLattice(final Phase phase) {
 		BravaisLattice lattice = super.makeCellLattice(phase);
+		setupListTabs(lattice);
 		return lattice;
 	}
 
@@ -116,7 +116,7 @@ public static final class SequentialIterator extends AtomIterator {
 	 */
 	public void setBasis(Atom a) {
 		basis = (a != null) ? (AtomTreeNodeGroup)a.node : null;
-		if(basis == null || basis.childAtomCount() == 0) {
+		if(basis == null /*|| basis.childAtomCount() == 0*/) {
 			listIterator.setBasis(AtomList.NULL);
 			return;
 		}
@@ -532,8 +532,6 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
 	//CellSequencer interface method
 	public AbstractCell cell() {return cell;}
 
-//	public int listIndex() {return listIndex;}
-
 	public void remove() {
 		super.remove();
 		nbrLink.remove();
@@ -542,8 +540,7 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
 	public void addBefore(AtomLinker newNext) {
 		//newNext will never be one of the cell tabs
 		super.addBefore(newNext);
-		if(lattice != null) assignCell();
-		else nbrLink.remove();
+		assignCell();
 	}
 	/**
 	 * Reshuffles position of "neighbor" links without altering the regular links.
@@ -579,29 +576,37 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
 	 */
 	public void setParentNotify(AtomTreeNodeGroup newParent) {
 		if(newParent == null || newParent instanceof AtomReservoir.ReservoirAtomTreeNode) {
-			cell = null;
 			lattice = null;
-			return;
+		} else {
+			Simulation sim = newParent.parentSimulation();
+			if(sim == null) lattice = null;
+			else lattice = ((IteratorFactoryCell)sim.iteratorFactory).getLattice(newParent.parentPhase());
 		}
-		//get cell lattice for the phase containing the parent
-		lattice = ((IteratorFactoryCell)newParent.parentSimulation().iteratorFactory).getLattice(newParent.parentPhase());
-		Atom testCell = lattice.siteList().getFirst();
-		if(testCell.agents == null) setupListTabs(lattice);
+//		if(lattice != null) {
+//			Atom testCell = lattice.siteList().getFirst();
+//			if(testCell.agents == null) setupListTabs(lattice);
+//		}
 		assignCell();
 	}
 
 //Determines appropriate cell and assigns it
 	public void assignCell() {
-		if(lattice == null) return;//atom is not yet assigned a parent
-		int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.getDimensions());
-		AbstractCell newCell = (AbstractCell)lattice.site(latticeIndex);
-		if(newCell != cell) {assignCell(newCell);}
+		if(lattice == null) {
+			assignCell(null);
+		} else {
+			int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.getDimensions());
+			AbstractCell newCell = (AbstractCell)lattice.site(latticeIndex);
+			if(newCell != cell) {assignCell(newCell);}
+		}
 	}
 //Assigns atom to given cell
 	public void assignCell(AbstractCell newCell) {
 		cell = newCell;
-		if(cell == null) return;
-		this.moveBefore(((AtomLinker.Tab)newCell.agents[0]).nextTab);
+		if(newCell == null) {
+			nbrLink.remove();
+		} else {
+			this.moveBefore(((AtomLinker.Tab)newCell.agents[0]).nextTab);
+		}
 	}//end of assignCell
     
 	public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {

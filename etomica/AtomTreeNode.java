@@ -24,6 +24,8 @@ package etomica;
   * 12/04/02 (DAK) added isDescendedFrom(AtomTreeNodeGroup) method, and modified
   *           isDescendedFrom(Atom) method to work through it.
   * 12/06/02 (DAK) added childWhereDescendedFrom method.
+  * 08/12/03 (DAK) modifed as indicated in comments in code; modified dispose()
+  * method to operate via setParent method
   */
  
 
@@ -57,16 +59,7 @@ public abstract class AtomTreeNode {
     public abstract int childAtomCount();
     
     public void dispose() {
-        if(parentNode != null && !parentNode.isResizable()) return;  //throw an exception?
-        //remove from current parent
-        if(parentNode != null) {
-            if(!parentNode.isResizable()) return;//exception
-            parentNode.childList.remove(atom.seq);        
-            parentNode.removeAtomNotify(atom);
-        }
-        parentNode = null;
-        parentGroup = null;
-        parentPhase = null;
+    	setParent((AtomTreeNodeGroup)null);
     }
 
     public void setParent(Atom parent) {
@@ -74,6 +67,15 @@ public abstract class AtomTreeNode {
     }
     
     public void setParent(AtomTreeNodeGroup parent) {
+    	
+    	//parent isn't changing, but may need to update fields (added this 'if' block 08/12/03 (DAK))
+    	if(parent == parentNode) {
+			parentPhase = parentNode.parentPhase();
+			depth = parentNode.depth() + 1;
+			atom.seq.setParentNotify(parent);
+			return;    		
+    	}	
+    	
         if(parent != null && !parent.isResizable()) return;  //throw an exception?
         
         //old parent is not null; remove from it
@@ -88,6 +90,7 @@ public abstract class AtomTreeNode {
         if(parentNode == null) {//new parent is null
             parentGroup = null;
             parentPhase = null;
+            atom.seq.setParentNotify(null);//08/12/03 (DAK) added this line
             return;
         }
 
@@ -126,7 +129,7 @@ public abstract class AtomTreeNode {
     /**
      * Simulation in which this atom resides
      */
-    public Simulation parentSimulation() {return parentSpecies().simulation();}        
+    public Simulation parentSimulation() {return atom.type.simulation();}        
     /**
      * Phase in which this atom resides
      */

@@ -29,6 +29,7 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 	double timeStep = Default.TIME_STEP;
 	double constR;      //temperature-dependent constant appearing in random force
 	Space.Vector rHat, fDissipative, fConservative, fRandom, grad;
+	double bondStrength = 10.0;
 	
 	public String getVersion() {return "P2DPD:03.04.25/"+Potential2SoftSpherical.VERSION;}
 	
@@ -93,18 +94,18 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 	 */
 	public Space.Vector gradient(AtomPair pair) {
 		double r2 = pair.r2();
+//		System.out.println(pair.toString()+" "+r2);
 		if(r2 < rC2) {
 			pair.cPair.resetV();
 			double r = Math.sqrt(r2);
 			double rand = Math.sqrt(3.0)*(2.*Simulation.random.nextDouble()-1.);
-//			double rand = (2.*Simulation.random.nextDouble()-1.);
 //			double rand = Simulation.random.nextGaussian();
 
 			double wR = 1.0 - r/rC;
 			double g = 0.0;
-//			g += maxRepel(pair);  //conservative     maxRepel*cR/r dr
-//			g += -gamma*wR*pair.vDotr()/r;  //dissipative  -gamma*cR*cR*vdotr/r dr
-//			g += constR*rand;// random  constR*cR/r dr,  constR = sigma/sqrt(dt)
+			g += maxRepel(pair);  //conservative     maxRepel*cR/r dr
+			g += -gamma*wR*pair.vDotr()/r;  //dissipative  -gamma*cR*cR*vdotr/r dr
+			g += constR*rand;// random  constR*cR/r dr,  constR = sigma/sqrt(dt)
 			grad.Ea1Tv1(-g*wR/r, pair.dr());  //minus because force is negative of gradient
 //			grad.TE(-1.0);
 //			fConservative.Ea1Tv1(maxRepel*cR/r, pair.dr());
@@ -118,9 +119,11 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 		} else {
 			grad.E(0.0);
 		} 	
-		double r0 = 0.5;
+		double r0 = 0.2;
 		if(Bond.areBonded(pair.atom1, pair.atom2))	{
-			grad.PEa1Tv1(5.*(1.0 - r0/Math.sqrt(pair.r2())),pair.dr());
+//			System.out.println(pair.toString()+" "+grad.toString());
+			grad.PEa1Tv1(bondStrength*(1.0 - r0/Math.sqrt(r2)),pair.dr());
+//			System.out.println(grad.toString());
 		}
 		return grad;
 	}
@@ -203,6 +206,22 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 	public void setTimeStep(double timeStep) {
 		this.timeStep = timeStep;
 		updateConstants();
+	}
+
+	/**
+	 * Returns the bondStrength.
+	 * @return double
+	 */
+	public double getBondStrength() {
+		return bondStrength;
+	}
+
+	/**
+	 * Sets the bondStrength.
+	 * @param bondStrength The bondStrength to set
+	 */
+	public void setBondStrength(double bondStrength) {
+		this.bondStrength = bondStrength;
 	}
 
 }//end class-P2DPD

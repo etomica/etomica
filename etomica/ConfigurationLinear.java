@@ -7,6 +7,10 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
+/* History
+ * 08/12/03 (DAK) added constructor that takes angles
+ */
+
 public class ConfigurationLinear extends Configuration {
           
     private double bondLength;
@@ -17,11 +21,14 @@ public class ConfigurationLinear extends Configuration {
         this(space, 0.55*Default.ATOM_SIZE);
     }
     public ConfigurationLinear(Space space, double bondLength) {
+    	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
+    }
+    public ConfigurationLinear(Space space, double bondLength, double[] initAngles) {
         super(space);
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];
-        setAngle(0,etomica.units.Degree.UNIT.toSim(45.));
+        for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
         zeroTotalMomentum = false;
     }
     //remove these constructors when possible

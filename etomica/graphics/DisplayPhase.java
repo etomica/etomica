@@ -653,12 +653,12 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             	DisplayPhaseCanvas3DOpenGL canvasGL = (DisplayPhaseCanvas3DOpenGL)canvas;
             	switch(c) {
             		case '<':
-						setImageShells(0);
+//						setImageShells(0);
             			canvasGL.setDrawExpansionFactor(canvasGL.getDrawExpansionFactor()-0.02);
             			drawOverflow = false;
             			break;
 					case '>':
-						setImageShells(0);
+//						setImageShells(0);
 						canvasGL.setDrawExpansionFactor(canvasGL.getDrawExpansionFactor()+0.02);
 						drawOverflow = false;
 						break;

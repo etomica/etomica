@@ -133,7 +133,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         Phase phase = displayPhase.getPhase();
         if(phase != null) {
             float b = (float)phase.boundary().dimensions().x(0);
-            float z = -70f + (30f/b - 1f)*22f;
+//			float z = -70f + (30f/b - 1f)*22f;
+			float z = -190f + (30f/b - 1f)*22f;//08/12/03 DAK changed 70 to 190 
             setZoom(z);
         }
     }//end DAK
@@ -247,19 +248,15 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 	drawExpansionShiftZ = 0f;
 	if(drawExpansionFactor != 1.0) {
 		Space.Vector box = displayPhase.getPhase().boundary().dimensions();
-		float mult = (float)(0.5*(drawExpansionFactor - 1.0));
+		float mult = (float)(0.5*(drawExpansionFactor - 1.0)/* *(2.0*displayPhase.getImageShells()+1)*/);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));
 		drawExpansionShiftZ = (float)(mult*box.x(2));
 	}
 
-
-    //temporary commenting
-    //this must be put back in for component to work
     AtomIteratorList iter = new AtomIteratorList(displayPhase.getPhase().speciesMaster.atomList);
     while(iter.hasNext()) {
       Atom a = iter.next();
-//    for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom(), i+=3) {
       atoms[i/3] = a;
       vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
       vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
@@ -418,7 +415,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //!!! Draw wall here
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
-          setDrawExpansionFactor(1.0);
+//          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -461,7 +458,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
-          setDrawExpansionFactor(1.0);
+//          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -489,7 +486,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         gl.glCallList(wellList[getQuality()]);
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
-          setDrawExpansionFactor(1.0);
+//          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -514,7 +511,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         ///!!! Draw rotator orientation here
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
-          setDrawExpansionFactor(1.0);
+//          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -604,7 +601,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Reset The View
     gl.glLoadIdentity();
     //Translate & Zoom to the desired position
-    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<7));
+    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
     //Rotate accordingly
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);
@@ -637,7 +634,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Draw periodic images if indicated
     // The following if() block sets up the display list.
     if(displayPhase.getImageShells() > 0) {
-      setDrawExpansionFactor(1.0);
+//      setDrawExpansionFactor(1.0);
       if(displayPhase.getImageShells() == 1) j=DRAW_QUALITY_LOW;
       else if(displayPhase.getImageShells() > 1) j=DRAW_QUALITY_VERY_LOW;
       k = getQuality();
@@ -760,7 +757,8 @@ public void setDrawExpansionFactor(double drawExpansionFactor) {
 	this.drawExpansionFactor = drawExpansionFactor;
 	if(displayPhase != null && displayPhase.getPhase() != null) {
 		Space.Vector box = displayPhase.getPhase().boundary().dimensions();
-		float mult = (float)(0.5*(drawExpansionFactor - 1.0));
+		float I = displayPhase.getImageShells();
+		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));
 		drawExpansionShiftZ = (float)(mult*box.x(2));

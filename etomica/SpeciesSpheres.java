@@ -7,6 +7,10 @@ import etomica.units.Dimension;
  * 
  * @author David Kofke
  */
+
+/* History
+ * 08/12/03 (DAK) use sim instead of space in AtomFactoryHomo constructor
+ */
 public class SpeciesSpheres extends Species implements EtomicaElement {
 
     private double mass;
@@ -17,7 +21,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         AtomFactoryMono f = new AtomFactoryMono(sim);//would like to pass this species
         AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(sim.space, sim.iteratorFactory.neighborSequencerFactory(), 
+        AtomFactoryHomo fm = new AtomFactoryHomo(sim, sim.iteratorFactory.neighborSequencerFactory(), 
                                 f, na, bondInit, config);
         return fm;
  //       return f;
