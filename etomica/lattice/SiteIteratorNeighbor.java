@@ -48,7 +48,7 @@ public class SiteIteratorNeighbor extends AtomIterator {
     
     public void setBasis(NeighborManager manager) {
         neighborManager = manager;
-        iterator.setBasis(neighborManager.neighbors());
+        iterator.setList(neighborManager.neighbors());
     }
     
     public void setBasis(Site site) {

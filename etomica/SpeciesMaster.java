@@ -159,7 +159,7 @@ public final class SpeciesMaster extends Atom {
         sim.elementCoordinator.go();
         
         AtomIteratorList listIterator = new AtomIteratorList();
-        listIterator.setBasis(phase.speciesMaster.atomList);
+        listIterator.setList(phase.speciesMaster.atomList);
         listIterator.reset();
         while(listIterator.hasNext()) System.out.println(listIterator.next().toString());
         System.out.println();

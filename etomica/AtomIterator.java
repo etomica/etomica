@@ -58,7 +58,7 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
      * hasNext/next iteration, allAtoms can be called successively without intervening
      * reset calls to loop over the same set of atoms repeatedly.
      */
-    public void all(Atom basis, IteratorDirective id, AtomActive action);
+    public void allAtoms(AtomActive action);
 
     /**
      * The number of iterates returned by this iterator, if iterating after
@@ -73,7 +73,7 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
      * @author kofke
      */
     public static AtomIterator NULL = new AtomIterator() {
-    	public void all(Atom basis, IteratorDirective id, AtomActive action) {}
+    	public void allAtoms(AtomActive action) {}
     	public boolean contains(Atom atom) {return false;}
     	public boolean hasNext() {return false;}
     	public Atom next() {return null;}

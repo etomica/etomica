@@ -201,7 +201,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }
-        atomIterator.setBasis(displayPhase.getPhase().speciesMaster.atomList);
+        atomIterator.setList(displayPhase.getPhase().speciesMaster.atomList);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             drawAtom(g, displayPhase.getOrigin(), atomIterator.next());

@@ -117,7 +117,7 @@ public static final class SequentialIterator extends AtomIterator {
 	public void setBasis(Atom a) {
 		basis = (a != null) ? (AtomTreeNodeGroup)a.node : null;
 		if(basis == null /*|| basis.childAtomCount() == 0*/) {
-			listIterator.setBasis(AtomList.NULL);
+			listIterator.setList(AtomList.NULL);
 			return;
 		}
 		boolean iterateCells = true;//basis.childSequencerClass().equals(NeighborSequencer.class);
@@ -129,7 +129,7 @@ public static final class SequentialIterator extends AtomIterator {
 				Atom cell = lattice.siteList().getFirst();
 				AtomLinker.Tab cellHeader = (AtomLinker.Tab)cell.agents[0];
 				neighborSequenceList.setAsHeader(cellHeader, phase.speciesMaster.atomList.size());
-				listIterator.setBasis(neighborSequenceList);
+				listIterator.setList(neighborSequenceList);
 			}
 		} else {
 			listIterator.setBasis(a);

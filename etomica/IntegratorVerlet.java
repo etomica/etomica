@@ -37,7 +37,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 	 */
 	public boolean addPhase(Phase p) {
 	    if(!super.addPhase(p)) return false;
-        atomIterator.setBasis(p.speciesMaster.atomList);
+        atomIterator.setList(p.speciesMaster.atomList);
         return true;
     }
     

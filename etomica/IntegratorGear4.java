@@ -45,7 +45,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
-        atomIterator.setBasis(p.speciesMaster.atomList);
+        atomIterator.setList(p.speciesMaster.atomList);
         return true;
     }
 

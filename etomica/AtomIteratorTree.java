@@ -137,7 +137,7 @@ public class AtomIteratorTree implements AtomIterator {
      */
     Atom reset(Atom atom) {
         if(atom == null || basis == null) return next = null;
-        listIterator.setBasis(((AtomTreeNodeGroup)atom.node).childList);
+        listIterator.setList(((AtomTreeNodeGroup)atom.node).childList);
         return reset();
     }
     
@@ -180,7 +180,7 @@ public class AtomIteratorTree implements AtomIterator {
     public void setBasis(Atom atom) {
         if(atom == null) {
             basis = null; 
-            listIterator.setBasis(AtomList.NULL); 
+            listIterator.setList(AtomList.NULL); 
             doTreeIteration = false;
 //            iterator = AtomIterator.NULL;
             return;
@@ -191,14 +191,14 @@ public class AtomIteratorTree implements AtomIterator {
             if(singletList == null) singletList = new AtomList();
             singletList.clear();
             singletList.add(atom);
-            listIterator.setBasis(singletList);
+            listIterator.setList(singletList);
             doTreeIteration = false;
             iterator = listIterator;
             return;
         }
         basis = (AtomTreeNodeGroup)atom.node;
         AtomList list = basis.childList;
-        listIterator.setBasis(list);
+        listIterator.setList(list);
         doTreeIteration = (iterationDepth > 1 &&
                             (basisIsMaster || (list.size() > 0 && basis.childrenAreGroups())));
         if(doTreeIteration) {

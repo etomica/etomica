@@ -40,7 +40,7 @@ public class AtomLinker implements java.io.Serializable {
         previous.next = this;
         newNext.previous = this;
 	}
-	
+//TODO make addBefore and moveBefore the same (putBefore)	
 	/**
 	 * Moves the linker from its current position to the one before the given linker.
 	 */
@@ -58,15 +58,15 @@ public class AtomLinker implements java.io.Serializable {
 	 * Creates a new tab that is flagged as not a header.
 	 * @return Tab
 	 */
-	public static Tab newTab() {
-		return new Tab(false);
+	public static Tab newTab(AtomList list) {
+		return new Tab(false, list);
 	}
 	/**
 	 * Creates a new tab that is flagged as being a header of a list.
 	 * @return Tab
 	 */
-	public static Tab newHeader() {
-		return new Tab(true);
+	public static Tab newHeader(AtomList list) {
+		return new Tab(true, list);
 	}
 
     /**
@@ -78,16 +78,18 @@ public class AtomLinker implements java.io.Serializable {
      */
     public static class Tab extends AtomLinker {
         public Tab nextTab, previousTab;
+        public final AtomList list;
         private final boolean isHeader;
         /**
          * Private constructor.  Use AtomLinker methods newTab or newHeader, as
          * appropriate, to make new instance.
          * @param isHeader
          */
-        private Tab(boolean isHeader) {
+        private Tab(boolean isHeader, AtomList list) {
             super(null);
             nextTab = previousTab = this;
             this.isHeader = isHeader;
+            this.list = list;
         }
         
         public final boolean isHeader() {return isHeader;}
@@ -104,11 +106,14 @@ public class AtomLinker implements java.io.Serializable {
         
         /**
          * Adds references to previous/next tabs while adding the linker to the position
-         * behind the given one.
+         * behind the given one.  Given linker must be in the list for this tab, otherwise
+         * an IllegalArgumentException is thrown and the state of this tab is unchanged.
          */
         public void addBefore(AtomLinker newNext) {
+	        AtomLinker.Tab newNextTab = findNextTab(newNext);
+	        if(newNextTab.list != this.list) throw new IllegalArgumentException("Illegal attempt to add tab to a list other than the one it was constructed for");
             super.addBefore(newNext);
-	        nextTab = findNextTab(newNext);
+            nextTab = newNextTab;
 	        previousTab = nextTab.previousTab;
 	        previousTab.nextTab = this;
 	        nextTab.previousTab = this;

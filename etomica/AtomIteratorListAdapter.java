@@ -6,11 +6,13 @@ package etomica;
 
 /**
  * @author kofke
+ * Adapater class that wraps an AtomIteratorList to implement the
+ * methods of an iterator.  Subclasses must define the setPhase method
+ * so that it configures in an appropriate way for a given phase.
  */
 public abstract class AtomIteratorListAdapter implements AIPhaseDependent {
 
 	protected final AIAtomListDependent listIterator;
-	
 	
 	/**
 	 * 

@@ -30,7 +30,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     
     public void setPhase(Phase p) {
         super.setPhase(p);
-        ai1.setBasis(p.speciesMaster.atomList);
+        ai1.setList(p.speciesMaster.atomList);
     }
 
     public final boolean usesPhaseBoundary() {return false;}

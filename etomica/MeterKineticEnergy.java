@@ -31,7 +31,7 @@ public class MeterKineticEnergy extends MeterScalar
 	
     public double getDataAsScalar(Phase phase) {
         double ke = 0.0;
-        atomIterator.setBasis(phase.speciesMaster.atomList);
+        atomIterator.setList(phase.speciesMaster.atomList);
         atomIterator.reset();
         while(atomIterator.hasNext()) {    //consider doing this with an allAtoms call
             Atom atom = atomIterator.next();

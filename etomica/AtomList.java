@@ -52,7 +52,7 @@ import java.util.*;
 
 public class AtomList implements java.io.Serializable
 {
-    public final AtomLinker.Tab header = AtomLinker.newHeader();//modification for tab entry
+    public final AtomLinker.Tab header = AtomLinker.newHeader(this);//modification for tab entry
     private int size = 0;
     
     /**

@@ -46,7 +46,7 @@ package etomica;
 	 */
 	public boolean addPhase(Phase p) {
 	    if(!super.addPhase(p)) return false;
-        atomIterator.setBasis(p.speciesMaster.atomList);
+        atomIterator.setList(p.speciesMaster.atomList);
         return true;
     }
     

@@ -311,7 +311,7 @@ public static final class SequentialIterator extends AtomIterator {
     public void setBasis(Atom a) {
         basis = (a != null) ? (AtomTreeNodeGroup)a.node : null;
         if(basis == null || basis.childAtomCount() == 0) {
-            listIterator.setBasis(AtomList.NULL);
+            listIterator.setList(AtomList.NULL);
             return;
         }
         boolean iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
@@ -323,7 +323,7 @@ public static final class SequentialIterator extends AtomIterator {
             int tabIndex = ((Integer)hash.get(basis)).intValue();
             AtomLinker.Tab cellHeader = tabs[tabIndex];
             neighborSequenceList.setAsHeader(cellHeader, basis.childList.size());
-            listIterator.setBasis(neighborSequenceList);
+            listIterator.setList(neighborSequenceList);
         } else {
             listIterator.setBasis(a);
         }
@@ -624,7 +624,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
     public void setBasis(AtomTreeNodeGroup node) {
         basis = node;
         if(basis == null || basis.childAtomCount() == 0) {
-            listIterator.setBasis(AtomList.NULL);
+            listIterator.setList(AtomList.NULL);
             iterateCells = false;
             return;
         }
@@ -632,7 +632,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
         //for given atom, because it is in the group of atoms being iterated
         iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
         BravaisLattice lattice = iteratorFactory.getLattice(basis.parentPhase());
-        listIterator.setBasis(node.childList);
+        listIterator.setList(node.childList);
         if(iterateCells) {
             HashMap hash = (HashMap)lattice.agents[0];
             tabIndex = ((Integer)hash.get(node)).intValue();
@@ -889,13 +889,13 @@ public static final class IntergroupNbrIterator extends AtomIterator {
     public void setBasis(AtomTreeNodeGroup node) {
         basis = node;
         if(basis == null || basis.childAtomCount() == 0) {
-            listIterator.setBasis(AtomList.NULL);
+            listIterator.setList(AtomList.NULL);
             basisIterateCells = false;
             return;
         }
         basisIterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
         BravaisLattice lattice = iteratorFactory.getLattice(basis.parentPhase());
-        listIterator.setBasis(node.childList);
+        listIterator.setList(node.childList);
         if(basisIterateCells) {
             HashMap hash = (HashMap)lattice.agents[0];
             tabIndex = ((Integer)hash.get(node)).intValue();

@@ -100,7 +100,7 @@ public class AtomIteratorMolecule implements AtomIterator {
      * Sets up for iteration over molecules under given species agent.
      */
     public void setBasis(SpeciesAgent speciesAgent) {
-        listIterator.setBasis(((AtomTreeNodeGroup)speciesAgent.node).childList);
+        listIterator.setList(((AtomTreeNodeGroup)speciesAgent.node).childList);
         iterator = listIterator;
     }
     
