@@ -57,6 +57,15 @@ public class Atom {
   public final Atom nextAtom() {return coordinate.nextAtom();}
   public final Atom previousAtom() {return coordinate.previousAtom();}
   
+/*  public final void setNextNeighbor(Atom atom) {
+    nextNeighbor = atom;
+    if(atom != null) atom.previousNeighbor = this;
+  }
+  public final void clearPreviousNeighbor() {previousNeighbor = null;}
+  public final Atom nextNeighbor() {return nextNeighbor;}
+  public final Atom previousNeighbor() {return previousNeighbor;}*/
+  
+  
   public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom();}  //first atom on next molecule
   public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom();}  //first atom on next molecule
 
@@ -99,4 +108,12 @@ public class Atom {
     
     public final AtomType type;
     
+    public Atom nextNeighbor, previousNeighbor;
+ 
+    public interface Iterator {        
+        public boolean hasNext();
+        public AtomPair next();
+        public void reset();
+    }
+        
 }

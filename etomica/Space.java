@@ -88,13 +88,10 @@ public abstract class Space {
         public Vector velocity();
         public void setNextCoordinate(AtomCoordinate c);
         public void clearPreviousCoordinate();
-    }
-    interface MoleculeCoordinate extends Coordinate {
-        public Molecule nextMolecule();
-        public Molecule previousMolecule();
-        public Molecule molecule();
-        public MoleculeCoordinate nextCoordinate();
-        public MoleculeCoordinate previousCoordinate();
+        public void setNextNeighbor(Space.AtomCoordinate c);
+        public void clearPreviousNeighbor();
+        public Space.AtomCoordinate nextNeighbor();
+        public Space.AtomCoordinate previousNeighbor();
     }
     interface Boundary {
         public static final int NONE = 0;

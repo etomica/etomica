@@ -2,11 +2,22 @@ package simulate;
 import java.awt.Graphics;
 import java.util.Random;
 
-public class Space2D extends Space {
+public class Space2DCell extends Space {
     
     public static final int D = 2;
     public final int D() {return D;}
+    private final LatticeSquare cells;
+    private int xCells, yCells;
     
+    public Space2DCell() {
+        xCells = yCells = 4;
+        cells = new LatticeSquare(cells.new Cell(new int[] {0,0}),xCells,yCells);
+    }
+    public Space2DCell(int n) {
+        xCells = yCells = n;
+        cells = new LatticeSquare(cells.new Cell(new int[] {0,0}),xCells,yCells);
+    }
+
     public Space.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public Space.Coordinate makeCoordinate() {return new Coordinate();}
     public Space.Vector makeVector() {return new Vector();}
@@ -66,10 +77,6 @@ public class Space2D extends Space {
         public void apply(Vector dr) {
             dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
             dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
-//            if(dr.x > 0) {dr.x -= Math.floor(dr.x+0.5);}
-//            else         {dr.x -= Math.ceil(dr.x-0.5);}
-//            if(dr.y > 0) {dr.y -= Math.floor(dr.y+0.5);}
-//            else         {dr.y -= Math.ceil(dr.y-0.5);}
             dr.x *= dimensions.x;
             dr.y *= dimensions.y;
         }
@@ -77,10 +84,6 @@ public class Space2D extends Space {
         public void centralImage(Vector r) {
             r.x -= (r.x > 0.0) ? Math.floor(r.x) : Math.ceil(r.x-1.0);
             r.y -= (r.y > 0.0) ? Math.floor(r.y) : Math.ceil(r.y-1.0);
- //           if(r.x > 0) {r.x -= Math.floor(r.x);}
- //           else         {r.x -= Math.ceil(r.x-1.0);}
- //           if(r.y > 0) {r.y -= Math.floor(r.y);}
- //           else         {r.y -= Math.ceil(r.y-1.0);}
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
@@ -244,7 +247,7 @@ public class Space2D extends Space {
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
-    static class Coordinate implements Space.Coordinate {
+    private class Coordinate implements Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
         public Space.Vector position() {return r;}
@@ -260,8 +263,9 @@ public class Space2D extends Space {
     
     //much of AtomCoordinate is identical in every Space class
     //It is duplicated because it extends Coordinate, which is unique to each Space
-    final static class AtomCoordinate extends Coordinate implements Space.AtomCoordinate {
+    final class AtomCoordinate extends Coordinate implements Space.AtomCoordinate {
         AtomCoordinate nextCoordinate, previousCoordinate;
+        AtomCoordinate nextNeighbor, previousNeighbor;
         AtomCoordinate(Atom a) {atom = a;}  //constructor
         public final Atom atom;        
         private final Vector rLast = new Vector();
@@ -346,8 +350,78 @@ public class Space2D extends Space {
             Space.AtomCoordinate c = atom.coordinate.nextCoordinate();
             return (c==null) ? null : c.atom();
         }
+        public final void setNextNeighbor(Space.AtomCoordinate c) {
+            nextNeighbor = (AtomCoordinate)c;
+            if(c != null) {((AtomCoordinate)c).previousNeighbor = this;}
+        }
+        public final void clearPreviousNeighbor() {previousNeighbor = null;}
+        public final Space.AtomCoordinate nextNeighbor() {return nextNeighbor;}
+        public final Space.AtomCoordinate previousNeighbor() {return previousNeighbor;}
+        
+        public LatticeSquare.Site cell;        //ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
+        public void assignCell() {             //assumes coordinates ranges [0,1)
+            LatticeSquare.Site oldCell = cell;
+            int ix = (int)Math.floor(r.x * xCells);
+            int iy = (int)Math.floor(r.y * yCells);
+            cell = (LatticeSquare.Site)cells.sites()[ix][iy];
+            if(cell != oldCell) {
+                if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
+                else {oldCell.firstAtom() = nextNeighbor; nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
+                setNextNeighbor(cell.firstAtom());
+                cell.setFirstAtom(this);
+            }
+        }
+            
         public final Atom atom() {return atom;}
-    } 
+    }
+    
+    private static final class UpNeighborIterator implements simulate.AtomPair.Iterator.A {
+        final AtomPair pair;
+        Atom atom;
+        private boolean hasNext;
+        private Atom neighborAtom;
+        private LatticeSquare.Cell cell;
+        private Coordinate coordinate;
+        private LatticeSquare.Linker nextLinker;
+        public UpNeighborIterator(Space.Boundary b) {
+            pair = new AtomPair((Boundary)b);
+            hasNext = false;
+        }
+        public UpNeighborIterator(Space.Boundary b, Atom a) {
+            pair = new AtomPair((Boundary)b);
+            reset(a);
+        }
+        public boolean hasNext() {return hasNext;}
+        public void reset(Atom a) {
+            atom = a;
+            coordinate = (Coordinate)a.coordinate();
+            pair.c1 = coordinate;
+            cell = coordinate.cell();
+            nextLinker = cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
+            neighborAtom = atom.nextNeighbor();   //this is the next atom to be paired with the fixed atom
+            hasNext = true;
+            if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
+            else {hasNext = true;}
+        }
+        // Finds first neighbor of next occupied cell
+        private void advanceCell() {
+            while(neighborAtom == null) {
+                if(nextLinker == null) {        //no more neighbor cells; no upNeighbors for atom
+                    hasNext = false;
+                    return;
+                }
+                neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
+                neighborAtom = neighborCell.firstAtom();   //get first atom of another neighbor cell; this is null if cell is empty
+                nextLinker = nextLinker.next();
+            }
+        }
+        public simulate.AtomPair next() {
+            pair.c2 = (Coordinate)nextNeighbor().coordinate();
+            pair.reset();
+            neighborAtom = neighborAtom.nextNeighbor();
+            if(neighborAtom == null) {advanceCell();}
+        }
+    } //end of UpNeighborIterator
 
     //These iterators are identical in every Space class; they are repeated in each
     //because they make direct use of the Coordinate type in the class; otherwise casting would be needed
