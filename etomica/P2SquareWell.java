@@ -42,7 +42,7 @@ public class P2SquareWell extends Potential2 {
     epsilon = eps;
     ((PotentialSquareWell)potential[0][0]).setEpsilon(eps);
   }
-  public final void setEpsilonInt(int eps) {
+  public final void setEpsilon(int eps) {
     setEpsilon((double)eps);
   }
   

@@ -9,6 +9,7 @@ public abstract class Integrator extends Container implements Observer, Serializ
     //VARIABLES used to make runnable    
   Thread runner;
   int running = 0;
+  protected int maxSteps = Integer.MAX_VALUE;
  
   Phase firstPhase;
   Phase[] phase;
@@ -102,24 +103,32 @@ public abstract class Integrator extends Container implements Observer, Serializ
       }
     }
 
+    public int getMaxSteps() {return maxSteps;}
+    public void setMaxSteps(int m) {maxSteps = m;}
+    
     public void run() {
         int ic = 0;
-        while(true) {
+        int nSteps = 0;
+        while(nSteps < maxSteps) {
             this.doStep(drawTimeStep);
             integrationCount++;
             if(integrationCount == Integer.MAX_VALUE) {integrationCount = 1;}
-            if(integrationCount % neighborListUpdateInterval == 0) {
-                firstPhase.updateNeighbors();
-            }
+///            if(integrationCount % neighborListUpdateInterval == 0) {
+///                firstPhase.updateNeighbors();
+///            }
             if(integrationCount % integrationInterval == 0) {
                 for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {p.space.repositionMolecules();}                
                 fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhase));
             }
-            for (int i=0; i<nPhases; i++) {phase[i].repaint();}
+///            for (int i=0; i<nPhases; i++) {phase[i].repaint();}
 
-            try { Thread.sleep(sleepPeriod); }
-            catch (InterruptedException e) { }
+///            try { Thread.sleep(sleepPeriod); }
+///            catch (InterruptedException e) { }
+            
+            nSteps++;
+//            System.out.println(nSteps);
         }
+        System.exit(0);
     }
 
 //methods to implement mouseListener

@@ -12,9 +12,11 @@ public class Controller extends Container implements Runnable {
   public Simulation parentSimulation;
   Thread runner;
   private boolean initialized = false;
+  private int maxSteps;
 
   public Controller() {
     setSize(100,40);
+    maxSteps = Integer.MAX_VALUE;
   }
 
   public void add(Integrator i) {
@@ -44,6 +46,9 @@ public class Controller extends Container implements Runnable {
         runner = new Thread(this);
         runner.start();
     }
+    
+    public int getMaxSteps() {return maxSteps;}
+    public void setMaxSteps(int m) {maxSteps = m;}
     
     public void run() {
 //        if(Beans.isDesignTime()) {return;}

@@ -222,7 +222,7 @@ import java.beans.Beans;
   * @see Species
   */
   public void doPaint(Graphics g) {  //specific to 2-D
-        if(phase == null) {return;}
+        if(!isVisible() || phase == null) {return;}
         int w = getSize().width;
         int h = getSize().height;
         g.setColor(getBackground());

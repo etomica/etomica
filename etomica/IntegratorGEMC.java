@@ -19,9 +19,17 @@ public class IntegratorGEMC extends Integrator {
         maxRStep = 0.1;
         maxVStep = 0.1;
         nPhasesMax = 2;
+        super.nPhasesMax = 2;
         phase = new Phase[nPhasesMax];
     }
     
+  public void registerPhase(Phase p) {
+    super.registerPhase(p);
+    if(nPhases > nPhasesMax) {return;}
+    if(nPhases == 2) secondPhase = phase[1];
+    System.out.println("nPhases "+nPhases);
+  }
+  
     public void doStep(double dummy) {
         int i = (int)(rand.nextDouble()*iTotal);
         if(i < iDisplace) {

@@ -117,8 +117,8 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
     return tij;
   }
   
-    public double energy(AtomHard atom1, AtomHard atom2) {
-        double r2 = parentPhase.space.r1Mr2_S(atom1.r, atom2.r);
+    public double energy(Atom atom1, Atom atom2) {
+        double r2 = parentPhase.space.r1Mr2_S(((AtomC)atom1).r, ((AtomC)atom2).r);
         return ( r2 < wellDiameterSquared) ? 
                     ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
     }
