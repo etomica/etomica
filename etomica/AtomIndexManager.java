@@ -1,112 +1,209 @@
 package etomica;
 
-
-
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
+ * Performs manipulations and interrogations related to the index assigned to
+ * each atom. The atom index is held in the node field of the atom. It is an
+ * integer treated as a set of bits, with different bit segments coding
+ * information about where the atom is located in the atom tree. The methods of
+ * this class provide a convenient means for obtaining information from this
+ * code. Instances of this class are held in the AtomType instance referenced by
+ * the type field of each atom. The depth field is the only thing that differs
+ * between different instances of AtomIndexManager in a single Simulation.
+ * 
+ * @see AtomTreeNode
  */
 
 /*
- * History
- * Created on Mar 3, 2005 by kofke
+ * History Created on Mar 3, 2005 by kofke
  */
 public class AtomIndexManager {
 
     /**
-     * 
+     * @param bitLength
+     *            Indicates how the atom index is coded, by specifying the
+     *            number of bits used to locate an atom at each depth of the
+     *            tree. This array is specified to the constructor of the
+     *            governing Simulation instance, and it is propagated down to
+     *            the index manager via this constructor. The bitLength array is
+     *            not changed after the Simulation is constructed. The first
+     *            element of the array should be 1, and the value of this bit
+     *            indicates whether the atom is in the tree or not (0 means it
+     *            is not, 1 means it is, so if the index is read as an integer
+     *            it will be negative if the atom is in the tree hierarchy);
+     *            subsequent bits indicate the species master (phase), species
+     *            agent, molecule, then groups/atoms in the molecule as
+     *            appropriate to the system being simulated.
+     * @param depth
+     *            specifies the depth of this atom in the atom tree hierarchy.
+     *            The depth and the bitLength array together specify the set of
+     *            bits in the atom index that code for the ordinal index of the
+     *            atom. The ordinal index is a simple integer that is assigned
+     *            sequentially (1, 2, 3, etc) to each atom as it is added to its
+     *            parent atom. Each atom has an ordinal index, and this with the
+     *            ordinal indexes of all parents up the atom tree, form the
+     *            atom's index that is managed by this class.
+     *  
      */
     public AtomIndexManager(int[] bitLength, int depth) {
-        this.bitLength = (int[])bitLength.clone();
+        this.bitLength = (int[]) bitLength.clone();
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
         this.depth = depth;
         int rootMask = 1 << 31;
         phaseIndexMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
         speciesIndexMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
-        moleculeIndexMask = ((power2(bitLength[3]) - 1) << bitShift[3]); 
+        moleculeIndexMask = ((power2(bitLength[3]) - 1) << bitShift[3]);
         ordinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
         samePhaseMask = phaseIndexMask | rootMask;
         sameSpeciesMask = speciesIndexMask | rootMask;
-        sameMoleculeMask = moleculeIndexMask | rootMask | samePhaseMask | sameSpeciesMask;
-//        System.out.println("depth, bitLength: "+depth+Arrays.toString(bitLength));
-//        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
-//        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
-//        System.out.println("sameMoleculeMask: "+Integer.toBinaryString(sameMoleculeMask));
-//        System.out.println("ordinalMask: "+Integer.toBinaryString(ordinalMask|rootMask));
+        sameMoleculeMask = moleculeIndexMask | rootMask | samePhaseMask
+                | sameSpeciesMask;
+        //        System.out.println("depth, bitLength:
+        // "+depth+Arrays.toString(bitLength));
+        //        System.out.println("samePhaseMask:
+        // "+Integer.toBinaryString(samePhaseMask));
+        //        System.out.println("sameSpeciesMask:
+        // "+Integer.toBinaryString(sameSpeciesMask));
+        //        System.out.println("sameMoleculeMask:
+        // "+Integer.toBinaryString(sameMoleculeMask));
+        //        System.out.println("ordinalMask:
+        // "+Integer.toBinaryString(ordinalMask|rootMask));
     }
-    
+
+    //convenience method; return 2^n
     private int power2(int n) {
         int power2 = 1;
-        for(int i=0; i<n; i++) power2 *= 2;
+        for (int i = 0; i < n; i++)
+            power2 *= 2;
         return power2;
     }
+
     // {speciesRoot, phases, species, molecules, groups, atoms}
 
+    /**
+     * Returns an AtomIndexManager instance that would be used by a child of
+     * this manager's atom. Simply constructs and returns an index manager with
+     * the same bitLength array as this, with its depth field incremented by 1.
+     * Method exists to permit construction of appropriate index manger having
+     * same bitLength array as this, without exposing the bitLength array.
+     */
     public AtomIndexManager makeChildManager() {
-        return new AtomIndexManager(bitLength, depth+1);
+        return new AtomIndexManager(bitLength, depth + 1);
     }
-    
+
+    /**
+     * Returns an AtomIndexManager appropriate for atoms at the molecule level
+     * of the atom tree. Simply constructs and returns and index manager with
+     * the same bitLength array as this, with a depth field equal to 3. Method
+     * exists to permit construction of appropriate index manger having same
+     * bitLength array as this, without exposing the bitLength array.
+     */
     public AtomIndexManager makeMoleculeIndexManager() {
         return new AtomIndexManager(bitLength, 3);
     }
-    
+
+    /**
+     * @return the value of the depth field of this manager.
+     */
     public int getDepth() {
         return depth;
     }
-    
+
+    /**
+     * Bit-shifts the given integer by the amount needed to put it in the bit
+     * location appropriate to the depth of the atom. The atom's index would
+     * then be given by adding the returned value to the index of the atoms
+     * parent. The ordinal can be recovered from the index via the getOrdinal
+     * method.
+     */
     public int shiftOrdinal(int ordinal) {
         if (((ordinal << bitShift[depth]) & ordinalMask) >>> bitShift[depth] != ordinal) {
-            throw new RuntimeException(ordinal+" "+bitShift[depth]+" "+ordinalMask);
+            throw new RuntimeException(ordinal + " " + bitShift[depth] + " "
+                    + ordinalMask);
         }
         return ordinal << bitShift[depth];
     }
-    
+
+    /**
+     * Returns the atom's ordinal index by decoding its atomIndex. Reverses the
+     * action of shiftOrdinal.
+     */
     public int getOrdinal(int atomIndex) {
         return (atomIndex & ordinalMask) >>> bitShift[depth];
     }
-    
+
+    /**
+     * Decodes an atom's index to determine the index of the phase it is in.
+     */
     public int getPhaseIndex(int unshiftedIndex) {
         return (unshiftedIndex & phaseIndexMask) >>> bitShift[1];
     }
-    
+
+    /**
+     * Decodes an atom's index to determine the index of the species it is part
+     * of.
+     */
     public int getSpeciesIndex(int unshiftedIndex) {
         return (unshiftedIndex & speciesIndexMask) >>> bitShift[2];
     }
-    
+
+    /**
+     * Decodes an atom's index to determine the ordinal index of the molecule it
+     * is part of.
+     */
     public int getMoleculeIndex(int unshiftedIndex) {
         return (unshiftedIndex & moleculeIndexMask) >>> bitShift[3];
     }
-    
+
+    /**
+     * Returns true if the given indices correspond to atoms that are in the 
+     * same phase.
+     * @param index0 index of an atom, as given by the index() method of its node.
+     * @param index1 index of another atom, as given by the index() method of its node.
+     * @return true if atoms are in the same phase (or are the same atom).
+     */
     public boolean samePhase(int index0, int index1) {
         return ((index0 ^ index1) & samePhaseMask) == 0;
     }
 
+    /**
+     * Returns true if the given indices correspond to atoms that are part of the 
+     * same species.
+     * @param index0 index of an atom, as given by the index() method of its node.
+     * @param index1 index of another atom, as given by the index() method of its node.
+     * @return true if atoms are in the same species (or are the same atom).
+     */
     public boolean sameSpecies(int index0, int index1) {
         return ((index0 ^ index1) & sameSpeciesMask) == 0;
     }
 
+    /**
+     * Returns true if the given indices correspond to atoms that are part of the 
+     * same molecule.
+     * @param index0 index of an atom, as given by the index() method of its node.
+     * @param index1 index of another atom, as given by the index() method of its node.
+     * @return true if atoms are in the same molecule (or are the same atom).
+     */
     public boolean sameMolecule(int index0, int index1) {
         return ((index0 ^ index1) & sameMoleculeMask) == 0;
     }
-    
+
+    //convenience method used by constructor
     private static int[] calculateCumulativeBitLength(int[] array) {
-        int[] newArray = (int[])array.clone();
-        for(int i=1; i<newArray.length; i++) {
-            newArray[i] += newArray[i-1];
+        int[] newArray = (int[]) array.clone();
+        for (int i = 1; i < newArray.length; i++) {
+            newArray[i] += newArray[i - 1];
         }
-        if(newArray[newArray.length-1] != 32) {
+        if (newArray[newArray.length - 1] != 32) {
             throw new RuntimeException("Improper setup of Bitlength");
         }
         return newArray;
     }
 
+    //convenience method used by constructor
     private static int[] calculateBitShift(int[] array) {
         int[] newArray = new int[array.length];
-        for(int i=0; i<newArray.length; i++) {
+        for (int i = 0; i < newArray.length; i++) {
             newArray[i] = 32 - array[i];
         }
         return newArray;
@@ -123,5 +220,5 @@ public class AtomIndexManager {
     private final int speciesIndexMask;
     private final int moleculeIndexMask;
     private final int ordinalMask;
-    
+
 }

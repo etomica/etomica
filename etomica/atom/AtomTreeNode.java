@@ -5,22 +5,35 @@ import etomica.Phase;
 import etomica.SpeciesAgent;
 
 /**
- * Interface for a node in the atom tree.  Atoms are arranged in a tree structure 
- * to define collections of molecules, individual molecules, atom groups and atoms.  
- * All of these elements are represented by the Atom class, and the structure that
- * forms the larger elements from the smaller ones is maintained by the node class
- * associated with each Atom.  The node for each atom holds information about its
- * parent and its children (if any).  Leaf nodes have no children, but they are defined
- * to identify themselves as their only child (this design makes certain types of
- * pair loops easier to perform).<br>
- *
- * (The node for) a SpeciesMaster instance is the root of the atom tree.  Directly below
- * it are instances of SpeciesAgent class, which are constructed each Phase by each Species.
- * Below the SpeciesAgent are instances of Atoms that are logically the molecules of the
- * system.  The molecules may be leaf atoms, ending the tree, or they may contain child 
- * atoms (or other groups of atoms) used to form the molecule.
- *
- * @author David Kofke
+ * Abstract node in the atom tree. Atoms are arranged in a tree structure to
+ * define collections of molecules, individual molecules, atom groups and atoms.
+ * All of these elements are represented by the Atom class, and the structure
+ * that forms the larger elements from the smaller ones is maintained by the
+ * node class associated with each Atom. The node for each atom holds
+ * information about its parent and its children (if any). <br>
+ * 
+ * (The node for) a SpeciesRoot instance (held by the Simulation) is the root of
+ * the atom tree. Directly below it are instances of SpeciesMaster, one of which
+ * is associated with each Phase instance. Below this are instances of the
+ * SpeciesAgent class, which are constructed for each Phase by each Species.
+ * Below the SpeciesAgent are instances of Atoms that represent the physical
+ * molecules of the system. The molecules may be leaf atoms, ending the tree, or
+ * they may contain child atoms (or other groups of atoms) used to form the
+ * molecule. The integer returned by the index method is a code that can be
+ * interpreted by the AtomIndexManager (held by the atom's type, and accessed
+ * also via some of the methods of Atom) to determine the location and ancestry
+ * of an atom in the tree.<br>
+ * 
+ * To summarize, the depth levels are as follows
+ * <ol>
+ * <li>SpeciesRoot
+ * <li>SpeciesMaster, representing phases
+ * <li>SpeciesAgent, representing species in phases
+ * <li>Molecules
+ * <li>(optional, 0 or more additional depths) atom groups and atoms forming molecules
+ * </ol>
+ * 
+ * @see AtomIndexManager
  */
  
 public abstract class AtomTreeNode {
