@@ -46,6 +46,7 @@ import etomica.units.Bar;
 import etomica.units.BaseUnit;
 import etomica.units.BaseUnitPseudo3D;
 import etomica.units.Dimension;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
@@ -473,6 +474,7 @@ public class PistonCylinderGraphic {
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
         sigBox.setModifier(sigModifier);
         epsBox.setModifier(epsModifier);
+        epsBox.setUnit(new UnitRatio(Joule.UNIT,Mole.UNIT));
         lamBox.setModifier(lamModifier);
         sigBox.setController(pc.getController());
         epsBox.setController(pc.getController());
