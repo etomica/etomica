@@ -15,6 +15,8 @@ package etomica;
  * Previously had pair.atom2 = iterator.next(); pair.reset().  Change made
  * because AtomPair's blank reset method does not call cPair.reset with atom
  * coordinate arguments.
+ * 10/28/03 (DAK) added line to setBasis to ensure boundary is set for
+ * coordinate pair
  */
 
 public final class ApiIntragroupAA extends AtomPairIterator {
@@ -44,7 +46,8 @@ public final class ApiIntragroupAA extends AtomPairIterator {
         group = a1;
         aiOuter.setBasis(a1);
         aiInner.setBasis(a1);
-    }
+		pair.cPair.setBoundary(group.node.parentPhase().boundary());//(DAK) added 10/29/03
+   }
     
     /**
      * Returns the number of pairs capable of being given by this iterator.
