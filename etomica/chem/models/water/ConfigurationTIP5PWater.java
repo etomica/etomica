@@ -1,11 +1,11 @@
 package etomica.chem.models.water;
 import etomica.Atom;
-import etomica.Configuration;
+import etomica.Conformation;
 import etomica.Space;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
-public class ConfigurationTIP5PWater extends Configuration {
+public class ConfigurationTIP5PWater extends Conformation {
 
 	private double bondLengthOH = 0.9572;
 	private double angleHOH = 104.52*Math.PI/180.;

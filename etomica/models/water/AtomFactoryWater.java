@@ -50,7 +50,7 @@ public class AtomFactoryWater extends AtomFactory {
         waterNode.O.node.setParent(waterNode);
         waterNode.H1.node.setParent(waterNode);
         waterNode.H2.node.setParent(waterNode);
-		configuration.initializeCoordinates(group);
+		configuration.initializePositions(waterNode.childList);
 		return group;
 	}
     
