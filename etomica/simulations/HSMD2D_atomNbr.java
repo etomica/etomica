@@ -13,6 +13,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbratom.NeighborManager;
 import etomica.nbratom.PotentialMasterNbr;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space2d.Space2D;
