@@ -53,7 +53,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, 
                                 AtomFactory leafFactory, int[] nAtoms, Configuration[] config) {
         super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, config), 
-                nAtoms[0], BondInitializer.NULL, config[0]);
+                nAtoms[0], config[0]);
         if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }

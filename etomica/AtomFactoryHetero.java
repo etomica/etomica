@@ -60,7 +60,6 @@ public class AtomFactoryHetero extends AtomFactory {
         for(int i=0; i<childFactory.length; i++) {
             childFactory[i].build((AtomTreeNodeGroup)group.node);//builds child atom with group as parent
         }
-        bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);
         return group;
     }

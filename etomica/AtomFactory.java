@@ -24,7 +24,6 @@ public abstract class AtomFactory {
     protected Configuration configuration;
     protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeGroup.Factory nodeFactory;
-    protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomTypeGroup groupType = new AtomTypeGroup(this);
     protected final AtomTypeSphere spheretype = new AtomTypeSphere(this);
@@ -121,9 +120,6 @@ public abstract class AtomFactory {
         
     public void setConfiguration(Configuration config) {configuration = config;}
     public Configuration getConfiguration() {return configuration;}
-    
-    public void setBondInitializer(BondInitializer bonder) {bondInitializer = bonder;}
-    public BondInitializer getBondInitializer() {return bondInitializer;}
     
     /**
      * Adds given agent source to agent-source array and returns index

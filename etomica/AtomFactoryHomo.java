@@ -30,7 +30,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, int atoms) {
-        this(space, sequencerFactory, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(space));
+        this(space, sequencerFactory, factory, atoms, new ConfigurationLinear(space));
     }
     /**
      * @param space the coordinate factory
@@ -40,8 +40,8 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param config the configuration applied to each group that is built (default is Linear).
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, 
-                            int atoms, BondInitializer bondInit, Configuration config) {  
-        this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, bondInit, config);
+                            int atoms, Configuration config) {  
+        this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, config);
     }
  
     /**
@@ -53,16 +53,15 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param config the configuration applied to each group that is built (default is Linear).
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNode.Factory nodeFactory, 
-    						AtomFactory factory, int atoms, BondInitializer bondInit, Configuration config) {
+    						AtomFactory factory, int atoms, Configuration config) {
         super(space, sequencerFactory, nodeFactory);
-        init(factory, atoms, bondInit, config);
+        init(factory, atoms, config);
     }
     
     private void init(AtomFactory factory, int atoms, 
-    					BondInitializer bondInit, Configuration config) {                      
+    					Configuration config) {                      
         childFactory = factory;
         atomsPerGroup = atoms;
-        bondInitializer = bondInit;
         configuration = config;
         //set up fields of Group type (can't build sample atoms because factories defined by subclassing this one may not be ready to build at atom at this point)
 
@@ -80,7 +79,7 @@ public class AtomFactoryHomo extends AtomFactory {
         for(int i=0; i<atomsPerGroup; i++) {
             childFactory.build((AtomTreeNodeGroup)group.node);
         }
-        bondInitializer.makeBonds(group);
+//        bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);
         return group;
      }
