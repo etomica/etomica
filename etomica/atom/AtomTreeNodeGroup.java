@@ -32,24 +32,24 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     /**
      * Returns a specified atoms descended from this one in the atom tree.  
      * Each index of the given array species the i-th child at the
-     * depth of the array index.  So if ordinalArray is {2, 0, 3},
+     * depth of the array index.  So if pathArray is {2, 0, 3},
      * returns the 3rd child of the 0th child of the 2nd child of
      * this node.  That is: (this node) -> (2nd child) -> (0th child) -> (3rd child)
-     * The indexes may not correspond to the ordinals assigned to the
-     * children if atoms have been added and/or removed from the hierarchy
-     * after it was first constructed.
+     * The path indexes do not correspond to the ordinals assigned to the
+     * children (ordinals are numbered from 1; specifications in path are
+     * numbered from 0).
      */
-    public Atom getDescendant(int[] ordinalArray) {
-        return getDescendant(0, ordinalArray);
+    public Atom getDescendant(int[] path) {
+        return getDescendant(0, path);
     }
     
-    private Atom getDescendant(int n, int[] ordinalArray) {
-        Atom child = childList.get(ordinalArray[n]);
-        if(ordinalArray.length - 1 > n) {//go further down hierarchy
+    private Atom getDescendant(int n, int[] path) {
+        Atom child = childList.get(path[n]);
+        if(path.length - 1 > n) {//go further down hierarchy
             if(child.node.isLeaf()) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
             } else {//get indicated descendant recursively
-                child = ((AtomTreeNodeGroup)child.node).getDescendant(n+1, ordinalArray);
+                child = ((AtomTreeNodeGroup)child.node).getDescendant(n+1, path);
             }
         }
         return child;
