@@ -38,6 +38,11 @@ public class AtomIteratorMolecule implements AtomIterator {
         reset();
     }
     
+    /**
+     * Puts iterator in a state in which hasNext is false.
+     */
+    public void unset() {iterator.unset();}
+    
     public boolean hasNext() {return iterator.hasNext();}
     
     public boolean contains(Atom atom) {return iterator.contains(atom);}

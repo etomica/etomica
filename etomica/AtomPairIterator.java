@@ -24,13 +24,6 @@ public interface AtomPairIterator {
      */
     public void reset();
         
-    /**
-     * Resets the iterator so that it iterates over all pairs formed with the 
-     * given atom in the most recently specified iterator directive (default UP is
-     * if none previously specified.
-     */
-    public void reset(Atom atom);
-    
         
     public AtomPair next();
 

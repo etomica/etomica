@@ -30,9 +30,12 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
      * Performs the specified calculation over the iterates of this potential
      * that comply with the iterator directive.
      */
-    public void calculate2(IteratorDirective id, Potential2Calculation pc) {
+    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+        if( !(pc instanceof Potential2Calculation) ) return;
+        iterator = (id.atomCount() == 0) ? iteratorA : iterator1;
+        iterator.reset(id);
+
         localDirective.copy(id);//copy the iteratordirective to define the directive sent to the subpotentials
- //       iterator.reset(id);  //reset for iteration over pairs of atom groups
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
             

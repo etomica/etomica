@@ -12,9 +12,13 @@ public class MCMoveAtom extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom atom;
-//debug    private PotentialCalculationEnergySumNearestPair energyDebug = 
-//debug        new PotentialCalculationEnergySumNearestPair();
-
+/*debug* /    private PotentialCalculationEnergySumNearestPair energyDebug = 
+             new PotentialCalculationEnergySumNearestPair();
+    private int idx1 = 0;
+    private int idx2 = 15;
+    private int kmax = 0;
+    private Atom atomIdx1, atomIdx2;
+/* */
     public MCMoveAtom(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
         setStepSizeMax(Default.BOX_SIZE);
@@ -29,58 +33,66 @@ public class MCMoveAtom extends MCMove {
     
     int k = 0;
     public boolean thisTrial() {
+        Atom atom0 = phase.speciesMaster.atomList.getFirst();
+  //      System.out.println(((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom0.seq).cell.agents[0])[0].toString());
+ /*debug* / atomIdx1 = phase.speciesMaster.atomList.get(idx1);
+           atomIdx2 = phase.speciesMaster.atomList.get(idx2);  // */
         double uOld, uNew;
         if(phase.atomCount()==0) {return false;}
- //debug       k++;
-        int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
+ /*debug* /       k++;  // */
         atom = phase.speciesMaster.atomList.getRandom();
-//debug        if(k>11000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println(k + " " + atom.node.index()+atom.coord.position().toString());
-/*debug        if(k == 12597) {
+/*debug* /        if(k>11000 && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k + " " + atom.node.index()+atom.coord.position().toString());
+/*debug* /        if(k == 1683) {
+                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+    
             System.out.println("hi!");
-        }*/
+        }// */
         uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
         if(uOld > 1e10) {
             System.out.println("Uold: "+uOld);
-   /*debug         uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
-            System.out.println(k + "rMin = "+Math.sqrt(energyDebug.r2Min));
+   /*debug* /         uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
+            System.out.println(k + "  rMin = "+Math.sqrt(energyDebug.r2Min));
             System.out.println(energyDebug.atom1.node.index()+energyDebug.atom1.coord.position().toString());
             System.out.println(energyDebug.atom2.node.index()+energyDebug.atom2.coord.position().toString());
             System.out.println("Boundary: "+phase.boundary().dimensions().toString());
             //uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
             //System.out.println("Uold: "+uOld);
             //uOld = potential.calculate(iteratorDirective.set(), energyDebug.reset()).sum();
-            //System.out.println("rMin = "+Math.sqrt(energyDebug.r2Min));
-            //System.out.println(energyDebug.atom1.coord.position().toString());
-            //System.out.println(energyDebug.atom2.coord.position().toString());
-            AtomIteratorListSimple iterator = new AtomIteratorListSimple(phase.speciesMaster.atomList);
+      //      AtomIteratorListSimple iterator = new AtomIteratorListSimple(phase.speciesMaster.atomList);
       //      while(iterator.hasNext()) {
       //          System.out.println(iterator.next().coord.position().toString());
       //      }
-            System.out.println();
-            throw new RuntimeException();
-            */
+      //      System.out.println();
+      //      */
+            throw new RuntimeException("Overlap found in configuration");
         }    
         atom.coord.displaceWithin(stepSize);
         phase.boundary().centralImage(atom.coord.position());
         uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
         if(uNew >= Double.MAX_VALUE) {
-  //debug          if(k>10000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println("  rej1 " + atom.node.index()+atom.coord.position().toString());
-            atom.coord.replace();
-  //debug          if(k>10000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println("  rej2 " + atom.node.index()+atom.coord.position().toString());
-            return false;
+  /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej1 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+  /* //  */          atom.coord.replace();
+  /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+  /* // */          return false;
         } else if(uNew <= uOld) {   //accept
-  //debug          if(k>10000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println("  acc1 " + atom.node.index()+atom.coord.position().toString());
-            return true;
+  /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  acc1 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+  /* // */          return true;
         } else if(  //Metropolis test, reject
             Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
-  //debug          if(k>10000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println("  rej3 " + atom.node.index()+atom.coord.position().toString());
-            atom.coord.replace();
-   //debug         if(k>10000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println("  rej4 " + atom.node.index()+atom.coord.position().toString());
-             return false;
-        }
+  /*debug* /         if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej3 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+  /* // */          atom.coord.replace();
+   /*debug* /         if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej4 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+  /* // */           return false;
+      }
         //accept
-  //debug      if(k>10000 && (atom.node.index() == 228 || atom.node.index() == 210)) System.out.println("  acc2 " + atom.node.index()+atom.coord.position().toString());
-        return true;
+  /*debug* /      if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  acc2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                 if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+  /* // */     return true;
     }//end thisTrial
     
     public final AtomIterator affectedAtoms() {
@@ -130,7 +142,7 @@ public class MCMoveAtom extends MCMove {
      * Class used to examine configuration in cases when a large energy is found
      * before the trial is made.  A debugging tool.
      */
-/*    private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
+      private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
         public double r2Min;
         Atom atom1, atom2;
 
@@ -149,5 +161,5 @@ public class MCMoveAtom extends MCMove {
             }//end while
         }//end of calculate
     }
- */   
+ // */   
 }

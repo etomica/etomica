@@ -36,14 +36,8 @@ public abstract class Potential2 extends Potential {
         potentialTruncation = trunc;
     }
     
-    public final void calculate(IteratorDirective id, PotentialCalculation pc) {
-        if( !(pc instanceof Potential2Calculation) ) return;
-        iterator = (id.atomCount() == 0) ? iteratorA : iterator1;
-        iterator.reset(id);
-        calculate2(id, (Potential2Calculation)pc);
-    }//end of calculate
+    public abstract void calculate(IteratorDirective id, PotentialCalculation pc);
 
-    public abstract void calculate2(IteratorDirective id, Potential2Calculation pc);
     public abstract double energy(AtomPair pair);
 
     public Potential set(Atom a) {return set(a,a);}
@@ -67,8 +61,15 @@ public abstract class Potential2 extends Potential {
             throw new IllegalStateException("Attempt to set SpeciesMaster in Potential2 before species are specified");
   //      if(species1 != null) {//if species were previously set, use them as basis
  //           iterator.setBasis(species1.getAgent(s), species2.getAgent(s));
-            iterator1.setBasis(species1.getAgent(s), species2.getAgent(s));
-            iteratorA.setBasis(species1.getAgent(s), species2.getAgent(s));
+            SpeciesAgent agent1 = species1.getAgent(s);
+            SpeciesAgent agent2 = species2.getAgent(s);
+            if(agent1.seq.preceeds(agent2)) {
+                iterator1.setBasis(agent1, agent2);
+                iteratorA.setBasis(agent1, agent2);
+            } else {
+                iterator1.setBasis(agent2, agent1);
+                iteratorA.setBasis(agent2, agent1);
+            }
    /*     } else {
             iterator.setBasis(s,s); //otherwise use speciesMaster as basis
             iterator1.setBasis(s,s); //otherwise use speciesMaster as basis
@@ -83,11 +84,11 @@ public abstract class Potential2 extends Potential {
         species1 = s1;
         species2 = s2;
         if(species1 == species2) {
-            iterator1 = new ApiIntraspecies1A(parentSimulation());
-            iteratorA = new ApiIntraspeciesAA(parentSimulation());
+            iterator1 = new ApiIntragroup1A(parentSimulation());
+            iteratorA = new ApiIntragroupAA(parentSimulation());
         } else {
-            iterator1 = new ApiInterspecies1A(parentSimulation());
-            iteratorA = new ApiInterspeciesAA(parentSimulation());
+            iterator1 = new ApiIntergroup1A(parentSimulation());
+            iteratorA = new ApiIntergroupAA(parentSimulation());
         }
 //        if(speciesMaster != null) set(speciesMaster);
     }

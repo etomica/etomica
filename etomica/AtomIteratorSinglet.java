@@ -16,7 +16,7 @@ package etomica;
 public class AtomIteratorSinglet implements AtomIterator {
     
     private Atom atom;
-    private boolean hasNext, isAsNeighbor;
+    private boolean hasNext;
     private IteratorDirective.Direction direction;
     
     public AtomIteratorSinglet() {hasNext = false;}
@@ -43,7 +43,7 @@ public class AtomIteratorSinglet implements AtomIterator {
     
     public boolean hasNext() {return hasNext;}
     
-    public void setAsNeighbor(boolean b) {isAsNeighbor = b;}
+    public void unset() {hasNext = false;}
     
     public Atom reset(IteratorDirective id) {
         direction = id.direction();
@@ -70,13 +70,7 @@ public class AtomIteratorSinglet implements AtomIterator {
      */
     public Atom reset(Atom a) {
         if(atom == null) hasNext = false;
-        else if(isAsNeighbor) {
-            if(direction == IteratorDirective.UP) hasNext = a.seq.preceeds(atom);
-            else if(direction == IteratorDirective.DOWN) hasNext = atom.seq.preceeds(a);
-            else if(direction == IteratorDirective.BOTH) hasNext = true;
-            else /*direction == NEITHER*/ hasNext = false;
-        }
-        else hasNext = contains(a);  // isAsNeighbor == false
+        else hasNext = contains(a);
         return hasNext ? atom : null;
     }
         

@@ -16,7 +16,6 @@ public abstract class AtomPairAction implements java.io.Serializable {
  *   second Atom of the pair; the pair is sent to the wrapped AtomPairAction on each iteration.
  */
     public static final class Wrapper extends AtomAction {
-        Atom atom1;
         AtomPairAction pairAction;
         final AtomPair pair;
         public Wrapper(AtomPair p) {pair = p;}

@@ -23,15 +23,6 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
         EtomicaInfo info = new EtomicaInfo("Records temperature as given via kinetic energy");
         return info;
     }
-
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
         
     public double currentValue()
     {

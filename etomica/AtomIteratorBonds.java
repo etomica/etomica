@@ -17,6 +17,8 @@ public class AtomIteratorBonds implements AtomIterator {
     
     public boolean hasNext() {return hasNext;}
     
+    public void unset() {hasNext = false;}
+    
     public boolean contains(Atom atom) {
         return Bond.areBonded(basis, atom);
   /*      if(basis == null || atom == basis) return false;
@@ -81,15 +83,7 @@ public class AtomIteratorBonds implements AtomIterator {
         if(hasNext) return (nextBondLink.bond.link1==nextBondLink) ? nextBondLink.bond.link2.atom : nextBondLink.bond.link1.atom;
         else return null;
     }//end doReset
-        
-    /**
-     * Has no effect, since this iterator always behaves as a neighbor iterator.
-     */
-    public void setAsNeighbor(boolean b) {
-        //need an exception for this
-//        if(!b) System.out.println("Error in AtomIteratorBonds; attempt to set a not a neighborIterator");
-    }
-    
+            
     public Atom next() {
         BondLinker next = nextBondLink;
         nextBondLink = nextBondLink.next;

@@ -12,12 +12,14 @@ public class NeighborManager {
     
     private final AtomList neighborList;
     private final Site site;
-    public final AtomLinker.Tab tab;
+ //   public final AtomLinker.Tab tab;
+    public final AtomLinker tab;
     
     public NeighborManager(Site s) {
         site = s;
         neighborList = new AtomList();
-        tab = new AtomLinker.Tab();
+ //       tab = new AtomLinker.Tab();
+        tab = new AtomLinker(s);
         neighborList.add(tab);
     }
     public NeighborManager(Site s, AtomList list, Criterion criterion) {

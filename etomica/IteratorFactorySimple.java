@@ -29,6 +29,11 @@ public class IteratorFactorySimple implements IteratorFactory {
     */
 
     //won't work correctly if tabs are in sequence
+    
+    //compare to and consider replacing with AtomIteratorList
+    //check if some features may be needed here that aren't in AtomIteratorList
+    
+    //probably need to incorporate a skipFirstAtom ability
     public static final class Iterator implements AtomIterator {
         
         /**
@@ -43,6 +48,11 @@ public class IteratorFactorySimple implements IteratorFactory {
         public boolean contains(Atom atom) {
             return atom != null && atom.node.isDescendedFrom(basisNode.atom);
         }
+        
+        /**
+         * Puts iterator in a state in which hasNext is false.
+         */
+        public void unset() {next = null;}
         
         /**
         * Does reset if relation (preceeds) of atom in iterator directive and basis of this

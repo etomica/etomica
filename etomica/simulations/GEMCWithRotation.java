@@ -11,6 +11,7 @@ public class GEMCWithRotation extends SimulationGraphic {
     
     public GEMCWithRotation() {
         super(new Space2D()/*new Space2DCell()*/);
+        setIteratorFactory(new IteratorFactoryCell(this));
         Default.ATOM_SIZE = 1.2;
         Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(0.420);
         Simulation.instance = this;

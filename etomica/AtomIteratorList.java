@@ -65,7 +65,7 @@ public final class AtomIteratorList implements AtomIterator {
 	
 	/**
 	 * Sets the childList of the given atom as the basis for iteration.
-	 * If atom is a leaf, sets empty list as basis.  Sets given atom as
+	 * If atom is a leaf, sets empty list as basis.  Sets given atom to be
 	 * that returned by the getBasis method.
 	 */
     public void setBasis(Atom atom){
@@ -73,11 +73,19 @@ public final class AtomIteratorList implements AtomIterator {
             setBasis(AtomList.NULL);
             return;
         }
-        basis = (AtomTreeNodeGroup)atom.node;
+        setBasis((AtomTreeNodeGroup)atom.node);
+    }
+    
+	/**
+	 * Sets the childList of the given node as the basis for iteration.
+	 * Sets node's atom to be that returned by the getBasis method.
+	 */
+    public void setBasis(AtomTreeNodeGroup node) {
+        basis = node;
         this.list = basis.childList;
         header = list.header;
         next = terminator = header;
-    }
+    }   
     
     /**
      * Sets the given list of atoms as the basis for iteration.  The atoms

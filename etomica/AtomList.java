@@ -74,9 +74,9 @@ public class AtomList implements java.io.Serializable
      }
      
 	/**
-	 * Positions the given tab behind the header, effectively allowing it to serve
+	 * Positions the given tab in front of the header, effectively allowing it to serve
 	 * as the header in this list.  It is assumed that the given tab lies in a 
-	 * linked-list ring of atoms.  All atoms currently in this list are cleared are
+	 * linked-list ring of atoms.  All atoms currently in this list are cleared and
 	 * are automatically replaced by all atoms in new tab's ring.
 	 * This is used to for the cell neighbor list to place the neighborlisted
 	 * atoms in a proper AtomList.  The integer argument newSize gives the number
@@ -85,7 +85,7 @@ public class AtomList implements java.io.Serializable
 	 //used by IteratorFactoryCell.SequentialIterator
 	public void setAsHeader(AtomLinker.Tab pseudoHeader, int newSize) {
 	    header.remove();
-	    header.addBefore(pseudoHeader.next);
+	    header.addBefore(pseudoHeader);
 	    size = newSize;
 	//    size = 0;
 	//    for(AtomLinker link=header.next; link!=header; link=link.next) {

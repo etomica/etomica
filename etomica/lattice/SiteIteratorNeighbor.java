@@ -12,6 +12,10 @@ public class SiteIteratorNeighbor implements AtomIterator {
     private boolean upListNow, doGoDown;
     private Atom next;
     
+    public SiteIteratorNeighbor() {
+        iterator.setSkipFirstAtom(true);
+    }
+    
     public boolean hasNext() {return iterator.hasNext();}
     
     public Atom reset() {
@@ -21,6 +25,8 @@ public class SiteIteratorNeighbor implements AtomIterator {
     public Atom reset(IteratorDirective.Direction direction) {
         return iterator.reset(neighborManager.tab, direction);
     }
+    
+    public void unset() {iterator.unset();}
     
     public Atom first() {
         throw new RuntimeException("method first() not implemented in SiteIteratorNeighbor");

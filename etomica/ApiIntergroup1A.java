@@ -1,37 +1,51 @@
 package etomica;
 
 /**
- * Forms pairs from 1 atom of one group with All the atoms from another group.
+ * Loops through molecule pairs given between two group, formed
+ * from 1 molecule and All its neighbors.  Molecule is specified itself
+ * or in terms of one of its descendant atoms, via an iterator directive.
  *
  * @author David Kofke
  */
+ 
 public final class ApiIntergroup1A implements AtomPairIterator {
+    
+    private Atom group1; 
+    private Atom group2;
+    
+    private final AtomIterator atomIterator;
+    
+    private Atom referenceAtom;
+    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final AtomPair pair;
     
     public ApiIntergroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
-        iterator = new AtomIteratorListSimple();
+        atomIterator = sim.iteratorFactory.makeIntergroupNbrIterator();
+        wrapper = new AtomPairAction.Wrapper(pair);
     }
-
+    
+    /**
+     * Identifies the groups that are the parents of the atoms
+     * to be given by the iterator.  The arguments must be different instances.
+     */
     public void setBasis(Atom a1, Atom a2) {
-        if(a1 == a2 || a1 == null || a2 == null) throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A");
-        basis1 = a1;
-        basis2 = a2;
+        if(a1 == a2)
+            throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A");
+        group1 = a1;
+        group2 = a2;
     }
     
     /**
      * Returns the number of pairs capable of being given by this iterator, based
      * on the most recent specification of the atom given to reset.
      */
-    public int size() {return iterator.size();}       
+    public int size() {return atomIterator.size();}        
     
-    public boolean hasNext() {return hasNext;}
+    public boolean hasNext() {return atomIterator.hasNext();}
     
-    /**
-     * Uses atom in iterator directive to specify the single atom to be given
-     * in all iterated pairs.  This atom will be the child of the
-     * current basis that has the specified atom as a descendant.
-     */
     public void reset(IteratorDirective id) {
+        localDirective.set(id.direction());
         reset(id.atom1());
     }
     
@@ -39,64 +53,48 @@ public final class ApiIntergroup1A implements AtomPairIterator {
      * Resets the iterator, so that it is ready to go through all of its pairs.
      */
     public void reset() {
-        iterator.reset();
-        hasNext = (atom1 != null && iterator.hasNext());
-        pair.atom1 = atom1;
+        if(referenceAtom == null) return;
+        atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
     }
         
     /**
-     * Uses given atom to specify the single atom to be present
-     * in all iterated pairs.  This single atom will be the child of the
-     * current basis that has the given atom as a descendant.
+     * Resets the iterator so that it iterates over all pairs formed with the 
+     * given atom.
      */
     public void reset(Atom atom) {
-        atom1 = atom;
-        if(atom1 == null) {hasNext = false; return;}
-        
-        //find which basis this atom descends from, then set iterator to other basis
-        //move up atom tree until one basis is encountered
-        while(atom1 != null) {
-            Atom parent = atom1.node.parentGroup();
-            if(parent == basis1) {
-                iterator.setBasis(basis2);
-                break;
-            } else if(parent == basis2) {
-                iterator.setBasis(basis1);
-                break;
-            }
-            atom1 = parent;
+        if(atom == null) return;
+        referenceAtom = atom;
+        Atom referenceGroup = referenceAtom.node.parentGroup();
+        if(referenceGroup == group1) {
+            atomIterator.setBasis(group2);
+        } else if(referenceGroup == group2) {
+            atomIterator.setBasis(group1);
+        } else {
+            atomIterator.setBasis(null);
+            atomIterator.reset();
+            return;
         }
-        reset();
+        atomIterator.reset(localDirective.set(referenceAtom));
+        pair.atom1 = referenceAtom;
     }
-        
+    
     public AtomPair next() {
-        pair.atom2 = iterator.next();
+        pair.atom2 = atomIterator.next();
         pair.reset();
-        hasNext = iterator.hasNext();
         return pair;
     }
 
-     //needs to change for neighbor iteration
+    /**
+     * Performs the given action on all pairs returned by this iterator.
+     */
     public void allPairs(AtomPairAction act) {
-        throw new RuntimeException("ApiIntergroup1A.allPairs not yet implemented");
-   /*     Atom basis = iterator.getBasis();
-        if(basis == null || atom1 == null) return;
-        Atom last = basis.node.lastChildAtom();
-        for(Atom atom = basis.node.firstChildAtom(); atom != null; atom=atom.nextAtom()) {
-            pair.atom2 = atom;
-            pair.reset();
-            act.action(pair);
-            if(atom == last) break;
-        }*/
+        if(referenceAtom == null) return;
+        wrapper.pairAction = act;
+        reset();
+        atomIterator.allAtoms(wrapper);
     }
-    
-    private final AtomIteratorListSimple iterator;
-    private Atom basis1, basis2;
-    private Atom atom1;
-    private boolean hasNext;
-    private final IteratorDirective localDirective = new IteratorDirective();
-    
-    private final AtomPair pair;
+
+    private final AtomPairAction.Wrapper wrapper;
     
 }  //end of class AtomPairIterator
     

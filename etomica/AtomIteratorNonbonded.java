@@ -20,6 +20,11 @@ public class AtomIteratorNonbonded implements AtomIterator {
     
     public boolean hasNext() {return hasNext;}
 
+    /**
+     * Puts iterator in a state in which hasNext is false.
+     */
+    public void unset() {hasNext = false;}
+
     public boolean contains(Atom atom) {
         return(iterator.contains(atom) && !Bond.areBonded(nonbondAtom, atom));
     }

@@ -50,6 +50,12 @@ public class AtomIteratorTree implements AtomIterator {
      */
     public boolean hasNext() {return next != null;}
     
+    
+    /**
+     * Puts iterator in state in which hasNext is false.
+     */
+    public void unset() {next = null;}
+    
     /**
      * Not yet implemented.
      */

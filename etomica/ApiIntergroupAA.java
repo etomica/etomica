@@ -1,24 +1,25 @@
 package etomica;
 
 /**
- * Loops through all molecule pairs given between two groups.  Ignores
- * neighbor status and specification of direction.
+ * Loops through all molecule pairs given between two groups.
  *
  * @author David Kofke
  */
- 
 public final class ApiIntergroupAA implements AtomPairIterator {
     
     public ApiIntergroupAA(Simulation sim) {
         pair = new AtomPair(sim.space);
-        //inner and outer are arbitrary designations
-        aiOuter = new AtomIteratorListSimple();
-        aiInner = new AtomIteratorListSimple();
+        aiOuter = sim.iteratorFactory.makeGroupIteratorSequential();
+        aiInner = sim.iteratorFactory.makeIntergroupNbrIterator();
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         outerWrapper.aiInner = aiInner;
     }
     
     public void setBasis(Atom a1, Atom a2) {
+        if(a1 == a2)
+            throw new IllegalArgumentException("Improper basis given to ApiInterGroupAA");
+        group1 = a1;
+        group2 = a2;
         aiOuter.setBasis(a1);
         aiInner.setBasis(a2);
     }
@@ -27,6 +28,7 @@ public final class ApiIntergroupAA implements AtomPairIterator {
      * Returns the number of pairs capable of being given by this iterator.
      */
     public int size() {
+        if(group1 == null || group2 == null) return 0;
         return aiOuter.size()*aiInner.size();
     }  
     
@@ -43,66 +45,61 @@ public final class ApiIntergroupAA implements AtomPairIterator {
      * Resets the iterator, so that it is ready to go through all of its pairs.
      */
     public void reset() {
+        hasNext = false;
+        if(group1 == null || group2 == null) return;
+
         aiOuter.reset();
-        hasNext = aiOuter.hasNext();
-        if(!hasNext) return;
-        aiInner.reset();
-        hasNext = aiInner.hasNext();
-        if(!hasNext) return;
-        pair.atom1 = aiOuter.next();
-        needUpdate1 = false;
+        while(aiOuter.hasNext()) { //loop over iterator 1...
+            pair.atom1 = aiOuter.next();
+            aiInner.reset(localDirective.set(pair.atom1));
+            if(aiInner.hasNext()) {
+                hasNext = true;
+                needUpdate1 = false;
+                break;        //...until iterator 2 hasNext
+            }
+        }//end while
     }
         
-    /**
-     * Resets the iterator so that it iterates over all pairs formed with the 
-     * given atom in the most recently specified iterator directive (default UP is
-     * if none previously specified.
-     */
-    public void reset(Atom atom) {
-        throw new IllegalArgumentException("Should not call reset(Atom) in ApiIntergroupAA");
-    }
-    
     public AtomPair next() {
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
         if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
         pair.atom2 = aiInner.next();
         pair.reset();
-        if(!aiInner.hasNext()) {
+        while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
                 atom1 = aiOuter.next();           //...get it
-                aiInner.reset();  //don't pass directive since we don't care about neighbor iteration or direction
+                aiInner.reset(localDirective.set(atom1)); //...reset Inner (don't advance because it is inter-group)
                 needUpdate1 = true;           //...flag update of pair.atom1 for next time
             }
-            else {hasNext = false;} //Outer has no more; all done with pairs
+            else {hasNext = false; break;} //Outer has no more; all done with pairs
         }//end while
         return pair;
     }
 
-    
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
-     //not carefully checked
     public void allPairs(AtomPairAction act) {
-        //might be better to do loops explicitly, rather than 
-        //via atom iterator
         outerWrapper.innerWrapper.pairAction = act;
+        aiOuter.reset();
         aiOuter.allAtoms(outerWrapper);
         hasNext = false;
     }
     
+    private final AtomPairAction.OuterWrapper outerWrapper;
+
+    private Atom group1, group2; 
     private boolean hasNext;
     private boolean needUpdate1;
     
-    //no neighbor iterator here (not species iterator)
-    private final AtomIteratorListSimple aiOuter;
-    private final AtomIteratorListSimple aiInner;
+    private final AtomIterator aiOuter;
+    private final AtomIterator aiInner;
     
-    private final AtomPairAction.OuterWrapper outerWrapper;
-    private final IteratorDirective localDirective = new IteratorDirective();
+    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.UP);
     private final AtomPair pair;
     private Atom atom1;
     
-}  //end of class ApiIntergroupAA
+    
+}  //end of class ApiInterspeciesAA
     

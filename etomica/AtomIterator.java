@@ -25,6 +25,11 @@ public interface AtomIterator {
     public Atom reset();
     
     /**
+     * Puts iterator in a state in which hasNext() returns false.
+     */
+    public void unset(); 
+    
+    /**
      * Returns the next atom in the iteration sequence.  Assumes that hasNext is
      * true; calling when hasNext is false can lead to unpredictable results, and
      * may or may not cause an error or exception.
@@ -63,6 +68,7 @@ public interface AtomIterator {
         public boolean hasNext() {return false;}
         public boolean contains(Atom atom) {return false;}
         public Atom reset(IteratorDirective id) {return null;}
+        public void unset() {}
         public void setAsNeighbor(boolean b) {}
         public Atom reset() {return null;}
         public Atom next() {return null;}

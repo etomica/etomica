@@ -147,6 +147,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     //   Assumes collider and partner haven't moved in list
         atomIterator.reset();  //first atom in first cell
         while(atomIterator.hasNext()) {
+            
+            //to be fixed...
+            //as constructed using AtomIteratorListSimple with speciesMaster.atomList as the basis,
+            // this atom iterator is not going through the atoms in sequence
             Atom a = atomIterator.next();
             if(a == collider) { //finished with atoms before collider...
                 if(partner == null) break;  //and there is no partner, so we're done, or...

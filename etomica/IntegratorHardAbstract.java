@@ -38,9 +38,10 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         atomPair = new AtomPair(sim.space);
     }//end of constructor
     
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        atomIterator.setBasis(p.speciesMaster.atomList);
+    public boolean addPhase(Phase phase) {
+        if(!super.addPhase(phase)) return false;
+        atomIterator.setBasis(phase.speciesMaster.atomList);
+        meterTemperature.setPhase(phase);
         return true;
     }
     
@@ -52,6 +53,29 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
     public void doStep() {
+        double collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
+        double interval = timeStep;
+        while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
+            advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
+            atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
+            
+            colliderAgent.collisionPotential.bump(atomPair);
+            
+            for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
+                cll.listener.collisionAction(colliderAgent);
+            }
+            updateCollisions();
+            findNextCollider(); //this sets colliderAgent for the next collision
+            
+            interval -= collisionTimeStep;
+            collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
+        } 
+        advanceAcrossTimeStep(interval);
+        if(isothermal) {
+            scaleMomenta(Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster)));
+        }
+        
+        /*
         try {doStep(timeStep);}
         catch(StackOverflowError e) {
             System.out.println();
@@ -61,7 +85,8 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             System.out.println("Collision partner: "+colliderAgent.collisionPartner());
             System.out.println("Collision potential: "+colliderAgent.collisionPotential);
             System.exit(1);
-        }
+            
+        }*/
     }//end of doStep
     
     /**
@@ -70,7 +95,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     * time between the latest collision and the endpoint of the timestep identified in its
     * highest-level call
     */
-    public void doStep(double tStep) {
+ /*   public void doStep(double tStep) {
         double collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         if(tStep < collisionTimeStep) {
             advanceAcrossTimeStep(tStep);
@@ -97,7 +122,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             doStep(tStepNew);
         }
     }//end of doStep
-
+*/
 
     /**
     * Identifies atom that collides next, given that all collision times are known.

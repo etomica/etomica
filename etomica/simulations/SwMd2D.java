@@ -16,7 +16,9 @@ public class SwMd2D extends SimulationGraphic {
     public DisplayPhase display;
 
     public SwMd2D() {
-        super(new etomica.space.continuum.Space(2));
+        super(new Space2D());
+  //      super(new etomica.space.continuum.Space(2));
+        setIteratorFactory(new IteratorFactoryCell(this));
         Simulation.instance = this;
         Default.ATOM_SIZE = 2.0;
 	    integrator = new IntegratorHard(this);
@@ -24,11 +26,12 @@ public class SwMd2D extends SimulationGraphic {
 	    integrator.setSleepPeriod(1);
 	    integrator.setTimeStep(0.02);
 	    integrator.setTemperature(450.);
-	    integrator.setIsothermal(true);
+	//    integrator.setIsothermal(true);
 	    species = new SpeciesSpheresMono(this);
 	    species.setNMolecules(80);
 	    phase = new Phase(this);
 	    potential = new P2SquareWell();
+	    potential.setSpecies(species, species);
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 	    DisplayTimer timer = new DisplayTimer(integrator);

@@ -28,7 +28,11 @@ public abstract class Potential2Soft extends Potential2 {
     public abstract double integral(double rC);
     
     
-    public final void calculate2(IteratorDirective id, Potential2Calculation pc) {
+    public final void calculate(IteratorDirective id, PotentialCalculation pc) {
+        if( !(pc instanceof Potential2Calculation) ) return;
+        iterator = (id.atomCount() == 0) ? iteratorA : iterator1;
+        iterator.reset(id);
+
 //        if( !(pc instanceof Potential2Calculation) ) return;
         //at this point we have identified a (pair)iterator and a (pair)potential
         //that are compatible, in that the iterates form correct arguments to the potential;
@@ -41,7 +45,7 @@ public abstract class Potential2Soft extends Potential2 {
             
         //do we give the iterator to the calculation...
 //        ((Potential2Calculation)pc).calculate(iterator, this); 
-        pc.calculate(iterator,this);
+        ((Potential2Calculation)pc).calculate(iterator,this);
             //inconvenience:  must put loop construct in every PotentialCalculation
             //problem:  must have different calculate methods for each Potentialx type
 

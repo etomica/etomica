@@ -64,13 +64,16 @@ public class LatticeRenderer implements Drawable {
     public static class ColorSchemeNeighbor extends ColorSchemeCollective {
         
         private Atom referenceAtom;
+        private Simulation simulation;
         private final AtomIterator nbrIterator;
+        private AtomIterator[] nbrIteratorInter = new AtomIterator[0];
         private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
         private final IteratorDirective directive = new IteratorDirective(IteratorDirective.BOTH);
     //    private final IteratorDirective directive = new IteratorDirective(IteratorDirective.UP);
         private final ColorSchemeByType typeColorScheme = new ColorSchemeByType();
         
         public ColorSchemeNeighbor(Simulation sim) {
+            simulation = sim;
             nbrIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
         }
         
@@ -83,6 +86,10 @@ public class LatticeRenderer implements Drawable {
             }
             nbrIterator.reset(directive);
             while(nbrIterator.hasNext()) nbrIterator.next().allatomAgents[agentIndex] = Color.blue;
+            for(int i=0; i<nbrIteratorInter.length; i++) {
+                nbrIteratorInter[i].reset(directive);
+                while(nbrIteratorInter[i].hasNext()) nbrIteratorInter[i].next().allatomAgents[agentIndex] = Color.yellow;
+            }    
             referenceAtom.allatomAgents[agentIndex] = Color.red;
         }
         
@@ -90,7 +97,20 @@ public class LatticeRenderer implements Drawable {
             referenceAtom = a;
             directive.set(a);
             nbrIterator.setBasis(a.node.parentGroup());
-        }
+            AtomList agentList = a.node.parentPhase().speciesMaster.node.childList;
+            if(agentList.size() == 1) return;
+            
+            nbrIteratorInter = new AtomIterator[agentList.size()-1];
+            AtomIteratorListSimple agentIterator = new AtomIteratorListSimple(agentList);
+            int i=0;
+            while(agentIterator.hasNext()) {
+                Atom agent = agentIterator.next();
+                if(agent == a.node.parentSpeciesAgent()) continue;
+                nbrIteratorInter[i] = simulation.iteratorFactory.makeIntergroupNbrIterator();
+                nbrIteratorInter[i].setBasis(agent);
+                i++;
+            }
+        }//end setAtom
         public Atom getAtom() {return referenceAtom;}
     }//end of ColorSchemeNeighbor
     

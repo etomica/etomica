@@ -64,7 +64,7 @@ public class IteratorFactoryCell implements IteratorFactory {
      * sim.setIteratorFactory(new IteratorFactoryCell(sim));
      */
     public IteratorFactoryCell(Simulation sim) {
-        this(sim, new PrimitiveCubic(sim), 10);
+        this(sim, new PrimitiveCubic(sim), 5);
     }
     
     /**
@@ -275,6 +275,11 @@ public static final class SequentialIterator implements AtomIterator {
      * from the first one.
      */
     public Atom reset() {return listIterator.reset();}
+    
+    /**
+     * Sets to state in which hasNext is false.
+     */
+    public void unset() {listIterator.unset();}
         
     public boolean hasNext() {return listIterator.hasNext();}
     
@@ -380,6 +385,11 @@ public static final class IntragroupNbrIterator implements AtomIterator {
     }
     
     /**
+     * Sets to state in which hasNext is false.
+     */
+    public void unset() {listIterator.unset();}
+    
+    /**
      * Does reset if atom in iterator directive is child of the current basis.  
      * Sets hasNext false if given atom does is not child of basis.  Throws
      * an IllegalArgumentException if directive does not specify an atom.
@@ -394,14 +404,15 @@ public static final class IntragroupNbrIterator implements AtomIterator {
     //using null as the terminator
     
     public Atom reset(Atom atom) {
-        direction = IteratorDirective.BOTH;
         return doReset(atom);
     }
     
     private Atom doReset(Atom atom) {
         referenceAtom = atom;
-        if(atom == null) throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator without referencing an atom");
+        if(atom == null) 
+            throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator without referencing an atom");
 
+        direction = IteratorDirective.BOTH;
         //probably need isDescendedFrom instead of parentGroup here
         if(atom.node.parentNode() != basis) {
             throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator referencing an atom not in group of basis");
@@ -530,7 +541,7 @@ public static final class IntragroupNbrIterator implements AtomIterator {
     private Atom next;
     private Atom referenceAtom;
     private boolean upListNow, doGoDown;
-    private IteratorDirective.Direction direction;
+    private IteratorDirective.Direction direction = IteratorDirective.BOTH;
     private AbstractCell referenceCell;
     private boolean iterateCells;
     private int tabIndex;
@@ -619,9 +630,18 @@ public static final class IntergroupNbrIterator implements AtomIterator {
     }
     
     /**
+     * Sets iterators such that hasNext is false.
+     */
+    public void unset() {
+        simpleIterator.unset();
+        atomIterator = simpleIterator;
+    }
+    
+    /**
      * Does reset if atom in iterator directive is child of the current basis.  
      * Sets hasNext false if given atom does is not child of basis.  Throws
      * an IllegalArgumentException if directive does not specify an atom.
+     * Ignores direction.
      */
     public Atom reset(IteratorDirective id) {
         return doReset(id.atom1());
@@ -631,6 +651,7 @@ public static final class IntergroupNbrIterator implements AtomIterator {
         return doReset(atom);
     }
     
+    //select iterators and set basis
     private Atom doReset(Atom atom) {
         if(atom == null) throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator without referencing an atom");
 
@@ -642,13 +663,15 @@ public static final class IntergroupNbrIterator implements AtomIterator {
             iterateCells = false;
         }
         
-        if(iterateCells) {
+        if(iterateCells) {//simple iterator is cell iterator
+            listIterator.setBasis(basis);
             atomIterator = listIterator;
-        } else {
+        } else { //simple iterator is atom iterator
             simpleIterator.setBasis(basis.childList);
             atomIterator = simpleIterator;
         }
         
+        //reset iterators
         return doReset();
     }
     
@@ -755,7 +778,7 @@ public static final class IntergroupNbrIterator implements AtomIterator {
     private AtomIterator atomIterator;//set to iterator that provides the atoms
 
     /**
-     * Method to test IntragroupNbrIterator
+     * Method to test IntergroupNbrIterator
      */
     public static void main(String args[]) {
         Default.ATOM_SIZE = 1.0;
@@ -763,10 +786,12 @@ public static final class IntergroupNbrIterator implements AtomIterator {
 
         IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
         sim.setIteratorFactory(iteratorFactory);
-        int nAtoms = 100;       
-	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
-	    speciesSpheres.setNMolecules(nAtoms);
-	    Potential potential = new P2HardSphere();
+        int nAtoms = 50;       
+	    SpeciesSpheresMono speciesSpheres1 = new SpeciesSpheresMono();
+	    SpeciesSpheresMono speciesSpheres2 = new SpeciesSpheresMono();
+	    speciesSpheres1.setNMolecules(nAtoms);
+	    speciesSpheres2.setNMolecules(nAtoms);
+//	    Potential potential = new P2HardSphere();
 	    Phase phase = new Phase();
 	    IntegratorHard integrator = new IntegratorHard();
         integrator.setTimeStep(0.01);
@@ -781,9 +806,9 @@ public static final class IntergroupNbrIterator implements AtomIterator {
 		
 	    BravaisLattice lattice = ((IteratorFactoryCell)sim.getIteratorFactory()).getLattice(phase);
 	    AtomIterator sequenceIterator = iteratorFactory.makeGroupIteratorSequential();
-	    AtomIterator iterator = iteratorFactory.makeIntragroupNbrIterator();
-	    sequenceIterator.setBasis(phase.getAgent(speciesSpheres));
-	    iterator.setBasis(phase.getAgent(speciesSpheres));
+	    AtomIterator iterator = iteratorFactory.makeIntergroupNbrIterator();
+	    sequenceIterator.setBasis(phase.getAgent(speciesSpheres1));
+	    iterator.setBasis(phase.getAgent(speciesSpheres2));
 		Atom first = null;
 		Atom middle = null;
 		Atom last = null;
@@ -802,7 +827,7 @@ public static final class IntergroupNbrIterator implements AtomIterator {
 	    
 	    IteratorDirective.testSuite(iterator, first, middle, last);
 	    
-    }//end of IntragroupNbrIterator.main
+    }//end of IntergroupNbrIterator.main
 
 }//end of IntergroupNbrIterator class
 
@@ -855,19 +880,18 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
     /**
      * Returns true if this atom preceeds the given atom in the atom sequence.
      * Returns false if the given atom is this atom, or (of course) if the
-     * given atom instead preceeds this one.
+     * given atom instead preceeds this one.  Returns true if the given atom is null.
      */
     public boolean preceeds(Atom a) {
-        throw new RuntimeException("IteratorFactoryCell.Sequencer.preceeds method should be checked for correctness before using");
-        //want to return false if atoms are the same atoms
-   /*     if(a == null) return true;
-        if(atom.node.parentGroup() == a.node.parentGroup()) return atom.node.index() < a.node.index();//works also if both parentGroups are null
+//        throw new RuntimeException("IteratorFactoryCell.Sequencer.preceeds method should be checked for correctness before using");
+//        //want to return false if atoms are the same atoms
+        if(a == null) return true;
+        if(atom.node.parentNode() == a.node.parentNode()) return atom.node.index() < a.node.index();//works also if both parentGroups are null
         int thisDepth = atom.node.depth();
         int atomDepth = a.node.depth();
         if(thisDepth == atomDepth) return atom.node.parentGroup().seq.preceeds(a.node.parentGroup());
         else if(thisDepth < atomDepth) return this.preceeds(a.node.parentGroup());
-        else /*if(this.depth > atom.depth)* / return atom.node.parentGroup().seq.preceeds(a);
-        */
+        else /*this.depth > atom.depth*/ return atom.node.parentGroup().seq.preceeds(a);
     }
     
     public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
@@ -1047,53 +1071,75 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         
   //      SequentialIterator.main(args); 
   //      IntragroupNbrIterator.main(args); 
+  //      IntergroupNbrIterator.main(args); 
+        boolean cellListing = true;
+        boolean doDisplay = true;
+        boolean md = true;
+        int nAtoms = 90;
+        boolean fixedLengthRun = false;
+        boolean mixture = true;
         
-        Default.ATOM_SIZE = 1.0;
-        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space2D());
+        System.out.println(cellListing ? "cellListing" : "no cellListing");
+        System.out.println(md ? "md" : "mc");
+        System.out.println("number of atoms in simulation: "+2*nAtoms);
+        
+        Default.ATOM_SIZE = 150./(double)nAtoms;
+        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space3D());
         Simulation.instance = sim;
 
-        sim.setIteratorFactory(new IteratorFactoryCell(sim));
+        if(cellListing) sim.setIteratorFactory(new IteratorFactoryCell(sim));
         
-	    IntegratorHard integrator = new IntegratorHard();
-        integrator.setTimeStep(0.01);
-      //  IntegratorMC integrator = new IntegratorMC();
-      //  MCMoveAtom mcMoveAtom = new MCMoveAtom(integrator);
-      //  MCMoveVolume mcMoveVolume = new MCMoveVolume(integrator);
-      //  mcMoveVolume.setPressure(3.0);
+        Integrator integrator = null;
+        if(md) {
+	        integrator = new IntegratorHard();
+            ((IntegratorHard)integrator).setTimeStep(0.01);
+        } else {
+            integrator = new IntegratorMC();
+            MCMoveAtom mcMoveAtom = new MCMoveAtom((IntegratorMC)integrator);
+            //MCMoveVolume mcMoveVolume = new MCMoveVolume((IntegratorMC)integrator);
+            //mcMoveVolume.setPressure(3.0);
+        }
         
 	    Controller controller = new Controller();
-	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();
+	    etomica.graphics.DisplayPhase displayPhase = null;
+	    if(doDisplay) displayPhase = new etomica.graphics.DisplayPhase();
 
-        /*
-	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
-	    speciesSpheres.setNMolecules(300);
-	    etomica.graphics.ColorSchemeByType.setColor(speciesSpheres, java.awt.Color.green);
+        if(!mixture) {
+	        SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
+	        speciesSpheres.setNMolecules(2*nAtoms);
+	        if(doDisplay) etomica.graphics.ColorSchemeByType.setColor(speciesSpheres, java.awt.Color.green);
 	    	    
-	    Potential2 potential = new P2HardSphere();
-	    */
-	//    /*
-	    SpeciesSpheresMono speciesSpheres1 = new SpeciesSpheresMono();
-	    SpeciesSpheresMono speciesSpheres2 = new SpeciesSpheresMono();
-	    speciesSpheres1.setNMolecules(150);
-	    speciesSpheres2.setNMolecules(150);
-	    etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.green);
-	    etomica.graphics.ColorSchemeByType.setColor(speciesSpheres2, java.awt.Color.black);
+	        Potential2 potential = new P2HardSphere();
+	    } else {
+	        SpeciesSpheresMono speciesSpheres1 = new SpeciesSpheresMono();
+	        SpeciesSpheresMono speciesSpheres2 = new SpeciesSpheresMono();
+	        speciesSpheres1.setNMolecules(nAtoms);
+	        speciesSpheres2.setNMolecules(nAtoms);
+	        if(doDisplay) {
+	            etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.green);
+	            etomica.graphics.ColorSchemeByType.setColor(speciesSpheres2, java.awt.Color.black);
+	        }
 	    	    
-	    Potential2 potential11 = new P2HardSphere();
-	    Potential2 potential12 = new P2SquareWell();
-	    Potential2 potential22 = new P2HardSphere();
-	    potential11.setSpecies(speciesSpheres1, speciesSpheres1);
-	    potential12.setSpecies(speciesSpheres1, speciesSpheres2);
-	    potential22.setSpecies(speciesSpheres2, speciesSpheres2);
-	//    */
-	    
+	        Potential2 potential11 = new P2HardSphere();
+	        Potential2 potential12 = new P2HardSphere();
+	    //  Potential2 potential12 = new P2SquareWell();
+	        Potential2 potential22 = new P2HardSphere();
+	        potential11.setSpecies(speciesSpheres1, speciesSpheres1);
+	        potential12.setSpecies(speciesSpheres2, speciesSpheres1);
+	        potential22.setSpecies(speciesSpheres2, speciesSpheres2);
+        }
+        
 	    Phase phase = new Phase();//must come after species!
-
-	    etomica.graphics.LatticeRenderer.ColorSchemeNeighbor colorSchemeNbr = 
-	        new etomica.graphics.LatticeRenderer.ColorSchemeNeighbor(sim);
-	    etomica.graphics.LatticeRenderer.ColorSchemeCell colorSchemeCell =
-	        new etomica.graphics.LatticeRenderer.ColorSchemeCell();
-	    
+        
+	    etomica.graphics.LatticeRenderer.ColorSchemeNeighbor colorSchemeNbr = null; 
+	    etomica.graphics.LatticeRenderer.ColorSchemeCell colorSchemeCell = null;
+        if(doDisplay) {
+            if(cellListing) {
+	            colorSchemeNbr = new etomica.graphics.LatticeRenderer.ColorSchemeNeighbor(sim);
+	            colorSchemeCell = new etomica.graphics.LatticeRenderer.ColorSchemeCell();
+	        }
+	    }
+    	    
 	    integrator.setDoSleep(false);
 	    integrator.setSleepPeriod(2);
 	    
@@ -1101,21 +1147,37 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
 		
-	    BravaisLattice lattice = ((IteratorFactoryCell)sim.getIteratorFactory()).getLattice(phase);
-	//    ((IteratorFactoryCell)sim.iteratorFactory).setNeighborRange(4.0);
-	
-	    //draw lattice cells on display
-	//    etomica.graphics.LatticeRenderer latticeRenderer = 
-	//            new etomica.graphics.LatticeRenderer(lattice);
-	//    displayPhase.addDrawable(latticeRenderer);
-	  
-	    //color atoms
-	    colorSchemeNbr.setAtom(phase.speciesMaster.atomList.getRandom());
-	    displayPhase.setColorScheme(colorSchemeNbr);
-//        colorSchemeCell.setLattice(lattice);
-//	    displayPhase.setColorScheme(colorSchemeCell);
+		if(cellListing) {
+
+	        BravaisLattice lattice = ((IteratorFactoryCell)sim.getIteratorFactory()).getLattice(phase);
+	    //    ((IteratorFactoryCell)sim.iteratorFactory).setNeighborRange(4.0);
+    	
+	        if(doDisplay) {
+	            //draw lattice cells on display
+	    //      etomica.graphics.LatticeRenderer latticeRenderer = 
+	    //              new etomica.graphics.LatticeRenderer(lattice);
+	    //      displayPhase.addDrawable(latticeRenderer);
+    	  
+	            //color atoms
+	            colorSchemeNbr.setAtom(phase.speciesMaster.atomList.getRandom());
+	            displayPhase.setColorScheme(colorSchemeNbr);
+        //        colorSchemeCell.setLattice(lattice);
+        //	    displayPhase.setColorScheme(colorSchemeCell);
+            }
+        }
         
-        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
+        if(doDisplay) etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
+        
+        if(fixedLengthRun) {
+            if(md) integrator.setMaxSteps(1000);
+            else   integrator.setMaxSteps(100*nAtoms*2);
+        }
+        integrator.initialize();
+        System.out.println("Starting");
+        etomica.benchmark.Stopwatch timer = new etomica.benchmark.Stopwatch().start();
+        integrator.run();
+        timer.stop();
+        System.out.println("Elapsed time: "+0.001*timer.getElapsedTime());
         
      //   controller.start();
     }//end of main
