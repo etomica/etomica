@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -11,11 +13,13 @@ import etomica.space3d.Vector3D;
  */
 public class ConfigurationZincblende extends Configuration {
     
-    private ConfigurationLattice fcc;
+    private final ConfigurationLattice fcc;
+    private final AtomGroupAction translator;
     
-    public ConfigurationZincblende() {
-        super();
+    public ConfigurationZincblende(Space space) {
+        super(space);
         fcc = new ConfigurationLattice(new LatticeCubicFcc());
+        translator = new AtomGroupAction(new AtomActionTranslateBy(space));
     }
     
     /**
@@ -39,14 +43,17 @@ public class ConfigurationZincblende extends Configuration {
         Vector3D shift = new Vector3D();
         shift.E(0.125*fcc.getLatticeConstant());
         
+        ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
+
         iterators[0].reset();
         while(iterators[0].hasNext()) {
-            iterators[0].nextAtom().coord.translateBy(shift);
+            translator.actionPerformed(iterators[0].nextAtom());
         }
         shift.TE(-1.0);
+        ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
         iterators[1].reset();
         while(iterators[1].hasNext()) {
-            iterators[1].nextAtom().coord.translateBy(shift);
+            translator.actionPerformed(iterators[1].nextAtom());
         }
     }
     
@@ -69,7 +76,7 @@ public class ConfigurationZincblende extends Configuration {
         speciesSpheres1.setNMolecules(32);
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0,new java.awt.Color(0,255,0));
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.red);
-        phase.setConfiguration(new ConfigurationZincblende());
+        phase.setConfiguration(new ConfigurationZincblende(space));
         phase.speciesMaster.addSpecies(speciesSpheres0);
         phase.speciesMaster.addSpecies(speciesSpheres1);
 
