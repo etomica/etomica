@@ -1,10 +1,13 @@
 package etomica.potential;
 
+import java.awt.Color;
+
 import etomica.Atom;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Space;
+import etomica.graphics.Drawable;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
@@ -15,19 +18,7 @@ import etomica.space.Vector;
  * accelerate subject to an external force field (pressure).
  */
  
-public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
-    
-    private double collisionRadius = 0.0;
-    private final int D;
-    private final int wallD;
-    private double wallPosition;
-    private double wallVelocity;
-    private double wallMass;
-    private double force;
-    private double pressure;
-    private double lastVirial;
-    private final Boundary pistonBoundary;
-    private Atom atom;
+public class P1HardMovingBoundary extends Potential1 implements PotentialHard, Drawable {
     
     /**
      * Constructor for a hard moving (and accelerating) boundary.
@@ -48,8 +39,6 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
         EtomicaInfo info = new EtomicaInfo("Hard moving wall");
         return info;
     }
-    
-    public int getPriority() {return 100;}
     
     public void setWallPosition(double p) {
         wallPosition = p;
@@ -73,7 +62,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
     public void setPressure(double p) {
         pressure = p;
     }
-    
+
     /**
      * @return Returns the mass.
      */
@@ -112,7 +101,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
                     }
                 }
             }
-            force = pressure/area;
+            force = pressure*area;
         }
         double a = -force/wallMass;   // atom acceleration - wall acceleration
         dv += a*falseTime;
@@ -124,9 +113,6 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
         }
         double t = Double.POSITIVE_INFINITY;
         double discr = -1.0;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atoms)) {
-            System.out.println(atom);
-        }
         if (dr*dv < 0.0 || dr*a < 0.0) {
             // either moving toward or accelerating toward each other
             if (Math.abs(dr) < collisionRadius && dr*dv < 0.0) {
@@ -187,48 +173,25 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
                     }
                 }
             }
-            force = pressure/area;
+            force = pressure*area;
         }
         double trueWallVelocity = wallVelocity + falseTime*force/wallMass;
-        double dp = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
-        lastVirial = -Math.abs(dp)*collisionRadius;
         if (Debug.ON) {
             double trueWallPosition = wallPosition + wallVelocity*falseTime + 0.5*falseTime*falseTime*(force/wallMass);
-//            if (Math.abs(Math.abs(trueWallPosition-(r+v.x(wallD)*falseTime)) - collisionRadius) > 1.e-9*collisionRadius) {
+            if (Math.abs(Math.abs(trueWallPosition-(r+v.x(wallD)*falseTime)) - collisionRadius) > 1.e-7*collisionRadius) {
                 System.out.println("bork at "+falseTime+" ! "+atom+" "+(r+v.x(wallD)*falseTime)+" "+v.x(wallD));
                 System.out.println("wall bork! "+trueWallPosition+" "+trueWallVelocity+" "+force);
                 System.out.println("dr bork! "+((r+v.x(wallD)*falseTime)-trueWallPosition)+" "+collisionRadius);
                 System.out.println(atom.coord.position().x(wallD));
-//                throw new RuntimeException("bork!");
-//            }
+                throw new RuntimeException("bork!");
+            }
         }
+        double dp = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
+        lastVirial = -Math.abs(dp)*collisionRadius;
         v.setX(wallD,v.x(wallD)+dp*atom.type.rm());
         atom.coord.position().setX(wallD,r-dp*atom.type.rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
-        
-        double dr = atom.coord.position().x(wallD) - wallPosition;
-        double dv = ((ICoordinateKinetic)atom.coord).velocity().x(wallD) - wallVelocity;
-        dr += dv*falseTime;
-        if (pressure >= 0.0) {
-            double area = 1.0;
-            if (pressure > 0.0) {
-                final Vector dimensions = pistonBoundary.dimensions();
-                for (int i=0; i<D; i++) {
-                    if (i != wallD) {
-                        area *= dimensions.x(i);
-                    }
-                }
-            }
-            force = pressure/area;
-        }
-        double acc = -force/wallMass;   // atom acceleration - wall acceleration
-        dv += acc*falseTime;
-        dr += 0.5*acc*falseTime*falseTime;
-        System.out.println("*****"+atom+" "+dr+" "+dv+" "+acc);
-        if (dv < 0) {
-            throw new RuntimeException("dv must be positive");
-        }
         
     }
     
@@ -264,27 +227,41 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
                     }
                 }
             }
-            force = pressure/area;
+            force = pressure*area;
         }
         double a = force/wallMass;
         wallPosition += wallVelocity * tStep + 0.5*tStep*tStep*a;
         wallVelocity += tStep*a;
-        System.out.println("pressure => velocity "+(tStep*a)+" "+wallVelocity+" "+wallPosition+" "+tStep);
+//        System.out.println("pressure => velocity "+(tStep*a)+" "+wallVelocity+" "+wallPosition+" "+tStep);
     }
- /*   
-    public static void main(String[] args) {
-        
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
-        sim.species.setNMolecules(10);
-        P1HardBoundary potential = new P1HardBoundary();
-        potential.set(sim.phase.speciesMaster);
-        potential.setCollisionRadius(0.5*Default.ATOM_SIZE);
-  //      sim.phase.setBoundary(sim.space().makeBoundary(Space2D.Boundary.NONE));
-        sim.elementCoordinator.go();
-        
-        Simulation.makeAndDisplayFrame(sim);
-    }//end of main
-*/
+    
+    public void setThickness(double t) {
+        thickness = t;
+    }
+    
+    public void draw(java.awt.Graphics g, int[] origin, double scale) {
+        g.setColor(Color.gray);
+        double toPixel = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
+        int xP = origin[0] + (wallD==0 ? (int)((wallPosition-thickness)*toPixel) : 0);
+        int yP = origin[1] + (wallD==1 ? (int)((wallPosition-thickness)*toPixel) : 0);
+        int t = Math.max(1,(int)(thickness*toPixel));
+        int wP = wallD==0 ? t : (int)(toPixel*pistonBoundary.dimensions().x(0));
+        int hP = wallD==1 ? t : (int)(toPixel*pistonBoundary.dimensions().x(1));
+        g.fillRect(xP,yP,wP,hP);
+    }
+    
+    private double collisionRadius = 0.0;
+    private final int D;
+    private final int wallD;
+    private double wallPosition;
+    private double wallVelocity;
+    private double wallMass;
+    private double force;
+    private double pressure;
+    private double lastVirial;
+    private final Boundary pistonBoundary;
+    private Atom atom;
+    private double thickness = 0.0;
+    
 }//end of P1HardBoundary
    
