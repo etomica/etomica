@@ -1,4 +1,6 @@
 package etomica;
+import etomica.action.PhaseInflateAnisotropic;
+import etomica.action.PhaseActionAdapter;
 import etomica.units.*;
 
 /**
@@ -7,7 +9,7 @@ import etomica.units.*;
  */
 public class MeterPressureByVolumeChange extends MeterFunction implements EtomicaElement {
     
-    PhaseAction.InflateAnisotropic inflater;
+    PhaseInflateAnisotropic inflater;
     Space.Vector[] scale;
     Space space;
     boolean[] inflateDimensions;
@@ -86,7 +88,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     }
     
     public double[] getDataAsArray(Phase phase) {
-        inflater = new PhaseAction.InflateAnisotropic(phase);
+        inflater = new PhaseInflateAnisotropic(phase);
         double uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
         for(int i=0; i<nDataPerPhase; i++) {
             inflater.setScale(scale[i]);

@@ -3,6 +3,10 @@ package etomica;
 import java.util.Observable;
 import java.util.Observer;
 
+import etomica.action.PhaseInflate;
+import etomica.action.PhaseActionAdapter;
+import etomica.action.PhaseImposePbc;
+
 //Java2 imports
 //import java.util.LinkedList;
 //import java.util.Iterator;
@@ -57,12 +61,12 @@ import java.util.Observer;
 public class Phase extends SimulationElement {
         
     private Space.Boundary boundary;
-    private PhaseAction.Inflate inflater;
+    private PhaseInflate inflater;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private static int nonSimCount = 0;//number of times instantiated without a parent simulation
-    private PhaseAction.ImposePbc centralImageEnforcer;
+    private PhaseImposePbc centralImageEnforcer;
     
     /**
      * Constructs phase and registers as part of the current Simulation.instance.
@@ -79,7 +83,7 @@ public class Phase extends SimulationElement {
         
         speciesMaster = new SpeciesMaster(this);
                 
-        inflater = new PhaseAction.Inflate(this);
+        inflater = new PhaseInflate(this);
 
 //        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(space.makeBoundary());
@@ -242,7 +246,8 @@ public class Phase extends SimulationElement {
     public void setDensity(double rho) {
         double vNew = moleculeCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
-        inflater.actionPerformed(scale);
+        inflater.setScale(scale);
+        inflater.actionPerformed();
     }
     public double getDensity() {return moleculeCount()/boundary.volume();}
 
@@ -411,9 +416,9 @@ public class Phase extends SimulationElement {
     
 	/**
 	 * Returns the centralImageEnforcer.
-	 * @return PhaseAction.ImposePbc
+	 * @return PhaseActionAdapter.PhaseImposePbc
 	 */
-	public PhaseAction.ImposePbc getCentralImageEnforcer() {
+	public PhaseImposePbc getCentralImageEnforcer() {
 		return centralImageEnforcer;
 	}
 
@@ -424,7 +429,7 @@ public class Phase extends SimulationElement {
 	 * @param centralImageEnforcer The centralImageEnforcer to set
 	 */
 	public void setCentralImageEnforcer(
-		PhaseAction.ImposePbc centralImageEnforcer) {
+		PhaseImposePbc centralImageEnforcer) {
 		this.centralImageEnforcer = centralImageEnforcer;
 	}
 

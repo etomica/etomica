@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.PhaseInflate;
+import etomica.action.PhaseActionAdapter;
 import etomica.units.Dimension;
 
 /**
@@ -12,7 +14,7 @@ public class MCMoveVolume extends MCMove {
     
     protected double pressure;
     private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
-    protected final PhaseAction.Inflate inflate = new PhaseAction.Inflate();
+    protected final PhaseInflate inflate = new PhaseInflate();
      private AtomIterator affectedAtomIterator;
 
     private transient double uOld, hOld, vNew, vScale;

@@ -49,7 +49,7 @@ public class PhaseEvent extends SimulationEvent {
             new Type("Atom removed"),
             new Type("Atom selected"),
             new Type("Atom released"),
-            new Type("Boundary Inflate"),
+            new Type("Boundary PhaseInflate"),
             new Type("Reset")};
         public final Constants.TypedConstant[] choices() {return CHOICES;}
     }

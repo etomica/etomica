@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.action.PhaseInflate;
+import etomica.action.PhaseActionAdapter;
+
 /**
  * Elementary Monte Carlo trial that exchanges volume between two phases.  Trial
  * consists of a volume increase in one phase (selected at random) and an equal
@@ -16,8 +19,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     
     private Phase firstPhase;
     private Phase secondPhase;
-    private PhaseAction.Inflate inflate1;
-    private PhaseAction.Inflate inflate2;
+    private PhaseInflate inflate1;
+    private PhaseInflate inflate2;
     private transient double uOld1, uOld2;
     private transient double uNew1 = Double.NaN;
     private transient double uNew2 = Double.NaN;
@@ -51,8 +54,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         if(p.length < 2) return;
         secondPhase = p[1];
         if(firstPhase == null && secondPhase == null) return;
-        inflate1 = new PhaseAction.Inflate(firstPhase);
-        inflate2 = new PhaseAction.Inflate(secondPhase);
+        inflate1 = new PhaseInflate(firstPhase);
+        inflate2 = new PhaseInflate(secondPhase);
         phase1AtomIterator = firstPhase.makeMoleculeIterator();
         phase2AtomIterator = secondPhase.makeMoleculeIterator();
 //        affectedAtomIterator 

@@ -78,7 +78,7 @@ public abstract class AtomAction implements etomica.Action {
         public final void actionPerformed(Atom a) {a.coord.position().PE(displacement);}
         public void actionPerformed(Atom a, Space.Vector d) {a.coord.position().PE(d);}
         public final void setDisplacement(Space.Vector d) {displacement.E(d);}
-    }//end of Translate
+    }//end of PhaseTranslate
     
     /**
      * Action that does nothing.
@@ -89,7 +89,7 @@ public abstract class AtomAction implements etomica.Action {
     
     public static final AtomAction NULL = new Null();
     
-//        public static class Displace extends Translate {
+//        public static class Displace extends PhaseTranslate {
 //            Atom atom;
 //            public void actionPerformed(Atom a) {atom = a; a.r.PE(displacement);}
 //            public void actionPerformed(Atom a, Space.Vector d) {

@@ -12,10 +12,9 @@ import etomica.*;
   
 public class DeviceControllerButton extends DeviceButton {
     
-    private Controller controller;
-    
     public DeviceControllerButton(SimulationElement parent) {
         super(parent);
+        toggleAction = new Toggle();
     }
     public DeviceControllerButton(SimulationElement parent, Controller c) {
         this(parent);
@@ -24,23 +23,27 @@ public class DeviceControllerButton extends DeviceButton {
     
     //final because called by constructor
     public final void setController(Controller c) {
-        controller = c;
-        setAction(new ActionGraphic(new Toggle(c)));
+        toggleAction.setController(c);
+        setAction(new ActionGraphic(toggleAction));
         setLabel("  Start  ");
     }
-    public Controller getController() {return controller;}
+    public Controller getController() {
+    	return toggleAction.getController();
+    }
     
     /**
      * Sets label of button to display "Start".
      */
     public void reset() {setLabel("  Start  ");}
     
+    private Toggle toggleAction;
+    
     private class Toggle extends etomica.action.ControllerToggle {
-        Toggle(Controller c) {this.setController(c);}
-        public void actionPerformed(Controller c) {
-            super.actionPerformed(c);
+         public void actionPerformed() {
+         	if(controller == null) return;
+            super.actionPerformed();
             String text;
-            if(c.isPaused()) text = "Continue";
+            if(controller.isPaused()) text = "Continue";
             else text = "  Pause ";
             DeviceControllerButton.this.setLabel(text);
         }

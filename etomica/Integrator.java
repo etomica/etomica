@@ -283,8 +283,8 @@ public abstract class Integrator extends SimulationElement implements java.io.Se
         }
         
         /**
-         * Indicates if notification is before or after the ImposePbc listeners have been
-         * notified.  Returns true if notifying BeforePbc or ImposePbc listeners;
+         * Indicates if notification is before or after the PhaseImposePbc listeners have been
+         * notified.  Returns true if notifying BeforePbc or PhaseImposePbc listeners;
          * return false if notifying AfterPbc listeners.
          */
         public final boolean isBeforePbc() {return beforePbc;}

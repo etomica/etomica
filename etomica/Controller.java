@@ -166,8 +166,6 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
 		this.pauseAfterEachAction = pauseAfterEachAction;
 	}
 
-    //stop function
-    //consider having calling thread here join() or wait() for halt to take effect
     /**
      * Request that the integrator terminate its thread on the next integration step.
      * Does not cause calling thread to wait until this is completed, so it would
@@ -200,19 +198,10 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
     private boolean pauseAfterEachAction;
     private boolean pauseRequested;
     private boolean haltRequested;
-    
-    /**
-     * List of actions managed by the controller
-     */
-      private final LinkedList actions = new LinkedList();
-      private final LinkedList completedActions = new LinkedList();
-      
-    /**
-     * Thread used to run the controller
-     */
-      protected transient Thread runner;
-      
-      private SimulationEventManager eventManager = new SimulationEventManager();
+    private final LinkedList actions = new LinkedList();
+    private final LinkedList completedActions = new LinkedList();
+    private transient Thread runner;      
+    private SimulationEventManager eventManager = new SimulationEventManager();
 
 }//end of Controller
 

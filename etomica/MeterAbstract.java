@@ -11,7 +11,7 @@ import etomica.utility.IntegerRange;
  *
  * @author David Kofke
  */
-public abstract class MeterAbstract extends SimulationElement implements DataSource, PhaseDependent {
+public abstract class MeterAbstract extends SimulationElement implements DataSource {
 
     public static final String VERSION = "MeterAbstract:01.07.25";
     

@@ -76,7 +76,7 @@ public class Matrix3D {
     zo *= zf;
   }
   
-  /** Translate the origin */
+  /** PhaseTranslate the origin */
   public void translate(double x, double y, double z) {
     xo += x;
     yo += y;

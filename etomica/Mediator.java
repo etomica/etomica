@@ -1,4 +1,6 @@
 package etomica;
+import etomica.action.PhaseImposePbc;
+import etomica.action.PhaseActionAdapter;
 import etomica.log.LoggerAbstract;
 import etomica.utility.HashMap2;
 
@@ -276,7 +278,7 @@ public class Mediator implements java.io.Serializable {
                     Integrator integrator = (Integrator)is.next();
                     if(integrator.wasAdded() && integrator.wantsPhase() && phase.integrator()==null) {
                         phase.setIntegrator(integrator);
-                        PhaseAction.ImposePbc imposePbc = new PhaseAction.ImposePbc(phase);
+                        PhaseImposePbc imposePbc = new PhaseImposePbc();
                         phase.setCentralImageEnforcer(imposePbc);
                         integrator.addIntervalListener(imposePbc);
                     }
@@ -291,7 +293,7 @@ public class Mediator implements java.io.Serializable {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded() && integrator.wantsPhase() && phase.integrator() == null) { 
                         phase.setIntegrator(integrator);
-						PhaseAction.ImposePbc imposePbc = new PhaseAction.ImposePbc(phase);
+						PhaseImposePbc imposePbc = new PhaseImposePbc();
 						phase.setCentralImageEnforcer(imposePbc);
 						integrator.addIntervalListener(imposePbc);
                     }

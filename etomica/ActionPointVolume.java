@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.PhaseActionAdapter;
+import etomica.action.Undoable;
 import etomica.lattice.*;
 import etomica.utility.OdeSolver;
 import java.awt.*;
@@ -14,9 +16,9 @@ import java.awt.event.MouseEvent;
  * @author David Kofke
  */
 
-public class ActionPointVolume extends PhaseAction implements Action.Undoable, etomica.graphics.Drawable {
+public class ActionPointVolume extends PhaseActionAdapter implements Undoable, etomica.graphics.Drawable {
     
-    public static String getVersion() {return "ActionPointVolume:02.07.30"+PhaseAction.getVersion();}
+    public static String getVersion() {return "ActionPointVolume:02.07.30"+PhaseActionAdapter.getVersion();}
 
     private boolean drawPoints = true;
     private boolean drawCells = false;
