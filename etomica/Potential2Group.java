@@ -10,6 +10,10 @@ package etomica;
  * @author David Kofke
  */
 
+ /* History of changes
+  * 8/14/02 (DAK) introduced removePotential method and modified addPotential.
+  */
+
 public final class Potential2Group extends Potential2 implements PotentialGroup {
     
     private final IteratorDirective localDirective = new IteratorDirective();
@@ -78,14 +82,32 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
     }
     
     /**
-     * Adds the given potential to this group.  Part of the PotentialGroup interface.
+     * Adds the given potential to this group, but should not be called directly.  Instead,
+     * this method is invoked by the setParentPotential method (or more likely, 
+     * in the constructor) of the given potential.  
+     * Part of the PotentialGroup interface.
      */
     public void addPotential(Potential potential) {
-        if(potential.parentPotential() != this) 
-            throw new IllegalArgumentException("Cannot add potential to group using addPotential method; instead, put group in potential's constructor"); 
+        if(potential == null || potential.parentPotential() != this) 
+            throw new IllegalArgumentException("Improper call to addPotential; should use setParentPotential method in child instead of addPotential method in parent group"); 
         first = new PotentialLinker(potential, first);
     }
 
+    /**
+     * Removes given potential from the group.  No error is generated if
+     * potential is not in group.
+     */
+    public void removePotential(Potential potential) {
+        PotentialLinker previous = null;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {//found it
+                if(previous == null) first = link.next;  //it's the first one
+                else previous.next = link.next;          //it's not the first one
+                return;
+            }
+            previous = link;
+        }
+    }
     
     public double energy(AtomPair pair) {
         throw new RuntimeException("energy method not implemented in Potential2Group");

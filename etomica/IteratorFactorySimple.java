@@ -2,6 +2,8 @@ package etomica;
 
 /* History of changes
  * 7/29/02 (DAK) In SequentialIterator, changed reset(IteratorDirective) to handle null atom1()
+ * 8/13/02 (DAK) In SequentialIterator, changed to allow basis to be leaf atom.  This introduces
+ *               a singlet iterator and currentIterator to handle the general case.
  */
 
 public class IteratorFactorySimple implements IteratorFactory {
@@ -35,6 +37,8 @@ public class IteratorFactorySimple implements IteratorFactory {
 private static final class SequentialIterator implements AtomIterator {
     
     private AtomIteratorList listIterator = new AtomIteratorList();
+    private AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
+    private AtomIterator currentIterator = AtomIterator.NULL;
     private AtomTreeNodeGroup basis;
     
     public SequentialIterator(boolean skipFirstAtom) {
@@ -46,27 +50,32 @@ private static final class SequentialIterator implements AtomIterator {
      * given atom.
      */
     public void setBasis(Atom a) {
-        if(!(a.node instanceof AtomTreeNodeGroup)) {
-            System.out.println("uh oh");
+        if(!(a.node instanceof AtomTreeNodeGroup)) {//leaf atom
+            //System.out.println("uh oh");
+            basis = null;
+           singletIterator.setBasis(a);
+           currentIterator = singletIterator;
+        } else { //atom group
+           basis = (AtomTreeNodeGroup)a.node;
+           listIterator.setBasis(basis);
+           currentIterator = listIterator;
         }
-        basis = (AtomTreeNodeGroup)a.node;
-        listIterator.setBasis(basis);
     }
     
     /**
      * Resets iterator so that it will loop up the list of atoms beginning
      * from the first one.
      */
-    public Atom reset() {return listIterator.reset();}
+    public Atom reset() {return currentIterator.reset();}
     
     /**
      * Sets to state in which hasNext is false.
      */
-    public void unset() {listIterator.unset();}
+    public void unset() {currentIterator.unset();}
         
-    public boolean hasNext() {return listIterator.hasNext();}
+    public boolean hasNext() {return currentIterator.hasNext();}
     
-    public boolean contains(Atom atom) {return listIterator.contains(atom);}
+    public boolean contains(Atom atom) {return currentIterator.contains(atom);}
     
     /**
      * Resets for iteration according to the given directive.  If the directive does
@@ -77,17 +86,18 @@ private static final class SequentialIterator implements AtomIterator {
     public Atom reset(IteratorDirective id) {
         Atom refAtom = id.atom1();
         if(refAtom == null) {
-            return listIterator.reset(id.direction());
+            //cast used as temporary fix
+            return ((AtomIteratorList)currentIterator).reset(id.direction());
         }
-        if(refAtom.node.parentNode() == basis) {
-            return listIterator.reset(id.atom1().seq, id.direction());
+        if(refAtom.node.parentNode() == basis) {//cast used as temporary fix
+            return ((AtomIteratorList)currentIterator).reset(id.atom1().seq, id.direction());
         } else if(id.direction()==IteratorDirective.BOTH) {
-            return listIterator.reset();
+            return currentIterator.reset();
         } else {
             boolean refFirst = refAtom.seq.preceeds(basis.atom());
             if(refFirst && id.direction()==IteratorDirective.UP 
                 || !refFirst && id.direction()==IteratorDirective.DOWN && !(refAtom==basis.atom())) {
-                    return listIterator.reset();
+                    return currentIterator.reset();
             }
         }
         return null;
@@ -99,18 +109,18 @@ private static final class SequentialIterator implements AtomIterator {
      * true; calling when hasNext is false can lead to unpredictable results, and
      * may or may not cause an error or exception.
      */
-    public Atom next() {return listIterator.next();}
+    public Atom next() {return currentIterator.next();}
     
     public void allAtoms(AtomAction act) {
-        listIterator.allAtoms(act);
+        currentIterator.allAtoms(act);
     }
     
     public Atom getBasis() {
-        return basis.atom;
+        return (basis == null) ? null : basis.atom;
     }
     
     public int size() {
-        return listIterator.size();
+        return currentIterator.size();
     }
     
     /**

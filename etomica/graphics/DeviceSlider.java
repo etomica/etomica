@@ -17,6 +17,11 @@ import java.awt.event.WindowEvent;
  *
  * @see Modulator
  */
+ 
+ /* History of changes
+  * 8/16/02 (DAK) added showBorder feature and accessor/mutator methods
+  */
+  
 public class DeviceSlider extends Device implements EtomicaElement {
     
     public String getVersion() {return "DeviceSlider:01.05.29/"+Device.VERSION;}
@@ -44,6 +49,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
     protected String property;
     
     private int minimum, maximum;
+    
+    private boolean showBorder = true;
     
     public DeviceSlider() {
         this(Simulation.instance);
@@ -176,13 +183,19 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     public void setLabel(String text) {
         label = text;
-        slider.setBorder(new javax.swing.border.TitledBorder(text));
+        if(showBorder) slider.setBorder(new javax.swing.border.TitledBorder(text));
+        else slider.setBorder(null);
     }
     /**
      * @return the current instance of the descriptive label.
      */
     public String getLabel() {return label;}
     
+    public void setShowBorder(boolean showBorder) {
+        this.showBorder = showBorder;
+        setLabel(label);
+    }
+    public boolean isShowBorder() {return showBorder;}
     /**
      * @return a handle to the JSlider instance used by this slider device
      */

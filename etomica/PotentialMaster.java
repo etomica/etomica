@@ -8,9 +8,13 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 8/13/02 (DAK) added removePotential method
+  */
 public final class PotentialMaster implements PotentialGroup, java.io.Serializable {
     
-    public String getVersion() {return "PotentialMaster:01.07.23";}
+    public String getVersion() {return "PotentialMaster:02.08.13";}
 
     private SpeciesMaster speciesMaster;
     private Potential0GroupLrc lrcMaster;
@@ -50,19 +54,41 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
             first = new PotentialLinker(potential, first);
             if(last == null) last = first;
         }
-        if(speciesMaster != null) {
-            System.out.println("Warning: adding potential after phase was set for PotentialMaster");
-            System.out.println("May lead to error");
-            speciesMaster = null;
-        }
+        //if phase was set previously, subsequent call to set to same phase will be
+        //ignored (and not passed on to new potential).  Seting speciesMaster to null
+        //here will prevent ignoring of new call to set phase 
+        speciesMaster = null;
+    //    if(speciesMaster != null) {
+    //        System.out.println("Warning: adding potential after phase was set for PotentialMaster");
+    //        System.out.println("May lead to error");
+    //        speciesMaster = null;
+    //    }
 //        if(speciesMaster != null) potential.set(speciesMaster); can't do this because potential is still executing its constructor
     }
+    
+    /**
+     * Removes given potential from the group.  No error is generated if
+     * potential is not in group.
+     */
+    public void removePotential(Potential potential) {
+        PotentialLinker previous = null;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {//found it
+                if(previous == null) first = link.next;  //it's the first one
+                else previous.next = link.next;          //it's not the first one
+                if(link == last) last = previous; //removing last; this works also if last was also first (then removing only, and set last to null)
+                return;
+            }//end if
+            previous = link;
+        }//end for
+    }//end removePotential
 
     /**
      * Sets the basis for iteration of atoms by all potentials.
      * The given parameter must be an instance of SpeciesMaster.
      * No action is taken if the given species master is the same
-     * as the one given in the previous call.
+     * as the one given in the previous call (unless another
+     * potential was added in the interim).
      */
     public PotentialMaster set(SpeciesMaster sm) {
         if(sm == speciesMaster) return this;

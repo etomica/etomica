@@ -59,6 +59,11 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     * Explicit to 2D because drawing is done to 2D image
     */
     protected final int[] centralOrigin = new int[D];
+    
+    /**
+     * Amount of simple shift of drawing origin.
+     */
+    private final int[] originShift = new int[D];
 
     private double toPixels;
         
@@ -157,6 +162,13 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
     }
+    
+    /**
+     * Amount (in pixels) of a simple shift (translation) applied in determing origin.
+     * Usually zero, but can be set to any value by setting elements in returned array.
+     */
+    public int[] getOriginShift() {return originShift;}
+        
 
     public int[] getOrigin() {
         computeImageParameters();
@@ -277,8 +289,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         drawSize[0] = (int)(toPixels*phase().boundary().dimensions().x(0));
         drawSize[1] = (parentSimulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().x(1));
         //Find origin for drawing action
-        centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
-        centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
+        centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
+        centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
     }    
       
     public int computeOrigin(int align, int drawSize, int size) {

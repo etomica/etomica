@@ -245,58 +245,66 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         int i=0;
         iterator.reset();
         while(iterator.hasNext()) {atoms[i++] = iterator.next();}
-        atoms[0].coord.setStationary(false); //piston
- //       atoms[0].setStationary(true); //piston
-        atoms[1].coord.setStationary(true);
-        atoms[2].coord.setStationary(true);
-        atoms[3].coord.setStationary(true);
+        for(int n=0; n<4; n++) {//0 is piston
+            atoms[n].coord.setStationary(true);
+            protoType[n].getDrawShift()[0] = 0;
+            protoType[n].getDrawShift()[1] = 0;
+        }
         if(SpeciesPistonCylinder.direction == TOP) {
             protoType[0].setAlignment(HORIZONTAL);
+            protoType[0].getDrawShift()[1] = -pistonThickness;//shift top up when drawing (does not affect location of interactions with spheres)
             protoType[1].setAlignment(VERTICAL);
             protoType[2].setAlignment(HORIZONTAL);
             protoType[3].setAlignment(VERTICAL);
+            protoType[3].getDrawShift()[0] = -thickness;//shift left wall leftward when drawing
             atoms[0].coord.position().setX(0,0.0); //top (piston)
             atoms[0].coord.position().setX(1,0.0);
-            atoms[1].coord.position().setX(0,diameter-wallThickness); //right wall
+            atoms[1].coord.position().setX(0,diameter); //right wall
             atoms[1].coord.position().setX(1,0.0);
             atoms[2].coord.position().setX(0,0.0); //bottom
-            atoms[2].coord.position().setX(1,length-wallThickness);
+            atoms[2].coord.position().setX(1,length);
             atoms[3].coord.position().E(0.0); //left wall
         }
         else if(SpeciesPistonCylinder.direction == RIGHT) {
             protoType[3].setAlignment(HORIZONTAL);
+            protoType[3].getDrawShift()[1] = -thickness;
             protoType[0].setAlignment(VERTICAL);
             protoType[1].setAlignment(HORIZONTAL);
             protoType[2].setAlignment(VERTICAL);
+            protoType[2].getDrawShift()[0] = -thickness;
             atoms[3].coord.position().E(0.0);
-            atoms[0].coord.position().setX(0,length-pistonWallThickness);
+            atoms[0].coord.position().setX(0,length);
             atoms[0].coord.position().setX(1,0.0);
             atoms[1].coord.position().setX(0,0.0);
-            atoms[1].coord.position().setX(1,diameter-wallThickness);
+            atoms[1].coord.position().setX(1,diameter);
             atoms[2].coord.position().E(0.0);
         }
         else if(SpeciesPistonCylinder.direction == BOTTOM) {
             protoType[2].setAlignment(HORIZONTAL);
+            protoType[2].getDrawShift()[1] = -thickness;
             protoType[3].setAlignment(VERTICAL);
             protoType[0].setAlignment(HORIZONTAL);
             protoType[1].setAlignment(VERTICAL);
+            protoType[1].getDrawShift()[0] = -thickness;
             atoms[2].coord.position().E(0.0);
-            atoms[3].coord.position().setX(0,diameter-wallThickness);
+            atoms[3].coord.position().setX(0,diameter);
             atoms[3].coord.position().setX(1,0.0);
             atoms[0].coord.position().setX(0,0.0);
-            atoms[0].coord.position().setX(1,length-pistonWallThickness);
+            atoms[0].coord.position().setX(1,length);
             atoms[1].coord.position().E(0.0);
         }
         else { //WEST
             protoType[1].setAlignment(HORIZONTAL);
+            protoType[1].getDrawShift()[0] = -thickness;
             protoType[2].setAlignment(VERTICAL);
             protoType[3].setAlignment(HORIZONTAL);
             protoType[0].setAlignment(VERTICAL);
+            protoType[0].getDrawShift()[0] = -pistonThickness;
             atoms[1].coord.position().E(0.0);
-            atoms[2].coord.position().setX(0,length-wallThickness);
+            atoms[2].coord.position().setX(0,length);
             atoms[2].coord.position().setX(1,0.0);
             atoms[3].coord.position().setX(0,0.0);
-            atoms[3].coord.position().setX(1,diameter-wallThickness);
+            atoms[3].coord.position().setX(1,diameter);
             atoms[0].coord.position().E(0.0);
         }
         computeDimensions();
@@ -307,8 +315,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
   }//end of PistonCylinderConfiguration
   
         public void computeDimensions() {
-            double d = diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS;
-            double l = length - thickness / BaseUnit.Length.Sim.TO_PIXELS;
+            double d = diameter;// - thickness / BaseUnit.Length.Sim.TO_PIXELS;
+            double l = length;// - thickness / BaseUnit.Length.Sim.TO_PIXELS;
             dimensions.setX(0, (direction == TOP || direction == BOTTOM) ? d : l);
             dimensions.setX(1, (direction == TOP || direction == BOTTOM) ? l : d);
         }//end of computeDimensions
@@ -335,6 +343,22 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             return Math.abs(dx*dy);
         }
     }//end of Boundary class
+    
+    public class FixPistonModulator extends ModulatorBoolean {
+        Phase phase;
+        Atom piston;
+        public FixPistonModulator(Phase phase) {
+            SpeciesAgent agent = SpeciesPistonCylinder.this.getAgent(phase);
+            piston = agent.node.firstLeafAtom();
+            this.phase = phase;
+        }
+        public void setBoolean(boolean b) {
+            piston.coord.setStationary(b);
+            if(!b) piston.coord.momentum().E(0.0);
+            phase.integrator().reset();
+        }
+        public boolean getBoolean() {return piston.coord.isStationary();}
+    }
     
     /**
      * An extension of the Action class that toggles the piston between

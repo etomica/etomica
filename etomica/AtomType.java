@@ -18,6 +18,7 @@ import etomica.units.*;
  /* History of changes
   * 7/16/02 (DAK) AtomType.Sphere.diameter method modified to take atom as argument
   *               Added AtomType.SphereVariable inner class
+  * 8/18/02 (DAK) added drawShift to AtomType.Wall 
   */
 
 public class AtomType implements java.io.Serializable {
@@ -219,6 +220,7 @@ public class AtomType implements java.io.Serializable {
     public final static class Wall extends AtomType {
         
         int thickness = 4;  //thickness when drawn to screen (if horizontal or vertical)
+        int[] drawShift; //specifies simple shift (in pixels) of wall when drawn to screen
         private boolean vertical, horizontal, wide;
         private double cosX, sinX, tanX, cosY, sinY, tanY, cosZ, sinZ, tanZ;
 //        double[] f = new double[Space.D];   //force on wall
@@ -238,6 +240,7 @@ public class AtomType implements java.io.Serializable {
             setXAngle(x);
             setYAngle(y);
             setZAngle(z);
+            drawShift = new int[creator.parentSimulation().space.D()];
         }
         
         private void checkAlignment() {
@@ -303,6 +306,8 @@ public class AtomType implements java.io.Serializable {
             }
         }
         public final Constants.Alignment getAlignment() {return alignment;}
+        
+        public final int[] getDrawShift() {return drawShift;}
             
         public final boolean isVertical() {return vertical;}
         public final boolean isHorizontal() {return horizontal;}

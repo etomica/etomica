@@ -6,6 +6,7 @@ import etomica.utility.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     * 8/18/02 (DAK) Modified drawing of Wall to shift image by drawShift value given in type
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -65,6 +66,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom, specific to the dimension */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter(a));
+            sigmaP = (sigmaP == 0) ? 1 : sigmaP;
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
             g.fillOval(xP, yP, sigmaP, sigmaP);
@@ -88,30 +90,33 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
+            AtomType.Wall wType = (AtomType.Wall)a.type;
             xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
             yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
-            int t = Math.max(1,(int)((double)((AtomType.Wall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
-            if(!(((AtomType.Wall)a.type).isHorizontal() || ((AtomType.Wall)a.type).isVertical())) {  //not horizontal or vertical; draw line
-                int x1 = xP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getCosZ());
-                int y1 = yP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getSinZ());
-                g.drawLine(xP, yP, x1, y1);
+            int t = Math.max(1,(int)((double)wType.getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
+            int xS = (int)((double)wType.getDrawShift()[0]*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
+            int yS = (int)((double)wType.getDrawShift()[1]*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
+            if(!(wType.isHorizontal() || wType.isVertical())) {  //not horizontal or vertical; draw line
+                int x1 = xP + (int)(displayPhase.getToPixels()*wType.getLength()*wType.getCosZ());
+                int y1 = yP + (int)(displayPhase.getToPixels()*wType.getLength()*wType.getSinZ());
+                g.drawLine(xP+xS, yP+yS, x1+xS, y1+yS);
             }
-            else if(((AtomType.Wall)a.type).isLongWall()) {
+            else if(wType.isLongWall()) {
                 java.awt.Rectangle rect = g.getClipBounds();
                 //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(1));
                 //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(0));
-                int wP = ((AtomType.Wall)a.type).isVertical() ? t : Integer.MAX_VALUE;
-                int hP = ((AtomType.Wall)a.type).isHorizontal() ? t : Integer.MAX_VALUE;
+                int wP = wType.isVertical() ? t : Integer.MAX_VALUE;
+                int hP = wType.isHorizontal() ? t : Integer.MAX_VALUE;
                 //int X = vertical ? xP : origin[0];
                 //int Y = horizontal ? yP : origin[1];
-                int X = ((AtomType.Wall)a.type).isVertical() ? xP : 0;
-                int Y = ((AtomType.Wall)a.type).isHorizontal() ? yP : 0;
-                g.fillRect(X,Y,wP,hP);
+                int X = wType.isVertical() ? xP : 0;
+                int Y = wType.isHorizontal() ? yP : 0;
+                g.fillRect(X+xS,Y+yS,wP,hP);
             }   
             else {                           //horizontal or vertical; draw box
-                int wP = ((AtomType.Wall)a.type).isVertical() ? t : (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength());
-                int hP = ((AtomType.Wall)a.type).isHorizontal() ? t : (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength());
-                g.fillRect(xP,yP,wP,hP);
+                int wP = wType.isVertical() ? t : (int)(displayPhase.getToPixels()*wType.getLength());
+                int hP = wType.isHorizontal() ? t : (int)(displayPhase.getToPixels()*wType.getLength());
+                g.fillRect(xP+xS,yP+yS,wP,hP);
             }
         } else { // Not a sphere, wall, or one of their derivatives...
             // Do nothing (how do you draw an object of unknown shape?)

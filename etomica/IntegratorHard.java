@@ -142,6 +142,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         
         Atom collider = colliderAgent.atom();
         Atom partner = colliderAgent.collisionPartner();
+        potential.set(firstPhase);
             
     //   Do upList for any atoms that were scheduled to collide with atoms colliding now
     //   Assumes collider and partner haven't moved in list
