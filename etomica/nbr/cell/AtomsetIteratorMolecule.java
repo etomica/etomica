@@ -3,7 +3,19 @@
  * Created on Aug 31, 2004 by kofke and schultz
  */
 package etomica.nbr.cell;
-import etomica.*;
+import etomica.ApiIntergroup;
+import etomica.Atom;
+import etomica.AtomIteratorBasis;
+import etomica.AtomsetIterator;
+import etomica.AtomsetIteratorAdapter;
+import etomica.AtomsetIteratorBasisDependent;
+import etomica.AtomsetIteratorDirectable;
+import etomica.AtomsetIteratorPhaseDependent;
+import etomica.AtomsetIteratorTargetable;
+import etomica.IteratorDirective;
+import etomica.Phase;
+import etomica.Species;
+import etomica.SpeciesAgent;
 
 /**
  * Iterates molecules (children of SpeciesAgent atoms), as specified by phase
@@ -128,7 +140,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     		// basisIterator must be an intragroup iterator and
     		// the direction must be passed to it.  All other types
     		// of iterators do not need the direction.
-    		((ApiIntragroup)basisIterator).setDirection(direction);
+    		((ApiIntragroupCell)basisIterator).setDirection(direction);
     	}
     }
     
@@ -145,7 +157,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     		return new AtomIteratorBasis();
     	}
     	else if (species[0] == species[1]) {
-    		return new ApiIntragroup();
+    		return new ApiIntragroupCell(species);
     	}
     	else return new ApiIntergroup();
     }

@@ -1,9 +1,6 @@
 package etomica.nbr.cell;
 
-import etomica.ApiInnerVariable;
 import etomica.ApiIntergroup;
-import etomica.ApiIntragroup;
-import etomica.AtomIteratorBasis;
 import etomica.AtomSequencerSimple;
 import etomica.AtomsetIterator;
 import etomica.IteratorFactory;
@@ -24,10 +21,7 @@ public class IteratorFactoryCell extends IteratorFactory {
         return new ApiIntergroup();
     }
     public AtomsetIterator makeIntraSpeciesPairIterator(Species[] species) {
-        ApiInnerVariable pairIterator = new ApiInnerVariable(
-                    new AtomIteratorBasis(),
-                    new AtomIteratorNbrCell(species[0],true));
-        return new ApiIntragroup(pairIterator);
+        return new ApiIntragroupCell(species);
     }
     public Factory moleculeSequencerFactory() {
         return AtomSequencerSimple.FACTORY;
