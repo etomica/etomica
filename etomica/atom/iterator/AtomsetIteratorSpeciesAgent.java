@@ -4,11 +4,12 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.SpeciesAgent;
+import etomica.atom.AtomsetArray;
 
 /**
  * Iterates molecules (children of SpeciesAgent atoms), as specified by phase
@@ -36,6 +37,7 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
 		this.species = (Species[])species.clone();
 		basisSize = species.length;
 		agents = new SpeciesAgent[basisSize];
+        atoms = new AtomsetArray(basisSize);
 	}
 
 	/**
@@ -49,7 +51,8 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
     		for (int i=0; i<basisSize; i++) {
     			agents[i] = phase.getAgent(species[i]);
     		}
-    		((AtomsetIteratorSinglet)iterator).setAtom(agents);
+            atoms.setAtoms(agents);
+    		((AtomsetIteratorSinglet)iterator).setAtom(atoms);
     	}
     	unset();
     }
@@ -70,16 +73,16 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
     	return (Species[])species.clone();
     }
 
-    public void setTarget(Atom[] targetAtoms) {
-    	if (targetAtoms.length > basisSize) {
+    public void setTarget(AtomSet targetAtoms) {
+    	if (targetAtoms.count() > basisSize) {
     		canReset = false;
     		return;
     	}
     	boolean[] agentUsed = new boolean[basisSize];
-    	for (int i=0; i<targetAtoms.length; i++) {
+    	for (int i=0; i<targetAtoms.count(); i++) {
     		boolean match = false;
     		for (int j=0; j<agents.length; j++) {
-    			if (!agentUsed[j] && targetAtoms[i].node.parentSpeciesAgent() == agents[j]) {
+    			if (!agentUsed[j] && targetAtoms.getAtom(i).node.parentSpeciesAgent() == agents[j]) {
     				agentUsed[j] = true;
     				match = true;
     				break;
@@ -99,5 +102,6 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
 	private final int basisSize;
 	private boolean canReset = true;
 	private Phase phase;
+    private final AtomsetArray atoms;
 	
 }
