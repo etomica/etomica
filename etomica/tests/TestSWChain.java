@@ -100,7 +100,7 @@ public class TestSWChain extends Simulation {
         phase.setConfiguration(null);
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
-        phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength)));
+        phase.setConfiguration(new ConfigurationFile(space,"SWChain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength)));
     }
     
     public static void main(String[] args) {
