@@ -57,7 +57,7 @@ public class PistonCylinder extends Simulation {
         controller = getController();
         Default.ATOM_MASS = 16;
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(100);
+        species.setNMolecules(112);
         phase = new Phase(space);
         phase.setBoundary(new BoundaryNone(space));
         Vector newDim;
@@ -65,7 +65,7 @@ public class PistonCylinder extends Simulation {
             newDim = new Vector2D(80,150);
         }
         else {
-            newDim = new Vector3D(150,150,150);
+            newDim = new Vector3D(80,80,80);
         }
         phase.boundary().setDimensions(newDim);
         
