@@ -45,7 +45,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     */
     public void bump(AtomSet pair, double falseTime) {
         double eps = 1e-6;
-        cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+        cPair.reset((AtomPair)pair);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -98,7 +98,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * collision of the wells.  Takes into account both separation and convergence.
     */
     public double collisionTime(AtomSet pair, double falseTime) {
-        cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+        cPairNbr.reset((AtomPair)pair);
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();

@@ -71,7 +71,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public double energy(AtomSet pair) {
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
     	double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.uTransform(r2, u(r2));
@@ -82,7 +82,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public double virial(AtomPair pair) {
-    	cPair.reset(pair.atom0.coord,pair.atom1.coord);
+    	cPair.reset(pair);
         double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.duTransform(r2, du(r2));
@@ -93,7 +93,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public double hyperVirial(AtomPair pair) {
-    	cPair.reset(pair.atom0.coord,pair.atom1.coord);
+    	cPair.reset(pair);
         double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.d2uTransform(r2, d2u(r2)) + potentialTruncation.duTransform(r2, du(r2));
@@ -105,7 +105,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public Vector gradient(AtomSet pair) {
   //  	System.out.println(((P2LennardJones)this).getSigma()+"  "+((AtomType.Sphere)pair.atom1().type).diameter);
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
         double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) work1.E(0.0);
         else {

@@ -95,7 +95,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      */
     public final void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
-        cPair.reset(pair.atom0.coord,pair.atom1.coord);
+        cPair.reset(pair);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -136,7 +136,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+        cPairNbr.reset((AtomPair)pair);
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();

@@ -46,7 +46,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
 
     public double energy(AtomSet pair) {
 
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
         double r2 = cPair.r2();
        
         if(r2 < coreDiameterSquared)

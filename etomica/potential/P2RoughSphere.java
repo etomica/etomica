@@ -1,6 +1,8 @@
 package etomica.potential;
 
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.AtomType;
 import etomica.Default;
 import etomica.EtomicaInfo;
@@ -49,10 +51,10 @@ public class P2RoughSphere extends P2HardSphere {
      * Implements collision dynamics and updates lastCollisionVirial
      * Assumes atoms have same size and mass
      */
-    public void bump(Atom[] pair, double falseTime) {
-        Atom a1 = pair[0];
-        Atom a2 = pair[1];
-		cPair.reset(a1.coord,a2.coord);
+    public void bump(AtomSet pair, double falseTime) {
+        Atom a1 = ((AtomPair)pair).atom0;
+        Atom a2 = ((AtomPair)pair).atom1;
+		cPair.reset((AtomPair)pair);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();

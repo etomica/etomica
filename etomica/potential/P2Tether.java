@@ -58,7 +58,7 @@ public class P2Tether extends Potential2HardSpherical {
    * Implements collision dynamics for pair attempting to separate beyond tether distance
    */
   public final void bump(AtomSet pair, double falseTime) {
-      cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+      cPair.reset((AtomPair)pair);
       ((CoordinatePairKinetic)cPair).resetV();
       dr.E(cPair.dr());
       Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -90,7 +90,7 @@ public class P2Tether extends Potential2HardSpherical {
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
    */
   public final double collisionTime(AtomSet pair, double falseTime) {
-      cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+      cPairNbr.reset((AtomPair)pair);
       ((CoordinatePairKinetic)cPairNbr).resetV();
       dr.E(cPairNbr.dr());
       Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();

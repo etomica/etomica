@@ -60,7 +60,7 @@ public class P2SquareWell extends Potential2HardSpherical {
      */
     public void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
-        cPair.reset(pair.atom0.coord,pair.atom1.coord);
+        cPair.reset(pair);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -135,7 +135,7 @@ public class P2SquareWell extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(AtomSet pair, double falseTime) {
-        cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+        cPairNbr.reset((AtomPair)pair);
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();

@@ -52,7 +52,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
      * Returns the pair potential energy.
      */
     public double energy(AtomSet pair) {
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
         double eTot = 0.0;
         double r2 = cPair.r2();
                  

@@ -26,7 +26,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public double energy(AtomSet pair) {
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
     	double r2 = cPair.r2();
     	return u(r2);
     }
