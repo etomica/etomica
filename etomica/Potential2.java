@@ -66,8 +66,6 @@ public abstract class Potential2 extends Potential {
 		 * Integral used to evaluate correction to truncation of potential.
 		 */
 		public abstract double integral(double rC);
-    
-
     }
     
 }//end of Potential2
