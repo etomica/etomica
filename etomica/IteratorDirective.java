@@ -67,7 +67,7 @@ public class IteratorDirective implements java.io.Serializable {
             new Direction("Up", true, false),
             new Direction("Down", false, true),
             new Direction("Neither", false, false),
-            new Direction("Both", false, false)
+            new Direction("Both", true, true)
         };
         
         public final Constants.TypedConstant[] choices() {return CHOICES;}

@@ -240,8 +240,9 @@ public class Atom implements Space.Occupant, java.io.Serializable {
 
     //needs work
     public final boolean preceeds(Atom atom) {
-        if(atom == parentPhase().firstAtom()) return false;
-        return true;
+        return debugIndex < atom.debugIndex;
+  //      if(atom == parentPhase().firstAtom()) return false;
+  //      return true;
         /* //work this out later when atomGroup is in place
         //want to return true if atoms are the same atoms
         if(atom == null) return true;

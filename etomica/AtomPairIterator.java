@@ -2,7 +2,7 @@ package etomica;
 
 /**
  * Basic class for iterating over pairs of atoms.
- * Pairs are iterated by collecting pairs yielded by two atom iterators.
+ * Pairs are iterated by collecting atoms yielded by two atom iterators.
  * Different types of pair iterators can be constructed with different choices
  * of the atom iterators.
  *

@@ -137,10 +137,10 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      */
     protected Atom reset(Atom a) {
         if(isNeighborIterator) atom = firstNeighbor(a);
-        else atom = contains(a) ? a : null; //also ensures that a is not null
+        else atom = (this.contains(a) ? a : null); //also ensures that a is not null
         
         //these are needed only if direction == BOTH
-        setAtom = a;
+        setAtom = a; //also used by reset()
         terminator2 = defaultFirstAtom();
         
         if(upListNow) terminator = defaultLastAtom();
