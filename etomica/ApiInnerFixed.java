@@ -95,6 +95,7 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
 
     /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
+     * A previously returned pair may be altered by this method.
      */
     public void reset() {
         aiOuter.reset();
