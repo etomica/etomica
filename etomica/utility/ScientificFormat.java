@@ -25,7 +25,11 @@
 //package rplante.text;
 package etomica.utility;
 
-import java.text.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Locale;
 import java.util.Vector;
 

@@ -1,5 +1,9 @@
 package etomica.models.water;
-import etomica.*;
+import etomica.Default;
+import etomica.EtomicaElement;
+import etomica.Simulation;
+import etomica.Space;
+import etomica.Species;
 
 public class SpeciesWater extends Species implements EtomicaElement {
     

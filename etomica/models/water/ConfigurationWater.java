@@ -1,5 +1,8 @@
 package etomica.models.water;
-import etomica.*;
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.Configuration;
+import etomica.Space;
 
 public class ConfigurationWater extends Configuration {
 

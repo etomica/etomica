@@ -1,7 +1,8 @@
 package etomica.utility;
 
-import java.util.*;
-import javax.swing.*;
+import java.util.Hashtable;
+
+import javax.swing.JLabel;
 
 /**
  * Slider that permits variation of decimal (non-integer) values.  Extends
