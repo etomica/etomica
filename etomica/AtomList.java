@@ -441,11 +441,11 @@ public class AtomList implements java.io.Serializable
         return -1;
     }
 
-    private AtomLinker addBefore(Atom atom, AtomLinker e) {
+    public AtomLinker addBefore(Atom atom, AtomLinker e) {
 	    return addBefore(AtomLinker.makeLinker(atom), e);
 	}
 	
-	private AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
+	public AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
 	    newAtomLinker.next = e;
 	    newAtomLinker.previous = e.previous;
 	    newAtomLinker.previous.next = newAtomLinker;

@@ -8,7 +8,7 @@ import java.util.Observable;
  */
 public class BravaisLattice extends Atom implements AbstractLattice {
 
-   private Space.Vector[] primitiveVector;
+   private Primitive primitive;
    private double[] primitiveVectorLength;
    private int[] idx;
    private AtomList siteList;
@@ -19,15 +19,14 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         D = space.D();
         idx = new int[D];
         primitiveVectorLength = new double[D];
-        primitiveVector = new Space.Vector[D];
-        for(int i=0; i<D; i++) {primitiveVector[i] = space.makeVector();}
    }
    
    /**
     * Constructs a unique BravaisLattice factory and returns a new lattice from it.
     */
-   public static BravaisLattice makeLattice(Space space, int[] dimensions, Space.Vector[] pVectors, AtomFactory siteFactory) {
-        return (BravaisLattice)new Factory(space, dimensions, pVectors, siteFactory).build();
+   public static BravaisLattice makeLattice(
+                Space space, int[] dimensions, Primitive primitive, AtomFactory siteFactory) {
+        return (BravaisLattice)new Factory(space, dimensions, primitive, siteFactory).build();
    }
    
     /**
@@ -51,7 +50,22 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
     protected void notifyObservers() {monitor.notifyObservers();}
 
-    public void setPrimitiveVector(Space.Vector[] pVectors) {
+    /**
+     * Sets the primitive for this lattice to the one given, and 
+     * updates the site positions.
+     */
+    public void setPrimitive(Primitive primitive) {
+        this.primitive = primitive;
+        update();
+    }
+    /**
+     * Returns the primitive object used to construct this lattice.
+     * Note that if the primitive is modified, changes will not be
+     * reflected in this lattice until the update() method is called.
+     */
+    public Primitive getPrimitive() {return primitive;}
+    
+/*    public void setPrimitiveVector(Space.Vector[] pVectors) {
         if(pVectors == null) return;
         if(pVectors.length != D) throw new IllegalArgumentException("Error in BravaisLattice.setPrimitiveVector:  incorrect length for primitive-vector array");
         Atom a = this;
@@ -70,7 +84,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         type.creator().getConfiguration().initializePositions(this);
         notifyObservers();
     }
-    
+*/    
     /**
      * Returns the atom type instance held by all atoms at the depth d.
      */
@@ -98,25 +112,46 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         return site;
     }
     
+    /**
+     * Returns a list of all the Bravais lattice sites for this lattice.
+     * Sites making up the lattice basis are not returned individually
+     * if the basis is multiatomic.
+     */
     public AtomList siteList() {return siteList;}
     
+    /**
+     * Returns the spatial dimension of this lattice.
+     */
     public int D() {return D;}
     
+    /**
+     * Overrides the superclass method to return a simple string.
+     * Terminates the chain of parentGroup calls that define the signature
+     * of an atom in this lattice.
+     */
     public String signature() {return "BravaisLattice";}
     
-    
     /**
-     * Causes all coordinates to update their position vectors.  
-     * Typically invoked when a change is made to the primitive vectors.
+     * Causes all coordinates to update their position vectors, and
+     * notifies any observers that a change has occurred.
+     * Invoked by setPrimitive.  If primitive vectors are altered externally,
+     * the modifying program must call this method to effect any changes
+     * in the lattice coordinates.
      */
-    public void updateCoordinates() {
+    public void update() {
+        Space.Vector[] pVectors = primitive.vectors();
+        Atom a = this;
+        for(int i=0; i<D; i++) {
+           ((ConfigurationLinear)a.creator().getConfiguration()).setOffset(pVectors[i]);
+           primitiveVectorLength[i] = Math.sqrt(pVectors[i].squared());
+           a = a.node.firstChildAtom();
+        }
+        type.creator().getConfiguration().initializePositions(this);
+        notifyObservers();
     }
 
  /**
   * Factory to construct an arbitrary-dimension Bravais lattice.
-  * The lattice occupies a D'-dimensional space.  Normally D' = D, but this need not be 
-  * the case (e.g., we may have a 2-dimensional (planar) lattice given at some orientation in 3-d).
-  * The placement of the sites in the D'-dimensional space is given by the primitiveVector array.
   */
 public static class Factory extends AtomFactoryTree {
     
@@ -124,9 +159,9 @@ public static class Factory extends AtomFactoryTree {
      //dimension of embedding space equals the length of each primitive vector
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
-    public Factory(Space space, int[] dimensions, Space.Vector[] pVectors, AtomFactory siteFactory) {
-        super(space, siteFactory, dimensions, configArray(space, pVectors));
-        primitiveVectors = pVectors;
+    public Factory(Space space, int[] dimensions, Primitive primitive, AtomFactory siteFactory) {
+        super(space, siteFactory, dimensions, configArray(space, primitive.vectors()));
+        this.primitive = primitive;
     }
     
     public Atom build() {
@@ -135,7 +170,7 @@ public static class Factory extends AtomFactoryTree {
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);
         leafIterator.reset();
         group.siteList = new AtomList(leafIterator);
-        group.setPrimitiveVector(primitiveVectors);
+        group.setPrimitive(primitive);
         return group;
     }
 
@@ -148,7 +183,7 @@ public static class Factory extends AtomFactoryTree {
         return array;
     }
     
-    private Space.Vector[] primitiveVectors;
+    private Primitive primitive;
 }//end of Factory
 
     /**
@@ -158,10 +193,10 @@ public static class Factory extends AtomFactoryTree {
         System.out.println("main method for BravaisLattice");
         Space space = new Space2D();
         int D = space.D();
+        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
         BravaisLattice lattice = BravaisLattice.makeLattice(space, 
                                 new int[] {3,2},
-                                new Space.Vector[] {Space.makeVector(new double[] {1.,0.}),
-                                                   Space.makeVector(new double[] {0.,1.}),},
+                                primitive,
                                 new AtomFactoryMono(space));        
         System.out.println("Total number of sites: "+lattice.siteList().size());
         System.out.println();
@@ -180,8 +215,10 @@ public static class Factory extends AtomFactoryTree {
         
         System.out.println();
         System.out.println("Changing primitive vector");
-        lattice.setPrimitiveVector(new Space.Vector[] {Space.makeVector(new double[] {0.,1.}),
-                                                       Space.makeVector(new double[] {0.5,0.})});
+        primitive.setSize(new double[] {1.0, 0.5});
+        lattice.update();
+ //       lattice.setPrimitiveVector(new Space.Vector[] {Space.makeVector(new double[] {0.,1.}),
+ //                                                      Space.makeVector(new double[] {0.5,0.})});
         iterator.allAtoms(printSites);
         System.out.println();
         

@@ -10,57 +10,57 @@ import etomica.*;
  */
 public class NeighborManager {
     
-    private final AtomList upList;
-    private final AtomList dnList;
-    private final Site site;
+    private final AtomList neighborList;
+    private final Atom site;
+    private final AtomLinker.Tab tab;
     
-    public NeighborManager(Site s) {
+    public NeighborManager(Atom s) {
         site = s;
-        upList = new AtomList();
-        dnList = new AtomList();
+        neighborList = new AtomList();
+        tab = new AtomLinker.Tab();
+        neighborList.add(tab);
     }
-    public NeighborManager(Site s, AtomIterator iterator, Criterion criterion) {
+    public NeighborManager(Atom s, AtomList list, Criterion criterion) {
         this(s);
-        setupNeighbors(iterator, criterion);
+        setupNeighbors(list, criterion);
     }
 
-    public Site site() {return site;}
-    public int neighborCount() {return upList.size() + dnList.size();}
-    public boolean isNeighbor(Site s) {
-        return (upList.contains(s) || dnList.contains(s));
+    public Atom site() {return site;}
+    public int neighborCount() {return neighborList.size();}
+    public boolean isNeighbor(Atom s) {
+        return (neighborList.contains(s));
     }
     
     /**
      * Returns the first neighbor that would be encountered when proceeding
      * up the iterator used to construct the neighbor lists.
      */
-    public Site firstNeighbor() {return (Site)dnList.getLast();}
+    public Atom firstNeighbor() {return neighborList.getFirst();}
     /**
      * Returns the last neighbor that would be encountered when proceeding
      * up the iterator used to construct the neighbor lists.
      */
-    public Site lastNeighbor() {return (Site)upList.getLast();}
+    public Atom lastNeighbor() {return neighborList.getLast();}
     
-    public AtomList upNeighbors() {return upList;}
-    public AtomList downNeighbors() {return dnList;}
+    public AtomList neighbors() {return neighborList;}
     
     public void clearAll() {
-        upList.clear();
-        dnList.clear();
+        neighborList.clear();
     }
 
-    public void setupNeighbors(AtomIterator iterator, Criterion criterion) {  //set up neighbors according to given criterion
+    public void setupNeighbors(AtomList list, Criterion criterion) {  //set up neighbors according to given criterion
+        AtomIteratorList iterator = new AtomIteratorList(list);
         iterator.reset();
         boolean down = true;
         while(iterator.hasNext()) {              //begin outer loop
-            Site s = (Site)iterator.next();
+            Atom s = iterator.next();
             if(s == site) {down = false;}     //subsequent neighbors go in up-list
             else if(criterion.areNeighbors(s,site)) {
-                if(down) {dnList.addFirst(s);}
-                else     {upList.addLast(s);}
+                if(down) neighborList.addBefore(s, tab);
+                else     neighborList.addLast(s);
             }
         }
-    }//end of SiteIterator.Neighbor.setNeighbors
+    }//end of setupNeighbors
             
         /**
          * Defines a criterion for specifying whether two sites on a lattice are to be designated as neighbors of each other.
@@ -69,15 +69,15 @@ public class NeighborManager {
          * <code>true</code>.
          */
         public interface Criterion {
-            public boolean areNeighbors(Site s1, Site s2);
+            public boolean areNeighbors(Atom s1, Atom s2);
              
             /**
              * Criterion that defines all sites on the lattice to be neighbors of each other.
              */
             public class All implements Criterion {
-                public boolean areNeighbors(Site s1, Site s2) {return s1 != s2;}
+                public boolean areNeighbors(Atom s1, Atom s2) {return s1 != s2;}
             }//end of Criterion.All
-        }//end of Neighbor.Criterion
+        }//end of NeighborManager.Criterion
                     
 }//end of NeighborManager
             
