@@ -52,7 +52,7 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
 	 * Part of the AtomSet interface.
 	 * 
 	 */
-	public final int atomCount() {return 2;}
+	public final int nBody() {return 2;}
 	
    /**
     * Redefines the atom pair to correspond to the given atoms

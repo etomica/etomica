@@ -13,6 +13,10 @@ public abstract class AtomPairAction implements AtomPairActive, java.io.Serializ
 		outerWrapper = new AtomPairActive.OuterWrapper(this);
 	}
 	
+	public void actionPerformed(AtomSet atomSet) {
+		actionPerformed((AtomPair)atomSet);
+	}
+	
     /**
 	 * @see etomica.AtomPairActive#actionPerformed(etomica.AtomPair)
 	 */

@@ -40,7 +40,7 @@ public class PotentialCalculation implements AtomSetActive,
 	public void actionPerformed(Phase phase) {}
 	
 	public void actionPerformed(AtomSet atomSet) {
-		switch(atomSet.atomCount()) {
+		switch(atomSet.nBody()) {
 			case 1: actionPerformed((Atom)atomSet); break;
 			case 2: actionPerformed((AtomPair)atomSet); break;
 			case 3: actionPerformed((Atom3)atomSet); break;

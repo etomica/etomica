@@ -231,8 +231,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double x; //hypervirial sum
         double rvx; 
         double vf;
-		private Potential2Soft p2Soft;
-		private Potential1Soft p1Soft;
+		private Potential2.Soft p2Soft;
+		private Potential1.Soft p1Soft;
 
         private final Space.Vector f;
         public ForceSumNPH(Space space) {
@@ -240,13 +240,13 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         }
             
 		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof Potential1Soft)) throw new RuntimeException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-			p1Soft = (Potential1Soft)p1;
+			if(!(p1 instanceof Potential1.Soft)) throw new IllegalArgumentException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
+			p1Soft = (Potential1.Soft)p1;
 			return super.set(p1);
 		}
 		public PotentialCalculation set(Potential2 p2) {
-			if(!(p2 instanceof Potential2Soft)) throw new RuntimeException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-			p2Soft = (Potential2Soft)p2;
+			if(!(p2 instanceof Potential2.Soft)) throw new IllegalArgumentException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
+			p2Soft = (Potential2.Soft)p2;
 			return super.set(p2);
 		}
 
@@ -259,7 +259,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
         //pair
         public void calculate(AtomPairIterator iterator, Potential2 potential) {
-            Potential2Soft potentialSoft = (Potential2Soft)potential;
+            Potential2.Soft potentialSoft = (Potential2.Soft)potential;
             while(iterator.hasNext()) {
                 AtomPair pair = iterator.next();
                 double r2 = pair.r2();

@@ -85,7 +85,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         }
                 
         //Compute forces on each atom
-        potential.calculate(allAtoms, forceSum);
+        potential.calculate(firstPhase, allAtoms, forceSum);
         
         //Finish integration step
         atomIterator.reset();
@@ -127,7 +127,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             Agent agent = (Agent)a.ia;
             agent.force.E(0.0);
         }
-        potential.set(firstPhase).calculate(allAtoms, forceSum);//assumes only one phase
+        potential.calculate(firstPhase, allAtoms, forceSum);//assumes only one phase
     }
               
 //--------------------------------------------------------------

@@ -145,7 +145,7 @@ public class MCMoveSemigrand extends MCMove {
         insertAgent = agentSet[iInsert];
   
         deleteMolecule = deleteAgent.randomMolecule();
-        uOld = potential.set(phase).calculate(iteratorDirective.set(deleteMolecule), energy.reset()).sum();
+        uOld = potential.calculate(phase, iteratorDirective.set(deleteMolecule), energy.reset()).sum();
         deleteMolecule.sendToReservoir();
         
         insertMolecule = insertAgent.addNewAtom();
@@ -161,7 +161,7 @@ public class MCMoveSemigrand extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(iteratorDirective.set(insertMolecule), energy.reset()).sum();
+        uNew = potential.calculate(phase, iteratorDirective.set(insertMolecule), energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature +
                 Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }

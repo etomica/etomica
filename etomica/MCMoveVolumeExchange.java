@@ -60,8 +60,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
     
     public boolean doTrial() {
-        uOld1 = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum();
-        uOld2 = potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uOld1 = potential.calculate(firstPhase, iteratorDirective, energy.reset()).sum();
+        uOld2 = potential.calculate(secondPhase, iteratorDirective, energy.reset()).sum();
         hOld = uOld1 + uOld2;
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
@@ -84,8 +84,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
         
     public double lnProbabilityRatio() {
-        uNew1 = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum();
-        uNew2 = potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew1 = potential.calculate(firstPhase, iteratorDirective, energy.reset()).sum();
+        uNew2 = potential.calculate(secondPhase, iteratorDirective, energy.reset()).sum();
         double hNew = uNew1 + uNew2;
         return -(hNew - hOld)/parentIntegrator.temperature;
     }

@@ -10,7 +10,8 @@ package etomica;
  */
  
  /* History of changes
-  * 8/13/02 (DAK) added removePotential method
+  * 08/13/02 (DAK) added removePotential method
+  * 01/27/03 (DAK) many revisions as part of redesign of Potential
   */
 public final class PotentialMaster extends PotentialGroup {
     
@@ -22,8 +23,6 @@ public final class PotentialMaster extends PotentialGroup {
     public PotentialMaster(Simulation sim) {
         super(sim);
     } 
-    
-      
     
 	/**
 	 * Returns the potential group that oversees the long-range
@@ -95,8 +94,7 @@ public final class PotentialMaster extends PotentialGroup {
 		public AtomSet basis(SpeciesMaster m) {
 			try{
 				AtomSet basis = basisArray[m.index];
-				if(basis == null) return makeBasis(m);
-				else return basis;
+				return (basis == null) ? makeBasis(m) : basis;
 			} catch(ArrayIndexOutOfBoundsException ex) {
 				return makeBasis(m);
 			}
@@ -116,7 +114,7 @@ public final class PotentialMaster extends PotentialGroup {
 					SpeciesAgent speciesA = species[0].getAgent(m);
 					SpeciesAgent speciesB = species[1].getAgent(m);
 					if(speciesA.seq.preceeds(speciesB)) newBasis = new AtomPair(speciesA, speciesB); 
-					else newBasis = new AtomPair(speciesA, speciesB);
+					else newBasis = new AtomPair(speciesB, speciesA);
 					break;
 				default: throw new RuntimeException("problem in PotentialMaster.makeBasis");
 			}

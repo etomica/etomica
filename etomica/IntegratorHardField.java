@@ -70,7 +70,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             iagent.forceFree = true;
         }
         //Compute forces on each atom
-        potential.calculate(fieldsOnly, forceSum);
+        potential.calculate(firstPhase, fieldsOnly, forceSum);
         
     }//end of calculateForces
     
@@ -122,7 +122,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     /**
     * Extends IntegratorHard.Agent to hold a force vector.
     */
-    public final static class Agent extends IntegratorHard.Agent implements Integrator.Agent.Forcible { 
+    public final static class Agent extends IntegratorHardAbstract.Agent implements Integrator.Agent.Forcible { 
         public final Space.Vector force;
         public boolean forceFree = true;
         public Agent(Simulation sim, Atom a) {
@@ -138,7 +138,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
      * Differs from PotentialCalculation.ForceSum in that only 1-body potentials
      * are considered, and also sets forceFree flag of Agent appropriately.
      */
-    public static final class ForceSum implements Potential1Calculation {
+    public static final class ForceSum extends PotentialCalculation {
         
         private final Space.Vector f;
         public ForceSum(Space space) {
@@ -147,7 +147,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         
         //atom
         public void calculate(AtomIterator iterator, Potential1 potential) {
-            Potential1Soft potentialSoft = (Potential1Soft)potential;
+            Potential1.Soft potentialSoft = (Potential1.Soft)potential;
             while(iterator.hasNext()) {
                 Atom atom = iterator.next();
                 f.E(potentialSoft.gradient(atom));

@@ -35,13 +35,6 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         return info;
     }
 
-    public void calculate(IteratorDirective id, PotentialCalculation pc) {
-        if( !(pc instanceof Potential2Calculation) ) return;
-        iterator = (id.atomCount() == 0) ? iteratorA : iterator1;
-        iterator.reset(id);
-        ((Potential2Calculation)pc).calculate(iterator, this); 
-    }//end of calculate
-
     public boolean overlap(AtomPair pair) {return pair.r2() < coreDiameterSquared;}
 
     public double energy(AtomPair pair) {

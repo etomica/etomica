@@ -58,10 +58,13 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         int count = 10000;
         while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
-            atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
-            
-            colliderAgent.collisionPotential.bump(atomPair);
-            
+ 			Atom partner = colliderAgent.collisionPartner();
+ 			if(partner == null) {
+ 				((Potential1.Hard)colliderAgent.collisionPotential).bump(colliderAgent.atom());
+ 			} else {
+	            atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
+	            ((Potential2.Hard)colliderAgent.collisionPotential).bump(atomPair);
+	 		}            
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
             }
@@ -223,7 +226,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
         public Atom atom, collisionPartner;
         public double collisionTime = Double.MAX_VALUE; //time to next collision
-        public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
+        public Potential.Hard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public boolean movedInList = false;
         
         public Agent(Atom a) {atom = a;}
@@ -236,7 +239,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         public void resetCollision() {
             collisionTime = periodCollisionTime();
-            collisionPotential = PotentialHard.NULL;
+            collisionPotential = Potential.Hard.NULL;
             collisionPartner = null;
         }
         
@@ -269,7 +272,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
      * @param partner the atom this one will collide with next
      * @param p       the potential for interactions between this atom and its collision partner
      */
-        public final void setCollision(double time, Atom partner, PotentialHard p) {
+        public final void setCollision(double time, Atom partner, Potential.Hard p) {
             collisionTime = time;
             collisionPartner = partner;
             collisionPotential = p;

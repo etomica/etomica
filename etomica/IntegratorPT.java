@@ -212,8 +212,8 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 		temp1 = integrator1.getTemperature();
 		temp2 = integrator2.getTemperature();
 
-        u1 = potential.set(phase1).calculate(iteratorDirective, energy.reset()).sum();
-        u2 = potential.set(phase2).calculate(iteratorDirective, energy.reset()).sum();
+        u1 = potential.calculate(phase1, iteratorDirective, energy.reset()).sum();
+        u2 = potential.calculate(phase2, iteratorDirective, energy.reset()).sum();
         deltaU1 = Double.NaN;
         return true;
     }

@@ -13,7 +13,7 @@ public abstract class Potential0 extends Potential {
     public static String VERSION = "Potential0:01.07.26/"+Potential.VERSION;
     
     public Potential0(PotentialGroup parent) {
-        super(parent);
+        super(0, parent);
     }
     
     public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
@@ -27,22 +27,34 @@ public abstract class Potential0 extends Potential {
     public abstract double energy(Phase phase);
     
     public void setSpecies(Species[] species) {
-        switch (species.length) {
-            case 1: ;
-                    break;
-            default: throw new IllegalArgumentException("Wrong number of species given in Potential0");
-        }
+    	throw new etomica.exception.MethodNotImplementedException();
+//        switch (species.length) {
+//            case 1: ;
+//                    break;
+//            default: throw new IllegalArgumentException("Wrong number of species given in Potential0");
+//        }
+//        super.setSpecies(species);
     }
+    
     /**
-     * Returns an array of length 1 with the species to which this potential applies.
-     * Returns null if no species has been set.
+     * Sets the iterator for this potential, which in most cases does not
+     * require any iterator.  Default is AtomSetIterator.NULL.
+     * @see etomica.Potential#setIterator(AtomSetIterator)
      */
-    public Species[] getSpecies() {
-        if(species == null) return null;
-        else return new Species[] {species};
+    public void setIterator(AtomSetIterator iterator) {
+    	this.iterator = iterator;
+    }
+    
+    /**
+     * Returns the iterator last defined via the setIterator method.  Default is
+     * AtomSetIterator.NULL if none was previously set.
+     * @see etomica.Potential#getIterator()
+     */
+    public AtomSetIterator getIterator() {
+    	return iterator;
     }
 
-    private Species species;
+    private AtomSetIterator iterator = AtomSetIterator.NULL;
         
 }//end of Potential0
 

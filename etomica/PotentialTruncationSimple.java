@@ -79,7 +79,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         }
         
         public double energy(Phase phase) {
-            return uCorrection(potential.iterator().size()/phase.volume());
+            return uCorrection(((AtomPairIterator)potential.getIterator()).size()/phase.volume());
         }
         
         /**

@@ -58,7 +58,7 @@ public class Atom implements AtomSet, java.io.Serializable {
 	 * Returns 1, indicating this is an atom set of one atom. Part of
 	 * AtomSet interface.
 	 */
-	public final int atomCount() {return 1;}
+	public final int nBody() {return 1;}
 
 //   linked lists of bonds
     public BondLinker firstUpBond;

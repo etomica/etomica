@@ -267,9 +267,9 @@ public static final class SequentialIterator extends AtomIterator {
         factory = f;
     }
         
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
-		throw new RuntimeException("Method all not implemented in IteratorFactoryCell.SequentialIterator");
+		throw new etomica.exception.MethodNotImplementedException();
 	}
 
    /**
@@ -392,20 +392,20 @@ public static final class SequentialIterator extends AtomIterator {
  * a child of the same basis.
  */
 //would like to modify so that central atom can be any descendant of the basis.
-public static final class IntragroupNbrIterator implements AtomIterator {
+public static final class IntragroupNbrIterator extends AtomIterator {
     
     public IntragroupNbrIterator(IteratorFactoryCell factory) {
         iteratorFactory = factory;
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
 		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
+		 all((Atom)basis, id, (AtomActive)action);
 	}
     
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
-		throw new RuntimeException("Method all not implemented in IteratorFactoryCell.IntragroupNbrIterator");
+		throw new etomica.exception.MethodNotImplementedException();
 	}
 
     /**
@@ -647,18 +647,18 @@ public static final class IntragroupNbrIterator implements AtomIterator {
  * a child of a different basis.
  */
 //would like to modify so that central atom can be any descendant of the basis.
-public static final class IntergroupNbrIterator implements AtomIterator {
+public static final class IntergroupNbrIterator extends AtomIterator {
     
     public IntergroupNbrIterator(IteratorFactoryCell factory) {
         iteratorFactory = factory;
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
 		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
+		 all((Atom)basis, id, (AtomActive)action);
 	}
     
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in IterfactoryCell.IntergroupNbrIterator");
 	}

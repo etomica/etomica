@@ -134,7 +134,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
             testMolecule.coord.translateTo(phase.randomPosition());  //select random position
 //            if(display != null && i % 10 ==0) display.repaint();
-            double u = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+            double u = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
             if(u < Double.MAX_VALUE)              //add to test-particle average
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }

@@ -22,25 +22,32 @@ public class PotentialGroup extends Potential {
      */
     PotentialGroup(Simulation sim) {
     	super(sim);
-    }
+     }
     /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
      * Parent potential is potential master for current value of Simulation.instance.
      */
-    public PotentialGroup() {
-        this(Simulation.instance.hamiltonian.potential);
+    public PotentialGroup(int nBody) {
+        this(nBody, Simulation.instance.hamiltonian.potential);
     }
     /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
      */
-    public PotentialGroup(PotentialGroup parent) {
-        this(parent, null);
+    public PotentialGroup(int nBody, PotentialGroup parent) {
+        this(nBody, parent, null);
     }
     /**
      * Makes instance with given truncation scheme.
      */
-    public PotentialGroup(PotentialGroup parent, PotentialTruncation truncation) {
-        super(parent, truncation);
+    public PotentialGroup(int nBody, PotentialGroup parent, PotentialTruncation truncation) {
+        super(nBody, parent, truncation);
+        switch(nBody) {
+        	case 1: iterator = parentSimulation().iteratorFactory.makeGroupIteratorSequential();
+        			break;
+        	case 2: iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
+											new ApiIntergroupAA(parentSimulation()));
+					break;
+        }//end switch
     }
 
     public boolean contains(Potential potential) {
@@ -49,6 +56,32 @@ public class PotentialGroup extends Potential {
         }//end for
         return false;
     }
+
+	/**
+	  * Extends superclass setSpecies method to instantiate iterators based on
+	  * number of species in array.  If this is a one-body potential, iterator
+	  * is instantiated as in Potential1, if a two-body, iterator is as in
+	  * Potential2.
+	  * @see etomica.Potential#setSpecies(Species[])
+	  * @see etomica.Potential1#setSpecies(Species[])
+	  * @see etomica.Potential2#setSpecies(Species[])
+	  */
+	 public void setSpecies(Species[] species) {
+		 super.setSpecies(species);
+		 switch(nBody) {
+		 	case 1:
+		 			break;
+		 	case 2:
+				 if(species[0] == species[1]) {
+					 iterator = new Api1A(new ApiIntragroup1A(parentSimulation()),
+											 new ApiIntragroupAA(parentSimulation()));
+				 } else {
+					 iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
+											 new ApiIntergroupAA(parentSimulation()));
+				 }
+				 break;
+		 }//end switch
+	 }
  
 	/**
 	 * Adds the given potential to this group, but should not be called directly.  Instead,
@@ -98,8 +131,6 @@ public class PotentialGroup extends Potential {
 			previous = link;
 		}//end for
 	}//end removePotential
-	   
-	PotentialLinker first, last;
     
     /**
      * Performs the specified calculation over the iterates of this potential
@@ -113,7 +144,25 @@ public class PotentialGroup extends Potential {
 		wrapper.release();
     }//end calculate
     
-    AtomSetIterator iterator;
     
+	/**
+	 * Returns the iterator.
+	 * @return AtomSetIterator
+	 */
+	public AtomSetIterator getIterator() {
+		return iterator;
+	}
+
+	/**
+	 * Sets the iterator.
+	 * @param iterator The iterator to set
+	 */
+	public void setIterator(AtomSetIterator iterator) {
+		this.iterator = iterator;
+	}
+   
+	private AtomSetIterator iterator;	   
+	protected PotentialLinker first, last;
+
 }//end PotentialGroup
     

@@ -92,10 +92,10 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     
     public double[] currentValue() {
         for(int i=0; i<nPoints; i++) {
-            double uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+            double uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
             inflater.setScale(scale[i]);
             inflater.attempt();
-            double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
+            double uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
             y[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
                               + phase.moleculeCount()*x[i]);
             

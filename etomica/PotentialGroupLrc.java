@@ -13,7 +13,7 @@ package etomica;
 public class PotentialGroupLrc extends PotentialGroup {
 
     public PotentialGroupLrc(PotentialMaster parent) {
-        super(parent);
+        super(0, parent);
     }
     
     /**

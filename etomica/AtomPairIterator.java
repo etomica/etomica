@@ -9,7 +9,7 @@ public abstract class AtomPairIterator implements AtomSetIterator, java.io.Seria
 	
 	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
 	 if(basis == null || !(action instanceof AtomPairActive)) return;
-	 switch(basis.atomCount()) {
+	 switch(basis.nBody()) {
 		case 1: all((Atom)basis, id, (AtomPairActive)action); break;
 		case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
 	 }

@@ -39,13 +39,6 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     }
 
 
-    public void calculate(IteratorDirective id, PotentialCalculation pc) {
-        if( !(pc instanceof Potential2Calculation) ) return;
-        iterator = (id.atomCount() == 0) ? iteratorA : iterator1;
-        iterator.reset(id);
-        ((Potential2Calculation)pc).calculate(iterator, this); 
-    }//end of calculate
-
  /**
   * Returns the pair potential energy.
   */

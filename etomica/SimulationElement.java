@@ -15,7 +15,7 @@ package etomica;
   
 public class SimulationElement implements java.io.Serializable {
     
-    private final Simulation parentSimulation;
+    private final SimulationElement parentElement;
     public final Space space;
     public final int index;
     private boolean added = false;

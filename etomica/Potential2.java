@@ -1,10 +1,9 @@
 package etomica; 
 
 /**
- * Potential acting on a pair of atoms or atom groups.  The Potential2Group
- * subclass of this potential is used to describe the inter-group interactions.
- * The Potential2Group would contain other Potential2 (or higher-body) instances
- * that describe the specific interactions between the atoms of the group.
+ * Potential acting on or within an atom, or between a pair of atoms or atom
+ * groups. Contains other Potential instances that describe the specific
+ * interactions between the atoms of the group(s).
  *
  * @author David Kofke
  */
@@ -13,14 +12,14 @@ package etomica;
   * 07/13/02 (DAK) Restructured instantiation of LRC potential
   * 07/15/02 (DAK) Constructor makes P0LRC only if instance of Potential2SoftSpherical
   * 12/06/02 (DAK) Added setIterators1A method
+  * 01/27/03 (DAK) Numerous changes with redesign of Potential.
   */
 
 public abstract class Potential2 extends Potential {
   
-    public static String VERSION = "Potential2:01.07.03/"+Potential.VERSION;
+    public static String VERSION = "Potential2:03.01.27/"+Potential.VERSION;
     
     protected AtomPairIterator iterator;
-    private Species species1, species2;
     
     public Potential2(PotentialGroup parent) {
         this(parent, Default.TRUNCATE_POTENTIALS ? 
@@ -39,7 +38,7 @@ public abstract class Potential2 extends Potential {
         }*/
     }
     public Potential2(PotentialGroup parent, PotentialTruncation potentialTruncation) {
-        super(parent, potentialTruncation);
+        super(2, parent, potentialTruncation);
         iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
         						new ApiIntergroupAA(parentSimulation()));
         if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null
@@ -56,54 +55,51 @@ public abstract class Potential2 extends Potential {
 	   iterator.all(basis, id, (AtomPairActive)pc.set(this));
     }//end of calculate
 
+	/**
+	 * Convenience method for setting species.  Simply forms array with
+	 * arguments and passes it to setSpecies(Species[]) method.
+	 */
    public void setSpecies(Species s1, Species s2) {
     	if(s1 == s2) setSpecies(new Species[] {s1});
     	else setSpecies(new Species[] {s1, s2});
     }
+    
+    /**
+     * Extends superclass setSpecies method to instantiate iterators based on
+     * number of species in array.  If only one species is given, potential is
+     * assumed to be intra-molecular, and ApiIntraGroup iterators are used; if
+     * two species are given, potential is assumed to be inter-molecular, and
+     * ApiInterGroup iterators are used.
+     * @see etomica.Potential#setSpecies(Species[])
+     */
     public void setSpecies(Species[] species) {
-    	if(species.length == 1) {
- 		   	species1 = species2 = species[0];
-    	} else {
-    		species1 = species[0];
-    		species2 = species[1];
-    	}
-        if(species1 == null || species2 == null) throw new NullPointerException("Cannot set null Species in Potential2");
-        if(species1 == species2) {
+        super.setSpecies(species);
+        if(species[0] == species[1]) {
         	iterator = new Api1A(new ApiIntragroup1A(parentSimulation()),
 									new ApiIntragroupAA(parentSimulation()));
         } else {
 			iterator = new Api1A(new ApiIntergroup1A(parentSimulation()),
 									new ApiIntergroupAA(parentSimulation()));
         }
-		if(!(parentPotential() instanceof PotentialMaster)) throw new RuntimeException("Error: Can set species only for potentials that apply at the molecule level.  Potential must have PotentialMaster as parent");
-        ((PotentialMaster)parentPotential()).setSpecies(this, species);
     }
 
+	public void setIterator(AtomSetIterator iterator) {
+		if(iterator instanceof AtomPairIterator) this.setIterator((AtomPairIterator)iterator);
+		else throw new IllegalArgumentException("Inappropriate type of iterator set for potential");
+	}
     public void setIterator(AtomPairIterator iterator) {
         this.iterator = iterator;
     }
-    public void setIterators1A(AtomPairIterator iter1, AtomPairIterator iterA) {
-        iterator = new Api1A(iter1, iterA);
-    }
-    public AtomPairIterator iterator() {return iterator;}
+    public AtomSetIterator getIterator() {return iterator;}
     
-    /**
-     * Returns an array of length 2 with the species to which this potential applies.
-     * Returns null if no species has been set, which is the case if the potential
-     * is not describing interactions between molecule-level Atoms.
-     */
-    public Species[] getSpecies() {
-        if(species1 == null) return null;
-        else return new Species[] {species1, species2};
-    }
-
 	/**
 	 * Interface for all hard pair potentials.
 	 *
 	 * @author David Kofke
 	 */
-	public interface Hard {
+	public interface Hard extends Potential.Hard {
     
+    	public double energy(AtomPair pair);
 		/**
 		 * Implements the collision dynamics.
 		 * The given atoms are assumed to be at the point of collision.  This method is called
@@ -128,6 +124,7 @@ public abstract class Potential2 extends Potential {
 
 	public interface Soft{
     
+    	public double energy(AtomPair pair);
 		/**
 		 * Returns r dot grad(u), with any truncation applied.  Does not include
 		 * division by D, to avoid repeated multiplication of this term when summing

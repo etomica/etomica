@@ -10,10 +10,9 @@ public abstract class Potential1 extends Potential {
     public static String VERSION = "Potential1:01.07.26/"+Potential.VERSION;
     
     protected AtomIterator iterator;
-    private Species species;
     
     public Potential1(PotentialGroup parent) {
-        super(parent);
+        super(1, parent);
         iterator = parentSimulation().iteratorFactory.makeGroupIteratorSequential();
     }
     
@@ -27,27 +26,24 @@ public abstract class Potential1 extends Potential {
     
 	private final AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
     
+    /**
+     * Convenience method for setting species.  Makes array with argument as
+     * passes it to setSpecies(Species[]) method.
+     * @param s The species to which this potential applies.
+     */
     public void setSpecies(Species s) {
         setSpecies(new Species[] {s});
     }
     
+	/**
+	 * Checks that argument is allowed, and simply passes it to superclass
+	 * method. No change in iterator is performed.
+	 * @param species An array of exactly one element, the species to which this
+	 * potential applies.
+	 */
     public void setSpecies(Species[] species) {
-        switch (species.length) {
-            case 1: this.species = species[0];
-                    break;
-            default: throw new IllegalArgumentException("Wrong number of species given in Potential1");
-        }
-        if(!(parentPotential() instanceof PotentialMaster)) throw new IllegalStateException("Error: Can set species only for potentials that apply at the molecule level.  Potential must have PotentialMaster as parent");
-        ((PotentialMaster)parentPotential()).setSpecies(this, species);
-    }
-    /**
-     * Returns an array of length 2 with the species to which this potential applies.
-     * Returns null if no species has been set, which is the case if the potential
-     * is not describing interactions between molecule-level Atoms.
-     */
-    public Species[] getSpecies() {
-        if(species == null) return null;
-        else return new Species[] {species};
+    	if(species.length != 1) throw new IllegalArgumentException("setSpecies in Potential1 must take an array containing only one species instance");
+        super.setSpecies(species);
     }
 
     /**
@@ -55,10 +51,14 @@ public abstract class Potential1 extends Potential {
      */
     public abstract double energy(Atom atom);
                       
-    public void setIterator(AtomIterator iterator) {
-        this.iterator = iterator;
-    }
-    public AtomIterator iterator() {return iterator;}
+	public void setIterator(AtomSetIterator iterator) {
+		if(iterator instanceof AtomIterator) this.setIterator((AtomIterator)iterator);
+		else throw new IllegalArgumentException("Inappropriate type of iterator set for potential");
+	}
+	public void setIterator(AtomIterator iterator) {
+		this.iterator = iterator;
+	}
+	public AtomSetIterator getIterator() {return iterator;}
     
     /**
      * Marker interface indicating that a one-body potential is an intramolecular
@@ -79,8 +79,9 @@ public abstract class Potential1 extends Potential {
 	  * 08/26/02 (DAK) Modified calculate to handle cases of atomCount 0 or 1 in
 	  * iterator directive
 	  */
-	public interface Hard {
+	public interface Hard extends Potential.Hard {
 
+	 public double energy(Atom atom);
 	 /**
 	  * Implements the collision dynamics.
 	  * The given atom is assumed to be at the point of collision.  This method is called
@@ -99,6 +100,7 @@ public abstract class Potential1 extends Potential {
 
 	public interface Soft {
     
+    	public double energy(Atom atom);
 		public Space.Vector gradient(Atom atom);
     
 	}

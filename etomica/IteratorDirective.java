@@ -318,8 +318,8 @@ public final class IteratorDirective implements java.io.Serializable {
      * using allAtoms method (done twice).  Support method for testSuitePair method.
      */
     private static void testPair(AtomPairIterator iterator) {
-        AtomPairAction printAtom = new AtomPairAction() {
-            public void action(AtomPair pair) {System.out.println(pair.atom1().signature()+" "+pair.atom2().signature());}
+        AtomPairAction printAtom = new AtomPairAction(Simulation.instance.space) {
+            public void actionPerformed(AtomPair pair) {System.out.println(pair.atom1().signature()+" "+pair.atom2().signature());}
         };
         
         while(iterator.hasNext()) {

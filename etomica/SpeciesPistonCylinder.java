@@ -163,7 +163,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Field that applies a constant force against the piston.
    * Direction of force is such that it pushes the piston into the cylinder.
    */
-  public final class PistonPressureField extends Potential1Soft implements PotentialHard {
+  public final class PistonPressureField extends Potential1 implements Potential1.Soft, Potential2.Hard {
     private double pressure = 0.0;
     private Space.Vector gradientVector = parentSimulation().space().makeVector();
     private double force = 0.0;
@@ -217,13 +217,15 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         }
     }
     
-    //implementation of PotentialHard interface, which is done because this field is sometimes
+    //implementation of Potential2.Hard interface, which is done because this field is sometimes
     //used with a hard-potential, constant-field integrator.
     public void bump(AtomPair pair) {}
     
     public double lastCollisionVirial() {return 0.0;}
     
     public Space.Tensor lastCollisionVirialTensor() {return null;}
+    public double energy(AtomPair pair) {return 0.0;}
+    public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
   }//end of PistonPressureField
   
     

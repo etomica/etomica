@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.*;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -34,7 +33,7 @@ public class MCMoveRotate extends MCMove {
         if(phase.moleculeCount()==0) {return false;}
         molecule = phase.randomMolecule();
 
-        potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
+        potential.calculate(phase, iteratorDirective.set(molecule), energy.reset());
         uOld = energy.sum();
         orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
@@ -46,7 +45,7 @@ public class MCMoveRotate extends MCMove {
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
+        potential.calculate(phase, iteratorDirective.set(molecule), energy.reset());
         uNew = energy.sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }

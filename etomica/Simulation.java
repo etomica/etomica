@@ -207,7 +207,9 @@ public class Simulation implements java.io.Serializable {
      
      public IteratorFactory iteratorFactory = IteratorFactorySimple.INSTANCE;
      
-    /**
+     public Simulation parentSimulation() {return this;}
+ 
+     /**
      * Demonstrates how this class is implemented.
      */
 /*    public static void main(String[] args) {

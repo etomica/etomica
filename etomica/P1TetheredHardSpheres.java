@@ -19,7 +19,7 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
     }
     
     public P1TetheredHardSpheres(PotentialGroup parent) {
-        super(parent);
+        super(1, parent);
         p2HardSphere = new P2HardSphere(this);
         p2Tether = new P2Tether(this);
 	    p2Tether.setIterator(new ApiGeneral(parentSimulation().space,
@@ -49,12 +49,12 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
 	    SpeciesSpheres speciesSpheres = new SpeciesSpheres(1, 3);
 	    Phase phase = new Phase();
 	    
-	    Potential2Group potential2 = new Potential2Group();
+	    PotentialGroup potential2 = new PotentialGroup(2);
 	    Potential2 p2 = new P2HardSphere(potential2);
-	    potential2.setSpecies(speciesSpheres, speciesSpheres);
+	    potential2.setSpecies(new Species[] {speciesSpheres});
 	    
-	    Potential1 p1 = new P1TetheredHardSpheres();
-	    p1.setSpecies(speciesSpheres);
+	    PotentialGroup p1 = new P1TetheredHardSpheres();
+	    p1.setSpecies(new Species[] {speciesSpheres});
 	    
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();

@@ -14,6 +14,8 @@ package etomica;
   * "surfactant" module simulation
   * 
   * 01/02/03 (DAK) reset checks if basis is null
+  * 01/27/03 (DAK) added "all" method, converted to class as part of redesign of
+  * Potential
   */
  
 public final class ApiIntragroup1A extends AtomPairIterator {

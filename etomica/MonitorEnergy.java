@@ -75,7 +75,7 @@ public class MonitorEnergy implements MCMoveListener, PhaseListener, java.util.O
      */
     public void actionPerformed(PhaseEvent evt) {
         if(evt.type == PhaseEvent.RESET) {
-            currentValue = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+            currentValue = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
         }
     }
     
@@ -86,7 +86,7 @@ public class MonitorEnergy implements MCMoveListener, PhaseListener, java.util.O
     public void refresh() {
         counter = refreshInterval;
         double oldValue = currentValue;
-        currentValue = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+        currentValue = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
         if(Math.abs((oldValue-currentValue)/oldValue) > warningTolerance) {
             System.out.println("Warning in MonitorEnergy.refresh");
             System.out.println("Old, new energy: "+oldValue+"  "+currentValue);

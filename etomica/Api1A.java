@@ -22,43 +22,43 @@ public class Api1A extends AtomPairIterator {
 	/**
 	 * @see etomica.AtomPairIterator#setBasis(etomica.Atom, etomica.Atom)
 	 */
-	public void setBasis(Atom a1, Atom a2) {}
+	public void setBasis(Atom a1, Atom a2) {throw new etomica.exception.MethodNotImplementedException();}
 
 	/**
 	 * @see etomica.AtomPairIterator#size()
 	 */
 	public int size() {
-		return 0;
+		throw new etomica.exception.MethodNotImplementedException();
 	}
 
 	/**
 	 * @see etomica.AtomPairIterator#hasNext()
 	 */
 	public boolean hasNext() {
-		return false;
+		throw new etomica.exception.MethodNotImplementedException();
 	}
 
 	/**
 	 * @see etomica.AtomPairIterator#reset(etomica.IteratorDirective)
 	 */
-	public void reset(IteratorDirective id) {}
+	public void reset(IteratorDirective id) {throw new etomica.exception.MethodNotImplementedException();}
 
 	/**
 	 * @see etomica.AtomPairIterator#reset()
 	 */
-	public void reset() {}
+	public void reset() {throw new etomica.exception.MethodNotImplementedException();}
 
 	/**
 	 * @see etomica.AtomPairIterator#next()
 	 */
 	public AtomPair next() {
-		return null;
+		throw new etomica.exception.MethodNotImplementedException();
 	}
 
 	/**
 	 * @see etomica.AtomPairIterator#allPairs(etomica.AtomPairAction)
 	 */
-	public void allPairs(AtomPairAction act) {}
+	public void allPairs(AtomPairAction act) {throw new etomica.exception.MethodNotImplementedException();}
 
 	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		if(id.atomCount()==0) apiA.all(basis, id, action);

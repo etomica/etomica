@@ -38,7 +38,7 @@ public class MCMoveVolume extends MCMove {
     
     public boolean doTrial() {
         double vOld = phase.volume();
-        uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+        uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
@@ -54,7 +54,7 @@ public class MCMoveVolume extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        uNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
         double hNew = uNew + pressure*vNew;
         return -(hNew - hOld)/parentIntegrator.temperature;
     }

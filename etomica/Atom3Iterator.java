@@ -5,7 +5,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public interface Atom3Iterator extends java.io.Serializable {
+public interface Atom3Iterator extends AtomSetIterator, java.io.Serializable {
     
     public boolean hasNext();
     public void reset(IteratorDirective id);

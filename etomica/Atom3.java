@@ -50,7 +50,7 @@ public final class Atom3 implements AtomSet, java.io.Serializable {
 	 * Returns 3, indicating this is an atom set of three atoms. Part of AtomSet
 	 * interface.
 	 */
-	public final int atomCount() {return 3;}
+	public final int nBody() {return 3;}
 	
 	
 

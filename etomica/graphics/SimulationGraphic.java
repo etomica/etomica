@@ -165,9 +165,9 @@ public class SimulationGraphic extends Simulation {
         }*/
         
      //   p1HardBoundary.setSpecies(speciesSpheres);
-        Potential1Group p1Group = new Potential1Group();
+        PotentialGroup p1Group = new PotentialGroup(1);
         P1HardBoundary p1HardBoundary = new P1HardBoundary(p1Group);
-        p1Group.setSpecies(speciesSpheres);
+        p1Group.setSpecies(new Species[] {speciesSpheres});
         
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();

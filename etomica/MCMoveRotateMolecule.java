@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.*;
 import etomica.action.AtomActionTransform;
 
 /**
@@ -48,7 +47,7 @@ public class MCMoveRotateMolecule extends MCMove {
         molecule = phase.randomMolecule();
         leafAtomIterator.setBasis(molecule);
 
-        uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
+        uOld = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();
         //update for 3D
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(2,dTheta);
@@ -64,7 +63,7 @@ public class MCMoveRotateMolecule extends MCMove {
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     

@@ -13,6 +13,7 @@ package etomica;
   *          Changes conducted as part of effort to resolve problems with speciesPistonCylinder; iterating over groups in which one has a molecule layer and the other doesn't
   * 12/06/02 (DAK) made class not final so could subclass in sufactant module 
   * 01/02/03 (DAK) reset checks if basis is null
+  * 01/27/03 (DAK) added "all" method as part of redesign of Potential
   */
  
 public class ApiIntergroup1A extends AtomPairIterator {
@@ -20,7 +21,7 @@ public class ApiIntergroup1A extends AtomPairIterator {
     protected Atom group1; 
     protected Atom group2;
     
-    protected /*final*/ AtomIterator atomIterator;
+    protected final AtomIterator atomIterator;
     
     protected Atom referenceAtom;
     protected final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);

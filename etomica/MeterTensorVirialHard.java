@@ -92,7 +92,7 @@ public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Co
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
     public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent) {
-        if(agent.collisionPotential == PotentialHard.NULL) {
+        if(agent.collisionPotential == Potential.Hard.NULL) {
             collisionVirial.E(0.0);
         } else {
             collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());

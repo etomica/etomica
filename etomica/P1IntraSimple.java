@@ -23,7 +23,7 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
     }
     
     public P1IntraSimple(PotentialGroup parent) {
-        super(parent);
+        super(1, parent);
     }
     
     /**
@@ -95,14 +95,14 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
 	    potential2.setSpecies(speciesSpheres, speciesSpheres);
 */	    
 	    P1IntraSimple p1 = new P1IntraSimple();
-	    p1.setSpecies(speciesSpheres);
+	    p1.setSpecies(new Species[] {speciesSpheres});
 	    P2Fene p2Fene = new P2Fene(p1);
 	    P2LennardJones p2LennardJones = new P2LennardJones(p1);
 	    p1.setBonded(p2Fene);
 	    p1.setNonbonded(p2LennardJones);
 	    
-	    Potential2Group p2 = new Potential2Group();
-	    p2.setSpecies(speciesSpheres, speciesSpheres);
+	    PotentialGroup p2 = new PotentialGroup(2);
+	    p2.setSpecies(new Species[] {speciesSpheres});
 	    P2LennardJones p2LennardJones2 = new P2LennardJones(p2);
 	    
 	    Controller controller = new Controller();

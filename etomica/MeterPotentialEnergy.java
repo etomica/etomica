@@ -65,7 +65,7 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
         //System.out.println();
         //System.out.println("  begin in MeterPotentialEnergy");
     //    iteratorDirective.set(IteratorDirective.UP);
-        double dbv = potential.set(phase).calculate(iteratorDirective.set(), energy.reset()).sum();
+        double dbv = potential.calculate(phase, iteratorDirective.set(), energy.reset()).sum();
     //    System.out.println("energies: "+0.5*sum+"  "+dbv);
         //System.out.println("  end in MeterPotentialEnergy");
         //System.out.println();

@@ -53,7 +53,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             ((Agent)atomIterator.next().ia).force.E(0.0);
         }
-        potential.calculate(allAtoms, forceSum);
+        potential.calculate(firstPhase, allAtoms, forceSum);
 
         //take step
         atomIterator.reset();
@@ -73,7 +73,6 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     protected void doReset() {
         atomIterator.reset();
-        potential.set(firstPhase);//assumes only one phase
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
@@ -87,7 +86,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         return new Agent(parentSimulation(),a);
     }
             
-    public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
         public Space.Vector rMrLast;  //r - rLast
