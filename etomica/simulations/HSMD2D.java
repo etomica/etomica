@@ -10,8 +10,6 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.nbr.cell.IteratorFactoryCell;
-import etomica.nbr.cell.NeighborCellManager;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.

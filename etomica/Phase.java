@@ -381,23 +381,7 @@ public class Phase {
         public void addObserver(Observer o) {if(o != null) super.addObserver(o);}
         public void deleteObserver(Observer o) {super.deleteObserver(o);}
     }
-     
-    /**
-     * Class for constructing linked lists of Phases.
-     * Each Linker points to one Phase and another Linker, the next one in the list.
-     */
-    public static class Linker implements java.io.Serializable {
-        private final Phase phase;
-        private Phase.Linker next = null;
-        //Constructors
-        public Linker(Phase a) {phase = a;}
-        public Linker(Phase a, Linker l) {phase = a; next = l;}
-        //Access methods
-        public final Phase phase() {return phase;}
-        public final Phase.Linker next() {return next;}
-        public final void setNext(Phase.Linker l) {next = l;}
-    }//end of Phase.Linker
-    
+         
 /*    public static void main(String[] args) {
         
         Simulation.instance = new etomica.graphics.SimulationGraphic(); 

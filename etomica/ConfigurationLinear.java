@@ -7,15 +7,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-/* History
- * 08/12/03 (DAK) added constructor that takes angles
- */
-
 public class ConfigurationLinear extends Configuration {
-          
-    private double bondLength;
-    private Space.Vector orientation;
-    private double[] angle;
     
     public ConfigurationLinear(Space space) {
         this(space, 0.55*Default.ATOM_SIZE);
@@ -24,7 +16,8 @@ public class ConfigurationLinear extends Configuration {
     	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
     public ConfigurationLinear(Space space, double bondLength, double[] initAngles) {
-        super(space);
+        super();
+        this.space = space;
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];
@@ -64,9 +57,10 @@ public class ConfigurationLinear extends Configuration {
     }
               
     /**
-    * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
-    * center of mass unchanged from the value before method was called
-    */
+     * Sets all atoms coordinates to lie on a straight line at the set angle
+     * from the the x-axis, with the center of mass unchanged from the value
+     * before method was called
+     */
     public void initializePositions(AtomIterator[] iterators) {
         
         AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);
@@ -85,5 +79,10 @@ public class ConfigurationLinear extends Configuration {
             xNext += bondLength;
         }
     }//end of initializeCoordinates
+    
+    private double bondLength;
+    private Space.Vector orientation;
+    private double[] angle;
+    private Space space;
 }//end of ConfigurationLinear
       

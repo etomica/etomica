@@ -19,9 +19,11 @@ public class ConfigurationSequential extends Configuration {
 	private boolean fill;
 	private Space.Vector dimensions;
 	private boolean squareConfig;
+    private Space space;
     
 	public ConfigurationSequential(Space space) {
-		super(space);
+		super();
+        this.space = space;
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
 		dimensions = space.makeVector();

@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ConfigurationFile extends Configuration {
 
     public ConfigurationFile(Space space, String aConfName) {
-        super(space);
+        super();
         confName = aConfName;
     }
     

@@ -68,12 +68,29 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 
         //determine amount to shift lattice so it is centered in volume
         double[] offset = (double[])dimensions.clone();
-        for(int i=0; i<shape.length; i++) {
-            offset[i] = 0.5*(dimensions[i] - (latticeDimensions[i]-1)*latticeConstant);
+//        for(int i=0; i<shape.length; i++) {
+//            offset[i] = 0.5*(dimensions[i] - (latticeDimensions[i]-1)*latticeConstant);
+//        }
+        double[] vectorOfMax = new double[lattice.getSpace().D()]; 
+        double[] vectorOfMin = new double[lattice.getSpace().D()]; 
+        for(int i=0; i<lattice.getSpace().D(); i++) {
+            vectorOfMax[i] = Double.NEGATIVE_INFINITY;
+            vectorOfMin[i] = Double.POSITIVE_INFINITY;
+        }
+        indexIterator.reset();
+        while(indexIterator.hasNext()) {
+            Space.Vector site = (Space.Vector)lattice.site(indexIterator.next());
+            for(int i=0; i<site.D(); i++) {
+                vectorOfMax[i] = Math.max(vectorOfMax[i],site.x(i));
+                vectorOfMin[i] = Math.min(vectorOfMin[i],site.x(i));
+            }
+        }
+        for(int i=0; i<lattice.getSpace().D(); i++) {
+            offset[i] = 0.5*(dimensions[i] - (vectorOfMax[i]-vectorOfMin[i])) - vectorOfMin[i];
         }
         Space.Vector offsetVector = Space.makeVector(offset);
         
-   // Place molecules  
+        // Place molecules  
 		iterator.reset();
         indexIterator.reset();
 		while(iterator.hasNext()) {
@@ -82,12 +99,16 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 			try {//may get null pointer exception when beginning simulation
 				a.creator().getConfiguration().initializeCoordinates(a);
 			} catch(NullPointerException e) {}
-			Space.Vector site = (Space.Vector)lattice.site(indexIterator.next());
+            Space.Vector site = (Space.Vector)lattice.site(indexIterator.next());
             site.PE(offsetVector);
 			a.coord.translateTo(site);//use translateTo instead of E because atom might be a group
 			if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
 		}
 	}
+    
+    public double getLatticeConstant() {
+        return lattice.getLatticeConstant();
+    }
     
     private int[] calculateLatticeDimensions(int nCells, double[] shape) {
         double product = 1.0;

@@ -19,10 +19,7 @@ public abstract class Configuration implements java.io.Serializable {
     protected boolean zeroTotalMomentum = true;
     protected double[] dimensions;
     
-    public Configuration(Space space) {//delete this constructor
-    }
-    public Configuration() {
-    }
+    public Configuration() {}
 
     public abstract void initializePositions(AtomIterator[] iterator);
     

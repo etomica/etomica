@@ -2,7 +2,6 @@
 
 package etomica.simulations;
 
-import etomica.ConfigurationLattice;
 import etomica.DataManager;
 import etomica.Default;
 import etomica.IntegratorHard;
@@ -16,8 +15,6 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.lattice.Crystal;
-import etomica.lattice.LatticeCubicFcc;
 
 public class HSMD3D extends Simulation {
 
