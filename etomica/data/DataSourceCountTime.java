@@ -4,11 +4,11 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Integrator.IntervalEvent;
-import etomica.Integrator.IntervalListener;
 import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 import etomica.units.Picosecond;
 import etomica.units.Unit;
+import etomica.utility.Arrays;
 
 /**
  * Data source that keeps track of the elapsed simulation time of an MD
@@ -109,10 +109,7 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 			if (timer[i].integrator == integrator)
 				return;
 		}
-		MyTimer[] newTimer = new MyTimer[timer.length + 1];
-		System.arraycopy(timer, 0, newTimer, 0, timer.length);
-		newTimer[timer.length] = new MyTimer(integrator);
-		timer = newTimer;
+        timer = (MyTimer[])Arrays.addObject(timer, new MyTimer(integrator));
 	}
 
 	/**
@@ -131,10 +128,7 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 		}
 		if (i == timer.length)
 			return; //didn't find it
-		MyTimer[] newTimer = new MyTimer[timer.length - 1];
-		System.arraycopy(timer, 0, newTimer, 0, i);
-		System.arraycopy(timer, i + 1, newTimer, i, newTimer.length - i);
-		timer = newTimer;
+        timer = (MyTimer[])Arrays.removeObject(timer, timer[i]);
 	}
 
 	private double[] value;

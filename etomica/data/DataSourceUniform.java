@@ -3,7 +3,6 @@ package etomica.data;
 import etomica.Constants;
 import etomica.DataSource;
 import etomica.DataTranslator;
-import etomica.Constants.TypedConstant;
 import etomica.units.Dimension;
 
 /**

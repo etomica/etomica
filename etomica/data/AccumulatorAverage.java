@@ -9,7 +9,6 @@ import etomica.Constants;
 import etomica.DataTranslator;
 import etomica.DataType;
 import etomica.Default;
-import etomica.Constants.TypedConstant;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis.

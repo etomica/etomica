@@ -4,10 +4,10 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Integrator.IntervalEvent;
-import etomica.Integrator.IntervalListener;
 import etomica.units.Count;
 import etomica.units.Dimension;
 import etomica.units.Unit;
+import etomica.utility.Arrays;
 
 /**
  * Data source that keeps track of the number of steps performed by an
@@ -114,10 +114,7 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 			if (counter[i].integrator == integrator)
 				return;
 		}
-		MyCounter[] newCounter = new MyCounter[counter.length + 1];
-		System.arraycopy(counter, 0, newCounter, 0, counter.length);
-		newCounter[counter.length] = new MyCounter(integrator);
-		counter = newCounter;
+        counter = (MyCounter[])Arrays.addObject(counter, new MyCounter(integrator));
 	}
 
 	/**
@@ -136,10 +133,7 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 		}
 		if (i == counter.length)
 			return; //didn't find it
-		MyCounter[] newCounter = new MyCounter[counter.length - 1];
-		System.arraycopy(counter, 0, newCounter, 0, i);
-		System.arraycopy(counter, i + 1, newCounter, i, newCounter.length - i);
-		counter = newCounter;
+        counter = (MyCounter[])Arrays.removeObject(counter, counter[i]);
 	}
 
 	private double[] value;
