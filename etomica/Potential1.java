@@ -1,56 +1,70 @@
 package etomica; 
 
 /**
- * Potential acting on a single atom group. This could be an external field acting
- * on a single atom, or could describe the interactions among the atoms in a group.
+ * Potential acting on a single atom.
+ *
+ * @author David Kofke
  */
 public abstract class Potential1 extends PotentialAbstract {
   
-    public static String VERSION = "Potential1:01.06.12/"+PotentialAbstract.VERSION;
-
-    private Atom1Iterator iterator;
+    public static String VERSION = "Potential1:01.06.27/"+PotentialAbstract.VERSION;
     
     public Potential1(Simulation sim) {
         super(sim);
     }
     
-    public Atom1Iterator iterator() {return iterator;}
-    
     /**
-     * Returns the energy of the given atom group.
+     * Returns the energy of the given atom.
      */
-    public abstract double energy(AtomGroup atom);
-    
-    /**
-     * Returns the total energy of the field with all affected atoms in the phase
-     */
-    public double energy() {
-        double sum = 0.0;
-        iterator.reset();
-        while(iterator.hasNext()) {
-            sum += energy(iterator.next());
-        }
-        return sum;
-    }
+    public abstract double energy(Atom atom);
           
     
     //***************** end of methods for Potential1 class *****************//
     
+    //Potential1.Agent
+    public class Agent extends PotentialAgent {
+        
+        protected AtomIterator iterator;
+        /**
+         * @param potential The parent potential making this agent
+         * @param phase The phase in which this agent will be placed
+         */
+        public Agent(PotentialAbstract potential, Phase phase) {
+            super(potential, phase);
+        }
+        
+        protected void makeIterator() {
+            iterator = AtomIterator.NULL;
+        }
+            
+        public void setIterator(AtomIterator iterator) {
+            this.iterator = iterator;
+        }
+        public AtomIterator iterator() {return iterator;}
+    
+        public final PotentialAbstract parentPotential() {return Potential1.this;}
+        
+    
+       /**
+        * Returns the total energy of the potential with all affected atoms.
+        */
+        public double energy(IteratorDirective id) {
+            iterator.reset(id);
+            double sum = 0.0;
+            while(iterator.hasNext()) {
+                sum += Potential1.this.energy(iterator.next());
+            }
+            return sum;
+        }
+    }//end of Agent    
     
     /**
     * Methods needed to describe the behavior of a hard field potential.  
     * A hard potential describes impulsive interactions, in which the energy undergoes a step
     * change at some point in the space.
-    *
-    * @see PotentialField.Soft
     */
-         
     public interface Hard {
-            
-    /**
-     * Returns the energy due to the interaction of the atom with the field.
-     */
-        public double energy(Atom atom);
+
     /**
     * Implements the collision dynamics.
     * The given atom is assumed to be at the point of collision.  This method is called
@@ -58,13 +72,14 @@ public abstract class Potential1 extends PotentialAbstract {
     * instead implement other, perhaps unphysical changes.
     */
         public void bump(Atom atom);
+
     /**
     * Computes the time of collision of the given atom with the external field, assuming no intervening collisions.
     * Usually assumes free-flight between collisions
     */ 
         public double collisionTime(Atom atom);
             
-    }  //end of PotentialField.Hard
+    }  //end of Potential1.Hard
 
     /**
     * Methods needed to describe the behavior of a soft potential.  
@@ -75,11 +90,6 @@ public abstract class Potential1 extends PotentialAbstract {
     */
     public interface Soft {
         
-        /**
-        * Returns the energy due to the interaction of the atom with the field.
-        */
-        public double energy(Atom atom);
-
         /**
         * Force exerted by the field on the atom.
         *

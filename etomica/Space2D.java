@@ -76,6 +76,13 @@ public class Space2D extends Space implements EtomicaElement {
         public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y;}
+        public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = x+u1.y; return WORK;}
+        public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = x-u1.y; return WORK;}
+        public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = x*u1.y; return WORK;}
+        public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; WORK.y = x/u1.y; return WORK;}
+        public Space.Vector abs() {WORK.x = (x>0)?x:-x; WORK.y = (y>0)?y:-y; return WORK;}
+        public double min() {return (x < y) ? x : y;}
+        public double max() {return (x > y) ? x : y;}
         public double squared() {return x*x + y*y;}
         public double dot(Vector u) {return x*u.x + y*u.y;}
         public Space3D.Vector cross(Space3D.Vector u) {//not thread safe
@@ -372,7 +379,6 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public void draw(Graphics g, int[] origin, double scale) {}
     }
-/* commented during redesign    
     public static final class BoundaryHard extends BoundaryPeriodicSquare {
         public double pAccumulator = 0.0;
         private double collisionRadius = 0.0;
@@ -386,11 +392,11 @@ public class Space2D extends Space implements EtomicaElement {
         public void setCollisionRadius(double d) {collisionRadius = d;}
         public double getCollisionRadius() {return collisionRadius;}
         public Dimension getCollisionRadiusDimension() {return Dimension.LENGTH;}
-        public PotentialField makePotentialField(Phase p) {return new Field(p);}
-        class Field extends PotentialField implements PotentialField.Hard {
-            Field(Phase p) {
-                super(p);
-                maker = BoundaryHard.this;
+        public PotentialAbstract makePotential(Simulation sim) {return new Field(sim);}
+        class Field extends Potential1HardAbstract {
+            Field(Simulation sim) {
+                super(sim);
+ //               maker = BoundaryHard.this;
             }
             public double collisionTime(Atom a) {
                 Vector r = (Vector)a.coordinate().position();
@@ -416,17 +422,16 @@ public class Space2D extends Space implements EtomicaElement {
                     p.y *= -1;
                 }
             }
-            //not yet implemented
             public double energy(Atom a) {return 0.0;}
-
-        }//end of BoundaryPotential
-    
-    }    */
+            
+        }//end of Field
+   
+    } //end of BoundaryHard   
 
     /**
      * Class for implementing rectangular periodic boundary conditions
      */
-    protected static class BoundaryPeriodicSquare extends Boundary /*implements PotentialField.Maker*/ {
+    protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic {
         private final Vector temp = new Vector();
         public static final Random random = new Random();
         private final double[][] shift0 = new double[0][D];
@@ -437,7 +442,6 @@ public class Space2D extends Space implements EtomicaElement {
         public BoundaryPeriodicSquare(Phase p, double lx, double ly) {super(p); dimensions.x = lx; dimensions.y = ly;}
         public BoundaryPeriodicSquare(double lx, double ly) {dimensions.x = lx; dimensions.y = ly;}
         public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
-   ///     public PotentialField makePotentialField(Phase p) {return new Field(p);}
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {
@@ -458,11 +462,11 @@ public class Space2D extends Space implements EtomicaElement {
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
         
- /* commented out for redesign development
-        class Field extends PotentialField implements PotentialField.Hard {
-            Field(Phase p) {
-                super(p);
-                maker = BoundaryPeriodicSquare.this;
+        public PotentialAbstract makePotential(Simulation sim) {return new Field(sim);}
+        class Field extends Potential1HardAbstract {
+            Field(Simulation sim) {
+                super(sim);
+  //              maker = BoundaryPeriodicSquare.this;
             }
             //"Collision" whenever atom travels half the edge length of the simulation volume
             //needs some work to handle non-disk atoms better
@@ -480,7 +484,25 @@ public class Space2D extends Space implements EtomicaElement {
             public Space.Tensor lastCollisionVirialTensor() {return Tensor.ZERO;}
             public double energy(Atom a) {return 0.0;}
             public boolean overlap(Atom a) {return false;}
-        }*/
+            public PotentialAgent makeAgent(Phase p) {return new Agent(this, p);}
+            
+            private class Agent extends Potential1HardAbstract.Agent {
+                public Agent(PotentialAbstract potential, Phase phase) {
+                    super(potential, phase);
+                    phase.boundaryMonitor.addObserver( new java.util.Observer() {
+                        public void update(java.util.Observable obs, Object obj) {makeIterator();}
+                    });
+                }
+                
+                protected void makeIterator() {
+                    if(parentPhase().boundary() == BoundaryPeriodicSquare.this) 
+                        iterator = parentPhase.iteratorFactory().makeAtomIteratorUp();
+                    else
+                        iterator = AtomIterator.NULL;
+                }
+            }//end of Space2D.BoundaryPeriodicSquare.Field.Agent
+        }//end of Field
+        
         public void draw(Graphics g, int[] origin, double scale) {
             g.setColor(Color.gray);
             double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;

@@ -1,18 +1,30 @@
 package etomica;
 
+//Java2 imports
+//import java.util.HashMap;
+
+import etomica.utility.HashMap;
+
 /**
  * Superclass for all Potential classes
  */
 public abstract class PotentialAbstract implements Simulation.Element, java.io.Serializable {
     
-    public static String VERSION = "PotentialAbstract:01.06.24";
+    public static String VERSION = "PotentialAbstract:01.06.28";
     
     private final Simulation parentSimulation;
     private boolean added = false;
     private String name, label;
     
+    /**
+     * Hashtable to associate agents with phases
+     * Agent is placed in hashmap of potential in the constructor of PotentialAgent.
+     */
+    final HashMap agents = new HashMap();
+
     public PotentialAbstract(Simulation sim) {
         parentSimulation = sim;
+        parentSimulation.register(this);
     }
     
     public final Simulation parentSimulation() {return parentSimulation;}
@@ -27,13 +39,25 @@ public abstract class PotentialAbstract implements Simulation.Element, java.io.S
     public String toString() {return label;}
     
     public abstract PotentialAgent makeAgent(Phase p);
+
+    /**
+     * Returns the agent of this species in the given phase.
+     * Hashmap is used to connect phase(key)-agent(value) pairs.
+     * Agent is placed in hashmap of potential in the agent's constructor.
+     * 
+     * @param p The phase for which this species' agent is requested
+     * @return The agent of this species in the phase
+     */
+    public final PotentialAgent getAgent(Phase p) {return (PotentialAgent)agents.get(p);}
     
-/*    public abstract void deployAgent(Phase phase) {
-        PotentialAgent agent = makeAgent(phase);
-        if(phase.potential == null) {
-            phase.potential = agent;
-        }
-        else if(phase.potential instanceof PotentialGroup) {
-            phase.potential
- */   
+    public final HashMap agents() {return agents;}
+ 
+    /**
+     * Interface for a class that can make a PotentialAbstract object.
+     */
+    public interface Maker {
+        public PotentialAbstract makePotential(Simulation sim);
+    }
+    
+ 
 }//end of PotentialAbstract

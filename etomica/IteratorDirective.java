@@ -11,7 +11,6 @@ public class IteratorDirective implements java.io.Serializable {
     private Atom atom1, atom2;
     private Direction direction;
     private int atomCount;
-//    private Bounds bounds;
     
     public IteratorDirective() {
         this(UP);
@@ -19,7 +18,6 @@ public class IteratorDirective implements java.io.Serializable {
     public IteratorDirective(Direction direction) {
         set(direction);
         set();
-//        set(ALL);
     }
     
     //returns itself as a convenience, so that it may be set while being passed as an

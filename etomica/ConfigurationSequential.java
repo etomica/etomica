@@ -40,7 +40,8 @@ public class ConfigurationSequential extends Configuration {
         
         Space.Vector[] rLat;
         if(phase.parentSimulation().space().D() == 1) {
-            rLat = lineLattice(sumOfMolecules, Lx);
+            rLat = null; //for redesign
+// commented for redesign            rLat = lineLattice(sumOfMolecules, Lx);
         }
         else {
             rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 

@@ -11,7 +11,7 @@ public final class AtomPair implements java.io.Serializable {
     public final Space.CoordinatePair cPair;
 //    public Potential potential;
    /**
-    * Constructs and AtomPair for the given phase, but with no designated atoms.
+    * Constructs an AtomPair for the given phase, but with no designated atoms.
     */
     public AtomPair(Phase phase) {
         cPair = phase.parentSimulation().space().makeCoordinatePair(phase);

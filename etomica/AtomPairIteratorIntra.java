@@ -11,9 +11,16 @@ public class AtomPairIteratorIntra extends AtomPairIterator {
     private AtomIteratorSinglet singlet = new AtomIteratorSinglet();
     private AtomIterator ai1Up, ai2Up, ai1Dn, ai2Dn;
     
+    /**
+     * @param p         the phase in which this iterator applies
+     * @param iterUp    upList atom iterator, used for outer loop when directed to cycle up list
+     * @param iterUpNbr upList atom iterator, used for inner loop when directed to cycle up list
+     * @param iterDn    downList atom iterator, used for outer loop when directed to cycle down list
+     * @param iterDnNbr downList atom iterator, used for inner loop when directed to cycle down list
+     */
     public AtomPairIteratorIntra(Phase p, AtomIterator iterUp, AtomIterator iterUpNbr,
                                           AtomIterator iterDn, AtomIterator iterDnNbr) {
-        super(p, iterUp, iterUpNbr);
+        super(p);
         ai1Up = iterUp;
         ai2Up = iterUpNbr;
         ai1Dn = iterDn;
@@ -41,6 +48,7 @@ public class AtomPairIteratorIntra extends AtomPairIterator {
                      return;
         }//end switch
         setFirst();
-    }
-}//end of Intra    
+    }//end of reset
+    
+}//end of AtomPairIteratorIntra    
         

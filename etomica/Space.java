@@ -96,6 +96,13 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void DE(double a);                    //divides all components by a
         public abstract void Ea1Tv1(double a, Vector u);      //sets this vector to a*u
         public abstract void PEa1Tv1(double a, Vector u);     //adds a*u to this vector
+        public abstract Space.Vector P(Space.Vector u);       //adds (+) component-by-component and returns result in another vector
+        public abstract Space.Vector M(Space.Vector u);       //subtracts component-by-component and returns result in another vector
+        public abstract Space.Vector T(Space.Vector u);       //multiplies component-by-component and returns result in another vector
+        public abstract Space.Vector D(Space.Vector u);       //divides component-by-component and returns result in another vector
+        public abstract Space.Vector abs();                   //takes absolute value of each component and returns result in another vector
+        public abstract double min();                         //returns minimum of all components
+        public abstract double max();                         //returns maximum of all components
         public abstract double squared();                     //square-magnitude of vector (e.g., x^2 + y^2)
         public abstract void normalize();                     //scales the vector to unit length
         public abstract double dot(Vector u);                 //dot product of this vector with the vector u
@@ -241,8 +248,12 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
              */
             public boolean requiresSpecialBoundary();
         }
+        /**
+         * Marker interface for a periodic boundary.
+         */
+         public interface Periodic {}
         
-    }
+    }//end of Space.Boundary
     
     //delete this
 //    public Potential makePotential(Phase p) {

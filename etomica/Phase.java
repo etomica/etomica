@@ -380,6 +380,12 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
         iteratorFactory.reset();  
     }
     
+    public void addPotential(PotentialAgent pot) {
+        if(potential == null) setPotential(pot);
+        
+        else {} //do a potentialGroup thing
+    }
+    
     
     /**
      * Adds the given field to the phase.

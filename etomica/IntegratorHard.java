@@ -14,7 +14,7 @@ package etomica;
  */
 public class IntegratorHard extends IntegratorHardAbstract implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorHard:01.06.14/"+IntegratorHardAbstract.VERSION;}
+    public String getVersion() {return "IntegratorHard:01.06.27/"+IntegratorHardAbstract.VERSION;}
     
     private AtomIterator upAtomIterator;
     private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
@@ -35,9 +35,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         Atom atom1;
         public IntegratorHardAbstract.CollisionHandler setAtom(Atom a) {
             atom1 = a;
-            minCollisionTime = Double.MAX_VALUE;
             aia = (IntegratorHardAbstract.Agent)a.ia;
-            aia.resetCollision();
+            minCollisionTime = aia.collisionTime();
             return this;
         }
         public void addCollision(AtomPair pair, double collisionTime) {
@@ -45,6 +44,13 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             if(collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
                 aia.setCollision(collisionTime, pair.atom2(), this.potential);
+            }
+        }
+        public void addCollision(Atom atom, double collisionTime) {
+            setAtom(atom);
+            if(collisionTime < minCollisionTime) {
+                minCollisionTime = collisionTime;
+                aia.setCollision(collisionTime, null, this.potential);
             }
         }
     }; //end of collisionHandlerUp
@@ -62,6 +68,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             if(collisionTime < aia.collisionTime()) {
                 aia.setCollision(collisionTime, pair.atom1(), this.potential);
             }
+        }
+        public void addCollision(Atom atom, double collisionTime) {//this shouldn't be called
+            System.out.println("Unexpected entry into method addCollision in IntegratorHard's collisionHandlerDown");
         }
     }; //end of collisionHandlerDown
 
@@ -112,7 +121,6 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         
         Atom collider = colliderAgent.atom();
         Atom partner = colliderAgent.collisionPartner();
-        colliderAgent.resetCollision();
             
     //   Do upList for any atoms that were scheduled to collide with atoms colliding now
     //   Assumes collider and partner haven't moved in list
@@ -124,8 +132,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 else continue;              //...else just skip this atom and continue with loop
             }
             if(a == partner) break; //finished with atoms before partner; we're done
-            Atom aPartner = ((IntegratorHardAbstract.Agent)a.ia).collisionPartner();
+            IntegratorHardAbstract.Agent aAgent = (IntegratorHardAbstract.Agent)a.ia;
+            Atom aPartner = aAgent.collisionPartner();
             if(aPartner == collider || aPartner == partner) {
+                aAgent.resetCollision();
                 phasePotential.findCollisions(upList.set(a), collisionHandlerUp.setAtom(a));
             }
         }//end while
@@ -145,9 +155,11 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             //atom on its neighbor list, but no longer do because it has moved away
 
 
+        colliderAgent.resetCollision();
         phasePotential.findCollisions(upList.set(collider), collisionHandlerUp.setAtom(collider));
         phasePotential.findCollisions(downList.set(collider), collisionHandlerDown);
         if(partner != null) {
+            ((IntegratorHardAbstract.Agent)partner.ia).resetCollision();
             phasePotential.findCollisions(upList.set(partner), collisionHandlerUp.setAtom(partner));
             phasePotential.findCollisions(downList.set(partner), collisionHandlerDown);
         }
@@ -177,6 +189,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     */
     protected void doReset() {
         if(isothermal) scaleMomenta(Math.sqrt(this.temperature/(firstPhase.kineticTemperature())));
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            ((IntegratorHardAbstract.Agent)atomIterator.next().ia).resetCollision();
+        }
         phasePotential.findCollisions(upList.set(), collisionHandlerUp);
         findNextCollider();
     }

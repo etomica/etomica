@@ -10,7 +10,8 @@ package etomica;
  */
 public abstract class AtomPairIterator implements java.io.Serializable {
     
-    private final AtomPair pair;
+    private AtomPair pair; //want final, but Null inner class won't allow
+
     /**
      * The iterators used to generate the sets of atoms
      */
@@ -26,6 +27,13 @@ public abstract class AtomPairIterator implements java.io.Serializable {
      */
     private boolean needUpdate1; 
     private Atom atom1;
+    
+    //Used only for the NULL iterator, defined below.
+    private AtomPairIterator() {
+        hasNext = false;
+        pair = null;
+    }
+        
     /**
      * Construct a pair iterator for use in the given phase.  Initial state is hasNext = false
      */
@@ -156,5 +164,12 @@ public abstract class AtomPairIterator implements java.io.Serializable {
             ai2.allAtoms(actionWrapper);
         }
     }
+
+    public static final AtomPairIterator NULL = new Null();
+    private static final class Null extends AtomPairIterator {
+        private Null() {super();}
+        public void reset(IteratorDirective id) {}
+    }
+    
 }  //end of class AtomPairIterator
     

@@ -28,15 +28,15 @@ public abstract class Potential2HardAbstract extends Potential2 implements Poten
     //be defined in subclass
 
     public PotentialAgent makeAgent(Phase p) {
-        return new Agent(p);
+        return new Agent(this,p);
     }
         
     //Potential2HardAbstract.Agent
     public class Agent extends Potential2.Agent implements PotentialAgent.Hard {
         private final AtomPair atomPair;
-        public Agent(Phase p) {
-            super(p);
-            atomPair = new AtomPair(p);
+        public Agent(PotentialAbstract potential, Phase phase) {
+            super(potential, phase);
+            atomPair = new AtomPair(phase);
         }
         public void findCollisions(IteratorDirective id, 
                                     final IntegratorHardAbstract.CollisionHandler collisionHandler) {

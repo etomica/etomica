@@ -103,6 +103,20 @@ public abstract class AtomIterator implements java.io.Serializable {
      * @see Atom.Action
      */
     public abstract void allAtoms(AtomAction act);
+    
+    /**
+     * A placeholder iterator that contains no atoms and always returns false for hasNext.
+     */
+    public static final AtomIterator NULL = new Null();
+    private static final class Null extends AtomIterator {
+        private Null() {super();}
+        public Atom reset() {return null;}
+        public Atom reset(Atom a) {return null;}
+        public Atom reset(Atom a1, Atom a2) {return null;}
+        public boolean contains(Atom a) {return false;}
+        public void allAtoms(AtomAction act) {}
+        public Atom next() {return null;}
+    }//end of Null    
 
 }//end of AtomIterator
     

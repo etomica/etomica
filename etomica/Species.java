@@ -353,7 +353,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     /**
      * Hashtable to associate agents with phases
      */
-    HashMap agents = new HashMap();
+    final HashMap agents = new HashMap();
 
     /**
     * Object responsible for setting default configuration of atoms in molecule

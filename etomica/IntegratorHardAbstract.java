@@ -15,7 +15,7 @@ package etomica;
  
 public abstract class IntegratorHardAbstract extends IntegratorMD {
 
-    public static String VERSION = "IntegratorHardAbstract:01.06.14/"+IntegratorMD.VERSION;
+    public static String VERSION = "IntegratorHardAbstract:01.06.27/"+IntegratorMD.VERSION;
 
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHardAbstract.Agent colliderAgent;
@@ -208,6 +208,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         // before it begins looking for collisions
         public final void setPotential(PotentialAgent.Hard p) {potential = p;}
         public abstract void addCollision(AtomPair atoms, double collisionTime);
+        public abstract void addCollision(Atom atom, double collisionTime);
         public abstract CollisionHandler setAtom(Atom a);
     }//end of CollisionHandler
     
@@ -231,7 +232,25 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         public final Atom atom() {return atom;}
         public final Atom collisionPartner() {return collisionPartner;}
         
-        public void resetCollision() {collisionTime = Double.MAX_VALUE;}
+        public void resetCollision() {
+            collisionTime = periodCollisionTime();
+            collisionPotential = PotentialAgent.HARD_NULL;
+            collisionPartner = null;
+        }
+        
+        protected double periodCollisionTime() {
+            Space.Boundary boundary = atom.parentPhase().boundary();
+            if(boundary instanceof Space.Boundary.Periodic) {
+                if(!(atom.type instanceof AtomType.Disk)) {return Double.MAX_VALUE;}
+                Space.Vector p = atom.coordinate().momentum();
+                Space.Vector dim = boundary.dimensions();
+                double diameter = ((AtomType.Disk)atom.type).diameter();
+                return 0.5*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+                //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
+            //    return 0.5*(dimensions.y-1.0001*diameter)/(a.rm()*Math.sqrt(p.squared()));
+            }
+            else return Double.MAX_VALUE;
+        }
         
     /**
      * Sets parameters associated with next two-body collision of this atom with another atom.

@@ -7,7 +7,7 @@ package etomica;
  */
 public abstract class Potential2 extends PotentialAbstract {
   
-    public static String VERSION = "Potential2:01.06.24/"+PotentialAbstract.VERSION;
+    public static String VERSION = "Potential2:01.06.27/"+PotentialAbstract.VERSION;
     
     public Potential2(Simulation sim) {
         super(sim);
@@ -28,9 +28,12 @@ public abstract class Potential2 extends PotentialAbstract {
         /**
          * @param p The phase in which this agent will be placed
          */
-        public Agent(Phase p) {
-            super(p);
-//            iterator = new AtomPairIterator(p);
+        public Agent(PotentialAbstract potential, Phase phase) {
+            super(potential, phase);
+        }
+        
+        protected void makeIterator() {
+            iterator = AtomPairIterator.NULL;
         }
             
         public void setIterator(AtomPairIterator iterator) {
@@ -64,22 +67,15 @@ public abstract class Potential2 extends PotentialAbstract {
         * Usually assumes free-flight between collisions
         */ 
         public abstract double collisionTime(AtomPair pair);
-    }//end of Hard
+    }//end of Potential2.Hard
 
     /**
     * Methods needed to describe the behavior of a soft potential.  
     * A soft potential describes non-impulsive interactions, in which the energy at all points
     * has smooth, analytic behavior with no discontinuities.  
     *
-    * @see PotentialField.Hard
     */
     public interface Soft {
-        
-        /**
-        * Returns the energy due to the interaction of the atom with each other.
-        */
-        public double energy(AtomPair pair);
-
         /**
         * Force exerted atoms exert on each other.
         *
@@ -87,8 +83,9 @@ public abstract class Potential2 extends PotentialAbstract {
         */
         public Space.Vector force(AtomPair pair);
 
-    } //end of PotentialField.Soft
-}
+    } //end of Potential2.Soft
+    
+}//end of Potential2
 
 
 

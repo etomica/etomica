@@ -419,7 +419,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
          * @see Display
          */
         public java.awt.Component graphic(Object obj);
-    }
+    }//end of GraphicalElement
 
     /**
      * Method to construct a simple simulation of hard disks.
@@ -452,19 +452,25 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public static void main(String[] args) {
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
-                                            
+        Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesDisks speciesDisks = new SpeciesDisks();
-	    speciesDisks.setNMolecules(20);
+	    speciesDisks.setNMolecules(30);
 	    Phase phase = new Phase();
 	    Potential2 potential = new PotentialHardDisk();
-	    Potential2.Agent potentialAgent = (Potential2.Agent)potential.makeAgent(phase);
+//	    Potential2.Agent potentialAgent = (Potential2.Agent)potential.makeAgent(phase);
 ///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
 	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
 ///	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
 ///	    timer.setUpdateInterval(10);
-        phase.setPotential(potentialAgent);
+///        phase.setPotential(potentialAgent);
+        integratorHard.setTimeStep(0.01);
+        
+		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
+		                                    //calling it a second time has no effect
+		                                    
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
         potentialAgent.setIterator(new AtomPairIteratorIntra(phase,
                                     phase.iteratorFactory().makeAtomIteratorUp(),
                                     phase.iteratorFactory().makeAtomIteratorUpNeighbor(),
@@ -472,15 +478,12 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
                                     phase.iteratorFactory().makeAtomIteratorDownNeighbor()));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		                                    
         f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();
         f.addWindowListener(Simulation.windowCloser);
-        controller.start();
+     //   controller.start();
     }//end of main
 }
 
