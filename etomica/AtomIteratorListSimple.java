@@ -30,7 +30,9 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	    setList(list);
 	}
     
-	public boolean hasNext() {return next.atom != null;}
+	public boolean hasNext() {
+		return next.atom != null;
+	}
 		
 	/**
 	 * Sets the list containing the atoms that will be returned by this iterator.
@@ -51,13 +53,6 @@ public final class AtomIteratorListSimple implements AtomIterator {
             	atoms[0] = e.atom;
             	action.actionPerformed(atoms);
             }
-    }
-    
-    public static void allAtoms(AtomActive action, AtomList list) {
-    	final AtomLinker.Tab header = list.header;
-        for (AtomLinker e = header.next; e != header; e = e.next) 
-            if(e.atom != null) action.actionPerformed(e.atom);
-   	
     }
     
     /**
@@ -98,16 +93,18 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	 * Returns the next atom in the list.
 	 */    
     public Atom nextAtom() {
-        return nextLinker().atom;
+        return hasNext() ? nextLinker().atom : null;
     }
     
     public Atom[] next() {
+    	if(!hasNext()) return null;
     	atoms[0] = nextLinker().atom;
     	return atoms;
     }
     
     public final int nBody() {return 1;}
     
+    //returns current value of next, and advances next to its next value
     private AtomLinker nextLinker() {
         AtomLinker nextLinker = next;
         next = next.next;
