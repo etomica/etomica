@@ -30,10 +30,12 @@ public final class IteratorDirective implements java.io.Serializable {
     }
     public IteratorDirective(Direction direction) {
         set(direction);
+        targetAtoms = new Atom[2];
         set();
     }
     public IteratorDirective(Direction direction, Atom atom) {
     	set(direction);
+        targetAtoms = new Atom[2];
     	set(atom);
     }
     
