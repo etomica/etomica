@@ -1,4 +1,5 @@
-package etomica;
+package etomica.action;
+import etomica.*;
 
 //import java.awt.event.ActionEvent;
 
@@ -6,8 +7,8 @@ package etomica;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.LinkedList;
+import etomica.utility.java2.Iterator;
 
  /**
   * Superclass of classes that apply some elementary action (transformation) to 
@@ -16,6 +17,10 @@ import etomica.utility.Iterator;
   * @author David Kofke
   * 
   */
+ 
+ /* History
+ *  12/31/02  (DAK) changed package to etomica.action
+ */
 public abstract class MeterAction extends etomica.Action {
 
     public static String getVersion() {return "MeterAction:01.06.04/"+Action.VERSION;}

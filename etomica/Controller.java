@@ -4,8 +4,8 @@ package etomica;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.LinkedList;
+import etomica.utility.java2.Iterator;
 
 /**
  * Organizer of activities of the integrators.  Controller sets the protocol for

@@ -1,7 +1,5 @@
 package etomica.utility;
 
-import etomica.*;
-import etomica.graphics.*;
 import java.util.*;
 import javax.swing.*;
 
@@ -89,7 +87,7 @@ public class DecimalSlider extends javax.swing.JSlider {
     }
    
     public Hashtable createDecimalSliderStandardLabels(double n){
-        standardSpacingLabel = (int)(n*precision);
+        standardSpacingLabel = Math.max((int)(n*precision),1);
         return super.createStandardLabels(standardSpacingLabel);
     }
         

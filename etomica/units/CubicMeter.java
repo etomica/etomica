@@ -1,5 +1,4 @@
 package etomica.units;
-import etomica.Constants;
 
 public final class CubicMeter extends BaseUnit.Volume {
 

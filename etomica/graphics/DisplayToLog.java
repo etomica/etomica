@@ -7,7 +7,7 @@ import java.beans.*;
 //Java2 imports
 //import java.util.Iterator;
 
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
 
 /**

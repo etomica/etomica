@@ -4,7 +4,7 @@ import etomica.*;
 //Java2 imports
 //import java.util.Iterator;
 
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
 /**
  * Action that invokes reset method of all registered simulation elements,

@@ -2,7 +2,7 @@ package etomica.graphics;
 import etomica.*;
 
 import java.awt.*;
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

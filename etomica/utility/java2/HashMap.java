@@ -1,6 +1,5 @@
 
-package etomica.utility;
-import java.io.*;
+package etomica.utility.java2;
 
 /**
  * Captures the functionality of the Java 1.2 class java.util.HashMap
@@ -11,6 +10,10 @@ import java.io.*;
  * also is subject to the synchronization overhead inherent in Hashtable method calls.
  */
 
+/* History
+ *  
+ * 12/31/02 (DAK) appended java2 to package name
+ */
 public class HashMap implements java.io.Serializable {
 
     private java.util.Hashtable hash;

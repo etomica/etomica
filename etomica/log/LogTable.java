@@ -1,6 +1,5 @@
 package etomica.log;
 
-import etomica.*;
 import javax.swing.table.AbstractTableModel;
 import org.apache.poi.hssf.usermodel.*;
 

@@ -1,7 +1,5 @@
 package etomica.graphics;
 import java.awt.Color;
-import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
@@ -17,9 +15,8 @@ public class EtomicaTheme extends DefaultMetalTheme {
    public String getName() {return "EtomicaTheme";}
 
    static final Color dkBlue = new Color(50,100,150);
-   static final Color dkBrown = new Color(150,100,50);
-   static final Color olive = new Color(139, 161, 105);
-   static final Color ltYellow = new Color(255,255,200);
+   static final Color dkBrown = new Color(200,150,100);
+   static final Color ltYellow = new Color(255,255,230);
    static final Color ltBrown = new Color(200,200,100);
 
    //
@@ -37,7 +34,6 @@ public class EtomicaTheme extends DefaultMetalTheme {
    // Secondary Colors (background)
    //
    private final ColorUIResource shadow = new ColorUIResource(dkBrown);
-//   private final ColorUIResource border = new ColorUIResource(ltBrown);
    private final ColorUIResource border = new ColorUIResource(dkBrown);
    private final ColorUIResource background = new ColorUIResource(ltYellow);
 

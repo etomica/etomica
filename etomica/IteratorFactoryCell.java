@@ -1,8 +1,8 @@
 package etomica;
-import etomica.utility.HashMap;
+import etomica.utility.java2.HashMap;
 
 import etomica.lattice.*;
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
 /**
  * Iterator factory that uses a cell-based neighbor list.  Constructed

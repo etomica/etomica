@@ -1,5 +1,4 @@
 package etomica.graphics;
-import etomica.*;
 import javax.swing.JPanel;
 
 /**

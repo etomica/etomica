@@ -2,7 +2,7 @@ package etomica.utility;
 //Java2 imports
 //import java.util.LinkedList;
 
-import etomica.utility.LinkedList;
+import etomica.utility.java2.LinkedList;
 
 public class OdeSolver {
     

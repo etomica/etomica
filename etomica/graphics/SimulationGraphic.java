@@ -7,8 +7,7 @@ import etomica.*;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.LinkedList;
 
 /**
  * The main class that organizes the elements of a molecular simulation.

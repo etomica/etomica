@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.MemoryImageSource;
 //import java.util.Hashtable;
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -73,7 +73,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         g.setColor(displayPhase.getColorScheme().atomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
-        baseYP = origin[1];
+        baseYP = origin[1] + Space1D.drawingHeight/2;
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter(a));

@@ -2,7 +2,6 @@ package etomica.graphics;
 
 import java.awt.Color;
 import etomica.*;
-import etomica.units.*;
 
 public final class DefaultGraphic {
     

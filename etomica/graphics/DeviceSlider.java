@@ -5,13 +5,10 @@ import etomica.utility.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.InputEvent;
+import java.awt.event.*;
 import etomica.units.*;
+import etomica.utility.*;
 import etomica.utility.StringUtility;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.event.*;
 import etomica.event.ChangeEventManager;
 
@@ -196,6 +193,10 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     
     public double getMinimum() {return minimum;}
+    /**
+     * Sets minimum value of slider; should be called after
+     * any calls to setPrecision.
+     */
     public void setMinimum(double min) {
         minimum = min;
         slider.setDecimalSliderMinimum(min);
@@ -204,6 +205,10 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
         
     public double getMaximum() {return maximum;}
+    /**
+     * Sets maximum value of slider; should be called after
+     * any calls to setPrecision.
+     */
     public void setMaximum(double max) {
         maximum = max;
         slider.setDecimalSliderMaximum(max);
@@ -231,7 +236,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         slider.setDecimalSliderMinorTickSpacing(spacing/2.0);
         //need to do the following because JSlider does not automatically
         //reset labels if they have been set before
-        slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(spacing/minorTick));
+        slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(Math.max(spacing/minorTick,1)));
     }
     
     public boolean getShowValues(){ return showValues;}

@@ -5,6 +5,9 @@ import etomica.*;
  * Primitive group for a trigonal system.  Primitive-vector angles
  * are (90,90,120) degrees and two vectors are of equal length.
  */
+
+// 12/31/02 should check for correctness.  simulation constructor was changed to space constructor without examining if class is correct */
+
 public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     
     private double ab = 1.0, c = 1.0;
@@ -13,11 +16,11 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     private final double cosGamma = Math.cos(gamma);
     private final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveTrigonal(Simulation sim) {
-        this(sim, 1.0, 1.0);
+    public PrimitiveTrigonal(Space space) {
+        this(space, 1.0, 1.0);
     }
-    public PrimitiveTrigonal(Simulation sim, double ab, double c) {
-        super(sim);
+    public PrimitiveTrigonal(Space space, double ab, double c) {
+        super(space);
         setAB(ab);
         setC(c);
     }
@@ -25,15 +28,15 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveTrigonal(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveTrigonal(Space space, Primitive direct) {
+        super(space, direct);
         ix = 1;
         iy = 0;
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveTrigonal(simulation, this);
+        return new PrimitiveTrigonal(space, this);
     }
     
     //called by update method of superclass
@@ -87,7 +90,7 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveTrigonal(simulation, ab, c);
+        return new PrimitiveTrigonal(space, ab, c);
     }
     
     public void scaleSize(double scale) {

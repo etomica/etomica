@@ -2,7 +2,7 @@ package etomica.utility;
 //Java2 imports
 //import java.util.HashMap;
 
-import etomica.utility.HashMap;
+import etomica.utility.java2.HashMap;
 
 /**
  * Implementation of a hash map in which entries are keyed to a pair of objects,

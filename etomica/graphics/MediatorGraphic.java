@@ -7,8 +7,8 @@ import etomica.utility.HashMap2;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.HashMap;
-import etomica.utility.Iterator;
+import etomica.utility.java2.HashMap;
+import etomica.utility.java2.Iterator;
     
 /** 
  * Class to perform actions that tie together the elements of a simulation.

@@ -1,10 +1,15 @@
-package etomica.utility;
+package etomica.utility.java2;
 
 /**
  * Captures the functionality of the Java 1.2 class java.util.LinkedList
  * as used in the etomica api.
  */
 
+/* History
+ *  
+ * 12/31/02 (DAK) appended java2 to package name
+ */
+ 
 public class LinkedList implements java.io.Serializable, Cloneable
 {
     private transient Entry header = new Entry(null, null, null);

@@ -2,15 +2,12 @@ package etomica.graphics;
 import etomica.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Observer;
-import java.util.Observable;
 import etomica.units.BaseUnit;
 
 //Java2 imports
 //import java.util.LinkedList;
 
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.LinkedList;
 
 /**
  * Displays a picture of a phase, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  

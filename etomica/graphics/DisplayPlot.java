@@ -1,14 +1,15 @@
 package etomica.graphics;
 import etomica.*;
-
 import etomica.units.*;
-import ptolemy.plot.Plot;
-import java.awt.event.*;
 
 /**
  * Class for creating a plot of simulation data.
  *
  * @author David Kofke
+ */
+
+/* History
+ * 01/01/03 (DAK) Modified doUpdate to plot only if isShowing
  */
  
 public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
@@ -88,6 +89,7 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
     }
             
     public void doUpdate() {
+    	if(!plot.isShowing()) return;
         super.doUpdate();
         if(ySource == null) return;
         int nSource = ySource.length;
@@ -95,7 +97,11 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         ///new stuff
         for(int k=0; k<nSource; k++) {
             for(int i=0; i<x.length; i++) {
-              plot.addPoint(k, xUnit.fromSim(x[i]), yUnit[k].fromSim(y[k][i]), true);
+              if(!Double.isNaN(y[k][i])) { 
+				plot.addPoint(k, xUnit.fromSim(x[i]), yUnit[k].fromSim(y[k][i]), true);
+              } else if(i==x.length-1) {
+				plot.addPoint(k, xUnit.fromSim(x[i]), 0.0, false);
+              }
             }//for i
         }//for k
         plot.repaint();
@@ -135,6 +141,10 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
   */
     public class Plot extends ptolemy.plot.Plot {
         
+        public Plot() {
+        	super();
+        	setOpaque(false);
+        }
         public void setTopPadding(int i) {
             _topPadding = i;
         }

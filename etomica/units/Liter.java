@@ -1,5 +1,4 @@
 package etomica.units;
-import etomica.Constants;
 
 public final class Liter extends BaseUnit.Volume {
 

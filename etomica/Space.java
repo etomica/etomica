@@ -4,7 +4,7 @@ package etomica;
  * 09/01/02 (DAK) added accelerateTo method to Coordinate
  */
 
-public abstract class Space implements Space.Boundary.Maker, java.io.Serializable {
+public abstract class Space implements java.io.Serializable {
     
     public static String VERSION = "01.07.09";
 

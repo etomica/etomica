@@ -5,7 +5,7 @@ import etomica.units.*;
 //Java2 imports
 //import java.util.Iterator;
 
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
 /**
  * Permits selection of temperature from a discrete set of values.  Also has option

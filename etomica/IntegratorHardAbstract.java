@@ -55,6 +55,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public void doStep() {
         double collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         double interval = timeStep;
+        int count = 100000;
         while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
             atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
@@ -69,6 +70,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             
             interval -= collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
+            if(count-- == 0) throw new RuntimeException("Unable to advance system through all collisions");
         } 
         advanceAcrossTimeStep(interval);
         if(isothermal) {

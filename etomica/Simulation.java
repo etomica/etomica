@@ -8,9 +8,9 @@ import etomica.units.UnitSystem;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.HashMap;
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.HashMap;
+import etomica.utility.java2.LinkedList;
+import etomica.utility.java2.Iterator;
 
 /**
  * The main class that organizes the elements of a molecular simulation.

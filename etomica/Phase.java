@@ -7,8 +7,8 @@ import java.util.Observer;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.LinkedList;
+import etomica.utility.java2.Iterator;
 
 /* History of changes
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum

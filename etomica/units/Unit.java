@@ -65,7 +65,6 @@ public class Unit implements java.io.Serializable {
      * @param dim the dimension of this unit (e.g., energy)
      */
     public Unit(Prefix pre, double to, String name, String symbol, boolean prefixAllowed, Dimension dim) {
-        prefix = prefix;
         baseTo = to;
         baseName = name;
         baseSymbol = symbol;

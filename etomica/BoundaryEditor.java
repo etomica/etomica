@@ -4,8 +4,8 @@ import java.beans.*;
 //import java.util.LinkedList;
 //import java.util.Iterator;
 
-import etomica.utility.LinkedList;
-import etomica.utility.Iterator;
+import etomica.utility.java2.LinkedList;
+import etomica.utility.java2.Iterator;
 
 /**
  * A property editor for setting the Boundary object of a Phase.

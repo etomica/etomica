@@ -4,7 +4,7 @@ import etomica.units.Dimension;
 //Java2 imports
 //import java.util.Iterator;
 
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
 /**
  * Meter to measure the chemical potential of a species via the Widom insertion method.

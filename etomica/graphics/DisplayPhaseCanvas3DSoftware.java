@@ -7,7 +7,7 @@ import java.awt.image.MemoryImageSource;
 
 import java.util.Hashtable;
 //java2 replacement
-import etomica.utility.Iterator;
+import etomica.utility.java2.Iterator;
 
     /* History of changes
      * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
