@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomTypeOrientedSphere;
 import etomica.space.Boundary;
 import etomica.space.Coordinate;
 import etomica.space.CoordinateAngular;
@@ -13,8 +14,11 @@ import etomica.space.Orientation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
+import etomica.space1d.Vector1D;
 import etomica.space2d.Space2D;
+import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 
 /* History of changes
  * 09/01/02 (DAK) added accelerateTo method to Coordinate
@@ -75,8 +79,8 @@ public abstract class Space implements java.io.Serializable {
     public ICoordinate makeCoordinate(Atom atom) {
         if(atom.node instanceof AtomTreeNodeGroup) return null;
         
-        //boolean angular = something with atom.type;
-        boolean angular = false;
+        //TODO need a better way to sniff out what needs an angular coordinate
+        boolean angular = atom.type instanceof AtomTypeOrientedSphere;
         if(kinetic) {
             if(angular) return new CoordinateAngularKinetic(this);
             return new CoordinateKinetic(this);
@@ -114,9 +118,9 @@ public abstract class Space implements java.io.Serializable {
     public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
         switch(u1.D()) {
-            case 1: return Space1D.r2((etomica.space1d.Vector1D)u1, (etomica.space1d.Vector1D)u2, (Boundary)b);
-            case 2: return Space2D.r2((etomica.space2d.Vector2D)u1, (etomica.space2d.Vector2D)u2, (Boundary)b);
-            case 3: return Space3D.r2((etomica.space3d.Vector3D)u1, (etomica.space3d.Vector3D)u2, (Boundary)b);
+            case 1: return Space1D.r2((Vector1D)u1, (Vector1D)u2, b);
+            case 2: return Space2D.r2((Vector2D)u1, (Vector2D)u2, b);
+            case 3: return Space3D.r2((Vector3D)u1, (Vector3D)u2, b);
             default: throw new IllegalArgumentException("Space.r2: Unknown vector dimension");
         }
     }
@@ -125,9 +129,9 @@ public abstract class Space implements java.io.Serializable {
      */
     public static Vector makeVector(int D) {
         switch(D) {
-            case 1:  return new etomica.space1d.Vector1D();
-            case 2:  return new etomica.space2d.Vector2D();
-            case 3:  return new etomica.space3d.Vector3D();
+            case 1:  return new Vector1D();
+            case 2:  return new Vector2D();
+            case 3:  return new Vector3D();
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
