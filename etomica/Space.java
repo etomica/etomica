@@ -7,6 +7,7 @@ import etomica.space.CoordinateAngular;
 import etomica.space.CoordinateAngularKinetic;
 import etomica.space.CoordinateKinetic;
 import etomica.space.CoordinatePair;
+import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinate;
 import etomica.space.Orientation;
 import etomica.space.Tensor;
@@ -86,7 +87,11 @@ public abstract class Space implements java.io.Serializable {
     }
     
     public CoordinatePair makeCoordinatePair() {
-        return new CoordinatePair(this);
+        if(kinetic) {
+            return new CoordinatePairKinetic(this);
+        } else {
+            return new CoordinatePair(this);
+        }
     }
 
     
