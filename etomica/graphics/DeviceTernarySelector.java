@@ -25,6 +25,7 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     private javax.swing.JPanel boxPanel;
     private javax.swing.JPanel trianglePanel;
     private javax.swing.JPanel panel;
+    private final SimulationEventManager listenerManager = new SimulationEventManager();
     
     public DeviceTernarySelector() {
         this(Simulation.instance);
@@ -52,6 +53,13 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo();
         info.setDescription("Select fractions in a ternary system");
         return info;
+    }
+    
+    public void addListener(DeviceTernarySelector.Listener listener) {
+        listenerManager.addListener(listener);
+    }
+    public void removeListener(DeviceTernarySelector.Listener listener) {
+        listenerManager.removeListener(listener);
     }
     
     private int x0() {return panel.getFontMetrics(panel.getFont()).stringWidth(symbols[0]);}
@@ -90,6 +98,7 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
             panel.add(boxPanel);
             for(int i=0; i<3; i++) {
                 boxes[i] = new javax.swing.JTextField(precision+2);
+                boxes[i].setEditable(false);
                 boxPanel.add(new javax.swing.JLabel(labels[i]));
                 boxPanel.add(boxes[i]);
             }
@@ -108,14 +117,16 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     }
     
     /**
-     * Mutator method for the length of each side of the triangle.
+     * Mutator method for the length of each side of the triangle, in pixels.
+     * Default value is 200.
      */
     public void setSideLength(int L) {
         sideLength = L;
         makeTriangle();
     }
     /**
-     * Accessor method for the length of each side of the triangle.
+     * Accessor method for the length of each side of the triangle, in pixels.
+     * Default value is 200.
      */
     public int getSideLength() {return sideLength;}
     
@@ -207,9 +218,11 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
         public void mousePressed(java.awt.event.MouseEvent evt) {
             int x = evt.getX();
             int y = evt.getY();
-//            System.out.println(x + "  " + y + "  " + triangle.contains(x, y));
             double[] frac = triangle.fractions(x,y);
-            if(triangle.contains(x,y)) System.out.println(frac[0]+" "+frac[1]+" "+frac[2]);
+            for(SimulationListener.Linker linker=listenerManager.first(); linker!=null; linker=linker.next) {
+                ((Listener)linker.listener).ternaryAction(frac[0], frac[1], frac[2]);
+            }
+            //System.out.println(frac[0]+" "+frac[1]+" "+frac[2]);
         }
     }//end of ClickListener class
     
@@ -282,15 +295,25 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
         }//end of fractions
     }//end of Triangle
     
-/*    public static void main(String[] args) {
-        Simulation sim = new etomica.simulations.HSMD2D();
+    public interface Listener extends SimulationListener {
+        public void ternaryAction(double x1, double x2, double x3);
+    }
+    
+    public static void main(String[] args) {
+        SimulationGraphic sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         DeviceTernarySelector selector = 
             new DeviceTernarySelector(sim, new String[] {"Benzene","Toluene","Xylene"});
+        selector.addListener(new DeviceTernarySelector.Listener() {
+            public void ternaryAction(double x1, double x2, double x3) {
+                System.out.println("Event!: " + x1 + " " + x2 + " " + x3);
+            }
+        });
         selector.setShowValues(true);
         selector.setSymbols(new String[] {"B", "T", "X"});
+      //  selector.setSideLength(400);
         sim.elementCoordinator.go();
         sim.makeAndDisplayFrame();
     }
-    */
+    
 }

@@ -69,8 +69,11 @@ public abstract class IntegratorMD extends Integrator {
      */
     public class ChronoMeter extends Meter {
         
-        double t0;
+        double time0;
         
+        /**
+         * Constructor for a time-meter associated with this IntegratorMD class.
+         */
         ChronoMeter() {
             super(IntegratorMD.this.parentSimulation());
             setActive(false);
@@ -79,35 +82,34 @@ public abstract class IntegratorMD extends Integrator {
         }
         
         /**
-         * Declaration that this meter does not use the boundary object of phase when making its measurements
+         * Returns the integrator for which this meter keeps time.
          */
-        public final boolean usesPhaseBoundary() {return false;}
-        /**
-         * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-         */
-        public final boolean usesPhaseIteratorFactory() {return false;}
+        public Integrator integrator() {return IntegratorMD.this;}
         
+        /**
+         * Indicates units (time) of measured property.
+         */
         public Dimension getDimension() {return Dimension.TIME;}
         
-        public void reset() {t0 = elapsedTime();}
+        /**
+         * Sets the meter's current time as the new zero for subsequent values.
+         */
+        public void reset() {time0 = elapsedTime();}
+        
+        /**
+         * Overrides parent class method to cause no action to be performed in response 
+         * to interval event.
+         */
         public void intervalAction(Integrator.IntervalEvent evt) {}
-        public double currentValue() {return elapsedTime() - t0;}
+        /**
+         * Returns the simulation time elapsed since the instantiation of
+         * this meter, or since the last call to reset().
+         */
+        public double currentValue() {return elapsedTime() - time0;}
+        /**
+         * Same as currentValue().
+         */
     	public double mostRecent() {return currentValue();}
-    }
-    
-    /** 
-     * DisplayBox to present the elapsed time
-     */
-/*    public class Timer extends DisplayBox {
-    
-        public Timer() {this(chronoMeter());}
-        public Timer(ChronoMeter meter) {
-            super();
-            this.setMeter(meter);
-            this.setUnit(new Unit(Picosecond.UNIT));
-            this.setPrecision(7);
-            graphic().setSize(100,60);
-        }
-    }*/
-}
+    }//end of ChronoMeter
+}//end of IntegratorMD
     

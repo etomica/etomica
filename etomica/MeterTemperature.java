@@ -5,7 +5,7 @@ import etomica.units.Dimension;
  * Meter for measurement of the temperature based on kinetic-energy equipartition
  */
 
-public final class MeterTemperature extends Meter implements EtomicaElement
+public final class MeterTemperature extends Meter implements EtomicaElement, Meter.Atomic
 {
     public MeterTemperature() {
         this(Simulation.instance);
@@ -33,6 +33,10 @@ public final class MeterTemperature extends Meter implements EtomicaElement
     public double currentValue()
     {
         return currentValue(phase);
+    }
+    
+    public double currentValue(Atom a) {
+        return 2./phase.parentSimulation().space().D()*a.coord.kineticEnergy();
     }
     
 	public Dimension getDimension() {return Dimension.TEMPERATURE;}

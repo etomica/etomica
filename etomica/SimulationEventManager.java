@@ -42,6 +42,13 @@ public class SimulationEventManager implements java.io.Serializable {
             }
         }
     }
+    
+    /**
+     * Returns the first of the linked-list of listeners.  Useful if 
+     * using this class just to maintain list of listeners, while firing
+     * events to them using methods outside this class.
+     */
+     public SimulationListener.Linker first() {return first;}
 
 //probably ok to make not synchronized.  Addition and removal of listeners
 //while firing event does not disturb complete event firing, since the the link keeps its next/previous

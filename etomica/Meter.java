@@ -185,15 +185,4 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
 	    public void addMeter(Meter m);
 	 }
 	
-	 //delete this if everything still compiles
-/*	public static class ValueType extends DataSource.ValueType {
-        private ValueType(String label) {super(label);}
-        public Constants.TypedConstant[] choices() {
-            return new Constants.TypedConstant[] {
-                HISTOGRAM, HISTORY};
-        }
-        public static final ValueType HISTOGRAM = new ValueType("Histogram");
-        public static final ValueType HISTORY = new ValueType("History");
-    }//end of ValueType
-*/	 
 }//end of Meter class	 

@@ -5,8 +5,8 @@ import java.awt.Color;
 /**
  * Colors the atom according to the color given by its type field.  Instantiation
  * of this class leads to the placement of a ParameterColor object with each
- * existing and subsequent instance of AtomType.  This is used to reference the
- * color associated with each type.
+ * existing and subsequent instance of AtomType.  This parameter is used to store
+ * and reference the color associated with each type.
  *
  * @author David Kofke
  */
@@ -28,4 +28,32 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
   
     //implementation of Parameter.Source interface
     public Parameter makeParameter() {return new ParameterColor();}
+    
+    /**
+     * Demonstrates how this class is implemented.
+     */
+    public static void main(String[] args) {
+        Simulation.instance = new SimulationGraphic(new Space2D());
+	    IntegratorHard integratorHard = new IntegratorHard();
+	    SpeciesSpheresMono speciesBlue = new SpeciesSpheresMono();
+	    SpeciesSpheresMono speciesRed = new SpeciesSpheresMono();
+	    
+	    Phase phase = new Phase();
+	    Potential2 potential = new P2HardSphere();
+	    Controller controller = new Controller();
+	    DisplayPhase displayPhase = new DisplayPhase();
+	    
+	    //this is the special part
+        displayPhase.setColorScheme(new ColorSchemeByType());        
+        ((ParameterColor)((AtomFactoryMono)speciesBlue.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(Color.blue);
+        ((ParameterColor)((AtomFactoryMono)speciesRed.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(Color.red);
+        //--------------------
+                
+        //this method call invokes the mediator to tie together all the assembled components.
+		Simulation.instance.elementCoordinator.go();
+		                                    
+		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
+        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+    }//end of main
+    
 }

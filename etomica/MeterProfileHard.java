@@ -45,7 +45,7 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
 
     /**
      * Sets the meter used to tabulate the property.  
-     * May be called with either a Meter.Collisional or a Meter.Abstract.  If both types of meter
+     * May be called with either a Meter.Collisional or a MeterAbstract.  If both types of meter
      * are desired to contribute to average, should be called once with each.
      */
     public void setMeter(MeterAbstract m) {
@@ -78,10 +78,20 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
      * Location of the collision is defined by the average of the atoms' coordinates.
      */
     public void collisionAction(IntegratorHardAbstract.Agent agent) {
-        double dot = 0.5*(agent.atom().coord.position().dot(profileVector) 
-                            + agent.collisionPartner().coord.position().dot(profileVector));
+        if(agent == null || agent.atom() == null || agent.collisionPartner() == null) return;
+    //this way (adding once at midpoint of atoms) doesn't handle PBC well; 
+    //causes peak in middle due to collisions at boundaries...
+     //   double dot = 0.5*(agent.atom().coord.position().dot(profileVector) 
+     //                       + agent.collisionPartner().coord.position().dot(profileVector));
+     //...instead add twice, once at position of each atom
+        double value = 0.5*cMeter.collisionValue(agent); //0.5 is to compensate for double addition
+        
+        double dot = agent.atom().coord.position().dot(profileVector);
         int j = getXIndex(dot);
-        w[j] += cMeter.collisionValue(agent);
+        w[j] += value;
+        dot = agent.collisionPartner().coord.position().dot(profileVector);
+        j = getXIndex(dot);
+        w[j] += value;
     }
     
     protected void resizeArrays() {

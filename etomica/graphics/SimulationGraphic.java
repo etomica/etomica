@@ -124,22 +124,28 @@ public class SimulationGraphic extends Simulation {
      */
     public static void main(String[] args) {
         Simulation.instance = new SimulationGraphic(new Space2D());
-        DefaultGraphic.ATOM_COLOR = java.awt.Color.red;
+        DefaultGraphic.ATOM_COLOR = java.awt.Color.green;
    //     Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
-	    speciesSpheres.setNMolecules(30);
+	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
+	    speciesSpheres.setNMolecules(16);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
-//	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
-//	    timer.setUpdateInterval(10);
+	    DisplayTimer timer = new DisplayTimer(integratorHard);
+	    timer.setUpdateInterval(10);
 //        integratorHard.setTimeStep(0.01);
+        displayPhase.setColorScheme(new ColorSchemeColliders(integratorHard));
 /*        displayPhase.setColorScheme(new ColorSchemeNull());
         for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
             atom.setColor(ConstantsGraphic.randomColor());
         }*/
+        
+     //   p1HardBoundary.setSpecies(speciesSpheres);
+        Potential1Group p1Group = new Potential1Group();
+        P1HardBoundary p1HardBoundary = new P1HardBoundary(p1Group);
+        p1Group.setSpecies(speciesSpheres);
         
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();

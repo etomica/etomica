@@ -9,7 +9,10 @@ import etomica.units.*;
  *
  * @author David Kofke
  */
-public final class MeterPressureHard extends Meter implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
+public final class MeterPressureHard extends Meter implements
+                                                IntegratorHardAbstract.CollisionListener,
+                                                Meter.Collisional,
+                                                EtomicaElement {
         
     private double virialSum = 0.0;
     private double t0 = 0.0; //initialized in setPhaseIntegrator method
@@ -59,6 +62,14 @@ public final class MeterPressureHard extends Meter implements IntegratorHardAbst
     }
     
     /**
+     * Implementation of Meter.Collisional interface.  Returns -(collision virial)/D.
+     * Suitable for tabulation of PV
+     */
+	public double collisionValue(IntegratorHardAbstract.Agent agent) {
+	    return -agent.collisionPotential.lastCollisionVirial()/(double)D;
+	}
+
+    /**
      * Invokes superclass method and registers meter as a collisionListener to integrator.
      * Performs only superclass method if integrator is not an instance of IntegratorHard.
      */
@@ -80,7 +91,7 @@ public final class MeterPressureHard extends Meter implements IntegratorHardAbst
      * Method to demonstrate and test the use of this class.  
      * Pressure is measured in a hard-sphere MD simulation.
      */
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         
@@ -100,15 +111,27 @@ public final class MeterPressureHard extends Meter implements IntegratorHardAbst
         //note that there is no harm in calling setPhase multiple times with the same phase
            // pressureMeter.setPhase(phase);
            
+        MeterProfileHard profile = new MeterProfileHard();
+        profile.setActive(true);
+        profile.setX(0,30,50);
+        profile.setMeter(pressureMeter);
+        profile.setMeter(((Meter.Atomic)new MeterTemperature()));
+        etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
+           
         //display the meter
-        DisplayBox box = new DisplayBox();
+        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox();
         box.setMeter(pressureMeter);
+        
+        etomica.action.MeterReset resetAction = new etomica.action.MeterReset();
+        resetAction.setMeters(new MeterAbstract[] {pressureMeter, profile});
+        etomica.graphics.DeviceButton resetButton = new etomica.graphics.DeviceButton(resetAction);
         //end of unique part
  
         Simulation.instance.elementCoordinator.go();
+        plot.setDataSources(profile);
         sim.phase.firstSpecies().setNMolecules(60);
         
-        Simulation.makeAndDisplayFrame(sim);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
     }//end of main
- */   
+    
 }

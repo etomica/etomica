@@ -8,7 +8,7 @@ package etomica;
  */
 public interface SimulationListener extends java.util.EventListener {
 
-    public void actionPerformed(SimulationEvent event);
+//    public void actionPerformed(SimulationEvent event);
 
     /**
      * Class used to construct a two-way linked list of listeners.

@@ -22,7 +22,7 @@ public class ConfigurationSequential extends Configuration {
         dimensions.E(Default.BOX_SIZE);
     }
     
-    public void setDimensions(Space.Vector dimensions) {this.dimensions = dimensions;}
+    public void setDimensions(Space.Vector dimensions) {this.dimensions.E(dimensions);}
     
     public void setFillVertical(boolean b) {fill = b;}
     public boolean getFillVertical() {return fill;}
