@@ -408,6 +408,8 @@ public final class Phase extends Container {
 
     public void add(Species species) {
         super.add(species);
+        species.parentPhase = this;
+        species.configurationMolecule.initializeCoordinates();
         if(space != null) species.initializeSpecies(this);
         configuration.add(species);
         speciesVector.addElement(species);

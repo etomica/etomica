@@ -1,6 +1,4 @@
 package simulate;
-import java.awt.*;//for Graphics
-import java.beans.Beans;
 
 public class SpeciesWalls extends Species {
 
@@ -13,13 +11,14 @@ public class SpeciesWalls extends Species {
     
     public SpeciesWalls(int n, int na) {
         super(n,na);
-        configurationMolecule = new ConfigurationMoleculeWallsParallel();
-        initializeMolecules();
+        colorScheme.setBaseColor(Constants.DARK_RED);
+        add(new ConfigurationMoleculeWallsParallel());
+        ((ConfigurationMoleculeWallsParallel)configurationMolecule).setAngle(0);   //horizontal walls are the default
+        ((ConfigurationMoleculeWallsParallel)configurationMolecule).setSpanVolume(false);
     }
 
   public void initializeMolecules() {
     setThickness(4);
-    colorScheme.setBaseColor(Constants.DARK_RED);
   }
 
   public Molecule makeMolecule() {
@@ -29,11 +28,7 @@ public class SpeciesWalls extends Species {
   public final int getThickness() {return ((AtomWall)firstAtom()).getThickness();}
   public final void setThickness(int t) {((AtomWall)firstAtom()).setThickness(t);}
     
-  public void addNotify() {
-      super.addNotify();
-  }
-    
   public void initializeSpecies(Phase phase) {
-    configurationMolecule.initialize();
+    configurationMolecule.initializeCoordinates();
   }
 }

@@ -443,7 +443,7 @@ public class Space extends Component {
         return;
     }
     
-    public static void uDEa1(double[] u, int a1) {
+    public static void uDEa1(double[] u, double a1) {
         u[0] /= a1;
         u[1] /= a1;
     }

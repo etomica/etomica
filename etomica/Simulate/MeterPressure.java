@@ -20,36 +20,31 @@ public class MeterPressure extends simulate.Meter
         setLabel("Pressure (bar)");
     }
     
-//    public void initialize() {
-//        momentumP2 = new P2();
-//        momentumP2.setSpecies1Index(0);
-//        momentumP2.setSpecies2Index(1);
-//        phase.add(momentumP2);
-//        momentumSpecies = new SpeciesMeterWalls();
-//        momentumSpecies.setSpeciesIndex(1);
-//        phase.add(momentumSpecies);
-//        phase.nMoleculeTotal -= 2;
-//        phase.nAtomTotal -= 2;
-//    }
-
     public void integrationIntervalAction(IntegrationIntervalEvent evt) {
         timeSum += evt.integrator.drawTimeStep * evt.integrator.integrationInterval;
         updateStatistics(phase);}
 
     public double currentValue()
     {
-        double fluxCalc=0.0;
-        for(Species s=phase.firstSpecies; s!=null; s=s.getNextSpecies()) {
-           if(s.speciesIndex == meterIndex) {
- //               s = (SpeciesWalls)s;
-              double flux = 0.5*((AtomWall)s.firstAtom()).pAccumulator*Constants.SCALE/(timeSum * Constants.SCALE * Constants.DEPTH);
-              ((AtomWall)s.firstAtom()).pAccumulator = 0.0;
+        double flux=0.0;
+        int count = 0;
+        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+           if(s.parentSpecies().speciesIndex == meterIndex) {
+              for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
+                if(a.ia instanceof IntegratorHard.Agent) {
+                    IntegratorHard.Agent ia = (IntegratorHard.Agent)a.ia;
+                    flux = 0.5*ia.pAccumulator*Constants.SCALE/(timeSum * Constants.SCALE * Constants.DEPTH);
+                    ia.pAccumulator = 0.0;
+                    count++;
+                }
+              }  //else handle pressure for soft potential
               timeSum = 0.0;
-              fluxCalc=flux/Constants.BAR2SIM;
+              flux /= count*Constants.BAR2SIM;   //count should be total area instead of number of atoms
+              break;  //out of loop over species (or is it only breaking out of if block?)
            }
         }
         
-        return fluxCalc;
+        return flux;
     }
     
     public int getMeterIndex() {return meterIndex;}

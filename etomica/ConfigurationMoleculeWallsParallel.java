@@ -1,77 +1,85 @@
 package simulate;
 
+import java.awt.Rectangle;
+
 /**
  * Places all atoms of each molecule in a straight line along the x-axis
  */
 
 public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     
-    private double theta;
+    private int angle;
     private boolean horizontal, vertical;
     private boolean spanVolume;
     
     public ConfigurationMoleculeWallsParallel(){
-        setAngle(0);
-        setSpanVolume(true);
     }
       
-    public final int getAngle() {return theta;}
+    public final int getAngle() {return angle;}
     public final void setAngle(int t) {
         t = (Math.abs(t) > 45) ? 90 : 0;  //For now, allow only values for vertical or horizontal walls
-        theta = (t <= 360) ? t : (t % 360);
-        horizontal = (theta == 0) || (Math.abs(theta) == 180);
-        vertical = (Math.abs(theta) == 90) || (Math.abs(theta) == 270);
+        angle = (t <= 360) ? t : (t % 360);
+        horizontal = (angle == 0) || (Math.abs(angle) == 180);
+        vertical = (Math.abs(angle) == 90) || (Math.abs(angle) == 270);
+        initializeCoordinates();
     }
     
     public final boolean getSpanVolume() {return spanVolume;}
-    public final void setSpanVolume(boolean s) {spanVolume = s;}
+    public final void setSpanVolume(boolean s) {
+        spanVolume = s;
+        initializeCoordinates();
+    }
 
   /**
    * Sets wall coordinates based on pixel position as obtained by the species' getBounds.
    * Values of x and y coordinates and wall length, are affected by current values of angle and spanVolume,
    * but these do not in turn alter the original values of the species Bounds
    */
-    public void initializeCoordinates(Molecule m) {
+    public void initializeCoordinates(Molecule m) {  //doesn't handle wall that is not either horizontal or vertical
         Rectangle rect = parentSpecies.getBounds();
-        double x = (double)rect.x/Phase.TO_PIXELS;
-        double y = (double)rect.y/Phase.TO_PIXELS;
-        double width = (double)rect.width/Phase.TO_PIXELS;
-        double height = (double)rect.height/Phase.TO_PIXELS;
+        Phase phase = parentSpecies.getParentPhase();
+        int  width = (spanVolume && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if spanVolume, to species otherwise
+        int height = (spanVolume && phase != null) ? phase.getBounds().height : rect.height;
+        double x = (horizontal && spanVolume) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
+        double y = (vertical && spanVolume)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
+        double w = (double)width/Phase.TO_PIXELS;
+        double h = (double)height/Phase.TO_PIXELS;
+        int i = 0;
+        double delta = 0.0;
+        double xyNext = x;
+        double wh = h;
         if(horizontal) {
-            double delta = (height-y)/(m.nAtoms-1);
-            Space.uEa1(m.firstAtom().r,0.0);
-            Atom a = m.firstAtom();
-            a.r[1] = y;
-            m.firstAtom.setDiameter(width);
-            for(Atom a=a.getNextAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
-                Space.uEa1(a.r,0.0);
-                a.r[1] = a.getPreviousAtom().r[1] + delta;
-                a.setDiameter(width);
-            }
+            delta = (h-y)/(m.nAtoms-1);
+            i = 1;
+            xyNext = y;
+            wh = w;
         }
         else if(vertical) {
-            double delta = (width-x)/(m.nAtoms-1);
-            Space.uEa1(m.firstAtom().r,0.0);
-            Atom a = m.firstAtom();
-            a.r[0] = x;
-            m.firstAtom.setDiameter(height);
-            for(Atom a=a.getNextAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
-                Space.uEa1(a.r,0.0);
-                a.r[0] = a.getPreviousAtom().r[0] + delta;
-                a.setDiameter(height);
-            }
-            
-            //doesn't handle wall that is not either horizontal or vertical
+            delta = (w-x)/(m.nAtoms-1);
+            i = 0;
+            xyNext = x;
+            wh = h;
+        }
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+            Space.uEa1(a.r,0.0);
+            a.r[i] = xyNext;
+            xyNext += delta;
+            a.setDiameter(wh);
+            ((AtomWall)a).setAngle(angle);
         }
     }
     
-    
     protected void computeDimensions() {
-        dim[1] = 0.0;
-        Molecule m = parentSpecies.firstMolecule();  //a typical molecule
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
-            dim[1] = Math.max(dim[1], a.getDiameter());  //width is that of largest atom
+        if(horizontal) {
+            dim[0] = ((AtomWall)parentSpecies.firstAtom()).getLength();
+            dim[1] = 0.0;
         }
-        dim[0] = 0.5*(m.firstAtom().getDiameter() + m.lastAtom().getDiameter()) + (m.nAtoms-1) * bondLength;
+        else if(vertical) {
+            dim[0] = 0.0;
+            dim[1] = ((AtomWall)parentSpecies.firstAtom()).getLength();
+        }
+        else {
+            //does not handle walls that are neither horizontal nor vertical
+        }
     }
 }

@@ -11,6 +11,7 @@ public class AtomWall extends Atom {
     double[] r1 = new double[Space.D];  //other end of line in simulation units (first end is denoted r)
     private int theta;   //orientation (degrees) with respect to positive x-axis
     private double length;  //length of line in simulation units
+    double pAccumulator;  //accumulated momentum perpendicular to wall, for calculation of pressure
 
     public AtomWall(Molecule parent, int index) {
         super(parent, index);

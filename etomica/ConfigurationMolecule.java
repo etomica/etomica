@@ -15,7 +15,7 @@ public abstract class ConfigurationMolecule extends Component {
   public ConfigurationMolecule(){
     }
     
-  public void addNotify() {
+/*  public void addNotify() {
     super.addNotify();
     if(getParent() instanceof Species) {
        parentSpecies = (Species)getParent();
@@ -24,8 +24,9 @@ public abstract class ConfigurationMolecule extends Component {
         System.out.println("Error:  ConfigurationMolecule should be added only to a Species");
     }
   }
-  
+*/  
   public void initializeCoordinates() {
+    if(parentSpecies == null) {return;}
     for(Molecule m=parentSpecies.firstMolecule(); m!=parentSpecies.terminationMolecule(); m=m.getNextMolecule()) {
         initializeCoordinates(m);
     }

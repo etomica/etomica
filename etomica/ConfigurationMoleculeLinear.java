@@ -36,7 +36,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
         Space.uDEa1(NewCOM,(double)m.nAtoms);
         
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
-            Space.uMEa1(a.r,NewCOM);  //zero the molecule center-of-mass
+            Space.uMEv1(a.r,NewCOM);  //zero the molecule center-of-mass
             Space.uPEv1(a.r,OldCOM);  //move com to original position
         }
     }

@@ -169,6 +169,7 @@ public abstract class Species extends Container {
   }
   
   public void add(ColorScheme cs) {
+    super.add(cs);
     this.colorScheme = cs;
     for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {
         colorScheme.initializeAtomColor(a);
@@ -176,6 +177,8 @@ public abstract class Species extends Container {
   }
   
   public void add(ConfigurationMolecule cm) {
+    super.add(cm);
+    cm.parentSpecies = this;
     this.configurationMolecule = cm;
     cm.initializeCoordinates();
   }
@@ -359,7 +362,7 @@ public abstract class Species extends Container {
  /**
   * @return the phase in which this species resides
   */
-  public final Phase getPhase() {return parentPhase;}
+  public final Phase getParentPhase() {return parentPhase;}
     
   public final String getName() {return name;}
   public final void setName(String name) {this.name = name;}
@@ -500,7 +503,7 @@ public abstract class Species extends Container {
         if(parentPhase != null) initializeSpecies(parentPhase);
     }
   }
-  
+ /* 
   public void addNotify() {
     super.addNotify();
     if(getParent() instanceof Phase) {
@@ -510,7 +513,7 @@ public abstract class Species extends Container {
         System.out.println("Error:  Species can be added only to a Phase");
     }
   }
-  
+*/  
     public void setNAtomsPerMolecule(int na)
     {
         nAtomsPerMolecule = na;
