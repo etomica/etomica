@@ -137,7 +137,9 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 	private MyTimer[] timer = new MyTimer[0];
 
 	//inner class used to handle the counting for each integrator.
-	private static class MyTimer implements Integrator.IntervalListener {
+	//implement as BeforePbc listener to help ensure it is updated before
+	//other meters using it
+	private static class MyTimer implements Integrator.IntervalListener.BeforePbc {
 
 		MyTimer(IntegratorMD integrator) {
 			this.integrator = integrator;

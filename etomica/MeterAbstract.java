@@ -13,8 +13,6 @@ import etomica.utility.IntegerRange;
  */
 public abstract class MeterAbstract implements DataSource {
 
-    public static final String VERSION = "MeterAbstract:01.07.25";
-    
     /**
      * The phases in which this meter is performing its measurements
      */
