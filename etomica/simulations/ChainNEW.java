@@ -73,7 +73,7 @@ public class ChainNEW extends SimulationGraphic {
 		DisplayTimer timer = new DisplayTimer(integrator);
 		timer.setUpdateInterval(10);
 		ColorSchemeByType.setColor(species, java.awt.Color.red);
-		ColorSchemeByType.setColor(((AtomFactoryMono)((AtomFactoryHomo)speciesChain.moleculeFactory()).childFactory()).type(),java.awt.Color.blue);
+		ColorSchemeByType.setColor(((AtomFactoryMono)((AtomFactoryHomo)speciesChain.moleculeFactory()).childFactory()).getType(),java.awt.Color.blue);
 //		panel().setBackground(java.awt.Color.yellow);
 		DeviceKicker dk = new DeviceKicker(display);
 //		elementCoordinator.go();
@@ -82,7 +82,7 @@ public class ChainNEW extends SimulationGraphic {
 		Atom last = phase.getAgent(speciesChain).node.lastLeafAtom();
 		first.coord.momentum().E(0.0);
 		first.coord.setMass(Double.MAX_VALUE);
-		Atom chain = ((AtomTreeNodeGroup)phase.getAgent(speciesChain).node).firstChildAtom();
+		Atom chain = ((AtomTreeNodeGroup)phase.getAgent(speciesChain).node).childList.getFirst();
 		chain.coord.translateBy(new Vector(4,15));
 		dk.setAtom(last);
 		
