@@ -76,7 +76,7 @@ public class Atom implements java.io.Serializable {
         
     public final AtomType type;
     
-    public final AtomSequencer seq;// = new AtomSequencerSimple(this);
+    public final AtomSequencer seq;;
     
     /**
      * An array of agents, or objects made by an agent source and added to this

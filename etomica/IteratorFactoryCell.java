@@ -295,7 +295,7 @@ public static final class SequentialIterator implements AtomIterator {
     private Atom doReset() {
         //listIterator doesn't have a reset(Direction) method
         if(first == null && direction != IteratorDirective.UP) throw new RuntimeException("IteratorFactoryCell.SequentialIterator not yet able to be reset with direction != UP and null reference atom");
-        return (first != null) ? listIterator.reset(first, cellHeader, direction) : listIterator.reset(/*direction*/);
+        return (first != null) ? listIterator.reset(first, cellHeader, direction) : listIterator.reset();
     }
     
     public boolean hasNext() {return listIterator.hasNext();}
@@ -361,7 +361,7 @@ public static final class SequentialIterator implements AtomIterator {
         IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
         sim.setIteratorFactory(iteratorFactory);
                 
-	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
+	    SpeciesSpheres speciesSpheres = new SpeciesSpheres(10,3);
 	    speciesSpheres.setNMolecules(10);
 	    
 	    Phase phase = new Phase();

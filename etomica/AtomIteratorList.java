@@ -2,13 +2,15 @@ package etomica;
 
 /**
  * Atom iterator that traverses the elements of an AtomList.
- * IteratorDirective direction can set to cause iterator to go up or down list.
+ * Configurable to permit iteration up and/or down list, beginning
+ * with any specified atom in list.
  *
  * @author David Kofke
  */
 public final class AtomIteratorList implements AtomIterator {
     
     private AtomList list;
+	private AtomTreeNodeGroup basis;
     
 	private AtomLinker first;
 	private AtomLinker.Tab header, terminator;
@@ -16,13 +18,26 @@ public final class AtomIteratorList implements AtomIterator {
 	
     private boolean upListNow, doGoDown;
 	private AtomLinker next;
-        
+    
+    /**
+     * Constructs a new iterator using an empty list as its basis for iteration.
+     */
 	public AtomIteratorList() {
 	    this(AtomList.NULL);
 	}
+	/**
+	 * Loops through the given iterator as currently reset and constructs a
+	 * new list of atoms from its iterates, and constructs a new iterator
+	 * using this new list as its basis for iteration.  Iterator is reset
+	 * for iteration upon construction (constructor calls reset()).
+	 */
 	public AtomIteratorList(AtomIterator iterator) {
 	    this(new AtomList(iterator));
 	}
+	/**
+	 * Constructs a new iterator using the given list as its basis for iteration.
+	 * Iterator is reset for iteration upon constrcution (constructor calls reset()).
+	 */
 	public AtomIteratorList(AtomList list) {
 	    setBasis(list);
 	    reset();
@@ -38,35 +53,42 @@ public final class AtomIteratorList implements AtomIterator {
 	    return new AtomIteratorList(new AtomIteratorList(list));
 	}
 	
+	/**
+	 * Returns true if this iterator has another iterate, false otherwise.
+	 */
 	public boolean hasNext() {return next.atom != null;}
 	
 	/**
 	 * Sets the childList of the given atom as the basis for iteration.
-	 * If atom is a leaf, hasNext is false.
+	 * If atom is a leaf, sets empty list as basis.  Sets given atom as
+	 * that returned by the getBasis method.
 	 */
     public void setBasis(Atom atom){
-        if(atom.node.isLeaf()) unset();
-        else setBasis(((AtomTreeNodeGroup)atom.node).childList);
+        if(atom.node.isLeaf()) setBasis(AtomList.NULL);
+        basis = (AtomTreeNodeGroup)atom.node;
+        this.list = basis.childList;
+        header = list.header;
+        next = terminator = header;
     }
     
     /**
      * Sets the given list of atoms as the basis for iteration.  The atoms
      * returned by this iterator will be those from the given list.  A subsequent
      * call to one of the reset methods is required before iterator is ready 
-     * for iteration (until then, hasNext is false).
+     * for iteration (until then, hasNext is false).  Sets basis to null.
      */
     public void setBasis(AtomList list) {
+        basis = null;
         if(list == null) list = AtomList.NULL;
         this.list = list;
         header = list.header;
         next = terminator = header;
     }
     /**
-     * Not implemented; throws RuntimeException.
+     * Returns current basis as set via setBasis(Atom), or null if setBasis(AtomList)
+     * was most recently invoked.
      */
-    public Atom getBasis(){
-        throw new RuntimeException("AtomIteratorList.getBasis() method is not implemented");
-    }
+    public Atom getBasis() {return (basis == null) ? null : basis.atom;}
 
     /**
      * Resets the iterator using the current values of first, terminator, and direction.  
@@ -107,8 +129,10 @@ public final class AtomIteratorList implements AtomIterator {
             if(doGoDown) {//set next for downList iteration
                 next = first.previous;
                 if(next.atom == null) {//need to advance to find first entry
+                    if(next == header) return;
                     upListNow = false;//set so that nextLinker() proceeds in proper direction
                     nextLinker();//find first non-null entry
+                    if(next.atom == null) return; //none found
                 }//end if
             }//end if
             else return; //doGoDown is false; return now to avoid another check of it
@@ -127,7 +151,12 @@ public final class AtomIteratorList implements AtomIterator {
                     next = next.previous;
                 }
             }
+            return;
         }//end if(doGoDown)
+        
+        //if reaching here uplistNow and doGoDown are both false at the outset;
+        //then direction == NEITHER, and loop over only current atom if it is not null
+        if(next.atom != null) action.actionPerformed(next.atom);
         
     }//end of allAtomss
     
@@ -146,14 +175,25 @@ public final class AtomIteratorList implements AtomIterator {
      * e.g., if i = 3, begins with the third atom in list.
      */
 	public Atom reset(int i) {
-	    return reset(list.entry(i), IteratorDirective.UP);
+	    this.first = list.entry(i);
+	    this.terminator = header;
+	    this.direction = IteratorDirective.UP;
+	    return doReset();
 	}
 
     /**
-     * Resets using direction and atom specified in directive.  If atom is given, begins
-     * with it an proceeds in the given direction; if no atom is given, iterates in given
-     * direction as described in reset(Direction) method.
+     * Resets using direction and atom specified in directive.  If directive indicates
+     * no atom, iterates in given direction as described in reset(Direction) method.
+     * If an atom is given by directive, iteration is as follows depending on direction
+     * indicated by directive:<ul>
+     *    <li>UP:      Proceeds up, starting with the given atom.
+     *    <li>DOWN:    Proceeds down, starting with the given atom.
+     *    <li>BOTH:    Proceeds up, starting with the given atom; then down, starting with the atom
+     *                 preceding the given one.
+     *    <li>NEITHER: Returns given atom and expires (singlet iteration)
+     * </ul>
      */
+     //should atom.seq be used for reset?
     public Atom reset(IteratorDirective id){
         switch(id.atomCount()) {
             case 0:  return reset(id.direction()); 
@@ -180,7 +220,10 @@ public final class AtomIteratorList implements AtomIterator {
      * Does not check that the linker is an iterate of this iterator.
      */
     public Atom reset(AtomLinker first) {
-        return reset(first, IteratorDirective.UP);
+        this.first = first;
+        this.terminator = header;
+        this.direction = IteratorDirective.UP;
+        return doReset();
     }
     
     /**
@@ -200,7 +243,10 @@ public final class AtomIteratorList implements AtomIterator {
      * hasNext will be false.  Iteration proceeds upList to the end.
      */
     public Atom reset(Atom atom) {
-        return reset(atom, IteratorDirective.UP);
+        this.first = list.entry(atom);
+        this.terminator = header;
+        this.direction = IteratorDirective.UP;
+        return doReset();
     }
 
     /**
@@ -209,7 +255,10 @@ public final class AtomIteratorList implements AtomIterator {
      * hasNext will be false.  Iterator proceeds in the given direction.
      */
     public Atom reset(Atom atom, IteratorDirective.Direction direction) {
-        return reset(list.entry(atom), direction);
+        this.first = list.entry(atom);
+        this.terminator = header;
+        this.direction = direction;
+        return doReset();
     }
 
     /**
@@ -293,6 +342,119 @@ public final class AtomIteratorList implements AtomIterator {
         }
         return nextLinker;
     }//end of nextLinker
+    
+    /**
+     * Method to test and demonstrate use of class.
+     */
+    public static void main(String[] args) {
+        
+        Simulation sim = new Simulation();
+        SpeciesSpheresMono species = new SpeciesSpheresMono();
+        species.setNMolecules(10);//tested also for 0 and 1 molecule
+        Phase phase = new Phase();
+        sim.elementCoordinator.go();
+//        AtomList atomList = phase.speciesMaster.atomList;
+        AtomList atomList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
+        
+        AtomIteratorList iterator = new AtomIteratorList(atomList);
+        IteratorDirective directive = new IteratorDirective();
+        Atom first = atomList.getFirst();
+        Atom last = atomList.getLast();
+        Atom middle = null;
+        try {
+            middle = atomList.get(atomList.size()/2);//exception thrown if list is empty
+        } catch(IndexOutOfBoundsException ex) {}
+        
+        System.out.println("reset()");
+        iterator.reset();
+        iterator.test();
+        
+        System.out.println("reset(directive.set(middle).set(IteratorDirective.BOTH))");
+        iterator.reset(directive.set(middle).set(IteratorDirective.BOTH));
+        iterator.test();
+        
+        System.out.println("reset(directive.set(middle).set(IteratorDirective.UP))");
+        iterator.reset(directive.set(middle).set(IteratorDirective.UP));
+        iterator.test();
+        
+        System.out.println("reset(directive.set(middle).set(IteratorDirective.DOWN))");
+        iterator.reset(directive.set(middle).set(IteratorDirective.DOWN));
+        iterator.test();
+        
+        //error here with all atoms -- goes up, then down
+        System.out.println("reset(directive.set(first).set(IteratorDirective.BOTH))");
+        iterator.reset(directive.set(first).set(IteratorDirective.BOTH));
+        iterator.test();
+        System.out.println("reset(directive.set(first).set(IteratorDirective.UP))");
+        iterator.reset(directive.set(first).set(IteratorDirective.UP));
+        iterator.test();
+        System.out.println("reset(directive.set(first).set(IteratorDirective.DOWN))");
+        iterator.reset(directive.set(first).set(IteratorDirective.DOWN));
+        iterator.test();
+        
+        System.out.println("reset(directive.set(last).set(IteratorDirective.BOTH))");
+        iterator.reset(directive.set(last).set(IteratorDirective.BOTH));
+        iterator.test();
+        System.out.println("reset(directive.set(last).set(IteratorDirective.UP))");
+        iterator.reset(directive.set(last).set(IteratorDirective.UP));
+        iterator.test();
+        System.out.println("reset(directive.set(last).set(IteratorDirective.DOWN))");
+        iterator.reset(directive.set(last).set(IteratorDirective.DOWN));
+        iterator.test();
+        
+        System.out.println("reset(directive.set().set(IteratorDirective.BOTH))");
+        iterator.reset(directive.set().set(IteratorDirective.BOTH));
+        iterator.test();
+        System.out.println("reset(directive.set().set(IteratorDirective.UP))");
+        iterator.reset(directive.set().set(IteratorDirective.UP));
+        iterator.test();
+        System.out.println("reset(directive.set().set(IteratorDirective.DOWN))");
+        iterator.reset(directive.set().set(IteratorDirective.DOWN));
+        iterator.test();
+        
+        System.out.println("reset(directive.set(first).set(IteratorDirective.NEITHER))");
+        iterator.reset(directive.set(first).set(IteratorDirective.NEITHER));
+        iterator.test();
+        
+        System.out.println("reset(directive.set().set(IteratorDirective.NEITHER))");
+        iterator.reset(directive.set().set(IteratorDirective.NEITHER));
+        iterator.test();
+        
+    }
+    
+    /**
+     * Causes signature of all atoms given by this iterator, as currently
+     * reset, to be printed to console.
+     */
+    private void test() {test(this);}
+    
+    /**
+     * Causes signature of all iterates of the given iterator, as currently reset,
+     * to be printed to console.
+     */
+    private static void test(AtomIteratorList iterator) {
+        AtomAction printAtom = new AtomAction() {
+            public void actionPerformed(Atom a) {System.out.println(a.signature());}
+        };
+        
+        while(iterator.hasNext()) System.out.println(iterator.next().signature());
+        AtomIteratorList.pauseForInput();
+        System.out.println("allAtoms (twice)");
+        iterator.allAtoms(printAtom);
+        System.out.println();
+        iterator.allAtoms(printAtom);
+        AtomIteratorList.pauseForInput();
+    }
+    /**
+     * Halts program activity until a return is entered from the console.
+     */
+    private static void pauseForInput() {
+        System.out.println("Hit return to continue");
+        try {
+            System.in.read();
+            System.in.read();
+        } catch(Exception e) {}
+    }
 
 }//end of AtomIteratorList
 
