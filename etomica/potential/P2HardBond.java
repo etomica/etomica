@@ -112,7 +112,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
             }
         }
         
-        lastCollisionVirial = 2.0 / (((AtomPair)pair).atom0.type.rm() + ((AtomPair)pair).atom1.type.rm()) * bij;
+        lastCollisionVirial = 2.0 / (pair.atom0.type.rm() + pair.atom1.type.rm()) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
         ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1(pair.atom1.type.rm(),dv);
