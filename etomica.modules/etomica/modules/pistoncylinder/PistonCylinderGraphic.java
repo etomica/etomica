@@ -34,6 +34,7 @@ import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvasInterface;
 import etomica.graphics.DisplayPhase;
+import etomica.graphics.PropertyDisplayBoxes;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierBoolean;
@@ -66,7 +67,7 @@ public class PistonCylinderGraphic {
     public P2SquareWell potentialSW;
     public PotentialGroup potentialGroupHS, potentialGroupSW;
     public DataSourceCountSteps meterCycles;
-    public DataManager densityManager, temperatureManager;
+    public DataManager densityManager, temperatureManager, pressureManager;
     public DisplayBox displayCycles, tBox; 
     public DisplayBox dBoxAvg, dBoxCur, dBoxErr;
     public DisplayBox tBoxAvg, tBoxCur, tBoxErr;
@@ -82,9 +83,11 @@ public class PistonCylinderGraphic {
     public DisplayPlot plotT, plotD, plotP;
     public final javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox;
+	private PropertyDisplayBoxes densityDisplayBox, temperatureDisplayBox, pressureDisplayBox;
     final JRadioButton buttonAdiabatic, buttonIsothermal;
     final JPanel blankPanel = new JPanel();
     public int historyLength;
+    public DataSourceWallPressure pressureMeter;
     
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
@@ -364,15 +367,23 @@ public class PistonCylinderGraphic {
         
         JPanel dataPanel = new JPanel(new GridBagLayout());
         
-        //panel for the density displays
-        JPanel densityPanel = new JPanel(new java.awt.FlowLayout());
-        densityPanel.setBorder(new javax.swing.border.TitledBorder("Density (mol/l)"));
-        densityPanel.add(dBoxCur.graphic());
-        densityPanel.add(dBoxAvg.graphic());
-        densityPanel.add(dBoxErr.graphic());
-
-        dataPanel.add(densityPanel, gbc2);
-
+        //panel for the density, temperature, and pressure displays
+        
+        densityDisplayBox = new PropertyDisplayBoxes();
+        densityDisplayBox.setLabel("Density (mol/L)");
+        densityDisplayBox.setLabelType(DisplayBox.BORDER);
+        dataPanel.add(densityDisplayBox.graphic());
+        
+        temperatureDisplayBox = new PropertyDisplayBoxes();
+        temperatureDisplayBox.setLabel("Temperature (K)");
+        temperatureDisplayBox.setLabelType(DisplayBox.BORDER);
+        dataPanel.add(temperatureDisplayBox.graphic());
+        
+        pressureDisplayBox = new PropertyDisplayBoxes();
+        pressureDisplayBox.setLabel("Pressure (bar)");
+        pressureDisplayBox.setLabelType(DisplayBox.BORDER);
+        dataPanel.add(pressureDisplayBox.graphic());
+        
         JPanel leftPanel = new JPanel(new GridBagLayout());
         
         leftPanel.add(controlPanel, gbc2);
@@ -522,7 +533,19 @@ public class PistonCylinderGraphic {
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setHistoryLength(historyLength);
 //        densityHistory.setLabel("Density ("+dadUnit.symbol()+")");
+        
+        densityDisplayBox.setAccumulator(densityAvg);
 
+        AccumulatorAverage temperatureAvg = new AccumulatorAverage();
+        temperatureDisplayBox.setAccumulator(temperatureAvg);
+        temperatureManager.addDataSink(temperatureAvg);
+        
+        pressureMeter = new DataSourceWallPressure(pc.pistonPotential,pc.integrator);
+        pressureMeter.setPhase(new Phase[]{pc.phase});
+        AccumulatorAverage pressureAvg = new AccumulatorAverage();
+        pressureDisplayBox.setAccumulator(pressureAvg);
+        pressureManager = new DataManager(pressureMeter, new DataSink[]{pressureAvg});
+        pressureManager.setUpdateInterval(10);
         densityManager = new DataManager(densityMeter,new DataSink[]{densityAvg, densityHistory});
         DataManager densityPlotManager = new DataManager(densityHistory, plotD.makeDataSink());
         densityManager.setUpdateInterval(10);
@@ -552,6 +575,7 @@ public class PistonCylinderGraphic {
         pc.integrator.addIntervalListener(densityManager);
         pc.integrator.addIntervalListener(densityPlotManager);
         pc.integrator.addIntervalListener(temperatureManager);
+        pc.integrator.addIntervalListener(pressureManager);
         pc.integrator.addIntervalListener(temperaturePlotManager);
         pc.integrator.addIntervalListener(targetTemperatureDataManager);
         pc.integrator.addIntervalListener(targetTemperaturePlotManager);
@@ -560,6 +584,14 @@ public class PistonCylinderGraphic {
         pc.integrator.addIntervalListener(dBoxAvg);
         pc.integrator.addIntervalListener(dBoxErr);
         pc.integrator.addIntervalListener(dBoxCur);
+        pc.integrator.addIntervalListener(densityDisplayBox);
+        pc.integrator.addIntervalListener(temperatureDisplayBox);
+        pc.integrator.addIntervalListener(pressureDisplayBox);
+        densityDisplayBox.setUpdateInterval(10);
+        densityDisplayBox.setUnit(dUnit);
+        temperatureDisplayBox.setUpdateInterval(10);
+        temperatureDisplayBox.setUnit(tUnit);
+                
         Unit pUnit;
         if (D == 3) {
             pUnit = Bar.UNIT;
@@ -567,6 +599,10 @@ public class PistonCylinderGraphic {
         else {
             pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
         }
+
+        pressureDisplayBox.setUpdateInterval(10);
+        pressureDisplayBox.setUnit(pUnit);        
+
         plotP.getPlot().setTitle("Pressure ("+pUnit.symbol()+")");
         plotT.getPlot().setTitle("Temperature ("+tUnit.symbol()+")");
         plotD.getPlot().setTitle("Density ("+dUnit.symbol()+")");
