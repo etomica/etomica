@@ -32,8 +32,7 @@ public class ConfigurationFcc extends Configuration {
             iterator.setBasis(s);
             iterator.reset();
             while(iterator.hasNext()) {
-                iterator.next().coord.translateTo(rLat[i]);
-                i++;
+                iterator.next().coord.translateTo(rLat[i++]);
             }
         }
         initializeMomenta(parentPhase.speciesMaster());

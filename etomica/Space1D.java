@@ -342,8 +342,8 @@ public class Space1D extends Space implements EtomicaElement {
             }
         }
         public void displaceTo(Space.Vector u) {
-            work.E((Vector)u);
-            work.ME(position());
+            work.Ea1Tv1(-1,position()); //position() uses work, so need this first
+            work.PE((Vector)u);
             displaceBy(work);
         }
         public void displaceToRandom(etomica.Phase p) {

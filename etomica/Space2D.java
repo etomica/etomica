@@ -310,6 +310,15 @@ public class Space2D extends Space implements EtomicaElement {
         public final Atom lastChild() {return (lastChild != null) ? lastChild.atom : null;}
         public final void setLastChild(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
         
+        public double mass() {
+            double massSum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                massSum += coord.mass();
+            }
+            return massSum;
+        } 
+        public double rm() {return 1.0/mass();}
+
         public Space.Vector position() {
             r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
@@ -393,8 +402,8 @@ public class Space2D extends Space implements EtomicaElement {
             }
         }
         public void displaceTo(Space.Vector u) {
-            work.E((Vector)u);
-            work.ME(position());
+            work.Ea1Tv1(-1,position()); //position() uses work, so need this first
+            work.PE((Vector)u);
             displaceBy(work);
         }
         public void displaceToRandom(etomica.Phase p) {
