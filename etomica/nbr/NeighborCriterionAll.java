@@ -6,9 +6,7 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomSet;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
-import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should
@@ -57,14 +55,4 @@ public class NeighborCriterionAll extends NeighborCriterion {
         return true;
     }
     
-    /**
-     * Performs no action
-     */
-    public void setCellIterator(AtomsetIteratorCellular api) {
-        //do nothing
-    }
-
-    public void setNearestImageVectorSource(NearestImageVectorSource nivs) {
-        //do lots of nothing
-    }
 }

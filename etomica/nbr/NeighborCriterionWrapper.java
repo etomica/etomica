@@ -1,8 +1,6 @@
 package etomica.nbr;
 
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
-import etomica.nbr.cell.AtomsetIteratorCellular;
 
 
 /**
@@ -29,18 +27,6 @@ public class NeighborCriterionWrapper extends NeighborCriterionAll {
         }
     }
     
-    public void setNearestImageVectorSource(NearestImageVectorSource nivs) {
-        for (int i=0; i<criteria.length; i++) {
-            criteria[i].setNearestImageVectorSource(nivs);
-        }
-    }
-    
-    public void setCellIterator(AtomsetIteratorCellular api) {
-        for (int i=0; i<criteria.length; i++) {
-            criteria[i].setCellIterator(api);
-        }
-    }
-
     private final NeighborCriterion[] criteria;
     private double neighborRange;
 }

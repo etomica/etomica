@@ -7,16 +7,9 @@ package etomica.nbr;
 import etomica.AtomPair;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
-import etomica.NearestImageVectorSource;
 import etomica.Potential;
-import etomica.atom.AtomsetFilter;
-import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.AtomsetIteratorFiltered;
-import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
-import etomica.nbr.cell.AtomsetIteratorCellular;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Vector;
 
 /**
  * PotentialCalculation that performs setup of neighbor lists.  Takes all pair iterates
@@ -32,30 +25,6 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		super();
 	}
 
-    public void doCalculation(AtomsetIterator iterator, IteratorDirective id,
-            Potential potential) {
-        if(iterator instanceof ApiFiltered) {
-            nearestImageVectorSource = (NearestImageVectorSource)iterator;
-            cellIterator = null;
-        }
-        else if (iterator instanceof ApiMolecule) {
-            AtomsetIteratorPhaseDependent iter = ((ApiMolecule)iterator).getCurrentIterator();
-            nearestImageVectorSource = (NearestImageVectorSource)iter;
-            cellIterator = (AtomsetIteratorCellular)iter;
-        }
-        else if (iterator instanceof AtomsetIteratorFiltered) {
-            AtomsetFilter filter = ((AtomsetIteratorFiltered)iterator).getFilter();
-            if (filter instanceof NeighborCriterion){
-                ((NeighborCriterion)filter).setNearestImageVectorSource(nearestImageVectorSource);
-                ((NeighborCriterion)filter).setCellIterator(cellIterator);
-            }
-        }
-        else if (iterator.nBody() == 1) {
-            nearestImageVectorSource = nullVectorSource;
-            cellIterator = null;
-        }
-        super.doCalculation(iterator, id, potential);
-    }
 	/**
      * Takes all pair iterates given by the iterator and puts each one of the
      * pair in the other's neighbor list. Performs no action if
@@ -80,13 +49,4 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		}
 	}
     
-    NullVectorSource nullVectorSource = new NullVectorSource();
-    NearestImageVectorSource nearestImageVectorSource = nullVectorSource;
-    AtomsetIteratorCellular cellIterator = null;
-    
-    private static class NullVectorSource implements NearestImageVectorSource {
-        public Vector getNearestImageVector() {
-            return null;
-        }
-    }
 }

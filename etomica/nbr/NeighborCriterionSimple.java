@@ -8,7 +8,7 @@ import etomica.NearestImageTransformerVector;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
-import etomica.nbr.cell.AtomsetIteratorCellular;
+import etomica.atom.AtomPairVector;
 import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 
@@ -73,14 +73,6 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	    this.phase = phase;
 	}
     
-    public void setCellIterator(AtomsetIteratorCellular api) {
-        api.getNbrCellIterator().setPeriod(phase.boundary().dimensions());
-    }
-
-    public void setNearestImageVectorSource(NearestImageVectorSource nivs) {
-        nearestImageVectorSource = nivs;
-    }
-    
 	public boolean unsafe() {
 		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("some atom exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
@@ -89,7 +81,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean accept(AtomSet pair) {
-        nearestImageTransformer.setNearestImageVector(nearestImageVectorSource.getNearestImageVector());
+        nearestImageTransformer.setNearestImageVector(((AtomPairVector)pair).nearestImageVector);
 		cPair.reset((AtomPair)pair);
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
 			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {

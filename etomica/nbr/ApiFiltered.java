@@ -69,8 +69,6 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
     */
    public void reset() {
       nearestImageVectorSource = (NearestImageVectorSource)iterator.getCurrentIterator();
-      filter.setCellIterator((AtomsetIteratorCellular)iterator.getCurrentIterator());
-      filter.setNearestImageVectorSource(nearestImageVectorSource);
       iterator.reset();
       next = null;
       while(iterator.hasNext() && next == null) {
