@@ -1,18 +1,27 @@
 package etomica;
 
 /**
- * Class for construction of Atom iterators.
- * Default iterators use the atom linked lists in a phase.
- * This class can be extended to define iterators that use, for example, neighbor lists.
- * "Neighbor" iterators yield only atoms that are considered to be "neighbors" of
- * a specified atom.  The definition of "neighbor" depends on the iterator.  "Up neighbors"
- * are those neighbors uplist of the atom; likewise with "Down neighbors".
+ * Class for construction of iterators of molecules.  Iterators are given for looping
+ * over single molecules and pairs of molecules.  Different pair iterators are provided
+ * for looping pairs from the same species, and pairs from different species.  
+ * Straightforward iterators are given by IteratorFactorySimple, which generates pairs
+ * from the childlists of species agents.  Iteration based on cell lists is performed by 
+ * iterators given by IteratorFactoryCell, in the etomica.nbr.cell package.
  *
  * @author David Kofke
  */
 
 public abstract class IteratorFactory {
 
+    /**
+     * Selects an appropriate iterator for the given species array.  If array contains
+     * only one element, an atom iterator is returned. If array contains two elements,
+     * an atom-pair iterator is returned, as given by the makeIntraSpeciesPairIterator
+     * method if both elements of the array are equal, or as given by the
+     * makeInterSpeciesPairIterator method if the array elements are different.
+     * @param species array used to determine type of iterator to return
+     * @return an appropriate iterator for looping over molecules of the given species
+     */
     public AtomsetIterator makeMoleculeIterator(Species[] species) {
         if (species == null || species.length == 0 || species.length > 2
                 || species[0] == null || species[species.length-1] == null) {
@@ -22,9 +31,9 @@ public abstract class IteratorFactory {
             return new AtomIteratorBasis();
         }
         if (species[0] == species[1]) {
-            return makeInterSpeciesPairIterator(species);
+            return makeIntraSpeciesPairIterator(species);
         }
-        return makeIntraSpeciesPairIterator(species);
+        return makeInterSpeciesPairIterator(species);
     }
     
     /**
