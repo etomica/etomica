@@ -7,100 +7,57 @@ import etomica.Constants;
  */
 public class AccumulatorRatioAverage extends AccumulatorAverage {
     
-    /**
-     * Compute and return the ratio of the sums
-     */
-    public double[] ratio() {
-        if(sum[0] == 0.0) setNaN(average);
-        else {
-	       	for(int i=nDataMinus1; i>=0; i--) {       		
-	        	average[i] = sum[i]/sum[0];
-	        }
-        }
-        return average;
-    }
-	
-	/**
-	 * Return the 67% confidence limits of the ratio based on variance in block averages.
-	 */
-    public double[] ratioError() {
-    	if(count > 1) {
-            // calculate actual average and error for each data set
-            super.average();
-            error();
-            if (average[0] == 0.0) {
-                setNaN(ratioError);
-            }
-            else {
-                ratioError[0] = error[0] / average[0];
-                ratioError[0] = ratioError[0] * ratioError[0];
-                for(int i=nDataMinus1; i>=1; i--) {
-                    if (average[i] == 0.0) {
-                        ratioError[i] = Double.NaN;
-                    }
-                    else {
-                        ratioError[i] = error[i]/average[i];
-                        ratioError[i] = Math.sqrt(ratioError[i]*ratioError[i] + ratioError[0]) * average[i]/average[0];
-                    }
-                }
-                ratioError[0] = 0.0;
-            }
-    	} else {
-    		setNaN(ratioError);
-    	}
-        return ratioError;
-    }
-    
-    /**
-     * Compute and return the standard deviation of the ratio.
-     */
-     public double[] ratioStandardDeviation() {
-     	if(count > 1) {
-            // calculate actual average and standard deviation for each data set
-            super.average();
-            standardDeviation();
-            if (average[0] == 0.0) {
-                setNaN(ratioStandardDeviation);
-            }
-            else {
-                ratioStandardDeviation[0] = standardDeviation[0] / average[0];
-                ratioStandardDeviation[0] = ratioStandardDeviation[0] * ratioStandardDeviation[0];
-                for(int i=nDataMinus1; i>=1; i--) {
-                    if (average[i] == 0.0) {
-                        ratioStandardDeviation[i] = Double.NaN;
-                    }
-                    else {
-                        ratioStandardDeviation[i] = standardDeviation[i]/average[i];
-                        ratioStandardDeviation[i] = Math.sqrt(ratioStandardDeviation[i]*ratioStandardDeviation[i] + ratioStandardDeviation[0]) * average[i]/average[0];
-                    }
-                }
-                ratioStandardDeviation[0] = 0.0;
-            }
+    public double[] getData() {
+        int currentBlockCount = blockSize - blockCountDown;
+        if(count+currentBlockCount == 0) {
+            setNaN(data);
         } else {
-            setNaN(ratioStandardDeviation);
+            super.getData();
+            int numBaseStats = super.numStats();
+            data[(numBaseStats+0)*nDataMinus1+0] = 1; // average
+            data[(numBaseStats+1)*nDataMinus1+0] = 0; // error
+            data[(numBaseStats+2)*nDataMinus1+0] = 0; // std dev
+            double errorRatio0 = average[0]/error[0];
+            errorRatio0 *= errorRatio0;
+            double stdevRatio0 = average[0]/standardDeviation[0];
+            stdevRatio0 *= stdevRatio0;
+            for(int i=0; i<nData; i++) {
+                double errorRatio = Double.NaN;
+                double stdevRatio = Double.NaN;
+                if (average[0] != 0.0) {
+                    errorRatio = error[i]/average[i];
+                    errorRatio = Math.sqrt(errorRatio*errorRatio + errorRatio0) * average[i]/average[0];
+                    stdevRatio = standardDeviation[i]/average[i];
+                    stdevRatio = Math.sqrt(stdevRatio*stdevRatio + stdevRatio0) * average[i]/average[0];
+                }
+                data[(numBaseStats+0)*nDataMinus1+i] = sum[i]/sum[0];
+                if (average[i] == 0.0) {
+                    data[(numBaseStats+1)*nDataMinus1+i] = Double.NaN;
+                }
+                else {
+                    data[(numBaseStats+1)*nDataMinus1+i] = 0;
+                }
+                data[(numBaseStats+1)*nDataMinus1+i] = average[i] = errorRatio;
+                data[(numBaseStats+2)*nDataMinus1+i] = error[i] = stdevRatio;
+            }
         }
-     	return ratioStandardDeviation;
-     }
-    
-    /**
-     * Returns the value indicated by the argument.
-     */
-    public double[] getData(AccumulatorAverage.Type type) {
-        if(type==RATIO) return ratio();
-        if(type==RATIO_ERROR) return ratioError();
-        if(type==RATIO_STANDARD_DEVIATION) return ratioStandardDeviation();
-        return super.getData(type);
+        return data;
     }
+    
+    public int numStats() {
+        return 3+super.numStats();
+    }
+     
     public static class Type extends AccumulatorAverage.Type {
-        protected Type(String label) {super(label);}       
+        protected Type(String label, int index) {super(label,index);}       
         public Constants.TypedConstant[] choices() {return VIRIAL_CHOICES;}
     }
     //XXX such an ugly hack!!!!
     protected static final AccumulatorAverage.Type[] VIRIAL_CHOICES = 
         new AccumulatorAverage.Type[] {
             CHOICES[0], CHOICES[1], CHOICES[2], CHOICES[3], CHOICES[4],
-            new Type("Ratio"),
-            new Type("Ratio error"), new Type("Ratio standard deviation")};
+            new Type("Ratio",5),
+            new Type("Ratio error",6), new Type("Ratio standard deviation",7)};
     public static final AccumulatorAverage.Type RATIO = VIRIAL_CHOICES[5];
     public static final AccumulatorAverage.Type RATIO_ERROR = VIRIAL_CHOICES[6];
     public static final AccumulatorAverage.Type RATIO_STANDARD_DEVIATION = VIRIAL_CHOICES[7];
@@ -108,7 +65,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     protected void setNData(int nData) {
         ratioStandardDeviation = redimension(nData, ratioError);
         ratioError = redimension(nData, ratioError);
-    	 super.setNData(nData);
+        super.setNData(nData);
     }
      
     //need separate fields because ratio values are calculated from the non-ratio values.
