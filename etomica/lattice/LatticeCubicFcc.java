@@ -5,7 +5,6 @@ import etomica.AtomIterator;
 import etomica.AtomIteratorList;
 import etomica.AtomIteratorTree;
 import etomica.AtomList;
-import etomica.AtomSequencer;
 import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomType;
