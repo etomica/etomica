@@ -8,7 +8,7 @@ package etomica;
  * Returns iterates from from the childList of a single basis atom.  Behavior is set
  * via iterator directive: if no atom is specified there, all pairs formed from the childList
  * are given; otherwise, if an atom is specified there, pairs will be formed from the
- * childList atoms with the basis' child from which the directive atom is descended.  
+ * childList atoms with the basis' child from which the target atom is descended.  
  */
 public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable, ApiComposite {
@@ -27,7 +27,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
     public ApiIntragroup(ApiComposite pairIterator) {
         super(pairIterator);
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
-		aiInner = (AtomsetIteratorDirectable)pairIterator.getInnerIterator();
+		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
 	}
 
 	public void setTarget(Atom[] targetAtoms) {
@@ -39,22 +39,9 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 * Puts iterator in a state to begin iteration.
 	 */
 	public void reset() {
-	    doBoth = (direction == null) && oneTarget;
-        upListNow = (direction == null) || (direction == IteratorDirective.UP); 
-        
-		if(upListNow || doBoth) {
-			aiInner.setDirection(IteratorDirective.UP);
-			upListNow = true;
-		}
-		else {
-			aiInner.setDirection(IteratorDirective.DOWN);
-		}
-		iterator.reset();
-		if(doBoth && !iterator.hasNext()) {
-			aiInner.setDirection(IteratorDirective.DOWN);
-			upListNow = false;
-			iterator.reset();
-		}		
+        if(oneTarget) aiInner.setDirection(direction);
+        else aiInner.setDirection(IteratorDirective.UP);
+        iterator.reset();
 	}
 
 	/**
@@ -71,21 +58,13 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		aiOuter.setBasis(atoms);
 	}
 	
+    /**
+     * Specifies the direction, which applies only if iterating pairs
+     * with a target atom; otherwise, if all pairs from group are indicated,
+     * direction is ignored.
+     */
 	public void setDirection(IteratorDirective.Direction direction) {
         this.direction = direction;
-	}
-	
-	/**
-	 * Returns the next atom pair from the iterator.
-	 */
-	public Atom[] next() {
-		Atom[] next = iterator.next();
-		if(upListNow && doBoth && !iterator.hasNext()) {
-			aiInner.setDirection(IteratorDirective.DOWN);
-			upListNow = false;
-			iterator.reset();
-		}
-		return next;
 	}
 	
 	/**
@@ -94,22 +73,9 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 */
 	public int size() {
 		int n = ((AtomTreeNodeGroup)basis.node).childList.size();
-		return doBoth ? n-1 : n*(n-1)/2;
+		return oneTarget ? n-1 : n*(n-1)/2;
 	}
 	
-	/**
-	 * Indicates whether the given atom pair will be among the iterates
-	 * given by the iterator if reset in its present state.  True only
-	 * if an iterated pair would match the atoms as ordered in the given
-	 * array.
-	 */
-	public boolean contains(Atom[] atoms) {
-		if(atoms==null || atoms[0]==null || atoms[1]==null || atoms[0]==atoms[1]) return false;
-		AtomList list = ((AtomTreeNodeGroup)basis.node).childList;
-		if(doBoth) return (atoms[0] == basis) && list.contains(atoms[1]);
-		return atoms[0].node.preceeds(atoms[1]) && list.contains(atoms[0]) && list.contains(atoms[1]);
-	}
-
 	/**
 	 * Returns 1, indicating the the array given to the setBasis method
 	 * should have only one element.
@@ -127,10 +93,8 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
     }
     
 	private final AtomIteratorBasis aiOuter;//local, specifically typed copy
-	private final AtomsetIteratorDirectable aiInner;//local, specifically typed copy
-	private boolean doBoth;//indicates if inner iteration should proceed UP and then DOWN from atom
-    private boolean oneTarget;
+	private final AtomIteratorSequencerList aiInner;//local, specifically typed copy
+	private boolean oneTarget;
     private IteratorDirective.Direction direction;
-	private boolean upListNow;//indicates if inner iteration is currently in the UP direction
 	private Atom basis;//atom most recently specified in setBasis; used by size() and contains(Atom[]) methods
 }

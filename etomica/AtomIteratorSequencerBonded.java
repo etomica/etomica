@@ -6,6 +6,9 @@ package etomica;
  */
 public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
 
+    public AtomIteratorSequencerBonded() {
+        super();
+    }
     public boolean contains(Atom[] atom) {
         reset();
         return listIterator.peek()[0] == atom[0]; 

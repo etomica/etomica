@@ -14,7 +14,7 @@ import etomica.IteratorDirective.Direction;
  * potentials.
  */
 public class AtomIteratorMolecule extends AtomIteratorAdapter implements
-        AtomsetIteratorMolecule {
+        AtomsetIteratorMolecule, AtomIteratorPhaseDependent {
 
     /**
      * @param species species for which molecules are returned as iterates. Only
@@ -25,13 +25,16 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         listIterator = (AtomIteratorListSimple)iterator;
         this.species = species[0];
         index = this.species.getIndex();
+        setList();
     }
 
     /**
-     * Sets the phase containing the molecules for iteration.
+     * Sets the phase containing the molecules for iteration. A null
+     * phase conditions iterator to give no iterates.
      */
     public void setPhase(Phase phase) {
-        speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species).node;
+        if(phase == null) speciesAgentNode = null;
+        else speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species).node;
         setList();
     }
 
@@ -60,8 +63,16 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * phase and target.
      */
     private void setList() {
-        if(targetAtom == null) {
+        //no phase is specified
+        if(speciesAgentNode == null) {
+            littleList.clear();
+            listIterator.setList(littleList);
+            
+        //no target -- iterate all molecules of species
+        } else if(targetAtom == null) {
             listIterator.setList(speciesAgentNode.childList);
+        
+        //target specified -- give it as only iterate if descended from species
         } else {
             AtomTreeNode moleculeNode = targetAtom.node.childWhereDescendedFrom(speciesAgentNode);
             littleList.clear();
