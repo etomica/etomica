@@ -27,7 +27,7 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 		this(new ApiInnerVariable(
 					new AtomIteratorBasis(),
 					new AtomIteratorSequencerList()));
-        ((AtomIteratorSequencerList)aiInner).setNumToSkip(1);
+        aiInner.setNumToSkip(1);
     }
     
     public ApiIntragroup(ApiComposite pairIterator) {
@@ -38,7 +38,7 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 
 	public void setTarget(AtomSet targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
-        oneTarget = targetAtoms.getAtom(0) != null && (targetAtoms instanceof Atom || targetAtoms.getAtom(1) == null);
+        oneTarget = targetAtoms != null && targetAtoms.getAtom(0) != null && (targetAtoms instanceof Atom || targetAtoms.getAtom(1) == null);
 	}
 	
 	/**
@@ -94,7 +94,7 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	}
 	
     public AtomIterator getInnerIterator() {
-        return (AtomIterator)aiInner;
+        return aiInner;
     }
     
     public AtomIterator getOuterIterator() {
