@@ -93,6 +93,7 @@ public class IntegratorHard extends IntegratorMD {
                 colliderAgent.collisionPotential.bump(atoms);
                 double dE = colliderAgent.collisionPotential.energyChange();
                 currentPotentialEnergy[0] += dE;
+                currentKineticEnergy[0] -= dE;
             }
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);

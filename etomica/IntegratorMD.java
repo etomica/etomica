@@ -12,6 +12,7 @@ public abstract class IntegratorMD extends Integrator {
     public IntegratorMD(PotentialMaster potentialMaster) {
         super(potentialMaster);
         setTimeStep(Default.TIME_STEP);
+        meterKE = new MeterKineticEnergy();
     }
 
     /**
@@ -23,11 +24,29 @@ public abstract class IntegratorMD extends Integrator {
     }
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Dimension.TIME;}
+
+    /**
+     * reset the integrator's kinetic energy tracker
+     */
+    public void reset() {
+        super.reset();
+        meterKE.setPhase(phase);
+        currentKineticEnergy = meterKE.getData();
+    }
+
+    /**
+     * @return the current kinetic energy as tracked by the integrator
+     */
+    public double[] getKineticEnergy() {
+        reutrn currentKineticEnergy;
+    }
     
     /**
      * Elementary time step for the MD simulation
      */
     protected double timeStep;
+    protected double[] currentKineticEnergy;
+    protected MeterKineticEnergy meterKE;
     
 }//end of IntegratorMD
     
