@@ -47,6 +47,14 @@ public class AtomFactoryHetero extends AtomFactory {
             childFactory[i].setSpecies(species);
         }
     }
+    
+    public void setDepth(int depth) {
+        atomType.setDepth(depth);
+        for(int i=0; i<childFactory.length; i++) {
+            childFactory[i].setDepth(depth+1);
+        }
+    }
+
     /**
      * Constructs a new group.
      */

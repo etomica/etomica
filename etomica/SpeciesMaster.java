@@ -38,6 +38,7 @@ public final class SpeciesMaster extends Atom {
     public SpeciesMaster(Space space, Phase p) {
         super(space, new AtomTypeGroup(), new NodeFactory(p),AtomSequencerFactory.SIMPLE);
         index = p.index;
+        type.setDepth(0);
         node = (AtomTreeNodeGroup)super.node;
     }
         
@@ -76,7 +77,6 @@ public final class SpeciesMaster extends Atom {
             speciesMaster = (SpeciesMaster)atom;
             this.parentPhase = parentPhase;
             leafIterator.setAsLeafIterator();
-            depth = 0;
             setIndex(parentPhase.index);
         }
         public Phase parentPhase() {return parentPhase;}

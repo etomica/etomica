@@ -41,7 +41,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 */
 	public void setTarget(AtomSet targetAtoms) {
 		targetAtom = (Atom)targetAtoms;
-		if(targetAtom != null) targetDepth = targetAtom.node.depth();
+		if(targetAtom != null) targetDepth = targetAtom.type.getDepth();
 		needSetupIterator = (basis != null);//flag to setup iterator only if presently has a non-null basis
 		listIterator.unset();
 	}
@@ -83,7 +83,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	private void setupIterator() {
 		needSetupIterator = false;
 		try {
-			if(targetAtom == null || targetDepth <= basis.node.depth()) {
+			if(targetAtom == null || targetDepth <= basis.type.getDepth()) {
 				if(basis.node.isLeaf()) {//if the basis is a leaf atom, we define the iterates to be just the basis atom itself
 					littleList.clear();
 					littleList.add(basis);

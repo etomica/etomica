@@ -27,7 +27,7 @@ import etomica.utility.Arrays;
  * if it has changed (e.g., moved) in a way that requires its neighbor lists to be
  * updated.  When this is found for any atom, all atom neighbor lists are updated
  * via a call to the calculate method of PotentialMasterNbr, passing a 
- * PotentialCalculationNbrSetup instance as the PotentialCalculation.  
+ * PotentialCalculationCellAssign instance as the PotentialCalculation.  
  */
 public class NeighborManager implements IntervalListener {
 
@@ -199,7 +199,8 @@ public class NeighborManager implements IntervalListener {
 	
 	private class NeighborReset extends AtomsetActionAdapter {
 		public void actionPerformed(AtomSet atom) {
-            if(((Atom)atom).node.depth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
+            //FIXME changes to depth might make this wrong
+            if(((Atom)atom).type.getDepth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
 			NeighborCriterion criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)((Atom)atom).seq).clearNbrs();
 			if (criterion != null) {

@@ -71,7 +71,8 @@ public class NeighborCellManager implements Integrator.IntervalListener {
                     if(atom instanceof SpeciesAgent) {
                         addList();
                    //otherwise new atom placed in cell if at molecule level
-                    } else if(atom.node.depth() == 2) {
+                        //FIXME change to depth might make this wrong
+                    } else if(atom.type.getDepth() == 2) {
                         assignCell(atom);
                     }
                 }

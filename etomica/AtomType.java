@@ -34,6 +34,7 @@ public class AtomType implements java.io.Serializable {
     private final NeighborManagerAgent neighborManagerAgent;
     
     public double mass, rm;
+    private int depth;
     
 //    private Parameter.Electrostatic electroParameter;
     
@@ -85,6 +86,20 @@ public class AtomType implements java.io.Serializable {
     
     public AtomFactory creator() {return creator;}
     
+    
+    /**
+     * Returns the depth of this atom in the atom hierarchy.  That is, returns
+     * the number of parent relations between this atom and the species master.
+     */
+    public int getDepth() {
+        return depth;
+    }
+    /**
+     * @param depth The depth to set.
+     */
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
     /**
      * @return Returns the species.
      */

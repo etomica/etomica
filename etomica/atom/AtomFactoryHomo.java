@@ -64,6 +64,11 @@ import etomica.Species;
         atomType.setSpecies(species);
         childFactory.setSpecies(species);
     }
+
+    public void setDepth(int depth) {
+        atomType.setDepth(depth);
+        childFactory.setDepth(depth + 1);
+    }
     
     /**
      * Constructs a new group.

@@ -28,7 +28,11 @@ public class AtomFactoryMono extends AtomFactory {
     public void setSpecies(Species species) {
         atomType.setSpecies(species);
     }
-    
+
+    public void setDepth(int depth) {
+        atomType.setDepth(depth);
+    }
+
     /**
      * Returns a new leaf atom having no children.
      */

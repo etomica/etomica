@@ -245,7 +245,8 @@ public class NeighborManager implements IntervalListener {
 	
 	private class NeighborReset extends AtomsetActionAdapter {
 		public void actionPerformed(AtomSet atom) {
-            if(((Atom)atom).node.depth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
+            //FIXME changes to depth might make this wrong
+            if(((Atom)atom).type.getDepth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
 			NeighborCriterion criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)((Atom)atom).seq).clearNbrs();
 			if (criterion != null) {

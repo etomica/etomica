@@ -49,6 +49,7 @@ public class Species {
         setName(NameMaker.makeName(this.getClass()));
         index = instanceCount++;
         factory.setSpecies(this);
+        factory.setDepth(2);//change comment in AtomFactory assigning differently
     }
     
     /**

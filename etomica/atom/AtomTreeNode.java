@@ -50,12 +50,6 @@ public abstract class AtomTreeNode {
     
     public void setParent(AtomTreeNodeGroup parent) {
     	
-    	//parent isn't changing, but may need to update fields (added this 'if' block 08/12/03 (DAK))
-    	if(parent != null && parent == parentNode) {
-			depth = parentNode.depth() + 1;
-			return;
-        }
-    	
         //old parent is not null; remove from it
         if(parentNode != null) {
             parentNode.childList.remove(atom.seq);        
@@ -67,9 +61,6 @@ public abstract class AtomTreeNode {
         if(parentNode == null) {//new parent is null
             return;
         }
-
-        //new parent is not null
-        depth = parentNode.depth() + 1;
 
         setIndex(parentNode.newChildIndex());
         
@@ -106,12 +97,6 @@ public abstract class AtomTreeNode {
     public SpeciesAgent parentSpeciesAgent() {
         return (parentNode != null) ? parentNode.parentSpeciesAgent() : null;
     }
-
-    /**
-     * Returns the depth of this atom in the atom hierarchy.  That is, returns
-     * the number of parent relations between this atom and the species master.
-     */
-    public final int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
     
     /**
      * Integer assigned to this atom by its parent molecule.
@@ -157,17 +142,47 @@ public abstract class AtomTreeNode {
         if(parentNode == null) return false;
         if(node == null) return true;
         if(this.parentNode == node.parentNode) return atomIndex < node.atomIndex;//works also if both parentGroups are null
-        if(depth == node.depth) return parentNode.preceeds(node.parentNode);
-        if(depth < node.depth) return this.preceeds(node.parentNode);
+        if(atom.type.getDepth() == node.atom.type.getDepth()) return parentNode.preceeds(node.parentNode);
+        if(atom.type.getDepth() < node.atom.type.getDepth()) return this.preceeds(node.parentNode);
         /*if(this.depth > atom.depth)*/ return parentNode.preceeds(node);
     }
     
     public boolean preceeds(Atom a) {
         return (a != null) ? preceeds(a.node) : true;
     }
+    
+    /**
+     * Integer array indicating the maximum number of atoms at each depth in the
+     * atom hierarchy.  Maximum depth is given by the size of the array.  Each
+     * element of array is log2 of the maximum number of child atoms permitted
+     * under one atom.  This is used to assign index values to each atom when it
+     * is made.  The indexes permit quick comparison of the relative ordering
+     * and/or hierarchical relation of any two atoms.  Sum of digits in array
+     * should not exceed 31. For example, {5, 16, 7, 3} indicates 31
+     * speciesAgents maximum, 65,536 molecules each, 128 groups per molecule, 8
+     * atoms per group (number of species agents is one fewer, because index 0
+     * is assigned to species master)
+     */
+    // powers of 2, for reference:
+    //  n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |  14  |  15  |  16  |  17   |  18   |  19   |   20    |
+    // 2^n| 2 | 4 | 8 | 16| 32| 64|128|256|512|1024|2048|4096|8192|16,384|32,768|65,536|131,072|262,144|524,288|1,048,576|
+    public static final int[] MAX_ATOMS = new int[] {5, 16, 7, 3};
+    protected static final int[] MAX_ATOMS_CUMULATIVE = calculateMaxAtomsCumulative(MAX_ATOMS);
+    
+    private static int[] calculateMaxAtomsCumulative(int[] array) {
+        int[] newArray = (int[])array.clone();
+        for(int i=1; i<newArray.length; i++) {
+            newArray[i] += newArray[i-1];
+        }
+        if(newArray[newArray.length-1] != 31) {
+            throw new RuntimeException("Improper setup of AtomTreeNode.MAX_ATOMS");
+        }
+        return newArray;
+    }
+    
+
         
     protected final Atom atom;
-    protected int depth;
     protected int atomIndex;
     private AtomTreeNodeGroup parentNode;
     

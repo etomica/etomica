@@ -21,6 +21,7 @@ public final class SpeciesAgent extends Atom {
         super(space, new AtomTypeGroup(), NODE_FACTORY,  AtomSequencerFactory.SIMPLE);
         this.phase = phase;
         type.setSpecies(species);
+        type.setDepth(1);
     }
         
     public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
@@ -75,7 +76,6 @@ public final class SpeciesAgent extends Atom {
         
         private AgentAtomTreeNode(Atom atom) {
             super(atom);
-            depth = 1;
         }
 
        /**

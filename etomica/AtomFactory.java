@@ -49,6 +49,14 @@ public abstract class AtomFactory {
     public abstract Atom makeAtom();
 
     /**
+     * Sets the atom-hierarchy depth of the atoms made by this
+     * factory.  SpeciesMaster is level 0, SpeciesAgent is level 1;
+     * molecules are level 2.
+     * @param depth
+     */
+    public abstract void setDepth(int depth);
+    
+    /**
      * Identifies the species for which this factory makes its atoms.
      * Should be invoked only in the species constructor, and by any
      * an atom factory on its child factories.
