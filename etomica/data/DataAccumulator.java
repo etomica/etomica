@@ -45,7 +45,7 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 	public void putData(double[] newData) {
         if(!active) return;
         addData(newData);
-		if (--putCount == 0) {
+		if (--putCount == 0 && dataSinkList.length > 0) {
 		    putCount = pushInterval;
 		    pushData(getData());
         }
