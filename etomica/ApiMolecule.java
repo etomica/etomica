@@ -104,6 +104,15 @@ public class ApiMolecule implements AtomsetIteratorMolecule {
 		return 2;
 	}
     
+    /**
+     * Returns the iterator currently being used for 
+     * the pair iteration.  If a target had been specified, this will be the
+     * Api1A iterator, otherwise it will be the ApiAA iterator.
+     */
+    public AtomsetIteratorPhaseDependent getCurrentIterator() {
+        return iterator;
+    }
+    
     private AtomsetIteratorPhaseDependent iterator;
     private final AtomsetIteratorMolecule api1A; 
     private final AtomsetIteratorPhaseDependent apiAA;
