@@ -5,6 +5,7 @@
 package etomica.dpd;
 import etomica.*;
 import etomica.graphics.*;
+import etomica.nbr.cell.IteratorFactoryCell;
 
 
 /**
