@@ -13,16 +13,11 @@ import etomica.Integrator;
  */
 public class IntegratorReset extends IntegratorActionAdapter {
 
-    /**
-     * @param label
-     */
     public IntegratorReset(Integrator integrator) {
         super("Reset integrator");
+        this.integrator = integrator;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.Action#actionPerformed()
-     */
     public void actionPerformed() {
         if(integrator != null) integrator.reset();
     }
