@@ -38,17 +38,19 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
     public void bump(AtomPair pair) {
         Atom a1 = pair.atom1();
         Atom a2 = pair.atom2();
-        double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.rm()/(collisionDiameter*collisionDiameter);
+        double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
         double r2 = pair.r2();
+        Space.Vector p1 = a1.coord.momentum();
+        Space.Vector p2 = a2.coord.momentum();
         dr.E(pair.dr());
-        omegaSum.E(((Space.Coordinate.Angular)a1.coordinate()).angularVelocity());
-        omegaSum.PE(((Space.Coordinate.Angular)a2.coordinate()).angularVelocity());
+        omegaSum.E(((Space.Coordinate.Angular)a1.coord).angularVelocity());
+        omegaSum.PE(((Space.Coordinate.Angular)a2.coord).angularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
         v12Surface.E(dr); // (r2 - r1)
         v12Surface.XE(omegaSum); //(r2-r1) X (omega2+omega1)
         v12Surface.TE(0.5); // +1/2 (r2-r1) X (omega2+omega1) [which equals -1/2*(omega2+omega1) X (r2-r1)]
-        v12Surface.PEa1Tv1(+a2.rm(),a2.p);// p2/m2 +1/2 (r2-r1) X (omega2+omega1)
-        v12Surface.PEa1Tv1(-a1.rm(),a1.p);// p2/m2 - p1/m1 +1/2 (r2-r1) X (omega2+omega1)
+        v12Surface.PEa1Tv1(+a2.coord.rm(),p2);// p2/m2 +1/2 (r2-r1) X (omega2+omega1)
+        v12Surface.PEa1Tv1(-a1.coord.rm(),p1);// p2/m2 - p1/m1 +1/2 (r2-r1) X (omega2+omega1)
         //component of v12Surface parallel to r2-r1: v12Par = (v12Surface . dr) dr / |dr|^2
         v12Par.E(dr);
         v12Par.TE(v12Surface.dot(dr)/r2);
@@ -58,18 +60,18 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
         
         impulse.E(v12Par);
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
-        impulse.TE(-a1.mass());
+        impulse.TE(-a1.coord.mass());
         
-        a2.p.PE(impulse);
-        a1.p.ME(impulse);
+        p2.PE(impulse);
+        p1.ME(impulse);
         
         //here omegaSum is used to hold the angular impulse
         omegaSum.E(dr.cross(impulse));
         omegaSum.TE(-0.5);
-        ((Space.Coordinate.Angular)a1.coordinate()).angularAccelerateBy(omegaSum);
-        ((Space.Coordinate.Angular)a2.coordinate()).angularAccelerateBy(omegaSum);
+        ((Space.Coordinate.Angular)a1.coord).angularAccelerateBy(omegaSum);
+        ((Space.Coordinate.Angular)a2.coord).angularAccelerateBy(omegaSum);
         
-        lastCollisionVirial = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr();
+        lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
     }
     

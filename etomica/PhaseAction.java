@@ -74,7 +74,7 @@ public abstract class PhaseAction extends etomica.Action {
         public static void doAction(Phase p) {
             Space.Boundary boundary = p.boundary();
             for(Atom a = p.firstAtom(); a!=null; a=a.nextAtom()) {
-                boundary.centralImage(a.coordinate);
+                boundary.centralImage(a.coord);
             }
         }
         

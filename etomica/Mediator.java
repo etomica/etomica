@@ -197,7 +197,10 @@ public class Mediator implements java.io.Serializable {
             public void add(Phase phase) {
                 for(Iterator is=mediator.parentSimulation().integratorList.iterator(); is.hasNext(); ) {
                     Integrator integrator = (Integrator)is.next();
-                    if(integrator.wasAdded() && integrator.wantsPhase()) phase.setIntegrator(integrator);
+                    if(integrator.wasAdded() && integrator.wantsPhase()) {
+                        phase.setIntegrator(integrator);
+                        integrator.addIntervalListener(new PhaseAction.ImposePbc(phase));
+                    }
                     break;
                 }
             }
@@ -207,7 +210,10 @@ public class Mediator implements java.io.Serializable {
             public void add(Integrator integrator) {
                 for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
-                    if(phase.wasAdded() && phase.integrator() == null) phase.setIntegrator(integrator);
+                    if(phase.wasAdded() && phase.integrator() == null) { 
+                        phase.setIntegrator(integrator);
+                        integrator.addIntervalListener(new PhaseAction.ImposePbc(phase));
+                    }
                 }
             }
         }//end of Default

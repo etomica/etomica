@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 public abstract class Space implements Space.Boundary.Maker, java.io.Serializable {
     
-    public static String VERSION = "01.06.29";
+    public static String VERSION = "01.07.09";
 
     public Space() {}
     public abstract int D();
@@ -12,7 +12,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public abstract Vector makeVector();      //Space.Vector
     public abstract Orientation makeOrientation();
     public abstract Tensor makeTensor();
-    public abstract Coordinate makeCoordinate(Occupant o);
+    public abstract Coordinate makeCoordinate(Atom a);
     public abstract CoordinatePair makeCoordinatePair(Phase p);
     public abstract Boundary makeBoundary();  //makes boundary of default type
     public abstract Boundary makeBoundary(Boundary.Type type);
@@ -38,9 +38,9 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
      */
     public static Vector makeVector(int D) {
         switch(D) {
-   //         case 1:  return new Space1D.Vector();
+            case 1:  return new Space1D.Vector();
             case 2:  return new Space2D.Vector();
-            case 3:  return new Space3D.Vector();
+//            case 3:  return new Space3D.Vector();
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
@@ -50,9 +50,9 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
      */
     public static Vector makeVector(double[] a) {
         switch(a.length) {
-   //         case 1:  return new Space1D.Vector(a);
+            case 1:  return new Space1D.Vector(a);
             case 2:  return new Space2D.Vector(a);
-            case 3:  return new Space3D.Vector(a);
+//            case 3:  return new Space3D.Vector(a);
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
@@ -129,26 +129,51 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     public static abstract class Coordinate implements java.io.Serializable {
-        protected final Space.Occupant parent;        //parent is the "Space-occupant" (e.g, Atom or Molecule) that has this as its coordinate        
-        Coordinate(Occupant p) {parent = p;}          //constructor
-        public final Space.Occupant parent() {return parent;}
-//        public final Phase parentPhase() {return parent.parentPhase();}
+        protected final Atom atom;  //atom that has this as its coordinate        
+        private double mass, rm;    //mass and its reciprocal
+        Coordinate(Atom a) {atom = a;}          //constructor
+        
+        public final Atom atom() {return atom;}
+
         public abstract Vector position();
         public abstract Vector momentum();
         public abstract double position(int i);
         public abstract double momentum(int i);
         public abstract double kineticEnergy();
         public abstract void freeFlight(double t);
+        public abstract void translateBy(Space.Vector u);
+        public abstract void translateBy(double d, Space.Vector u);
+        public abstract void translateTo(Space.Vector u);   
+        public abstract void displaceBy(Space.Vector u);
+        public abstract void displaceBy(double d, Space.Vector u);
+        public abstract void displaceTo(Space.Vector u);
+        public abstract void displaceToRandom(etomica.Phase p);
+        public abstract void replace();
+        public abstract void accelerateBy(Space.Vector u);
+        public abstract void accelerateBy(double d, Space.Vector u);
+        public abstract void displaceWithin(double d);
+        public abstract void randomizeMomentum(double temperature);
+
+        public final void translateToRandom(etomica.Phase p) {translateTo(p.boundary().randomPosition());}
+
+        public final void scaleMomentum(double scale) {momentum().TE(scale);}
+
+        /**
+        * @return mass of the atom, in Daltons
+        */
+        public double mass() {return mass;}
+
+        /**
+        * @return reciprocal of the mass of the atom
+        */
+        public double rm() {return rm;}
         
-        public interface Angular {
-            public Orientation orientation();
-            public Space3D.Vector angularMomentum(); //angular momentum vector in space-fixed frame
-            public Space3D.Vector angularVelocity(); //angular velocity vector in space-fixed frame
-            public void angularAccelerateBy(Space3D.Vector v);
-            public double kineticEnergy();
-            public void freeFlight(double t);
+        public void setMass(double m) {
+            mass = m;
+            rm = 1.0/m;
         }
-        
+        public double getMass() {return mass;}
+
         /**
         * Sets the atom to be stationary or movable.
         * The atom does not enforce the condition of being stationary, in that it does not
@@ -171,64 +196,26 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public final boolean isStationary() {return stationary;}
 
         /**
-        * @return mass of the atom, in Daltons
-        */
-        public final double mass() {return type.mass();}
-
-        /**
-        * @return reciprocal of the mass of the atom
-        */
-        public final double rm() {return type.rm();}
-
-        /**
-        * Moves the atom by some vector distance
-        * 
-        * @param u
-        */
-        public final void translateBy(Space.Vector u) {r.PE(u);}
-        /**
-        * Moves the atom by some vector distance
-        * 
-        * @param u
-        */
-        public final void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
-        /**
-        * Moves the atom by some vector distance
-        * 
-        * @param u
-        */
-        public final void translateTo(Space.Vector u) {r.E(u);}      
-        public final void translateToRandom(etomica.Phase p) {translateTo(p.boundary().randomPosition());}
-        public final void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
-        public final void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
-        public final void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
-        public final void displaceWithin(double d) {workVector.setRandomCube(); displaceBy(d,workVector);}
-        public final void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
-        public final void replace() {r.E(rLast);}
-    //    public final void inflate(double s) {r.TE(s);}
-
-        public final void accelerateBy(Space.Vector u) {p.PE(u);}
-        public final void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
-
-        public final void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
-            double magnitude = Math.sqrt(type.mass()*temperature*(double)parentSimulation().space().D());  //need to divide by sqrt(m) to get velocity
-            p.setRandomSphere();
-            p.TE(magnitude);
-        }
-        public final void scaleMomentum(double scale) {p.TE(scale);}
-
-        public final Space.Vector position() {return r;}
-        public final Space.Vector momentum() {return p;}
-        public final double position(int i) {return r.component(i);}
-        public final double momentum(int i) {return p.component(i);}
-        public final Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
-
-        /**
         * Flag indicating whether atom is stationary or mobile.
         * Default is false (atom is mobile)
         */
         private boolean stationary;
+        
+        public interface Angular {
+            public Orientation orientation();
+            public Space3D.Vector angularMomentum(); //angular momentum vector in space-fixed frame
+            public Space3D.Vector angularVelocity(); //angular velocity vector in space-fixed frame
+            public void angularAccelerateBy(Space3D.Vector v);
+            public double kineticEnergy();
+            public void freeFlight(double t);
+        }
     }//end of Space.Coordinate
+    
+    public static abstract class CoordinateGroup extends Coordinate {
+        public CoordinateGroup(AtomGroup a) {super(a);}
+        
+        public abstract void addCoordinate(Coordinate coord);
+    }
     
     public static abstract class Orientation {
         public abstract void E(Orientation o); //copies the given orientation to this
@@ -324,12 +311,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
          public interface Periodic {}
         
     }//end of Space.Boundary
-    
-    //delete this
-//    public Potential makePotential(Phase p) {
-//        if(p.boundary() instanceof Potential) {return (Potential)p.boundary();}
-//        else {return new PotentialIdealGas();}  //default  
-//    }
-    
+        
     public void draw(Graphics g, int[] origin, double scale) {}
-}    
+}//end of Space    

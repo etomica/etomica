@@ -49,8 +49,8 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
             ai1.reset();
             while (ai1.hasNext()) {
                 Atom a = ai1.next();
-                v.E(a.momentum(), a.momentum());
-                v.TE((a.rm()));
+                v.E(a.coord.momentum(), a.coord.momentum());
+                v.TE((a.coord.rm()));
                 velocityTensor.PE(v);
             }
             

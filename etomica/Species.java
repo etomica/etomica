@@ -112,7 +112,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         while(e.hasNext()) {
             Agent a = (Agent)e.next();
             AtomIterator aIter = a.makeAtomIterator();
-            while(aIter.hasNext()) {aIter.next().setStationary(b);}
+            while(aIter.hasNext()) {aIter.next().coord.setStationary(b);}
         }
     }
     
@@ -280,7 +280,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         Agent a = new Agent(p);
         a.setNMolecules(nMolecules);
         AtomIterator aIter = a.makeAtomIterator();
-        while(aIter.hasNext()) {aIter.next().setStationary(stationary);}
+        while(aIter.hasNext()) {aIter.next().coord.setStationary(stationary);}
         agents.put(p,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }

@@ -126,7 +126,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         while(ai1.hasNext()) {
             Atom a = ai1.next();
             double value = meter.currentValue(a);
-            int i = getXIndex(a.r.dot(profileVector)*profileNorm);
+            int i = getXIndex(a.coord.position().dot(profileVector)*profileNorm);
             y[i] += value;
         }
         double norm = 1/((double)phase.atomCount()*deltaX);

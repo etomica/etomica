@@ -58,7 +58,7 @@ public class P2SquareWell extends Potential2 implements Potential2Hard, EtomicaE
     double r2 = pair.r2();
     double bij = pair.vDotr();
     // ke is kinetic energy due to components of velocity
-    double reduced_m = 1.0/(pair.atom1().rm() + pair.atom2().rm());
+    double reduced_m = 1.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm());
     dr.E(pair.dr());
     double ke = bij*bij*reduced_m/(2.0*r2);
     double s, r2New;

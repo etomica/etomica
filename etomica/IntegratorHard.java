@@ -201,8 +201,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             Atom a = atomIterator.next();
      //   for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
             ((Agent)a.ia).decrementCollisionTime(tStep);
-            if(a.isStationary()) {continue;}  //skip if atom is stationary
-            a.coordinate.freeFlight(tStep);
+            if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
+            a.coord.freeFlight(tStep);
     //     a.translateBy(tStep*a.rm(),a.momentum());
         }
     }
@@ -264,7 +264,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	                IntegratorHardAbstract.Agent agent = (IntegratorHardAbstract.Agent)a.ia;
 	                if(agent == null) return;
 	                String text = Float.toString((float)agent.collisionTime);
-                    Space.Vector r = a.coordinate().position();
+                    Space.Vector r = a.coord.position();
                     int xP = origin[0] + (int)(toPixels*(r.component(0)));
                     int yP = origin[1] + (int)(toPixels*(r.component(1)));
                     g.setColor(java.awt.Color.gray);

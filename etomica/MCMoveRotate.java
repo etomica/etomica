@@ -39,7 +39,7 @@ public class MCMoveRotate extends MCMove {
             
         phasePotential.calculate(iteratorDirective.set(a), energy.reset());
         uOld = energy.sum();
-        Space.Orientation orientation = ((Space.Coordinate.Angular)a.coordinate()).orientation(); 
+        Space.Orientation orientation = ((Space.Coordinate.Angular)a.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
         phasePotential.calculate(iteratorDirective.set(a), energy.reset());

@@ -174,8 +174,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             m.atomIterator.reset();
             while(m.atomIterator.hasNext()) {//equally space all "wall atoms"
                 Atom a = m.atomIterator.next();
-                Space.Vector r = a.coordinate.position();
-                a.coordinate.momentum().E(0.0);
+                Space.Vector r = a.coord.position();
+                a.coord.momentum().E(0.0);
                 r.setComponent(i,xyNext);
                 xyNext += delta;
                 ((AtomType.Wall)a.type).setLength(wh);   //length of wall

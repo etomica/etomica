@@ -27,7 +27,6 @@ public class Atom implements java.io.Serializable {
         this.index = index;
         depth = 0;
         atomIndex = index;
-        workVector = parentSimulation().space().makeVector();
         type = t; //this must precede makeCoordinate call
         coord = type.makeCoordinate(this, type);
       //  coordinate = Simulation.space.makeCoordinate(this);
@@ -51,8 +50,9 @@ public class Atom implements java.io.Serializable {
     /**
      * Phase in which this atom resides
      */
-    public final Phase parentPhase() {return parentGroup.parentPhase();}
+    public Phase parentPhase() {return parentGroup.parentPhase();}
 
+    public Species parentSpecies() {return parentGroup.parentSpecies();}
 /*   linked list of bonds
     Bond firstBond;
     

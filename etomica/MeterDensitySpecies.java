@@ -35,7 +35,7 @@ public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
     }
     
     public double currentValue(Atom a) {
-        return (a.parentMolecule().parentSpecies()==species) ? 1/phase.volume() : 0.0;
+        return (a.parentSpecies()==species) ? 1/phase.volume() : 0.0;
     }
 
 }

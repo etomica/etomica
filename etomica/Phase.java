@@ -50,6 +50,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private String name;
     private final Simulation parentSimulation;
     private final PotentialMaster.Agent potential;
+    private final AtomGroup species;
     private boolean added = false;
     
     public Phase() {
@@ -59,6 +60,8 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     public Phase(Simulation sim) {
         parentSimulation = sim;
         potential = (PotentialMaster.Agent)sim.potentialMaster().makeAgent(this);
+        species = new SpeciesMaster.Agent(this);
+        
         inflater = new PhaseAction.Inflate(this);
         //don't use setIteratorFactory here to remove any possibility of complications with Observers
         if(sim.space() instanceof IteratorFactory.Maker) {
@@ -229,7 +232,6 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
 //        integratorMonitor.fireEvent(new PhaseIntegratorEvent(i,PhaseIntegratorEvent.NEW_INTEGRATOR));
         if(integrator != null) integrator.removePhase(this);
         integrator = i;
-        integrator.addIntervalListener(new PhaseAction.ImposePbc(this));
     }
                         
     public final Space.Vector dimensions() {return boundary.dimensions();}

@@ -78,7 +78,8 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
      * Location of the collision is defined by the average of the atoms' coordinates.
      */
     public void collisionAction(IntegratorHardAbstract.Agent agent) {
-        double dot = 0.5*(agent.atom().r.dot(profileVector) + agent.collisionPartner().r.dot(profileVector));
+        double dot = 0.5*(agent.atom().coord.position().dot(profileVector) 
+                            + agent.collisionPartner().coord.position().dot(profileVector));
         int j = getXIndex(dot);
         w[j] += cMeter.collisionValue(agent);
     }

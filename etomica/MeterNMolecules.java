@@ -47,7 +47,7 @@ public class MeterNMolecules extends Meter implements EtomicaElement, Meter.Atom
     }
 
     public double currentValue(Atom a) {
-        return (a.parentMolecule().parentSpecies()==species) ? 1.0 : 0.0;
+        return (a.parentSpecies()==species) ? 1.0 : 0.0;
     }
 
 }

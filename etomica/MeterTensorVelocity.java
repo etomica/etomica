@@ -77,8 +77,8 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
         velocityTensor.E(0.0);
         while(ai1.hasNext()) {
             Atom a = ai1.next();
-            velocity.E(a.momentum(), a.momentum());
-            velocity.TE(a.rm());
+            velocity.E(a.coord.momentum(), a.coord.momentum());
+            velocity.TE(a.coord.rm());
             velocityTensor.PE(velocity);
         }
         velocityTensor.TE(1/phase.atomCount());
@@ -89,8 +89,8 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
     public Space.Tensor currentValue(Atom atom) {
-        velocity.E(atom.momentum(), atom.momentum());
-        velocity.TE(atom.rm());
+        velocity.E(atom.coord.momentum(), atom.coord.momentum());
+        velocity.TE(atom.coord.rm());
         return velocity;
     }
 }

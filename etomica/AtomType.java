@@ -28,6 +28,8 @@ public abstract class AtomType implements java.io.Serializable {
     private static int NitrogenID = 0;
     private String name;
     
+    public AtomType() {}
+    
     public AtomType(double m, Color c) {
         setMass(m);
         setColor(c);
@@ -119,7 +121,7 @@ public abstract class AtomType implements java.io.Serializable {
         *                  nominal drawing size
         */
         public void draw(Graphics g, int[] origin, double toPixels, Atom atom) {
-            Space.Vector r = atom.coordinate().position();
+            Space.Vector r = atom.coord.position();
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
             int yP = origin[1]-dh2;
@@ -162,7 +164,7 @@ public abstract class AtomType implements java.io.Serializable {
         *                  nominal drawing size
         */
         public void draw(Graphics g, int[] origin, double toPixels, Atom atom) {
-            Space.Vector r = atom.coordinate().position();
+            Space.Vector r = atom.coord.position();
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
             int yP = origin[1] + (int)(toPixels*(r.component(1)-radius));
@@ -206,14 +208,14 @@ public abstract class AtomType implements java.io.Serializable {
         }
         
         public void draw(Graphics g, int[] origin, double toPixels, Atom atom) {
-            Space.Vector r = atom.coordinate().position();
+            Space.Vector r = atom.coord.position();
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
             int yP = origin[1] + (int)(toPixels*(r.component(1)-radius));
             g.setColor(atom.color);
             g.fillOval(xP,yP,sigmaP,sigmaP);
             g.setColor(Color.red);
-            double theta = ((Space.Coordinate.Angular)atom.coordinate()).orientation().angle()[0];
+            double theta = ((Space.Coordinate.Angular)atom.coord).orientation().angle()[0];
             int dx = (int)(toPixels*radius*Math.cos(theta));
             int dy = (int)(toPixels*radius*Math.sin(theta));
             int dxy = (int)(toPixels*radius);
@@ -263,7 +265,7 @@ public abstract class AtomType implements java.io.Serializable {
         *                  nominal drawing size
         */
         public void draw(Graphics g, int[] origin, double toPixels, Atom atom) {
-            Space.Vector r = atom.coordinate().position();
+            Space.Vector r = atom.coord.position();
  //           int yP = 0;
             //Draw core
             int sigmaP = (int)(toPixels*diameter);
@@ -346,7 +348,7 @@ public abstract class AtomType implements java.io.Serializable {
         public final void setAdiabatic(boolean a) {adiabatic = a;}
      
         public void draw(Graphics g, int[] origin, double toPixels, Atom atom) {
-            Space.Vector r = atom.coordinate().position();
+            Space.Vector r = atom.coord.position();
             int xP = origin[0] + (int)(toPixels*r.component(0));
             int yP = origin[1] + (int)(toPixels*r.component(1));
             int t = Math.max(1,(int)((double)thickness*(double)toPixels/(double)BaseUnit.Length.Sim.TO_PIXELS));

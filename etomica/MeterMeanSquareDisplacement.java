@@ -72,7 +72,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
         while(iter.hasNext()) {
             rAccum[i] = parentSimulation().space().makeVector();
             rLast[i] = parentSimulation().space().makeVector();
-            rLast[i].E(iter.next().r);
+            rLast[i].E(iter.next().coord.position());
             i++;
         }
     }
@@ -100,7 +100,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
         //accumulate difference from last coordinate before pbc applied
         if(evt.isBeforePbc()) { 
             while(iterator.hasNext()) {
-                Space.Vector r = iterator.next().r;
+                Space.Vector r = iterator.next().coord.position();
                 rAccum[i].PE(r);
                 rAccum[i].ME(rLast[i]);
                 rLast[i].E(r);
@@ -109,7 +109,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
         }
         //store last coordinate after pbc applied
         else { 
-           while(iterator.hasNext()) {rLast[i++].E(iterator.next().r);}
+           while(iterator.hasNext()) {rLast[i++].E(iterator.next().coord.position());}
         }   
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;

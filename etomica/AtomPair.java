@@ -54,7 +54,7 @@ public final class AtomPair implements java.io.Serializable {
      * Resets the coordinate pair for the current values of the atoms
      */
     public void reset() {
-        cPair.reset(atom1.coordinate(), atom2.coordinate());
+        cPair.reset(atom1.coord, atom2.coord);
     }
     /**
      * @return the square of the distance between the atoms, |r1 - r2|^2

@@ -34,7 +34,7 @@ public class P1Harmonic extends Potential1 implements Potential1Soft {
     }
 
     public double energy(Atom a) {
-        Space.Vector r = a.r;
+        Space.Vector r = a.coord.position();
         Space.Vector d = a.parentPhase().boundary().dimensions();
         double aSum = 0.0;
         for(int i=0; i<D; i++) {
@@ -47,7 +47,7 @@ public class P1Harmonic extends Potential1 implements Potential1Soft {
     }
 
     public Space.Vector gradient(Atom a){
-        Space.Vector r = a.coordinate().position();
+        Space.Vector r = a.coord.position();
         Space.Vector d = a.parentPhase().boundary().dimensions();
         force.E(0.0);
         for(int i=0; i<D; i++) {

@@ -66,10 +66,10 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
-            Space.Vector r = a.position();
+            Space.Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(a.rm()*t2);
+            agent.force.TE(a.coord.rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
@@ -82,7 +82,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
-            agent.rMrLast.Ea1Tv1(-timeStep*a.rm(),a.momentum());
+            agent.rMrLast.Ea1Tv1(-timeStep*a.coord.rm(),a.coord.momentum());
         }
     }
               

@@ -73,7 +73,7 @@ public class P2HardSphere extends Potential2 implements Potential2Hard, EtomicaE
     public void bump(AtomPair pair) {
         double r2 = pair.r2();
         dr.E(pair.dr());  //used by lastCollisionVirialTensor
-        lastCollisionVirial = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr();
+        lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         pair.cPair.push(lastCollisionVirialr2);
     }

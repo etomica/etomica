@@ -46,9 +46,9 @@ public abstract class Configuration implements java.io.Serializable {
         for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
-                a.randomizeMomentum(temperature);
+                a.coord.randomizeMomentum(temperature);
                 sum++;
-                momentumSum.PE(a.coordinate.momentum());
+                momentumSum.PE(a.coord.momentum());
 	        }
 	    }
     //    Zero center-of-mass momentum
@@ -56,7 +56,7 @@ public abstract class Configuration implements java.io.Serializable {
         for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
-                a.coordinate.momentum().ME(momentumSum);
+                a.coord.momentum().ME(momentumSum);
             }
         }
     }
@@ -66,7 +66,7 @@ public abstract class Configuration implements java.io.Serializable {
 	}
         
     
-    public abstract void initializeCoordinates(Phase p);
+    public abstract void initializeCoordinates(AtomGroup group);
     
     public final static boolean HORIZONTAL = false;
     public final static boolean VERTICAL = true;

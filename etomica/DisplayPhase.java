@@ -435,18 +435,18 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             Space.Boundary boundary = phase().boundary();
             for(Atom a = phase().firstAtom(); a!=null; a=a.nextAtom()) {
   //              boundary.centralImage(a.coordinate);        //move atom to central image
-                a.draw(g,centralOrigin,toPixels);
+                a.type.draw(g,centralOrigin,toPixels);
             }
             //Draw overflow images if so indicated
             //This needs some work to make more general
             if(drawOverflow) {
                 for(Atom a=phase().firstAtom(); a!=null; a=a.nextAtom()) {
                     if(a.type instanceof AtomType.Disk) {
-                        double[][] shifts = boundary.getOverflowShifts(a.coordinate.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
+                        double[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
                         for(int i=0; i<shifts.length; i++) {
                         shiftOrigin[0] = centralOrigin[0] + (int)(toPixels*shifts[i][0]);
                         shiftOrigin[1] = centralOrigin[1] + (int)(toPixels*shifts[i][1]);
-                        a.draw(g,shiftOrigin,toPixels);
+                        a.type.draw(g,shiftOrigin,toPixels);
                         }
                     }
                 }
@@ -539,7 +539,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom atom = atomIterator.next();
-                double r2 = parentSimulation().space().r2(point,atom.r,phase().boundary());
+                double r2 = parentSimulation().space().r2(point,atom.coord.position(),phase().boundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;
                     r2Min = r2;

@@ -63,10 +63,10 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {    //loop over all atoms
             Atom a = atomIterator.next();  //  advancing positions full step
             Agent agent = (Agent)a.ia;     //  and momenta half step
-            Space.Vector r = a.position();
-            Space.Vector p = a.momentum();
+            Space.Vector r = a.coord.position();
+            Space.Vector p = a.coord.momentum();
             p.PEa1Tv1(0.5*timeStep,agent.force);  // p += f(old)*dt/2
-            r.PEa1Tv1(timeStep*a.rm(),p);         // r += p*dt/m
+            r.PEa1Tv1(timeStep*a.coord.rm(),p);         // r += p*dt/m
             agent.force.E(0.0);
         }
                 
@@ -77,14 +77,14 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();
         while(atomIterator.hasNext()) {     //loop over atoms again
             Atom a = atomIterator.next();   //  finishing the momentum step
-            a.momentum().PEa1Tv1(0.5*timeStep,((Agent)a.ia).force);  //p += f(new)*dt/2
+            a.coord.momentum().PEa1Tv1(0.5*timeStep,((Agent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {  //Andersen thermostat
             atomIterator.reset();
             double nut = nu*timeStep;
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.next();
-                if(random.nextDouble() < nut) a.randomizeMomentum(temperature);  //this method in Atom needs some work
+                if(random.nextDouble() < nut) a.coord.randomizeMomentum(temperature);  //this method in Atom needs some work
             }
         }
         return;

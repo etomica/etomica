@@ -49,7 +49,7 @@ public class MeterKineticEnergy extends Meter
         double ke = 0.0;
         atomIterator.reset();
         while(atomIterator.hasNext()) {    //consider doing this with an allAtoms call
-            ke += atomIterator.next().kineticEnergy();
+            ke += atomIterator.next().coord.kineticEnergy();
         }
         return ke;
     }//end of currentValue
@@ -57,7 +57,7 @@ public class MeterKineticEnergy extends Meter
     public static double currentValue(Phase p) {
         double ke = 0.0;
         for(Atom atom=p.firstAtom(); atom!=null; atom=atom.nextAtom()) {
-            ke += atom.kineticEnergy();
+            ke += atom.coord.kineticEnergy();
         }
         return ke;
     }//end of value

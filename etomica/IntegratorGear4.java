@@ -101,21 +101,23 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (IntegratorGear4.Agent)a.ia;
-            work1.E(a.p);
-            work1.PEa1Tv1(chi*a.mass(),a.r);
+            Space.Vector r = a.coord.position();
+            Space.Vector p = a.coord.momentum();
+            work1.E(p);
+            work1.PEa1Tv1(chi*a.coord.mass(),r);
             work2.E(work1);
             work2.ME(agent.dr1);
-            a.r.PEa1Tv1(c0*a.rm(), work2);
+            r.PEa1Tv1(c0*a.coord.rm(), work2);
             agent.dr1.E(work1);
             agent.dr2.PEa1Tv1(c2,work2);
             agent.dr3.PEa1Tv1(c3,work2);
             agent.dr4.PEa1Tv1(c4,work2);
             
             work1.E(agent.force);
-            work1.PEa1Tv1(-(zeta+chi),a.p);
+            work1.PEa1Tv1(-(zeta+chi),p);
             work2.E(work1);
             work2.ME(agent.dp1);
-            a.p.PEa1Tv1(c0,work2);
+            p.PEa1Tv1(c0,work2);
             agent.dp1.E(work1);
             agent.dp2.PEa1Tv1(c2,work2);
             agent.dp3.PEa1Tv1(c3,work2);
@@ -128,10 +130,13 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
-            a.r.PEa1Tv1(p1*a.rm(), agent.dr1);
-            a.r.PEa1Tv1(p2*a.rm(), agent.dr2);
-            a.r.PEa1Tv1(p3*a.rm(), agent.dr3);
-            a.r.PEa1Tv1(p4*a.rm(), agent.dr4);
+            Space.Vector r = a.coord.position();
+            Space.Vector p = a.coord.momentum();
+            double rm = a.coord.rm();
+            r.PEa1Tv1(p1*rm, agent.dr1);
+            r.PEa1Tv1(p2*rm, agent.dr2);
+            r.PEa1Tv1(p3*rm, agent.dr3);
+            r.PEa1Tv1(p4*rm, agent.dr4);
             
             agent.dr1.PEa1Tv1(p1, agent.dr2);
             agent.dr1.PEa1Tv1(p2, agent.dr3);
@@ -142,10 +147,10 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             
             agent.dr3.PEa1Tv1(p1, agent.dr4);
             
-            a.p.PEa1Tv1(p1, agent.dp1);
-            a.p.PEa1Tv1(p2, agent.dp2);
-            a.p.PEa1Tv1(p3, agent.dp3);
-            a.p.PEa1Tv1(p4, agent.dp4);
+            p.PEa1Tv1(p1, agent.dp1);
+            p.PEa1Tv1(p2, agent.dp2);
+            p.PEa1Tv1(p3, agent.dp3);
+            p.PEa1Tv1(p4, agent.dp4);
             
             agent.dp1.PEa1Tv1(p1, agent.dp2);
             agent.dp1.PEa1Tv1(p2, agent.dp3);
@@ -166,7 +171,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (IntegratorGear4.Agent)a.ia;
-            agent.dr1.E(a.p);
+            agent.dr1.E(a.coord.momentum());
             agent.dr2.E(agent.force);
             agent.dr3.E(0.0);
             agent.dr4.E(0.0);

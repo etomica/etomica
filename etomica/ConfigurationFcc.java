@@ -7,9 +7,9 @@ public class ConfigurationFcc extends Configuration {
         super();
     }
     
-    public void initializeCoordinates(Phase parentPhase){
-        if(parentPhase == null) {return;}
-        
+    public void initializeCoordinates(AtomGroup group){
+        if(group == null) {return;}
+        Phase parentPhase = group.parentPhase();
     
     // Count number of molecules
         int sumOfMolecules = 0;

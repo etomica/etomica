@@ -28,8 +28,8 @@ public class P1HardBoundary extends Potential1 implements Potential1Hard {
     public double energy(Atom a) {return 0.0;}
      
     public double collisionTime(Atom a) {
-        Space.Vector r = a.coordinate().position();
-        Space.Vector p = a.coordinate().momentum();
+        Space.Vector r = a.coord.position();
+        Space.Vector p = a.coord.momentum();
         Space.Vector dimensions = a.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
         for(int i=r.length(); i>=0; i--) {
@@ -39,7 +39,7 @@ public class P1HardBoundary extends Potential1 implements Potential1Hard {
             double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
             if(t < tmin) tmin = t;
         }
-        return a.mass()*tmin;
+        return a.coord.mass()*tmin;
     }
                 
 //    public void bump(IntegratorHardAbstract.Agent agent) {
@@ -48,8 +48,8 @@ public class P1HardBoundary extends Potential1 implements Potential1Hard {
         bump(pair.atom1());
     }
     public void bump(Atom a) {
-        Space.Vector r = a.coordinate().position();
-        Space.Vector p = a.coordinate().momentum();
+        Space.Vector r = a.coord.position();
+        Space.Vector p = a.coord.momentum();
         Space.Vector dimensions = a.parentPhase().dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;

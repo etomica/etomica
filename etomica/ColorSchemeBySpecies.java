@@ -48,7 +48,7 @@ public class ColorSchemeBySpecies extends ColorScheme {
      * Colors the atoms according to the scheme for its species
      */
     public void colorAtom(Atom a) {  
-        speciesColor[a.parentMolecule().parentSpecies().speciesIndex].colorScheme.colorAtom(a);
+        speciesColor[a.parentSpecies().speciesIndex].colorScheme.colorAtom(a);
     }
     
     /**

@@ -33,8 +33,8 @@ public class MCMoveAtom extends MCMove {
 //        phasePotential.calculate(iteratorDirective.set(a), energy.reset());
 //        uOld = energy.sum();
         uOld = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
-        a.displaceWithin(stepSize);
-        phase.boundary().centralImage(a.coordinate.position());  //maybe a better way than this
+        a.coord.displaceWithin(stepSize);
+        phase.boundary().centralImage(a.coord.position());  //maybe a better way than this
         phase.iteratorFactory().moveNotify(a);
         uNew = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
         if(uNew < uOld) {   //accept
@@ -43,7 +43,7 @@ public class MCMoveAtom extends MCMove {
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
-             a.replace();
+             a.coord.replace();
              phase.iteratorFactory().moveNotify(a);
              return;
         }

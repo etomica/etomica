@@ -139,7 +139,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
-            a.momentum().TE(s); //scale momentum
+            a.coord.momentum().TE(s); //scale momentum
             ((Agent)a.ia).collisionTime *= rs;
         }
     }
@@ -221,7 +221,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             Space.Boundary boundary = atom.parentPhase().boundary();
             if(boundary instanceof Space.Boundary.Periodic) {
                 if(!(atom.type instanceof AtomType.Disk)) {return Double.MAX_VALUE;}
-                Space.Vector p = atom.coordinate().momentum();
+                Space.Vector p = atom.coord.momentum();
                 Space.Vector dim = boundary.dimensions();
                 double tmin = Double.MAX_VALUE;
                 double d = ((AtomType.Disk)atom.type).diameter();
@@ -231,7 +231,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
                     t = (t < 0) ? -t : t;//abs
                     tmin = (t < tmin) ? t : tmin;
                 }
-                return 0.25*atom.mass()*tmin; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+                return 0.25*atom.coord.mass()*tmin; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
           //      return 0.25*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
                 //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
             }

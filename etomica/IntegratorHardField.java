@@ -43,11 +43,11 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
             Agent agent = (Agent)a.ia;
             agent.decrementCollisionTime(tStep);
-            if(a.isStationary()) {continue;}  //skip if atom is stationary
-            a.translateBy(tStep*a.rm(),a.momentum());
+            if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
+            a.coord.freeFlight(tStep);
             if(!agent.forceFree) {
-                a.translateBy(t2*a.rm(),agent.force);
-                a.accelerateBy(tStep,agent.force);
+                a.coord.translateBy(t2*a.coord.rm(),agent.force);
+                a.coord.accelerateBy(tStep,agent.force);
             }
         }
     }

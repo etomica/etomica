@@ -69,7 +69,7 @@ public class P2HardDiskWall extends Potential2 implements Potential2Hard, Etomic
         if(wallType.isVertical()) {i = 0;}
         else {i = 1;}
         
-        dr = wall.position(i) - disk.position(i);
+        dr = wall.coord.position(i) - disk.coord.position(i);
         return (Math.abs(dr) < collisionRadius);
     }
   
@@ -97,11 +97,11 @@ public class P2HardDiskWall extends Potential2 implements Potential2Hard, Etomic
             dv *= -1;
         }
         double a = 0.0;
-        if(wall.ia instanceof Integrator.Agent.Forcible  && !wall.isStationary()) {
-            a = ((Integrator.Agent.Forcible)wall.ia).force().component(i) * wall.rm();
+        if(wall.ia instanceof Integrator.Agent.Forcible  && !wall.coord.isStationary()) {
+            a = ((Integrator.Agent.Forcible)wall.ia).force().component(i) * wall.coord.rm();
         }
-        if(disk.ia instanceof Integrator.Agent.Forcible  && !disk.isStationary()) {
-            a -= ((Integrator.Agent.Forcible)disk.ia).force().component(i) * disk.rm();
+        if(disk.ia instanceof Integrator.Agent.Forcible  && !disk.coord.isStationary()) {
+            a -= ((Integrator.Agent.Forcible)disk.ia).force().component(i) * disk.coord.rm();
         }
         //wall or disk has non-zero force
         double time = 0.0;
@@ -111,7 +111,7 @@ public class P2HardDiskWall extends Potential2 implements Potential2Hard, Etomic
                 if(dr*dv < 0.0) return 0.0;  //approaching; collide now
                 else {  //separating; move just outside contact and continue to compute collision time
                     moveToContact(i,pair);
-                    dr = wall.r.component(i)-disk.r.component(i);
+                    dr = wall.coord.position().component(i)-disk.coord.position().component(i);
                 }
             }  
             dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
@@ -154,30 +154,30 @@ public class P2HardDiskWall extends Potential2 implements Potential2Hard, Etomic
     
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
 
-        if(wall.isStationary()) {
+        if(wall.coord.isStationary()) {
             if(isothermal) {//specific to 2D
           //      double oldp2 = disk.momentum().squared();
           //      double newp2 = disk.mass()*temperature*parentSimulation().space().D();
           //      disk.momentum().TE(Math.sqrt(newp2/oldp2));
           //      disk.momentum().TE(i,-1.0);
-                double px = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.mass());
-                double py = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.mass());
+                double px = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.coord.mass());
+                double py = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.coord.mass());
                 //enforce reflection from wall; new momentum must have opposite sign to old momentum
-                if(i==0 && px*disk.momentum().component(i) > 0) px = -px;
-                else if(i==1 && py*disk.momentum().component(i) > 0) py = -py;
-                disk.momentum().setComponent(0,px);
-                disk.momentum().setComponent(1,py);
+                if(i==0 && px*disk.coord.momentum().component(i) > 0) px = -px;
+                else if(i==1 && py*disk.coord.momentum().component(i) > 0) py = -py;
+                disk.coord.momentum().setComponent(0,px);
+                disk.coord.momentum().setComponent(1,py);
             }
             else {
-                disk.momentum().TE(i,-1.0);
+                disk.coord.momentum().TE(i,-1.0);
     //            wallType.pAccumulator += 2*disk.momentum().component(i);
             }
         }
         else {
-          double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
-          double dp = -2.0/(wall.rm() + disk.rm())*dv;
-          wall.momentum().PE(i,+dp);  
-          disk.momentum().PE(i,-dp);
+          double dv = wall.coord.momentum(i)*wall.coord.rm()-disk.coord.momentum(i)*disk.coord.rm();
+          double dp = -2.0/(wall.coord.rm() + disk.coord.rm())*dv;
+          wall.coord.momentum().PE(i,+dp);  
+          disk.coord.momentum().PE(i,-dp);
           wallType.pAccumulator -= dp;
         }
         
@@ -194,14 +194,16 @@ public class P2HardDiskWall extends Potential2 implements Potential2Hard, Etomic
         double delta = Math.abs(dr) - collisionRadius;
         if(delta < 0.0) {   //inside wall; set apart to contact point
  //           double mult = (dr > 0.0) ? -2.0 : +2.0;
-            if(pair.atom2.isStationary()) 
-                pair.atom1.r.setComponent(i,pair.atom2.r.component(i)+mult*(collisionRadius+1e-6));
-            else if(pair.atom1.isStationary())
-                pair.atom2.r.setComponent(i,pair.atom1.r.component(i)-mult*(collisionRadius+1e-6));
+            Space.Vector r1 = pair.atom1.coord.position();
+            Space.Vector r2 = pair.atom2.coord.position();
+            if(pair.atom2.coord.isStationary()) 
+                r1.setComponent(i,r2.component(i)+mult*(collisionRadius+1e-6));
+            else if(pair.atom1.coord.isStationary())
+                r2.setComponent(i,r1.component(i)-mult*(collisionRadius+1e-6));
             else {
-                double mid = (pair.atom1.r.component(i)+pair.atom2.r.component(i))*0.5;
-                pair.atom1.r.setComponent(i,mid+0.5*mult*(collisionRadius+1e-6));
-                pair.atom2.r.setComponent(i,mid-0.5*mult*(collisionRadius+1e-6));
+                double mid = (r1.component(i)+r2.component(i))*0.5;
+                r1.setComponent(i,mid+0.5*mult*(collisionRadius+1e-6));
+                r2.setComponent(i,mid-0.5*mult*(collisionRadius+1e-6));
      //           pair.atom2.r.PE(i,delta);
      //           pair.atom1.r.PE(i,-delta);
             }
