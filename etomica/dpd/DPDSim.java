@@ -75,7 +75,7 @@ public class DPDSim extends SimulationGraphic{
 		boxTemperature.setMeter(meterT);
 		boxTemperature.setPrecision(10);
 				
-		elementCoordinator.go();
+//		elementCoordinator.go();
 		
 		DeviceSlider densitySlider = new DeviceSlider(phase, "density");
 		densitySlider.setPrecision(2);
@@ -87,7 +87,7 @@ public class DPDSim extends SimulationGraphic{
 		display = new DisplayPhase(this);		//makes the pretty box
 //		display.setUpdateInterval(1);
 		((DisplayPhaseCanvas3DOpenGL)display.canvas).setDrawExpansionFactor(1.2);
-		elementCoordinator.go();						
+//		elementCoordinator.go();						
 	}//End-Constructor 1
 	
 	/**
@@ -96,7 +96,7 @@ public class DPDSim extends SimulationGraphic{
 	public static void main(String[] args) {
 		int dim = 3;	//Dimension of simulation  
 		DPDSim sim = new DPDSim(dim);
-		sim.elementCoordinator.go();
+//		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();
 	}//end method-psvm
 }//end class-DPDSim3D

@@ -99,7 +99,7 @@ public class TestAll {
         Simulation.instance = new Simulation();
         SpeciesSpheres species1 = new SpeciesSpheres(nMolecules);
         Phase phase = new Phase();
-        Simulation.instance.elementCoordinator.go();
+//        Simulation.instance.elementCoordinator.go();
         return phase;
     }
 }

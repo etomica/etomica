@@ -82,7 +82,7 @@ public class DPDSim2D extends SimulationGraphic{
 	 */
 	public static void main(String[] args) {
 		DPDSim2D sim = new DPDSim2D();
-		sim.elementCoordinator.go();
+//		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();
 	}//end method-psvm
 }//end class-DPDSim2D

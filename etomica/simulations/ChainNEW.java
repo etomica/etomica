@@ -50,7 +50,7 @@ public class ChainNEW extends SimulationGraphic {
 		ColorSchemeByType.setColor(((AtomFactoryMono)((AtomFactoryHomo)speciesChain.moleculeFactory()).childFactory()).type(),java.awt.Color.blue);
 //		panel().setBackground(java.awt.Color.yellow);
 		DeviceKicker dk = new DeviceKicker(display);
-		elementCoordinator.go();
+//		elementCoordinator.go();
 		
 		Atom first = phase.getAgent(speciesChain).node.firstLeafAtom();
 		Atom last = phase.getAgent(speciesChain).node.lastLeafAtom();

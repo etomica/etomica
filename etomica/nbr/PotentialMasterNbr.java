@@ -189,7 +189,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     }
     
     public void setSimulation(Simulation sim) {
-        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
+//        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
     }
 
     public NeighborManager getNeighborManager() {return neighborManager;}

@@ -166,7 +166,7 @@ public final class SpeciesMaster extends Atom {
         species1.setNMolecules(2);
         species2.setNMolecules(2);
         Phase phase = new Phase(sim.space);
-        sim.elementCoordinator.go();
+//        sim.elementCoordinator.go();
         
         AtomIteratorList listIterator = new AtomIteratorList();
         listIterator.setList(phase.speciesMaster.atomList);

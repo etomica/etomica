@@ -135,7 +135,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		eHist = new DisplayPlot();
 		wHist = new DisplayPlot();
 //		panel().setBackground(java.awt.Color.yellow);
-		elementCoordinator.go();
+//		elementCoordinator.go();
 		first = species.getAgent(phase).firstMolecule();
 		first.coord.setMass(mass);
 		etomica.utility.HistogramSimple eHistogram = eMeter.getHistogram();

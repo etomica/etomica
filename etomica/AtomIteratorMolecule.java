@@ -78,7 +78,7 @@ public final class AtomIteratorMolecule extends AtomIteratorAdapter implements
 		species1.setNMolecules(2);
 		species2.setNMolecules(3);
 		Phase phase = new Phase(sim.space);
-		sim.elementCoordinator.go();
+//		sim.elementCoordinator.go();
 
 		AtomIteratorMolecule iterator = new AtomIteratorMolecule();
 		System.out.println(iterator.hasNext());

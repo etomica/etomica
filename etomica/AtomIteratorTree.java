@@ -272,7 +272,7 @@ public class AtomIteratorTree implements AtomIterator {
         species1.setAtomsPerMolecule(3);
         species0.setAtomsPerMolecule(2);
         Phase phase = new Phase(sim.space);
-        sim.elementCoordinator.go();
+//        sim.elementCoordinator.go();
         
         int k = 0;
         AtomIteratorTree treeIterator = new AtomIteratorTree();

@@ -32,7 +32,7 @@ public class Simulation {
      * Class that implements the final tying up of the simulation elements before starting the simulation.
      * Default choice is the CoordinatorOneIntegrator.
      */
-    public Mediator elementCoordinator;
+//    public Mediator elementCoordinator;
     protected HashMap elementLists = new HashMap(16);
     
     public final PotentialMaster potentialMaster;
@@ -63,7 +63,7 @@ public class Simulation {
         instanceCount++;
         instances.add(this);
         setName(NameMaker.makeName(this.getClass()));
-        elementCoordinator = new Mediator(this);
+//        elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
         potentialMaster.setSimulation(this);
         setController(new Controller());
@@ -243,7 +243,7 @@ public class Simulation {
       * way to access it.  This method may someday supercede direct access to
       * the elementCoordinator field, so it is the preferred way to access it.
       */
-     public Mediator mediator() {return elementCoordinator;}
+//     public Mediator mediator() {return elementCoordinator;}
      
      public Simulation simulation() {return this;}
      

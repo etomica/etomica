@@ -173,7 +173,7 @@ public class MonitorEnergy implements MCMoveListener, PhaseListener, java.util.O
 	    MonitorEnergy  monitor = new MonitorEnergy(sim);
 	    monitor.setPhase(phase);
 	    monitor.setRefreshInterval(1000);
-	    sim.elementCoordinator.go();
+//	    sim.elementCoordinator.go();
 	    controller.start();
 	    
     }    

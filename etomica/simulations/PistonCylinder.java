@@ -60,7 +60,7 @@ public class PistonCylinder extends SimulationGraphic {
         
 	    DisplayTimer timer = new DisplayTimer(integrator);
 	    timer.setUpdateInterval(10);
-		Simulation.instance.elementCoordinator.go();
+//		Simulation.instance.elementCoordinator.go();
 
 /*        DeviceSlider pressureSlider = new DeviceSlider((SpeciesPistonCylinder.PistonPressureField)phase.firstField(),"pressure");
         Simulation.instance.add(pressureSlider.graphic(null));

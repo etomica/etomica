@@ -123,7 +123,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         Species species = new Species(treeFactory);
         species.setNMolecules(1);
         treeFactory.makeAtom();
-        sim.elementCoordinator.go();
+//        sim.elementCoordinator.go();
         
         AtomIteratorTree iterator = new AtomIteratorTree();
         iterator.setRoot(phase.speciesMaster);

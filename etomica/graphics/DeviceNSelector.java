@@ -93,10 +93,10 @@ public class DeviceNSelector extends DeviceSlider {
         Controller controller = new Controller();
         DisplayPhase display = new DisplayPhase();
         
-        sim.elementCoordinator.go();
+//        sim.elementCoordinator.go();
         DeviceNSelector nSelector = new DeviceNSelector(phase.getAgent(species));
         nSelector.setDisplayPhase(display);
-        sim.elementCoordinator.go();
+//        sim.elementCoordinator.go();
         sim.makeAndDisplayFrame();
     }//end of main
     
