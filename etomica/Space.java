@@ -34,7 +34,7 @@ public abstract class Space {
         public void translateToward(Vector e, double amount);
         public void translateBy(Vector dr);
         public void displaceTo(Vector r);
-        public void displaceBy(Vector dr);
+//        public void displaceBy(Vector dr);
         public void displaceWithin(double d);
         public void displaceToRandom(Phase p);
         public void translateToRandom(Phase p);

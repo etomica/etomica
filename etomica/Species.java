@@ -35,7 +35,7 @@ import java.util.Enumeration;
      
 public abstract class Species extends Container {
 
-        Simulation2D ps0 = new Simulation2D();
+ //       Simulation2D ps0 = new Simulation2D();
 
     //No base-class constructor
           

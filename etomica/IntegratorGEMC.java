@@ -80,12 +80,12 @@ public class IntegratorGEMC extends Integrator {
         double r2Scale = Math.pow(v2Scale,1.0/(double)Simulation.D);
         firstPhase.inflate(r1Scale);
         secondPhase.inflate(r2Scale);
-        for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+/*        for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {  this is done by phase
             m.coordinate.inflate(r1Scale);
         }
         for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
             m.coordinate.inflate(r2Scale);
-        }
+        }*/
         double hNew = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/temperature+
@@ -94,13 +94,13 @@ public class IntegratorGEMC extends Integrator {
                 < rand.nextDouble()) 
             {  //reject
               firstPhase.inflate(1.0/r1Scale);
-              for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.coordinate.replace();
-              }
+//              for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+//                m.coordinate.replace();
+//              }
               secondPhase.inflate(1.0/r2Scale);
-              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.coordinate.replace();
-              }
+//              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+//                m.coordinate.replace();
+//              }
             }
     }
     

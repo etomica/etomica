@@ -70,9 +70,6 @@ public abstract class Integrator extends Container implements Observer, Serializ
   public final int getIntegrationInterval() {return integrationInterval;}
   public final void setIntegrationInterval(int interval) {integrationInterval = interval;}
   
-//  public final int getNeighborListUpdateInterval() {return neighborListUpdateInterval;}
-//  public final void setNeighborListUpdateInterval(int interval) {neighborListUpdateInterval = interval;}
-    
   public void registerPhase(Phase p) {
     if(phaseCount == phaseCountMax) {return;}
     phase[phaseCount] = p;
@@ -123,24 +120,24 @@ public abstract class Integrator extends Container implements Observer, Serializ
     public void run() {
         int ic = 0;
         int nSteps = 0;
+        int iieCount = integrationInterval;
         while(nSteps < maxSteps) {
             this.doStep(drawTimeStep);
-            integrationCount++;
-            if(integrationCount == Integer.MAX_VALUE) {integrationCount = 1;}
+//            integrationCount++;
+//            if(integrationCount == Integer.MAX_VALUE) {integrationCount = 1;}
 ///            if(integrationCount % neighborListUpdateInterval == 0) {
 ///                firstPhase.updateNeighbors();
 ///            }
-            if(integrationCount % integrationInterval == 0) {
-//                for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {p.space.repositionMolecules();}                
+//            if(integrationCount % integrationInterval == 0) {
+            if(--iieCount == 0) {
                 fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhase));
+                iieCount = integrationInterval;
             }
-//            for (int i=0; i<phaseCount; i++) {phase[i].repaint();}  //not needed now that displayConfiguration does painting
             if(doSleep) {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }
             }
             nSteps++;
-//            System.out.println(nSteps);
         }
         System.exit(0);
     }

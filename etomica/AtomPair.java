@@ -2,15 +2,17 @@ package simulate;
 
 public abstract class AtomPair {
     public Atom atom1, atom2;
+    public double r2;
+    public Potential potential;
     public abstract void reset();
     public abstract void reset(Atom a1, Atom a2);
-    public abstract double r2();
     public abstract double v2();
     public abstract double vDotr();
     public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
     public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
+    public final double r2() {return r2;}
     
     /**
      * Interface for classes that generate atom pairs according to various criteria
@@ -30,6 +32,46 @@ public abstract class AtomPair {
             public void reset(Atom a1, Atom a2, Atom a3, Atom a4);
             public void allDone();
         }
+        
+        public static class MP implements M {
+            private final Iterator.FMAM iteratorFMAM;
+            private final Phase phase;
+            private boolean hasNext;
+            private int index;       
+            private Potential2 p2;
+            private Species.Agent s1;
+            private AtomPair nextPair, thisPair;
+            public MP(Phase ps) {iteratorFMAM = new FMAM(ps); phase = ps; hasNext = false;} //constructor
+            public MP(Phase ps, Molecule m) {iteratorFMAM = new FMAM(ps,m); phase = ps; reset(m);}
+            public boolean hasNext() {return hasNext;}
+            public AtomPair next() {
+                thisPair = nextPair;
+                if(iteratorFMAM.hasNext()) {       //iterator has another for this species
+                    nextPair = iteratorFMAM.next();
+                    nextPair.potential = p2.getPotential(nextPair.atom1, nextPair.atom2);
+                }
+                else {                            //species used up; increment
+                    s1 = s1.nextSpecies();
+                    if(s1 == null) {hasNext = false;}  // no more species
+                    else {                             // next species
+                        p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][index];
+                        iteratorFMAM.reset(s1);
+                        nextPair = iteratorFMAM.next();   //assumes next species has a pair (this needs work)
+                        nextPair.potential = p2.getPotential(nextPair.atom1, nextPair.atom2);
+                    }
+                }
+                return thisPair;
+            }
+            public void reset(Molecule m) {
+                s1 = phase.firstSpecies();
+                iteratorFMAM.reset(m,s1);
+                index = m.parentSpecies.speciesIndex;
+                p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][index];
+                hasNext = iteratorFMAM.hasNext();
+                nextPair = iteratorFMAM.next();    //assumes has a next
+            }
+        }
+            
         
         /** Naming scheme for iterators:
          *    AM --> Pairs involve All Molecules in a species, which is passed to constructor and/or reset method

@@ -3,9 +3,9 @@ import java.awt.Container;
 import java.awt.Graphics;
 
 public abstract class Phase extends Container {
-    
+        
     protected final Space.Boundary boundary;
-    
+        
     public Phase(Space.Boundary b) {
         boundary = b;
         setLayout(null);
@@ -19,7 +19,7 @@ public abstract class Phase extends Container {
         kineticEnergy = new MeterKineticEnergy();
         kineticEnergy.setUpdateInterval(Integer.MAX_VALUE);    //change updateInterval if desired to use for averaging also
         add(potentialEnergy);
-//        add(kineticEnergy);
+        add(kineticEnergy);
     }
 
     public final Space.Boundary boundary() {return boundary;}
@@ -29,60 +29,63 @@ public abstract class Phase extends Container {
     public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
     public abstract AtomPair.Iterator.A makePairIteratorFull();
     public abstract AtomPair.Iterator.A makePairIteratorHalf();
-    
+        
     public abstract double volume();
     public abstract Space.Vector dimensions();
-    
-  public final Atom firstAtom() {
-     Molecule m = firstMolecule();
-     return (m != null) ? m.firstAtom() : null;
-  }
-  public final Atom lastAtom() {
-    Molecule m = lastMolecule();
-    return (m != null) ? m.lastAtom() : null;
-  }
-  public final Molecule firstMolecule() {
-    for(Species.Agent s=firstSpecies; s!=null; s=s.nextSpecies()) {
-        Molecule m = s.firstMolecule();
-        if(m != null) {return m;}
+    public abstract void inflate(double scale);
+    public abstract void reflate(double scale);
+    public abstract void paint(Graphics g, int[] origin, double scale); 
+                    
+    public final Atom firstAtom() {
+        Molecule m = firstMolecule();
+        return (m != null) ? m.firstAtom() : null;
     }
-    return null;
-  }
-  public final Molecule lastMolecule() {
-    for(Species.Agent s=lastSpecies; s!=null; s=s.previousSpecies()) {
-        Molecule m = s.lastMolecule();
-        if(m != null) {return m;}
+    public final Atom lastAtom() {
+        Molecule m = lastMolecule();
+        return (m != null) ? m.lastAtom() : null;
     }
-    return null;
-  }
-  public final Species.Agent firstSpecies() {return firstSpecies;}
-  public final Species.Agent lastSpecies() {return lastSpecies;}
-  public final Phase nextPhase() {return nextPhase;}
-  public final Phase previousPhase() {return previousPhase;}
- /**
-  * Sets the phase following this one in the linked list of phases.
-  * Does not link species/molecule/atoms of the Phases
-  *
-  * @param p the phase to be designated as this phase nextPhase
-  */
-  public final void setNextPhase(Phase p) {
-    this.nextPhase = p;
-    p.previousPhase = this;
-  }
-  
-  public final double getG() {return gravity.getG();}
-  public void setG(double g) {
-    gravity.setG(g);
-    noGravity = (g == 0.0);
-  }
-  
- /**
-  * Returns the temperature (in Kelvin) of this phase as computed via the equipartition
-  * theorem from the kinetic energy summed over all (atomic) degrees of freedom
-  */  
-  public double kineticTemperature() {
-    return (2./(double)(atomCount*parentSimulation.space.D()))*kineticEnergy.currentValue()*Constants.KE2T;
-  }
+    public final Molecule firstMolecule() {
+        for(Species.Agent s=firstSpecies; s!=null; s=s.nextSpecies()) {
+            Molecule m = s.firstMolecule();
+            if(m != null) {return m;}
+        }
+        return null;
+    }
+    public final Molecule lastMolecule() {
+        for(Species.Agent s=lastSpecies; s!=null; s=s.previousSpecies()) {
+            Molecule m = s.lastMolecule();
+            if(m != null) {return m;}
+        }
+        return null;
+    }
+    public final Species.Agent firstSpecies() {return firstSpecies;}
+    public final Species.Agent lastSpecies() {return lastSpecies;}
+    public final Phase nextPhase() {return nextPhase;}
+    public final Phase previousPhase() {return previousPhase;}
+    /**
+    * Sets the phase following this one in the linked list of phases.
+    * Does not link species/molecule/atoms of the Phases
+    *
+    * @param p the phase to be designated as this phase nextPhase
+    */
+    public final void setNextPhase(Phase p) {
+        this.nextPhase = p;
+        p.previousPhase = this;
+    }
+          
+    public final double getG() {return gravity.getG();}
+    public void setG(double g) {
+        gravity.setG(g);
+        noGravity = (g == 0.0);
+    }
+          
+    /**
+    * Returns the temperature (in Kelvin) of this phase as computed via the equipartition
+    * theorem from the kinetic energy summed over all (atomic) degrees of freedom
+    */  
+    public double kineticTemperature() {
+        return (2./(double)(atomCount*parentSimulation.space.D()))*kineticEnergy.currentValue()*Constants.KE2T;
+    }
 
     public void add(Configuration c){
         c.parentPhase = this;
@@ -91,7 +94,7 @@ public abstract class Phase extends Container {
             configuration.add(s);
         }
     }
-    
+            
 	public void add(Meter m) {
 	    if(lastMeter != null) {lastMeter.setNextMeter(m);}
 	    else {firstMeter = m;}
@@ -103,7 +106,7 @@ public abstract class Phase extends Container {
 	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
 	    }
 	}
-	
+        	
     public void add(Species.Agent species) {
 //        species.configurationMolecule.initializeCoordinates();
         configuration.add(species);
@@ -113,14 +116,14 @@ public abstract class Phase extends Container {
         for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
     }
-    
+            
     public void add(Species s) {  //add species to phase if it doesn't appear in another phase
         s.parentSimulation = this.parentSimulation;
         Species.Agent agent = s.makeAgent(this);
         agent.setNMolecules(20);
         add(agent);
     }
-                
+                        
 	// Returns ith meter in linked list of meters, with i=0 being the first meter
 	public Meter getMeter(int i) {
 	    if(i >= meterCount) {return null;}
@@ -129,61 +132,55 @@ public abstract class Phase extends Container {
         return m;
     }
 
-    public abstract void inflate(double scale);
-
-    
-    public abstract void paint(Graphics g, int[] origin, double scale); 
-    
-  
     public void updateCounts() {
         moleculeCount = 0;
         atomCount = 0;
         for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
     }
-    
- /**
-  * Object used to describe presence and magnitude of constant gravitational acceleration
-  */
-  public Gravity gravity;
-  public boolean noGravity = true;
-    
- /**
-  * First species in the linked list of species in this phase.
-  */
-   private Species.Agent firstSpecies;
- 
- /**
-  * Last species in the linked list of species in this phase.
-  */
-  Species.Agent lastSpecies;
-  
- /**
-  * Total number of atoms in this phase
-  */
-  public int atomCount;
- 
- /**
-  * Total number of molecules in this phase
-  *
-  * @see Species#addMolecule
-  * @see Species#deleteMolecule
-  */
-  public int moleculeCount;
-     
-  Simulation parentSimulation;
-  Meter firstMeter, lastMeter;
-  private int meterCount = 0;
-  
-  public Configuration configuration;
-  
-  private Phase nextPhase;
-  private Phase previousPhase;
-  
-  public Integrator integrator;
-  
-  public MeterPotentialEnergy potentialEnergy;
-  public MeterKineticEnergy kineticEnergy;
-    
+            
+    /**
+    * Object used to describe presence and magnitude of constant gravitational acceleration
+    */
+    public Gravity gravity;
+    public boolean noGravity = true;
+            
+    /**
+    * First species in the linked list of species in this phase.
+    */
+    private Species.Agent firstSpecies;
+         
+    /**
+    * Last species in the linked list of species in this phase.
+    */
+    Species.Agent lastSpecies;
+          
+    /**
+    * Total number of atoms in this phase
+    */
+    public int atomCount;
+         
+    /**
+    * Total number of molecules in this phase
+    *
+    * @see Species#addMolecule
+    * @see Species#deleteMolecule
+    */
+    public int moleculeCount;
+             
+    Simulation parentSimulation;
+    Meter firstMeter, lastMeter;
+    private int meterCount = 0;
+          
+    public Configuration configuration;
+          
+    private Phase nextPhase;
+    private Phase previousPhase;
+          
+    public Integrator integrator;
+          
+    public MeterPotentialEnergy potentialEnergy;
+    public MeterKineticEnergy kineticEnergy;
+        
 }
-    
+        

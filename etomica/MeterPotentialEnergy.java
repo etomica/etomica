@@ -7,6 +7,7 @@ public class MeterPotentialEnergy extends simulate.Meter
   AtomPair.Iterator.AMAM iteratorAMAM;
   AtomPair.Iterator.A iteratorAFull;
   AtomPair.Iterator.FMAM iteratorFMAM;
+  AtomPair.Iterator.MP iteratorMP;
   
   public MeterPotentialEnergy() {
     super();
@@ -19,6 +20,7 @@ public class MeterPotentialEnergy extends simulate.Meter
     iteratorAMAM = new AtomPair.Iterator.AMAM(p);
     iteratorAFull = p.makePairIteratorFull();
     iteratorFMAM = new AtomPair.Iterator.FMAM(p);
+    iteratorMP = new AtomPair.Iterator.MP(p);
   }
     
 
@@ -116,7 +118,13 @@ public class MeterPotentialEnergy extends simulate.Meter
   */
     public final double insertionValue(Molecule m) {
 
-      iteratorFMAM.reset(m);
+        iteratorMP.reset(m);
+        double pe = 0.0;
+        while(iteratorMP.hasNext()) {
+            AtomPair pair = iteratorMP.next();
+            pe += pair.potential.energy(pair);
+        }
+/*      iteratorFMAM.reset(m);
       int index = m.parentSpecies.speciesIndex;                 
       double pe = 0.0;
       for(Species.Agent s1=phase.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
@@ -126,7 +134,7 @@ public class MeterPotentialEnergy extends simulate.Meter
             AtomPair pair = iteratorFMAM.next();
             pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
-      }
+      }*/
       return pe;
     }
 

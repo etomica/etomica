@@ -25,7 +25,18 @@ public class Space2D extends Space {
 //            boundary = b;
         }
         public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
-        public void inflate(double scale) {boundary.inflate(scale);}
+        public void inflate(double scale) {
+            boundary.inflate(scale);
+            for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
+                m.coordinate.inflate(scale);
+            }
+        }
+        public void reflate(double scale) {
+            boundary.inflate(1.0/scale);
+            for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
+                m.coordinate.replace();
+            }
+        }
         public final Space.Vector dimensions() {return boundary.dimensions();}
         public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull((Boundary)boundary,iF,iL,oF,oL);}
         public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf((Boundary)boundary,iL,oF,oL);}
@@ -184,19 +195,18 @@ public class Space2D extends Space {
 //                dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
             boundary.apply(dr);
             drx = dr.x; dry = dr.y;
+            r2 = drx*drx + dry*dry;
             atom1 = c1.atom;
             atom2 = c2.atom;
             double rm1 = atom1.type.rm();
             double rm2 = atom2.type.rm();
- //           double rm1 = 1.0;
- //           double rm2 = 1.0;
             dvx = rm2*c2.p.x - rm1*c1.p.x;
-            dvy = rm2*c2.p.y - rm1*c1.p.y;
+            dvy = rm2*c2.p.y - rm1*c1.p.y;  
         }
                 
-        public double r2() {
-            return drx*drx + dry*dry;
-        }
+//        public double r2() {
+//            return drx*drx + dry*dry;
+//        }
         public double v2() {
             double rm1 = c1.atom.type.rm();
             double rm2 = c2.atom.type.rm();
@@ -258,19 +268,6 @@ public class Space2D extends Space {
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
-    public static final class VectorInt {  //declared final for efficient method calls
-        int x, y;
-        public VectorInt () {x = 0; y = 0;}
-        public VectorInt (int a1, int a2) {x = a1; y = a2;}
-        public void E(VectorInt u) {x = u.x; y = u.y;}
-        public void E(int a) {x = a; y = a;}
-        public void PE(VectorInt u) {x += u.x; y += u.y;}
-        public void TE(int a) {x *= a; y *= a;}
-        public void DE(int a) {x /= a; y /= a;}
-        public int squared() {return (x*x + y*y);}
-        public int dot(VectorInt u) {return x*u.x + y*u.y;}
-    }
-    
     static abstract class Coordinate implements Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
@@ -286,6 +283,39 @@ public class Space2D extends Space {
         private final Vector temp = new Vector();
         
         public void translateTo(Space.Vector u) {translateTo((Vector)u);}      
+        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
+        public void translateToward(Space.Vector u, double d) {translateToward((Vector)u,d);}
+        public void displaceTo(Space.Vector u) {displaceTo((Vector)u);}  //want to eliminate these casts
+        public void displaceBy(Space.Vector u) {displaceBy((Vector)u);}
+        public void accelerate(Space.Vector u) {accelerate((Vector)u);}
+        public void accelerateToward(Space.Vector u, double d) {accelerateToward((Vector)u,d);}
+        
+        public void translateToward(Vector u, double d) {r.x += d*u.x; r.y += d*u.y;}
+        public void displaceWithin(double d) {rLast.x = r.x; rLast.y = r.y; r.randomStep(d);}
+        public void translateTo(Vector u) {r.x = u.x; r.y = u.y;}      
+        public void translateBy(Vector u) {r.x += u.x; r.y += u.y;}  //no PBC is routinely applied
+        public void displaceTo(Vector u) {rLast.x = r.x; rLast.y = r.y; r.x = u.x; r.y = u.y;}  
+        public void displaceBy(Vector u) {rLast.x = r.x; rLast.y = r.y; r.x += u.x; r.y += u.y;}
+        public void displaceToRandom(simulate.Phase p) {displaceTo(p.boundary().randomPosition());}
+        public void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
+        public void accelerateBy(Vector u) {p.x += u.x; p.y += u.y;}
+        public void accelerateToward(Vector u, double d) {p.x += d*u.x; p.y += d*u.y;}
+        public void replace() {r.x = rLast.x; r.y = rLast.y;}
+        public void inflate(double s) {r.x *= s; r.y *= s;}
+        public double kineticEnergy() {return 0.5*(p.x*p.x + p.y*p.y)*atom.type.rm();}
+        public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+            double momentum = Math.sqrt(atom.mass()*temperature*(double)D/Constants.KE2T);  //need to divide by sqrt(m) to get velocity
+            p.randomDirection();
+            p.TE(momentum);
+        }
+        public void scaleMomentum(double scale) {p.x *= scale; p.y *= scale;}
+        public Space.Vector position() {return r;}
+        public Space.Vector momentum() {return p;}
+        public double position(int i) {return r.component(i);}
+        public double momentum(int i) {return p.component(i);}
+        public Space.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
+
+/*        public void translateTo(Space.Vector u) {translateTo((Vector)u);}      
         public void translateBy(Space.Vector u) {r.PE((Vector)u);}
         public void translateToward(Space.Vector u, double d) {translateToward((Vector)u,d);}
         public void translateToward(Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
@@ -318,7 +348,7 @@ public class Space2D extends Space {
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
         public Space.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
-        
+      */  
         //following methods are same in all Space classes
         public Space.AtomCoordinate nextCoordinate() {return nextCoordinate;}
         public Space.AtomCoordinate previousCoordinate() {return previousCoordinate;}

@@ -18,21 +18,21 @@ public class SpeciesDisks extends Species {
     * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
     */
 //    public SpeciesDisks(Simulation ps) {
-    public SpeciesDisks() {
-        this(20,1);
-    }
-              
-    public SpeciesDisks(Simulation ps) {
-        this(20,1);
-    }
-    public SpeciesDisks(int nM, int nA) {
-        this(nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
-    }
-//    public SpeciesDisks(Simulation ps, int nM, int nA) {
-//        this(ps, nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
+//    public SpeciesDisks() {
+//        this(20,1);
 //    }
               
-    public SpeciesDisks(int nM, int nA, AtomType.Disk type) {
+    public SpeciesDisks(Simulation ps) {
+        this(ps,20,1);
+    }
+ //   public SpeciesDisks(int nM, int nA) {
+ //       this(nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
+ //   }
+    public SpeciesDisks(Simulation ps, int nM, int nA) {
+        this(ps, nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
+    }
+              
+/*    public SpeciesDisks(int nM, int nA, AtomType.Disk type) {
         super();
         parentSimulation = ps0;
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
@@ -40,9 +40,9 @@ public class SpeciesDisks extends Species {
         atomsPerMolecule = nA;
 //        setNMolecules(nM);
             
-        colorScheme = new ColorSchemeNull();
+        colorScheme = new ColorSchemeByType();
         this.add(new ConfigurationMoleculeLinear());
-    }
+    }*/
     public SpeciesDisks(Simulation ps, int nM, int nA, AtomType.Disk type) {
         parentSimulation = ps;
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
@@ -50,7 +50,7 @@ public class SpeciesDisks extends Species {
         atomsPerMolecule = nA;
 //        setNMolecules(nM);
             
-        colorScheme = new ColorSchemeNull();
+        colorScheme = new ColorSchemeByType();
         this.add(new ConfigurationMoleculeLinear());
     }
 
