@@ -17,7 +17,15 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 	 */
 	public AccumulatorAverage() {
 		super();
-		reset();
+		setNData(0);
+		setBlockSize(blockSize);
+	}
+	
+	public void setBlockSize(int blockSize) {
+		this.blockSize = blockSize;
+	}
+	public int getBlockSize() {
+		return blockSize;
 	}
 
     /**
@@ -65,7 +73,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 	 */
     public double[] error() {
     	if(count > 1) {
-           	for(int i=nDataMinus1; i>=0; i--) {       		
+           	for(int i=nDataMinus1; i>=0; i--) {
 		        double avg = sum[i]/(double)count;	    		
 		        error[i] = Math.sqrt((sumSquare[i]/(double)count - avg*avg)/(double)(count-1));	    		
 	    	}
@@ -103,10 +111,10 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
        	return mostRecentBlock;
     }
 	
-	private void setNaN(double[] x) {
+	protected void setNaN(double[] x) {
 		for(int i=x.length-1; i>=0; i--) x[i] = Double.NaN;
 	}
-	private void setZero(double[] x) {
+	protected void setZero(double[] x) {
 		for(int i=x.length-1; i>=0; i--) x[i] = 0.0;
 	}
 	        
@@ -124,13 +132,15 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
         setNaN(mostRecentBlock);
     }
     
-    private void setNData(int nData) {
+    protected void setNData(int nData) {
     	this.nData = nData;
     	nDataMinus1 = nData-1;
     	sum = redimension(nData, sum);
     	sumSquare = redimension(nData, sumSquare);
+    	standardDeviation = redimension(nData, standardDeviation);
     	average = redimension(nData, average);
     	error = redimension(nData, error);
+    	blockSum = redimension(nData, blockSum);
     	mostRecent = redimension(nData, mostRecent);
     	mostRecentBlock = redimension(nData, mostRecentBlock);
     	if(!saveOnRedimension) reset();
@@ -142,9 +152,9 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
      * Truncates or pads with zeros as needed, and returns the
      * resized array.  Used by setNData.
      */
-    private double[] redimension(int n, double[] old) {
+    protected double[] redimension(int n, double[] old) {
     	double[] newArray = new double[n];
-    	if(saveOnRedimension) {
+    	if(saveOnRedimension && old != null) {
     		int k = (n > old.length) ? old.length : n;
     		for(int i=0; i<k; i++) {
     			newArray[i] = old[i];
@@ -183,7 +193,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 	 */
 	public static class Type extends etomica.DataType {
         private Type(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public Constants.TypedConstant[] choices() {return CHOICES;}
     }//end of ValueType
     private static final Type[] CHOICES = 
         new Type[] {
@@ -211,14 +221,14 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 		if(saveOnRedimension) throw new IllegalArgumentException("Save on redimension not yet implemented correctly");
 	}
 	
-    private double[] sum, sumSquare, blockSum;
-    private double[] mostRecent;
-    private double[] mostRecentBlock;
-    private double[] average, error, standardDeviation;
-    private int count, blockCountDown;
-    private int blockSize;
-    private int nDataMinus1;
-    private boolean saveOnRedimension = false;
+    protected double[] sum, sumSquare, blockSum;
+    protected double[] mostRecent;
+    protected double[] mostRecentBlock;
+    protected double[] average, error, standardDeviation;
+    protected int count, blockCountDown;
+    protected int blockSize;
+    protected int nDataMinus1;
+    protected boolean saveOnRedimension = false;
 
     public DataTranslator getTranslator() {
     	return DataTranslator.IDENTITY;
