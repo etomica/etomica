@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.Atom;
 import etomica.Space;
-import etomica.Space.Tensor;
+import etomica.space.Tensor;
 
 /**
  * Interface for hard potentials, having impulsive forces.
@@ -26,7 +26,7 @@ public interface PotentialHard {
      * 
      * @return Tensor
      */
-    public Space.Tensor lastCollisionVirialTensor();
+    public Tensor lastCollisionVirialTensor();
 
     /**
      * Implements the collision dynamics. The given atom(s) is assumed to be at

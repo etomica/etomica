@@ -24,7 +24,7 @@ public class PhaseCluster extends Phase {
 	 */
 	public PhaseCluster(SimulationElement parent) {
 		super(parent);
-		setBoundary(space.makeBoundary(etomica.Space3D.Boundary.NONE));	
+		setBoundary(space.makeBoundary(etomica.space3d.Boundary.NONE));	
 	}
 	
 	public PairSet getPairSet() {

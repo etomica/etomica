@@ -7,6 +7,10 @@ import etomica.atom.iterator.AtomIteratorTree;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
+import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.space2d.BoundaryNone;
 import etomica.units.Bar;
 import etomica.units.BaseUnit;
 import etomica.units.Dimension;
@@ -21,17 +25,17 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement, Constants {
+public class SpeciesPistonCylinder extends SpeciesWalls implements Boundary.Maker, EtomicaElement, Constants {
 
     //making static as a hack until direction can be associated with each molecule
     public static Constants.Direction direction = TOP;
-    Space2D.Vector dimensions = new Space2D.Vector();
+    Vector dimensions = new Vector();
     private Atom piston;
     
    /**
     * Vector giving the unit normal to the piston, away from the inside of the cylinder.
     */
-    private Space2D.Vector unitNormal = new Space2D.Vector();
+    private Vector unitNormal = new Vector();
     private int thickness = 4;  //cylinder walls thickness in pixels
     private int pistonThickness = 8;//piston thickness
     private double diameter = 30.0;//diameter of cylinder
@@ -148,20 +152,20 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Returns a new Boundary object suitable for use with this species.
    * Boundary is not periodic.
    */
-  public Space.Boundary makeBoundary(Space.Boundary.Type t) {
+  public Boundary makeBoundary(Boundary.Type t) {
     if(t != BOUNDARY) {throw new IllegalArgumentException();}
     return this.new Boundary();
   }
   /**
    * Returns a single-element array containing the type indicating a Piston-cylinder boundary.
    */
-  public Space.Boundary.Type[] boundaryTypes() {return new Space.Boundary.Type[] {BOUNDARY};}
+  public Boundary.Type[] boundaryTypes() {return new Boundary.Type[] {BOUNDARY};}
   /**
    * Returns true.
    */
   public boolean requiresSpecialBoundary() {return true;}
-  public static final Space.Boundary.Type BOUNDARY = 
-    new Space2D.Boundary.Type("Piston-cylinder") {
+  public static final Boundary.Type BOUNDARY = 
+    new Boundary.Type("Piston-cylinder") {
         public Constants.TypedConstant[] choices() {return new Constants.TypedConstant[] {this};}
     };
   
@@ -172,7 +176,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     //XXX this class probably doesn't work.  enjoy!
   public final class PistonPressureField extends Potential1 implements PotentialSoft, PotentialHard {
     private double pressure = 0.0;
-    private Space.Vector gradientVector = space.makeVector();
+    private Vector gradientVector = space.makeVector();
     private double force = 0.0;
     private PistonIterator iterator;
 //    public PistonPressureField() {this(space);}
@@ -206,7 +210,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      * Potential gradient as computed from current pressure and piston diameter, 
      * and direction of piston-cylinder system.
      */
-    public Space.Vector gradient(Atom[] a) {
+    public Vector gradient(Atom[] a) {
         gradientVector.Ea1Tv1(-force,unitNormal);
  //       System.out.println(gradientVector.toString());
         return gradientVector;
@@ -234,7 +238,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     
     public double lastCollisionVirial() {return 0.0;}
     
-    public Space.Tensor lastCollisionVirialTensor() {return null;}
+    public Tensor lastCollisionVirialTensor() {return null;}
     public double energy(Atom[] pair) {return 0.0;}
     public double collisionTime(Atom[] pair) {return Double.MAX_VALUE;}
   }//end of PistonPressureField
@@ -340,11 +344,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      * Dimension of boundary are given by fixed length and diameter of cylinder, while volume
      * of boundary fluctuates according to the position of the piston.
      */
-    public class Boundary extends Space2D.BoundaryNone {
+    public class Boundary extends BoundaryNone {
         
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
-        public Space.Vector dimensions() {return SpeciesPistonCylinder.this.dimensions;}
+        public Vector dimensions() {return SpeciesPistonCylinder.this.dimensions;}
         public double volume() {
             AtomTreeNodeGroup node = (AtomTreeNodeGroup)getAgent(this.phase()).firstMolecule().node;
             int index20 = (direction==TOP || direction==BOTTOM) ? 1 : 0;

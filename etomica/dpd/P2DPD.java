@@ -14,6 +14,7 @@ import etomica.Default;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.space.Vector;
 
 /**
  * The potential used for dissipative particle dynamic simulations.
@@ -29,7 +30,7 @@ public class P2DPD extends Potential2 implements Potential2Soft, EtomicaElement 
 	double temperature = Default.TEMPERATURE;
 	double timeStep = Default.TIME_STEP;
 	double constR;      //temperature-dependent constant appearing in random force
-	Space.Vector rHat, fDissipative, fConservative, fRandom, grad;
+	Vector rHat, fDissipative, fConservative, fRandom, grad;
 	double bondStrength = 10.0;
 	
 	public String getVersion() {return "P2DPD:03.04.25/"+etomica.potential.VERSION;}

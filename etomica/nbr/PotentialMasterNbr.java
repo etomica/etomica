@@ -30,6 +30,7 @@ import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
+import etomica.space.Vector;
 import etomica.utility.Arrays;
 
 /**
@@ -223,7 +224,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     public static class MyIterator extends AtomIteratorArrayList {
         
         public Atom nextAtom() {
-            nearestImageTransformer.setNearestImageVector((Space.Vector)vector.get(cursor));
+            nearestImageTransformer.setNearestImageVector((Vector)vector.get(cursor));
             Atom atom = super.nextAtom();
             return atom;
         }

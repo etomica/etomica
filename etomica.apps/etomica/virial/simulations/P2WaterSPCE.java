@@ -1,6 +1,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.space.Vector;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.*;
@@ -31,12 +32,12 @@ public class P2WaterSPCE extends Potential2 implements Potential2Soft {
 		AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair.atom2().node;
 		
 		//compute O-O distance to consider truncation	
-		Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
-		Space3D.Vector O2r = (Space3D.Vector)node2.O.coord.position();
-		Space3D.Vector H11r = (Space3D.Vector)node1.H1.coord.position();
-		Space3D.Vector H12r = (Space3D.Vector)node1.H2.coord.position();
-		Space3D.Vector H21r = (Space3D.Vector)node2.H1.coord.position();
-		Space3D.Vector H22r = (Space3D.Vector)node2.H2.coord.position();
+		Vector O1r = (Vector)node1.O.coord.position();
+		Vector O2r = (Vector)node2.O.coord.position();
+		Vector H11r = (Vector)node1.H1.coord.position();
+		Vector H12r = (Vector)node1.H2.coord.position();
+		Vector H21r = (Vector)node2.H1.coord.position();
+		Vector H22r = (Vector)node2.H2.coord.position();
         
         final double core = 0.1;
         				

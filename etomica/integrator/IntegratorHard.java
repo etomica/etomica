@@ -11,11 +11,11 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.CoordinatePair;
-import etomica.Space.Vector;
 import etomica.atom.AtomArrayList;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
+import etomica.space.CoordinatePair;
+import etomica.space.Vector;
 import etomica.utility.TreeLinker;
 import etomica.utility.TreeList;
 
@@ -43,8 +43,8 @@ public class IntegratorHard extends IntegratorMD {
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     private Atom[] atoms;
-    Space.Vector c3;
-    Space.CoordinatePair cPairDebug;
+    Vector c3;
+    CoordinatePair cPairDebug;
 
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);

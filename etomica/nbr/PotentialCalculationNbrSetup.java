@@ -12,6 +12,7 @@ import etomica.Potential;
 import etomica.Space;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.potential.PotentialCalculation;
+import etomica.space.Vector;
 
 /**
  * PotentialCalculation that performs setup of neighbor lists.  Takes all pair iterates
@@ -54,7 +55,7 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();
-            Space.Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
+            Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
 			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential, nearestImageVector);

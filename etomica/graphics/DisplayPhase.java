@@ -1,10 +1,12 @@
 package etomica.graphics;
 import etomica.*;
+
 import java.awt.*;
 import java.awt.event.*;
 
 import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.space.Vector;
 import etomica.units.BaseUnit;
 
 //Java2 imports
@@ -386,7 +388,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
      */
     private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener,  java.io.Serializable {
         
-        Space.Vector point;
+        Vector point;
         DisplayPhaseEvent dpe;
         
         //not yet configured to do molecule selections

@@ -1,6 +1,7 @@
 package etomica.lattice.crystal;
 import etomica.*;
 import etomica.lattice.Basis;
+import etomica.space.Vector;
 
 /**
  * A 2-atom basis that makes a hcp crystal on a BravaisLattice
@@ -26,7 +27,7 @@ public class BasisHcp implements Basis {
      */
     public BasisHcp(PrimitiveHexagonal primitive) {
         this.primitive = primitive;
-        coordinates = new Space.Vector[2];
+        coordinates = new Vector[2];
         coordinates[0] = Space.makeVector(3);
         coordinates[1] = Space.makeVector(3);
     }
@@ -39,8 +40,8 @@ public class BasisHcp implements Basis {
      * Calculates coordinates by multiplying scaled coordinates by scalar
      * size (lattice constant) of the cubic primitive.
      */
-    public Space.Vector[] positions() {
-        Space.Vector[] a = primitive.vectors();
+    public Vector[] positions() {
+        Vector[] a = primitive.vectors();
         coordinates[1].Ea1Tv1(factors[0], a[0]);
         coordinates[1].PEa1Tv1(factors[1], a[1]);
         coordinates[1].PEa1Tv1(factors[2], a[2]);
@@ -50,6 +51,6 @@ public class BasisHcp implements Basis {
     private static final double[] factors = new double[] {1./3., 1./3., 0.5};
 
     private PrimitiveHexagonal primitive;
-    private Space.Vector[] coordinates;
+    private Vector[] coordinates;
 
 }//end of BasisHcp

@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.Vector;
 
 /**
  * General class for assignment of coordinates to a group of atoms.
@@ -60,7 +61,7 @@ public abstract class Configuration implements java.io.Serializable {
     public void initializeMomenta(Atom atom, double temperature) {
         atom.coord.randomizeMomentum(temperature);
         if(zeroTotalMomentum) {
-            Space.Vector zero = (Space.Vector)atom.coord.position().clone();
+            Vector zero = (Vector)atom.coord.position().clone();
             zero.E(0.0);
             atom.coord.accelerateTo(zero);
         }
@@ -98,11 +99,11 @@ public abstract class Configuration implements java.io.Serializable {
         initializePositions(iterators);
     }
 
-    public static Space1D.Vector[] lineLattice(int n, double Lx) {
-        Space1D.Vector[] r = new Space1D.Vector[n];
+    public static Vector[] lineLattice(int n, double Lx) {
+        Vector[] r = new Vector[n];
         double delta = Lx/n;
         for(int i=0; i<n; i++) {
-            r[i] = new Space1D.Vector();
+            r[i] = new Vector();
             r[i].setX(0, (i+0.5)*delta);
         }
         return r;
@@ -115,9 +116,9 @@ public abstract class Configuration implements java.io.Serializable {
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public final static Space2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        Space2D.Vector[] r = new Space2D.Vector[n];
-        for(int i=0; i<n; i++) {r[i] = new Space2D.Vector();}
+    public final static Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+        Vector[] r = new Vector[n];
+        for(int i=0; i<n; i++) {r[i] = new Vector();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;
@@ -164,17 +165,17 @@ public abstract class Configuration implements java.io.Serializable {
 	    return r;
     }//end of squareLattice
  
-	public final static Space2D.Vector[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
-		Space2D.Vector[] r = new Space2D.Vector[n];
+	public final static Vector[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
+		Vector[] r = new Vector[n];
 		if(n == 0) return r;
-		Space2D.Vector com = new Space2D.Vector();
+		Vector com = new Vector();
 		com.E(0.0); // later becomes present Center of Mass
-		Space2D.Vector dcom = new Space2D.Vector();
+		Vector dcom = new Vector();
 		dcom.E(0.0); // difference in Present COM and Original COM
-		Space2D.Vector ocom = new Space2D.Vector();
+		Vector ocom = new Vector();
 		ocom.setX(0, Lx);ocom.setX(1, Ly); ocom.TE(0.5); // Original Center Of Mass
                         
-		for(int i=0; i<n; i++) {r[i] = new Space2D.Vector();}
+		for(int i=0; i<n; i++) {r[i] = new Vector();}
 
 		int moleculeColumns, moleculeRows;
 		double moleculeInitialSpacingX, moleculeInitialSpacingY;

@@ -2,6 +2,7 @@ package etomica.lattice.crystal;
 
 import etomica.Space;
 import etomica.lattice.Basis;
+import etomica.space.Vector;
 
 /**
  * Single-atom basis with the coordinate at the origin.
@@ -14,7 +15,7 @@ public class BasisMonatomic implements Basis {
      * @param D the spatial dimension of the crystal
      */
     public BasisMonatomic(int D) {
-        coordinates = new Space.Vector[] {Space.makeVector(D)};
+        coordinates = new Vector[] {Space.makeVector(D)};
     }
     	
 	/**
@@ -28,9 +29,9 @@ public class BasisMonatomic implements Basis {
     /**
      * Returns an array with a single vector at the origin.
      */
-    public Space.Vector[] positions() {
+    public Vector[] positions() {
         return coordinates;
     }
 
-    private Space.Vector[] coordinates;
+    private Vector[] coordinates;
 }

@@ -3,6 +3,7 @@ import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
+import etomica.space.Vector;
 
 /**
  * Primitive group for an orthorhombic system.  All primitive
@@ -125,7 +126,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         update();
     }        
     
-    public int[] latticeIndex(Space.Vector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -133,7 +134,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         return idx;
     }
 
-    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

@@ -13,6 +13,7 @@ import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Space;
 import etomica.graphics.SimulationGraphic;
+import etomica.space.Vector;
 
 /**
  * Basic implementation of the AbstractLattice interface, providing construction
@@ -223,7 +224,7 @@ public class RectangularLattice implements FiniteLattice {
             cursor = Integer.MAX_VALUE;
             period = Space.makeVector(D);
             period.E(1.0);
-            nearestImageVectors = new Space.Vector[Math.round((float)Math.pow(3,D))];
+            nearestImageVectors = new Vector[Math.round((float)Math.pow(3,D))];
             for (int i=0; i<nearestImageVectors.length; i++) {
                 nearestImageVectors[i] = Space.makeVector(D);
             }
@@ -292,7 +293,7 @@ public class RectangularLattice implements FiniteLattice {
             }
             halfNeighborCount = (halfNeighborCount-1)/2;
             neighbors = new int[2*halfNeighborCount];
-            pbc = new Space.Vector[2*halfNeighborCount+1];
+            pbc = new Vector[2*halfNeighborCount+1];
             for(int i=0; i<pbc.length; i++) {
                 pbc[i] = Space.makeVector(D);
             }
@@ -333,7 +334,7 @@ public class RectangularLattice implements FiniteLattice {
             return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
         }
         
-        public Space.Vector getNearestImageVector() {
+        public Vector getNearestImageVector() {
             return pbc[cursor];
         }
         
@@ -507,7 +508,7 @@ public class RectangularLattice implements FiniteLattice {
          * the vector returned by the currentPbc method.
          * @param newPeriod values of new period are copied to internal vector
          */
-        public void setPeriod(Space.Vector newPeriod) {
+        public void setPeriod(Vector newPeriod) {
             if(period.equals(newPeriod)) return;
             
             period.E(newPeriod);
@@ -583,9 +584,9 @@ public class RectangularLattice implements FiniteLattice {
         private int neighborCount, halfNeighborCount;
         private boolean doUp, doDown;
         private IteratorDirective.Direction direction;
-        private Space.Vector[] pbc;
-        private final Space.Vector period;
-        private final Space.Vector[] nearestImageVectors;
+        private Vector[] pbc;
+        private final Vector period;
+        private final Vector[] nearestImageVectors;
         private int nearestImageVectorCursor;
         private int[] cursorJump;
     }//end of NeighborIterator

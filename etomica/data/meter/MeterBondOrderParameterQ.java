@@ -7,11 +7,11 @@ import etomica.EtomicaInfo;
 import etomica.MeterAbstract;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.CoordinatePair;
-import etomica.Space.Vector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.math.SphericalHarmonics;
+import etomica.space.CoordinatePair;
+import etomica.space.Vector;
 import etomica.units.*;
 import etomica.utility.*;
 
@@ -57,7 +57,7 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
         	double r2 = cPair.r2();
             if(r2 < r2Cut) {
                 nbSum += 2;
-                Space.Vector rVec = cPair.dr();
+                Vector rVec = cPair.dr();
                 rVec.sphericalCoordinates(rThetaPhi);
                 double theta = rThetaPhi[1];
                 double phi = rThetaPhi[2];
@@ -130,7 +130,7 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
     private double[] rThetaPhi = new double[3];
     private final double[] value = new double[1];
     private double coeff;
-    private final Space.CoordinatePair cPair;
+    private final CoordinatePair cPair;
     
 
 /*    public static void main(String[] args) {

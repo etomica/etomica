@@ -6,7 +6,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 
 /**
  * @author David Kofke
@@ -16,7 +16,7 @@ import etomica.Space.Vector;
 public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
 
 	private final int D;
-	private final Space.Vector gradient;
+	private final Vector gradient;
 	private double radius, radius2;
 	private double cutoff = Double.MAX_VALUE;
 	private Atom atom;
@@ -39,7 +39,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
     
 	public double energy(Atom[] a) {
 		atom = a[0];
-		Space.Vector dimensions = atom.node.parentPhase().dimensions();
+		Vector dimensions = atom.node.parentPhase().dimensions();
 		double rx = atom.coord.position(0);
 		double ry = atom.coord.position(1);
 		double dx1 = (dimensions.x(0) - rx);
@@ -61,9 +61,9 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 		return -12*r6*r6/r;
 	}
 	
-	public Space.Vector gradient(Atom[] a) {
+	public Vector gradient(Atom[] a) {
 		atom = a[0];
-		Space.Vector dimensions = boundary.dimensions();
+		Vector dimensions = boundary.dimensions();
 		double rx = atom.coord.position(0);
 		double ry = atom.coord.position(1);
 		double dx1 = (dimensions.x(0) - rx);

@@ -18,6 +18,8 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.utility.java2.Iterator;
 
     /* History of changes
@@ -67,7 +69,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private float prevx, prevy, xRot = 0f, yRot = 0f;
   //Centers the phase in the canvas
   private float xCenter, yCenter, zCenter;
-  private Space3D.Vector center = new Space3D.Vector();
+  private Vector center = new Vector();
 
   //The groups of atoms
   private Atom sphereCores[];
@@ -90,7 +92,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private long T0 = 0, Frames = 0;
   private java.awt.Color c;
   private etomica.Atom a;
-  private Space.Vector r;
+  private Vector r;
   private int i, j, k;
   private float drawExpansionShiftX = 0f, drawExpansionShiftY = 0f, drawExpansionShiftZ = 0f;
   //private TextField scaleText = new TextField();
@@ -258,7 +260,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 	drawExpansionShiftY = 0f;
 	drawExpansionShiftZ = 0f;
 	if(drawExpansionFactor != 1.0) {
-		Space.Vector box = displayPhase.getPhase().boundary().dimensions();
+		Vector box = displayPhase.getPhase().boundary().dimensions();
 		float mult = (float)(0.5*(drawExpansionFactor - 1.0)/* *(2.0*displayPhase.getImageShells()+1)*/);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));
@@ -389,9 +391,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
 
     private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
-    private Space3D.Vector[] points;
-    private Space3D.Vector normal;
-    private Space3D.Vector nearest;
+    private Vector[] points;
+    private Vector normal;
+    private Vector nearest;
     
   private void drawDisplay() {
     
@@ -449,7 +451,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       while(i >= 0) {
         a = sphereCores[i/3];
         if(!atomFilter.accept(a)) {i-=3; continue;}
-        Space.Vector r3 = a.coord.position();
+        Vector r3 = a.coord.position();
 //        System.out.println(a.toString()+", "+r3.x+", "+r3.y+", "+r3.z);
         c = colorScheme.atomColor(a);
         r = a.coord.position();
@@ -587,7 +589,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //////////////////////////////////////////
   }
               
-  protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
+  protected boolean computeShiftOrigin(Atom a, Boundary b) {
     if(a.type instanceof AtomTypeSphere)
       originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));
     else if(a.type instanceof AtomTypeWall)
@@ -769,7 +771,7 @@ public double getDrawExpansionFactor() {
 public void setDrawExpansionFactor(double drawExpansionFactor) {
 	this.drawExpansionFactor = drawExpansionFactor;
 	if(displayPhase != null && displayPhase.getPhase() != null) {
-		Space.Vector box = displayPhase.getPhase().boundary().dimensions();
+		Vector box = displayPhase.getPhase().boundary().dimensions();
 		float I = displayPhase.getImageShells();
 		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
 		drawExpansionShiftX = (float)(mult*box.x(0));

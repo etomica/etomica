@@ -14,6 +14,7 @@ import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.space.Boundary;
 import etomica.utility.Arrays;
 
 /**
@@ -149,7 +150,7 @@ public class NeighborManager implements IntervalListener {
 	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
 	private int iieCount;
-	private Space.Boundary boundary;
+	private Boundary boundary;
 	private final PotentialMasterNbr potentialMaster;
 	private final AtomIteratorTree iterator;
 	private final NeighborCheck neighborCheck;

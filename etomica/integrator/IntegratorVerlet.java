@@ -9,9 +9,9 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Integrator.Forcible;
-import etomica.Space.Vector;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 
 /* History
  * 
@@ -26,7 +26,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final Space space;
     
-    Space.Vector work;
+    Vector work;
                 
     public IntegratorVerlet(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster);
@@ -75,7 +75,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
-            Space.Vector r = a.coord.position();
+            Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
             agent.force.TE(a.coord.rm()*t2);
@@ -104,8 +104,8 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             
 	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
-        public Space.Vector force;
-        public Space.Vector rMrLast;  //r - rLast
+        public Vector force;
+        public Vector rMrLast;  //r - rLast
 
         public Agent(Space space, Atom a) {
             atom = a;
@@ -113,7 +113,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             rMrLast = space.makeVector();
         }
         
-        public Space.Vector force() {return force;}
+        public Vector force() {return force;}
     }//end of Agent
     
 /*    public static void main(String[] args) {

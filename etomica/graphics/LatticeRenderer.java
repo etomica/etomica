@@ -6,6 +6,7 @@ import etomica.lattice.*;
 import etomica.math.geometry.Polyhedron;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.AtomSequencerCell;
+import etomica.space.Vector;
 
 import java.awt.*;
 
@@ -34,26 +35,26 @@ public class LatticeRenderer implements Drawable {
         iterator.reset();
         while(iterator.hasNext()) {
             Polyhedron cell = (Polyhedron)iterator.next();
-            Space.Vector[] vertex = (Space.Vector[])cell.vertex();
+            Vector[] vertex = (Vector[])cell.vertex();
             for(int i=1; i<vertex.length; i++) {
-                Space2D.Vector v1 = null;
-                Space2D.Vector v2 = null;
+                Vector v1 = null;
+                Vector v2 = null;
                 switch(i) {//really specific!
                     case 0: 
-                        v1 = (Space2D.Vector)vertex[0];
-                        v2 = (Space2D.Vector)vertex[1];
+                        v1 = (Vector)vertex[0];
+                        v2 = (Vector)vertex[1];
                         break;
                     case 1: 
-                        v1 = (Space2D.Vector)vertex[1];
-                        v2 = (Space2D.Vector)vertex[3];
+                        v1 = (Vector)vertex[1];
+                        v2 = (Vector)vertex[3];
                         break;
                     case 2: 
-                        v1 = (Space2D.Vector)vertex[2];
-                        v2 = (Space2D.Vector)vertex[3];
+                        v1 = (Vector)vertex[2];
+                        v2 = (Vector)vertex[3];
                         break;
                     case 3: 
-                        v1 = (Space2D.Vector)vertex[0];
-                        v2 = (Space2D.Vector)vertex[2];
+                        v1 = (Vector)vertex[0];
+                        v2 = (Vector)vertex[2];
                         break;
                 }
                 int x1 = origin[0] + (int)(toPixels*v1.x(0));

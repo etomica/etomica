@@ -4,13 +4,15 @@ package etomica.models.water;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
+import etomica.space.Vector;
+import etomica.space3d.Boundary;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.*;
 
 public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
-	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, Boundary boundary) {
 		this(space, potentialTruncation);
 		this.boundary = boundary;
 	}
@@ -18,8 +20,8 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		super(space, potentialTruncation);
 		setSigma(3.1670);
 		setEpsilon(Kelvin.UNIT.toSim(78.23));
-		work = (Space3D.Vector)space.makeVector();
-		shift = (Space3D.Vector)space.makeVector();
+		work = (Vector)space.makeVector();
+		shift = (Vector)space.makeVector();
 		setCharges();
 	}   
 	public double energy(Atom[] pair){
@@ -30,8 +32,8 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
-		Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
-		Space3D.Vector O2r = (Space3D.Vector)node2.O.coord.position();
+		Vector O1r = (Vector)node1.O.coord.position();
+		Vector O2r = (Vector)node2.O.coord.position();
 
 		work.Ev1Mv2(O1r, O2r);
 		boundary.nearestImage(work, shift);
@@ -46,10 +48,10 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-		Space3D.Vector H11r = (Space3D.Vector)node1.H1.coord.position();
-		Space3D.Vector H12r = (Space3D.Vector)node1.H2.coord.position();
-		Space3D.Vector H21r = (Space3D.Vector)node2.H1.coord.position();
-		Space3D.Vector H22r = (Space3D.Vector)node2.H2.coord.position();
+		Vector H11r = (Vector)node1.H1.coord.position();
+		Vector H12r = (Vector)node1.H2.coord.position();
+		Vector H21r = (Vector)node2.H1.coord.position();
+		Vector H22r = (Vector)node2.H2.coord.position();
         		
 		final boolean zeroShift = shift.isZero();
 					
@@ -88,7 +90,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		return sum;																					        
 	}//end of energy
     
-	public Space.Vector gradient(Atom[] pair){
+	public Vector gradient(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double hyperVirial(Atom[] pair){
@@ -122,16 +124,16 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
     
 	public double sigma , sigma2;
 	public double epsilon, epsilon4;
-	private Space3D.Boundary boundary;
+	private Boundary boundary;
 	private double chargeH = Electron.UNIT.toSim(0.41);
 	private double chargeO = Electron.UNIT.toSim(-0.82);
 	private double chargeOO, chargeOH, chargeHH;
-	private Space3D.Vector work, shift;
+	private Vector work, shift;
 	/**
 	 * Returns the boundary.
 	 * @return Space3D.Boundary
 	 */
-	public Space3D.Boundary getBoundary() {
+	public Boundary getBoundary() {
 		return boundary;
 	}
 
@@ -139,7 +141,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 	 * Sets the boundary.
 	 * @param boundary The boundary to set
 	 */
-	public void setBoundary(Space3D.Boundary boundary) {
+	public void setBoundary(Boundary boundary) {
 		this.boundary = boundary;
 	}
 

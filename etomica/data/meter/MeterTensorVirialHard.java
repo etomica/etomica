@@ -3,10 +3,10 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.Tensor;
 import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
+import etomica.space.Tensor;
 import etomica.units.*;
 
 /**
@@ -43,7 +43,7 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
      */
     //XXX phase parameter is not used appropriately here
     //TODO consider how to ensure timer is advanced before this method is invoked
-    public Space.Tensor getDataAsTensor(Phase phase) {
+    public Tensor getDataAsTensor(Phase phase) {
         double elapsedTime = timer.getData()[0];
         if(elapsedTime == 0.0) {
             virialTensor.E(Double.NaN);
@@ -108,11 +108,11 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
     /**
      * Tensor used to return current value of the meter.
      */
-    private final Space.Tensor virialTensor;
+    private final Tensor virialTensor;
     /**
      * Tensor used to return meter's collision value (value contributed from last collision).
      */
-    private Space.Tensor collisionVirial;
+    private Tensor collisionVirial;
     /**
      * Convenience handle to integrator to avoid multiple casting to IntegratorHard
      */

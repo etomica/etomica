@@ -9,6 +9,9 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.Boundary;
+import etomica.space.Coordinate;
+import etomica.space.Vector;
 import etomica.utility.java2.Iterator;
 
     /* History of changes
@@ -66,7 +69,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
        
     private void drawAtom(Graphics g, int origin[], Atom a) {
         if(!atomFilter.accept(a)) return;
-        Space.Vector r = a.coord.position();
+        Vector r = a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         boolean drawOrientation = (a.type instanceof AtomTypeOrientedSphere);
@@ -93,7 +96,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
             /* Draw the orientation line, if any */
             if(drawOrientation) {
-                double theta = ((Space.Coordinate.Angular)a.coord).orientation().angle()[0];
+                double theta = ((Coordinate.Angular)a.coord).orientation().angle()[0];
                 int dxy = (int)(displayPhase.getToPixels()*((AtomTypeOrientedSphere)a.type).radius(a));
                 int dx = (int)(dxy*Math.cos(theta));
                 int dy = (int)(dxy*Math.sin(theta));
@@ -183,7 +186,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 
         //Draw other features if indicated
         if(drawBoundary>DRAW_BOUNDARY_NONE) {
-            Space.Vector dimensions = displayPhase.getPhase().boundary().dimensions();
+            Vector dimensions = displayPhase.getPhase().boundary().dimensions();
             g.setColor(Color.gray);
             double toPixels = displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
             g.drawRect(displayPhase.getOrigin()[0],displayPhase.getOrigin()[1],
@@ -204,7 +207,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 //        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
-        Space.Boundary boundary = displayPhase.getPhase().boundary();
+        Boundary boundary = displayPhase.getPhase().boundary();
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }

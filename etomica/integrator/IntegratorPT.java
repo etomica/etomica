@@ -11,11 +11,11 @@ import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Integrator.IntervalEvent;
-import etomica.Space.Vector;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterFunction;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -205,7 +205,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 	private AtomIteratorAllMolecules iterator1 = new AtomIteratorAllMolecules();
 	private AtomIteratorAllMolecules iterator2 = new AtomIteratorAllMolecules();
 	private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
-	private Space.Vector r;
+	private Vector r;
 	private double u1, u2, temp1, temp2, deltaU1;
 	private Phase phase1, phase2;
 	private final Phase[] swappedPhases = new Phase[2];

@@ -3,9 +3,9 @@ import etomica.Atom;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.Tensor;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.space.Tensor;
 import etomica.units.*;
 
 /**
@@ -25,11 +25,11 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
     /**
      * Tensor used to form velocity dyad for each atom, and returned by currentValue(atom) method.
      */
-    private Space.Tensor velocity;
+    private Tensor velocity;
     /**
      * Tensor used to sum contributions to velocity dyad, and returned by currentValue() method.
      */
-    private Space.Tensor velocityTensor;
+    private Tensor velocityTensor;
     
     public MeterTensorVelocity(Space space) {
         super(space);
@@ -57,7 +57,7 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
-    public Space.Tensor getDataAsTensor(Phase phase) {
+    public Tensor getDataAsTensor(Phase phase) {
         ai1.setPhase(phase);
         ai1.reset();
         velocityTensor.E(0.0);

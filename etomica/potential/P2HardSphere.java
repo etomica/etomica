@@ -6,8 +6,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Basic hard-(rod/disk/sphere) potential.
@@ -30,8 +30,8 @@ public class P2HardSphere extends Potential2HardSpherical {
    protected double sig2;
    protected double lastCollisionVirial = 0.0;
    protected double lastCollisionVirialr2 = 0.0;
-   protected final Space.Vector dr;
-   protected final Space.Tensor lastCollisionVirialTensor;
+   protected final Vector dr;
+   protected final Tensor lastCollisionVirialTensor;
     
     public P2HardSphere() {
         this(Simulation.getDefault().space, Default.ATOM_SIZE);
@@ -100,7 +100,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         return lastCollisionVirial;
     }
     
-    public Space.Tensor lastCollisionVirialTensor() {
+    public Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        

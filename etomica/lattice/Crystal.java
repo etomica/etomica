@@ -1,6 +1,7 @@
 package etomica.lattice;
 
 import etomica.Space;
+import etomica.space.Vector;
 
 /**
  * A class packaging together a lattice and a basis to define a crystal lattice.
@@ -46,9 +47,9 @@ public class Crystal implements AbstractLattice {
      * @return a Space.Vector array with the positions of the basis sites
      */
     public Object site(int[] index) {
-        Space.Vector latticePosition = (Space.Vector)lattice.site(index);
-        Space.Vector[] basisPositions = basis.positions();
-        Space.Vector[] positions = space.makeVectorArray(basis.size());
+        Vector latticePosition = (Vector)lattice.site(index);
+        Vector[] basisPositions = basis.positions();
+        Vector[] positions = space.makeVectorArray(basis.size());
         for(int i=basis.size()-1; i>=0; i--) {
             positions[i].Ev1Pv2(latticePosition,basisPositions[i]);
         }

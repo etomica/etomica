@@ -4,9 +4,9 @@ import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.Tensor;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.integrator.IntegratorHard;
+import etomica.space.Tensor;
 import etomica.units.*;
 
 public class MeterPressureHardTensor extends MeterTensor implements IntegratorHard.CollisionListener {
@@ -14,7 +14,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     private double[][] virialSum;
     private double t0, t, velocity2;
     private final AtomIteratorList ai1 = new AtomIteratorList();
-    private Space.Tensor velocityTensor, v, pressureTensor;
+    private Tensor velocityTensor, v, pressureTensor;
     private IntegratorHard integratorHard;
     private int D;
     
@@ -42,7 +42,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
      
     public Dimension getDimension() {return Dimension.TEMPERATURE;}
     
-    public Space.Tensor getData() {
+    public Tensor getData() {
         double t = integratorHard.elapsedTime();
         if (t > t0) {
             velocityTensor.E(0.);
@@ -76,7 +76,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     }
     
     public void collisionAction(IntegratorHard.Agent agent) {
-        Space.Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
+        Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
         for (int i=0; i<lcvt.length(); i++) {
             for (int j=0; j<lcvt.length(); j++) {
                 virialSum[i][j] += lcvt.component(i, j);

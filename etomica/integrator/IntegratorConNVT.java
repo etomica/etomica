@@ -9,9 +9,9 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Integrator.Forcible;
-import etomica.Space.Vector;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -32,7 +32,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final Space space;
-    Space.Vector work, work1, work2, work3, work4;
+    Vector work, work1, work2, work3, work4;
     double halfTime, mass;
                 
     public IntegratorConNVT(PotentialMaster potentialMaster, Space space) {
@@ -104,7 +104,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			//Space.Vector r = a.coord.position();
-			Space.Vector p = a.coord.momentum();
+			Vector p = a.coord.momentum();
 			mass = a.coord.mass();
             
 			work1.E(p); //work1 = p
@@ -124,7 +124,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
-			Space.Vector p = a.coord.momentum();
+			Vector p = a.coord.momentum();
 			double divmass = a.coord.rm();
 		
 			double scale = (2.0*chi-1.0)*divmass; 
@@ -141,8 +141,8 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
-			Space.Vector r = a.coord.position();
-			Space.Vector p = a.coord.momentum();
+			Vector r = a.coord.position();
+			Vector p = a.coord.momentum();
             
 			work.E(p);
 			work.TE(timeStep*a.coord.rm());
@@ -162,7 +162,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
             
 	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
-        public Space.Vector force;
+        public Vector force;
     
 
         public Agent(Space space, Atom a) {
@@ -170,7 +170,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
             force = space.makeVector();
         }
         
-        public Space.Vector force() {return force;}
+        public Vector force() {return force;}
     }//end of Agent
     
 /*    public static void main(String[] args) {

@@ -21,6 +21,7 @@ import etomica.lattice.AbstractLattice;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeFactoryCubic;
 import etomica.lattice.Site;
+import etomica.space.Vector;
 import etomica.utility.OdeSolver;
 
 /** 
@@ -38,8 +39,8 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
     private boolean drawCells = false;
     private boolean fillCells = false;
     MyLattice lattice;
-    Space2D.Vector s = new Space2D.Vector();  //temporary
-    Space2D.Vector r0 = new Space2D.Vector();
+    Vector s = new Vector();  //temporary
+    Vector r0 = new Vector();
     public boolean expand = true;
     private double lnJTot;
     private double deformationScale = 1.0;
@@ -67,11 +68,11 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());//add new
     }
     
-    public void setR0(Space.Vector r) {
+    public void setR0(Vector r) {
         r0.E(r);
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());
     }
-    public Space.Vector getR0() {return r0;}
+    public Vector getR0() {return r0;}
     
     public void setExpand(boolean b) {expand = b;}
     public boolean isExpand() {return expand;}
@@ -94,11 +95,11 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
     } 
     public double getDeformationScale() {return deformationScale;}
     
-    public void actionPerformed(Space.Vector r, boolean b) {
+    public void actionPerformed(Vector r, boolean b) {
         setExpand(b);
         actionPerformed(r);
     }
-    public void actionPerformed(Space.Vector r) {
+    public void actionPerformed(Vector r) {
         r0.E(r);
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());
         actionPerformed(phase);
@@ -173,7 +174,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         AtomIterator iter = lattice.iterator();
         while(iter.hasNext()) {
                 MySite site = (MySite)iter.nextAtom();
-                Space.Vector r = site.originalPosition;
+                Vector r = site.originalPosition;
                 int xP = origin[0] + (int)(toPixels*(xL*r.x(0)-0.5*diameter));
                 int yP = origin[1] + (int)(toPixels*(yL*r.x(1)-0.5*diameter));
                 g.setColor(java.awt.Color.red);
@@ -319,10 +320,10 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
                 for(int j=0; j<size; j++) {
                     MySite site = sites[i][j];
                     siteList.add(site);
-                    site.originalPosition = (Space2D.Vector)site.coord.position();
+                    site.originalPosition = (Vector)site.coord.position();
          //           site.originalPosition.PE(-0.5);
-                    site.deformedPosition = new Space2D.Vector();
-                    site.fullyDeformedPosition = new Space2D.Vector();
+                    site.deformedPosition = new Vector();
+                    site.fullyDeformedPosition = new Vector();
                     site.deformedPosition.E(site.originalPosition);
                 } 
             }
@@ -343,7 +344,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
                 } 
             }
             //symmetrize
-            Space2D.Vector tempVector = (Space2D.Vector)Space.makeVector(2);
+            Vector tempVector = (Vector)Space.makeVector(2);
             for(int i=0; i<size; i++) {
                 for(int j=0; j<=i; j++) {
                     MySite site1 = sites[i][j];
@@ -410,7 +411,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             //    double y0 = sites[i][0].deformedPosition.x(1);
                 double factorY = 1.0/sites[i][size-1].deformedPosition.x(1);
                 for(int j=0; j<size; j++) {
-                    Space.Vector position = sites[i][j].deformedPosition;
+                    Vector position = sites[i][j].deformedPosition;
            //         position.PE(1,-y0);
                     position.setX(1,factorY*position.x(1));
                 }
@@ -468,22 +469,22 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         }//end of MyLattice constructor
         
         //returns the deformed-lattice cell that contains the point r
-        public MyCell getDeformedCell(Space.Vector r) {
+        public MyCell getDeformedCell(Vector r) {
             //initial guess it cell from original lattice
-            MyCell cell = getOriginalCell((Space2D.Vector)r);
+            MyCell cell = getOriginalCell((Vector)r);
             //if point is not in cell, move to the cell lying on other side of an edge
             //that separates point from its interior.  Keep doing this until the containing
             //cell is located
-            MyCell newCell = cell.outside((Space2D.Vector)r);
+            MyCell newCell = cell.outside((Vector)r);
             while(newCell != null) {
                 cell = newCell;
-                newCell = cell.outside((Space2D.Vector)r);//returns null if cell contains r
+                newCell = cell.outside((Vector)r);//returns null if cell contains r
             }
             return cell;
         }
         
         //returns the original-lattice cell that contains the point r
-        public MyCell getOriginalCell(Space2D.Vector r) {
+        public MyCell getOriginalCell(Vector r) {
             //find and return cell containing r in undeformed lattice
             int ix = (int)Math.floor(r.x(0) * size1);
             int iy = (int)Math.floor(r.x(1) * size1);
@@ -517,7 +518,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
     private class MySite extends Site {
         MyCell c1, c2;
         MyCell cellN, cellS, cellE, cellW;
-        Space2D.Vector originalPosition, deformedPosition, fullyDeformedPosition;
+        Vector originalPosition, deformedPosition, fullyDeformedPosition;
         MySite(Space space, AtomTreeNodeGroup parent) {
             super(space, AtomType.NULL, parent);
         }
@@ -600,14 +601,14 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         //returns null if point is inside this cell, otherwise returns neighbor cell
         //on other side of an edge that the point lies beyond
         //looks at each vertex and sees if point is closer than the opposite edge is to it
-        public MyCell outside(Space2D.Vector r) {
+        public MyCell outside(Vector r) {
             if(outsideEdge(r, vertex[0].deformedPosition, q0, m21)) return nbr[0];
             if(outsideEdge(r, vertex[1].deformedPosition, q1, m20)) return nbr[1];
             if(outsideEdge(r, vertex[2].deformedPosition, q2, m10)) return nbr[2];
             return null; //point is inside the cell
         }
         
-        private boolean outsideEdge(Space2D.Vector r, Space2D.Vector r0, double q, double m) {
+        private boolean outsideEdge(Vector r, Vector r0, double q, double m) {
             double dx = r.x(0) - r0.x(0);
             double dy = r.x(1) - r0.x(1);
             if(m == 0.0) return q < dy*dy; //opposite edge is horizontal
@@ -619,7 +620,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             return L2 < (dx*dx + dy*dy);
         }
         
-        public void transform(Space2D.Vector r) {
+        public void transform(Vector r) {
             double dx = r.x(0) - origin.originalPosition.x(0);
             double dy = r.x(1) - origin.originalPosition.x(1);
             double dxn = a11*dx + a12*dy;
@@ -628,7 +629,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             r.setX(1,origin.originalPosition.x(1) + (deltaY + dyn));
         }
 
-        public void revert(Space2D.Vector r) {
+        public void revert(Vector r) {
             double dx = r.x(0) - origin.deformedPosition.x(0);
             double dy = r.x(1) - origin.deformedPosition.x(1);
             double dxn = (a22*dx - a12*dy)/jacobian;

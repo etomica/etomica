@@ -1,6 +1,8 @@
 package etomica.virial.simulations;
 
 import etomica.*;
+import etomica.space3d.Boundary;
+import etomica.space3d.Vector;
 import etomica.units.*;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
@@ -39,7 +41,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 		Default.TRUNCATE_POTENTIALS = false;
 		
 		final PhaseCluster phase = new PhaseCluster(this);
-		phase.setBoundary(this.space.makeBoundary(Space3D.Boundary.NONE));	
+		phase.setBoundary(this.space.makeBoundary(Boundary.NONE));	
 		species = new etomica.models.water.SpeciesWater(this);
 		species.setNMolecules(nMolecules);
 		elementCoordinator.go();
@@ -70,10 +72,10 @@ public class SimulationVirialWater extends SimulationGraphic {
 		
 		this.elementCoordinator.go();		
 		
-		Space3D.Vector origin = new Space3D.Vector(15.,15.,15.);
+		Vector origin = new Vector(15.,15.,15.);
 		SpeciesAgent speciesAgent = phase.getAgent(species);
-		speciesAgent.coord.translateTo(new Space3D.Vector(15.,15.,15.));
-		speciesAgent.firstMolecule().coord.translateTo(new Space3D.Vector(15.,15.,15.));
+		speciesAgent.coord.translateTo(new Vector(15.,15.,15.));
+		speciesAgent.firstMolecule().coord.translateTo(new Vector(15.,15.,15.));
 				
 		AtomList childList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
 		AtomIteratorList list1 = new AtomIteratorList(childList);

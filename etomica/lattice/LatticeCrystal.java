@@ -1,6 +1,7 @@
 package etomica.lattice;
 
 import etomica.Space;
+import etomica.space.Vector;
 
 
 /**
@@ -51,9 +52,9 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
     public Object site(int[] index) {
         if(index.length != D) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
         System.arraycopy(index, 0, crystalIndex, 0, D-1);
-        Space.Vector latticePosition = (Space.Vector)crystal.getLattice().site(crystalIndex);
-        Space.Vector[] basisPositions = crystal.getBasis().positions();
-        Space.Vector positions = getSpace().makeVector();
+        Vector latticePosition = (Vector)crystal.getLattice().site(crystalIndex);
+        Vector[] basisPositions = crystal.getBasis().positions();
+        Vector positions = getSpace().makeVector();
         positions.Ev1Pv2(latticePosition,basisPositions[index[D-1]]);
         return positions;
     }

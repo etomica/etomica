@@ -25,6 +25,7 @@ import etomica.atom.iterator.AtomIteratorSequencerList;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.lattice.CellLattice;
+import etomica.space.Vector;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase, taking one
@@ -87,7 +88,7 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         identifyTargetMolecule();
 	}
 
-    public Space.Vector getNearestImageVector() {
+    public Vector getNearestImageVector() {
         return nearestImageVector;
     }
 
@@ -278,5 +279,5 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private AtomIterator aiInner;
     private boolean finishedCentralCell;
 
-    private Space.Vector nearestImageVector;
+    private Vector nearestImageVector;
 }

@@ -4,8 +4,8 @@ import etomica.Atom;
 import etomica.Default;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Purely attractive square-well potential with no repulsive core.
@@ -18,9 +18,9 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
     private double lastCollisionVirial, lastCollisionVirialr2;
-    private final Space.Tensor lastCollisionVirialTensor;
+    private final Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
-    private final Space.Vector dr;
+    private final Vector dr;
     
     public P2HardAssociation() {
         this(Simulation.getDefault().space, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
@@ -78,7 +78,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     
     public double energyChange() {return lastEnergyChange;}
     
-    public Space.Tensor lastCollisionVirialTensor() {
+    public Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;

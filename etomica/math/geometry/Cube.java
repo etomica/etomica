@@ -6,6 +6,7 @@ package etomica.math.geometry;
 
 import etomica.Space;
 import etomica.Space3D;
+import etomica.space.Vector;
 
 /**
  * A geometric cube.
@@ -28,8 +29,8 @@ public class Cube extends Polyhedron {
      */
     public Cube(double size) {
         super();
-        vertices = new Space3D.Vector[8];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new Space3D.Vector();
+        vertices = new Vector[8];
+        for(int i=0; i<vertices.length; i++) vertices[i] = new Vector();
         setSize(size);
     }
 
@@ -46,7 +47,7 @@ public class Cube extends Polyhedron {
      * computed once and stored; thus it may be worthwhile to store the values if using them often, 
      * but if doing so be careful to update them if any transformations are done to the lattice.
      */
-    public Space.Vector[] vertex() {
+    public Vector[] vertex() {
         vertices[0].E(n,n,n);
         vertices[1].E(n,n,p);
         vertices[2].E(n,p,n);
@@ -62,7 +63,7 @@ public class Cube extends Polyhedron {
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
      */
-    public boolean inCell(Space.Vector v) {
+    public boolean inCell(Vector v) {
         double x = v.x(0);
         double y = v.x(1);
         double z = v.x(2);
@@ -85,6 +86,6 @@ public class Cube extends Polyhedron {
     }
     private double size;
     private double n, p;//n = -size/2, p = +size/2
-    private final Space3D.Vector[] vertices;
+    private final Vector[] vertices;
 
 }

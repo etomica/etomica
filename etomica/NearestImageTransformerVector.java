@@ -1,6 +1,7 @@
 package etomica;
 
-import etomica.Space.Vector;
+import etomica.space.Vector;
+
 
 
 /**
@@ -34,6 +35,6 @@ public class NearestImageTransformerVector implements NearestImageTransformer {
         doPlus = b;
     }
     
-    private Space.Vector vector;
+    private Vector vector;
     private boolean doPlus = false;
 }

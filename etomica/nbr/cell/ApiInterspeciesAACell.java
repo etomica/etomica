@@ -20,6 +20,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.space.Vector;
 
 /**
  * Returns iterates formed from all molecule pairs of two species. Looping is
@@ -57,7 +58,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         unset();
 	}
 
-    public Space.Vector getNearestImageVector() {
+    public Vector getNearestImageVector() {
         return nearestImageVector;
     }
 
@@ -296,5 +297,5 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     private final Atom[] pair = new Atom[2];
     private int innerIndex;
     
-    private Space.Vector nearestImageVector;
+    private Vector nearestImageVector;
 }

@@ -6,6 +6,7 @@ import etomica.Configuration;
 import etomica.Default;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.Vector;
 
 /**
  * @author kofke
@@ -35,9 +36,9 @@ public class ConfigurationCluster extends Configuration {
 	 * @see etomica.Configuration#initializePositions(etomica.AtomIterator)
 	 */
 	public void initializePositions(AtomIterator[] iterator) {
-		Space.Vector dimensions = phase.space.makeVector();
+		Vector dimensions = phase.space.makeVector();
 		dimensions.E(Default.BOX_SIZE);
-		Space.Vector center = phase.space.makeVector();
+		Vector center = phase.space.makeVector();
 		center.Ea1Tv1(0.5, dimensions);
 		AtomIterator iter = iterator[0];
 		iter.reset();

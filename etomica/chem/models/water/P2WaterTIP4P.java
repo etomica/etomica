@@ -3,13 +3,15 @@ package etomica.chem.models.water;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
+import etomica.space.Vector;
+import etomica.space3d.Boundary;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.*;
 
 public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 
-	public P2WaterTIP4P(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+	public P2WaterTIP4P(Space space, PotentialTruncation potentialTruncation, Boundary boundary) {
 		this(space, potentialTruncation);
 		this.boundary = boundary;
 	}
@@ -18,8 +20,8 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 		setSigma(3.15365);
 		setEpsilon(Kelvin.UNIT.toSim(77.94));
 		this.potentialTruncation = potentialTruncation;
-		work = (Space3D.Vector)space.makeVector();
-		shift = (Space3D.Vector)space.makeVector();
+		work = (Vector)space.makeVector();
+		shift = (Vector)space.makeVector();
 		setCharges();
 	}   
 	public double energy(Atom[] pair){
@@ -30,8 +32,8 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 		AtomTreeNodeTIP4PWater node2 = (AtomTreeNodeTIP4PWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
-		Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
-		Space3D.Vector O2r = (Space3D.Vector)node2.O.coord.position();
+		Vector O1r = (Vector)node1.O.coord.position();
+		Vector O2r = (Vector)node2.O.coord.position();
 
 		work.Ev1Mv2(O1r, O2r);
 		boundary.nearestImage(work, shift);
@@ -56,8 +58,8 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 
 		
 		
-		Space3D.Vector Charge1r = (Space3D.Vector)node1.Charge.coord.position();
-		Space3D.Vector Charge2r = (Space3D.Vector)node2.Charge.coord.position();
+		Vector Charge1r = (Vector)node1.Charge.coord.position();
+		Vector Charge2r = (Vector)node2.Charge.coord.position();
 		
 		r2 = (zeroShift) ? Charge1r.Mv1Squared(Charge2r) : Charge1r.Mv1Pv2Squared(Charge2r,shift);
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
@@ -65,10 +67,10 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 		
 		
 		
-		Space3D.Vector H11r = (Space3D.Vector)node1.H1.coord.position();
-		Space3D.Vector H12r = (Space3D.Vector)node1.H2.coord.position();
-		Space3D.Vector H21r = (Space3D.Vector)node2.H1.coord.position();
-		Space3D.Vector H22r = (Space3D.Vector)node2.H2.coord.position();
+		Vector H11r = (Vector)node1.H1.coord.position();
+		Vector H12r = (Vector)node1.H2.coord.position();
+		Vector H21r = (Vector)node2.H1.coord.position();
+		Vector H22r = (Vector)node2.H2.coord.position();
         		
 		
 					
@@ -107,7 +109,7 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 		return sum;																					        
 	}//end of energy
     
-	public Space.Vector gradient(Atom[] pair){
+	public Vector gradient(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double hyperVirial(Atom[] pair){
@@ -143,16 +145,16 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 	public double epsilon, epsilon4;
 	private PotentialTruncation potentialTruncation;
 	private Atom O1, H11, H12, O2, H21, H22, Charge1, Charge2;
-	private Space3D.Boundary boundary;
+	private Boundary boundary;
 	private double chargeH = Electron.UNIT.toSim(0.52);
 	private double chargeCharge = Electron.UNIT.toSim(-1.04);
 	private double chargeChargeCharge, chargeChargeH, chargeHH;
-	private Space3D.Vector work, shift;
+	private Vector work, shift;
 	/**
 	 * Returns the boundary.
 	 * @return Space3D.Boundary
 	 */
-	public Space3D.Boundary getBoundary() {
+	public Boundary getBoundary() {
 		return boundary;
 	}
 
@@ -160,7 +162,7 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 	 * Sets the boundary.
 	 * @param boundary The boundary to set
 	 */
-	public void setBoundary(Space3D.Boundary boundary) {
+	public void setBoundary(Boundary boundary) {
 		this.boundary = boundary;
 	}
 

@@ -7,7 +7,7 @@ import etomica.MeterAbstract;
 import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.units.Count;
@@ -26,8 +26,8 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
 
     private int nAtoms = 0;
     AtomIterator iterator;
-    private Space.Vector[] rAccum, rLast;
-    private Space.Vector deltaR;
+    private Vector[] rAccum, rLast;
+    private Vector deltaR;
     private final Space space;
     
     public MeterMeanSquareDisplacement(Space space, AtomIterator iter) {
@@ -60,8 +60,8 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
     public void setAtoms(AtomIterator iter) {
         iterator = iter;
         nAtoms = iter.size();
-        rAccum = new Space.Vector[nAtoms];
-        rLast = new Space.Vector[nAtoms];
+        rAccum = new Vector[nAtoms];
+        rLast = new Vector[nAtoms];
         iter.reset();
         int i=0;
         while(iter.hasNext()) {
@@ -94,7 +94,7 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             while(iterator.hasNext()) {
-                Space.Vector r = iterator.nextAtom().coord.position();
+                Vector r = iterator.nextAtom().coord.position();
                 rAccum[i].PE(r);
                 rAccum[i].ME(rLast[i]);
                 rLast[i].E(r);

@@ -5,7 +5,8 @@
 package etomica.math.geometry;
 
 import etomica.Space;
-import etomica.Space.Vector;
+import etomica.space.Orientation;
+import etomica.space.Vector;
 
 /**
  * Wraps a Polytope so that it may be given a position and 
@@ -72,6 +73,6 @@ public class PolytopeMovable extends Polytope {
     }
     
     private final Polytope polytope;
-    private final Space.Vector position;
-    private final Space.Orientation orientation;
+    private final Vector position;
+    private final Orientation orientation;
 }

@@ -4,8 +4,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.
@@ -20,8 +20,8 @@ public class P2Tether extends Potential2HardSpherical {
   private double tetherLength, tetherLengthSquared;
   private double lastCollisionVirial = 0.0;
   private double lastCollisionVirialr2 = 0.0;
-  private final Space.Vector dr;
-  private final Space.Tensor lastCollisionVirialTensor;
+  private final Vector dr;
+  private final Tensor lastCollisionVirialTensor;
 
   public P2Tether() {
     this(Simulation.getDefault().space);
@@ -68,7 +68,7 @@ public class P2Tether extends Potential2HardSpherical {
     public final double lastCollisionVirial() {
         return lastCollisionVirial;
     }
-    public final Space.Tensor lastCollisionVirialTensor() {
+    public final Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        

@@ -2,6 +2,7 @@ package etomica.lattice.crystal;
 import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
+import etomica.space.Vector;
 
 /**
  * Primitive group for a body-centered-cubic system.
@@ -9,7 +10,7 @@ import etomica.math.geometry.Polytope;
 public class PrimitiveBcc extends Primitive implements Primitive3D {
     
     private double size;
-    private Space.Vector[] unitVectors;
+    private Vector[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
     public PrimitiveBcc(Space space) {
@@ -18,7 +19,7 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
     public PrimitiveBcc(Space space, double size) {
         super(space); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        unitVectors = new Space.Vector[D];
+        unitVectors = new Vector[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(3.0));
@@ -31,7 +32,7 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
      */
     PrimitiveBcc(Space space, Primitive direct) {
         super(space, direct);
-        unitVectors = new Space.Vector[D];
+        unitVectors = new Vector[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(3.0));
@@ -101,7 +102,7 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
         setSize(scale*size);
     }
 
-    public int[] latticeIndex(Space.Vector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
 /*        for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -110,7 +111,7 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
         return idx;
 */    }
     
-    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
  /*       for(int i=0; i<D; i++) {
             double x = q.x(i)/size;

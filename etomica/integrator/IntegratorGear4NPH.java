@@ -13,14 +13,14 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Integrator.Forcible;
-import etomica.Space.CoordinatePair;
-import etomica.Space.Vector;
 import etomica.action.PhaseInflate;
 import etomica.action.PhaseActionAdapter;
 import etomica.data.meter.MeterGroup;
 import etomica.data.meter.MeterTemperature;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
+import etomica.space.CoordinatePair;
+import etomica.space.Vector;
 import etomica.units.*;
 
 /**
@@ -247,9 +247,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private Space.CoordinatePair cPair;
+        private CoordinatePair cPair;
 
-        private final Space.Vector f;
+        private final Vector f;
         public ForceSumNPH(Space space) {
             f = space.makeVector();
             cPair = space.makeCoordinatePair();

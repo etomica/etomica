@@ -6,13 +6,13 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Space3D;
-import etomica.Space3D.RotationTensor;
-import etomica.Space3D.Vector;
 import etomica.action.AtomActionTransform;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.space3d.RotationTensor;
+import etomica.space3d.Vector;
 
 
 public class MCMoveRotateMolecule3D extends MCMove {
@@ -25,8 +25,8 @@ public class MCMoveRotateMolecule3D extends MCMove {
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient Atom molecule;
-    private transient Space3D.Vector r0;
-    private transient Space3D.RotationTensor rotationTensor;
+    private transient Vector r0;
+    private transient RotationTensor rotationTensor;
     private int number = 0;
     public int count;
     public int count1;
@@ -38,8 +38,8 @@ public class MCMoveRotateMolecule3D extends MCMove {
     public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        rotationTensor = (Space3D.RotationTensor)space.makeRotationTensor();
-        r0 = (Space3D.Vector)space.makeVector();
+        rotationTensor = (RotationTensor)space.makeRotationTensor();
+        r0 = (Vector)space.makeVector();
        
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);

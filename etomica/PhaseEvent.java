@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.space.Vector;
+
 /**
  * Event that conveys some happening with respect to a phase or the things it contains.
  *
@@ -10,12 +12,12 @@ public class PhaseEvent extends SimulationEvent {
     
     protected Phase phase;
     protected Atom atom;
-    protected Space.Vector point;
+    protected Vector point;
     protected Type type;
     
     //for boundary inflation event
     public double isoScale;
-    public Space.Vector anisoScale;
+    public Vector anisoScale;
     public boolean isotropic;
     
     public PhaseEvent(Object source) {
@@ -32,14 +34,14 @@ public class PhaseEvent extends SimulationEvent {
     public final PhaseEvent setPhase(Phase p) {phase = p; return this;}
     public final Phase phase() {return phase;}
     
-    public final PhaseEvent setPoint(Space.Vector p) {point = p; return this;}
-    public Space.Vector point() {return point;}
+    public final PhaseEvent setPoint(Vector p) {point = p; return this;}
+    public Vector point() {return point;}
     
     public final PhaseEvent setAtom(Atom a) {atom = a; return this;}
     public Atom atom() {return atom;}
     
     public final PhaseEvent setScale(double s) {isoScale = s; isotropic = true; return this;}
-    public final PhaseEvent setScale(Space.Vector s) {anisoScale = s; isotropic = false; return this;}
+    public final PhaseEvent setScale(Vector s) {anisoScale = s; isotropic = false; return this;}
     
     public static class Type extends Constants.TypedConstant {
         private Type(String label) {super(label);}

@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 import etomica.Space3D;
+import etomica.space3d.Vector;
 
 /**
  * An 8-atom basis that makes a diamond crystal using a BravaisLattice having a
@@ -21,14 +22,14 @@ public class BasisCubicDiamond extends BasisCubic {
         super(primitive, scaledPositions);
     }
     
-    private static final Space3D.Vector[] scaledPositions = new Space3D.Vector[] {
-			new Space3D.Vector(0.00, 0.00, 0.00),
-			new Space3D.Vector(0.00, 0.50, 0.50),
-			new Space3D.Vector(0.50, 0.50, 0.00),
-			new Space3D.Vector(0.50, 0.00, 0.50),
-			new Space3D.Vector(0.25, 0.25, 0.25),
-			new Space3D.Vector(0.25, 0.75, 0.75),
-			new Space3D.Vector(0.75, 0.75, 0.25),
-			new Space3D.Vector(0.75, 0.25, 0.75)
+    private static final Vector[] scaledPositions = new Vector[] {
+			new Vector(0.00, 0.00, 0.00),
+			new Vector(0.00, 0.50, 0.50),
+			new Vector(0.50, 0.50, 0.00),
+			new Vector(0.50, 0.00, 0.50),
+			new Vector(0.25, 0.25, 0.25),
+			new Vector(0.25, 0.75, 0.75),
+			new Vector(0.75, 0.75, 0.25),
+			new Vector(0.75, 0.25, 0.75)
     };
 }//end of BasisCubicDiamond

@@ -1,6 +1,7 @@
 package etomica.virial.overlap;
 
 import etomica.*;
+import etomica.space3d.Boundary;
 import etomica.virial.*;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
@@ -26,7 +27,7 @@ public class SimulationOSTarget extends SimulationGraphic {
 		boolean refPositive = !refCluster.hasOddBondCount();
 
 		phase = new PhaseCluster(this);
-		phase.setBoundary(space.makeBoundary(Space3D.Boundary.NONE));	
+		phase.setBoundary(space.makeBoundary(Boundary.NONE));	
 		species = new SpeciesSpheresMono(this);
 		species.setNMolecules(nMolecules);
 		species.setDiameter(sigmaHSRef);

@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 import etomica.Space3D;
+import etomica.space3d.Vector;
 
 /**
  * A 4-atom basis that makes an fcc crystal on a BravaisLattice
@@ -20,11 +21,11 @@ public class BasisCubicFcc extends BasisCubic {
         super(primitive, scaledPositions);
     }
     
-    private static final Space3D.Vector[] scaledPositions = new Space3D.Vector[] {
-            new Space3D.Vector(0.0, 0.0, 0.0),
-            new Space3D.Vector(0.0, 0.5, 0.5),
-            new Space3D.Vector(0.5, 0.5, 0.0),
-            new Space3D.Vector(0.5, 0.0, 0.5)
+    private static final Vector[] scaledPositions = new Vector[] {
+            new Vector(0.0, 0.0, 0.0),
+            new Vector(0.0, 0.5, 0.5),
+            new Vector(0.5, 0.5, 0.0),
+            new Vector(0.5, 0.0, 0.5)
     };
     
 }//end of BasisCubicFcc

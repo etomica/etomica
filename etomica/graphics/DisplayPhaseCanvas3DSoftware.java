@@ -11,6 +11,8 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.utility.java2.Iterator;
 
     /* History of changes
@@ -248,7 +250,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
 	    /*  Place the light source for shaded atoms to the upper right of
 	    * the atoms and out of the plane. */
         float[] lightSource = {1.0f, -1.0f, 2.0f};
-        Space.Vector r = a.coord.position();
+        Vector r = a.coord.position();
         boolean drawWell = false, drawOrientation = false;
         int sigmaP, xP, yP, baseXP, baseYP;
         Image shadedImage;
@@ -334,7 +336,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
+    protected boolean computeShiftOrigin(Atom a, Boundary b) {
         if(a.type instanceof AtomTypeSphere) {
             float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
@@ -437,7 +439,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
 //        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
-        Space.Boundary boundary = displayPhase.getPhase().boundary();
+        Boundary boundary = displayPhase.getPhase().boundary();
         if (nvert <= 0) return;
         for (int i = 0, j; i < nvert; i++) {
             j = ZsortMap[i];

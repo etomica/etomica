@@ -6,8 +6,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Potential that places hard repulsive walls coinciding with the
@@ -50,7 +50,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     public double energy(Atom[] a) {
         atom = a[0];
         double e = 0.0;
-        Space.Vector dimensions = atom.node.parentPhase().dimensions();
+        Vector dimensions = atom.node.parentPhase().dimensions();
         double collisionRadiusSquared = collisionRadius*collisionRadius;
         double rx = atom.coord.position(0);
         double ry = atom.coord.position(1);
@@ -69,9 +69,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     
     public double collisionTime(Atom[] a, double falseTime) {
     	atom = a[0];
-        Space.Vector r = atom.coord.truePosition(falseTime);
-        Space.Vector p = atom.coord.momentum();
-        Space.Vector dimensions = atom.node.parentPhase().dimensions();
+        Vector r = atom.coord.truePosition(falseTime);
+        Vector p = atom.coord.momentum();
+        Vector dimensions = atom.node.parentPhase().dimensions();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=r.length()-1; i>=0; i--) {
             double px = p.x(i);
@@ -89,9 +89,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
 //        Atom a = agent.atom();
     public void bump(Atom[] a, double falseTime) {
     	atom = a[0];
-        Space.Vector r = atom.coord.truePosition(falseTime);
-        Space.Vector p = atom.coord.momentum();
-        Space.Vector dimensions = atom.node.parentPhase().dimensions();
+        Vector r = atom.coord.truePosition(falseTime);
+        Vector p = atom.coord.momentum();
+        Vector dimensions = atom.node.parentPhase().dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
@@ -115,7 +115,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
                 lastVirial[1] = 2.0*p.x(0)*(0.0-r.x(0));
             }
         }
-        Space.Vector newP = Space.makeVector(D);
+        Vector newP = Space.makeVector(D);
         newP.E(p);
         newP.setX(imin,-p.x(imin)); //multiply momentum component by -1
         if(isothermal) {
@@ -144,7 +144,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     /**
      * not yet implemented.
      */
-    public Space.Tensor lastCollisionVirialTensor() {return null;}
+    public Tensor lastCollisionVirialTensor() {return null;}
     
     /**
      * Distance from the center of the sphere to the boundary at collision.

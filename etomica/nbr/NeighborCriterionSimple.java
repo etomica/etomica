@@ -7,6 +7,8 @@ import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.nbr.cell.AtomsetIteratorCellular;
+import etomica.space.CoordinatePair;
+import etomica.space.Vector;
 
 /**
  * Simple neighbor criterion based on distance moved by a leaf atom since
@@ -52,7 +54,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 	
 	public boolean needUpdate(Atom atom) {
-		r2 = atom.coord.position().Mv1Squared((Space.Vector)atom.allatomAgents[agentIndex]);
+		r2 = atom.coord.position().Mv1Squared((Vector)atom.allatomAgents[agentIndex]);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.thisAtom(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+atom.coord.position());
         }
@@ -96,11 +98,11 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 	
 	public void reset(Atom atom) {
-		((Space.Vector)atom.allatomAgents[agentIndex]).E(atom.coord.position());
+		((Vector)atom.allatomAgents[agentIndex]).E(atom.coord.position());
 	}
 
 	private double interactionRange, displacementLimit2, neighborRadius2;
-	Space.CoordinatePair cPair;
+	CoordinatePair cPair;
 	protected static int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
 		public Object makeAgent(Atom atom) {
 			return atom.coord.position().clone();

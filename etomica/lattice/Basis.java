@@ -1,6 +1,7 @@
 package etomica.lattice;
 
 import etomica.Space;
+import etomica.space.Vector;
 
 /**
  * Interface representing a crystal basis, which is defined by a set of vectors.
@@ -25,6 +26,6 @@ public interface Basis {
      * 
      * @return array of Space.Vector with the positions of the basis sites.
      */
-    public Space.Vector[] positions();
+    public Vector[] positions();
 
 }//end of Basis

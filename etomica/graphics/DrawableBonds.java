@@ -2,6 +2,7 @@ package etomica.graphics;
 import etomica.*;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.space.Vector;
 
 import java.awt.Graphics;
 
@@ -32,7 +33,7 @@ public class DrawableBonds implements Drawable {
         iterator1.reset();
         while(iterator1.hasNext()) {
             Atom atom1 = iterator1.next();
-            Space.Vector r = atom1.coord.position();
+            Vector r = atom1.coord.position();
             int x1 = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
             int y1 = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
       //      iteratorBonds.setBasis(atom1);

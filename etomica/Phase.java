@@ -9,6 +9,8 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.utility.NameMaker;
 
 /* History of changes
@@ -49,7 +51,7 @@ import etomica.utility.NameMaker;
  * may be accessed via the simulation's getPhaseList method.
  * 
  * @author David Kofke
- * @see Space.Boundary
+ * @see Boundary
  */
  
  /* History of changes
@@ -58,7 +60,7 @@ import etomica.utility.NameMaker;
   
 public class Phase {
         
-    private Space.Boundary boundary;
+    private Boundary boundary;
     private PhaseInflate inflater;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
@@ -130,7 +132,7 @@ public class Phase {
     
     public final Space space() {return space;}
     
-    public Space.Vector randomPosition() {return boundary.randomPosition();}
+    public Vector randomPosition() {return boundary.randomPosition();}
         
     /**
      * Returns an array of Space.Vector with the center-of-mass position of each molecule
@@ -174,7 +176,7 @@ public class Phase {
      * given atom can appear more than once in this list, if it is nearest to
      * more than one of the positions.
      */
-    public Atom[] nearestAtom(Space.Vector[] r) {
+    public Atom[] nearestAtom(Vector[] r) {
     	AtomIterator iterator = new AtomIteratorListSimple(speciesMaster.atomList);
     	Atom[] nearest = new Atom[r.length];
     	for(int i=0; i<r.length; i++) {
@@ -205,7 +207,7 @@ public class Phase {
     /**
      * Sets the boundary object of the phase.
      */
-     public void setBoundary(Space.Boundary b) {
+     public void setBoundary(Boundary b) {
         boundaryMonitor.notifyObservers(b);
         boundary = b;
         boundary.setPhase(this);
@@ -228,18 +230,18 @@ public class Phase {
      * 
      * @return The current instance of the boundary class
      */
-    public final Space.Boundary getBoundary() {return boundary;}
+    public final Boundary getBoundary() {return boundary;}
     /**
      * Same as getBoundary.
      */
-    public final Space.Boundary boundary() {return boundary;}
+    public final Boundary boundary() {return boundary;}
     
     /**
      * Returns the agent of the given species in this phase.
      */
     public final SpeciesAgent getAgent(Species s) {return s.getAgent(this);}
                        
-    public final Space.Vector dimensions() {return boundary.dimensions();}
+    public final Vector dimensions() {return boundary.dimensions();}
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     
     public void setDensity(double rho) {

@@ -7,9 +7,9 @@ import etomica.Integrator;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Integrator.Forcible;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
 import etomica.atom.AtomTypeWall;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Interaction between a hard sphere and a hard stationary wall.
@@ -242,8 +242,8 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         double delta = Math.abs(dr) - collisionRadius;
         if(delta < 0.0) {   //inside wall; set apart to contact point
  //           double mult = (dr > 0.0) ? -2.0 : +2.0;
-            Space.Vector r1 = pair[0].coord.position();
-            Space.Vector r2 = pair[1].coord.position();
+            Vector r1 = pair[0].coord.position();
+            Vector r2 = pair[1].coord.position();
             if(pair[1].coord.isStationary()) 
                 r1.setX(i,r2.x(i)+mult*(collisionRadius+1e-6));
             else if(pair[0].coord.isStationary())
@@ -264,8 +264,8 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
      * Always returns zero (not yet implemented)
      */
     public double lastCollisionVirial() {return 0.0;}
-    final Space.Tensor ZERO; //temporary
-    public Space.Tensor lastCollisionVirialTensor() {return ZERO;}
+    final Tensor ZERO; //temporary
+    public Tensor lastCollisionVirialTensor() {return ZERO;}
 
 
     /**

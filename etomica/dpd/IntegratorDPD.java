@@ -17,6 +17,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 
 /**
  * Dissipative particle dynamic integrator.
@@ -94,8 +95,8 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 		while(atomIterator.hasNext()) {    //loop over all atoms
 			Atom a = atomIterator.nextAtom();  //  advancing positions full step
 			MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
-			Space.Vector r = a.coord.position();
-			Space.Vector p = a.coord.momentum();
+			Vector r = a.coord.position();
+			Vector p = a.coord.momentum();
 			r.PEa1Tv1(timeStep*a.coord.rm(),p);         // r += p*dt/m
 			r.PEa1Tv1(t2*a.coord.rm(),agent.force);  // r += f(old)*dt^2/2m
 			p.PEa1Tv1(lambdaV*timeStep, agent.force);  // p += f(old)*dt*lambdaV
@@ -111,7 +112,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {     //loop over atoms again
 			Atom a = atomIterator.nextAtom();   //  finishing the momentum step
-			Space.Vector p = a.coord.momentum();
+			Vector p = a.coord.momentum();
 			MyAgent agent = (MyAgent)a.ia;
 			p.PEa1Tv1((0.5-lambdaV)*timeStep, agent.fOld);//p += f(old)*(1/2 - lambdaV)*dt
 			p.PEa1Tv1(0.5*timeStep, agent.force);//p += f(new)*dt/2
@@ -140,7 +141,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
             
 	public final static class MyAgent implements Integrator.Forcible {  //need public so to use with instanceof
 		public Atom atom;
-		public Space.Vector force, fOld;
+		public Vector force, fOld;
 
 		public MyAgent(Simulation sim, Atom a) {
 			atom = a;
@@ -148,7 +149,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 			fOld = sim.space().makeVector();
 		}
         
-		public Space.Vector force() {return force;}
+		public Vector force() {return force;}
 	}//end of MyAgent
  
 	/**

@@ -4,8 +4,8 @@ import etomica.Atom;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Hard potential that enforces ordering of the x-coordinates of the
@@ -18,7 +18,7 @@ import etomica.Space.Vector;
  */
 public class P2XOrder extends Potential2 implements PotentialHard {
     
-   protected final Space.Vector dr;
+   protected final Vector dr;
     
     public P2XOrder() {
         this(Simulation.getDefault().space);
@@ -52,7 +52,7 @@ public class P2XOrder extends Potential2 implements PotentialHard {
         throw new RuntimeException("P2XOrder.lastCollisionVirial not implemented");
     }
     
-    public Space.Tensor lastCollisionVirialTensor() {
+    public Tensor lastCollisionVirialTensor() {
         throw new RuntimeException("P2XOrder.lastCollisionVirialTensor not implemented");
     }
     

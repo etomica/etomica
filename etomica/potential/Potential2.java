@@ -5,7 +5,7 @@ import etomica.NearestImageTransformer;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
-import etomica.Space.CoordinatePair;
+import etomica.space.CoordinatePair;
 
 /**
  * Potential acting on or within an atom, or between a pair of atoms or atom
@@ -26,7 +26,7 @@ import etomica.Space.CoordinatePair;
 
 public abstract class Potential2 extends Potential {
   
-    protected final Space.CoordinatePair cPair, cPairNbr;
+    protected final CoordinatePair cPair, cPairNbr;
     
     public Potential2(Space space) {
         this(space, Default.TRUNCATE_POTENTIALS ? 

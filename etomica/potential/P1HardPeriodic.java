@@ -2,11 +2,11 @@ package etomica.potential;
 
 import etomica.Atom;
 import etomica.Space;
-import etomica.Space.Boundary;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
-import etomica.Space.Boundary.Periodic;
 import etomica.atom.AtomTypeSphere;
+import etomica.space.Boundary;
+import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.space.Boundary.Periodic;
 
 /**
  * pseudo-potential for a "collision" time to update colliders for periodic boundaries
@@ -27,10 +27,10 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
     }
     
     public double collisionTime(Atom[] a, double falseTime) {
-        if(boundary instanceof Space.Boundary.Periodic) {
+        if(boundary instanceof Boundary.Periodic) {
             if(!(a[0].type instanceof AtomTypeSphere)) {return Double.MAX_VALUE;}
-            Space.Vector p = a[0].coord.momentum();
-            Space.Vector dim = boundary.dimensions();
+            Vector p = a[0].coord.momentum();
+            Vector dim = boundary.dimensions();
             double tmin = Double.MAX_VALUE;
             double d2 = 2.0*((AtomTypeSphere)a[0].type).diameter(a[0]);
             int D = dim.D();
@@ -50,7 +50,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         
     public double lastCollisionVirial() {return 0;}
     
-    public Space.Tensor lastCollisionVirialTensor() {return null;}
+    public Tensor lastCollisionVirialTensor() {return null;}
     
 }
    

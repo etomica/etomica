@@ -4,6 +4,7 @@ import etomica.Space;
 import etomica.lattice.crystal.Primitive2D;
 import etomica.lattice.crystal.Primitive3D;
 import etomica.math.geometry.Polytope;
+import etomica.space.Vector;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -12,8 +13,8 @@ import etomica.math.geometry.Polytope;
 //TODO add propertyChangeListeners to be notified if primitive changes
 public abstract class Primitive {
     
-    protected final Space.Vector[] latticeVectors;
-    protected final Space.Vector[] latticeVectorsCopy;
+    protected final Vector[] latticeVectors;
+    protected final Vector[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     public final int D;
     protected final double[] size;
@@ -39,8 +40,8 @@ public abstract class Primitive {
         this.space = space;
         D = space.D();
         if(!( (this instanceof Primitive2D && D==2) || (this instanceof Primitive3D && D==3))) throw new RuntimeException("Error: inconsistency between spatial dimension and interface of Primitive");
-        latticeVectors = new Space.Vector[D];
-        latticeVectorsCopy = new Space.Vector[D];
+        latticeVectors = new Vector[D];
+        latticeVectorsCopy = new Vector[D];
         idx = new int[D];
         size = new double[D];
 //        sizeCopy = new double[D];
@@ -159,12 +160,12 @@ public abstract class Primitive {
      * provide mutator methods that permit changes to the vectors while
      * adhering to a particular structure (e.g., cubic, fcc, etc.).
      */
-    public Space.Vector[] vectors() {
+    public Vector[] vectors() {
         return copyVectors();
     }
     
     //copies the interal set of vectors to the copy for outside use
-    protected Space.Vector[] copyVectors() {
+    protected Vector[] copyVectors() {
         for(int i=0; i<D; i++) latticeVectorsCopy[i].E(latticeVectors[i]);
         return latticeVectorsCopy;
     }
@@ -179,7 +180,7 @@ public abstract class Primitive {
      * point if the index were passed to a the site method of a sufficiently
      * large lattice that uses this primitive.
      */
-    public abstract int[] latticeIndex(Space.Vector r);
+    public abstract int[] latticeIndex(Vector r);
     
     /**
      * Same as latticeIndex(Space.Vector), but gives index for periodic system
@@ -187,7 +188,7 @@ public abstract class Primitive {
      * If lattice index corresponds to a cell outside the range of dimensions,
      * index of image in central cells is returned.
      */
-    public abstract int[] latticeIndex(Space.Vector r, int[] dimensions);
+    public abstract int[] latticeIndex(Vector r, int[] dimensions);
     
     /**
      * Returns the primitive for the reciprocal lattice vectors.

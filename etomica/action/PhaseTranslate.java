@@ -5,6 +5,7 @@
 package etomica.action;
 
 import etomica.Space;
+import etomica.space.Vector;
 
 /**
  * Action that moves (translates) all the atoms in a phase by a specified
@@ -13,7 +14,7 @@ import etomica.Space;
 
 public final class PhaseTranslate extends PhaseActionAdapter implements Undoable {
 
-	private final Space.Vector translationVector;
+	private final Vector translationVector;
 
 	/**
 	 * Constructor requires space instance to define a translation vector.
@@ -30,7 +31,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	 * update it is necessary to invoke this method (cannot effect change simply
 	 * by changing the coordinates of vector previously passed to this method).
 	 */
-	public void setTranslationVector(Space.Vector v) {
+	public void setTranslationVector(Vector v) {
 		translationVector.E(v);
 	}
 
@@ -38,7 +39,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	 * @return the translation vector. Changes to coordinates of the returned
 	 *         vector will change the behavior of this action.
 	 */
-	public Space.Vector getTranslationVector() {
+	public Vector getTranslationVector() {
 		return translationVector;
 	}
 

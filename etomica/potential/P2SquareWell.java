@@ -5,8 +5,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -22,9 +22,9 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double lambda; //wellDiameter = coreDiameter * lambda
     protected double epsilon;
     protected double lastCollisionVirial, lastCollisionVirialr2;
-    protected Space.Tensor lastCollisionVirialTensor;
+    protected Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
-    protected Space.Vector dr;
+    protected Vector dr;
 
     public P2SquareWell() {
         this(Simulation.getDefault().space);
@@ -117,7 +117,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         return lastCollisionVirial;
     }
 
-    public Space.Tensor lastCollisionVirialTensor() {
+    public Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;

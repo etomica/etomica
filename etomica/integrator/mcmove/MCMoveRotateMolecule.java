@@ -5,13 +5,13 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.RotationTensor;
-import etomica.Space.Vector;
 import etomica.action.AtomActionTransform;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.space.RotationTensor;
+import etomica.space.Vector;
 
 /**
  * Monte Carlo trial that rotates the atoms of a molecule about its first atom.
@@ -37,14 +37,14 @@ public class MCMoveRotateMolecule extends MCMove {
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient Atom molecule;
-    private transient Space.Vector r0;
-    private transient Space.RotationTensor rotationTensor;
+    private transient Vector r0;
+    private transient RotationTensor rotationTensor;
 
     public MCMoveRotateMolecule(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         if(space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
-        rotationTensor = (Space.RotationTensor)space.makeRotationTensor();
+        rotationTensor = (RotationTensor)space.makeRotationTensor();
         r0 = space.makeVector();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);

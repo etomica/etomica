@@ -4,7 +4,7 @@ import etomica.Atom;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 
 /**
  * Potential in which attaches a harmonic spring between each affected atom and
@@ -19,7 +19,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     
     private final int D;
     private double w = 100.0;
-    private final Space.Vector force;
+    private final Vector force;
     private Atom atom;
     
     public P1Harmonic() {
@@ -49,8 +49,8 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
 
     public double energy(Atom[] a) {
     	atom = a[0];
-        Space.Vector r = atom.coord.position();
-        Space.Vector d = atom.node.parentPhase().boundary().dimensions();
+        Vector r = atom.coord.position();
+        Vector d = atom.node.parentPhase().boundary().dimensions();
         double aSum = 0.0;
         for(int i=0; i<D; i++) {
             double x = r.x(i);
@@ -61,10 +61,10 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return 0.5*w*aSum;
     }
 
-    public Space.Vector gradient(Atom[] a){
+    public Vector gradient(Atom[] a){
     	atom = a[0];
-        Space.Vector r = atom.coord.position();
-        Space.Vector d = atom.node.parentPhase().boundary().dimensions();
+        Vector r = atom.coord.position();
+        Vector d = atom.node.parentPhase().boundary().dimensions();
         force.E(0.0);
         for(int i=0; i<D; i++) {
             double x = r.x(i);

@@ -8,6 +8,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.space3d.Boundary;
 import etomica.virial.*;
 import etomica.virial.cluster.*;
 
@@ -93,7 +94,7 @@ public class VirialPT extends SimulationGraphic {
 			integrator[i] = new IntegratorMC(integratorPT);
 			integrator[i].setTemperature(temperature);
 			phase[i].setIntegrator(integrator[i]);
-			phase[i].setBoundary(space.makeBoundary(Space3D.Boundary.NONE));	
+			phase[i].setBoundary(space.makeBoundary(Boundary.NONE));	
 			elementCoordinator.go();
 			
 			ConfigurationCluster configuration = new ConfigurationCluster(this);

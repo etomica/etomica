@@ -11,6 +11,7 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.space.Boundary;
 
 /**
  * Action that imposes the central-image effect of a phase having periodic
@@ -44,7 +45,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	}
 
 	public void actionPerformed() {
-		Space.Boundary boundary = phase.boundary();
+		Boundary boundary = phase.boundary();
 		iterator.reset();
 		while (iterator.hasNext()) {
 			boundary.centralImage(iterator.nextAtom().coord);

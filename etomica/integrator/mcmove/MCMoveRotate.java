@@ -5,12 +5,12 @@ import etomica.AtomIterator;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.Space.Coordinate;
-import etomica.Space.Orientation;
-import etomica.Space.Coordinate.Angular;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.space.Coordinate;
+import etomica.space.Orientation;
+import etomica.space.Coordinate.Angular;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -24,12 +24,12 @@ public class MCMoveRotate extends MCMove {
     
     private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final Space.Orientation oldOrientation;
+    private final Orientation oldOrientation;
 
     private transient Atom molecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
-    private transient Space.Orientation orientation;
+    private transient Orientation orientation;
 
     public MCMoveRotate(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, 1);
@@ -49,7 +49,7 @@ public class MCMoveRotate extends MCMove {
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar(phase);
-        orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
+        orientation = ((Coordinate.Angular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
         uNew = Double.NaN;

@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
-import etomica.Space.Boundary;
+import etomica.space.Boundary;
 
 /**
  * Potential acting on a single atom or atom group.
@@ -12,7 +12,7 @@ import etomica.Space.Boundary;
  */
 public abstract class Potential1 extends Potential {
       
-	protected Space.Boundary boundary;
+	protected Boundary boundary;
 	
     public Potential1(Space space) {
         super(1, space);

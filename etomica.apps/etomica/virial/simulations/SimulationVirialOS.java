@@ -6,6 +6,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.space3d.Boundary;
 import etomica.virial.*;
 import etomica.virial.overlap.*;
 import etomica.virial.cluster.*;
@@ -47,7 +48,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 ///////// reference-system simulation				
 		refSimulation = new SimulationGraphic(space);
 		phase = new PhaseCluster(refSimulation);
-		phase.setBoundary(space.makeBoundary(Space3D.Boundary.NONE));	
+		phase.setBoundary(space.makeBoundary(Boundary.NONE));	
 		species = new SpeciesSpheresMono(refSimulation);
 		species.setNMolecules(nMolecules);
 		species.setDiameter(sigmaHSRef);

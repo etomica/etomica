@@ -13,6 +13,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.nbr.cell.AtomSequencerCell;
+import etomica.space.Vector;
 import etomica.utility.Arrays;
 
 /**
@@ -43,7 +44,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param a the new uplist neighbor atom
      * @param potential the potential between the atoms
      */
-	public void addUpNbr(Atom a, Potential potential, Space.Vector nearestImageVector) {
+	public void addUpNbr(Atom a, Potential potential, Vector nearestImageVector) {
 		int index = 0;
 		try {
 			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
@@ -61,7 +62,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param a the new downlist neighbor atom
      * @param potential the potential between the atoms
      */
-    public void addDownNbr(Atom a, Potential potential, Space.Vector nearestImageVector) {
+    public void addDownNbr(Atom a, Potential potential, Vector nearestImageVector) {
 		int index = 0;
 		try {
 			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);

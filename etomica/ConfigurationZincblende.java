@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.lattice.LatticeCubicFcc;
+import etomica.space3d.Vector;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -34,7 +35,7 @@ public class ConfigurationZincblende extends Configuration {
         fcc.initializePositions(iterators[1]);
         
         //shift lattice in all three directions by one-quarter the lattice constant
-        Space3D.Vector shift = new Space3D.Vector();
+        Vector shift = new Vector();
         shift.E(0.125*fcc.getLatticeConstant());
         
         iterators[0].reset();

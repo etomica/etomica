@@ -5,11 +5,11 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.Space.Vector;
 import etomica.action.PhaseInflateAnisotropic;
 import etomica.action.PhaseActionAdapter;
 import etomica.data.DataSourceUniform;
 import etomica.potential.PotentialCalculationEnergySum;
+import etomica.space.Vector;
 import etomica.units.*;
 
 /**
@@ -19,7 +19,7 @@ import etomica.units.*;
 public class MeterPressureByVolumeChange extends MeterFunction implements EtomicaElement {
     
     PhaseInflateAnisotropic inflater;
-    Space.Vector[] scale;
+    Vector[] scale;
     boolean[] inflateDimensions;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
@@ -69,7 +69,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         for(int i=0; i<nDataPerPhase; i++) { //disallow x = 0
             if(x[i] == 0.0) x[i] = 0.1*dx;
         }
-        scale = new Space.Vector[nDataPerPhase];
+        scale = new Vector[nDataPerPhase];
         
         double mult = 1.0/nDimension;
         for(int i=0; i<nDataPerPhase; i++) {

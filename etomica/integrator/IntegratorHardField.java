@@ -12,10 +12,10 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Integrator.Forcible;
 import etomica.IteratorDirective.PotentialCriterion;
-import etomica.Space.Vector;
 import etomica.atom.AtomTypeWall;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 
 /**
  * Extension of IntegratorHard for case where a constant external force field is applied.
@@ -151,13 +151,13 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     */
     public class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
     
-        public final Space.Vector force;
+        public final Vector force;
         public boolean forceFree = true;
         public Agent(Space space, Atom a) {
             super(a);
             force = space.makeVector();
         }
-        public final Space.Vector force() {return force;}
+        public final Vector force() {return force;}
     }//end of Agent
     
     /**

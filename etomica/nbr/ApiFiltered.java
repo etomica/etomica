@@ -9,7 +9,6 @@ import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.IteratorDirective.Direction;
-import etomica.Space.Vector;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
@@ -17,6 +16,7 @@ import etomica.atom.AtomsetFilter;
 import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.nbr.cell.AtomsetIteratorCellular;
+import etomica.space.Vector;
 
 /**
  * Wraps an AtomsetIterator and filters its iterates so that
@@ -172,7 +172,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
 	private Atom[] next;
 	private final Atom[] nextAtoms;
     private NearestImageVectorSource nearestImageVectorSource;
-    private Space.Vector nearestImageVector, nextNearestImageVector;
+    private Vector nearestImageVector, nextNearestImageVector;
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed

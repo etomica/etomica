@@ -2,6 +2,7 @@ package etomica.lattice.crystal;
 import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
+import etomica.space.Vector;
 
 /**
  * Primitive group for a hexagonal system.  Primitive-vector angles
@@ -104,7 +105,7 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
         setC(c*scale);
     }
 
-    public int[] latticeIndex(Space.Vector q) {
+    public int[] latticeIndex(Vector q) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -113,7 +114,7 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
         return idx;
    */ }
     
-    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         throw new RuntimeException("latticeIndex method not implemented yet in primitive");
    /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;

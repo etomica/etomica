@@ -6,7 +6,7 @@ package etomica.potential;
 
 import etomica.Atom;
 import etomica.Space;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 
 
 /**
@@ -27,6 +27,6 @@ public interface PotentialSoft {
 	 */
 	//TODO consider if implementation for pair describes energy change with movement of first or 2nd atom
 	//TODO consider returning array of vectors, one for each atom
-	public Space.Vector gradient(Atom[] atoms);
+	public Vector gradient(Atom[] atoms);
 
 }

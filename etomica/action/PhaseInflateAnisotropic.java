@@ -7,6 +7,7 @@ package etomica.action;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.space.Vector;
 
 /**
  * Performs actions that cause volume of system to expand, with particle
@@ -44,7 +45,7 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	 * zero or negative scale for any element throws an
 	 * IllegalArgumentException.
 	 */
-	public void setScale(Space.Vector scale) {
+	public void setScale(Vector scale) {
 		for (int i = 0; i < scale.D(); i++) {
 			if (scale.x(i) <= 0.0)
 				throw new IllegalArgumentException(
@@ -56,8 +57,8 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	/**
 	 * @return a clone of the current scale vector.
 	 */
-	public Space.Vector getScale() {
-		return (Space.Vector) scale.clone();
+	public Vector getScale() {
+		return (Vector) scale.clone();
 	}
 
 	/**
@@ -96,10 +97,10 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 
 	private AtomIteratorAllMolecules moleculeIterator;
 
-	protected Space.Vector scale;
+	protected Vector scale;
 
-	protected transient Space.Vector temp;
+	protected transient Vector temp;
 
-	private transient Space.Vector oldDimensions;
+	private transient Vector oldDimensions;
 
 }

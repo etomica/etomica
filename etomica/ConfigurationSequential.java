@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.atom.iterator.AtomIteratorCompound;
+import etomica.space.Vector;
 
 /**
  * Fills phase with molecules on a lattice, taking each molecule in successive order
@@ -19,7 +20,7 @@ import etomica.atom.iterator.AtomIteratorCompound;
 public class ConfigurationSequential extends Configuration {
 
 	private boolean fill;
-	private Space.Vector dimensions;
+	private Vector dimensions;
 	private boolean squareConfig;
     private Space space;
     
@@ -32,7 +33,7 @@ public class ConfigurationSequential extends Configuration {
 		dimensions.E(Default.BOX_SIZE);
 	}
     
-	public void setDimensions(Space.Vector dimensions) {this.dimensions.E(dimensions);}
+	public void setDimensions(Vector dimensions) {this.dimensions.E(dimensions);}
     
 	public void setFillVertical(boolean b) {fill = b;}
 	public boolean getFillVertical() {return fill;}
@@ -55,7 +56,7 @@ public class ConfigurationSequential extends Configuration {
 		if(sumOfMolecules == 0) return;
  //       System.out.println("ConfigurationSequential sumOfMolecules = "+sumOfMolecules);
         
-		Space.Vector[] rLat;
+		Vector[] rLat;
         
 		switch(space.D()) {
 			case 1:

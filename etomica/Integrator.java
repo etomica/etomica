@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
@@ -351,7 +352,7 @@ public abstract class Integrator implements java.io.Serializable {
 	 * could be under the influence of a force.
 	 */
 	public interface Forcible {
-		public Space.Vector force();
+		public Vector force();
 	}
 
 	public static class IntervalEvent extends EventObject {

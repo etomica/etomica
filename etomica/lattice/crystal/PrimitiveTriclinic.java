@@ -3,6 +3,7 @@ import etomica.Space;
 import etomica.Space3D;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
+import etomica.space.Vector;
 
 /**
  * Primitive group for a triclinic system.  No restrictions on
@@ -46,12 +47,12 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     //called by update method of superclass
     protected void updateReciprocal() {
         PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal();
-        Space3D.Vector aStar = (Space3D.Vector)recip.latticeVectors[0];
-        Space3D.Vector bStar = (Space3D.Vector)recip.latticeVectors[1];
-        Space3D.Vector cStar = (Space3D.Vector)recip.latticeVectors[2];
-        Space3D.Vector aVec = (Space3D.Vector)latticeVectors[0];
-        Space3D.Vector bVec = (Space3D.Vector)latticeVectors[1];
-        Space3D.Vector cVec = (Space3D.Vector)latticeVectors[2];
+        Vector aStar = (Vector)recip.latticeVectors[0];
+        Vector bStar = (Vector)recip.latticeVectors[1];
+        Vector cStar = (Vector)recip.latticeVectors[2];
+        Vector aVec = (Vector)latticeVectors[0];
+        Vector bVec = (Vector)latticeVectors[1];
+        Vector cVec = (Vector)latticeVectors[2];
         aStar.E(bVec);
         aStar.XE(cVec);
         double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
@@ -160,7 +161,7 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
         setC(c*scale);
     }        
     
-    public int[] latticeIndex(Space.Vector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -168,7 +169,7 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
         return idx;
     }
 
-    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

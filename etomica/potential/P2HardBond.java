@@ -6,8 +6,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Tensor;
-import etomica.Space.Vector;
+import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -25,8 +25,8 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     private double bondDelta;
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
-    private final Space.Vector dr;
-    private final Space.Tensor lastCollisionVirialTensor;
+    private final Vector dr;
+    private final Tensor lastCollisionVirialTensor;
 
     public P2HardBond() {
         this(Simulation.getDefault().space);
@@ -111,7 +111,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         return lastCollisionVirial;
     }
 
-    public final Space.Tensor lastCollisionVirialTensor() {
+    public final Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;

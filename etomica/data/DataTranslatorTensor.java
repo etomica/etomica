@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.DataTranslator;
 import etomica.Space;
-import etomica.Space.Tensor;
+import etomica.space.Tensor;
 
 /**
  * Converts between an array of double and a tensor object.
@@ -29,10 +29,10 @@ public class DataTranslatorTensor implements DataTranslator {
     }
 
     public double[] toArray(Object obj) {
-        ((Space.Tensor)obj).assignTo(array);
+        ((Tensor)obj).assignTo(array);
         return array;
     }
 
-    private final Space.Tensor tensor;
+    private final Tensor tensor;
     private final double[] array;
 }

@@ -11,9 +11,9 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Integrator.Forcible;
-import etomica.Space.Vector;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.Vector;
 
 //import etomica.units.*;
 
@@ -29,7 +29,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     protected final Space space;
-    final Space.Vector work1, work2;
+    final Vector work1, work2;
     double zeta = 0.0;
     double chi = 0.0;
     double p1, p2, p3, p4;
@@ -102,8 +102,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             Agent agent = (IntegratorGear4.Agent)a.ia;
-            Space.Vector r = a.coord.position();
-            Space.Vector p = a.coord.momentum();
+            Vector r = a.coord.position();
+            Vector p = a.coord.momentum();
             work1.E(p);
             work1.PEa1Tv1(chi*a.coord.mass(),r);
             work2.E(work1);
@@ -131,8 +131,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
-            Space.Vector r = a.coord.position();
-            Space.Vector p = a.coord.momentum();
+            Vector r = a.coord.position();
+            Vector p = a.coord.momentum();
             double rm = a.coord.rm();
             r.PEa1Tv1(p1*rm, agent.dr1);
             r.PEa1Tv1(p2*rm, agent.dr2);
@@ -194,9 +194,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             
     public static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
-        public Space.Vector force;
-        public Space.Vector dr1, dr2, dr3, dr4;
-        public Space.Vector dp1, dp2, dp3, dp4;
+        public Vector force;
+        public Vector dr1, dr2, dr3, dr4;
+        public Vector dp1, dp2, dp3, dp4;
 
         public Agent(Space space, Atom a) {
             atom = a;
@@ -211,7 +211,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             dp4 = space.makeVector();
         }
         
-        public Space.Vector force() {return force;}
+        public Vector force() {return force;}
     }
 
 /*    public static void main(String[] args) {

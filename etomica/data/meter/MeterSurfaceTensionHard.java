@@ -2,7 +2,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.Tensor;
+import etomica.space.Tensor;
 import etomica.units.Dimension;
 
 /**
@@ -15,7 +15,7 @@ import etomica.units.Dimension;
  */
 
 public class MeterSurfaceTensionHard extends MeterScalar {//, EtomicaElement {
-    private final Space.Tensor pressureTensor;
+    private final Tensor pressureTensor;
     private final MeterTensorVelocity velocityTensor;
     private final MeterTensorVirialHard virialTensor;
     private double surfaceTension, collisionValue, velocityValue;

@@ -5,9 +5,9 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Coordinate;
-import etomica.Space.Vector;
-import etomica.Space.Coordinate.Angular;
+import etomica.space.Coordinate;
+import etomica.space.Vector;
+import etomica.space.Coordinate.Angular;
 import etomica.units.Dimension;
 
 /**
@@ -22,8 +22,8 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
-    private Space.Vector e1;
-    private Space.Vector e2;
+    private Vector e1;
+    private Vector e2;
     private double theta, ec2;
     
     public P2HardAssociationCone() {this(Simulation.getDefault().space);}
@@ -68,13 +68,13 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         if (r2 < wellCutoffSquared) {
             e1.E(0.);
             e1.setX(0,1);
-            ((Space.Coordinate.Angular)pair[0].coord).orientation().convertToSpaceFrame(e1);
+            ((Coordinate.Angular)pair[0].coord).orientation().convertToSpaceFrame(e1);
             double er1 = e1.dot(cPair.dr());
                        
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
-                ((Space.Coordinate.Angular)pair[1].coord).orientation().convertToSpaceFrame(e2);
+                ((Coordinate.Angular)pair[1].coord).orientation().convertToSpaceFrame(e2);
                 double er2 = e2.dot(cPair.dr());
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }

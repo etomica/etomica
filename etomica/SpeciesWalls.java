@@ -9,6 +9,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /* History
@@ -216,7 +217,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             iterator.reset();
             while(iterator.hasNext()) {//equally space all "wall atoms"
                 Atom a = iterator.nextAtom();
-                Space.Vector r = a.coord.position();
+                Vector r = a.coord.position();
                 a.coord.momentum().E(0.0);
                 a.coord.setStationary(stationary);
                 r.setX(i,xyNext);

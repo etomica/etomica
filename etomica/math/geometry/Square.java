@@ -6,6 +6,7 @@ package etomica.math.geometry;
 
 import etomica.Space;
 import etomica.Space2D;
+import etomica.space.Vector;
 
 /**
  * A geometric square.
@@ -27,8 +28,8 @@ public class Square extends Polyhedron {
      */
     public Square(double size) {
         super();
-        vertices = new Space2D.Vector[4];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new Space2D.Vector();
+        vertices = new Vector[4];
+        for(int i=0; i<vertices.length; i++) vertices[i] = new Vector();
         setSize(size);
     }
 
@@ -45,7 +46,7 @@ public class Square extends Polyhedron {
      * computed once and stored; thus it may be worthwhile to store the values if using them often, 
      * but if doing so be careful to update them if any transformations are done to the lattice.
      */
-    public Space.Vector[] vertex() {
+    public Vector[] vertex() {
         vertices[0].E(n,n);
         vertices[1].E(n,p);
         vertices[2].E(p,n);
@@ -57,7 +58,7 @@ public class Square extends Polyhedron {
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
      */
-    public boolean inCell(Space.Vector v) {
+    public boolean inCell(Vector v) {
         double x = v.x(0);
         double y = v.x(1);
          return (x>=n) && (x<=p) && (y>=n) && (y<=p);
@@ -79,6 +80,6 @@ public class Square extends Polyhedron {
     }
     private double size;
     private double n, p;//n = -size/2, p = +size/2
-    private final Space2D.Vector[] vertices;
+    private final Vector[] vertices;
 
 }

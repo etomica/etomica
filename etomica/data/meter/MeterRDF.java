@@ -4,10 +4,10 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.CoordinatePair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceUniform;
+import etomica.space.CoordinatePair;
 import etomica.units.Dimension;
 
 /**
@@ -95,7 +95,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	
     private final Space space;
     private AtomsetIteratorPhaseDependent iterator;
-    private final Space.CoordinatePair cPair;
+    private final CoordinatePair cPair;
     private final DataSourceUniform xDataSourceUniform;//local copy of xDataSource to avoid repeated casts
 	
 	/**

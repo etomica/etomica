@@ -3,6 +3,7 @@ package etomica.lattice;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
+import etomica.space.Vector;
 import etomica.*;
 
 /**
@@ -21,17 +22,17 @@ public class LatticePlane implements AtomFilter {
     private final Plane plane;
     private Primitive primitive;
     private Primitive reciprocal;
-    private Space.Vector normal, delta;
+    private Vector normal, delta;
     private Space space;
     private int[] millerIndices;
     private double spacePosition;
-    private Space3D.Vector origin;
+    private Vector origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
         reciprocal = primitive.reciprocal();
         space = primitive.space;
-        origin = (Space3D.Vector)space.makeVector();
+        origin = (Vector)space.makeVector();
         millerIndices = new int[space.D()];
         switch(space.D()) {
             case 3: plane = new Plane(); break;
@@ -44,7 +45,7 @@ public class LatticePlane implements AtomFilter {
     }
     
     public boolean accept(Atom a) {
-        return !plane.isPositiveSide((Space3D.Vector)a.coord.position());
+        return !plane.isPositiveSide((Vector)a.coord.position());
     }
     
     public void setPrimitive(Primitive primitive) {
@@ -64,7 +65,7 @@ public class LatticePlane implements AtomFilter {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
         int currentPosition = getPosition();
         normal.E(0.0);
-        Space.Vector[] b = reciprocal.vectors();
+        Vector[] b = reciprocal.vectors();
         for(int i=0; i<h.length; i++) {
             normal.PEa1Tv1(h[i],b[i]);
             millerIndices[i] = h[i];
@@ -99,7 +100,7 @@ public class LatticePlane implements AtomFilter {
         spacePosition = d;
         delta.E(origin);
         delta.PEa1Tv1(d/Math.sqrt(normal.squared()), normal);
-        plane.moveTo((Space3D.Vector)delta);
+        plane.moveTo((Vector)delta);
     }
     /**
      * Gets the position of the plane as the distance from the
@@ -118,7 +119,7 @@ public class LatticePlane implements AtomFilter {
         delta.E(origin);
 		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI/normal.squared(),normal);
 //		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI,normal);
-        plane.moveTo((Space3D.Vector)delta);
+        plane.moveTo((Vector)delta);
     }
     
     /**
@@ -134,14 +135,14 @@ public class LatticePlane implements AtomFilter {
      * plane toward which the normal vector points.  The direction
      * of the normal vector can be inverted using the invert method.
      */
-    public boolean isPositiveSide(Space3D.Vector p) {
+    public boolean isPositiveSide(Vector p) {
         return plane.isPositiveSide(p);
     }
     
     /**
      * Returns true if the given point is inside the plane (within some small tolerance).
      */
-    public boolean inPlane(Space3D.Vector p) {
+    public boolean inPlane(Vector p) {
         return plane.inPlane(p);
     }
     
@@ -164,10 +165,10 @@ public class LatticePlane implements AtomFilter {
     /**
      * Sets the origin from which the position of the atom is measured.
      */
-    public void setOrigin(Space.Vector origin) {
+    public void setOrigin(Vector origin) {
         this.origin.E(origin);
     }
-    public Space.Vector getOrigin() {return origin;}
+    public Vector getOrigin() {return origin;}
     
     /**
      * Changes the direction of the normal vector so that it points

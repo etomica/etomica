@@ -4,8 +4,8 @@ import etomica.DataTranslator;
 import etomica.MeterAbstract;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.Tensor;
 import etomica.data.DataTranslatorTensor;
+import etomica.space.Tensor;
 
 /*import javax.swing.JTable;
 import javax.swing.table.*;
@@ -30,7 +30,7 @@ public abstract class MeterTensor extends MeterAbstract {
         translator = new DataTranslatorTensor(space);
     }
     
-    public abstract Space.Tensor getDataAsTensor(Phase phase);
+    public abstract Tensor getDataAsTensor(Phase phase);
     
     public double[] getData(Phase phase) {
         return translator.toArray(getDataAsTensor(phase));

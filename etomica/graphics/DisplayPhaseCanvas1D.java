@@ -8,6 +8,8 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import etomica.utility.java2.Iterator;
 
     /* History of changes
@@ -65,7 +67,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private void drawAtom(Graphics g, int origin[], Atom a) {
         if(!atomFilter.accept(a)) return;
         
-        Space.Vector r = a.coord.position();
+        Vector r = a.coord.position();
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
 
@@ -117,7 +119,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
+    protected boolean computeShiftOrigin(Atom a, Boundary b) {
         if(a.type instanceof AtomTypeSphere) {
             float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
@@ -184,7 +186,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         }
             
         //Draw all atoms
-        Space.Boundary boundary = displayPhase.getPhase().boundary();
+        Boundary boundary = displayPhase.getPhase().boundary();
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }

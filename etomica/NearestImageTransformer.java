@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.space.Vector;
+
 
 /**
  * TODO To change the template for this generated type comment go to
@@ -15,5 +17,5 @@ package etomica;
  */
 public interface NearestImageTransformer {
 
-    public void nearestImage(Space.Vector dr);
+    public void nearestImage(Vector dr);
 }

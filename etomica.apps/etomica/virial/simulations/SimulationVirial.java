@@ -10,6 +10,8 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.space3d.Boundary;
+import etomica.space3d.Vector;
 import etomica.virial.*;
 import etomica.virial.cluster.*;
 
@@ -175,7 +177,7 @@ public class SimulationVirial extends SimulationGraphic {
 		Default.TRUNCATE_POTENTIALS = false;
 		
 		final PhaseCluster phase = new PhaseCluster(this);
-		phase.setBoundary(this.space.makeBoundary(Space3D.Boundary.NONE));	
+		phase.setBoundary(this.space.makeBoundary(Boundary.NONE));	
 		species = new SpeciesSpheresMono(this);
 //		species = new etomica.models.water.SpeciesWater(this);
 		species.setNMolecules(nMolecules);
@@ -205,10 +207,10 @@ public class SimulationVirial extends SimulationGraphic {
 		
 		this.elementCoordinator.go();
 		
-		Space3D.Vector origin = new Space3D.Vector(5.,5.,5.);
+		Vector origin = new Vector(5.,5.,5.);
 		SpeciesAgent speciesAgent = phase.getAgent(species);
-		speciesAgent.coord.translateTo(new Space3D.Vector(5.,5.,5.));
-		speciesAgent.firstMolecule().coord.translateTo(new Space3D.Vector(5.,5.,5.));
+		speciesAgent.coord.translateTo(new Vector(5.,5.,5.));
+		speciesAgent.firstMolecule().coord.translateTo(new Vector(5.,5.,5.));
 				
 		AtomList childList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
 		AtomIteratorList list1 = new AtomIteratorList(childList);

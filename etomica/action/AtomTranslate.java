@@ -6,9 +6,10 @@ package etomica.action;
 
 import etomica.Atom;
 import etomica.Space;
+import etomica.space.Vector;
 
 public class AtomTranslate extends AtomActionAdapter {
-    protected Space.Vector displacement;
+    protected Vector displacement;
         
     public AtomTranslate(Space space) {
         super();
@@ -16,6 +17,6 @@ public class AtomTranslate extends AtomActionAdapter {
     }
         
     public final void actionPerformed(Atom a) {a.coord.position().PE(displacement);}
-    public void actionPerformed(Atom a, Space.Vector d) {a.coord.position().PE(d);}
-    public final void setDisplacement(Space.Vector d) {displacement.E(d);}
+    public void actionPerformed(Atom a, Vector d) {a.coord.position().PE(d);}
+    public final void setDisplacement(Vector d) {displacement.E(d);}
 }

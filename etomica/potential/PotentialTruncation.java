@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.Space;
-import etomica.Space.CoordinatePair;
+import etomica.space.CoordinatePair;
 
 /**
  * Class that defines whether and how the interatomic potential is truncated.

@@ -1,5 +1,6 @@
 package etomica;
 import etomica.atom.iterator.AtomIteratorCompound;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -39,19 +40,19 @@ public class ConfigurationLinear extends Configuration {
             case 1:
                 return;
             case 2:
-                setOrientation(new Space2D.Vector(Math.cos(angle[0]),Math.sin(angle[0])));
+                setOrientation(new Vector(Math.cos(angle[0]),Math.sin(angle[0])));
                 return;
             case 3:
-                setOrientation(new Space3D.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
+                setOrientation(new Vector(Math.sin(angle[1])*Math.cos(angle[0]),
                                                   Math.sin(angle[1])*Math.sin(angle[0]),
                                                   Math.cos(angle[1])));
                 return;
         }
     }
     public double getAngle(int i) {return angle[i];}
-    public void setOrientation(Space.Vector e) {orientation.E(e);}
+    public void setOrientation(Vector e) {orientation.E(e);}
     
-    public void setOffset(Space.Vector v) {
+    public void setOffset(Vector v) {
         orientation.E(v);
         bondLength = Math.sqrt(v.squared());
         orientation.DE(bondLength);
@@ -82,7 +83,7 @@ public class ConfigurationLinear extends Configuration {
     }//end of initializeCoordinates
     
     private double bondLength;
-    private Space.Vector orientation;
+    private Vector orientation;
     private double[] angle;
     private Space space;
 }//end of ConfigurationLinear

@@ -5,6 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.Space;
+import etomica.space.Vector;
 
 /**
  * Representation of a mathematical polytope, which is a finite region
@@ -47,12 +48,12 @@ public abstract class Polytope {
      * computed once and stored; thus it may be worthwhile to store the values if using them often, 
      * but if doing so be careful to update them if any transformations are done to the lattice.
      */
-    public abstract Space.Vector[] vertex();
+    public abstract Vector[] vertex();
     
     /**
      * Returns <code>true</code> if the given vector lies inside the cell, <code>false</code> otherwise.
      */
-    public abstract boolean inCell(Space.Vector v);
+    public abstract boolean inCell(Vector v);
 
     /**
      * Number of vertices bounding the cell.
@@ -64,10 +65,10 @@ public abstract class Polytope {
      * Returns squared distance between nearest vertices of this cell
      * and an identical cell separated from it by the given vector.
      */
-    public double r2NearestVertex(Space.Vector dr) {
-        Space.Vector[] v = vertex();
+    public double r2NearestVertex(Vector dr) {
+        Vector[] v = vertex();
         double r2Min = Double.MAX_VALUE;
-        Space.Vector vdr = (Space.Vector)dr.clone();
+        Vector vdr = (Vector)dr.clone();
         for(int k1=0; k1<v.length; k1++) {
             for(int k2=0; k2<v.length; k2++) {
                 //compute [v[k1]-(v[k2]+dr)]^2

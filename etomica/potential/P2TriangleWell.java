@@ -6,7 +6,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
@@ -21,7 +21,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
   private double lambda; //wellDiameter = coreDiameter * lambda ;lambda is well width
   private double epsilon;
   private double constant;
-  private final Space.Vector force;
+  private final Vector force;
 
   public P2TriangleWell() {
     this(Simulation.getDefault().space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
@@ -65,7 +65,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     }
  
 
-    public Space.Vector force(Atom[] pair){
+    public Vector force(Atom[] pair){
         
     	cPair.reset(pair[0].coord,pair[1].coord);
         double r2 = cPair.r2();

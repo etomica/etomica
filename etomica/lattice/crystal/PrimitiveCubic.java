@@ -5,6 +5,7 @@ import etomica.lattice.Primitive;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;
+import etomica.space.Vector;
 
 /**
  * Primitive group for a cubic system.  All primitive
@@ -77,7 +78,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     }
     
     //override superclass method to scale copy-vectors to current size
-    protected Space.Vector[] copyVectors() {
+    protected Vector[] copyVectors() {
         for(int i=0; i<D; i++) {
             latticeVectorsCopy[i].E(latticeVectors[i]);
             latticeVectorsCopy[i].TE(size);
@@ -101,7 +102,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
         setSize(scale*size);
     }
 
-    public int[] latticeIndex(Space.Vector q) {
+    public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -109,7 +110,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
         return idx;
     }
     
-    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+    public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

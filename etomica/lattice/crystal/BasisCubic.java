@@ -1,6 +1,7 @@
 package etomica.lattice.crystal;
 import etomica.*;
 import etomica.lattice.Basis;
+import etomica.space.Vector;
 
 /**
  * General basis that makes a crystal on a BravaisLattice
@@ -21,13 +22,13 @@ public class BasisCubic implements Basis {
      * for interal representation of basis, so changes to scaledCoordinates
      * will affect the basis.
      */
-    public BasisCubic(PrimitiveCubic primitive, Space.Vector[] scaledCoordinates) {
+    public BasisCubic(PrimitiveCubic primitive, Vector[] scaledCoordinates) {
         this.primitive = primitive;
         size = scaledCoordinates.length;
         this.scaledCoordinates = scaledCoordinates;
-        coordinates = new Space.Vector[size];
+        coordinates = new Vector[size];
         for(int i=0; i<size; i++) {
-            this.coordinates[i] = (Space.Vector)scaledCoordinates[i].clone();
+            this.coordinates[i] = (Vector)scaledCoordinates[i].clone();
         }
         oldLatticeConstant = 1.0;
     }
@@ -40,7 +41,7 @@ public class BasisCubic implements Basis {
      * Calculates coordinates by multiplying scaled coordinates by scalar
      * size (lattice constant) of the cubic primitive.
      */
-    public Space.Vector[] positions() {
+    public Vector[] positions() {
         double latticeConstant = primitive.getSize();
         if(latticeConstant != oldLatticeConstant) {
             for(int i=0; i<size; i++) {
@@ -52,7 +53,7 @@ public class BasisCubic implements Basis {
     }
     
     private int size;
-    private Space.Vector[] scaledCoordinates, coordinates;
+    private Vector[] scaledCoordinates, coordinates;
     private PrimitiveCubic primitive;
     private double oldLatticeConstant;
     

@@ -4,6 +4,7 @@ package etomica.math.geometry;
 
 import etomica.Space3D;
 import etomica.Space;
+import etomica.space.Vector;
 
 /**
  * Class describing a plane occupying a 3-dimensional space.  
@@ -23,8 +24,8 @@ public class Plane {
     //coefficients defining plane, ax + by + cz + d = 0
     //such that a^2 + b^c + c^2 = 1
     private double a, b, c, d;
-    private Space3D.Vector[] inPlane; //work vectors used by inPlaneSquare method
-    private Space3D.Vector ctr; //work vector used by inPlaneSquare method (no-x0 version)
+    private Vector[] inPlane; //work vectors used by inPlaneSquare method
+    private Vector ctr; //work vector used by inPlaneSquare method (no-x0 version)
     
     /**
      * Tolerance used to judge if a given point is in the plane.
@@ -70,7 +71,7 @@ public class Plane {
      * Returns a new plane with the given normal (1st argument)through the 
      * given point (2nd argument).
      */
-    public static Plane newNormalPointForm(Space3D.Vector normal, Space3D.Vector point) {
+    public static Plane newNormalPointForm(Vector normal, Vector point) {
         double a = normal.x(0);
         double b = normal.x(1);
         double c = normal.x(2);
@@ -84,8 +85,8 @@ public class Plane {
      * Sets the given vector to be a unit normal vector to the plane and returns it.  
      * If argument is null, creates a new 3D Vector to return.
      */
-    public Space3D.Vector getNormalVector(Space3D.Vector normal) {
-        if(normal == null) return new Space3D.Vector(a, b, c);
+    public Vector getNormalVector(Vector normal) {
+        if(normal == null) return new Vector(a, b, c);
         else {
             normal.E(a,b,c);
             return normal;
@@ -101,10 +102,10 @@ public class Plane {
      * second vector is (uniquely) defined as perpendicular to both the normal and the first
      * in-plane vector.
      */
-    public Space3D.Vector[] inPlaneVectors(Space3D.Vector[] p) {
-        if(p == null || p.length != 2) p = new Space3D.Vector[] {new Space3D.Vector(), new Space3D.Vector()};
-        Space3D.Vector p1 = p[0];
-        Space3D.Vector p2 = p[1];
+    public Vector[] inPlaneVectors(Vector[] p) {
+        if(p == null || p.length != 2) p = new Vector[] {new Vector(), new Vector()};
+        Vector p1 = p[0];
+        Vector p2 = p[1];
         if(a == 0 && b == 0) {//parallel to xy plane
             p1.E(1, 0, 0);
             p2.E(0, 1, 0);
@@ -123,8 +124,8 @@ public class Plane {
     /**
      * Sets the orientation of the plane to be normal to the given vector.
      */
-    public void setNormalVector(Space.Vector n) {
-        if(!(n instanceof Space3D.Vector)) throw new IllegalArgumentException("Error: Plane.setNormalVector requires 3D vector as argument");
+    public void setNormalVector(Vector n) {
+        if(!(n instanceof Vector)) throw new IllegalArgumentException("Error: Plane.setNormalVector requires 3D vector as argument");
         if(n.squared() == 0.0) throw new IllegalArgumentException("Error: attempt to set orientation of plane with respect to an ill-defined vector");
         a = n.x(0);
         b = n.x(1);
@@ -172,8 +173,8 @@ public class Plane {
      * Sets the given vector to be the point in the plane closest to the origin.
      * If vector is null, makes a new Vector and returns it.
      */
-    public Space3D.Vector center(Space3D.Vector v) {
-        if(v == null) return new Space3D.Vector(-d*a, -d*b, -d*c);
+    public Vector center(Vector v) {
+        if(v == null) return new Vector(-d*a, -d*b, -d*c);
         else {
             v.E(-d*a, -d*b, -d*c);
             return v;
@@ -185,8 +186,8 @@ public class Plane {
      * Uses second vector to hold result that is returned; if second vector is 
      * null, creates a new Vector instance.
      */
-    public Space3D.Vector nearestPoint(Space3D.Vector x0, Space3D.Vector point) {
-        if(point == null) point = new Space3D.Vector();
+    public Vector nearestPoint(Vector x0, Vector point) {
+        if(point == null) point = new Vector();
         double factor = distanceTo(x0);
         point.E(x0.x(0)-factor*a, x0.x(1)-factor*b, x0.x(2)-factor*c);
         return point;
@@ -195,14 +196,14 @@ public class Plane {
     /**
      * Perpendicular distance from the plane to the given point.
      */
-    public double distanceTo(Space3D.Vector x0) {
+    public double distanceTo(Vector x0) {
         return a*x0.x(0) + b*x0.x(1) + c*x0.x(2) + d;
     }
     
     /**
      * Shifts the plane at fixed orientation so that it contains the given point.
      */
-    public void moveTo(Space3D.Vector r) {
+    public void moveTo(Vector r) {
         d = -(a*r.x(0) + b*r.x(1) + c*r.x(2));
     }        
     
@@ -210,7 +211,7 @@ public class Plane {
      * Dihedral angle between this plane and the given plane.
      */
     public double dihedralAngle(Plane p) {
-        Space3D.Vector n = p.getNormalVector(null);
+        Vector n = p.getNormalVector(null);
         return a*n.x(0) + b*n.x(1) + c*n.x(2);
     }
     
@@ -229,14 +230,14 @@ public class Plane {
      * plane toward which the normal vector points.  The direction
      * of the normal vector can be inverted using the invert method.
      */
-    public boolean isPositiveSide(Space3D.Vector p) {
+    public boolean isPositiveSide(Vector p) {
         return distanceTo(p) > 0.0;
     }
     
     /**
      * Returns true if the given point is within a distance epsilon of this plane.
      */
-    public boolean inPlane(Space3D.Vector p) {
+    public boolean inPlane(Vector p) {
         return Math.abs(distanceTo(p)) < epsilon;
     }
     
@@ -258,11 +259,11 @@ public class Plane {
      * otherwise makes a new array and returns it.  Square is aligned so that its vertices
      * fall on the lines defined by the inPlaneVectors result.
      */
-    public Space3D.Vector[] inPlaneSquare(Space3D.Vector x0, double d, Space3D.Vector[] s) {
-        if(s == null || s.length != 4) s = new Space3D.Vector[] {new Space3D.Vector(), new Space3D.Vector(), new Space3D.Vector(), new Space3D.Vector()};
+    public Vector[] inPlaneSquare(Vector x0, double d, Vector[] s) {
+        if(s == null || s.length != 4) s = new Vector[] {new Vector(), new Vector(), new Vector(), new Vector()};
         inPlane = inPlaneVectors(inPlane);
-        Space3D.Vector p1 = inPlane[0];
-        Space3D.Vector p2 = inPlane[1];
+        Vector p1 = inPlane[0];
+        Vector p2 = inPlane[1];
       //  System.out.println("ctr: "+x0.toString());
       //  System.out.println("p1 : "+p1.toString());
       //  System.out.println("p2 : "+p2.toString());
@@ -277,7 +278,7 @@ public class Plane {
     /**
      * inPlaneSquare with square centered on point in plane closest to origin.
      */
-    public Space3D.Vector[] inPlaneSquare(double d, Space3D.Vector[] s) {
+    public Vector[] inPlaneSquare(double d, Vector[] s) {
         return inPlaneSquare(center(ctr), d, s);
     }
     
@@ -294,8 +295,8 @@ public class Plane {
     public static void main(String[] args) {
         Plane plane = new Plane(2.8, 7.5, -2.1, 293.8);
     //    Plane plane = new Plane(5.0, 0.0, 0.0, 293.8);
-        Space3D.Vector[] p = plane.inPlaneVectors(null);
-        Space3D.Vector n = plane.getNormalVector(null);
+        Vector[] p = plane.inPlaneVectors(null);
+        Vector n = plane.getNormalVector(null);
         System.out.println("Normal: "+n.toString());
         System.out.println("plane1: "+p[0].toString());
         System.out.println("plane2: "+p[1].toString());

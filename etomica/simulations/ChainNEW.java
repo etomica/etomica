@@ -11,6 +11,7 @@ import etomica.potential.P1TetheredHardSpheres;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
+import etomica.space.Vector;
 
 import java.awt.*;
 import javax.swing.*;
@@ -66,7 +67,7 @@ public class ChainNEW extends SimulationGraphic {
 		first.coord.momentum().E(0.0);
 		first.coord.setMass(Double.MAX_VALUE);
 		Atom chain = ((AtomTreeNodeGroup)phase.getAgent(speciesChain).node).firstChildAtom();
-		chain.coord.translateBy(new Space2D.Vector(4,15));
+		chain.coord.translateBy(new Vector(4,15));
 		dk.setAtom(last);
 		
 	}
@@ -76,9 +77,9 @@ public class ChainNEW extends SimulationGraphic {
 		private DisplayPhase display;
 		private boolean visible=false;
 		private Atom target;
-		private Space.Vector impulse;
-		private Space2D.Vector targetpos;
-		private Space2D.Vector mousepos;
+		private Vector impulse;
+		private Vector targetpos;
+		private Vector mousepos;
 		private double impulsefactor;
 		private double impulsefactor1 = .0051;
 
@@ -91,7 +92,7 @@ public class ChainNEW extends SimulationGraphic {
 			display.addDisplayPhaseListener(new Kicker());
 			display.addDrawable(this);
 			impulse = sim.space.makeVector();
-			mousepos= (Space2D.Vector) sim.space.makeVector();
+			mousepos= (Vector) sim.space.makeVector();
 			impulsefactor = 10;
 			//impulsefactor = 50;
 		}
@@ -129,7 +130,7 @@ public class ChainNEW extends SimulationGraphic {
 		private class Kicker implements DisplayPhaseListener {
 			public void displayPhaseAction(DisplayPhaseEvent dpe) {
 				java.awt.event.MouseEvent event =  dpe.getMouseEvent();
-				targetpos = (Space2D.Vector) target.coord.position();
+				targetpos = (Vector) target.coord.position();
 				impulse.E(dpe.point());
 				impulse.ME(targetpos);
 				impulse.TE(-impulsefactor*Math.exp(impulsefactor1*impulse.squared()));

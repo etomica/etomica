@@ -13,6 +13,8 @@ import etomica.chem.models.*;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
+import etomica.space.Vector;
+import etomica.space3d.Boundary;
 import etomica.*;
 
 /**
@@ -60,8 +62,8 @@ public class Abstract3Site extends ModelMolecular {
 
 		public PotentialWW(Space space, PotentialTruncation potentialTruncation) {
 			super(space,potentialTruncation);
-			dr = (Space3D.Vector)space.makeVector();
-			shift = (Space3D.Vector)space.makeVector();
+			dr = (Vector)space.makeVector();
+			shift = (Vector)space.makeVector();
 		}   
 		public double energy(Atom[] pair){
 			double sum = 0.0;
@@ -71,8 +73,8 @@ public class Abstract3Site extends ModelMolecular {
 			Atom[] atomArray2 = ((AtomTreeNodeGroupArray)pair[1].node).childAtomArray();
 		
 			//compute O-O distance to consider truncation	
-			Space3D.Vector O1r = (Space3D.Vector)atomArray1[0].coord.position();
-			Space3D.Vector O2r = (Space3D.Vector)atomArray2[0].coord.position();
+			Vector O1r = (Vector)atomArray1[0].coord.position();
+			Vector O2r = (Vector)atomArray2[0].coord.position();
 
 			dr.Ev1Mv2(O1r, O2r);
 			boundary.nearestImage(dr, shift);
@@ -88,10 +90,10 @@ public class Abstract3Site extends ModelMolecular {
 			double s6 = s2*s2*s2;
 			sum += epsilon4*s6*(s6 - 1.0);
 		
-			Space3D.Vector H11r = (Space3D.Vector)atomArray1[1].coord.position();
-			Space3D.Vector H12r = (Space3D.Vector)atomArray1[2].coord.position();
-			Space3D.Vector H21r = (Space3D.Vector)atomArray2[1].coord.position();
-			Space3D.Vector H22r = (Space3D.Vector)atomArray2[2].coord.position();
+			Vector H11r = (Vector)atomArray1[1].coord.position();
+			Vector H12r = (Vector)atomArray1[2].coord.position();
+			Vector H21r = (Vector)atomArray2[1].coord.position();
+			Vector H22r = (Vector)atomArray2[2].coord.position();
         		
 			final boolean zeroShift = shift.isZero();
 					
@@ -130,7 +132,7 @@ public class Abstract3Site extends ModelMolecular {
 			return sum;																					        
 		}//end of energy
     
-		public Space.Vector gradient(Atom[] pair){
+		public Vector gradient(Atom[] pair){
 			throw new etomica.exception.MethodNotImplementedException();
 		}
 		public double hyperVirial(Atom[] pair){
@@ -160,16 +162,16 @@ public class Abstract3Site extends ModelMolecular {
     
 		public double sigma , sigma2;
 		public double epsilon, epsilon4;
-		private Space3D.Boundary boundary;
+		private Boundary boundary;
 		private double chargeH;
 		private double chargeO;
 		private double chargeOO, chargeOH, chargeHH;
-		private Space3D.Vector dr, shift;
+		private Vector dr, shift;
 		/**
 		 * Returns the boundary.
 		 * @return Space3D.Boundary
 		 */
-		public Space3D.Boundary getBoundary() {
+		public Boundary getBoundary() {
 			return boundary;
 		}
 
@@ -177,7 +179,7 @@ public class Abstract3Site extends ModelMolecular {
 		 * Sets the boundary.
 		 * @param boundary The boundary to set
 		 */
-		public void setBoundary(Space3D.Boundary boundary) {
+		public void setBoundary(Boundary boundary) {
 			this.boundary = boundary;
 		}
 	}//end of PotentialWW

@@ -5,9 +5,9 @@ import etomica.EtomicaInfo;
 import etomica.MeterAbstract;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.Vector;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.data.DataSourceUniform;
+import etomica.space.Vector;
 import etomica.units.*;
 
 /**
@@ -24,7 +24,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
      */
-    final Space.Vector profileVector;
+    final Vector profileVector;
     /**
      * Meter that defines the property being profiled.
      */
@@ -85,14 +85,14 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * Accessor method for vector describing the direction along which the profile is measured.
      * Each atom position is dotted along this vector to obtain its profile abscissa value.
      */
-    public Space.Vector getProfileVector() {return profileVector;}
+    public Vector getProfileVector() {return profileVector;}
     
     /**
      * Accessor method for vector describing the direction along which the profile is measured.
      * Each atom position is dotted along this vector to obtain its profile abscissa value.
      * The given vector is converted to a unit vector, if not already.
      */
-    public void setProfileVector(Space.Vector v) {
+    public void setProfileVector(Vector v) {
         profileVector.E(v);
         profileVector.normalize();
     }

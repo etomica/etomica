@@ -4,10 +4,10 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
-import etomica.Space.CoordinatePair;
-import etomica.Space.Vector;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.space.CoordinatePair;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -84,7 +84,7 @@ public class MeterRadiusGyration extends MeterScalar implements EtomicaElement {
                 nLeafAtoms++;
                 Atom a = leafIterator.nextAtom();
                 cPair.reset(prevAtom.coord,a.coord);
-                Space.Vector dr = cPair.dr();
+                Vector dr = cPair.dr();
                 realPos.PE(dr);
                 cm.PE(realPos);
                 prevAtom = a;
@@ -98,7 +98,7 @@ public class MeterRadiusGyration extends MeterScalar implements EtomicaElement {
             while (leafIterator.hasNext()) {
                 Atom a = leafIterator.nextAtom();
                 cPair.reset(prevAtom.coord,a.coord);
-                Space.Vector dr = cPair.dr();
+                Vector dr = cPair.dr();
                 realPos.PE(dr);
                 dr = realPos.M(cm);
                 r2 += dr.squared();
@@ -111,8 +111,8 @@ public class MeterRadiusGyration extends MeterScalar implements EtomicaElement {
 	}
 	
     private AtomIteratorAllMolecules iterator;
-    private final Space.CoordinatePair cPair;
-    private final Space.Vector cm, realPos;
+    private final CoordinatePair cPair;
+    private final Vector cm, realPos;
 	
 }
     

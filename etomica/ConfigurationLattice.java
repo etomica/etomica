@@ -5,6 +5,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
+import etomica.space.Vector;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has
@@ -80,7 +81,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         }
         indexIterator.reset();
         while(indexIterator.hasNext()) {
-            Space.Vector site = (Space.Vector)lattice.site(indexIterator.next());
+            Vector site = (Vector)lattice.site(indexIterator.next());
             for(int i=0; i<site.D(); i++) {
                 vectorOfMax[i] = Math.max(vectorOfMax[i],site.x(i));
                 vectorOfMin[i] = Math.min(vectorOfMin[i],site.x(i));
@@ -89,7 +90,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         for(int i=0; i<lattice.getSpace().D(); i++) {
             offset[i] = 0.5*(dimensions[i] - (vectorOfMax[i]-vectorOfMin[i])) - vectorOfMin[i];
         }
-        Space.Vector offsetVector = Space.makeVector(offset);
+        Vector offsetVector = Space.makeVector(offset);
         
         // Place molecules  
 		iterator.reset();
@@ -100,7 +101,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 			try {//may get null pointer exception when beginning simulation
 				a.creator().getConfiguration().initializeCoordinates(a);
 			} catch(NullPointerException e) {}
-            Space.Vector site = (Space.Vector)lattice.site(indexIterator.next());
+            Vector site = (Vector)lattice.site(indexIterator.next());
             site.PE(offsetVector);
 			a.coord.translateTo(site);//use translateTo instead of E because atom might be a group
 			if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
@@ -259,7 +260,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	 * associated with the atom.
 	 */
 	public static class Agent {
-		public Space.Vector site;
+		public Vector site;
 	}
 
 }

@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.Atom;
 import etomica.Space;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -20,7 +20,7 @@ import etomica.Space.Vector;
   */
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
    
-   private final Space.Vector work1;
+   private final Vector work1;
    private final double rD;// = 1/D
    
    public Potential2SoftSpherical(Space space) {
@@ -102,7 +102,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Gradient of the pair potential as given by the du(double) method, with application
      * of any PotentialTruncation that may be defined for the potential.
      */
-    public Space.Vector gradient(Atom[] pair) {
+    public Vector gradient(Atom[] pair) {
   //  	System.out.println(((P2LennardJones)this).getSigma()+"  "+((AtomType.Sphere)pair.atom1().type).diameter);
     	cPair.reset(pair[0].coord,pair[1].coord);
         double r2 = cPair.r2();

@@ -6,7 +6,7 @@ import etomica.Integrator;
 import etomica.Potential;
 import etomica.Space;
 import etomica.Integrator.Forcible;
-import etomica.Space.Vector;
+import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -14,7 +14,7 @@ import etomica.Space.Vector;
  */
 public class PotentialCalculationForceSum extends PotentialCalculation {
         
-    private final Space.Vector f;
+    private final Vector f;
     
     public PotentialCalculationForceSum(Space space) {
             f = space.makeVector();

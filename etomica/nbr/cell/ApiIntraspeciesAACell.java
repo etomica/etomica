@@ -22,6 +22,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.space.Vector;
 
 /**
  * Returns iterates formed from all molecule pairs of a single species.
@@ -68,7 +69,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         unset();
 	}
     
-    public Space.Vector getNearestImageVector() {
+    public Vector getNearestImageVector() {
         return nearestImageVector;
     }
     
@@ -216,7 +217,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
     private final int index;
-    private Space.Vector nearestImageVector;
+    private Vector nearestImageVector;
     
     private final Atom[] pair = new Atom[2];
 }
