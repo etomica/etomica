@@ -13,6 +13,7 @@ public class BravaisLattice implements SpaceLattice {
 
     public BravaisLattice(Primitive primitive) {
         this.primitive = primitive;
+        latticeVector = getSpace().makeVector();
     }
 
     public int D() {
@@ -24,21 +25,22 @@ public class BravaisLattice implements SpaceLattice {
     }
     
     /**
-     * Calculates and returns a new vector that is the spatial position given
+     * Calculates and returns a vector that is the spatial position given
      * by adding together the primitive vectors, each multiplied by the corresponding
-     * integer index given by the array argument.  Vectors are constructed and computed
+     * integer index given by the array argument.  Vectors are computed
      * on-the-fly.  Index may comprise any integer values (positive, negative, or zero).
      */
     public Object site(int[] index) {
         if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
-        Vector vector = getSpace().makeVector();
+//        Vector vector = getSpace().makeVector();
         //TODO figure a way to get unscaled lattice vectors without this
         //method call, which makes copies each time
+        latticeVector.E(0);
         Vector[] latticeVectors = primitive.vectors();
         for(int i=0; i<index.length; i++) {
-            vector.PEa1Tv1(index[i], latticeVectors[i]);
+            latticeVector.PEa1Tv1(index[i], latticeVectors[i]);
         }
-        return vector;
+        return latticeVector;
     }
 
     /**
@@ -81,5 +83,6 @@ public class BravaisLattice implements SpaceLattice {
 //
 
     private Primitive primitive;
+    private final Vector latticeVector;
     
 }//end of BravaisLattice

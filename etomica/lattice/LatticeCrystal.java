@@ -27,6 +27,7 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
         this.crystal = crystal;
         crystalIndex = new int[crystal.D()];
         D = crystal.D() + 1;
+        positions = getSpace().makeVector();
     }
 
     /* (non-Javadoc)
@@ -54,7 +55,6 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
         System.arraycopy(index, 0, crystalIndex, 0, D-1);
         Vector latticePosition = (Vector)crystal.getLattice().site(crystalIndex);
         Vector[] basisPositions = crystal.getBasis().positions();
-        Vector positions = getSpace().makeVector();
         positions.Ev1Pv2(latticePosition,basisPositions[index[D-1]]);
         return positions;
     }
@@ -66,4 +66,5 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
     protected final Crystal crystal;
     private final int[] crystalIndex;
     private final int D;
+    private final Vector positions;
 }

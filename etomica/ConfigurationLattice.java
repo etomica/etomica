@@ -112,7 +112,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
             site.PE(offsetVector);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
-            if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
+            if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = (Vector)site.clone();//assign site to atom if so indicated
         }
     }
     
