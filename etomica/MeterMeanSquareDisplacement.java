@@ -19,6 +19,7 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
     AtomIterator iterator;
     private Space.Vector[] rAccum, rLast;
     private Space.Vector deltaR;
+    private final Space space;
     
     public MeterMeanSquareDisplacement(Space space, AtomIterator iter) {
         this(space);
@@ -26,8 +27,8 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
     }
     public MeterMeanSquareDisplacement(Space space) {
         super(1);
+        this.space = space;
         setLabel("Mean square displacement");
-        setUpdateInterval(1);
         deltaR = space.makeVector();
     }
     
@@ -36,12 +37,12 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
         return info;
     }
 
-    public Unit defaultIOUnit() {return Count.UNIT;}
+//    public Unit defaultIOUnit() {return Count.UNIT;}
     
     /**
-     * Returns dimensions of this meter's output, which in this case is QUANTITY.
+     * Returns dimensions of this meter's output (current UNDEFINED).
      */
-    public Dimension getDimension() {return Dimension.NULL;}
+    public Dimension getDimension() {return Dimension.UNDEFINED;}
     
     /**
      * Specifies the set of atoms that will be tracked to compute their MSD.
@@ -55,9 +56,9 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
         iter.reset();
         int i=0;
         while(iter.hasNext()) {
-            rAccum[i] = simulation().space().makeVector();
-            rLast[i] = simulation().space().makeVector();
-            rLast[i].E(iter.next().coord.position());
+            rAccum[i] = space.makeVector();
+            rLast[i] = space.makeVector();
+            rLast[i].E(iter.nextAtom().coord.position());
             i++;
         }
     }
