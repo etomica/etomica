@@ -52,6 +52,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
         this();
         display = d;
         setSpecies(s);
+        setActive(false);
     }
     
     public Dimension getDimension() {return Dimension.NULL;}  //need to modify to check for isResidual
@@ -72,6 +73,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
     public void setPhase(Phase p) {
         super.setPhase(p);
         if(species != null) speciesAgent = species.getAgent(phase);
+        setActive(true);
     }
     /**
      * Sets the species, takes a prototype molecule, and gets handle to appropriate species agent in phase

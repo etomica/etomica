@@ -71,7 +71,7 @@ public class IntegratorRectangleRule extends Integrator {
     private void increment() {
         totalCount++;
         
-        while(paused) doWait();
+        while(pauseRequested) doWait();
         if(--iieCount == 0) {
             fireIntervalEvent(new IntervalEvent());
             iieCount = interval;
