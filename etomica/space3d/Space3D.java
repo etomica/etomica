@@ -7,7 +7,6 @@ import etomica.space.Boundary;
 
 public class Space3D extends Space implements EtomicaElement {
 
-    public static final int D = 3;
     public final int D() {return D;}
     public final int powerD(int n) {return n*n*n;}
     public final double powerD(double a) {return a*a*a;}

@@ -24,7 +24,6 @@ import etomica.space.Boundary;
   */
 public class Space1D extends Space implements EtomicaElement {
     
-    public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}
     public final int powerD(int n) {return n;}
