@@ -15,6 +15,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     protected transient Atom setAtom, terminator2;
     protected IteratorDirective.Direction direction;
     protected Atom basis;
+    protected int iterateDepth;//depth in the atom hierarchy of this iterator's atoms (see setBasis)
     private boolean isLeafIterator;
 
     /**
@@ -31,7 +32,10 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
  //       reset(new IteratorDirective().set().set(IteratorDirective.UP));
     }
     
-    public void setBasis(Atom basis) {this.basis = basis;}
+    public void setBasis(Atom basis) {
+        this.basis = basis;
+        iterateDepth = basis.depth() + 1;
+    }
     public Atom getBasis() {return basis;}
     
     /**
@@ -57,11 +61,13 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * @return <code>true</code> if atom is one of the iterates.
      */
     public boolean contains(Atom atom) {
+        if(atom == null) return false;
         if(!(basis instanceof AtomGroup)) return atom == basis;
-        else if(isLeafIterator) return (atom != null) && 
+        else return (atom != null) && atom.isDescendedFrom((AtomGroup)basis);
+/*        else if(isLeafIterator) return (atom != null) && 
                                   !(atom instanceof AtomGroup) &&
                                   atom.isDescendedFrom((AtomGroup)basis);
-        else return atom.parentGroup() == basis;
+        else return atom.parentGroup() == basis;*/
     }
 
     /**
@@ -101,6 +107,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * the value of the direction field.
      */
     public Atom firstNeighbor(Atom a) {
+        if(a == null) return null;
         Atom neighbor = null;
         if(upListNow) neighbor = firstUpNeighbor(a);
         if(neighbor == null && doGoDown) {
@@ -112,10 +119,11 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     
     public Atom reset(IteratorDirective id) {
         direction = id.direction();//save for reset()
+        applyDirection();
         switch(id.atomCount()) {
-            case 0:  applyDirection(); return reset(upListNow ? defaultFirstAtom() : defaultLastAtom()); 
-            case 1:  applyDirection(); return reset(id.atom1()); 
-            case 2:  applyDirection(); return reset(id.atom1(), id.atom2()); 
+            case 0:  return reset(upListNow ? defaultFirstAtom() : defaultLastAtom()); 
+            case 1:  return reset(id.atom1()); 
+            case 2:  return reset(id.atom1(), id.atom2()); 
             default: hasNext = false; 
             return null;
         }
@@ -163,6 +171,13 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * @return   the atom that will be returned with the next subsequent call to next()
      */
     protected Atom reset(Atom a) {
+        if(a == null) {hasNext = false; return null;}
+        if(isLeafIterator) {
+            if(a instanceof AtomGroup) {hasNext = false; return null;}
+        } else {
+            int j = a.depth() - iterateDepth;
+            while(j-- > 0) a = a.parentGroup();
+        }
         if(isNeighborIterator) atom = firstNeighbor(a);
         else atom = (this.contains(a) ? a : null); //also ensures that a is not null
         

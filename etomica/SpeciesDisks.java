@@ -14,11 +14,11 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     public AtomType.Disk protoType;
     
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Simulation sim, int na) {
+    private static AtomFactoryHomo makeFactory(Simulation sim, int na, BondInitializer bondInit, Configuration config) {
         AtomFactoryMono f = new AtomFactoryMono(sim);
         AtomType type = new AtomType.Disk(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(sim,f, na);
+        AtomFactoryHomo fm = new AtomFactoryHomo(sim,f, na, bondInit, config);
         return fm;
  //       return f;
     }
@@ -39,7 +39,10 @@ public class SpeciesDisks extends Species implements EtomicaElement {
         this(Simulation.instance, nM, nA);
     }
     public SpeciesDisks(Simulation sim, int nM, int nA) {
-        super(sim, makeFactory(sim, nA));
+        this(sim, nM, nA, new BondInitializerChain(), new ConfigurationLinear(sim.space));
+    }
+    public SpeciesDisks(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
+        super(sim, makeFactory(sim, nA, bondInitializer, config));
         protoType = (AtomType.Disk)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
     }
@@ -70,13 +73,24 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,3);
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,6);//10 molecules, 3 atoms per molecule
 	    SpeciesDisks speciesDisks2 = new SpeciesDisks(3);
 	    speciesDisks2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    P2HardSphere potential2 = new P2HardSphere();
-	    P2HardSphere potential0 = new P2HardSphere();
+	    
+	    //intermolecular potential
+	    Potential2Group potential0 = new Potential2Group();
+	    P2HardSphere p0Inter = new P2HardSphere(potential0);
+	    
+	    //intramolecular potential
+	    Potential1Group potential3 = new Potential1Group();
+	    P2Tether p2Tether = new P2Tether(potential3);
+	    p2Tether.setIterator(new AtomPairIterator(Simulation.instance.space,
+	            new AtomIteratorSequential(false),
+	            new AtomIteratorBonds()));
+	    
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
@@ -91,7 +105,8 @@ public class SpeciesDisks extends Species implements EtomicaElement {
 		                                    
 		potential.setSpecies(speciesDisks1, speciesDisks2);
         potential2.setSpecies(speciesDisks2, speciesDisks2);
-        potential0.setSpecies(speciesDisks1, speciesDisks1);        
+        potential0.setSpecies(speciesDisks1, speciesDisks1); 
+        potential3.setSpecies(speciesDisks1);
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
 	}//end of main

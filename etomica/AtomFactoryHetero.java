@@ -2,7 +2,7 @@ package etomica;
 
 /**
  * Builds an atom group that comprises a set of differently formed atoms or atomgroups.
- * Each child atoms is constructed by a different atom factory, which are set as an
+ * Each child atom is constructed by a different atom factory, which are set as an
  * array of atomfactories given in the constructor.
  *
  * @author David Kofke
@@ -38,6 +38,7 @@ public class AtomFactoryHetero extends AtomFactory {
         for(int i=0; i<childFactory.length; i++) {
             group.addAtom(childFactory[i].build());
         }
+        bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);
         return group;
     }

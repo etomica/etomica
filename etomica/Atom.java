@@ -53,10 +53,11 @@ public class Atom implements java.io.Serializable {
     public Species parentSpecies() {return parentSpeciesAgent().parentSpecies();}
     
     public SpeciesAgent parentSpeciesAgent() {return parentGroup.parentSpeciesAgent();}
-/*   linked list of bonds
-    Bond firstBond;
+
+//   linked lists of bonds
+    BondLinker firstUpBond;
+    BondLinker firstDownBond;
     
-    */
     public void sendToReservoir() {
         if(parentGroup != null) parentGroup.removeAtom(this);
         creator().reservoir().addAtom(this);
@@ -111,7 +112,7 @@ public class Atom implements java.io.Serializable {
      */
     public final Atom previousAtom() {return coord.previousAtom();} 
     
-    public int depth() {return parentGroup.depth()+1;}
+    public int depth() {return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
     
     public final boolean preceeds(Atom atom) {
         //want to return false if atoms are the same atoms

@@ -25,6 +25,8 @@ public final class SpeciesMaster extends AtomGroup {
         parentPhase.getConfiguration().initializeCoordinates(this);
     }
     
+    public int depth() {return 0;}
+    
     public SpeciesAgent firstSpecies() {return (SpeciesAgent)firstChild();}
     public SpeciesAgent lastSpecies() {return (SpeciesAgent)lastChild();}
         

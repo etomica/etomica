@@ -7,6 +7,9 @@ public class Potential1Group extends Potential1 implements PotentialGroup {
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     protected PotentialLinker first;
     
+    public Potential1Group() {
+        this(Simulation.instance.hamiltonian.potential);
+    }
     public Potential1Group(PotentialGroup parent) {
         super(parent);
     }

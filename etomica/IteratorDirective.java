@@ -46,13 +46,13 @@ public final class IteratorDirective implements java.io.Serializable {
     public final IteratorDirective set(Atom a) {
         atom1 = a;
         atom2 = null;
-        atomCount = 1;
+        atomCount = (atom1 != null) ? 1 : -1;
         return this;
     }
     public final IteratorDirective set(Atom a1, Atom a2) {
         atom1 = a1;
         atom2 = a2;
-        atomCount = 2;
+        atomCount = (atom1 != null && atom2 != null) ? 2 : -1;
         return this;
     }
     public final IteratorDirective set(Direction direction) {

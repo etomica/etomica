@@ -11,6 +11,7 @@ public abstract class AtomFactory {
     protected final AtomReservoir reservoir;
     protected Simulation parentSimulation;
     protected Configuration configuration;
+    protected BondInitializer bondInitializer = BondInitializer.NULL;
     
     public AtomFactory(Simulation sim) {
         parentSimulation = sim;
@@ -33,5 +34,8 @@ public abstract class AtomFactory {
     
     public void setConfiguration(Configuration config) {configuration = config;}
     public Configuration getConfiguration() {return configuration;}
+    
+    public void setBondInitializer(BondInitializer bonder) {bondInitializer = bonder;}
+    public BondInitializer getBondInitializer() {return bondInitializer;}
     
 }

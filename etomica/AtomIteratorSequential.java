@@ -1,4 +1,4 @@
-    package etomica;
+package etomica;
 
 /**
  * General iterator in which order of atoms is that given by the 
@@ -41,7 +41,7 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
     
     public Atom firstDownNeighbor(Atom a) {
         Atom last = defaultLastAtom();
-        if(last.preceeds(a)) return last;
+        if(last == null || last.preceeds(a)) return last;
         else if(defaultFirstAtom().preceeds(a)) return a.previousAtom();
         else return null;
     }

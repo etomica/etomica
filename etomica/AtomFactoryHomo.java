@@ -22,18 +22,19 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      */
     public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms) {
-        this(sim, factory, atoms, new ConfigurationLinear(sim.space()));
+        this(sim, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim.space()));
     }
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms,
+    public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms, BondInitializer bondInit,
                             Configuration config) {    
         super(sim);
         childFactory = factory;
         atomsPerGroup = atoms;
+        bondInitializer = bondInit;
         configuration = config;
     }
     
@@ -45,6 +46,7 @@ public class AtomFactoryHomo extends AtomFactory {
         for(int i=0; i<atomsPerGroup; i++) {
             group.addAtom(childFactory.build());
         }
+        bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);
         return group;
     }

@@ -7,8 +7,14 @@ public class Potential2Group extends Potential2 implements PotentialGroup {
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     private PotentialLinker first;
     
+    public Potential2Group() {
+        this(Simulation.instance.hamiltonian.potential);
+    }
     public Potential2Group(PotentialGroup parent) {
         super(parent);
+        //overwrite iterator with one that doesn't force looping over leaf atoms
+        iterator = new AtomPairIterator(parentSimulation().space(),
+                new AtomIteratorSequential(false), new AtomIteratorSequential(false));
     }
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         iterator.reset(id);
