@@ -23,7 +23,9 @@ package etomica;
   * 08/25/03 (DAK/DW) revised CoordinateGroup.position() to return position of
   * first atom, rather than center-of-mass position
   * 08/27/03 (DAK) added isZero and EModShift methods to Vector
-  * 08/28/03 (DAK) added mod2 method to Vector
+  * 08/28/03 (DAK) added mod2, Mv1Pv2Squared, Mv1Squared methods to Vector;
+  * added nearestImage(dr, shift) method to Boundary with
+  * nontrivial implementation in BoundaryPeriodicCubic
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -203,6 +205,18 @@ public class Space3D extends Space implements EtomicaElement {
         public double min() {return (x < y) ? (x<z)?x:z : (y<z)?y:z;}
         public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
         public double squared() {return x*x + y*y + z*z;}
+        public double Mv1Pv2Squared(Vector u1, Vector u2) {
+        	double dx = x-u1.x+u2.x;
+        	double dy = y-u1.y+u2.y;
+        	double dz = z-u1.z+u2.z;
+        	return dx*dx + dy*dy + dz*dz;
+        }
+		public double Mv1Squared(Vector u1) {
+			double dx = x-u1.x;
+			double dy = y-u1.y;
+			double dz = z-u1.z;
+			return dx*dx + dy*dy + dz*dz;
+		}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
         public void transform(Space.Tensor A) {transform((Tensor)A);}
         public void transform(Tensor A) {
@@ -1130,6 +1144,7 @@ public static class CoordinateGroup extends Coordinate {
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
+        public abstract void nearestImage(Vector dr, Vector shift);
         public abstract boolean centralImage(Vector r);
         public abstract boolean centralImage(Coordinate c);
     }
@@ -1145,6 +1160,7 @@ public static class CoordinateGroup extends Coordinate {
         public void nearestImage(Space.Vector dr) {}
         public boolean centralImage(Space.Vector r) {return false;}
         public void nearestImage(Vector dr) {}
+        public void nearestImage(Vector dr, Vector shift) {shift.E(0.0);}
         public boolean centralImage(Vector r) {return false;}
         public boolean centralImage(Coordinate c) {return false;}
         public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
@@ -1207,6 +1223,13 @@ public static class CoordinateGroup extends Coordinate {
         //    dr.y = ((dr.y + dimensions.y) % dimensions.y) - dimensionsHalf.y;
         //    dr.z = ((dr.z + dimensions.z) % dimensions.z) - dimensionsHalf.z;
         }
+        //Converts dr to its nearest-image value and returns in shift
+        //the difference between the new and old values of dr
+		public void nearestImage(Vector dr, Vector shift) {
+			shift.EMod2Shift(dr, dimensionsHalf);
+			if(!shift.isZero()) dr.PE(shift);
+		}
+
         public boolean centralImage(Coordinate c) {
         	modShift.EModShift((Space3D.Vector)c.position(), dimensions);
 //			Vector r = (Space3D.Vector)c.position();
