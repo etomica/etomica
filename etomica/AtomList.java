@@ -73,6 +73,14 @@ public class AtomList implements java.io.Serializable
 	    addAll(iterator);
      }
      
+     /**
+      * Makes a simple AtomLinker via the AtomLinker.makeLinker method.
+      * May be overridden in subclasses to use linkers with other features.
+      */
+     protected AtomLinker makeLinker(Atom atom) {
+        return AtomLinker.makeLinker(atom);
+     }
+     
 	/**
 	 * Positions the given tab in front of the header, effectively allowing it to serve
 	 * as the header in this list.  It is assumed that the given tab lies in a 
@@ -152,6 +160,13 @@ public class AtomList implements java.io.Serializable
      */
     public void addFirst(Atom atom) {
 	    addBefore(atom, header.next);
+    }
+    
+    /**
+     * Inserts the given entry at the beginning of this list.
+     */
+    public void addFirst(AtomLinker linker) {
+        addBefore(linker, header.next);
     }
 
     /**
@@ -268,7 +283,7 @@ public class AtomList implements java.io.Serializable
         AtomLinker predecessor = successor.previous;
 	    iterator.reset();//should remove this
 	    for (int i=0; i<numNew; i++) {
-	        AtomLinker.makeLinker(iterator.next()).addBefore(successor);
+	        makeLinker(iterator.next()).addBefore(successor);
 	    }
 
         size += numNew;
@@ -312,7 +327,7 @@ public class AtomList implements java.io.Serializable
      */
     public Atom set(int index, Atom atom) {
         AtomLinker e = entry(index);
-        AtomLinker.makeLinker(atom).addBefore(e);
+        makeLinker(atom).addBefore(e);
         e.remove();
         return e.atom;
     }
@@ -333,8 +348,7 @@ public class AtomList implements java.io.Serializable
     }
 
     /**
-     * Removes the element at the specified position in this list.  Shifts any
-     * subsequent elements to the left (subtracts one from their indices).
+     * Removes the element at the specified position in this list.  
      * Returns the element that was removed from the list.
      *
      * @param index the index of the element to removed.
@@ -389,7 +403,7 @@ public class AtomList implements java.io.Serializable
      * @return the last entry in this list.
      * @throws    NoSuchElementException if this list is empty.
      */
-    public AtomLinker lastEntry()  {
+    AtomLinker lastEntry()  {
 	    if (size==0) return null;
 	    AtomLinker entry = header.previous;
 	    while(entry.atom == null) entry = entry.previous;
@@ -456,9 +470,16 @@ public class AtomList implements java.io.Serializable
     }
 
     public AtomLinker addBefore(Atom atom, AtomLinker e) {
-	    return addBefore(AtomLinker.makeLinker(atom), e);
+	    return addBefore(makeLinker(atom), e);
 	}
 	
+	/**
+	 * Places the linker given by the first argument before the linker
+	 * given by the second one.   The first linker should not already
+	 * be in the list, and the second one should, but no checks are made
+	 * to ensure this.  All methods that result in the addition of one or
+	 * more atoms/linkers to the list work through this method.
+	 */
 	public AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
 	    if(newAtomLinker.atom != null) size++;//modification for tab entry
 	    newAtomLinker.addBefore(e);	        
@@ -477,6 +498,11 @@ public class AtomList implements java.io.Serializable
         moving.moveBefore(newNext);
     }        
 
+    /**
+     * Removes the given linker from this list.  Does not check that linker
+     * is in fact contained in list.  All methods that remove an atom/linker
+     * from this list work through this method.
+     */
     public void remove(AtomLinker e) {
 	    if (e.atom != null) size--;//decrement size counter if not removing a Tab
 	    else if(e == header) throw new NoSuchElementException();

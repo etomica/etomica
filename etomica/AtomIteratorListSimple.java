@@ -2,7 +2,8 @@ package etomica;
 
 /**
  * Lightweight version of AtomIteratorList.  Iterates uplist only, from
- * beginning to end of list.
+ * beginning to end of list.  Iterator function correctly in situations
+ * where elements are removed from list after they are returned by iterator.
  *
  * @author David Kofke
  */
@@ -19,11 +20,6 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	    reset();
 	}
 	
-	
-	public void setAsNeighbor(boolean b) {
-	    throw new RuntimeException("method AtomIteratorList.setAsNeighbor not implemented");
-	}
-
 	public boolean hasNext() {return next.atom != null;}
 	
 	/**
@@ -99,6 +95,38 @@ public final class AtomIteratorListSimple implements AtomIterator {
         while(next.atom == null && next != list.header) {next = next.next;}
         return nextLinker;
     }//end of nextLinker
+    
+    public static void main(String[] args) {
+        Simulation sim = new Simulation();
+        Phase phase = new Phase();
+        SpeciesSpheresMono species = new SpeciesSpheresMono();
+        species.setNMolecules(10);
+        sim.elementCoordinator.go();
+        
+        boolean pauseForInput = true;
+        
+        AtomListRestorable list = new AtomListRestorable(phase.makeMoleculeIterator());
+        AtomIteratorListSimple iterator = new AtomIteratorListSimple(list);
+        
+        System.out.println("Original list");
+        iterator.reset();
+        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        if(pauseForInput) IteratorDirective.pauseForInput();
+        
+        System.out.println("Removing each element from list as iterated");
+        iterator.reset();
+        while(iterator.hasNext()) {
+            Atom atom = iterator.next();
+            System.out.println(atom.toString());
+            list.remove(atom);
+        }
+        if(pauseForInput) IteratorDirective.pauseForInput();
+        
+        System.out.println("Empty list");
+        iterator.reset();
+        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        if(pauseForInput) IteratorDirective.pauseForInput();
+    }//end main
 
 }//end of AtomIteratorListSimple
 

@@ -210,7 +210,7 @@ public final class IteratorDirective implements java.io.Serializable {
      * Halts program activity until a return is entered from the console.
      * Support method for testSuite method.
      */
-    private static void pauseForInput() {
+    public static void pauseForInput() {
         System.out.println("Hit return to continue");
         try {
             System.in.read();
