@@ -7,8 +7,11 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesAgent;
+import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
 
@@ -37,6 +40,8 @@ public class MCMoveSemigrand extends MCMove {
     private final AtomIteratorSinglet insertAtomIterator;
     private final AtomIteratorCompound affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
+    private final AtomActionTranslateTo moleculeTranslator;
+    private AtomPositionDefinition atomPositionDefinition;
     
     private transient Atom deleteMolecule, insertMolecule;
     private transient double uOld;
@@ -54,6 +59,9 @@ public class MCMoveSemigrand extends MCMove {
         setTunable(false);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
+        atomPositionDefinition = new DataSourceCOM(potentialMaster.getSpace());
+        moleculeTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
+        
     }
     
     /**
@@ -163,7 +171,8 @@ public class MCMoveSemigrand extends MCMove {
         deleteMolecule.sendToReservoir();
         
         insertMolecule = insertAgent.addNewAtom();
-        insertMolecule.coord.translateTo(deleteMolecule.coord.position());
+        moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
+        moleculeTranslator.actionPerformed(insertMolecule);
         //in general, should also randomize orintation and internal coordinates
         uNew = Double.NaN;
         return true;
@@ -196,6 +205,20 @@ public class MCMoveSemigrand extends MCMove {
         deleteAtomIterator.setAtom(deleteMolecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
+    }
+
+    /**
+     * @return Returns the positionDefinition.
+     */
+    public AtomPositionDefinition getPositionDefinition() {
+        return atomPositionDefinition;
+    }
+    /**
+     * @param positionDefinition The positionDefinition to set.
+     */
+    public void setPositionDefinition(AtomPositionDefinition positionDefinition) {
+        this.atomPositionDefinition = positionDefinition;
+        moleculeTranslator.setAtomPositionDefinition(positionDefinition);
     }
 
 //    public static void main(String[] args) {

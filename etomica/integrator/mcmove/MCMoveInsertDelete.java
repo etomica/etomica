@@ -7,6 +7,7 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesAgent;
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomReservoir;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -39,6 +40,7 @@ public class MCMoveInsertDelete extends MCMove {
 	protected double uNew = Double.NaN;
 	protected boolean insert;
 	protected AtomReservoir reservoir;
+    private final AtomActionTranslateTo atomTranslator;
 
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
@@ -49,6 +51,7 @@ public class MCMoveInsertDelete extends MCMove {
         setMu(0.0);
         setTunable(false);
         energyMeter.setIncludeLrc(true);
+        atomTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
@@ -73,7 +76,8 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) {
             uOld = 0.0;
             testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
-            testMolecule.coord.translateTo(phases[0].randomPosition());
+            atomTranslator.setDestination(phases[0].randomPosition());
+            atomTranslator.actionPerformed(testMolecule);
         } else {//delete
             if(speciesAgent.moleculeCount() == 0) {
                 testMolecule = null;//added this line 09/19/02
