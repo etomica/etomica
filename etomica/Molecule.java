@@ -21,82 +21,41 @@ import java.awt.Graphics;
 
 public class Molecule implements Serializable {
 
- /**
-  * Instance of the species in which this molecule resides
-  * Assigned in the Molecule constructor.
-  * @see Species#makeMolecules
-  */
-  Species parentSpecies;
   
- /**
-  * Next molecule in linked list of molecules
-  * @see #setNextMolecule
-  * @see Species#orderMolecules
-  */
-  Molecule nextMolecule;
- 
- /**
-  * Previous molecule in linked list of molecules
-  * @set #setNextMolecule
-  */
-  Molecule previousMolecule;
-  
- /**
-  * Atoms in this molecule are part of a linked list of all atoms
-  * in the simulation.  This is the first such atom in this molecule.
-  */
-  Atom firstAtom;
-  
- /**
-  * Last atom in the molecule.
-  * @see firstAtom
-  */
-  Atom lastAtom;
-  
- /**
-  * Number of atoms in this molecule.  Assigned by species when invoking
-  * the molecule's constructor
-  * @see setNAtoms
-  * @see Species#makeMolecules
-  */
-  int nAtoms;
-  
- /**
-  * Constructs a molecule and all atoms within it.  Atoms are arranged in
-  * linked list that chains the "first" atom of the molecule to the "last".
-  * @see Atom
-  *
-  * @param parent      species in which this molecule resides
-  * @param n           number of atoms in this molecule
-  */
-  
- /**
-  * Center-of-mass (COM) coordinate
-  */
-  public final PhaseSpace.MoleculeCoordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
-  
-  public Molecule(Species parent, int n) {
+  /**
+   *  Makes specified number of atoms, all of the same type
+   */
+  public Molecule(Species parent, int n, AtomType type) {  
     parentSpecies = parent;
     coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
     nAtoms = n;
-    makeAtoms();
-  }
-  
- /**
-  * Constructs atoms of molecule and links them, setting values of firstAtom and lastAtom.  
-  * The number of atoms constructed is equal to the current value of nAtoms.
-  * Does not handle linking to previous or next molecules' atoms
-  * Previously existing atoms are discarded
-  */
-  private final void makeAtoms() {
-    firstAtom = new Atom(this,0);
+    
+    firstAtom = new Atom(this,type,0);
     lastAtom = firstAtom;
     for(int i=1; i<nAtoms; i++) {
-        lastAtom.setNextAtom(new Atom(this,i));
+        lastAtom.setNextAtom(new Atom(this,type,i));
         lastAtom = lastAtom.nextAtom();
     }
+
   }
+  
+  /**
+   *  Makes atoms of type specified in AtomType array.  Number of atoms is given by length of array
+   */
+  public Molecule(Species parent, AtomType[] type) {  
+    parentSpecies = parent;
+    coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
+    nAtoms = type.length;
     
+    firstAtom = new Atom(this,type[0],0);
+    lastAtom = firstAtom;
+    for(int i=1; i<nAtoms; i++) {
+        lastAtom.setNextAtom(new Atom(this,type[i],i));
+        lastAtom = lastAtom.nextAtom();
+    }
+
+  }
+
  /**
   * @return the number of atoms in this molecule
   */
@@ -313,4 +272,57 @@ public class Molecule implements Serializable {
   public final Atom lastAtom() {return lastAtom;}
   public final Atom terminationAtom() {return lastAtom.nextAtom();}
   
+ /**
+  * Instance of the species in which this molecule resides
+  * Assigned in the Molecule constructor.
+  * @see Species#makeMolecules
+  */
+  Species parentSpecies;
+  
+ /**
+  * Next molecule in linked list of molecules
+  * @see #setNextMolecule
+  * @see Species#orderMolecules
+  */
+  Molecule nextMolecule;
+ 
+ /**
+  * Previous molecule in linked list of molecules
+  * @set #setNextMolecule
+  */
+  Molecule previousMolecule;
+  
+ /**
+  * Atoms in this molecule are part of a linked list of all atoms
+  * in the simulation.  This is the first such atom in this molecule.
+  */
+  Atom firstAtom;
+  
+ /**
+  * Last atom in the molecule.
+  * @see firstAtom
+  */
+  Atom lastAtom;
+  
+ /**
+  * Number of atoms in this molecule.  Assigned by species when invoking
+  * the molecule's constructor
+  * @see setNAtoms
+  * @see Species#makeMolecules
+  */
+  int nAtoms;
+  
+ /**
+  * Constructs a molecule and all atoms within it.  Atoms are arranged in
+  * linked list that chains the "first" atom of the molecule to the "last".
+  * @see Atom
+  *
+  * @param parent      species in which this molecule resides
+  * @param n           number of atoms in this molecule
+  */
+  
+ /**
+  * Center-of-mass (COM) coordinate
+  */
+  public final PhaseSpace.MoleculeCoordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
 }

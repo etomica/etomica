@@ -20,8 +20,9 @@ public class Atom {
      * @param parent       molecule in which atom resides
      * @param index        sequential index of atom as assigned by parent molecule
      */
-    public Atom(Molecule parent, int index) {
+    public Atom(Molecule parent, AtomType t, int index) {
         parentMolecule = parent;
+        type = t;
         atomIndex = index;
         coordinate = parentMolecule.parentSpecies.parentPhaseSpace.makeAtomCoordinate(this);
         setStationary(false);
@@ -58,7 +59,7 @@ public class Atom {
   public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom();}  //first atom on next molecule
   public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom();}  //first atom on next molecule
 
-  public void draw(Graphics g, int[] origin, double scale) {}
+  public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, color, coordinate);}
 
     public IntegratorAgent ia;
     
@@ -95,4 +96,7 @@ public class Atom {
     final int atomIndex;
     
     public final PhaseSpace.AtomCoordinate coordinate;
+    
+    public final AtomType type;
+    
 }

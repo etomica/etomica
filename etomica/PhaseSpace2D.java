@@ -34,7 +34,6 @@ public class PhaseSpace2D extends PhaseSpace {
     abstract class Coordinate implements PhaseSpace.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
-        public double mass;
     }    
     
     //much of AtomCoordinate and MoleculeCoordinate are identical in every PhaseSpace class

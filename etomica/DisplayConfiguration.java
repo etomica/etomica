@@ -3,7 +3,9 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.beans.Beans;
 
-    public class DisplayConfiguration extends Display {
+public class DisplayConfiguration extends Display {
+        
+    public static double SIM2PIXELS = 300.;  //Conversion factor from simulation units to display pixels    
 
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
