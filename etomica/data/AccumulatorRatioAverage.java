@@ -17,11 +17,11 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
             data[(numBaseStats+0)*nDataMinus1+0] = 1; // average
             data[(numBaseStats+1)*nDataMinus1+0] = 0; // error
             data[(numBaseStats+2)*nDataMinus1+0] = 0; // std dev
-            double errorRatio0 = average[0]/error[0];
+            double errorRatio0 = error[0]/average[0];
             errorRatio0 *= errorRatio0;
-            double stdevRatio0 = average[0]/standardDeviation[0];
+            double stdevRatio0 = standardDeviation[0]/average[0];
             stdevRatio0 *= stdevRatio0;
-            for(int i=0; i<nData; i++) {
+            for(int i=1; i<nData; i++) {
                 double errorRatio = Double.NaN;
                 double stdevRatio = Double.NaN;
                 if (average[0] != 0.0) {
@@ -30,15 +30,9 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
                     stdevRatio = standardDeviation[i]/average[i];
                     stdevRatio = Math.sqrt(stdevRatio*stdevRatio + stdevRatio0) * average[i]/average[0];
                 }
-                data[(numBaseStats+0)*nDataMinus1+i] = sum[i]/sum[0];
-                if (average[i] == 0.0) {
-                    data[(numBaseStats+1)*nDataMinus1+i] = Double.NaN;
-                }
-                else {
-                    data[(numBaseStats+1)*nDataMinus1+i] = 0;
-                }
-                data[(numBaseStats+1)*nDataMinus1+i] = average[i] = errorRatio;
-                data[(numBaseStats+2)*nDataMinus1+i] = error[i] = stdevRatio;
+                data[(numBaseStats+0)*nData+i] = sum[i]/sum[0];
+                data[(numBaseStats+1)*nData+i] = ratioStandardDeviation[i] = errorRatio;
+                data[(numBaseStats+2)*nData+i] = ratioError[i] = stdevRatio;
             }
         }
         return data;
