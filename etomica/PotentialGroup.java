@@ -40,7 +40,21 @@ public class PotentialGroup extends Potential {
         return false;
     }
     
+    /**
+     * Adds the given potential and sets it up to apply to the atoms in the basis
+     * having the given types.  Another addPotential method should be used if iteration
+     * is not based on atom types. Length of types array must not exceed the order of
+     * the potential (as given by the nBody method, and set in the constructor).
+     * <br>
+     * If length of types array is 1, this must be a one-body potential and iteration is
+     * done over the atoms of the basis having the given type.  If types is of length 2
+     * and this is a one-body potential, pairs are formed from atoms in the (single)
+     * basis having the two given types (which might be the same); if this is a two-body
+     * potential, pairs are formed from the first-type atoms taken from the first basis
+     * atom, with the second-type atoms taken from the second basis.
+     */
     public void addPotential(Potential potential, AtomType[] types, PotentialMaster potentialMaster) {
+        if(this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         switch(types.length) {
             case 1:
                 AtomFilter filter = new AtomFilterTypeInstance(types[0]);
@@ -52,7 +66,7 @@ public class PotentialGroup extends Potential {
                     addPotential(potential,
                             ApiBuilder.makeIntragroupTypeIterator(types));
                 }
-                else {
+                else {//nBody == 2
                     addPotential(potential,
                             ApiBuilder.makeIntergroupTypeIterator(types));
                 }
