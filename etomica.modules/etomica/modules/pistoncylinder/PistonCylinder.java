@@ -187,7 +187,7 @@ public class PistonCylinder extends Simulation {
             pc.integrator.addIntervalListener(pBox);
             sg.panel().add(pBox.graphic());
             
-            MeterPistonDensity dMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
+            MeterPistonDensity dMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
             dMeter.setPhase(new Phase[]{pc.phase});
             AccumulatorAverage dAcc = new AccumulatorAverage();
             DataManager dMan = new DataManager(dMeter,new DataSink[]{dAcc});
@@ -218,7 +218,7 @@ public class PistonCylinder extends Simulation {
         pMan.setUpdateInterval(10);
         sim.integrator.addIntervalListener(pMan);
         
-        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,0.5*Default.ATOM_SIZE);
+        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.ATOM_SIZE);
         dMeter.setPhase(new Phase[]{sim.phase});
         AccumulatorAverage dAcc = new AccumulatorAverage();
         DataManager dMan = new DataManager(dMeter,new DataSink[]{dAcc});

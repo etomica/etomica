@@ -258,13 +258,13 @@ public class PistonCylinderGraphic {
         plotPanel.add(plotP.graphic());
         displayPanel.add("All",new javax.swing.JScrollPane(plotPanel));
  */       //workaround for JTabbedPane bug in JDK 1.2
-        displayPanel.addChangeListener(
+/*        displayPanel.addChangeListener(
             new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent event) {
                     displayPanel.invalidate();
                     displayPanel.validate();
                 }
-        });
+        });*/
         
         //panel for the start buttons
 //        JPanel startPanel = new JPanel(new java.awt.FlowLayout());
@@ -354,10 +354,10 @@ public class PistonCylinderGraphic {
         BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
         if (pc.space.D() == 2) {
             pc.ai.setDoSleep(true);
-            pc.ai.setSleepPeriod(1);
+            pc.ai.setSleepPeriod(10);
         }
 
-        pc.integrator.setThermostatInterval(1000);
+        pc.integrator.setThermostatInterval(100);
         pc.integrator.setTimeStep(0.5);
         pc.integrator.clearIntervalListeners();
 
@@ -385,6 +385,7 @@ public class PistonCylinderGraphic {
                 
         meterCycles = new DataSourceCountSteps(pc.integrator);
         displayCycles.setDataSource(meterCycles);
+        displayCycles.setLabel("Integrator steps");
         pc.integrator.addIntervalListener(displayCycles);
         controlButtons.setSimulation(pc);
         
@@ -429,7 +430,7 @@ public class PistonCylinderGraphic {
         Dimension pDim = (D==2) ? Dimension.PRESSURE2D : Dimension.PRESSURE;
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
-        pressureSlider.setPostAction(new IntegratorPistonUpdate(pc.integrator));
+        pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
         pressureSlider.setController(pc.getController());
 
         ModifierBoolean fixPistonModulator = new ModifierBoolean() {
@@ -442,7 +443,7 @@ public class PistonCylinderGraphic {
         };
         fixPistonButton.setController(pc.controller);
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
-        fixPistonButton.setPostAction(new IntegratorPistonUpdate(pc.integrator));
+        fixPistonButton.setPostAction(new ActionPistonUpdate(pc.integrator));
         fixPistonButton.setState(true);
 
     }
