@@ -100,7 +100,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        
+
         if (Debug.ON) {
             if (bij<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+minBondLengthSquared);
@@ -146,7 +146,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         if (Default.FIX_OVERLAP && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             //outside bond, moving apart or overalpped and moving together; collide now
-            return 0.0;
+            return falseTime;
         }
         if (Debug.ON && Debug.DEBUG_NOW && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
