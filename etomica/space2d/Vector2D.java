@@ -156,7 +156,7 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
             x = A.xx*x0 + A.xy*y0; 
             y = A.yx*x0 + A.yy*y0;
         }
-        public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform((Boundary)b, (Vector2D)r0, (Tensor2D)A);}
+        public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform(b, (Vector2D)r0, (Tensor2D)A);}
         public void transform(Boundary b, Vector2D r0, Tensor2D A) {
             WORK.x = x - r0.x; WORK.y = y - r0.y;
             b.nearestImage(WORK);
@@ -166,7 +166,7 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d; y+= (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = Simulation.random.nextDouble()*dx; y = Simulation.random.nextDouble()*dy;}
-        public void setRandom(Vector2D u) {setRandom(u.x,u.y);}
+        public void setRandom(Vector u) {setRandom(((Vector2D)u).x,((Vector2D)u).y);}
         public void setRandomCube() {
             x = Simulation.random.nextDouble() - 0.5; 
             y = Simulation.random.nextDouble() - 0.5;

@@ -172,7 +172,7 @@ public final class Vector3D extends Vector {
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1)*d; y +=(2.*Simulation.random.nextDouble()-1)*d; z +=(2.*Simulation.random.nextDouble()-1)*d;}
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d; z = Simulation.random.nextDouble()*d;}
         public void setRandom(double dx, double dy, double dz) {x = Simulation.random.nextDouble()*dx; y = Simulation.random.nextDouble()*dy; z = Simulation.random.nextDouble()*dz;}
-        public void setRandom(Vector3D u) {setRandom(u.x, u.y, u.z);}
+        public void setRandom(Vector u) {setRandom(((Vector3D)u).x, ((Vector3D)u).y, ((Vector3D)u).z);}
         public void setRandomCube() {
             x = Simulation.random.nextDouble() - 0.5;
             y = Simulation.random.nextDouble() - 0.5;

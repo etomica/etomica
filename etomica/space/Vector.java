@@ -292,6 +292,11 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract void setRandom(double d);
 
     /**
+     * Assigns each component to (its own) random value between 0 and v(i)
+     */
+    public abstract void setRandom(Vector v);
+    
+    /**
      * Assigns this vector to equal a point chosen randomly on the 
      * surface of a unit sphere.
      */

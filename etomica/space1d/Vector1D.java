@@ -110,7 +110,7 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d;}
-        public void setRandom(Vector1D u) {setRandom(u.x);}
+        public void setRandom(Vector u) {setRandom(((Vector1D)u).x);}
         public void setRandomCube() {x = Simulation.random.nextDouble() - 0.5;}
         public void setRandomInSphere() {setRandomCube();}
         public void setRandomSphere() {randomDirection();}
