@@ -2,6 +2,7 @@
 package etomica.potential;
 
 import etomica.Atom;
+import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
@@ -31,6 +32,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     private double temperature;
     private Atom atom;
     private double lastVirial;
+    private final Vector work;
     
     public P1HardBoundary() {
         this(Simulation.getDefault().space);
@@ -39,6 +41,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     public P1HardBoundary(Space space) {
         super(space);
         temperature = Default.TEMPERATURE;
+        work = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -68,20 +71,24 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     
     public double collisionTime(Atom[] a, double falseTime) {
     	atom = a[0];
-        Vector r = atom.coord.position();
+        work.E(atom.coord.position());
         Vector v = ((ICoordinateKinetic)atom.coord).velocity();
-        r.PEa1Tv1(falseTime,v);
+        work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.dimensions();
         double tmin = Double.POSITIVE_INFINITY;
-        for(int i=r.length()-1; i>=0; i--) {
+        for(int i=work.length()-1; i>=0; i--) {
             double vx = v.x(i);
             if(vx == 0.0) continue;
-            double rx = r.x(i);
+            double rx = work.x(i);
             double dx = dimensions.x(i);
             double t = (vx > 0.0) ? (dx - rx - collisionRadius)/vx : (-rx + collisionRadius)/vx;
             if(t < tmin) tmin = t;
         }
         if (Default.FIX_OVERLAP && tmin<0.0) tmin = 0.0;
+        if (Debug.ON && tmin < 0.0) {
+            System.out.println("t "+tmin+" "+atom+" "+work+" "+v);
+            throw new RuntimeException("you screwed up");
+        }
         return tmin + falseTime;
     }
                 
@@ -89,15 +96,15 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
 //        Atom a = agent.atom();
     public void bump(Atom[] a, double falseTime) {
     	atom = a[0];
-        Vector r = atom.coord.position();
+        work.E(atom.coord.position());
         Vector v = ((ICoordinateKinetic)atom.coord).velocity();
-        r.PEa1Tv1(falseTime,v);
+        work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
-        for(int i=r.length()-1; i>=0; i--) {
-            double rx = r.x(i);
+        for(int i=work.length()-1; i>=0; i--) {
+            double rx = work.x(i);
             double vx = v.x(i);
             double dx = dimensions.x(i);
             double del = (vx > 0.0) ? Math.abs(dx - rx - collisionRadius) : Math.abs(-rx + collisionRadius);
@@ -105,6 +112,11 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
                 delmin = del;
                 imin = i;
             }
+        }
+        if (Debug.ON && Math.abs(work.x(imin)-collisionRadius)/collisionRadius > 1.e-9 
+                && Math.abs(dimensions.x(imin)-work.x(imin)-collisionRadius)/collisionRadius > 1.e-9) {
+            System.out.println(atom+" "+work+" "+dimensions);
+            System.out.println("stop that");
         }
         lastVirial = atom.type.getMass()*2.0*v.x(imin)*collisionRadius;
         v.setX(imin,-v.x(imin));
