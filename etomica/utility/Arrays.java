@@ -55,7 +55,9 @@ public final class Arrays {
     /**
      * Returns an array formed by removing the given object from the given array.  
      * New array is one element smaller than given array,
-     * and is of same type as given array.  If object is not in the given array,
+     * and is of same type as given array.  Order of objects in the new
+     * array is unchanged from their order in the original array. 
+     * If object is not in the given array,
      * method returns quietly without performing any action.
      * @param array array with the objects
      * @param newObject object being removed
