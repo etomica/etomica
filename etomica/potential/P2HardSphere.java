@@ -97,7 +97,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
-        dr.Ea1Tv1(falseTime,dv);
+        dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         dr.E(cPair.dr());  //used by lastCollisionVirialTensor
