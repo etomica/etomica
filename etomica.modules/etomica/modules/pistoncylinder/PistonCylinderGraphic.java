@@ -14,11 +14,8 @@ import etomica.DataManager;
 import etomica.DataSink;
 import etomica.Default;
 import etomica.Phase;
-import etomica.Species;
-import etomica.action.IntegratorReset;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataSourceCountSteps;
-import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
@@ -454,6 +451,7 @@ public class PistonCylinderGraphic {
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
         pressureSlider.setPostAction(new IntegratorPistonUpdate(pc.integrator));
+        pressureSlider.setController(pc.getController());
 
         ModifierBoolean fixPistonModulator = new ModifierBoolean() {
             public void setBoolean(boolean b) {
