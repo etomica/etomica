@@ -17,6 +17,11 @@ public class MCMoveSemigrand extends MCMove {
     private SpeciesAgent[] agentSet;
     private double[] fugacityFraction;
     private int nSpecies;
+    private transient Atom deleteMolecule, insertMolecule;
+    private final AtomIteratorSequential deleteAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorSequential insertAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorCompound affectedAtomIterator 
+        = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
 
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     
@@ -133,11 +138,11 @@ public class MCMoveSemigrand extends MCMove {
         else while(iInsert == iDelete) {iInsert = (int)(Simulation.random.nextDouble()*nSpecies);}
         SpeciesAgent insertAgent = agentSet[iInsert];
   
-        Atom deleteMolecule = deleteAgent.randomMolecule();
+        deleteMolecule = deleteAgent.randomMolecule();
         uOld = potential.set(phase).calculate(iteratorDirective.set(deleteMolecule), energy.reset()).sum();
         deleteAgent.removeAtom(deleteMolecule);
         
-        Atom insertMolecule = insertAgent.addNewAtom();
+        insertMolecule = insertAgent.addNewAtom();
         insertMolecule.coord.translateTo(deleteMolecule.coord.position());
         //in general, should also randomize orintation and internal coordinates
         
@@ -165,6 +170,12 @@ public class MCMoveSemigrand extends MCMove {
         
     }//end of thisTrial
     
+    public final AtomIterator affectedAtoms() {
+        insertAtomIterator.setBasis(insertMolecule);
+        deleteAtomIterator.setBasis(deleteMolecule);
+        return affectedAtomIterator;
+    }
+
     public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();

@@ -2,13 +2,14 @@ package etomica;
 
 public class IntegratorMC extends Integrator implements EtomicaElement {
     
-    public String version() {return "IntegratorMC:01.08.03"+Integrator.VERSION;}
+    public String version() {return "IntegratorMC:01.09.04"+Integrator.VERSION;}
     
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
     private int moveCount;
+    private SimulationEventManager eventManager;
+    protected final MCMoveEvent event = new MCMoveEvent(this);
     
-//need to update to include makeIterators
     public IntegratorMC() {
         this(Simulation.instance);
     }
@@ -83,6 +84,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * integrator.  Each MCMove has associated with it a (unnormalized) frequency, which
      * when weighed against the frequencies given the other MCMoves, determines
      * the likelihood that the move is selected.
+     * After completing move, fires an MCMove event if there are any listeners.
      */
     public void doStep() {
         int i = (int)(Simulation.random.nextDouble()*frequencyTotal);
@@ -90,7 +92,11 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         while((i-=trialMove.fullFrequency()) >= 0) {
             trialMove = trialMove.nextMove();
         }
-        trialMove.doTrial();
+        event.acceptedMove = trialMove.doTrial();
+        if(eventManager != null) { //consider using a final boolean flag that is set in constructor
+            event.mcMove = trialMove;
+            eventManager.fireEvent(event);
+        }
     }
     
     /**
@@ -104,12 +110,22 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         }
     }
     
+    public void addMCMoveListener(MCMoveEventListener listener) {
+        if(eventManager == null) eventManager = new SimulationEventManager();
+        eventManager.addListener(listener);
+    }
+    public void removeMCMoveListener(MCMoveEventListener listener) {
+        if(eventManager == null) return; //should define an exception
+        eventManager.removeListener(listener);
+    }
+    
     public Integrator.Agent makeAgent(Atom a) {
         return null;
     }
     
-    public class Agent implements Integrator.Agent {
+/*    public class Agent implements Integrator.Agent {
         public Atom atom;
         public Agent(Atom a) {atom = a;}
     }
+    */
 }

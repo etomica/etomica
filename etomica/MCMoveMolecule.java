@@ -10,6 +10,8 @@ import etomica.units.Dimension;
 public class MCMoveMolecule extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private Atom molecule;
 
     public MCMoveMolecule(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -26,23 +28,28 @@ public class MCMoveMolecule extends MCMove {
 
     public boolean thisTrial() {
         if(phase.moleculeCount()==0) {return false;}
-        Atom a = phase.randomMolecule();
+        molecule = phase.randomMolecule();
 
-        double uOld = potential.set(phase).calculate(iteratorDirective.set(a), energy.reset()).sum();
-        a.coord.displaceWithin(stepSize);
-        double uNew = potential.calculate(iteratorDirective.set(a), energy.reset()).sum();//not thread safe for multiphase systems
+        double uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
+        molecule.coord.displaceWithin(stepSize);
+        double uNew = potential.calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
         if(uNew < uOld) {   //accept
             return true;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
-             a.coord.replace();
+             molecule.coord.replace();
              return false;
         }
         //accept
         return true;
     }//end thisTrial
     
+    public final AtomIterator affectedAtoms() {
+        affectedAtomIterator.setBasis(molecule);
+        return affectedAtomIterator;
+    }
+
     public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();

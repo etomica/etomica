@@ -203,6 +203,9 @@ public class Atom implements java.io.Serializable {
     //replaces atomLinkCount
     private static int atomListCount = 0;
     
+    //replaces AtomLinkIndex
+    public static int requestAtomListIndex() {return atomListCount++;}
+    
     /**
      * Returns a unique index that can be used by a simulation element to set up a linked
      * list of atoms associated with each atom.  If idx is the value returned by this
@@ -211,9 +214,6 @@ public class Atom implements java.io.Serializable {
      * @deprecated
      */
 //    public static int requestAtomLinkIndex() {return atomLinkCount++;}
-    
-    //replaces AtomLinkIndex
-    public static int requestAtomListIndex() {return atomListCount++;}
     
     
     /**

@@ -1,9 +1,10 @@
 package etomica;
 
 /**
- * Class for making linked-lists of Bond instances.  Each bond linker
+ * Class for making linked-lists of Bond instances.  This is used by the
+ * Atoms to list the bonds it is participating in.  Each bond linker
  * points to the bond, the atom using this linker, and linkers preceding
- * and following it in the linked list of bonds for an atom.
+ * and following it in the linked list of bonds for the atom.
  *
  * @author David Kofke
  */
@@ -27,7 +28,8 @@ public class BondLinker implements java.io.Serializable {
     }
     
     /**
-     * Retires this linker and repairs the linked list.
+     * Retires this linker (removes it from the list of bonds held
+     * by the atom) and repairs the linked list.
      */
     public void delete() {
         if(atom.firstUpBond == this) atom.firstUpBond = next;

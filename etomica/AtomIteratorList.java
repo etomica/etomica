@@ -17,7 +17,7 @@ public final class AtomIteratorList implements AtomIterator {
     private boolean isAsNeighbor;
     private IteratorDirective.Direction direction;
         
-	AtomIteratorList() {
+	public AtomIteratorList() {
 	    this(AtomList.NULL);
 	}
 	public AtomIteratorList(AtomIterator iterator) {

@@ -10,6 +10,8 @@ import etomica.units.Dimension;
 public class MCMoveAtom extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    private Atom atom;
 
     public MCMoveAtom(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -28,27 +30,30 @@ public class MCMoveAtom extends MCMove {
         double uOld, uNew;
         if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
-        Atom a = phase.firstAtom();
+        atom = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
-        for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
+        for(int j=i; --j>=0; ) {atom = atom.nextAtom();}  //get ith atom in list
 
-        uOld = potential.set(phase).calculate(iteratorDirective.set(a), energy.reset()).sum();
-        a.coord.displaceWithin(stepSize);
-        phase.iteratorFactory().moveNotify(a);
-        uNew = potential.calculate(iteratorDirective.set(a), energy.reset()).sum();//not thread safe for multiphase systems
+        uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
+        atom.coord.displaceWithin(stepSize);
+        uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
         if(uNew < uOld) {   //accept
             return true;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
-             a.coord.replace();
-             phase.iteratorFactory().moveNotify(a);
+             atom.coord.replace();
              return false;
         }
         //accept
         return true;
     }//end thisTrial
     
+    public final AtomIterator affectedAtoms() {
+        affectedAtomIterator.setBasis(atom);
+        return affectedAtomIterator;
+    }
+
     public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();

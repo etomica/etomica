@@ -15,6 +15,8 @@ public class MCMoveInsertDelete extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private Species species;
     private SpeciesAgent speciesAgent;
+    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private Atom testMolecule;
 
     public MCMoveInsertDelete(IntegratorMC parent) {
         super(parent);
@@ -47,7 +49,7 @@ public class MCMoveInsertDelete extends MCMove {
     }
                                                                                                                                                                                                                                                                                                                                                                        
     private final boolean trialInsert() {
-        Atom testMolecule = species.moleculeFactory().makeAtom();
+        testMolecule = species.moleculeFactory().makeAtom();
         speciesAgent.addAtom(testMolecule);
         testMolecule.coord.translateTo(phase.randomPosition());
         double uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
@@ -65,7 +67,7 @@ public class MCMoveInsertDelete extends MCMove {
     
     private final boolean trialDelete() {
         if(speciesAgent.moleculeCount() == 0) {return false;}
-        Atom testMolecule = speciesAgent.randomMolecule();
+        testMolecule = speciesAgent.randomMolecule();
         double uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
         double bNew = speciesAgent.moleculeCount()/phase.volume();
@@ -74,6 +76,11 @@ public class MCMoveInsertDelete extends MCMove {
             return true;
         }
         else return false;
+    }
+
+    public final AtomIterator affectedAtoms() {
+        affectedAtomIterator.setBasis(testMolecule);
+        return affectedAtomIterator;
     }
 
     /**

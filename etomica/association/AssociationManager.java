@@ -7,11 +7,14 @@ import etomica.*;
  * that is used to determine if atoms are associated.  Only pairwise associations
  * are considered.
  */
-public class AssociationManager /*listener interface*/ {
+public class AssociationManager implements MCMoveEventListener {
     
     private AssociationDefinition associationDefinition;
     private final int index = Atom.requestAtomListIndex();
+    private final int indexOld = Atom.requestAtomListIndex();
     private AtomIterator atomIterator;
+    private final AtomIteratorList listIterator0 = new AtomIteratorList();
+    private final AtomIteratorList listIterator1 = new AtomIteratorList();
     private final AtomList associatedAtoms = new AtomList();
     private int associatedAtomCount;
     
@@ -43,36 +46,46 @@ public class AssociationManager /*listener interface*/ {
     
     public int associatedAtomCount() {return associatedAtoms.size();}
     
+    //need also to handle associatedAtoms list
+    public void mcMoveAction(MCMoveEvent evt) {
+        int fromIndex, toIndex;
+        if(evt.acceptedMove) {
+            fromIndex = index;
+            toIndex = indexOld;
+        }
+        else {//move was rejected
+            fromIndex = indexOld;
+            toIndex = index;
+        }
+        AtomIterator iterator = evt.mcMove.affectedAtoms();
+        iterator.reset();
+        while(iterator.hasNext()) {
+            Atom atom = iterator.next();
+            //restore lists for atoms on atom's new and old lists
+            //something may not work correctly if one of these atoms shows up as "atom" later in this loop
+            listIterator1.setBasis(atom.atomList[index]);
+            while(listIterator1.hasNext()) {
+                Atom a = listIterator1.next();
+                copyList(a.atomList[fromIndex], a.atomList[toIndex]);
+            }
+            listIterator1.setBasis(atom.atomList[indexOld]);
+            while(listIterator1.hasNext()) {
+                Atom a = listIterator1.next();
+                copyList(a.atomList[fromIndex], a.atomList[toIndex]);
+            }
+            //restore atom's list
+            copyList(atom.atomList[fromIndex], atom.atomList[toIndex]);
+        }
+    }
+    
     /**
-     * Updates the association status of the given atom.
+     * Replaces elements in second list with those in the first.
      */
-    public void atomMoveNotify(Atom atom) {
-        //loop over all atoms and see if association status with given atom has changed
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            Atom atomB = atomIterator.next();
-            if(atomB == atom) continue;
-            boolean wasAssociated = false;
-            //see if B is on the list of associated atoms for A
-            wasAssociated = atom.atomList[index].contains(atomB);
-            boolean isAssociated = associationDefinition.isAssociated(atom, atomB);
-            
-            if(isAssociated != wasAssociated) {//something changed -- one is true and the other is false
-                if(wasAssociated) { //but not associated now
-                    atom.atomList[index].remove(atomB);
-                    atomB.atomList[index].remove(atom);
-                    if(atom.atomList[index].size() == 0) associatedAtoms.remove(atom);
-                    if(atomB.atomList[index].size() == 0) associatedAtoms.remove(atomB);
-                }
-                else { //is associated now but wasn't before
-                    if(atom.atomList[index].size() == 0) associatedAtoms.add(atom);
-                    if(atomB.atomList[index].size() == 0) associatedAtoms.add(atomB);
-                    atom.atomList[index].add(atomB);
-                    atomB.atomList[index].add(atom);
-                }
-            }//end if(isAssociated != wasAssociated)
-        }//end while
-    }//end update
+    private void copyList(AtomList fromList, AtomList toList) {
+        toList.clear();
+        listIterator0.setBasis(fromList);
+        toList.addAll(listIterator0);
+    }
     
     /**
      * Returns the number of atoms on the list of associations of the given atom.
@@ -119,6 +132,7 @@ public class AssociationManager /*listener interface*/ {
                     }
                 }//end if(isAssociated != wasAssociated)
                 
+                //these two lines are the only ones present in the superclass version of the loop
                 sum += potential.energy(pair);
                 if(sum >= Double.MAX_VALUE) return;
             }//end while

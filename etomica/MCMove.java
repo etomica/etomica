@@ -15,8 +15,6 @@ public abstract class MCMove implements java.io.Serializable {
     protected final IntegratorMC parentIntegrator;
     protected final PotentialMaster potential;
     protected final PotentialCalculationEnergySum energy;
-    protected final MCMoveEvent event = new MCMoveEvent(this);
-    private final SimulationEventManager eventManager = new SimulationEventManager();
     
     public MCMove(IntegratorMC parent) {
         parentIntegrator = parent;
@@ -37,12 +35,12 @@ public abstract class MCMove implements java.io.Serializable {
      * Actual definition of the trial for each subclass is given by the
      * thisTrial method, which is invoked by this method.
      */
-    public void doTrial() {
+    public final boolean doTrial() {
         nTrials++;
-        event.acceptedMove = thisTrial();
-        if(event.acceptedMove) nAccept++;
-        if(eventManager != null) eventManager.fireEvent(event);
+        boolean moveWasAccepted = thisTrial();
+        if(moveWasAccepted) nAccept++;
         if(nTrials > adjustInterval*frequency) {adjustStepSize();}
+        return moveWasAccepted;
     }
     
     public IntegratorMC parentIntegrator() {return parentIntegrator;}
@@ -52,6 +50,17 @@ public abstract class MCMove implements java.io.Serializable {
      * indicating if move was accepted (true) or not.
      */
     public abstract boolean thisTrial();
+    
+    /**
+     * Returns an iterator that yields the (leaf) atoms that were affected by
+     * the trial move the last time thisTrial was invoked 
+     * (regardless of whether the move was accepted).  This information usually
+     * is not needed, but it is available in cases where required by objects that
+     * perform some activity while the move is in progress, or need to update 
+     * after the move is completed.  Such objects can receive notification of the
+     * move's completion  by registering with the IntegratorMC as MCMoveEventListeners.
+     */
+    public abstract AtomIterator affectedAtoms();
     
     public void setPhase(Phase[] p) {
         phases = p;

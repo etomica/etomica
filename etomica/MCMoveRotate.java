@@ -5,6 +5,8 @@ public class MCMoveRotate extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final Space.Orientation oldOrientation;
+    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private Atom molecule;
 
     public MCMoveRotate(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -17,20 +19,21 @@ public class MCMoveRotate extends MCMove {
      
     public boolean thisTrial(){   
          
-        double uOld, uNew;
-       
-        if(phase.atomCount()==0) {return false;}
+        if(phase.moleculeCount()==0) {return false;}
+        molecule = phase.randomMolecule();
+
+        /*if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
-        Atom a = phase.firstAtom();
-        for(int j=i; --j>=0; ) {a = a.nextAtom();}  
-            
-        potential.set(phase).calculate(iteratorDirective.set(a), energy.reset());
-        uOld = energy.sum();
-        Space.Orientation orientation = ((Space.Coordinate.Angular)a.coord).orientation(); 
+        molecule = phase.firstAtom();
+        for(int j=i; --j>=0; ) {molecule = molecule.nextAtom();}  
+         */   
+        potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
+        double uOld = energy.sum();
+        Space.Orientation orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
-        potential.set(phase).calculate(iteratorDirective.set(a), energy.reset());
-        uNew = energy.sum();
+        potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
+        double uNew = energy.sum();
         if(uNew < uOld) {   //accept
             return true;
         }
@@ -43,6 +46,11 @@ public class MCMoveRotate extends MCMove {
         return true;//accept
     }
  
+    public final AtomIterator affectedAtoms() {
+        affectedAtomIterator.setBasis(molecule);
+        return affectedAtomIterator;
+    }
+
    public static void main(String[] args) {
         Default.ATOM_SIZE =1.2;
         Simulation.instance = new Simulation(/*new Space2DCell()*/);

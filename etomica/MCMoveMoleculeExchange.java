@@ -12,6 +12,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase secondPhase;
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private Atom molecule;
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {
         super(parent);
@@ -46,23 +48,22 @@ public final class MCMoveMoleculeExchange extends MCMove {
         }
         if(dPhase.moleculeCount() == 0) {return false;} //no molecules to delete; trial is over
         
-        Atom a = dPhase.randomMolecule();  //select random molecule to delete
-        Species species = a.parentSpecies();
+        molecule = dPhase.randomMolecule();  //select random molecule to delete
+        Species species = molecule.parentSpecies();
         
         SpeciesAgent iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         SpeciesAgent dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
-        double uOld = potential.set(dPhase).calculate(iteratorDirective.set(a), energy.reset()).sum();
+        double uOld = potential.set(dPhase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
 
-        a.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
-        dPhase.removeMolecule(a,dSpecies);
-        iPhase.addMolecule(a,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
-        iPhase.iteratorFactory().moveNotify(a);
+        molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
+        dPhase.removeMolecule(molecule,dSpecies);
+        iPhase.addMolecule(molecule,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
         double uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap; reject
-            a.coord.replace();                //put it back 
-            iPhase.removeMolecule(a,iSpecies);
-            dPhase.addMolecule(a,dSpecies);
+            molecule.coord.replace();                //put it back 
+            iPhase.removeMolecule(molecule,iSpecies);
+            dPhase.addMolecule(molecule,dSpecies);
             return false;        
         }
         
@@ -73,10 +74,16 @@ public final class MCMoveMoleculeExchange extends MCMove {
             return true;
         }
         else {              //reject
-            a.coord.replace();    //put it back
-            iPhase.removeMolecule(a,iSpecies);
-            dPhase.addMolecule(a,dSpecies); //place molecule in phase
+            molecule.coord.replace();    //put it back
+            iPhase.removeMolecule(molecule,iSpecies);
+            dPhase.addMolecule(molecule,dSpecies); //place molecule in phase
             return false;
         }
     }//end of thisTrial
+    
+    public final AtomIterator affectedAtoms() {
+        affectedAtomIterator.setBasis(molecule);
+        return affectedAtomIterator;
+    }
+
 }//end of MCMoveMoleculeExchange

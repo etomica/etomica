@@ -13,6 +13,7 @@ public class MCMoveVolume extends MCMove {
     protected double pressure;
     protected PhaseAction.Inflate inflate;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
+    private AtomIterator affectedAtomIterator;
 
     public MCMoveVolume(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -25,6 +26,7 @@ public class MCMoveVolume extends MCMove {
     public void setPhase(Phase p) {
         super.setPhase(p);
         inflate = new PhaseAction.Inflate(phase);
+        affectedAtomIterator = phase.makeAtomIterator();
     }
     
     public boolean thisTrial() {
@@ -49,6 +51,8 @@ public class MCMoveVolume extends MCMove {
         return true;   //accept
     }
     
+    public AtomIterator affectedAtoms() {return affectedAtomIterator;}
+
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}
     public final double pressure() {return pressure;}

@@ -20,6 +20,7 @@ public class MCMovePointVolume extends MCMove {
     private ActionPointVolume action = new ActionPointVolume();
     private Space.Vector r0;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
+    private AtomIterator affectedAtomIterator;
 
     public MCMovePointVolume(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -32,6 +33,7 @@ public class MCMovePointVolume extends MCMove {
     public void setPhase(Phase p) {
         super.setPhase(p);
         action.setPhase(phase);
+        affectedAtomIterator = phase.makeAtomIterator();
     }
         
     public boolean thisTrial() {
@@ -56,6 +58,8 @@ public class MCMovePointVolume extends MCMove {
             }
         return true;   //accept
     }
+    
+    public AtomIterator affectedAtoms() {return affectedAtomIterator;}
     
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}
