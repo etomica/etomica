@@ -301,6 +301,7 @@ public class IntegratorHard extends IntegratorMD {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             ((Agent)a.ia).collisionTime *= rs;
+            ((Agent)a.ia).eventLinker.sortKey = ((Agent)a.ia).collisionTime; 
         }
         // don't need to update eventTree because event order didn't change
         return s;
@@ -312,7 +313,10 @@ public class IntegratorHard extends IntegratorMD {
      */
     protected void randomizeMomenta(Phase aPhase) {
         super.randomizeMomenta(aPhase);
-        reset();
+        // super.randomizeMomenta recalculates the kinetic energy and doesn't
+        // change the potential energy, so just act like the neighbor lists were
+        // updated
+        neighborsUpdated();
     }
     
     /**
