@@ -25,25 +25,29 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
    protected final Space.Tensor lastCollisionVirialTensor;
     
     public P2HardSphere() {
-        this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);
+        this(Simulation.getDefault().space, Default.ATOM_SIZE);
     }
 
     public P2HardSphere(double d) {
-        this(Simulation.instance.hamiltonian.potential, d);
+        this(Simulation.getDefault().space, d);
     }
-    public P2HardSphere(SimulationElement parent) {
-        this(parent, Default.ATOM_SIZE);
+    public P2HardSphere(Space space) {
+        this(space, Default.ATOM_SIZE);
     }
-    public P2HardSphere(SimulationElement parent, double d) {
-        super(parent);
+    public P2HardSphere(Space space, double d) {
+        super(space);
         setCollisionDiameter(d);
-        lastCollisionVirialTensor = simulation().space().makeTensor();
-        dr = simulation().space().makeVector();
+        lastCollisionVirialTensor = space.makeTensor();
+        dr = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Simple hard-sphere potential");
         return info;
+    }
+    
+    public double getRange() {
+    	return collisionDiameter;
     }
 
     /**

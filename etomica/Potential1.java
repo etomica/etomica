@@ -9,8 +9,8 @@ public abstract class Potential1 extends Potential {
       
 	protected Space.Boundary boundary;
 	
-    public Potential1(SimulationElement parent) {
-        super(1, parent);
+    public Potential1(Space space) {
+        super(1, space);
     }
 
     public void setPhase(Phase phase) {

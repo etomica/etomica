@@ -19,21 +19,20 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
    private final Space.Vector work1;
    private final double rD;// = 1/D
    
-   public Potential2SoftSpherical(SimulationElement parent) {
-        super(parent);
-        rD = 1.0/(double)simulation().space.D();
-        work1 = simulation().space().makeVector();
+   public Potential2SoftSpherical(Space space) {
+        super(space);
+        rD = 1.0/(double)space.D();
+        work1 = space.makeVector();
    }
-   public Potential2SoftSpherical(SimulationElement parent, PotentialTruncation trunc) {
+   public Potential2SoftSpherical(Space space, PotentialTruncation trunc) {
      //constructors repeat code rather than call the other because superclass constructors
      //define truncation differently.  Since truncation field is final it cannot be
      //subsequently changed
-        super(parent, trunc);
-        rD = 1.0/(double)simulation().space.D();
-        work1 = simulation().space.makeVector();
+        super(space, trunc);
+        rD = 1.0/(double)space.D();
+        work1 = space.makeVector();
    }
         
-   
    /**
     * The pair energy u(r^2) with no truncation applied.
     * @param the square of the distance between the particles.

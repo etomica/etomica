@@ -33,7 +33,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      *               child atoms under each of the root's child atoms, etc.
      */
     public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
-        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), leafFactory, nAtoms);
+        this(sim.space, sim.potentialMaster.sequencerFactory(), leafFactory, nAtoms);
     }
     public AtomFactoryTree(Space space, AtomSequencer.Factory seqFactory, 
                             AtomFactory leafFactory, int[] nAtoms) {

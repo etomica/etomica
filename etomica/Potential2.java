@@ -21,8 +21,8 @@ public abstract class Potential2 extends Potential {
   
     protected final Space.CoordinatePair cPair;
     
-    public Potential2(SimulationElement parent) {
-        this(parent, Default.TRUNCATE_POTENTIALS ? 
+    public Potential2(Space space) {
+        this(space, Default.TRUNCATE_POTENTIALS ? 
                         new PotentialTruncationSimple()
                       : PotentialTruncation.NULL);
       /*                  
@@ -37,10 +37,11 @@ public abstract class Potential2 extends Potential {
             potentialTruncation = PotentialTruncation.NULL;
         }*/
     }
-    public Potential2(SimulationElement parent, PotentialTruncation potentialTruncation) {
-        super(2, parent, potentialTruncation);
+    public Potential2(Space space, PotentialTruncation potentialTruncation) {
+        super(2, space, potentialTruncation);
         if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null
             && (this instanceof Potential2SoftSpherical)) ) {
+        	//TODO fix by doing this when adding potential to parent group
             PotentialMaster potentialMaster = simulation().hamiltonian.potential;
             potentialTruncation.makeLrcPotential(potentialMaster, this); //constructor of lrcPotential adds it to lrcMaster of potentialMaster
         }

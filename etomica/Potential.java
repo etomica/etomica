@@ -14,18 +14,19 @@ package etomica;
   * added/removed from a potential group; added setParentPotential for this
   * purpose.
   */
-public abstract class Potential extends SimulationElement {
+public abstract class Potential {
     
 	public final PotentialTruncation potentialTruncation;
 	private final int nBody;
 	private Potential0Lrc p0Lrc;
+	protected final Space space;
+	PotentialGroup parentGroup;
 
 	/**
 	 * Constructor for use only by PotentialMaster subclass.
 	 * @param sim Simulation instance in which potential is used.
 	 */
 	Potential(Simulation sim) {
-		super(sim, Potential.class);
 		nBody = 0;
 		potentialTruncation = PotentialTruncation.NULL;
 		if(!(this instanceof PotentialMaster)) throw new RuntimeException("Invalid attempt to instantiate potential");
@@ -38,8 +39,8 @@ public abstract class Potential extends SimulationElement {
 	 * @param parent simulation element (usually a PotentialGroup) in which this
 	 * potential resides
 	 */
-    public Potential(int nBody, SimulationElement parent) {
-    	this(nBody, parent, PotentialTruncation.NULL);
+    public Potential(int nBody, Space space) {
+    	this(nBody, space, PotentialTruncation.NULL);
     }
     /**
      * General constructor for a potential instance
@@ -50,20 +51,30 @@ public abstract class Potential extends SimulationElement {
      * @param truncation instance of a truncation class that specifies the
      * scheme for truncating the potential
      */
-    public Potential(int nBody, SimulationElement parent, PotentialTruncation truncation) {
-        super(parent, Potential.class);
+    public Potential(int nBody, Space space, PotentialTruncation potentialTruncation) {
         this.nBody = nBody;
-        potentialTruncation = truncation;
+        this.potentialTruncation = potentialTruncation;
+        this.space = space;
     }
+    
+    public double getRange() {
+   		return potentialTruncation.getRange();
+   }
 
     public abstract double energy(Atom[] atoms);
     
     public abstract void setPhase(Phase phase);
-    
-    public abstract double getRange();
-    
+        
     public final int nBody() {return nBody;}
     
+    
+    
+	protected PotentialGroup getParentGroup() {
+		return parentGroup;
+	}
+	protected void setParentGroup(PotentialGroup parentGroup) {
+		this.parentGroup = parentGroup;
+	}
  	/**
 	 * Accessor method for potential cutoff implementation.
 	 */

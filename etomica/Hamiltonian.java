@@ -11,6 +11,9 @@ public class Hamiltonian implements java.io.Serializable {
     //may need to have a different potential hierarchy for each integrator,
     //if multiple integrators are to be run on separate threads
     
+    public Hamiltonian(Simulation sim) {
+    	this(sim, new PotentialMaster(sim));
+    }
     public Hamiltonian(Simulation sim, PotentialMaster potential) {
         parentSimulation = sim;
         this.potential = potential;

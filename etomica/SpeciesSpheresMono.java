@@ -1,4 +1,5 @@
 package etomica;
+import etomica.exception.MethodNotImplementedException;
 import etomica.units.Dimension;
 
 /**
@@ -52,8 +53,9 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     // Exposed Properties
     public final double getMass() {return mass;}
     public final void setMass(double m) {
-        mass = m;
-        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+    	throw new MethodNotImplementedException("not implemented");
+//        mass = m;
+//        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
     }
     public Dimension getMassDimension() {return Dimension.MASS;}
                 

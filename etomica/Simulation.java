@@ -1,4 +1,3 @@
-//This class includes a main method to demonstrate its use
 package etomica;
 
 import etomica.units.UnitSystem;
@@ -30,7 +29,6 @@ import etomica.utility.java2.Iterator;
  
 public class Simulation extends SimulationElement {
     
-    public static final String VERSION = "Simulation:01.11.20";
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -43,7 +41,9 @@ public class Simulation extends SimulationElement {
     public Mediator elementCoordinator;
     protected HashMap elementLists = new HashMap(16);
     
-    public final Hamiltonian hamiltonian;
+    public final PotentialMaster potentialMaster;
+    
+    private static final LinkedList instances = new LinkedList();
     
     public PotentialCalculationEnergySum energySum;
     
@@ -66,9 +66,14 @@ public class Simulation extends SimulationElement {
      * Creates a new simulation using the given space, and sets the static
      * instance field equal to the new instance.
      */
-    public Simulation(Space s) {
-        super(s, instanceCount++, Simulation.class);
+    public Simulation(Space space) {
+    	this(space, new PotentialMaster(space));
+    }
+    
+    public Simulation(Space space, PotentialMaster potentialMaster) {
+        super(space, instanceCount++, Simulation.class);
         instance = this;
+        instances.add(this);
         setName("Simulation" + Integer.toString(instanceCount++));
         elementLists.put(Potential.class, new LinkedList());
         elementLists.put(Species.class, new LinkedList());
@@ -78,7 +83,7 @@ public class Simulation extends SimulationElement {
 		elementLists.put(MeterAbstract.class, new LinkedList());
 		elementLists.put(LoggerAbstract.class, new LinkedList());
         elementCoordinator = new Mediator(this);
-        hamiltonian = new Hamiltonian(this);
+        this.potentialMaster = potentialMaster;
     }//end of constructor
     
     /**
@@ -128,7 +133,23 @@ public class Simulation extends SimulationElement {
     public final LinkedList controllerList() {return (LinkedList)elementLists.get(Controller.class);}
     public final LinkedList potentialList() {return (LinkedList)elementLists.get(Potential.class);}
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
+    
+    public static Simulation getDefault() {
+    	return instance;
+    }
+    
+    public static void setDefault(Simulation sim) {
+    	instance = sim;
+    }
+    
+    public static LinkedList getInstances() {
+    	return instances;
+    }
   
+    public void dispose() {
+    	instances.remove(this);
+    }
+    
     int register(SimulationElement element) {
     	super.register(element);
 //        if(hamiltonian == null || element == hamiltonian.potential) return;
@@ -185,13 +206,6 @@ public class Simulation extends SimulationElement {
       * the elementCoordinator field, so it is the preferred way to access it.
       */
      public Mediator mediator() {return elementCoordinator;}
-     
-     public void setIteratorFactory(IteratorFactory factory) {
-        iteratorFactory = factory;
-     }
-     public IteratorFactory getIteratorFactory() {return iteratorFactory;}
-     
-     public IteratorFactory iteratorFactory = IteratorFactorySimple.INSTANCE;
      
      public Simulation simulation() {return this;}
  

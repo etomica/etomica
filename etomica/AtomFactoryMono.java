@@ -24,7 +24,7 @@ public class AtomFactoryMono extends AtomFactory {
      * Constructor with neighborSequencerFactory and AtomType.Sphere defaults.
      */
     public AtomFactoryMono(Simulation sim) {
-        this(sim, sim.iteratorFactory.neighborSequencerFactory());
+        this(sim, sim.potentialMaster.sequencerFactory());
     }
 	public AtomFactoryMono(Simulation sim, AtomSequencer.Factory seqFactory) {
 		super(sim, seqFactory, AtomTreeNodeLeaf.FACTORY);

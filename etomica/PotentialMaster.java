@@ -19,8 +19,8 @@ package etomica;
   */
 public class PotentialMaster extends PotentialGroup {
     
-    public PotentialMaster(Simulation sim) {
-        super(-1, sim);
+    public PotentialMaster(Space space) {
+        super(-1, space);
     } 
     
 	/**
@@ -80,6 +80,9 @@ public class PotentialMaster extends PotentialGroup {
 //	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
 //	   return pa;
 //   }	    
+    
+    public AtomSequencer.Factory sequencerFactory() {return AtomSequencerSimple.FACTORY;}
+
    
 	protected PotentialGroupLrc lrcMaster;
 	protected Phase mostRecentPhase = null;

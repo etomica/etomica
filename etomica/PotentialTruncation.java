@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.Space.CoordinatePair;
+
 /**
  * Class that defines whether and how the interatomic potential is truncated.
  *
@@ -23,13 +25,15 @@ public abstract class PotentialTruncation {
      * @return boolean true if potential is to be set to zero for the given
      * atoms
      */
-    public boolean isZero(AtomSet atomSet) {
-    	if(atomSet instanceof AtomPair) {
-    		return isZero(((AtomPair)atomSet).r2());
+    public boolean isZero(CoordinateSet coords) {
+    	if(coords instanceof CoordinatePair) {
+    		return isZero(((CoordinatePair)coords).r2());
     	} else {
     		return false;
     	}
     }
+    
+    public abstract double getRange();
         
     /**
      * Returns true if the truncation makes the potential zero at the given separation.
@@ -74,5 +78,6 @@ public abstract class PotentialTruncation {
         public double duTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double d2uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential) {return null;}
+        public double getRange() {return Double.MAX_VALUE;}
      }//end of Null
 }//end of PotentialTruncation

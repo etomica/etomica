@@ -19,7 +19,7 @@ public class AtomFactoryHomo extends AtomFactory {
 	//Simulation version is preferred.  It causes a handle to the simulation to be put in 
 	//the AtomType, which is the way that the atom accesses the simulation
     public AtomFactoryHomo(Simulation sim, AtomFactory factory) {
-        this(sim, sim.iteratorFactory.simpleSequencerFactory(), factory);
+        this(sim, sim.potentialMaster.sequencerFactory(), factory);
     }
 	public AtomFactoryHomo(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory factory) {
 		this(sim, sequencerFactory, factory, 1);

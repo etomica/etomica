@@ -31,7 +31,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     
 	//the up-handler has the logic of the Allen & Tildesley upList subroutine
 	//sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-	private static final class CollisionHandlerUp implements PotentialCalculation {
+	private static final class CollisionHandlerUp extends PotentialCalculation {
 		double minCollisionTime;
 		IntegratorHardAbstract.Agent aia;
 		Atom atom1;
@@ -72,7 +72,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
-	private static final class CollisionHandlerDown implements PotentialCalculation {
+	private static final class CollisionHandlerDown extends PotentialCalculation {
 		public void doCalculation(AtomsetIterator iterator, Potential potential) {
 			if (potential.nBody() != 2) return;
 			iterator.reset();

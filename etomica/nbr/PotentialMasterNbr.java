@@ -17,8 +17,8 @@ public class PotentialMasterNbr extends PotentialMaster {
 	/**
 	 * @param nBody
 	 */
-	public PotentialMasterNbr(Simulation sim) {
-		super(sim);
+	public PotentialMasterNbr(Space space) {
+		super(space);
 	}
 
 	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
@@ -95,6 +95,8 @@ public class PotentialMasterNbr extends PotentialMaster {
 			//TODO remove from list of concrete potentials
 		}
 	}
-	
+
+    public AtomSequencer.Factory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
+
 	private final AtomIteratorArrayList atomIterator = new AtomIteratorArrayList();
 }

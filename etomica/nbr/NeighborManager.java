@@ -54,7 +54,7 @@ public class NeighborManager implements IntervalListener {
 				if (neighborCheck.unsafe) {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
-				phase[i].simulation().hamiltonian.potential.calculate(phase[i],id,potentialCalculationNbrSetup);
+				phase[i].simulation().potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
 			}
 		}
 	}
@@ -62,9 +62,30 @@ public class NeighborManager implements IntervalListener {
 	public int getUpdateInterval() {
 		return updateInterval;
 	}
+	
 	public void setUpdateInterval(int updateInterval) {
 		this.updateInterval = updateInterval;
 	}
+	
+	public void addCriterion(NeighborCriterion criterion) {
+		NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length+1];
+		System.arraycopy(criteria, 0, newCriteria, 0, criteria.length);
+		newCriteria[criteria.length] = criterion;
+		criteria = newCriteria;
+	}
+
+    public boolean removeCriterion(NeighborCriterion criterion) {
+    	for (int i=0; i<criteria.length; i++) {
+    		if (criteria[i] == criterion) {
+    	    	NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length-1];
+    	    	System.arraycopy(criteria,0,newCriteria,0,i);
+    	    	System.arraycopy(criteria,i+1,newCriteria,i,criteria.length-i-1);
+    	    	criteria = newCriteria;
+    	    	return true;
+    		}
+    	}
+    	return false;
+    }
 
 	private NeighborCriterion[] criteria;
 	private int updateInterval;

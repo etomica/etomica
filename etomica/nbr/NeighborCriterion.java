@@ -13,11 +13,20 @@ import etomica.Phase;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public interface NeighborCriterion extends AtomsetFilter {
+public abstract class NeighborCriterion implements AtomsetFilter {
 
-	public boolean needUpdate(Atom atom);
+	public NeighborCriterion(NeighborManager neighborManager, NeighborManagerAgent[] nbrAgents) {
+		neighborManager.addCriterion(this);
+		for(int i=0; i<nbrAgents.length; i++) {
+			nbrAgents[i].addCriterion(this);
+		}
+	}
 	
-	public void setPhase(Phase phase);
+	public abstract boolean needUpdate(Atom atom);
 	
-	public boolean unsafe(Atom atom);
+	public abstract void setPhase(Phase phase);
+	
+	public abstract boolean unsafe(Atom atom);
+	
+	//TODO consider ways to ensure this is removed from nbrmanager if no longer used
 }

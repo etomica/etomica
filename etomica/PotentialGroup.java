@@ -18,22 +18,22 @@ public class PotentialGroup extends Potential {
     
     /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
-     * Parent potential is potential master for current value of Simulation.instance.
+     * Space is that for current value of Simulation.instance.
      */
     public PotentialGroup(int nBody) {
-        this(nBody, Simulation.instance.hamiltonian.potential);
+        this(nBody, Simulation.getDefault().space);
     }
     /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
      */
-    public PotentialGroup(int nBody, SimulationElement parent) {
-        this(nBody, parent, null);
+    public PotentialGroup(int nBody, Space space) {
+        this(nBody, space, null);
     }
     /**
      * Makes instance with given truncation scheme.
      */
-    public PotentialGroup(int nBody, SimulationElement parent, PotentialTruncation truncation) {
-        super(nBody, parent, truncation);
+    public PotentialGroup(int nBody, Space space, PotentialTruncation truncation) {
+        super(nBody, space, truncation);
         if(nBody < 0 && !(this instanceof PotentialMaster)) throw new IllegalArgumentException("Cannot instantiate negative-body potential");
     }
 
@@ -78,7 +78,8 @@ public class PotentialGroup extends Potential {
 			first = makeLinker(potential, iterator, first);
 			if(last == null) last = first;
 		}
-		addPotentialNotify(potential);
+		potential.setParentGroup(this);
+//		addPotentialNotify(potential);
 	}
 	
 	//TODO this needs some work
@@ -110,6 +111,9 @@ public class PotentialGroup extends Potential {
 		return new PotentialLinker(p, i, next);
 	}
 
+	public double getRange() {
+		return Double.MAX_VALUE;
+	}
 	
 	/**
 	 * Removes given potential from the group.  No error is generated if
@@ -126,29 +130,30 @@ public class PotentialGroup extends Potential {
 			}//end if
 			previous = link;
 		}//end for
-		removePotentialNotify(potential);
+		potential.setParentGroup(null);
+//		removePotentialNotify(potential);
 	}//end removePotential
     
-	public void addPotentialNotify(Potential potential) {
-		if(parentElement instanceof PotentialGroup) {
-			((PotentialGroup)parentElement).addPotentialNotify(potential);
-		}
-		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
-				((PotentialMaster)parentElement).addPotentialNotify(potential);
-		}
-		//else no notification is appropriate
-	}
+//	public void addPotentialNotify(Potential potential) {
+//		if(parentGroup != null) {
+//			parentGroup.addPotentialNotify(potential);
+//		}
+////		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
+////				((PotentialMaster)parentElement).addPotentialNotify(potential);
+////		}
+//		//else no notification is appropriate
+//	}
 	
 	
-	public void removePotentialNotify(Potential potential) {
-		if(parentElement instanceof PotentialGroup) {
-			((PotentialGroup)parentElement).removePotentialNotify(potential);
-		}
-		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
-				((PotentialMaster)parentElement).removePotentialNotify(potential);
-		}
-		//else no notification is appropriate
-	}
+//	public void removePotentialNotify(Potential potential) {
+//		if(parentElement instanceof PotentialGroup) {
+//			((PotentialGroup)parentElement).removePotentialNotify(potential);
+//		}
+//		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
+//				((PotentialMaster)parentElement).removePotentialNotify(potential);
+//		}
+//		//else no notification is appropriate
+//	}
     /**
      * Performs the specified calculation over the iterates given by the iterator,
      * using the directive to set up the iterators for the sub-potentials of this group.
