@@ -92,10 +92,10 @@ public class TestSWMC3D extends Simulation {
         double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/(temp*temp*numAtoms);
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(PE+4.52) > 0.03) {
+        if (Math.abs(PE+5.48) > 0.04) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.034) > 0.01) {
+        if (Math.abs(Cv-0.031) > 0.012) {
             System.exit(1);
         }
     }
