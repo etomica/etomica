@@ -185,8 +185,8 @@ public class SimpleLattice implements AbstractLattice {
         }
 
         /**
-         * Method called on reset if any
-         *
+         * Method called on reset if any calls were previously made
+         * to setSite, setRange, or setDirection.
          */
         private void updateNeighborList() {
             neighborCount = (direction == null) ? 2*halfNeighborCount : halfNeighborCount;
@@ -196,30 +196,48 @@ public class SimpleLattice implements AbstractLattice {
             if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
             needNeighborUpdate = false;
         }
-            
+        
+        /**
+         * Identifies and adds to neighbor list all downlist neighbors
+         * in the sub-dimension d.  For example, if a 3D lattice and
+         * d = 0, gathers all neighbors; d = 1, gathers all in a plane;
+         * d = 2, gathers all in a line.  Neighbors are identified by their 
+         * index in the sites array, and startIndex is the position in the array
+         * where the first neighbor to be collected by the method is found.  
+         */
         private void gatherDownNeighbors(int d, int startIndex) {
             int centralIndex = centralSite[d];
             int iMin = centralIndex-range[d];
             int dim = dimensions[d];
             
-            if(iMin < 0) {
+            //this block gathers all neighbors in the dimension d,
+            //up to but not including the row where the central site is located
+            if(iMin < 0) {//need to implement periodic boundaries
                 gatherNeighbors(d, -iMin, startIndex+dim*jumpCount[d]);
                 gatherNeighbors(d, centralIndex, startIndex-iMin*jumpCount[d]);//note that iMin<0
-            } else {
+            } else {//no concern for PBC; gather all neighbors in plane
                 gatherNeighbors(d, range[d], startIndex);
             }
+            //handle row containing central site
             if(d < D-1) gatherDownNeighbors(d+1, startIndex+range[d]*jumpCount[d]);
         }
 
+        /**
+         * Similar to gatherDownNeighbors, but does upList neighbors.
+         */
+        //algorithm looks a bit different from gatherDownNeighbors because
+        //central-site row is handled first
         private int gatherUpNeighbors(int d, int startIndex) {
             int centralIndex = centralSite[d];
             int iMax = centralIndex+range[d];
             int dim = dimensions[d];
             
+            //handle central-site row
             if(d < D-1) {
                 startIndex = gatherUpNeighbors(d+1, startIndex);
                 startIndex += jumpCount[d] - (range[d+1]+1)*jumpCount[d+1];
             }
+            //advance through other rows
             if(iMax >= dim) {
                 gatherNeighbors(d, dim-centralIndex-1, startIndex);
                 gatherNeighbors(d, iMax-dim+1, startIndex-(centralIndex+1)*jumpCount[d]);
@@ -235,23 +253,28 @@ public class SimpleLattice implements AbstractLattice {
             int iMax = centralIndex+range[d];
             int dim = dimensions[d];
             
-            if(iMin < 0) {
+            if(iMin < 0) {//need to consider PBC
                 gatherNeighbors(d, -iMin, startIndex+dim*jumpCount[d]);
                 gatherNeighbors(d, iMax+1, startIndex-iMin*jumpCount[d]);//note that iMin<0
-            } else if(iMax >= dim) {
+            } else if(iMax >= dim) {//need to consider PBC
                 gatherNeighbors(d, dim-iMin, startIndex);
                 gatherNeighbors(d, iMax-dim+1, startIndex-iMin*jumpCount[d]);
-            } else {
+            } else {//no need to consider PBC
                 gatherNeighbors(d, 2*range[d]+1, startIndex);
             }
         }
         
+        /**
+         * @param d specifies row, plane, block, etc. of neighbors gathered
+         * @param nSteps number of steps to take in row
+         * @param startIndex array of site index for first neighbor
+         */
         private void gatherNeighbors(int d, int nSteps, int startIndex) {
-            if(d == D-1) {
+            if(d == D-1) {//end of recursion -- here's where the actual gathering is done
                 for(int i=0; i<nSteps; i++) {
                     neighbors[cursor++] = startIndex++;
                 }
-            } else {
+            } else {//step from one row to the next and gather neighbors in each row
                 for(int i=0; i<nSteps; i++) {
                      gatherAllNeighbors(d+1,startIndex+i*jumpCount[d]);
                 }
