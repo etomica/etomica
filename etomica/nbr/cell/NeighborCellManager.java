@@ -4,17 +4,18 @@
  */
 package etomica.nbr.cell;
 
+import etomica.Atom;
 import etomica.AtomIteratorList;
 import etomica.AtomIteratorListSimple;
 import etomica.AtomIteratorMolecule;
-import etomica.AtomLinker;
-import etomica.AtomList;
+import etomica.AtomIteratorPhaseDependent;
 import etomica.Default;
 import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
+import etomica.SpeciesAgent;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeEvent;
 import etomica.lattice.LatticeListener;
@@ -22,16 +23,17 @@ import etomica.lattice.Primitive;
 import etomica.lattice.PrimitiveCubic;
 import etomica.lattice.PrimitiveOrthorhombic;
 import etomica.lattice.Site;
-import etomica.math.geometry.Polyhedron;
-import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
-import etomica.utility.Arrays;
 
 /**
  * @author kofke
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Class that defines and manages construction and use of lattice of cells 
+ * for cell-based neighbor listing.
  */
+
+//TODO consider how (and from where) assignCell calls will be made
+//TODO figure out how sequencers for nbrList and cellList will be used at same time
+
 public class NeighborCellManager {
 
     private final BravaisLattice lattice;
@@ -41,6 +43,7 @@ public class NeighborCellManager {
     private final Phase phase;
     protected double neighborRange;
     private int listCount;
+    private final AtomIteratorPhaseDependent atomIterator;
     
     public NeighborCellManager(Phase phase, int nCells) {
         this(phase, nCells, new PrimitiveCubic(phase.space()));
@@ -56,6 +59,7 @@ public class NeighborCellManager {
         dimensions = new int[space.D()];
         for(int i=0; i<space.D(); i++) dimensions[i] = nCells;
         lattice = makeCellLattice(phase);
+        atomIterator = new AtomIteratorMolecule(phase);
     }
     /**
      * Constructs the cell lattice used to organize all cell-listed atoms
@@ -78,23 +82,10 @@ public class NeighborCellManager {
             BravaisLattice.makeLattice(space, NeighborCell.makeFactory(space,primitiveCopy),
                                         dimensions, primitiveCopy);
         lattice.shiftFirstToOrigin();
-        primitiveCopy.setLattice(null);
         
         //set up the neighbor lists for each cell in the lattice
         //TODO merge with etomica.nbr.NeighborCriterion, or just use AtomFilter
-        etomica.lattice.NeighborManager.Criterion neighborCriterion = new etomica.lattice.NeighborManager.Criterion() {
-            final Space.Vector dr = space.makeVector();
-            final Space.CoordinatePair cPair;
-            //initializer
-            {   cPair = space.makeCoordinatePair();
-                cPair.setBoundary(phase.boundary());
-             }
-            public boolean areNeighbors(Site s1, Site s2) {
-                cPair.reset(s1.coord, s2.coord);
-                return ((AtomTypeCell)s1.type).cell.r2NearestVertex(cPair.dr()) < neighborRange*neighborRange;
-            }
-        };
-        lattice.setupNeighbors(neighborCriterion);
+        lattice.setupNeighbors(makeNeighborCriterion());
                 
         //add listener to notify all sequencers of any lattice events (resizing of lattice, for example)
         lattice.eventManager.addListener(new LatticeListener() {
@@ -103,11 +94,7 @@ public class NeighborCellManager {
             }
             public void actionPerformed(LatticeEvent evt) {
                 if(evt.type() == LatticeEvent.REBUILD || evt.type() == LatticeEvent.ALL_SITE) {
-                    AtomIteratorMolecule iterator = new AtomIteratorMolecule(phase);
-                    iterator.reset();
-                    while(iterator.hasNext()) {
-                        ((CellSequencer)iterator.nextAtom().seq).latticeChangeNotify();
-                    }
+                    assignCellAll();
                 }//end if
             }
         });
@@ -146,6 +133,27 @@ public class NeighborCellManager {
                 }
             }//end actionPerformed
         });
+        
+        //listener to phase to detect addition of new SpeciesAgent
+        //or new atom
+        phase.speciesMaster.addListener(new PhaseListener() {
+            public void actionPerformed(SimulationEvent evt) {
+                actionPerformed((PhaseEvent)evt);
+            }
+           public void actionPerformed(PhaseEvent evt) {
+                if(evt.type() == PhaseEvent.ATOM_ADDED) {
+                    Atom atom = evt.atom();
+                    //new species agent requires another list in each cell
+                    if(atom instanceof SpeciesAgent) {
+                        addList();
+                   //otherwise new atom placed in cell if at molecule level
+                    } else if(atom.node.depth() == 2) {
+                        assignCell(atom);
+                    }
+                }
+            }
+        });
+        
         return lattice;
     }//end of makeCellLattice method
             
@@ -156,13 +164,7 @@ public class NeighborCellManager {
      */
     public void setNeighborRange(double r) {
         neighborRange = r;
-        final double rangeSquared = r*r;
-        etomica.lattice.NeighborManager.Criterion neighborCriterion = new etomica.lattice.NeighborManager.Criterion() {
-            public boolean areNeighbors(Site s1, Site s2) {
-                return ((Polyhedron)s1).r2NearestVertex((Polyhedron)s2, phase.boundary()) < rangeSquared;
-            }
-        };
-        lattice.setupNeighbors(neighborCriterion);
+        lattice.setupNeighbors(makeNeighborCriterion());
     }
     /**
      * Accessor method for the maximum range of interaction for which 
@@ -171,35 +173,80 @@ public class NeighborCellManager {
     public double getNeighborRange() {return neighborRange;}
 
     /**
-     * @return the number of atom lists held by each cell
+     * @return the number of atom lists held by each cell.
      */
     public int getListCount() {
         return listCount;
     }
     
+    /**
+     * @return the lattice of cells.
+     */
     public BravaisLattice getCellLattice() {
         return lattice;
     }
     
     /**
-     * Adds an atom list to each cell of the lattice.
+     * Assigns cells to all molecules in the phase.
+     */
+    public void assignCellAll() {
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            assignCell(atomIterator.nextAtom());
+        }
+    }
+    
+    /**
+     * Assigns the cell for the given atom.
+     * @param atom
+     */
+    public void assignCell(Atom atom) {
+        AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
+        int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.getDimensions());
+        NeighborCell newCell = (NeighborCell)lattice.site(latticeIndex);
+        if(newCell != seq.cell) {assignCell(seq, newCell, atom.node.parentSpeciesAgent().node.index());}
+    }
+    
+    /**
+     * Assigns atom sequencer to given cell in the list of the given index.
+     */
+    public void assignCell(AtomSequencerCell seq, NeighborCell newCell, int listIndex) {
+        seq.cell = newCell;
+        seq.nbrLink.remove();
+        if(newCell != null) {
+            newCell.occupants()[listIndex].add(seq.nbrLink);
+        }
+    }//end of assignCell
+    
+
+    /**
+     * Adds an AtomList to each cell of the lattice.  This is performed
+     * when a new species is added to the simulation.  Each list associated
+     * with a cell holds the molecules of a given species that are in that cell.
      */
     public void addList() {
         AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
         iterator.reset();
         listCount++;
         while(iterator.hasNext()) {//loop over cells
-            Site site = (Site)iterator.nextAtom();
-            if(site.agents == null || site.agents[0] == null) {
-                site.agents = new Object[1];
-                site.agents[0] = new AtomList[1];
-                ((AtomList[])site.agents[0])[0] = new AtomList();
-                return;
-            }
-            Arrays.addObject((Object[])site.agents[0],new AtomList());
+            ((NeighborCell)iterator.nextAtom()).addOccupantList();
         }
-    }//end of setupListTabs
+    }
     
-
+    //returns a criterion used to set up neighboring cells in lattice
+    private etomica.lattice.NeighborManager.Criterion makeNeighborCriterion() {
+        return new etomica.lattice.NeighborManager.Criterion() {
+            final Space.Vector dr = space.makeVector();
+            final Space.CoordinatePair cPair;
+            //initializer
+            {   cPair = space.makeCoordinatePair();
+                cPair.setBoundary(phase.boundary());
+             }
+            public boolean areNeighbors(Site s1, Site s2) {
+                cPair.reset(s1.coord, s2.coord);
+                return ((AtomTypeCell)s1.type).unitCell.r2NearestVertex(cPair.dr()) < neighborRange*neighborRange;
+            }
+        };
+    }
 
 }

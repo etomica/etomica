@@ -20,8 +20,8 @@ public class AtomTypeCell extends AtomType {
      */
     public AtomTypeCell(AtomFactory creator, Polytope cell) {
         super(creator);
-        this.cell = cell;
+        this.unitCell = cell;
      }
 
-    public final Polytope cell;
+    public final Polytope unitCell;
 }

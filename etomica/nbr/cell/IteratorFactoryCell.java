@@ -175,7 +175,6 @@ public class IteratorFactoryCell implements IteratorFactory {
 ///        final BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
         final BravaisLattice lattice = BravaisLattice.makeUnitCellLattice(simulation.space, dimensions, primitiveCopy);
         lattice.shiftFirstToOrigin();
-        primitiveCopy.setLattice(null);
         
         //set up the neighbor lists for each cell in the lattice
         etomica.lattice.NeighborManager.Criterion neighborCriterion = new etomica.lattice.NeighborManager.Criterion() {
@@ -579,7 +578,7 @@ public static final class IntragroupNbrIterator implements AtomIterator {
             throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator referencing an atom not in group of basis");
         }
         if(iterateCells) {
-            referenceCell = ((AtomSequencerCell)atom.seq).cell();
+            referenceCell = ((AtomSequencerCell)atom.seq).getCell();
             cellIterator.setBasis(referenceCell);
         }
         return doReset();
@@ -1034,7 +1033,7 @@ public interface CellSequencer {
 	public void latticeChangeNotify();
 	public void setParentNotify(AtomTreeNodeGroup parent);
     
-    public Polyhedron cell();
+    public NeighborCell cell();
     
 }//end of CellSequencer interface
    

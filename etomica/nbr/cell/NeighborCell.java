@@ -14,6 +14,7 @@ import etomica.AtomType;
 import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.lattice.Site;
+import etomica.utility.Arrays;
 
 /**
  * @author kofke
@@ -27,6 +28,22 @@ public class NeighborCell extends Site {
     private NeighborCell(Space space, AtomType type, AtomTreeNodeGroup parent) {
         super(space, type, parent);
     }
+    
+    /**
+     * Adds a new AtomList at the end of the array of occupant lists.
+     */
+    public void addOccupantList() {
+        occupants = (AtomList[])Arrays.addObject(occupants,new AtomList());
+    }
+    /**
+     * Removes the AtomList from and resizes the occupant array. Throws
+     * ArrayIndexOutOfBoundsException if index exceeds largest array element.
+     */
+    public void removeOccupantList(int index) {
+        occupants = (AtomList[])Arrays.removeObject(occupants,occupants[index]);
+    }
+    
+    public AtomList[] occupants() {return occupants;}
     
     private AtomList[] occupants;
 

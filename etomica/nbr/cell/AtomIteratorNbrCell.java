@@ -6,17 +6,12 @@ package etomica.nbr.cell;
 
 import etomica.Atom;
 import etomica.AtomIteratorAtomDependent;
-import etomica.AtomIteratorList;
 import etomica.AtomIteratorListSimple;
-import etomica.AtomIteratorPhaseDependent;
-import etomica.AtomLinker;
-import etomica.Phase;
+import etomica.AtomList;
 import etomica.Species;
-import etomica.SpeciesAgent;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
-import etomica.math.geometry.Polyhedron;
 import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
 
 /**
@@ -24,29 +19,27 @@ import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
  * given atom.  Written specifically for case in which all relevant
  * atoms are at the molecule level of the atom hierarchy.
  */
-public class AtomIteratorNbrCell implements AtomIteratorAtomDependent,
-        AtomIteratorPhaseDependent {
+
+//TODO worry about direction issues
+
+public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
 
     /**
-     * 
+     * Constructs iterator such that it will return molecules of the given
+     * species as its iterates.
      */
     public AtomIteratorNbrCell(Species species) {
-        this.species = species;
-        tabIndex = species.getIndex();
+        nbrListIndex = species.getIndex();
     }
 
+    /**
+     * Specifies the atom whose neighbors will be returned as iterates.
+     * Throws NullPointerException if null atom is specified.
+     */
     public void setAtom(Atom atom) {
         this.atom = atom;
-        if(atom == null) throw new IllegalArgumentException("Cannot setAtom without referencing an atom");
-
-        Polyhedron referenceCell = ((CellSequencer)atom.seq).cell();
-        simpleIterator.setList(referenceCell.neighborManager().neighbors());
-    }
-
-    public Atom nextAtom() {
-        Atom atom = listIterator.nextAtom();
-        if(!listIterator.hasNext()) advanceCell();
-        return atom;
+        NeighborCell referenceCell = ((Cellular)atom.seq).getCell();
+        cellIterator.setList(referenceCell.neighborManager().neighbors());
     }
 
     public boolean contains(Atom[] atom) {
@@ -58,60 +51,60 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent,
     }
 
     public boolean hasNext() {
-        return listIterator.hasNext();
+        return atomIterator.hasNext();
     }
 
     public void reset() {
-        simpleIterator.reset();//reset cell iterator
+        cellIterator.reset();//reset cell iterator
         advanceCell();//reset list iterator
     }
 
     public void unset() {
-        simpleIterator.unset();
-        listIterator.unset();
+        cellIterator.unset();
+        atomIterator.unset();
     }
 
     // Moves to next cell that has an iterate
     private void advanceCell() {
         do {
-            if(simpleIterator.hasNext()) {//cell iterator
-                Atom cell = simpleIterator.nextAtom();
-                AtomLinker.Tab[] tabs = (AtomLinker.Tab[])cell.agents[0];
-                listIterator.setFirst(tabs[tabIndex]);
-                listIterator.reset();
+            if(cellIterator.hasNext()) {//cell iterator
+                AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
+                atomIterator.setList(nbrList);
+                atomIterator.reset();
             } else {//no more cells at all
                 break;
             }
-        } while(!listIterator.hasNext());
+        } while(!atomIterator.hasNext() || atomIterator.peek()[0] == atom);
     }
 
 
+    public Atom nextAtom() {
+        Atom atom = atomIterator.nextAtom();
+        if(atomIterator.peek()[0] == atom) atomIterator.next();//skip central atom
+        if(!atomIterator.hasNext()) advanceCell();
+        return atom;
+    }
+
     public Atom[] next() {
-        Atom atom = listIterator.nextAtom();
-        if(!listIterator.hasNext()) advanceCell();
-        atoms[0] = atom;
+        atoms[0] = nextAtom();
         return atoms;
     }
 
     public Atom[] peek() {
-        return listIterator.peek();
+        return atomIterator.peek();
     }
 
     public void allAtoms(AtomsetAction action) {
-        if(atom == null) return;
-        Polyhedron referenceCell = ((CellSequencer)atom.seq).cell();//cell in which reference atom resides
- //       HashMap hash = (HashMap)lattice.agents[0];
-        int tabIndex = speciesAgent.node.index();//index of tabs in each cell for the basis
-        AtomLinker.Tab header = referenceCell.neighborManager().neighbors().header;
-        for(AtomLinker e=header.next; e!=header; e=e.next) {//loop over cells
-            if(e.atom == null) continue;
-            AtomLinker.Tab[] tabs = (AtomLinker.Tab[])e.atom.agents[0];
-            AtomLinker next = tabs[tabIndex].next;
-            while(next.atom != null) {//loop over atoms in cell
-                atoms[0] = next.atom;
-                action.actionPerformed(atoms);
-                next = next.next;
-            }//end while
+        if(atom == null) return;//atom will be null if setAtom not yet called
+        cellIterator.reset();
+        while(cellIterator.hasNext()) {
+            AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
+            atomIterator.setList(nbrList);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {
+                Atom[] next = atomIterator.next();
+                if(next[0] != atom) action.actionPerformed(next);
+            }
         }
     }
 
@@ -121,22 +114,17 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent,
         return counter.callCount();
     }
 
+    /**
+     * Returns 1, indicating this is a single-atom iterator.
+     */
     public int nBody() {
         return 1;
     }
 
-    public void setPhase(Phase phase) {
-        lattice = phase.getLattice();
-        speciesAgent = phase.getAgent(species);
-    }
-
-    private int tabIndex;
-    private NeighborCellManager lattice;
     private Atom atom;
-    private Atom[] atoms;
-    private Species species;
-    private SpeciesAgent speciesAgent;
-    private final AtomIteratorList listIterator = new AtomIteratorList();
-    private final AtomIteratorListSimple simpleIterator = new AtomIteratorListSimple();
+    private final int nbrListIndex;
+    private final Atom[] atoms = new Atom[1];
+    private final AtomIteratorListSimple atomIterator = new AtomIteratorListSimple();
+    private final AtomIteratorListSimple cellIterator = new AtomIteratorListSimple();
 
 }
