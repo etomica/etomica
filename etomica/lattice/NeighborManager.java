@@ -1,4 +1,5 @@
 package etomica.lattice;
+import etomica.*;
 
 /**
  * Determines and keeps lists of neighbors uplist and downlist of a 
@@ -9,16 +10,16 @@ package etomica.lattice;
  */
 public class NeighborManager {
     
-    private final SiteList upList;
-    private final SiteList dnList;
+    private final AtomList upList;
+    private final AtomList dnList;
     private final Site site;
     
     public NeighborManager(Site s) {
         site = s;
-        upList = new SiteList();
-        dnList = new SiteList();
+        upList = new AtomList();
+        dnList = new AtomList();
     }
-    public NeighborManager(Site s, SiteIterator iterator, Criterion criterion) {
+    public NeighborManager(Site s, AtomIterator iterator, Criterion criterion) {
         this(s);
         setupNeighbors(iterator, criterion);
     }
@@ -33,26 +34,26 @@ public class NeighborManager {
      * Returns the first neighbor that would be encountered when proceeding
      * up the iterator used to construct the neighbor lists.
      */
-    public Site firstNeighbor() {return dnList.getLast();}
+    public Site firstNeighbor() {return (Site)dnList.getLast();}
     /**
      * Returns the last neighbor that would be encountered when proceeding
      * up the iterator used to construct the neighbor lists.
      */
-    public Site lastNeighbor() {return upList.getLast();}
+    public Site lastNeighbor() {return (Site)upList.getLast();}
     
-    public SiteList upNeighbors() {return upList;}
-    public SiteList downNeighbors() {return dnList;}
+    public AtomList upNeighbors() {return upList;}
+    public AtomList downNeighbors() {return dnList;}
     
     public void clearAll() {
         upList.clear();
         dnList.clear();
     }
 
-    public void setupNeighbors(SiteIterator iterator, Criterion criterion) {  //set up neighbors according to given criterion
+    public void setupNeighbors(AtomIterator iterator, Criterion criterion) {  //set up neighbors according to given criterion
         iterator.reset();
         boolean down = true;
         while(iterator.hasNext()) {              //begin outer loop
-            Site s = iterator.next();
+            Site s = (Site)iterator.next();
             if(s == site) {down = false;}     //subsequent neighbors go in up-list
             else if(criterion.areNeighbors(s,site)) {
                 if(down) {dnList.addFirst(s);}

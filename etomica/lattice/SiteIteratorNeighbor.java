@@ -1,29 +1,46 @@
 package etomica.lattice;
-import etomica.IteratorDirective;
+import etomica.*;
 
 /**
  * Iterates over the neighbors of a particular site, as specified by 
  * the site's neighborManager.
  */
-public class SiteIteratorNeighbor implements SiteIterator {
+public class SiteIteratorNeighbor implements AtomIterator {
     
     private NeighborManager neighborManager;
-    private final SiteIteratorList iterator = new SiteIteratorList();
+    private final AtomIteratorList iterator = new AtomIteratorList();
     private boolean upListNow, doGoDown;
-    private Site next;
+    private Atom next;
     
     public boolean hasNext() {return next != null;}
-    public void reset() {
+    public Atom reset() {
+        throw new RuntimeException("method SiteIteratorNeighbor.reset() not yet implemented");
     }
-    public void reset(Site site, IteratorDirective.Direction direction) {
-        reset(site.neighborManager(), direction);
+    public void setBasis(Atom atom) {
+        throw new RuntimeException("method SiteIteratorNeighbor.setBasis(Atom) not yet implemented");
+    }
+    public Atom getBasis() {
+        throw new RuntimeException("method SiteIteratorNeighbor.getBasis() not yet implemented");
+    }
+    public void setAsNeighbor(boolean b) {
+        throw new RuntimeException("method SiteIteratorNeighbor.setAsNeighbor not implemented");
+    }
+    public Atom reset(IteratorDirective d) {
+        throw new RuntimeException("method SiteIteratorNeighbor.reset(IteratorDirective) not yet implemented");
+    }
+    public boolean contains(Atom a) {
+        throw new RuntimeException("method SiteIteratorNeighbor.contains(Atom) not yet implemented");
+    }
+        
+    public void reset(Atom site, IteratorDirective.Direction direction) {
+        reset(((Site)site).neighborManager(), direction);
     }
     public void reset(NeighborManager manager, IteratorDirective.Direction direction) {
         neighborManager = manager;
         if(direction == null) direction = IteratorDirective.NEITHER;
         upListNow = direction.doUp();
         doGoDown = direction.doDown();
-        iterator.reset((SiteLinker)null);
+        iterator.reset((AtomLinker)null);
         next = null;
         if(neighborManager == null) return;
         if(upListNow) iterator.setBasis(neighborManager.upNeighbors());
@@ -35,11 +52,11 @@ public class SiteIteratorNeighbor implements SiteIterator {
             doGoDown = false;
         }
     }
-    public Site first() {
+    public Atom first() {
         throw new RuntimeException("method first() not implemented in SiteIteratorNeighbor");
     }
-    public Site next() {
-        Site nextSite = next;
+    public Atom next() {
+        Atom nextAtom = next;
         if(iterator.hasNext()) {
             next = iterator.next();
         } else if(doGoDown) {
@@ -51,17 +68,17 @@ public class SiteIteratorNeighbor implements SiteIterator {
             doGoDown = false;
         } else next = null;
         
-        return nextSite;
+        return nextAtom;
     }
-    public void allSites(SiteAction act) {
+    public void allAtoms(AtomAction act) {
         if(neighborManager == null) return;
         if(upListNow) {
             iterator.setBasis(neighborManager.upNeighbors());
-            iterator.allSites(act);
+            iterator.allAtoms(act);
         }
         if(doGoDown) {
             iterator.setBasis(neighborManager.downNeighbors());
-            iterator.allSites(act);
+            iterator.allAtoms(act);
         }
     }
     

@@ -202,7 +202,7 @@ public static final class IntragroupIterator implements AtomIterator {
 public static final class Sequencer extends AtomSequencer implements AbstractLattice.Occupant {
     
     public AtomCell cell;             //cell currently occupied by this coordinate
-    public Lattice lattice;           //cell lattice in the phase occupied by this coordinate
+    public BravaisLattice lattice;           //cell lattice in the phase occupied by this coordinate
     
     public Sequencer(Atom a) {
         super(a);
@@ -210,7 +210,7 @@ public static final class Sequencer extends AtomSequencer implements AbstractLat
 
     public Site site() {return cell;}   //Lattice.Occupant interface method
 
-    public void setLattice(Lattice newLattice) {
+    public void setLattice(BravaisLattice newLattice) {
         lattice = newLattice;
         if(lattice != null) assignCell();
     }
@@ -277,7 +277,8 @@ private static final class AtomCell extends AbstractCell {
     public Space.Vector position;
     AbstractCell cell;
     private AtomLinker.Tab[] firstTab, lastTab;
-    public AtomCell(Lattice parent, AbstractCell cell) {
+    public AtomCell(BravaisLattice parent, AbstractCell cell) {
+        super(null, null);//space, atomtype
 //        super(parent, (AbstractLattice.PositionCoordinate)cell.coordinate());
         this.cell = cell;
 //        color = Constants.RandomColor();

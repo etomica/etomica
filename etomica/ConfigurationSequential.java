@@ -52,7 +52,8 @@ public class ConfigurationSequential extends Configuration {
                 rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
                 break;
             case 3:
-                rLat = new etomica.lattice.LatticeFCC(sumOfMolecules, Default.BOX_SIZE).positions();//ConfigurationFcc.lattice(sumOfMolecules);
+                rLat = null;
+///                rLat = new etomica.lattice.LatticeFCC(sumOfMolecules, Default.BOX_SIZE).positions();//ConfigurationFcc.lattice(sumOfMolecules);
                 break;
         }
         

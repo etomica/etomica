@@ -26,7 +26,7 @@ public class Space extends etomica.Space implements EtomicaElement {
     public Space.Tensor makeTensor() {return new etomica.space.continuum.Tensor();}
     public Space.Tensor makeRotationTensor() {return new etomica.space.continuum.RotationTensor();}
     public Space.Coordinate makeCoordinate(Atom a) {
-        if(a instanceof AtomGroup) return new etomica.space.CoordinateGroup(this,(AtomGroup)a);
+        if(a.node instanceof AtomTreeNodeGroup) return new etomica.space.CoordinateGroup(this,a);
         else if(a.type instanceof AtomType.Rotator) return new etomica.space.OrientedCoordinate(this,a);
         else return new etomica.space.Coordinate(this,a);
     }

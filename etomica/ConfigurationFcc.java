@@ -3,7 +3,7 @@ import etomica.lattice.*;
 
 public class ConfigurationFcc extends Configuration {
     
-    LatticeFCC fcc;
+///    LatticeFCC fcc;
     
     public ConfigurationFcc(Space space) {
         super(space);

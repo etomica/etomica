@@ -3,7 +3,7 @@ import etomica.*;
 
 public class CoordinateGroup extends Coordinate {
 
-    public CoordinateGroup(Space space, AtomGroup a) {super(space,a);}
+    public CoordinateGroup(Space space, Atom a) {super(space,a);}
 
     /**
         * Applies transformation to COM of group, keeping all internal atoms at same relative

@@ -26,7 +26,7 @@ public class Space3D extends Space implements EtomicaElement {
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Tensor makeRotationTensor() {return new RotationTensor();}
     public Space.Coordinate makeCoordinate(Atom a) {
-        if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
+        if(a.node instanceof AtomTreeNodeGroup) return new CoordinateGroup(a);
         else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
@@ -418,7 +418,7 @@ public class Space3D extends Space implements EtomicaElement {
     
 public static class CoordinateGroup extends Coordinate {
 
-    public CoordinateGroup(AtomGroup a) {super(a);}
+    public CoordinateGroup(Atom a) {super(a);}
 
     /**
         * Applies transformation to COM of group, keeping all internal atoms at same relative
@@ -550,7 +550,7 @@ public static class CoordinateGroup extends Coordinate {
     public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
     public void randomizeMomentum(double temperature) {
-        switch(((AtomGroup)atom).node.childAtomCount()) {
+        switch(((AtomTreeNodeGroup)atom.node).childAtomCount()) {
             case 0: return;
             case 1: atom.node.firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                     return;

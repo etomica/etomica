@@ -83,24 +83,27 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     }
     
     //not carefully implemented
-    public Site nearestSite(Space.Vector r) {
+    public Atom nearestSite(Space.Vector r) {
         for(int i=D-1; i>=0; i--) {
             idx[i] = (int)(r.component(i)/primitiveVectorLength[i] + 0.5);
         }
         return site(idx);
     }
     
-    public Site site(int[] idx) {
-        Atom site = null;
+    public Atom site(int[] idx) {
+        Atom site = this;
         int i=0;
         do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
         while(!site.node.isLeaf() && i<idx.length);
-        return (Site)site;
+        return site;
     }
     
     public AtomList siteList() {return siteList;}
     
     public int D() {return D;}
+    
+    public String signature() {return "BravaisLattice";}
+    
     
     /**
      * Causes all coordinates to update their position vectors.  
@@ -166,12 +169,12 @@ public static class Factory extends AtomFactoryTree {
         AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
         iterator.reset();
         while(iterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(iterator.next().toString()+" ");
+            System.out.print(iterator.next().coord.position().toString()+" ");
         }
         System.out.println();
         
         System.out.println("Same, using allAtoms method");
-        AtomAction printSites = new AtomAction() {public void actionPerformed(Atom s) {System.out.print(s.toString()+" ");}};
+        AtomAction printSites = new AtomAction() {public void actionPerformed(Atom s) {System.out.print(s.coord.position().toString()+" ");}};
         iterator.allAtoms(printSites);
         System.out.println();
         
@@ -189,8 +192,13 @@ public static class Factory extends AtomFactoryTree {
         System.out.println();
         
         System.out.print("Accessing site (1,1): ");
-        Site testSite = lattice.site(new int[] {1,1});
-        System.out.println(testSite.toString());
+        Atom testSite = lattice.site(new int[] {1,1});
+        System.out.println(testSite.toString()+testSite.coord.position().toString());
+        System.out.println();
+        
+        System.out.print("Accessing site (2,0): ");
+        testSite = lattice.site(new int[] {2,0});
+        System.out.println(testSite.toString()+testSite.coord.position().toString());
         System.out.println();
     /*            
         System.out.println("Sites up-neighbor to this site:");
