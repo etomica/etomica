@@ -6,7 +6,7 @@ import etomica.units.*;
 
 public class SpeciesWalls extends Species implements EtomicaElement {
 
-    public String getVersion() {return "SpeciesWalls:01.03.10.0/"+Species.VERSION;}
+    public String getVersion() {return "SpeciesWalls:01.03.10/"+Species.VERSION;}
 
 /** 
  *  Wall type array.  Each atom has its own type, which specifies its length and orientation.
@@ -209,29 +209,26 @@ public class SpeciesWalls extends Species implements EtomicaElement {
    * Method to demonstrate the use of this class.
    * Simulates a system of hard disks and a wall.
    */
-/*    public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
-        f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  
+   
+   //need multi-species capability to use
+ /*   public static void main(String[] args) {
+
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         
         //here's the part unique to this class
         SpeciesWalls walls = new SpeciesWalls();
         //make the wall vertical
         ((SpeciesWalls.ConfigurationParallel)walls.moleculeConfiguration).setAngle(Degree.UNIT.toSim(90.));
-        P2DiskWall wallPotential = new P2DiskWall(); //hard wall-disk interaction
+        P2HardDiskWall wallPotential = new P2HardDiskWall(); //hard wall-disk interaction
         //wall (2nd species added) is set to species 1 automatically, disks are species 0; 
         //set new potential to be for 0-1 interaction       
         wallPotential.setSpecies2Index(1);  //could set either index (species1Index or species2Index); both are 0 by default
         //end of unique part
  
         Simulation.instance.elementCoordinator.go();
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        
+        Simulation.makeAndDisplayFrame(Simulation.instance);
+        
     }//end of main
  */
 }

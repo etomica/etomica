@@ -69,6 +69,16 @@ public class P1HardBoundary extends Potential1 implements Potential1Hard {
     }//end of bump
 
     /**
+     * not yet implemented
+     */
+    public double lastCollisionVirial() {return Double.NaN;}
+    
+    /**
+     * not yet implemented.
+     */
+    public Space.Tensor lastCollisionVirialTensor() {return null;}
+    
+    /**
      * Distance from the center of the sphere to the boundary at collision.
      */
     public void setCollisionRadius(double d) {collisionRadius = d;}

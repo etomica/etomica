@@ -7,9 +7,9 @@ import etomica.units.Dimension;
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
  */
-public class PotentialSquareWell extends Potential implements Potential.Hard, EtomicaElement {
+public class P2SquareWell extends Potential2 implements Potential2Hard, EtomicaElement {
 
-  public String getVersion() {return "PotentialSquareWell:01.05.25/"+Potential.VERSION;}
+  public String getVersion() {return "PotentialSquareWell:01.07.07/"+Potential.VERSION;}
 
   protected double coreDiameter, coreDiameterSquared;
   protected double wellDiameter, wellDiameterSquared;
@@ -19,17 +19,17 @@ public class PotentialSquareWell extends Potential implements Potential.Hard, Et
   protected Space.Tensor lastCollisionVirialTensor;
   protected Space.Vector dr;
    
-  public PotentialSquareWell() {
+  public P2SquareWell() {
     this(Simulation.instance);
   }
-  public PotentialSquareWell(Simulation sim) {
-    this(sim,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF, Default.POTENTIAL_WELL);
+  public P2SquareWell(Simulation sim) {
+    this(sim,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
-  public PotentialSquareWell(double coreDiameter, double lambda, double epsilon) {
+  public P2SquareWell(double coreDiameter, double lambda, double epsilon) {
     this(Simulation.instance, coreDiameter, lambda, epsilon);
   }
   
-  public PotentialSquareWell(Simulation sim, double coreDiameter, double lambda, double epsilon) {
+  public P2SquareWell(Simulation sim, double coreDiameter, double lambda, double epsilon) {
     super(sim);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
@@ -157,11 +157,6 @@ public class PotentialSquareWell extends Potential implements Potential.Hard, Et
                     ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
     }
     
-    /**
-     * Always returns zero.
-     */
-    public double energyLRC(int n1, int n2, double V) {return 0.0;}
- 
     /**
      * Accessor method for core diameter.
      */

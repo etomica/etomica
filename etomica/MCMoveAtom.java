@@ -22,11 +22,6 @@ public class MCMoveAtom extends MCMove {
     public final Dimension getStepSizeMaxDimension() {return Dimension.LENGTH;}
     public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
     
-          //need to modify to handle multiple-phase issues
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        phasePotential = p.potential();
-    }
 
     public void thisTrial() {
         double uOld, uNew;
@@ -37,11 +32,11 @@ public class MCMoveAtom extends MCMove {
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
 //        phasePotential.calculate(iteratorDirective.set(a), energy.reset());
 //        uOld = energy.sum();
-        uOld = phasePotential.calculate(iteratorDirective.set(a), energy.reset()).sum();
+        uOld = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
         a.displaceWithin(stepSize);
         phase.boundary().centralImage(a.coordinate.position());  //maybe a better way than this
         phase.iteratorFactory().moveNotify(a);
-        uNew = phasePotential.calculate(iteratorDirective.set(a), energy.reset()).sum();
+        uNew = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
         if(uNew < uOld) {   //accept
             nAccept++;
             return;

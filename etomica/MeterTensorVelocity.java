@@ -13,7 +13,7 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
     /**
      * Iterator of atoms.
      */
-    private Atom.Iterator ai1;
+    private AtomIterator ai1;
     /**
      * Tensor used to form velocity dyad for each atom, and returned by currentValue(atom) method.
      */

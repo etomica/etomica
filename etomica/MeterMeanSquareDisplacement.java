@@ -20,14 +20,14 @@ public class MeterMeanSquareDisplacement extends Meter implements
     public static final String getVersion() {return "MeterMeanSquareDisplacement:01.03.24/"+Meter.VERSION;}
  
     private int nAtoms = 0;
-    Atom.Iterator iterator;
+    AtomIterator iterator;
     private Space.Vector[] rAccum, rLast;
     private Space.Vector deltaR;
     
     public MeterMeanSquareDisplacement() {
         this(Simulation.instance);
     }
-    public MeterMeanSquareDisplacement(Atom.Iterator iter) {
+    public MeterMeanSquareDisplacement(AtomIterator iter) {
         this(Simulation.instance);
         setAtoms(iter);
     }
@@ -52,16 +52,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
      * invalidate mean square displacement calculation.
      */
     public void setUpdateInterval(int i) {super.setUpdateInterval(1);}
-    
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-    
+        
     /**
      * Returns dimensions of this meter's output, which in this case is QUANTITY.
      */
@@ -71,7 +62,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
      * Specifies the set of atoms that will be tracked to compute their MSD.
      * The given iterator loops through the atoms.
      */
-    public void setAtoms(Atom.Iterator iter) {
+    public void setAtoms(AtomIterator iter) {
         iterator = iter;
         nAtoms = Atom.count(iter);
         rAccum = new Space.Vector[nAtoms];
@@ -85,7 +76,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
             i++;
         }
     }
-    public Atom.Iterator getAtoms() {return iterator;}
+    public AtomIterator getAtoms() {return iterator;}
     
     public double currentValue() {
         double sum = 0.0;

@@ -46,9 +46,7 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        double value = phase.potential().calculate(iteratorDirective, energy.reset()).sum();
-        System.out.println("       "+value);
-        return value;
+        return phase.potential().calculate(iteratorDirective, energy.reset()).sum();
     }
     
 }//end of MeterPotentialEnergy

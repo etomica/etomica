@@ -6,7 +6,7 @@ package etomica;
  * @author Jhumpa Adhikari
  */
 
-public class PotentialTriangleWell extends Potential implements EtomicaElement {
+public class P2TriangleWell extends Potential2 implements EtomicaElement {
 
   private double coreDiameter, coreDiameterSquared;
   private double wellDiameter, wellDiameterSquared;
@@ -15,14 +15,14 @@ public class PotentialTriangleWell extends Potential implements EtomicaElement {
   private double constant;
   private final Space.Vector force;
 
-  public PotentialTriangleWell() {
-    this(Simulation.instance,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF, Default.POTENTIAL_WELL);
+  public P2TriangleWell() {
+    this(Simulation.instance,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
-  public PotentialTriangleWell(double coreDiameter, double lambda, double epsilon) {
+  public P2TriangleWell(double coreDiameter, double lambda, double epsilon) {
     this(Simulation.instance, coreDiameter, lambda, epsilon);
   }
   
-  public PotentialTriangleWell(Simulation sim, double coreDiameter, double lambda, double epsilon) {
+  public P2TriangleWell(Simulation sim, double coreDiameter, double lambda, double epsilon) {
     super(sim);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
@@ -35,9 +35,7 @@ public class PotentialTriangleWell extends Potential implements EtomicaElement {
         return info;
     }
 
-  
-
-  public boolean overlap(AtomPair pair) {return pair.r2() < coreDiameterSquared;}
+    public boolean overlap(AtomPair pair) {return pair.r2() < coreDiameterSquared;}
 
     public double energy(AtomPair pair) {
 
@@ -69,8 +67,6 @@ public class PotentialTriangleWell extends Potential implements EtomicaElement {
         return force;
     }
      
-    public double energyLRC(int n1, int n2, double V) {return 0.0;}
-
     public double getCoreDiameter() {return coreDiameter;}
     public final void setCoreDiameter(double c) {
         coreDiameter = c;

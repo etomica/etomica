@@ -111,15 +111,13 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  //for more general simulations, replace this call with
-                                            //construction of the desired pieces of the simulation
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
+        
         //part that is unique to this demonstration
         Default.BLOCK_SIZE = 20;
         MeterPressureHard pMeter = new MeterPressureHard();
         MeterNMolecules nMeter = new MeterNMolecules();
-        Phase phase = Simulation.instance.phase(0);
         DisplayTable table = new DisplayTable();
         //end of unique part
                                             
@@ -130,14 +128,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         table.addDatumSources(nMeter);
         table.setWhichValues(new MeterAbstract.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE});
         
-
-        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }
+        Simulation.makeAndDisplayFrame(sim);
+    }//end of main
 
 }

@@ -4,8 +4,7 @@ package etomica;
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.
  * Suitable for use in space of any dimension.
  */
-public class PotentialRoughSphere extends PotentialHardDisk implements EtomicaElement
-{
+public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
 
     private final Space3D.Vector omegaSum = new Space3D.Vector();
     private final Space.Vector v12Surface;
@@ -13,13 +12,13 @@ public class PotentialRoughSphere extends PotentialHardDisk implements EtomicaEl
     private final Space.Vector v12Perp;
     private final Space.Vector impulse;
     
-    public PotentialRoughSphere() {
+    public P2RoughSphere() {
         this(Simulation.instance, Default.ATOM_SIZE);
     }
-    public PotentialRoughSphere(double d) {
+    public P2RoughSphere(double d) {
         this(Simulation.instance, d);
     }
-    public PotentialRoughSphere(Simulation sim, double d) {
+    public P2RoughSphere(Simulation sim, double d) {
         super(sim,d);
         v12Surface = sim.space.makeVector();
         v12Par = sim.space.makeVector();
@@ -90,32 +89,26 @@ public class PotentialRoughSphere extends PotentialHardDisk implements EtomicaEl
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
-        f.setSize(600,350);
+    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
-	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(3);
-	    Phase phase1 = new Phase();
-	    P2RoughSphere p2RoughSphere1 = new P2RoughSphere();
+	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating();
+	    Phase phase = new Phase();
+	    P2RoughSphere potential = new P2RoughSphere();
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
 	    timer.setUpdateInterval(10);
 	    MeterEnergy meterEnergy = new MeterEnergy();
-	    meterEnergy.setPhase(phase1);
+	    meterEnergy.setPhase(phase);
 	    DisplayBox displayEnergy = new DisplayBox();
 	    displayEnergy.setMeter(meterEnergy);
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+        Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
- */   
+    
 }

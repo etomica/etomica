@@ -67,7 +67,7 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
      
      //not implemented
     public void allAtoms(final AtomAction act) {
- //       for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {act.actionPerformed(a);}
+        for(Atom a=defaultFirstAtom(); a!=null; a=a.nextAtom()) {act.actionPerformed(a);}
     }
     
     //main method to demonstrate and test this class

@@ -77,10 +77,10 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
      * Tabulates the contribution of the last collision involving the given atom pair/potential to the profile.
      * Location of the collision is defined by the average of the atoms' coordinates.
      */
-    public void collisionAction(AtomPair atomPair, Potential.Hard p) {
-        double dot = 0.5*(atomPair.atom1().r.dot(profileVector) + atomPair.atom2().r.dot(profileVector));
+    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+        double dot = 0.5*(agent.atom().r.dot(profileVector) + agent.collisionPartner().r.dot(profileVector));
         int j = getXIndex(dot);
-        w[j] += cMeter.collisionValue(atomPair, p);
+        w[j] += cMeter.collisionValue(agent);
     }
     
     protected void resizeArrays() {

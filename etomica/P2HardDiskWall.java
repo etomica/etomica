@@ -10,9 +10,7 @@ import etomica.statmech.MaxwellBoltzmann;
  * Designed for 2-D, but may work in other dimensional spaces.
  */
  
- //not sure of the difference between this and PotentialHardDiskPiston
-
-public class PotentialHardDiskWall extends Potential implements Potential.Hard, EtomicaElement {
+public class P2HardDiskWall extends Potential2 implements Potential2Hard, EtomicaElement {
     
     public final String getVersion() {return "PotentialHardDiskWall:01.02.15/"+Potential.VERSION;}
 
@@ -22,13 +20,13 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
     private boolean isothermal = false;
     private double temperature = Default.TEMPERATURE;
 
-    public PotentialHardDiskWall() {this(Simulation.instance, Default.ATOM_SIZE);}
+    public P2HardDiskWall() {this(Simulation.instance, Default.ATOM_SIZE);}
     
-    public PotentialHardDiskWall(double d) {
+    public P2HardDiskWall(double d) {
         this(Simulation.instance, d);
     }
     
-    public PotentialHardDiskWall(Simulation sim, double d) {
+    public P2HardDiskWall(Simulation sim, double d) {
         super(sim);
         setCollisionDiameter(d);
         ZERO = sim.space.makeTensor();//temporary

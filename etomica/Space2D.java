@@ -6,7 +6,7 @@ import etomica.units.*;
 
 public class Space2D extends Space implements EtomicaElement {
     
-    public static String version() {return "Space2D:01.06.29/"+Space.VERSION;}
+    public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
     public static final int D = 2;
     public final int D() {return D;}
     
@@ -16,8 +16,8 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Space.Occupant o) {//may want to revise this for o instanceof Molecule
-/*        if(o instanceof Atom && ((Atom)o).type instanceof AtomType.Rotator) return new OrientedCoordinate(o);
-        else */return new Coordinate(o);
+        if(o instanceof Atom && ((Atom)o).type instanceof AtomType.Rotator) return new OrientedCoordinate(o);
+        else return new Coordinate(o);
     }
     public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}
     
@@ -258,7 +258,7 @@ public class Space2D extends Space implements EtomicaElement {
         }
     }
     
-/*    public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
+    public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
         private double L = 0.0; //magnitude of angular momentum
         private final Space3D.Vector vector = new Space3D.Vector();//used to return vector quantities (be sure to keep x and y components zero)
         private final double[] I;
@@ -277,7 +277,7 @@ public class Space2D extends Space implements EtomicaElement {
             orientation.rotateBy(t*L/I[0]);//all elements of I equal for spherical top
         }
     }
- */   
+    
     public static class Orientation extends Space.Orientation {
         //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
         //components in the body-fixed frame

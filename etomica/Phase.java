@@ -305,7 +305,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     * theorem from the kinetic energy summed over all (atomic) degrees of freedom
     */  
     public double kineticTemperature() {
-        return MeterTemperature.value(this);
+        return MeterTemperature.currentValue(this);
     }
     
     public void setConfiguration(Configuration c) {

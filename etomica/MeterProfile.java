@@ -22,7 +22,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     Meter.Atomic meter;
     
     private double profileNorm = 1.0;
-    private Atom.Iterator ai1;
+    private AtomIterator ai1;
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
@@ -135,6 +135,4 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         }
         return y;
     }
-            
-
-}
+}//end of MeterProfile

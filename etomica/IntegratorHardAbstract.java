@@ -31,9 +31,12 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     private double timeIncrement = 0.0;
     protected PotentialAgent phasePotential;
     private AtomPair atomPair;
+    Space.Vector c3;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
+        c3 = sim.space().makeVector();
+        c3.E(3.0);
         
     }//end of constructor
 
@@ -216,6 +219,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         }
         
         //time to "collision" to update colliders for periodic boundaries
+        private Space.Vector c3;
         protected double periodCollisionTime() {
             Space.Boundary boundary = atom.parentPhase().boundary();
             if(boundary instanceof Space.Boundary.Periodic) {
@@ -224,6 +228,9 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
                 Space.Vector dim = boundary.dimensions();
                 double diameter = ((AtomType.Disk)atom.type).diameter();
                 return 0.5*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+          //      System.out.println(xx);
+          //     return xx;
+          //      return 0.5*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
                 //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
             //    return 0.5*(dimensions.y-1.0001*diameter)/(a.rm()*Math.sqrt(p.squared()));
             }
@@ -278,7 +285,8 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
          * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
          */ 
         public void colorAtom(Atom a) {
-            if(a == colliderAgent.atom) a.setColor(colliderColor);
+            if(colliderAgent == null) a.setColor(baseColor);
+            else if(a == colliderAgent.atom) a.setColor(colliderColor);
             else if(a == colliderAgent.collisionPartner) a.setColor(partnerColor);
             else a.setColor(baseColor);
         }

@@ -10,7 +10,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterCollisionCounter extends Meter implements IntegratorHard.CollisionListener {
+public class MeterCollisionCounter extends Meter implements IntegratorHardAbstract.CollisionListener {
     private int counter;
     private IntegratorHard integratorHard;
     
@@ -21,11 +21,7 @@ public class MeterCollisionCounter extends Meter implements IntegratorHard.Colli
         super(sim);
         setLabel("Number of Collisions");
     }
-    
-    public final boolean usesPhaseBoundary() {return false;}
-    
-    public final boolean usesPhaseIteratorFactory() {return false;}
-    
+
     /**
      * Resets counter to zero
      */
@@ -47,7 +43,7 @@ public class MeterCollisionCounter extends Meter implements IntegratorHard.Colli
    /**
     * Implements CollisionListener.  Adds one to the counter with each collision.
     */
-    public void collisionAction(AtomPair pair, Potential.Hard p) {
+    public void collisionAction(IntegratorHardAbstract.Agent agent) {
         counter++;
     }
     

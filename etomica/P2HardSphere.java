@@ -5,10 +5,12 @@ package etomica;
  * Energy is infinite if disks overlap, and is zero otherwise.  Collision diameter describes
  * size of disks.
  * Suitable for use in space of any dimension.
+ *
+ * @author David Kofke
  */
 public class P2HardSphere extends Potential2 implements Potential2Hard, EtomicaElement {
     
-    public String getVersion() {return "Potential2:01.07.03/"+Potential2.VERSION;}
+    public String getVersion() {return "P2HardSphere:01.07.03/"+Potential2.VERSION;}
 
    /**
     * Separation at which disks first overlap
@@ -109,15 +111,5 @@ public class P2HardSphere extends Potential2 implements Potential2Hard, EtomicaE
         return (pair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
     }
     
-    /**
-     * Correction for trucation of the potential
-     * Identically zero for this model
-     */
-    public double energyLRC(int n1, int n2, double V) {return 0.0;}
     
-    /**
-     * Returns true if separation of pair is less than collision diameter, false otherwise
-     */
-    public boolean overlap(AtomPair pair) {return pair.r2() < sig2;}
-    
-}
+}//end of P2HardSphere

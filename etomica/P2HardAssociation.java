@@ -1,13 +1,14 @@
 package etomica;
 
 /**
- * This potential is modeled after the square well potential.  This is designed to create an attraction between
- * specific atoms on a molecule.  It DOES NOT implement any hard-core collisions, so the atom on the molecule that 
- * this potential affects simply acts as an attractive site and nothing else.
+ * Purely attractive square-well potential with no repulsive core.
  *
  * @author Rob Riggleman
+ * @author David Kofke
  */
-public class PotentialAssociation extends Potential implements Potential.Hard {
+public class P2HardAssociation extends Potential2 implements Potential2Hard, EtomicaElement {
+
+    public String getVersion() {return "P2HardAssociation:01.07.03/"+Potential2.VERSION;}
 
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
@@ -16,24 +17,19 @@ public class PotentialAssociation extends Potential implements Potential.Hard {
     private final Space.Tensor lastCollisionVirialTensor;
     private final Space.Vector dr;
     
-    public PotentialAssociation() {
-        this(Simulation.instance, Default.POTENTIAL_CUTOFF, Default.POTENTIAL_WELL);
+    public P2HardAssociation() {
+        this(Simulation.instance, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
     }
-    public PotentialAssociation(double wellDiameter, double epsilon) {
+    public P2HardAssociation(double wellDiameter, double epsilon) {
         this(Simulation.instance, wellDiameter, epsilon);
     }
-    public PotentialAssociation(Simulation sim, double wellDiameter, double epsilon) {
+    public P2HardAssociation(Simulation sim, double wellDiameter, double epsilon) {
         super(sim);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
         dr = sim.space().makeVector();
         lastCollisionVirialTensor = sim.space().makeTensor();
     }
-    
-   /**
-    * Always returns false, since the potential has no hard core.
-    */
-    public boolean overlap(AtomPair pair) {return false;}
     
    /**
     * Implements the collision dynamics.  Does not deal with the hard cores, only the wells.  This
@@ -109,11 +105,6 @@ public class PotentialAssociation extends Potential implements Potential.Hard {
         return (pair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
     }
     
-    /**
-     * Always returns zero.
-     */
-    public double energyLRC(int n1, int n2, double V) {return 0.0;}
-     
    /**
     * Accessor for well-diameter.
     * Since the well-diameter is not a multiplier in this potential as in square well, it is necessary
@@ -143,4 +134,4 @@ public class PotentialAssociation extends Potential implements Potential.Hard {
     public void setEpsilon(double s) {
         epsilon = s;
     }
-}
+}//end of P2HardAssociation

@@ -6,6 +6,8 @@ public class MCMoveInsertDelete extends MCMove {
     
     private final Random rand = new Random();
     double mu;
+    private final IteratorDirective iteratorDirective = new IteratorDirective();
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
     public MCMoveInsertDelete() {
         super();
@@ -32,7 +34,12 @@ public class MCMoveInsertDelete extends MCMove {
         Molecule m = s.parentSpecies().getMolecule();  //makes molecule without adding to species
         phase.addMolecule(m,s);
         m.translateTo(phase.randomPosition());
-        uNew = phase.energy.meterPotential().currentValue(m);
+        energy.reset();
+        m.atomIterator.reset();
+        while(m.atomIterator.hasNext()) {
+            phase.potential().calculate(iteratorDirective, energy);
+        }
+        uNew = energy.sum();
         if(uNew == Double.MAX_VALUE) {  //overlap
             phase.deleteMolecule(m);
             return;
@@ -52,7 +59,13 @@ public class MCMoveInsertDelete extends MCMove {
         int i = (int)(rand.nextDouble()*s.moleculeCount());
         Molecule m = s.firstMolecule;
         for(int j=i; --j>=0; ) {m = m.nextMolecule();}
-        bOld = Math.exp((mu-phase.energy.meterPotential().currentValue(m))/parentIntegrator.temperature);
+        energy.reset();
+        m.atomIterator.reset();
+        while(m.atomIterator.hasNext()) {
+            phase.potential().calculate(iteratorDirective, energy);
+        }
+        double uOld = energy.sum();
+        bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
         bNew = s.nMolecules/(phase.volume());
         if(bNew > bOld || bNew > rand.nextDouble()*bOld) {  //accept
             phase.deleteMolecule(m);
@@ -65,28 +78,18 @@ public class MCMoveInsertDelete extends MCMove {
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
     
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-
         etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
         Simulation.instance = sim;
 
-        //part that is unique to this demonstration
-        MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete();
-        sim.integrator.add(mcMoveInsDel);
         MeterNMolecules meterN = new MeterNMolecules();
         DisplayBox box = new DisplayBox(meterN);
         box.setUpdateInterval(10);
 
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
+		Simulation.instance.elementCoordinator.go();
+
+        MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete();
+        sim.integrator.add(mcMoveInsDel);
 		                                    
-        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }
-}
+        Simulation.makeAndDisplayFrame(sim);
+    }//end of main
+}//end of MCMoveInsertDelete

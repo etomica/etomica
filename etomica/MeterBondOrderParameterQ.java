@@ -6,6 +6,8 @@ import etomica.utility.*;
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
    * Appropriate for 3-dimensional system only.
    * Refer:journal Of Chemical Physics Vol.104 No.24,22nd June,1996__ Rate of crystal nucleation
+   *
+   * @author Jhumpa Adhikari
    */
 
 public class MeterBondOrderParameterQ extends Meter implements EtomicaElement 
@@ -13,7 +15,7 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
     private SphericalHarmonics sh;
     private double[] Qreal, Qimag;
     private int L;
-    private AtomPair.Iterator pairIterator;
+    private AtomPairIterator pairIterator;
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
@@ -84,26 +86,15 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
     }
         
     public Phase getPhase() {return super.getPhase();}
-    public void setPhase(Phase p) {super.setPhase(p);}
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        if(pairIterator == null) pairIterator = new AtomPairIterator(p);
+    }
     public Dimension getDimension() {return Dimension.NULL;}
 
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return true;}
-
-    /**
-     * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
-     * It obtains the necessary iterators from the phase.
-     */
-	protected void setPhaseIteratorFactory(IteratorFactory factory) {
-        pairIterator = factory.makeAtomPairIteratorAll();
-	}
-	
+    public void setIterator(AtomPairIterator iter) {pairIterator = iter;}
+    public AtomPairIterator getIterator() {return pairIterator;}
+    
     public double getR2Cut(){return r2Cut;}
     public void setR2Cut(double r2c){r2Cut = r2c;}
 	
@@ -114,8 +105,7 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
         Simulation.instance = sim;
         
         Species species = new SpeciesDisks(32);
-        Potential potential = new PotentialHardDisk();
-        Potential2 p2 = new P2SimpleWrapper(potential);
+        P2HardSphere potential = new P2HardSphere();
         Integrator integrator = new IntegratorHard();
         Controller controller = new Controller();
         Meter meter = new MeterBondOrderParameterQ();
@@ -134,15 +124,10 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
         meter.updateSums();
         box.doUpdate();
         display.setScale(2.0);
-                                            //display the graphical components
-        java.awt.Frame f = new java.awt.Frame();   //create a window
-        f.setSize(600,350);
-        f.add(sim);         //access the static instance of the simulation to
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+
+        Simulation.makeAndDisplayFrame(sim);
+    }//end of main
 }
 

@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * @author Jayant K. Singh
  */
 
-public class PotentialAssociationCone extends Potential implements EtomicaElement {
+public class P2HardAssociationCone extends Potential2 implements EtomicaElement {
     private double wellCutoff, wellCutoffSquared;
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
@@ -16,16 +16,16 @@ public class PotentialAssociationCone extends Potential implements EtomicaElemen
     private Space.Vector e2;
     private double theta, ec2;
     
-    public PotentialAssociationCone() {this(Simulation.instance);}
+    public P2HardAssociationCone() {this(Simulation.instance);}
     
-    public PotentialAssociationCone(Simulation sim) {
+    public P2HardAssociationCone(Simulation sim) {
         super(sim);
         e1 = sim.space().makeVector();
         e2 = sim.space().makeVector();
 
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);
-        setCutoffFactorLJ(Default.POTENTIAL_CUTOFF);
+        setCutoffFactorLJ(Default.POTENTIAL_CUTOFF_FACTOR);
         setWellCutoff(getSigma());
         setWellEpsilon(8.0*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
@@ -71,11 +71,6 @@ public class PotentialAssociationCone extends Potential implements EtomicaElemen
         return eTot;
     }//end of energy
     
-    /**
-     * Always returns zero.
-     */
-    public double energyLRC(int n1, int n2, double V) {return 0.0;}
- 
     /**
      * Accessor method for Lennard-Jones size parameter
      */

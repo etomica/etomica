@@ -44,20 +44,7 @@ public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Co
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Virial tensor for a hard potential");
         return info;
-    }
-
-    /**
-     * Indicates that this meter does not use any iterators.
-     * @return false
-     */
-    public boolean usesPhaseIteratorFactory() {return false;}
-    
-    /**
-     * Indicates that this meter does not reference the phase boundary.
-     * @return false
-     */
-    public boolean usesPhaseBoundary() {return false;}
-    
+    }    
     
     /**
      * Dimension of the measured quantity, which is energy since virial is reported as PV/N
@@ -92,8 +79,8 @@ public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Co
     /**
      * Sums contribution to virial for each collision.
      */
-    public void collisionAction(AtomPair pair, Potential.Hard p) {
-        collisionValue(pair, p);            //Assign virial
+    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+        collisionValue(agent);            //Assign virial
         for (int i = 0; i < collisionVirial.length(); i++) {
             for (int j = 0; j < collisionVirial.length(); j++) {
                 virialSum[i][j] += collisionVirial.component(i, j);
@@ -104,8 +91,8 @@ public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Co
     /**
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
-    public Space.Tensor collisionValue(AtomPair pair, Potential.Hard p) {
-        collisionVirial.E(p.lastCollisionVirialTensor());
+    public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent) {
+        collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
         collisionVirial.TE(1/(double)phase.atomCount());
         return collisionVirial;
     }

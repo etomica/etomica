@@ -14,7 +14,7 @@ package etomica;
  */
 public class IntegratorHard extends IntegratorHardAbstract implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorHard:01.06.27/"+IntegratorHardAbstract.VERSION;}
+    public String getVersion() {return "IntegratorHard:01.07.08/"+IntegratorHardAbstract.VERSION;}
     
     private AtomIterator upAtomIterator;
     private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
@@ -150,8 +150,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             if(a == partner) break; //finished with atoms before partner; we're done
             IntegratorHardAbstract.Agent aAgent = (IntegratorHardAbstract.Agent)a.ia;
             Atom aPartner = aAgent.collisionPartner();
-            if(aPartner == collider || aPartner == partner) {
-                aAgent.resetCollision();
+            if(aPartner == partner || aPartner == collider) {
+                if(aPartner != null) aAgent.resetCollision();
                 phasePotential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));
             }
         }//end while
@@ -221,5 +221,53 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             return new IntegratorHardAbstract.Agent(a);
         }
              
+    /**
+     * Demonstrates how this class is implemented.
+     */
+    public static void main(String[] args) {
+	    IntegratorHard integratorHard1 = new IntegratorHard();
+//	    integratorHard1.setTimeStep(0.01);
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(3);
+	    final Phase phase = new Phase();
+	    P2HardSphere potential = new P2HardSphere();
+	    Controller controller1 = new Controller();
+	    DisplayPhase displayPhase1 = new DisplayPhase();
+	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+	    timer.setUpdateInterval(10);
+	    MeterEnergy meterEnergy = new MeterEnergy();
+	    meterEnergy.setPhase(phase);
+	    DisplayBox displayEnergy = new DisplayBox();
+	    displayEnergy.setMeter(meterEnergy);
+	    MeterRDF meterRDF = new MeterRDF();
+	    DisplayPlot plot = new DisplayPlot();
+		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
+		                                    //calling it a second time has no effect
+		                                    
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+	    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
+	    
+	    displayPhase1.addDrawable(new DisplayPhase.Drawable() {
+	        public void draw(java.awt.Graphics g, int[] origin, double s) {
+                double toPixels = etomica.units.BaseUnit.Length.Sim.TO_PIXELS*s;
+                int i=0;
+	            for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
+	                IntegratorHardAbstract.Agent agent = (IntegratorHardAbstract.Agent)a.ia;
+	                if(agent == null) return;
+	                String text = Float.toString((float)agent.collisionTime);
+                    Space.Vector r = a.coordinate().position();
+                    int xP = origin[0] + (int)(toPixels*(r.component(0)));
+                    int yP = origin[1] + (int)(toPixels*(r.component(1)));
+                    g.setColor(java.awt.Color.gray);
+	                g.drawString(text, xP, yP-20);
+	                g.setColor(java.awt.Color.red);
+	                g.drawString(Integer.toString(i++), xP-20, yP-20);
+	            }
+	        }
+	    });
+        Simulation.makeAndDisplayFrame(Simulation.instance);
+    }//end of main
+
 }//end of IntegratorHard
 

@@ -11,8 +11,7 @@ public class HsMc2d extends Simulation {
     public MCMoveAtom mcMoveAtom;
     public SpeciesDisks species;
     public Phase phase;
-    public P2SimpleWrapper p2;
-    public PotentialHardDisk potential;
+    public P2HardSphere potential;
     public Controller controller;
     public DisplayPhase display;
     public MeterCycles meterCycles;
@@ -21,18 +20,20 @@ public class HsMc2d extends Simulation {
     public HsMc2d() {
         super(new Space2D());
         Simulation.instance = this;
+	    phase = new Phase(this);
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom();
 	    integrator.add(mcMoveAtom);
 	    species = new SpeciesDisks(this);
-	    phase = new Phase(this);
-	    potential = new PotentialHardDisk(this);
-	    p2 = new P2SimpleWrapper(this,potential);
+	    potential = new P2HardSphere(this);
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 	    meterCycles = new MeterCycles(this);
 	    displayCycles = new DisplayBox(this,meterCycles);
 		setBackground(java.awt.Color.yellow);
+		elementCoordinator.go();
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
     }
     
     /**

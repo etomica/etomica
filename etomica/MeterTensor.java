@@ -139,7 +139,7 @@ public abstract class MeterTensor extends MeterAbstract {
 	}
 	
 	public interface Collisional extends IntegratorHard.CollisionListener {
-	    public Space.Tensor collisionValue(AtomPair pair, Potential.Hard p);
+	    public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent);
 	}
     
     

@@ -30,7 +30,6 @@ public class MCMoveVolume extends MCMove {
         double hOld, hNew, vOld, vNew, uOld, uNew;
         vOld = phase.volume();
         uOld = phasePotential.calculate(iteratorDirective, energy.reset()).sum();
-        System.out.print(uOld+" ");
         hOld = uOld + pressure*vOld;
         double vScale = (2.*Math.random()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
@@ -38,18 +37,15 @@ public class MCMoveVolume extends MCMove {
         inflate.setScale(rScale);
         inflate.attempt();
         uNew = phasePotential.calculate(iteratorDirective, energy.reset()).sum();
-        System.out.print(uNew+" ");
         hNew = uNew + pressure*vNew;
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount+1)*vScale)
                 < Math.random()) 
             {  //reject
               inflate.undo();
-              System.out.println();
               return;
             }
         nAccept++;   //accept
-        System.out.println(uNew);
     }
     
     public void setPressure(double p) {pressure = p;}

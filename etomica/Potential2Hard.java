@@ -24,6 +24,8 @@ public interface Potential2Hard extends PotentialHard {
         public double energy(AtomPair pair) {return 0.0;}
         public void bump(AtomPair pair) {}
         public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
+        public double lastCollisionVirial() {return 0.0;}
+        public Space.Tensor lastCollisionVirialTensor() {return null;} //need to know D to return zero tensor
     }
 
     

@@ -32,7 +32,7 @@ public final class MeterTemperature extends Meter implements EtomicaElement
         
     public double currentValue()
     {
-        return value(phase);
+        return currentValue(phase);
     }
     
 	public Dimension getDimension() {return Dimension.TEMPERATURE;}
@@ -40,7 +40,7 @@ public final class MeterTemperature extends Meter implements EtomicaElement
 /**
  * Class method to compute the temperature of a phase from its total kinetic energy using equipartition
  */
-    public static double value(Phase phase) {
-        return (2./(double)(phase.atomCount*phase.parentSimulation().space().D()))*phase.energy.kinetic();
+    public static double currentValue(Phase phase) {
+        return (2./(double)(phase.atomCount*phase.parentSimulation().space().D()))*MeterKineticEnergy.currentValue(phase);
     }    
 }

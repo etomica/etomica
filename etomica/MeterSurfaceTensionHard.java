@@ -38,18 +38,6 @@ public class MeterSurfaceTensionHard extends Meter implements Meter.Atomic, Mete
     public final Dimension getDimension() {return Dimension.ENERGY;}
     
     /**
-     * Indicates that this meter does not reference the phase boundary.
-     * @return false
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    
-    /**
-     * Indicates that this meter does not use any iterators.
-     * @return false
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-    
-    /**
      * Gives current value of the surface tension, obtained by summing velocity and virial contributions.
      * Virial contribution includes sum over all collisions since last call to this method, while
      * velocity contribution is based on atom velocities in current configuration.
@@ -68,15 +56,15 @@ public class MeterSurfaceTensionHard extends Meter implements Meter.Atomic, Mete
     /**
      * Calls collisionAction method of virial contribution
      */
-    public void collisionAction(AtomPair pair, Potential.Hard p) {
-        virialTensor.collisionAction(pair, p);
+    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+        virialTensor.collisionAction(agent);
     }
     
     /**
      * Contribution to the surface tension from the recent collision of the given pair
      */
-    public double collisionValue(AtomPair pair, Potential.Hard p) {
-        Space.Tensor vTensor = virialTensor.collisionValue(pair, p);
+    public double collisionValue(IntegratorHardAbstract.Agent agent) {
+        Space.Tensor vTensor = virialTensor.collisionValue(agent);
         if (D == 1) {collisionValue = vTensor.component(0, 0);}
         else if (D == 2) {collisionValue = vTensor.component(0, 0) - vTensor.component(1, 1);}
         else {collisionValue = vTensor.component(0, 0) - 0.5*(vTensor.component(1, 1) + vTensor.component(2, 2));}

@@ -119,7 +119,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      //remember that this is called by reset(IteratorDirective) when id.atomcount = 0
     public Atom reset() {
         applyDirection(); //need to reapply because upListNow may have been changed during previous iteration
-//        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
+///        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
         setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
         return reset(setAtom);
 /*        if(isNeighborIterator) atom = null;

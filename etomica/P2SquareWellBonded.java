@@ -29,36 +29,36 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
-public class PotentialSquareWellBonded extends PotentialSquareWell implements Potential.Reactive {
+public class P2SquareWellBonded extends P2SquareWell implements PotentialReactive {
   
-  public String getVersion() {return "PotentialSquareWellBonded:01.05.25/"+super.getVersion();}
+  public String getVersion() {return "P2SquareWellBonded:01.05.25/"+super.getVersion();}
 
-  private Potential.Reactive.BondChangeData[] bondData;
+  private PotentialReactive.BondChangeData[] bondData;
   private double barrier;
   
-  public PotentialSquareWellBonded() {
+  public P2SquareWellBonded() {
     super();
     makeBondData();
   }
-  public PotentialSquareWellBonded(Simulation sim) {
+  public P2SquareWellBonded(Simulation sim) {
     super(sim);
     makeBondData();
   }
-  public PotentialSquareWellBonded(double coreDiameter, double lambda, double epsilon) {
+  public P2SquareWellBonded(double coreDiameter, double lambda, double epsilon) {
     super(coreDiameter, lambda, epsilon);
     makeBondData();
   }
   
-  public PotentialSquareWellBonded(Simulation sim, double coreDiameter, double lambda, double epsilon) {
+  public P2SquareWellBonded(Simulation sim, double coreDiameter, double lambda, double epsilon) {
     super(sim, coreDiameter, lambda, epsilon);
     makeBondData();
   }
   
   //constructs 2 BondChangeData classes, one for each atom in possible bondchange event
   private void makeBondData() {
-    bondData = new Potential.Reactive.BondChangeData[2];
+    bondData = new PotentialReactive.BondChangeData[2];
     for(int i=0; i<2; i++) {
-        bondData[i] = new Potential.Reactive.BondChangeData();
+        bondData[i] = new PotentialReactive.BondChangeData();
         bondData[i].oldPartners = new Atom[1];
         bondData[i].newPartners = new Atom[1];
     }
@@ -68,14 +68,14 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
   public double getBarrier() {return barrier;}
   public Dimension getBarrierDimension() {return Dimension.ENERGY;}
   
-  public Potential.Reactive.BondChangeData[] getBondChangeData() {return bondData;}
+  public PotentialReactive.BondChangeData[] getBondChangeData() {return bondData;}
 
 /**
  * Computes next time of collision of the two atoms, assuming free-flight kinematics.
  */
   public double collisionTime(AtomPair pair) {
 
-    Atom.Linker a1L = pair.atom1().atomLink[0];
+    AtomLinker a1L = pair.atom1().atomLink[0];
     Atom a1Partner = (a1L != null) ? a1L.atom() : null;
     
     //inside well but not mutually bonded;  collide now if approaching
@@ -100,8 +100,8 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
     
     Atom a1 = pair.atom1();
     Atom a2 = pair.atom2();
-    Atom.Linker a1L = a1.atomLink[0];
-    Atom.Linker a2L = a2.atomLink[0];
+    AtomLinker a1L = a1.atomLink[0];
+    AtomLinker a2L = a2.atomLink[0];
     Atom a1Partner = (a1L != null) ? a1L.atom() : null;
     Atom a2Partner = (a2L != null) ? a2L.atom() : null;
     
@@ -141,6 +141,7 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
             double deltaE = ke + epsilon;
             double barrier = 0.0;
             if(a1Partner != null) {
+                //need to have this get energy between atom and its partner from phasePotential
                 PotentialSquareWellBonded potl = ((PotentialSquareWellBonded)parentSimulation().getPotential(a1,a1Partner));
                 deltaE -= potl.getEpsilon();
             //    barrier += potl.getBarrier();
@@ -186,8 +187,8 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
             //        bondData[idx].oldPartners[0] = a2;
             //        bondData[idx].newPartners[0] = null;
                 } 
-                a1.atomLink[0] = new Atom.Linker(a2);
-                a2.atomLink[0] = new Atom.Linker(a1);
+                a1.atomLink[0] = new AtomLinker(a2);
+                a2.atomLink[0] = new AtomLinker(a1);
             }//end if(deltaE < 0.0) else
         }//end if(r2 < wellDiameterSquared) else
     } //end if(a1Partner == a2) else

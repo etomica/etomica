@@ -45,13 +45,20 @@ public class MeterKineticEnergy extends Meter
         atomIterator = factory.makeAtomIterator();
 	}
 	
-    public double currentValue()
-    {
+    public double currentValue() {
         double ke = 0.0;
         atomIterator.reset();
         while(atomIterator.hasNext()) {    //consider doing this with an allAtoms call
             ke += atomIterator.next().kineticEnergy();
         }
         return ke;
-    }
+    }//end of currentValue
+    
+    public static double currentValue(Phase p) {
+        double ke = 0.0;
+        for(Atom atom=p.firstAtom(); atom!=null; atom=atom.nextAtom()) {
+            ke += atom.kineticEnergy();
+        }
+        return ke;
+    }//end of value
 }

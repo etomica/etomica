@@ -5,7 +5,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     
     private double[][] virialSum;
     private double t0, t, velocity2;
-    private Atom.Iterator ai1;
+    private AtomIterator ai1;
     private Space.Tensor velocityTensor, v, pressureTensor;
     private IntegratorHard integratorHard;
     private int D;
@@ -75,8 +75,8 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
         return currentValue().component(i, j);
     }
     
-    public void collisionAction(AtomPair pair, Potential.Hard p) {
-        Space.Tensor lcvt = p.lastCollisionVirialTensor();
+    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+        Space.Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
         for (int i=0; i<lcvt.length(); i++) {
             for (int j=0; j<lcvt.length(); j++) {
                 virialSum[i][j] += lcvt.component(i, j);

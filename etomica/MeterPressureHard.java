@@ -1,16 +1,15 @@
 //this class includes a main method to demonstrate its use
 package etomica;
 import etomica.units.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Frame;
 
 /**
  * Meter for the pressure of a hard potential.
  * Performs sum of collision virial over all collisions, dividing by 
  * appropriate terms to obtain the pressure.
+ *
+ * @author David Kofke
  */
-public final class MeterPressureHard extends Meter implements IntegratorHard.CollisionListener, EtomicaElement {
+public final class MeterPressureHard extends Meter implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
         
     private double virialSum = 0.0;
     private double t0 = 0.0; //initialized in setPhaseIntegrator method
@@ -55,8 +54,8 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
      * Implementation of CollisionListener interface
      * Adds collision virial (from potential) to accumulator
      */
-    public void collisionAction(AtomPair pair, Potential.Hard p) {
-        virialSum += p.lastCollisionVirial();
+    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+        virialSum += agent.collisionPotential.lastCollisionVirial();
     }
     
     /**
@@ -82,15 +81,12 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
      * Pressure is measured in a hard-disk MD simulation.
      */
     public static void main(String[] args) {
-        Frame f = new Frame();   //create a window
-        f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
         
         //here's the part unique to this class
-        Phase phase = Simulation.instance.phase(0);
-        Integrator integrator = Simulation.instance.integrator(0);
-        integrator.setIsothermal(true);
-        integrator.setTemperature(Kelvin.UNIT.toSim(300.));
+        sim.integrator.setIsothermal(true);
+        sim.integrator.setTemperature(Kelvin.UNIT.toSim(300.));
         //make the meter and register it with the integrator
         MeterPressureHard pressureMeter = new MeterPressureHard();
         //Meter must be registered as collision listener and as interval listener to integrator
@@ -110,14 +106,9 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
         //end of unique part
  
         Simulation.instance.elementCoordinator.go();
-        phase.firstSpecies().setNMolecules(60);
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(WindowEvent e) {System.exit(0);}
-        });
-    }
+        sim.phase.firstSpecies().setNMolecules(60);
+        
+        Simulation.makeAndDisplayFrame(sim);
+    }//end of main
     
 }
