@@ -95,22 +95,20 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
 	 * Returns the next atom from the iterator that meets the 
 	 * filter's criteria.
 	 */
-	public Atom[] next() {
-        if(next == null) return null;
-        nextAtoms[0] = next[0];
-        nextAtoms[1] = next[1];
-		next = null;
-        nearestImageVector = nextNearestImageVector;
-        filter.setNearestImageVectorSource(nearestImageVectorSource);
-		while(iterator.hasNext() && next == null) {
-			next = iterator.next();
-//            System.out.println("in ApiFiltered.next, "+next[0].coord.position()+" "+next[1].coord.position()+" "+cellIterator.getNearestImageVector());
-			if(!filter.accept(next)) next = null;
-		}
-        nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
-        filter.setNearestImageVectorSource(this);
-		return nextAtoms;
-	}
+        public Atom[] next() {
+            if(next == null) return null;
+            nextAtoms[0] = next[0];
+            nextAtoms[1] = next[1];
+            next = null;
+            nearestImageVector = nextNearestImageVector;
+            while(iterator.hasNext() && next == null) {
+                next = iterator.next();
+                //            System.out.println("in ApiFiltered.next, "+next[0].coord.position()+" "+next[1].coord.position()+" "+cellIterator.getNearestImageVector());
+                if(!filter.accept(next)) next = null;
+            }
+            nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
+            return nextAtoms;
+        }
 	
 	/**
 	 * Returns next atom without advancing the iterator.
