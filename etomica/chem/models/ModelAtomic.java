@@ -5,8 +5,8 @@
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 package etomica.chem.models;
+import etomica.AtomFactory;
 import etomica.Space;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
@@ -39,7 +39,7 @@ public abstract class ModelAtomic extends Model {
 	}
 	
 	public AtomFactory makeAtomFactory(Space space) {
-		AtomSequencer.Factory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
+		AtomTreeNodeFactory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
 																 : sim.iteratorFactory.simpleSequencerFactory();
 		return new AtomFactoryMono(space,seqFactory);
 	}

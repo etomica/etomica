@@ -2,14 +2,15 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem.models;
+import etomica.AtomFactory;
 import etomica.Configuration;
 import etomica.Space;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroupArray;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.chem.Model;
 /**
  * Model for a molecule, which is formed from one or more sub-models, which
@@ -60,7 +61,7 @@ public abstract class ModelMolecular extends Model {
 																 : sim.iteratorFactory.simpleSequencerFactory();
 		int childCount = 0;
 		for(int i=0; i<count.length; i++) childCount += count[i];//total number of child atoms in group
-		AtomTreeNode.Factory nodeFactory = AtomTreeNodeGroupArray.FACTORY;
+		AtomTreeNodeFactory nodeFactory = AtomTreeNodeGroupArray.FACTORY;
 //		switch(childCount) {
 //			case 3: nodeFactory = AtomTreeNode3Site.FACTORY; break;
 //			default: nodeFactory = AtomTreeNodeGroup.FACTORY; break;
