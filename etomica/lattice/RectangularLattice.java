@@ -329,7 +329,8 @@ public class RectangularLattice implements FiniteLattice {
 //            if(!hasNext()) return null;
  //           currentPbc = pbc[cursor];
 //            return lattice.sites[neighbors[cursor++]];
-            return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
+//            return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
+            return lattice.sites[neighbors[cursor++]];
         }
         
         public Vector getNearestImageVector() {
@@ -587,7 +588,7 @@ public class RectangularLattice implements FiniteLattice {
         private final Vector period;
         private final Vector[] nearestImageVectors;
         private int nearestImageVectorCursor;
-        private int[] cursorJump;
+        private final int[] cursorJump;
     }//end of NeighborIterator
   
     /**
