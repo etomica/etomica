@@ -60,16 +60,11 @@ public class AtomFactoryHomo extends AtomFactory {
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNode.Factory nodeFactory, 
     						AtomFactory factory, int atoms, Configuration config) {
         super(space, sequencerFactory, nodeFactory);
-        init(factory, atoms, config);
-    }
-    
-    private void init(AtomFactory factory, int atoms, 
-    					Configuration config) {                      
         childFactory = factory;
         atomsPerGroup = atoms;
         configuration = config;
         //set up fields of Group type (can't build sample atoms because factories defined by subclassing this one may not be ready to build at atom at this point)
-
+        
         groupType.childrenAreGroups = factory.isGroupFactory();
     }
     
@@ -93,25 +88,6 @@ public class AtomFactoryHomo extends AtomFactory {
      * in the group made by this factory.
      */
     public AtomFactory childFactory() {return childFactory;}
-        
-    public boolean vetoAddition(Atom a) {return (a.creator() != childFactory);} 
-        
- /*   public void renew(Atom a) {//need an exception in the case a is unrenewable
-        if(a.type != groupType) return;  //throw exception
-        AtomGroup group = (AtomGroup)a;
-        int childCount = group.childCount();
-        if(atomsPerGroup > childCount) {
-            for(int i=childCount; i<atomsPerGroup; i++) group.addAtom(childFactory.makeAtom());
-        }
-        else if(atomsPerGroup < childCount) {
-            for(int i=childCount; i>atomsPerGroup; i--) group.removeAtom(group.lastChild());
-        }
-        group.childIterator.reset();
-        while(group.childIterator.hasNext()) {
-            childFactory.renew(group.childIterator.next());
-        }
-        configuration.initializeCoordinates(group);
-    }       */
         
     /**
      * Specifies the number of child atoms in each atom constructed by this factory.
