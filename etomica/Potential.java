@@ -56,7 +56,7 @@ public abstract class Potential {
    		return potentialTruncation.getRange();
    }
 
-    public abstract double energy(Atom[] atoms);
+    public abstract double energy(AtomSet atoms);
     
     public abstract void setPhase(Phase phase);
         
@@ -102,4 +102,3 @@ public abstract class Potential {
         this.name = name;
     }
 }//end of Potential
-
