@@ -229,67 +229,30 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double x; //hypervirial sum
         double rvx; 
         double vf;
-		private Potential2.Soft p2Soft;
-		private PotentialSoft p1Soft;
+        private Space.CoordinatePair cPair;
 
         private final Space.Vector f;
         public ForceSumNPH(Space space) {
             f = space.makeVector();
-        }
-            
-		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof PotentialSoft)) throw new IllegalArgumentException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-			p1Soft = (PotentialSoft)p1;
-			return super.set(p1);
-		}
-		public PotentialCalculation set(Potential2 p2) {
-			if(!(p2 instanceof Potential2.Soft)) throw new IllegalArgumentException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-			p2Soft = (Potential2.Soft)p2;
-			return super.set(p2);
-		}
-
-       //atom
-        public void actionPerformed(Atom atom) {
-            u += p1Soft.energy(atom);
-            f.E(p1Soft.gradient(atom));
-            ((Integrator.Forcible)atom.ia).force().ME(f);
-        }//end of calculate
-        
-        public void actionPerformed(AtomPair pair) {
-			double r2 = pair.r2();
-			u += p2Soft.energy(pair);
-			w += p2Soft.virial(pair);
-			double hv = p2Soft.hyperVirial(pair);
-			x += hv;
-			rvx += hv * pair.vDotr()/r2;
-			f.E(p2Soft.gradient(pair));
-			vf -= pair.cPair.vDot(f); //maybe should be (-)?
-			((Integrator.Forcible)pair.atom1().ia).force().PE(f);
-			((Integrator.Forcible)pair.atom2().ia).force().ME(f);       	
+            cPair = space.makeCoordinatePair();
         }
         
-        public void actionPerformed(Atom3 triplet) {
-        	throw new etomica.exception.MethodNotImplementedException();
-        }
-		public void actionPerformed(AtomSet atomN) {
-			throw new etomica.exception.MethodNotImplementedException();
-		}
-
         //pair
-        public void calculate(AtomPairIterator iterator, Potential2 potential) {
-            Potential2.Soft potentialSoft = (Potential2.Soft)potential;
+        public void doCalculation(AtomsetIterator iterator, Potential potential2) {
+            Potential2.Soft potentialSoft = (Potential2.Soft)potential2;
             while(iterator.hasNext()) {
-                AtomPair pair = iterator.next();
-                double r2 = pair.r2();
+                Atom[] pair = iterator.next();
+                cPair.reset(pair[0].coord,pair[1].coord);
+                double r2 = cPair.r2();
                 u += potentialSoft.energy(pair);
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;
-                rvx += hv * pair.vDotr()/r2;
+                rvx += hv * cPair.vDotr()/r2;
                 f.E(potentialSoft.gradient(pair));
-                vf -= pair.cPair.vDot(f); //maybe should be (-)?
-                ((Integrator.Forcible)pair.atom1().ia).force().PE(f);
-                ((Integrator.Forcible)pair.atom2().ia).force().ME(f);
+                vf -= cPair.vDot(f); //maybe should be (-)?
+                ((Integrator.Forcible)pair[0].ia).force().PE(f);
+                ((Integrator.Forcible)pair[1].ia).force().ME(f);
             }//end while
         }//end of calculate
     }//end ForceSums
