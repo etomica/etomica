@@ -18,7 +18,6 @@ import javax.swing.JPanel;
  
 public class SimulationPanel extends JPanel {
     
-    private final SimulationGraphic parentSimulation;
 	public final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
 	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridBagLayout());
 //    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
@@ -26,8 +25,7 @@ public class SimulationPanel extends JPanel {
 //    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.FlowLayout());
 
     
-    public SimulationPanel(SimulationGraphic sim) {
-        parentSimulation = sim;
+    public SimulationPanel() {
         add(devicePanel);
         add(displayBoxPanel);
         add(displayPanel);
@@ -60,16 +58,5 @@ public class SimulationPanel extends JPanel {
                     System.out.println("Click");
                 }
             });*/
-    }
-    /**
-     * Constructor for use if no simulation elements are to be laid out
-     * manually in the main program.  No internal panels are added to simulation
-     * panel.
-     * @param simulation Simulation using this panel
-     * @param layout Layout manager to be used to organize components
-     */
-    public SimulationPanel(SimulationGraphic simulation, java.awt.LayoutManager layout) {
-		super(layout);
-    	parentSimulation = simulation;
     }
 }//end of SimulationPanel
