@@ -24,9 +24,7 @@ public class NeighborManagerAgent {
     /**
      * Returns the index that this type has assigned to the given
      * potential.  If potential has not been previously identified
-     * to this instance, an ArrayIndexOutOfBoundsException is thrown.
-     * This should be caught and then addPotential can be called
-     * to identify the potential to this instance and obtain an index.
+     * to this instance, a new index will be returned.
      * @param potential The potential of interest
      * @return index associated with potential
      */
