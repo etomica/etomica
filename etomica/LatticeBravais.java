@@ -9,6 +9,12 @@ import java.util.Random;
  * represented by an array of lattices each of dimension D-1.  This continues on down to
  * the zero-dimensional lattice, which contains a single Lattice.Site object.
  * Each dimension of the lattice may be of different length (i.e., the lattice can be rectangular and need not be strictly cubic)
+ * 
+ * The lattice occupies a D'-dimensional space.  Normally D' = D at the top level, but this need not be 
+ * the case (e.g., we may have a 2-dimensional (planar) lattice given at some orientation in 3-d).
+ * The placement of the sites in the D'-dimensional space is given by the primitiveVector array.  One
+ * primitive vector is stored with each sublattice, describing how that sublattice was translated
+ * when copied to form the D-dimensional lattice.
  */
 public class LatticeBravais implements Lattice {
 
@@ -17,10 +23,11 @@ public class LatticeBravais implements Lattice {
     private final int nRows, siteCount;
     public final int D;                              //dimension of lattice
     public final static Random random = new Random(); */   //random-number generator for selecting a random site
-    private Lattice.Site.Iterator iterator;
+    private BravaisIterator iterator;
     private int nRows, siteCount;
     public int D;                                //dimension of lattice
-    public static Random random = new Random();  //random-number generator for selecting a random site
+    public static Random random;  //random-number generator for selecting a random site
+    static {random = new Random();}
     
     private LatticeBravais[] rows;                       //array of D-1 dimensional lattices (generically called a "row" here)
     private LatticeBravais parentLattice;                //D+1 dimensional lattice in which this lattice is a row (null for highest-level lattice)
@@ -38,19 +45,30 @@ public class LatticeBravais implements Lattice {
         siteCount = 1;
         nRows = 0;
     }
-    public LatticeBravais(int[] dim, double[][] prim) {
-        D = dim.length;
+    public LatticeBravais(int[] dim, double[][] prim, final double r2Max) {    //constructor for top-level lattice
+        this(dim.length,dim,prim);
+        class Criterion implements Lattice.Site.NeighborIterator.Criterion {
+            public boolean isNeighbor(Lattice.Site s1, Lattice.Site s2) {return r2((Site)s1,(Site)s2) < r2Max;}
+        }
+        Criterion nbrTest = new Criterion();
+        Lattice.Site.Iterator iter = (Lattice.Site.Iterator)iterator.clone();
+        iter.reset();   //need to pass iterator to setNeighbors, which changes its state, so we do outer loop with a clone of iterator
+        while(iter.hasNext()) {
+            iterator.reset();
+            iter.next().adjacentIterator().setNeighbors(iterator,nbrTest);
+        }
+    }
+    private LatticeBravais(int D, int[] dim, double[][] prim) {  //constructor for sub-lattices
+        this.D = D;
         int d = D-1;
         primitiveVector = prim[d];
-        int[] newDim = new int[d];                         //dimensions for sublattice
-//        double[][] newPrim = new double[d][];  //primitive vectors for sublattice
-        for(int i=0; i<d; i++) {   //create new dim and prim arrays from all but last element of given dim/prim arrays
-//            newPrim[i] = prim[i];
-            newDim[i] = dim[i];
-        }  
         nRows = dim[d];
-        
         rows = new LatticeBravais[nRows];
+        for(int i=0; i<nRows; i++) {
+            rows[i] = (d>0) ? new LatticeBravais(d,dim, prim) : new LatticeBravais();
+            rows[i].setParentLattice(this, i);
+        }
+        /*
         rows[0] = (d>0) ? new LatticeBravais(newDim, prim) : new LatticeBravais();
         rows[0].setParentLattice(this, 0);
         iterator = new LatticeIterator(rows);  //rows[0] needs instantiation before creating iterator
@@ -75,6 +93,7 @@ public class LatticeBravais implements Lattice {
             ((AdjacentIterator)pSite.adjacentIterator()).add(nSite);
             ((AdjacentIterator)nSite.adjacentIterator()).add(pSite);
         }
+        */
         iterator = new LatticeIterator(rows);
         siteCount = nRows*rows[0].siteCount();
     }
@@ -155,7 +174,10 @@ public class LatticeBravais implements Lattice {
      * General iterator of sites on LatticeBravais.
      * SingletIterator is used for zero-D lattices
      */
-    private static final class LatticeIterator implements Lattice.Site.Iterator {  //might instead do this by creating a big array of all sites and loop through it
+     
+     // Here's a recursive (and, unfortunately, hard to clone) version of the LatticeIterator
+     
+/*    private static final class LatticeIterator implements Lattice.Site.Iterator {  //might instead do this by creating a big array of all sites and loop through it
         private boolean hasNext;
         private int iRow;
         private Lattice.Site.Iterator current;
@@ -167,6 +189,7 @@ public class LatticeBravais implements Lattice {
         public void reset() {
             iRow = 0;
             current = rows[0].iterator();
+            current.reset();
             hasNext = current.hasNext();
         }
         public Lattice.Site next() {
@@ -184,52 +207,88 @@ public class LatticeBravais implements Lattice {
         public void allSites(Lattice.Site.Action act) {
             for(int i=0; i<nRows; i++) {rows[i].iterator().allSites(act);}
         }
+        public Object clone() { 
+            try {return super.clone();} catch(CloneNotSupportedException e) {return null;}
+        }
     }
-        
-    //Iterator for a lattice that contains only one site (zero-D lattice)
-    private static final class SingletIterator implements Lattice.Site.Iterator {
-        public final Site site;
+ */       
+    /**
+     * General iterator of sites on LatticeBravais.
+     * SingletIterator is used for zero-D lattices
+     */
+     
+     //Don't like this much, but it should work
+    private interface BravaisIterator extends Lattice.Site.Iterator {
+        public Lattice.Site.Linker firstLink();
+        public Lattice.Site.Linker lastLink();
+    }        
+    private static final class LatticeIterator implements BravaisIterator {  //might instead do this by creating a big array of all sites and loop through it
         private boolean hasNext;
-        public SingletIterator(Site s) {site = s; hasNext = true;}
+        private Lattice.Site.Linker firstLink, nextLink, lastLink;
+        public LatticeIterator(LatticeBravais[] rows) {  //constructor
+            int nRows = rows.length;
+            firstLink = ((BravaisIterator)rows[0].iterator()).firstLink();
+            lastLink = ((BravaisIterator)rows[nRows-1].iterator()).lastLink();
+            for(int i=0; i<nRows-1; i++) {  //Loop through all rows, joining last link of each row with first link of next row
+                ((BravaisIterator)rows[i].iterator()).lastLink().next = ((BravaisIterator)rows[i+1].iterator()).firstLink();
+            }
+            reset();
+        }   
+        public Lattice.Site first() {return firstLink.site;}
+        public Lattice.Site.Linker firstLink() {return firstLink;}
+        public Lattice.Site.Linker lastLink() {return lastLink;}
+        public boolean hasNext() {return nextLink != null;}
+        public void reset() {nextLink = firstLink;}
+        public Lattice.Site next() {
+            Lattice.Site nextSite = nextLink.site;
+            nextLink = nextLink.next;
+            return nextSite;
+        }
+        public void allSites(Lattice.Site.Action act) {
+            for(Lattice.Site.Linker link=firstLink; link!=null; link=link.next) {act.action(link.site);}
+        }
+        public Object clone() { 
+            try {return super.clone();} catch(CloneNotSupportedException e) {return null;}
+        }
+    }
+
+    //Iterator for a lattice that contains only one site (zero-D lattice)
+    private static final class SingletIterator implements BravaisIterator {
+        public final Site site;
+        private final Lattice.Site.Linker link;
+        private boolean hasNext;
+        public SingletIterator(Site s) {
+            site = s; 
+            hasNext = true; 
+            link = new Lattice.Site.Linker(null,s);
+        }
         public boolean hasNext() {return hasNext;}
         public Lattice.Site first() {return site;}
+        public Lattice.Site.Linker firstLink() {return link;}
+        public Lattice.Site.Linker lastLink() {return link;}
         public void reset() {hasNext = true;}
         public Lattice.Site next() {hasNext = false; return site;}
         public void allSites(Lattice.Site.Action act) {act.action(site);}
-    }
-    
-    //Iterator to generate neighbors of site on LatticeBravais
-    private static final class AdjacentIterator implements Lattice.Site.Iterator {
-        private Lattice.Site.Linker first, nextLink;
-        public void add(Lattice.Site s) {first = new Lattice.Site.Linker(first, s);}
-        public boolean hasNext() {return nextLink != null;}
-        public void reset() {nextLink = first;}
-        public Lattice.Site first() {return first.site;}
-        public Lattice.Site next() {
-           Lattice.Site nextSite = nextLink.site;
-           nextLink = nextLink.next;
-           return nextSite;
-        }
-        public void allSites(Lattice.Site.Action act) {
-            for(Lattice.Site.Linker l=first; l!=null; l=l.next) {act.action(l.site);}
+        public Object clone() { 
+            try {return super.clone();} catch(CloneNotSupportedException e) {return null;}
         }
     }
     
     public static final class Site implements Lattice.Site {
-        private final Lattice.Site.Iterator adjacentIterator = new AdjacentIterator();
+        private final Lattice.Site.NeighborIterator adjacentIterator = new Lattice.Site.NeighborIterator(this);
         private final LatticeBravais lattice;
         final Coordinate coordinate;
         public Site(LatticeBravais p) {
-            LatticeBravais lattice = p;
+            LatticeBravais lat = p;
             int i = 0;
-            while(lattice.parentLattice() != null) {lattice = lattice.parentLattice();}
-            this.lattice = lattice;
+            while(lat.parentLattice() != null) {lat = lat.parentLattice();}
+            this.lattice = lat;
             coordinate = new Coordinate(lattice.D());
-            lattice = p;
-            while(lattice.parentLattice() != null) {coordinate.setIndex(i++, lattice.index());}
+            lat = p;
+            while(lat.parentLattice() != null) {coordinate.setIndex(i++, lat.index());}
         }
         public Lattice lattice() {return lattice;}  //returns the top-level lattice on which this site resides
-        public Lattice.Site.Iterator adjacentIterator() {return adjacentIterator;}
+        public Lattice.Site.NeighborIterator adjacentIterator() {return adjacentIterator;}
         public Lattice.Coordinate coordinate() {return coordinate;}
         public boolean isAdjacentTo(Lattice.Site s) {
             adjacentIterator.reset();
