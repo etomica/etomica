@@ -28,11 +28,10 @@ public final class IteratorDirective implements java.io.Serializable {
     }
     public IteratorDirective(Direction direction) {
         setDirection(direction);
-        targetAtoms = new Atom[2];
     }
     public IteratorDirective(Direction direction, Atom atom) {
     	this(direction);
-    	targetAtoms[0] = atom;
+    	targetAtoms = atom;
     }
     
     /**
@@ -41,7 +40,7 @@ public final class IteratorDirective implements java.io.Serializable {
      */
     public void clear() {
         setDirection(UP);
-        targetAtoms[0] = null;
+        targetAtoms = null;
         potentialCriteriaHead = null;
         includeLrc = false;
     }
@@ -70,13 +69,13 @@ public final class IteratorDirective implements java.io.Serializable {
         potentialCriteriaHead = newCriterion;
     }
     
-    public void setTargetAtoms(Atom[] atoms) {
+    public void setTargetAtoms(AtomSet atoms) {
         if (Debug.ON && atoms == null) throw new IllegalArgumentException("Target atoms array must not be null");
         targetAtoms = atoms;
     }
-    public Atom[] getTargetAtoms() {return targetAtoms;}
+    public AtomSet getTargetAtoms() {return targetAtoms;}
     
-    public Atom[] targetAtoms;
+    public AtomSet targetAtoms;
     
     //IteratorDirective.Direction
     public static final class Direction extends Constants.TypedConstant {
