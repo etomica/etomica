@@ -28,7 +28,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
     public MeterProfile(Space space) {
-        super();
+        super(new DataSourceUniform());
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
     }
@@ -38,9 +38,8 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         return info;
     }
     
-    public void setPhase(Phase p) {
+    public void setPhase(Phase[] p) {
         super.setPhase(p);
-        ai1.setList(p.speciesMaster.atomList);
     }
 
     /**
@@ -48,13 +47,6 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * according to the dimensions of the simulation cell.
      */
     public boolean usesPhaseBoundary() {return true;}
-    
-    /**
-     * Updates the profile vector when informed that the phase boundary has changed.
-     */
-    public void setPhaseBoundary(Space.Boundary b) {
-        setProfileVector(profileVector);
-    }
     
     /**
      * Returns the ordinate label for the profile, obtained from the associated meter.
@@ -81,10 +73,8 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * Accessor method for the meter that defines the profiled quantity.
      */
     public void setMeter(MeterAtomic m) {
-        if (m instanceof MeterAtomic) meter = (MeterAtomic)m;
-        else throw new IllegalArgumentException("Error in meter type in MeterProfile.  Must be Meter.MeterAtomic");
+        meter = m;
     }
-    
     
     /**
      * Accessor method for vector describing the direction along which the profile is measured.
@@ -100,25 +90,26 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     public void setProfileVector(Space.Vector v) {
         profileVector.E(v);
         profileVector.normalize();
-        profileNorm = 1.0/phase.boundary().dimensions().dot(profileVector);
     }
     
     /**
      * Returns the profile for the current configuration.
      */
     public double[] getDataAsArray(Phase p) {
-        ai1.setBasis(p.speciesMaster.atomList);
+        profileNorm = 1.0/p.boundary().dimensions().dot(profileVector);
         for (int i = 0; i <nDataPerPhase; i++) {
             phaseData[i] = 0.0;
         }
+        ai1.setList(p.speciesMaster.atomList);
         ai1.reset();
         while(ai1.hasNext()) {
-            Atom a = ai1.next();
+            Atom a = ai1.nextAtom();
             double value = meter.currentValue(a);
-            int i = getXIndex(a.coord.position().dot(profileVector)*profileNorm);
+            int i = ((DataSourceUniform)xDataSource).getIndex(a.coord.position().dot(profileVector)*profileNorm);
             phaseData[i] += value;
         }
-        double norm = 1/((double)p.atomCount()*deltaX);
+        double dx = (((DataSourceUniform)xDataSource).getXMax() - ((DataSourceUniform)xDataSource).getXMin())/nDataPerPhase;
+        double norm = 1.0/(p.atomCount()*dx);
         for (int i =0; i < nDataPerPhase; i++) {
             phaseData[i] *= norm;
         }
