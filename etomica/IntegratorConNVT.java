@@ -141,15 +141,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     }//end of doStep
     
 
-    public void reset() {
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
-            Agent agent = (Agent)a.ia;
-          
-        }
-    }
-              
 //--------------------------------------------------------------
 
     public final Object makeAgent(Atom a) {
