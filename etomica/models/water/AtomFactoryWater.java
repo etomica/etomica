@@ -36,7 +36,7 @@ public class AtomFactoryWater extends AtomFactory {
 		hFactory.setType(hType);
 		oFactory.setType(oType);
 
-		configuration = new ConfigurationWater(space); 
+		configuration = new ConfigurationWater(); 
 	}
 
 	/**
