@@ -1,6 +1,7 @@
 package etomica.simulations;
 import java.util.Iterator;
 
+import etomica.Controller;
 import etomica.DataManager;
 import etomica.DataSink;
 import etomica.Default;
@@ -21,12 +22,10 @@ import etomica.graphics.DisplayCanvasInterface;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHardPiston;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
-import etomica.potential.Potential2;
 import etomica.space.BoundaryNone;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
@@ -41,10 +40,11 @@ import etomica.units.PrefixedUnit;
  */
 public class PistonCylinder extends Simulation {
     
-    public IntegratorHard integrator;
+    public IntegratorHardPiston integrator;
     public SpeciesSpheresMono species;
     public Phase phase;
-    public Potential2 potential;
+    public Controller controller;
+    public P2SquareWell potential;
     public P1HardBoundary wallPotential;
     public P1HardMovingBoundary pistonPotential;
     public ActivityIntegrate ai;
@@ -53,7 +53,7 @@ public class PistonCylinder extends Simulation {
     public PistonCylinder(int D) {
         super(Space.makeSpace(D));
         lambda = 1.5;
-        
+        controller = getController();
         Default.ATOM_MASS = 16;
 	    species = new SpeciesSpheresMono(this);
 	    species.setNMolecules(100);
@@ -129,6 +129,7 @@ public class PistonCylinder extends Simulation {
             pc.wallPotential.setLongWall(1,false,false);// bottom wall
             pc.wallPotential.setPhase(pc.phase);  // so it has a boundary
 
+            
             SimulationGraphic sg = new SimulationGraphic(pc);
             getContentPane().add(sg.panel());
             Iterator displayIterator = sg.displayList().iterator();
