@@ -47,7 +47,6 @@ public final class SpeciesMaster extends Atom {
     
 //    public int atomCount() {return atomList.size();}//or could use node.leafAtomCount()
     public int moleculeCount() {
-    	System.out.println(moleculeCount);
     	return moleculeCount;
     }
     

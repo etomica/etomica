@@ -20,7 +20,8 @@ package etomica;
   * 01/31/03 (JKS/DAK) modifications to make thread-safe
   * 07/10/03 (DAK) added resetV method to CoordinatePair
   * 08/13/03 (DAK) added massSum check in CoordinateGroup.position()
-
+  * 08/25/03 (DAK/DW) revised CoordinateGroup.position() to return position of
+  * first atom, rather than center-of-mass position
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -561,6 +562,7 @@ public class Space3D extends Space implements EtomicaElement {
 public static class CoordinateGroup extends Coordinate {
 
     private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple();
+    private Atom firstAtom;
     
     public CoordinateGroup(Atom a) {
         super(a);
@@ -578,16 +580,20 @@ public static class CoordinateGroup extends Coordinate {
         translateBy(work);
     }
     public Space.Vector position() {
-        r.E(0.0); double massSum = 0.0;
-        childIterator.reset();
-        while(childIterator.hasNext()) {
-            Atom a = childIterator.next();
-            r.PEa1Tv1(a.coord.mass(), a.coord.position()); 
-            massSum += a.coord.mass();
-        }
-        if(massSum == 0) r.E(0.0);//added this 08/13/03 (DAK)
-        else r.DE(massSum);
-        return r;
+		if(firstAtom == null) firstAtom = ((AtomTreeNodeGroup)atom.node).childList.getFirst(); //DAK 
+        
+		return firstAtom.coord.position();
+
+//        r.E(0.0); double massSum = 0.0;
+//        childIterator.reset();
+//        while(childIterator.hasNext()) {
+//            Atom a = childIterator.next();
+//            r.PEa1Tv1(a.coord.mass(), a.coord.position()); 
+//            massSum += a.coord.mass();
+//        }
+//        if(massSum == 0) r.E(0.0);//added this 08/13/03 (DAK)
+//        else r.DE(massSum);
+//        return r;
     }
     public Space.Vector momentum() {
         p.E(0.0);

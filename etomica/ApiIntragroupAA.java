@@ -9,6 +9,14 @@ package etomica;
  //should put AA iterators into a single class, configured at construction
  //with appropriate inner integrators
  //this class and ApiInterspeciesAA are nearly identical
+ 
+/* History 
+ * 08/25/03 (DAK) modified next method to invoke reset(Atom, Atom) on AtomPair.
+ * Previously had pair.atom2 = iterator.next(); pair.reset().  Change made
+ * because AtomPair's blank reset method does not call cPair.reset with atom
+ * coordinate arguments.
+ */
+
 public final class ApiIntragroupAA extends AtomPairIterator {
     
     public ApiIntragroupAA(Simulation sim) {
@@ -84,8 +92,9 @@ public final class ApiIntragroupAA extends AtomPairIterator {
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
         if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
-        pair.atom2 = aiInner.next();
-        pair.reset();
+//        pair.atom2 = aiInner.next();
+//        pair.reset();
+		pair.reset(pair.atom1,aiInner.next());//DAK 08/25/03  commented out two preceding lines
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
   //          outCount++;

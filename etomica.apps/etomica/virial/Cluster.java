@@ -162,11 +162,12 @@ public class Cluster {
 			int[] p = permutations[s];// e.g. {0,2,1,4} 
 			double prod = 1.0;
 			pairLoop: for(int i=0; i<n-1; i++) {
-				int ip = p[i];//index of atom in position i for permuted labeling (e.g., i=1, ip=2}
+				double[][] fj = f[p[i]];//p[i] = index of atom in position i for permuted labeling (e.g., i=1, ip=2}
+				int[] bi = bondIndexArray[i];
 				for(int j=i+1; j<n; j++) {
-					int protoIndex = bondIndexArray[i][j];//index of bond between i and j in prototype diagram
+					int protoIndex = bi[j];//index of bond between i and j in prototype diagram
 					if(protoIndex < 0) continue;//no bond there
-					else prod *= f[ip][p[j]][protoIndex];//value of bond for permuted diagram
+					else prod *= fj[p[j]][protoIndex];//value of bond for permuted diagram
 					if(prod == 0.0) break pairLoop;
 				}
 			}//end pairLoop
@@ -292,6 +293,7 @@ public class Cluster {
 		permutations = new int[nPermutations][];
 		pList.toArray(permutations);//fill permutations array with the elements of pList
 		rPermutations = 1.0/(double)nPermutations;
+		f = new double[n][n][nBondTypes];
 	}//end of makePermutations
 
 	//returns true if all elements in two arrays are equal term by term

@@ -15,6 +15,7 @@ import etomica.units.*;
 /* History
  * 
  * 07/10/03 (DAK) made Agent interface public
+ * 08/25/03 (DAK) changed default for doSleep to <false>
  */
 public abstract class Integrator extends SimulationElement implements Runnable, java.io.Serializable {
 
@@ -42,7 +43,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   private Vector intervalListenersAfterPbc = new Vector();
   int interval = 10;  // number of steps between IntervalEvent firing
   int integrationCount = 0;
-  boolean doSleep = true;
+  boolean doSleep = false;
   protected double temperature = Default.TEMPERATURE;
   protected boolean isothermal = false;
   private boolean initialized = false;

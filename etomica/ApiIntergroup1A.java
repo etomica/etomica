@@ -14,6 +14,10 @@ package etomica;
   * 12/06/02 (DAK) made class not final so could subclass in sufactant module 
   * 01/02/03 (DAK) reset checks if basis is null
   * 01/27/03 (DAK) added "all" method as part of redesign of Potential
+  * 08/25/03 (DAK) modified next method to invoke reset(Atom, Atom) on AtomPair.
+  * Previously had pair.atom2 = iterator.next(); pair.reset().  Change made
+  * because AtomPair's blank reset method does not call cPair.reset with atom
+  * coordinate arguments.
   */
  
 public class ApiIntergroup1A extends AtomPairIterator {
@@ -122,8 +126,9 @@ public class ApiIntergroup1A extends AtomPairIterator {
     }
     
     public AtomPair next() {
-        pair.atom2 = atomIterator.next();
-        pair.reset();
+//        pair.atom2 = atomIterator.next();
+//        pair.reset();
+		pair.reset(pair.atom1, atomIterator.next());//DAK 08/25/03 added, and commented out preceding two lines
         return pair;
     }
 
