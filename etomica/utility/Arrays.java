@@ -40,7 +40,8 @@ public final class Arrays {
     /**
      * Returns an array formed from adding the newObject to the elements
      * in the given array.  New array is one element larger than given array,
-     * and is of same type as given array.
+     * and is of same type as given array.  newObject is placed at the end of 
+     * the new array.
      * @param objects array with objects to be put in new array
      * @param newObject object placed at end of new array
      * @return new array 
