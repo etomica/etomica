@@ -2,6 +2,7 @@ package etomica.tests;
 
 import etomica.ConfigurationFile;
 import etomica.ConfigurationLinear;
+import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
 import etomica.IntegratorPotentialEnergy;
@@ -96,19 +97,20 @@ public class TestSWChainDMDNbr extends Simulation {
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator); 
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage();
-        DataPump energyPump = new DataPump(energyMeter,energyAccumulator);
+        DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalListener(new IntervalActionAdapter(energyPump,sim.integrator));
+        IntervalActionAdapter actionAdapter = new IntervalActionAdapter(energyManager, sim.integrator);
         
         sim.getController().actionPerformed();
         
         double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.temperature());
-        double PE = energyAccumulator.getData()[1]/numMolecules;
+        double[] data = energyAccumulator.getData();
+        double PE = data[1]/numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
         double t2 = sim.integrator.temperature();
         t2 *= t2;
-        double Cv = energyAccumulator.getData()[3]/t2/numMolecules;
+        double Cv = data[3]/t2/numMolecules;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(Z-3.15) > 0.5) {
