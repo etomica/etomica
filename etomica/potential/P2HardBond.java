@@ -176,7 +176,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * Returns 0 if the bond is within the required distance, infinity if not.
      */
     public double energy(AtomSet pair) {
-        cPair.reset(((AtomPair)pair).atom0.coord, ((AtomPair)pair).atom1.coord);
+        cPair.reset((AtomPair)pair);
         double r2 = cPair.r2();
         if (r2 > minBondLengthSquared && r2 < maxBondLengthSquared) return 0.0;
         return Double.POSITIVE_INFINITY;
