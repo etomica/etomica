@@ -38,10 +38,6 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         return info;
     }
     
-    public void setPhase(Phase[] p) {
-        super.setPhase(p);
-    }
-
     /**
      * Declares that this meter uses the boundary of the phase, as it sizes the profile length 
      * according to the dimensions of the simulation cell.
