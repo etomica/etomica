@@ -394,7 +394,6 @@ public class PistonCylinderGraphic {
         //initialize for ideal gas
         potentialSW = new P2SquareWell();
         potentialHS = new P2HardSphere();
-        pc.potentialWrapper.setPotential(null);
 /*        pc.potentialMaster.setSpecies(potentialHS, new Species[] {pc.species, pc.species});
         pc.potentialMaster.setEnabled(potentialHS, false);
         pc.potentialMaster.setEnabled(potentialSW, false);*/
@@ -403,33 +402,13 @@ public class PistonCylinderGraphic {
         
         potentialChooserListener = new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                String selected = (String)evt.getItem();
                 if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
-                //System.out.println("changing potential");
-                final boolean HS = selected.equals("Repulsion only"); 
-                final boolean SW = selected.equals("Repulsion and attraction"); 
-                System.out.println("PistonCylinderGraphic, HS, SW "+HS+" "+SW);
-                pc.controller.doActionNow( new Action() {
-                    public void actionPerformed() {
-                        if (HS) {
-                            System.out.println("PistonCylinderGraphic, HS");
-                            pc.potentialWrapper.setPotential(potentialHS);
-                        }
-                        else if (SW) {
-                            System.out.println("PistonCylinderGraphic, SW");
-                            pc.potentialWrapper.setPotential(potentialSW);
-                        }
-                        else {
-                            System.out.println("PistonCylinderGraphic, ideal gas");
-                            pc.potentialWrapper.setPotential(null);
-                        }
-                        pc.integrator.reset();
-                    }
-                    public String getLabel() {return "";}
-                });
+                setPotential((String)evt.getItem());
             }
         };
         potentialChooser.addItemListener(potentialChooserListener);
+        setPotential((String)potentialChooser.getSelectedItem());
+        
         thermometer.setPhase(new Phase[] {pc.phase});
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
@@ -445,7 +424,6 @@ public class PistonCylinderGraphic {
         pc.integrator.addIntervalListener(densityManager);
         pc.integrator.addIntervalListener(dBoxAvg);
         pc.integrator.addIntervalListener(dBoxCur);
-//        ModifierFunctionWrapper sliderModulator = new ModifierFunctionWrapper(pc.pistonPotential, "pressure");
         int D = pc.space.D();
         Dimension pDim = (D==2) ? Dimension.PRESSURE2D : Dimension.PRESSURE;
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
@@ -468,6 +446,26 @@ public class PistonCylinderGraphic {
 
     }
     
+    public void setPotential(String potentialDesc) {
+        final boolean HS = potentialDesc.equals("Repulsion only"); 
+        final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
+        pc.controller.doActionNow( new Action() {
+            public void actionPerformed() {
+                if (HS) {
+                    pc.potentialWrapper.setPotential(potentialHS);
+                }
+                else if (SW) {
+                    pc.potentialWrapper.setPotential(potentialSW);
+                }
+                else {
+                    pc.potentialWrapper.setPotential(null);
+                }
+                pc.integrator.reset();
+            }
+            public String getLabel() {return "";}
+        });
+    }
+    
     
     public static void main(String[] args) {
         PistonCylinderGraphic sim = new PistonCylinderGraphic();
@@ -476,31 +474,6 @@ public class PistonCylinderGraphic {
  //       sim.controller1.start();
     }//end of main
     
-//    public static class Configuration extends ConfigurationSequential {
-//        Atom disks, piston;
-//        double initialPosition;
-//        ConfigurationSequential diskConfiguration;
-//        public Configuration(Simulation sim, Atom disks, Atom piston) {
-//            super(sim); 
-//            this.disks = disks;
-//            this.piston = piston;
-//            diskConfiguration = new ConfigurationSequential(sim);
-//        }
-//        public void initializePositions(AtomIterator[] dummy) {
-//            piston.node.parentSpecies().moleculeFactory().getConfiguration().initializeCoordinates(piston.node.parentGroup());
-//            piston.coord.position().setX(1,initialPosition);
-//			piston.coord.setStationary(true);
-//			piston.coord.momentum().E(0.0);
-//            diskConfiguration.initializeCoordinates(disks);
-//        }
-//        public void setDimensions(Space.Vector dimensions) {
-//            diskConfiguration.setDimensions(dimensions);
-//        }
-//        public void setDimensions(double[] dimensions) {
-//            diskConfiguration.setDimensions(dimensions);
-//        }
-//    }
-
     public static class Applet extends javax.swing.JApplet {
 
 	    public void init() {
