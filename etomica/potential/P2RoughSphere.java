@@ -5,12 +5,11 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space3D;
 import etomica.atom.AtomType;
 import etomica.space.Coordinate;
 import etomica.space.Tensor;
 import etomica.space.Coordinate.Angular;
-import etomica.space3d.Vector;
+import etomica.space.Vector;
 
 /**
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.
@@ -20,7 +19,7 @@ import etomica.space3d.Vector;
  */
 public class P2RoughSphere extends P2HardSphere {
 
-    private final Vector omegaSum = new Vector();
+    private final etomica.space3d.Vector omegaSum = new etomica.space3d.Vector();
     private final Vector v12Surface;
     private final Vector v12Par;
     private final Vector v12Perp;

@@ -3,8 +3,6 @@ package etomica.space1d;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.space.Boundary.Periodic;
-import etomica.space.Boundary.Type;
 
 
 
@@ -20,7 +18,7 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
     public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE);}
     public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx; updateDimensions();}
     public BoundaryPeriodicSquare(double lx) {dimensions.x = lx; updateDimensions();}
-    public Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
+    public etomica.space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
     private final Vector temp = new Vector();
     private final Vector dimensions = new Vector();
     private final Vector dimensionsHalf = new Vector();
@@ -29,8 +27,8 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
         dimensionsHalf.Ea1Tv1(0.5,dimensions);
         dimensionsCopy.E(dimensions);
     }
-    public final Vector dimensions() {return dimensionsCopy;}
-    public Vector randomPosition() {
+    public final etomica.space.Vector dimensions() {return dimensionsCopy;}
+    public etomica.space.Vector randomPosition() {
         temp.x = dimensions.x*Simulation.random.nextDouble(); 
         return temp;
     }
@@ -52,18 +50,18 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
         updateDimensions();
         phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
     }
-    public void inflate(Vector scale) {
+    public void inflate(etomica.space.Vector scale) {
         dimensions.TE(scale); 
         updateDimensions();
         phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
     }
-    public void setDimensions(Vector v) {dimensions.E(v); updateDimensions();}
+    public void setDimensions(etomica.space.Vector v) {dimensions.E(v); updateDimensions();}
     public double volume() {return dimensions.x;}
     /** Computes origins for periodic images
      */
     public double[][] imageOrigins(int nShells) {
         int nImages = 2*nShells;
-        double[][] origins = new double[nImages][Space1D.D];
+        double[][] origins = new double[nImages][1];
         int k = 0;
         for(int i=-nShells; i<=nShells; i++) {
             if(i==0) {continue;}
@@ -78,7 +76,7 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
      */
     int shiftX;
     Vector r;
-    public float[][] getOverflowShifts(Vector rr, double distance) {
+    public float[][] getOverflowShifts(etomica.space.Vector rr, double distance) {
         r = (Vector)rr;
         shiftX = 0;
         if(r.x-distance < 0.0) {shiftX = +1;}

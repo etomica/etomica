@@ -154,9 +154,9 @@ import etomica.atom.iterator.AtomIteratorListSimple;
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) pauseForInput();
         
-        list.add(species.factory.makeAtom());
-        list.add(species.factory.makeAtom());
-        list.add(species.factory.makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
         System.out.println("Added 3 atoms");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
@@ -186,15 +186,15 @@ import etomica.atom.iterator.AtomIteratorListSimple;
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) pauseForInput();
  
-        list.add(species.factory.makeAtom());
-        list.add(species.factory.makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
         System.out.println("Added 2 atoms");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) pauseForInput();
         
         list.clearMemory();
-        list.add(species.factory.makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
         System.out.println("Cleared memory and added 1 atom");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
@@ -207,7 +207,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
         if(pauseForInput) pauseForInput();
         
         Atom first = list.removeFirst();
-        list.addFirst(species.factory.makeAtom());
+        list.addFirst(species.moleculeFactory().makeAtom());
         System.out.println("Removed first and last and added a new first");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
@@ -239,8 +239,8 @@ import etomica.atom.iterator.AtomIteratorListSimple;
         while(iterator.hasNext()) System.out.println(iterator.next().toString());
         if(pauseForInput) pauseForInput();
         
-        list.add(species.factory.makeAtom());
-        list.add(species.factory.makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
+        list.add(species.moleculeFactory().makeAtom());
         System.out.println("Added 2 atoms");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());

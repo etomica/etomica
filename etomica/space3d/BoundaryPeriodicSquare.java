@@ -15,14 +15,14 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p, double lx, double ly, double lz) {super(p);dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
         public BoundaryPeriodicSquare(double lx, double ly, double lz) {super();dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
-        public Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
+        public etomica.space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
         private final Vector temp = new Vector();
         private final Vector modShift = new Vector();//must be used only by centralImage and nearestImage methods
         protected final Vector dimensions = new Vector();
         protected final Vector dimensionsCopy = new Vector();
         protected final Vector dimensionsHalf = new Vector();
-        public final Vector dimensions() {return dimensionsCopy;}
-        public Vector randomPosition() {
+        public final etomica.space.Vector dimensions() {return dimensionsCopy;}
+        public etomica.space.Vector randomPosition() {
             temp.x = dimensions.x*Simulation.random.nextDouble();
             temp.y = dimensions.y*Simulation.random.nextDouble();
             temp.z = dimensions.z*Simulation.random.nextDouble();
@@ -98,12 +98,12 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
             updateDimensions();
             phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
         }
-        public void inflate(Vector scale) {
+        public void inflate(etomica.space.Vector scale) {
             dimensions.TE(scale); 
             updateDimensions();
             phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
         }
-        public void setDimensions(Vector v) {dimensions.E(v); updateDimensions();}
+        public void setDimensions(etomica.space.Vector v) {dimensions.E(v); updateDimensions();}
         public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
                 
         /**
@@ -116,7 +116,7 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
         public double[][] imageOrigins(int nShells) {
             shellFormula = (2 * nShells) + 1;
             nImages = shellFormula*shellFormula*shellFormula-1;
-            origins = new double[nImages][Space3D.D];
+            origins = new double[nImages][3];
             for (k=0,i=-nShells; i<=nShells; i++) {
                 for (j=-nShells; j<=nShells; j++) {
                     for (m=-nShells; m<=nShells; m++) {
@@ -136,7 +136,7 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
         //so, in the interest of speed, i moved these outside of the function;
         int shiftX, shiftY, shiftZ;
         Vector r;
-        public float[][] getOverflowShifts(Vector rr, double distance) {
+        public float[][] getOverflowShifts(etomica.space.Vector rr, double distance) {
             shiftX = 0; shiftY = 0; shiftZ = 0;
             r = (Vector)rr;
             
@@ -152,34 +152,34 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
             if((shiftX == 0) && (shiftY == 0) && (shiftZ == 0)) {
               shift = shift0;
             } else if((shiftX != 0) && (shiftY == 0) && (shiftZ == 0)) {
-              shift = new float[1][Space3D.D];
+              shift = new float[1][3];
               shift[0][0] = (float)(shiftX*dimensions.x);
             } else if((shiftX == 0) && (shiftY != 0) && (shiftZ == 0)) {
-              shift = new float[1][Space3D.D];
+              shift = new float[1][3];
               shift[0][1] = (float)(shiftY*dimensions.y);
             } else if((shiftX == 0) && (shiftY == 0) && (shiftZ != 0)) {
-              shift = new float[1][Space3D.D];
+              shift = new float[1][3];
               shift[0][2] = (float)(shiftZ*dimensions.z);
             } else if((shiftX != 0) && (shiftY != 0) && (shiftZ == 0)) {
-              shift = new float[3][Space3D.D];
+              shift = new float[3][3];
               shift[0][0] = (float)(shiftX*dimensions.x);
               shift[1][1] = (float)(shiftY*dimensions.y);
               shift[2][0] = shift[0][0];
               shift[2][1] = shift[1][1];
             } else if((shiftX != 0) && (shiftY == 0) && (shiftZ != 0)) {
-              shift = new float[3][Space3D.D];
+              shift = new float[3][3];
               shift[0][0] = (float)(shiftX*dimensions.x);
               shift[1][2] = (float)(shiftZ*dimensions.z);
               shift[2][0] = shift[0][0];
               shift[2][2] = shift[1][2];
             } else if((shiftX == 0) && (shiftY != 0) && (shiftZ != 0)) {
-              shift = new float[3][Space3D.D];
+              shift = new float[3][3];
               shift[0][1] = (float)(shiftY*dimensions.y);
               shift[1][2] = (float)(shiftZ*dimensions.z);
               shift[2][1] = shift[0][1];
               shift[2][2] = shift[1][2];
             } else if((shiftX != 0) && (shiftY != 0) && (shiftZ != 0)) {
-              shift = new float[7][Space3D.D];
+              shift = new float[7][3];
               shift[0][0] = (float)(shiftX*dimensions.x);
               shift[1][1] = (float)(shiftY*dimensions.y);
               shift[2][2] = (float)(shiftZ*dimensions.z);

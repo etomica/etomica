@@ -85,7 +85,7 @@ public abstract class Potential {
 	 * is being constructed.
 	 * @param p0Lrc The lrc potential to set
 	 */
-	final void setLrc(Potential0Lrc p0Lrc) {
+	public final void setLrc(Potential0Lrc p0Lrc) {
 		this.p0Lrc = p0Lrc;
 	}
 

@@ -4,10 +4,6 @@
  */
 package etomica.math.geometry;
 
-import etomica.Space;
-import etomica.Space3D;
-import etomica.space.Vector;
-
 /**
  * A polyhedron composed of three pairs of rectangular faces placed opposite
  * each other and joined at right angles, also known as a
@@ -29,9 +25,9 @@ public class Cuboid extends Polyhedron {
      */
     public Cuboid(double a, double b, double c) {
         super();
-        vertices = new Vector[8];
+        vertices = new etomica.space3d.Vector[8];
         for (int i = 0; i < vertices.length; i++)
-            vertices[i] = new Vector();
+            vertices[i] = new etomica.space3d.Vector();
         setSize(a, b, c);
     }
 
@@ -49,7 +45,7 @@ public class Cuboid extends Polyhedron {
      * if using them often, but if doing so be careful to update them if any
      * transformations are done to the lattice.
      */
-    public Vector[] vertex() {
+    public etomica.space.Vector[] vertex() {
         vertices[0].E(na, nb, nc);
         vertices[1].E(na, nb, pc);
         vertices[2].E(na, pb, nc);
@@ -65,7 +61,7 @@ public class Cuboid extends Polyhedron {
      * Returns <code>true</code> if the given vector lies inside (or on the
      * surface of) this cell, <code>false</code> otherwise.
      */
-    public boolean inCell(Vector v) {
+    public boolean inCell(etomica.space.Vector v) {
         double x = v.x(0);
         double y = v.x(1);
         double z = v.x(2);
@@ -109,6 +105,6 @@ public class Cuboid extends Polyhedron {
     private double nb, pb;//nb = -b/2, p = +a/2
     private double nc, pc;//nc = -c/2, p = +a/2
 
-    private final Vector[] vertices;
+    private final etomica.space3d.Vector[] vertices;
 
 }

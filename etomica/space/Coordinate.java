@@ -90,7 +90,7 @@ public abstract class Coordinate implements java.io.Serializable {
             public Orientation orientation();
             public Vector angularMomentum(); //angular momentum vector in space-fixed frame
             public Vector angularVelocity(); //angular velocity vector in space-fixed frame
-            public void angularAccelerateBy(Vector v);
+            public void angularAccelerateBy(etomica.space3d.Vector v);
             public double kineticEnergy();
             public void freeFlight(double t);
         }

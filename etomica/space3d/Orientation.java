@@ -16,7 +16,7 @@ public class Orientation extends etomica.space.Orientation {
     }
      //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
      //components in the body-fixed frame
-    private final double[][] A = new double[Space3D.D][Space3D.D];
+    private final double[][] A = new double[3][3];
     private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0, 0.0), new Vector(0.0,1.0,0.0), new Vector(0.0,0.0,1.0)};
     private final double[] angle = new double[3];
     private final Vector orientVector = new Vector(1.0,0.0,0.0);
@@ -24,7 +24,7 @@ public class Orientation extends etomica.space.Orientation {
     private transient double x1,y1,z1;//temp variable
     private transient Vector v1 = new Vector();
     public void E(etomica.space.Orientation o) {E((Orientation)o);}
-    public Vector getOrientation(){return orientVector;}
+    public etomica.space.Vector getOrientation(){return orientVector;}
     public void setOrientation(Vector vect){orientVector.E(vect);}
     public void E(Orientation o) {
       angle[0] = o.angle[0];
@@ -33,7 +33,7 @@ public class Orientation extends etomica.space.Orientation {
       needToUpdateA = true;
       orientVector.E(o.getOrientation());
     }
-    public Vector[] bodyFrame() {return bodyFrame;}
+    public etomica.space.Vector[] bodyFrame() {return bodyFrame;}
     public double[] angle() {return angle;}
     public final void rotateBy(double dt[]) {
         rotateBy(0, dt[0]);

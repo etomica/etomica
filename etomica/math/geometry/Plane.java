@@ -2,9 +2,7 @@
 //(maybe should put this in a Space package hierarchy)
 package etomica.math.geometry;
 
-import etomica.Space3D;
-import etomica.Space;
-import etomica.space.Vector;
+import etomica.space3d.Vector;
 
 /**
  * Class describing a plane occupying a 3-dimensional space.  
@@ -125,7 +123,6 @@ public class Plane {
      * Sets the orientation of the plane to be normal to the given vector.
      */
     public void setNormalVector(Vector n) {
-        if(!(n instanceof Vector)) throw new IllegalArgumentException("Error: Plane.setNormalVector requires 3D vector as argument");
         if(n.squared() == 0.0) throw new IllegalArgumentException("Error: attempt to set orientation of plane with respect to an ill-defined vector");
         a = n.x(0);
         b = n.x(1);

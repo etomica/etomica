@@ -35,7 +35,7 @@ public class CoordinateGroup extends Coordinate {
      * Returns position of group as the position of the first atom in the group.
      * @see etomica.space.Coordinate#position()
      */
-    public Vector position() {
+    public etomica.space.Vector position() {
 		if(firstAtom == null) firstAtom = ((AtomTreeNodeGroup)atom.node).childList.getFirst(); //DAK 
         if(firstAtom == null) {r.E(0.0); return r;}
 		return firstAtom.coord.position();
@@ -45,7 +45,7 @@ public class CoordinateGroup extends Coordinate {
      * expensive, so not appropriate for repeated use.
      * @see etomica.Space.CoordinateGroup#positionCOM()
      */
-	public Vector positionCOM() {
+	public etomica.space.Vector positionCOM() {
         r.E(0.0); double massSum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
@@ -57,7 +57,7 @@ public class CoordinateGroup extends Coordinate {
         else r.DE(massSum);
         return r;
 	}
-    public Vector momentum() {
+    public etomica.space.Vector momentum() {
         p.E(0.0);
         childIterator.reset();
         while(childIterator.hasNext()) {

@@ -13,11 +13,11 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
         Coordinate c2;
         private final Vector dr = new Vector();
         private double dvx, dvy, dvz; //drx, dry, drz;
-        private NearestImageTransformer nearestImageTransformer = Boundary;
+        private NearestImageTransformer nearestImageTransformer = etomica.space.Boundary.NULL;
 
 		public void setNearestImageTransformer(NearestImageTransformer b) {this.nearestImageTransformer = b;}
 		public NearestImageTransformer getNearestImageTransformer() {return nearestImageTransformer;}
-        public void trueReset(Coordinate coord1, Coordinate coord2, double falseTime) {
+        public void trueReset(etomica.space.Coordinate coord1, etomica.space.Coordinate coord2, double falseTime) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
             trueReset(falseTime);
@@ -32,7 +32,7 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
             nearestImageTransformer.nearestImage(dr);
         }
 
-        public void reset(Coordinate coord1, Coordinate coord2) {
+        public void reset(etomica.space.Coordinate coord1, etomica.space.Coordinate coord2) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
             reset();
@@ -72,7 +72,7 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
         ///    return dr.squared();
         }
             
-        public Vector dr() {return dr;}
+        public etomica.space.Vector dr() {return dr;}
         public double dr(int i) {return (i==0) ? dr.x : ((i==1) ? dr.y : dr.z);}
         public double dv(int i) {return (i==0) ? dvx : ((i==1) ? dvy : dvz);}
         public double v2() {return dvx*dvx + dvy*dvy + dvz*dvz;}
@@ -87,7 +87,7 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
             c2.p.y -= impulse*dr.y;
             c2.p.z -= impulse*dr.z;
         }
-        public void truePush(Vector u, double falseTime) {
+        public void truePush(etomica.space.Vector u, double falseTime) {
             c1.p.PE(u);
             c2.p.ME(u);
             

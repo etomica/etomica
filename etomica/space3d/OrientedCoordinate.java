@@ -19,10 +19,10 @@ public class OrientedCoordinate extends Coordinate implements Coordinate.Angular
         super(a);
         I = ((AtomType.SphericalTop)a.type).momentOfInertia();
     }
-    public Vector angularMomentum() {vector.z = L; return vector;}
-    public Vector angularVelocity() {vector.z = L/I[0]; return vector;}
+    public etomica.space.Vector angularMomentum() {vector.z = L; return vector;}
+    public etomica.space.Vector angularVelocity() {vector.z = L/I[0]; return vector;}
     public void angularAccelerateBy(Vector t) {L += t.z;}
-    public Orientation orientation() {return orientation;}
+    public etomica.space.Orientation orientation() {return orientation;}
     public double kineticEnergy() {return super.kineticEnergy() + 0.5*L*L/I[0];}
     public void freeFlight(double t) {
         super.freeFlight(t);

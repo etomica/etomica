@@ -36,8 +36,8 @@ public abstract class Integrator implements java.io.Serializable {
     protected Phase firstPhase;
     protected Phase[] phase;
     protected boolean equilibrating = false;
-    int phaseCount = 0;
-    int phaseCountMax = 1;
+    public int phaseCount = 0;
+    public int phaseCountMax = 1;
     protected int sleepPeriod = 10;
     private final LinkedList intervalListeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];

@@ -27,7 +27,7 @@ public final class SpeciesAgent extends Atom {
     protected final AtomFactory factory;
     
     protected Integrator integrator;
-    AtomLinker.Tab firstLeafAtomTab;
+    public AtomLinker.Tab firstLeafAtomTab;
     
     public SpeciesAgent(Space space, Species s, int nMolecules, AtomTreeNodeGroup parent) {
         super(space, new AtomTypeGroup(null), new NodeFactory(s), 

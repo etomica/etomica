@@ -99,11 +99,11 @@ public abstract class Configuration implements java.io.Serializable {
         initializePositions(iterators);
     }
 
-    public static Vector[] lineLattice(int n, double Lx) {
-        Vector[] r = new Vector[n];
+    public static etomica.space1d.Vector[] lineLattice(int n, double Lx) {
+        etomica.space1d.Vector[] r = new etomica.space1d.Vector[n];
         double delta = Lx/n;
         for(int i=0; i<n; i++) {
-            r[i] = new Vector();
+            r[i] = new etomica.space1d.Vector();
             r[i].setX(0, (i+0.5)*delta);
         }
         return r;
@@ -116,9 +116,9 @@ public abstract class Configuration implements java.io.Serializable {
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public final static Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        Vector[] r = new Vector[n];
-        for(int i=0; i<n; i++) {r[i] = new Vector();}
+    public final static etomica.space2d.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+        etomica.space2d.Vector[] r = new etomica.space2d.Vector[n];
+        for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;
@@ -165,17 +165,17 @@ public abstract class Configuration implements java.io.Serializable {
 	    return r;
     }//end of squareLattice
  
-	public final static Vector[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
-		Vector[] r = new Vector[n];
+	public final static etomica.space2d.Vector[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
+		etomica.space2d.Vector[] r = new etomica.space2d.Vector[n];
 		if(n == 0) return r;
-		Vector com = new Vector();
+		Vector com = new etomica.space2d.Vector();
 		com.E(0.0); // later becomes present Center of Mass
-		Vector dcom = new Vector();
+		Vector dcom = new etomica.space2d.Vector();
 		dcom.E(0.0); // difference in Present COM and Original COM
-		Vector ocom = new Vector();
+		Vector ocom = new etomica.space2d.Vector();
 		ocom.setX(0, Lx);ocom.setX(1, Ly); ocom.TE(0.5); // Original Center Of Mass
                         
-		for(int i=0; i<n; i++) {r[i] = new Vector();}
+		for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector();}
 
 		int moleculeColumns, moleculeRows;
 		double moleculeInitialSpacingX, moleculeInitialSpacingY;

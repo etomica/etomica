@@ -93,7 +93,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 			} else {
 				//return child of basis that is or is above targetAtom (if in hierarchy of basis)
 				//do no looping if not in hierarchy of basis				
-				Atom targetNode = targetAtom.node.childWhereDescendedFrom(basis.node).atom;
+				Atom targetNode = targetAtom.node.childWhereDescendedFrom(basis.node).atom();
 				littleList.clear();
 				littleList.add(targetNode);
 				listIterator.setList(littleList);

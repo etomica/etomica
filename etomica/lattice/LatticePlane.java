@@ -3,7 +3,7 @@ package etomica.lattice;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
-import etomica.space.Vector;
+import etomica.space3d.Vector;
 import etomica.*;
 
 /**
@@ -34,13 +34,13 @@ public class LatticePlane implements AtomFilter {
         space = primitive.space;
         origin = (Vector)space.makeVector();
         millerIndices = new int[space.D()];
-        switch(space.D()) {
-            case 3: plane = new Plane(); break;
-            default: throw new IllegalArgumentException("LatticePlane not defined for other than 3D space");
+        if(space.D() != 3) {
+            throw new IllegalArgumentException("LatticePlane not defined for other than 3D space");
         }
+        plane = new Plane();
         plane.epsilon = 1.0e-2;//tolerance for defining a point to be in the plane
-        normal = space.makeVector();
-        delta = space.makeVector();
+        normal = (Vector)space.makeVector();
+        delta = (Vector)space.makeVector();
         setMillerIndices(h);
     }
     
@@ -65,7 +65,7 @@ public class LatticePlane implements AtomFilter {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
         int currentPosition = getPosition();
         normal.E(0.0);
-        Vector[] b = reciprocal.vectors();
+        etomica.space.Vector[] b = reciprocal.vectors();
         for(int i=0; i<h.length; i++) {
             normal.PEa1Tv1(h[i],b[i]);
             millerIndices[i] = h[i];
@@ -100,7 +100,7 @@ public class LatticePlane implements AtomFilter {
         spacePosition = d;
         delta.E(origin);
         delta.PEa1Tv1(d/Math.sqrt(normal.squared()), normal);
-        plane.moveTo((Vector)delta);
+        plane.moveTo(delta);
     }
     /**
      * Gets the position of the plane as the distance from the
@@ -119,7 +119,7 @@ public class LatticePlane implements AtomFilter {
         delta.E(origin);
 		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI/normal.squared(),normal);
 //		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI,normal);
-        plane.moveTo((Vector)delta);
+        plane.moveTo(delta);
     }
     
     /**
@@ -168,7 +168,7 @@ public class LatticePlane implements AtomFilter {
     public void setOrigin(Vector origin) {
         this.origin.E(origin);
     }
-    public Vector getOrigin() {return origin;}
+    public etomica.space.Vector getOrigin() {return origin;}
     
     /**
      * Changes the direction of the normal vector so that it points

@@ -13,17 +13,17 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
     Coordinate c2;
     private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- this should be changed if cloned vectors use dr; also this makes cloned coordinatePairs not thread-safe
     private double drx, dvx;
-	private NearestImageTransformer nearestImageTransformer = Boundary;
+	private NearestImageTransformer nearestImageTransformer = etomica.space.Boundary.NULL;
 
 	public void setNearestImageTransformer(NearestImageTransformer b) {this.nearestImageTransformer = b;}
 	public NearestImageTransformer getNearestImageTransformer() {return nearestImageTransformer;}		
     public double r2() {return drx*drx;}
-    public void reset(Coordinate coord1, Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
+    public void reset(etomica.space.Coordinate coord1, etomica.space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
         reset();
     }
-    public void trueReset(Coordinate coord1, Coordinate coord2, double falseTime) {
+    public void trueReset(etomica.space.Coordinate coord1, etomica.space.Coordinate coord2, double falseTime) {
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
         trueReset(falseTime);
@@ -54,7 +54,7 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
         dr.x = c2.r.x - c1.r.x + M.x;
         drx = dr.x;
     }
-    public Vector dr() {return dr;}
+    public etomica.space.Vector dr() {return dr;}
     public double dr(int i) {return drx;}
     public double dv(int i) {return dvx;}
     public double v2() {
@@ -69,7 +69,7 @@ public final class CoordinatePair extends etomica.space.CoordinatePair {
         c1.p.x += impulse*drx;
         c2.p.x -= impulse*drx;
     }
-    public void truePush(Vector u, double falseTime) {
+    public void truePush(etomica.space.Vector u, double falseTime) {
         c1.p.PE(u);
         c2.p.ME(u);
         

@@ -40,10 +40,10 @@ public class ConfigurationLinear extends Configuration {
             case 1:
                 return;
             case 2:
-                setOrientation(new Vector(Math.cos(angle[0]),Math.sin(angle[0])));
+                setOrientation(new etomica.space2d.Vector(Math.cos(angle[0]),Math.sin(angle[0])));
                 return;
             case 3:
-                setOrientation(new Vector(Math.sin(angle[1])*Math.cos(angle[0]),
+                setOrientation(new etomica.space3d.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
                                                   Math.sin(angle[1])*Math.sin(angle[0]),
                                                   Math.cos(angle[1])));
                 return;

@@ -229,7 +229,7 @@ public class AtomIteratorTree implements AtomIterator {
         if (iterationDepth == depth) return;
         if(depth < 0) throw new IllegalArgumentException("Error: attempt to set iteration depth to negative value in AtomIteratorTree");
         iterationDepth = depth;
-        if(rootNode != null) setRoot(rootNode.atom);
+        if(rootNode != null) setRoot(rootNode.atom());
         unset();
     }
     /**

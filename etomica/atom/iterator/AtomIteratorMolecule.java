@@ -83,7 +83,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         } else {
             AtomTreeNode moleculeNode = targetAtom.node.childWhereDescendedFrom(speciesAgentNode);
             littleList.clear();
-            if(moleculeNode != null) littleList.add(moleculeNode.atom);
+            if(moleculeNode != null) littleList.add(moleculeNode.atom());
             listIterator.setList(littleList);
         }
     }

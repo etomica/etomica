@@ -31,12 +31,12 @@ public class CoordinateGroup extends Coordinate {
         work.ME(r);//now work vector contains translation vector for COM
         translateBy(work);
     }
-    public Vector position() {
+    public etomica.space.Vector position() {
 		if(firstAtom == null) firstAtom = ((AtomTreeNodeGroup)atom.node).childList.getFirst(); //DAK 
 		if(firstAtom == null) {r.E(0.0); return r;}
 		return firstAtom.coord.position();
 	}
-	public Vector positionCOM() {
+	public etomica.space.Vector positionCOM() {
         r.E(0.0); double massSum = 0.0;
         for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
             r.PEa1Tv1(coord.mass(), coord.positionCOM()); massSum += coord.mass();
@@ -45,7 +45,7 @@ public class CoordinateGroup extends Coordinate {
         r.DE(massSum);
         return r;
     }
-    public Vector momentum() {
+    public etomica.space.Vector momentum() {
         p.E(0.0);
         for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
             p.PE(coord.momentum());

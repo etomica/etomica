@@ -47,12 +47,12 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     //called by update method of superclass
     protected void updateReciprocal() {
         PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal();
-        Vector aStar = (Vector)recip.latticeVectors[0];
-        Vector bStar = (Vector)recip.latticeVectors[1];
-        Vector cStar = (Vector)recip.latticeVectors[2];
-        Vector aVec = (Vector)latticeVectors[0];
-        Vector bVec = (Vector)latticeVectors[1];
-        Vector cVec = (Vector)latticeVectors[2];
+        etomica.space3d.Vector aStar = (etomica.space3d.Vector)recip.latticeVectors[0];
+        etomica.space3d.Vector bStar = (etomica.space3d.Vector)recip.latticeVectors[1];
+        etomica.space3d.Vector cStar = (etomica.space3d.Vector)recip.latticeVectors[2];
+        etomica.space3d.Vector aVec = (etomica.space3d.Vector)latticeVectors[0];
+        etomica.space3d.Vector bVec = (etomica.space3d.Vector)latticeVectors[1];
+        etomica.space3d.Vector cVec = (etomica.space3d.Vector)latticeVectors[2];
         aStar.E(bVec);
         aStar.XE(cVec);
         double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
