@@ -11,12 +11,6 @@ import etomica.action.AtomsetAction;
  * @author David Kofke
  */
  
- /* History of changes
-  * 8/4/02 (DAK) Modified reset(Atom) to set basis to given atom while putting iterator ready for iteration
-  *              Change made while attempting to enable operation of PistonCylinder
-  * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
-  * 08/26/04 (DAK) revised with overhaul of iterators
-  */
 public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     
     /**
@@ -35,9 +29,9 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     /**
      * Defines atom returned by iterator and leaves iterator unset.
      * Call to reset() must be performed before beginning iteration.
+     * If atom is null, hasNext will remain false on reset.
      */
     public void setAtom(Atom a) {
-    	if (a == null) throw new NullPointerException("cannot set a null atom"); 
     	atom[0] = a;
     	unset();
     }
@@ -48,7 +42,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     public int size() {return 1;}
 
 	public void allAtoms(AtomsetAction action) {
-		action.actionPerformed(atom);
+		if(atom[0] != null) action.actionPerformed(atom);
 	}
         
     /**
@@ -73,7 +67,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
      * Resets iterator to a state where hasNext is true.
      */
     public void reset() {
-        hasNext = true; 
+        hasNext = (atom[0] != null); 
     }
     
     /**
