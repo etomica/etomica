@@ -27,7 +27,7 @@ public abstract class Display implements Action, GraphicalElement, java.io.Seria
    private JPanel panel = new JPanel();
     
     protected Phase phase;  //consider removing this and putting in subclasses only as needed
-                            //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph, DisplayToConsole
+                            //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph
     // Constructor
     public Display() {
         setName(NameMaker.makeName(this.getClass()));
