@@ -49,7 +49,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private PhaseAction.Inflate inflater;
     private String name;
     private final Simulation parentSimulation;
-    private final PotentialGroup.Agent potential;
+    private final PotentialMaster.Agent potential;
     private boolean added = false;
     
     public Phase() {
@@ -58,7 +58,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     
     public Phase(Simulation sim) {
         parentSimulation = sim;
-        potential = (PotentialGroup.Agent)sim.masterPotential().makeAgent(this);
+        potential = (PotentialMaster.Agent)sim.potentialMaster().makeAgent(this);
         inflater = new PhaseAction.Inflate(this);
         //don't use setIteratorFactory here to remove any possibility of complications with Observers
         if(sim.space() instanceof IteratorFactory.Maker) {
@@ -80,13 +80,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
             add(new ConfigurationSequential());  //default configuration
         else
             add(new ConfigurationFcc());
-        
-        //Create and register energy meter; 
-        //placed to permit phase to report its potential and kinetic energies
-        energy = new MeterEnergy();
-        energy.setActive(false);    //default has meter inactive, so it does not keep averages or respond to integrator interval events
-        energy.setPhase(this);
-        
+                
         parentSimulation.register(this);
         
     }
@@ -165,7 +159,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
      /**
       * Accessor method for the potential governing all interactions in this phase.
       */
-      public PotentialAgent potential() {return potential;}
+      public PotentialMaster.Agent potential() {return potential;}
      
     /**
      * Sets the boundary object of the phase.
@@ -493,7 +487,7 @@ public void deleteMolecule(Molecule m) {
     
     private IteratorFactory iteratorFactory;
           
-    public transient MeterEnergy energy;
+//    public transient MeterEnergy energy;
         
     public Phase.Monitor integratorMonitor = new Phase.Monitor();
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();

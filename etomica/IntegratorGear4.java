@@ -11,10 +11,12 @@ import etomica.units.*;
  */
 public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
-    AtomPair.Iterator pairIterator;
-    Atom.Iterator atomIterator;
-    AtomPair.Action forceSum;
-    AtomAction verletStep;
+    public String getVersion() {return "IntegratorGear4:01.07.05/"+IntegratorMD.VERSION;}
+
+    protected AtomIterator atomIterator;
+    protected final PotentialCalculation.ForceSum forceSum;
+    private final IteratorDirective allAtoms = new IteratorDirective();
+    protected PotentialAgent phasePotential;
     final Space.Vector work1, work2;
     double zeta = 0.0;
     double chi = 0.0;
@@ -31,16 +33,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     }
     public IntegratorGear4(final Simulation sim) {
         super(sim);
-        
-    //anonymous class
-        forceSum = new AtomPair.Action() {
-            private final Space.Vector f = sim.space.makeVector();
-            public void action(AtomPair pair) {
-                f.E(((Potential.Soft)sim.getPotential(pair)).force(pair));
-                ((IntegratorGear4.Agent)pair.atom1().ia).force.PE(f);
-                ((IntegratorGear4.Agent)pair.atom2().ia).force.ME(f);
-            }
-        };
+        forceSum = new PotentialCalculation.ForceSum(sim.space());
         work1 = sim.space().makeVector();
         work2 = sim.space().makeVector();
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
@@ -51,6 +44,13 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         return info;
     }
 
+          //need to modify to handle multiple-phase issues
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        phasePotential = p.potential();
+        return true;
+    }
+    
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         p1 = dt;
@@ -69,8 +69,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
 	protected void makeIterators(IteratorFactory factory) {
-        pairIterator = factory.makeAtomPairIteratorAll();
-        atomIterator = factory.makeAtomIteratorUp();
+        atomIterator = factory.makeAtomIterator();
     }
     
 //--------------------------------------------------------------
@@ -91,20 +90,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             ((IntegratorGear4.Agent)atomIterator.next().ia).force.E(0.0);
         }
-        //Add in forces on each atom due to interaction with fields acting in the phase
-        for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
-            if(!(f instanceof PotentialField.Soft)) continue;
-            PotentialField.Soft field = (PotentialField.Soft)f;
-            Atom.Iterator iterator = f.getAffectedAtoms();  //iterator for atoms under the influence of this field
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom a = iterator.next();
-                ((IntegratorGear4.Agent)a.ia).force.PE(field.force(a));
-            }
-        }
+        //Compute forces on each atom
+        phasePotential.calculate(allAtoms, forceSum);
         
-        //Add in forces on each atom due to interaction with other atoms in phase
-        pairIterator.allPairs(forceSum);
     }//end of calculateForces
     
     protected void corrector() {
@@ -195,7 +183,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         return new Agent(parentSimulation(),a);
     }
             
-    public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
+    public static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
         public Space.Vector dr1, dr2, dr3, dr4;
@@ -213,22 +201,22 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             dp3 = sim.space().makeVector();
             dp4 = sim.space().makeVector();
         }
+        
+        public Space.Vector force() {return force;}
     }
 
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
-        f.setSize(600,350);
         
 	    IntegratorGear4 integratorGear4 = new IntegratorGear4();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
 //	    speciesDisks1.setMass(1.0);
 	    Phase phase1 = new Phase();
-	    P2LennardJones P2LennardJones1 = new P2LennardJones();  //P2 must follow species until setSpeciesCount is fixed
+	    P2LennardJones P2LennardJones1 = new P2LennardJones();
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    DisplayPlot plot = new DisplayPlot();
-	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
-	    timer.setUpdateInterval(10);
+//	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
+//	    timer.setUpdateInterval(10);
 	    integratorGear4.setTimeStep(0.005);
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
@@ -236,7 +224,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         Meter temp = new MeterTemperature();
         Meter energy = new MeterEnergy();
         energy.setHistorying(true);
-//        plot.setDataSource(energy);
+        plot.setDataSource(energy.getHistory());
         Phase phase = Simulation.instance.phase(0);
         ke.setPhase(phase);
         temp.setPhase(phase);
@@ -253,14 +241,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
                                             
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
-		                                    
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+
+        Potential2.Agent potentialAgent = (Potential2.Agent)P2LennardJones1.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+		
+		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
 }
 

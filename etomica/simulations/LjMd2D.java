@@ -26,18 +26,18 @@ public class LjMd2D extends Simulation {
 	    potential = new P2LennardJones();
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
-//	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-//	    timer.setUpdateInterval(10);
+	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+	    timer.setUpdateInterval(10);
 		setBackground(java.awt.Color.yellow);
-		
-		phase.energy.setHistorying(true);
-		phase.energy.setActive(true);
-		
-		phase.energy.getHistory().setNValues(500);
-		
+
+		MeterEnergy energy = new MeterEnergy();
+		energy.setPhase(phase);
+		energy.setHistorying(true);
+		energy.setActive(true);		
+		energy.getHistory().setNValues(500);		
 		plot = new DisplayPlot(this);
 		plot.setLabel("Energy");
-		plot.setDataSource(phase.energy.getHistory());
+		plot.setDataSource(energy.getHistory());
 		
 		integrator.setSleepPeriod(2);
 		

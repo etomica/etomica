@@ -2,10 +2,14 @@ package etomica;
 
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement {
 
-    AtomPair.Iterator pairIterator;
-    Atom.Iterator atomIterator;
-    AtomPair.Action forceSum;
-    AtomAction verletStep;
+    public String getVersion() {return "IntegratorVerlet:01.07.05/"+IntegratorMD.VERSION;}
+
+    AtomIterator atomIterator;
+    
+    public final PotentialCalculation.ForceSum forceSum;
+    private final IteratorDirective allAtoms = new IteratorDirective();
+    protected PotentialAgent phasePotential;
+    
     Space.Vector work;
                 
     public IntegratorVerlet() {
@@ -13,16 +17,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }
     public IntegratorVerlet(final Simulation sim) {
         super(sim);
-        
-    //anonymous class
-        forceSum = new AtomPair.Action() {
-            private Space.Vector f = sim.space().makeVector();
-            public void action(AtomPair pair) {
-                f.E(((Potential.Soft)parentSimulation().getPotential(pair)).force(pair));
-                ((Agent)pair.atom1().ia).force.PE(f);
-                ((Agent)pair.atom2().ia).force.ME(f);
-            }
-        };
+        forceSum = new PotentialCalculation.ForceSum(sim.space());
         work = sim.space().makeVector();
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }
@@ -32,13 +27,19 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         return info;
     }
 
+          //need to modify to handle multiple-phase issues
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        phasePotential = p.potential();
+        return true;
+    }
+
 	/**
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
 	protected void makeIterators(IteratorFactory factory) {
-        pairIterator = factory.makeAtomPairIteratorAll();
-        atomIterator = factory.makeAtomIteratorUp();
+        atomIterator = factory.makeAtomIterator();
     }
     
         
@@ -53,25 +54,14 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     public void doStep() {
 
+        //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             ((Agent)atomIterator.next().ia).force.E(0.0);
         }
-        //Add in forces on each atom due to interaction with fields acting in the phase
-        for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
-            if(!(f instanceof PotentialField.Soft)) continue;
-            PotentialField.Soft field = (PotentialField.Soft)f;
-            Atom.Iterator iterator = f.getAffectedAtoms();  //iterator for atoms under the influence of this field
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom a = iterator.next();
-                ((Agent)a.ia).force.PE(field.force(a));
-            }
-        }
-        
-        //Add in forces on each atom due to interaction with other atoms in phase
-        pairIterator.allPairs(forceSum);
+        phasePotential.calculate(allAtoms, forceSum);
 
+        //take step
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
@@ -84,14 +74,8 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
         }
-        return;
-    }
+    }//end of doStep
     
-//    private static class forceSum implements AtomPair.Action {
-//        public void action(AtomPair pair) {
-            
-        
-//--------------------------------------------------------------
 
     protected void doReset() {
         atomIterator.reset();
@@ -108,7 +92,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         return new Agent(parentSimulation(),a);
     }
             
-    public final static class Agent implements Integrator.Agent {  //need public so to use with instanceof
+    public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
         public Space.Vector rMrLast;  //r - rLast
@@ -118,6 +102,37 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             force = sim.space().makeVector();
             rMrLast = sim.space().makeVector();
         }
-    }
-}
+        
+        public Space.Vector force() {return force;}
+    }//end of Agent
+    
+    public static void main(String[] args) {
+        
+	    IntegratorVerlet integrator = new IntegratorVerlet();
+	    SpeciesDisks species = new SpeciesDisks();
+	    Phase phase = new Phase();
+	    P2LennardJones potential = new P2LennardJones();
+	    Controller controller = new Controller();
+	    DisplayPhase display = new DisplayPhase();
+	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+	    timer.setUpdateInterval(10);
+
+		MeterEnergy energy = new MeterEnergy();
+		energy.setPhase(phase);
+		energy.setHistorying(true);
+		energy.setActive(true);		
+		energy.getHistory().setNValues(500);		
+		DisplayPlot plot = new DisplayPlot();
+		plot.setLabel("Energy");
+		plot.setDataSource(energy.getHistory());
+		
+		integrator.setSleepPeriod(2);
+		
+		Simulation.instance.elementCoordinator.go();
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+        
+        Simulation.makeAndDisplayFrame(Simulation.instance);
+    }//end of main
+}//end of IntegratorVerlet
 

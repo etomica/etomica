@@ -1,10 +1,17 @@
 package etomica;
 
-public class PotentialGroupMaster extends PotentialGroup {
+/**
+ * Master potential that sits that the top of the hierarchy of
+ * potentials in a simulation.  Agents from master potential form
+ * the base of all potential agents in each phase.
+ *
+ * @author David Kofke
+ */
+public class PotentialMaster extends PotentialGroup {
     
 //    private PotentialGroup parentGroup;
     
-    public PotentialGroupMaster(Simulation sim) {
+    public PotentialMaster(Simulation sim) {
         super(sim);
     }
     
@@ -22,6 +29,16 @@ public class PotentialGroupMaster extends PotentialGroup {
             super(potential, phase);
         }
         
+        /**
+         * Convenience extension of calculate method in PotentialAgent.  This method 
+         * is applied if the PotentialCalculation argument implements PotentialCalculation.Sum.
+         * The method returns this argument so that the sum can be accessed in-line with the call
+         * to the calculate method.
+         */
+        public final PotentialCalculation.Sum calculate(IteratorDirective id, PotentialCalculation.Sum pa) {
+            super.calculate(id, pa);
+            return pa;
+        }
  /*       public void addPotential(PotentialAgent potential) {
             super.addPotential(potential);
             if(potential instanceof PotentialAgent.Hard) {

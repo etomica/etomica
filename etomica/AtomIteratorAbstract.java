@@ -108,14 +108,19 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     }
     
     /**
-     * Resets the iterator to the state it had after the last call to reset(Atom).
+     * Resets the iterator to the begin iteration with its first iterable atom 
+     * Atom is selected to the most recently specified direction.
      * Will not reset to exact state of a prior call to reset(Atom, Atom).
      *
      * @return the atom that will be returned with the first call to next() 
      */
+     //should work for most cases, but should think through more carefully choice
+     //of atom for different values of direction
+     //remember that this is called by reset(IteratorDirective) when id.atomcount = 0
     public Atom reset() {
         applyDirection(); //need to reapply because upListNow may have been changed during previous iteration
-        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
+//        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
+        setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
         return reset(setAtom);
 /*        if(isNeighborIterator) atom = null;
         else if(upListNow) atom = reset(defaultFirstAtom());

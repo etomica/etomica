@@ -4,6 +4,8 @@ import java.util.Random;
 
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
 
+    public String getVersion() {return "IntegratorVelocityVerlet:01.07.05/"+IntegratorMD.VERSION;}
+
     AtomIterator atomIterator;
     
     public final PotentialCalculation.ForceSum forceSum;
@@ -68,7 +70,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             agent.force.E(0.0);
         }
                 
-        //Add in forces on each atom due to interaction with other atoms in phase
+        //Compute forces on each atom
         phasePotential.calculate(allAtoms, forceSum);
         
         //Finish integration step

@@ -30,6 +30,7 @@ public abstract class PotentialAgent implements java.io.Serializable {
         makeDefaultIterator();
     }
     public final Phase parentPhase() {return parentPhase;}
+    public final Potential parentPotential() {return parentPotential;}
         
     public PotentialAgent nextAgent() {return next;}
     public void setNextAgent(PotentialAgent potl) {next = potl;}

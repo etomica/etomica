@@ -10,6 +10,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     private PhaseAction.Inflate inflate1;
     private PhaseAction.Inflate inflate2;
     private final double ROOT;
+    private final IteratorDirective iteratorDirective = new IteratorDirective();
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
     public MCMoveVolumeExchange(IntegratorMC parent) {
         super();
@@ -35,9 +37,9 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2 = new PhaseAction.Inflate(secondPhase);
     }
     
-    //under revision--- does not work for multiatomics, since intramolecular energy is not considered
     public void thisTrial() {
-        double hOld = firstPhase.energy.potential() + secondPhase.energy.potential();
+        double hOld = firstPhase.potential().calculate(iteratorDirective, energy.reset()).sum()
+                    + secondPhase.potential().calculate(iteratorDirective, energy.reset()).sum();
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
         double vRatio = v1Old/v2Old * Math.exp(stepSize*(rand.nextDouble() - 0.5));
@@ -50,7 +52,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2.setScale(Math.pow(v2Scale,ROOT));
         inflate1.attempt();
         inflate2.attempt();
-        double hNew = firstPhase.energy.potential() + secondPhase.energy.potential();
+        double hNew = firstPhase.potential().calculate(iteratorDirective, energy.reset()).sum()
+                    + secondPhase.potential().calculate(iteratorDirective, energy.reset()).sum();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+
                        (firstPhase.moleculeCount+1)*Math.log(v1Scale) +

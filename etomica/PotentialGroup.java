@@ -27,6 +27,7 @@ public class PotentialGroup extends Potential {
         
         public void calculate(IteratorDirective id, PotentialCalculation pc) {
             for(PotentialAgent p=first; p!=null; p=p.nextAgent()) {
+                if(id.excludes(p)) continue; //see if potential is ok with iterator directive
                 p.calculate(id, pc);
             }
         }

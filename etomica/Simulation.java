@@ -39,7 +39,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public Mediator elementCoordinator;
     private HashMap elementLists = new HashMap(16);
-    private final PotentialGroupMaster masterPotential = new PotentialGroupMaster(this);
+    private final PotentialMaster potentialMaster = new PotentialMaster(this);
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
@@ -197,7 +197,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public final LinkedList deviceList() {return deviceList;}
   
     public void register(Simulation.Element element) {
-        if(element == masterPotential || masterPotential == null) return;
+        if(element == potentialMaster || potentialMaster == null) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return;
         if(element instanceof P1Null) return;
@@ -325,7 +325,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         return list;
     }
     
-    public final PotentialGroup masterPotential() {return masterPotential;}
+    public final PotentialGroup potentialMaster() {return potentialMaster;}
             
     /**
      * Accessor of the first species in the linked list of species
@@ -425,26 +425,14 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         public java.awt.Component graphic(Object obj);
     }//end of GraphicalElement
 
-    /**
-     * Method to construct a simple simulation of hard disks.
-     * After this method is called, Simulation.instance will provide a handle to
-     * the constructed simulation.  This feature is meant to show how a simulation
-     * is constructed and accessed, and to provide a convenient instance to
-     * aid testing during development
-     *
-     * @deprecated.  Use a preconstructed extension of Simulation instead.
-     */
-    public static void makeSimpleSimulation() {
-	    IntegratorHard integratorHard1 = new IntegratorHard();
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
-	    Phase phase1 = new Phase();
-///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
-	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
-	    timer.setUpdateInterval(10);
-		Simulation.instance.setBackground(java.awt.Color.yellow);
-    }//end of makeSimpleSimulation
+    public static final void makeAndDisplayFrame(Simulation sim) {
+        javax.swing.JFrame f = new javax.swing.JFrame();
+        f.setSize(600,500);
+        f.getContentPane().add(sim.panel());
+        f.pack();
+        f.show();
+        f.addWindowListener(Simulation.WINDOW_CLOSER);
+    }
     
     public static final java.awt.event.WindowAdapter WINDOW_CLOSER 
         = new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
@@ -462,8 +450,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
-///	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
-///	    timer.setUpdateInterval(10);
+	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
+	    timer.setUpdateInterval(10);
 //        integratorHard.setTimeStep(0.01);
         
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
@@ -472,14 +460,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
         potentialAgent.setIterator(new AtomPairIterator(phase));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
-
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,500);
-        f.getContentPane().add(Simulation.instance.panel());         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(Simulation.WINDOW_CLOSER);
+        Simulation.makeAndDisplayFrame(Simulation.instance);
+        
      //   controller.start();
     }//end of main
 }

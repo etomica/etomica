@@ -7,31 +7,37 @@ package etomica;
  * @author David Kofke
  *
  */
- 
 public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
 
     public String getVersion() {return "IntegratorHardField:01.03.17/"+super.getVersion();}
+    public final PotentialCalculation.ForceSum forceSum;
+    private final IteratorDirective fieldsOnly = new IteratorDirective();
 
     public IntegratorHardField() {
         this(Simulation.instance);
     }
     public IntegratorHardField(Simulation sim) {
         super(sim);
+        forceSum = new PotentialCalculation.ForceSum(sim.space());
+        fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
+            public boolean excludes(PotentialAgent potential) {
+                return !(potential.parentPotential() instanceof Potential1);
+            }
+        });
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Collision-based MD simulation in the presence of a hard external field");
+        EtomicaInfo info = new EtomicaInfo("Collision-based MD simulation in the presence of a constant external field");
         return info;
     }
 
     /**
     * Advances all atom coordinates by tStep, without any intervening collisions.
     * Uses constant-force kinematics.
-    * (as defined in the phase)
     */
     protected void advanceAcrossTimeStep(double tStep) {
         
-        computeForces();
+        calculateForces();
         
         double t2 = 0.5*tStep*tStep;
         for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
@@ -46,34 +52,24 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         }
     }
     
-    private void computeForces() {
-        //Compute all forces
-        for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-            ((Agent)a.ia).force.E(0.0);
-        }
-        //Add in forces on each atom due to interaction with fields acting in the phase
-        for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
-            if(!(f instanceof PotentialField.Soft)) continue;
-            PotentialField.Soft field = (PotentialField.Soft)f;
-            Atom.Iterator iterator = f.getAffectedAtoms();  //iterator for atoms under the influence of this field
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom a = iterator.next();
-                Agent agent = (Agent)a.ia;
-                agent.force.PE(field.force(a));
-                agent.forceFree = false;
-            }
-        }
-    }//end of computeForces
-    
     protected void doReset() {
-        computeForces();
-        if(isothermal) scaleMomenta(Math.sqrt(this.temperature/(firstPhase.kineticTemperature())));
-        Atom.Iterator iterator = firstPhase.iteratorFactory().makeAtomIteratorUp();
-        iterator.reset();
-        while(iterator.hasNext()) {upList(iterator.next());}
-        findNextCollider();
+        calculateForces();
+        super.doReset();
     }
+
+    private void calculateForces() {
+        
+        //Compute all forces
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {   //zero forces on all atoms
+            Agent iagent = (Agent)atomIterator.next().ia;
+            iagent.force.E(0.0);
+            iagent.forceFree = true;
+        }
+        //Compute forces on each atom
+        phasePotential.calculate(fieldsOnly, forceSum);
+        
+    }//end of calculateForces
 
     /**
     * Produces the Agent defined by this integrator.
@@ -95,5 +91,32 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         }
         public final Space.Vector force() {return force;}
     }//end of Agent
+    
+    /**
+     * Sums the force on each iterated atom and adds it to the integrator agent
+     * associated with the atom.
+     * Differs from PotentialCalculation.ForceSum in that only 1-body potentials
+     * are considered, and also sets forceFree flag of Agent appropriately.
+     */
+    public static final class ForceSum implements Potential1Calculation {
+        
+        private final Space.Vector f;
+        public ForceSum(Space space) {
+             f = space.makeVector();
+        }
+        
+        //atom
+        public void calculate(AtomIterator iterator, Potential1 potential) {
+            Potential1Soft potentialSoft = (Potential1Soft)potential;
+            while(iterator.hasNext()) {
+                Atom atom = iterator.next();
+                f.E(potentialSoft.gradient(atom));
+                Agent iagent = ((Agent)atom.ia);
+                iagent.force().PE(f);
+                iagent.forceFree = false;
+            }//end while
+        }//end of calculate
+    }//end ForceSums
+
 }//end of IntegratorHardField
 

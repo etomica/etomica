@@ -12,7 +12,8 @@ import etomica.units.Dimension;
  */
 public class MeterRDF extends MeterFunction implements EtomicaElement {
     
-    private AtomPair.Iterator iterator;
+    private AtomPairIterator iterator;
+    private final IteratorDirective iteratorDirective = new IteratorDirective();
     private double[] vShell;
     private double delr;
     private DataSourceUniform xSource;
@@ -27,28 +28,22 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    setXLabel("r");
 	    setLabel("rdf");
 	    setActive(true);
+	    iterator = AtomPairIterator.NULL;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Tabulates radial distribution function");
         return info;
     }
+    
+    public void setIterator(AtomPairIterator iter) {iterator = iter;}
+    public AtomPairIterator getIterator() {return iterator;}
+    
+    public IteratorDirective getDirective() {return iteratorDirective;}
 
     public Dimension getDimension() {return Dimension.NULL;}
     public Dimension getXDimension() {return Dimension.LENGTH;}
     
-    /**
-     * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
-     * It obtains the necessary iterators from the phase.
-     */
-	protected void setPhaseIteratorFactory(IteratorFactory factory) {
-	    iterator = factory.makeAtomPairIteratorAll();
-	}
-	/**
-	 * Returns true to flag that this meter uses an iterator.
-	 */
-	protected boolean usesPhaseIteratorFactory() {return true;}
-
 	protected void setPhaseBoundary(Space.Boundary b) {
 //	    if(phase == null || phase.boundary() == null) return;
 	    setX(0.0, 0.5*b.dimensions().component(0),nPoints);
@@ -59,11 +54,13 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	protected boolean usesPhaseBoundary() {return true;}
 
     /**
-     * Sets phase, evaluates abscissa values to maximum of half system edge-length, and constructs atom iterator
+     * Sets phase, evaluates abscissa values to maximum 
+     * of half system edge-length, and constructs pair iterator.
      */
 	public void setPhase(Phase p) {
 	    super.setPhase(p);
 	    setX(xMin, xMax, nPoints);
+        iterator = new AtomPairIterator(phase);
 	}
 	
 	/**
@@ -71,7 +68,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 *    For future development: It may be possible to extend to particular atom pairs by changing iterator and using a different normalization
 	 */
 	public double[] currentValue() {
-	    iterator.reset();                           //prepare iterator of atom pairs
+	    iterator.reset(iteratorDirective);          //prepare iterator of atom pairs
 	    for(int i=0; i<nPoints; i++) {y[i] = 0.0;}  //zero histogram
 	    while(iterator.hasNext()) {                 //iterate over all pairs
 	        double r = Math.sqrt(iterator.next().r2()); //compute pair separation
@@ -107,9 +104,6 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 */
 	 public static void main(String[] args) {
 	    
-	    javax.swing.JFrame frame = new javax.swing.JFrame();
-        frame.setSize(600,350);
-	    
 	    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 	    Simulation.instance = sim;
 	    
@@ -120,12 +114,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    
 	    sim.elementCoordinator.go();
 	    
-	    frame.getContentPane().add(sim.panel());
-	    frame.pack();
-	    frame.show();
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+	    Simulation.makeAndDisplayFrame(sim);
 	 }//end of main
 	    
 }

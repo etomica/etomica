@@ -119,31 +119,33 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  //for more general simulations, replace this call with
-                                            //construction of the desired pieces of the simulation
+        Default.ATOM_SIZE = 1.0;                   
+	    IntegratorHard integratorHard = new IntegratorHard();
+	    SpeciesDisks speciesDisks = new SpeciesDisks();
+	    speciesDisks.setNMolecules(300);
+	    Phase phase = new Phase();
+	    Potential2 potential = new P2HardSphere();
+	    Controller controller = new Controller();
+	    DisplayPhase displayPhase = new DisplayPhase();
+	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
+	    timer.setUpdateInterval(10);
         //part that is unique to this demonstration
         Default.BLOCK_SIZE = 20;
         MeterFunction rdf = new MeterRDF();
         rdf.setActive(true);
-        Phase phase = Simulation.instance.phase(0);
         DisplayTableFunction rdfTable = new DisplayTableFunction();
         //end of unique part
-                                            
+        
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+		Simulation.instance.setBackground(java.awt.Color.yellow);
+        Simulation.makeAndDisplayFrame(Simulation.instance);
+        		                                    
         rdfTable.setDataSources(rdf);
 //        rdfTable.setX(rdf.X());
-
-        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }
+    }//end of main
 
 }

@@ -265,20 +265,6 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
     }
 
  */   
-    //*******  Some convenience subclasses of DisplayBox  ************//
-    
-    /**
-     * A display box that presents the current value of the total energy of a phase
-     */
-    public static class Energy extends DisplayBox {
-    
-        public Energy(Phase phase) {
-            super();
-            this.setDatumSource(phase.energy);
-//            this.setUnit(Simulation.unitSystem().energy());
-        }
-    }
-    
     
     /********** Utility method for formatting a double to a string **************/
     

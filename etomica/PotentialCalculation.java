@@ -2,10 +2,14 @@ package etomica;
 
 public interface PotentialCalculation {
     
+    public interface Sum extends PotentialCalculation {
+        public double sum();
+    }
+    
     /**
      * Evaluates the energy summed over all iterated atoms.
      */
-    public static final class EnergySum implements Potential1Calculation, Potential2Calculation {
+    public static final class EnergySum implements PotentialCalculation.Sum, Potential1Calculation, Potential2Calculation {
         
         private double sum = 0.0;
         private final boolean applyLRC;
@@ -13,7 +17,7 @@ public interface PotentialCalculation {
         public EnergySum() {this(false);}
         public EnergySum(boolean applyLRC) {this.applyLRC = applyLRC;}
         
-        public void reset() {sum = 0.0;}
+        public PotentialCalculation.Sum reset() {sum = 0.0; return this;}
         public double sum() {return sum;}
         
         /**
@@ -26,6 +30,7 @@ public interface PotentialCalculation {
         public void calculate(AtomIterator iterator, Potential1 potential) {
             while(iterator.hasNext()) {
                 sum += potential.energy(iterator.next());
+                if(sum >= Double.MAX_VALUE) return;
             }//end while
         }//end of calculate
 
@@ -33,6 +38,7 @@ public interface PotentialCalculation {
         public void calculate(AtomPairIterator iterator, Potential2 potential) {
             while(iterator.hasNext()) {
                 sum += potential.energy(iterator.next());
+                if(sum >= Double.MAX_VALUE) return;
             }//end while
         }//end of calculate
     }//end EnergySum

@@ -4,46 +4,58 @@ import etomica.units.*;
 
 public class MCMoveRotate extends MCMove {
     
- private final Random rand = new Random();
- private Space.Orientation oldOrientation;
- public MCMoveRotate() {
-     setStepSizeMax(Math.PI);
-     setStepSizeMin(0.0);
-     setStepSize(Math.PI/2.0);
-     setPerParticleFrequency(true);
- }
- 
- public void setParentIntegrator(IntegratorMC parent) {
-    super.setParentIntegrator(parent);
-    oldOrientation = parent.parentSimulation().space().makeOrientation();
- }
- 
- public void thisTrial(){   
+    private PotentialAgent phasePotential;
+    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final Random rand = new Random();
+    private Space.Orientation oldOrientation;
+
+    public MCMoveRotate() {
+        setStepSizeMax(Math.PI);
+        setStepSizeMin(0.0);
+        setStepSize(Math.PI/2.0);
+        setPerParticleFrequency(true);
+    }
      
-    double uOld, uNew;
-   
-    if(phase.atomCount==0) {return;}
-    int i = (int)(rand.nextDouble()*phase.atomCount);
-    Atom a = phase.firstAtom();
-    for(int j=i; --j>=0; ) {a = a.nextAtom();}  
-        
-    uOld = phase.potential.energy(a);
-    Space.Orientation orientation = ((Space.Coordinate.Angular)a.coordinate()).orientation(); 
-    oldOrientation.E(orientation);  //save old orientation
-    orientation.randomRotation(stepSize);
-    uNew = phase.potential.energy(a);
-    if(uNew < uOld) {   //accept
-        nAccept++;
-        return;
+          //need to modify to handle multiple-phase issues
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        phasePotential = p.potential();
     }
-    if(uNew >= Double.MAX_VALUE ||  //reject
-        Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
-            // restore the old values of orientation.
-        orientation.E(oldOrientation);
-        return;
+
+    public void setParentIntegrator(IntegratorMC parent) {
+        super.setParentIntegrator(parent);
+        oldOrientation = parent.parentSimulation().space().makeOrientation();
     }
-    nAccept++;   //accept
- }
+     
+    public void thisTrial(){   
+         
+        double uOld, uNew;
+       
+        if(phase.atomCount==0) {return;}
+        int i = (int)(rand.nextDouble()*phase.atomCount);
+        Atom a = phase.firstAtom();
+        for(int j=i; --j>=0; ) {a = a.nextAtom();}  
+            
+        phasePotential.calculate(iteratorDirective.set(a), energy.reset());
+        uOld = energy.sum();
+        Space.Orientation orientation = ((Space.Coordinate.Angular)a.coordinate()).orientation(); 
+        oldOrientation.E(orientation);  //save old orientation
+        orientation.randomRotation(stepSize);
+        phasePotential.calculate(iteratorDirective.set(a), energy.reset());
+        uNew = energy.sum();
+        if(uNew < uOld) {   //accept
+            nAccept++;
+            return;
+        }
+        if(uNew >= Double.MAX_VALUE ||  //reject
+            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
+                // restore the old values of orientation.
+            orientation.E(oldOrientation);
+            return;
+        }
+        nAccept++;   //accept
+    }
 /* 
    public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
@@ -133,5 +145,5 @@ public class MCMoveRotate extends MCMove {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
-   */
+  */ 
 }

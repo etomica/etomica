@@ -29,16 +29,26 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
     }
 
     public Dimension getDimension() {return Dimension.ENERGY;}
+    
+    /**
+     * Iterator directive specifies the atoms for which the potential energy is measured.
+     * Default value measures all atoms in phase.
+     */
+    public void setIteratorDirective(IteratorDirective directive) {iteratorDirective = directive;}
+    
+    /**
+     * Accessor method for iterator directive.
+     */
+    public IteratorDirective getIteratorDirective() {return iteratorDirective;}
       
  /**
-  * Computes total potential energy for all atom pairs in phase
-  * Returns infinity (MAX_VALUE) as soon as overlap is detected
+  * Computes total potential energy for all atom pairs in phase.
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        energy.reset();
-        phase.potential().calculate(iteratorDirective, energy);
-        return energy.sum();
+        double value = phase.potential().calculate(iteratorDirective, energy.reset()).sum();
+        System.out.println("       "+value);
+        return value;
     }
     
-}
+}//end of MeterPotentialEnergy
