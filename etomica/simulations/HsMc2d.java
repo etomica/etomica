@@ -23,25 +23,26 @@ public class HsMc2d extends SimulationGraphic {
     public HsMc2d() {
         super(new Space2D());
  //       super(new etomica.space.continuum.Space(2));
-        setIteratorFactory(new IteratorFactoryCell(this));
+ //       setIteratorFactory(new IteratorFactoryCell(this));
         Simulation.instance = this;
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(integrator);
 	    species = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();
+	    potential.setSpecies(new Species[] {species});
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 	    meterCycles = new MeterCycles(this);
 	    displayCycles = new DisplayBox(this,meterCycles);
 		panel().setBackground(java.awt.Color.yellow);
 	    
-	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
-	    display.setColorScheme(colorSchemeCell);
+//	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
+//	    display.setColorScheme(colorSchemeCell);
 	    
 		elementCoordinator.go();
-	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(phase);
-        colorSchemeCell.setLattice(lattice);
+//	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(phase);
+//        colorSchemeCell.setLattice(lattice);
     }
     
     /**

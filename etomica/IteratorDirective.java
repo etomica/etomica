@@ -404,4 +404,44 @@ public final class IteratorDirective implements java.io.Serializable {
         }
     }//end of PotentialCriterion
     
+	/**
+	 * Sets flag indicating if lrc potentials (long-range correction) should be
+	 * included.
+	 * @return boolean
+	 */
+	public boolean isIncludeLrc() {
+		return includeLrc;
+	}
+
+	/**
+	 * Returns flag indicating if iterator should skip its first iterate.  Not
+	 * acknowledged by all iterators.
+	 * @return boolean
+	 */
+	public boolean isSkipFirst() {
+		return skipFirst;
+	}
+
+	/**
+	 * Sets flag indicating if lrc potentials (long-range correction) should be
+	 * included.
+	 * @param includeLrc The flag value to set
+	 * @return this IteratorDirective, for in-line use of the method.
+	 */
+	public IteratorDirective setIncludeLrc(boolean includeLrc) {
+		this.includeLrc = includeLrc;
+		return this;
+	}
+
+	/**
+	 * Sets flag indicating if iterator should skip its first iterate.  Not
+	 * acknowledged by all iterators.
+	 * @param skipFirst The flag value to set
+	 * @return this IteratorDirective, for in-line use of the method.
+	 */
+	public IteratorDirective setSkipFirst(boolean skipFirst) {
+		this.skipFirst = skipFirst;
+		return this;
+	}
+
 }//end of IteratorDirective    

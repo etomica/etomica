@@ -62,11 +62,11 @@ public class Api1A extends AtomPairIterator {
 
 	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		if(id.atomCount()==0) apiA.all(basis, id, action);
-		else api1.all(basis, id, action);
+		else api1.all(basis, id.setSkipFirst(true), action);
 	}
 	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {
 		if(id.atomCount()==0) apiA.all(basis, id, action);
-		else api1.all(basis, id, action);
+		else api1.all(basis, id.setSkipFirst(false), action);
 	}
 	
 	private AtomPairIterator api1 = AtomPairIterator.NULL;

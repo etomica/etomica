@@ -49,7 +49,13 @@ public class AtomIteratorSinglet extends AtomIterator {
     
 	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null) return;
-		if(id.atomCount()==0 || id.atom1().node.isDescendedFrom(basis)) action.actionPerformed(basis);
+//		action.actionPerformed(basis);
+		if(id.atomCount() == 0 || id.atom1().node.isDescendedFrom(basis)) action.actionPerformed(basis);
+		else {
+			boolean preceeds = id.atom1().seq.preceeds(basis);
+			if((preceeds && id.direction().doUp())
+				|| (!preceeds && id.direction().doDown())) action.actionPerformed(basis);
+		}
 	} 
     
     /**

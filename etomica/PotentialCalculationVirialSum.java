@@ -32,4 +32,12 @@ public class PotentialCalculationVirialSum extends PotentialCalculation
          sum += p2Soft.virial(pair);
     }//end of calculate
     
+	public void actionPerformed(Atom atom) {
+		throw new etomica.exception.MethodNotImplementedException();
+	}
+
+	public void actionPerformed(Atom3 atom3) {
+		throw new etomica.exception.MethodNotImplementedException();
+	}
+
  }//end VirialSum

@@ -12,14 +12,14 @@ package etomica;
  * @author David Kofke
  *
  */
-public class IntegratorHardTempleton extends IntegratorHardAbstract implements EtomicaElement {
+public class IntegratorHard extends IntegratorHardAbstract implements EtomicaElement {
 
 	public String getVersion() {return "IntegratorHard:01.07.08/"+IntegratorHardAbstract.VERSION;}
     
-	private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
-	private static final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
-	private final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
-	private final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
+	protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
+	protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
+	protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
+	protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
 
 	//collision handler is passed to the potential and is notified of each collision
 	//the potential detects.  The collision handler contains the necessary logic to
@@ -45,6 +45,7 @@ public class IntegratorHardTempleton extends IntegratorHardAbstract implements E
         
 		//atom pair
 		public void actionPerformed(AtomPair pair) {
+//			System.out.println("collisionhandlerup "+pair.toString());
 			if(pair.atom1() != atom1) setAtom(pair.atom1()); //need this if doing minimum collision time calculation for more than one atom
 			double collisionTime = p2Hard.collisionTime(pair);
   /*debug* /   System.out.println("      UP "+pair.atom1.toString()+","
@@ -67,6 +68,10 @@ public class IntegratorHardTempleton extends IntegratorHardAbstract implements E
 				aia.setCollision(collisionTime, null, p1Hard);
 			}
 		}//end of calculate(Atom...
+		public void actionPerformed(Atom3 atom3) {
+			throw new etomica.exception.MethodNotImplementedException();
+		}
+
 		public PotentialCalculation set(Potential1 p1) {
 			if(!(p1 instanceof Potential1.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
 			p1Hard = (Potential1.Hard)p1;
@@ -99,6 +104,12 @@ public class IntegratorHardTempleton extends IntegratorHardAbstract implements E
 			}//end if
 //info            System.out.println(" DN: "+count);
 		}//end of actionPerformed
+		public void actionPerformed(Atom atom) {
+//			throw new etomica.exception.MethodNotImplementedException();
+		}
+		public void actionPerformed(Atom3 atom3) {
+			throw new etomica.exception.MethodNotImplementedException();
+		}
 		public PotentialCalculation set(Potential1 p1) {
 			if(!(p1 instanceof Potential1.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
 			p1Hard = (Potential1.Hard)p1;
@@ -111,10 +122,10 @@ public class IntegratorHardTempleton extends IntegratorHardAbstract implements E
 		}
 	} //end of collisionHandlerDown
 
-	public IntegratorHardTempleton() {
+	public IntegratorHard() {
 		this(Simulation.instance);
 	}
-	public IntegratorHardTempleton(Simulation sim) {
+	public IntegratorHard(Simulation sim) {
 		super(sim);
 	}
 

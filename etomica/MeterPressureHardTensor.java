@@ -1,7 +1,7 @@
 package etomica;
 import etomica.units.*;
 
-public class MeterPressureHardTensor extends MeterTensor implements IntegratorHard.CollisionListener {
+public class MeterPressureHardTensor extends MeterTensor implements IntegratorHardAbstract.CollisionListener {
     
     private double[][] virialSum;
     private double t0, t, velocity2;

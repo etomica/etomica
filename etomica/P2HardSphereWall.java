@@ -78,6 +78,7 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
      * Time to collision of sphere and wall, considering that one or both may be under the influence of a constant force.
      */
     public double collisionTime(AtomPair pair) {
+//    	System.out.println("p2hardspherewall "+pair.toString());
         Atom sphere;
         Atom wall;
         if(pair.atom2().type instanceof AtomType.Wall) {

@@ -9,7 +9,6 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 public class MeterRDF extends MeterFunction implements EtomicaElement {
-    
     private AtomPairIterator iterator;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private double[] vShell;

@@ -163,13 +163,13 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	    if(phase != null) oldIntegrator = phase.integrator();
 	    if(oldIntegrator != null) {
 	        oldIntegrator.removeIntervalListener(this);
-	        if(oldIntegrator instanceof IntegratorHard && this instanceof IntegratorHard.CollisionListener) 
-	            ((IntegratorHard)oldIntegrator).removeCollisionListener((IntegratorHard.CollisionListener)this);
+	        if(oldIntegrator instanceof IntegratorHard && this instanceof IntegratorHardAbstract.CollisionListener) 
+	            ((IntegratorHard)oldIntegrator).removeCollisionListener((IntegratorHardAbstract.CollisionListener)this);
 	    }
 	    if(newIntegrator != null) {
 	        newIntegrator.addIntervalListener(this);
-	        if(newIntegrator instanceof IntegratorHard && this instanceof IntegratorHard.CollisionListener) 
-	            ((IntegratorHard)newIntegrator).addCollisionListener((IntegratorHard.CollisionListener)this);
+	        if(newIntegrator instanceof IntegratorHard && this instanceof IntegratorHardAbstract.CollisionListener) 
+	            ((IntegratorHard)newIntegrator).addCollisionListener((IntegratorHardAbstract.CollisionListener)this);
 	    }
 	    this.integrator = newIntegrator;
 	}

@@ -10,18 +10,23 @@ public abstract class Potential1 extends Potential {
     public static String VERSION = "Potential1:01.07.26/"+Potential.VERSION;
     
     protected AtomIterator iterator;
+    private final IteratorDirective localDirective = new IteratorDirective();
     
     public Potential1(PotentialGroup parent) {
         super(1, parent);
         iterator = simulation().iteratorFactory.makeGroupIteratorSequential();
+        localDirective.setSkipFirst(false);
     }
     
 	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
-		switch(id.atomCount()) {
-			case 0: iterator.all(basis, id, (AtomActive)pc.set(this)); break;
-			case 1: singletIterator.all(basis, id, (AtomActive)pc.set(this)); break;
-		}
+		localDirective.copy(id);
+		if(id.atomCount()==1) localDirective.set(IteratorDirective.NEITHER);
+		iterator.all(basis, localDirective, (AtomActive)pc.set(this));
+//		switch(id.atomCount()) {
+//			case 0: iterator.all(basis, id, (AtomActive)pc.set(this)); break;
+//			case 1: singletIterator.all(basis, id, (AtomActive)pc.set(this)); break;
+//		}
 	}//end of calculate
     
 	private final AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();

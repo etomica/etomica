@@ -7,23 +7,32 @@ package etomica;
  * @author David Kofke
  *
  */
-public final class IntegratorHardField extends XIntegratorHard implements EtomicaElement {
+public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
 
     public String getVersion() {return "IntegratorHardField:01.03.17/"+super.getVersion();}
-    public final IntegratorHardField.ForceSum forceSum;
+//    public final IntegratorHardField.ForceSum forceSum;
+	public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective fieldsOnly = new IteratorDirective();
+	
+	private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
+			public boolean excludes(Potential potential) {
+				return (potential instanceof Potential1);
+			}
+	};
 
     public IntegratorHardField() {
         this(Simulation.instance);
     }
     public IntegratorHardField(Simulation sim) {
         super(sim);
-        forceSum = new IntegratorHardField.ForceSum(sim.space());
+        forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential potential) {
                 return !(potential instanceof Potential1);
             }
         });
+        upList.addCriterion(noFieldsCriterion);
+        downList.addCriterion(noFieldsCriterion);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -120,9 +129,10 @@ public final class IntegratorHardField extends XIntegratorHard implements Etomic
     }
      
     /**
-    * Extends IntegratorHard.Agent to hold a force vector.
+    * Extends IntegratorHardAbstract.Agent to hold a force vector.
     */
-    public final static class Agent extends IntegratorHardAbstract.Agent implements Integrator.Agent.Forcible { 
+    public static class Agent extends IntegratorHardAbstract.Agent implements Integrator.Agent.Forcible { 
+    
         public final Space.Vector force;
         public boolean forceFree = true;
         public Agent(Simulation sim, Atom a) {
@@ -138,24 +148,22 @@ public final class IntegratorHardField extends XIntegratorHard implements Etomic
      * Differs from PotentialCalculation.ForceSum in that only 1-body potentials
      * are considered, and also sets forceFree flag of Agent appropriately.
      */
-    public static final class ForceSum extends PotentialCalculation {
+    public static final class PotentialCalculationForceSum extends etomica.PotentialCalculationForceSum {
         
-        private final Space.Vector f;
-        public ForceSum(Space space) {
-             f = space.makeVector();
+        public PotentialCalculationForceSum(Space space) {
+             super(space);
         }
         
-        //atom
-        public void calculate(AtomIterator iterator, Potential1 potential) {
-            Potential1.Soft potentialSoft = (Potential1.Soft)potential;
-            while(iterator.hasNext()) {
-                Atom atom = iterator.next();
-                f.E(potentialSoft.gradient(atom));
-                Agent iagent = ((Agent)atom.ia);
-                iagent.force().ME(f);
-                iagent.forceFree = false;
-            }//end while
-        }//end of calculate
+		public void actionPerformed(Atom atom) {
+			super.actionPerformed(atom);
+			((Agent)atom.ia).forceFree = false;
+		}
+//		public void actionPerformed(AtomPair pair) {
+//			throw new etomica.exception.MethodNotImplementedException();
+//		}
+//		public void actionPerformed(Atom3 atom3) {
+//			throw new etomica.exception.MethodNotImplementedException();
+//		}
     }//end ForceSums
 
 }//end of IntegratorHardField

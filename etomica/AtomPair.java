@@ -45,6 +45,7 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
 	 * @see etomica.AtomSet#contains(Atom)
 	 */
 	public boolean contains(Atom a) {
+	//	return atom2 == a;
 		return atom1 == a || atom2 == a;
 	}
 	/**

@@ -168,7 +168,7 @@ public abstract class MeterScalar extends MeterAbstract implements DataSource.Wr
 	/**
 	 * Interface for a meter that can return a value based on a hard-potential collision.
 	 */
-	public interface Collisional extends IntegratorHard.CollisionListener {
+	public interface Collisional extends IntegratorHardAbstract.CollisionListener {
 	    public double collisionValue(IntegratorHardAbstract.Agent agent);
 	}
 	

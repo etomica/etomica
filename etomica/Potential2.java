@@ -60,8 +60,16 @@ public abstract class Potential2 extends Potential {
 	 * arguments and passes it to setSpecies(Species[]) method.
 	 */
    public void setSpecies(Species s1, Species s2) {
-    	if(s1 == s2) setSpecies(new Species[] {s1});
+    	if(s1 == s2) setSpecies(s1);
     	else setSpecies(new Species[] {s1, s2});
+    }
+    
+	/**
+	 * Convenience method for setting species.  Simply forms array with
+	 * arguments and passes it to setSpecies(Species[]) method.
+	 */
+   public void setSpecies(Species s) {
+    	setSpecies(new Species[] {s});
     }
     
     /**
@@ -73,11 +81,16 @@ public abstract class Potential2 extends Potential {
      * @see etomica.Potential#setSpecies(Species[])
      */
     public void setSpecies(Species[] species) {
-        super.setSpecies(species);
-        if(species.length < 2 || species[0] == species[1]) {
+        if(species.length < 2) {  
+        	super.setSpecies(species);      	
         	iterator = new Api1A(new ApiIntragroup1A(simulation()),
 									new ApiIntragroupAA(simulation()));
+        } else if(species[0] == species[1]) {
+        	super.setSpecies(new Species[] {species[0]});
+			iterator = new Api1A(new ApiIntragroup1A(simulation()),
+									new ApiIntragroupAA(simulation()));        		
         } else {
+			super.setSpecies(species);
 			iterator = new Api1A(new ApiIntergroup1A(simulation()),
 									new ApiIntergroupAA(simulation()));
         }

@@ -23,7 +23,7 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
     private boolean isothermal = false;
     private double temperature;
     private final int D;
-    private double []lastVirial = new double[2];
+    private double[] lastVirial = new double[2];
     
     public P1HardBoundary() {
         this(Simulation.instance.hamiltonian.potential);
@@ -62,7 +62,7 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
         Space.Vector p = a.coord.momentum();
         Space.Vector dimensions = a.node.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
-        for(int i=r.length(); i>=0; i--) {
+        for(int i=r.length()-1; i>=0; i--) {
             double px = p.x(i);
             if(px == 0.0) continue;
             double rx = r.x(i);
@@ -75,9 +75,6 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
                 
 //    public void bump(IntegratorHardAbstract.Agent agent) {
 //        Atom a = agent.atom();
-    public void bump(AtomPair pair) {
-        bump(pair.atom1());
-    }
     public void bump(Atom a) {
         Space.Vector r = a.coord.position();
         Space.Vector p = a.coord.momentum();
@@ -85,7 +82,7 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
-        for(int i=r.length(); i>=0; i--) {
+        for(int i=r.length()-1; i>=0; i--) {
             double rx = r.x(i);
             double px = p.x(i);
             double dx = dimensions.x(i);

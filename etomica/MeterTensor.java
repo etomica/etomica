@@ -136,10 +136,10 @@ public abstract class MeterTensor extends MeterAbstract {
 	    public Space.Tensor currentValue(Atom a);
 	}
 	
-	public interface Collisional extends IntegratorHard.CollisionListener {
-	    public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent);
-	}
-    
+//	public interface Collisional extends IntegratorHardAbstract.CollisionListener {
+//	    public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent);
+//	}
+//    
     
    /**
     * Creates a table to display the values of the tensor.  

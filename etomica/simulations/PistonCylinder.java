@@ -32,8 +32,8 @@ public class PistonCylinder extends SimulationGraphic {
 	    potential = new P2HardSphere();
 	    potential.setSpecies(species, species);
 	    
-	    Potential2Group potentialDiskPC = new Potential2Group();
-	    potentialDiskPC.setSpecies(species, speciesPC);
+	    PotentialGroup potentialDiskPC = new PotentialGroup(2);
+	    potentialDiskPC.setSpecies(new Species[] {species, speciesPC});
 	    
 	    potentialHardDiskWall = new P2HardSphereWall(potentialDiskPC, Default.ATOM_SIZE);
 //	    potentialHardDiskWall.setIterator(new ApiGeneral(Simulation.instance.space,

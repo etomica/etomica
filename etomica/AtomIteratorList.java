@@ -145,7 +145,11 @@ public final class AtomIteratorList extends AtomIterator {
 			AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(basis.node);
 			if(referenceNode == null) {//atom not descended from basis
 				boolean preceed = atom.seq.preceeds(basis);
-				first = ((preceed && upListNow) || (!preceed && doGoDown)) ? atom.seq : (AtomLinker)header;
+//				if(preceed && upListNow) first = header.next;
+//				else if(!preceed && doGoDown) first = header.previous;
+//				else return;
+				//following statement is equivalent in effect to the above if-else block
+				first = (preceed && upListNow) ? header.next : (!preceed && doGoDown) ? header.previous : (AtomLinker)header;
 				terminator = header;
 			} else {//atom descended from basis
 				first = referenceNode.atom.seq;

@@ -215,6 +215,14 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public void setBasis(Atom a) {
             setAtom(((AtomTreeNodeGroup)a.node).firstLeafAtom());
         }
+        
+		/**
+		 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
+		 */
+		public void all(Atom basis, IteratorDirective id, AtomActive action) {
+			super.all(((AtomTreeNodeGroup)basis.node).firstLeafAtom(), id, action);
+		}
+
     }
     
     //implementation of Potential2.Hard interface, which is done because this field is sometimes

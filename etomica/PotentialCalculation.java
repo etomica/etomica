@@ -1,6 +1,6 @@
 package etomica;
 
-public class PotentialCalculation implements AtomSetActive,
+public abstract class PotentialCalculation implements AtomSetActive,
 											 PhaseActive,
 											 AtomActive,
 											 AtomPairActive,
@@ -37,7 +37,14 @@ public class PotentialCalculation implements AtomSetActive,
 		potential3 = p3;
 		return this;
 	}
-	public void actionPerformed(Phase phase) {}
+	
+//	/**
+//	 * Performs the atom-action on the species master of the phase.
+//	 * @see etomica.PhaseActive#actionPerformed(Phase)
+//	 */
+	public void actionPerformed(Phase phase) {
+//		actionPerformed(phase.speciesMaster);//problem with lrc in soft md if doing this
+	}
 	
 	public void actionPerformed(AtomSet atomSet) {
 		switch(atomSet.nBody()) {
@@ -47,11 +54,11 @@ public class PotentialCalculation implements AtomSetActive,
 		}
 	}
  	   
-	public void actionPerformed(Atom atom) {}
+	public abstract void actionPerformed(Atom atom);
     
-	public void actionPerformed(AtomPair pair) {}
+	public abstract void actionPerformed(AtomPair pair);
 	
-	public void actionPerformed(Atom3 atom3) {}
+	public abstract void actionPerformed(Atom3 atom3);
 
 	/**
 	 * @see etomica.AtomPairActive#innerWrapper()
@@ -65,20 +72,26 @@ public class PotentialCalculation implements AtomSetActive,
 	
 	public final PotentialGroupWrapper wrapper() {
 		if(firstWrapper == null) {
-			return new PotentialGroupWrapper();
+			return new PotentialGroupWrapper(this);
 		} else {
 			PotentialGroupWrapper wrapper = firstWrapper;
 			firstWrapper = wrapper.next;
+			wrapper.potentialCalculation = this;
 			return wrapper;
 		}		
 	}
 	
 	private PotentialGroupWrapper firstWrapper = null;
 	
-	public final class PotentialGroupWrapper extends PotentialCalculation {
+	public static final class PotentialGroupWrapper extends PotentialCalculation {
 		private PotentialGroupWrapper next;
 		public final IteratorDirective localDirective = new IteratorDirective();
 		private PotentialGroup potential;
+		private PotentialCalculation potentialCalculation;
+		
+		PotentialGroupWrapper(PotentialCalculation calculation) {
+			potentialCalculation = calculation;
+		}
 		
 		public PotentialGroupWrapper set(PotentialGroup pg) {
 			potential = pg;
@@ -86,8 +99,8 @@ public class PotentialCalculation implements AtomSetActive,
 		}
 		
 		public void release() {
-			next = firstWrapper;
-			firstWrapper = this;
+			next = potentialCalculation.firstWrapper;
+			potentialCalculation.firstWrapper = this;
 		}
 		public void actionPerformed(AtomSet atomSet) {
 			if(potential.potentialTruncation != null && potential.potentialTruncation.isZero(atomSet)) return;                
@@ -100,9 +113,24 @@ public class PotentialCalculation implements AtomSetActive,
 			//loop over sub-potentials
 			for(PotentialLinker link=potential.first; link!=null; link=link.next) {
 				if(localDirective.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-				link.potential.calculate(atomSet, localDirective, PotentialCalculation.this);
+				link.potential.calculate(atomSet, localDirective, potentialCalculation);
 			}//end for	    	
 		}
+
+		/**
+		 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
+		 */
+		public void actionPerformed(Atom atom) {this.actionPerformed((AtomSet)atom);}
+
+		/**
+		 * @see etomica.Atom3Active#actionPerformed(etomica.Atom3)
+		 */
+		public void actionPerformed(Atom3 atom3) {this.actionPerformed((AtomSet)atom3);}
+
+		/**
+		 * @see etomica.AtomPairActive#actionPerformed(etomica.AtomPair)
+		 */
+		public void actionPerformed(AtomPair pair) {this.actionPerformed((AtomSet)pair);}
 
 	}
 	    

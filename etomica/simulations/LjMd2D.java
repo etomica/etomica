@@ -20,11 +20,12 @@ public class LjMd2D extends SimulationGraphic {
     public LjMd2D() {
         super(new Space2D());
    //     super(new etomica.space.continuum.Space(2));
-        setIteratorFactory(new IteratorFactoryCell(this));
+   //     setIteratorFactory(new IteratorFactoryCell(this));
         Simulation.instance = this;
 	    phase = new Phase(this);
 	    species = new SpeciesSpheresMono(this);
 	    potential = new P2LennardJones();
+	    potential.setSpecies(species, species);
 	    controller = new Controller(this);
 	    integrator = new IntegratorVelocityVerlet(this);
 	    display = new DisplayPhase(this);
@@ -42,7 +43,7 @@ public class LjMd2D extends SimulationGraphic {
 		
 		plot = new DisplayPlot(this);
 		plot.setLabel("Energy");
-		plot.setDataSource(energy.getHistory());
+		plot.setDataSources(energy.getHistory());
 		
 		integrator.setSleepPeriod(2);
 		

@@ -6,7 +6,7 @@ package etomica;
  *
  * @author Rob Riggleman
  */
-public class MeterProfileHard extends MeterProfile implements IntegratorHard.CollisionListener, EtomicaElement {
+public class MeterProfileHard extends MeterProfile implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
     
     private MeterScalar.Collisional cMeter;
     private int nCollisions;

@@ -19,7 +19,7 @@ public class HSMD2D extends SimulationGraphic {
 
     public HSMD2D() {
   //      super(new etomica.space.continuum.Space(2));
-        super(new Space3D());
+        super(new Space2D());
   //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
         Simulation.instance = this;
 	    integrator = new IntegratorHard(this);

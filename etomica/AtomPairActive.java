@@ -58,6 +58,7 @@ public interface AtomPairActive extends AtomSetActive {
 				actionPerformed((Atom)atomSet);
 			}
 			public void actionPerformed(Atom a) {
+//				System.out.println("atompairactive.innerwrapper "+a.toString());
 				pair.atom2 = a;
 				pair.reset();
 				action.actionPerformed(pair);
@@ -83,6 +84,7 @@ public interface AtomPairActive extends AtomSetActive {
 				actionPerformed((Atom)atomSet);
 			}
 			public void actionPerformed(Atom a) {
+//				System.out.println("atompairactive.outerwrapper "+a.toString());
 				wrapper.pair.atom1 = a;
 				directive.skipFirst = innerSkipFirst;
 				aiInner.all(innerBasis, directive.set(a), wrapper);
