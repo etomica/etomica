@@ -70,6 +70,7 @@ public class Species {
             Simulation.getDefault().register(this);
         }
         setName(NameMaker.makeName(this.getClass()));
+        index = instanceCount++;
     }
     
     /**
@@ -79,7 +80,11 @@ public class Species {
     public Species(Space space, Model model) {
     	this(model.makeAtomFactory(space));
     }
-                  
+
+    public int getIndex() {
+        return index;
+    }
+    
     /**
      * Accessor method of the name of this phase
      * 
@@ -199,6 +204,8 @@ public class Species {
     protected final AtomFactory factory;
     protected Model model;
     private String name;
+    private int index;
+    private static int instanceCount;
 
     /**
      * Class that keeps a list of all agents in a way that
