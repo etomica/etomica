@@ -12,6 +12,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
 //    public final IntegratorHardField.ForceSum forceSum;
 	public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective fieldsOnly = new IteratorDirective();
+    private final Space space;
 	
 	private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
 			public boolean excludes(Potential potential) {
@@ -19,11 +20,12 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
 			}
 	};
 
-    public IntegratorHardField() {
-        this(Simulation.instance);
+    public IntegratorHardField(PotentialMaster potentialMaster) {
+        this(potentialMaster,Simulation.getDefault().space);
     }
-    public IntegratorHardField(Simulation sim) {
-        super(sim);
+    public IntegratorHardField(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        this.space = space;
         forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential potential) {
@@ -124,7 +126,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
     public final Object makeAgent(Atom a) {
-        return new Agent(simulation(),a);
+        return new Agent(space,a);
     }
      
     /**
@@ -134,9 +136,9 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     
         public final Space.Vector force;
         public boolean forceFree = true;
-        public Agent(Simulation sim, Atom a) {
+        public Agent(Space space, Atom a) {
             super(a);
-            force = sim.space().makeVector();
+            force = space.makeVector();
         }
         public final Space.Vector force() {return force;}
     }//end of Agent
@@ -153,16 +155,14 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
              super(space);
         }
         
-		public void actionPerformed(Atom atom) {
-			super.actionPerformed(atom);
-			((Agent)atom.ia).forceFree = false;
+		public void doCalculation(AtomsetIterator iterator, Potential potential) {
+			super.doCalculation(iterator,potential);
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom[] atoms = iterator.next();
+                ((Agent)atoms[0].ia).forceFree = false;
+            }
 		}
-//		public void actionPerformed(AtomPair pair) {
-//			throw new etomica.exception.MethodNotImplementedException();
-//		}
-//		public void actionPerformed(Atom3 atom3) {
-//			throw new etomica.exception.MethodNotImplementedException();
-//		}
     }//end ForceSums
 
 }//end of IntegratorHardField
