@@ -65,8 +65,7 @@ public class MCMoveMolecule extends MCMove {
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar(phase);
-        translationVector.setRandomCube();
-        translationVector.TE(stepSize);
+        translationVector.setRandom(stepSize);
         moveMoleculeAction.actionPerformed(molecule);
         uNew = Double.NaN;
         return true;

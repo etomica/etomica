@@ -70,9 +70,7 @@ public class BoundaryNone extends Boundary {
      * @see etomica.space.Boundary#randomPosition()
      */
     public Vector randomPosition() {
-        temp.setRandomCube();
-        temp.PE(0.5);
-        temp.TE(dimensions);
+        temp.setRandom(dimensions);
         return temp;
     }
 

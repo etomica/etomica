@@ -33,9 +33,7 @@ public class BoundaryPeriodicSquare extends Boundary {
     }
 
     public etomica.space.Vector randomPosition() {
-        temp.setRandomCube();
-        temp.PE(0.5);
-        temp.TE(dimensions);
+        temp.setRandom(dimensions);
         return temp;
     }
 
