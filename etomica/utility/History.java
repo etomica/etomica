@@ -4,6 +4,8 @@
  */
 package etomica.utility;
 
+import etomica.DataSource;
+
 /**
  * @author kofke
  *
@@ -19,7 +21,7 @@ public interface History {
 
 	public void addValue(double x);
 
-	public double[] xValues();
+	public DataSource getXSource();
 
 	public double[] getHistory();
 	

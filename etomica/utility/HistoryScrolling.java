@@ -3,6 +3,9 @@
  */
 package etomica.utility;
 
+import etomica.DataSource;
+import etomica.data.DataSourceUniform;
+
 /**
  * History that records a number of values, with new ones replacing the
  * earliest ones when the record is full.  The data returned by the
@@ -15,6 +18,10 @@ public class HistoryScrolling implements History {
     
     public HistoryScrolling() {this(100);}
     public HistoryScrolling(int n) {
+        xSource = new DataSourceUniform();
+        xSource.setTypeMin(DataSourceUniform.INCLUSIVE);
+        xSource.setTypeMax(DataSourceUniform.INCLUSIVE);
+        xSource.setXMin(0.0);
 	    setHistoryLength(n);
 	    reset();
     }
@@ -25,12 +32,8 @@ public class HistoryScrolling implements History {
     public void setHistoryLength(int n) {
     	int originalLength = getHistoryLength();
     	if (n==originalLength) return;
-    	xTemp = new double[n];
-    	for (int i=0; i<n; i++) {
-    		xTemp[i] = Double.NaN;
-    	}
-    	// calling getHistory() fills the temp array
-    	getHistory();
+    	xSource.setNValues(n);
+        xSource.setXMax(n);
         history = new double[n];
         if (n > originalLength) {
         	System.arraycopy(temp,0,history,0,originalLength);
@@ -54,10 +57,13 @@ public class HistoryScrolling implements History {
 	    int nValues = getHistoryLength();
 	    for(int i=0; i<nValues; i++) {
 	        history[i] = Double.NaN;
-	        xTemp[i] = Double.NaN;
 	    }
 	    cursor = 0;
 	}
+    
+    public DataSource getXSource() {
+        return xSource;
+    }
 	
     public void addValue(double x) {
         history[cursor] = x;
@@ -77,16 +83,7 @@ public class HistoryScrolling implements History {
 		
 		return temp;
     }
-    
-	public double[] xValues() {
-		int nValues = getHistoryLength();
-		xTemp[nValues-1] = count;
-		for (int i=nValues-2; i>-1 && xTemp[i+1]>1; i--) {
-			xTemp[i] = xTemp[i+1] - 1;
-		}
-		return xTemp;
-	}
-	
+    	
 	/**
 	 * Factory that creates an instance of this class.
 	 */
@@ -99,7 +96,7 @@ public class HistoryScrolling implements History {
     private double[] history = new double[0];
     private int cursor;
 	private double[] temp = new double[0];
-	private double[] xTemp;
+    private final DataSourceUniform xSource;
 	private int count=0;
 
 }
