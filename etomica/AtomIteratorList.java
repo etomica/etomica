@@ -124,6 +124,7 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
     
     /**
      * Sets iteration to be in the given direction and unsets iterator.
+     * A null argument has the same effect as UP.
      */
     public void setDirection(IteratorDirective.Direction direction) {
         upList = (direction == IteratorDirective.UP) || (direction == null);
