@@ -10,7 +10,7 @@ package etomica;
   
 public class MCMoveRotate extends MCMove {
     
-    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final Space.Orientation oldOrientation;
 
@@ -26,15 +26,15 @@ public class MCMoveRotate extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         setPerParticleFrequency(true);
-        iteratorDirective.includeLrc = false;
+        energyMeter.setIncludeLrc(false);
     }
      
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {return false;}
         molecule = phase.randomMolecule();
 
-        potential.calculate(phase, iteratorDirective.set(molecule), energy.reset());
-        uOld = energy.sum();
+        energyMeter.setTarget(molecule);
+        uOld = energyMeter.getDataAsScalar(phase);
         orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
@@ -45,8 +45,8 @@ public class MCMoveRotate extends MCMove {
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        potential.calculate(phase, iteratorDirective.set(molecule), energy.reset());
-        uNew = energy.sum();
+        energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar(phase);
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -60,7 +60,7 @@ public class MCMoveRotate extends MCMove {
     
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setBasis(molecule);
+        affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
