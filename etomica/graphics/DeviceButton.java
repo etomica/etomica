@@ -1,7 +1,12 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 
+import etomica.Action;
+import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 
@@ -11,33 +16,24 @@ import etomica.EtomicaInfo;
  * @author David Kofke
  */
  
- /* History of changes
-  * 07/03/02 (DAK/SKK) Added constructor that takes space as an argument, not registering button with a simulation.
-  * 08/30/02 (DAK) Added default colors from DefaultGraphic
-  * 10/07/02 (DAK) Removed default colors, now using UIManager for color defaults
-  */
 public class DeviceButton extends Device implements EtomicaElement {
     
-    private ActionGraphic action;
-    private JButton button;
-    
-    public DeviceButton() {
-        super();
+    /**
+     * Constructs button that is not connected to any action.  Subsequent
+     * call to setAction is needed to make the button do something.
+     * @param controller
+     */
+    public DeviceButton(Controller controller) {
+        super(controller);
         button = new JButton();
     }
     
     /**
      * Constructs a button connected to the given action.
      */
-    public DeviceButton(ActionGraphic action) {
-        this();
+    public DeviceButton(Controller controller, Action action) {
+        this(controller);
         setAction(action);
-    }
-    /**
-     * Connects button to given action.
-     */
-    public DeviceButton(etomica.Action action) {
-        this(new ActionGraphic(action));
         setLabel(action.getLabel());
     }
     
@@ -47,12 +43,24 @@ public class DeviceButton extends Device implements EtomicaElement {
         return info;
     }
     
-    public etomica.Action getAction() {return action;}
-    public void setAction(ActionGraphic newAction) {
-        if(action != null) button.removeActionListener(action);
-        action = newAction;
-        button.addActionListener(action);
-        button.setText(action.getLabel());
+    /**
+     * Returns the currently defined action associated with the button.
+     */
+    public etomica.Action getAction() {return targetAction;}
+
+    /**
+     * Defines the action to be performed when the button is pressed.
+     */
+    public void setAction(Action newAction) {
+        if(buttonAction != null) button.removeActionListener(buttonAction);
+        if(newAction == null) return;
+        targetAction = newAction;
+        buttonAction = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                doAction();
+            }
+        };
+        button.addActionListener(buttonAction);
     }
     
     /**
@@ -72,26 +80,28 @@ public class DeviceButton extends Device implements EtomicaElement {
     public String getLabel() {return button.getText();}
     
     /**
-     * @return a handle to the JSlider instance used by this slider device
+     * @return a handle to the JButton instance used by this device
      */
     public JButton getButton() {return button;}
+    
+    private ActionListener buttonAction;
+    private JButton button;
     
     /**
      * Method to demonstrate and test the use of this class.  
      * Slider is used to control the temperature of a hard-sphere MD simulation
      */
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
+        final SimulationGraphic graphic = new SimulationGraphic(sim);
         
         //here's the part unique to this class
         etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);
-        DeviceButton button = new DeviceButton(action);
+        DeviceButton button = new DeviceButton(sim.getController(),action);
         //end of unique part
- 
-        sim.elementCoordinator.go();
-        Simulation.makeAndDisplayFrame(sim);
+        graphic.add(button);
+        graphic.makeAndDisplayFrame();
     }
-    */
+    
 }

@@ -61,12 +61,11 @@ public class DeviceTrioControllerButton extends Device {
                              ,new java.awt.Font(null,java.awt.Font.BOLD,15)
                              ,java.awt.Color.black));
                              */
-        button1 = new DeviceControllerButton(simulation.getController());
-        button2 = new DeviceButton();
-        button2.setAction(new ActionGraphic(simReset));
+        Controller controller = simulation.getController();
+        button1 = new DeviceControllerButton(controller);
+        button2 = new DeviceButton(controller, simReset);
         
-        button3 = new DeviceButton();
-        button3.setAction(new ActionGraphic(resetAccumulators));
+        button3 = new DeviceButton(controller, resetAccumulators);
         
         jp.add(button1.graphic()); 
         jp.add(button2.graphic());  
