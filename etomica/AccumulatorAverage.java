@@ -31,20 +31,23 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
      */
     public void add(double[] value) {
     	if(value.length != nData) setNData(value.length);
-    	for(int i=nDataMinus1; i>=0; i--) {       		
-    		mostRecent[i] = value[i];
+    	for(int i=nDataMinus1; i>=0; i--) {
+            double v = value[i];
+    		mostRecent[i] = v;
 //				if(Double.isNaN(value[i])) continue;				
-			blockSum[i] += value[i];
-			
+			blockSum[i] += v;
+			blockSumSq[i] += v*v;
     	}
 		if(--blockCountDown == 0) {//count down to zero to determine completion of block
 	       	for(int i=nDataMinus1; i>=0; i--) {       		
 				blockSum[i] /= blockSize;//compute block average
 			    sum[i] += blockSum[i];
 			    sumSquare[i] += blockSum[i]*blockSum[i];
+                sumSquareBlock[i] += blockSumSq[i];
 	            //reset blocks
 	            mostRecentBlock[i] = blockSum[i];
 	            blockSum[i] = 0.0;
+                blockSumSq[i] = 0.0;
 			}
 		    count++;
             blockCountDown = blockSize;
@@ -59,8 +62,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
         if(count+blockCount == 0) setNaN(average);
         else {
 	       	for(int i=nDataMinus1; i>=0; i--) {
-	        	average[i] = sum[i]/(double)count;
-//		            average[i] = (sum[i] + blockSum[i]/blockSize)/(double)(count + (double)blockCount/(double)blockSize) 
+	        	average[i] = sum[i]/count;
 	        }
         }
         return average;
@@ -72,8 +74,8 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     public double[] error() {
     	if(count > 1) {
            	for(int i=nDataMinus1; i>=0; i--) {
-		        double avg = sum[i]/(double)count;	    		
-		        error[i] = Math.sqrt((sumSquare[i]/(double)count - avg*avg)/(double)(count-1));	    		
+		        double avg = sum[i]/count;	
+		        error[i] = Math.sqrt((sumSquare[i]/count - avg*avg)/(count-1));	    		
 	    	}
     	} else {
     		setNaN(error);
@@ -86,9 +88,9 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
      */
      public double[] standardDeviation() {
      	if(count > 0) {
-           	for(int i=nDataMinus1; i>=0; i--) {       		
-           		double avg = sum[i]/(double)count;
-           		standardDeviation[i] = Math.sqrt(sumSquare[i]/(double)count - avg*avg);
+           	for(int i=nDataMinus1; i>=0; i--) {
+           		double avg = sum[i]/count;
+           		standardDeviation[i] = Math.sqrt(sumSquareBlock[i]/(count*blockSize) - avg*avg);
            	}
      	} else setNaN(standardDeviation);
      	return standardDeviation;
@@ -123,9 +125,11 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
         count = 0;
         setZero(sum);
         setZero(sumSquare);
+        setZero(sumSquareBlock);
         setNaN(error);
         blockCountDown = blockSize;
         setZero(blockSum);
+        setZero(blockSumSq);
         setNaN(mostRecent);
         setNaN(mostRecentBlock);
     }
@@ -135,10 +139,12 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     	nDataMinus1 = nData-1;
     	sum = redimension(nData, sum);
     	sumSquare = redimension(nData, sumSquare);
+        sumSquareBlock = redimension(nData, sumSquareBlock);
     	standardDeviation = redimension(nData, standardDeviation);
     	average = redimension(nData, average);
     	error = redimension(nData, error);
     	blockSum = redimension(nData, blockSum);
+        blockSumSq = redimension(nData, blockSumSq);
     	mostRecent = redimension(nData, mostRecent);
     	mostRecentBlock = redimension(nData, mostRecentBlock);
     	if(!saveOnRedimension) reset();
@@ -190,10 +196,10 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 	 * Used primarily by Display objects.
 	 */
 	public static class Type extends etomica.DataType {
-        private Type(String label) {super(label);}       
+        protected Type(String label) {super(label);}       
         public Constants.TypedConstant[] choices() {return CHOICES;}
     }//end of ValueType
-    private static final Type[] CHOICES = 
+    protected static final Type[] CHOICES = 
         new Type[] {
             new Type("Average"), new Type("67% Confidence limits"),
             new Type("Latest value"),
@@ -219,7 +225,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 		if(saveOnRedimension) throw new IllegalArgumentException("Save on redimension not yet implemented correctly");
 	}
 	
-    protected double[] sum, sumSquare, blockSum;
+    protected double[] sum, sumSquare, blockSum, blockSumSq, sumSquareBlock;
     protected double[] mostRecent;
     protected double[] mostRecentBlock;
     protected double[] average, error, standardDeviation;
