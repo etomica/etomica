@@ -4,7 +4,12 @@
  */
 package etomica.nbr;
 
-import etomica.*;
+import etomica.Atom;
+import etomica.AtomArrayList;
+import etomica.AtomSequencer;
+import etomica.AtomTreeNodeGroup;
+import etomica.Potential;
+import etomica.utility.Arrays;
 
 /**
  * Sequencer used to maintain neighbor lists.  Holds lists of atoms
@@ -55,14 +60,8 @@ public class AtomSequencerNbr extends AtomSequencer {
 	public int addPotential(Potential p) {
 		int index = atom.type.getNbrManagerAgent().addPotential(p);
 		if (index > upList.length-1) {
-			AtomArrayList[] newList = new AtomArrayList[upList.length+1];
-			System.arraycopy(upList, 0, newList, 0, upList.length);
-			newList[upList.length] = new AtomArrayList();
-			upList = newList;
-			newList = new AtomArrayList[downList.length+1];
-			System.arraycopy(downList, 0, newList, 0, downList.length);
-			newList[downList.length] = new AtomArrayList();
-			downList = newList;
+            upList = (AtomArrayList[])Arrays.addObject(upList, new AtomArrayList());
+            downList = (AtomArrayList[])Arrays.addObject(downList, new AtomArrayList());
 		}
 		return index;
 	}
