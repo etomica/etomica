@@ -1,6 +1,5 @@
 package etomica.data.meter;
 import etomica.Phase;
-import etomica.Simulation;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 	
@@ -13,21 +12,11 @@ public class MeterRatio extends MeterScalar {
 	protected MeterScalar dMeter;
 	    
 	public MeterRatio(MeterScalar numerator, MeterScalar denominator) {
-	    this(Simulation.instance, numerator, denominator);
-	}
-	public MeterRatio(Simulation sim, MeterScalar numerator, MeterScalar denominator) {
-	    super(sim);
+	    super();
 	    setNumerator(numerator);
 	    setDenominator(denominator);
 	}
 	    
-    /**
-     * Declaration whether this meter uses the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {
-        return nMeter.usesPhaseBoundary() || dMeter.usesPhaseBoundary();
-    }
-
 	public Dimension getDimension() {
 	    return new DimensionRatio(nMeter.getDimension(), dMeter.getDimension());
 	}
