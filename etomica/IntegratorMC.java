@@ -64,6 +64,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		}
 		if (firstMoveLink == null) {
 			firstMoveLink = new MCMoveLinker(move);
+            lastMoveLink = firstMoveLink;
 		} else {
 			lastMoveLink.nextLink = new MCMoveLinker(move);
 			lastMoveLink = lastMoveLink.nextLink;
