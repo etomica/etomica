@@ -476,11 +476,18 @@ public class Space1D extends Space implements EtomicaElement {
             }
         }
         public void accelerateTo(Space.Vector u) {
-            throw new RuntimeException("Space1D.CoordinateGroup.accelerateTo not implemented");
-       /*     work.Ea1Tv1(-1.0/childIterator.size(),momentum());//probably need this first
+    //        throw new RuntimeException("Space1D.CoordinateGroup.accelerateTo not implemented");
+            //ugly
+            int sum = 0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum ++;
+                if(coord == lastChild) break;
+            }
+
+            work.Ea1Tv1(-1.0/(double)sum,momentum());//probably need this first
             work.PE(u);
             accelerateBy(work);
-        */}
+        }
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {

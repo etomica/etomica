@@ -6,7 +6,7 @@ import etomica.Space3D;
 import etomica.Space;
 
 /**
- * Class describing a plane occupying a 3-dimensional space.
+ * Class describing a plane occupying a 3-dimensional space.  
  *
  * @author David Kofke
  */

@@ -12,6 +12,7 @@ import javax.swing.JButton;
  /* History of changes
   * 07/03/02 (DAK/SKK) Added constructor that takes space as an argument, not registering button with a simulation.
   * 08/30/02 (DAK) Added default colors from DefaultGraphic
+  * 10/07/02 (DAK) Removed default colors, now using UIManager for color defaults
   */
 public class DeviceButton extends Device implements EtomicaElement {
     
@@ -26,8 +27,8 @@ public class DeviceButton extends Device implements EtomicaElement {
     public DeviceButton(Simulation sim) {
         super(sim);
         button = new JButton();
-        button.setBackground(DefaultGraphic.BUTTON_COLOR);
-        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
+//        button.setBackground(DefaultGraphic.BUTTON_COLOR);
+//        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
     }
     /**
      * Constructor if button is to be used as part of another device.
@@ -36,8 +37,8 @@ public class DeviceButton extends Device implements EtomicaElement {
     public DeviceButton(Space space) {
         super(space);
         button = new JButton();
-        button.setBackground(DefaultGraphic.BUTTON_COLOR);
-        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
+//        button.setBackground(DefaultGraphic.BUTTON_COLOR);
+//        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
     }
     /**
      * Constructs button connected to the given action, without registering it with a simulation.

@@ -48,7 +48,7 @@ public class DeviceTrioControllerButton extends Device {
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
         jp.setOpaque(false);
-        jp.setBackground(DefaultGraphic.BORDER_COLOR);
+//        jp.setBackground(DefaultGraphic.BORDER_COLOR);
 /*        jp.setBorder(new javax.swing.border.TitledBorder(
                          new javax.swing.border.EtchedBorder(
                              javax.swing.border.EtchedBorder.RAISED, java.awt.Color.red, java.awt.Color.blue) 

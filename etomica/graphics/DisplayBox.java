@@ -15,7 +15,7 @@ import javax.swing.JLabel;
  * @author David Kofke
  */
  
-public class DisplayBox extends Display implements etomica.units.Dimensioned, DatumSource.User, EtomicaElement {
+public class DisplayBox extends Display implements etomica.units.Dimensioned, DatumSource.User, EtomicaElement, javax.swing.event.ChangeListener {
     
     public String getVersion() {return "DisplayBox:01.07.16/"+Display.VERSION;}
     /**
@@ -88,6 +88,13 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Simple display of one meter's value with a label");
         return info;
+    }
+    
+    /** 
+     * calls doUpdate method.  Implementation of ChangeListener interface.
+     */
+    public void stateChanged(javax.swing.event.ChangeEvent evt) {
+        doUpdate();
     }
     
     /**

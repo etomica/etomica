@@ -8,13 +8,19 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History
+  * (this change was not implemented) 10/12/02 (DAK) modified virial method to reflect change in definition of virial in Potential2Soft
+  */
 public abstract class Potential2SoftSpherical extends Potential2Soft {
    
    public static String VERSION = "Potential2SoftSpherical:01.11.10/"+Potential2.VERSION;
    private final Space.Vector work1;
+   private final double rD;// = 1/D
    
    public Potential2SoftSpherical(PotentialGroup parent) {
         super(parent);
+        rD = 1.0/(double)parentSimulation().space.D();
         work1 = parentSimulation().space().makeVector();
    }
    public Potential2SoftSpherical(PotentialGroup parent, PotentialTruncation trunc) {
@@ -22,7 +28,8 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
      //define truncation differently.  Since truncation field is final it cannot be
      //subsequently changed
         super(parent, trunc);
-        work1 = parentSimulation().space().makeVector();
+        rD = 1.0/(double)parentSimulation().space.D();
+        work1 = parentSimulation().space.makeVector();
    }
         
    

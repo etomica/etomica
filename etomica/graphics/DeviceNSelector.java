@@ -27,7 +27,7 @@ public class DeviceNSelector extends DeviceSlider {
         restartAction = new etomica.action.SimulationRestart(agent.node.parentSimulation());
         
         setModulator(new NMoleculeModulator());
-        setNMajor(6);
+//        setNMajor(6);
 	    setMinimum(0);
 	    setMaximum(60);
 	    getSlider().setSnapToTicks(true);
@@ -39,7 +39,7 @@ public class DeviceNSelector extends DeviceSlider {
 	    } else {
 	        setLabel(agent.node.parentSpecies().getName() + " molecules");
 	    }
-	    setShowBorder(true);
+//	    setShowBorder(true);
     }
     
     public void setDisplayPhase(DisplayPhase display) {

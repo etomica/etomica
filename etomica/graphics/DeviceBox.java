@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
   *                added set/is Editable fields
   */
  
-public class DeviceBox extends Device implements EtomicaElement {
+public class DeviceBox extends Device implements EtomicaElement, javax.swing.event.ChangeListener {
     
     public String getVersion() {return "DeviceBox:02.09.05/"+Device.VERSION;}
     /**
@@ -96,6 +96,13 @@ public class DeviceBox extends Device implements EtomicaElement {
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Simple textbox editor of a single value");
         return info;
+    }
+    
+    /** 
+     * calls doUpdate method.  Implementation of ChangeListener interface.
+     */
+    public void stateChanged(javax.swing.event.ChangeEvent evt) {
+        doUpdate();
     }
     
     /**

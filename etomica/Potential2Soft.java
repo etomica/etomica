@@ -16,6 +16,12 @@ public abstract class Potential2Soft extends Potential2 {
         super(parent, trunc);
     }
     
+    /**
+     * Returns r dot grad(u), with any truncation applied.  Does not include
+     * division by D, to avoid repeated multiplication of this term when summing
+     * over all pairs.  Negation and division by D in most cases is required 
+     * at some point when using this quantity.
+     */
     public abstract double virial(AtomPair pair);
     
     public abstract double hyperVirial(AtomPair pair);

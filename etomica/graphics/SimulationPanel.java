@@ -29,7 +29,7 @@ public class SimulationPanel extends JPanel {
         add(displayPanel);
         setSize(800,550);
         setLayout(new java.awt.FlowLayout());
-        setBackground(DefaultGraphic.BACKGROUND_COLOR);
+//        setBackground(DefaultGraphic.BACKGROUND_COLOR);
 /*        setLayout(new java.awt.BorderLayout());
         add(devicePanel, java.awt.BorderLayout.NORTH);
         add(displayPanel, java.awt.BorderLayout.EAST);
