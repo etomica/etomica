@@ -16,16 +16,17 @@ import etomica.action.AtomsetDetect;
 import etomica.lattice.NeighborManager;
 
 /**
- * Iterator giving those atoms found in the neighboring cells of a
+ * Iterator giving those atoms of a particular species found in the neighboring cells of a
  * given atom.  Written specifically for case in which all relevant
  * atoms are at the molecule level of the atom hierarchy.
  */
-//TODO make this AtomIteratorDirectable by filtering based on up & down
 public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
 
     /**
      * Constructs iterator such that it will return molecules of the given
-     * species as its iterates.
+     * species as its iterates.  The species specified here has no relation
+     * to the species of the central atom whose neighbors are returned; rather
+     * the species pertains to the neighbor atoms returned by the iterator.
      */
     public AtomIteratorNbrCell(Species species, boolean upOnly) {
         nbrListIndex = species.getIndex();

@@ -16,6 +16,7 @@ public class IteratorFactoryCell extends IteratorFactory {
     public AtomSequencerFactory interactionMoleculeSequencerFactory() {
         return AtomSequencerCell.FACTORY;
     }
+    //TODO make a cell intergroup iterator
     public AtomsetIterator makeInterSpeciesPairIterator(Species[] species) {
         return new ApiIntergroup();
     }

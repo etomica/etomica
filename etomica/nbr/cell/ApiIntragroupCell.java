@@ -27,11 +27,12 @@ public final class ApiIntragroupCell extends AtomsetIteratorAdapter implements
 	 * reset() before iteration.
 	 */
 	public ApiIntragroupCell(Species[] species) {
-		this(new ApiInnerVariable(new AtomIteratorBasis(),
+		this(new ApiInnerVariable(
+                new AtomIteratorBasis(),
                 new AtomIteratorNbrCell(species[0], true)));
     }
     
-    public ApiIntragroupCell(ApiInnerVariable pairIterator) {
+    public ApiIntragroupCell(ApiInnerVariable pairIterator) {   
         super(pairIterator);
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
 	}
