@@ -14,7 +14,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     public String getVersion() {return "IntegratorGear4:01.07.05/"+IntegratorMD.VERSION;}
 
     protected AtomIterator atomIterator;
-    protected final PotentialCalculation.ForceSum forceSum;
+    protected final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     final Space.Vector work1, work2;
     double zeta = 0.0;
@@ -32,7 +32,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     }
     public IntegratorGear4(final Simulation sim) {
         super(sim);
-        forceSum = new PotentialCalculation.ForceSum(sim.space());
+        forceSum = new PotentialCalculationForceSum(sim.space());
         work1 = sim.space().makeVector();
         work2 = sim.space().makeVector();
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));

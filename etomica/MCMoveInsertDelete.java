@@ -13,12 +13,11 @@ public class MCMoveInsertDelete extends MCMove {
     
     //directive must specify "BOTH" to get energy with all atom pairs
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     private Species species;
     private SpeciesAgent speciesAgent;
 
-    public MCMoveInsertDelete() {
-        super();
+    public MCMoveInsertDelete(IntegratorMC parent) {
+        super(parent);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
@@ -99,9 +98,8 @@ public class MCMoveInsertDelete extends MCMove {
 
 		Simulation.instance.elementCoordinator.go();
 
-        MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete();
+        MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);
         mcMoveInsDel.setSpecies(sim.species);
-        sim.integrator.add(mcMoveInsDel);
         mcMoveInsDel.setMu(-2000.);
 		                                    
         Simulation.makeAndDisplayFrame(sim);

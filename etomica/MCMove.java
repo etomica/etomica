@@ -6,16 +6,20 @@ public abstract class MCMove implements java.io.Serializable {
     double acceptanceRatio, acceptanceTarget, stepSize, stepSizeMax, stepSizeMin;
     int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
     boolean perParticleFrequency;
-    protected IntegratorMC parentIntegrator;
     protected MCMove nextMove;
     protected boolean tunable = true;
     protected Phase phase;//should get rid of this
     private Phase[] phases;
-    protected PotentialMaster potential;
     private String name;
+    protected final IntegratorMC parentIntegrator;
+    protected final PotentialMaster potential;
+    protected final PotentialCalculationEnergySum energy;
     
-    //should rewrite to set parent integrator in constructor
-    public MCMove() {
+    public MCMove(IntegratorMC parent) {
+        parentIntegrator = parent;
+        potential = parentIntegrator.potential;
+        energy = parent.parentSimulation().energySum(this);
+        parent.add(this);
         nTrials = 0;
         nAccept = 0;
         setAcceptanceTarget(0.5);
@@ -30,10 +34,10 @@ public abstract class MCMove implements java.io.Serializable {
         if(nTrials > adjustInterval*frequency) {adjustStepSize();}
     }
     
-    public void setParentIntegrator(IntegratorMC parent) {
+/*    public void setParentIntegrator(IntegratorMC parent) {
         parentIntegrator = parent;
         potential = parentIntegrator.potential;
-    }
+    }*/
     public IntegratorMC parentIntegrator() {return parentIntegrator;}
     
     public abstract void thisTrial();
@@ -46,8 +50,7 @@ public abstract class MCMove implements java.io.Serializable {
     public void setPhase(Phase p) {
         phase = p;
         if(phases[0] != p) {
-            phases = new Phase[1];
-            phases[0] = p;
+            phases = new Phase[] {p};
         }
     }
     public Phase[] getPhases() {return phases;}

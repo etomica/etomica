@@ -153,7 +153,8 @@ public class Modulator extends ModulatorAbstract {
         
       //A typical class to demonstrate use of the Modulator.
       //Modulator will be used to set and get the pressure field of this class.
-        MCMoveVolume target = new MCMoveVolume();
+        IntegratorMC integrator = new IntegratorMC();
+        MCMoveVolume target = new MCMoveVolume(integrator);
       
       //Pass the instance of the target object and a string indicating the name of the field
       // to be accessed with the modulator

@@ -13,10 +13,9 @@ public class MCMoveVolume extends MCMove {
     protected double pressure;
     protected PhaseAction.Inflate inflate;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
-    public MCMoveVolume() {
-        super();
+    public MCMoveVolume(IntegratorMC parentIntegrator) {
+        super(parentIntegrator);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
@@ -68,8 +67,8 @@ public class MCMoveVolume extends MCMove {
 //        P2HardSphere potential = new P2HardSphere();
         Potential potential = new P2LennardJones();
         IntegratorMC integrator = new IntegratorMC(sim);
-        MCMove mcMoveAtom = new MCMoveAtom();
-        MCMove mcMoveVolume = new MCMoveVolume();
+        MCMove mcMoveAtom = new MCMoveAtom(integrator);
+        MCMove mcMoveVolume = new MCMoveVolume(integrator);
         Controller controller = new Controller(sim);
         Phase phase = new Phase(sim);
         Display displayPhase = new DisplayPhase(sim);
@@ -89,8 +88,6 @@ public class MCMoveVolume extends MCMove {
 	    Simulation.instance.elementCoordinator.go();
         
   //      phase.setDensity(0.1);
-        integrator.add(mcMoveAtom);
-        integrator.add(mcMoveVolume);
     		                                    
         Simulation.makeAndDisplayFrame(sim);
     }//end of main     

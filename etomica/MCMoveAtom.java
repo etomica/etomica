@@ -10,10 +10,9 @@ import etomica.units.Dimension;
 public class MCMoveAtom extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
-    public MCMoveAtom() {
-        super();
+    public MCMoveAtom(IntegratorMC parentIntegrator) {
+        super(parentIntegrator);
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
@@ -53,7 +52,7 @@ public class MCMoveAtom extends MCMove {
     public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
-	    MCMoveAtom mcMove = new MCMoveAtom();
+	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
 	    SpeciesSpheres species = new SpeciesSpheres();
 	    Phase phase = new Phase();
 	    P2LennardJones potential = new P2LennardJones();
@@ -72,7 +71,6 @@ public class MCMoveAtom extends MCMove {
 		integrator.setSleepPeriod(2);
 		
 		Simulation.instance.elementCoordinator.go();
-	    integrator.add(mcMove);
 	    
         potential.setIterator(new AtomPairIterator(phase));
         potential.set(species.getAgent(phase));

@@ -170,7 +170,12 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 //        if(element instanceof Potential && !(element instanceof Potential.Null))
 //                hamiltonian.potential.addPotential((Potential)element);
         list.add(element);
-        allElements.add(element);
+        //add to list of all elements.  Put Species and Phase classes first in list
+        //so that all species agents are deployed in phases by mediator before it processes
+        //other elements.
+        if(element.baseClass() == Phase.class || 
+            element.baseClass() == Species.class) allElements.addFirst(element);
+        else allElements.addLast(element);
         return list.size() - 1;
     }//end of register method
                 
@@ -240,6 +245,10 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
             list = (LinkedList)allElements.clone();
  //       }
         return list;
+    }
+    
+    public PotentialCalculationEnergySum energySum(Object obj) {
+        return new PotentialCalculationEnergySum();
     }
     
     private static int instanceCount = 0;

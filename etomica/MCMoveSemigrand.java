@@ -19,10 +19,9 @@ public class MCMoveSemigrand extends MCMove {
     private int nSpecies;
 
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     
-    public MCMoveSemigrand() {
-        super();
+    public MCMoveSemigrand(IntegratorMC parentIntegrator) {
+        super(parentIntegrator);
         setTunable(false);
         setPerParticleFrequency(true);
     }
@@ -169,8 +168,8 @@ public class MCMoveSemigrand extends MCMove {
     public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
-	    MCMoveAtom mcMove = new MCMoveAtom();
-	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand();
+	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
+	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
 	    SpeciesSpheres species0 = new SpeciesSpheres(10,3);
 	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(0);
 	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(4);
@@ -234,8 +233,6 @@ public class MCMoveSemigrand extends MCMove {
 		
 		Simulation.instance.elementCoordinator.go();
 		density0.setSpecies(species0);
-	    integrator.add(mcMove);
-	    integrator.add(mcMoveSemi);
 	    
         Simulation.makeAndDisplayFrame(Simulation.instance);
         

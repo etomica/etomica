@@ -12,7 +12,7 @@ import etomica.units.Dimension;
 public class MeterPotentialEnergy extends Meter implements EtomicaElement {
     
     private IteratorDirective iteratorDirective;
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialCalculationEnergySum energy;
     private final PotentialMaster potential;
     
     public MeterPotentialEnergy() {
@@ -23,6 +23,7 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
         setLabel("Potential Energy");
         iteratorDirective = new IteratorDirective();
         potential = sim.hamiltonian.potential;
+        energy = sim.energySum(this);
     }
       
     public static EtomicaInfo getEtomicaInfo() {

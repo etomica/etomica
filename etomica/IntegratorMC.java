@@ -1,12 +1,9 @@
 package etomica;
 
-import java.util.Random;
-
 public class IntegratorMC extends Integrator implements EtomicaElement {
     
-    public String version() {return "IntegratorMC:01.02.10"+Integrator.VERSION;}
+    public String version() {return "IntegratorMC:01.08.03"+Integrator.VERSION;}
     
-    private final Random rand = new Random();
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
     private int moveCount;
@@ -47,16 +44,28 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     }
 
     /**
-     * Adds a basic MCMove to the set of moves performed by the integrator
+     * Adds a basic MCMove to the set of moves performed by the integrator.
+     * Called only in constructor of the MCMove class.
      */
-    public void add(MCMove move) {
+    void add(MCMove move) {
+        //make sure this is this parent of the move being added
+        if(move.parentIntegrator() != this) {//need an exception
+            System.out.println("Inappropriate move added in IntegratorMC");
+            return;
+        }
+        //make sure move wasn't added already
+        for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
+            if(move == m) {//need an exception
+                System.out.println("Attempt to add move twice in IntegratorMC");
+                System.out.println("Move is added in its constructor, and should not be added again");
+                return;
+            }
+        }
         if(firstMove == null) {firstMove = move;}
         else {lastMove.setNextMove(move);}
         lastMove = move;
-        move.setParentIntegrator(this);
         move.setPhase(phase);
         moveCount++;
-        doReset();
     }
     
     /**
@@ -76,7 +85,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * the likelihood that the move is selected.
      */
     public void doStep() {
-        int i = (int)(rand.nextDouble()*frequencyTotal);
+        int i = (int)(Simulation.random.nextDouble()*frequencyTotal);
         MCMove trialMove = firstMove;
         while((i-=trialMove.fullFrequency()) >= 0) {
             trialMove = trialMove.nextMove();

@@ -1,24 +1,18 @@
 package etomica;
-import java.util.Random;
 import etomica.units.*;
 
 public class MCMoveRotate extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
-    private final Random rand = new Random();
-    private Space.Orientation oldOrientation;
+    private final Space.Orientation oldOrientation;
 
-    public MCMoveRotate() {
+    public MCMoveRotate(IntegratorMC parentIntegrator) {
+        super(parentIntegrator);
+        oldOrientation = parentIntegrator.parentSimulation().space().makeOrientation();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         setPerParticleFrequency(true);
-    }
-
-    public void setParentIntegrator(IntegratorMC parent) {
-        super.setParentIntegrator(parent);
-        oldOrientation = parent.parentSimulation().space().makeOrientation();
     }
      
     public void thisTrial(){   
@@ -26,7 +20,7 @@ public class MCMoveRotate extends MCMove {
         double uOld, uNew;
        
         if(phase.atomCount()==0) {return;}
-        int i = (int)(rand.nextDouble()*phase.atomCount());
+        int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
         Atom a = phase.firstAtom();
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  
             
@@ -42,7 +36,7 @@ public class MCMoveRotate extends MCMove {
             return;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
-            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
+            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
                 // restore the old values of orientation.
             orientation.E(oldOrientation);
             return;
@@ -55,17 +49,14 @@ public class MCMoveRotate extends MCMove {
         Simulation.instance = new Simulation(/*new Space2DCell()*/);
         Phase phase1 = new Phase();
         
-        MCMoveAtom mcmove= new MCMoveAtom();
-        MCMoveRotate mcrotate = new MCMoveRotate();
+        IntegratorMC integratorMC1 = new IntegratorMC();
+        MCMoveAtom mcmove= new MCMoveAtom(integratorMC1);
+        MCMoveRotate mcrotate = new MCMoveRotate(integratorMC1);
          Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(1.30);
         //MCMoveVolumeXY mcmovevolume = new MCMoveVolumeXY();
         MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
-        IntegratorMC integratorMC1 = new IntegratorMC();
-	    integratorMC1.add(mcmove);
 	    integratorMC1.setDoSleep(false);
 
-	    integratorMC1.add(mcrotate);
-	     //integratorMC1.add(mcmovevolume);
 	    meterp.setPhase(phase1);
 	    meterp.setInflateDimension(0);
 	    meterp.setActive(true);

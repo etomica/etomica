@@ -12,7 +12,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     boolean isotropic = true;
     int inflateDimension = 0; //keys direction for inflation if not isotropic
     private IteratorDirective iteratorDirective;
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialCalculationEnergySum energy;
     private final PotentialMaster potential;
     
     public MeterPressureByVolumeChange() {
@@ -30,6 +30,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     public MeterPressureByVolumeChange(Simulation sim, int i) {
         super(sim);
         potential = sim.hamiltonian.potential;
+        energy = sim.energySum(this);
         setX(-0.001, 0.001, 10);
         setInflateDimension(i);
         iteratorDirective = new IteratorDirective();

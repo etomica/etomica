@@ -4,7 +4,7 @@ package etomica;
 public class Potential1Group extends Potential1 implements PotentialGroup {
     
     private final IteratorDirective localDirective = new IteratorDirective();
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialCalculationEnergySum energy = null;//new PotentialCalculation.EnergySum();
     protected PotentialLinker first;
     
     public Potential1Group() {
@@ -34,7 +34,9 @@ public class Potential1Group extends Potential1 implements PotentialGroup {
     }
 
     public double energy(Atom atom) {
-        calculate(localDirective.set(atom).set(IteratorDirective.BOTH), energy);
+        System.out.println("energy method not implemented in Potential1Group");
+        System.exit(1);
+  //      calculate(localDirective.set(atom).set(IteratorDirective.BOTH), energy);
         return energy.sum();
     }
 

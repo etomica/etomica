@@ -20,10 +20,9 @@ public class MCMovePointVolume extends MCMove {
     private ActionPointVolume action = new ActionPointVolume();
     private Space.Vector r0;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
-    public MCMovePointVolume() {
-        super();
+    public MCMovePointVolume(IntegratorMC parentIntegrator) {
+        super(parentIntegrator);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.50);
@@ -74,9 +73,9 @@ public class MCMovePointVolume extends MCMove {
         Species species = new SpeciesSpheres(sim);
         Potential2 potential = new P2HardSphere();
         IntegratorMC integrator = new IntegratorMC(sim);
-        MCMove mcMoveAtom = new MCMoveAtom();
-        MCMovePointVolume mcMovePointVolume = new MCMovePointVolume();
-        MCMoveVolume mcMoveVolume = new MCMoveVolume();
+        MCMove mcMoveAtom = new MCMoveAtom(integrator);
+        MCMovePointVolume mcMovePointVolume = new MCMovePointVolume(integrator);
+        MCMoveVolume mcMoveVolume = new MCMoveVolume(integrator);
         Controller controller = new Controller(sim);
         final Phase phase = new Phase(sim);
         final DisplayPhase displayPhase = new DisplayPhase(sim);
@@ -92,9 +91,6 @@ public class MCMovePointVolume extends MCMove {
         box.setWhichValue(MeterAbstract.MOST_RECENT);
         
         mcMovePointVolume.setPhase(phase);
-        integrator.add(mcMoveAtom);
-   //     integrator.add(mcMovePointVolume);
-        integrator.add(mcMoveVolume);
 
         species.setNMolecules(40);
         

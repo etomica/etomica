@@ -1,6 +1,5 @@
 package etomica;
 import etomica.units.Kelvin;
-import java.util.Random;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator.
@@ -12,12 +11,11 @@ import java.util.Random;
 public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     
     public String version() {return "IntegratorGEMC:01.04.17"+super.version();}
-    private final Random rand = new Random();
     public Phase secondPhase;
-    private MCMoveAtom atomDisplace1 = new MCMoveAtom();
-    private MCMoveAtom atomDisplace2 = new MCMoveAtom();
-    private MCMoveVolumeExchange volumeExchange = new MCMoveVolumeExchange(this);
-    private MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(this);
+    private final MCMoveAtom atomDisplace1 = new MCMoveAtom(this);
+    private final MCMoveAtom atomDisplace2 = new MCMoveAtom(this);
+    private final MCMoveVolumeExchange volumeExchange = new MCMoveVolumeExchange(this);
+    private final MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(this);
     
     public IntegratorGEMC() {
         this(Simulation.instance);
@@ -29,10 +27,6 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         phase = new Phase[phaseCountMax];
         atomDisplace1.setAdjustInterval(100);
         atomDisplace2.setAdjustInterval(100);
-        this.add(atomDisplace1);
-        this.add(atomDisplace2);
-        this.add(volumeExchange);
-        this.add(moleculeExchange);
     }
   
     public static EtomicaInfo getEtomicaInfo() {

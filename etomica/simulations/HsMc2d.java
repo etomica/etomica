@@ -24,8 +24,7 @@ public class HsMc2d extends Simulation {
         Simulation.instance = this;
 	    phase = new Phase(this);
 	    integrator = new IntegratorMC(this);
-	    mcMoveAtom = new MCMoveAtom();
-	    integrator.add(mcMoveAtom);
+	    mcMoveAtom = new MCMoveAtom(integrator);
 	    species = new SpeciesSpheres(this);
 	    potential = new P2HardSphere();
 	    controller = new Controller(this);

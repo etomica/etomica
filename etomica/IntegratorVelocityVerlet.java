@@ -6,7 +6,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 
     AtomIterator atomIterator;
     
-    public final PotentialCalculation.ForceSum forceSum;
+    public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     
     //Fields for Andersen thermostat
@@ -17,7 +17,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     }
     public IntegratorVelocityVerlet(Simulation sim) {
         super(sim);
-        forceSum = new PotentialCalculation.ForceSum(sim.space());
+        forceSum = new PotentialCalculationForceSum(sim.space());
         
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }

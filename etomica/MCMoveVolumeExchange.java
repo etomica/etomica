@@ -15,11 +15,9 @@ public final class MCMoveVolumeExchange extends MCMove {
     private PhaseAction.Inflate inflate2;
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
     public MCMoveVolumeExchange(IntegratorMC parent) {
-        super();
-        setParentIntegrator(parent);
+        super(parent);
         ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);

@@ -5,7 +5,6 @@ import java.util.Random;
 public class Constants extends Object {
     
     public String getVersion() {return "01.03.10";}    
-    private static final Random random = new Random();
     
     private Constants() {}   // can't instantiate class
     
@@ -31,8 +30,9 @@ public class Constants extends Object {
     public static final Color DARK_RED = new Color(102,000,000);
     public static final Color BLUSH = new Color(153,102,102);
     public static final Color TAN = new Color(204,204,153);
-    public static final Color RandomColor() {return new Color(random.nextFloat(),random.nextFloat(),random.nextFloat());}
-    public static final Color randomColor() {return new Color(random.nextFloat(),random.nextFloat(),random.nextFloat());}
+    public static final Color randomColor() {
+        return new Color(Simulation.random.nextFloat(),Simulation.random.nextFloat(),Simulation.random.nextFloat());
+    }
   
     /**
      * TypedConstant classes are used to define a fixed set of specific values that can be taken by a field.

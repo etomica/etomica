@@ -1,6 +1,4 @@
 package etomica;
-import java.util.*;
-import java.awt.*;
 
 /**
  * Fills phase with molecules on a lattice, taking each molecule in successive order

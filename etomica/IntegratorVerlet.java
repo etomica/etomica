@@ -6,7 +6,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     AtomIterator atomIterator;
     
-    public final PotentialCalculation.ForceSum forceSum;
+    public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     
     Space.Vector work;
@@ -16,7 +16,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }
     public IntegratorVerlet(final Simulation sim) {
         super(sim);
-        forceSum = new PotentialCalculation.ForceSum(sim.space());
+        forceSum = new PotentialCalculationForceSum(sim.space());
         work = sim.space().makeVector();
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }

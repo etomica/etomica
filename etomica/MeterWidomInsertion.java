@@ -29,7 +29,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
     private DisplayPhase display; //used to show location of inserted atoms in the display
     //directive must specify "BOTH" to get energy with all atom pairs
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialCalculationEnergySum energy;
     private final PotentialMaster potential;
     
     public MeterWidomInsertion() {
@@ -38,6 +38,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
     public MeterWidomInsertion(Simulation sim) {
         super(sim);
         potential = sim.hamiltonian.potential;
+        energy = sim.energySum(this);
         setLabel("exp(-\u03BC/kT)");  //"\u03BC" is Unicode for greek "mu"
         nInsert = 100;
         setResidual(true);

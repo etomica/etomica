@@ -12,11 +12,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase secondPhase;
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {
-        super();
-        parentIntegrator = parent;
+        super(parent);
         ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();
         setTunable(false);
         setPerParticleFrequency(true);

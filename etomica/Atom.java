@@ -197,7 +197,7 @@ public class Atom implements java.io.Serializable {
      * method, the element is permitted to set up a linked list of atoms beginning
      * with atomLink[idx].
      */
-    public static int requestAtomLinkIndex() {atomLinkCount++; return atomLinkCount-1;}
+    public static int requestAtomLinkIndex() {return atomLinkCount++;}
     
 //    public Meter.Agent[] meterAgents;
     private static int meterAgentCount = 0;
