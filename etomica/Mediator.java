@@ -432,6 +432,7 @@ public class Mediator implements java.io.Serializable {
              */
             public void add(Display display) {
                 java.awt.Component component = display.graphic(null);
+                if(component == null) return; //display is not graphic
                 if(display instanceof DisplayBox) {
                     mediator.parentSimulation().displayBoxPanel.add(component);
                 }

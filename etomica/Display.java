@@ -80,12 +80,12 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
     public abstract void doUpdate();
     
     /**
-     * Method of Integrator.IntervalEvent interface.
+     * Method of Integrator.IntervalListener interface.
      * After receiving an event updateInterval times, the method will invoke the 
      * doUpdate method and then call repaint().
      */
     public void intervalAction(Integrator.IntervalEvent evt) {
-	    if(--iieCount == 0) {
+	    if(evt.type() == Integrator.IntervalEvent.INITIALIZE || --iieCount == 0) {
 	        iieCount = updateInterval;
 	        doUpdate();
             repaint();

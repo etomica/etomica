@@ -61,6 +61,11 @@ public class Space3D extends Space implements EtomicaElement {
         public Vector (Vector u) {this.E(u);}
         public double component(int i) {if (i==0) return x; else if (i==1) return y; else return z;}
         public double[] toArray() {return new double[] {x, y, z};}
+        public void sphericalCoordinates(double[] result) {
+            result[0] = Math.sqrt(x*x + y*y + z*z);
+            result[1] = Math.acos(z/result[0]); //theta
+            result[2] = Math.atan2(x, y);  //phi
+        }
         public void E(Vector u) {x = u.x; y = u.y; z = u.z;}
         public void E(double a) {x = a; y = a; z = a;}
         public void E(int i, double a) {if (i==0) x=a; else if (i==1) y=a; else z=a;}

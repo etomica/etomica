@@ -313,6 +313,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      */
     public void intervalAction(Integrator.IntervalEvent evt) {
         if(!active) return;
+        if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;
 	        updateSums();

@@ -63,7 +63,7 @@ public class IntegratorRectangleRule extends Integrator {
     public void run() {
         iieCount = interval;
         rectangleRecurse(0);
-        fireIntervalEvent(new IntervalEvent());
+        fireIntervalEvent(intervalEvent);
         parentController.reset();
         runner = new Thread(this);
     }
@@ -73,13 +73,13 @@ public class IntegratorRectangleRule extends Integrator {
         
         while(pauseRequested) doWait();
         if(--iieCount == 0) {
-            fireIntervalEvent(new IntervalEvent());
+            fireIntervalEvent(intervalEvent);
             iieCount = interval;
         }
         if(delay) {
             try { Thread.sleep(300); }
             catch (InterruptedException e) { }
-            fireIntervalEvent(new IntervalEvent());
+            fireIntervalEvent(intervalEvent);
         }
         Thread.yield();
     }

@@ -54,6 +54,7 @@ public class Space1D extends Space implements EtomicaElement {
         public double component(int i) {return x;}
         public void setComponent(int i, double d) {x=d;}
         public double[] toArray() {return new double[] {x};}
+        public void sphericalCoordinates(double[] result) {result[0] = x;}
         public void E(Vector u) {x = u.x;}
         public void E(double a) {x = a;}
         public void E(double[] a) {x = a[0];}

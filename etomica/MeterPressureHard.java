@@ -74,6 +74,7 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
      */
 	protected void setPhaseIntegrator(Integrator newIntegrator) {
 	    super.setPhaseIntegrator(newIntegrator);
+	    if(newIntegrator == null) return;
 	    if(newIntegrator instanceof IntegratorHard) {
 	        integratorHard = (IntegratorHard)newIntegrator;
 	        integratorHard.addCollisionListener(this);

@@ -113,6 +113,21 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     }
     
     /**
+     * Returns an array of the molecules currently in the phase, for those times
+     * when you just need convenient indexed access to each molecule.
+     * Use is discouraged.
+     */
+     public Molecule[] moleculeArray() {
+        Molecule[] array = new Molecule[moleculeCount];
+        int i=0;
+        Molecule terminationMolecule = lastMolecule().nextMolecule();
+        for(Molecule m=firstMolecule(); m!=terminationMolecule; m=m.nextMolecule()) {
+            array[i++] = m;
+        }
+        return array;
+     }
+    
+    /**
      * Returns the ith molecule in the linked list of molecules.
      * 0 returns the first molecule, and moleculeCount-1 returns the last.
      * An argument outside this range throws an IndexOutOfBoundsException

@@ -29,7 +29,6 @@ public abstract class IntegratorMD extends Integrator {
     public IntegratorMD(Simulation sim) {
         super(sim);
         setTimeStep(Default.TIME_STEP);
-        intervalEvent = new IntervalEvent();
     }
     
     /**

@@ -6,7 +6,7 @@ public class AssociatedPolynomial{
     public AssociatedPolynomial(){
     }
     
-    public double plgndr(int l,int m,double theta){
+    public static double plgndr(int l,int m,double theta){
       
       /*Computes the associated Legendre Polynomial Plm(x).Here m and l are integrers
         0 <= m <= l,while x lies in the range -1 <= x <= 1*/

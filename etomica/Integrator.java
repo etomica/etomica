@@ -27,7 +27,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
   protected boolean isothermal = false;
   private boolean initialized = false;
   
-  IntervalEvent intervalEvent = new IntervalEvent();
+  IntervalEvent intervalEvent = new IntervalEvent(this, IntervalEvent.INTERVAL);
   public Controller parentController;
   private final Simulation parentSimulation;
   private boolean added = false;
@@ -52,6 +52,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     deployAgents();
     initialized = true;
     doReset();
+    fireIntervalEvent(new IntervalEvent(this, IntervalEvent.INITIALIZE));
   }
   public boolean isInitialized() {return initialized;}
   
@@ -182,6 +183,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     public void setMaxSteps(int m) {maxSteps = m;}
     
     public void start() {
+        fireIntervalEvent(new IntervalEvent(this, IntervalEvent.START));
         haltRequested = false;
         isPaused = false;
         this.initialize();
@@ -208,6 +210,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
             stepCount++;
         }//end of while loop
         initialized = false;
+        fireIntervalEvent(new IntervalEvent(this, IntervalEvent.DONE));
     }//end of run method
     
     public void reset() {resetRequested = true;}
@@ -295,10 +298,26 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
         }
     }
     
-    public class IntervalEvent extends EventObject{
+    public static class IntervalEvent extends EventObject{
         
-        public IntervalEvent() {
-            super(Integrator.this);
+        //Typed constants used to indicate the type of event integrator is announcing
+        public static final Type START = new Type("Start");       //simulation is startiing
+        public static final Type INTERVAL = new Type("Interval"); //routine interval event
+        public static final Type DONE = new Type("Done");         //simulation is finished
+        public static final Type INITIALIZE = new Type("Initialize"); //integrator is initializing
+        
+      //  private final Type type;//sometimes compiles, sometimes doesn't when declared final
+        private Type type;
+        public IntervalEvent(Integrator source, Type t) {
+            super(source);
+            type = t;
+        }
+        
+        public Type type() {return type;}
+        
+        //class used to mark the different types of interval events
+        private final static class Type extends Constants.TypedConstant {
+           private Type(String label) {super(label);}
         }
     }
     
