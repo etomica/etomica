@@ -13,6 +13,11 @@ import etomica.utility.Function;
  * The default condition of a Meter is "active", meaning that it increments sums for averages upon
  * receiving sufficient interval events from the integrator.
  */
+ 
+ /* History
+  * 10/17/02 (DAK) added Molar inner class that defines a function that makes Meter
+  *          return averages of molar property (instead of extensive value)
+  */
 public abstract class MeterScalar extends MeterAbstract implements DataSource.Wrapper, DatumSource  {
     
     public static final String VERSION = "Meter:01.05.14/"+MeterAbstract.VERSION;
@@ -188,5 +193,27 @@ public abstract class MeterScalar extends MeterAbstract implements DataSource.Wr
 	    public MeterScalar[] getMeters();
 	    public void addMeter(MeterScalar m);
 	 }
+	 
+	 /**
+	  * Function that can be added to a meter to make it return molar (intensive)
+	  * rather than total (extensive) property.  Example usage:
+	  *     meter.setFunction(new MeterScalar.Molar(phase));
+	  *
+	  */
+	 public static class Molar implements Function {
+	    private Phase phase;
+	    public Molar(Phase phase) {
+	        this.phase = phase;
+	    }
+	    public double f(double x) {
+	        return x/phase.moleculeCount();
+	    }
+	    public double dfdx(double x) {
+	        return 1.0/phase.moleculeCount();
+	    }
+	    public double inverse(double x) {
+	        throw new RuntimeException("dfdx method not implemented in MeterScalar.Molar");
+	    }
+	 }//end of Molar
 	
 }//end of Meter class	 
