@@ -37,15 +37,16 @@ public class P2RoughSphere extends P2HardSphere {
      * Implements collision dynamics and updates lastCollisionVirial
      * Assumes atoms have same size and mass
      */
-    public void bump(AtomPair pair) {
-        Atom a1 = pair.atom1();
-        Atom a2 = pair.atom2();
-		pair.cPair.resetV();
-       double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
-        double r2 = pair.r2();
+    public void bump(Atom[] pair) {
+        Atom a1 = pair[0];
+        Atom a2 = pair[1];
+		cPair.reset(a1.coord,a2.coord);
+        cPair.resetV();
+        double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
+        double r2 = cPair.r2();
         Space.Vector p1 = a1.coord.momentum();
         Space.Vector p2 = a2.coord.momentum();
-        dr.E(pair.dr());
+        dr.E(cPair.dr());
         omegaSum.E(((Space.Coordinate.Angular)a1.coord).angularVelocity());
         omegaSum.PE(((Space.Coordinate.Angular)a2.coord).angularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
@@ -74,7 +75,7 @@ public class P2RoughSphere extends P2HardSphere {
         ((Space.Coordinate.Angular)a1.coord).angularAccelerateBy(omegaSum);
         ((Space.Coordinate.Angular)a2.coord).angularAccelerateBy(omegaSum);
         
-        lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
+        lastCollisionVirial = 2.0/(a1.coord.rm() + a2.coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
     }
     
