@@ -2,33 +2,46 @@ package etomica;
 
 /**
  * Iterator that expires after returning a single atom, which is
- * specified by a call to the reset(Atom) method.
- * A second atom may be specified using the reset(Atom, Atom) method. 
- * Then if the iterator is set to isAsNeighbor, the second atom
- * is the only one returned; otherwise
- * the first atom is the only one returned.
+ * specified by a call to the setAtom method, or via the constructor.
+ * reset() sets the iterator to return the atom.
+ * reset(Atom) sets as follows:
+ *   if isAsNeighbor is false, the iterator will return its atom only if
+ *   the atom given to reset matches it.
+ *   if isAsNeighbor is true, the iterator will return its atom only if
+ *   the atom is appropriately up or down list from the given atom, in correspondence
+ *   with the current value of the iterator's direction field.
  *
  * @author David Kofke
  */
 public class AtomIteratorSinglet implements AtomIterator {
     
-    private Atom atom1, atom2, next;
+    private Atom atom;
     private boolean hasNext, isAsNeighbor;
+    private IteratorDirective.Direction direction;
     
     public AtomIteratorSinglet() {hasNext = false;}
-    public AtomIteratorSinglet(Atom a) {reset(a);}
+    public AtomIteratorSinglet(Atom a) {setAtom(a);}
         
     /**
-     * Returns true if the given atom is the atom passed to the last call to reset(Atom),
-     * or is one of the atoms passed to the last call to reset(Atom, Atom).
+     * Mutator method for this iterator's atom.
      */
-    public boolean contains(Atom a) {return (a == atom1 || a == atom2) && a != null;}
+    public void setAtom(Atom a) {atom = a; hasNext = false;}
+    /**
+     * Accessor method for this iterator's atom.
+     */
+    public Atom getAtom() {return atom;}
+    
+    /**
+     * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).
+     */
+    public boolean contains(Atom a) {return (a == atom && a != null);}
     
     public boolean hasNext() {return hasNext;}
     
     public void setAsNeighbor(boolean b) {isAsNeighbor = b;}
     
     public Atom reset(IteratorDirective id) {
+        direction = id.direction();
         switch(id.atomCount()) {
             case 0:  return reset(); 
             case 1:  return reset(id.atom1()); 
@@ -39,38 +52,41 @@ public class AtomIteratorSinglet implements AtomIterator {
     }
     
     /**
-     * Resets iterator to return atom specified by previous call to reset(Atom), or
-     * to the second atom of the last call to reset(Atom, Atom) if SKIP_FIRST.
+     * Resets iterator to return the iterator's atom.  Ignores any specifications
+     * of direction or isAsNeighbor.
      */
     public Atom reset() {
-        next = isAsNeighbor ? atom2 : atom1;
-        hasNext = (next != null); 
-        return next;
+        hasNext = (atom != null); 
+        return atom;
     }
     
     /**
      * Sets the given atom as the one returned by the iterator if INCLUDE_FIRST.
      */
     public Atom reset(Atom a) {
-        atom1 = a;
-        atom2 = null;
-        return reset();
+        if(atom == null) hasNext = false;
+        else if(isAsNeighbor) {
+            if(direction == IteratorDirective.UP) hasNext = a.preceeds(atom);
+            else if(direction == IteratorDirective.DOWN) hasNext = atom.preceeds(a);
+            else if(direction == IteratorDirective.BOTH) hasNext = true;
+            else /*NEITHER*/ hasNext = false;
+        }
+        else hasNext = (a == atom);  // isAsNeighbor == false
+        return hasNext ? atom : null;
     }
     
     /**
-     * 
+     *  Not yet defined.
      */
     public Atom reset(Atom first, Atom last) {
-        atom1 = first;
-        atom2 = last;
-        return reset();
+        return null;
     }
     
-    public Atom next() {hasNext = false; return next;}
+    public Atom next() {hasNext = false; return atom;}
     
     public void allAtoms(AtomAction act) {
-        reset();
-        act.actionPerformed(next);
+        if(atom == null) return;
+        act.actionPerformed(atom);
     }
 }//end of AtomIteratorSinglet
         

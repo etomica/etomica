@@ -196,8 +196,7 @@ public class Atom implements java.io.Serializable {
 //    public Meter.Agent[] meterAgents;
     private static int meterAgentCount = 0;
     public static int requestMeterAgentIndex() {
-        meterAgentCount++; 
-        return meterAgentCount-1;
+        return meterAgentCount++;
     }
 
     public static int count(AtomIterator iter) {

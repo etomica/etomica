@@ -17,7 +17,7 @@ import java.awt.Graphics;
  
 public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement {
 
-    public final String getVersion() {return "SpeciesPistonCylinder:01.06.05/"+super.getVersion();}
+    public String getVersion() {return "SpeciesPistonCylinder:01.06.05/"+super.getVersion();}
  
     //making static as a hack until direction can be associated with each molecule
     public static Constants.Direction direction = Constants.NORTH;
@@ -101,13 +101,13 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
   public Dimension getLengthDimension() {return Dimension.LENGTH;}
   
   /**
-   * Sets a vector giving the unit normal to the piston, away from the inside of the cylinder.
+   * Sets a vector giving the unit normal to the piston, toward the inside of the cylinder.
    */
   private final void setUnitNormal() {
     if(direction == Constants.NORTH)      {unitNormal.x =  0.0; unitNormal.y = +1.0;}//N
     else if(direction == Constants.EAST)  {unitNormal.x = -1.0; unitNormal.y =  0.0;}//E
     else if(direction == Constants.SOUTH) {unitNormal.x =  0.0; unitNormal.y = -1.0;}//S
-    else                                  {unitNormal.x = +1.0; unitNormal.y =  0.0;}//W
+    else /*WEST*/                         {unitNormal.x = +1.0; unitNormal.y =  0.0;}//W
   }
   
   /**
@@ -183,8 +183,9 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public void setPressure(double p) {
         pressure = p;
         force = pressure*diameter; //compute force as pressure * length
-/*        if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
-                    phase().integrator().reset();*/
+        resetIntegrators();
+//        if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
+//                    phase().integrator().reset();
     }
     /**
      * Accessor method for the (3D) pressure applied to the piston
@@ -354,7 +355,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(2);
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(20);
 	    Phase phase1 = new Phase();
 	    P2HardSphere P2HardDisk1 = new P2HardSphere();
 	    Controller controller1 = new Controller();
@@ -363,7 +364,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         
         //part unique to this class
 	    IntegratorHard integratorHard1 = new IntegratorHardField();
-	    integratorHard1.setTimeStep(0.01);
+	  //  integratorHard1.setTimeStep(0.01);
         SpeciesPistonCylinder pistonCylinder = new SpeciesPistonCylinder();
         pistonCylinder.setLength(20.);
         ((DisplayPhase)Simulation.instance.display(0)).setColorScheme(new ColorSchemeByType());
@@ -407,11 +408,12 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         potential1Agent.setIterator(new AtomIteratorSinglet(((SpeciesAgent)pistonCylinder.getAgent(phase1)).firstLeafAtom()));
         
 		Simulation.instance.elementCoordinator.go();
-		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.momentum().E(0.0);
+//		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.momentum().E(0.0);
 		pistonCylinder.setStationary(true);
 		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.setStationary(false);
         Simulation.makeAndDisplayFrame(Simulation.instance);
-    
+        
+  /* //code that displays collision times with atoms 
         final Phase phase = phase1;
 	    displayPhase1.addDrawable(new DisplayPhase.Drawable() {
 	        public void draw(java.awt.Graphics g, int[] origin, double s) {
@@ -430,7 +432,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 	                g.drawString(Integer.toString(a.index()), xP-20, yP-20);
 	            }
 	        }
-	    });
+	    });  */
     }//end of main
   
 }

@@ -42,9 +42,9 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
     public Atom next() {
         Atom nextAtom = atom;
         //for debugging
-        if(atom == null) {
+    /*    if(atom == null) {
             System.out.println("error:  unexpected null in atomiteratorsequential");
-        }
+        }*/
         //------------
         atom = upListNow ? atom.nextAtom() : atom.previousAtom();
         hasNext = nextAtom != terminator;

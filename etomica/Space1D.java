@@ -6,7 +6,7 @@ import etomica.units.*;
 
 public class Space1D extends Space implements EtomicaElement {
     
-    public static final String version() {return "01.03.04.0";}
+    public static final String version() {return "01.07.20";}
     
     public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
@@ -17,7 +17,7 @@ public class Space1D extends Space implements EtomicaElement {
     public Space.Vector makeVector() {return new Vector();}
     public Space.Orientation makeOrientation() {System.out.println("Orientation class not implemented in 1D"); return null;}
     public Space.Tensor makeTensor() {return new Tensor();}
-    public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
+    public Space.Coordinate makeCoordinate(Atom a) {return new Coordinate(a);}
     public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}
 
     public Space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
@@ -48,6 +48,7 @@ public class Space1D extends Space implements EtomicaElement {
         public Vector (double a1) {x = a1;}
         public Vector (double[] a) {x = a[0];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
+        public String toString() {return "("+x+")";}
         public int length() {return D;}
         public int D() {return D;}
         public double component(int i) {return x;}
@@ -154,8 +155,8 @@ public class Space1D extends Space implements EtomicaElement {
             boundary.nearestImage(dr);
             drx = dr.x; 
             r2 = drx*drx;
-            double rm1 = c1.parent().rm();
-            double rm2 = c2.parent().rm();
+            double rm1 = c1.rm();
+            double rm2 = c2.rm();
             dvx = (rm2*c2.p.x - rm1*c1.p.x);  
         }
         /**
@@ -183,7 +184,7 @@ public class Space1D extends Space implements EtomicaElement {
             c2.p.x -= impulse*drx;
         }
         public void setSeparation(double r2New) {
-            double ratio = c2.parent().mass()*c1.parent().rm();  // (mass2/mass1)
+            double ratio = c2.mass()*c1.rm();  // (mass2/mass1)
             double delta = (Math.sqrt(r2New/this.r2()) - 1.0)/(1+ratio);
             c1.r.x -= ratio*delta*drx;
             c2.r.x += delta*drx;
@@ -192,16 +193,212 @@ public class Space1D extends Space implements EtomicaElement {
     }
 
     public static class Coordinate extends Space.Coordinate {
+        public Coordinate nextCoordinate, previousCoordinate;
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
-        public Coordinate(Space.Occupant o) {super(o);}
+        public final Vector rLast = new Vector();  //vector for saving position
+        protected final Vector work = new Vector();
+        public Coordinate(Atom atom) {super(atom);}
+        
+        public void setNextAtom(Atom a) {
+            if(a == null) nextCoordinate = null;
+            else {
+                nextCoordinate = (Coordinate)a.coord;
+                ((Coordinate)a.coord).previousCoordinate = this;
+            }
+        }
+        public Atom nextAtom() {return nextCoordinate!=null ? nextCoordinate.atom : null;}
+        public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
+        public void clearPreviousAtom() {previousCoordinate = null;}
+
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
-        public final double kineticEnergy() {return 0.5*p.squared()*parent.rm();}
-        public final void freeFlight(double t) {r.x += p.x*t*parent.rm();}
-    } 
+        public double kineticEnergy() {return 0.5*p.squared()*rm();}
+        public void freeFlight(double t) {r.x += p.x*t*rm();}
+
+        /**
+        * Moves the atom by some vector distance
+        * 
+        * @param u
+        */
+        public void translateBy(Space.Vector u) {r.PE((Space1D.Vector)u);}
+        /**
+        * Moves the atom by some vector distance
+        * 
+        * @param u
+        */
+        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Vector)u);}
+        /**
+        * Moves the atom by some vector distance
+        * 
+        * @param u
+        */
+        public void translateTo(Space.Vector u) {r.E((Space1D.Vector)u);}      
+        public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
+        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
+        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
+        public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
+        public void replace() {r.E(rLast);}
+    //    public final void inflate(double s) {r.TE(s);}
+
+        public void accelerateBy(Space.Vector u) {p.PE(u);}
+        public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
+
+        public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+            double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
+            momentum().setRandomSphere();
+            momentum().TE(magnitude);
+            //for debugging
+      //      momentum().E(position());
+      //      momentum().TE(magnitude/30.);
+        }
+    }
+    
+    public static class CoordinateGroup extends Coordinate implements Space.CoordinateGroup {
+        public Coordinate firstChild, lastChild;
+        public CoordinateGroup(AtomGroup a) {super(a);}
+
+        public final Atom firstChild() {return (firstChild != null) ? firstChild.atom : null;}
+        public final void setFirstChild(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
+        public final Atom lastChild() {return (lastChild != null) ? lastChild.atom : null;}
+        public final void setLastChild(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
+        
+        public Space.Vector position() {
+            r.E(0.0); double massSum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                r.PEa1Tv1(coord.mass(), coord.position()); massSum += coord.mass();
+                if(coord == lastChild) break;
+            }
+            r.DE(massSum);
+            return r;
+        }
+        public Space.Vector momentum() {
+            p.E(0.0);
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                p.PE(coord.momentum());
+                if(coord == lastChild) break;
+            }
+            return p;
+        }
+        public double position(int i) {
+            double sum = 0.0; double massSum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum += coord.mass()*coord.position(i); massSum += coord.mass();
+                if(coord == lastChild) break;
+            }
+            sum /= massSum;
+            return sum;
+        }
+        public double momentum(int i) {
+            double sum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum += coord.mass()*coord.momentum(i);
+                if(coord == lastChild) break;
+            }
+            return sum;
+        }
+        public double kineticEnergy() {
+            double sum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum += coord.kineticEnergy();
+                if(coord == lastChild) break;
+            }
+            return sum;
+        }
+        public void freeFlight(double t) {
+            double sum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.freeFlight(t);
+                if(coord == lastChild) break;
+            }
+        }
+        public void translateBy(Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.translateBy(u0);
+                if(coord == lastChild) break;
+            }
+        }
+        public void translateBy(double d, Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.translateBy(d, u0);
+                if(coord == lastChild) break;
+            }
+        }
+        public void translateTo(Space.Vector u) {
+            work.Ea1Tv1(-1,position()); //position() uses work, so need this first
+            work.PE((Vector)u);
+            translateBy(work);
+        }
+        public void displaceBy(Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.displaceBy(u0);
+                if(coord == lastChild) break;
+            }
+        }
+        public void displaceBy(double d, Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.displaceBy(d, u0);
+                if(coord == lastChild) break;
+            }
+        }
+        public void displaceTo(Space.Vector u) {
+            work.E((Vector)u);
+            work.ME(position());
+            displaceBy(work);
+        }
+        public void displaceToRandom(etomica.Phase p) {
+            displaceTo((Vector)p.boundary().randomPosition());
+        }
+        public void replace() {
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.replace();
+                if(coord == lastChild) break;
+            }
+        }
+        public void accelerateBy(Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.accelerateBy(u0);
+                if(coord == lastChild) break;
+            }
+        }
+        public void accelerateBy(double d, Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.accelerateBy(d, u0);
+                if(coord == lastChild) break;
+            }
+        }
+        public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        
+        public void randomizeMomentum(double temperature) {
+            switch(((AtomGroup)atom).childCount()) {
+                case 0: return;
+                case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
+                        return;
+                default://multi-atom group
+                    work.E(0.0); double sum=0.0;
+                    for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                        coord.randomizeMomentum(temperature);
+                        work.PE(coord.momentum());
+                        sum++;
+                        if(coord == lastChild) break;
+                    }
+                    work.DE(-sum);
+                    for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                        coord.accelerateBy(work);
+                        if(coord == lastChild) break;
+                    }
+            }//end switch
+        }//end randomizeMomentum
+    }//end of CoordinateGroup
     
     public static abstract class Boundary extends Space.Boundary {
         public static class Type extends Space.Boundary.Type {
@@ -253,7 +450,7 @@ public class Space1D extends Space implements EtomicaElement {
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic{
         private final Vector temp = new Vector();
         public static final Random random = new Random();
-       //Explicit dimension to 2 because drawing to 2D image
+       //Explicit dimension to 2 because drawing to 1D image
         private final double[][] shift0 = new double[0][2];
         private final double[][] shift1 = new double[1][2]; //used by getOverflowShifts
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE);}

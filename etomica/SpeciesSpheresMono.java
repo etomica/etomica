@@ -3,43 +3,39 @@ import java.awt.*;
 import etomica.units.Dimension;
 
 /**
- * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
- * with each disk having the same mass and size (same type).
+ * Species in which molecules are each made of a single spherical atom.
+ * Does not permit multiatomic molecules.  The advantage of this species
+ * over the multiatomic version (used with 1 atom), is that one layer of
+ * the atom hierarchy is eliminated in SpeciesSpheresMono.  Each atom is
+ * the direct child of the species agent (i.e., each atom is at the "molecule"
+ * level in the hierarchy, without an intervening AtomGroup).
  * 
  * @author David Kofke
  */
-public class SpeciesDisks extends Species implements EtomicaElement {
+public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     private double mass;
     public AtomType.Disk protoType;
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Simulation sim, int na) {
+    private static AtomFactoryMono makeFactory(Simulation sim) {
         AtomFactoryMono f = new AtomFactoryMono(sim);
         AtomType type = new AtomType.Disk(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(sim,f, na);
-        return fm;
- //       return f;
+        return f;
     }
         
-    public SpeciesDisks() {
+    public SpeciesSpheresMono() {
         this(Simulation.instance);
     }
-    public SpeciesDisks(int n) {
+    public SpeciesSpheresMono(int n) {
         this(Simulation.instance, n);
     }
-    public SpeciesDisks(Simulation sim) {
+    public SpeciesSpheresMono(Simulation sim) {
         this(sim, Default.MOLECULE_COUNT);
     }
-    public SpeciesDisks(Simulation sim, int n) {
-        this(sim, n, 1);
-    }
-    public SpeciesDisks(int nM, int nA) {
-        this(Simulation.instance, nM, nA);
-    }
-    public SpeciesDisks(Simulation sim, int nM, int nA) {
-        super(sim, makeFactory(sim, nA));
-        protoType = (AtomType.Disk)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
+    public SpeciesSpheresMono(Simulation sim, int nM) {
+        super(sim, makeFactory(sim));
+        protoType = (AtomType.Disk)((AtomFactoryMono)factory).type();
         nMolecules = nM;
     }
     
@@ -70,7 +66,7 @@ public class SpeciesDisks extends Species implements EtomicaElement {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,3);
-	    SpeciesDisks speciesDisks2 = new SpeciesDisks(3);
+	    SpeciesSpheresMono speciesDisks2 = new SpeciesSpheresMono(3);
 	    speciesDisks2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();

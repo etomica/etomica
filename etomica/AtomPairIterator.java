@@ -136,12 +136,10 @@ public class AtomPairIterator implements java.io.Serializable {
      * are forthcoming).
      */
     protected final void setFirst() {
- //       localDirective.set(IteratorDirective.UNCHANGED); //prepare for use in resetting inner loop here and in next
         hasNext = false;
         while(aiOuter.hasNext()) { //loop over iterator 1...
             pair.atom1 = aiOuter.next();
             aiInner.reset(localDirective.set(pair.atom1));
-//            if(aiInner.reset(pair.atom1) == pair.atom1) aiInner.next(); //reset iterator 2 and advance if its first atom is atom1
             if(aiInner.hasNext()) {
                 hasNext = true;
                 needUpdate1 = false;

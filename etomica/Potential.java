@@ -2,8 +2,10 @@ package etomica;
 
 //Java2 imports
 //import java.util.HashMap;
+//import java.util.Iterator;
 
 import etomica.utility.HashMap;
+import etomica.utility.Iterator;
 
 /**
  * Superclass for all Potential classes
@@ -49,6 +51,18 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
      * @return The agent of this species in the phase
      */
     public final PotentialAgent getAgent(Phase p) {return (PotentialAgent)agents.get(p);}
+    
+    /**
+     * Resets integrators in all phases in which the potential has an agent.
+     */
+    public void resetIntegrators() {
+        Iterator e = agents.values().iterator();
+        while(e.hasNext()) {
+            PotentialAgent agent = (PotentialAgent)e.next();
+            if(agent.parentPhase().integrator() != null)
+                agent.parentPhase().integrator().reset();
+        }
+    }
     
     public final HashMap agents() {return agents;}
  

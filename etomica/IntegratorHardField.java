@@ -46,6 +46,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
             a.coord.freeFlight(tStep);
             if(!agent.forceFree) {
+//                System.out.println(agent.force.toString()+" "+a.toString());
                 a.coord.translateBy(t2*a.coord.rm(),agent.force);
                 a.coord.accelerateBy(tStep,agent.force);
             }

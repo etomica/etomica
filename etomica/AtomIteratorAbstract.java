@@ -9,10 +9,10 @@ package etomica;
 public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Serializable {        
 
     protected boolean hasNext;
-    protected Atom atom, terminator;
     protected boolean upListNow, doGoDown;
     protected boolean isNeighborIterator;
-    protected Atom setAtom, terminator2;
+    protected transient Atom atom, terminator;
+    protected transient Atom setAtom, terminator2;
     protected IteratorDirective.Direction direction;
 
     /**

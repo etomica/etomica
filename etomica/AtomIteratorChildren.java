@@ -1,8 +1,11 @@
 package etomica;
 
 /**
- * Iterates over the child atoms of a sequence of atoms.
+ * Iterates over the child atoms (which are not necessarily 
+ * the leaf atoms) of a sequence of atoms.
  * Parent atoms themselves are not returned in the sequence.
+ * Used by Phase to iterate over molecules (direct children of
+ * species agents).
  *
  * @author David Kofke
  */
@@ -15,6 +18,9 @@ public final class AtomIteratorChildren implements AtomIterator {
     private boolean setAsNeighbor = false;
     private AtomIterator currentIterator;
     
+    /**
+     * @param iterator the iterator of the parent atoms.
+     */      
     public AtomIteratorChildren(AtomIterator iterator) {
         parentIterator = iterator;
     }
