@@ -14,6 +14,7 @@ package etomica;
   * 09/04/02 (DAK) added leafFactory method
   * 09/16/02 (DAK) added parentFactory, rootFactory methods; modified constructors so
   *                that parent factory is set when child AtomFactoryTree is made
+  * 09/26/02 (DAK) added line to setLeafFactory to update group.childrenAreGroups
   */
   
 public class AtomFactoryTree extends AtomFactoryHomo {
@@ -98,7 +99,10 @@ public class AtomFactoryTree extends AtomFactoryHomo {
       */
      public void setLeafFactory(AtomFactory factory) {
         if(childFactory instanceof AtomFactoryTree) ((AtomFactoryTree)childFactory).setLeafFactory(factory);
-        else childFactory = factory;
+        else {
+            childFactory = factory;
+            groupType.childrenAreGroups = factory.isGroupFactory();// 09/26/02 (DAK)
+        }     
      }
     
     //number of layers of atoms below the root atom

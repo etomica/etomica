@@ -3,7 +3,8 @@ package etomica.lattice;
 import etomica.*;
 
 /**
- * A class packaging together a Primitive and a Basis.
+ * A class packaging together a Primitive and a Basis (an 
+ * AtomFactory that constructs the sites occupying the lattice).
  */
  
 public class Crystal {

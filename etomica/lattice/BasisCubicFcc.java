@@ -25,13 +25,13 @@ public class BasisCubicFcc extends AtomFactoryHomo {
      * Makes a fcc 4-atom basis using the given factory to make the atoms.
      */
     public BasisCubicFcc(Simulation sim, AtomFactory factory, PrimitiveCubic primitive) {
-        super(sim, factory, 4, BondInitializer.NULL, new ConfigurationCubicFcc(sim,primitive));
+        super(sim, factory, 4, BondInitializer.NULL, new Configuration(sim,primitive));
     }
     
     
-    private static class ConfigurationCubicFcc extends Configuration {
+    private static class Configuration extends etomica.Configuration {
         
-        private ConfigurationCubicFcc(Simulation sim, PrimitiveCubic primitive) {
+        private Configuration(Simulation sim, PrimitiveCubic primitive) {
             super(sim);
             this.primitive = primitive;
         }
@@ -56,7 +56,11 @@ public class BasisCubicFcc extends AtomFactoryHomo {
             int i = 0;
             while(iterator.hasNext()) {
                 r.Ea1Tv1(latticeConstant,positions[i++]);
-                iterator.next().coord.translateTo(r);
+                Atom a = iterator.next();
+                try {//may get null pointer exception when beginning simulation
+                    a.creator().getConfiguration().initializePositions(a);
+                } catch(NullPointerException e) {}
+                a.coord.translateTo(r);
             }
         }
     }//end ConfigurationCubicFcc

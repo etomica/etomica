@@ -122,7 +122,8 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
             s.TE(scale);
             a.coord.displaceTo(s);
         }
-        phase.dimensions().TE(scale);
+  //      phase.dimensions().TE(scale);
+        phase.boundary().inflate(scale);
     }
     
     public void attempt() {actionPerformed(phase);}
@@ -132,7 +133,8 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
         while(moleculeIterator.hasNext()) {
             moleculeIterator.next().coord.replace();
         }
-        phase.dimensions().DE(expand ? lattice.scale : 1.0/lattice.scale);
+ //       phase.dimensions().DE(expand ? lattice.scale : 1.0/lattice.scale);
+        phase.boundary().inflate(expand ? 1.0/lattice.scale : lattice.scale);
     }
         
     public boolean getDrawPoints() {return drawPoints;}

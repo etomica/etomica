@@ -19,7 +19,7 @@ public abstract class Primitive {
     protected BravaisLattice lattice;
     private boolean ignoreUpdate = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
-    private Primitive reciprocal;
+    private final Primitive reciprocal;
     
     /**
      * This constructor is used by when making the direct-lattice primitive.
@@ -58,7 +58,7 @@ public abstract class Primitive {
      * Method defining and constructing reciprocal primitive; called by
      * constructor of Primitive.  
      */
-     //definition of this method should take care not lead to calling of update 
+     //definition of this method should take care not to lead to calling of update 
      //method of the reciprocal primitive.
     protected abstract Primitive makeReciprocal();
     

@@ -2,29 +2,30 @@ package etomica.lattice;
 import etomica.*;
 
 /**
- * A 2-atom basis that makes a bcc crystal on a BravaisLattice
- * having a Cubic primitive.
+ * A 2-atom basis that makes a diamond crystal using a BravaisLattice
+ * having a Cubic primitive with an fcc basis.  Each of the 4 fcc sites
+ * is populated by a 2-atom basis arranged to yield the diamond structure.
  *
  * @author David Kofke
  */
  
  /* History
-  * 09/22/02 (DAK) new
+  * 09/26/02 (DAK) new
   */
  
-public class BasisCubicBcc extends AtomFactoryHomo {
+public class BasisCubicFccDiamond extends AtomFactoryHomo {
     
     /**
      * Makes a basis using a default that uses AtomFactoryMono
      * for making atom occupying each site.
      */
-    public BasisCubicBcc(Simulation sim, PrimitiveCubic primitive) {
+    public BasisCubicFccDiamond(Simulation sim, PrimitiveCubic primitive) {
         this(sim, new AtomFactoryMono(sim), primitive);
     }
     /**
-     * Makes a bcc 2-atom basis using the given factory to make the atoms.
+     * Makes a diamond-on-fcc 2-atom basis using the given factory to make the atoms.
      */
-    public BasisCubicBcc(Simulation sim, AtomFactory factory, PrimitiveCubic primitive) {
+    public BasisCubicFccDiamond(Simulation sim, AtomFactory factory, PrimitiveCubic primitive) {
         super(sim, factory, 2, BondInitializer.NULL, new Configuration(sim,primitive));
     }
     
@@ -38,7 +39,7 @@ public class BasisCubicBcc extends AtomFactoryHomo {
         
         private final Space3D.Vector[] positions = new Space3D.Vector[] {
             new Space3D.Vector(0.0, 0.0, 0.0),
-            new Space3D.Vector(0.5, 0.5, 0.5)
+            new Space3D.Vector(0.25, 0.25, 0.25),
         };
         private final Space3D.Vector r = new Space3D.Vector();
         private PrimitiveCubic primitive;
@@ -61,7 +62,7 @@ public class BasisCubicBcc extends AtomFactoryHomo {
                 a.coord.translateTo(r);
             }
         }
-    }//end ConfigurationCubicBcc
+    }//end Configuration
     
     
-}//end of BasisCubicBcc
+}//end of BasisCubicFcc

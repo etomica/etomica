@@ -9,7 +9,7 @@ import etomica.*;
 public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     
     private double[] sizeCopy;
-    private double a, b, c;
+//    private double a, b, c;
     
     public PrimitiveOrthorhombic(Simulation sim) {
         this(sim, 1.0, 1.0, 1.0);
@@ -26,40 +26,43 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      */
     private PrimitiveOrthorhombic(Simulation sim, Primitive direct) {
         super(sim, direct);
+        if(size == null) size = new double[] {1.0, 1.0, 1.0};
+        sizeCopy = new double[space.D()];
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
+        if(size == null) size = new double[] {1.0, 1.0, 1.0};
         return new PrimitiveOrthorhombic(simulation, this);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveOrthorhombic)reciprocal()).setA(2.0*Math.PI/a);
-        ((PrimitiveOrthorhombic)reciprocal()).setB(2.0*Math.PI/b);
-        ((PrimitiveOrthorhombic)reciprocal()).setC(2.0*Math.PI/c);
+        ((PrimitiveOrthorhombic)reciprocal()).setA(2.0*Math.PI/size[0]);
+        ((PrimitiveOrthorhombic)reciprocal()).setB(2.0*Math.PI/size[1]);
+        ((PrimitiveOrthorhombic)reciprocal()).setC(2.0*Math.PI/size[2]);
     }
     
     public void setA(double a) {
-        this.a = a;
+        size[0] = a;
         latticeVectors[0].setX(0,a);
         update();
     }
-    public double getA() {return a;}
+    public double getA() {return size[0];}
     
     public void setB(double b) {
-        this.b = b;
+        size[1] = b;
         latticeVectors[1].setX(1,b);
         update();
     }
-    public double getB() {return b;}
+    public double getB() {return size[1];}
         
     public void setC(double c) {
-        this.c = c;
+        size[2] = c;
         latticeVectors[2].setX(2,c);
         update();
     }
-    public double getC() {return c;}
+    public double getC() {return size[2];}
     
     public void setAlpha(double t) {}//no adjustment of angle permitted
     public double getAlpha() {return rightAngle;}
@@ -75,7 +78,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      * Returns a new, identical instance of this primitive.
      */
     public Primitive copy() {
-        return new PrimitiveOrthorhombic(simulation, a, b, c);
+        return new PrimitiveOrthorhombic(simulation, size[0], size[1], size[2]);
     }
     
     
@@ -84,8 +87,8 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      */
     public void setSize(double size) {
         for(int i=0; i<D; i++) {
-            latticeVectors[i].setX(i,size);
             this.size[i] = size;
+            latticeVectors[i].setX(i,size);
         }
         update();
     }
@@ -101,7 +104,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     
     public void scaleSize(double scale) {
         for(int i=0; i<D; i++) {
-            this.size[i] *= scale;
+            size[i] *= scale;
             latticeVectors[i].setX(i,size[i]);
         }
         update();
@@ -133,7 +136,6 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         return new UnitCellFactory(simulation);
     }
     
-    private double[] size;
     
     public String toString() {return "Orthorhombic";}
 

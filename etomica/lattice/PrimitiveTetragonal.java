@@ -7,7 +7,7 @@ import etomica.*;
  */
 public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     
-    private double ab, c;
+    private double ab = 1.0, c = 1.0;
     
     public PrimitiveTetragonal(Simulation sim) {
         this(sim, 1.0, 1.0);

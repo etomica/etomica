@@ -42,7 +42,7 @@ public class LatticePlane implements AtomFilter {
     }
     
     public boolean accept(Atom a) {
-        return plane.isPositiveSide((Space3D.Vector)a.coord.position());
+        return !plane.isPositiveSide((Space3D.Vector)a.coord.position());
     }
     
     public void setPrimitive(Primitive primitive) {
@@ -108,7 +108,7 @@ public class LatticePlane implements AtomFilter {
         //in its desired position
         Space.Vector[] b = reciprocal.vectors();
         delta.E(origin);
-        delta.PEa1Tv1((i-0.000001)*2.0*Math.PI/normal.squared(),normal);
+        delta.PEa1Tv1((i+0.000001)*2.0*Math.PI/normal.squared(),normal);
         plane.moveTo((Space3D.Vector)delta);
     }
     

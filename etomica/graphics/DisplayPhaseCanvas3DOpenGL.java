@@ -38,6 +38,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private final double backClipPlane[] = new double[4];
   private final float MaterialSpecular[] = { 0.8f, 0.8f, 0.8f, 1f };
   private final float MaterialShininess[] = { 70f };
+  private final float materialTransparent[] = {0.0f, 0.8f, 0.0f, 0.5f};
   private final float LightSpecular[] = { 1f, 1f, 1f, 1f };
   private final float LightDiffuse[] = { 0.93f, 0.93f, 0.93f, 1f };
   private final float LightPosition[] = { 1f, 1f, 3f, 0f };
@@ -116,8 +117,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //scaleText.setBounds(0,0,100,50);
     setAnimateFps(24.);
     displayPhase = newDisplayPhase;
-    if(displayPhase != null) colorScheme = displayPhase.getColorScheme();
-    if(displayPhase != null) atomFilter = displayPhase.getAtomFilter();
+    if(displayPhase != null) {
+        colorScheme = displayPhase.getColorScheme();
+        atomFilter = displayPhase.getAtomFilter();
+    }
   }
       
   //public void preInit() {
@@ -151,6 +154,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Disable normalization
     gl.glDisable(GL_NORMALIZE);
     
+    //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
  //   	gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);//09/17/02
 
 
@@ -171,11 +175,11 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     
     //new 09/21/02 (DAK)
     //Set the light properties for the system
-    gl.glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
+ /*   gl.glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
     gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
     gl.glLightfv(GL_LIGHT1, GL_POSITION, LightPosition2);
     //Enable light
-    gl.glEnable(GL_LIGHT1);
+    gl.glEnable(GL_LIGHT1);*/
     //end new
     
     gl.glEnable(GL_LIGHTING);
@@ -364,33 +368,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     
     colorScheme = displayPhase.getColorScheme();
 
-    //(DAK) added this section 09/21/02
-    /* do drawing of all drawing objects that have been added to the display */
-    for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
-      Object obj = iter.next();
-      if(obj instanceof etomica.lattice.LatticePlane) {
-        plane = ((etomica.lattice.LatticePlane)obj).planeCopy(plane);
-        points = plane.inPlaneSquare(plane.nearestPoint(center,nearest),40., points);
-        normal = plane.getNormalVector(normal);
-        normal.TE(-1);
-        for(int i=0; i<4; i++) points[i].ME(center);
-          gl.glBegin(GL_QUADS);
-           gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
-//  		   gl.glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
-           gl.glColor4ub(wR, wG, wB, (byte)200);
-           gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
-           gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
-           gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
-           gl.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
-           normal.TE(-1.0);
-           gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
-           gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
-           gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
-           gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
-           gl.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
-          gl.glEnd();
-      }
-    }
 
     if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
         ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
@@ -549,6 +526,32 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       gl.glEnable(GL_CLIP_PLANE4);
       gl.glEnable(GL_CLIP_PLANE5);
     }
+    //////////////******drawing of plane*******/////////////////////////
+    //(DAK) added this section 09/21/02
+    /* do drawing of all drawing objects that have been added to the display */
+    for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
+      Object obj = iter.next();
+      if(obj instanceof etomica.lattice.LatticePlane) {
+        plane = ((etomica.lattice.LatticePlane)obj).planeCopy(plane);
+        points = plane.inPlaneSquare(plane.nearestPoint(center,nearest),40., points);
+        normal = plane.getNormalVector(normal);
+    gl.glDisable(GL_CULL_FACE);
+        for(int i=0; i<4; i++) points[i].ME(center);
+          gl.glBegin(GL_QUADS);
+           gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
+//  		   gl.glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
+           gl.glMaterialfv(GL_FRONT, GL_AMBIENT, materialTransparent);
+           gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, materialTransparent);
+           gl.glColor4ub(wR, wG, wB, wA);
+           gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
+           gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
+           gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
+           gl.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
+          gl.glEnd();
+        }
+    gl.glEnable(GL_CULL_FACE);
+    }
+    //////////////////////////////////////////
   }
               
   protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
