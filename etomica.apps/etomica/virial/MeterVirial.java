@@ -15,6 +15,7 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	private Cluster[] clusters;
 	private Cluster refCluster;
 	private double refIntegral;
+	private double refTemperature, refBeta;
 	private P2Cluster simulationPotential;
 	private double temperature, beta;
 	private PairSet pairSet;
@@ -23,7 +24,8 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	 * Constructor for MeterVirial.
 	 * @param sim
 	 */
-	public MeterVirial(Simulation sim, PairSet pairSet, double refIntegral, Cluster refCluster,
+	public MeterVirial(Simulation sim, PairSet pairSet, 
+						double refTemperature, Cluster refCluster, double refIntegral, 
 						Cluster[] clusters, P2Cluster simulationPotential) {
 		super(sim, clusters.length+1);
 		this.pairSet = pairSet;
@@ -32,15 +34,16 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 		this.refCluster = refCluster;
 		this.refIntegral = refIntegral;
 		this.simulationPotential = simulationPotential;
+		setTemperature(Default.TEMPERATURE);
+		setReferenceTemperature(refTemperature);
 	}
-	
-	
+
 	/**
 	 * @see etomica.MeterGroup#updateValues()
 	 */
 	public void updateValues() {
 		double pi = simulationPotential.pi();
-		currentValues[0] = refCluster.value(pairSet, beta)/pi;
+		currentValues[0] = refCluster.value(pairSet, refBeta)/pi;
 		for(int i=1; i<nMeters; i++) currentValues[i] = clusters[i-1].value(pairSet, beta)/pi;
 	}
 	
@@ -59,6 +62,13 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	 */
 	public Dimension getDimension() {
 		return Dimension.NULL;
+	}
+	
+	public void setPairs(PairSet pairs) {
+		this.pairSet = pairs;
+	}
+	public PairSet getPairs() {
+		return pairSet;
 	}
 
 	/**
@@ -110,6 +120,23 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 		beta = 1.0/temperature;
+	}
+
+	/**
+	 * Returns the refTemperature.
+	 * @return double
+	 */
+	public double getReferenceTemperature() {
+		return refTemperature;
+	}
+
+	/**
+	 * Sets the refTemperature.
+	 * @param refTemperature The refTemperature to set
+	 */
+	public void setReferenceTemperature(double refTemperature) {
+		this.refTemperature = refTemperature;
+		refBeta = 1.0/refTemperature;
 	}
 
 }
