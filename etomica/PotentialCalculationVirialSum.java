@@ -8,6 +8,8 @@ package etomica;
  
  /* History
   * 10/12/02 (DAK) new
+  * 08/29/03 (DAK) added actionPerformed(AtomSet) method because method made
+  * abstract in PotentialCalculation
   */
 public class PotentialCalculationVirialSum extends PotentialCalculation 
 											 implements PotentialCalculation.Summable {
@@ -37,6 +39,10 @@ public class PotentialCalculationVirialSum extends PotentialCalculation
 	}
 
 	public void actionPerformed(Atom3 atom3) {
+		throw new etomica.exception.MethodNotImplementedException();
+	}
+
+	public void actionPerformed(AtomSet atomN) {
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 

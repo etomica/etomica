@@ -1,6 +1,7 @@
 package etomica;
 
 //CoordinateGroup is not updated to the same structure as used in Space2D and Space3D
+//centralImage not updated to molecule form as in Space3D
 
  /* History of changes
   * 09/01/02 (DAK) added accelerateTo method to Coordinate
@@ -9,6 +10,7 @@ package etomica;
   *                if accelerating to nonzero momentum).
   * 07/10/03 (DAK) added resetV method to CoordinatePair
   * 08/27/03 (DAK) added isZero method to Vector
+  * 08/29/03 (DAK) implemented centralImage(Space.Coordinate) in Boundary
   */
 public class Space1D extends Space implements EtomicaElement {
     
@@ -544,6 +546,8 @@ public class Space1D extends Space implements EtomicaElement {
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
         public abstract boolean centralImage(Vector r);
+        public abstract boolean centralImage(Coordinate c);
+        public boolean centralImage(Space.Coordinate c) {return centralImage((Coordinate)c);}
     }
 
     /**
@@ -558,7 +562,8 @@ public class Space1D extends Space implements EtomicaElement {
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
         public void nearestImage(Space.Vector dr) {}
-        public boolean centralImage(Space.Vector r) {return false;}
+		public boolean centralImage(Space.Vector r) {return false;}
+		public boolean centralImage(Coordinate c) {return false;}
         public void nearestImage(Vector dr) {}
         public boolean centralImage(Vector r) {return false;}
         public double volume() {return dimensions.x;}
@@ -601,6 +606,7 @@ public class Space1D extends Space implements EtomicaElement {
             while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
             while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
         }
+        public boolean centralImage(Coordinate c) {return centralImage(c.position());}
         public boolean centralImage(Space.Vector r) {return centralImage((Vector)r);}
         public boolean centralImage(Vector r) {
             boolean changed = false;

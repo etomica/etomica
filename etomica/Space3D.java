@@ -26,6 +26,10 @@ package etomica;
   * 08/28/03 (DAK) added mod2, Mv1Pv2Squared, Mv1Squared methods to Vector;
   * added nearestImage(dr, shift) method to Boundary with
   * nontrivial implementation in BoundaryPeriodicCubic
+  * 08/29/03 (DAK) implemented centralImage(Space.Coordinate) in Boundary
+  * 08/29/03 (DAK) translateBy(Space.Vector) invokes translateBy(Vector)
+  * instead of repeating the code it it, then in CoordinateGroup translateBy
+  * (Vector) overrides Coordinate.translateBy(Vector) method.
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -582,13 +586,13 @@ public class Space3D extends Space implements EtomicaElement {
         * 
         * @param u
         */
-        public void translateBy(Space.Vector u) {
-            r.PE((Vector)u); 
-            atom.seq.moveNotify();
-        }
+        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
+//            r.PE((Vector)u); 
+//            atom.seq.moveNotify();
+//        }
         //for use by other methods/classes in Space3D
         //(not sure if this is used, or the Space.Vector version)
-		private void translateBy(Vector u) {
+		protected void translateBy(Vector u) {
 			r.PE(u); 
 			atom.seq.moveNotify();
 		}
@@ -725,7 +729,7 @@ public static class CoordinateGroup extends Coordinate {
         scale.PE(1.0);
     }
     
-    public void translateBy(Space.Vector u) {
+    protected void translateBy(Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
             childIterator.next().coord.translateBy(u);
@@ -1146,6 +1150,7 @@ public static class CoordinateGroup extends Coordinate {
         public abstract void nearestImage(Vector dr);
         public abstract void nearestImage(Vector dr, Vector shift);
         public abstract boolean centralImage(Vector r);
+        public boolean centralImage(Space.Coordinate c) {return centralImage((Coordinate)c);}
         public abstract boolean centralImage(Coordinate c);
     }
     

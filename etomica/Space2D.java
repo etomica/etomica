@@ -1,5 +1,7 @@
 package etomica;
 
+//centralImage not updated to molecule form as in Space3D
+
  /* History of changes
   * 09/01/02 (DAK) added accelerateTo method to Coordinate
   *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
@@ -9,6 +11,7 @@ package etomica;
   * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
   * 07/10/03 (DAK) added resetV method to CoordinatePair
   * 08/27/03 (DAK) added isZero method to Vector
+  * 08/29/03 (DAK) implemented centralImage(Space.Coordinate) in Boundary
   */
 public class Space2D extends Space implements EtomicaElement {
     
@@ -704,6 +707,7 @@ public class Space2D extends Space implements EtomicaElement {
         public abstract void nearestImage(Vector dr);
         public abstract boolean centralImage(Vector r);
         public abstract boolean centralImage(Coordinate c);
+        public boolean centralImage(Space.Coordinate c) {return centralImage((Coordinate)c);}
     }
 
     /**

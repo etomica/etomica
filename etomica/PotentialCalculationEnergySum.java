@@ -5,6 +5,11 @@ package etomica;
  *
  * @author David Kofke
  */
+
+/* History
+ * 08/29/03 (DAK) added actionPerformed(AtomSet) method because method made
+ * abstract in PotentialCalculation
+ */
 public class PotentialCalculationEnergySum extends PotentialCalculation
 											implements PotentialCalculation.Summable {
     protected double sum = 0.0;
@@ -27,6 +32,10 @@ public class PotentialCalculationEnergySum extends PotentialCalculation
     
     public void actionPerformed(Atom3 atom3) {
     	sum += potential3.energy(atom3);
+    }
+    
+    public void actionPerformed(AtomSet atomSet) {
+    	sum += potentialN.energy(atomSet);
     }
         
 }//end EnergySum

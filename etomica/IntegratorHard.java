@@ -71,6 +71,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		public void actionPerformed(Atom3 atom3) {
 			throw new etomica.exception.MethodNotImplementedException();
 		}
+		public void actionPerformed(AtomSet atomN) {
+			throw new etomica.exception.MethodNotImplementedException();
+		}
 
 		public PotentialCalculation set(Potential1 p1) {
 			if(!(p1 instanceof Potential1.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
@@ -108,6 +111,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 //			throw new etomica.exception.MethodNotImplementedException();
 		}
 		public void actionPerformed(Atom3 atom3) {
+			throw new etomica.exception.MethodNotImplementedException();
+		}
+		public void actionPerformed(AtomSet atomN) {
 			throw new etomica.exception.MethodNotImplementedException();
 		}
 		public PotentialCalculation set(Potential1 p1) {

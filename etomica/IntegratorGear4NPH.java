@@ -274,6 +274,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         public void actionPerformed(Atom3 triplet) {
         	throw new etomica.exception.MethodNotImplementedException();
         }
+		public void actionPerformed(AtomSet atomN) {
+			throw new etomica.exception.MethodNotImplementedException();
+		}
 
         //pair
         public void calculate(AtomPairIterator iterator, Potential2 potential) {

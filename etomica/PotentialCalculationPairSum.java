@@ -21,8 +21,11 @@ public class PotentialCalculationPairSum extends PotentialCalculation
     public void actionPerformed(AtomPair pair) {
         sum += 1;
     }//end of calculate
-    public void actionPerformed(Atom3 atom3) {
-    	sum += 1;
-    }    
+	public void actionPerformed(Atom3 atom3) {
+		sum += 1;
+	}    
+	public void actionPerformed(AtomSet atomN) {
+		sum += 1;
+	}    
         
 }//end PairSum

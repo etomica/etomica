@@ -1,5 +1,8 @@
 package etomica;
 
+/* History
+ * 08/29/03 (DAK) made actionPerformed(AtomSet) abstract; added PotentialN
+ */
 public abstract class PotentialCalculation implements AtomSetActive,
 											 PhaseActive,
 											 AtomActive,
@@ -10,6 +13,7 @@ public abstract class PotentialCalculation implements AtomSetActive,
 	protected Potential1 potential1;
 	protected Potential2 potential2;
 	protected Potential3 potential3;
+	protected PotentialN potentialN;
 	public final AtomPairActive.InnerWrapper wrapper;
 	public final AtomPairActive.OuterWrapper outerWrapper;
 
@@ -37,6 +41,10 @@ public abstract class PotentialCalculation implements AtomSetActive,
 		potential3 = p3;
 		return this;
 	}
+	public PotentialCalculation set(PotentialN pN) {
+		potentialN = pN;
+		return this;
+	}
 	
 //	/**
 //	 * Performs the atom-action on the species master of the phase.
@@ -46,14 +54,15 @@ public abstract class PotentialCalculation implements AtomSetActive,
 //		actionPerformed(phase.speciesMaster);//problem with lrc in soft md if doing this
 	}
 	
-	public void actionPerformed(AtomSet atomSet) {
-		switch(atomSet.nBody()) {
-			case 1: actionPerformed((Atom)atomSet); break;
-			case 2: actionPerformed((AtomPair)atomSet); break;
-			case 3: actionPerformed((Atom3)atomSet); break;
-		}
-	}
- 	   
+	public abstract void actionPerformed(AtomSet atomSet);//added 08/29/03 in place of following commented lines 	   
+//	public void actionPerformed(AtomSet atomSet) {
+//		switch(atomSet.nBody()) {
+//			case 1: actionPerformed((Atom)atomSet); break;
+//			case 2: actionPerformed((AtomPair)atomSet); break;
+//			case 3: actionPerformed((Atom3)atomSet); break;
+//		}
+//	}
+ 	
 	public abstract void actionPerformed(Atom atom);
     
 	public abstract void actionPerformed(AtomPair pair);

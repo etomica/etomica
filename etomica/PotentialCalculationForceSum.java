@@ -37,8 +37,12 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
         ((Integrator.Agent.Forcible)pair.atom2().ia).force().ME(f);
     }//end of calculate
     
-    public void actionPerformed(Atom3 atom3) {
-    	throw new etomica.exception.MethodNotImplementedException();
-    }
+	public void actionPerformed(Atom3 atom3) {
+		throw new etomica.exception.MethodNotImplementedException();
+	}
+	
+	public void actionPerformed(AtomSet atomN) {
+		throw new etomica.exception.MethodNotImplementedException();
+	}
 }//end ForceSums
     

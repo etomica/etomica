@@ -370,7 +370,7 @@ public abstract class Space implements java.io.Serializable {
         public void setPhase(Phase p) {phase = p;}
         public abstract Space.Boundary.Type type();
         public abstract boolean centralImage(Vector r);//returns true if r is changed by applying central image
-        public boolean centralImage(Coordinate c) {return centralImage(c.position());}
+        public abstract boolean centralImage(Coordinate c);// {return centralImage(c.position());}
         public abstract void nearestImage(Space.Vector dr);
         public abstract double volume();
  //       public void setVolume(double newVolume) {inflate(Math.pow(newVolume/volume(),1.0/D()));}
@@ -429,6 +429,7 @@ public abstract class Space implements java.io.Serializable {
             public Space.Vector dimensions() {return null;}
             public Space.Boundary.Type type() {return null;}
             public final void nearestImage(Space.Vector dr) {}
+            public final boolean centralImage(Coordinate c) {return false;}
             public final boolean centralImage(Space.Vector r) {return false;}
             public double volume() {return 0.0;}
             public void inflate(double s) {}

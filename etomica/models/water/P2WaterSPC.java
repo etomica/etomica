@@ -7,12 +7,12 @@ import etomica.*;
 
 public class P2WaterSPC extends Potential2 implements Potential2.Soft {
 
-	public P2WaterSPC(Simulation sim, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
-		this(sim, potentialTruncation);
+	public P2WaterSPC(SimulationElement parent, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+		this(parent, potentialTruncation);
 		this.boundary = boundary;
 	}
-	public P2WaterSPC(Simulation sim, PotentialTruncation potentialTruncation) {
-		super(Simulation.instance.hamiltonian.potential);
+	public P2WaterSPC(SimulationElement parent, PotentialTruncation potentialTruncation) {
+		super(parent);
 		setSigma(3.1670);
 		setEpsilon(Kelvin.UNIT.toSim(78.23));
 		this.potentialTruncation = potentialTruncation;
