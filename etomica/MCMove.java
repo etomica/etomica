@@ -319,21 +319,13 @@ public abstract class MCMove implements java.io.Serializable {
 	 * be given a different value by subclasses.
 	 */
 	protected boolean perParticleFrequency;
-
 	private double acceptanceRatio, acceptanceTarget;
-
 	protected double stepSize, stepSizeMax, stepSizeMin;
-
 	private int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
-
 	protected boolean tunable = true;
-
 	protected final Phase[] phases;
-
 	private String name;
-
 	protected double temperature;
-
 	protected final PotentialMaster potential;
 
 }

@@ -70,7 +70,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 			lastMoveLink.nextLink = new MCMoveLinker(move);
 			lastMoveLink = lastMoveLink.nextLink;
 		}
-		move.setPhase(phase);
+		if(move.phases.length == phase.length) move.setPhase(phase);
 		move.setTemperature(temperature);
 		moveCount++;
 		recomputeMoveFrequencies();
@@ -78,12 +78,14 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 
 	/**
 	 * Invokes superclass method and informs all MCMoves about the new phase.
+     * Moves are not notified if they have a number of phases different from
+     * the number of phases handled by the integrator.
 	 */
 	public boolean addPhase(Phase p) {
 		if (!super.addPhase(p))
 			return false;
 		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			link.move.setPhase(phase);
+			if(link.move.phases.length == phase.length) link.move.setPhase(phase);
 		}
 		return true;
 	}
@@ -213,7 +215,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	protected void recomputeMoveFrequencies() {
 		frequencyTotal = 0;
 		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			link.resetFullFrequency(phase);
+			link.resetFullFrequency();
 			frequencyTotal += link.fullFrequency;
 		}
 	}
@@ -281,13 +283,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	 */
 	private static class MCMoveLinker {
 		int frequency, fullFrequency;
-
 		final MCMove move;
-
 		boolean perParticleFrequency;
-
 		int selectionCount;
-
 		MCMoveLinker nextLink;
 
 		MCMoveLinker(MCMove move) {
@@ -301,8 +299,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		 * frequency, the status of the perParticleFrequency flag, and the
 		 * current number of molecules in the phases affected by the move.
 		 */
-		void resetFullFrequency(Phase[] phases) {
+		void resetFullFrequency() {
 			fullFrequency = frequency;
+            Phase[] phases = move.getPhase();
 			if (perParticleFrequency && phases != null) {
 				int mCount = 0;
 				for (int i = 0; i < phases.length; i++)
