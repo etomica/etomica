@@ -69,7 +69,7 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
      * This vector can be used to reverse the translation by multiplying it by -1 and 
      * performing an atomActionTranslateBy with it.
      */
-    public Vector translationVector() {
+    public Vector getTranslationVector() {
         return translationVector;
     }
 }
