@@ -332,48 +332,48 @@ public class IntegratorHard extends IntegratorMD {
     //the up-handler has the logic of the Allen & Tildesley upList subroutine
     //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
     private static final class CollisionHandlerUp extends PotentialCalculation {
-       double minCollisionTime;
-       IntegratorHard.Agent aia;
-       Atom atom1;
+        double minCollisionTime;
+        IntegratorHard.Agent aia;
+        Atom atom1;
 
-       /**
-        * resets the "atom" held by this class, ensuring the method will
-        * work even if (coincidentally) the atom is the same as the same 
-        * one as the last time the method was called.
-        */
-       public void reset() {
-          atom1 = null;
-       }
+        /**
+         * resets the "atom" held by this class, ensuring the method will
+         * work even if (coincidentally) the atom is the same as the same 
+         * one as the last time the method was called.
+         */
+        public void reset() {
+            atom1 = null;
+        }
 
         /**
          * sets the atom whose collision time is to be calculated
          */
-       public void setAtom(Atom a) {
-          atom1 = a;
-          aia = (IntegratorHard.Agent)a.ia;
-          minCollisionTime = aia.collisionTime();
-       }//end of setAtom
-        
-       //atom pair
-       public void doCalculation(AtomsetIterator iterator, Potential potential) {
-          iterator.reset();
-          PotentialHard pHard = (PotentialHard)potential; 
-          while (iterator.hasNext()) {
-             Atom[] atoms = iterator.next();
-             if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
-             double collisionTime = pHard.collisionTime(atoms);
-             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
-                System.out.println("collision up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
-             }
-             if(collisionTime < minCollisionTime) {
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-                   System.out.println("setting up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
+        public void setAtom(Atom a) {
+            atom1 = a;
+            aia = (IntegratorHard.Agent)a.ia;
+            minCollisionTime = aia.collisionTime();
+        }//end of setAtom
+
+        //atom pair
+        public void doCalculation(AtomsetIterator iterator, Potential potential) {
+            iterator.reset();
+            PotentialHard pHard = (PotentialHard)potential; 
+            while (iterator.hasNext()) {
+                Atom[] atoms = iterator.next();
+                if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
+                double collisionTime = pHard.collisionTime(atoms);
+                if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
+                    System.out.println("collision up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
                 }
-                minCollisionTime = collisionTime;
-                aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
-             }//end if
-          }
-       }//end of calculate(AtomPair...
+                if(collisionTime < minCollisionTime) {
+                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+                        System.out.println("setting up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
+                    }
+                    minCollisionTime = collisionTime;
+                    aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
+                }//end if
+            }
+        }//end of calculate(AtomPair...
 
     } //end of collisionHandlerUp
 
