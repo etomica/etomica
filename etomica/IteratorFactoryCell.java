@@ -62,7 +62,7 @@ public class IteratorFactoryCell implements IteratorFactory {
      * separately using the simulation's setIteratorFactory method.
      */
     public IteratorFactoryCell(Simulation sim) {
-        this(sim, new PrimitiveCubic(sim), 4);
+        this(sim, new PrimitiveCubic(sim), 10);
     }
     
     /**
@@ -190,11 +190,12 @@ public class IteratorFactoryCell implements IteratorFactory {
      */
     public void setNeighborRange(double r) {
         neighborRange = r;
+        final double rangeSquared = r*r;
         for(int i=0; i<deployedLattices.length; i++) {
             final Phase phase = getPhase(deployedLattices[i]);
             NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
                 public boolean areNeighbors(Site s1, Site s2) {
-                    return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < neighborRange;
+                    return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < rangeSquared;
                 }
             };
             deployedLattices[i].setupNeighbors(neighborCriterion);
@@ -720,6 +721,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         IntegratorMC integrator = new IntegratorMC();
         MCMoveAtom mcMoveAtom = new MCMoveAtom(integrator);
         MCMoveVolume mcMoveVolume = new MCMoveVolume(integrator);
+        mcMoveVolume.setPressure(3.0);
         
 	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
 	    speciesSpheres.setNMolecules(300);
@@ -735,20 +737,24 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	    etomica.graphics.LatticeRenderer.ColorSchemeCell colorSchemeCell =
 	        new etomica.graphics.LatticeRenderer.ColorSchemeCell();
 	    
+	    integrator.setDoSleep(false);
 	    integrator.setSleepPeriod(2);
 	    
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
-		                                    
+		
+	    //draw lattice cells on display
 	    BravaisLattice lattice = ((IteratorFactoryCell)sim.getIteratorFactory()).getLattice(phase);
+	//    ((IteratorFactoryCell)sim.iteratorFactory).setNeighborRange(4.0);
 	    etomica.graphics.LatticeRenderer latticeRenderer = 
 	            new etomica.graphics.LatticeRenderer(lattice);
 	    displayPhase.addDrawable(latticeRenderer);
-	    
+	  
+	    //color atoms
 	    colorSchemeNbr.setAtom(phase.speciesMaster.atomList.getRandom());
-//	    displayPhase.setColorScheme(colorSchemeNbr);
-        colorSchemeCell.setLattice(lattice);
-	    displayPhase.setColorScheme(colorSchemeCell);
+	    displayPhase.setColorScheme(colorSchemeNbr);
+//        colorSchemeCell.setLattice(lattice);
+//	    displayPhase.setColorScheme(colorSchemeCell);
         
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
         

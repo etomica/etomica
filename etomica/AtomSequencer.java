@@ -7,10 +7,6 @@ public abstract class AtomSequencer extends AtomLinker {
     
     public AtomSequencer(Atom a) {super(a);}
     
-    public Atom nextAtom() {return (next != null) ? next.atom : null;}
-    
-    public Atom previousAtom() {return (previous != null) ? previous.atom : null;}
-    
     /**
      * Notifies sequencer that atom has been moved to a new position.
      */

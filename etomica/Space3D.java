@@ -371,7 +371,10 @@ public class Space3D extends Space implements EtomicaElement {
         public final Vector work = new Vector();
         public Coordinate(Atom a) {super(a);}
                         
-        public void transform(Space.Vector r0, Space.Tensor A) {r.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);}
+        public void transform(Space.Vector r0, Space.Tensor A) {
+            r.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);
+            atom.seq.moveNotify();
+        }
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
@@ -382,6 +385,7 @@ public class Space3D extends Space implements EtomicaElement {
             r.x += p.x*tM;
             r.y += p.y*tM;
             r.z += p.z*tM;
+            atom.seq.moveNotify();
         }
         /**
          * Scales positions of atoms by multiplying by given value.  Does not notify sequencers.
@@ -511,6 +515,7 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.next().coord.freeFlight(t);
         }
+        atom.seq.moveNotify();
     }
     public void inflate(double scale) {
         work.E(position());

@@ -116,11 +116,11 @@ public class IteratorFactorySimple implements IteratorFactory {
         */
         public Atom next() {
             Atom atom = next;
-            if(next != last) next = upListNow ? next.seq.nextAtom() : next.seq.previousAtom();
+            if(next != last) next = upListNow ? next.seq.next.atom : next.seq.previous.atom;
             else if(doGoDown) {
                 upListNow = false;
                 doGoDown = false;
-                next = ref.seq.previousAtom();
+                next = ref.seq.previous.atom;
                 last = basisNode.firstChildAtom();
             }
             else next = null;
@@ -133,16 +133,16 @@ public class IteratorFactorySimple implements IteratorFactory {
         public void allAtoms(AtomAction act) {;
             if(next == null) return;
             if(upListNow) {
-                for(Atom atom = next; atom != null; atom=atom.seq.nextAtom()) {
+                for(Atom atom = next; atom != null; atom=atom.seq.next.atom) {
                     act.actionPerformed(atom);
                     if(atom == last) break;
                 }
                 if(ref == null) {next = null; return;}
-                next = ref.seq.previousAtom();
+                next = ref.seq.previous.atom;
                 last = basisNode.firstChildAtom();
             }
             if(doGoDown && next != null) {
-                for(Atom atom = next; atom != null; atom=atom.seq.previousAtom()) {
+                for(Atom atom = next; atom != null; atom=atom.seq.previous.atom) {
                     act.actionPerformed(atom);
                     if(atom == last) break;
                 }

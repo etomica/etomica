@@ -252,13 +252,16 @@ public class Space1D extends Space implements EtomicaElement {
         public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
         public void clearPreviousAtom() {previousCoordinate = null;}
 
-        public void transform(Space.Vector r0, Space.Tensor A) {r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
+        public void transform(Space.Vector r0, Space.Tensor A) {
+            r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);
+            atom.seq.moveNotify();
+        }
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
-        public void freeFlight(double t) {r.x += p.x*t*rm();}
+        public void freeFlight(double t) {r.x += p.x*t*rm(); atom.seq.moveNotify();}
         public void inflate(double s) {r.x *= s;}
         public void inflate(Space.Vector s) {r.x *= ((Vector)s).x;}
 
@@ -400,6 +403,7 @@ public class Space1D extends Space implements EtomicaElement {
                 coord.translateBy(u0);
                 if(coord == lastChild) break;
             }
+            atom.seq.moveNotify();
         }
         public void translateBy(double d, Space.Vector u) {
             Vector u0 = (Vector)u;
@@ -407,6 +411,7 @@ public class Space1D extends Space implements EtomicaElement {
                 coord.translateBy(d, u0);
                 if(coord == lastChild) break;
             }
+            atom.seq.moveNotify();
         }
         public void translateTo(Space.Vector u) {
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -419,6 +424,7 @@ public class Space1D extends Space implements EtomicaElement {
                 coord.displaceBy(u0);
                 if(coord == lastChild) break;
             }
+            atom.seq.moveNotify();
         }
         public void displaceBy(double d, Space.Vector u) {
             Vector u0 = (Vector)u;
@@ -426,6 +432,7 @@ public class Space1D extends Space implements EtomicaElement {
                 coord.displaceBy(d, u0);
                 if(coord == lastChild) break;
             }
+            atom.seq.moveNotify();
         }
         public void displaceTo(Space.Vector u) {
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -440,6 +447,7 @@ public class Space1D extends Space implements EtomicaElement {
                 coord.replace();
                 if(coord == lastChild) break;
             }
+            atom.seq.moveNotify();
         }
         public void accelerateBy(Space.Vector u) {
             Vector u0 = (Vector)u;

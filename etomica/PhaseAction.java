@@ -76,7 +76,11 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
             Space.Boundary boundary = p.boundary();
             iterator.setBasis(p.speciesMaster.atomList);
             iterator.reset();
-            while(iterator.hasNext()) boundary.centralImage(iterator.next().coord);
+            while(iterator.hasNext()) {
+                Atom a = iterator.next();
+                //centralImage returns true if it causes the atom to be moved
+                if(boundary.centralImage(a.coord)) a.seq.moveNotify();
+            }
         }
         
         public void intervalAction(Integrator.IntervalEvent evt) {

@@ -189,7 +189,8 @@ public class Simulation implements java.io.Serializable {
     public String getName() {return name;}
     public String toString() {return getName();}
     
-    public static final java.util.Random random = new java.util.Random();
+//    public static final java.util.Random random = new java.util.Random();
+    public static final java.util.Random random = new java.util.Random(1);
         
      /**
       * Returns the mediator that coordinates the elements of the simulation.
