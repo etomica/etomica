@@ -9,7 +9,7 @@ package etomica;
  *
  * Interface for an AtomIterator that can be reset with an IteratorDirective.
  */
-public interface AIDirectable extends AtomIterator {
+public interface AtomIteratorDirectable extends AtomIterator {
 
     public void reset(IteratorDirective id);
 

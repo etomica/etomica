@@ -19,24 +19,20 @@ import etomica.units.Dimension;
 public final class SpeciesAgent extends Atom {
 
     protected final AtomFactory factory;
-//    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
-    private final AtomIteratorTree leafIterator = new AtomIteratorTree(this);
-    private final AtomIteratorList moleculeIterator = new AtomIteratorList(((AtomTreeNodeGroup)this.node).childList);
     
     protected Integrator integrator;
+    AtomLinker.Tab firstLeafAtomTab;
     
     public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
         super(s.simulation().space(), new AtomType.Group(null), new NodeFactory(s), 
                 s.simulation().getIteratorFactory().simpleSequencerFactory(), parent);
         factory = s.moleculeFactory();
-//        node = (AtomTreeNodeGroup)super.node;
         ((AtomType.Group)type).childrenAreGroups = factory.isGroupFactory();
         ((AtomType.Group)type).childSequencerClass = s.simulation().iteratorFactory.neighborSequencerClass();
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
-    
-    
+      
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)seq.next.atom;}
     public int moleculeCount() {return ((AtomTreeNodeGroup)node).childAtomCount();}
     public Atom firstMolecule() {return ((AtomTreeNodeGroup)node).firstChildAtom();}
@@ -47,29 +43,7 @@ public final class SpeciesAgent extends Atom {
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom((AtomTreeNodeGroup)this.node);
         return aNew;
-    }
-    
-    /**
-     * Performs the given action on all children (molecules) of this species agent.
-     * Method provides the iterator that performs the action, so it must be
-     * synchronized to prevent multiple processes from using the single iterator.
-     */
-    public synchronized void allMolecules(AtomAction action) {
-        moleculeIterator.allAtoms(action);
-    }
-    
-    /**
-     * Performs the given action on all (leaf) atoms of this species agent.
-     * Method provides the iterator that performs the action, so it must be
-     * synchronized to prevent multiple processes from using the single iterator.
-     */
-    public synchronized void allAtoms(AtomAction action) {
-      //  leafIterator.allAtoms(action); //use other form because AtomIteratorTree does yet implement allAtoms method
-        leafIterator.reset();
-        while(leafIterator.hasNext()) {
-            action.actionPerformed(leafIterator.next());
-        }
-    }
+    }    
     
     /**
     * Sets the number of molecules for this species.  Makes the given number

@@ -11,7 +11,7 @@ package etomica;
  * the wrapped iterator to perform the desired iteration within
  * the given phase.
  */
-public abstract class AtomIteratorAdapter implements AIPhaseDependent {
+public abstract class AtomIteratorAdapter implements AtomIteratorPhaseDependent {
 
 	protected final AtomIterator iterator;
 	

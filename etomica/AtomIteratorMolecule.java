@@ -15,6 +15,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter {
     public AtomIteratorMolecule() {
         super(new AtomIteratorTree(2));
         treeIterator = (AtomIteratorTree)iterator;
+        setPhase(null);
     }
     
     /**

@@ -96,6 +96,10 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
         next = terminator = list.header;
         first = list.header.next;
     }
+    
+    public AtomList getList() {
+    	return list;
+    }
 
     /**
      * Resets the iterator using the current values of first, terminator, and upList.  
@@ -129,6 +133,10 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
 		unset();
     }
     
+    public IteratorDirective.Direction getIterationDirection() {
+    	return upList ? IteratorDirective.UP : IteratorDirective.DOWN;
+    }
+    
     /**
      * Resets to begin with the given atom linker.  
      * Does not check that the linker is an iterate of this iterator.
@@ -138,7 +146,7 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
         this.first = first;
         unset();
     }
-        
+    
     /**
      * Resets in reference to the given atom.  Finds the atom in the list and
      * calls reset(AtomLinker) in reference to its linker.  If atom is not in list,
@@ -148,6 +156,8 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
         setFirst(list.entry(atom));
     }
 
+    public AtomLinker getFirst() {return first;}
+    
     /**
      * Resets for new iteration, beginning with the atom of the first argument.
      * If first is an index, iterator is advanced to begin with the
@@ -157,6 +167,10 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
     	if((terminator != null) && (terminator.list != this.list)) throw new IllegalArgumentException("Error in setting terminator as an element not in the list set for iteration");
         this.terminator = terminator;
         unset();
+    }
+    
+    public AtomLinker.Tab getTerminator() {
+    	return terminator;
     }
     
     /**
@@ -220,7 +234,7 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
         while(next.atom == null) {
             //if terminator is null we stop at the first encounter of a Tab linker
             //otherwise stop only if Tab linker is the specified terminator or the header (which could be encountered before terminator, if different
-            if(terminator == null || next == terminator || next == list.header) break;
+            if(terminator == null || next == terminator || next == list.header) break;//check against header also, in case it is not the terminator but it is reached first
             next = upList ? next.next : next.previous;
         }
         return nextLinker;

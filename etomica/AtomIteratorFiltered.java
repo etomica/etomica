@@ -18,7 +18,7 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * until another filter is specified.
 	 */
 	public AtomIteratorFiltered(AtomIterator iterator) {
-		this(iterator, AtomFilter.ALL);
+		this(iterator, AtomFilter.ACCEPT_ALL);
 	}
 	
 	/**

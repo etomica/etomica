@@ -102,13 +102,22 @@ public final class SpeciesMaster extends Atom {
         public final boolean childrenAreGroups() {return true;}
         
         public void addAtomNotify(Atom atom) {
-            if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount++;}
-            else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();}
+        	if(atom.node.parentGroup() instanceof SpeciesAgent) {
+            	speciesMaster.moleculeCount++;
+            }
+            else if(atom instanceof SpeciesAgent) {
+            	speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();
+            	AtomLinker.Tab newTab = AtomLinker.Tab.newTab(speciesMaster.atomList);
+            	speciesMaster.atomList.add(newTab);
+            	((SpeciesAgent)atom).firstLeafAtomTab = newTab;
+            }
+        	AtomLinker.Tab nextTab = atom.node.parentSpeciesAgent().firstLeafAtomTab.nextTab;
+        	
             leafAtomCount += atom.node.leafAtomCount();
             leafIterator.setRoot(atom);
             leafIterator.reset();
             while(leafIterator.hasNext()) {
-                speciesMaster.atomList.add(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker);
+                speciesMaster.atomList.addBefore(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker, nextTab);
             }
             speciesMaster.eventManager.fireEvent(speciesMaster.additionEvent.setAtom(atom));
         }

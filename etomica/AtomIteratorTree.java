@@ -2,15 +2,10 @@ package etomica;
 
 /**
  * Atom iterator that traverses all atoms at a specified depth below a
- * specified basis atom in the atom tree hierarchy.  The depth may be
+ * specified root atom in the atom tree hierarchy.  The depth may be
  * specified as any non-negative integer.  If the bottom of the hierarchy
  * is reached before the specified depth, the leaf atoms encountered
- * there are the iterates.  Assumes that all molecules (i.e., atoms
- * below the SpeciesAgent level) of a given species have the same structure.
- * For example, assume there is not a species in which one molecule has two levels of
- * atoms below it, while another molecule of the same species has one level
- * of atoms below it.  However, does not assume that molecules in different species 
- * have the same structure.
+ * there are the iterates.
  *
  * @author David Kofke
  * 02.02.16
