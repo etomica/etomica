@@ -5,7 +5,7 @@ import java.awt.Rectangle;
 import java.util.Iterator;
 import etomica.units.*;
 
-public class SpeciesWalls extends Species {
+public class SpeciesWalls extends Species implements EtomicaElement {
 
     public static final int NORTH = 0;
     public static final int SOUTH = 1;
@@ -64,6 +64,11 @@ public class SpeciesWalls extends Species {
 
         moleculeConfiguration = new SpeciesWalls.ConfigurationParallel(this);
         moleculeConfiguration.setParentSpecies(this);
+    }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Species with 'molecules' constructed from wall-shaped 'atoms'");
+        return info;
     }
 
     protected Molecule makeMolecule(Phase phase) {

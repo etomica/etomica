@@ -10,7 +10,11 @@ public final class Default {
     public static String CLASS_DIRECTORY = WORKING_DIRECTORY + "etomica";
     
     public static String IMAGE_DIRECTORY = "file:/" + WORKING_DIRECTORY + "images/";
+    
+    public static String HELP_FILE = "http://www.ccr.buffalo.edu/etomica/help.html";
         
+    public static String JAVADOC_FILE = "http://www.ccr.buffalo.edu/etomica/JavaDoc/index.html";
+
     public static double ATOM_SIZE = 3.0;  //Angstroms
     
     public static double ATOM_MASS = 40.0; //Daltons

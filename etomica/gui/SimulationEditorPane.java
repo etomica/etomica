@@ -85,6 +85,14 @@ public class SimulationEditorPane extends EditorPane {
      */
     public SimulationEditorPane(SimulationEditor ed, String t){
         super(ed);
+        speciesClasses = IntrospectionArrays.speciesClasses;
+        integratorClasses = IntrospectionArrays.integratorClasses;
+        phaseClasses = IntrospectionArrays.phaseClasses;
+        controllerClasses = IntrospectionArrays.controllerClasses;
+        displayClasses = IntrospectionArrays.displayClasses;
+        meterClasses = IntrospectionArrays.meterClasses;
+        deviceClasses = IntrospectionArrays.deviceClasses;
+        
         elementClasses.put("Species", speciesClasses);
         elementClasses.put("Integrator", integratorClasses);
         elementClasses.put("Phase", phaseClasses);
@@ -254,6 +262,28 @@ public class SimulationEditorPane extends EditorPane {
             else idx = 7 + getTitle().length();//strip off etomica. and the <class name> prefix
             name = name.substring(idx+1);            
             MyRadioButton button = new MyRadioButton(name,false,className[i]);
+        //new stuff
+            Class[] interfaces = className[i].getInterfaces();
+            for (int j = 0; j < interfaces.length; j++) {
+                if (interfaces[j].toString().equals(String.valueOf("interface etomica.EtomicaElement"))){
+                    etomica.EtomicaInfo info = null;
+                    try {
+                        java.lang.reflect.Method method = className[i].getMethod("getEtomicaInfo",null);
+                        info = (etomica.EtomicaInfo)method.invoke(className[i], null);
+  //                      info.setDescription(className[i].toString().substring(14));
+                    }
+                    catch(java.lang.SecurityException se){System.out.println("security exception");}
+                    catch(java.lang.IllegalAccessException iae){System.out.println("illegal access exception");}
+                    catch(java.lang.IllegalArgumentException ia){System.out.println("illegal argument exception");}
+                    catch(java.lang.reflect.InvocationTargetException ite){System.out.println("invocation target exception");}
+                    catch(java.lang.NoSuchMethodException nsme){
+                        button.setToolTipText("No description available");
+                        continue;
+                    }
+                    button.setToolTipText(info.getDescription());
+                }
+            }
+        //end new stuff
             button.addActionListener(new ButtonListener());
             gbl.setConstraints(button, gbc);
             simComponents.add(button);
@@ -399,300 +429,4 @@ public class SimulationEditorPane extends EditorPane {
 	        currentButton = ((MyRadioButton)evt.getSource());
         }//end of actionPerformed
 	}//end of ButtonListener
-
-    /**
-     * This static block sets up all of the static arrays that hold all of the simulation component
-     * classes
-     */
-    static {
-        /**
-         * Etomica.jar test 
-         */
-/*        int count = 0;
-        String[] files = new String[100];
-        JarFile jarFile = null;
-        try {
-            jarFile = new JarFile(etomica.Default.JAR_FILE,false);
-        }
-        catch (java.io.IOException ioe){ioe.printStackTrace();}
-
-    	// Initialization of speciesClasses array
-	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Species") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.equals("Species.class")
-	                && !name.endsWith("UserDefinedDisks.class")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY);
-	    String[] files = dir.list(new java.io.FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Species")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.endsWith("PistonCylinder.class")
-	                && !name.equals("Species.class");}
-	        });
-        speciesClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        speciesClasses[i] = null;
-	        try{
-	            speciesClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of speciesClasses array
-    	    
-	    // Initialization of integratorClasses array
-/*	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Integrator") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.equals("Integrator.class")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Integrator")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.equals("Integrator.class");}
-	        });
-        integratorClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        integratorClasses[i] = null;
-	        try{
-	            integratorClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of integratorClasses array
-    	    
-	    // Initialization of phaseClasses array
-/*	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Phase") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.startsWith("PhaseAction") 
-	                && !name.startsWith("PhaseEvent")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Phase")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.startsWith("PhaseAction")
-	                && !name.startsWith("PhaseEvent");}	                	                
-	        });
-        phaseClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        phaseClasses[i] = null;
-	        try{
-	            phaseClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of phaseClasses array
-    	    
-	    // Initialization of controllerClasses array
-/*	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Controller") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.endsWith("Actions.class")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Controller")
-	                && name.endsWith("class")
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && name.indexOf("$") == -1;}
-	        });
-        controllerClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        controllerClasses[i] = null;
-	        try{
-	            controllerClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of controllerClasses array
-	    
-	    // Initialization of displayClasses array
-/*	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Display") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.startsWith("DisplayPhaseEvent")
-	                && !name.startsWith("DisplayPhaseListener") && !name.equals("Display.class")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Display")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.startsWith("DisplayPhaseEvent")
-	                && !name.startsWith("DisplayPhaseListener")
-	                && !name.endsWith("Canvas.class")
-	                && !name.equals("Display.class");}
-	        });
-        displayClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        displayClasses[i] = null;
-	        try{
-	            displayClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of displayClasses array
-	    
-	    // Initialization of meterClasses array
-/*	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Meter") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.startsWith("MeterAbstract")
-	                && !name.equals("Meter.class")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Meter")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.startsWith("MeterAbstract")
-	                && !name.endsWith("ArrayEditorPanel.class")
-	                && !name.endsWith("Function.class")
-	                && !name.endsWith("MultiFunction.class")
-	                && !name.equals("Meter.class");}
-	        });
-        meterClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        meterClasses[i] = null;
-	        try{
-	            meterClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of meterClasses array
-	    
-	    // Initialization of deviceClasses array
-/*	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        int idx = name.indexOf("/");
-	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
-	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
-	                                // sub-package of etomica and is skipped
-	        if (idx == -1) {
-	            name = name.substring(idx+1);
-	            if (name.startsWith("Device") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.startsWith("Device.class")){
-                        files[count++] = name;
-                }
-            }    
-        }
-*/	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Device")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.equals("Device.class");}
-	        });
-        deviceClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        deviceClasses[i] = null;
-	        try{
-	            deviceClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of deviceClasses array
-	}// end of static block for class array initiliazation    
 }//end of SimulationEditorPane class

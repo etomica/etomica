@@ -10,7 +10,7 @@ import javax.swing.JScrollPane;
  * Presents a table of numeric properties that can be edited by typing in values.
  */
  
-public class DeviceTable extends Device {
+public class DeviceTable extends Device implements EtomicaElement {
     
     public JTable table;
     MyTableData dataSource;
@@ -48,6 +48,11 @@ public class DeviceTable extends Device {
         table.getColumn("Value").setCellEditor(new ValueEditor());
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Editable table of property values");
+        return info;
+    }
+
     public void setPropertyLabels(String[] labels) {
         int n = labels.length;
         if(n != modulators.length) {

@@ -17,7 +17,7 @@ import javax.swing.JDialog;
  * @see DisplayPhaseEvent
  * @author David Kofke
  */
-public class DisplayPhase extends Display {
+public class DisplayPhase extends Display implements EtomicaElement {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
@@ -26,6 +26,7 @@ public class DisplayPhase extends Display {
     public static final int BOTTOM = +1;
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
+    java.util.ArrayList drawingObjects = new java.util.ArrayList(10);
         
 //    private final ConfigurationCanvas canvas = new ConfigurationCanvas();
     public Canvas canvas;  //do not instantiate here; instead must be in graphic method
@@ -134,6 +135,11 @@ public class DisplayPhase extends Display {
         setLayout(null);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
+        return info;
+    }
+
     public void setBounds(int x, int y, int width, int height) {
         super.setBounds(x,y,width,height);
         canvas.setBounds(x,y,width,height);
@@ -152,6 +158,13 @@ public class DisplayPhase extends Display {
         if(s>0) {
             scale = s;
         }
+    }
+    
+    public void addDrawingObject(DrawingObject obj) {
+        drawingObjects.add(obj);
+    }
+    public void removeDrawingObject(DrawingObject obj) {
+        drawingObjects.remove(obj);
     }
     
     /**
@@ -248,6 +261,10 @@ public class DisplayPhase extends Display {
             DisplayPhaseListener listener = (DisplayPhaseListener)displayPhaseListeners.elementAt(i);
             listener.displayPhaseAction(dpe);
         }
+    }
+    
+    public interface DrawingObject {
+        public void draw(Graphics g, int[] origin, double scale);
     }
     
 
@@ -388,6 +405,11 @@ public class DisplayPhase extends Display {
 //                }
 //            }
             //Color all atoms according to colorScheme in DisplayPhase
+            for(java.util.Iterator iter=drawingObjects.iterator(); iter.hasNext(); ) {
+                DrawingObject obj = (DrawingObject)iter.next();
+                obj.draw(g, centralOrigin, scale);
+            }
+            
             colorScheme.colorAllAtoms();
             
             //Draw all atoms

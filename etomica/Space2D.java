@@ -58,9 +58,11 @@ public class Space2D extends Space {
         public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y;}
         public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y;}
         public void PE(Vector u) {x += u.x; y += u.y;}
+        public void PE(double a) {x += a; y += a;}
         public void ME(Vector u) {x -= u.x; y -= u.y;}
         public void PE(int i, double a) {if(i==0) x += a; else y += a;}
         public void TE(double a) {x *= a; y *= a;}
+        public void TE(Vector u) {x *= u.x; y *= u.y;}
         public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y;}

@@ -10,7 +10,7 @@ import java.awt.event.*;
 /**
  * Class for creating a plot of histogram data kept by a meter.
  */
-public class DisplayMeterHistogram extends Display implements Meter.User, MeterFunction.User {
+public class DisplayMeterHistogram extends Display implements Meter.User, MeterFunction.User, EtomicaElement {
     
     Plot plot;  //inner class defined below
     
@@ -32,6 +32,11 @@ public class DisplayMeterHistogram extends Display implements Meter.User, MeterF
         setLabel("Plot");
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Display a histogram of values recorded by a meter");
+        return info;
+    }
+
     public boolean isMakeResetButton() {return makeResetButton;}
     public void setMakeResetButton(boolean b) {
         if(b && !makeResetButton) { //asking for resetButton and not already made

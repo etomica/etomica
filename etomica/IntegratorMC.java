@@ -16,6 +16,11 @@ public class IntegratorMC extends Integrator {
         super(sim);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("General Monte Carlo simulation");
+        return info;
+    }
+
     /**
      * Adds a basic MCMove to the set of moves performed by the integrator
      */

@@ -15,7 +15,7 @@ import java.util.*;
  * The Controller runs on its own thread, and it spawns Integrator processes
  * each on its own thread.
  */
-public class Controller implements Simulation.Element, Runnable, java.io.Serializable {
+public class Controller implements Simulation.Element, Runnable, java.io.Serializable, EtomicaElement {
 
   /**
    * List of integrators managed by the controller
@@ -45,6 +45,12 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
         parentSimulation.register(this);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo();
+        info.setDescription("Simple controller that enables start/stop of simulation using a button");
+        return info;
+    }
+
     public final Simulation parentSimulation() {return parentSimulation;}
     public final Class baseClass() {return Controller.class;}
     public final boolean wasAdded() {return added;}

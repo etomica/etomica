@@ -20,7 +20,6 @@ public class SimulationEditorFrame extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setClosable(true);
         setTitle("Simulation Editor");
-//        getContentPane().add(simulationEditor);
     }// end of SimulationEditorFrame constructor
     
     public void setSimulationEditor(SimulationEditor ed) {
@@ -31,5 +30,4 @@ public class SimulationEditorFrame extends javax.swing.JInternalFrame {
         repaint();
     }
     public SimulationEditor getSimulationEditor() {return simulationEditor;}
-    
 }// end of SimulationEditorFrame class

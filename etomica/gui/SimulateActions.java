@@ -46,7 +46,12 @@ public class SimulateActions {
         public void actionPerformed(ActionEvent event) {
             EtomicaMenuBar.editSimulationItem.setEnabled(false);
             Etomica.simulationEditorFrame.setSimulationEditor(new SimulationEditor(Simulation.instance));
-            Etomica.simulationEditorFrame.setVisible(true);
+            try {
+                Etomica.simulationEditorFrame.setClosed(false);
+                Etomica.DesktopFrame.desktop.add(Etomica.simulationEditorFrame);
+                Etomica.simulationEditorFrame.setSelected(true);
+            }
+            catch(java.beans.PropertyVetoException pve){}
         }// end of actionPerformed
     }// end of EditSimulationAction class
     

@@ -9,7 +9,7 @@ import java.io.*;
  * @author Jhumpa Adhikari
  */
  
-public class ControllerGDI extends Controller {
+public class ControllerGDI extends Controller implements EtomicaElement {
     
     private  double          independentVariable;   //Independent Variable
     private  double          dependentVariableOld ; //Dependent Variable at previous step
@@ -88,6 +88,13 @@ public class ControllerGDI extends Controller {
         add(integrator1);
         add(integrator2);
     }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo();
+        info.setDescription("Performs a Gibbs-Duhem integration phase-coexistence series");
+        return info;
+    }
+    
     
     public void setCorrectorIterations(int steps){
         noOfCorrectorIterations = steps;

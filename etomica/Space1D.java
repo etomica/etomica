@@ -49,13 +49,16 @@ public class Space1D extends Space {
         public double[] toArray() {return new double[] {x};}
         public void E(Vector u) {x = u.x;}
         public void E(double a) {x = a;}
+        public void E(double[] a) {x = a[0];}
         public void E(int i, double a) {x = a;}  //assumes i = 0
         public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x;}
         public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x;}
         public void PE(Vector u) {x += u.x;}
+        public void PE(double a) {x += a;}
         public void ME(Vector u) {x -= u.x;}
         public void PE(int i, double a) {x += a;}
         public void TE(double a) {x *= a;}
+        public void TE(Vector u) {x *= u.x;}
         public void TE(int i, double a) {x *= a;}
         public void DE(double a) {x /= a;}
         public void DE(Vector u) {x /= u.x;}

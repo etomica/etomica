@@ -64,6 +64,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
         iPhase.addMolecule(m,iSpecies);
         m.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
+        m.atomIterator.reset();
+        while(m.atomIterator.hasNext()) {iPhase.iteratorFactory().moveNotify(m.atomIterator.next());}
         double uNew = iPhase.energy.meterPotential().currentValue(m); //get its new energy
         if(uNew == Double.MAX_VALUE) {  //overlap; reject
             m.replace();                //put it back 

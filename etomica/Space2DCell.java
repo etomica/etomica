@@ -66,8 +66,11 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
         }
 
    //Determines appropriate cell and assigns it
-        public void assignCell() {             
-            AtomCell newCell = (AtomCell)lattice.nearestSite(this.r, (Space2D.Vector)parent.parentPhase().dimensions());
+        public void assignCell() {
+            Space2D.Vector dimensions = (Space2D.Vector)parent.parentPhase().boundary().dimensions();
+            r.x -= dimensions.x * ((r.x >= 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
+            r.y -= dimensions.y * ((r.y >= 0.0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y-1.0));
+            AtomCell newCell = (AtomCell)lattice.nearestSite(this.r, dimensions);
             if(newCell != cell) {assignCell(newCell);}
         }
    //Assigns atom to given cell; if removed from another cell, repairs tear in list

@@ -13,7 +13,7 @@ import etomica.units.*;
  
  //setBounds is no longer implemented.  Class may need repair
 
-public abstract class MeterLocalDensity extends Meter
+public abstract class MeterLocalDensity extends Meter implements EtomicaElement
 {
     /**
      * Class variable used to specify that all species are included in number-density calculation
@@ -40,6 +40,11 @@ public abstract class MeterLocalDensity extends Meter
         setLabel(initialLabel);
         setSpeciesIndex(ALL_SPECIES);
         computeVolume();      
+    }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a phase");
+        return info;
     }
 
     /**

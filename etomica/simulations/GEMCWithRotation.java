@@ -17,6 +17,7 @@ public class GEMCWithRotation extends Simulation {
         IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 	    integratorGEMC1.setDoSleep(false);
 	    integratorGEMC1.setInterval(400);
+	//    integratorGEMC1.getMCMoveVolumeExchange().setFrequency(0);
 	    
 	    SpeciesSpheresRotating speciesDisk1 = new SpeciesSpheresRotating(200);
 
@@ -67,8 +68,8 @@ public class GEMCWithRotation extends Simulation {
 	    displayPhase2.setColorScheme(color2);
 	    */
 	    setBackground(java.awt.Color.blue);		
-//		((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
-//        ((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(6,10);
+		((Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
+        ((Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(10,10);
     }//end of constructor        
         
     public static void main(String[] args) {

@@ -10,7 +10,7 @@ import etomica.units.Count;
  * Methods average and error are meaningless for this integrator, and return Not-a-Number
  */
 
-public final class MeterCycles extends Meter
+public final class MeterCycles extends Meter implements EtomicaElement
 {
     private int count = 0;
     
@@ -24,6 +24,11 @@ public final class MeterCycles extends Meter
         setUpdateInterval(1);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Records the number of simulation cycles performed by the integrator");
+        return info;
+    }
+
     public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
     
     /**

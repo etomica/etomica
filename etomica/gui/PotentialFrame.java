@@ -160,6 +160,9 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = gbc.WEST;
+        
+        potential1Classes = IntrospectionArrays.p1Classes;
+        potential2Classes = IntrospectionArrays.potentialClasses;
 
 		potentialPanel.setLayout(gbl);
         getContentPane().add(scroller);
@@ -198,6 +201,25 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
             String name = className[i].getName();
             name = name.substring(idx+1);            
             MyRadioButton button = new MyRadioButton(name,false,className[i]);
+        //new stuff
+            Class[] interfaces = className[i].getInterfaces();
+            for (int j = 0; j < interfaces.length; j++) {
+                if (interfaces[j].toString().equals(String.valueOf("interface etomica.GUIElement"))){
+                    etomica.EtomicaInfo info = null;
+                    try {
+                        java.lang.reflect.Method method = className[i].getMethod("getEtomicaInfo",null);
+                        info = (etomica.EtomicaInfo)method.invoke(className[i], null);
+   //                     info.setDescription(className[i].toString().substring(14));
+                    }
+                    catch(java.lang.SecurityException se){System.out.println("security exception");}
+                    catch(java.lang.IllegalAccessException iae){System.out.println("illegal access exception");}
+                    catch(java.lang.IllegalArgumentException ia){System.out.println("illegal argument exception");}
+                    catch(java.lang.reflect.InvocationTargetException ite){System.out.println("invocation target exception");}
+                    catch(java.lang.NoSuchMethodException nsme){System.out.println(className[i]);System.out.println("no such method exception");}
+                    button.setToolTipText(info.getDescription());
+                }
+            }
+        //end new stuff
             button.addActionListener(buttonListener);
             gbl.setConstraints(button, gbc);
             simComponents.add(button);
@@ -371,52 +393,4 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	public class MyActionListener implements java.awt.event.ActionListener, java.io.Serializable {
 	    public void actionPerformed(java.awt.event.ActionEvent ae){}
 	}
-	
-	static {
-	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
-        // Initialization of potential1Classes array
-	    String[] files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("P1")
-                    && name.endsWith("class")
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && name.indexOf("$") == -1;
-	        }});
-        potential1Classes = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        potential1Classes[i] = null;
-	        try{
-	            potential1Classes[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of potential1Classes array
-    	
-    	// Initialization of potential2Classes array
-	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Potential")
-	                && name.endsWith("class")
-                    && !name.startsWith("PotentialField")
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-                    && !name.startsWith("Potential1")
-                    && !name.startsWith("Potential2")
-                    && !name.startsWith("Potential.class")
-	                && !name.endsWith("Abstract.class")
-	                && name.indexOf("$") == -1;
- 	        }});
-        potential2Classes = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        potential2Classes[i] = null;
-	        try{
-	            potential2Classes[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of potential2Classes array
-   	}// end of static block used for potential class array initialization
 }// end of PotentialFrame class

@@ -5,7 +5,7 @@ import etomica.units.Dimension;
 /**
  * Meter to measure the chemical potential of a species via the Widom insertion method
  */
-public class MeterWidomInsertion extends Meter implements Molecule.Container {
+public class MeterWidomInsertion extends Meter implements Molecule.Container, EtomicaElement {
 
     /**
      * Number of insertions attempted in each call to currentValue
@@ -30,6 +30,12 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container {
         nInsert = 100;
         setResidual(true);
     }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Chemical potential via Widom's ghost-particle insertion method");
+        return info;
+    }
+
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */

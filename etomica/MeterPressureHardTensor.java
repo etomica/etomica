@@ -23,6 +23,11 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
         setLabel("PV/Nk");
     }
 
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Pressure tensor measured via components of virial averaged over hard collisions");
+        return info;
+    }
+
     public final boolean usesPhaseBoundary() {return false;}
     
     public final boolean usesPhaseIteratorFactory() {return true;}

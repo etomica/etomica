@@ -71,6 +71,8 @@ public abstract class PhaseAction extends etomica.Action {
                     temp.setComponent(0, 0.);                    
                 }
                 m.displaceBy(temp);   //displaceBy doesn't use temp
+                m.atomIterator.reset();
+                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
                 if(display != null && i % 10 ==0) display.repaint();
             }
         }
@@ -79,12 +81,16 @@ public abstract class PhaseAction extends etomica.Action {
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 temp.Ea1Tv1(scale-1.0,m.position());
                 m.displaceBy(temp);   //displaceBy doesn't use temp
+                m.atomIterator.reset();
+                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
             }
         }
         public void retractAction() {
             phase.boundary().inflate(1.0/scale);
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 m.replace();
+                m.atomIterator.reset();
+                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
             }
         }
          
@@ -92,6 +98,8 @@ public abstract class PhaseAction extends etomica.Action {
             phase.boundary().dimensions().setComponent(i,phase.boundary().dimensions().component(i)/scale);         
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 m.replace();
+                m.atomIterator.reset();
+                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
             }
         }
         public void setScale(double s) {scale = s;}

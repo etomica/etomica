@@ -19,7 +19,7 @@ import java.awt.event.WindowEvent;
  *
  * @see Modulator
  */
-public class DeviceSlider extends Device {
+public class DeviceSlider extends Device implements EtomicaElement {
     
     /**
      * Descriptive text label to be displayed with the value
@@ -82,9 +82,14 @@ public class DeviceSlider extends Device {
                 }
             }
         });
-        
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo();
+        info.setDescription("Slider-type device for changing a property");
+        return info;
+    }
+
     /**
      * Override superclass setUnit method to update label when unit is changed
      */

@@ -62,10 +62,12 @@ public class Space3D extends Space {
         public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y; z = a1*u1.z;}
         public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y; z += a1*u1.z;}
         public void PE(Vector u) {x += u.x; y += u.y; z += u.z;}
+        public void PE(double a) {x += a; y += a; z += a;}
         public void ME(Vector u) {x -= u.x; y -= u.y; z -= u.z;}
         public void PE(int i, double a) {if (i==0) x+=a; else if (i==1) y+=a; else z+=a;}
         public void TE(double a) {x *= a; y *= a; z *= a;}
         public void TE(int i, double a) {if (i==0) x*=a; else if (i==1) y*=a; else z*=a;}
+        public void TE(Vector u) {x *= u.x; y *= u.y; z *= u.z;}
         public void DE(double a) {x /= a; y /= a; z /= a;}
         public double squared() {return x*x + y*y + z*z;}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}

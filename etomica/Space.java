@@ -76,8 +76,10 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void E(Vector u);                     //sets each element of the vector equal to the elements of the vector u
 //        public abstract void E(int i, double a);              //sets component i of this vector equal to a
         public abstract void E(double a);                     //sets all components of the vector equal to the constant a
+        public abstract void E(double[] a);                   //sets elements of vector to values given in array
         public abstract void PE(Vector u);                    //adds (PE is +=) the vector u to this vector
         public abstract void PE(int i, double a);             //adds (+=) a to component i of this vector
+        public abstract void PE(double a);                    //adds a constant value to all elements
         public abstract void ME(Vector u);                    //subtracts (-=)
         public abstract void TE(Vector u);                    //multiplies (*=) component-by-component
         public abstract void DE(Vector u);                    //divide (/=) component-by-component

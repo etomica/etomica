@@ -124,7 +124,8 @@ public class EtomicaMenuBar extends JMenuBar {
     /**
      * Help MenuItem Handles
      */
-    static final JMenuItem helpItem = new JMenuItem("Help");
+    static final JMenuItem helpItem = new JMenuItem("Etomica Help");
+    static final JMenuItem javaDocItem = new JMenuItem("JavaDoc");
     static final JMenuItem aboutItem = new JMenuItem("About");
     
     /**
@@ -333,7 +334,7 @@ public class EtomicaMenuBar extends JMenuBar {
          */
         this.add(simulationMenu);
         editSimulationItem.setEnabled(false);
-//        editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
+        editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
         simulationMenu.add(editSimulationItem);
         simulationMenu.add(new javax.swing.JSeparator());//instantiated simulations will be placed after this separator, as they are created
 
@@ -345,58 +346,29 @@ public class EtomicaMenuBar extends JMenuBar {
 		helpItem.setMnemonic((int)'H');
 		helpItem.addActionListener(HelpActions.HELP);
 		helpMenu.add(helpItem);
+		javaDocItem.addActionListener(HelpActions.JAVADOC);
+		helpMenu.add(javaDocItem);
         aboutItem.addActionListener(HelpActions.ABOUT);
 		helpMenu.add(aboutItem);
 	}// end of EtmoicaMenuBar constructor
 	
 	static {
-        /**
-         * Etomica.jar test 
-         */
-/*        int count = 0;
-        String[] files = new String[25];
-        JarFile jarFile = null;
-        try {
-            jarFile = new JarFile(etomica.Default.JAR_FILE,false);
-        }
-        catch (java.io.IOException ioe){ioe.printStackTrace();}
-
-	    count = 0;
-        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-            ZipEntry entry = ((ZipEntry)enum.nextElement());
-	        String name = entry.getName();
-	        if (name.startsWith("etomica/simulations/") && name.endsWith("class") && name.indexOf("$") == -1){
-                    int idx = name.lastIndexOf("/");
-                    name = name.substring(idx+1);
-                    files[count++] = name;
-            }
-                
-        }
-*/	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY+"/simulations");
-	    String[] files = dir.list(new java.io.FilenameFilter() {
-	        public boolean accept(java.io.File d, String name) {
-	                return name.endsWith("class")
-	                && name.indexOf("$") == -1;}
-	        });
-	    for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        try{
-	            final Class libraryClass = Class.forName("etomica.simulations."+files[i]);
-	            JMenuItem libraryItem = new JMenuItem((libraryClass.toString()).substring(26));
-	            librarySimulationMenu.add(libraryItem);
-	            libraryItem.addActionListener(new java.awt.event.ActionListener() {
-	                final Class simulationClass = libraryClass;
-	                public void actionPerformed(java.awt.event.ActionEvent evt) {
-	                    try{
-	                        Simulation sim = (Simulation)simulationClass.newInstance();
-	                        Etomica.addSimulation(sim);
-	                    }
-            	        catch(IllegalAccessException e) {System.out.println("Illegal access error");}
-            	        catch(InstantiationException e) {System.out.println("Instantiation exception");}
+	    final Class[] libraryClasses = IntrospectionArrays.introspect(etomica.Default.CLASS_DIRECTORY+"/simulations", "", false);
+	    for (int i = 0; i < libraryClasses.length; i++){
+	        final Class libraryClass = libraryClasses[i];
+	        JMenuItem libraryItem = new JMenuItem((libraryClass.toString()).substring(26));
+	        librarySimulationMenu.add(libraryItem);
+	        libraryItem.addActionListener(new java.awt.event.ActionListener() {
+	            final Class simulationClass = libraryClass;
+	            public void actionPerformed(java.awt.event.ActionEvent evt) {
+	                try{
+	                    Simulation sim = (Simulation)simulationClass.newInstance();
+	                    Etomica.addSimulation(sim);
 	                }
-	            });
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End of initialization of libraryClasses array
-	}
+            	    catch(IllegalAccessException e) {System.out.println("Illegal access error");}
+            	    catch(InstantiationException e) {System.out.println("Instantiation exception");}
+	            }
+	        });
+        }	        
+	}// end of static block
 }// end of EtomicaMenuBar class

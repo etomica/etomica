@@ -12,7 +12,6 @@
 package etomica.gui;
 
 import etomica.Simulation;
-import etomica.Space2D;
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.event.WindowAdapter;
@@ -44,7 +43,7 @@ public class Etomica {
         etomica.Simulation.inEtomica = true;
         DesktopFrame frame = new DesktopFrame();
         frame.show();
-        Simulation.instance = new Simulation(new Space2D());
+        Simulation.instance = new Simulation(new etomica.Space2D());
        addSimulation(Simulation.instance);  //uncomment to run in debugger
     }
     
@@ -82,8 +81,16 @@ public class Etomica {
         simulationEditorFrame.setSimulationEditor(simulationEditor);
         simulationEditorFrame.setVisible(true);
         simulationEditor.speciesEditor.accountForNewSpecies();
-                                    
-                                
+
+        if (simulationEditorFrame.isClosed()){
+            try {
+                simulationEditorFrame.setClosed(false);
+                Etomica.DesktopFrame.desktop.add(Etomica.simulationEditorFrame);
+                simulationEditorFrame.setSelected(true);
+            }
+            catch(java.beans.PropertyVetoException pve){}
+        }
+        
     // Update MenuBars
         EtomicaMenuBar.editSimulationItem.setEnabled(false);
         EtomicaMenuBar.serEditItem.setEnabled(true);
@@ -118,6 +125,7 @@ public class Etomica {
          */
         public DesktopFrame(){
             etomicaFrame = this;
+            spaceClasses = IntrospectionArrays.spaceClasses;
             setTitle("Etomica");
             setSize(1024, 740);
             getContentPane().setLayout(new BorderLayout());
@@ -190,52 +198,5 @@ public class Etomica {
         }// end of print
     }//end of DesktopFrame
     
-    public static class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {
-    }
-    
-    static {
-        /**
-         * Etomica.jar test 
-         */
-/*        int count = 0;
-        String[] files = new String[100];
-        try {
-            java.util.jar.JarFile jarFile = new java.util.jar.JarFile(etomica.Default.JAR_FILE,false);//file);
-            for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
-                java.util.zip.ZipEntry entry = ((java.util.zip.ZipEntry)enum.nextElement());
-	            String name = entry.getName();
-	            int idx = name.lastIndexOf("/");
-	            if (idx != -1)
-	                name = name.substring(idx+1);
-	            if (name.startsWith("Space") && name.endsWith("class") && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class") && !name.equals("Space.class")
-	                && !name.equals("SpaceSelectionFrame.class")){
-                        files[count++] = name;
-                }
-                
-            }
-	    }
-	    catch (java.io.IOException ioe){ioe.printStackTrace();}
-*/	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY);
-	    String[] files = dir.list(new java.io.FilenameFilter() {
-	        public boolean accept(java.io.File d, String name) {
-	                return name.startsWith("Space")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.equals("Space.class");}
-	        });
-	    spaceClasses = new Class[files.length];//count was files.length
-	    for(int i=0; i<files.length; i++) {//count was files.length
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        spaceClasses[i] = null;
-	        try{
-	            spaceClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End of initialization of spaceClasses array
-    }//end of static block
+    public static class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {}
 }
