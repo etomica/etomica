@@ -70,7 +70,6 @@ public final class IteratorDirective implements java.io.Serializable {
     }
     
     public void setTargetAtoms(AtomSet atoms) {
-        if (Debug.ON && atoms == null) throw new IllegalArgumentException("Target atoms array must not be null");
         targetAtoms = atoms;
     }
     public AtomSet getTargetAtoms() {return targetAtoms;}
