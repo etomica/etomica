@@ -296,8 +296,7 @@ public class AtomList implements java.io.Serializable
     public void clear() {
         header.nextTab = header.previousTab = header;
         header.previous = header.next = header;
-        header.list = null;
-	    size = 0;
+ 	    size = 0;
     }
 
 
