@@ -49,6 +49,7 @@ import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.BaseUnit;
 import etomica.units.BaseUnitPseudo3D;
+import etomica.units.Dalton;
 import etomica.units.Dimension;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -95,7 +96,7 @@ public class PistonCylinderGraphic {
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plotT, plotD, plotP;
     public final javax.swing.JTabbedPane displayPanel;
-    public DeviceBox sigBox, epsBox, lamBox;
+    public DeviceBox sigBox, epsBox, lamBox, massBox;
 	private PropertyDisplayBoxes densityDisplayBox, temperatureDisplayBox, pressureDisplayBox;
     final JRadioButton buttonAdiabatic, buttonIsothermal;
     final JPanel blankPanel = new JPanel();
@@ -169,6 +170,7 @@ public class PistonCylinderGraphic {
         sigBox = new DeviceBox();
         epsBox = new DeviceBox();
         lamBox = new DeviceBox();
+        massBox = new DeviceBox();
         
 //        displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
 //        displayPhase.getOriginShift()[0] = thickness;
@@ -360,6 +362,7 @@ public class PistonCylinderGraphic {
         parameterPanel.add(sigBox.graphic());
         parameterPanel.add(epsBox.graphic());
         parameterPanel.add(lamBox.graphic());
+        parameterPanel.add(massBox.graphic());
         potentialPanel.add(parameterPanel,gbc2);
         
         JTabbedPane setupPanel = new JTabbedPane();
@@ -520,14 +523,18 @@ public class PistonCylinderGraphic {
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
+        ModifierGeneral massModifier = new ModifierGeneral(pc.species,"mass");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setUnit(eUnit);
         epsBox.setModifier(epsModifier);
         lamBox.setModifier(lamModifier);
+        massBox.setModifier(massModifier);
+        massBox.setUnit(Dalton.UNIT);
         sigBox.setController(pc.getController());
         epsBox.setController(pc.getController());
         lamBox.setController(pc.getController());
+        massBox.setController(pc.getController());
         
         pressureSlider.setUnit(pUnit);
         pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set Pressure ("+pUnit.toString()+")"));
