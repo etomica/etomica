@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.exception.MethodNotImplementedException;
+
 /**
  * Group that contains potentials used for long-range correction.
  * One instance of this class is added to the PotentialManager of
@@ -12,27 +14,25 @@ package etomica;
  
 public class PotentialGroupLrc extends PotentialGroup {
 
-    public PotentialGroupLrc(PotentialMaster parent) {
-        super(0, parent);
+    public PotentialGroupLrc(Space space) {
+        super(0,space);
     }
     
-	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
-		this.calculate((SpeciesMaster)basis, id, pc);
-	}
-	
     /**
      * Performs given PotentialCalculation on all LRC potentials added to this group.
      * Checks that group is enabled, phase is not null, that it has lrcEnabled,
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
+    //XXX method this doesn't work!
     public void calculate(SpeciesMaster speciesMaster, IteratorDirective id, PotentialCalculation pc) {
- 		Phase phase = speciesMaster.node.parentPhase();
+        throw new MethodNotImplementedException();
+/*        Phase phase = speciesMaster.node.parentPhase();
         if(!enabled || phase == null || !phase.isLrcEnabled() || !id.includeLrc) return;
 		for(PotentialLinker link=first; link!=null; link=link.next) {
 			if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-			((Potential0)link.potential).calculate(phase, id, pc);
-		}//end for
+            ((Potential0)link.potential).calculate(phase, id, pc);
+		}//end for*/
     }//end calculate
     
 }//end of PotentialGroupLrc
