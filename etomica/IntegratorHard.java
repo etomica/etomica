@@ -82,7 +82,13 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 				double collisionTime = pHard.collisionTime(atoms);
 				if(collisionTime < Double.MAX_VALUE) {
 					IntegratorHardAbstract.Agent aia = (IntegratorHardAbstract.Agent)atoms[1].ia;
+					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
+						System.out.println("collision time "+collisionTime+" for atom "+atoms[1]+(atoms.length > 1 ? " with "+atoms[0] : ""));
+					}
 					if(collisionTime < aia.collisionTime()) {
+						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+							System.out.println("setting up time "+collisionTime+" for atom "+atoms[1]+(atoms.length > 1 ? " with "+atoms[0] : ""));
+						}
 						aia.setCollision(collisionTime, atoms[0], pHard);
 					}//end if
 				}//end if
@@ -156,6 +162,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		}//end while
 
 		colliderAgent.resetCollision();
+		targetAtom[0] = collider;
 		upList.setTargetAtoms(targetAtom);
 		downList.setTargetAtoms(targetAtom);
 		potential.calculate(firstPhase, upList, collisionHandlerUp.setAtom(collider));
