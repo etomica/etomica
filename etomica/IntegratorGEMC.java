@@ -1,149 +1,128 @@
 package simulate;
-
+import simulate.units.Kelvin;
 import java.util.Random;
 
-public class IntegratorGEMC extends Integrator {
+/**
+ * Simple Gibbs-ensemble Monte Carlo integrator.
+ * Used to evaluate fluid-fluid phase coexistence.  Written to apply to only two phases.
+ *
+ * @author David Kofke
+ */
+//need to update to include setPhaseIteratorFactory
+public class IntegratorGEMC extends IntegratorMC {
     
     private final Random rand = new Random();
-    public double maxRStep, maxVStep;
-    public double pressure, betaMu, eBetaMu;
-    private int freqDisplace, freqVolume, freqMolecule;
-    private int iDisplace, iVolume, iMolecule, iTotal;
     public Phase secondPhase;
-    private MCMove atomDisplace = new MCMoveAtom();
+    private MCMoveAtom atomDisplace1 = new MCMoveAtom();
+    private MCMoveAtom atomDisplace2 = new MCMoveAtom();
+    private MCMoveVolumeExchange volumeExchange = new MCMoveVolumeExchange(this);
+    private MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(this);
     
     public IntegratorGEMC() {
-        super();
-        freqDisplace = 1;
-        freqVolume = freqMolecule = 1;
-        maxRStep = 0.1;
-        maxVStep = 0.1;
+        this(Simulation.instance);
+    }
+    public IntegratorGEMC(Simulation sim) {
+        super(sim);
         phaseCountMax = 2;
 //        super.phaseCountMax = 2;
         phase = new Phase[phaseCountMax];
-        atomDisplace.setAdjustInterval(10000);
-        atomDisplace.parentIntegrator = this;
+        atomDisplace1.setAdjustInterval(100);
+        atomDisplace2.setAdjustInterval(100);
+        this.add(atomDisplace1);
+        this.add(atomDisplace2);
+        this.add(volumeExchange);
+        this.add(moleculeExchange);
     }
-    
-  public void registerPhase(Phase p) {
-    super.registerPhase(p);
-    if(phaseCount > phaseCountMax) {return;}
+  
+  public boolean addPhase(Phase p) {
+    if(!super.addPhase(p)) {return false;}
+    if(phaseCount > phaseCountMax) {return false;}
     if(phaseCount == 2) secondPhase = phase[1];
-    System.out.println("phaseCount "+phaseCount);
+    volumeExchange.setPhase(phase);
+    moleculeExchange.setPhase(phase);
+    atomDisplace1.setPhase(phase[0]);
+    atomDisplace2.setPhase(phase[1]);
+    return true;
   }
   
-    public void doStep(double dummy) {
-        int i = (int)(rand.nextDouble()*iTotal);
-        if(i < iDisplace) {
-//            if(rand.nextDouble() < 0.5) {trialDisplace(firstPhase);}
-//            else {trialDisplace(secondPhase);}
-            if(rand.nextDouble() < 0.5) {atomDisplace.doTrial(firstPhase);}
-            else {atomDisplace.doTrial(secondPhase);}
-        }
-        else if(i < iVolume) {
-            trialVolume();
-        }
-        else {
-            if(rand.nextDouble() < 0.5) {trialExchange(firstPhase,secondPhase,firstPhase.parentSimulation.firstSpecies);}
-            else {trialExchange(secondPhase,firstPhase,firstPhase.parentSimulation.firstSpecies);}
-        }
-    }
+  public Phase[] getPhases() {return phase;}
+  public void setPhases(Phase[] phases) {
+    phase = phases;
+  }
+  
+  /**
+   * Returns the object that performs the volume-exchange move in the GE simulation.
+   * Having handle to this object is needed to adjust trial frequency and view acceptance rate.
+   */
+  public MCMoveVolumeExchange getMCMoveVolumeExchange() {return volumeExchange;}
+  /**
+   * Returns the object that performs the molecule-exchange move in the GE simulation.
+   * Having handle to this object is needed to adjust trial frequency and view acceptance rate.
+   */
+  public MCMoveMoleculeExchange getMCMoveMoleculeExchange() {return moleculeExchange;}
+  /**
+   * Returns the object that performs the atom-displacement move in the GE simulation.
+   * Having handle to this object is needed to adjust trial frequency and view acceptance rate.
+   * @param i indicates request for move for 0th phase (i = 0) or first phase (i = 1)
+   */
+  public MCMoveAtom getMCMoveAtom(int i) {return (i==0) ? atomDisplace1 : atomDisplace2;}
         
-    private void trialVolume() {
-        double v1Old = firstPhase.volume();
-        double v2Old = secondPhase.volume();
-        double hOld = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
-        double vStep = (2.*rand.nextDouble()-1.)*maxVStep;
-        double v1New = v1Old + vStep;
-        double v2New = v2Old - vStep;
-        double v1Scale = v1New/v1Old;
-        double v2Scale = v2New/v2Old;
-        double r1Scale = Math.pow(v1Scale,1.0/(double)Simulation.D);
-        double r2Scale = Math.pow(v2Scale,1.0/(double)Simulation.D);
-        firstPhase.inflate(r1Scale);
-        secondPhase.inflate(r2Scale);
-/*        for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {  this is done by phase
-            m.coordinate.inflate(r1Scale);
-        }
-        for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-            m.coordinate.inflate(r2Scale);
-        }*/
-        double hNew = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
-        if(hNew >= Double.MAX_VALUE ||
-             Math.exp(-(hNew-hOld)/temperature+
-                       firstPhase.moleculeCount*Math.log(v1Scale) +
-                       secondPhase.moleculeCount*Math.log(v2Scale))
-                < rand.nextDouble()) 
-            {  //reject
-              firstPhase.inflate(1.0/r1Scale);
-//              for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-//                m.coordinate.replace();
-//              }
-              secondPhase.inflate(1.0/r2Scale);
-//              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-//                m.coordinate.replace();
-//              }
-            }
-    }
-    
-    private void trialExchange(Phase iPhase, Phase dPhase, Species species) {
-        
-        Species.Agent iSpecies = species.getAgent(iPhase);
-        Species.Agent dSpecies = species.getAgent(dPhase);
-        double uNew, uOld;
-        
-        if(dSpecies.nMolecules == 0) {return;}
-        
-        Molecule m = dSpecies.randomMolecule();
-        uOld = dPhase.potentialEnergy.currentValue(m);
-        m.displaceTo(iPhase.randomPosition());
-        uNew = iPhase.potentialEnergy.insertionValue(m);
-        if(uNew == Double.MAX_VALUE) {  //overlap
-            m.replace(); 
-            return;        
-        }        
-        double bFactor = dSpecies.nMolecules/dPhase.volume()
-                         * iPhase.volume()/(iSpecies.nMolecules+1)
-                         * Math.exp(-(uNew-uOld)/temperature);
-        if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
-//            dSpecies.deleteMolecule(m);
-//            iSpecies.addMolecule(m);
-//            dPhase.deleteMolecule(m,dSpecies);
-            iPhase.addMolecule(m,iSpecies);  //this handles deletion from dPhase too
-        }
-        else {              //reject
-            m.replace();
-        }
-    }
-           
-    public final int getFreqVolume() {return freqVolume;}
-    public final void setFreqVolume(int f) {freqVolume = f;}
-    public final int getFreqMolecule() {return freqMolecule;}
-    public final void setFreqMolecule(int f) {freqMolecule = f;}
-    public final int getFreqDisplace() {return freqDisplace;}
-    public final void setFreqDisplace(int f) {freqDisplace = f;}
-        
-    public final double getMaxRStep() {return maxRStep;}
-    public final void setMaxRStep(double s) {maxRStep = s;}
-    
-    public final double getMaxVStep() {return maxVStep;}
-    public final void setMaxVStep(double s) {maxVStep = s;}
-    
-    public void initialize() {
-        deployAgents();
-        iDisplace = freqDisplace * firstPhase.moleculeCount;
-        iVolume = iDisplace + freqVolume;
-        iMolecule = iVolume + freqMolecule*firstPhase.moleculeCount;    
-        iTotal = iMolecule;
-    }
-    
-    public Integrator.Agent makeAgent(Atom a) {
-        return new Agent(a);
-    }
-    
-    public class Agent implements Integrator.Agent {
-        public Atom atom;
-        public Agent(Atom a) {atom = a;}
-    }
-
+    public static void main(String[] args) {
+        java.awt.Frame f = new java.awt.Frame();   //create a window
+        f.setSize(600,350);
+        Simulation.setUnitSystem(new simulate.units.UnitSystem.LJ());
+	    IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
+	    Phase phase1 = new Phase();
+	    Phase phase2 = new Phase();
+//	    P2SquareWell P2SquareWell1 = new P2SquareWell();
+	    P2LennardJones P2LennardJones1 = new P2LennardJones();
+	    Controller controller1 = new Controller();
+	    //Configuration displays for each phase
+	    DisplayPhase displayPhase1 = new DisplayPhase();
+	    DisplayPhase displayPhase2 = new DisplayPhase();
+	    displayPhase1.setPhase(phase1);
+	    displayPhase2.setPhase(phase2);
+	    //Meters and displays for density in each phase
+	    MeterDensity meter1 = new MeterDensity();
+	    MeterDensity meter2 = new MeterDensity();
+	    DisplayBox box1 = new DisplayBox();
+	    DisplayBox box2 = new DisplayBox();
+	    box1.setMeter(meter1);
+	    box2.setMeter(meter2);
+	    //Slider to adjust temperature
+	    DeviceSlider temperatureSlider = new DeviceSlider(integratorGEMC1, "temperature");
+	    temperatureSlider.setUnit(new simulate.units.Unit(Kelvin.UNIT));
+	    temperatureSlider.setMinimum(50);
+	    temperatureSlider.setMaximum(500);
+	    speciesDisks1.setNMolecules(60);
+	    
+		Simulation.instance.elementCoordinator = new MediatorBasic();
+		Simulation.instance.elementCoordinator.go(); 
+		 
+	    meter1.setPhase(phase1);
+	    meter2.setPhase(phase2);
+		integratorGEMC1.addIntervalListener(box1);
+		integratorGEMC1.addIntervalListener(box2);
+		integratorGEMC1.addIntervalListener(displayPhase1);
+		integratorGEMC1.addIntervalListener(displayPhase2);
+	    phase1.setIntegrator(integratorGEMC1);
+	    phase2.setIntegrator(integratorGEMC1);
+	    
+	    ColorScheme color1 = new ColorScheme.Simple(java.awt.Color.blue);
+	    ColorScheme color2 = new ColorScheme.Simple(java.awt.Color.red);
+	    displayPhase1.setColorScheme(color1);
+	    displayPhase2.setColorScheme(color2);
+	    
+	    controller1.add(integratorGEMC1);
+	    
+		Simulation.instance.setBackground(java.awt.Color.yellow);
+        f.add(Simulation.instance);         //access the static instance of the simulation to
+                                            //display the graphical components
+        f.pack();
+        f.show();
+        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
+        });
+    }//end of main
 }

@@ -1,68 +1,48 @@
 package simulate;
-import java.beans.Beans;
-import java.awt.*;
+import simulate.units.*;
 
 public class P2SquareWell extends Potential2 {
 
-  private double coreDiameter = 0.1;
+  private double coreDiameter;
+  private double epsilon;
+  private PotentialSquareWell onlyPotential;
   private double lambda = 1.5;
-  private double epsilon = 300;
 
   public P2SquareWell() {
-    super();
-    nAtoms1 = 1;
-    nAtoms2 = 1;
-    potential = new Potential[nAtoms1][nAtoms2];
-//    potential[0][0] = new PotentialSquareWell(coreDiameter,lambda,epsilon);
-    potential[0][0] = new PotentialSquareWell(0.1, 1.5, 300.);
+    this(Simulation.instance);
+  }
+  public P2SquareWell(Simulation sim) {
+    super(sim);
+    setCoreDiameter(Default.ATOM_SIZE);
+    setEpsilon(Default.POTENTIAL_WELL);
     setLambda(lambda);  //set potentialCutoff, etc.
+    onlyPotential = new PotentialSquareWell(coreDiameter,lambda,epsilon);
   }
     
-  public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
+  public final Potential getPotential(Atom a1, Atom a2) {return onlyPotential;}
   
-  public final double getCoreDiameter() {return coreDiameter;}
   public final void setCoreDiameter(double d) {
     coreDiameter = d;
     setPotentialCutoff(coreDiameter*lambda);
-    ((PotentialSquareWell)potential[0][0]).setCoreDiameter(d);
+    if(onlyPotential != null) onlyPotential.setCoreDiameter(coreDiameter);
   }
+  public final double getCoreDiameter() {return coreDiameter;}
+  public final Dimension getCoreDiameterDimension() {return Dimension.LENGTH;}
   
+  //Well-width multiplier lambda
   public final double getLambda() {return lambda;}
   public final void setLambda(double lam) {
     lambda = lam;
     setPotentialCutoff(coreDiameter*lambda);
-    ((PotentialSquareWell)potential[0][0]).setLambda(lam);
+    if(onlyPotential != null) onlyPotential.setLambda(lambda);
   }
   
-  public final double getEpsilon() {return epsilon;}
   public final void setEpsilon(double eps) {
     epsilon = eps;
-    ((PotentialSquareWell)potential[0][0]).setEpsilon(eps);
+    if(onlyPotential != null) onlyPotential.setEpsilon(epsilon);
   }
-  
-  // Paint a red disk and blue circle at design time to show size of 
-  // core diameter and well
-  
-  public void paint(Graphics g) {
-    int moleculePixelPositionX, moleculePixelPositionY, moleculePixelDiameter, wellPixelDiameter;
-    int[] simulationPixelDimensions = {-1, -1}; // pixel width (0) and height (1) of simulation box less boundaries. 
-    if(Beans.isDesignTime()) {
-        if(getParent() != null) {
-            Component par = getParent();
-            simulationPixelDimensions[0] = par.getSize().width;
-            simulationPixelDimensions[1] = par.getSize().height;
-            double scale = Math.max(simulationPixelDimensions[0], simulationPixelDimensions[1]);
-            moleculePixelDiameter = (int)(scale*coreDiameter);
-            wellPixelDiameter = (int)(scale*lambda*coreDiameter);
-            g.setColor(Color.red);
- //           moleculePixelPositionX = getLocation().x;
- //           moleculePixelPositionY = getLocation().y;
-            g.fillOval((wellPixelDiameter-moleculePixelDiameter)/2,(wellPixelDiameter-moleculePixelDiameter)/2,moleculePixelDiameter,moleculePixelDiameter);
-            g.setColor(Color.blue);
-            g.drawOval(0,0,wellPixelDiameter,wellPixelDiameter);
-        }
-    }
-  }  
+  public final double getEpsilon() {return epsilon;}
+  public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
 }
 
 

@@ -1,22 +1,76 @@
 package simulate;
+import simulate.statmech.MaxwellBoltzmann;
 
-import java.beans.*;
-import java.awt.*;
+/**
+ * Interaction between a hard sphere and a hard stationary wall.
+ * Wall may be horizontal or vertical, as specified by its AtomType object.
+ * Vertical wall is at constant x, horizontal wall is at constant y.
+ * Wall is taken to be of infinite length.
+ *
+ * Designed for 2-D, but may work in other dimensional spaces.
+ */
+ 
+ //not sure of the difference between this and PotentialHardDiskPiston
 
-// Written only for stationary wall
-
-public class PotentialHardDiskWall extends Potential implements PotentialHard
-{
+public class PotentialHardDiskWall extends Potential implements Potential.Hard {
+    
     protected double collisionDiameter, collisionRadius;
+    
+    private boolean isothermal = false;
+    private double temperature = Default.TEMPERATURE;
 
-    public PotentialHardDiskWall() {this(0.0);}
+    public PotentialHardDiskWall() {this(Simulation.instance, 0.0);}
     
     public PotentialHardDiskWall(double d) {
+        this(Simulation.instance, d);
+    }
+    
+    public PotentialHardDiskWall(Simulation sim, double d) {
+        super(sim);
         setCollisionDiameter(d);
+        ZERO = sim.space.makeTensor();//temporary
     }
 
+ /**
+  * Returns infinity if overlap is true, zero otherwise
+  */
+  public double energy(AtomPair pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
+  /**
+   * Long-range correction to potential.  Always returns zero for this model.
+   */
+  public double energyLRC(int n1, int n2, double V) {return 0.0;}
+
+  /**
+   * True if perpendicular distance between wall and disk is less than collision radius (diameter/2), false otherwise
+   */
+  public boolean overlap(AtomPair pair) {
+        Atom disk;
+        Atom wall;
+        if(pair.atom2().type instanceof AtomType.Wall) {
+           disk = pair.atom1();
+           wall = pair.atom2();
+        }
+        else {
+           disk = pair.atom2;
+           wall = pair.atom1;
+        }
+        
+        double time = Double.MAX_VALUE;
+        double dr, dv;
+        int i;
+        
+        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        if(wallType.isVertical()) {i = 0;}
+        else {i = 1;}
+        
+        dr = wall.position(i) - disk.position(i);
+        return (Math.abs(dr) < collisionRadius);
+    }
+  
+    /**
+     * Time to collision of disk and wall, considering that one or both may be under the influence of a constant force.
+     */
     public double collisionTime(AtomPair pair) {
-   
         Atom disk;
         Atom wall;
         if(pair.atom2().type instanceof AtomType.Wall) {
@@ -30,63 +84,54 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
                 
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
-        double dr = pair.dr(i);
+        double dr = pair.dr(i);  //dr = atom2 - atom1
         double dv = pair.dv(i);
+        if(pair.atom1() == wall) {  //make sure dr = wall - disk
+            dr *= -1;
+            dv *= -1;
+        }
+        double a = 0.0;
+        if(wall.ia instanceof Integrator.Agent.Forcible) {
+            a = ((Integrator.Agent.Forcible)wall.ia).force().component(i) * wall.rm();
+        }
+        if(disk.ia instanceof Integrator.Agent.Forcible) {
+            a -= ((Integrator.Agent.Forcible)disk.ia).force().component(i) * disk.rm();
+        }
         //wall or disk has non-zero force
- //       if(!wall.isForceFree() || !disk.isForceFree()) {  
- //           return timeWithAcceleration(i, disk, wall);
- //       }
-        //wall or disk is stationary and gravity is acting       
- //       else if(!parentPhase.noGravity && i==0 && (wall.isStationary() || disk.isStationary())) {  
- //           return timeWithAcceleration(i, disk, wall);
- //       }
- //       else {
-            return timeNoAcceleration(dr, dv);//}
-    }
-    
-    private double timeNoAcceleration(double dr, double dv) {
-//      double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-//      double dr = wall.position(i) - disk.position(i);   //no PBC
-//      double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
-       
-      if(dr*dv > 0.0) {return Double.MAX_VALUE;}    //Separating, no collision
+        double time = 0.0;
+        if(a != 0.0) {//collision time with acceleration
+            time = Double.MAX_VALUE;
+            if(Math.abs(dr) <= collisionRadius) {   //inside wall; collision now if approaching, never otherwise
+                if(dr*dv < 0.0) return 0.0;  //approaching; collide now
+                else {  //separating; move just outside contact and continue to compute collision time
+                    moveToContact(i,pair);
+                    dr = wall.r.component(i)-disk.r.component(i);
+                }
+            }  
+            dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
+            double discrim = dv*dv - 2*a*dr;
+            if(discrim > 0) {
+                boolean adr = (a*dr > 0); //accelerating away from each other
+                boolean adv = (a*dv > 0); //moving away from each other
+                int aSign = (a > 0) ? +1 : -1;
+                if(adr && adv) {time = Double.MAX_VALUE;}  //moving and accelerating away; no collision
+                else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;} //moving toward, accelerating away (- root is positive)
+            //    else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration; causes missed collisions--may need to handle dr*dv>0 too?
+                else {time = (-dv + aSign*Math.sqrt(discrim))/a;} //moving away, accelerating toward (- root is negative)
+            }
+        }
+        else { //force free
+            if(dr*dv > 0.0) {return Double.MAX_VALUE;}    //Separating, no collision
+            double adr = Math.abs(dr);
+            if(adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
+            else {return (adr-collisionRadius)/Math.abs(dv);}  //Outside core and approaching; collision at core
+        }
+        return time;
+    }//end of collisionTime
 
-      double adr = Math.abs(dr);
-      if(adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
-      else {return (adr-collisionRadius)/Math.abs(dv);}  //Outside core and approaching; collision at core
-    }
-    
-    private double timeWithAcceleration(int i, Atom disk, Atom wall) {
-      double time = Double.MAX_VALUE;
-//      double dr, dv;
-//      dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-//      dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
-      double dr = wall.position(i) - disk.position(i);   //no PBC
-      double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
-      
-      if(Math.abs(dr) < collisionRadius) {   //inside wall; collision now if approaching, never otherwise
-        return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}
-        
-      dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
-//      double a = wall.f[i]*wall.rm - disk.f[i]*disk.rm;
-      double a = 0.0;  //this needs to be changed to the line above
-      if(i==1) {  //consider acceleration of gravity, which acts on non-stationary atom and/or wall
-        if(!wall.isStationary()) {a += wall.parentPhase().getG();}  
-        if(!disk.isStationary()) {a -= disk.parentPhase().getG();}
-      }
-      double discrim = dv*dv - 2*a*dr;
-      if(discrim > 0) {
-        boolean adr = (a*dr > 0);
-        boolean adv = (a*dv > 0);
-        int aSign = (a > 0) ? +1 : -1;
-        if(adr && adv) {time = Double.MAX_VALUE;}
-        else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;}
-        else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration
-        else {time = (-dv + aSign*Math.sqrt(discrim))/a;}
-      }
-      return time;
-    }
-    
+    /**
+     * Hard-disk/piston collision dynamics
+     */
     public void bump(AtomPair pair)  //this needs updating to check for isStationary
     {
         Atom disk;
@@ -100,24 +145,72 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
            wall = pair.atom1;
         }
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
-                
+    
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
 
         if(wall.isStationary()) {
-            disk.momentum().TE(i,-1.0);
-//            wall.accumulateP(2*Math.abs(disk.momentum(i)));
+            if(isothermal) {//specific to 2D
+                double px = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.mass());
+                double py = MaxwellBoltzmann.randomMomentumComponent(temperature,disk.mass());
+                //enforce reflection from wall; new momentum must have opposite sign to old momentum
+                if(i==0 && px*disk.momentum().component(i) > 0) px = -px;
+                else if(i==1 && py*disk.momentum().component(i) > 0) py = -py;
+                disk.momentum().setComponent(0,px);
+                disk.momentum().setComponent(1,py);
+            }
+            else disk.momentum().TE(i,-1.0);
         }
         else {
           double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
           double dp = -2.0/(wall.rm() + disk.rm())*dv;
-          wall.momentum().PE(i,+dp);
-          disk.momentum().PE(i,-dp); 
+          wall.momentum().PE(i,+dp);  
+          disk.momentum().PE(i,-dp);  
         }
+        
+        moveToContact(i, pair);
+        
     }
     
+    /**
+     * Separates disk and wall so that they are just outside point of contact.
+     */
+    private void moveToContact(int i, AtomPair pair) {
+        double dr = pair.dr(i);  //dr = atom2 - atom1
+        double delta = Math.abs(dr) - collisionRadius;
+        if(delta < 0.0) {   //inside wall; set apart to contact point
+            double mult = (dr > 0.0) ? -2.0 : +2.0;
+            pair.atom2.r.PE(i,mult*delta);
+            pair.atom1.r.PE(i,-mult*delta);
+            double diff = pair.atom2.r.component(i)-pair.atom1.r.component(i);
+        }
+    }    
+    
+    /**
+     * Always returns zero (not yet implemented)
+     */
+  public double lastCollisionVirial() {return 0.0;}
+  final Space.Tensor ZERO; //temporary
+  public Space.Tensor lastCollisionVirialTensor() {return ZERO;}
+
+
+    /**
+     * Accessor method for collision diameter.
+     * Wall and disk begin to overlap when center of disk is one half this distance from the wall,
+     * as measured perpendicularly from the wall.
+     */
     public double getCollisionDiameter() {return collisionDiameter;}
-    public void setCollisionDiameter(double c) {
+    /**
+     * Accessor method for collision diameter.
+     * Wall and disk begin to overlap when center of disk is one half this distance from the wall,
+     * as measured perpendicularly from the wall.
+     */
+    public final void setCollisionDiameter(double c) {
         collisionDiameter = c;
         collisionRadius = 0.5*c;
     }
+    
+    public void setIsothermal(boolean b) {isothermal = b;}
+    public boolean isIsothermal() {return isothermal;}
+    public void setTemperature(double t) {temperature = t;}
+    public double getTemperature() {return temperature;}
 }

@@ -2,11 +2,20 @@ package simulate;
 import java.awt.*;
 import java.beans.Beans;
 import java.awt.event.*;
+//import javax.swing.JComponent;
 
-public abstract class DisplayCanvas extends Canvas implements MouseListener, MouseMotionListener, KeyListener {
+/**
+ * Superclass for classes that display information from simulation by painting to a canvas.
+ * Defines methods useful for dealing with mouse and key events targeted at the display.
+ * Much of the class is involved with defining event handling methods to permit display 
+ * to be moved or resized; in the future these functions will be handled instead using awt component functions.
+ * 
+ * @see DisplayPhase.Canvas
+ */
+public abstract class DisplayCanvas extends javax.swing.JPanel implements MouseListener, MouseMotionListener, KeyListener, java.io.Serializable {
 
-    Image offScreen;
-    Graphics osg;
+    transient Image offScreen;
+    transient Graphics osg;
     int pixels = 300;
         
     static final int DEFAULT_AREA = 0;
@@ -20,8 +29,11 @@ public abstract class DisplayCanvas extends Canvas implements MouseListener, Mou
 	static final Cursor curMove    = new Cursor(Cursor.MOVE_CURSOR);
 	static final Cursor curResize1 = new Cursor(Cursor.NW_RESIZE_CURSOR);
 	static final Cursor curResize2 = new Cursor(Cursor.NE_RESIZE_CURSOR);
-    	
-	int offset = 10;  //width of region at perimeter at which move or resize is indicated
+    
+    /**
+     * Width of region at perimeter within which move or resize is indicated
+     */
+	int offset = 10;
 	boolean moving = false;
 	boolean resizing = false;
 	boolean mouseInside = false;
@@ -30,20 +42,29 @@ public abstract class DisplayCanvas extends Canvas implements MouseListener, Mou
 	Point anchorAbs= new Point();
 	Point initialLocation;
 	Dimension initialSize;
-    	
-    boolean resizable = false;  //flag to indicate if display can be resized
-    boolean movable = false;     //flag to indicate if display can be moved
+    
+    /**
+     * Flag to indicate if display can be resized
+     */
+    boolean resizable = false;
+    /**
+     * Flag to indicate if display can be moved
+     */
+    boolean movable = false;
 
     public DisplayCanvas() {
         setSize(pixels, pixels);
         setBackground(Color.white);
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        addKeyListener(this);
+//        addMouseListener(this);
+//        addMouseMotionListener(this);
+//        addKeyListener(this);
+        setMinimumSize(new Dimension(pixels, pixels));
+        setMaximumSize(new Dimension(pixels, pixels));
+        setPreferredSize(new Dimension(pixels, pixels));
     }
     public void createOffScreen () {
         if (offScreen == null) { 
-            createOffScreen(pixels);
+            createOffScreen(getSize().width, getSize().height);
         }
     }
     public void createOffScreen (int p) {
@@ -51,7 +72,7 @@ public abstract class DisplayCanvas extends Canvas implements MouseListener, Mou
     }
     public void createOffScreen(int w, int h) {
         offScreen = createImage(w,h);
-        osg = offScreen.getGraphics();
+        if(offScreen != null) osg = offScreen.getGraphics();
     }
         
     public abstract void doPaint(Graphics g);
@@ -87,6 +108,7 @@ public abstract class DisplayCanvas extends Canvas implements MouseListener, Mou
     }
         
     // MouseListener methods
+    // Move and resize features will likely be eliminated in favor of functionality of a window pane
         
     public void mouseReleased(MouseEvent e)
     {
@@ -175,17 +197,36 @@ public abstract class DisplayCanvas extends Canvas implements MouseListener, Mou
     }
     public void mouseClicked(MouseEvent e) {}
 
-    //keyListener methods
-        
+   /**
+    * KeyListener method.  Performs no action.
+    */
     public void keyPressed(KeyEvent e) {}
+   /**
+    * KeyListener method.  Performs no action.
+    */
     public void keyReleased(KeyEvent e) {}
+   /**
+    * KeyListener method.  Determines if key pressed is a letter or digit, and calls digitTyped or letterTyped method, as appropriate.
+    */
     public void keyTyped(KeyEvent e) {
         char c = e.getKeyChar();
         if(Character.isDigit(c)) {digitTyped(Character.getNumericValue(c));}
         else if(Character.isLetter(c)) {letterTyped(c);}
     }
-        
+    
+    /**
+     * Method invoked if a digit is typed while the cursor is over the canvas.
+     * Default action does nothing, but may be overriden in subclasses to process key press
+     * 
+     * @param i is the digit typed, in integer form
+     */
     protected void digitTyped(int i) {}   //override if want to process number keypress
+    /**
+     * Method invoked if a letter is typed while the cursor is over the canvas.
+     * Default action does nothing, but may be overriden in subclasses to process key press
+     * 
+     * @param c is the letter typed, in character form
+     */
     protected void letterTyped(char c) {} //override if want to process letter keypress
         
 } //end of DisplayCanvas class

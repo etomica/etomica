@@ -1,127 +1,305 @@
 package simulate;
+import simulate.units.Unit;
 import java.io.*;
-import java.awt.*;
-import java.beans.*;//for Graphics
 import java.util.Random;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.beans.Beans;
 
-/**
-*    THIS DESCRIPTION IS OUT-OF-DATE
-* Each Phase contains one or more Species.
-* A Species is a collection of identically formed Molecules.  Subclasses of
-* Species differ in the type of molecules that they collect.  Subclassing
-* Species is the primary way to define new types of molecules (Molecule is
-* subclassed only to define molecules formed from unusual (e.g., anisotropic)
-* atoms).
-* The number of Molecules in a Species may be changed at run time.
-* One or more Species are collected together to form a Phase.
-* Interactions among all molecules in a Phase are defined by associating an
-* intermolecular potential to pairs of Species (or to a single Species to
-* define interactions among its molecules). Intramolecular potentials are
-* also associated with a Species, and are used to describe intra-molecular 
-* atomic interactions.
-*
-* Species are beans.
-*
-* @author David Kofke
-* @author C. Daniel Barnes
-*
-* @see Molecule
-* @see Potential1
-* @see Potential2
-* @see Phase
-*/
+     /**
+      * A Species is a collection of identically formed Molecules.  Subclasses of
+      * Species differ in the type of molecules that they collect.  Subclassing
+      * Species is the primary way to define new types of molecules (Molecule is
+      * subclassed only to define molecules formed from unusual (e.g., anisotropic)
+      * atoms).  The type of a molecule is determined by the AtomType array passed 
+      * to its constructor, and by the ConfigurationMolecule object that is used to 
+      * define the internal arrangement of the atoms in the molecule.  Species differ
+      * in how they define these classes when constructing molecules.
+      * 
+      * These are the important features of a Species:<br>
+      * 
+      * 1. It holds the definition of the AtomType and ConfigurationMolecule objects that
+      * determine the type of molecule defined by the species<br>
+      * 
+      * 2. It makes a Species.Agent class that is placed in each phase (each phase has one
+      * species agent from each species).  This agent manages the molecules of that species
+      * in that phase (counting, adding, removing, etc.)  More information about this class 
+      * is provided in its documentation comments.<br>
+      * 
+      * 3. It maintains a reservoir of molecules so that molecules can be added and removed 
+      * to/from a phase without requiring (expensive) construction of a new molecule each time.
+      * Correspondingly, it provides a makeMolecule method that can be used to obtain a molecule
+      * of the species type.  This molecule is taken from the reservoir if available, or made fresh
+      * if the reservoir is empty.<br>
+      * 
+      * 4. Each Species is part of a linked list of species objects.<br> 
+      * 
+      * 5. Each Species has a unique species index assigned when it is registered with the
+      * Simulation.  This index is used to determine the potential for the interaction of 
+      * atoms of the species.<br>
+      * 
+      * The number of Molecules of a Species in a Phase may be changed at run time.
+      * One or more Species are collected together to form a Phase.
+      * Interactions among all molecules in a Phase are defined by associating an
+      * intermolecular potential to pairs of Species (or to a single Species to
+      * define interactions among its molecules). Intramolecular potentials are
+      * also associated with a Species, and are used to describe intra-molecular 
+      * atomic interactions.
+      * 
+      * @author David Kofke
+      * @author C. Daniel Barnes
+      * @see Molecule
+      * @see Simulation#getPotential
+      * @see Species.Agent
+      * @see Species.Reservoir
+      */
      
-public abstract class Species extends Container {
+public abstract class Species implements Simulation.Element, java.io.Serializable {
 
- //       Simulation2D ps0 = new Simulation2D();
-
-    //No base-class constructor
-          
-    public void add(ColorScheme cs) {
-        this.colorScheme = cs;
-        if(parentSimulation == null) {return;}
-        Enumeration e = agents.elements();
-        while(e.hasMoreElements()) {
-            Agent a = (Agent)e.nextElement();
-            a.add(cs);
-        }
+    private boolean stationary;
+    private Simulation parentSimulation;
+    private boolean added = false;
+    
+//    public static int count = 0;
+    
+    public Species(Simulation sim) {
+        parentSimulation = sim;
+//        setSpeciesIndex(count++);
+        parentSimulation.register(this);
     }
           
-    public void add(ConfigurationMolecule cm) {
-        cm.setParentSpecies(this);
-        this.configurationMolecule = cm;
-        if(parentSimulation == null) return;
-        Enumeration e = agents.keys();
-        while(e.hasMoreElements()) {
-            Phase p = (Phase)e.nextElement();
-            cm.initializeCoordinates(p);
+    public final Simulation parentSimulation() {return parentSimulation;}
+    public final Class baseClass() {return Species.class;}
+    public final boolean wasAdded() {return added;}
+    public final void setAdded(boolean b) {added = b;}
+          
+    /**
+     * Changes the default molecule configuration associated with this species.  
+     * Propagates the change to agents of this species in all phases.
+     * 
+     * @param mc The new Molecule.Configuration object
+     * @see Molecule.Configuration
+     */
+    public void add(Molecule.Configuration mc) {
+        mc.setParentSpecies(this);
+        this.moleculeConfiguration = mc;
+        Iterator e = agents.keySet().iterator();
+        while(e.hasNext()) {
+            Phase p = (Phase)e.next();
+            mc.initializeCoordinates(p);
         }
     }
            
+    /**
+     * Sets the "stationary" field of all atoms of this species to the given value
+     */
+    public void setStationary(boolean b) {
+        stationary = b;
+        Iterator e = agents.values().iterator();
+        while(e.hasNext()) {
+            Agent a = (Agent)e.next();
+            Atom.Iterator aIter = a.makeAtomIterator();
+            while(aIter.hasNext()) {aIter.next().setStationary(b);}
+        }
+    }
+    
+    public boolean getStationary() {return stationary;}
+        
+           /**
+            * Nominal number of molecules of this species in each phase.
+            * Actual number may differ if molecules have been added or removed to/from the phase
+            */
            //Temporary method to handle setting of nMolecules for all phases
            //Allows only one value for all phases
-    private int nMolecules;
-/**
- * Sets the number of molecules of this species for each phase
- * If parentSimulation is not null, creates the given number of molecules in every phase
- * This is called by the species constructor, and by the add(Species) method of simulation
- */
+    protected int nMolecules;
+    /**
+     * Sets the number of molecules of this species for each phase
+     * Propagates the change to agents of this species in all phases, so
+     * it creates the given number of molecules in every phase.  Any existing molecules
+     * of the species are discarded.
+     * 
+     * @param n The new number of molecules of this species in each phase
+     * @see Species.Agent#setNMolecules
+     */
     public void setNMolecules(int n) {
         nMolecules = n;
-        if(parentSimulation == null) {return;}  
-        Enumeration e = agents.elements();
-        while(e.hasMoreElements()) {
-            Agent a = (Agent)e.nextElement();
+        Iterator e = agents.values().iterator();
+        while(e.hasNext()) {
+            Agent a = (Agent)e.next();
             a.setNMolecules(n);
         }
     }
+    
+    /**
+     * Accessor method for nominal number of molecules in each phase.  Actual 
+     * number of molecules of this species in a given phase is obtained via
+     * the getNMolecules method of Species.Agent
+     * 
+     * @return Nominal number of molecules in each phase
+     * @see Species.Agent#getNMolecules
+     */
     public int getNMolecules() {return nMolecules;}
     /**
-    * Creates new molecule of this species.  
-    */
+     * Creates new molecule of this species without associating it with a phase.
+     */
     private Molecule makeMolecule() {return makeMolecule(null);}
+
+    /**
+     * Concrete instances of this abstract class invoke the Molecule constructor
+     * with the atom type and molecule configuration appropriate to make a molecule
+     * of the type defined by this species.  This method is invoked by the 
+     * getMolecule method, which provides the means for a user to obtain a molecule
+     * of this species.
+     * 
+     * @param p Phase in which the returned molecule is placed
+     * @return A molecule of this species
+     * @see #getMolecule
+     */
     protected abstract Molecule makeMolecule(Phase p);
 
+    /**
+     * Specifies the number of atoms in a molecule of this species.
+     * Since the number of atoms in a molecule cannot be changed once the molecule 
+     * is constructed, to have the atom/molecule change take effect it is necessary to 
+     * create new molecules of this species in each phase.  Thus the method invokes
+     * the setNMolecules method of each agent of this species, replacing all the existing
+     * molecules with ones having the newly prescribed value of atomsPerMolecule.
+     * 
+     * @param na The new number of atoms per molecule
+     */
     public void setAtomsPerMolecule(int na) {
         atomsPerMolecule = na;
-        if(parentSimulation == null) {return;}
-        Enumeration e = agents.elements();
-        while(e.hasMoreElements()) {
-            Agent a = (Agent)e.nextElement();
+//        if(parentSimulation == null) {return;}
+        Iterator e = agents.values().iterator();
+        while(e.hasNext()) {
+            Agent a = (Agent)e.next();
             a.setNMolecules(a.nMolecules);
         }
     }
             
+    /**
+     * Accessor method for number of atoms per molecule
+     * 
+     * @return Present number of atoms in a molecule of this species.
+     */
     public int getAtomsPerMolecule() {return atomsPerMolecule;}
             
+    /**
+     * Sets the next species in the linked list of species
+     * and sets this species to be the previous species of the given species
+     * 
+     * @param s The species to follow this one in the linked list of species
+     */
     public final void setNextSpecies(Species s) {
         this.nextSpecies = s;
         if(s != null) s.previousSpecies = this;
     }
-    public final Species nextSpecies() {return nextSpecies;}
-    public final Species previousSpecies() {return previousSpecies;}
+
     /**
-    * @return the simulation in which this species resides
-    */
-    public final Simulation parentSimulation() {return parentSimulation;}
+     * Accessor method of the species following this one in the linked list of species.
+     * 
+     * @return The next species in the linked list
+     */
+    public final Species nextSpecies() {return nextSpecies;}
+
+    /**
+     * Accessor method of the species preceding this one in the linked list of species
+     * 
+     * @return The previous species in the linked list of species
+     */
+    public final Species previousSpecies() {return previousSpecies;}
             
+    /**
+     * Accessor method of the name of this species
+     * 
+     * @return The given name of this species
+     */
     public final String getName() {return name;}
+
+    /**
+     * Method to set the name of this species
+     * The species' name provides a convenient way to label output data that is 
+     * associated with this species.  This method might be used, for example, to place
+     * a heading on a column of data.
+     * Default name is "Species" followed by the integer species index of this species.
+     * 
+     * @param name The name string to be associated with this species
+     */
     public final void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the species
+     */
+    public String toString() {return getName();}  //override Object method
           
+    /**
+     * Accessor method for the index of this species
+     * 
+     * @param index The index of this species
+     */
     public final int getSpeciesIndex() {return speciesIndex;}
-    public final void setSpeciesIndex(int index) {speciesIndex = index;}
+
+    /**
+     * Sets the value of the index of this species
+     * Value is set by the register method of Simulation when the species is constructed
+     * Index is used to associate species with the potentials governing interactions
+     * of molecules of this species with each other and with the molecules of other species.
+     * 
+     * @param index The new index of this species
+     * @see Simulation.register(Species)
+     */
+    public final void setSpeciesIndex(int index) {
+        speciesIndex = index;
+        if(name == null) name = "Species "+Integer.toString(index);
+    }
                     
+    /**
+     * Constructs an Agent of this species and sets its parent phase
+     * 
+     * @param p The given parent phase of the agent
+     * @return The new agent.  Normally this is returned into the setAgent method of the given phase.
+     * @see Species.Agent
+     */
     public Agent makeAgent(Phase p) {
         Agent a = new Agent(p);
         a.setNMolecules(nMolecules);
-        a.add(colorScheme);
-        agents.put(p,a);   //associate agent with phase; retreive agent for a given phase using agents.get(p)
+        Atom.Iterator aIter = a.makeAtomIterator();
+        while(aIter.hasNext()) {aIter.next().setStationary(stationary);}
+        agents.put(p,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }
+
+    /**
+     * Returns the agent of this species in the given phase
+     * Hashmap is used to connect phase(key)-agent(value) pairs
+     * 
+     * @param p The phase for which this species' agent is requested
+     * @return The agent of this species in the phase
+     */
     public final Agent getAgent(Phase p) {return (Agent)agents.get(p);}
     
+    /**
+     * Returns an atom iterator for this species in the given phase
+     */
+     public final Atom.Iterator makeAtomIterator(Phase p) {
+        if(p != null) return getAgent(p).makeAtomIterator();
+        else return null;
+     }
+    
+    /**
+     * Primary method for other classes to obtain a molecule of this species
+     * Molecule is obtained from the species reservoir, if it is not empty, otherwise
+     * a new molecule is constructed and returned.
+     * The container of the returned molecule is this species' reservoir.  It is
+     * removed from the reservoir when it is added to another molecule container 
+     * (typically a phase).
+     * 
+     * @return A molecule of this species
+     * @see Species.Reservoir
+     */
     public final Molecule getMolecule() {
         if(reservoir.isEmpty()) {
             Molecule m = makeMolecule();
@@ -129,6 +307,11 @@ public abstract class Species extends Container {
         }
         return reservoir.nextMolecule();
     }
+
+    /**
+     * @return The molecule reservoir for this species
+     * @see Species.Reservoir
+     */
     public final Reservoir reservoir() {return reservoir;}
     
     /*
@@ -140,13 +323,9 @@ public abstract class Species extends Container {
          
     /**
     * A unique integer that identifies the species.  Used to associate
-    * inter- and intra-molecular potentials to the Species.
-    * Default value is often 0, but may use setDefaults method in subclass
-    * to override this to another value if convenient; may also be set 
-    * at design time
-    * No two Species should have a common speciesIndex, but no check is made
-    * to prevent this. Failure to properly assign values will cause mis-association
-    * of Potentials and Species
+    * inter- and intra-molecular potentials to the Species.  Assigned
+    * by Simulation when species is registered.  Indices are assigned starting
+    * from zero and increase in the order that the species are constructed.
     * 
     * @see Phase#potential2
     * @see Phase#potential1
@@ -159,50 +338,57 @@ public abstract class Species extends Container {
     protected int atomsPerMolecule;
               
     /**
-    * The simulation in which this species resides.  Assigned in add method of Simulation
-    *
-    */
-    Simulation parentSimulation;
-    
-    /**
      * Hashtable to associate agents with phases
      */
-    Hashtable agents = new Hashtable();
-    //Explicit for 2D because drawing is done to 2D image
-//    private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
-    private transient final int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
+    HashMap agents = new HashMap();
 
     /**
     * Object responsible for setting default configuration of atoms in molecule
     */
-    public ConfigurationMolecule configurationMolecule;
+    public Molecule.Configuration moleculeConfiguration;
     
     Species previousSpecies, nextSpecies;
     
     /**
      * Class for storing molecules that are not presently in any phase
      */
-    private final Reservoir reservoir = new Reservoir();
+    private final Reservoir reservoir = new Reservoir(this);
           
     private final Random rand = new Random();  //for choosing molecule at random
 
         /**
-        * Handles addition, deletions, ordering, etc. of molecules in a phase
-        */
-    public class Agent {
+         * The Species.Agent is a representative of the species in each phase.
+         * The agent handles addition, deletion, link-list ordering, counting, etc. of 
+         * molecules in a phase.  Each phase has an agent from every species instance.
+         * 
+         * @author David Kofke
+         * @see Species
+         * @see Phase
+         */
+    public final class Agent implements java.io.Serializable {
         public Phase parentPhase;  //want final, but won't compile
+        private Atom.Iterator atomIterator;  //iterator for all atoms of this species in this phase
         
+        /**
+         * @param p The phase in which this agent will be placed
+         */
         public Agent(Phase p) {
             parentPhase = p;
+            atomIterator = new AtomIterator();
         }
         
         public final Species parentSpecies() {return Species.this;}
         public final Phase parentPhase() {return parentPhase;}
-
+        
+        /**
+         * Returns a new, unique instance of an atom iterator for the species in the phase
+         */
+        public final Atom.Iterator makeAtomIterator() {return new AtomIterator();}
+        
         /**
         * @return the number of molecules for this species in this phase
         */
-        public final int getNMolecules() {return nMolecules;}
+        public final int moleculeCount() {return nMolecules;}
               
         /**
         * Sets the number of molecules for this species.  Makes the given number
@@ -224,29 +410,23 @@ public abstract class Species extends Container {
             if(nMolecules == 0) {
                 firstMolecule = null;
                 lastMolecule = null;
-                return;
+                if(previous != null) previous.setNextMolecule(next);
             }
-            firstMolecule = makeMolecule(parentPhase);
-            lastMolecule = firstMolecule;
-            for(int i=1; i<nMolecules; i++) {
-                lastMolecule.setNextMolecule(makeMolecule(parentPhase));
-                lastMolecule = lastMolecule.nextMolecule();
+            else {
+                firstMolecule = makeMolecule(parentPhase);
+                lastMolecule = firstMolecule;
+                for(int i=1; i<nMolecules; i++) {
+                    lastMolecule.setNextMolecule(makeMolecule(parentPhase));
+                    lastMolecule = lastMolecule.nextMolecule();
+                }
+                lastMolecule.setNextMolecule(next);
+                if(previous != null) previous.setNextMolecule(firstMolecule);
             }
-            if(previous != null) previous.setNextMolecule(firstMolecule);
-            lastMolecule.setNextMolecule(next);
             parentPhase.updateCounts();
-            parentPhase.configuration.initializeCoordinates();
-            parentPhase.iterator.reset();
+            parentPhase.configuration.initializeCoordinates(parentPhase);
+            parentPhase.iteratorFactory().reset();
         }
               
-              
-        public void add(ColorScheme cs) {
-            this.colorScheme = cs;
-            for(Atom a=firstAtom(); a!=terminationAtom(); a=a.nextAtom()) {
-                colorScheme.initializeAtomColor(a);
-            }
-        }
-        
         /**
         * Chooses a molecule randomly from Species
         *
@@ -314,7 +494,7 @@ public abstract class Species extends Container {
         * becomes last molecule of species.  Updates first/last Molecule
         * for species, if appropriate.
         * Not yet correctly implemented for use in a phase containing multiple
-        * species (i.e., mixtures).  Adjusts total molecule and atom count in parent phase.
+        * species (i.e., mixtures).  Does not adjust total molecule and atom count in parent phase.
         *
         * @param m the molecule being added
         * @see deleteMolecule
@@ -347,53 +527,9 @@ public abstract class Species extends Container {
 //            m.parentPhase = parentPhase;
 //            parentPhase.moleculeCount++;
 //            parentPhase.atomCount += m.nAtoms;
-            colorScheme.initializeMoleculeColor(m);
+//            colorScheme.initializeMoleculeColor(m);  //need to deal with this for changes in colorscheme
         }
               
-    /**
-    * Draws all molecules of the species using current values of their positions.
-    *
-    * @param g         graphics object to which molecules are drawn
-    * @param origin    origin of drawing coordinates (pixels)
-    * @param scale     factor determining size of drawn image relative to
-    *                  nominal drawing size
-    * @see Atom#draw
-    * @see Molecule#draw
-    * @see Phase#paint
-    */
-          
-        public void draw(Graphics g, int[] origin, double scale) {
-
-            double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
-        /*   
-            int diameterP = (int)(toPixels*diameter);
-            g.setColor(color);
-            */
-            Atom nextSpeciesAtom = terminationAtom();
-            for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
-                parentPhase.boundary().centralImage(a.coordinate.position());        //move atom to central image
-                colorScheme.setAtomColor(a);
-                a.draw(g,origin,scale);
-                /*
-                int xP = origin[0] + (int)(toPixels*(a.r[0]-radius));
-                int yP = origin[1] + (int)(toPixels*(a.r[1]-radius));
-                g.fillOval(xP,yP,diameterP,diameterP);
-                */
-            }
-            if(DisplayConfiguration.DRAW_OVERFLOW) {
-                for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
-                    if(a.type instanceof AtomType.Disk) {
-                        double[][] shifts = a.parentMolecule.parentPhase().boundary().getOverflowShifts(a.coordinate.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
-                        for(int i=0; i<shifts.length; i++) {
-                        shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
-                        shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
-                        a.draw(g,shiftOrigin,scale);
-                        }
-                    }
-                }
-            } 
-        }
-        
         /**
         * @return the next species in the linked list of species.  Returns null if this is the last species.
         */
@@ -491,9 +627,32 @@ public abstract class Species extends Container {
         * @see Molecule
         */
         protected Molecule lastMolecule;
-              
-        public ColorScheme colorScheme;
         
+        /**
+         * Iterator for all atoms of this species in this phase
+         */
+        public final class AtomIterator implements Atom.Iterator {
+            private Atom atom, nextAtom;
+            private boolean hasNext;
+            public AtomIterator() {reset();}
+            public boolean hasNext() {return hasNext;}
+            public void reset() {
+                atom = firstAtom();
+                hasNext = (atom != null);
+            }
+            public void reset(Atom a) {reset();}
+            public Atom next() {
+                nextAtom = atom;
+                if(atom == lastAtom()) {hasNext = false;}
+                else {atom = atom.nextAtom();}
+                return nextAtom;
+            }
+            public void allAtoms(AtomAction act) {
+                Atom term = terminationAtom();
+                for(Atom a=firstAtom(); a!=term; a=a.nextAtom()) {act.actionPerformed(a);}
+            }
+        } //end of AtomIterator
+
     } //end of Agent
     
     /**
@@ -501,9 +660,21 @@ public abstract class Species extends Container {
      * Useful for semigrand and grand canonical simulations
      * Keeps molecules in a linked list
      */
-    protected static final class Reservoir implements Molecule.Container {
+    protected static final class Reservoir implements Molecule.Container, java.io.Serializable {
         
         private Molecule next;
+        private Species species;
+        private boolean added = false;
+        
+        public Reservoir(Species s) {
+            species = s;
+        }
+        
+        //Simulation.Element interface extended by Molecule.Container
+        public Simulation parentSimulation() {return species.parentSimulation();}
+        public Class baseClass() {return Species.Reservoir.class;}
+        public final boolean wasAdded() {return added;}
+        public final void setAdded(boolean b) {added = b;}
 
         public Molecule nextMolecule() {return next;}  //peek
 
@@ -519,7 +690,7 @@ public abstract class Species extends Container {
         
         //does not handle m==null
         //does not clear parentPhase
-        //addMolecule is responsible for removing molecule from original container
+        //Molecule.Container method
         public void addMolecule(Molecule m) {
             m.container.removeMolecule(m);
             m.setNextMolecule(next);
@@ -527,6 +698,7 @@ public abstract class Species extends Container {
             next = m;
         }
         
+        //Molecule.Container method
         public void removeMolecule(Molecule m) {
             if(m != next) {  //should throw an exception
                 System.out.println("Error:  removal of inappropriate molecule from reservoir");

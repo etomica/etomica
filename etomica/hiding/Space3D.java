@@ -1,0 +1,303 @@
+package simulate;
+import java.awt.Graphics;
+import java.util.Random;
+
+public class Space3D extends Space {
+    
+    public static final int D = 3;
+    public final int D() {return D;}
+    
+    public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
+    public Space.Vector makeVector() {return new Vector();}
+    public Space.CoordinatePair makeCoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary boundary) {return new CoordinatePair(c1, c2, (Boundary)boundary);}
+    public Space.CoordinatePair makeCoordinatePair(Space.Boundary boundary) {return new CoordinatePair((Boundary)boundary);}
+    public Space.Boundary makeBoundary(int b) {
+        switch(b) {
+            case(Boundary.NONE):            return new BoundaryNone();
+            case(Boundary.PERIODIC_SQUARE): return new BoundaryPeriodicSquare();
+            default:                        return null;
+        }
+    }
+        
+    public static class Vector extends Space.Vector {  //declared final for efficient method calls
+        public static final Random random = new Random();
+        public static final Vector ORIGIN = new Vector(0.0,0.0,0.0);
+        double x, y, z;
+        public Vector () {x = 0.0; y = 0.0; z = 0.0;}
+        public Vector (double a1, double a2, double a3) {x = a1; y = a2; z = a3;}
+        public double component(int i) {
+            if(i==0) return x;
+            else if(i==1) return y;
+            else return z;
+        }
+        public void setComponent(int i, double d) {
+            if(i==0) x=d; 
+            else if(i==1) y=d; 
+            else z=d;
+        }
+        public void E(Space.Vector u) {E((Vector)u);}
+        public void PE(Space.Vector u) {PE((Vector)u);}
+        public void ME(Space.Vector u) {ME((Vector)u);}
+        public void TE(Space.Vector u) {TE((Vector)u);}
+        public void DE(Space.Vector u) {DE((Vector)u);}
+        public double dot(Space.Vector u) {return dot((Vector)u);}
+        public void E(Vector u) {x = u.x; y = u.y; z = u.z;}
+        public void E(double a) {x = a; y = a; z = a;}
+        public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y; z = a1*u1.z;}
+        public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y; z += a1*u1.z;}
+        public void PE(Vector u) {x += u.x; y += u.y; z += u.z;}
+        public void ME(Vector u) {x -= u.x; y -= u.y; z -= u.z;}
+        public void TE(double a) {x *= a; y *= a; z *= a;}
+        public void DE(double a) {x /= a; y /= a; z /= a;}
+        public double squared() {return x*x + y*y + z*z;}
+        public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
+        public void randomStep(double d) {
+            x += (2.*random.nextDouble()-1.0)*d; 
+            y += (2.*random.nextDouble()-1.0)*d; //uniformly distributed random step in x and y, within +/- d
+            z += (2.*random.nextDouble()-1.0)*d;}
+        public void setRandom(double d) {
+            x = random.nextDouble()*d; 
+            y = random.nextDouble()*d;
+            z = random.nextDouble()*d;
+        }
+        public void setRandom(double dx, double dy, double dz) {
+            x = random.nextDouble()*dx; 
+            y = random.nextDouble()*dy;
+            z = random.nextDouble()*dz;
+        }
+        public void setRandom(Vector u) {setRandom(u.x,u.y,u.z);}
+        public void setRandomCube() {
+            x = random.nextDouble(); 
+            y = random.nextDouble();
+            z = random.nextDouble();
+        }
+        public void setRandomSphere() {  //needs updating for 3D
+            x = Math.cos(2*Math.PI*random.nextDouble()); 
+            y = Math.sqrt(1.0 - x*x);
+        }
+        public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y; z = ORIGIN.z;}
+        public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
+    }
+    
+    protected static final class CoordinatePair extends Space.CoordinatePair {  
+        Coordinate c1;
+        Coordinate c2;
+        final Boundary boundary;
+        private final Vector dr = new Vector();
+        private double drx, dry, dvx, dvy, drz, dvz;
+        public CoordinatePair() {boundary = new BoundaryNone();}
+        public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b;}
+        public CoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary b) {
+            boundary = (Boundary)b;
+            if(c1 != null && c2 != null) {reset(c1,c2);}
+        }
+        public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
+            c1 = (Coordinate)coord1;
+            c2 = (Coordinate)coord2;
+            reset();
+        }
+        public void reset() {
+            dr.x = c2.r.x - c1.r.x;
+            dr.y = c2.r.y - c1.r.y;
+            dr.z = c2.r.z - c1.r.z;
+//                dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
+//                dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
+            boundary.apply(dr);
+            drx = dr.x; dry = dr.y; drz = dr.z;
+            r2 = drx*drx + dry*dry + drz*drz;
+            double rm1 = c1.parent().rm();
+            double rm2 = c2.parent().rm();
+            dvx = rm2*c2.p.x - rm1*c1.p.x;
+            dvy = rm2*c2.p.y - rm1*c1.p.y;
+            dvz = rm2*c2.p.z - rm1*c1.p.z;
+        }
+                
+//        public double r2() {
+//            return r2;
+//        }
+        public double v2() {
+            double rm1 = c1.parent().rm();
+            double rm2 = c2.parent().rm();
+            return dvx*dvx + dvy*dvy + dvz*dvz;
+        }
+        public double vDotr() {
+            double rm1 = c1.parent().rm();
+            double rm2 = c2.parent().rm();
+            return drx*dvx + dry*dvy + drz*dvz;
+        }
+        public void push(double impulse) {  //changes momentum in the direction joining the atoms
+            c1.p.x += impulse*drx;
+            c1.p.y += impulse*dry;
+            c1.p.z += impulse*drz;
+            c2.p.x -= impulse*drx;
+            c2.p.y -= impulse*dry;
+            c2.p.z -= impulse*drz;
+        }
+        public void setSeparation(double r2New) {
+            double ratio = c2.parent().mass()*c1.parent().rm();  // (mass2/mass1)
+            double delta = (Math.sqrt(r2New/r2()) - 1.0)/(1+ratio);
+            c1.r.x -= ratio*delta*drx;
+            c1.r.y -= ratio*delta*dry;
+            c1.r.z -= ratio*delta*drz;
+            c2.r.x += delta*drx;
+            c2.r.y += delta*dry;
+            c2.r.z += delta*drz;
+            //need call reset?
+        }
+   //     public final Atom atom1() {return c1.atom();}
+   //     public final Atom atom2() {return c2.atom();}
+    }
+
+    static class Coordinate extends Space.Coordinate {
+        public final Vector r = new Vector();  //Cartesian coordinates
+        public final Vector p = new Vector();  //Momentum vector
+        public Coordinate(Space.Occupant o) {super(o);}
+        public Space.Vector r() {return r;}
+        public Space.Vector position() {return r;}  //need some work here
+        public Space.Vector momentum() {return p;}
+        public double position(int i) {return r.component(i);}
+        public double momentum(int i) {return p.component(i);}
+        public Space.Vector makeVector() {return new Vector();}
+        public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
+    } 
+    
+    public interface Boundary extends Space.Boundary {
+        public static final int NONE = 0;
+        public static final int PERIODIC_SQUARE = 1;
+        public void apply(Vector dr);
+        public void centralImage(Vector r);
+    }
+
+    /**
+     * Class for implementing no periodic boundary conditions
+     */
+    protected static final class BoundaryNone implements Boundary {
+        private final Vector temp = new Vector();
+        private final double[][] shift0 = new double[0][D];
+        public final Vector dimensions = new Vector();
+        public final Space.Vector dimensions() {return dimensions;}
+        public static final Random random = new Random();
+        public void apply(Space.Vector dr) {}
+        public void centralImage(Space.Vector r) {}
+        public void apply(Vector dr) {}
+        public void centralImage(Vector r) {}
+        public double volume() {return Double.MAX_VALUE;}
+        public void inflate(double s) {}
+        public double[][] imageOrigins(int nShells) {return new double[0][D];}
+        public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
+        public Space.Vector randomPosition() {
+            temp.x = random.nextDouble()-0.5; 
+            temp.y = random.nextDouble()-0.5;
+            temp.z = random.nextDouble()-0.5;
+            return temp;}
+    }
+
+    /**
+     * Class for implementing rectangular periodic boundary conditions
+     */
+    protected static final class BoundaryPeriodicSquare implements Boundary {
+        private final Vector temp = new Vector();
+        public static final Random random = new Random();
+        private final double[][] shift0 = new double[0][D];
+        private final double[][] shift1 = new double[1][D]; //used by getOverflowShifts
+        private final double[][] shift3 = new double[3][D];
+        public BoundaryPeriodicSquare() {this(1.0,1.0,1.0);}
+        public BoundaryPeriodicSquare(double lx, double ly, double lz) {
+            dimensions.x = lx; 
+            dimensions.y = ly;
+            dimensions.z = lz;
+        }
+        public final Vector dimensions = new Vector();
+        public final Space.Vector dimensions() {return dimensions;}
+        public Space.Vector randomPosition() {
+            temp.x = random.nextDouble()-0.5; 
+            temp.y = random.nextDouble()-0.5;
+            temp.z = random.nextDouble()-0.5;
+            return temp;}
+        public void apply(Space.Vector dr) {apply((Vector)dr);}
+        public void apply(Vector dr) {
+            dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
+            dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
+            dr.z -= (dr.z > 0.0) ? Math.floor(dr.z+0.5) : Math.ceil(dr.z-0.5);
+//            if(dr.x > 0) {dr.x -= Math.floor(dr.x+0.5);}
+//            else         {dr.x -= Math.ceil(dr.x-0.5);}
+//            if(dr.y > 0) {dr.y -= Math.floor(dr.y+0.5);}
+//            else         {dr.y -= Math.ceil(dr.y-0.5);}
+            dr.x *= dimensions.x;
+            dr.y *= dimensions.y;
+            dr.z *= dimensions.z;
+        }
+        public void centralImage(Space.Vector r) {centralImage((Vector)r);}
+        public void centralImage(Vector r) {
+            r.x -= (r.x > 0.0) ? Math.floor(r.x) : Math.ceil(r.x-1.0);
+            r.y -= (r.y > 0.0) ? Math.floor(r.y) : Math.ceil(r.y-1.0);
+            r.z -= (r.z > 0.0) ? Math.floor(r.z) : Math.ceil(r.z-1.0);
+ //           if(r.x > 0) {r.x -= Math.floor(r.x);}
+ //           else         {r.x -= Math.ceil(r.x-1.0);}
+ //           if(r.y > 0) {r.y -= Math.floor(r.y);}
+ //           else         {r.y -= Math.ceil(r.y-1.0);}
+        }
+        public void inflate(double scale) {dimensions.TE(scale);}
+        public double volume() {return dimensions.x * dimensions.y * dimensions.z;}
+        /** Computes origins for periodic images
+        */
+        //not updated for 3D
+        public double[][] imageOrigins(int nShells) {
+            int nImages = (2*nShells+1)*(2*nShells+1)-1;
+            double[][] origins = new double[nImages][D];
+            int k = 0;
+            for(int i=-nShells; i<=nShells; i++) {
+                for(int j=-nShells; j<=nShells; j++) {
+                    if(i==0 && j==0) {continue;}
+                    origins[k][0] = i*dimensions.x;
+                    origins[k][1] = j*dimensions.y;
+                    k++;
+                }
+            }
+            return origins;
+        }
+
+        /** Returns coordinate shifts needed to draw all images that overflow into central image
+         * 0, 1, or 3 shifts may be returned
+         */
+         //not updated for 3D
+        public double[][] getOverflowShifts(Space.Vector rr, double distance) {
+            Vector r = (Vector)rr;
+            int shiftX = 0;
+            int shiftY = 0;
+            if(r.x-distance < 0.0) {shiftX = +1;}
+            else if(r.x+distance > dimensions.x) {shiftX = -1;}
+            
+            if(r.y-distance < 0.0) {shiftY = +1;}
+            else if(r.y+distance > dimensions.y) {shiftY = -1;}
+            
+            if(shiftX == 0) {
+                if(shiftY == 0) {
+                    return shift0;
+                }
+                else {
+                    shift1[0][0] = 0.0;
+                    shift1[0][1] = shiftY*dimensions.y;
+                    return shift1;
+                }
+            }
+            else { //shiftX != 0
+                if(shiftY == 0) {
+                    shift1[0][0] = shiftX*dimensions.x;
+                    shift1[0][1] = 0.0;
+                    return shift1;
+                }
+                else {
+                    shift3[0][0] = shiftX*dimensions.x;
+                    shift3[0][1] = 0.0;
+                    shift3[1][0] = 0.0;
+                    shift3[1][1] = shiftY*dimensions.y;
+                    shift3[2][0] = shift3[0][0];
+                    shift3[2][1] = shift3[1][1];
+                    return shift3;
+                }
+            }
+        } //end of getOverflowShifts
+    }  //end of BoundarySquarePeriodic
+            
+}

@@ -7,20 +7,23 @@ public class SpeciesDiskWell extends SpeciesDisks {
   double lambda;
   Color wellColor;
 
-  public SpeciesDiskWell(Simulation ps) {
-    this(ps, 20,1);
+  public SpeciesDiskWell(int nM, int nA) {
+    this(Simulation.instance, nM, nA);
   }
-  public SpeciesDiskWell(Simulation ps, int nM, int nA) {
-    super(ps, nM, nA, new AtomType.Well(1.0,Color.black,0.1,1.5));
+  public SpeciesDiskWell(Simulation sim, int nM, int nA) {
+    super(sim, nM, nA, new AtomType.Well(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE,1.5));
   }
   
   public SpeciesDiskWell() {
-        setSpeciesIndex(0);
+    this(Simulation.instance);
+  }
+    
+  public SpeciesDiskWell(Simulation sim) {
+        super(sim);
         setAtomsPerMolecule(1);
-        protoType = new AtomType.Well(1.0,Color.black,0.1,1.5);  //mass, color, diameter, lambda
-        colorScheme = new ColorSchemeByType();
-        configurationMolecule = new ConfigurationMoleculeLinear();
-        setNMolecules(20);
+        protoType = new AtomType.Well(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE,1.5);  //mass, color, diameter, lambda
+        moleculeConfiguration = new Molecule.Configuration.Linear(this);
+        setNMolecules(Default.MOLECULE_COUNT);
   }
   
   public double getLambda() {return ((AtomType.Well)protoType).lambda();}

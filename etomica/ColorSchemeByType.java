@@ -1,27 +1,18 @@
 package simulate;
 import java.awt.Color;
 /**
- *
+ * Colors the atom according to the color given by its type field.
  * @author David Kofke
  *
  */
 
- /**
-  * Does nothing at any time to set atom's color, leaving color to be set type AtomType
-  */
-  
 public final class ColorSchemeByType extends ColorScheme {
     
     public ColorSchemeByType() {}
-        
- /**
-    Return without changing atom's color
-  */
-    public final void setAtomColor(Atom a) {}
-    
+            
  /**
   * Initialize atom color to the color of its type
   */
-    public final void initializeAtomColor(Atom a) {a.setColor(a.type.color());}
-
+    public final void colorAtom(Atom a) {a.setColor(a.type.color());}
+  
 }

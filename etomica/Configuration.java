@@ -1,48 +1,49 @@
 package simulate;
 import java.util.*;
-import java.awt.*;
+import simulate.units.*;
 
 /**
  * General class for assignment of coordinates to all molecules/atoms in phase
  */
 
-public abstract class Configuration extends Component{
+public abstract class Configuration implements java.io.Serializable {
 
-    protected Vector species = new Vector();
-    public double temperature;
-    Phase parentPhase;
+//    protected Vector species = new Vector();
+    protected double temperature = Default.TEMPERATURE;
     Random rand = new Random();
-
-    public Configuration(){
-        setTemperature(300.);
+    
+    public Configuration() {
     }
     
-    public Configuration(Species.Agent s){
+/*    public Configuration(Species.Agent s){
+        this();
         species.addElement(s);
         initializeCoordinates();
     }
-    
     public void add(Species.Agent s){
  //       if(s.firstAtom().type instanceof AtomType.Wall) {return;}
         species.addElement(s);
-        if(s.getNMolecules() > 0) initializeCoordinates();
+        if(s.moleculeCount() > 0) initializeCoordinates();
     }
+*/    
+    
+    
+//    public void setPhase(Phase p) {parentPhase = p;}
+//    public Phase getPhase() {return parentPhase;}
+ //   public void setParentPhase(Phase p) {parentPhase = p;}
+ //   public Phase getParentPhase() {return parentPhase;}
 
-    public double getTemperature(){
-        return temperature;
-    }
-    public void setTemperature(double t){
-        temperature = t;
-    }
+    public final void setTemperature(double t) {temperature = t;}
+    public final double getTemperature() {return temperature;}
+    public final Dimension getTemperatureDimension() {return Dimension.TEMPERATURE;}
  /**   
   * All atom velocities are set such that all have the same total momentum (corresponding to
   * the current value of temperature), with the direction at random
   */
-    public void initializeMomenta() {
-        Space.Vector momentumSum = parentPhase.parentSimulation.space.makeVector();
+    public void initializeMomenta(Phase phase) {
+        Space.Vector momentumSum = phase.parentSimulation().space().makeVector();
         int sum = 0;
-        for(int j=0; j<species.size(); j++) {
-            Species.Agent s = (Species.Agent)species.elementAt(j);
+        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 a.randomizeMomentum(temperature);
@@ -52,8 +53,7 @@ public abstract class Configuration extends Component{
 	    }
     //    Zero center-of-mass momentum
         momentumSum.DE((double)sum);
-        for(int j=0; j<species.size(); j++) {
-            Species.Agent s = (Species.Agent)species.elementAt(j);
+        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 a.coordinate.momentum().ME(momentumSum);
@@ -66,7 +66,7 @@ public abstract class Configuration extends Component{
 	}
         
     
-    public abstract void initializeCoordinates();
+    public abstract void initializeCoordinates(Phase p);
     
     public final static boolean HORIZONTAL = false;
     public final static boolean VERTICAL = true;

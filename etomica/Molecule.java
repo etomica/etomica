@@ -28,10 +28,10 @@ public class Molecule implements Space.Occupant, Serializable {
   public Molecule(Species ps, Phase pp, AtomType type, int n) {  
     parentSpecies = ps;
     setParentPhase(pp);
-    coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
+    coordinate = parentSimulation().space().makeCoordinate(this);
     r = coordinate.position();
     p = coordinate.momentum();
-    temp = parentSpecies.parentSimulation.space.makeVector();
+    temp = parentSimulation().space().makeVector();
     atomCount = n;
 //    atomIterator = (atomCount > 1) ? new AtomIterator() : new MonoAtomIterator();
     if(atomCount > 1) atomIterator = new AtomIterator();
@@ -44,6 +44,7 @@ public class Molecule implements Space.Occupant, Serializable {
         lastAtom.setNextAtom(new Atom(this,type,i));
         lastAtom = lastAtom.nextAtom();
     }
+    parentSpecies.moleculeConfiguration.initializeCoordinates(this);
   }
   
   /**
@@ -65,7 +66,7 @@ public class Molecule implements Space.Occupant, Serializable {
     }
     if(atomCount > 1) { //Multi-atomic
         atomIterator = new AtomIterator();
-        coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
+        coordinate = parentSimulation().space().makeCoordinate(this);
     }
     else {  //Mono-atomic
         atomIterator = new MonoAtomIterator();
@@ -73,10 +74,12 @@ public class Molecule implements Space.Occupant, Serializable {
     }
     r = coordinate.position();
     p = coordinate.momentum();
-    temp = parentSpecies.parentSimulation.space.makeVector();
+    temp = parentSimulation().space().makeVector();
+    parentSpecies.moleculeConfiguration.initializeCoordinates(this);
     
   }
   
+  public final Simulation parentSimulation() {return parentSpecies.parentSimulation();}
   public final Phase parentPhase() {return parentPhase;}
   public final Space.Coordinate coordinate() {
     updateR();
@@ -89,6 +92,18 @@ public class Molecule implements Space.Occupant, Serializable {
   */
   public final int atomCount() {return atomCount;}
   
+  /**
+   * @return the ith atom of the molecule, with first at i=0
+   */
+   public Atom getAtom(int i) {
+     if(i >= atomCount) throw new IllegalArgumentException("Request atom index greater than number of atoms in molecule");
+     Atom a = firstAtom;
+     for(int j=0; j<i; j++) {
+        a = a.nextAtom();
+     }
+     return a;
+   }
+   
  /**
    * Returns the intramolecular potential that governs interactions of all 
    * atoms of this molecule.
@@ -96,7 +111,7 @@ public class Molecule implements Space.Occupant, Serializable {
    * @return  single-molecule potential for this molecule's atoms
    * @see Potential1
    */
-  public final Potential1 getP1() {return parentSpecies.parentSimulation.potential1[speciesIndex()];}
+//  public final Potential1 getP1() {return potential1[speciesIndex()];}
  
  /**
   * Returns a vector of intermolecular potentials between this molecule's
@@ -105,7 +120,7 @@ public class Molecule implements Space.Occupant, Serializable {
   * @return  vector of intermolecular potentials between this molecule and all other molecules in the system.
   * @see Potential2
   */
-  public final Potential2[] getP2() {return parentSpecies.parentSimulation.potential2[speciesIndex()];}
+//  public final Potential2[] getP2() {return Simulation.potential2[speciesIndex()];}
    
  /**
   * Each species has a unique integer index that is used to identify the correct
@@ -128,7 +143,8 @@ public class Molecule implements Space.Occupant, Serializable {
   public final double mass() {
     if(atomCount==1) {return firstAtom.type.mass();}
     double mass = 0.0;
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.nextAtom()) {mass += a.type.mass();}
+    atomIterator.reset();
+    while(atomIterator.hasNext()) {mass += atomIterator.next().type.mass();}
     return mass;
   }
   
@@ -162,13 +178,12 @@ public class Molecule implements Space.Occupant, Serializable {
    * @see Atom#draw
    */
   public void draw(Graphics g, int[] origin, double scale) {
-    Atom terminator = terminationAtom();
-    for(Atom a=firstAtom; a!=terminator; a=a.nextAtom()) {a.draw(g, origin, scale);}
+    atomIterator.reset();
+    while(atomIterator.hasNext()) {atomIterator.next().draw(g, origin, scale);}
   }
   
   public final Atom firstAtom() {return firstAtom;}
   public final Atom lastAtom() {return lastAtom;}
-  public final Atom terminationAtom() {return lastAtom.nextAtom();}
   
   public final void setParentPhase(Phase p) {
     parentPhase = p;
@@ -230,70 +245,70 @@ public class Molecule implements Space.Occupant, Serializable {
   
   public Molecule.Container container;
   
-        protected final Space.Vector temp;
-        
-        public void updateR() {  //recomputes COM position from atom positions
-            if(atomCount==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
-            else {  //multiatomic
-                r.E(0.0);
-                atomIterator.reset();
-                while(atomIterator.hasNext()) {
-                    Atom a = atomIterator.next();
-                    r.PEa1Tv1(a.mass(),a.coordinate().position());
-                }
-                r.DE(mass());
-            }
-        }
-        public void updateP() {  //recomputes total momentum from atom momenta
-            p.E(0.0);
+    protected final Space.Vector temp;
+            
+    public void updateR() {  //recomputes COM position from atom positions
+        if(atomCount==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
+        else {  //multiatomic
+            r.E(0.0);
             atomIterator.reset();
             while(atomIterator.hasNext()) {
-                p.PE(atomIterator.next().momentum());
+                Atom a = atomIterator.next();
+                r.PEa1Tv1(a.mass(),a.coordinate().position());
             }
+            r.DE(mass());
         }
-        public void translateToward(Space.Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
-        public void translateBy(Space.Vector u) {
-            atomIterator.reset();
-            while(atomIterator.hasNext()) {atomIterator.next().translateBy(u);}
+    }
+    public void updateP() {  //recomputes total momentum from atom momenta
+        p.E(0.0);
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            p.PE(atomIterator.next().momentum());
         }
-        public void accelerateBy(Space.Vector u) {
-            atomIterator.reset();
-            while(atomIterator.hasNext()) {atomIterator.next().accelerateBy(u);}
-        }
-        public void accelerateTo(Space.Vector u) {
-            updateP();  //update COM vector
-            temp.E(u);  //temp = destination vector
-            temp.ME(p);   //temp = destination - original = dr
-            accelerateBy(temp);
-        }
-        public void translateTo(Space.Vector u) {
-            updateR();  //update COM vector
-            temp.E(u);  //temp = destination vector
-            temp.ME(r);   //temp = destination - original = dr
-            translateBy(temp);
-        }
-        public void displaceBy(Space.Vector u) {
-            atomIterator.reset();
-            while(atomIterator.hasNext()) {atomIterator.next().displaceBy(u);}
-        }
-        public void displaceTo(Space.Vector u) {
-            updateR();  //update COM vector
-            temp.E(u);  //temp = destination vector
-            temp.ME(r);   //temp = destination - original = dr
-            displaceBy(temp);
-        }
-        public void displaceWithin(double d) {
-            temp.setRandom(d);
-            displaceBy(temp);
-        }
+    }
+    public void translateToward(Space.Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
+    public void translateBy(Space.Vector u) {
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {atomIterator.next().translateBy(u);}
+    }
+    public void accelerateBy(Space.Vector u) {
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {atomIterator.next().accelerateBy(u);}
+    }
+    public void accelerateTo(Space.Vector u) {
+        updateP();  //update COM vector
+        temp.E(u);  //temp = destination vector
+        temp.ME(p);   //temp = destination - original = dr
+        accelerateBy(temp);
+    }
+    public void translateTo(Space.Vector u) {
+        updateR();  //update COM vector
+        temp.E(u);  //temp = destination vector
+        temp.ME(r);   //temp = destination - original = dr
+        translateBy(temp);
+    }
+    public void displaceBy(Space.Vector u) {
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {atomIterator.next().displaceBy(u);}
+    }
+    public void displaceTo(Space.Vector u) {
+        updateR();  //update COM vector
+        temp.E(u);  //temp = destination vector
+        temp.ME(r);   //temp = destination - original = dr
+        displaceBy(temp);
+    }
+    public void displaceWithin(double d) {
+        temp.setRandom(d);
+        displaceBy(temp);
+    }
             
-        public void displaceToRandom(Phase phase) {displaceTo(phase.boundary().randomPosition());}
+    public void displaceToRandom(Phase phase) {displaceTo(phase.boundary().randomPosition());}
 //        public void translateToRandom(Phase phase) {translateTo(phase.boundary().randomPosition());}
 
-        public void replace() {
-            atomIterator.reset();
-            while(atomIterator.hasNext()) {atomIterator.next().replace();}
-        }
+    public void replace() {
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {atomIterator.next().replace();}
+    }
   /**
   
    * Rescales this particle's center of mass to new position corresponding to a 
@@ -304,11 +319,11 @@ public class Molecule implements Space.Occupant, Serializable {
    *
    * @see replace
    */
-        public void inflate(double s) {
-            updateR();
-            temp.Ea1Tv1(s-1.0,r);
-            displaceBy(temp);   //displaceBy doesn't use temp
-        }
+//        public void inflate(double s) {
+//            updateR();
+//            temp.Ea1Tv1(s-1.0,r);
+//            displaceBy(temp);   //displaceBy doesn't use temp
+//        }
         public Space.Vector position() {updateR(); return r;}
         public Space.Vector momentum() {updateP(); return p;}
         public double position(int i) {updateR(); return r.component(i);}
@@ -317,7 +332,7 @@ public class Molecule implements Space.Occupant, Serializable {
   * Computes and returns this molecule's total kinetic energy (including
   * contributions from all internal motions)
   *
-  * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
+  * @return  kinetic energy in (Daltons)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
   */
         public double kineticEnergy() {updateP(); return 0.5*p.squared()*rm();}
         
@@ -377,8 +392,9 @@ public class Molecule implements Space.Occupant, Serializable {
             else {atom = atom.nextAtom();}
             return nextAtom;
         }
-        public void allAtoms(Atom.Action act) {
-            for(Atom a=firstAtom; a!=terminationAtom(); a=a.nextAtom()) {act.action(a);}
+        public void allAtoms(AtomAction act) {
+            Atom term = lastAtom.nextAtom();
+            for(Atom a=firstAtom; a!=term; a=a.nextAtom()) {act.actionPerformed(a);}
         }
     } //end of AtomIterator
   public final class MonoAtomIterator implements Atom.Iterator {
@@ -391,14 +407,14 @@ public class Molecule implements Space.Occupant, Serializable {
             hasNext = false;
             return firstAtom;
         }
-        public void allAtoms(Atom.Action act) {act.action(firstAtom);}
+        public void allAtoms(AtomAction act) {act.actionPerformed(firstAtom);}
     } //end of MonoAtomIterator
 
   /**
    * Molecule.Container
    * Interface for molecule reservoirs and phases
    */
-  public interface Container {
+  public interface Container extends Simulation.Element {
  /** addMolecule should first remove molecule from original container, then
   *  do what is necessary to add molecule to new container
   */
@@ -407,5 +423,136 @@ public class Molecule implements Space.Occupant, Serializable {
    * removeMolecule should be called only by the addMolecule method of another container
    */
       public void removeMolecule(Molecule m);
-  }
+  } //end of interface Container
+  
+/**
+ * General class for assignment of coordinates to all atoms
+ * Places atoms of each molecule in species in same position with respect to the molecule's center of mass
+ */
+
+    public static abstract class Configuration implements java.io.Serializable {
+      
+    protected Species parentSpecies;  //some subclasses may want to take an action on setting species, so don't make public
+    protected final double[] dim;
+      
+//    public Configuration() {super();}
+    public Configuration(Species parent) {
+        parentSpecies = parent;
+        dim = new double[parent.parentSimulation().space().D()];
+    }
+      
+    public void initializeCoordinates() {
+        if(parentSpecies == null) {return;}
+        java.util.Iterator e = parentSpecies.agents.values().iterator();
+        while(e.hasNext()) {
+            Species.Agent agent = (Species.Agent)e.next();
+            for(Molecule m=agent.firstMolecule(); m!=agent.terminationMolecule(); m=m.nextMolecule()) {
+                initializeCoordinates(m);
+            }
+        }
+        computeDimensions();
+    }
+            
+            
+    public void initializeCoordinates(Phase p) {
+        if(parentSpecies == null) {return;}
+        Species.Agent agent = parentSpecies.getAgent(p);
+        for(Molecule m=agent.firstMolecule(); m!=agent.terminationMolecule(); m=m.nextMolecule()) {
+            initializeCoordinates(m);
+        }
+        p.iteratorFactory().reset();
+        computeDimensions();
+    }
+      
+    public void setParentSpecies(Species s) {parentSpecies = s;}
+    public Species parentSpecies() {return parentSpecies;}
+      
+    public double[] moleculeDimensions() {return dim;}
+      
+    public abstract void initializeCoordinates(Molecule m);
+    protected abstract void computeDimensions();
+
+       //Simple linear configuration of molecules
+            public static class Linear extends Configuration {
+                
+                private double bondLength = 0.5*Default.ATOM_SIZE;
+                private Space.Vector orientation;
+                private double[] angle;
+            //    private double theta = 45.;
+                
+//                public Linear(){
+//                    orientation = Simulation.space.makeVector();
+//                    setAngle(0,45.);
+//                }
+                public Linear(Species parent) {
+//                    this();
+                    super(parent);
+                    orientation = parent.parentSimulation().space().makeVector();
+                    angle = new double[parent.parentSimulation().space().D()];
+                    setAngle(0,45.);
+//                    parentSpecies = parent;
+                }
+              
+                public void setBondLength(double b) {
+                    bondLength = b;
+                    computeDimensions();
+                }
+                public double getBondLength() {return bondLength;}
+                
+                public void setAngle(int i, double t) {
+                    angle[i] = Math.PI*t/180.;
+                    switch(parentSpecies.parentSimulation().space().D()) {
+                        case 1:
+                            return;
+                        case 2:
+                            setOrientation(new Space2D.Vector(Math.cos(angle[0]),Math.sin(angle[0])));
+                            return;
+            //            case 3:
+            //                setOrientation(new Space3D.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
+            //                                                  Math.sin(angle[1])*Math.sin(angle[0]),
+            //                                                  Math.cos(angle[1])));
+            //                return;
+                    }
+                }
+                public double getAngle(int i) {return angle[i];}
+                public void setOrientation(Space.Vector e) {orientation.E(e);}
+              
+            /**
+            * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
+            * center of mass unchanged from the value before method was called
+            */
+                public void initializeCoordinates(Molecule m) {
+                    Space.Vector OldCOM = parentSpecies.parentSimulation().space().makeVector();
+                    OldCOM.E(m.COM());
+                    double xNext = 0.0;
+                    m.atomIterator.reset();
+                    while(m.atomIterator.hasNext()) {
+                        Atom a = m.atomIterator.next();
+                        a.translateTo(OldCOM);  //put all atoms at same point
+                        a.translateBy(xNext,orientation);  //move xNext distance in direction orientation
+                        xNext += bondLength;
+                    }
+                    m.translateTo(OldCOM);  //shift molecule to original COM
+                }
+                
+                protected void computeDimensions() {
+            /*        if(parentSpecies()==null) return;
+                    dim[1] = 0.0;
+                    Molecule m = parentSpecies().getMolecule();  //a typical molecule
+                    initializeCoordinates(m);
+                    for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
+                        dim[1] = Math.max(dim[1], ((AtomType.Disk)a.type).diameter());  //width is that of largest atom
+                    }
+                    dim[0] = 0.5*(((AtomType.Disk)m.firstAtom().type).diameter() + ((AtomType.Disk)m.lastAtom().type).diameter()) + (m.atomCount-1) * bondLength;
+            */
+                }
+
+            public void setParentSpecies(Species s) {
+                parentSpecies = s;
+            //    setAngle(theta);   //fix orientation to x-axis of 2-D space
+            //    computeDimensions();
+            }
+        } //end of Molecule.Configuration.Linear
+    }//end of Molecule.Configuration
+      
 }

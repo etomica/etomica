@@ -1,10 +1,18 @@
 package simulate;
 
-import java.beans.*;
-import java.awt.*;
-
-public class PotentialHardDiskSpeciesSwitchWall extends PotentialHardDiskWall implements PotentialHard
+/**
+ * An unphysical potential that has the sole action of swapping the species identity of
+ * any molecule of a certain species that passes a plane (a wall).  
+ * Momentum of molecule is unchanged by interaction with wall.  
+ * One of species1Index and species2Index should correspond to a wall type species, and the 
+ * other a disk type.
+ * Presently this potential is suitable only for monatomic molecules from speciesDisks
+ */
+public class PotentialHardDiskSpeciesSwitchWall extends PotentialHardDiskWall
 {
+  /**
+   * Molecules crossing the wall are changed to a molecule from this species
+   */
     SpeciesDisks changeSpecies;
     
     double collisionDiameter, collisionRadius, sig2;
@@ -12,12 +20,32 @@ public class PotentialHardDiskSpeciesSwitchWall extends PotentialHardDiskWall im
     public PotentialHardDiskSpeciesSwitchWall() {
         setCollisionDiameter(0.0);
     }
-
+ /**
+  * Always returns zero
+  */
+  public double energy(AtomPair pair) {return 0.0;}
+ /**
+  * Always returns zero
+  */
+  public double energyLRC(int n1, int n2, double V) {return 0.0;}
+  
+ /**
+  * Always returns false
+  */
+  public boolean overlap(AtomPair pair) {return false;}
+ 
+  /**
+   * Molecules interacting with wall are changed to a molecule from this species
+   */
     public void setChangeSpecies(Species s) {
         changeSpecies = (SpeciesDisks)s;
     }
     
-    
+   /**
+    * Implements "collision dynamics" between wall and molecule.  Has net effect
+    * of changing replacing the entering molecule with a new molecule of type
+    * given from changeSpecies
+    */
 // not suited for multiatomic molecules; need to work on IntegratorHard (advanceToCollision method) to make ready
     
     public void bump(AtomPair pair) {

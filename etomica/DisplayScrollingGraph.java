@@ -1,7 +1,8 @@
 package simulate;
+import simulate.units.*;
 import java.awt.*;
 
-    public class DisplayScrollingGraph extends simulate.Display {
+    public class DisplayScrollingGraph extends simulate.Display implements Meter.User {
 
         Color bgColor = new Color(255, 255, 240);
         int margin = 10;
@@ -11,18 +12,24 @@ import java.awt.*;
         int stepsToGraph = 100;
         boolean useMeterStatistics;
         double[] values = new double[stepsToGraph];
-        double vMin = -1000;
-        double vMax = 1000;
+        double vMin = 0.0;
+        double vMax = 60.0;
         String legend = new String("");
         int ticks = 5;
-        double[] tickValues = {-1000.0, -500, 0.0, 500, 1000};
+        double[] tickValues = {0.0, 15.0, 30.0, 45.0, 60.0};
         double xScale = (pixels - 2 * margin) / (double) stepsToGraph;
         double yScale = (pixels - 2 * margin) / (vMax - vMin);
         double vAvg;
         double v2Avg;
         double stdDev;
+        Meter meter;
+        Unit unit;
         
         public DisplayScrollingGraph() {
+            this(Simulation.instance);
+        }
+        public DisplayScrollingGraph(Simulation sim) {
+            super(sim);
             useMeterStatistics = false;
             clear();
         }
@@ -45,17 +52,47 @@ import java.awt.*;
             if (++current == stepsToGraph)
                 current = 0;
             values[current] = value;
-
         }
         
+    /**
+     * Accessor method for the meter that generates the displayed value.
+     */
+    public Meter getMeter() {
+        System.out.println("DisplayBox.getMeter value = "+meter);
+        return meter;
+    }
+
+    /**
+     * Specifies the meter that generates the displayed value.
+     */
+    public void setMeter(Meter m) {
+        meter = m;
+        setUnit(m.defaultIOUnit());
+    }
+    
+    
+    /**
+     * Accessor method to set the physical units of the displayed value.
+     * Text describing unit is used in label.
+     */
+    public void setUnit(Unit u) {
+        unit = u;
+//        setLabel();
+    }
+
+    /**
+     * Returns the physical units of the displayed value.
+     */
+    public Unit getUnit() {return unit;}
+
         public void doUpdate() {
-            addValue(phase.firstMeter.currentValue());
+            addValue(meter.currentValue()); //re-examine this
         }
         
         private void updateStatistics() {
             if(useMeterStatistics) {
-                vAvg = phase.firstMeter.average();
-                stdDev = phase.firstMeter.error();
+                vAvg = meter.average();
+                stdDev = Math.sqrt(meter.variance());
             }
             else {
                 vAvg = v2Avg = 0;
@@ -71,8 +108,21 @@ import java.awt.*;
                 }
             }
         }
-                
+        
+        public void resetScale() {          
+            double min = +Double.MAX_VALUE;
+            double max = -Double.MAX_VALUE;
+            for(int i=0; i<values.length; i++) {
+                min = (values[i] < min) ? values[i] : min;
+                max = (values[i] > max) ? values[i] : max;
+            }
+            setVMin(min-1.1*stdDev);
+            setVMax(max+1.1*stdDev);
+        }
+        
+        public void paint(Graphics g) {doPaint(g);}
         public void doPaint(Graphics osg) {
+
             osg.setColor(bgColor);
             osg.fillRect(0, 0, pixels, pixels);
             updateStatistics();
@@ -115,14 +165,32 @@ import java.awt.*;
             osg.drawString(legend, pixels / 4, pixels - margin / 2);
         }
 
+    public void setNTicks(int n) {
+        ticks = n;
+        resetTickValues();
+    }
+    public int getNTicks() {return ticks;}
+    
     public void setVMin(double v) {
         vMin = v;
         yScale = (pixels - 2 * margin) / (vMax - vMin);
+        resetTickValues();
     }
+    public double getVMin() {return vMin;}
     public void setVMax(double v) {
         vMax = v;
         yScale = (pixels - 2 * margin) / (vMax - vMin);
+        resetTickValues();
     }
+    public double getVMax() {return vMax;}
+    
+    private void resetTickValues() {
+        double[] newTicks = new double[ticks];
+        double delta = (vMax - vMin)/(ticks-1);
+        for(int i=0; i<ticks; i++) newTicks[i] = vMin + i*delta;
+        tickValues = newTicks;
+    }
+            
     
     public void setUseMeterStatistics(boolean b) {useMeterStatistics = b;}
     public boolean getUseMeterStatistics() {return useMeterStatistics;}

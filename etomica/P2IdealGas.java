@@ -4,17 +4,17 @@ import java.awt.*;
 
 public class P2IdealGas extends Potential2 {
 
-  private double collisionDiameter = 0.1;
-
+  private final PotentialIdealGas onlyPotential;
+  
   public P2IdealGas() {
-    super();
-    nAtoms1 = 1;
-    nAtoms2 = 1;
-    potential = new Potential[nAtoms1][nAtoms2];
-    potential[0][0] = new PotentialIdealGas();
+    this(Simulation.instance);
+  }
+  public P2IdealGas(Simulation sim) {
+    super(sim);
+    onlyPotential = new PotentialIdealGas(sim);
   }
   
-  public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
+  public final Potential getPotential(Atom a1, Atom a2) {return onlyPotential;}
   
 }
 

@@ -1,55 +1,32 @@
 package simulate;
-import java.beans.Beans;
-import java.awt.*;
 
 public class P2DiskWall extends Potential2 {
 
-  private double collisionDiameter = 0.1;
+  private double collisionDiameter;
+  private PotentialHardDiskWall onlyPotential;
 
   public P2DiskWall() {
-    super();
-    setSize(30,30);
-    nAtoms1 = 1;
-    nAtoms2 = 1;
-    potential = new Potential[nAtoms1][nAtoms2];
-    potential[0][0] = new PotentialHardDiskWall(collisionDiameter);
-    setCollisionDiameter(collisionDiameter);  //sets up neighbor distances 
+    this(Simulation.instance);
+  }
+  public P2DiskWall(Simulation sim) {
+    super(sim);
+    collisionDiameter = Default.ATOM_SIZE;
+    onlyPotential = new PotentialHardDiskWall(collisionDiameter);
+    setCollisionDiameter(collisionDiameter);   
   }
   
-  public final boolean isNeighbor(Molecule m1, Molecule m2) {
-    return true;
-  }
-  
-  public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
+  public final Potential getPotential(Atom a1, Atom a2) {return onlyPotential;}
   
   public final double getCollisionDiameter() {return collisionDiameter;}
   public final void setCollisionDiameter(double d) {
     collisionDiameter = d;
-    ((PotentialHardDiskWall)potential[0][0]).setCollisionDiameter(d);
+    onlyPotential.setCollisionDiameter(d);
     setPotentialCutoff(d);
   }
-  
-  // Paint a red disk at design time to show size of collision diameter
-  
-  public void paint(Graphics g) {
-    int moleculePixelPositionX, moleculePixelPositionY, moleculePixelDiameter;
-    int[] simulationPixelDimensions = {-1, -1}; // pixel width (0) and height (1) of simulation box less boundaries. 
-    if(Beans.isDesignTime()) {
-        if(getParent() != null) {
-            Component par = getParent();
-            simulationPixelDimensions[0] = par.getSize().width;
-            simulationPixelDimensions[1] = par.getSize().height;
-            double scale = Math.max(simulationPixelDimensions[0], simulationPixelDimensions[1]);
-            moleculePixelDiameter = (int)(scale*collisionDiameter);
-            g.setColor(Color.red);
-            moleculePixelPositionX = getLocation().x;
-            moleculePixelPositionY = getLocation().y;
-            g.fillOval(0,0,moleculePixelDiameter,moleculePixelDiameter);
-        }
-    }
-  }
-    
-  
+    public void setIsothermal(boolean b) {onlyPotential.setIsothermal(b);}
+    public boolean isIsothermal() {return onlyPotential.isIsothermal();}
+    public void setTemperature(double t) {onlyPotential.setTemperature(t);}
+    public double getTemperature() {return onlyPotential.getTemperature();}
 }
 
 

@@ -23,25 +23,23 @@ public class ConfigurationSequential extends Configuration {
     public void setFillVertical(boolean b) {fill = b;}
     public boolean getFillVertical() {return fill;}
     
-    public void initializeCoordinates() {
-        if(parentPhase == null) {return;}
+    public void initializeCoordinates(Phase phase) {
         
-        double Lx = parentPhase.dimensions().component(0);
+        double Lx = phase.dimensions().component(0);
         double Ly = 0.0;
-        if(parentPhase.space().D()>1)  Ly = parentPhase.dimensions().component(1);
+        if(phase.parentSimulation().space().D()>1)  Ly = phase.dimensions().component(1);
 
     // Count number of molecules
         int sumOfMolecules = 0;
-        for(int j=0; j<species.size(); j++) {   
-            Species.Agent s = (Species.Agent)species.elementAt(j);
+        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            sumOfMolecules += s.getNMolecules();
+            sumOfMolecules += s.moleculeCount();
         }
         
         if(sumOfMolecules == 0) {return;}
         
         Space.Vector[] rLat;
-        if(Simulation.D == 1) {
+        if(phase.parentSimulation().space().D() == 1) {
             rLat = lineLattice(sumOfMolecules, Lx);
         }
         else {
@@ -50,18 +48,13 @@ public class ConfigurationSequential extends Configuration {
         
    // Place molecules     
         int i = 0;
-        for(int j=0; j<species.size(); j++) {
-            Species.Agent s = (Species.Agent)species.elementAt(j);
+        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
                 m.setCOM(rLat[i]);
-//                m.firstAtom().r.setRandom(1.0);
                 i++;
             }
         }
-//        parentPhase.parentSimulation.space().clearCells();
- //       for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {
- //           a.coordinate.assignCell();}
-        initializeMomenta();
+        initializeMomenta(phase);
     }
 }

@@ -1,16 +1,48 @@
 package simulate;
 
-import java.beans.*;
-import java.awt.*;
-
-public class PotentialHardDisk extends Potential implements PotentialHard
+/**
+ * Basic hard-(rod/disk/sphere) potential.
+ * Energy is infinite if disks overlap, and is zero otherwise.  Collision diameter describes
+ * size of disks.
+ * Suitable for use in space of any dimension.
+ */
+public class PotentialHardDisk extends Potential implements Potential.Hard
 {
-    protected double collisionDiameter, sig2;
+   /**
+    * Separation at which disks first overlap
+    */
+   protected double collisionDiameter;
 
-    public PotentialHardDisk(double d) {
-        setCollisionDiameter(d);
+   
+   /**
+    * Square of collisionDiameter
+    */
+   protected double sig2;
+   protected double lastCollisionVirial = 0.0;
+   protected double lastCollisionVirialr2 = 0.0;
+   protected final Space.Vector dr;
+   protected final Space.Tensor lastCollisionVirialTensor;
+    
+    public PotentialHardDisk() {
+        this(Simulation.instance, Default.ATOM_SIZE);
     }
 
+    public PotentialHardDisk(double d) {
+        this(Simulation.instance, d);
+    }
+    public PotentialHardDisk(Simulation sim) {
+        this(sim, Default.ATOM_SIZE);
+    }
+    public PotentialHardDisk(Simulation sim, double d) {
+        super(sim);
+        setCollisionDiameter(d);
+        lastCollisionVirialTensor = sim.space().makeTensor();
+        dr = sim.space().makeVector();
+    }
+
+    /**
+     * Time to collision of pair, assuming free-flight kinematics
+     */
     public double collisionTime(AtomPair pair) {
         double r2 = pair.r2();
         double bij = pair.vDotr();
@@ -27,19 +59,56 @@ public class PotentialHardDisk extends Potential implements PotentialHard
         return time;
     }
     
+    /**
+     * Implements collision dynamics and updates lastCollisionVirial
+     */
     public void bump(AtomPair pair) {
         double r2 = pair.r2();
-        double factor = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr()/r2;
-        pair.cPair.push(factor);
+        dr.E(pair.dr());  //used by lastCollisionVirialTensor
+        lastCollisionVirial = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr();
+        lastCollisionVirialr2 = lastCollisionVirial/r2;
+        pair.cPair.push(lastCollisionVirialr2);
     }
     
+    public double lastCollisionVirial() {
+        return lastCollisionVirial;
+    }
+    
+    public Space.Tensor lastCollisionVirialTensor() {
+        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.TE(lastCollisionVirialr2);
+        return lastCollisionVirialTensor;        
+    }
+    
+    /**
+     * Accessor method for collision diameter
+     */
     public double getCollisionDiameter() {return collisionDiameter;}
+    /**
+     * Accessor method for collision diameter
+     */
     public void setCollisionDiameter(double c) {
         collisionDiameter = c;
         sig2 = c*c;
     }
     
+    /**
+     * Interaction energy of the pair.
+     * Zero if separation is greater than collision diameter, infinity otherwise
+     */
     public double energy(AtomPair pair) {
         return (pair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
     }
+    
+    /**
+     * Correction for trucation of the potential
+     * Identically zero for this model
+     */
+    public double energyLRC(int n1, int n2, double V) {return 0.0;}
+    
+    /**
+     * Returns true if separation of pair is less than collision diameter, false otherwise
+     */
+    public boolean overlap(AtomPair pair) {return pair.r2() < sig2;}
+    
 }

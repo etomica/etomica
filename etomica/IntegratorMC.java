@@ -7,39 +7,62 @@ public class IntegratorMC extends Integrator {
     private final Random rand = new Random();
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
-    private transient MCMove trialMove;
     
+//need to update to include makeIterators
     public IntegratorMC() {
-        super();
+        this(Simulation.instance);
+    }
+    public IntegratorMC(Simulation sim) {
+        super(sim);
     }
     
+    /**
+     * Adds a basic MCMove to the set of moves performed by the integrator
+     */
     public void add(MCMove move) {
         if(firstMove == null) {firstMove = move;}
         else {lastMove.setNextMove(move);}
         lastMove = move;
         move.parentIntegrator = this;
+        move.setPhase(phase);
     }
-                
-    public void doStep(double dummy) {
+    
+    /**
+     * Invokes superclass method and informs all MCMoves about the new phase.
+     */
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        for(MCMove move=firstMove; move!=null; move=move.nextMove()) {move.setPhase(phase);}
+        return true;
+    }
+    
+    /**
+     * Method to select and perform an elementary Monte Carlo move.  
+     * The type of move performed is chosen from all MCMoves that have been added to the
+     * integrator.  Each MCMove has associated with it a (unnormalized) frequency, which
+     * when weighed against the frequencies given the other MCMoves, determines
+     * the likelihood that the move is selected.
+     */
+    public void doStep() {
         int i = (int)(rand.nextDouble()*frequencyTotal);
-        trialMove = firstMove;
+        MCMove trialMove = firstMove;
         while((i-=trialMove.getFrequency()) >= 0) {
             trialMove = trialMove.nextMove();
         }
-        trialMove.doTrial(firstPhase);
+        trialMove.doTrial();
     }
     
-    public void initialize() {
-        deployAgents();
+    
+    protected void doReset() {
         frequencyTotal = 0;
         for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
-            m.resetFrequency(firstPhase);
+            m.resetFrequency();
             frequencyTotal += m.getFrequency();
         }
     }
     
     public Integrator.Agent makeAgent(Atom a) {
-        return new Agent(a);
+        return null;
     }
     
     public class Agent implements Integrator.Agent {

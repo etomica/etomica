@@ -1,7 +1,14 @@
+//includes a main method to demonstrate use and to test
 package simulate;
+import simulate.units.*;
 import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.Frame;
 /**
- *
+ * Colors atoms according to their kinetic energy.
+ * Atoms with high KE are colored red, and those with low KE are colored blue.
+ * Range of low..high is adjustable.
  * @author David Kofke
  *
  */
@@ -11,8 +18,11 @@ public class ColorSchemeTemperature extends ColorScheme {
     double TLow, THigh;
     protected double KEMin, KEMax, range;
     
+    /**
+     * Constructs with default low of 200K and high of 400K.
+     */
     public ColorSchemeTemperature() {
-        this(200.0, 400.0);
+        this(Kelvin.UNIT.toSim(200.), Kelvin.UNIT.toSim(400.));
     }
     public ColorSchemeTemperature(double TLow, double THigh) {
         setTLow(TLow);
@@ -22,17 +32,18 @@ public class ColorSchemeTemperature extends ColorScheme {
     public double getTLow() {return TLow;}
     public void setTLow(double t) {
         TLow = t;
-        KEMin = t/Constants.KE2T;
+        KEMin = t;
         range = 1.0/(KEMax-KEMin);
     }
+    public Dimension getTLowDimension() {return Dimension.TEMPERATURE;}
     public double getTHigh() {return THigh;}
     public void setTHigh(double t) {
         THigh = t;
-        KEMax = t/Constants.KE2T;
+        KEMax = t;
         range = 1.0/(KEMax-KEMin);
     }
         
-    public void setAtomColor(Atom a) {
+    public void colorAtom(Atom a) {
         float red, blue;
         double ke = a.kineticEnergy();
         if(ke > KEMax) {blue = 0.0f;}
@@ -41,4 +52,32 @@ public class ColorSchemeTemperature extends ColorScheme {
         red = 1.0f - blue;
         a.setColor(new Color(red, 0.0f, blue));
     }
+    
+    /**
+     * Demonstrates how this class is implemented.  
+     * Appropriate for system having only one species.  For multiple species, see ColorSchemeBySpecies
+     */
+    public static void main(String[] args) {
+        Frame f = new Frame();   //create a window
+        f.setSize(600,350);
+        Simulation.makeSimpleSimulation();  
+        //part unique to this example
+             //get handles to components we need
+        DisplayPhase display = (DisplayPhase)Simulation.display(0);
+             //instantiate color scheme and link appropriately
+        ColorSchemeTemperature colorScheme = new ColorSchemeTemperature();
+        colorScheme.setTLow(Kelvin.UNIT.toSim(100.)); //select low of temperature scale
+        
+        display.setColorScheme(colorScheme);
+        //end of unique part
+		Simulation.instance.elementCoordinator.go(); 
+        f.add(Simulation.instance);         //access the static instance of the simulation to
+                                            //display the graphical components
+        f.pack();
+        f.show();
+        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(WindowEvent e) {System.exit(0);}
+        });
+    }
+    
 }

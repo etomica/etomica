@@ -1,15 +1,31 @@
 package simulate;
 
-import simulate.*;
-import java.beans.*;
+import simulate.units.Dimension;
 
-public class MeterNMolecules extends simulate.Meter
+/**
+ * Meter for recording the total number of molecules in the phase
+ */
+public class MeterNMolecules extends Meter
 {
-    public MeterNMolecules()
+    public MeterNMolecules() {
+        this(Simulation.instance);
+    }
+    public MeterNMolecules(Simulation sim)
     {
-        super();
+        super(sim);
         setLabel("Molecules");
     }
+    
+    /**
+     * Declaration that this meter does not use the boundary object of phase when making its measurements
+     */
+    public final boolean usesPhaseBoundary() {return false;}
+    /**
+     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
+     */
+    public final boolean usesPhaseIteratorFactory() {return false;}
+
+    public Dimension getDimension() {return Dimension.QUANTITY;}
 
     public double currentValue()
     {

@@ -2,30 +2,46 @@ package simulate;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.util.Random;
+import simulate.units.*;
 
 public class Space1D extends Space {
+    
     
     public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}
     
+    public double sphereVolume(double r) {return 2.0*r;}  //volume of a sphere of radius r
+    public double sphereArea(double r) {return 2.0;}      //surface area of sphere of radius r (used for differential shell volume)
     public Space.Vector makeVector() {return new Vector();}
+    public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
-    public Space.CoordinatePair makeCoordinatePair(Space.Boundary boundary) {return new CoordinatePair((Boundary)boundary);}
-    public Space.Boundary makeBoundary(int b) {
-        switch(b) {
-            case(Boundary.NONE):            return new BoundaryNone();
-            case(Boundary.PERIODIC_SQUARE): return new BoundaryPeriodicSquare();
-            default:                        return null;
-        }
+    public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}
+
+    public Space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
+    public Space.Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
+    public Space.Boundary makeBoundary(Space.Boundary.Type t) {
+        if(t == Boundary.NONE) {return new BoundaryNone();}
+        else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
+        else return null;
+    }
+    
+    public static final double r2(Vector u1, Vector u2, Boundary b) {
+        Vector.WORK.x = u1.x - u2.x;
+        b.nearestImage(Vector.WORK);
+        return Vector.WORK.x*Vector.WORK.x;
     }
         
     public final static class Vector extends Space.Vector {  //declared final for efficient method calls
         public static final Random random = new Random();
-        public static final Vector ORIGIN = new Vector(0.0);
+        public static final Vector ZERO = new Vector(0.0);
+        public static final Vector WORK = new Vector();
         double x;
         public Vector () {x = 0.0;}
         public Vector (double a1) {x = a1;}
+        public Vector (double[] a) {x = a[0];}//should check length of a for exception
+        public int length() {return D;}
+        public int D() {return D;}
         public double component(int i) {return x;}
         public void setComponent(int i, double d) {x=d;}
         public void E(Vector u) {x = u.x;}
@@ -39,7 +55,9 @@ public class Space1D extends Space {
         public void TE(double a) {x *= a;}
         public void TE(int i, double a) {x *= a;}
         public void DE(double a) {x /= a;}
+        public void DE(Vector u) {x /= u.x;}
         public double squared() {return x*x;}
+        public void normalize() {x = 1.0;}
         public double dot(Vector u) {return x*u.x;}
         public void randomStep(double d) {x += (2.*random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = random.nextDouble()*d;}
@@ -47,7 +65,6 @@ public class Space1D extends Space {
         public void setRandom(Vector u) {setRandom(u.x);}
         public void setRandomCube() {x = random.nextDouble() - 0.5;}
         public void setRandomSphere() {setRandomCube();}
-        public void setToOrigin() {x = ORIGIN.x;}
         public void randomDirection() {x = (random.nextDouble() < 0.5) ? -1.0 : +1.0;}
         public void E(Space.Vector u) {E((Vector)u);}
         public void PE(Space.Vector u) {PE((Vector)u);}
@@ -55,17 +72,58 @@ public class Space1D extends Space {
         public void TE(Space.Vector u) {TE((Vector)u);}
         public void DE(Space.Vector u) {DE((Vector)u);}
         public double dot(Space.Vector u) {return dot((Vector)u);}
+        /**
+         * Sets this vector equal to its cross product of with a 3D vector.
+         * Result is projected into this space, and thus outcome is to make this vector zero.
+         */
+        public void XE(Space3D.Vector u) {x = 0.0;}
+        public Space3D.Vector cross(Space2D.Vector u) {return null;}
+        public Space3D.Vector cross(Space3D.Vector u) {return null;}
     }
     
+    public final static class Tensor extends Space.Tensor {
+        double xx;
+        public static final Tensor ZERO = new Tensor();
+        public static final Tensor IDENTITY = new Tensor(1.0);
+        public static final Tensor WORK = new Tensor();  //anything using WORK is not thread-safe
+        public Tensor () {xx = 0.0;}
+        public Tensor (double xx) {this.xx = xx;}
+
+        public int length() {return D;}
+        public double component(int i, int j) {return xx;}
+        public void setComponent(int i, int j, double d) {xx = d;}
+        public void E(Tensor t) {xx=t.xx;}
+        public void E(Vector u1, Vector u2) {xx=u1.x*u2.x;}
+        public void E(double a) {xx = a;}
+        public void PE(Tensor t) {xx+=t.xx;}
+        public void PE(int i, int j, double a) {xx += a;}
+        public void PE(Vector u1, Vector u2) {xx+=u1.x*u2.x;}
+        public double trace() {return xx;}
+        
+        public void E(Space.Tensor t) {E((Tensor)t);}
+        public void E(Space.Vector u1, Space.Vector u2) {E((Vector)u1, (Vector)u2);}
+        public void PE(Space.Tensor t) {PE((Tensor)t);}
+        public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
+        public void TE(double a) {xx*=a;}
+    }
+
     protected static final class CoordinatePair extends Space.CoordinatePair {  
         Coordinate c1;
         Coordinate c2;
-        final Boundary boundary;
+        Boundary boundary;
         final Vector dimensions;   //assumes this is not transferred between phases
-        private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- should be used only as work vector in reset; also this makes cloned coordinatePairs not thread-safe
+        private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- this should be changed if cloned vectors use dr; also this makes cloned coordinatePairs not thread-safe
         private double drx, dvx;
-        public CoordinatePair() {boundary = new BoundaryNone(); dimensions = (Vector)boundary.dimensions();}
+        public CoordinatePair() {this(new BoundaryNone());}
         public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b; dimensions = (Vector)boundary.dimensions();}
+        public CoordinatePair(Phase p) {
+            this(p.boundary());
+            p.boundaryMonitor.addObserver(this);
+        }
+        /**
+         * Implementation of Observer interface to update boundary if notified of change by phase.
+         */
+        public void update(java.util.Observable obs, Object arg) {boundary = (Boundary)arg;}
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
@@ -80,6 +138,16 @@ public class Space1D extends Space {
             double rm2 = c2.parent().rm();
             dvx = (rm2*c2.p.x - rm1*c1.p.x);  
         }
+        /**
+         * Recomputes pair separation, with atom 2 shifted by the given vector
+         * Does not apply any PBC, regardless of boundary chosen for space
+         */
+        public void reset(Space1D.Vector M) {
+            dr.x = c2.r.x - c1.r.x + M.x;
+            drx = dr.x;
+            r2 = drx*drx;
+        }
+        public Space.Vector dr() {return dr;}
         public double dr(int i) {return drx;}
         public double dv(int i) {return dvx;}
         public double v2() {
@@ -94,14 +162,14 @@ public class Space1D extends Space {
         }
         public void setSeparation(double r2New) {
             double ratio = c2.parent().mass()*c1.parent().rm();  // (mass2/mass1)
-            double delta = (Math.sqrt(r2New/r2()) - 1.0)/(1+ratio);
+            double delta = (Math.sqrt(r2New/this.r2()) - 1.0)/(1+ratio);
             c1.r.x -= ratio*delta*drx;
             c2.r.x += delta*drx;
             //need call reset?
         }
     }
 
-    static class Coordinate extends Space.Coordinate {
+    public static class Coordinate extends Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
         public Coordinate(Space.Occupant o) {super(o);}
@@ -109,13 +177,16 @@ public class Space1D extends Space {
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
-        public Space.Vector makeVector() {return new Vector();}
-        public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
+        public final double kineticEnergy() {return 0.5*p.squared()*parent.rm();}
+        public final void freeFlight(double t) {r.x += p.x*t*parent.rm();}
     } 
     
     public static abstract class Boundary extends Space.Boundary {
-        public static final int NONE = 0;
-        public static final int PERIODIC_SQUARE = 1;
+        public static final Space.Boundary.Type NONE = new Space.Boundary.Type("None");
+        public static final Space.Boundary.Type PERIODIC_SQUARE = new Space.Boundary.Type("Periodic");
+        public static final Space.Boundary.Type[] TYPES = {NONE, PERIODIC_SQUARE};
+        public Boundary() {super();}
+        public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
         public abstract void centralImage(Vector r);
     }
@@ -129,6 +200,9 @@ public class Space1D extends Space {
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public static final Random random = new Random();
+        public BoundaryNone() {super();}
+        public BoundaryNone(Phase p) {super(p);}
+        public Space.Boundary.Type type() {return Boundary.NONE;}
         public void nearestImage(Space.Vector dr) {}
         public void centralImage(Space.Vector r) {}
         public void nearestImage(Vector dr) {}
@@ -153,8 +227,11 @@ public class Space1D extends Space {
        //Explicit dimension to 2 because drawing to 2D image
         private final double[][] shift0 = new double[0][2];
         private final double[][] shift1 = new double[1][2]; //used by getOverflowShifts
-        public BoundaryPeriodicSquare() {this(1.0);}
+        public BoundaryPeriodicSquare() {this(Default.BOX_SIZE);}
+        public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE);}
+        public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx;}
         public BoundaryPeriodicSquare(double lx) {dimensions.x = lx;}
+        public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {
@@ -166,13 +243,13 @@ public class Space1D extends Space {
         }
         public void centralImage(Space.Vector r) {centralImage((Vector)r);}
         public void centralImage(Vector r) {
-            r.x -= dimensions.x * ((r.x > 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
+            r.x -= dimensions.x * ((r.x >= 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x;}
         public void draw(Graphics g, int[] origin, double scale) {
             g.setColor(Color.gray);
-            double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
+            double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
             g.drawRect(origin[0],origin[1],(int)(toPixels*dimensions.component(0))-1,(int)(toPixels*dimensions.component(1))-1);
             }
         /** Computes origins for periodic images

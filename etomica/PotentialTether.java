@@ -1,37 +1,72 @@
 package simulate;
 
-public class PotentialTether extends Potential implements PotentialHard {
+/**
+ * Potential that acts like a hard string connecting the centers of two atoms.
+ * Meant for use as an intra-molecular interaction.
+ * Interaction of atoms is zero if separated by less than the tether length.  Atoms
+ * undergo an impulsive attractive collision when attempting to separate by more than the tether distance.
+ */
+public class PotentialTether extends Potential implements Potential.Hard {
 
   private double tetherLength, tetherLengthSquared;
+  private double lastCollisionVirial = 0.0;
+  private double lastCollisionVirialr2 = 0.0;
+  private final Space.Vector dr;
+  private final Space.Tensor lastCollisionVirialTensor;
 
   public PotentialTether() {
-    setTetherLength(0.1);
+    this(Simulation.instance);
+  }
+  public PotentialTether(Simulation sim) {
+    super(sim);
+    setTetherLength(0.75*Default.ATOM_SIZE);
+    lastCollisionVirialTensor = sim.space().makeTensor();
+    dr = sim.space().makeVector();
   }
 
+  /**
+   * Always returns false
+   */
+  public boolean overlap(AtomPair pair) {return false;}
+
+  /**
+   * Accessor method for the tether distance
+   */
   public final double getTetherLength() {return tetherLength;}
+  /**
+   * Accessor method for the tether distance
+   */
   public final void setTetherLength(double t) {
       tetherLength = t;
       tetherLengthSquared = t*t;
   }
 
-//----------------------------------------------------------------------
-
+  /**
+   * Implements collision dynamics for pair attempting to separate beyond tether distance
+   */
   public final void bump(AtomPair pair) {
         double r2 = pair.r2();
-        double factor = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr()/r2;
-        pair.cPair.push(factor);
-/*    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
-    Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
-    double r2 = tetherLengthSquared;
-    double bij = Space.v1Dv2(v12, r12);
-    double reduced_m = 1.0/((1.0/atom1.rm+ 1.0/atom2.rm)*atom1.rm*atom2.rm);
-    double s = 2.0*reduced_m*bij/r2;  //same even if an inner-shell collision
-    Space.uPEa1Tv1(atom1.p, s, r12);
-    Space.uMEa1Tv1(atom2.p, s, r12); */
+        dr.E(pair.dr());
+        lastCollisionVirial = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr();
+        lastCollisionVirialr2 = lastCollisionVirial/r2;
+        pair.cPair.push(lastCollisionVirialr2);
   }
 
-//----------------------------------------------------------------------
 
+    public final double lastCollisionVirial() {
+        return lastCollisionVirial;
+    }
+    public final Space.Tensor lastCollisionVirialTensor() {
+        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.TE(lastCollisionVirialr2);
+        return lastCollisionVirialTensor;        
+    }
+    
+
+  
+  /**
+   * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
+   */
   public final double collisionTime(AtomPair pair) {
     boolean minus;  //flag for +/- root
     double r2 = pair.r2();
@@ -43,9 +78,17 @@ public class PotentialTether extends Potential implements PotentialHard {
     return (-bij + Math.sqrt(discr))/v2;
     }
   
+  /**
+   * Returns infinity if separation is greater than tether distance, zero otherwise
+   */
     public double energy(AtomPair pair) {
         return (pair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
+  
+  /**
+   * Always returns zero
+   */
+    public double energyLRC(int n1, int n2, double V) {return 0.0;}
       
 }
   

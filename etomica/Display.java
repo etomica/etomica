@@ -1,54 +1,90 @@
 package simulate;
 import java.awt.*;
-import java.beans.Beans;
 import java.awt.event.*;
+import java.util.Observer;
+import java.util.Observable;
+import java.beans.Beans;
+import java.beans.PropertyChangeSupport;
+import java.beans.PropertyChangeListener;
+import javax.swing.JPanel;
 
-    public abstract class Display extends Panel implements simulate.IntegrationIntervalListener {
+/**
+ * Superclass of all classes that display something from the simulation.  
+ * Included are displays of graphical and tabular data, and views of the molecules as they
+ * move about during the simulation.  Displays are also used to output simulation data and
+ * results to file
+ */
+public abstract class Display extends Panel implements Simulation.GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
 
-	Simulation parentSimulation;
-	Phase phase;
+    private String name;
+    
+  /**
+   * Number of interval events received between updates of display.
+   * Default value is 1.
+   */
     int updateInterval;
-    int iieCount;
-//    Component displayTool = null;  //displayTool is some component inside a Display object that is doing all the painting (not often used)
-    private Display nextDisplay;
-    private Display previousDisplay;
-        
-    public void addNotify() {
-        super.addNotify();
-        Container p = getParent();
-        if(p instanceof Simulation) {return;}
-        while(p != null) {
-            p = p.getParent();
-            if(p instanceof Simulation) {
-                ((Simulation)p).addDisplay(this);
-                System.out.println("OK in display");
-                return;
-            }
-        }
-        System.out.println("Warning:  Display has no parent Simulation");
-    }            
+  /**
+   * Counter used to track number of interval events since last update of display.
+   */
+    protected int iieCount;
+  /**
+   * Descriptive text for the display.  Used to set the text in the tab of the tabbed display panel.
+   */
+   protected String label;
     
-    public Display () {
+    protected Phase phase;  //consider removing this and putting in subclasses only as needed
+                            //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph, DisplayToConsole
+    
+    private final Simulation parentSimulation;
+    private boolean added = false;
+    
+    // Constructor
+    public Display(Simulation sim) {
+        parentSimulation = sim;
 	    setUpdateInterval(1);
+        parentSimulation.register(this);
     }
     
-    public final Display nextDisplay() {return nextDisplay;}
-    public final Display getPreviousDisplay() {return previousDisplay;}
-   /**
-    * Sets the display following this one in the linked list of displays.
-    *
-    * @param d the display to be designated as this display's nextDisplay
-    */
-    public final void setNextDisplay(Display d) {
-      this.nextDisplay = d;
-      d.previousDisplay = this;
-    }
+    public final Simulation parentSimulation() {return parentSimulation;}
+    public final Class baseClass() {return Display.class;}
+    public final boolean wasAdded() {return added;}
+    public final void setAdded(boolean b) {added = b;}
     
-    public void setPhase(Phase p) {phase = p;}
+    /**
+     * Method to associate a phase with this display.
+     * Default action is to simply set the phase field to the given value
+     */
+    public void setPhase(Phase p) {phase = p;}  //2D needed to manipulate dimensions array directly
+    /**
+     * @return the phase associated with this display
+     */
+    public final Phase phase() {return phase;}
     
+    /**
+     * Accessor method for phase.  Equivalent to phase() method.
+     */
+    public final Phase getPhase() {return phase();}
+    /**
+     * Method of Simulation.GraphicElement interface.
+     * Default action is to return this Display (which is a Panel) as the graphic object.
+     * May override in subclass to return a more appropriate graphical element, or none at all.
+     */
+    public Component graphic(Object obj) {return this;}
+    
+    /**
+     * Method called to update the display.  
+     * This method is called after the display receives 
+     * an integrator IntervalEvent updateInterval times.
+     * After completing this method the Display does a repaint.
+     */
     public abstract void doUpdate();
-        
-    public void integrationIntervalAction(IntegrationIntervalEvent evt) {
+    
+    /**
+     * Method of Integrator.IntervalEvent interface.
+     * After receiving an event updateInterval times, the method will invoke the 
+     * doUpdate method and then call repaint().
+     */
+    public void intervalAction(Integrator.IntervalEvent evt) {
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;
 	        doUpdate();
@@ -56,14 +92,53 @@ import java.awt.event.*;
 	    }
     }
 
-	public void setParentSimulation(Simulation s) {parentSimulation = s;}
-	public Simulation parentSimulation() {return parentSimulation;}
-
+    /**
+     * Accessor method for the update interval
+     * Number of interval events received between updates of display.
+     */
     public final int getUpdateInterval() {return updateInterval;}
+    /**
+     * Accessor method for the update interval
+     * Number of interval events received between updates of display.
+     */
     public final void setUpdateInterval(int i) {
         if(i > 0) {
             updateInterval = i;
-            iieCount = updateInterval;
+            iieCount = updateInterval+1;
         }
     }
+    
+    public void setLabel(String l) {label = l;}
+    public String getLabel() {return label;}
+    
+    /**
+     * Accessor method of the name of this object
+     * 
+     * @return The given name
+     */
+    public final String getName() {return name;}
+
+    /**
+     * Method to set the name of this object
+     * 
+     * @param name The name string to be associated with this object
+     */
+    public final void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the object
+     */
+    public String toString() {return getName();}  //override Object method
+          
+    
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
+    }
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        support.removePropertyChangeListener(listener);
+    }
+    
+    protected PropertyChangeSupport support = new PropertyChangeSupport(this);
 }
