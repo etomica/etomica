@@ -13,7 +13,7 @@ import etomica.units.*;
  * for instance of PotentialNull
  */
 
-public class MeterTensorVirialHard extends MeterTensor implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
+public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard.CollisionListener, EtomicaElement {
     
     /**
      * Sums contributions to the virial from collisions, between calls to currentValue
@@ -84,7 +84,7 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
     /**
      * Sums contribution to virial for each collision.
      */
-    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+    public void collisionAction(IntegratorHard.Agent agent) {
         collisionValue(agent);            //Assign virial
         for (int i = 0; i < collisionVirial.length(); i++) {
             for (int j = 0; j < collisionVirial.length(); j++) {
@@ -96,7 +96,7 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
     /**
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
-    public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent) {
+    public Space.Tensor collisionValue(IntegratorHard.Agent agent) {
         collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
         collisionVirial.TE(1/(double)phase.atomCount());
        return collisionVirial;
