@@ -189,7 +189,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         */
         public void setStationary(boolean b) {
             stationary = b;
-            if(!stationary) scaleMomentum(0.0);
+            if(stationary) scaleMomentum(0.0);
         }
 
         /**

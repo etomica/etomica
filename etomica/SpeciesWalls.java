@@ -6,8 +6,10 @@ import etomica.units.*;
 
 public class SpeciesWalls extends Species implements EtomicaElement {
 
-    public String getVersion() {return "SpeciesWalls:01.03.10/"+Species.VERSION;}
+    public String getVersion() {return "SpeciesWalls:01.07.19/"+Species.VERSION;}
 
+    private double mass = Default.ATOM_MASS;
+    private boolean stationary = false;
 /** 
  *  Wall type array.  Each atom has its own type, which specifies its length and orientation.
  *  Examples of use:
@@ -16,50 +18,54 @@ public class SpeciesWalls extends Species implements EtomicaElement {
  */
     public AtomType.Wall[] protoType;
 
+    private static AtomFactoryHetero makeFactory(Simulation sim, int nA) {
+        AtomFactoryMono[] f = new AtomFactoryMono[nA];
+        for(int i=0; i<nA; i++) {
+            f[i] = new AtomFactoryMono(sim);
+            AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Default.ATOM_COLOR, Double.MAX_VALUE, 0);// arguments are mass, color, length, angle(degrees)  
+            f[i].setType(type);
+        }
+        AtomFactoryHetero fm = new AtomFactoryHetero(sim,f);
+        return fm;
+    }
+        
     /**
     * Default constructor.  Creates species containing 1 molecule with 1 horizontal wall atom.
     */
     public SpeciesWalls() {
         this(Simulation.instance);
     }
+    public SpeciesWalls(int n) {
+        this(Simulation.instance, n);
+    }
     public SpeciesWalls(Simulation sim) {
-        this(sim,1,1,Double.MAX_VALUE,0);
+        this(sim, 1);
     }
-    
-    /**
-     * Sets up nM sets of wall 'molecules' with each molecule having nA wall 'atoms'.
-     * Defines but does not fill protoType array.
-     */
+    public SpeciesWalls(Simulation sim, int n) {
+        this(sim, n, 1);
+    }
     public SpeciesWalls(int nM, int nA) {
-        this(Simulation.instance);
+        this(Simulation.instance, nM, nA);
     }
+
     public SpeciesWalls(Simulation sim, int nM, int nA) {
-        super(sim);
-        protoType = new AtomType.Wall[nA];
-        atomsPerMolecule = nA;
-        nMolecules = nM;
+        this(sim, nM, nA, Double.MAX_VALUE, 0);
     }
     
     public SpeciesWalls(Simulation sim, int nM, int nA, double length, int angle) {  //angle is in radians
-        this(sim, nM, nA);
-        for(int i=0; i<nA; i++) {protoType[i] = new AtomType.Wall(Default.ATOM_MASS, Default.ATOM_COLOR, length, angle);}  // arguments are mass, color, length, angle(degrees)
-        setStationary(true);
-
-        moleculeConfiguration = new SpeciesWalls.ConfigurationParallel(this);
-    }
-
-    public SpeciesWalls(int nM, AtomType.Wall[] type) {
-        this(Simulation.instance, nM, type);
-    }
-    public SpeciesWalls(Simulation sim, int nM, AtomType.Wall[] type) { 
-        super(sim);
-        protoType = type;
-        atomsPerMolecule = type.length;
+        super(sim, makeFactory(sim, nA));
+        AtomFactoryMono[] subfactory = ((AtomFactoryMono[])((AtomFactoryHetero)factory).childFactory());
+        protoType = new AtomType.Wall[nA];
         nMolecules = nM;
-        setStationary(true);
+        for(int i=0; i<nA; i++) {
+           AtomType.Wall type = (AtomType.Wall)subfactory[i].type();
+//           type.setStationary(true);
+           type.setLength(length);
+           type.setAngle(angle);
+           protoType[i] = type;
+        }
 
-        moleculeConfiguration = new SpeciesWalls.ConfigurationParallel(this);
-        moleculeConfiguration.setParentSpecies(this);
+        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(sim.space()));
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -67,30 +73,41 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         return info;
     }
 
-    protected Molecule makeMolecule(Phase phase) {
-        return new Molecule(this, phase, protoType);
-    } 
-              
-        public final void setAlignment(Constants.Alignment a) {
-            protoType[0].setAlignment(a);
-        }
-        public final Constants.Alignment getAlignment() {return protoType[0].getAlignment();}
-    // Exposed Properties --- not implemented now because they must tie to AtomType array
+    public void setAlignment(Constants.Alignment a) {
+        for(int i=0; i<protoType.length; i++) protoType[i].setAlignment(a);
+    }
+    public Constants.Alignment getAlignment() {return protoType[0].getAlignment();}
     
-/*  public final int getThickness() {return ((AtomWall)firstAtom()).getThickness();}
-  public final void setThickness(int t) {((AtomWall)firstAtom()).setThickness(t);}
+    public int getThickness() {return protoType[0].getThickness();}
+    public void setThickness(int t) {
+        for(int i=0; i<protoType.length; i++) protoType[i].setThickness(t);
+    }                    
     
-    public final double getMass() {return protoType.mass();}
-    public final void setMass(double mass) {protoType.setMass(mass);}
+    public double getMass() {return mass;}
+    public void setMass(double m) {
+        mass = m;
+        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+    }
+    public boolean isStationary() {return stationary;}
+    public void setStationary(boolean b) {
+        stationary = b;
+        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setStationary(stationary);}});
+    }
+    public Dimension getMassDimension() {return Dimension.MASS;}
                 
-    public final double getLength() {return protoType.length();}
-    public void setLength(double d) {protoType.setLength(d);}
-                    
-    public final Color getColor() {return protoType.color();}
-    public final void setColor(Color c) {protoType.setColor(c);}*/
+    public double getLength() {return protoType[0].getLength();}
+    public void setLength(double d) {
+        for(int i=0; i<protoType.length; i++) protoType[i].setLength(d);
+    }                    
+    public Dimension getLengthDimension() {return Dimension.LENGTH;}
+
+    public Color getColor() {return protoType[0].color();}
+    public void setColor(Color c) {
+        for(int i=0; i<protoType.length; i++) protoType[i].setColor(c);
+    }
     
     //Class for arranging walls in parallel
-    public class ConfigurationParallel extends Molecule.Configuration {
+    public class ConfigurationParallel extends Configuration {
     
         private double angle;
         private boolean horizontal, vertical;
@@ -98,9 +115,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         private double temperature = Default.TEMPERATURE;
         private double placement;
         
-        public ConfigurationParallel(Species parent) {
-            super(parent);
-            parentSpecies = parent;
+        public ConfigurationParallel(Space space) {
+            super(space);
             setAngle(0.0);
             setLongWall(false);
             setPlacement(0.0);
@@ -113,20 +129,10 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             angle = (t <= 2.0*pi) ? t : (t % (2.0*pi));
             horizontal = (angle == 0.0) || (Math.abs(angle) == pi);
             vertical = (Math.abs(angle) == pi/2.) || (Math.abs(angle) == 1.5*pi);
-            initializeCoordinates();
-        }
-        
-        public final double getTemperature() {return temperature;}
-        public final void setTemperature(double t) {
-            temperature = t;
-            initializeCoordinates();
         }
         
         public final boolean isLongWall() {return longWall;}
-        public final void setLongWall(boolean s) {
-            longWall = s;
-            initializeCoordinates();
-        }
+        public final void setLongWall(boolean s) {longWall = s;}
         
         /**
         * Placement of first wall, as a fraction of the distance from the origin to the end of the phase
@@ -137,20 +143,21 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         /**
         * Sets wall coordinates 
         */
-        public void initializeCoordinates(Molecule m) {  //doesn't handle wall that is not either horizontal or vertical
-            Space.Vector d = m.parentPhase().dimensions();  //what if parentPhase is null?
+        public void initializeCoordinates(Atom atom) {  //doesn't handle wall that is not either horizontal or vertical
+            AtomGroup m = (AtomGroup)atom;
+       //     Space.Vector d = m.parentPhase().dimensions();  //what if parentPhase is null?
             double x, y;
-            double h = d.component(1);
-            double w = d.component(0);
+            double h = Default.BOX_SIZE;//d.component(1);
+            double w = Default.BOX_SIZE;//d.component(0);
             
             //assume long wall
             if(horizontal) {
                 x = Double.MIN_VALUE;
-                y = placement*d.component(1);
+                y = placement*Default.BOX_SIZE;//d.component(1);
                 w = 100.;//Double.MAX_VALUE;   //crashes with max-value
             }
             else {//vertical
-                x = placement*d.component(0);
+                x = placement*Default.BOX_SIZE;//d.component(0);
                 y = Double.MIN_VALUE;
                 h = 100.;//Double.MAX_VALUE;  //crashes with max-value
             }
@@ -160,20 +167,20 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             double xyNext;
             double wh;
             if(horizontal) {
-                delta = (h-y)/(m.atomCount-1);
+                delta = (h-y)/(m.childCount()-1);
                 i = 1;
                 xyNext = y;
                 wh = w;
             }
             else { //vertical
-                delta = (w-x)/(m.atomCount-1);
+                delta = (w-x)/(m.childCount()-1);
                 i = 0;
                 xyNext = x;
                 wh = h;
             }                    //2D explicit
-            m.atomIterator.reset();
-            while(m.atomIterator.hasNext()) {//equally space all "wall atoms"
-                Atom a = m.atomIterator.next();
+            m.childIterator.reset();
+            while(m.childIterator.hasNext()) {//equally space all "wall atoms"
+                Atom a = m.childIterator.next();
                 Space.Vector r = a.coord.position();
                 a.coord.momentum().E(0.0);
                 r.setComponent(i,xyNext);
@@ -183,26 +190,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
                 ((AtomType.Wall)a.type).setTemperature(temperature);
             }
         }//end of initializeCoordinates
-        
-        protected void computeDimensions() {
-            if(parentSpecies()==null) return;
-    /*       Molecule m = parentSpecies.getMolecule();
-    //        initializeCoordinates(m);
-            if(horizontal) {
-    //            dim[0] = ((AtomType.Wall)m.firstAtom().type).getLength();
-                dim[0] = Double.MAX_VALUE;
-                dim[1] = 0.0;
-            }
-            else if(vertical) {
-                dim[0] = 0.0;
-                dim[1] = Double.MAX_VALUE;
-    //            dim[1] = ((AtomType.Wall)m.firstAtom().type).getLength();
-            }
-            else {
-                //does not handle walls that are neither horizontal nor vertical
-            }*/
-        }//end of computeDimensions
-        
+                
   }//end of ConfigurationParallel
 
   /**
@@ -211,24 +199,29 @@ public class SpeciesWalls extends Species implements EtomicaElement {
    */
    
    //need multi-species capability to use
- /*   public static void main(String[] args) {
+    public static void main(String[] args) {
 
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         
-        //here's the part unique to this class
         SpeciesWalls walls = new SpeciesWalls();
         //make the wall vertical
-        ((SpeciesWalls.ConfigurationParallel)walls.moleculeConfiguration).setAngle(Degree.UNIT.toSim(90.));
+        ((ConfigurationParallel)walls.factory.getConfiguration()).setAngle((int)Degree.UNIT.toSim(90.));
         P2HardDiskWall wallPotential = new P2HardDiskWall(); //hard wall-disk interaction
         //wall (2nd species added) is set to species 1 automatically, disks are species 0; 
         //set new potential to be for 0-1 interaction       
-        wallPotential.setSpecies2Index(1);  //could set either index (species1Index or species2Index); both are 0 by default
-        //end of unique part
  
         Simulation.instance.elementCoordinator.go();
+        
+        walls.setStationary(true);
+        Potential2.Agent potentialAgent = (Potential2.Agent)wallPotential.getAgent(sim.phase);
+        potentialAgent.setIterator(new AtomPairIterator(sim.phase,
+                walls.makeAtomIterator(sim.phase), sim.species.makeAtomIterator(sim.phase)));
+        potentialAgent = (Potential2.Agent)sim.potential.getAgent(sim.phase);
+        potentialAgent.setIterator(new AtomPairIterator(sim.phase,
+                sim.species.makeAtomIterator(sim.phase), sim.species.makeAtomIterator(sim.phase)));
         
         Simulation.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
- */
+ 
 }

@@ -43,7 +43,7 @@ public class AtomIteratorSinglet implements AtomIterator {
      * to the second atom of the last call to reset(Atom, Atom) if SKIP_FIRST.
      */
     public Atom reset() {
-        next = isAsNeighbor ? atom1 : atom2;
+        next = isAsNeighbor ? atom2 : atom1;
         hasNext = (next != null); 
         return next;
     }

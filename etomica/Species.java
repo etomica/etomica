@@ -144,8 +144,10 @@ public class Species implements Simulation.Element, java.io.Serializable {
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             SpeciesAgent agent = (SpeciesAgent)e.next();
+            Atom last = agent.lastMolecule();
             for(Atom a=agent.firstMolecule(); a!=null; a=a.nextAtom()) {
                 action.actionPerformed(a);
+                if(a == last) break;
             }
         }
     }
@@ -157,13 +159,11 @@ public class Species implements Simulation.Element, java.io.Serializable {
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             SpeciesAgent agent = (SpeciesAgent)e.next();
-            Atom a = agent.firstLeafAtom();
-            if(a == null) return;
             Atom last = agent.lastLeafAtom();
-            do {
+            for(Atom a=agent.firstLeafAtom(); a!=null; a=a.nextAtom()) {
                 action.actionPerformed(a);
-                a = a.nextAtom();
-            } while(a != last);
+                if(a == last) break;
+            }
         }
     }
     

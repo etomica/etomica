@@ -10,6 +10,7 @@ public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
     protected Simulation parentSimulation;
+    protected Configuration configuration;
     
     public AtomFactory(Simulation sim) {
         parentSimulation = sim;
@@ -29,5 +30,8 @@ public abstract class AtomFactory {
     public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
     
     public AtomReservoir reservoir() {return reservoir;}
+    
+    public void setConfiguration(Configuration config) {configuration = config;}
+    public Configuration getConfiguration() {return configuration;}
     
 }

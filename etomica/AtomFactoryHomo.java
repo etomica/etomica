@@ -10,7 +10,6 @@ public class AtomFactoryHomo extends AtomFactory {
     private AtomFactory childFactory;
     private int atomsPerGroup;
     private final AtomType.Group groupType = new AtomType.Group(this);
-    private Configuration configuration;
     
     /**
      * @param factory the factory that makes each of the identical children.
