@@ -63,7 +63,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         double uOld = dPhase.energy.meterPotential().currentValue(m); //get its contribution to energy
 
         m.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
-        iPhase.addMolecule(m,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would case to forget the original position
+        iPhase.addMolecule(m,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
         m.atomIterator.reset();
         while(m.atomIterator.hasNext()) {iPhase.iteratorFactory().moveNotify(m.atomIterator.next());}
         double uNew = iPhase.energy.meterPotential().currentValue(m); //get its new energy

@@ -11,6 +11,7 @@ import java.util.Random;
 //need to update to include setPhaseIteratorFactory
 public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     
+    public String version() {return "IntegratorGEMC:01.04.17"+super.version();}
     private final Random rand = new Random();
     public Phase secondPhase;
     private MCMoveAtom atomDisplace1 = new MCMoveAtom();
@@ -82,7 +83,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
   public MCMoveAtom getMCMoveAtom(int i) {return (i==0) ? atomDisplace1 : atomDisplace2;}
         
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
         Simulation.setUnitSystem(new etomica.units.UnitSystem.LJ());
 	    IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
@@ -105,20 +106,26 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 	    box1.setMeter(meter1);
 	    box2.setMeter(meter2);
 	    //Slider to adjust temperature
-	    DeviceSlider temperatureSlider = new DeviceSlider(integratorGEMC1, "temperature");
+	    Modulator modT = new Modulator(integratorGEMC1, "temperature");
+	    DeviceSlider temperatureSlider = new DeviceSlider(modT);
 	    temperatureSlider.setUnit(new etomica.units.Unit(Kelvin.UNIT));
 	    temperatureSlider.setMinimum(50);
 	    temperatureSlider.setMaximum(500);
 	    speciesDisks1.setNMolecules(60);
-	    
+	    DisplayBox boxT = new DisplayBox(modT);
+	    	    
 		Simulation.instance.elementCoordinator.go(); 
 		 
 	    meter1.setPhase(phase1);
 	    meter2.setPhase(phase2);
-		integratorGEMC1.addIntervalListener(box1);
+	    //may have some redundancy with elementCoordinator.go
+	    //these are commented out for this reason
+	    //should introduce a separate IntegratorPhase Mediator
+/*		integratorGEMC1.addIntervalListener(box1);
 		integratorGEMC1.addIntervalListener(box2);
 		integratorGEMC1.addIntervalListener(displayPhase1);
-		integratorGEMC1.addIntervalListener(displayPhase2);
+		integratorGEMC1.addIntervalListener(displayPhase2); 
+		controller1.setIntegrator(integratorGEMC1) */
 	    phase1.setIntegrator(integratorGEMC1);
 	    phase2.setIntegrator(integratorGEMC1);
 	    
@@ -127,10 +134,9 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 	    displayPhase1.setColorScheme(color1);
 	    displayPhase2.setColorScheme(color2);
 	    
-	    controller1.add(integratorGEMC1);
 	    
 		Simulation.instance.setBackground(java.awt.Color.yellow);
-        f.add(Simulation.instance);         //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();

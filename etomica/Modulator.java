@@ -35,6 +35,7 @@ public class Modulator extends ModulatorAbstract {
         nObjects = obj.length;
         object    = new Object[nObjects];
         property = prop;
+        setLabel(prop);
         for(int j=0; j<nObjects; j++) {object[j] = obj[j];}
         initialize();
     }
@@ -51,9 +52,9 @@ public class Modulator extends ModulatorAbstract {
     }
     
     private void initialize() {
+        if(nObjects == 0) return;
         readMethod = new Method[nObjects];  //not sure if these need to be arrays, but doing this way to be safe
         writeMethod = new Method[nObjects]; //(might be able to use same readMethod and writeMethod objects for all objects
-
         for(int j=0; j<nObjects; j++) {
             Class c = object[j].getClass();
             //bits of this code are taken from Thinking in Java (1st edition), pages 708-713
@@ -100,6 +101,7 @@ public class Modulator extends ModulatorAbstract {
 */
             }//end of if(j==0)
         }//end of loop over objects
+        
     }
     
     /**

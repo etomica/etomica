@@ -17,9 +17,11 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
             implements java.awt.event.ItemListener, 
                 java.io.Serializable,
                 javax.swing.JComboBox.KeySelectionManager {
-    
+
+    // holds value in editor units, and permits display/editing as a string
     private PropertyEditor valueEditor;
-    private JTextField editor;
+    
+//    private JTextField editor;
     private Unit unit;
     private Prefix prefix;
     private BaseUnit baseUnit;
@@ -109,9 +111,10 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	  * Returns a combo box that can be used to select the unit.
 	  */
 	 public JComboBox unitSelector() {return unitList;}
-     public JTextField valueEditor() {
-        if(editor==null) editor = new etomica.gui.PropertyText(this);
-        return editor;
+	 
+     public PropertyEditor valueEditor() {
+//        if(editor==null) editor = new etomica.gui.PropertyText(this);
+        return valueEditor;
      }   
 
     /**

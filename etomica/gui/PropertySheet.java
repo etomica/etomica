@@ -20,7 +20,7 @@ import javax.swing.event.TreeExpansionEvent;
 
 public class PropertySheet extends JInternalFrame {
     
-    public String getVersion() {return "PropertySheet:01.03.22.0";}
+    public String getVersion() {return "PropertySheet:01.03.22";}
 
     static final javax.swing.border.EmptyBorder EMPTY_BORDER = new javax.swing.border.EmptyBorder(2,4,2,2);
     static ImageIcon LEAF_ICON;

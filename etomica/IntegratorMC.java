@@ -4,6 +4,8 @@ import java.util.Random;
 
 public class IntegratorMC extends Integrator {
     
+    public String version() {return "IntegratorMC:01.02.10"+Integrator.VERSION;}
+    
     private final Random rand = new Random();
     private MCMove firstMove, lastMove;
     private int frequencyTotal;

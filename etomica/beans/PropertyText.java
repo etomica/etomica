@@ -1,11 +1,7 @@
-//******NOTE*****
-//This class is being eliminated in favor of 
-//the PropertyText class defined in etomica.beans
-//**************
 
 // Support for a PropertyEditor that uses text.
 
-package etomica.gui;
+package etomica;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -20,7 +16,7 @@ public class PropertyText extends JTextField implements KeyListener, FocusListen
 	    addKeyListener(this);
 	    addFocusListener(this);
 	    editor.addPropertyChangeListener(this);
-    	setBorder(PropertySheet.EMPTY_BORDER);
+//    	setBorder(PropertySheet.EMPTY_BORDER);
     }
 
     public void repaint() {}

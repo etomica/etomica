@@ -8,14 +8,19 @@ import javax.swing.JScrollPane;
 
 /**
  * Presents a table of numeric properties that can be edited by typing in values.
+ *
+ * @author David Kofke
  */
  
 public class DeviceTable extends Device implements EtomicaElement {
     
+    public String getVersion() {return "DeviceTable:01.04.17/"+Device.VERSION;}
+
     public JTable table;
     MyTableData dataSource;
     Modulator[] modulators;
     DimensionedDoubleEditor[] editors;
+    PropertyText[] views;
     JPanel panel;
 
     public DeviceTable() {
@@ -30,11 +35,13 @@ public class DeviceTable extends Device implements EtomicaElement {
         super(sim);
         modulators = mods;
         editors = new DimensionedDoubleEditor[modulators.length];
+        views = new PropertyText[modulators.length];
         setupTable();
         for(int i=0; i<modulators.length; i++) {
             editors[i] = new DimensionedDoubleEditor(modulators[i].getDimension());
             editors[i].setValue(modulators[i].getValue());
             new Adapter(editors[i], modulators[i]);
+            views[i] = new PropertyText(editors[i]);
         }
     }
     
@@ -66,8 +73,6 @@ public class DeviceTable extends Device implements EtomicaElement {
     
     public java.awt.Component graphic(Object obj) {return panel;}
 
-    public void repaint() {table.repaint();}
-    
     class MyTableData extends AbstractTableModel {
         
         String[] columnNames;
@@ -75,13 +80,13 @@ public class DeviceTable extends Device implements EtomicaElement {
         
         MyTableData() {
             columnNames = new String[] {"Property", "Value", "Units"};
-            columnClasses = new Class[] {String.class, Double.class, Unit.class};
+            columnClasses = new Class[] {String.class, String.class, Unit.class};
         }
         
         public Object getValueAt(int row, int column) {
             switch(column) {
                 case 0: return modulators[row].getLabel();
-                case 1: return new Double(modulators[row].getValue());
+                case 1: return editors[row].getAsText();
                 case 2: return editors[row].getUnit();
                 default: return null;
             }
@@ -123,7 +128,7 @@ public class DeviceTable extends Device implements EtomicaElement {
         }
         public java.awt.Component getTableCellEditorComponent(
                 JTable table, Object value, boolean isSelected, int row, int column) {
-            return editors[row].valueEditor();
+            return views[row];
         }
         public boolean isCellEditable(java.util.EventObject e) {return true;}
         
@@ -142,10 +147,9 @@ public class DeviceTable extends Device implements EtomicaElement {
         }
         //method called when DimensionedDoubleEditor changes value
         public void propertyChange(java.beans.PropertyChangeEvent evt) {
- //           double newValue = ((Double)((DimensionedDoubleEditor)evt.getSource()).getValue()).doubleValue();
             double newValue = ((Double)editor.getValue()).doubleValue();
             modulator.setValue(newValue);
-            table.repaint();
+            panel.repaint();
         }        
     }//end of Adapter
     
@@ -154,24 +158,27 @@ public class DeviceTable extends Device implements EtomicaElement {
      */
     public static void main(String[] args) {
         
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
 
-	    IntegratorHard integratorHard1 = new IntegratorHard();
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
-	    Phase phase1 = new Phase();
-	    Potential potential = new PotentialSquareWell();
-	    P2SimpleWrapper p2 = new P2SimpleWrapper(potential);
-	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
 
-        Modulator mod1 = new Modulator(integratorHard1, "timeStep");
+        PotentialSquareWell potential = new PotentialSquareWell(sim);
+        sim.p2 = new P2SimpleWrapper(sim,sim.potential);
+        Modulator mod1 = new Modulator(sim.integrator, "timeStep");
         Modulator mod2 = new Modulator(potential, "epsilon");
         DeviceTable table = new DeviceTable(Simulation.instance, new Modulator[] {mod1, mod2});
-                                            
+        sim.integrator.setIsothermal(true);
+        sim.integrator.setTemperature(Kelvin.UNIT.toSim(300.));
+		DisplayBox box1 = new DisplayBox();
+		DisplayBox box2 = new DisplayBox();
+		box1.setDatumSource(mod1);
+		box2.setDatumSource(mod2);
+		
 		Simulation.instance.elementCoordinator.go(); 
 		                                    
-        f.add(Simulation.instance.panel());         //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance.panel());         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();

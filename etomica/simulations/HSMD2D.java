@@ -34,13 +34,13 @@ public class HSMD2D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
         
         Simulation sim = new HSMD2D();
 		sim.elementCoordinator.go(); 
 		
-        f.add(sim.panel());
+        f.getContentPane().add(sim.panel());
         
         f.pack();
         f.show();

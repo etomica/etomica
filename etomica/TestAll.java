@@ -6,6 +6,8 @@ import javax.swing.*;
  * Class that permits selection and execution of the of any etomica class
  * that has a main method.
  * List of such classes is entered by hand in a static array (not generated automatically).
+ *
+ * @author David Kofke
  */
 public class TestAll {
     
@@ -39,8 +41,8 @@ public class TestAll {
         }
         
         f.getContentPane().setLayout(new java.awt.FlowLayout());
-        f.getContentPane().add(next);
-        f.getContentPane().add(finish);
+//        f.getContentPane().add(next);
+//        f.getContentPane().add(finish);
         f.getContentPane().add(runSelected);
         f.getContentPane().add(panel);
         

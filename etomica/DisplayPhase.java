@@ -84,6 +84,11 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
   private boolean drawOverflow = false;
   
   /**
+   * Used to watch for changes in iteratorFactory of displayed phase.
+   */
+  private java.util.Observer iteratorFactoryObserver;
+  
+  /**
    * Vector used to maintain list of DisplayPhase Listeners
    */
   private java.util.Vector displayPhaseListeners = new java.util.Vector();
@@ -170,13 +175,21 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     }
     
     /**
-     * Specifies the phase for this display
+     * Specifies the phase for this display.  Updates atomIterator appropriately.
      */
     public void setPhase(Phase p) {
         if(p == null) return;
+        if(phase != null) phase.iteratorFactoryMonitor.deleteObserver(iteratorFactoryObserver);
         super.setPhase(p);
         colorScheme.setPhase(p);
         canvas.setPhase(p);
+        atomIterator = p.iteratorFactory().makeAtomIterator();
+        iteratorFactoryObserver = new java.util.Observer() {//anonymous inner class
+	        public void update(Observable o, Object arg) {
+	            atomIterator = ((IteratorFactory)arg).makeAtomIterator();
+	        }
+        };
+        p.iteratorFactoryMonitor.addObserver(iteratorFactoryObserver);
     }//need to add an iterator observer (in superclass)
     
     /**

@@ -121,7 +121,8 @@ public abstract class AtomAction extends etomica.Action {
         Simulation.instance = sim;
         
       //get a handle to the display in the simple simulation
-        final DisplayPhase display = sim.display; 
+        final DisplayPhase display = sim.display;
+        display.setColorScheme(new ColorSchemeNull());
       //create an instance of the AtomAction that is being demonstrated here
         AtomAction.ChangeColor colorChanger = new AtomAction.ChangeColor();
       //wrap the action in a DisplayPhaseListener so it responds to MousePressed events
@@ -134,7 +135,8 @@ public abstract class AtomAction extends etomica.Action {
             public void displayPhaseAction(DisplayPhaseEvent e) {display.repaint();}
         });
       //add the simulation graphic elements to the frame
-        f.add(Simulation.instance);
+        sim.elementCoordinator.go();
+        f.add(Simulation.instance.panel());
       //display the frame
         f.pack();
         f.show();

@@ -104,6 +104,18 @@ public class Molecule implements Space.Occupant, Serializable {
      return a;
    }
    
+   /**
+    * Integer index that can be set and accessed for any purpose, for example
+    * to associate the molecule with a row/column of a matrix.
+    */
+    public void setIndex(int i) {index = i;}
+   /**
+    * Integer index that can be set and accessed for any purpose, for example
+    * to associate the molecule with a row/column of a matrix.
+    */
+    public int getIndex() {return index;}
+
+   
  /**
    * Returns the intramolecular potential that governs interactions of all 
    * atoms of this molecule.
@@ -233,6 +245,8 @@ public class Molecule implements Space.Occupant, Serializable {
   * @see Species#makeMolecules
   */
   int atomCount;
+  
+  private int index;
   
  /**
   * Center-of-mass (COM) coordinate

@@ -9,13 +9,13 @@ import java.awt.event.InputEvent;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
- * Value is obtained from an associated Meter, and may be an instantaneous or average value.
+ * Value is obtained from an associated DatumSource.
  * A label and unit is associated with the value.
  */
  
-public class DisplayBox extends Display implements Dimensioned, Meter.User, EtomicaElement {
+public class DisplayBox extends Display implements Dimensioned, DatumSource.User, EtomicaElement {
     
-    public String getVersion() {return "DisplayBox:01.03.23/"+Display.VERSION;}
+    public String getVersion() {return "DisplayBox:01.04.17/"+Display.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
@@ -30,15 +30,15 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
      */
     protected JPanel panel = new JPanel();
     /**
-     * Meter that generates the displayed value
+     * Datum source that generates the displayed value
      */
-    protected Meter meter;
+    protected DatumSource source;
     /**
      * Integer specifying the number of significant figures to be displayed.
      * Default is 4.
      */
     int precision;
-    private MeterAbstract.ValueType whichValue;
+    private DataSource.ValueType whichValue;
     
     /**
      * Physical units associated with the displayed value.
@@ -49,19 +49,18 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
     public DisplayBox() {
         this(Simulation.instance);
     }
-    public DisplayBox(Meter m) {
+    public DisplayBox(DatumSource m) {
         this(Simulation.instance, m);
     }
-    public DisplayBox(Simulation sim, Meter m) {
+    public DisplayBox(Simulation sim, DatumSource m) {
         this(sim);
-        setMeter(m);
+        setDatumSource(m);
     }
     public DisplayBox(Simulation sim) {
         super(sim);
         label = new JLabel("Label");
         value = new JTextField("");
         value.setEditable(false);
-        setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
         setPrecision(4);
         panel.add(label);
         panel.add(value);
@@ -108,7 +107,7 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
      * Obtained from the meter associated with this display.
      */
     public Dimension dimension() {
-        if(meter != null) return meter.getDimension();
+        if(source != null) return source.getDimension();
         else return Dimension.NULL;
     }
     
@@ -129,26 +128,28 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
     /**
      * Specifies the meter that generates the displayed value.
      */
-    public void setMeter(Meter m) {
-        meter = m;
-        setUnit(m.defaultIOUnit());
+    public void setDatumSource(DatumSource m) {
+        source = m;
+        if(m instanceof Meter && 
+            !(whichValue instanceof MeterAbstract.ValueType)) setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
+        setUnit(m.getDimension().defaultIOUnit());
         setLabel();
     }
     
     /**
      * Accessor method for the meter that generates the displayed value.
      */
-    public Meter getMeter() {
-        return meter;
+    public DatumSource getDatumSource() {
+        return source;
     }
     
     /**
      * Sets the value of a descriptive label using the meter's label and the unit's symbol (abbreviation).
      */
     private void setLabel() {
-        if(meter == null) return;
+        if(source == null) return;
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        setLabel(meter.getLabel()+suffix);
+        setLabel(source.getLabel()+suffix);
     }
     
     /**
@@ -170,8 +171,8 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
      * Sets the display text to reflect the desired value from the meter.
      */
     public void doUpdate() {
-        if(meter == null) return;
-        value.setText(format(unit.fromSim(meter.value(whichValue)),precision));
+        if(source == null) return;
+        value.setText(format(unit.fromSim(source.value(whichValue)),precision));
     }
     /**
      *   @deprecated  Use setWhichValue instead
@@ -183,38 +184,50 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
     /**
      * Sets whether meter displays average, current value, last block average, etc.
      */
-    public void setWhichValue(MeterAbstract.ValueType type) {
+    public void setWhichValue(DataSource.ValueType type) {
         whichValue = type;
-        if(meter == null) return;
-        if(!(whichValue==MeterAbstract.ValueType.MOST_RECENT) && !meter.isActive())
-            {System.out.println("Warning: setting to use averages but meter is not active");}
+        if(source == null) return;
+//        if(!(whichValue==MeterAbstract.ValueType.MOST_RECENT) && !meter.isActive())
+//            {System.out.println("Warning: setting to use averages but meter is not active");}
     }
-    public MeterAbstract.ValueType getWhichValue() {return whichValue;}
+    public DataSource.ValueType getWhichValue() {return whichValue;}
+    
+    public void setMeter(Meter m) {
+        setDatumSource(m);
+    }
+    public Meter getMeter() {return (Meter)getDatumSource();}
     
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  //for more general simulations, replace this call with
-                                            //construction of the desired pieces of the simulation
+
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        Simulation.instance = sim;
+
         //part that is unique to this demonstration
+        PotentialSquareWell potential = new PotentialSquareWell(sim);
+        sim.p2 = new P2SimpleWrapper(sim,sim.potential);
+        Modulator mod1 = new Modulator(sim.integrator, "timeStep");
         Meter ke = new MeterKineticEnergy();
-        Phase phase = Simulation.instance.phase(0);
-        ke.setPhase(phase);
+        ke.setPhase(sim.phase);
         DisplayBox box = new DisplayBox();
-        box.setMeter(ke);
+        box.setDatumSource(ke);
         box.setUpdateInterval(10);
-        //another display box; note that we don't need to save instance to have it show in simulation,
-        //but we can't change its properties since we don't keep a handle here
-        new DisplayBox.Energy(phase);  
+        //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
+        DisplayBox box0 = new DisplayBox.Energy(sim.phase);
+        box0.setWhichValue(MeterAbstract.ValueType.CURRENT);
+        //here's a DisplayBox tied to a Modulator
+		DisplayBox box1 = new DisplayBox();
+		box1.setDatumSource(mod1);
         //end of unique part
                                             
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-        f.add(Simulation.instance);         //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();
@@ -233,7 +246,7 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
     
         public Energy(Phase phase) {
             super();
-            this.setMeter(phase.energy);
+            this.setDatumSource(phase.energy);
 //            this.setUnit(Simulation.unitSystem().energy());
         }
     }

@@ -12,7 +12,7 @@ import etomica.utility.Function;
  * The default condition of a Meter is "active", meaning that it increments sums for averages upon
  * receiving sufficient interval events from the integrator.
  */
-public abstract class Meter extends MeterAbstract implements DataSource  {
+public abstract class Meter extends MeterAbstract implements DataSource, DatumSource  {
     
     public static final String VERSION = "Meter:01.03.24.0/"+MeterAbstract.VERSION;
     
@@ -60,7 +60,10 @@ public abstract class Meter extends MeterAbstract implements DataSource  {
 	 * For internal use.
 	 */
 	 protected Accumulator[] allAccumulators() {return new Accumulator[] {accumulator};}
-	 
+	
+	public double value(DataSource.ValueType type) {
+	    return value((MeterAbstract.ValueType)type);
+	}
 	/**
 	 * Returns the value indicated by the argument.
 	 */

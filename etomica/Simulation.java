@@ -124,6 +124,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         displayPanel.addChangeListener(
             new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent event) {
+                    displayPanel.invalidate();
                     displayPanel.validate();
                 }
         });

@@ -18,7 +18,7 @@ import java.awt.event.MouseEvent;
 
 public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawable {
     
-    public static String getVersion() {return "01.02.19"+PhaseAction.getVersion();}
+    public static String getVersion() {return "ActionPointVolume:01.02.19"+PhaseAction.getVersion();}
 
     private boolean drawPoints = true;
     private boolean drawCells = false;
@@ -28,16 +28,19 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     Space2D.Vector r0 = new Space2D.Vector();
     public boolean expand = true;
     private double lnJTot;
+    private double deformationScale = 1.0;
 
     public ActionPointVolume() {
         super();
 //        lattice = new MyLattice(10,new VelocityField(2,20), 0.1);
         lattice = new MyLattice(12,new VelocityField(2,20), 0.002);
+//        setDeformationScale(0.01);
     }
     public double lastLnJacobian() {return lnJTot;}
     
     public void setPhase(Phase p) {
-        r0.PEa1Tv1(-0.5, phase.boundary().dimensions());
+        if(p == null) return;
+        r0.PEa1Tv1(-0.5, p.boundary().dimensions());
         super.setPhase(p);
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());
     }
@@ -51,6 +54,24 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     public void setExpand(boolean b) {expand = b;}
     public boolean isExpand() {return expand;}
     
+    public void setDeformationScale(double d) {
+        deformationScale = d;
+        
+        SiteIterator iter = lattice.iterator();
+        iter.reset();
+        while(iter.hasNext()) {
+            MySite site = (MySite)iter.next();
+            site.calculateDeformedPosition(deformationScale);
+        }
+        iter.reset();
+        while(iter.hasNext()) {
+            MySite site = (MySite)iter.next();
+            if(site.c1 != null) site.c1.updateConstants();
+            if(site.c2 != null) site.c2.updateConstants();
+        }//end while
+    } 
+    public double getDeformationScale() {return deformationScale;}
+    
     public void actionPerformed(Space.Vector r, boolean b) {
         setExpand(b);
         actionPerformed(r);
@@ -62,7 +83,11 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     }
         
     public void actionPerformed(Phase p) {
+        actionPerformed(p, 1.0);
+    }
+    public void actionPerformed(Phase p, double deformationScale) {
         double scale = expand ? lattice.scale : 1.0/lattice.scale;
+        setDeformationScale(deformationScale);
         lnJTot = 0.0;
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
             s.E(a.position());
@@ -72,12 +97,12 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
             MyCell cell = null;
             if(expand) {
                 cell = lattice.getOriginalCell(s);
-                cell.transform(s,1.0);
+                cell.transform(s,deformationScale);
                 lnJTot += cell.lnJacobian;
             }
             else {
                 cell = lattice.getDeformedCell(s);
-                cell.revert(s,1.0);//works only for scale = 1.0
+                cell.revert(s,deformationScale);//works only for scale = 1.0
                 lnJTot -= cell.lnJacobian;
             }
             s.TE(phase.dimensions());
@@ -275,6 +300,7 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
                     site.originalPosition = (Space2D.Vector)((BravaisLattice.Coordinate)site.coordinate()).position();
          //           site.originalPosition.PE(-0.5);
                     site.deformedPosition = new Space2D.Vector();
+                    site.fullyDeformedPosition = new Space2D.Vector();
                     site.deformedPosition.E(site.originalPosition);
                 } 
             }
@@ -360,6 +386,13 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
                     Space.Vector position = sites[i][j].deformedPosition;
            //         position.PE(1,-y0);
                     position.setComponent(1,factorY*position.component(1));
+                }
+            }
+            
+            for(int i=0; i<size; i++) {
+                for(int j=0; j<size; j++) {
+                    MySite site = sites[i][j];
+                    site.fullyDeformedPosition.E(site.deformedPosition);
                 }
             }
             
@@ -453,9 +486,14 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     private class MySite extends Site {
         MyCell c1, c2;
         MyCell cellN, cellS, cellE, cellW;
-        Space2D.Vector originalPosition, deformedPosition;
+        Space2D.Vector originalPosition, deformedPosition, fullyDeformedPosition;
         MySite(AbstractLattice parent, SiteIterator.Neighbor iterator, AbstractLattice.Coordinate coord) {
             super(parent, iterator, coord);
+        }
+        //computes the location of the deformed-lattice site for the given deformation scale
+        public void calculateDeformedPosition(double s) {
+            deformedPosition.Ea1Tv1((1.-s),originalPosition);
+            deformedPosition.PEa1Tv1(s, fullyDeformedPosition);
         }
     }
     private class MySiteFactory implements SiteFactory {
@@ -474,26 +512,34 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
         public MySite[] vertex = new MySite[3];
         public MyCell[] nbr = new MyCell[3];
         private int nbrIndex = 0;
+        private double rDenom = 1.0;
+        private double xb, xa, yb, ya;
         MyCell(MySite s0, MySite s1, MySite s2) {
             origin = s0;
             vertex[0] = s0;
             vertex[1] = s1;
             vertex[2] = s2;
+            xb  = s1.originalPosition.x - s0.originalPosition.x;
+            xa  = s2.originalPosition.x - s0.originalPosition.x;
+            yb  = s1.originalPosition.y - s0.originalPosition.y;
+            ya  = s2.originalPosition.y - s0.originalPosition.y;
+            rDenom = 1.0/(ya*xb - yb*xa);
+            updateConstants();
+        }
+        public void updateConstants() {
+            MySite s0 = vertex[0];
+            MySite s1 = vertex[1];
+            MySite s2 = vertex[2];
             deltaX = origin.deformedPosition.x - origin.originalPosition.x;
             deltaY = origin.deformedPosition.y - origin.deformedPosition.y;
             double xbn = s1.deformedPosition.x - s0.deformedPosition.x;
             double xan = s2.deformedPosition.x - s0.deformedPosition.x;
             double ybn = s1.deformedPosition.y - s0.deformedPosition.y;
             double yan = s2.deformedPosition.y - s0.deformedPosition.y;
-            double xb  = s1.originalPosition.x - s0.originalPosition.x;
-            double xa  = s2.originalPosition.x - s0.originalPosition.x;
-            double yb  = s1.originalPosition.y - s0.originalPosition.y;
-            double ya  = s2.originalPosition.y - s0.originalPosition.y;
-            double denominator = ya*xb - yb*xa;
-            a11 = (xbn*ya - xan*yb)/denominator;
-            a12 = (xan*xb - xa*xbn)/denominator;
-            a21 = (ya*ybn - yan*yb)/denominator;
-            a22 = (yan*xb - xa*ybn)/denominator;
+            a11 = (xbn*ya - xan*yb)*rDenom;
+            a12 = (xan*xb - xa*xbn)*rDenom;
+            a21 = (ya*ybn - yan*yb)*rDenom;
+            a22 = (yan*xb - xa*ybn)*rDenom;
             jacobian = a11*a22 - a12*a21;
             lnJacobian = Math.log(jacobian);
             

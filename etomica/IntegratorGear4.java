@@ -226,6 +226,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 	    P2LennardJones P2LennardJones1 = new P2LennardJones();  //P2 must follow species until setSpeciesCount is fixed
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
+	    DisplayPlot plot = new DisplayPlot();
 	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
 	    timer.setUpdateInterval(10);
 	    integratorGear4.setTimeStep(0.005);
@@ -234,6 +235,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         Meter ke = new MeterKineticEnergy();
         Meter temp = new MeterTemperature();
         Meter energy = new MeterEnergy();
+        energy.setHistorying(true);
+        plot.setDataSource(energy);
         Phase phase = Simulation.instance.phase(0);
         ke.setPhase(phase);
         temp.setPhase(phase);

@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * Direct subclasses of ModulatorAbstract handle scalar and vector quantities, respectively.
  */
 
-public abstract class ModulatorAbstract implements java.io.Serializable {
+public abstract class ModulatorAbstract implements java.io.Serializable, DatumSource {
     
     /**
      * A string describing the property manipulated by the modulator
@@ -23,6 +23,11 @@ public abstract class ModulatorAbstract implements java.io.Serializable {
     
     public abstract void setValue(double d);
     public abstract double getValue();
+    
+    /**
+     * Same as getValue, to implement DatumSource interface.  Argument is ignored.
+     */
+    public double value(DataSource.ValueType dummy) {return getValue();}
     
 	/**
 	 * Accessor method for the modulator's label

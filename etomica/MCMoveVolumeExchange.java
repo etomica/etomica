@@ -45,10 +45,10 @@ public final class MCMoveVolumeExchange extends MCMove {
         double v1Scale = v1New/v1Old;
         double v2Scale = v2New/v2Old;
 //        System.out.println(v1Scale + "  " + v2Scale + " " +stepSize + " "+nTrials+" "+nAccept+" "+adjustInterval+" "+frequency);
-        double r1Scale = Math.pow(v1Scale,ROOT);
-        double r2Scale = Math.pow(v2Scale,ROOT);
-        inflate1.actionPerformed(r1Scale);
-        inflate2.actionPerformed(r2Scale);
+        inflate1.setScale(Math.pow(v1Scale,ROOT));
+        inflate2.setScale(Math.pow(v2Scale,ROOT));
+        inflate1.attempt();
+        inflate2.attempt();
         double hNew = firstPhase.energy.potential() + secondPhase.energy.potential();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+
