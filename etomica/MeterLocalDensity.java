@@ -22,7 +22,7 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
      */
     private SpeciesAgent speciesAgent;
     private Species species;
-    private double volume;
+    protected double volume;
     private AtomIterator iterator = new AtomIteratorSequential();
     /**
      * If <code>true</code> average mole fraction (n<sub>i</sub>/n<sub>total</sub>), if <code>false</code>, average total number density (n<sub>i</sub>/V)
