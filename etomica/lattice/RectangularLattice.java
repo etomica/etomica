@@ -525,6 +525,7 @@ public class RectangularLattice implements FiniteLattice {
             for (int i=D-2; i>-1; i--) {
                 cursorJump[i] = cursorJump[i+1]*3;
             }
+            nearestImageVectors[(nearestImageVectors.length-1)/2] = Space.makeVector(D);
             while (idx[0] < 2) {
                 for(int j=0; j<D; j++) {
                     vectorElements[j] = idx[j]*period.x(j);
