@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.units.Dimension;
+
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
  * MC trials (or perhaps molecular dynamics) in different phases.  These integrators
@@ -61,6 +63,18 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
             mcMoveSwap = newMCMoveSwap;
 		}
 	}
+	
+	/**
+	 * Fires interval event for this integrator, then instructs
+	 * each sub-integrator to fire event.
+	 */
+	public void fireIntervalEvent(Integrator.IntervalEvent ie) {
+	    super.fireIntervalEvent(ie);
+	    for(int i=0; i<nIntegrators; i++) {
+	        integrators[i].fireIntervalEvent(ie);
+	    }
+	}
+	
 	
 	/**
      * Performs a Monte Carlo trial that attempts to swap the configurations
@@ -139,6 +153,18 @@ public interface MCMoveSwapFactory {
     public MCMove makeMCMoveSwap(IntegratorMC integratorMC, Integrator integrator1, Integrator integrator2);
 }//end of MCMoveSwapFactory
 
+    // --------------- inner interfact ------------
+    
+    /**
+     * Interface for a move that swaps two phases.  Enables access to
+     * the swapped phases.
+     */
+public interface MCMoveSwap {
+    
+    public Phase[] swappedPhases();
+    
+}
+
 
 
     // -----------inner class----------------
@@ -158,7 +184,7 @@ public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
 	 * Basic MCMove for swapping coordinates of atoms in two phases.
 	 * Requires same number of atoms in each phase.
 	 */
-public static class MCMoveSwapConfiguration extends MCMove {
+public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
 	private Integrator integrator1, integrator2;	
     private final IteratorDirective iteratorDirective = new IteratorDirective();
@@ -168,6 +194,7 @@ public static class MCMoveSwapConfiguration extends MCMove {
 	private Space.Vector r;
 	private double u1, u2, temp1, temp2, deltaU1;
 	private Phase phase1, phase2;
+	private final Phase[] swappedPhases = new Phase[2];
 
 	public MCMoveSwapConfiguration(IntegratorMC integratorMC, 
 	                                Integrator integrator1, Integrator integrator2) {
@@ -224,12 +251,21 @@ public static class MCMoveSwapConfiguration extends MCMove {
      */
 	public void rejectNotify() {}
 	
+	/**
+	 * Implementation of MCMoveSwap interface
+	 */
+	public Phase[] swappedPhases() {
+	    swappedPhases[0] = phase1;
+	    swappedPhases[1] = phase2;
+	    return swappedPhases;
+	}
+
 	public double energyChange(Phase phase) {
 	    if(phase == phase1)      return +deltaU1;
 	    else if(phase == phase2) return -deltaU1;
 	    else                     return 0.0;
 	}
-
+	
 	public AtomIterator affectedAtoms(Phase p) {
 	    if(p == phase1 || p == phase2) {
 	        affectedAtomIterator.setBasis(p);
@@ -240,6 +276,73 @@ public static class MCMoveSwapConfiguration extends MCMove {
 	}
 }//end of MCMoveSwapConfiguration
 
+//----------------- inner class ------------------------------
+
+/**
+ * Meter that tracks the swapping of the phases in parallel-tempering
+ * simulation.
+ */
+    public class MeterPhaseTracker extends MeterFunction implements MCMoveListener {
+        
+        private DataSource[] histories;
+        private int[] track;
+        
+        public MeterPhaseTracker() {
+            super(IntegratorPT.this.parentSimulation());
+            setActive(true);
+            IntegratorPT.this.addMCMoveListener(this);
+        }
+        
+        /**
+         * Method called when two phases are successfully exchanged.
+         */
+        public void actionPerformed(MCMoveEvent evt) {
+            if(evt.isTrialNotify || !evt.wasAccepted) return;
+            if(!(evt.mcMove instanceof MCMoveSwap)) return;
+            Phase[] phases = ((MCMoveSwap)evt.mcMove).swappedPhases();
+            int i0 = phases[0].index;
+            int i1 = phases[1].index;
+            int temp = track[i0];
+            track[i0] = track[i1];
+            track[i1] = temp;
+        }
+        
+        public Dimension getXDimension() {return Dimension.NULL;}
+        public Dimension getDimension() {return Dimension.NULL;}
+        
+        /**
+         * Specifies phases that are tracked.
+         */
+         //don't need to pass phases; just number of phases
+        public void setPhases(Phase[] trackedPhases) {
+            setNPoints(trackedPhases.length);
+            track = new int[trackedPhases.length];
+            setHistorying(true);
+            histories = new DataSource[trackedPhases.length];
+            for(int i=0; i<nPoints; i++) {
+                track[i] = i;
+                histories[i] = accumulator[i].history();
+            }
+        }
+        
+        /**
+         * Returns data source array that is suitable to input to
+         * setDataSource method of DisplayPlot.
+         */
+        public DataSource[] dataSource() {return histories;}
+        
+        /**
+         * Returns array y such that y[i] is the current
+         * phase of the configuration that began in phase i.
+         */
+        public double[] currentValue() {
+            for(int i=0; i<track.length; i++) {
+                y[track[i]] = i;
+            }
+            return y;
+        }
+        
+    }//end of MeterPhaseTracker
     
 }//end of IntegratorPT
 

@@ -74,10 +74,11 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource,
 	 * The method is called by the updateSums method  to add the current value to the accumulator.
 	 * This method may be called directly by any object to obtain the current value of the function
 	 * property.  A call to currentValue does nothing
-	 * to the sums kept for averages.  To obtain the current value and increment the sums at the same time,
-	 * call updateSums() and then mostRecent().
+	 * to the sums kept for averages.  To obtain the current value and increment the sums at the
+	 * same time, call updateSums() and then mostRecent().
 	 */
-    public abstract double[] currentValue();  //in subclasses usually will update and return the y array
+	//in subclasses usually will update and return the y array
+    public abstract double[] currentValue();
     
     /**
      * Method to update running sums for averages and error statistics

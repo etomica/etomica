@@ -12,6 +12,9 @@ import etomica.units.Unit;
  * Presents data in a tabular form.  Data is obtained from DatumSource objects.
  * Sources may be identified to the Display by passing an array of DatumSource objects (in
  * the setDatumSources method, or one at a time via the addDatumSource method).
+ *
+ * @author David Kofke
+ * @see DisplayTableFunction
  */
 public class DisplayTable extends DisplayDatumSources implements EtomicaElement
 {
@@ -20,6 +23,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     public JTable table;
     javax.swing.JPanel panel;
     private boolean showLabels = true;
+    private boolean fitToWindow = true;
     
         //structures used to adjust precision of displayed values
 	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
@@ -58,12 +62,27 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         if(ySource == null || ySource.length == 0) return;
         MyTableData tableSource = new MyTableData();   //inner class, defined below
         table = new JTable(tableSource);
+        if(!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setDefaultRenderer(Number.class, numberRenderer);
         panel.add(new JScrollPane(table));
         doUpdate();
         
     }
         
+    /**
+     * If true, columns will be squeezed so table fits to window; if false, table
+     * will exceed window size, and to view full width must be placed in a scroll pane.
+     * Default is true.
+     */
+    public void setFitToWindow(boolean b) {
+        fitToWindow = b;
+        setupDisplay();
+    }
+    /**
+     * Accessor method for flag determining if table is squeezed to fit in window.
+     */
+    public boolean isFitToWindow() {return fitToWindow;}
+    
     /**
      * Mutator method for whether table should include a column of "x" values.
      */

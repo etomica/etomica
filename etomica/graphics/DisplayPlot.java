@@ -17,6 +17,7 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
 
     private Plot plot;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
+    private boolean doLegend = true;
    
     public DisplayPlot() {
         this(Simulation.instance);
@@ -34,6 +35,20 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("X-Y graphical plot of data");
         return info;
     }
+    
+    /**
+     * Mutator for flag determining if a legend is to be shown.
+     * Default is true.
+     */
+    public void setDoLegend(boolean b) {
+        doLegend = b;
+        setupDisplay();
+    }
+    /**
+     * Accessor for flag determining if a legend is to be shown.
+     * Default is true.
+     */
+    public boolean isDoLegend() {return doLegend;}
     
     /**
      * Accessor method to plot class so that its properties can be edited.
@@ -57,7 +72,7 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         panel.repaint();
         if(ySource == null) return;
         if(ySource.length > 1) {
-            for(int i=0; i<ySource.length; i++) plot.addLegend(i,ySource[i].getLabel());
+            for(int i=0; i<ySource.length; i++) plot.addLegend(i,doLegend ? ySource[i].getLabel() : "");
         }
         setLabel(ySource[0].getLabel());
         plot.setYLabel(ySource[0].getLabel());
