@@ -36,8 +36,8 @@ public final class Vector3D extends Vector {
         public void E(int i, double a) {if (i==0) x=a; else if (i==1) y=a; else z=a;}
         public void E(double[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
         public void E(int[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
-        public void Ea1Tv1(double a1, Vector u) {Vector3D u1=(Vector3D)u; x = a1*u1.x; y = a1*u1.y; z = a1*u1.z;}
-        public void PEa1Tv1(double a1, Vector u) {Vector3D u1=(Vector3D)u; x += a1*u1.x; y += a1*u1.y; z += a1*u1.z;}
+        public void Ea1Tv1(double a1, Vector u) {x = a1*((Vector3D)u).x; y = a1*((Vector3D)u).y; z = a1*((Vector3D)u).z;}
+        public void PEa1Tv1(double a1, Vector u) {x += a1*((Vector3D)u).x; y += a1*((Vector3D)u).y; z += a1*((Vector3D)u).z;}
         public void PE(Vector3D u) {x += u.x; y += u.y; z += u.z;}
         public void PE(double a) {x += a; y += a; z += a;}
         public void ME(Vector3D u) {x -= u.x; y -= u.y; z -= u.z;}
