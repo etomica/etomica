@@ -214,7 +214,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Charge {
             public static final Charge UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = "(D-A^3/ps^2)^(1/2)";}
+            public Sim() {prefixAllowed = false; name = "sim charge units";  symbol = "(D-A^3/ps^2)^(1/2)";}
         }
     }
 
@@ -230,7 +230,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Dipole {
             public static final Dipole UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = "(D-A^5/ps^2)^(1/2)";}
+            public Sim() {prefixAllowed = false; name = "sim dipole units";  symbol = "(D-A^5/ps^2)^(1/2)";}
         }
     }
 
@@ -246,7 +246,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Energy {
             public static final Energy UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = "D-A^2/ps^2";}
+            public Sim() {prefixAllowed = false; name = "sim energy units";  symbol = "D-A^2/ps^2";}
         }
     }
     
@@ -276,7 +276,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Pressure {
             public static final Pressure UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = "D/(A-ps^2)";}
+            public Sim() {prefixAllowed = false; name = "sim pressure units";  symbol = "D/(A-ps^2)";}
         }
     }
     
@@ -297,7 +297,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Pressure2D {
             public static final Pressure2D UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = "D/ps^2";}
+            public Sim() {prefixAllowed = false; name = "sim 2-D pressure units";  symbol = "D/ps^2";}
         }
     }
     
@@ -313,7 +313,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Volume {
             public static final Volume UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = Angstrom.UNIT.symbol()+"^3";}
+            public Sim() {prefixAllowed = false; name = "sim volume units";  symbol = Angstrom.UNIT.symbol()+"^3";}
         }
     }
     
@@ -334,7 +334,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Volume2D {
             public static final Volume2D UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "sim units";  symbol = Angstrom.UNIT.symbol()+"^2";}
+            public Sim() {prefixAllowed = false; name = "sim 2-D volume units";  symbol = Angstrom.UNIT.symbol()+"^2";}
         }
     }
     
@@ -345,6 +345,7 @@ public abstract class BaseUnit implements java.io.Serializable {
      * Finds them by performing instrospection of the classes in the units directory.
      */
     public static Class[] all(Dimension dimension) {
+        if(dimension == null) throw new IllegalArgumentException("null argument for dimension passed to BaseUnit.all()");
 	    Class baseUnitClass = dimension.baseUnit();
 	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY+"/units");
 	    String[] files = dir.list(new java.io.FilenameFilter() {

@@ -1,9 +1,9 @@
 package simulate;
 import simulate.units.*;
-import simulate.gui.SimEditorTabMenu;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import javax.swing.JComboBox;
+import javax.swing.JTextField;
 
 /**
  * Editor to set the value of a double-type property having units associated with it.
@@ -19,6 +19,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
                 javax.swing.JComboBox.KeySelectionManager {
     
     private PropertyEditor valueEditor;
+    private JTextField editor;
     private Unit unit;
     private Prefix prefix;
     private BaseUnit baseUnit;
@@ -29,6 +30,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
     public DimensionedDoubleEditor(Dimension dimension) {
         super();
         valueEditor = java.beans.PropertyEditorManager.findEditor(Double.TYPE);
+        if(dimension == null) dimension = Dimension.NULL;
         unit = dimension.defaultIOUnit();
         prefix = unit.prefix();
         baseUnit = unit.baseUnit();
@@ -69,6 +71,8 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
         }
     }
     
+    public Unit getUnit() {return unit;}
+    
     /**
      * ItemListener interface implementation.
      */
@@ -105,7 +109,10 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	  * Returns a combo box that can be used to select the unit.
 	  */
 	 public JComboBox unitSelector() {return unitList;}
-        
+     public JTextField valueEditor() {
+        if(editor==null) editor = new simulate.gui.PropertyText(this);
+        return editor;
+     }   
 
     /**
      * Returns the value in the editor's units, formatted as a text string.

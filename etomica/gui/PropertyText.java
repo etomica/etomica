@@ -8,9 +8,9 @@ import java.awt.event.*;
 import java.beans.*;
 import javax.swing.JTextField;
 
-class PropertyText extends JTextField implements KeyListener, FocusListener, PropertyChangeListener {
+public class PropertyText extends JTextField implements KeyListener, FocusListener, PropertyChangeListener {
 
-    PropertyText(PropertyEditor pe) {
+    public PropertyText(PropertyEditor pe) {
 	    super(pe.getAsText());
 	    editor = pe;
 	    addKeyListener(this);

@@ -206,36 +206,37 @@ public class FileActions {
 	        String dname = fd.getDirectory();
 	        File file = new File(dname, fname);
 	        Class simulationClass = null;
-            if (fname.endsWith("class")){
-                int idx = fname.lastIndexOf(".");
-                fname = fname.substring(0, idx);
-	            try{
-	                simulationClass = Class.forName(((String)file.getAbsolutePath()).substring(11,25));//"simulate.simulations."+fname.toString());
-	                Simulation sim = (Simulation)simulationClass.newInstance();
-	                Etomica.addSimulation(sim);
-	            }
-                catch(IllegalAccessException e) {System.out.println("Illegal access error");}
-                catch(InstantiationException e) {System.out.println("Instantiation exception");}
-                catch(ClassNotFoundException e) { e.printStackTrace(); }
+	        try {
+            simulationClass = Class.forName(file.toString());
             }
-            else {	        //code for .ser file
-	            try {
-	                // get the one object as a bean...
-	                FileInputStream f = new FileInputStream(file);
-	                ObjectInputStream ois = new ObjectInputStream(f);
-                    Object sim = ois.readObject();
-                    ois.close();
-                   
-                    Etomica.addSimulation((Simulation)sim);
-                    Etomica.getSimulationFrame((Simulation)sim).setVisible(true);
-                    Etomica.simulationEditorFrame.getSimulationEditor().setVisible(true);
-                    EtomicaMenuBar.editSimulationItem.setEnabled(false);
-                    EtomicaMenuBar.serEditItem.setEnabled(true);
-                    EtomicaMenuBar.serAppletItem.setEnabled(true);
-	            } 
-	            catch(java.io.IOException ioe){ ioe.printStackTrace(); }
-	            catch(ClassNotFoundException cnfe){ cnfe.printStackTrace(); }
+            catch(ClassNotFoundException e) {
+                e.printStackTrace();
+                System.out.println(file.toString());
             }
+	        try{
+	            Simulation sim = (Simulation)simulationClass.newInstance();
+	            Etomica.addSimulation(sim);
+	        }
+            catch(IllegalAccessException e) {System.out.println("Illegal access error");}
+            catch(InstantiationException e) {System.out.println("Instantiation exception");}
+	        // OK, loaded all the classes -- now, instantiate them...
+	        
+	        //code for .ser file
+	   /*     try {
+	            // get the one object as a bean...
+	            FileInputStream f = new FileInputStream(file);
+	            ObjectInputStream ois = new ObjectInputStream(f);
+                Object sim = ois.readObject();
+                ois.close();
+               
+                Etomica.addSimulation((Simulation)sim);
+                EtomicaMenuBar.editSimulationItem.setEnabled(false);
+                EtomicaMenuBar.serEditItem.setEnabled(true);
+                EtomicaMenuBar.serAppletItem.setEnabled(true);
+	        } 
+	        catch(java.io.IOException ioe){ ioe.printStackTrace(); }
+	        catch(ClassNotFoundException cnfe){ cnfe.printStackTrace(); }
+      */    
         }// end of actionPerformed
     }// end of OpenAction
     

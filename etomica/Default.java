@@ -7,7 +7,7 @@ public final class Default {
     
     public static String CLASS_DIRECTORY = "D:/kofke/development/lib/simulate";
     
-    public static String IMAGE_DIRECTORY = "D:/kofke/development/images/";
+    public static String IMAGE_DIRECTORY = "file:/D:/kofke/development/images/";
         
     public static double ATOM_SIZE = 3.0;  //Angstroms
     

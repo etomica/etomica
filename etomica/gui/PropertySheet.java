@@ -91,7 +91,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
      */
     UpdateThread updateThread = new UpdateThread(this);
 
-    public static class TextCellEditor extends DefaultCellEditor {
+/*    public static class TextCellEditor extends DefaultCellEditor {
         private JTree tree;
         
         public TextCellEditor(JTree tree, JTextField t){
@@ -115,6 +115,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
             return rv;
         }
     }//end of TextCellEditor
+    */
 
     public static class ComboCellEditor extends DefaultCellEditor {
         private JTree tree;

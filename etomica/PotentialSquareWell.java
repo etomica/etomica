@@ -1,4 +1,5 @@
 package simulate;
+import simulate.units.Dimension;
 
 /**
  * Basic square-well potential.
@@ -8,18 +9,20 @@ package simulate;
  */
 public class PotentialSquareWell extends Potential implements Potential.Hard {
 
-  private double coreDiameter, coreDiameterSquared;
-  private double wellDiameter, wellDiameterSquared;
-  private double lambda; //wellDiameter = coreDiameter * lambda
-  private double epsilon;
-  private double lastCollisionVirial, lastCollisionVirialr2;
-  private Space.Tensor lastCollisionVirialTensor;
-  private Space.Vector dr;
+  protected double coreDiameter, coreDiameterSquared;
+  protected double wellDiameter, wellDiameterSquared;
+  protected double lambda; //wellDiameter = coreDiameter * lambda
+  protected double epsilon;
+  protected double lastCollisionVirial, lastCollisionVirialr2;
+  protected Space.Tensor lastCollisionVirialTensor;
+  protected Space.Vector dr;
    
   public PotentialSquareWell() {
-    this(Simulation.instance,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF, Default.POTENTIAL_WELL);
+    this(Simulation.instance);
   }
-  
+  public PotentialSquareWell(Simulation sim) {
+    this(sim,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF, Default.POTENTIAL_WELL);
+  }
   public PotentialSquareWell(double coreDiameter, double lambda, double epsilon) {
     this(Simulation.instance, coreDiameter, lambda, epsilon);
   }
@@ -77,7 +80,7 @@ public class PotentialSquareWell extends Potential implements Potential.Hard {
     lastCollisionVirialr2 = lastCollisionVirial/r2;
     pair.cPair.push(lastCollisionVirialr2);
     if(r2New != r2) pair.cPair.setSeparation(r2New);
-  }
+  }//end of bump method
   
  /**
   * Always returns zero (not yet implemented)
@@ -166,6 +169,7 @@ public class PotentialSquareWell extends Potential implements Potential.Hard {
         wellDiameter = coreDiameter*lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
     }
+    public Dimension getCoreDiameterDimension() {return Dimension.LENGTH;}
 
     /**
      * Accessor method for well-diameter multiplier.
@@ -181,6 +185,7 @@ public class PotentialSquareWell extends Potential implements Potential.Hard {
         wellDiameter = coreDiameter*lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
     }
+    public Dimension getLambdaDimension() {return Dimension.NULL;}
     
    /**
     * Accessor method for depth of well
@@ -192,6 +197,7 @@ public class PotentialSquareWell extends Potential implements Potential.Hard {
     public void setEpsilon(double eps) {
         epsilon = eps;
     }
+    public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
 
 }
   

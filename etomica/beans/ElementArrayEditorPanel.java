@@ -1,6 +1,5 @@
 package simulate;
 import simulate.*;
-import simulate.gui.SimEditorTabMenu;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
