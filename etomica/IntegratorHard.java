@@ -77,12 +77,14 @@ public class IntegratorHard extends IntegratorMD {
                 System.out.println("previous collision occured before current one");
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision between "+atoms[0]+" and "+atoms[1]+" potential "+colliderAgent.collisionPotential.getClass());
-                cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-                cPairDebug.setNearestImageTransformer(firstPhase.boundary());
-                cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
-                System.out.println("distance at last collision time was "+cPairDebug.r2());
-                cPairDebug.trueReset(collisionTimeStep);
-                System.out.println("distance now "+cPairDebug.r2());
+                if (atoms[1] != null) {
+                    cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
+                    cPairDebug.setNearestImageTransformer(firstPhase.boundary());
+                    cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
+                    System.out.println("distance at last collision time was "+Math.sqrt(cPairDebug.r2()));
+                    cPairDebug.trueReset(collisionTimeStep);
+                    System.out.println("distance now "+Math.sqrt(cPairDebug.r2()));
+                }
                 throw new RuntimeException("this simulation is not a time machine");
             }
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) || Debug.anyAtom(atoms))) {
@@ -113,21 +115,6 @@ public class IntegratorHard extends IntegratorMD {
             double dE = colliderAgent.collisionPotential.energyChange();
             currentPotentialEnergy[0] += dE;
             currentKineticEnergy[0] -= dE;
-            
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
-                    && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
-                  cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-                  cPairDebug.setNearestImageTransformer(firstPhase.boundary());
-                  cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
-                  double r2 = cPairDebug.r2();
-                  if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-                      System.out.println("after collision, distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
-                      if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-                          System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.truePosition(collisionTimeStep));
-                          System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.truePosition(collisionTimeStep));
-                      }
-                  }
-            }
             
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
@@ -488,17 +475,18 @@ public class IntegratorHard extends IntegratorMD {
     private final class ReverseCollisionHandler extends PotentialCalculation {
         
         public void doCalculation(AtomsetIterator iterator, Potential p) {
+            if (iterator.nBody() != 2) return;
             iterator.reset();
             // look for pairs in which pair[0] is the collision partner of pair[1]
             while (iterator.hasNext()) {
                 Atom[] pair = iterator.next();
                 Agent aAgent = (Agent)pair[1].ia;
                 Atom aPartner = aAgent.collisionPartner();
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || (Debug.LEVEL > 1 && Debug.anyAtom(pair)) || Debug.LEVEL > 2)) {
+                if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
                     System.out.println(pair[1]+" thought it would collide with "+aPartner);
                 }
                 if(aPartner == pair[0]) {
-                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.anyAtom(pair) || Debug.LEVEL > 1)) {
+                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 1)) {
                         System.out.println("Will update "+pair[1]+" because it wanted to collide with "+aPartner);
                     }
 //                    Evil.reverseAtomLinker++;
