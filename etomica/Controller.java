@@ -63,7 +63,9 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                             waitObject.currentActionDone = true;
                             waitObject.notifyAll();
                         }
-                        throw exception;
+                        if (exception != null) {
+                            throw exception;
+                        }
                     }
                 });
                 localRunner.start();
