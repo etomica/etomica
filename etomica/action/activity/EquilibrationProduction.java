@@ -7,7 +7,7 @@ package etomica.action.activity;
 import etomica.Action;
 import etomica.Integrator;
 import etomica.action.ResetAccumulators;
-import etomica.utility.java2.LinkedList;
+import java.util.LinkedList;
 
 /**
  * Pre-configured activity group that runs the integrator through a set of
@@ -32,7 +32,7 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 *            equilibration and production periods
 	 */
 	public EquilibrationProduction(Integrator equilibrationIntegrator,
-			Integrator productionIntegrator, LinkedList accumulatorManagerList) {
+			Integrator productionIntegrator, LinkedList dataManagerList) {
 		equilibrationActivity = new ActivityIntegrate(equilibrationIntegrator);
 		productionActivity = new ActivityIntegrate(productionIntegrator);
 		equilibrationIntegrator.setEquilibrating(true);
@@ -40,7 +40,7 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 
 		productionPreparationActivity = new ActivityGroupSeries();
 		productionPreparationActivity.addAction(new ResetAccumulators(
-				accumulatorManagerList));
+				dataManagerList));
 		productionPreparationActivity.addAction(setIntegratorForProduction);
 		addAction(productionPreparationActivity);
 
