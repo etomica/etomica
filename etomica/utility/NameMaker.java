@@ -35,14 +35,14 @@ public class NameMaker {
             thisCount = new ClassCount();
             classList.put(className, thisCount);
         }
-        return className.getName().substring(8) + thisCount.count++;
+        return className.getName() + thisCount.count++;
     }
 
     private static HashMap classList = new HashMap();
 
     //A mutable Integer class used to keep an instance count for each Class.
     private static class ClassCount {
-        int count;
+        int count = 0;
     }
 
     /**
