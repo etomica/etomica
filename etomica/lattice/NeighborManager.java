@@ -11,15 +11,15 @@ import etomica.AtomLinker.Tab;
  */
 public class NeighborManager {
     
-    private final AtomList neighborList;
+    private final SiteList neighborList;
     private final Site site;
  //   public final AtomLinker.Tab tab;
-    public /*final*/ AtomLinker tab;
+    public /*final*/ SiteLinker tab;
     public final static int NEIGHBOR_TAB = Tab.requestTabType(); 
 
     public NeighborManager(Site s) {
         site = s;
-        neighborList = new AtomList();
+        neighborList = new SiteList();
  //       tab = selfNeighbor ? new AtomLinker(s) : AtomLinker.newTab();
  //       neighborList.add(tab);
     }
@@ -30,20 +30,20 @@ public class NeighborManager {
         return (neighborList.contains(s));
     }
     
-    public AtomList neighbors() {return neighborList;}
+    public SiteList neighbors() {return neighborList;}
     
     public void clearAll() {
         neighborList.clear();
         if(tab != null) neighborList.add(tab);
     }
 
-    public void setupNeighbors(AtomList list, Criterion criterion) {  //set up neighbors according to given criterion
+    public void setupNeighbors(SiteList list, Criterion criterion) {  //set up neighbors according to given criterion
   //      clearAll();
         neighborList.clear();
         if(criterion.areNeighbors(site, site)) {//make self neighbor
-            if(tab == null || tab instanceof AtomLinker.Tab) tab = new AtomLinker(site);
+            if(tab == null || tab instanceof SiteLinker.Tab) tab = new SiteLinker(site);
         } else {//not self neighbor
-            if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = AtomLinker.newTab(neighborList, NEIGHBOR_TAB);
+            if(tab == null || !(tab instanceof SiteLinker.Tab)) tab = SiteLinker.newTab(neighborList, NEIGHBOR_TAB);
         } 
         neighborList.add(tab);
         boolean down = true;

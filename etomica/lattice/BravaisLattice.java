@@ -31,7 +31,7 @@ import etomica.Space;
   * 01/20/04 (DAK) revised makeLattice methods and Factory class constructors to
   * take a Crystal as an argument.
   */
-public class BravaisLattice extends Atom implements AbstractLattice {
+public class BravaisLattice implements AbstractLattice {
 
    private Factory factory;
    private double[] primitiveVectorLength;
@@ -50,9 +50,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     * Factory class.  The build method handles the construction of the
     * tree structure under this instance, which forms the lattice.
     */
-   private BravaisLattice(Space space, AtomType type, AtomTreeNodeGroup parent) {
-        super(space, type, AtomTreeNodeGroup.FACTORY, 
-                AtomSequencerFactory.SIMPLE, parent);
+   public BravaisLattice(Space space, SiteFactory factory) {
         D = space.D();
         idx = new int[D];
         primitiveVectorLength = new double[D];

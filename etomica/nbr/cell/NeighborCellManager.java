@@ -23,6 +23,7 @@ import etomica.lattice.LatticeListener;
 import etomica.lattice.Primitive;
 import etomica.lattice.PrimitiveCubic;
 import etomica.lattice.PrimitiveOrthorhombic;
+import etomica.lattice.SimpleLattice;
 import etomica.lattice.Site;
 
 /**
@@ -32,7 +33,7 @@ import etomica.lattice.Site;
 
 public class NeighborCellManager implements Integrator.IntervalListener {
 
-    private final BravaisLattice lattice;
+    private final CellLattice lattice;
     private final int[] dimensions;
     private final Space space;
     private final Primitive primitive;
@@ -184,7 +185,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     /**
      * @return the lattice of cells.
      */
-    public BravaisLattice getCellLattice() {
+    public CellLattice getCellLattice() {
         return lattice;
     }
     
@@ -204,8 +205,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      */
     public void assignCell(Atom atom) {
         AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
-        int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.getDimensions());
-        NeighborCell newCell = (NeighborCell)lattice.site(latticeIndex);
+        NeighborCell newCell = (NeighborCell)lattice.site(atom.coord.position());
         if(newCell != seq.cell) {assignCell(seq, newCell, atom.node.parentSpeciesAgent().node.index());}
     }
     

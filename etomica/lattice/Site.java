@@ -2,7 +2,7 @@ package etomica.lattice;
 
 import etomica.*;
 
-public class Site extends Atom {
+public class Site /*extends Atom*/ {
     
     private final NeighborManager neighborManager = new NeighborManager(this);
     
