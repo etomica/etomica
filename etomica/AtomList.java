@@ -474,11 +474,17 @@ public class AtomList implements java.io.Serializable
 	/**
 	 * Places the linker given by the first argument before the linker
 	 * given by the second one.   The first linker should not already
-	 * be in the list, and the second one should, but no checks are made
-	 * to ensure this.  All methods that result in the addition of one or
+	 * be in any list. An IllegalArgumentException is thrown if the first
+     * argument does not have itself as its next/previous linkers (indicating
+     * that it is in another list). The second linker should already be in a list,
+     * but no check is made that this is satisfied. 
+     * All methods that result in the addition of one or
 	 * more atoms/linkers to the list work through this method.
 	 */
 	public AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
+        if(newAtomLinker.next != newAtomLinker || newAtomLinker.previous != newAtomLinker) {
+            throw new IllegalArgumentException("Illegal attempt to add a linker that has not been removed from another list.  It may be that the method is called with the arguments in the wrong order.");
+        }
 	    if(newAtomLinker.atom != null) size++;//modification for tab entry
 	    newAtomLinker.addBefore(e);	        
 	    return newAtomLinker;
