@@ -259,21 +259,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         //remove from manager
         speciesList.remove(species);
         allElements.remove(species);
-        
-        //update linked list of species
-        if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
-        else {firstSpecies = species;}
-        lastSpecies = species;
-        
-        //set default index of species
-//        species.setSpeciesIndex(speciesCount()-1);
-        
-        /*if(Beans.isDesignTime()) {
-            for(Iterator ip=Simulation.phaseList.iterator(); ip.hasNext(); ) {
-                Phase p = (Phase)ip.next();
-                p.remove(species.makeAgent(p));
-            }
-        }*/
     }
                 
                 

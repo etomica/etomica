@@ -8,7 +8,7 @@ import etomica.units.Dimension;
 public class MeterNMolecules extends Meter implements EtomicaElement, Meter.Atomic {
     
     private Species species;
-    private Species.Agent speciesAgent;
+    private SpeciesAgent speciesAgent;
     
     public MeterNMolecules() {
         this(Simulation.instance);
@@ -30,19 +30,10 @@ public class MeterNMolecules extends Meter implements EtomicaElement, Meter.Atom
     }
     public Species getSpecies() {return species;}
 
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-
     public Dimension getDimension() {return Dimension.QUANTITY;}
 
     public double currentValue() {
-        if(speciesAgent == null) return phase.moleculeCount;
+        if(speciesAgent == null) return phase.moleculeCount();
         else return speciesAgent.moleculeCount();
     }
 

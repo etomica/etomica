@@ -435,7 +435,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             Space.Boundary boundary = phase().boundary();
             for(Atom a = phase().firstAtom(); a!=null; a=a.nextAtom()) {
   //              boundary.centralImage(a.coordinate);        //move atom to central image
-                a.type.draw(g,centralOrigin,toPixels);
+                a.type.draw(g,centralOrigin,toPixels, a);
             }
             //Draw overflow images if so indicated
             //This needs some work to make more general
@@ -446,7 +446,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                         for(int i=0; i<shifts.length; i++) {
                         shiftOrigin[0] = centralOrigin[0] + (int)(toPixels*shifts[i][0]);
                         shiftOrigin[1] = centralOrigin[1] + (int)(toPixels*shifts[i][1]);
-                        a.type.draw(g,shiftOrigin,toPixels);
+                        a.type.draw(g,shiftOrigin,toPixels,a);
                         }
                     }
                 }
@@ -498,7 +498,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         public void mouseReleased(MouseEvent evt) {
             mouseAction(evt);
             dpe.setAtom(null);
-            dpe.setMolecule(null);
             atomSelected = false;
             moleculeSelected = false;
         }
@@ -523,10 +522,10 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 dpe.setAtom(selectAtom());
                 atomSelected = true;
             }
-            if(moleculeSelectEnabled && !moleculeSelected) {
+/*            if(moleculeSelectEnabled && !moleculeSelected) {
                 dpe.setMolecule(selectMolecule());
                 moleculeSelected = true;
-            }
+            }*/
             fireDisplayPhaseEvent(dpe);
         }
         
@@ -551,11 +550,12 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         /**
          * Returns the molecule nearest the currently selected point
          */
-        private Molecule selectMolecule() {
-            Molecule nearestMolecule = null;
+        private Atom selectMolecule() {
+            Atom nearestMolecule = null;
             double r2Min = Double.MAX_VALUE;
-            for(Molecule m=phase().firstMolecule(); m!=null; m=m.nextMolecule()) {
-                double r2 = parentSimulation().space().r2(point,m.position(),phase().boundary());
+            for(AtomIterator iter=phase.moleculeIterator; iter.hasNext(); ) {
+                Atom m=iter.next();
+                double r2 = parentSimulation().space().r2(point,m.coord.position(),phase().boundary());
                 if(r2 < r2Min) {
                    nearestMolecule = m;
                    r2Min = r2;

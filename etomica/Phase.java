@@ -373,8 +373,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     
     /**
      * Removes molecule from phase.  
-     * Should be called only by an addMolecule method of another container
-     * Use deleteMolecule to remove molecule while not adding it to another phase (adds it to species reservoir)
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
@@ -493,7 +491,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * (children of the species agents) in this phase.
      */
     public AtomIterator makeMoleculeIterator() {
-        return new AtomIteratorChildren(speciesMaster.new Iterator());
+        return new AtomIteratorChildren(speciesMaster.new ChildAtomIterator());
     }//end of makeMoleculeIterator
     
     public final AtomIterator atomIterator = makeAtomIterator();

@@ -51,7 +51,7 @@ public abstract class PhaseAction extends etomica.Action {
         
         public static void doAction(Phase p, Space.Vector v) {
             if(v == null || p == null) return;
-            m.masterSpecies().translateBy(v);
+            p.speciesMaster().coord.translateBy(v);
         }
         public void attempt() {doAction(phase, translationVector);}
         public void undo() {
@@ -107,18 +107,20 @@ public abstract class PhaseAction extends etomica.Action {
         //specific to 2D
         public static void doAction(Phase phase, double scale, int i, Space.Vector work){
             phase.boundary().dimensions().setComponent(i,scale*phase.boundary().dimensions().component(i));         
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
                 if (i==0){
-                    work.setComponent(0, (scale-1.0)*((Space2D.Vector)m.position()).x);
+                    work.setComponent(0, (scale-1.0)*((Space2D.Vector)m.coord.position()).x);
                     work.setComponent(1,0.);
                 }
                 else {
-                    work.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.position()).y);
+                    work.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.coord.position()).y);
                     work.setComponent(0, 0.);                    
                 }
-                m.translateBy(work);   //displaceBy doesn't use temp
-                m.atomIterator.reset();
-                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
+                m.coord.translateBy(work);   //displaceBy doesn't use temp
+                phase.iteratorFactory().moveNotify(m);
  //               if(display != null && i % 10 ==0) display.repaint();
             }
         }
@@ -126,56 +128,66 @@ public abstract class PhaseAction extends etomica.Action {
         
         public static void doAction(Phase phase, double scale, Space.Vector work) {
             phase.boundary().inflate(scale);
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                work.Ea1Tv1(scale-1.0,m.position());
-                m.translateBy(work); 
-                m.atomIterator.reset();
-                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                work.Ea1Tv1(scale-1.0,m.coord.position());
+                m.coord.translateBy(work); 
+                phase.iteratorFactory().moveNotify(m);
             }
         }
         
         public void attempt() {
             phase.boundary().inflate(scale);
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                temp.Ea1Tv1(scale-1.0,m.position());
-                m.displaceBy(temp);   //displaceBy doesn't use temp
-                m.atomIterator.reset();
-                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                temp.Ea1Tv1(scale-1.0,m.coord.position());
+                m.coord.displaceBy(temp);   //displaceBy doesn't use temp
+                phase.iteratorFactory().moveNotify(m);
             }
         }
         public void undo() {
             phase.boundary().inflate(1.0/scale);
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.replace();
-                m.atomIterator.reset();
-                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                m.coord.replace();
+                phase.iteratorFactory().moveNotify(m);
             }
         }
          
         public void attempt(int i){
             phase.boundary().dimensions().setComponent(i,scale*phase.boundary().dimensions().component(i));         
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
                 if (i==0){
-                    temp.setComponent(0, (scale-1.0)*((Space2D.Vector)m.position()).x);
+                    temp.setComponent(0, (scale-1.0)*((Space2D.Vector)m.coord.position()).x);
                     temp.setComponent(1,0.);
                 }
                 else {
-                    temp.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.position()).y);
+                    temp.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.coord.position()).y);
                     temp.setComponent(0, 0.);                    
                 }
-                m.displaceBy(temp);   //displaceBy doesn't use temp
-                m.atomIterator.reset();
-                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
+                m.coord.displaceBy(temp);   //displaceBy doesn't use temp
+                phase.iteratorFactory().moveNotify(m);
  //               if(display != null && i % 10 ==0) display.repaint();
             }
         }
         public void undo(int i){
             phase.boundary().dimensions().setComponent(i,phase.boundary().dimensions().component(i)/scale);         
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.replace();
-                m.atomIterator.reset();
-                while(m.atomIterator.hasNext()) {phase.iteratorFactory().moveNotify(m.atomIterator.next());}
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                m.coord.replace();
+                phase.iteratorFactory().moveNotify(m);
             }
         }
     }//end of Inflate 
-}
+}//end of PhaseAction

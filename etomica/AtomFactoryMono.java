@@ -17,7 +17,7 @@ public class AtomFactoryMono extends AtomFactory {
         atomType = type;
     }
     
-    public Atom makeAtom(AtomGroup parent, int index) {
+    public Atom makeNewAtom(AtomGroup parent, int index) {
         return new Atom(parent, index, atomType);
     }
     

@@ -66,12 +66,13 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     private Simulation parentSimulation;
     private boolean added = false;
     private AtomFactory factory;
+    private int index;
     
     public Species(Simulation sim, AtomFactory factory) {
         parentSimulation = sim;
         this.factory = factory;
         parentSimulation.register(this);
-        int index = ((LinkedList)sim.speciesList()).size();
+        index = ((LinkedList)sim.speciesList()).size();
         name = "Species "+Integer.toString(index);
     }
           
@@ -81,7 +82,13 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     public final void setAdded(boolean b) {added = b;}
     
     public AtomFactory moleculeFactory() {return factory;}
-          
+    
+    public AtomIterator makeAtomIterator(Phase p) {
+        return getAgent(p).new LeafAtomIterator();
+    }
+    public AtomIterator makeMoleculeIterator(Phase p) {
+        return getAgent(p).new ChildAtomIterator();
+    }
         
     /**
      * Nominal number of molecules of this species in each phase.
@@ -122,6 +129,8 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * @return The given name of this species
      */
     public String getName() {return name;}
+    
+    public int index() {return index;}
 
     /**
      * Method to set the name of this species

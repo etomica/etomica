@@ -86,9 +86,9 @@ public class DeviceConfigurationEditor extends Device {
 	
 	private class MoleculeDeleter implements DisplayPhaseListener {
 	    public void displayPhaseAction(DisplayPhaseEvent dpe) {
-	        Molecule molecule = dpe.getMolecule();
+	        Atom molecule = dpe.getAtom();
 	        if(molecule == null) return;
-	        display.phase().deleteMolecule(molecule);
+	        display.phase().removeMolecule(molecule);
 	        display.repaint();
 	        display.phase().integrator().initialize();
 	    }
@@ -96,9 +96,9 @@ public class DeviceConfigurationEditor extends Device {
     
 	private class MoleculeMover implements DisplayPhaseListener {
 	    public void displayPhaseAction(DisplayPhaseEvent dpe) {
-	        Molecule molecule = dpe.getMolecule();
+	        Atom molecule = dpe.getAtom();
 	        if(molecule == null) return;
-	        molecule.translateTo(dpe.getPoint());
+	        molecule.coord.translateTo(dpe.getPoint());
 	        display.repaint();
 	        display.phase().integrator().initialize();
 	    }

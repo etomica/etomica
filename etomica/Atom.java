@@ -17,7 +17,7 @@ import java.awt.event.ActionEvent;
   */
 public class Atom implements java.io.Serializable {
 
-    public static String getVersion() {return "Atom:01.07.10";}
+    public static String getVersion() {return "Atom:01.07.12";}
     
     public Atom(AtomGroup parent, int index, AtomType t) {
         parentGroup = parent;
@@ -115,6 +115,17 @@ public class Atom implements java.io.Serializable {
         else /*if(this.depth > atom.depth)*/ return this.parentGroup.preceeds(atom);
     }
 
+    public final boolean isDescendedFrom(AtomGroup group) {
+        return (this == group) || (parentGroup != null && parentGroup.isDescendedFrom(group));
+    }
+     /*   AtomGroup ancestor = parentGroup;
+        while(ancestor != null) {
+            if(ancestor == group) return true;
+            ancestor = ancestor.parentGroup();
+        }
+        return false;
+    }*/
+    
     /**
      * The color of the atom when drawn to the screen.
      * The atom color is often decided by the ColorScheme class, via the atom's setColor method.

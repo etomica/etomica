@@ -22,8 +22,10 @@ public abstract class Potential0 extends Potential {
    
     //***************** end of methods for Potential0 class *****************//
     
-    //Potential1.Agent
+    //Potential0.Agent
     public class Agent extends PotentialAgent {
+
+        protected Potential0 parentPotential0;
         
         /**
          * @param potential The parent potential making this agent
@@ -31,7 +33,7 @@ public abstract class Potential0 extends Potential {
          */
         public Agent(Potential potential, Phase phase) {
             super(potential, phase);
-            parentPotential1 = (Potential1)potential;
+            parentPotential0 = (Potential0)potential;
         }
         
         /**
@@ -41,7 +43,7 @@ public abstract class Potential0 extends Potential {
             
         public void calculate(IteratorDirective id, PotentialCalculation pc) {
    //         if( !(pc instanceof Potential0Calculation) ) return;
-            ((Potential0Calculation)pc).calculate(parentPotential1); 
+            ((Potential0Calculation)pc).calculate(parentPotential0); 
         }
         
     }//end of Agent    

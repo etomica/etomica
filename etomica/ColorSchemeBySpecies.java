@@ -1,9 +1,6 @@
 //includes a main method to test and demonstrate class
 package etomica;
 import java.awt.Color;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Frame;
 
 /**
 * Color scheme that sets and uses a different color scheme for each species
@@ -23,15 +20,15 @@ public class ColorSchemeBySpecies extends ColorScheme {
      //what if speciesIndex changes after adding to this?
     public void addSpecies(Species s, ColorScheme cs) {
         if(s == null || cs == null) return;
-        if(s.speciesIndex >= speciesColor.length) {//make a bigger array
-            SpeciesColor[] temp = new SpeciesColor[s.speciesIndex+1];
+        if(s.index() >= speciesColor.length) {//make a bigger array
+            SpeciesColor[] temp = new SpeciesColor[s.index()+1];
             for(int i=0; i<speciesColor.length; i++) {
                 temp[i] = speciesColor[i];
             }
             speciesColor = temp;
         }
         if(getPhase() != null) cs.setIterator(s.makeAtomIterator(getPhase()));
-        speciesColor[s.speciesIndex] = new SpeciesColor(s, cs);
+        speciesColor[s.index()] = new SpeciesColor(s, cs);
     }
     
     /**
@@ -40,7 +37,8 @@ public class ColorSchemeBySpecies extends ColorScheme {
     public void setPhase(Phase p) {
         super.setPhase(p);
         for(int i=0; i<speciesColor.length; i++) {
-            speciesColor[i].colorScheme.setIterator(speciesColor[i].species.makeAtomIterator(getPhase()));
+            speciesColor[i].colorScheme.setIterator(
+                speciesColor[i].species.makeAtomIterator(getPhase()));
         }
     }
 
@@ -48,7 +46,7 @@ public class ColorSchemeBySpecies extends ColorScheme {
      * Colors the atoms according to the scheme for its species
      */
     public void colorAtom(Atom a) {  
-        speciesColor[a.parentSpecies().speciesIndex].colorScheme.colorAtom(a);
+        speciesColor[a.parentSpecies().index()].colorScheme.colorAtom(a);
     }
     
     /**

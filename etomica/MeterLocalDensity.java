@@ -20,8 +20,8 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
      *
      * @see #setSpeciesIndex
      */
-    public final static int ALL_SPECIES = -100;
-    private int speciesIndex;
+    private SpeciesAgent speciesAgent;
+    private Species species;
     private double volume;
     /**
      * If <code>true</code> average mole fraction (n<sub>i</sub>/n<sub>total</sub>), if <code>false</code>, average total number density (n<sub>i</sub>/V)
@@ -38,7 +38,7 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
         super(sim);
         initialLabel = "Local Density";
         setLabel(initialLabel);
-        setSpeciesIndex(ALL_SPECIES);
+        setSpecies(null);
         computeVolume();      
     }
 
@@ -46,28 +46,18 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
         EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a phase");
         return info;
     }
-
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-
     public Dimension getDimension() {return new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME);}
-
+      
     /**
      * Accessor method to set the mole-fraction mode flag
      * Changes label appropriately
      *
      * @see #moleFractionMode
      */
-    public final void setMoleFractionMode(boolean  d) {
+    public final void setMoleFractionMode(boolean d) {
         moleFractionMode = d;
         if(moleFractionMode && getLabel().equals(initialLabel)) setLabel("Mole fraction");  //don't change label if already set to something else
-        if(moleFractionMode && speciesIndex==ALL_SPECIES)  setSpeciesIndex(0);
+        if(moleFractionMode && species == null)  {}
     }
     /**
      * Accessor method to get the value of the mole-fraction mode flag
@@ -80,13 +70,13 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
      * Accessor method to set which species mole-fraction or molar-density is averaged
      * To set to total number density, invoke with static ALL_SPECIES field as argument
      */
-    public final void setSpeciesIndex(int i) {speciesIndex = i;}
+    public final void setSpecies(Species s) {species = s;}
     /**
      * Accessor method to get the current value of the species index
      *
      * @see #setSpeciesIndex
      */
-    public final int getSpeciesIndex() {return speciesIndex;}
+    public final Species getSpecies() {return species;}
     
     /**
      * Sets the size and location of the meter, which may affect the definition of the local volume
@@ -104,7 +94,7 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
     /**
      * Method that specifies if a molecule is inside the local region where the density is measured
      */
-    public abstract boolean contains(Molecule m);
+    public abstract boolean contains(Atom m);
 
     /**
      * @return the current value of the local density or local mole fraction
@@ -112,26 +102,35 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
     public double currentValue()
     {
         if(moleFractionMode) {  //compute local mole fraction
-            if(speciesIndex == ALL_SPECIES) return 1.0;
+            if(speciesAgent == null) return 1.0;
             int totalSum = 0, speciesSum = 0;
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                 if(this.contains(m) && !(m.firstAtom.type instanceof AtomType.Wall)) {  //include only molecules that are not walls
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                if(this.contains(m)) {
                     totalSum++;
-                    if(m.speciesIndex() == speciesIndex) speciesSum++;
-                 }
+                    if(m.parentSpecies() == species) speciesSum++;
+                }
             }
             if(totalSum == 0) return Double.NaN;
             else return (double)speciesSum/(double)totalSum;
         }
         else {                 //compute local molar density
             int nSum = 0;
-            if(speciesIndex == ALL_SPECIES) {   //total density
-              for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                 if(this.contains(m) && !(m.firstAtom.type instanceof AtomType.Wall)) nSum++;
-              }}
+            if(species == null) {   //total density
+                AtomIterator iterator = phase.moleculeIterator;
+                iterator.reset();
+                while(iterator.hasNext()) {
+                    Atom m = iterator.next();
+                    if(this.contains(m)) nSum++;
+                }
+            }
             else {                              //species density
-              for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                 if(this.contains(m) && m.speciesIndex()==speciesIndex) nSum++;
+                AtomIterator iterator = ((SpeciesAgent)species.getAgent(phase)).childIterator;
+                while(iterator.hasNext()) {
+                    Atom m = iterator.next();
+                    if(this.contains(m)) nSum++;
                }
             }       
             return nSum/volume;
@@ -169,8 +168,8 @@ public abstract class MeterLocalDensity extends Meter implements EtomicaElement
             /**
              * Method that specifies if a molecule center-of-mass is inside the local region where the density is measured
              */
-            public boolean contains(Molecule m) {
-                Space2D.Vector r = (Space2D.Vector)m.COM();  //molecule center-of-mass
+            public boolean contains(Atom m) {
+                Space2D.Vector r = (Space2D.Vector)m.coord.position();  //molecule center-of-mass
                 if(Math.abs(r.x-xCenter) > halfWidth) {return false;}
                 else if(Math.abs(r.y-yCenter) > halfHeight) {return false;}
                 else {return true;}

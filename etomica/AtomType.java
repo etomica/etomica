@@ -28,7 +28,9 @@ public abstract class AtomType implements java.io.Serializable {
     private static int NitrogenID = 0;
     private String name;
     
-    public AtomType() {}
+    public AtomType() {
+        this(Default.ATOM_MASS, Default.ATOM_COLOR);
+    }
     
     public AtomType(double m, Color c) {
         setMass(m);
@@ -414,6 +416,10 @@ public abstract class AtomType implements java.io.Serializable {
         
         private double diameter, radius;
         
+        public Sphere() {
+            super();
+            setDiameter(Default.ATOM_SIZE);
+        }
         public Sphere(double m, Color c, double d) {
             super(m, c);
             setDiameter(d);
@@ -474,7 +480,13 @@ public abstract class AtomType implements java.io.Serializable {
     /**
      * Type for an AtomGroup atom.
      */
-//    public static class Group extends AtomType {}
+    public static class Group extends AtomType {
+        private AtomFactory creator;
+        public Group(AtomFactory creator) {
+            this.creator = creator;
+        }
+        public AtomFactory creator() {return creator;}
+    }
     
     private static class Null extends AtomType {
         public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}

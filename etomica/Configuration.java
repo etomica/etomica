@@ -3,35 +3,18 @@ import java.util.*;
 import etomica.units.*;
 
 /**
- * General class for assignment of coordinates to all molecules/atoms in phase
+ * General class for assignment of coordinates to a group of atoms.
  */
-
 public abstract class Configuration implements java.io.Serializable {
 
 //    protected Vector species = new Vector();
     protected double temperature = Default.TEMPERATURE;
     Random rand = new Random();
+    protected final Space.Vector work;
     
-    public Configuration() {
+    public Configuration(Space space) {
+        work = space.makeVector();
     }
-    
-/*    public Configuration(Species.Agent s){
-        this();
-        species.addElement(s);
-        initializeCoordinates();
-    }
-    public void add(Species.Agent s){
- //       if(s.firstAtom().type instanceof AtomType.Wall) {return;}
-        species.addElement(s);
-        if(s.moleculeCount() > 0) initializeCoordinates();
-    }
-*/    
-    
-    
-//    public void setPhase(Phase p) {parentPhase = p;}
-//    public Phase getPhase() {return parentPhase;}
- //   public void setParentPhase(Phase p) {parentPhase = p;}
- //   public Phase getParentPhase() {return parentPhase;}
 
     public final void setTemperature(double t) {temperature = t;}
     public final double getTemperature() {return temperature;}
@@ -40,11 +23,13 @@ public abstract class Configuration implements java.io.Serializable {
   * All atom velocities are set such that all have the same total momentum (corresponding to
   * the current value of temperature), with the direction at random
   */
-    public void initializeMomenta(Phase phase) {
-        Space.Vector momentumSum = phase.parentSimulation().space().makeVector();
+    public void initializeMomenta(Atom atom) {
+        
+        atom.coord.randomizeMomentum(temperature);
+        
+        /**   zero com momentum here or in coordinate?
+        work.E(0.0);
         int sum = 0;
-        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             AtomIterator iterator = s.childIterator;
             iterator.reset();
             while(iterator.hasNext()) {
@@ -63,15 +48,11 @@ public abstract class Configuration implements java.io.Serializable {
             while(iterator.hasNext()) {
                 iterator.next().coord.momentum().ME(momentumSum);
             }
-        }
+        }*/
     }
-    
-    public void initializeMomentum(Molecule m) {
-        m.randomizeMomentum(temperature);
-	}
         
     
-    public abstract void initializeCoordinates(AtomGroup group);
+    public abstract void initializeCoordinates(Atom group);
     
     public final static boolean HORIZONTAL = false;
     public final static boolean VERTICAL = true;

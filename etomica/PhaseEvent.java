@@ -10,7 +10,6 @@ import java.util.EventObject;
 public class PhaseEvent extends java.util.EventObject {
     
     protected Phase phase;
-    protected Molecule molecule;
     protected Atom atom;
     protected Space.Vector point;
     
@@ -20,8 +19,6 @@ public class PhaseEvent extends java.util.EventObject {
     public static int POINT_SELECTED = 0;
     public static int ATOM_SELECTED = 10;
     public static int ATOM_RELEASED = 11;
-    public static int MOLECULE_SELECTED = 20;
-    public static int MOLECULE_RELEASED = 21;
     
     public final void setPhase(Phase p) {phase = p;}
     public final Phase getPhase() {return phase;}
@@ -31,8 +28,5 @@ public class PhaseEvent extends java.util.EventObject {
     
     public void setAtom(Atom a) {atom = a;}
     public Atom getAtom() {return atom;}
-    
-    public void setMolecule(Molecule m) {molecule = m;}
-    public Molecule getMolecule() {return molecule;}
 }
     

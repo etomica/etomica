@@ -1,30 +1,38 @@
 package etomica;
 
 /**
- * Builder of a multiatomatomic atom group of identical atoms.
+ * Builder of a multiatomic atom group of identical atoms.
  *
  * @author David Kofke
  */
 public class AtomFactoryMulti extends AtomFactory {
     
-    AtomType atomType;
+    private AtomFactory childFactory;
+    private int atomsPerGroup = 1;
+    private final AtomType.Group groupType = new AtomType.Group(this);
+    private Configuration configuration;
     
     public AtomFactoryMulti() {
         this(new AtomType.Sphere());
     }
     
     public AtomFactoryMulti(AtomType type) {
-        atomType = type;
+        childFactory = new AtomFactoryMono(type);
+        //need better way to get space
+        configuration = new ConfigurationLinear(Simulation.instance.space());
     }
     
-    public Atom makeAtom(AtomGroup parent, int index) {
-        return new Atom(parent, index, atomType);
+    public Atom makeNewAtom(AtomGroup parent, int index) {
+        AtomGroup group = new AtomGroup(parent, index, groupType, childFactory, 
+                                        atomsPerGroup, true);
+        configuration.initializeCoordinates(group);
     }
     
-    public boolean producesAtomGroups() {return false;}
+    public boolean producesAtomGroups() {return true;}
     
-    public boolean vetoAddition(Atom a) {return (a instanceof AtomGroup);}
-    
+    public boolean vetoAddition(Atom a) {return a.type == groupType;} 
+        //((GroupType)((AtomGroup)a).type).creator() == this;}
+        
     /**
      * Specifies the number of atoms in a molecule of this species.
      * Since the number of atoms in a molecule cannot be changed once the molecule 
@@ -35,7 +43,7 @@ public class AtomFactoryMulti extends AtomFactory {
      * 
      * @param na The new number of atoms per molecule
      */
-    public void setAtomsPerMolecule(int na) {
+/*    public void setAtomsPerMolecule(int na) {
         if(na == atomsPerMolecule) return;  //do nothing is value isn't changings
         atomsPerMolecule = na;
 //        if(parentSimulation == null) {return;}
@@ -51,7 +59,7 @@ public class AtomFactoryMulti extends AtomFactory {
      * 
      * @return Present number of atoms in a molecule of this species.
      */
-    public int getAtomsPerMolecule() {return atomsPerMolecule;}
+     public int getAtomsPerGroup() {return atomsPerGroup;}
 
-}//end of AtomFactoryMono
+}//end of AtomFactoryMulti
     

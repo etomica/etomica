@@ -12,9 +12,9 @@ public class SpeciesAgent extends AtomGroup {
 
     private final Species parentSpecies;
     
-    public SpeciesAgent(Species s, SpeciesMaster parent, int index, int nChild,
+    public SpeciesAgent(Species s, SpeciesMaster parent, int index, int nMolecules,
                         Configuration initializer) {
-        super(parent, index, AtomType.NULL, s.moleculeFactory(), nChild, initializer, true);
+        super(parent, index, AtomType.NULL, s.moleculeFactory(), nMolecules, initializer, true);
         parentSpecies = s;
     }
         
@@ -24,6 +24,7 @@ public class SpeciesAgent extends AtomGroup {
     
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)nextAtom();}
     public int moleculeCount() {return childCount();}
+    public void setNMolecules(int n) {setNAtoms(n);}
     
     public final int depth() {return 1;}
         

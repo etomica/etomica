@@ -8,7 +8,6 @@ package etomica;
 public class AtomGroup extends Atom {
     
     protected final AtomFactory factory;
-    private Configuration initializer;
     protected int childCount;
     protected final boolean resizable;
     private static final IteratorDirective UP = new IteratorDirective(IteratorDirective.UP);
@@ -17,17 +16,16 @@ public class AtomGroup extends Atom {
     //used to pause when adding/removing atoms
     private transient Integrator integrator;
     
-    protected AtomGroup(AtomGroup parent, int index, AtomType type) {
+    protected AtomGroup(AtomGroup parent, int index, AtomType.Group type) {
         super(parent, index, type);
         childCount = 0;
         resizable = true;
         factory = null;
     }
-    public AtomGroup(AtomGroup parent, int index, AtomType type, AtomFactory factory, 
-                        int nChild, Configuration initializer, boolean resizable) {
+    public AtomGroup(AtomGroup parent, int index, AtomType.Group type, AtomFactory factory, 
+                        int nChild, boolean resizable) {
         super(parent, index, type);
         this.factory = factory;
-        this.initializer = initializer;
         for(int i=0; i<nChild; i++) {
             addAtom(factory.makeAtom(this,i));
         }
@@ -205,12 +203,17 @@ public class AtomGroup extends Atom {
     /**
      * Iterator of the children of this group.
      */
-    public final AtomIteratorSequential childIterator = new Iterator();
+    public final AtomIteratorSequential childIterator = new ChildAtomIterator();
     
-    public final class Iterator extends AtomIteratorSequential {
+    public final class ChildAtomIterator extends AtomIteratorSequential {
         public Atom defaultFirstAtom() {return firstChild();}
         public Atom defaultLastAtom() {return lastChild();}
         public boolean contains(Atom a) {return a.parentGroup() == AtomGroup.this;}
+    }
+    public final class LeafAtomIterator extends AtomIteratorSequential {
+        public Atom defaultFirstAtom() {return firstLeafAtom();}
+        public Atom defaultLastAtom() {return lastLeafAtom();}
+        public boolean contains(Atom a) {return a.isDescendedFrom(AtomGroup.this);}
     }
     /**
      * Indicates whether the children of this group are themselves atom groups,
