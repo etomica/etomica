@@ -103,10 +103,15 @@ public final class SpeciesMaster extends Atom {
         	AtomLinker.Tab nextTab = atom.node.parentSpeciesAgent().firstLeafAtomTab.nextTab;
         	
             leafAtomCount += atom.node.leafAtomCount();
-            leafIterator.setRoot(atom);
-            leafIterator.reset();
-            while(leafIterator.hasNext()) {
-                speciesMaster.atomList.addBefore(((AtomTreeNodeLeaf)leafIterator.nextAtom().node).leafLinker, nextTab);
+            if (atom.node.isLeaf()) {
+                speciesMaster.atomList.addBefore(((AtomTreeNodeLeaf)atom.node).leafLinker, nextTab);
+            }
+            else {
+                leafIterator.setRoot(atom);
+                leafIterator.reset();
+                while(leafIterator.hasNext()) {
+                    speciesMaster.atomList.addBefore(((AtomTreeNodeLeaf)leafIterator.nextAtom().node).leafLinker, nextTab);
+                }
             }
             speciesMaster.eventManager.fireEvent(speciesMaster.additionEvent.setAtom(atom));
         }
