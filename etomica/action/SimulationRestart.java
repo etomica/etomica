@@ -2,10 +2,10 @@ package etomica.action;
 
 import java.util.Iterator;
 
-import etomica.DataManager;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
+import etomica.data.DataAccumulator;
 
 /**
  * Action that invokes reset method of all registered simulation elements,
@@ -38,9 +38,9 @@ public final class SimulationRestart extends SimulationActionAdapter {
             integrator.initialize();
         }
         
-        for(Iterator iter=simulation.getDataManagerList().iterator(); iter.hasNext(); ) {
-            DataManager dataManager = (DataManager)iter.next();
-            dataManager.resetAccumulators();
+        for(Iterator iter=simulation.getDataAccumulatorList().iterator(); iter.hasNext(); ) {
+            DataAccumulator dataAccumulator = (DataAccumulator)iter.next();
+            dataAccumulator.reset();
         }
     }
     

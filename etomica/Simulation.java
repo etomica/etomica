@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.data.DataAccumulator;
 import etomica.log.LoggerAbstract;
 import etomica.space2d.Space2D;
 import etomica.utility.NameMaker;
@@ -109,7 +110,7 @@ public class Simulation {
 	}
 	
 	public final LinkedList getLoggerList() {return loggerList;}
-    public final LinkedList getDataManagerList() {return dataManagerList;}
+    public final LinkedList getDataAccumulatorList() {return dataAccumulatorList;}
     public final LinkedList getPhaseList() {return phaseList;}
     public final LinkedList getMeterList() {return meterList;}
     public final LinkedList getIntegratorList() {return integratorList;}
@@ -133,14 +134,14 @@ public class Simulation {
     }
     
     /**
-     * Add the given DataManger to a list kept by the simulation.
-     * No other effect results from registering the DataManager.  
-     * The list of registered DataManagers may be retrieved via
-     * the getDataManagerList method.  A DataManager may be
+     * Add the given DataAccumulator to a list kept by the simulation.
+     * No other effect results from registering the DataAccumulator.  
+     * The list of registered DataAccumulators may be retrieved via
+     * the getDataManagerList method.  A DataAccumulator may be
      * removed from the list via the unregister method.
      */
-    public void register(DataManager dataManager) {
-     	dataManagerList.add(dataManager);
+    public void register(DataAccumulator dataManager) {
+     	dataAccumulatorList.add(dataManager);
     }
 
     public void register(Phase phase) {
@@ -169,8 +170,8 @@ public class Simulation {
      * this list.  If the given dataManager is not in the list already,
      * the method returns without taking any action.
      */
-    public void unregister(DataManager dataManager) {
-    	dataManagerList.remove(dataManager);
+    public void unregister(DataAccumulator dataAccumulator) {
+    	dataAccumulatorList.remove(dataAccumulator);
     }
      
     public void unregister(Phase phase) {
@@ -251,7 +252,7 @@ public class Simulation {
      public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
      private static final LinkedList instances = new LinkedList();
      private Controller controller;     
-     private final LinkedList dataManagerList = new LinkedList();
+     private final LinkedList dataAccumulatorList = new LinkedList();
      private final LinkedList phaseList = new LinkedList();
      private final LinkedList loggerList = new LinkedList();
      private final LinkedList meterList = new LinkedList();

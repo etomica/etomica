@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.Action;
-import etomica.DataManager;
+import etomica.data.DataAccumulator;
 
 /**
  * Action that performs a call to the reset() method of a set
@@ -27,7 +27,7 @@ public class ResetAccumulators implements Action {
 	public void actionPerformed() {
 		Iterator iterator = accumulatorManagerList.iterator();
 		while (iterator.hasNext()) {
-			((DataManager)iterator.next()).resetAccumulators();
+			((DataAccumulator)iterator.next()).reset();
 		}
 	}
 
