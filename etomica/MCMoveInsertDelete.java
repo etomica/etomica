@@ -42,11 +42,10 @@ public class MCMoveInsertDelete extends MCMove {
     }
                                                                                                                                                                                                                                                                                                                                                                        
     private final void trialInsert() {
-        double uNew;
         testMolecule = species.moleculeFactory().makeAtom();
         speciesAgent.addAtom(testMolecule);
         testMolecule.coord.translateTo(phase.randomPosition());
-        uNew = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+        double uNew = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap
             testMolecule.sendToReservoir();
             return;
@@ -54,6 +53,7 @@ public class MCMoveInsertDelete extends MCMove {
         double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.volume()/(speciesAgent.moleculeCount()+1);
         if(bNew < 1.0 && bNew < Simulation.random.nextDouble()) {  //reject
             testMolecule.sendToReservoir();
+            return;
         }
         else nAccept++;
     }
@@ -61,13 +61,13 @@ public class MCMoveInsertDelete extends MCMove {
     private final void trialDelete() {
         if(speciesAgent.moleculeCount() == 0) {return;}
         int i = (int)(Simulation.random.nextDouble()*speciesAgent.moleculeCount());
-        Atom m = speciesAgent.firstMolecule();
-        for(int j=i; --j>=0; ) {m = m.nextAtom();}
+        testMolecule = speciesAgent.firstMolecule();
+        for(int j=i; --j>=0; ) {testMolecule = testMolecule.nextAtom();}
         double uOld = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
-        double bNew = speciesAgent.moleculeCount()/(phase.volume());
+        double bNew = speciesAgent.moleculeCount()/phase.volume();
         if(bNew > bOld || bNew > Simulation.random.nextDouble()*bOld) {  //accept
-            m.sendToReservoir();
+            testMolecule.sendToReservoir();
             nAccept++;
         }           
     }
@@ -87,7 +87,9 @@ public class MCMoveInsertDelete extends MCMove {
 		Simulation.instance.elementCoordinator.go();
 
         MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete();
+        mcMoveInsDel.setSpecies(sim.species);
         sim.integrator.add(mcMoveInsDel);
+        mcMoveInsDel.setMu(-2000.);
 		                                    
         Simulation.makeAndDisplayFrame(sim);
     }//end of main

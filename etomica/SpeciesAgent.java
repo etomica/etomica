@@ -15,8 +15,8 @@ public class SpeciesAgent extends AtomGroup {
     
     protected Integrator integrator;
     
-    public SpeciesAgent(Species s, SpeciesMaster parent, int nMolecules) {
-        super(s.parentSimulation().space(), parent, AtomType.NULL);
+    public SpeciesAgent(Species s, int nMolecules) {
+        super(s.parentSimulation().space(), AtomType.NULL);
         parentSpecies = s;
         factory = s.moleculeFactory();
         for(int i=0; i<nMolecules; i++) {

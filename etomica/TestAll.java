@@ -17,7 +17,7 @@ public class TestAll {
         "ColorSchemeHeteroAtoms", "ColorSchemeTemperature", "DeviceButton",
         "DeviceSlider", "DeviceTable", "DisplayBox", 
         "DisplayMeterHistogram", "DisplayTable", "DisplayToLog",
-        "IntegratorGEMC", "IntegratorGear4", "MCMovePointVolume",
+        "IntegratorGEMC", "IntegratorGear4", "MCMoveAtom", "MCMoveInsertDelete", "MCMovePointVolume",
         "MCMoveRotate", "MCMoveVolume", "MeterBondOrderParameterQ",
         "MeterPressureByVolumeChange", "MeterPressureHard", "MeterRDF",
         "Modulator", "PotentialAssociationCone",

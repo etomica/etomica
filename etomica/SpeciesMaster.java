@@ -8,10 +8,10 @@ package etomica;
 public class SpeciesMaster extends AtomGroup {
     
     private final Phase parentPhase;
-    private int moleculeCount, atomCount;
+    private int moleculeCount;
     
     public SpeciesMaster(Phase p) {
-        super(p.parentSimulation().space(), null, AtomType.NULL); //space, parent, atomtype
+        super(p.parentSimulation().space(), AtomType.NULL); //space, parent, atomtype
         parentPhase = p;
     }
         
@@ -31,11 +31,13 @@ public class SpeciesMaster extends AtomGroup {
     
     protected void addAtomNotify(Atom atom) {
         if(atom.parentGroup() instanceof SpeciesAgent) {moleculeCount++;}
+        else if(atom instanceof SpeciesAgent) {moleculeCount += ((SpeciesAgent)atom).moleculeCount();}
         atomCount += atom.atomCount();
     }
 
     protected void removeAtomNotify(Atom atom) {
         if(atom.parentGroup() instanceof SpeciesAgent) {moleculeCount--;}
+        else if(atom instanceof SpeciesAgent) {moleculeCount -= ((SpeciesAgent)atom).moleculeCount();}
         atomCount -= atom.atomCount();
     }
     

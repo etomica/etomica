@@ -314,9 +314,9 @@ public class Space2D extends Space implements EtomicaElement {
         public CoordinateGroup(AtomGroup a) {super(a);}
 
         public final Atom firstChild() {return (firstChild != null) ? firstChild.atom : null;}
-        public final void setFirstChild(Atom a) {firstChild = (Coordinate)a.coord;}
+        public final void setFirstChild(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
         public final Atom lastChild() {return (lastChild != null) ? lastChild.atom : null;}
-        public final void setLastChild(Atom a) {lastChild = (Coordinate)a.coord;}
+        public final void setLastChild(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
         
         public Space.Vector position() {
             r.E(0.0); double massSum = 0.0;

@@ -37,10 +37,11 @@ public class PotentialGroup extends Potential {
          */
         public void makeDefaultIterator() {}
         
-        public void addPotential(PotentialAgent potential) {
-            if(first == null) first = potential;
-            if(last != null) last.setNextAgent(potential);
-            last = potential;
+        public void addPotential(Potential potential) {
+            PotentialAgent agent = potential.makeAgent(parentPhase);
+            if(first == null) first = agent;
+            if(last != null) last.setNextAgent(agent);
+            last = agent;
         }
     }//end of Agent
         

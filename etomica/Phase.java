@@ -319,7 +319,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
    //     iteratorFactory.reset();  
     }
     
-    public void addPotential(PotentialAgent pot) {
+    public void addPotential(Potential pot) {
         potential.addPotential(pot);
     }
     

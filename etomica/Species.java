@@ -167,7 +167,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.parentPhase();
-        SpeciesAgent a = new SpeciesAgent(this, parent, nMolecules);
+        SpeciesAgent a = new SpeciesAgent(this, nMolecules);
         agents.put(phase,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }

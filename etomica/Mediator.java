@@ -163,13 +163,13 @@ public class Mediator implements java.io.Serializable {
             public void add(Phase phase) {
                 for(Iterator is=mediator.parentSimulation().potentialList.iterator(); is.hasNext(); ) {
                     Potential potential = (Potential)is.next();
-                    if(potential.wasAdded()) phase.addPotential(potential.makeAgent(phase));
+                    if(potential.wasAdded()) phase.addPotential(potential);
                 }
             }
             public void add(Potential potential) {
                 for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
-                    if(phase.wasAdded()) phase.addPotential(potential.makeAgent(phase));
+                    if(phase.wasAdded()) phase.addPotential(potential);
                 }
             }
         }//end of Default

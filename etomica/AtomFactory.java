@@ -8,7 +8,7 @@ package etomica;
  */
 public abstract class AtomFactory {
     
-    private final AtomReservoir reservoir;
+    protected final AtomReservoir reservoir;
     protected Simulation parentSimulation;
     
     public AtomFactory(Simulation sim) {
@@ -18,11 +18,11 @@ public abstract class AtomFactory {
     
     public Atom makeAtom() {
         Atom atom = reservoir.removeAtom();
-        if(atom == null) atom = build(reservoir);
+        if(atom == null) atom = build();
         return atom;
     }
     
-    protected abstract Atom build(AtomGroup parent);
+    protected abstract Atom build();
     
     protected abstract void renew(Atom a);
     

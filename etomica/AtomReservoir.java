@@ -18,7 +18,7 @@ public class AtomReservoir extends AtomGroup {
         
     }
     public AtomReservoir(Simulation sim, int initialCapacity, int maximumCapacity) {
-        super(sim.space(), null, AtomType.NULL);
+        super(sim.space(), AtomType.NULL);
         parentSimulation = sim;
         if(initialCapacity < 1) initialCapacity = 1;
         if(maximumCapacity < 1) maximumCapacity = 1;

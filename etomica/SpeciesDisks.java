@@ -20,8 +20,8 @@ public class SpeciesDisks extends Species implements EtomicaElement {
         f.setType(type);
         AtomFactoryMulti fm = new AtomFactoryMulti(sim,f);
         fm.setAtomsPerGroup(na);
-        return fm;
-//        return f;
+ //       return fm;
+        return f;
     }
         
     public SpeciesDisks() {

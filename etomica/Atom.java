@@ -18,8 +18,7 @@ public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "Atom:01.07.12";}
     
-    public Atom(Space space, AtomGroup parent, AtomType t) {
-        parentGroup = parent;
+    public Atom(Space space, AtomType t) {
         type = t;
         coord = space.makeCoordinate(this);//must follow setting of type field
         coord.setMass(type.getMass());
@@ -166,7 +165,7 @@ public class Atom implements java.io.Serializable {
 //    private Atom nextAtom, previousAtom;
         
     public final AtomType type;
-    private AtomGroup parentGroup;
+    protected AtomGroup parentGroup;
     
  /** This is an array of AtomLinkers that enable lists of atoms to be constructed
   *  and associated with this atom.  Useful for setting up neighbor lists, for example, or

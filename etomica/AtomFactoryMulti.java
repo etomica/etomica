@@ -22,10 +22,10 @@ public class AtomFactoryMulti extends AtomFactory {
         configuration = new ConfigurationLinear(sim.space());
     }
     
-    public Atom build(AtomGroup parent) {
-        AtomGroup group = new AtomGroup(parentSimulation.space(), parent, groupType);
+    public Atom build() {
+        AtomGroup group = new AtomGroup(parentSimulation.space(), groupType);
         for(int i=0; i<atomsPerGroup; i++) {
-            group.addAtom(childFactory.build(group));
+            group.addAtom(childFactory.build());
         }
         configuration.initializeCoordinates(group);
         return group;

@@ -15,8 +15,8 @@ public class AtomGroup extends Atom {
      * Constructs an empty atom group with no associated factory.  Normally
      * the new group will be filled with atoms following its construction.
      */
-    public AtomGroup(Space space, AtomGroup parent, AtomType.Group type) {
-        super(space, parent, type);
+    public AtomGroup(Space space, AtomType.Group type) {
+        super(space, type);
         childCount = 0;
         resizable = true;
     }
@@ -198,12 +198,12 @@ public class AtomGroup extends Atom {
      */
     protected void addAtomNotify(Atom atom) {
         atomCount += atom.atomCount();
-        parentGroup().addAtomNotify(atom);
+        if(parentGroup != null) parentGroup.addAtomNotify(atom);
     }
     
     protected void removeAtomNotify(Atom atom) {
         atomCount -= atom.atomCount();
-        parentGroup().removeAtomNotify(atom);
+        if(parentGroup != null) parentGroup.removeAtomNotify(atom);
     }
     
     /**
@@ -300,5 +300,5 @@ public class AtomGroup extends Atom {
     
     private static final IteratorDirective UP = new IteratorDirective(IteratorDirective.UP);
     private static final IteratorDirective DOWN = new IteratorDirective(IteratorDirective.DOWN);
-    
+        
 }//end of AtomGroup
