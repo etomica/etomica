@@ -18,7 +18,7 @@ import etomica.virial.cluster.PermutationIterator;
  * computing them all thus saves on recalculation of the r2 separations.
  */
  
-public class Cluster {
+public class Cluster implements ClusterAbstract {
 
 	/**
 	 * Constructs cluster using a single bondgroup, which it wraps in an array
@@ -28,10 +28,18 @@ public class Cluster {
 		this(n, weight, new BondGroup[] {bonds});
 	}
 	/**
-	 * Constructor for Cluster.  Each BondGroup in the given array defines a set
-	 * of pairs and a single bond function defined between each.
+	 * Constructor for Cluster, with default to not using permutations (this can
+	 * be changed after construction if desired).
 	 */
 	public Cluster(int n, double weight, BondGroup[] bonds) {
+		this(n, weight, bonds, false);
+	}
+	
+	/**
+	 * Constructor for Cluster.  Each BondGroup in the given array defines a set
+	 * of pairs and a single bond function defined between each.  
+	 */	
+	public Cluster(int n, double weight, BondGroup[] bonds, boolean usePermutations) {
 		super();
 		this.n = n;
 		this.weight = weight;
@@ -58,6 +66,7 @@ public class Cluster {
 				} else throw new IllegalArgumentException("Attempting to construct cluster with two bonds defined for a single pair of atoms");
 			}
 		}
+		if(usePermutations) setUsePermutations(usePermutations);
 	}
 	
 	/**

@@ -16,8 +16,8 @@ import etomica.units.Dimension;
 public class MeterVirial extends MeterGroup implements DatumSource {
 
 	private final int N;
-	private Cluster[] clusters;
-	private Cluster refCluster;
+	private ClusterAbstract[] clusters;
+	private ClusterAbstract refCluster;
 	private double refIntegral;
 	private double refTemperature, refBeta;
 	private P0Cluster simulationPotential;
@@ -28,8 +28,8 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	 * @param sim
 	 */
 	public MeterVirial(Simulation sim, 
-						double refTemperature, Cluster refCluster, double refIntegral, 
-						Cluster[] clusters, P0Cluster simulationPotential) {
+						double refTemperature, ClusterAbstract refCluster, double refIntegral, 
+						ClusterAbstract[] clusters, P0Cluster simulationPotential) {
 		super(sim, clusters.length+1);
 		N = refCluster.pointCount();
 		this.clusters = clusters;

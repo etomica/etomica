@@ -43,7 +43,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   private Vector intervalListenersAfterPbc = new Vector();
   int interval = 10;  // number of steps between IntervalEvent firing
   int integrationCount = 0;
-  boolean doSleep = false;
+  boolean doSleep = Default.DO_SLEEP;//default is <false> unless a SimulationGraphic has been instantiated
   protected double temperature = Default.TEMPERATURE;
   protected boolean isothermal = false;
   private boolean initialized = false;

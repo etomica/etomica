@@ -63,8 +63,8 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
            wall = pair.atom2();
         }
         else {
-           disk = pair.atom2;
-           wall = pair.atom1;
+           disk = pair.atom2();
+           wall = pair.atom1();
         }
         
         double time = Double.MAX_VALUE;
@@ -90,8 +90,8 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
            wall = pair.atom2();
         }
         else {
-           disk = pair.atom2;
-           wall = pair.atom1;
+           disk = pair.atom2();
+           wall = pair.atom1();
         }
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
                 
@@ -153,8 +153,8 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
            wall = pair.atom2();
         }
         else {
-           disk = pair.atom2;
-           wall = pair.atom1;
+           disk = pair.atom2();
+           wall = pair.atom1();
         }
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
     
@@ -200,11 +200,11 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
         double delta = Math.abs(dr) - collisionRadius;
         if(delta < 0.0) {   //inside wall; set apart to contact point
  //           double mult = (dr > 0.0) ? -2.0 : +2.0;
-            Space.Vector r1 = pair.atom1.coord.position();
-            Space.Vector r2 = pair.atom2.coord.position();
-            if(pair.atom2.coord.isStationary()) 
+            Space.Vector r1 = pair.atom1().coord.position();
+            Space.Vector r2 = pair.atom2().coord.position();
+            if(pair.atom2().coord.isStationary()) 
                 r1.setX(i,r2.x(i)+mult*(collisionRadius+1e-6));
-            else if(pair.atom1.coord.isStationary())
+            else if(pair.atom1().coord.isStationary())
                 r2.setX(i,r1.x(i)-mult*(collisionRadius+1e-6));
             else {
                 double mid = (r1.x(i)+r2.x(i))*0.5;

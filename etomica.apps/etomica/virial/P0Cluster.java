@@ -18,7 +18,7 @@ import etomica.SimulationElement;
  */
 public class P0Cluster extends Potential0 {
 
-	protected Cluster cluster;
+	protected ClusterAbstract cluster;
 //	protected double g = 0;
 	/**
 	 * Constructor for P0Cluster.
@@ -27,12 +27,12 @@ public class P0Cluster extends Potential0 {
 	public P0Cluster(SimulationElement parent) {
 		super(parent);
 	}
-	public P0Cluster(SimulationElement parent, Cluster cluster) {
+	public P0Cluster(SimulationElement parent, ClusterAbstract cluster) {
 		this(parent);
 		setCluster(cluster);
 	}
 	
-	public void setCluster(Cluster cluster) {
+	public void setCluster(ClusterAbstract cluster) {
 		this.cluster = cluster;
 	}
 	

@@ -9,6 +9,7 @@ package etomica;
 /* History
  * 
  * 01/25/03 (DAK) new
+ * 08/29/03 (DAK) using call to reset2 (noted below)
  */
 public interface AtomPairActive extends AtomSetActive {
 	
@@ -59,8 +60,8 @@ public interface AtomPairActive extends AtomSetActive {
 			}
 			public void actionPerformed(Atom a) {
 //				System.out.println("atompairactive.innerwrapper "+a.toString());
-				pair.atom2 = a;
-				pair.reset();
+//				pair.atom2 = a;
+				pair.reset2(a);//added 08/29/03
 				action.actionPerformed(pair);
 			}
 			public void actionPerformed() {

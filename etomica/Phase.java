@@ -60,7 +60,6 @@ public class Phase extends SimulationElement {
     private static int nonSimCount = 0;//number of times instantiated without a parent simulation
     private PhaseAction.ImposePbc centralImageEnforcer;
     
-    
     /**
      * Constructs phase and registers as part of the current Simulation.instance.
      */

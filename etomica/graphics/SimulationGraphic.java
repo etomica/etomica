@@ -24,6 +24,7 @@ import etomica.utility.java2.LinkedList;
   * 08/26/02 (DAK) modified makeAndDisplayFrame method to return the frame
   * 09/13/02 (DAK) added blockDefaultLayout method.
   * 10/21/02 (DAK) added static method to set EtomicaTheme
+  * 09/02/03 (DAK) setting Default.DO_SLEEP in constructor
   */
 public class SimulationGraphic extends Simulation {
     
@@ -49,6 +50,7 @@ public class SimulationGraphic extends Simulation {
      */
     public SimulationGraphic(Space s) {
         super(s);
+        Default.DO_SLEEP = true;
         elementLists.put(Display.class, new LinkedList());
         elementLists.put(Device.class, new LinkedList());
         elementCoordinator = new MediatorGraphic(this);

@@ -8,11 +8,13 @@ package etomica;
  * 07/17/03 (DAK) modified reset() methods to return this AtomPair
  * 08/21/03 (DAK) modified reset() method to invoke cPair.reset() rather than
  * cPair.reset(atom1.coord, atom2.coord); modified reset(Atom, Atom) accordingly
+ * 08/29/03 (DAK) added reset2(Atom) method; made atom2 private
  */
  
 public final class AtomPair implements AtomSet, java.io.Serializable {
     public static String getVersion() {return "AtomPair:01.06.25";}
-    public Atom atom1, atom2;
+    public Atom atom1;
+    private Atom atom2;
     public final Space.CoordinatePair cPair;
 
    /**
@@ -71,6 +73,17 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
         if(a2 != null) cPair.reset(a1.coord, a2.coord);
 //        if(a2 != null) reset();
         return this;
+    }
+    /**
+     * Defines the second atom as the given one, and resets the pair using it
+     * and the presently defined first atom.
+     * @param a2
+     * @return AtomPair
+     */
+    public AtomPair reset2(Atom a2) {
+    	atom2 = a2;
+    	cPair.reset(atom1.coord, a2.coord);
+    	return this;
     }
     /**
      * Resets the coordinate pair for the current values of the atoms

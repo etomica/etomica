@@ -2,6 +2,16 @@ package etomica;
 
 import etomica.units.*;
 
+/**
+ * Class holding fields that define many of the default values used in building
+ * a simulation.
+ * @author kofke
+ */
+
+/* History
+ * 09/02/03 (DAK) added DO_SLEEP, used by Integrator
+ */
+
 public final class Default {
     
  //   public static String WORKING_DIRECTORY = getWorkingDirectory();
@@ -57,6 +67,17 @@ public final class Default {
      * is used.
      */
     public static final boolean EXPLICIT_LOOP = true;
+    
+    /**
+     * Default value for doSleep field in Integrator class.  The default defined
+     * here is <false>, indicating that Integrator should not pause during
+     * integration loop.  Instantiation of any SimulationGraphic class changes
+     * this default to true, which is appropriate for simulations that use
+     * interactive graphics -- doSleep <true> is needed for a responsive
+     * interface.  Change in this default has no effect on any Integrators
+     * previously constructed.
+     */
+    public static boolean DO_SLEEP = false;
     
     /**
      * Sets default atom size, mass, and potential-well to unity, and scales

@@ -11,6 +11,7 @@ package etomica;
  
  /* History of changes
   * 8/4/02 (DAK) special-purpose modification to setBasis method to in attempt to work with PistonCylinder
+  * 08/29/03 (DAK) using reset2 method
   */
   
 public final class ApiGeneral extends AtomPairIterator {
@@ -147,8 +148,8 @@ public final class ApiGeneral extends AtomPairIterator {
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
         if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
-        pair.atom2 = aiInner.next();
-        pair.reset();
+//        pair.atom2 = aiInner.next();
+        pair.reset2(aiInner.next());//08/29/03 deleted above line and added this
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
                 atom1 = aiOuter.next();           //...get it

@@ -188,15 +188,17 @@ public class MCMoveSemigrand extends MCMove {
         Simulation.instance = new etomica.graphics.SimulationGraphic(new Space2D());
         Default.TRUNCATE_POTENTIALS = false;
 	    IntegratorMC integrator = new IntegratorMC();
+	    integrator.setDoSleep(true);
+		integrator.setSleepPeriod(2);
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
 	    MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(integrator);
 	    MCMoveRotateMolecule mcMoveRotate = new MCMoveRotateMolecule(integrator);
 	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
 	    //one species with 3 atoms per molecule
-	    SpeciesSpheres species0 = new SpeciesSpheres(10,3);
+	    SpeciesSpheres species0 = new SpeciesSpheres(1,3);
 	    //two species with 1 atom per molecule
-	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(2);
-	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(2);
+	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(5);
+	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(5);
 	    
 	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
         etomica.graphics.ColorSchemeByType.setColor(species1, java.awt.Color.red);
@@ -256,8 +258,6 @@ public class MCMoveSemigrand extends MCMove {
 		        mcMoveSemi.setFugacityFraction(new double[] {x0, x1, x2});
 		    }
 		});
-		
-		integrator.setSleepPeriod(2);
 		
 		Simulation.instance.elementCoordinator.go();
 		density0.setSpecies(species0);

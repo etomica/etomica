@@ -120,7 +120,7 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 			grad.E(0.0);
 		} 	
 		double r0 = 0.2;
-		if(Bond.areBonded(pair.atom1, pair.atom2))	{
+		if(Bond.areBonded(pair.atom1(), pair.atom2()))	{
 //			System.out.println(pair.toString()+" "+grad.toString());
 			grad.PEa1Tv1(bondStrength*(1.0 - r0/Math.sqrt(r2)),pair.dr());
 //			System.out.println(grad.toString());

@@ -9,6 +9,7 @@ package etomica;
 
 /* History
  * 02/21/03 (DAK) added constructor taking Direction and Atom
+ * 08/30/03 (DAK) added copying of skipFirst to copy method
  * 
  */
 public final class IteratorDirective implements java.io.Serializable {
@@ -64,6 +65,7 @@ public final class IteratorDirective implements java.io.Serializable {
     public void copy(IteratorDirective id) {
         direction = id.direction();
         includeLrc = id.includeLrc;
+        skipFirst = id.skipFirst;//08/30/03 (DAK) added this line
         atom1 = id.atom1();
         atomCount = (atom1 == null) ? 0 : 1;
         potentialCriteriaHead = id.potentialCriteriaHead;
