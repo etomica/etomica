@@ -66,11 +66,11 @@ public class P2SquareWell extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(Atom[] pair, double falseTime) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
-        ((CoordinatePairKinetic)cPairNbr).resetV();
-        dr.E(cPairNbr.dr());
-        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
-        dr.Ea1Tv1(falseTime,dv);
+        cPair.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPair).resetV();
+        dr.E(cPair.dr());
+        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;

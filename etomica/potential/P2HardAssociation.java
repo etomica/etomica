@@ -44,16 +44,15 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     */
     public void bump(Atom[] pair, double falseTime) {
         double eps = 1e-6;
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
-        ((CoordinatePairKinetic)cPairNbr).resetV();
-        dr.E(cPairNbr.dr());
-        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
-        dr.Ea1Tv1(falseTime,dv);
+        cPair.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPair).resetV();
+        dr.E(cPair.dr());
+        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
         double reduced_m = 1/(pair[0].type.rm() + pair[1].type.rm());
-        dr.E(cPair.dr());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);
