@@ -1,54 +1,40 @@
 package simulate;
-import java.util.*;
 import java.awt.*;
-import java.beans.*;
 
 public class SpeciesDisks extends Species {
 
-///  double mass;
-  double diameter;
-  double radius;
-  
-  public SpeciesDisks() {
-    super();
-    this.add(new ConfigurationMoleculeLinear());
-    initializeMolecules(0.1,1.0,Color.black);
-  }
-  
-  //initializeMolecules is called by constructor via setNMolecules
-  void initializeMolecules() {
-    initializeMolecules(diameter, mass, colorScheme.getBaseColor());
-  }
-  void initializeMolecules(double d, double m, Color c) {
-    setDiameter(d);    //call set methods to pass diameter and mass to atoms
-    setMass(m);
-    setColor(c);
-  }
-  
-  // Exposed Properties
-
-    public final double getMass() {return mass;}
-    public final void setMass(double mass) {
-        this.mass = mass;
-        if(firstAtom() == null) {return;}  //return if atoms have not yet been ordered
-        for(AtomC a=(AtomC)firstAtom(); a!=lastAtom().nextAtom(); a=(AtomC)a.nextAtom()) {a.setMass(mass);}
-        for(Molecule m=firstMolecule; m!=lastMolecule.nextMolecule(); m=m.nextMolecule()) {m.updateMass();}        
+    public AtomType.Disk protoType;
+              
+    /**
+    * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
+    */
+    public SpeciesDisks() {
+        this(20,1);
     }
-    
-    public final double getDiameter() {return diameter;}
-    public void setDiameter(double d) {
-        diameter = d;
-        radius = 0.5*d;
-        if(firstAtom() == null) {return;}
-        for(Atom a=firstAtom(); a!=lastAtom().nextAtom(); a=a.nextAtom()) {((AtomDisk)a).setDiameter(d);}
+              
+    public SpeciesDisks(int nM, int nA) {
+        setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
+        protoType = new AtomType.Disk(1.0, Color.black, 0.1);  // arguments are mass, color, diameter
+        atomsPerMolecule = nA;
+        setNMolecules(nM);
+            
+        colorScheme = new ColorSchemeNull();
+        this.add(new ConfigurationMoleculeLinear());
     }
-        
-    public final Color getColor() {return colorScheme.getBaseColor();}
-    public final void setColor(Color c) {
-        colorScheme.setBaseColor(c);
-        if(firstAtom() == null) {return;}
-        for(Atom a=firstAtom(); a!=lastAtom().nextAtom(); a=a.nextAtom()) {a.setColor(c);}
-    }
+              
+    public Molecule makeMolecule() {
+        return new Molecule(this, protoType, atomsPerMolecule);
+    } 
+              
+    // Exposed Properties
+    public final double getMass() {return protoType.mass();}
+    public final void setMass(double mass) {protoType.setMass(mass);}
+                
+    public final double getDiameter() {return protoType.diameter();}
+    public void setDiameter(double d) {protoType.setDiameter(d);}
+                    
+    public final Color getColor() {return protoType.color();}
+    public final void setColor(Color c) {protoType.setColor(c);}
 }
 
 

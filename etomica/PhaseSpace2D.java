@@ -11,10 +11,10 @@ public class PhaseSpace2D extends PhaseSpace {
     public PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
     public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return new AtomPair(a1, a2);}
     
-    public final AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(iF,iL,oF,oL);}
-    public final AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(iL,oF,oL);}
-    public final AtomPair.Iterator.A makePairIteratorFull() {return new PairIteratorFull();}
-    public final AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
+    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(iF,iL,oF,oL);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(iL,oF,oL);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return new PairIteratorFull();}
+    public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
     
     public final double volume() {return Double.MAX_VALUE;}  //infinite volume unless using PBC
  

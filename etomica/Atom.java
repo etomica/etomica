@@ -26,7 +26,7 @@ public class Atom {
         atomIndex = index;
         coordinate = parentMolecule.parentSpecies.parentPhaseSpace.makeAtomCoordinate(this);
         setStationary(false);
-        setColor(Color.black);
+        useTypeColor();
     }
                 
     public void setIntegratorAgent(IntegratorAgent ia) {this.ia = ia;}
@@ -38,6 +38,7 @@ public class Atom {
     
     public final Color getColor() {return color;}
     public final void setColor(Color c) {this.color = c;}
+    public final void useTypeColor() {this.color = type.color;}  //indicates that atom color is determined by its type
     
     public void setStationary(boolean b) {stationary = b;}
     public final boolean isStationary() {return stationary;}

@@ -25,7 +25,7 @@ public class Molecule implements Serializable {
   /**
    *  Makes specified number of atoms, all of the same type
    */
-  public Molecule(Species parent, int n, AtomType type) {  
+  public Molecule(Species parent, AtomType type, int n) {  
     parentSpecies = parent;
     coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
     nAtoms = n;

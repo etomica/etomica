@@ -32,111 +32,12 @@ import java.util.Random;
  
 public abstract class Species extends Container {
 
-    public Species(int n, int na)
-    {
-        setSpeciesIndex(0);
-//        setFillVolume(true);
-        nAtomsPerMolecule = na;
-        setNMolecules(n);
-        this.add(colorScheme);
-    }
 
-
- /**
-  * A name to be associated with the species.  Use is optional.
-  */
-  String name;
-  
-  public ColorScheme colorScheme = new ColorSchemeDefault(Color.red);
- 
- /**
-  * A unique integer that identifies the species.  Used to associate
-  * inter- and intra-molecular potentials to the Species.
-  * Default value is often 0, but may use setDefaults method in subclass
-  * to override this to another value if convenient; may also be set 
-  * at design time
-  * No two Species should have a common speciesIndex, but no check is made
-  * to prevent this. Failure to properly assign values will cause mis-association
-  * of Potentials and Species
-  * 
-  * @see Phase#potential2
-  * @see Phase#potential1
-  */
-  int speciesIndex;
-  
- /**
-  * Number of molecules for this species
-  */
-  protected int nMolecules;
-  
- /**
-  * Number of atoms in each molecule of this species
-  */
-  protected int nAtomsPerMolecule;
-      
- /**
-  * The phase in which this species resides.  Assigned in add method of Phase
-  *
-  */
-  PhaseSpace parentPhaseSpace;
- 
- /**
-  * The Species following this one in the linked list of Species
-  */
-  Species nextSpecies;
- 
- /**
-  * The Species preceding this one in the linked list of Species
-  */
-  Species previousSpecies;
-  
- /**
-  * First molecule in this Species
-  *
-  * @see Molecule
-  */
-  protected Molecule firstMolecule;
-  
- /**
-  * Last molecule in this Species
-  *
-  * @see Molecule
-  */
-  protected Molecule lastMolecule;
-  
- /**
-  * Extra molecule for doing test insertions and facilitating molecule exchanges
-  */
-  public Molecule spareMolecule;   //no longer used
-      
-  private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
-
- /**
-  * Object responsible for setting default configuration of atoms in molecule
-  */
-  public ConfigurationMolecule configurationMolecule;
-  
-  private final Random rand = new Random();  //for choosing molecule at random
-  
- /**
-  * Default constructor.  Creates species containing 20 molecules, each with 1 hard-disk atom.
-  */
-  public Species() {
-    this(20,1);
-  }
-  
- /**
-  * Sets species defaults and creates molecules.
-  *
-  * @param n number of molecules in species
-  */
-  public Species(int n) {
-    this(n,1);
-  }
+//No base-class constructor
   
   public void add(ColorScheme cs) {
     this.colorScheme = cs;
-    for(Atom a=firstAtom(); a!=lastAtom().nextAtom(); a=a.nextAtom()) {
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.nextAtom()) {
         colorScheme.initializeAtomColor(a);
     }
   }
@@ -196,17 +97,16 @@ public abstract class Species extends Container {
   * The coordinates of the molecule cannot be assumed to have any particular form
   * (e.g., the molecule is not necessarily at the origin)
   */
-  public Molecule makeMolecule() {
-    return new Molecule(this, nAtomsPerMolecule);
+  public abstract Molecule makeMolecule();
 /*    if(spareMolecule == null) {
-        return new Molecule(this, nAtomsPerMolecule);
+        return new Molecule(this, atomsPerMolecule);
     }
     else {
         Molecule m = spareMolecule;
         spareMolecule = null;
         return m;
     }
- */ }
+ */ 
   
   /**
    * Chooses a molecule randomly from Species
@@ -481,11 +381,11 @@ public abstract class Species extends Container {
 */  
     public void setNAtomsPerMolecule(int na)
     {
-        nAtomsPerMolecule = na;
+        atomsPerMolecule = na;
         setNMolecules(nMolecules);
     }
     
-    public int getNAtomsPerMolecule() {return nAtomsPerMolecule;}
+    public int getAtomsPerMolecule() {return atomsPerMolecule;}
     
   
   public final Molecule firstMolecule() {return firstMolecule;}
@@ -511,5 +411,81 @@ public abstract class Species extends Container {
     Atom last = lastAtom();
     return (last == null) ? null : last.nextAtom();
   }
+
+   /**
+  * A name to be associated with the species.  Use is optional.
+  */
+  String name;
   
+  public ColorScheme colorScheme;
+ 
+ /**
+  * A unique integer that identifies the species.  Used to associate
+  * inter- and intra-molecular potentials to the Species.
+  * Default value is often 0, but may use setDefaults method in subclass
+  * to override this to another value if convenient; may also be set 
+  * at design time
+  * No two Species should have a common speciesIndex, but no check is made
+  * to prevent this. Failure to properly assign values will cause mis-association
+  * of Potentials and Species
+  * 
+  * @see Phase#potential2
+  * @see Phase#potential1
+  */
+  int speciesIndex;
+  
+ /**
+  * Number of molecules for this species
+  */
+  protected int nMolecules;
+  
+ /**
+  * Number of atoms in each molecule of this species
+  */
+  protected int atomsPerMolecule;
+      
+ /**
+  * The phase in which this species resides.  Assigned in add method of Phase
+  *
+  */
+  PhaseSpace parentPhaseSpace;
+ 
+ /**
+  * The Species following this one in the linked list of Species
+  */
+  Species nextSpecies;
+ 
+ /**
+  * The Species preceding this one in the linked list of Species
+  */
+  Species previousSpecies;
+  
+ /**
+  * First molecule in this Species
+  *
+  * @see Molecule
+  */
+  protected Molecule firstMolecule;
+  
+ /**
+  * Last molecule in this Species
+  *
+  * @see Molecule
+  */
+  protected Molecule lastMolecule;
+  
+ /**
+  * Extra molecule for doing test insertions and facilitating molecule exchanges
+  */
+  public Molecule spareMolecule;   //no longer used
+      
+  private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
+
+ /**
+  * Object responsible for setting default configuration of atoms in molecule
+  */
+  public ConfigurationMolecule configurationMolecule;
+  
+  private final Random rand = new Random();  //for choosing molecule at random
+
 }
