@@ -86,7 +86,7 @@ public class DeviceTrioControllerButton extends Device {
         button2.setController(c);
         button3.setController(c);
         button2.setAction(new SimulationRestart(sim));
-        button3.setAction(new ResetAccumulators(sim.getDataManagerList()));
+        button3.setAction(new ResetAccumulators(sim.getDataAccumulatorList()));
     }
     
     /**
