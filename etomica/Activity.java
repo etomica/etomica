@@ -17,10 +17,10 @@ public abstract class Activity implements Action {
 		setLabel("Activity");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Runnable#run()
+	/**
+	 * Method defining the behavior of the activity.  Implementation should
+	 * ensure regular checking of doContinue() to permit any requests to pause
+	 * or halt to be put in effect.
 	 */
 	public abstract void run();
 
@@ -33,18 +33,16 @@ public abstract class Activity implements Action {
 	 * effect.
 	 */
 	public void actionPerformed() {
-		running = true;
 		haltRequested = false;
+		pauseRequested = false;
+		isPaused = false;
+		running = true;
 		run();
 		running = false;
 		if (haltRequested) {
-			notifyHalt();
+			synchronized(this) {notifyAll();}//release thread waiting for halt to take effect
 			throw new etomica.exception.AbnormalCompletionException();
 		}
-	}
-
-	private synchronized void notifyHalt() {
-		notifyAll();
 	}
 
 	protected boolean doContinue() {
@@ -63,41 +61,58 @@ public abstract class Activity implements Action {
 	}
 
 	/**
-	 * Method to put activity in a condition of being paused.
+	 * Method to put activity in a condition of being paused.  
+	 * Should be called in run() method of subclasses when they find
+	 * that pauseRequested is true, or if they wish to pause the execution thread
+	 * for their own purposes.
 	 */
-	private synchronized void doWait() {
+	protected synchronized void doWait() {
 		notifyAll(); //release any threads waiting for pause to take effect
+		isPaused = true;
 		try {
 			wait(); //put in paused state
-		} catch (InterruptedException e) {
-		}
+		} catch (InterruptedException e) {}
+		isPaused = false;
 	}
 
 	/**
-	 * Requests that the Activity pause its execution. The actual suspension
-	 * of execution occurs only after activity notices the pause request.
-	 * The calling thread is put in a wait state until the pause takes
-	 * effect.
+	 * Requests that the Activity pause its execution. The actual suspension of
+	 * execution occurs only after activity notices the pause request. The
+	 * calling thread is put in a wait state until the pause takes effect.
 	 */
 	public synchronized void pause() {
-		if (running && !pauseRequested/* !isPaused */) {
-			pauseRequested = true;
-			try {
-				wait(); //make thread requesting pause wait until pause is in
-				// effect
-			} catch (InterruptedException e) {
-			}
+		if (isPaused || !isActive()) return;// already paused or not active
+		pauseRequested = true;
+		try {
+			// make thread requesting pause wait until pause is in effect
+			wait();
+		} catch (InterruptedException e) {
+			//interrupted before pause took effect; abort pause request
+			pauseRequested = false;
 		}
 	}
 
+    /**
+     * Removes activity from the paused state, resuming execution where it left off.
+     */
+    public synchronized void unPause() {
+    	if (!isPaused || !isActive()) return;// not currently paused or not active
+    	pauseRequested = false;
+    	notifyAll();
+    }
+
 	/**
-	 * Removes the integrator from the paused state, resuming execution where it
-	 * left off.
+	 * Request that the activity terminate as soon as safely possible. 
+	 * Causes calling thread to wait until the halt is in effect.
 	 */
-	public synchronized void unPause() {
-		pauseRequested = false;
-		notifyAll();
-	}
+    public synchronized void halt() {
+        if(!isActive()) return;
+        haltRequested = true;
+        unPause();//in case currently paused
+        try {
+            wait();  //make thread requesting pause wait until halt is in effect
+        } catch(InterruptedException e) {}
+    }
 
 	/**
 	 * Queries whether the integrator is in a state of being paused. This may
@@ -105,32 +120,18 @@ public abstract class Activity implements Action {
 	 * but not running, then pause will take effect upon start.
 	 */
 	public boolean isPaused() {
-		return pauseRequested;
-	}//isPaused;}
+		return isPaused;
+	}
 
 	/**
 	 * Indicates if the integrator has been started and has not yet completed.
 	 * If so, returns true, even if integrator is presently paused (but not
 	 * halted).
 	 */
-	public boolean isActive() {
+	public final boolean isActive() {
 		return running;
 	}
 
-	/**
-	 * Request that the integrator terminate its thread on the next integration
-	 * step. Causes calling thread to wait until this is completed.
-	 */
-	public synchronized void halt() {
-		if (!running) return;
-		haltRequested = true;
-		if (pauseRequested)
-			unPause();
-		try {
-			wait(); //make thread requesting pause wait until halt is in effect
-		} catch (InterruptedException e) {
-		}
-	}
 
 	public String getLabel() {
 		return label;
@@ -141,8 +142,13 @@ public abstract class Activity implements Action {
 	}
 
 	private boolean running = false;
+
 	private boolean haltRequested = false;
+
 	protected boolean pauseRequested = false;
+
+	private boolean isPaused = false;
+
 	private String label;
 
 }

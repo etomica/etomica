@@ -6,16 +6,14 @@ package etomica.utility;
 
 import java.lang.reflect.Array;
 
-import etomica.Activity;
-
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Non-instantiable class with static utility methods for working with arrays.
  */
 public final class Arrays {
 
+	/**
+	 * Private constructor to prevent instantiation.
+	 */
 	private Arrays() {	}
 
 	public static Object[] resizeArray(Object[] array, int newSize) {
@@ -27,7 +25,7 @@ public final class Arrays {
 	
 
 	public static Object[] addObject(Object[] objects, Object newObject) {
-		objects = etomica.utility.Arrays.resizeArray(objects,objects.length+1);
+		objects = resizeArray(objects,objects.length+1);
 		objects[objects.length-1] = newObject;
 		return objects;
 	}
@@ -37,7 +35,7 @@ public final class Arrays {
 		for (int i=0; i<length; i++) {
 			if (objects[i] == object) {
 				Object lastObject = objects[length-1];
-				objects = (Activity[])etomica.utility.Arrays.resizeArray(objects,length-1);
+				objects = resizeArray(objects,length-1);
 				if (i < length-2) {
 					System.arraycopy(objects,i+1,objects,i,length-i-2);
 				}

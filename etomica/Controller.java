@@ -1,7 +1,5 @@
 package etomica;
 
-import java.util.LinkedList;
-
 /**
  * Organizer of actions of the integrators.  Controller sets the protocol for
  * conduct of the simulation.  For example, the simulation might start and stop 
@@ -25,8 +23,9 @@ public class Controller extends ActivityGroupSeries implements Runnable, java.io
      */
     public void start() {
         if(isActive()) return;
-        pauseRequested = false;
-        runner = new Thread(this);
+        Thread runner = new Thread(new Runnable() {
+        	public void run() {actionPerformed();}
+        });
         runner.start();
     }
 
@@ -44,6 +43,7 @@ public class Controller extends ActivityGroupSeries implements Runnable, java.io
     
     private SimulationEventManager eventManager = new SimulationEventManager();
 
+    private Thread runner;
 }//end of Controller
 
 
