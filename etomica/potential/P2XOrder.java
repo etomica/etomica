@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
@@ -37,14 +38,14 @@ public class P2XOrder extends Potential2 implements PotentialHard {
     /**
      * Time to collision of pair, assuming free-flight kinematics
      */
-    public double collisionTime(Atom[] pair, double falseTime) {
+    public double collisionTime(AtomSet pair, double falseTime) {
         throw new RuntimeException("P2XOrder.collisionTime not implemented");
     }
     
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */
-    public void bump(Atom[] pair, double falseTime) {
+    public void bump(AtomSet pair, double falseTime) {
         throw new RuntimeException("P2XOrder.bump not implemented");
     }
     
@@ -60,10 +61,10 @@ public class P2XOrder extends Potential2 implements PotentialHard {
      * Interaction energy of the pair.
      * Zero if x coordinates are ordered differently from atom indexes.
      */
-    public double energy(Atom[] pair) {
+    public double energy(AtomSet pair) {
  //       double deltaX = pair.dr(0);
-        double deltaX = pair[1].coord.position().x(0) - pair[0].coord.position().x(0);
-        int dI = pair[1].node.index() - pair[0].node.index();
+        double deltaX = ((AtomPair)pair).atom1.coord.position().x(0) - ((AtomPair)pair).atom0.coord.position().x(0);
+        int dI = ((AtomPair)pair).atom1.node.index() - ((AtomPair)pair).atom0.node.index();
         return (deltaX * dI < 0.0) ? Double.MAX_VALUE : 0.0;
     }
     
