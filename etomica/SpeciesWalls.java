@@ -2,9 +2,11 @@ package simulate;
 
 public class SpeciesWalls extends Species {
 
-    int borderTol;
-    boolean boundary;
-
+    public static final int NORTH = 0;
+    public static final int SOUTH = 1;
+    public static final int EAST = 2;
+    public static final int WEST = 3;
+    
     public SpeciesWalls() {
         this(1,1);
     }
@@ -19,10 +21,7 @@ public class SpeciesWalls extends Species {
     setThickness(4);
   }
 
-  public final int getThickness() {return ((AtomHardWall)firstAtom()).getThickness();}
-  public final void setThickness(int t) {((AtomHardWall)firstAtom()).setThickness(t);}
+  public final int getThickness() {return ((AtomWall)firstAtom()).getThickness();}
+  public final void setThickness(int t) {((AtomWall)firstAtom()).setThickness(t);}
     
-//  public void initializeSpecies(Phase phase) {
-//    configurationMolecule.initializeCoordinates();
-//  }
 }

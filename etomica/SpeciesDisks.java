@@ -27,9 +27,6 @@ public class SpeciesDisks extends Species {
   
   // Exposed Properties
 
-    public void setL(double L) {this.L = L;}
-    public double getL() {return L;}
-
     public final double getMass() {return mass;}
     public final void setMass(double mass) {
         this.mass = mass;

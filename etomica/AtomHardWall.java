@@ -10,8 +10,8 @@ public class AtomHardWall extends AtomHard implements AtomWall {
     private boolean vertical, horizontal;
     double[] f = new double[Space.D];   //force on wall
     double[] r1 = new double[Space.D];  //other end of line in simulation units (first end is denoted r)
-    protected int theta;   //orientation (degrees) with respect to positive x-axis, taking r at the origin
-    protected double length;  //length of line in simulation units
+    protected int angle = 0;   //orientation (degrees) with respect to positive x-axis, taking r at the origin
+    protected double length = 1.0;  //length of line in simulation units
     protected double pAccumulator;  //accumulated momentum perpendicular to wall, for calculation of pressure
     protected double qAccumulator;  //accumulated energy absorbed by wall, for calculation of heat transfer
     protected double temperature;
@@ -28,10 +28,11 @@ public class AtomHardWall extends AtomHard implements AtomWall {
     public AtomHardWall(Molecule parent, int index) {
         super(parent, index);
         if(parent != null) {
-            this.setRm(1.0);
+            setRm(1.0);
             setThickness(4);
             setAngle(0);   //default is horizontal
             setStationary(true);
+            setLength(1.0);
             setTemperature(300.);
             setAdiabatic(true);
             zeroAccumulators();
@@ -41,12 +42,12 @@ public class AtomHardWall extends AtomHard implements AtomWall {
     public Atom makeAtom(Molecule m, int i) {return new AtomHardWall(m,i);}
 
     public void setAngle(int t) {
-        theta = (t <= 360) ? t : (t % 360);
-        horizontal = (theta == 0) || (Math.abs(theta) == 180);
-        vertical = (Math.abs(theta) == 90) || (Math.abs(theta) == 270);
+        angle = (t <= 360) ? t : (t % 360);
+        horizontal = (angle == 0) || (Math.abs(angle) == 180);
+        vertical = (Math.abs(angle) == 90) || (Math.abs(angle) == 270);
         computeR1();
     }
-    public final int getAngle() {return theta;}
+    public final int getAngle() {return angle;}
         
     public final boolean isVertical() {return vertical;}
     public final boolean isHorizontal() {return horizontal;}
@@ -79,8 +80,8 @@ public class AtomHardWall extends AtomHard implements AtomWall {
     public final void setAdiabatic(boolean a) {adiabatic = a;}
  
     private final void computeR1() {
-        r1[0] = r[0] + length * Math.cos((double)theta);
-        r1[1] = r[1] + length * Math.sin((double)theta);
+        r1[0] = r[0] + length * Math.cos((double)angle);
+        r1[1] = r[1] + length * Math.sin((double)angle);
     }
     public void draw(Graphics g, int[] origin, double scale){
         double toPixels = scale*Phase.TO_PIXELS;

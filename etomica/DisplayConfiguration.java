@@ -92,7 +92,7 @@ import java.beans.Beans;
       }
   }
     
-  //Override superclass methods for changing size so that TO_PIXELS is reset with any size change  
+  //Override superclass methods for changing size so that scale is reset with any size change  
   // this setBounds is ultimately called by all other setSize, setBounds methods
   public void setBounds(int x, int y, int width, int height) {
     if(getBounds().width * getBounds().height != 0) {  //reset scale based on larger size change

@@ -23,7 +23,7 @@ public abstract class Configuration extends Component{
     }
     
     public void add(Species s){
-        if(s instanceof SpeciesWalls) {return;}
+        if(s.atomGenerator instanceof AtomWall) {return;}
         species.addElement(s);
         initializeCoordinates();
     }
@@ -43,7 +43,7 @@ public abstract class Configuration extends Component{
         int sum = 0;
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
-            double momentum = Math.sqrt(s.mass*temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
+            double momentum = Math.sqrt(((AtomC)s.firstAtom()).mass*temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
             for(AtomC a=(AtomC)s.firstAtom(); a!=s.terminationAtom(); a=(AtomC)a.getNextAtom()) {
 	            a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
     	        a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);

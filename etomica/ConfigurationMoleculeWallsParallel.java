@@ -3,7 +3,7 @@ package simulate;
 import java.awt.Rectangle;
 
 /**
- * Places all atoms of each molecule in a straight line along the x-axis
+ * Places all walls parallel to each other, equally spaced
  */
 
 public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {

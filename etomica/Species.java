@@ -73,17 +73,7 @@ public abstract class Species extends Container {
   * Number of atoms in each molecule of this species
   */
   protected int nAtomsPerMolecule;
-  
-   /**emk
-  * Mass of molecule 
-  */
-  protected double mass;
-  
-  /**emk
-  * atom-atom separation, used only for initial configuration
-  */
-  protected double L;
-  
+      
  /**
   * The phase in which this species resides.  Assigned in add method of Phase
   *
@@ -113,22 +103,7 @@ public abstract class Species extends Container {
   * @see Molecule
   */
   protected Molecule lastMolecule;
-  
- /**
-  * Use to determine initial placement of molecules.  If fillVolume is
-  * true, initial coordinates fill all of Phase; otherwise initial-coordinate
-  * cube may be shrunk at design time if desired.
-  *
-  * @see #draw
-  */
-//  boolean fillVolume;
-  
- /**
-  * Parameter defining when neighbor list of a molecule of this species needs updating.
-  * Current neighbor-list model is being deprecated.
-  */
-  double neighborUpdateSquareDisplacement = Double.MAX_VALUE;
-  
+      
   private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
 
  /**
@@ -141,8 +116,10 @@ public abstract class Species extends Container {
   */
   Atom atomGenerator;
   
+  protected double mass;
+  
  /**
-  * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
+  * Default constructor.  Creates species containing 20 molecules, each with 1 hard-disk atom.
   */
   public Species() {
     this(20,1, new AtomHardDisk(null));
@@ -165,7 +142,6 @@ public abstract class Species extends Container {
   }
   
   public void add(ColorScheme cs) {
-//    super.add(cs);
     this.colorScheme = cs;
     for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {
         colorScheme.initializeAtomColor(a);
@@ -173,7 +149,6 @@ public abstract class Species extends Container {
   }
   
   public void add(ConfigurationMolecule cm) {
-    super.add(cm);
     cm.parentSpecies = this;
     this.configurationMolecule = cm;
     cm.initializeCoordinates();
@@ -205,7 +180,7 @@ public abstract class Species extends Container {
   * @see #deleteMolecule
   * @see #addMolecule
   */
-  public final void setNMolecules(int n) {
+  public void setNMolecules(int n) {
     nMolecules = n;
 /*    molecule = new Molecule[nMolecules];    //this array is to be deprecated
     for(int i=0; i<nMolecules; i++) {molecule[i] = makeMolecule();}
@@ -376,9 +351,6 @@ public abstract class Species extends Container {
   public final int getSpeciesIndex() {return speciesIndex;}
   public final void setSpeciesIndex(int index) {speciesIndex = index;}
   
-  public final double getNeighborUpdateSquareDisplacement() {return neighborUpdateSquareDisplacement;}
-  public final void setNeighborUpdateSquareDisplacement(double d) {neighborUpdateSquareDisplacement = d;}
-
  /**
   * Computes and returns the kinetic energy summed over all molecules in this
   * species
@@ -411,14 +383,11 @@ public abstract class Species extends Container {
   */
   public void paint(Graphics g) {
     if(Beans.isDesignTime()) {
-        if(getParent() != null) {
-            Phase par = (Phase)getParent();
-//            initializeSpecies(par);
-            parentPhase = par;
+        if(parentPhase != null) {
             int[] origin = new int[Space.D];
             double scale = 1.0;
-            origin[0] = (par.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
-            origin[1] = (par.getSize().height - Phase.toPixels(scale*designTimeYDim))/2;
+            origin[0] = (parentPhase.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
+            origin[1] = (parentPhase.getSize().height - Phase.toPixels(scale*designTimeYDim))/2;
             draw(g,origin,scale);
         }
     }
@@ -496,11 +465,11 @@ public abstract class Species extends Container {
 //  public abstract void initializeSpecies(Phase phase);
   
   public void setBounds(int x, int y, int width, int height) {
-    Rectangle r = getBounds();
-    if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
-        super.setBounds(x, y, width, height);
+///    Rectangle r = getBounds();
+///    if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
+///        super.setBounds(x, y, width, height);
 //        if(parentPhase != null) initializeSpecies(parentPhase);
-    }
+///    }
   }
  /* 
   public void addNotify() {

@@ -52,7 +52,7 @@ public abstract class AtomHard extends AtomC {
      * @param index        sequential index of atom as assigned by parent molecule
      */
     public AtomHard(Molecule parent, int index) {
-        super(parent, index, 1.0, 0.1);
+        super(parent, index);
     }
     
     /**

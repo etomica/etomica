@@ -22,14 +22,14 @@ public abstract class Atom {
      * Used to locate the center-of-mass of the molecule
      * @see Molecule#COM
      */
-    double COMFraction;
+    double COMFraction = 1.0;
 
     /**
      * Instance of molecule in which this atom resides.
      * Assigned in Atom constructor.
      * @see Molecule#makeAtoms
      */
-    Molecule parentMolecule;
+    Molecule parentMolecule = null;
     
     /**
      * Identifier of atom within molecule.
@@ -43,14 +43,14 @@ public abstract class Atom {
      * next atom in linked list of atoms
      * @see #setNextAtom
      */
-    Atom nextAtom;
+    Atom nextAtom = null;
     
     /**
      * previous atom in linked list of atoms
      *
      * @see #setNextAtom
      */
-    Atom previousAtom;
+    Atom previousAtom = null;
         
     /**
      * Flag indicating whether atom is stationary or mobile.
@@ -77,6 +77,8 @@ public abstract class Atom {
     public Atom(Molecule parent, int index) {
         parentMolecule = parent;
         atomIndex = index;
+        setStationary(false);
+        setColor(Color.black);
     }
         
     public abstract Atom makeAtom(Molecule m, int i);

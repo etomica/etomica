@@ -39,6 +39,14 @@ public class Constants extends Object {
     public static final Color DARK_RED = new Color(102,000,000);
     public static final Color BLUSH = new Color(153,102,102);
     public static final Color TAN = new Color(204,204,153);
+  
+  /* Convenience variables for indicating directions */
+    public static final int NORTH = 0;
+    public static final int EAST  = 1;
+    public static final int SOUTH = 2;
+    public static final int WEST  = 3;
+    
+    
 }
     
     

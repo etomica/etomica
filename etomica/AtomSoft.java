@@ -24,8 +24,8 @@ public abstract class AtomSoft extends AtomC {
     private boolean forceFree;
     private final double[] partnerForce = new double[Space.D];
 
-    public AtomSoft(Molecule parent, int index, double mass, double diameter) {
-        super(parent, index, mass, diameter);
+    public AtomSoft(Molecule parent, int index) {
+        super(parent, index);
         this.zeroForce();
         setForceFree(true);
     }

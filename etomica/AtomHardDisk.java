@@ -29,7 +29,7 @@ public class AtomHardDisk extends AtomHard implements AtomDisk {
     
     public AtomHardDisk(Molecule parent, int index) {
         super(parent, index);
-        this.setDiameter(diameter);
+        if(parent != null) this.setDiameter(0.1);
     }
     
     public Atom makeAtom(Molecule m, int i) {return new AtomHardDisk(m,i);}

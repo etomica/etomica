@@ -397,10 +397,10 @@ public class Molecule implements Serializable {
 
 /**
  * Used for neighbor listing; current structure is being deprecated and should not be used
- */
   public final boolean needNeighborUpdate() {
     return (getSquareDisplacement() > parentSpecies.neighborUpdateSquareDisplacement);
   }
+ */
   public final void addNeighbor(Molecule m) {neighbors.addElement(m);}
   public final void clearNeighborList() {neighbors.removeAllElements();}
   public final Enumeration getNeighborList() {return neighbors.elements();}
@@ -429,8 +429,8 @@ public class Molecule implements Serializable {
    * @see Atom#draw
    */
   public void draw(Graphics g, int[] origin, double scale) {
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.draw(g, origin, scale);}
+    Atom terminator = terminationAtom();
+    for(Atom a=firstAtom; a!=terminator; a=a.getNextAtom()) {a.draw(g, origin, scale);}
   }
   
   public final Atom firstAtom() {return firstAtom;}

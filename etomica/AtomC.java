@@ -45,15 +45,13 @@ public abstract class AtomC extends Atom {
      *
      * @param parent       molecule in which atom resides
      * @param index        sequential index of atom as assigned by parent molecule
-     * @param mass         mass in amu
-     * @param diameter     diameter (Angstrom) for drawing atom to screen
      */
-    public AtomC(Molecule parent, int index, double mass, double diameter) {
+    public AtomC(Molecule parent, int index) {
         super(parent, index);
         if(parent != null) {    //null parent indicates atom is used only to generate other atoms
             Space.uEa1(r,0.0);
             Space.uEa1(p,0.0);
-            this.setMass(mass);
+            this.setMass(1.0);
             setStationary(false);
         }
     }
