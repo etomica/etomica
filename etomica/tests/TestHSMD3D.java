@@ -33,11 +33,11 @@ public class TestHSMD3D extends Simulation {
     public Potential2 potential;
 
     public TestHSMD3D(Space space, int numAtoms) {
-        super(space, new PotentialMasterNbr(space));
+        // use custom bit lengths to allow for more "molecules"
+        super(space, new PotentialMasterNbr(space), new int[] {1, 4, 4, 20, 1, 1});
         
         double neighborRangeFac = 1.6;
         Default.makeLJDefaults();
-        Default.ATOM_SIZE = 1.0;
         // makes eta = 0.35
         Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
         ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
