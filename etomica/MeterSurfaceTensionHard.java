@@ -1,5 +1,5 @@
 package etomica;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * This is a meter to measure the surface tension for a hard potential.  
@@ -10,15 +10,17 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterSurfaceTensionHard extends MeterScalar implements MeterAtomic, MeterCollisional {//, EtomicaElement {
+public class MeterSurfaceTensionHard extends MeterScalar {//, EtomicaElement {
     private final Space.Tensor pressureTensor;
-    private final MeterTensorVelocity velocityTensor = new MeterTensorVelocity();
-    private final MeterTensorVirialHard virialTensor = new MeterTensorVirialHard();
+    private final MeterTensorVelocity velocityTensor;
+    private final MeterTensorVirialHard virialTensor;
     private double surfaceTension, collisionValue, velocityValue;
     private int D;
     
     public MeterSurfaceTensionHard(Space space) {
         super();
+        velocityTensor = new MeterTensorVelocity(space);
+        virialTensor = new MeterTensorVirialHard(space);
         pressureTensor = space.makeTensor();
         D = space.D();
         setLabel("Surface Tension");
@@ -42,42 +44,13 @@ public class MeterSurfaceTensionHard extends MeterScalar implements MeterAtomic,
      * Written for 2-, or 3-dimensional systems; assumes that normal to interface is along x-axis.
      */
     
-    //XXX this should properly use the Phase parameter it is passed
     public double getDataAsScalar(Phase p) {
-        pressureTensor.E(velocityTensor.getData());
-        pressureTensor.PE(virialTensor.getData());
+        pressureTensor.E(velocityTensor.getDataAsTensor(p));
+        pressureTensor.PE(virialTensor.getDataAsTensor(p));
         if (D == 1) {surfaceTension = pressureTensor.component(0, 0);}
         else if (D == 2) {surfaceTension = 0.5*(pressureTensor.component(0, 0) - pressureTensor.component(1, 1));}
         else {surfaceTension = 0.5*(pressureTensor.component(0, 0) - 0.5*(pressureTensor.component(1, 1) + pressureTensor.component(2, 2)));}
         return surfaceTension;
     }
     
-    /**
-     * Calls collisionAction method of virial contribution
-     */
-    public void collisionAction(IntegratorHard.Agent agent) {
-        virialTensor.collisionAction(agent);
-    }
-    
-    /**
-     * Contribution to the surface tension from the recent collision of the given pair
-     */
-    public double collisionValue(IntegratorHard.Agent agent) {
-        Space.Tensor vTensor = virialTensor.collisionValue(agent);
-        if (D == 1) {collisionValue = vTensor.component(0, 0);}
-        else if (D == 2) {collisionValue = vTensor.component(0, 0) - vTensor.component(1, 1);}
-        else {collisionValue = vTensor.component(0, 0) - 0.5*(vTensor.component(1, 1) + vTensor.component(2, 2));}
-        return 0.5*collisionValue;
-    }
-    
-    /**
-     * Calls current value method of the velocity tensor
-     */
-    public final double currentValue(Atom a) {
-        Space.Tensor vTensor = velocityTensor.currentValue(a);
-        if (D == 1) {velocityValue = vTensor.component(0, 0);}
-        else if (D == 2) {velocityValue = vTensor.component(0, 0) - vTensor.component(1, 1);}
-        else {velocityValue = vTensor.component(0, 0) - 0.5*(vTensor.component(1, 1) + vTensor.component(2, 2));}
-        return 0.5*velocityValue;
-    }
 }
