@@ -42,11 +42,10 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
  /**
   * Returns the pair potential energy.
   */
-    public double energy(AtomPair pair) {
+    public double energy(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
         double eTot = 0.0;
-        Atom a1 = pair.atom1();
-        Atom a2 = pair.atom2();
-        double r2 = pair.r2();
+        double r2 = cPair.r2();
                  
         if(r2 > cutoffLJSquared) {
             eTot = 0.0;
@@ -60,14 +59,14 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         if (r2 < wellCutoffSquared) {
             e1.E(0.);
             e1.setX(0,1);
-            ((Space.Coordinate.Angular)a1.coord).orientation().convertToSpaceFrame(e1);
-            double er1 = e1.dot(pair.dr());
+            ((Space.Coordinate.Angular)pair[0].coord).orientation().convertToSpaceFrame(e1);
+            double er1 = e1.dot(cPair.dr());
                        
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
-                ((Space.Coordinate.Angular)a2.coord).orientation().convertToSpaceFrame(e2);
-                double er2 = e2.dot(pair.dr());
+                ((Space.Coordinate.Angular)pair[1].coord).orientation().convertToSpaceFrame(e2);
+                double er2 = e2.dot(cPair.dr());
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }
         }

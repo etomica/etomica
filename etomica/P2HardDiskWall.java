@@ -18,8 +18,6 @@ import etomica.statmech.MaxwellBoltzmann;
  
 public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
     
-    public final String getVersion() {return "PotentialHardDiskWall:01.07.25/"+Potential.VERSION;}
-
     protected double collisionDiameter, collisionRadius;
     private double lastCollisionVirial;
     
@@ -50,21 +48,21 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
  /**
   * Returns infinity if overlap is true, zero otherwise
   */
-  public double energy(AtomPair pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
+  public double energy(Atom[] pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
 
   /**
    * True if perpendicular distance between wall and disk is less than collision radius (diameter/2), false otherwise
    */
-  public boolean overlap(AtomPair pair) {
+  public boolean overlap(Atom[] pair) {
         Atom disk;
         Atom wall;
-        if(pair.atom2().type instanceof AtomType.Wall) {
-           disk = pair.atom1();
-           wall = pair.atom2();
+        if(pair[1].type instanceof AtomType.Wall) {
+           disk = pair[0];
+           wall = pair[1];
         }
         else {
-           disk = pair.atom2();
-           wall = pair.atom1();
+           disk = pair[1];
+           wall = pair[0];
         }
         
         double time = Double.MAX_VALUE;
@@ -82,23 +80,24 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
     /**
      * Time to collision of disk and wall, considering that one or both may be under the influence of a constant force.
      */
-    public double collisionTime(AtomPair pair) {
+    public double collisionTime(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
         Atom disk;
         Atom wall;
-        if(pair.atom2().type instanceof AtomType.Wall) {
-           disk = pair.atom1();
-           wall = pair.atom2();
+        if(pair[1].type instanceof AtomType.Wall) {
+           disk = pair[0];
+           wall = pair[1];
         }
         else {
-           disk = pair.atom2();
-           wall = pair.atom1();
+           disk = pair[1];
+           wall = pair[0];
         }
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
                 
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
-        double dr = pair.dr(i);  //dr = atom2 - atom1
-        double dv = pair.dv(i);
-        if(pair.atom1() == wall) {  //make sure dr = wall - disk
+        double dr = cPair.dr(i);  //dr = atom2 - atom1
+        double dv = cPair.dv(i);
+        if(pair[0] == wall) {  //make sure dr = wall - disk
             dr *= -1;
             dv *= -1;
         }
@@ -144,17 +143,17 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
     /**
      * Hard-disk/piston collision dynamics
      */
-    public void bump(AtomPair pair) 
+    public void bump(Atom[] pair) 
     {
         Atom disk;
         Atom wall;
-        if(pair.atom2().type instanceof AtomType.Wall) {
-           disk = pair.atom1();
-           wall = pair.atom2();
+        if(pair[1].type instanceof AtomType.Wall) {
+           disk = pair[0];
+           wall = pair[0];
         }
         else {
-           disk = pair.atom2();
-           wall = pair.atom1();
+           disk = pair[1];
+           wall = pair[0];
         }
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
     
@@ -187,6 +186,7 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
           wallType.pAccumulator -= dp;
         }
         
+        cPair.reset(pair[0].coord,pair[1].coord);
         moveToContact(i, pair);
         
     }
@@ -194,17 +194,17 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
     /**
      * Separates disk and wall so that they are just outside point of contact.
      */
-    private void moveToContact(int i, AtomPair pair) {
-        double dr = pair.dr(i);  //dr = atom2 - atom1
+    private void moveToContact(int i, Atom[] pair) {
+        double dr = cPair.dr(i);  //dr = atom2 - atom1
         double mult = (dr > 0.0) ? -1 : +1;
         double delta = Math.abs(dr) - collisionRadius;
         if(delta < 0.0) {   //inside wall; set apart to contact point
  //           double mult = (dr > 0.0) ? -2.0 : +2.0;
-            Space.Vector r1 = pair.atom1().coord.position();
-            Space.Vector r2 = pair.atom2().coord.position();
-            if(pair.atom2().coord.isStationary()) 
+            Space.Vector r1 = pair[0].coord.position();
+            Space.Vector r2 = pair[1].coord.position();
+            if(pair[1].coord.isStationary()) 
                 r1.setX(i,r2.x(i)+mult*(collisionRadius+1e-6));
-            else if(pair.atom1().coord.isStationary())
+            else if(pair[0].coord.isStationary())
                 r2.setX(i,r1.x(i)-mult*(collisionRadius+1e-6));
             else {
                 double mid = (r1.x(i)+r2.x(i))*0.5;

@@ -14,8 +14,6 @@ package etomica;
  
 public class P1IntraSimple extends PotentialGroup implements Potential1.Intramolecular {
     
-    public String getVersion() {return "P1IntraSimple:02.09.01/"+PotentialGroup.VERSION;}
-    
     public Potential2 bonded;
     public Potential2 nonbonded;
     
@@ -35,10 +33,8 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         if(!this.contains(potential)) {
             throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the bonded potential");
         }
-        potential.setIterator(new ApiGeneral(simulation().space,
-//				new AtomIteratorList(),
-				new AtomIteratorTree(),
-	            new AtomIteratorBonds()));
+        addPotential(potential,new ApiInnerVariable(new AtomIteratorTree(),
+        		new AtomIteratorBonds()));
     }
     
     /**
@@ -49,9 +45,8 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         if(!this.contains(potential)) {
             throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the nonbonded potential");
         }
-        potential.setIterator(new ApiGeneral(simulation().space,
-	            new AtomIteratorList(),
-	            new AtomIteratorNonbonded(simulation())));
+        addPotential(potential,new ApiInnerVariable(new AtomIteratorTree(),
+        		new AtomIteratorNonbonded(simulation())));
     }
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("General intramolecular potential with one bonded and one nonbonded potential");
@@ -104,7 +99,8 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
 //	    p1.setNonbonded(p2LennardJones);
 	    
 	    PotentialGroup p2 = new PotentialGroup(2);
-	    p2.setSpecies(new Species[] {speciesSpheres});
+	    
+	    sim.hamiltonian.potential.setSpecies(p2, new Species[] {speciesSpheres});
 	    P2LennardJones p2LennardJones2 = new P2LennardJones(p2);
 	    
 	    Controller controller = new Controller();

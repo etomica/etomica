@@ -5,12 +5,13 @@ package etomica;
  *
  * Inverse-power potential between an atom and all four boundaries of the phase.
  */
-public class P1SoftBoundary extends Potential1 implements Potential1.Soft, EtomicaElement {
+public class P1SoftBoundary extends Potential1 implements Potential.Soft, EtomicaElement {
 
 	private final int D;
 	private final Space.Vector gradient;
 	private double radius, radius2;
 	private double cutoff = Double.MAX_VALUE;
+	private Atom atom;
 	
 	public P1SoftBoundary() {
 		this(Simulation.instance.hamiltonian.potential);
@@ -28,10 +29,11 @@ public class P1SoftBoundary extends Potential1 implements Potential1.Soft, Etomi
 		return info;
 	}
     
-	public double energy(Atom a) {
-		Space.Vector dimensions = a.node.parentPhase().dimensions();
-		double rx = a.coord.position(0);
-		double ry = a.coord.position(1);
+	public double energy(Atom[] a) {
+		atom = a[0];
+		Space.Vector dimensions = atom.node.parentPhase().dimensions();
+		double rx = atom.coord.position(0);
+		double ry = atom.coord.position(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
 		return energy(rx) + energy(ry) + energy(dx1) + energy(dy1);		
@@ -51,10 +53,11 @@ public class P1SoftBoundary extends Potential1 implements Potential1.Soft, Etomi
 		return -12*r6*r6/r;
 	}
 	
-	public Space.Vector gradient(Atom a) {
-		Space.Vector dimensions = a.node.parentPhase().dimensions();
-		double rx = a.coord.position(0);
-		double ry = a.coord.position(1);
+	public Space.Vector gradient(Atom[] a) {
+		atom = a[0];
+		Space.Vector dimensions = boundary.dimensions();
+		double rx = atom.coord.position(0);
+		double ry = atom.coord.position(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
 		double gradx = gradient(rx) - gradient(dx1);

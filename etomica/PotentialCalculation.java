@@ -3,9 +3,9 @@ package etomica;
 /* History
  * 08/29/03 (DAK) made actionPerformed(AtomSet) abstract; added PotentialN
  */
-public abstract class PotentialCalculation implements AtomsetActive {
+public interface PotentialCalculation extends AtomsetActive {
  	
-	public abstract void doCalculation(AtomsetIterator iterator, Potential potential);
+	public void doCalculation(AtomsetIterator iterator, Potential potential);
 	
     public interface Summable {
         public double sum();

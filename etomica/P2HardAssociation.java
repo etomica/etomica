@@ -6,9 +6,7 @@ package etomica;
  * @author Rob Riggleman
  * @author David Kofke
  */
-public class P2HardAssociation extends Potential2 implements Potential2.Hard {
-
-    public String getVersion() {return "P2HardAssociation:01.07.03/"+Potential2.VERSION;}
+public class P2HardAssociation extends Potential2 implements Potential.Hard {
 
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
@@ -35,13 +33,14 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
     * Implements the collision dynamics.  Does not deal with the hard cores, only the wells.  This
     * section is essentially the same as PotentialSquareWell without the hard core section.
     */
-    public void bump(AtomPair pair) {
+    public void bump(Atom[] pair) {
         double eps = 1e-6;
-        r2 = pair.r2();
-        double bij = pair.vDotr();
+        cPair.reset(pair[0].coord,pair[1].coord);
+        r2 = cPair.r2();
+        double bij = cPair.vDotr();
         //ke is kinetic energy from the components of velocity
-        double reduced_m = 1/(pair.atom1().coord.rm() + pair.atom2().coord.rm());
-        dr.E(pair.dr());
+        double reduced_m = 1/(pair[0].coord.rm() + pair[1].coord.rm());
+        dr.E(cPair.dr());
         double ke = bij*bij*reduced_m/(2*r2);
         double r2New;
         if (bij > 0.0) {    //Separating
@@ -59,8 +58,8 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
             r2New = (1 - eps)*wellDiameterSquared;
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        pair.cPair.push(lastCollisionVirialr2);
-        if(r2New != r2) pair.cPair.setSeparation(r2New);
+        cPair.push(lastCollisionVirialr2);
+        if(r2New != r2) cPair.setSeparation(r2New);
     }       //end of bump
     
     
@@ -76,12 +75,13 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
     * Computes the next time of collision of the given atomPair assuming free flight.  Only computes the next
     * collision of the wells.  Takes into account both separation and convergence.
     */
-    public double collisionTime(AtomPair pair) {
+    public double collisionTime(Atom[] pair) {
         double discr = 0.0;
-		pair.cPair.resetV();
-       double bij = pair.vDotr();
-        double r2 = pair.r2();
-        double v2 = pair.v2();
+        cPair.reset(pair[0].coord,pair[1].coord);
+		cPair.resetV();
+       double bij = cPair.vDotr();
+        double r2 = cPair.r2();
+        double v2 = cPair.v2();
         double tij = Double.MAX_VALUE;
         
         if (r2 < wellDiameterSquared) {         //check to see if already inside wells
@@ -102,8 +102,9 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
   /**
    * Returns -epsilon if less than well diameter, or zero otherwise.
    */
-    public double energy(AtomPair pair) {
-        return (pair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
+    public double energy(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
+        return (cPair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
     }
     
    /**

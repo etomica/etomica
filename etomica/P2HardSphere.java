@@ -10,8 +10,6 @@ package etomica;
  */
 public class P2HardSphere extends Potential2 implements Potential2.Hard {
     
-    public String getVersion() {return "P2HardSphere:01.07.03/"+Potential2.VERSION;}
-
    /**
     * Separation at which spheres first overlap
     */
@@ -51,15 +49,16 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
     /**
      * Time to collision of pair, assuming free-flight kinematics
      */
-    public double collisionTime(AtomPair pair) {
-        double r2 = pair.r2();
-        pair.cPair.resetV();
-        double bij = pair.vDotr();
+    public double collisionTime(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
+        double r2 = cPair.r2();
+        cPair.resetV();
+        double bij = cPair.vDotr();
         if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
         double time = Double.MAX_VALUE;
 
         if(bij < 0.0) {
-          double velocitySquared = pair.v2();
+          double velocitySquared = cPair.v2();
           double discriminant = bij*bij - velocitySquared * ( r2 - sig2 );
           if(discriminant > 0) {
             time = (-bij - Math.sqrt(discriminant))/velocitySquared;
@@ -71,13 +70,14 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */
-    public void bump(AtomPair pair) {
-        double r2 = pair.r2();
-        dr.E(pair.dr());  //used by lastCollisionVirialTensor
-		pair.cPair.resetV();
-        lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
+    public void bump(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
+        double r2 = cPair.r2();
+        dr.E(cPair.dr());  //used by lastCollisionVirialTensor
+		cPair.resetV();
+        lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        pair.cPair.push(lastCollisionVirialr2);
+        cPair.push(lastCollisionVirialr2);
     }
     
     public double lastCollisionVirial() {
@@ -109,11 +109,12 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
      * Interaction energy of the pair.
      * Zero if separation is greater than collision diameter, infinity otherwise
      */
-    public double energy(AtomPair pair) {
-    	if(pair.r2() < sig2) {
+    public double energy(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
+    	if(cPair.r2() < sig2) {
 //    		System.out.println("uh oh in p2hardsphere");
     	}
-        return (pair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
+        return (cPair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
     }
     
     

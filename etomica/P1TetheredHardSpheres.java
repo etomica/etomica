@@ -9,8 +9,6 @@ package etomica;
  
 public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.Intramolecular {
     
-    public String getVersion() {return "P1TetheredHardSpheres:01.11.05/"+PotentialGroup.VERSION;}
-    
     public final P2HardSphere p2HardSphere;
     public final P2Tether p2Tether;
     
@@ -22,11 +20,9 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
         super(1, parent);
         p2HardSphere = new P2HardSphere(this);
         p2Tether = new P2Tether(this);
-	    p2Tether.setIterator(new ApiGeneral(simulation().space,
-	            new AtomIteratorList(),
+        addPotential(p2Tether, new ApiInnerVariable(new AtomIteratorList(),
 	            new AtomIteratorBonds()));
-	    p2HardSphere.setIterator(new ApiGeneral(simulation().space,
-	            new AtomIteratorList(),
+	    addPotential(p2HardSphere, new ApiInnerVariable(new AtomIteratorList(),
 	            new AtomIteratorNonbonded(parent.simulation())));
     }
     
@@ -51,10 +47,10 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
 	    
 	    PotentialGroup potential2 = new PotentialGroup(2);
 	    Potential2 p2 = new P2HardSphere(potential2);
-	    potential2.setSpecies(new Species[] {speciesSpheres});
+	    sim.hamiltonian.potential.setSpecies(p2, new Species[]{speciesSpheres});
 	    
 	    PotentialGroup p1 = new P1TetheredHardSpheres();
-	    p1.setSpecies(new Species[] {speciesSpheres});
+	    sim.hamiltonian.potential.setSpecies(p1, new Species[]{speciesSpheres});
 	    
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();

@@ -85,10 +85,39 @@ public abstract class Potential extends SimulationElement {
     	 */
 		public Space.Tensor lastCollisionVirialTensor();
     
-		/**
-		 * Instance of hard pair potential corresponding to no interaction between atoms.
-		 */
+		 /**
+		  * Implements the collision dynamics.
+		  * The given atom(s) is assumed to be at the point of collision.  This method is called
+		  * to change their momentum according to the action of the collision.  Extensions can be defined to
+		  * instead implement other, perhaps unphysical changes.
+		  */
+			public void bump(Atom[] atom);
+
+		 /**
+		  * Computes the time of collision of the given atom(s) with the hard potential, assuming no intervening collisions.
+		  * Usually assumes free-flight between collisions.
+		  */ 
+			public double collisionTime(Atom[] atom);
+	            
 	}//end of interface Hard
+
+	/**
+	 * Methods for properties obtained for a soft, differentiable pair potential.
+	 *
+	 * @author David Kofke
+	 */
+	public interface Soft {
+		   
+    	public double energy(Atom[] atoms);
+		/**
+		 * Returns r dot grad(u), with any truncation applied.  Does not include
+		 * division by D, to avoid repeated multiplication of this term when summing
+		 * over all pairs.  Negation and division by D in most cases is required 
+		 * at some point when using this quantity.
+		 */
+		public Space.Vector gradient(Atom[] pair);
+    
+	}
 	
 	/**
 	 * Returns the zero-body potential used to apply a long-range correction

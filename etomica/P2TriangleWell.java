@@ -35,11 +35,15 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         return info;
     }
 
-    public boolean overlap(AtomPair pair) {return pair.r2() < coreDiameterSquared;}
+    public boolean overlap(Atom[] pair) {
+    	cPair.reset(pair[0].coord,pair[1].coord);
+    	return cPair.r2() < coreDiameterSquared;
+   	}
 
-    public double energy(AtomPair pair) {
+    public double energy(Atom[] pair) {
 
-        double r2 = pair.r2();
+    	cPair.reset(pair[0].coord,pair[1].coord);
+        double r2 = cPair.r2();
        
         if(r2 < coreDiameterSquared)
             return Double.MAX_VALUE;
@@ -53,14 +57,15 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     }
  
 
-    public Space.Vector force(AtomPair pair){
+    public Space.Vector force(Atom[] pair){
         
-        double r2 = pair.r2();
+    	cPair.reset(pair[0].coord,pair[1].coord);
+        double r2 = cPair.r2();
         if(r2 > wellDiameterSquared){
             force.E(0.0);
         }
         if(r2 < wellDiameterSquared){
-            force.E(pair.dr());
+            force.E(cPair.dr());
             force.TE(constant/Math.sqrt(r2));//lambda > 1.0
             
         }

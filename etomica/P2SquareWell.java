@@ -44,21 +44,25 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
 /**
  * Returns true if separation of pair is less than core diameter, false otherwise
  */
-  public boolean overlap(AtomPair pair) {return pair.r2() < coreDiameterSquared;}
+  public boolean overlap(Atom[] pair) {
+  	cPair.reset(pair[0].coord,pair[1].coord);
+  	return cPair.r2() < coreDiameterSquared;
+  }
 
 /**
  * Implements collision dynamics between two square-well atoms.
  * Includes all possibilities involving collision of hard cores, and collision of wells
  * both approaching and diverging
  */
-  public void bump(AtomPair pair) {
+  public void bump(Atom[] pair) {
+  	cPair.reset(pair[0].coord,pair[1].coord);
     double eps = 1.0e-6;
-    double r2 = pair.r2();
-	pair.cPair.resetV();
-    double bij = pair.vDotr();
+    double r2 = cPair.r2();
+	cPair.resetV();
+    double bij = cPair.vDotr();
     // ke is kinetic energy due to components of velocity
-    double reduced_m = 1.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm());
-    dr.E(pair.dr());
+    double reduced_m = 1.0/(pair[0].coord.rm() + pair[1].coord.rm());
+    dr.E(cPair.dr());
     double ke = bij*bij*reduced_m/(2.0*r2);
     double s, r2New;
     if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
@@ -84,8 +88,8 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
       }
     }
     lastCollisionVirialr2 = lastCollisionVirial/r2;
-    pair.cPair.push(lastCollisionVirialr2);
-    if(r2New != r2) pair.cPair.setSeparation(r2New);
+    cPair.push(lastCollisionVirialr2);
+    if(r2New != r2) cPair.setSeparation(r2New);
   }//end of bump method
   
  /**
@@ -106,13 +110,14 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
  * Collision may occur when cores collides, or when wells first encounter each other on
  * approach, or when they edge of the wells are reached as atoms diverge.
  */
-  public double collisionTime(AtomPair pair) {
+  public double collisionTime(Atom[] pair) {
+  	cPair.reset(pair[0].coord,pair[1].coord);
     double discr = 0.0;
 
-	pair.cPair.resetV();
-    double bij = pair.vDotr();
-    double r2 = pair.r2();
-    double v2 = pair.v2();
+	cPair.resetV();
+    double bij = cPair.vDotr();
+    double r2 = cPair.r2();
+    double v2 = cPair.v2();
 
     double tij = Double.MAX_VALUE;
 
@@ -151,8 +156,9 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
   /**
    * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
    */
-    public double energy(AtomPair pair) {
-        double r2 = pair.r2();
+    public double energy(Atom[] pair) {
+        cPair.reset(pair[0].coord,pair[1].coord);
+    	double r2 = cPair.r2();
         return ( r2 < wellDiameterSquared) ? 
                     ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
     }

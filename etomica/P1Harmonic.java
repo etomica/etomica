@@ -11,11 +11,10 @@ package etomica;
  
 public class P1Harmonic extends Potential1 implements Potential1.Soft {
     
-    public String getVersion() {return "P1Harmonic:01.07.07/"+Potential1.VERSION;}
-
     private final int D;
     private double w = 100.0;
     private final Space.Vector force;
+    private Atom atom;
     
     public P1Harmonic() {
         this(Simulation.instance.hamiltonian.potential);
@@ -42,9 +41,10 @@ public class P1Harmonic extends Potential1 implements Potential1.Soft {
         return etomica.units.Dimension.NULL;
     }
 
-    public double energy(Atom a) {
-        Space.Vector r = a.coord.position();
-        Space.Vector d = a.node.parentPhase().boundary().dimensions();
+    public double energy(Atom[] a) {
+    	atom = a[0];
+        Space.Vector r = atom.coord.position();
+        Space.Vector d = atom.node.parentPhase().boundary().dimensions();
         double aSum = 0.0;
         for(int i=0; i<D; i++) {
             double x = r.x(i);
@@ -55,9 +55,10 @@ public class P1Harmonic extends Potential1 implements Potential1.Soft {
         return 0.5*w*aSum;
     }
 
-    public Space.Vector gradient(Atom a){
-        Space.Vector r = a.coord.position();
-        Space.Vector d = a.node.parentPhase().boundary().dimensions();
+    public Space.Vector gradient(Atom[] a){
+    	atom = a[0];
+        Space.Vector r = atom.coord.position();
+        Space.Vector d = atom.node.parentPhase().boundary().dimensions();
         force.E(0.0);
         for(int i=0; i<D; i++) {
             double x = r.x(i);

@@ -51,60 +51,24 @@ public abstract class Potential2 extends Potential {
     	cPair.setBoundary(phase.boundary());
     }
     
-    public abstract double energy(Atom[] pair);
-    
-	/**
-	 * Interface for all hard pair potentials.
-	 *
-	 * @author David Kofke
-	 */
-	public interface Hard extends Potential.Hard {
-    
-    	public double energy(Atom[] pair);
-		/**
-		 * Implements the collision dynamics.
-		 * The given atoms are assumed to be at the point of collision.  This method is called
-		 * to change their momentum according to the action of the collision.  Extensions can be defined to
-		 * instead implement other, perhaps unphysical changes.
-		 */
-		public void bump(Atom[] pair);
-    
-		/**
-		 * Computes the time of collision of the given atoms , assuming no intervening collisions.
-		 * Usually assumes free-flight between collisions
-		 */ 
-		public double collisionTime(Atom[] pair);
-    
-	}//end of Potential2.Hard
-
 	/**
 	 * Methods for properties obtained for a soft, differentiable pair potential.
 	 *
 	 * @author David Kofke
 	 */
-
-	public interface Soft{
-    
-    	public double energy(Atom[] pair);
-		/**
-		 * Returns r dot grad(u), with any truncation applied.  Does not include
-		 * division by D, to avoid repeated multiplication of this term when summing
-		 * over all pairs.  Negation and division by D in most cases is required 
-		 * at some point when using this quantity.
-		 */
-		public double virial(Atom[] pair);
-    
+    public interface Soft extends Potential.Soft {
 		public double hyperVirial(Atom[] pair);
-    
-		public Space.Vector gradient(Atom[] pair);
-    
+
+		public double virial(Atom[] pair);
+	    
 		/**
 		 * Integral used to evaluate correction to truncation of potential.
 		 */
 		public abstract double integral(double rC);
     
-	}//end of Potential2.Soft 
-	           
+
+    }
+    
 }//end of Potential2
 
 

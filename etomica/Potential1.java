@@ -7,15 +7,16 @@ package etomica;
  */
 public abstract class Potential1 extends Potential {
       
+	protected Space.Boundary boundary;
+	
     public Potential1(SimulationElement parent) {
         super(1, parent);
     }
+
+    public void setPhase(Phase phase) {
+    	boundary = phase.boundary();
+    }
     
-    /**
-     * Returns the energy of the given atom.
-     */
-    public abstract double energy(Atom atom);
-                          
     /**
      * Marker interface indicating that a one-body potential is an intramolecular
      * potential, and not, e.g., a potential of interaction with an external field.
@@ -35,31 +36,7 @@ public abstract class Potential1 extends Potential {
 	  * 08/26/02 (DAK) Modified calculate to handle cases of atomCount 0 or 1 in
 	  * iterator directive
 	  */
-	public interface Hard extends Potential.Hard {
 
-	 public double energy(Atom atom);
-	 /**
-	  * Implements the collision dynamics.
-	  * The given atom is assumed to be at the point of collision.  This method is called
-	  * to change its momentum according to the action of the collision.  Extensions can be defined to
-	  * instead implement other, perhaps unphysical changes.
-	  */
-		public void bump(Atom atom);
-
-	 /**
-	  * Computes the time of collision of the given atom with the hard potential, assuming no intervening collisions.
-	  * Usually assumes free-flight between collisions
-	  */ 
-		public double collisionTime(Atom atom);
-            
-	}  //end of Potential1.Hard
-
-	public interface Soft {
-    
-    	public double energy(Atom atom);
-		public Space.Vector gradient(Atom atom);
-    
-	}
 }//end of Potential1
 
 

@@ -10,8 +10,6 @@ import etomica.units.Dimension;
  */
 public class P2Tether extends Potential2 implements Potential2.Hard {
 
-  public String getVersion() {return "P2HardSphere:01.07.03/"+Potential2.VERSION;}
-
   private double tetherLength, tetherLengthSquared;
   private double lastCollisionVirial = 0.0;
   private double lastCollisionVirialr2 = 0.0;
@@ -49,13 +47,14 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   /**
    * Implements collision dynamics for pair attempting to separate beyond tether distance
    */
-  public final void bump(AtomPair pair) {
-        double r2 = pair.r2();
-        dr.E(pair.dr());
-		pair.cPair.resetV();
-        lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
+  public final void bump(Atom[] pair) {
+  		cPair.reset(pair[0].coord,pair[1].coord);
+        double r2 = cPair.r2();
+        dr.E(cPair.dr());
+		cPair.resetV();
+        lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        pair.cPair.push(lastCollisionVirialr2);
+        cPair.push(lastCollisionVirialr2);
   }
 
 
@@ -73,15 +72,16 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   /**
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
    */
-  public final double collisionTime(AtomPair pair) {
+  public final double collisionTime(Atom[] pair) {
+  	cPair.reset(pair[0].coord,pair[1].coord);
     boolean minus;  //flag for +/- root
-    double r2 = pair.r2();
-	pair.cPair.resetV();
-    double bij = pair.vDotr();
+    double r2 = cPair.r2();
+	cPair.resetV();
+    double bij = cPair.vDotr();
  //       if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
     if(r2 > tetherLengthSquared && bij >= 0) {return 0.0;}  //outside tether, moving apart; collide now
  //   //this doesn't keep them together if(r2 > tetherLengthSquared) {return (bij > 0) ? 0.0 : Double.MAX_VALUE;}
-    double v2 = pair.v2();
+    double v2 = cPair.v2();
     double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
     return (-bij + Math.sqrt(discr))/v2;
     }
@@ -89,9 +89,10 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   /**
    * Returns infinity if separation is greater than tether distance, zero otherwise
    */
-    public double energy(AtomPair pair) {
+    public double energy(Atom[] pair) {
 //        System.out.println(pair.atom1.toString()+"  "+pair.atom2.toString()+"   "+pair.r2()+"   "+tetherLengthSquared);
-        return (pair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
+    	cPair.reset(pair[0].coord,pair[1].coord);
+        return (cPair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
     
     /**
