@@ -1,5 +1,6 @@
 package etomica.modules.pistoncylinder;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
@@ -10,6 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
 
 import etomica.Action;
 import etomica.DataManager;
@@ -58,6 +60,19 @@ import etomica.units.UnitRatio;
 
 
 public class PistonCylinderGraphic {
+    
+    static {
+        try {
+//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new EtomicaTheme());
+//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new etomica.graphics.BlueRoseTheme());
+//            javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+//            UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+            System.out.println(javax.swing.UIManager.getSystemLookAndFeelClassName());
+            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+            UIManager.put("TitledBorder.font", new Font("SansSerif", Font.PLAIN, 12));
+        } catch(Exception e) {}
+    }
+
     
     public JPanel panel, displayPhasePanel;
     public PistonCylinder pc;
@@ -281,7 +296,7 @@ public class PistonCylinderGraphic {
 
         //panel for the temperature control/display
         JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
-        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Temperature (K)"));
+        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Set Temperature (K)"));
         java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
         gbc1.gridx = 0;  gbc1.gridy = 1;
         gbc1.gridwidth = 1;
@@ -494,7 +509,7 @@ public class PistonCylinderGraphic {
         lamBox.setController(pc.getController());
         
         pressureSlider.setUnit(pUnit);
-        pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set pressure ("+pUnit.toString()+")"));
+        pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set Pressure ("+pUnit.toString()+")"));
         Dimension pDim = (D==2) ? Dimension.PRESSURE2D : Dimension.PRESSURE;
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
