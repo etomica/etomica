@@ -407,7 +407,7 @@ package etomica;
 	     * runtime exception.
 	     */
 	    private void RangeCheck(int index) {
-	    	if (index >= size || index < 0)
+	    	if (Debug.ON && (index >= size || index < 0))
 	    		throw new IndexOutOfBoundsException(
 	    				"Index: "+index+", Size: "+size);
 	    }
