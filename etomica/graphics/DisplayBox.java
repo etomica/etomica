@@ -52,7 +52,7 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
     public DisplayBox() {
         super();
         setDimension(Dimension.UNDEFINED);
-        unit = Unit.NULL;
+        unit = Unit.UNDEFINED;
         jLabel = new JLabel();
         value = new JTextField("");
         value.setEditable(false);
