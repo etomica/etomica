@@ -1,4 +1,5 @@
 package etomica.lattice;
+import etomica.AtomList;
 
 public interface AbstractLattice extends java.io.Serializable {
     

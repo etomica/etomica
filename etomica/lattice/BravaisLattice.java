@@ -1,51 +1,25 @@
 package etomica.lattice;
-import etomica.Space;
-import java.util.Random;
+import etomica.*;
 import java.util.Observer;
 import java.util.Observable;
 
 /**
- * Arbitrary-dimension Bravais Lattice.  
- * The lattice occupies a D'-dimensional space.  Normally D' = D at the top level, but this need not be 
- * the case (e.g., we may have a 2-dimensional (planar) lattice given at some orientation in 3-d).
- * The placement of the sites in the D'-dimensional space is given by the primitiveVector array.  
+ * Arbitrary-dimension Bravais Lattice. 
  */
-public class BravaisLattice extends IntegerBravaisLattice { ///implements AbstractLattice {
+public class BravaisLattice extends Atom implements AbstractLattice {
 
    Space.Vector[] primitiveVector;
    private double[] primitiveVectorLength;
    private int[] idx;
-   Space.Vector translation;  //amount that lattice has been displaced via call to translateBy
-   //anonymous inner class passed to superclass IntegerBravaisLattice constructor to
-   //have it use the BravaisLattice coordinates for placement in the sites.
-   private static final IntegerBravaisLattice.IndexedCoordinate.Factory coordFactory = 
-        new IntegerBravaisLattice.IndexedCoordinate.Factory() {
-                public IndexedCoordinate makeCoordinate(int[] i) {return new Coordinate(i);}
-             };
+   private AtomList siteList;
+   int D;
    
-     //dimension of lattice equals the number of primitive vectors
-     //dimension of embedding space equals the length of each primitive vector
-   public BravaisLattice(int[] dimensions, SiteFactory factory, Space.Vector[] pVectors) {
-        super(dimensions, factory, coordFactory);
-   ///     super(dimensions, factory, coordFactory(dimensions.length));
-        primitiveVector = pVectors;
-        translation = Space.makeVector(D());
-        idx = new int[D()];
-        primitiveVectorLength = new double[D()];
-        //Set lattice for each site
-        SiteIterator iter = iterator();
-        iter.reset();
-        while(iter.hasNext()) {
-            Site site = iter.next();
-            ((Coordinate)site.coordinate()).setLattice(this);
-        }
+   private BravaisLattice(Space space, AtomType type) {
+        super(space, type);
+        D = space.D();
+        idx = new int[D];
+        primitiveVectorLength = new double[D];
    }
-   
-///   private static IntegerBravaisLattice.IndexedCoordinate.Factory coordFactory(final int D) {
-///        return new IntegerBravaisLattice.IndexedCoordinate.Factory() {
-///                public IndexedCoordinate makeCoordinate(int[] i) {return new Coordinate(i,D);}
-///             };
-///   }
    
     /**
      * Observable anonymous inner class that notifies interested objects if the primitive vectors change.
@@ -95,68 +69,66 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
     //not carefully implemented
     public Site nearestSite(Space.Vector r) {
         for(int i=D-1; i>=0; i--) {
-            idx[i] = (int)((r.component(i)-translation.component(i))/primitiveVectorLength[i] + 0.5);
+            idx[i] = (int)(r.component(i)/primitiveVectorLength[i] + 0.5);
         }
         return site(idx);
-//        return sites[(int)((r.x/scale.x-translation2D.x)/primitiveVectorLength + 0.5)][(int)((r.y/scale.y-translation2D.y)/primitiveVectorLength + 0.5)];
     }
     
-    /**
-     * Translates all the sites in the lattice by the given vector
-     */
-    public void translateBy(Space.Vector d) {
-        SiteIterator iterator = iterator();
-        iterator.reset();
-        while(iterator.hasNext()) {
-            ((Coordinate)iterator.next().coordinate()).position().PE(d);
-        }
-        translation.PE(d);
+    public Site site(int[] idx) {
+        Atom site = null;
+        int i=0;
+        do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
+        while(!site.node.isLeaf() && i<idx.length);
+        return (Site)site;
     }
+    
+    public AtomList siteList() {return siteList;}
+    
+    public int D() {return D;}
     
     /**
      * Causes all coordinates to update their position vectors.  
      * Typically invoked when a change is made to the primitive vectors.
      */
     public void updateCoordinates() {
-        SiteIterator iterator = iterator();
-        iterator.reset();
-        while(iterator.hasNext()) {
-            ((Coordinate)iterator.next().coordinate()).update();
-        }
+    }
+
+ /**
+  * Factory to construct an arbitrary-dimension Bravais lattice.
+  * The lattice occupies a D'-dimensional space.  Normally D' = D, but this need not be 
+  * the case (e.g., we may have a 2-dimensional (planar) lattice given at some orientation in 3-d).
+  * The placement of the sites in the D'-dimensional space is given by the primitiveVector array.
+  */
+public static class Factory extends AtomFactoryTree {
+    
+     //dimension of lattice equals the number of primitive vectors
+     //dimension of embedding space equals the length of each primitive vector
+    public Factory(Space space, int[] dimensions, Space.Vector[] pVectors, AtomFactory siteFactory) {
+        super(space, siteFactory, dimensions, configArray(space, pVectors));
+        primitiveVectors = pVectors;
     }
     
-    public static class Coordinate extends IntegerBravaisLattice.Coordinate implements AbstractLattice.PositionCoordinate {
-        Space.Vector r;
-        BravaisLattice bravaisLattice;
-        public Coordinate(int[] index) {
-            super(index);
+    public Atom build() {
+        BravaisLattice group = new BravaisLattice(space, groupType);
+        build(group);
+        AtomIteratorTree leafIterator = new AtomIteratorTree(group);
+        leafIterator.reset();
+        group.siteList = new AtomList(leafIterator);
+        return group;
+    }
+
+    private static Configuration[] configArray(Space space, Space.Vector[] pVectors) {
+        Configuration[] array = new Configuration[pVectors.length];
+        for(int i=0; i<array.length; i++) {
+            array[i] = new ConfigurationLinear(space);
+            ((ConfigurationLinear)array[i]).setOffset(pVectors[i]);
         }
- ///       public Coordinate(int[] index, int D) {
- ///           super(index);
- ///           r = Space.makeVector(D);
- ///       }
-        public void setLattice(BravaisLattice lattice) {
-            if(bravaisLattice != null) return; //can set lattice only once
-            bravaisLattice = lattice;
-            r = Space.makeVector(bravaisLattice.D());
-            update();
-        }
-        public final void update() {
-            r.E(0.0);
-            for(int j=0; j<bravaisLattice.D(); j++) { //loop over primitive vectors
-                r.PEa1Tv1((double)index()[j],bravaisLattice.primitiveVector[j]);
-            }
-        }
-        public Space.Vector position() {return r;}
-        public String toString() {
-            String value = "( ";
-            for(int i=0; i<r.length(); i++) value += r.component(i) + " ";
-            value += ") ";
-            return value;
-        }
+        return array;
+    }
     
-    }//end of BravaisLattice.Coordinate
-   
+    private Space.Vector[] primitiveVectors;
+}//end of Factory
+
     /**
      * Main method to demonstrate use of BravaisLattice and to aid debugging
      */

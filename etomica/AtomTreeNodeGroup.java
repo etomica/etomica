@@ -298,7 +298,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         }
         return null;
     }//end of findPreviousLeafAtom
-
+    
     protected final Atom atom;
     protected int depth;
     protected int atomIndex;

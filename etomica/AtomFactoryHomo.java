@@ -9,7 +9,7 @@ public class AtomFactoryHomo extends AtomFactory {
     
     private AtomFactory childFactory;
     private int atomsPerGroup;
-    private final AtomType.Group groupType = new AtomType.Group(this);
+    protected final AtomType.Group groupType = new AtomType.Group(this);
     
     /**
      * @param factory the factory that makes each of the identical children.
@@ -43,14 +43,23 @@ public class AtomFactoryHomo extends AtomFactory {
      */
     protected Atom build() {
         AtomGroup group = new AtomGroup(space, groupType);
+        return build(group);
+    }
+    
+    /**
+     * Constructs a new group using the given atom.
+     */
+     protected Atom build(Atom group) {
+        if(!group.creator().equals(this)) 
+            throw new IllegalArgumentException("Error:  Cannot build atom from one created by a different factory");
         for(int i=0; i<atomsPerGroup; i++) {
             group.node.addAtom(childFactory.build());
         }
         bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);
         return group;
-    }
-    
+     }
+     
     /**
      * Returns the subfactory that produces each of the identical atoms
      * in the group made by this factory.

@@ -134,7 +134,6 @@ public class AtomIteratorTree implements AtomIterator {
             doTreeIteration = false;
             return;
         }
-        basis = (AtomTreeNodeGroup)atom.node;
         basisIsMaster = (atom instanceof SpeciesMaster);
         if(iterationDepth == 0 || atom.node.isLeaf()) {//singlet iteration of basis atom
             if(singletList == null) singletList = new AtomList();
@@ -144,6 +143,7 @@ public class AtomIteratorTree implements AtomIterator {
             doTreeIteration = false;
             return;
         }
+        basis = (AtomTreeNodeGroup)atom.node;
         AtomList list = basis.childList;
         listIterator.setBasis(list);
         doTreeIteration = (iterationDepth > 1 &&
@@ -167,7 +167,20 @@ public class AtomIteratorTree implements AtomIterator {
      * Not yet implemented.
      */
     public int size() {
-        throw new RuntimeException("size method not implemented in AtomIteratorTree");
+        if(basis == null) return 0;
+        if(iterationDepth == 0 || basis.isLeaf()) return 1;
+        if(!doTreeIteration) return listIterator.size();
+        int size = 0;
+        if(basisIsMaster) {
+            listIterator.reset();
+            while(listIterator.hasNext()) {
+                treeIterator.setBasis(listIterator.next());
+                size += treeIterator.size();
+            }
+        } else {
+            size = listIterator.size() * treeIterator.size();
+        }
+        return size;
     }
     
     /**
@@ -200,6 +213,14 @@ public class AtomIteratorTree implements AtomIterator {
     }
     
     /**
+     * Makes a list of atoms from the iterates obtained using the current
+     * settings of basis and depth.
+     */
+    public AtomList toList() {
+        return null;
+    }
+    
+    /**
      * Not implemented.
      */
     public void setAsNeighbor(boolean b) {
@@ -207,7 +228,6 @@ public class AtomIteratorTree implements AtomIterator {
     }
     
     private AtomTreeNodeGroup basis;
-    private int iteratorDepth;
     private boolean doTreeIteration, basisIsMaster;
     private AtomIteratorTree treeIterator;
     private final AtomIteratorList listIterator = new AtomIteratorList();
@@ -227,47 +247,54 @@ public class AtomIteratorTree implements AtomIterator {
         Species species2 = new SpeciesSpheresMono();
         Species species1 = new SpeciesSpheres(3,3);
         Species species0 = new SpeciesSpheres(3,2);
-        species0.setNMolecules(0);
+        species0.setNMolecules(3);
         species1.setNMolecules(2);
         species2.setNMolecules(2);
         Phase phase = new Phase();
         sim.elementCoordinator.go();
         
+        int k = 0;
         AtomIteratorTree treeIterator = new AtomIteratorTree();
  //       treeIterator.setIterationDepth(2);
         treeIterator.setBasis(phase.speciesMaster);
-        treeIterator.reset();
-        while(treeIterator.hasNext()) System.out.println(treeIterator.next().toString());
+        treeIterator.reset(); k = 0;
+        while(treeIterator.hasNext()) System.out.println(k++ + "  " + treeIterator.next().toString());
+        System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
         treeIterator.setIterationDepth(2);
-        treeIterator.reset();
-        while(treeIterator.hasNext()) System.out.println(treeIterator.next().toString());
+        treeIterator.reset(); k = 0;
+        while(treeIterator.hasNext()) System.out.println(k++ + "  " + treeIterator.next().toString());
+        System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
         treeIterator.setIterationDepth(1);
-        treeIterator.reset();
-        while(treeIterator.hasNext()) System.out.println(treeIterator.next().toString());
+        treeIterator.reset(); k = 0;
+        while(treeIterator.hasNext()) System.out.println(k++ + "  " + treeIterator.next().toString());
+        System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
         treeIterator.setIterationDepth(0);
-        treeIterator.reset();
-        while(treeIterator.hasNext()) System.out.println(treeIterator.next().toString());
+        treeIterator.reset(); k = 0;
+        while(treeIterator.hasNext()) System.out.println(k++ + "  " + treeIterator.next().toString());
+        System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
         treeIterator.setBasis(phase.speciesMaster.node.firstChildAtom());
         treeIterator.setLeafIterator();
         treeIterator.setIterationDepth(1);
-        treeIterator.reset();
-        while(treeIterator.hasNext()) System.out.println(treeIterator.next().toString());
+        treeIterator.reset(); k = 0;
+        while(treeIterator.hasNext()) System.out.println(k++ + "  " + treeIterator.next().toString());
+        System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
         System.out.print("null-basis test ");
         treeIterator.setBasis(null);
         treeIterator.setLeafIterator();
         treeIterator.reset();
-        while(treeIterator.hasNext()) System.out.println(treeIterator.next().toString());
+        while(treeIterator.hasNext()) System.out.println(k++ + "  " + treeIterator.next().toString());
         System.out.println("ok");
+        
     }//end of main
     
 }//end of AtomIteratorTree

@@ -48,6 +48,12 @@ public class ConfigurationLinear extends Configuration {
     }
     public double getAngle(int i) {return angle[i];}
     public void setOrientation(Space.Vector e) {orientation.E(e);}
+    
+    public void setOffset(Space.Vector v) {
+        orientation.E(v);
+        bondLength = Math.sqrt(v.squared());
+        orientation.DE(bondLength);
+    }
               
     /**
     * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
