@@ -187,30 +187,34 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
          */
         public static void doAction(Phase phase, Space.Vector scale, Space.Vector work) {
             phase.boundary().inflate(scale);
-            scale.PE(-1.0);
+      //      scale.PE(-1.0);
             iterator.setBasis(phase);
             iterator.reset();
             while(iterator.hasNext()) {
-                Atom m = iterator.next();
-                work.E(m.coord.position());
-                work.TE(scale);
-                m.coord.displaceBy(work);
+                iterator.next().coord.inflate(scale);
+              //  Atom m = iterator.next();
+              //  work.E(m.coord.position());
+              //  work.TE(scale);
+              //  m.coord.displaceBy(work);
             }
-            scale.PE(1.0);
+            //scale.PE(1.0);
         }
 
         public void attempt() {
-            oldDimensions.E(phase.boundary().dimensions());
+    //        oldDimensions.E(phase.boundary().dimensions());
             doAction(phase, scale, temp);
         }
         public void undo() {
-            phase.boundary().setDimensions(oldDimensions);
-            iterator.setBasis(phase);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom m = iterator.next();
-                m.coord.replace();
-            }
+            temp.E(1.0);
+            temp.DE(scale);
+            doAction(phase, temp, null);
+     //       phase.boundary().setDimensions(oldDimensions);
+       //     iterator.setBasis(phase);
+       //     iterator.reset();
+       //     while(iterator.hasNext()) {
+       //         Atom m = iterator.next();
+    //            m.coord.replace();
+           // }
         }
     }//end of InflateAnisotropic 
 

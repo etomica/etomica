@@ -11,11 +11,11 @@ public class BravaisLattice extends Atom implements AbstractLattice {
    private Primitive primitive;
    private double[] primitiveVectorLength;
    private int[] idx;
-   private AtomList siteList;
+   private final AtomList siteList = new AtomList();
    private int[] dimensions;
    int D;
    private NeighborManager.Criterion neighborCriterion;
-   private final SimulationEventManager eventManager = new SimulationEventManager();
+   public final SimulationEventManager eventManager = new SimulationEventManager();
    private final LatticeEvent rebuildEvent = new LatticeEvent(this, LatticeEvent.REBUILD);
    private final LatticeEvent allSiteEvent = new LatticeEvent(this, LatticeEvent.ALL_SITE);
    private final LatticeEvent resetNbrEvent = new LatticeEvent(this, LatticeEvent.RESET_NBRS);
@@ -129,8 +129,9 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     public int D() {return D;}
     
     /**
-     * Returns the event manager the registers listeners and notifies them
+     * Returns the event manager that registers listeners and notifies them
      * of events indicating changes in this lattice.
+     * Part of AbstractLattice interface.
      */
     public SimulationEventManager eventManager() {return eventManager;}
     
@@ -281,6 +282,7 @@ public static class Factory extends AtomFactoryTree {
     
     public Atom build(Atom atom) {
         if(!(atom instanceof BravaisLattice)) throw new IllegalArgumentException("Error in BravaisLattice.Factory.build(Atom): Attempt to rebuild lattice from atom that is not a BravaisLattice instance");
+//plan to revise this to use dimensions of given atom in build
         super.build(atom);
         BravaisLattice group = (BravaisLattice)atom;
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);

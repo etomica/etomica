@@ -13,6 +13,11 @@ public class PhaseEvent extends SimulationEvent {
     protected Space.Vector point;
     protected Type type;
     
+    //for boundary inflation event
+    public double isoScale;
+    public Space.Vector anisoScale;
+    public boolean isotropic;
+    
     public PhaseEvent(Object source) {
         this(source, null);
     }
@@ -33,6 +38,9 @@ public class PhaseEvent extends SimulationEvent {
     public final PhaseEvent setAtom(Atom a) {atom = a; return this;}
     public Atom atom() {return atom;}
     
+    public final PhaseEvent setScale(double s) {isoScale = s; isotropic = true; return this;}
+    public final PhaseEvent setScale(Space.Vector s) {anisoScale = s; isotropic = false; return this;}
+    
     public static class Type extends Constants.TypedConstant {
         private Type(String label) {super(label);}
         public static final Type[] CHOICES = new Type[] {
@@ -40,7 +48,8 @@ public class PhaseEvent extends SimulationEvent {
             new Type("Atom added"),
             new Type("Atom removed"),
             new Type("Atom selected"),
-            new Type("Atom released")};
+            new Type("Atom released"),
+            new Type("Boundary Inflate")};
         public final Constants.TypedConstant[] choices() {return CHOICES;}
     }
     public static final Type POINT_SELECTED = Type.CHOICES[0];
@@ -48,5 +57,6 @@ public class PhaseEvent extends SimulationEvent {
     public static final Type ATOM_REMOVED = Type.CHOICES[2];
     public static final Type ATOM_SELECTED = Type.CHOICES[3];
     public static final Type ATOM_RELEASED = Type.CHOICES[4];
+    public static final Type BOUNDARY_INFLATE = Type.CHOICES[5];
 }//end of PhaseEvent
     

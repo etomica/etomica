@@ -329,6 +329,10 @@ public class Space2D extends Space implements EtomicaElement {
             r.y += p.y*tM;
             atom.seq.moveNotify();
         }
+        
+        public void inflate(double s) {r.x *= s; r.y *= s;}
+        public void inflate(Space.Vector s) {Vector u = (Vector)s; r.x *= u.x; r.y *= u.y;}
+        
         public void transform(Space.Vector r0, Space.Tensor A) {
             r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
         /**
@@ -455,6 +459,18 @@ public class Space2D extends Space implements EtomicaElement {
             while(childIterator.hasNext()) {
                 childIterator.next().coord.freeFlight(t);
             }
+        }
+        public void inflate(double scale) {
+            work.E(position());
+            work.TE(scale-1.0);
+            displaceBy(work);
+        }
+        public void inflate(Space.Vector scale) {
+            scale.PE(-1.0);
+            work.E(position());
+            work.TE(scale);
+            displaceBy(work);
+            scale.PE(1.0);
         }
         public void translateBy(Space.Vector u) {
             childIterator.reset();
@@ -709,8 +725,16 @@ public class Space2D extends Space implements EtomicaElement {
             //r.x -= dimensions.x * ((r.x >= 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
             //r.y -= dimensions.y * ((r.y >= 0.0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y-1.0));
         }
-        public void inflate(double scale) {dimensions.TE(scale); updateDimensions();}
-        public void inflate(Space.Vector scale) {dimensions.TE(scale); updateDimensions();}
+        public void inflate(double scale) {
+            dimensions.TE(scale); 
+            updateDimensions();
+            phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
+        }
+        public void inflate(Space.Vector scale) {
+            dimensions.TE(scale); 
+            updateDimensions();
+            phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
+        }
         public void setDimensions(Space.Vector v) {dimensions.E(v); updateDimensions();}
         public double volume() {return dimensions.x * dimensions.y;}
         

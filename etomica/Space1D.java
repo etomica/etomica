@@ -257,6 +257,8 @@ public class Space1D extends Space implements EtomicaElement {
         public double momentum(int i) {return p.component(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {r.x += p.x*t*rm();}
+        public void inflate(double s) {r.x *= s;}
+        public void inflate(Space.Vector s) {r.x *= ((Vector)s).x;}
 
         /**
         * Moves the atom by some vector distance
@@ -377,6 +379,18 @@ public class Space1D extends Space implements EtomicaElement {
                 coord.freeFlight(t);
                 if(coord == lastChild) break;
             }
+        }
+        public void inflate(double scale) {
+            work.E(position());
+            work.TE(scale-1.0);
+            displaceBy(work);
+        }
+        public void inflate(Space.Vector scale) {
+            scale.PE(-1.0);
+            work.E(position());
+            work.TE(scale);
+            displaceBy(work);
+            scale.PE(1.0);
         }
         public void translateBy(Space.Vector u) {translateBy((Vector)u);}
         public void translateBy(Vector u0) {
@@ -513,14 +527,14 @@ public class Space1D extends Space implements EtomicaElement {
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic{
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE);}
-        public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx; resetDimensions();}
-        public BoundaryPeriodicSquare(double lx) {dimensions.x = lx; resetDimensions();}
+        public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx; updateDimensions();}
+        public BoundaryPeriodicSquare(double lx) {dimensions.x = lx; updateDimensions();}
         public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
         private final Vector temp = new Vector();
         private final Vector dimensions = new Vector();
         private final Vector dimensionsHalf = new Vector();
         private final Vector dimensionsCopy = new Vector();
-        private final void resetDimensions() {
+        private final void updateDimensions() {
             dimensionsHalf.Ea1Tv1(0.5,dimensions);
             dimensionsCopy.E(dimensions);
         }
@@ -539,9 +553,17 @@ public class Space1D extends Space implements EtomicaElement {
             while(r.x > dimensions.x) r.x -= dimensions.x;
             while(r.x < 0.0)          r.x += dimensions.x;
         }
-        public void inflate(double scale) {dimensions.TE(scale); resetDimensions();}
-        public void inflate(Space.Vector scale) {dimensions.TE(scale); resetDimensions();}
-        public void setDimensions(Space.Vector v) {dimensions.E(v); resetDimensions();}
+        public void inflate(double scale) {
+            dimensions.TE(scale); 
+            updateDimensions();
+            phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
+        }
+        public void inflate(Space.Vector scale) {
+            dimensions.TE(scale); 
+            updateDimensions();
+            phase().boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
+        }
+        public void setDimensions(Space.Vector v) {dimensions.E(v); updateDimensions();}
         public double volume() {return dimensions.x;}
         /** Computes origins for periodic images
          */

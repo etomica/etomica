@@ -183,6 +183,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract double momentum(int i);
         public abstract double kineticEnergy();
         public abstract void freeFlight(double t);
+        public abstract void inflate(double scale);
+        public abstract void inflate(Space.Vector scale);
         public abstract void translateBy(Space.Vector u);
         public abstract void translateBy(double d, Space.Vector u);
         public abstract void translateTo(Space.Vector u);   
@@ -307,6 +309,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         protected final float[][] shift0 = new float[0][0];//cannot be static because several phases may be using at once
         protected float[][] shift;
         private Phase phase;
+        protected final PhaseEvent inflateEvent = new PhaseEvent(this, PhaseEvent.BOUNDARY_INFLATE);
         public Boundary() {}
         public Boundary(Phase p) {phase = p;}
         public Phase phase() {return phase;}

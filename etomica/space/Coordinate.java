@@ -26,6 +26,17 @@ public class Coordinate extends Space.Coordinate {
     public double momentum(int i) {return p.component(i);}
     public double kineticEnergy() {return 0.5*p.squared()*rm();}
     public void freeFlight(double t) {r.PEa1Tv1(t*rm(),p);}
+    /**
+     * Scales positions of atoms by multiplying by given value.  Does not notify sequencers.
+     */
+    public void inflate(double s) {r.TE(s);}
+    
+    /**
+     * Scales positions of atoms isotropically by multiplying by coordinate in each
+     * direction by the corresponding element of the given vector.  Does not notify sequencers.
+     */
+    public void inflate(Space.Vector s) {r.TE(s);}
+        
 
     /**
     * Moves the atom by some vector distance

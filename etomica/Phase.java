@@ -37,7 +37,6 @@ import etomica.utility.Iterator;
  *
  * 
  * @author David Kofke
- * @see IteratorFactory
  * @see Space.Boundary
  * @see MeterAbstract
  */
@@ -48,6 +47,7 @@ public class Phase extends SimulationElement {
     private PhaseAction.Inflate inflater;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
+    public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private static int nonSimCount = 0;//number of times instantiated without a parent simulation
     
     

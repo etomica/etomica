@@ -74,6 +74,18 @@ public class CoordinateGroup extends Coordinate {
             childIterator.next().coord.freeFlight(t);
         }
     }
+    public void inflate(double scale) {
+        work.E(position());
+        work.TE(scale-1.0);
+        displaceBy(work);
+    }
+    public void inflate(Space.Vector scale) {
+        scale.PE(-1.0);
+        work.E(position());
+        work.TE(scale);
+        displaceBy(work);
+        scale.PE(1.0);
+    }
     public void translateBy(Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {

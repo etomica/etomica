@@ -53,6 +53,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     private Simulation simulation;
     private int[] dimensions;
     private BravaisLattice[] deployedLattices = new BravaisLattice[0];
+    private double neighborRange;
     
     /**
      * Constructs a new iterator factory for the given simulation, using
@@ -73,6 +74,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     public IteratorFactoryCell(Simulation sim, Primitive primitive, int nCells) {
         this.simulation = sim;
         this.primitive = primitive;
+        neighborRange = Default.ATOM_SIZE;
         dimensions = new int[sim.space.D()];
         for(int i=0; i<sim.space.D(); i++) dimensions[i] = nCells;
         
@@ -84,7 +86,9 @@ public class IteratorFactoryCell implements IteratorFactory {
     
     /**
      * Constructs the cell lattice used to organize all cell-listed atoms
-     * in the given phase.  Note that the phase does not contain any reference
+     * in the given phase.  Each new lattics is set up with its own instance
+     * of the primitive, formed by copying the instance associated with this factory.  
+     * Note that the phase does not contain any reference
      * to the lattice.  Its association with the phase is made through the 
      * deployedLattices array kept by this iterator factory class, and by 
      * the reference in each neighbor sequencer to the cell containing its atom.
@@ -92,16 +96,17 @@ public class IteratorFactoryCell implements IteratorFactory {
     public BravaisLattice makeCellLattice(final Phase phase) {
         if(phase.parentSimulation() != simulation) throw new IllegalArgumentException("Attempt to apply iterator factory to a phase from a different simulation"); 
         //make the unit cell factory and set it to produce cells of the appropriate size
-        AtomFactory cellFactory = primitive.unitCellFactory();
-        ((PrimitiveCubic)primitive).setSize(phase.boundary().dimensions().component(0)/(double)dimensions[0]);//this needs work
+        final PrimitiveCubic primitiveCopy = (PrimitiveCubic)primitive.copy();//each new lattice works with its own primitive
+        AtomFactory cellFactory = primitiveCopy.unitCellFactory();
+        ((PrimitiveCubic)primitiveCopy).setSize(phase.boundary().dimensions().component(0)/(double)dimensions[0]);//this needs work
         //construct the lattice
-        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitive);
-        BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
+        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitiveCopy);
+        final BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
         
         //set up the neighbor lists for each cell in the lattice
         NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
             public boolean areNeighbors(Site s1, Site s2) {
-                return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < 0.2;
+                return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < neighborRange;
             }
         };
         lattice.setupNeighbors(neighborCriterion);
@@ -121,7 +126,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         deployedLattices[phase.index] = lattice;
         
         //add listener to notify all sequencers of any lattice events (resizing of lattice, for example)
-        lattice.eventManager().addListener(new LatticeListener() {
+        lattice.eventManager.addListener(new LatticeListener() {
             public void actionPerformed(LatticeEvent evt) {
                 if(evt.type() == LatticeEvent.REBUILD || evt.type() == LatticeEvent.ALL_SITE) {
                     Phase p = getPhase((BravaisLattice)evt.lattice());
@@ -132,6 +137,19 @@ public class IteratorFactoryCell implements IteratorFactory {
             }
         });
         
+        //add listener to phase to update the size and placement of the lattice
+        //cells if the phase undergoes an inflation of its boundary
+        phase.boundaryEventManager.addListener(new PhaseListener() {
+            public void actionPerformed(PhaseEvent evt) {
+                if(!evt.equals(PhaseEvent.BOUNDARY_INFLATE)) return;
+                if(!evt.isotropic) throw new RuntimeException("Cannot handle anisotropic inflate in IteratorFactoryCell");
+                    //we expect that primitive.lattice() == null, so change of size doesn't cause replacement of atoms in cells
+                primitiveCopy.setSize(evt.isoScale * primitiveCopy.getSize());
+                AtomIteratorListSimple cellIterator = new AtomIteratorListSimple(lattice.siteList());
+                while(cellIterator.hasNext()) cellIterator.next().coord.inflate(evt.isoScale);
+            }
+        });
+        System.out.println(primitive.getLattice());
         return lattice;
     }
     
@@ -155,6 +173,22 @@ public class IteratorFactoryCell implements IteratorFactory {
         }
         return null;//no phase corresponding to given lattice found in simulation
     }
+    
+    /**
+     * Sets the maximum range of interaction for which the cells must keep neighbors.
+     */
+    public void setNeighborRange(double r) {
+        neighborRange = r;
+        NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
+            public boolean areNeighbors(Site s1, Site s2) {
+                return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < neighborRange;
+            }
+        };
+        for(int i=0; i<deployedLattices.length; i++) {
+            deployedLattices[i].setupNeighbors(neighborCriterion);
+        }
+    }
+    public double getNeighborRange() {return neighborRange;}
 
     
     public AtomIterator makeGroupIteratorSimple() {return new AtomIteratorListSimple();}
@@ -690,7 +724,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
  //       list.add(newTab);
         site.agents[0] = newTabList;
     }
-}
+}//end of setupListTabs
 
     /**
      * Demonstrates how this class is implemented.
@@ -699,9 +733,15 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         Default.ATOM_SIZE = 1.0;
         etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space2D());
         Simulation.instance = sim;
-        IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
-        sim.setIteratorFactory(iteratorFactory);
-	    IntegratorHard integratorHard = new IntegratorHard();
+
+        sim.setIteratorFactory(new IteratorFactoryCell(sim));
+        
+	    //IntegratorHard integrator = new IntegratorHard();
+        //integrator.setTimeStep(0.01);
+        IntegratorMC integrator = new IntegratorMC();
+        MCMoveAtom mcMoveAtom = new MCMoveAtom(integrator);
+        MCMoveVolume mcMoveVolume = new MCMoveVolume(integrator);
+        
 	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
 	    speciesSpheres.setNMolecules(300);
 	    
@@ -710,8 +750,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();
-	    integratorHard.setSleepPeriod(1);
-        integratorHard.setTimeStep(0.01);
+	    integrator.setSleepPeriod(1);
         
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
