@@ -61,9 +61,9 @@ public interface Function {
      */
     public static class Linear implements Function {
         private final double a, b, ra;
-        public Linear(double a, double b) {
-            this.a = a;
-            this.b = b;
+        public Linear(double slope, double intercept) {
+            this.a = slope;
+            this.b = intercept;
             ra = 1.0/a;
         }
         public double f(double x) {return a*x + b;}

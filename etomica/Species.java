@@ -89,12 +89,19 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     public void add(Molecule.Configuration mc) {
         mc.setParentSpecies(this);
         this.moleculeConfiguration = mc;
+        initializeMoleculeCoordinates();
+    }
+    
+    /**
+     * Sets all molecule coordinates to those given by the Molecule Configuration object
+     */
+    public void initializeMoleculeCoordinates() {
         Iterator e = agents.keySet().iterator();
         while(e.hasNext()) {
             Phase p = (Phase)e.next();
-            mc.initializeCoordinates(p);
+            moleculeConfiguration.initializeCoordinates(p);
         }
-    }
+    }        
            
     /**
      * Sets the "stationary" field of all atoms of this species to the given value

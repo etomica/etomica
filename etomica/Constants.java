@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Constants extends Object {
     
-    public String getVersion() {return "01.03.10.0";}    
+    public String getVersion() {return "01.03.10";}    
     private static final Random random = new Random();
     
     private Constants() {}   // can't instantiate class
@@ -21,8 +21,8 @@ public class Constants extends Object {
     public static final double AVOGADRO = 6.0221367e23;
         
     
-    public static double G = 9.8*1e10/1e24;  //acceleration of gravity (on Earth), in A/ps^2
-    public static double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; //Boltzmann's constant, converted from J/K to amu-A^2/ps^2 (where it equals 0.8314)
+    public static final double G = 9.8*1e10/1e24;  //acceleration of gravity (on Earth), in A/ps^2
+    public static final double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; //Boltzmann's constant, converted from J/K to amu-A^2/ps^2 (where it equals 0.8314)
 
   /* Colors adopted in the web textbook on molecular simulation */
     public static final Color KHAKI = new Color(153,153,102);

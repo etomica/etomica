@@ -401,9 +401,7 @@ public abstract class AtomType implements java.io.Serializable {
 
             public double currentValue() {
                 double flux = pAccumulator/timeSum;   //divide by time interval
-                flux /= (length*etomica.units.BaseUnit.D2.FALSE_DEPTH); //divide by area
-//                timeSum = 0.0;          //zeroing should be moved to intervalAction?
-//                pAccumulator = 0.0;
+                flux /= length; //divide by area
                 return flux;
             }
         }//end of MeterPressure

@@ -75,6 +75,9 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     
     protected int historyWindow = 100;
     
+    boolean resetHistoryOnMeterReset = false;
+    boolean resetHistogramOnMeterReset = true;
+    
     /**
      * Size of subaveraging block used to evaluate confidence limits.
      * Default is 1000 updateIntervals.
@@ -343,6 +346,36 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	        accumulators[i].reset();
 	    }
 	}
+	
+	/**
+	 * Indicates is the accumulated histogram data is to be erased when 
+	 * a call is made to reset the meter.  Default is true.
+	 */
+	public void setResetHistogramOnMeterReset(boolean b) {
+	    resetHistogramOnMeterReset = b;
+	}
+	/**
+	 * Indicates is the accumulated histogram data is to be erased when 
+	 * a call is made to reset the meter.  Default is true.
+	 */
+	public boolean isResetHistogramOnMeterReset() {
+	    return resetHistogramOnMeterReset;
+	}
+	/**
+	 * Indicates is the accumulated history data is to be erased when 
+	 * a call is made to reset the meter.  Default is false.
+	 */
+	public void setResetHistoryOnMeterReset(boolean b) {
+	    resetHistoryOnMeterReset = b;
+	}
+	/**
+	 * Indicates is the accumulated history data is to be erased when 
+	 * a call is made to reset the meter.  Default is false.
+	 */
+	public boolean isResetHistoryOnMeterReset() {
+	    return resetHistoryOnMeterReset;
+	}
+	
 
 	/**
 	* Accessor method to indicate if the meter should keep a histogram of all measured values.
@@ -502,8 +535,10 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	        error = Double.NaN;
 	        blockCountDown = blockSize;
 	        blockSum = 0.0;
-	        if(histogram != null) histogram.reset();
-	        if(history != null) history.reset();
+	        if(histogram != null && resetHistogramOnMeterReset) histogram.reset();
+	        if(history != null && resetHistoryOnMeterReset) history.reset();
+	        mostRecent = Double.NaN;
+	        mostRecentBlock = Double.NaN;
 	    }
 	    
 	    /**

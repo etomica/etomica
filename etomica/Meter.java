@@ -20,8 +20,6 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
     MeterAbstract.Accumulator accumulator = new MeterAbstract.Accumulator();
     private Function function;
     
-    private static final String[] sourcesAsText = new String[] {"History", "Histogram"};
-
 	public Meter(Simulation sim) {
 	    super(sim);
 	    setActive(true);  //default is to have meter do averages after some number of integrationIntervalEvents
@@ -186,8 +184,9 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
 	    public Meter[] getMeters();
 	    public void addMeter(Meter m);
 	 }
-	 
-	public static class ValueType extends DataSource.ValueType {
+	
+	 //delete this if everything still compiles
+/*	public static class ValueType extends DataSource.ValueType {
         private ValueType(String label) {super(label);}
         public Constants.TypedConstant[] choices() {
             return new Constants.TypedConstant[] {
@@ -196,5 +195,5 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
         public static final ValueType HISTOGRAM = new ValueType("Histogram");
         public static final ValueType HISTORY = new ValueType("History");
     }//end of ValueType
-	 
+*/	 
 }//end of Meter class	 

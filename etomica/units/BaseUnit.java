@@ -104,7 +104,7 @@ public abstract class BaseUnit implements java.io.Serializable {
      * FALSE_DEPTH is the size of a phony 3rd dimension ascribed to a 2-dimensional simulation
      * to permit its results to be reported in more familiar 3-dimensional units
      */
-        static final double FALSE_DEPTH = 5.0;  //Angstroms
+//        static final double FALSE_DEPTH = 5.0;  //Angstroms
     }  
     public interface D3 {}  //marks a unit defined for a 3-dimensional space (e.g., most pressure and volume units)
 
@@ -287,11 +287,11 @@ public abstract class BaseUnit implements java.io.Serializable {
         public Dimension dimension() {return Dimension.PRESSURE2D;}
         //if converting to a "false" 3D pressure, divide by false depth
         public double to(Pressure u, double x) {
-            return (u instanceof D3) ? u.fromSim(this.toSim(x/BaseUnit.D2.FALSE_DEPTH)) : u.fromSim(this.toSim(x));
+            return (u instanceof D3) ? u.fromSim(this.toSim(x/BaseUnitPseudo3D.FALSE_DEPTH)) : u.fromSim(this.toSim(x));
         }
         //if converting from a "false" 3D pressure, multiply by false depth
         public double from(Pressure u, double x) {
-            return (u instanceof D3) ? u.toSim(this.fromSim(x*BaseUnit.D2.FALSE_DEPTH)) : u.toSim(this.fromSim(x));}
+            return (u instanceof D3) ? u.toSim(this.fromSim(x*BaseUnitPseudo3D.FALSE_DEPTH)) : u.toSim(this.fromSim(x));}
         public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Pressure2D {
@@ -324,11 +324,11 @@ public abstract class BaseUnit implements java.io.Serializable {
         public Dimension dimension() {return Dimension.VOLUME2D;}
         //if converting to a "false" 3D volume, multiply by false depth
         public double to(Volume u, double x) {
-            return (u instanceof D3) ? u.fromSim(this.toSim(x*BaseUnit.D2.FALSE_DEPTH)) : u.fromSim(this.toSim(x));
+            return (u instanceof D3) ? u.fromSim(this.toSim(x*BaseUnitPseudo3D.FALSE_DEPTH)) : u.fromSim(this.toSim(x));
         }
         //if converting from a "false" 3D volume, divide by false depth
         public double from(Volume u, double x) {
-            return (u instanceof D3) ? u.toSim(this.fromSim(x/BaseUnit.D2.FALSE_DEPTH)) : u.toSim(this.fromSim(x));}
+            return (u instanceof D3) ? u.toSim(this.fromSim(x/BaseUnitPseudo3D.FALSE_DEPTH)) : u.toSim(this.fromSim(x));}
         public double toPixels(double x) {return this.toSim(x)*Sim.TO_PIXELS;}
         
         public static final class Sim extends Volume2D {

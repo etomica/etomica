@@ -202,13 +202,16 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     private double pressure = 0.0;
     private Space.Vector forceVector = parentSimulation().space().makeVector();
     private double force = 0.0;
-    public PistonPressureField(Phase p, Atom.Iterator iter) {super(p,iter); setPressure(Bar.UNIT.toSim(500.));}
+    public PistonPressureField(Phase p, Atom.Iterator iter) {
+        super(p,iter); 
+        setPressure(Bar.UNIT.toSim(500.));
+    }
     /**
-     * Accessor method for the (3D) pressure applied to the piston
+     * Accessor method for the pressure applied to the piston
      */
     public void setPressure(double p) {
         pressure = p;
-        force = pressure*diameter*BaseUnit.D2.FALSE_DEPTH;  //compute force as pressure * area
+        force = pressure*diameter; //compute force as pressure * length
         if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
                     phase().integrator().reset();
     }
@@ -222,7 +225,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
     /**
      * Force as computed from current pressure and piston diameter, and direction of piston-cylinder system.
-     * etomica.units.BaseUnit.D2.FALSE_DEPTH is used to convert 3D pressure to the 2D system
      */
     public Space.Vector force(Atom a) {
         forceVector.Ea1Tv1(force,unitNormal);
@@ -262,13 +264,13 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             protoType[1].setAlignment(Constants.VERTICAL);
             protoType[2].setAlignment(Constants.HORIZONTAL);
             protoType[3].setAlignment(Constants.VERTICAL);
-            atoms[0].r.setComponent(0,0.0);
+            atoms[0].r.setComponent(0,0.0); //top (piston)
             atoms[0].r.setComponent(1,0.0);
-            atoms[1].r.setComponent(0,diameter-wallThickness);
+            atoms[1].r.setComponent(0,diameter-wallThickness); //right wall
             atoms[1].r.setComponent(1,0.0);
-            atoms[2].r.setComponent(0,0.0);
+            atoms[2].r.setComponent(0,0.0); //bottom
             atoms[2].r.setComponent(1,length-wallThickness);
-            atoms[3].r.E(0.0);
+            atoms[3].r.E(0.0); //left wall
         }
         else if(((SpeciesPistonCylinder)parentSpecies).direction == Constants.EAST) {
             protoType[3].setAlignment(Constants.HORIZONTAL);
@@ -314,8 +316,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
   }//end of PistonCylinderConfiguration
   
         public void computeDimensions() {
-            dimensions.x = (direction == Constants.NORTH || direction == Constants.SOUTH) ? diameter : length;
-            dimensions.y = (direction == Constants.NORTH || direction == Constants.SOUTH) ? length : diameter;
+            double d = diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS;
+            double l = length - thickness / BaseUnit.Length.Sim.TO_PIXELS;
+            dimensions.x = (direction == Constants.NORTH || direction == Constants.SOUTH) ? d : l;
+            dimensions.y = (direction == Constants.NORTH || direction == Constants.SOUTH) ? l : d;
         }//end of computeDimensions
       
     /**
@@ -330,9 +334,12 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public Space.Vector dimensions() {return SpeciesPistonCylinder.this.dimensions;}
         public double volume() {
             Molecule m = getAgent(this.phase()).firstMolecule();
-            int index = (direction==Constants.NORTH || direction==Constants.SOUTH) ? 1 : 0;
+            int index20 = (direction==Constants.NORTH || direction==Constants.SOUTH) ? 1 : 0;
+            int index31 = 1-index20;//0 or 1, opposite of index20
               //volume is diameter of cylinder times distance between piston (first atom) and base (atom 2) of cylinder
-            return diameter * Math.abs(m.firstAtom().r.component(index) - m.getAtom(2).r.component(index));
+ //           return (diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS)
+            return Math.abs(m.getAtom(3).r.component(index31) - m.getAtom(1).r.component(index31))
+                    * Math.abs(m.firstAtom().r.component(index20) - m.getAtom(2).r.component(index20));
         }
     }//end of Boundary class
     
@@ -346,7 +353,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public ActionFixPiston(Phase phase) {
             Species.Agent agent = SpeciesPistonCylinder.this.getAgent(phase);
             piston = agent.firstAtom();
-            setLabel("Hold/release piston");
+            setLabel("Hold/Release piston");
             this.phase = phase;
         }
         

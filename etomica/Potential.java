@@ -11,11 +11,11 @@ package etomica;
  */
 public abstract class Potential implements Simulation.Element, java.io.Serializable {
   
-    public static String VERSION = "Potential:01.01.17";
+    public static String VERSION = "Potential:01.06.10";
     
     private final Simulation parentSimulation;
     private boolean added = false;
-    private String name;
+    private String name, label;
     
     public Potential(Simulation sim) {
         parentSimulation = sim;
@@ -27,6 +27,10 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
     public final void setAdded(boolean b) {added = b;}
     public final String getName() {return name;}
     public final void setName(String name) {this.name = name;}
+    
+    public final String getLabel() {return label;}
+    public final void setLabel(String text) {label = text;}
+    public String toString() {return label;}
     
     /**
      * Returns the energy of interaction of the pair of atoms passed to the method

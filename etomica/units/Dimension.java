@@ -229,6 +229,6 @@ public abstract class Dimension implements java.io.Serializable {
                 }
             }//end of if(methodName...) block
         }//end of for loop
-        return null;
+        return NULL;
      }//end of introspect method
 }

@@ -11,8 +11,9 @@ import etomica.utility.Function;
  * it is more efficient than computing them in separate meters.  Differs from a simple
  * Meter in that the data-access methods (currentValue, average, etc.), take an integer
  * argument indicating "which Meter's" value is requested.  Often there won't acutally
- * exist a separate Meter for each measured property, so there is no getMeter(int i) method
- * to return the Meter for the i-th property.
+ * exist a separate Meter for each measured property, but "PseudoMeters" can be constructed
+ * and returned as an array of all meters by the allMeters() method.  Each meter in this
+ * array behaves as a stand-alone meter would.
  *
  * @author David Kofke
  */
@@ -207,9 +208,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	  * collected by the meter group.
 	  */
 	 public class PseudoMeter extends Meter {
-        //don't call superclass constructor because we don't want to
-        //register as an actual meter
-        private final int index;
+       private final int index;
         PseudoMeter(Simulation sim, int i) {
             super(sim);
             index = i;

@@ -170,7 +170,10 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
                 disk.momentum().setComponent(0,px);
                 disk.momentum().setComponent(1,py);
             }
-            else disk.momentum().TE(i,-1.0);
+            else {
+                disk.momentum().TE(i,-1.0);
+                wallType.pAccumulator += 2*disk.momentum().component(i);
+            }
         }
         else {
           double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();

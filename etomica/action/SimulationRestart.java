@@ -17,6 +17,11 @@ public final class SimulationRestart extends SimulationAction {
     }
     
     public static void doAction(Simulation sim) {
+        
+        for(Iterator iter=sim.speciesList.iterator(); iter.hasNext(); ) {
+            Species species = (Species)iter.next();
+            species.initializeMoleculeCoordinates();
+        }
         for(Iterator iter=sim.phaseList.iterator(); iter.hasNext(); ) {
             Phase phase = (Phase)iter.next();
             phase.getConfiguration().initializeCoordinates(phase);
@@ -34,10 +39,18 @@ public final class SimulationRestart extends SimulationAction {
         
         for(Iterator iter=sim.meterList.iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
+            //take care that histxxx is reset but restored to prior OnMeterReset condition
+            boolean resetHistory = meter.isResetHistoryOnMeterReset();
+            boolean resetHistogram = meter.isResetHistogramOnMeterReset();
+            meter.setResetHistoryOnMeterReset(true);
+            meter.setResetHistogramOnMeterReset(true);
             meter.reset();
+            meter.setResetHistoryOnMeterReset(resetHistory);
+            meter.setResetHistogramOnMeterReset(resetHistogram);
         }
         for(Iterator iter=sim.displayList.iterator(); iter.hasNext(); ) {
             Display display = (Display)iter.next();
+            display.doUpdate();
             display.repaint();
         }
     }
