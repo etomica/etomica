@@ -45,6 +45,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialGroup;
+import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.BaseUnit;
 import etomica.units.BaseUnitPseudo3D;
@@ -110,6 +111,7 @@ public class PistonCylinderGraphic {
         displayPhase.setColorScheme(new ColorSchemeByType());
 
         displayCycles = new DisplayBox();
+        displayCycles.setPrecision(6);
 
         Default.FIX_OVERLAP = true;
         Default.ATOM_SIZE = 3.0;
@@ -391,6 +393,17 @@ public class PistonCylinderGraphic {
         panel.add(leftPanel, BorderLayout.WEST);
         panel.add(displayPanel, BorderLayout.EAST);
 
+        Thread repainter = new Thread() {
+            public void run() {
+                while (true) {
+                    panel.repaint();
+                    try{Thread.sleep(100);}
+                    catch(InterruptedException e){}
+                }
+            }
+        };
+        repainter.start();
+        
         setSimulation(new PistonCylinder(2));
     }
     
@@ -508,6 +521,7 @@ public class PistonCylinderGraphic {
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
         sigBox.setModifier(sigModifier);
+        sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setUnit(eUnit);
         epsBox.setModifier(epsModifier);
         lamBox.setModifier(lamModifier);
