@@ -90,7 +90,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             wh = h;
         }                    //2D explicit
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {  //equally space all "wall atoms"
-            PhaseSpace2D.Vector r = (PhaseSpace2D.Vector)a.coordinate.position();
+            Space2D.Vector r = (Space2D.Vector)a.coordinate.position();
             if(i==0) {r.x = xyNext;}
             else {r.y = xyNext;}
             xyNext += delta;
@@ -101,13 +101,15 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     }
     
     protected void computeDimensions() {
+        Molecule m = parentSpecies.makeMolecule();
+        initializeCoordinates(m);
         if(horizontal) {
-            dim[0] = ((AtomType.Wall)parentSpecies.firstAtom().type).getLength();
+            dim[0] = ((AtomType.Wall)m.firstAtom().type).getLength();
             dim[1] = 0.0;
         }
         else if(vertical) {
             dim[0] = 0.0;
-            dim[1] = ((AtomType.Wall)parentSpecies.firstAtom().type).getLength();
+            dim[1] = ((AtomType.Wall)m.firstAtom().type).getLength();
         }
         else {
             //does not handle walls that are neither horizontal nor vertical

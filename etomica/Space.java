@@ -36,8 +36,8 @@ public abstract class Space {
         public void displaceTo(Vector r);
         public void displaceBy(Vector dr);
         public void displaceWithin(double d);
-//       public void displaceToRandom();
-//        public void translateToRandom();
+        public void displaceToRandom(Phase p);
+        public void translateToRandom(Phase p);
         public void randomizeMomentum(double temperature);
         public void replace();
         public void inflate(double s);
@@ -65,11 +65,11 @@ public abstract class Space {
         public Molecule molecule();
         public MoleculeCoordinate nextCoordinate();
         public MoleculeCoordinate previousCoordinate();
-        public void displaceToRandom(Vector dim);
     }
     interface Boundary {
         public void centralImage(Vector r);
         public double volume();
+        public Vector dimensions();
         public Vector randomPosition();
         public double[][] getOverflowShifts(Vector r, double distance);
     /** Set of vectors describing the displacements needed to translate the central image

@@ -7,7 +7,7 @@ package simulate;
 public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     
     private double bondLength = 0.02;
-    private PhaseSpace.Vector orientation;
+    private Space.Vector orientation;
     
     public ConfigurationMoleculeLinear(){
     }
@@ -18,14 +18,14 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     }
     public double getBondLength() {return bondLength;}
     
-    public void setOrientation(PhaseSpace.Vector e) {orientation.E(e);}
+    public void setOrientation(Space.Vector e) {orientation.E(e);}
   
   /**
    * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
    * center of mass unchanged from the value before method was called
    */
     public void initializeCoordinates(Molecule m) {
-        PhaseSpace.Vector OldCOM = m.parentSpecies.parentPhaseSpace.makeVector();
+        Space.Vector OldCOM = m.parentSpecies.parentSimulation.space.makeVector();
         OldCOM.E(m.COM());
         double xNext = 0.0;
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
@@ -38,7 +38,8 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     
     protected void computeDimensions() {
         dim[1] = 0.0;
-        Molecule m = parentSpecies().firstMolecule();  //a typical molecule
+        Molecule m = parentSpecies().makeMolecule();  //a typical molecule
+        initializeCoordinates(m);
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
             dim[1] = Math.max(dim[1], ((AtomType.Disk)a.type).diameter());  //width is that of largest atom
         }
@@ -47,8 +48,8 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
 
   public void setParentSpecies(Species s) {
     parentSpecies = s;
-    orientation = (PhaseSpace2D.Vector)s.parentPhaseSpace.makeVector();   //temporary
-    ((PhaseSpace2D.Vector)orientation).x = 1.0;    //temporary;  fix orientation to x-axis of 2-D space
+    orientation = (Space2D.Vector)s.parentSimulation.space.makeVector();   //temporary
+    orientation.setComponent(1,1.0);   //fix orientation to x-axis of 2-D space
   }
 
 

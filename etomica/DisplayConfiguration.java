@@ -18,14 +18,14 @@ public class DisplayConfiguration extends Display {
     public static final int BOTTOM = +1;
     private final int D = 2;
 
-    public final Space2D.VectorInt align = new Space2D.VectorInt();
+    public final int[] align = new int[D];
     
  /**
   * Size of drawing region of central image, in pixels
   *
   * @see #computeDrawSize
   */
-    protected final Space2D.VectorInt drawSize = new Space2D.VectorInt();
+    protected final int[] drawSize = new int[D];
   
  /**
   * Flag specifying whether a line tracing the boundary of the display should be drawn
@@ -79,17 +79,16 @@ public class DisplayConfiguration extends Display {
 
     public DisplayConfiguration () {
         super();
-        align.E(CENTER);
+        align[0] = align[1] = CENTER;
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
     }
     
     public void setAlign(int i, int value) {
-        if(i==0) {align.x = value;}
-        else {align.y = value;}
+        align[i] = value;
     }
-    public int getAlign(int i) {return (i==0) ? align.x : align.y;}
+    public int getAlign(int i) {return align[i];}
 
   public final boolean getDRAW_OVERFLOW() {return DRAW_OVERFLOW;}
   public final void setDRAW_OVERFLOW(boolean b) {DRAW_OVERFLOW = b;}
@@ -244,19 +243,19 @@ public class DisplayConfiguration extends Display {
             g.drawRect(0,0,w-1,h-1);
             }
         double toPixels = scale*SIM2PIXELS;
-        drawSize.x = (int)(toPixels*phase2D.boundary.dimensions().x);
-        drawSize.y = (int)(toPixels*phase2D.boundary.dimensions().y);
-        centralOrigin[0] = computeOrigin(align.x,drawSize.x,w);
-        centralOrigin[1] = computeOrigin(align.y,drawSize.y,h);
+        drawSize[0] = (int)(toPixels*phase2D.boundary().dimensions().component(0));
+        drawSize[1] = (int)(toPixels*phase2D.boundary().dimensions().component(1));
+        centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
+        centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
         for(Species.Agent s=phase2D.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.firstAtom() == null) {continue;}
             s.draw(g, centralOrigin, scale);
         }
         if(drawPhase) {phase2D.paint(g, centralOrigin, scale);}
         if(imageShells > 0) {
-            double[][] origins = phase2D.boundary.imageOrigins(imageShells);  //more efficient to save rather than recompute each time
+            double[][] origins = phase2D.boundary().imageOrigins(imageShells);  //more efficient to save rather than recompute each time
             for(int i=0; i<origins.length; i++) {
-                g.copyArea(centralOrigin[0],centralOrigin[1],drawSize.x,drawSize.y,(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
+                g.copyArea(centralOrigin[0],centralOrigin[1],drawSize[0],drawSize[1],(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
             }
         }
         if(writeScale) {

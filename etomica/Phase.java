@@ -25,6 +25,8 @@ public abstract class Phase extends Container {
     
     public abstract double volume();
     public abstract Space.Vector dimensions();
+    
+    public abstract Space.Boundary boundary();
 
   public final Atom firstAtom() {
      Molecule m = firstMolecule();
@@ -106,6 +108,13 @@ public abstract class Phase extends Container {
         for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
     }
+    
+    public void add(Species s) {  //add species to phase if it doesn't appear in another phase
+        s.parentSimulation = this.parentSimulation;
+        Species.Agent agent = s.makeAgent(this);
+        agent.setNMolecules(20);
+        add(agent);
+    }
                 
 	// Returns ith meter in linked list of meters, with i=0 being the first meter
 	public Meter getMeter(int i) {
@@ -163,8 +172,6 @@ public abstract class Phase extends Container {
   
   public MeterPotentialEnergy potentialEnergy;
   public MeterKineticEnergy kineticEnergy;
-  
-  public Space.Boundary boundary;
     
 }
     

@@ -22,6 +22,7 @@ public class Controller extends Container implements Runnable {
   public void add(Integrator i) {
 //    super.add(i);
     this.integrator = i;
+    i.parentController = this;
 
     for(Phase p=parentSimulation.firstPhase(); p!=null; p=p.nextPhase()) {
         i.registerPhase(p);

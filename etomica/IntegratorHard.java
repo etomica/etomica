@@ -151,7 +151,7 @@ protected void upList(Atom atom) {  //specific to 2D
             
     //Loop through remaining uplist atoms in this atom's molecule
     if(atom != atom.parentMolecule.lastAtom) {
-        Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
+        Potential1 p1 = simulation().potential1[atomSpeciesIndex];
         iterator.reset(atom.nextAtom(),atom.parentMolecule.lastAtom,atom,atom);
         while(iterator.hasNext()) {
 //            for(Atom a=atom.nextAtom(); a!=nextMoleculeAtom; a=a.nextAtom()) {
@@ -172,7 +172,7 @@ protected void upList(Atom atom) {  //specific to 2D
         iterator.reset(atom.nextMoleculeFirstAtom(),atom.phase().lastAtom(),atom,atom);
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
-            PotentialHard potential = (PotentialHard)firstPhase.potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
+            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
             double time = potential.collisionTime(pair);
             if(time < minCollisionTime) {
                 minCollisionTime = time;
@@ -203,7 +203,7 @@ protected void downList(Atom atom) {
     //Loop through remaining downlist atoms in this atom's molecule
     if(atom != atom.parentMolecule.firstAtom) {
         iterator.reset(atom.parentMolecule.firstAtom,atom.previousAtom(),atom,atom);
-        Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
+        Potential1 p1 = simulation().potential1[atomSpeciesIndex];
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
             Agent aia = (Agent)pair.atom2().ia;  //atom2 is inner loop
@@ -231,7 +231,7 @@ protected void downList(Atom atom) {
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
             Agent aia = (Agent)pair.atom2().ia;  //atom2 is inner loop
-            PotentialHard potential = (PotentialHard)firstPhase.potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
+            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
     //       Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
             double time = potential.collisionTime(pair);
             if(time < aia.getCollisionTime()) {

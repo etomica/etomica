@@ -23,6 +23,7 @@ public class Space2D extends Space {
         public Phase(Boundary b) {
             boundary = b;
         }
+        public final Space.Boundary boundary() {return boundary;}
         public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
         public void inflate(double scale) {boundary.inflate(scale);}
         public final Space.Vector dimensions() {return boundary.dimensions;}
@@ -40,6 +41,7 @@ public class Space2D extends Space {
         public static final int PERIODIC_SQUARE = 1;
         public final Vector dimensions = new Vector();
         public void centralImage(Space.Vector r) {centralImage((Vector)r);}
+        public final Space.Vector dimensions() {return dimensions;}
         public abstract void centralImage(Vector r);
         public abstract void apply(Vector r);
         public abstract double volume();
@@ -278,6 +280,8 @@ public class Space2D extends Space {
 //        public void translateToRandom() {r.setRandom(dimensions.x, dimensions.y);}
         public void displaceTo(Vector u) {rLast.E(r); translateTo(u);}  
         public void displaceBy(Vector u) {rLast.E(r); translateBy(u);}
+        public void displaceToRandom(simulate.Phase p) {displaceTo(p.boundary().randomPosition());}
+        public void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
         public void accelerateBy(Vector u) {p.PE(u);}
         public void accelerateToward(Space.Vector u, double d) {accelerateToward((Vector)u,d);}
         public void accelerateToward(Vector u, double d) {temp.Ea1Tv1(d,u); accelerateBy(temp);}
@@ -345,7 +349,7 @@ public class Space2D extends Space {
             if(molecule.nAtoms == 1) {return;}
             do {c=c.nextCoordinate; c.translateBy(u);} while (c.atom!=molecule.lastAtom);
         }
-        public void displaceToRandom(Space.Vector dim) {temp.setRandom((Vector)dim); displaceTo(temp);} 
+//        public void displaceToRandom(Space.Vector dim) {temp.setRandom((Vector)dim); displaceTo(temp);} 
         public void translateTo(Space.Vector u) {
             updateR();  //update COM vector
             temp.E((Vector)u);  //temp = destination vector
@@ -371,14 +375,9 @@ public class Space2D extends Space {
             displaceBy(temp);
         }
             
-/*        public void displaceToRandom() {
-            temp.setRandom(dimensions.x, dimensions.y);
-            displaceTo(temp);
-        }
-        public void translateToRandom() {
-            temp.setRandom(dimensions.x, dimensions.y);
-            translateTo(temp);
-        }*/
+        public void displaceToRandom(simulate.Phase p) {displaceTo(p.boundary().randomPosition());}
+        public void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
+
         public void replace() {
             AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
             c.replace();

@@ -14,10 +14,24 @@ public abstract class ConfigurationMolecule extends Component {
   
   public ConfigurationMolecule(){
     }
-    
+  
   public void initializeCoordinates() {
     if(parentSpecies == null) {return;}
-    for(Molecule m=parentSpecies.firstMolecule(); m!=parentSpecies.terminationMolecule(); m=m.nextMolecule()) {
+    Enumeration e = parentSpecies.agents.elements();
+    while(e.hasMoreElements()) {
+        Species.Agent agent = (Species.Agent)e.nextElement();
+        for(Molecule m=agent.firstMolecule(); m!=agent.terminationMolecule(); m=m.nextMolecule()) {
+            initializeCoordinates(m);
+        }
+    }
+    computeDimensions();
+  }
+        
+        
+  public void initializeCoordinates(Phase p) {
+    if(parentSpecies == null) {return;}
+    Species.Agent agent = parentSpecies.getAgent(p);
+    for(Molecule m=agent.firstMolecule(); m!=agent.terminationMolecule(); m=m.nextMolecule()) {
         initializeCoordinates(m);
     }
     computeDimensions();

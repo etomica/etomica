@@ -28,8 +28,8 @@ public class MeterPressure extends simulate.Meter
     {
         double flux=0.0;
         int count = 0;
-        for(Species s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-           if(s.speciesIndex == meterIndex) {
+        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+           if(s.parentSpecies().speciesIndex == meterIndex) {
               for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 if(a.ia instanceof IntegratorHard.Agent) {
                     IntegratorHard.Agent ia = (IntegratorHard.Agent)a.ia;

@@ -44,8 +44,8 @@ public class IntegratorGEMC extends Integrator {
             trialVolume();
         }
         else {
-            if(rand.nextDouble() < 0.5) {trialExchange(firstPhase.firstSpecies(),secondPhase.firstSpecies());}
-            else {trialExchange(secondPhase.firstSpecies(),firstPhase.firstSpecies());}
+            if(rand.nextDouble() < 0.5) {trialExchange(firstPhase,secondPhase,firstPhase.parentSimulation.firstSpecies);}
+            else {trialExchange(secondPhase,firstPhase,firstPhase.parentSimulation.firstSpecies);}
         }
     }
         
@@ -104,14 +104,17 @@ public class IntegratorGEMC extends Integrator {
             }
     }
     
-    private void trialExchange(Species iSpecies, Species dSpecies) {
+    private void trialExchange(Phase iPhase, Phase dPhase, Species species) {
+        
+        Species.Agent iSpecies = species.getAgent(iPhase);
+        Species.Agent dSpecies = species.getAgent(dPhase);
         double uNew, uOld;
         
         if(dSpecies.nMolecules == 0) {return;}
         
         Molecule m = dSpecies.randomMolecule();
         uOld = dSpecies.parentPhase.potentialEnergy.currentValue(m);
-        m.coordinate.displaceToRandom(iSpecies.parentPhase.dimensions());
+        m.coordinate.displaceToRandom(iPhase);
 //        m.parentSpecies = iSpecies;
         uNew = iSpecies.parentPhase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {

@@ -38,7 +38,7 @@ public class SpeciesDisks extends Species {
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
         protoType = type;
         atomsPerMolecule = nA;
-        setNMolecules(nM);
+//        setNMolecules(nM);
             
         colorScheme = new ColorSchemeNull();
         this.add(new ConfigurationMoleculeLinear());
@@ -48,7 +48,7 @@ public class SpeciesDisks extends Species {
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
         protoType = type;
         atomsPerMolecule = nA;
-        setNMolecules(nM);
+//        setNMolecules(nM);
             
         colorScheme = new ColorSchemeNull();
         this.add(new ConfigurationMoleculeLinear());

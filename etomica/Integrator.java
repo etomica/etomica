@@ -23,6 +23,7 @@ public abstract class Integrator extends Container implements Observer, Serializ
   double drawTimeStep;
   boolean doSleep = true;
   private int neighborListUpdateInterval;
+  public Controller parentController;
 
   public double temperature = 300;
   public boolean isothermal = false;
@@ -45,6 +46,8 @@ public abstract class Integrator extends Container implements Observer, Serializ
         }
     }
   }
+  
+  public final Simulation simulation() {return parentController.parentSimulation;}
     
   public final int getSleepPeriod() {return sleepPeriod;}
   public final void setSleepPeriod(int s) {sleepPeriod = s;}

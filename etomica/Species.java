@@ -35,7 +35,7 @@ import java.util.Enumeration;
      
 public abstract class Species extends Container {
 
-        Space2D ps0 = new Space2D();
+        Simulation2D ps0 = new Simulation2D();
 
     //No base-class constructor
           
@@ -51,7 +51,11 @@ public abstract class Species extends Container {
     public void add(ConfigurationMolecule cm) {
         cm.setParentSpecies(this);
         this.configurationMolecule = cm;
-        cm.initializeCoordinates();
+        Enumeration e = agents.keys();
+        while(e.hasMoreElements()) {
+            Phase p = (Phase)e.nextElement();
+            cm.initializeCoordinates(p);
+        }
     }
            
     /**
@@ -104,12 +108,13 @@ public abstract class Species extends Container {
         agents.put(p,a);   //associate agent with phase; retreive agent for a given phase using agents.get(p)
         return a;
     }
+    public final Agent getAgent(Phase p) {return (Agent)agents.get(p);}
     
         /**
         * Handles addition, deletions, ordering, etc. of molecules in a phase
         */
     public class Agent {
-        public final Phase parentPhase;
+        public Phase parentPhase;  //want final, but won't compile
         
         public Agent(Phase p) {
             parentPhase = p;
@@ -290,7 +295,7 @@ public abstract class Species extends Container {
         public Molecule addMolecule() {
             Molecule m = makeMolecule();
             configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
-            m.coordinate.translateTo(m.parentPhase.boundary.randomPosition());
+            m.coordinate.translateToRandom(m.parentPhase);
             parentPhase.configuration.initializeMomentum(m);  //initialize momentum
             addMolecule(m);
             return m;
@@ -317,7 +322,7 @@ public abstract class Species extends Container {
             if(DisplayConfiguration.DRAW_OVERFLOW) {
                 for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
                     if(a.type instanceof AtomType.Disk) {
-                        double[][] shifts = a.parentMolecule.parentPhase.boundary.getOverflowShifts(a.coordinate.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
+                        double[][] shifts = a.parentMolecule.parentPhase.boundary().getOverflowShifts(a.coordinate.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
                         for(int i=0; i<shifts.length; i++) {
                         shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
                         shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);

@@ -62,7 +62,7 @@ public class Simulation extends Container {
     }
               
     public void add(Species species) {
-        super.add(species);
+//        super.add(species);
         species.parentSimulation = this;
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
@@ -149,7 +149,7 @@ public class Simulation extends Container {
     /**
     * First species in the linked list of species in this phase.
     */
-    private Species firstSpecies;
+    Species firstSpecies;
      
     /**
     * Last species in the linked list of species in this phase.
