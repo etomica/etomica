@@ -83,8 +83,9 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
             space = phase.space();
             translator = new AtomActionTranslateBy(phase.space());
             moleculeTranslator = new AtomGroupAction(translator);
-            //XXX shouldn't clobber user-set moleculePosition, but DataSourceCOM needs the space
-            moleculePosition = new DataSourceCOM(phase.space());
+            if (moleculePosition == null) {
+                moleculePosition = new DataSourceCOM(phase.space());
+            }
         }
 	}
 
