@@ -11,8 +11,8 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.iterator.ApiFiltered;
 import etomica.atom.iterator.ApiIntergroup;
-import etomica.atom.iterator.AtomsetIteratorFiltered;
 import etomica.data.DataSourceCOM;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
@@ -66,10 +66,10 @@ public class ChainHSMD3D extends Simulation {
         P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(space);
         potentialMaster.setSpecies(p1Intra,new Species[]{species});
         
-        PotentialGroup p2Inter = new PotentialGroup(2);
+        PotentialGroup p2Inter = new PotentialGroup(2, space);
         potential = new P2HardSphere(space);
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        AtomsetIteratorFiltered interIterator = new AtomsetIteratorFiltered(new ApiIntergroup(),criterion);
+        ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
         p2Inter.addPotential(potential,interIterator);
         NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
         moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());

@@ -14,13 +14,13 @@ import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.iterator.ApiIntergroup;
-import etomica.atom.iterator.AtomsetIteratorFiltered;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.atom.iterator.ApiFiltered;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.PotentialMasterNbr;
@@ -74,7 +74,7 @@ public class TestSWChainOld extends Simulation {
 
         PotentialGroup p2Inter = new PotentialGroup(2,space);
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        AtomsetIteratorFiltered interIterator = new AtomsetIteratorFiltered(new ApiIntergroup(),criterion);
+        ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
         p2Inter.addPotential(potential,interIterator);
         ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeRange);
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
