@@ -5,6 +5,9 @@ import etomica.*;
  * fcc lattice formed to a cubic shape.  Note: does not extend BravaisLattice.
  */
 
+/* History of changes
+ * 09/18/02 (DAK) modified site method to return Atom instead of Site.
+ */
 public class LatticeCubicFcc extends Atom implements AbstractLattice {
     
    private double latticeConstant;
@@ -130,7 +133,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
      */
      //needs work to improve probable inefficiency with list.get
      //and to handle index values out of size of lattice
-    public Site site(int[] idx) {
+    public Atom site(int[] idx) {
         if(idx.length != 4) throw new IllegalArgumentException("Length of array given to LatticeCubicFcc.site(int[]) is incorrect; must be of length 4");
         Atom site = this;
         int i=0;

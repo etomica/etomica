@@ -8,7 +8,8 @@ package etomica;
  */
  
  /* History of changes
-  * 7/9/02 Added energyChange() method
+  * 07/09/02 (DAK) Added energyChange() method
+  * 09/19/02 (DAK) Minor change in doTrial for case were deleting with N = 0
   */
 public class MCMoveInsertDelete extends MCMove {
     
@@ -60,7 +61,10 @@ public class MCMoveInsertDelete extends MCMove {
             testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
             testMolecule.coord.translateTo(phase.randomPosition());
         } else {//delete
-            if(speciesAgent.moleculeCount() == 0) return false;
+            if(speciesAgent.moleculeCount() == 0) {
+                testMolecule = null;//added this line 09/19/02
+                return false;
+            }
             testMolecule = speciesAgent.randomMolecule();
             uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
             reservoir.addAtom(testMolecule);

@@ -9,7 +9,8 @@ import etomica.log.*;
  */
  
  /* History of changes
-  * 7/10/02 (DAK) started development
+  * 07/10/02 (DAK) started development
+  * 09/20/02 (DAK/JS) correction for when doTrial returns false
   */
   
 public class IntegratorTMMC extends IntegratorMC {
@@ -57,7 +58,7 @@ public class IntegratorTMMC extends IntegratorMC {
         //perform the trial
         int iStateOld = macrostateManager.stateIndex(firstPhase);//new to tmmc
         if(!move.doTrial()) {
-            C[iStateOld][iStateOld] += 1;
+            C[iStateOld][1] += 1;
             if(--doStepCount == 0) updateWeights();
             return;
         }

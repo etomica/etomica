@@ -149,6 +149,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Disable normalization
     gl.glDisable(GL_NORMALIZE);
     
+ //   	gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);//09/17/02
+
+
+    
     //Let OpenGL know that we wish to use the fastest systems possible
     gl.glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
     gl.glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
@@ -339,16 +343,38 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   
   public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
 
+    private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
+    private Space3D.Vector[] points;
+    private Space3D.Vector normal;
+    
   private void drawDisplay() {
 
+    //(DAK) added this section 09/21/02
     /* do drawing of all drawing objects that have been added to the display */
-    /*for(java.util.Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
-      Drawable obj = (Drawable)iter.next();
-    }*/
+    for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
+      Object obj = iter.next();
+      if(obj instanceof etomica.lattice.LatticePlane) {
+        plane = ((etomica.lattice.LatticePlane)obj).planeCopy(plane);
+        points = plane.inPlaneSquare(10., points);
+        normal = plane.getNormalVector(normal);
+        for(int i=0; i<4; i++) System.out.println(points[i].toString());
+        System.out.println();
+          gl.glBegin(GL_QUADS);
+           gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
+  		   gl.glColor3f(0.5f, 0.5f, 1.0f);		//Set The Color To Blue One Time Only
+           gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
+           gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
+           gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
+           gl.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
+          gl.glEnd();
+      }
+    }
 
     if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
         ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
     }
+
+
 
     if(walls.length > 0) {
       lastColor = null;

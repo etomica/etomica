@@ -10,6 +10,10 @@ import etomica.*;
  */
  //needs to be further developed to handle MCMoveEvents when affected atoms
  //are not among those managed by this class
+ 
+ /* History of changes
+  * 09/19/02 (DAK) Modified to correctly handle insertion/deletion moves
+  */
 public class AssociationManager implements MCMoveListener, Atom.AgentSource {
     
     private final AssociationDefinition associationDefinition;
@@ -139,6 +143,11 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
         } else { //notification of acceptance/rejection -- restore or save association lists
             if(evt.wasAccepted) {//accepted, so clear memory of changes
                 clearMemories();
+                //while loop added 09/19/02
+                while(ai.hasNext()) { //if affected atom is removed from phase, memory not cleared yet, so do it here
+                    Atom atom = ai.next();
+                    ((AtomListRestorable)atom.allatomAgents[index]).clearMemory();
+                }
             
             } else {//rejected, restore relevant lists
                 while(ai.hasNext()) restoreLists(ai.next());
@@ -212,6 +221,9 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
             }//end while
             associationList.remove(atom);
         }//end if
+        
+        //if atom was deleted it cannot be associated with any atoms in phase
+        if(atom.node.parentPhase() != phase) return; //added 09/19/02
         
         //look at neighbors to see if they belong
         pairIterator1.reset(directive.set(atom));//maybe should work with neighbor AtomIterator, but complicated by different bases

@@ -21,6 +21,10 @@ import etomica.utility.Iterator;
  * @author David Kofke
  * @author Steve Hotchkiss
  */
+ 
+ /* History of changes
+  * 09/21/02 (DAK) (temporary) new addDrawable method to add any object, for handling in Space3DOpenGL
+  */
 public class DisplayPhase extends Display implements Integrator.IntervalListener.AfterPbc, EtomicaElement {
         
     public String getVersion() {return "DisplayPhase:01.03.11/"+Display.VERSION;}
@@ -207,6 +211,12 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         drawables.add(obj);
     }
     public void removeDrawable(Drawable obj) {
+        drawables.remove(obj);
+    }
+    public void addDrawable(Object obj) {
+        if(parentSimulation().space.D() == 3) drawables.add(obj);
+    }
+    public void removeDrawable(Object obj) {
         drawables.remove(obj);
     }
     

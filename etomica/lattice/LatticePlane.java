@@ -11,6 +11,7 @@ import etomica.*;
  
  /* History
   * 09/07/02 (DAK) new
+  * 09/20/02 (DAK) added planeCopy method
   */
   
 public class LatticePlane implements AtomFilter {
@@ -18,21 +19,25 @@ public class LatticePlane implements AtomFilter {
     private final Plane plane;
     private Primitive primitive;
     private Primitive reciprocal;
-    private Space.Vector normal;
+    private Space.Vector normal, delta;
     private Space space;
     private int[] millerIndices;
     private int position;
+    private Space.Vector origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
         reciprocal = primitive.reciprocal();
         space = primitive.space;
+        origin = space.makeVector();
         millerIndices = new int[space.D()];
         switch(space.D()) {
             case 3: plane = new Plane(); break;
             default: throw new IllegalArgumentException("LatticePlane not defined for other than 3D space");
         }
+        plane.epsilon = 1.0e-2;
         normal = space.makeVector();
+        delta = space.makeVector();
         setMillerIndices(h);
     }
     
@@ -60,6 +65,7 @@ public class LatticePlane implements AtomFilter {
             millerIndices[i] = h[i];
         }
         plane.setNormalVector(normal);
+        setPosition(position);
     }
     
     /**
@@ -83,10 +89,9 @@ public class LatticePlane implements AtomFilter {
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
         Space.Vector[] b = reciprocal.vectors();
-        for(int j=0; j<millerIndices.length; j++) {
-            normal.PEa1Tv1(2.0*Math.PI*i*millerIndices[j],b[j]);
-        }
-        plane.moveTo((Space3D.Vector)normal);
+        delta.E(origin);
+        delta.PEa1Tv1(-(i-0.001)*2.0*Math.PI/normal.squared(),normal);
+        plane.moveTo((Space3D.Vector)delta);
     }
     
     /**
@@ -103,13 +108,36 @@ public class LatticePlane implements AtomFilter {
         return plane.isPositiveSide(p);
     }
     
-    /* implement this
     /**
      * Returns true if the given point is inside the plane (within some small tolerance).
-     * /
-    public boolean isInside(Space.Vector p) {
-        return plane.isInside(p);
+     */
+    public boolean inPlane(Space3D.Vector p) {
+        return plane.inPlane(p);
     }
+    
+    /**
+     * Returns a copy of the Plane that defines the orientation of this LatticePlane.
+     * Only a copy is returned, so manipulation of the returned Plane does not 
+     * affect this LatticePlane, and subsequent manipulations of this are not reflected
+     * in the copy unless this method is invoked again.
+     * Copy is returned using the Plane given in the argument; if that is null, a new
+     * Plane is instantiated and returned as the copy.
+     */
+    public Plane planeCopy(Plane copy) {
+        if(copy == null) return new Plane(plane);
+        else {
+            copy.E(plane); 
+            return copy;
+        }
+    }
+    
+    /**
+     * Sets the origin from which the position of the atom is measured.
+     */
+    public void setOrigin(Space.Vector origin) {
+        this.origin.E(origin);
+    }
+    public Space.Vector getOrigin() {return origin;}
     
     /**
      * Changes the direction of the normal vector so that it points

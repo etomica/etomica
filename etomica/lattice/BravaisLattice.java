@@ -6,6 +6,14 @@ import java.util.Observable;
 /**
  * Arbitrary-dimension Bravais Lattice. 
  */
+ 
+ /* History of changes
+  * 09/16/02 (DAK) got rebuild() method working by invoking node.removeAllChildren() 
+  *           before sending lattice to factory for rebuilding.
+  *           added accessor methods for Factory dimensions field (changes made to
+  *           AtomFactoryTree permit this field to be changed.
+  * 09/18/02 (DAK) modified site method to return Atom instead of Site.
+  */
 public class BravaisLattice extends Atom implements AbstractLattice {
 
    private Primitive primitive;
@@ -112,7 +120,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
      //needs work to improve probable inefficiency with list.get
      //have not checked handling of values out of size of lattice
-    public Site site(int[] idx) {
+    public Atom site(int[] idx) {
         Atom site = this;
         for(int i=0; i<idx.length && !site.node.isLeaf(); i++) {
             int k = idx[i];
@@ -123,7 +131,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
       //  int i=0;
       //  do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
       //  while(!site.node.isLeaf() && i<idx.length);
-        return (Site)site;
+        return site;
     }
     
     /**
@@ -150,11 +158,10 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      * lattice are changed.
      */
     public void rebuild() {
-        throw new RuntimeException("BravaisLattice.rebuild() not yet working correctly");
-        //sending atom to tree factory for rebuild doesn't work right
-    /*    creator().build(this);
+   //     throw new RuntimeException("BravaisLattice.rebuild() not yet working correctly");
+        ((AtomTreeNodeGroup)node).removeAllChildren();
+        creator().build(this);
         eventManager.fireEvent(rebuildEvent);
-        */
     }
 
     /**
@@ -365,6 +372,13 @@ public static class Factory extends AtomFactoryTree {
         }
         return array;
     }
+    
+    public void setDimensions(int[] dimensions) {
+        if(dimensions.length != this.dimensions.length) throw new IllegalArgumentException("Incorrect size of array argument in BravaisLattice.Factory.setDimensions");
+        System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
+        rootFactory().setNAtoms(dimensions);
+    }
+    public int[] getDimensions() {return dimensions;}
     
     protected Primitive primitive;
     protected final int[] dimensions;

@@ -12,6 +12,8 @@ package etomica;
  
  /* History of changes
   * 09/04/02 (DAK) added leafFactory method
+  * 09/16/02 (DAK) added parentFactory, rootFactory methods; modified constructors so
+  *                that parent factory is set when child AtomFactoryTree is made
   */
   
 public class AtomFactoryTree extends AtomFactoryHomo {
@@ -27,6 +29,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      */
     public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
         super(sim, subFactory(sim, leafFactory, nAtoms, null), nAtoms[0]);
+        if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
@@ -42,6 +45,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
                             Configuration[] config) {
         super(sim, subFactory(sim, leafFactory, nAtoms, config), 
                 nAtoms[0], BondInitializer.NULL, config[0]);
+        if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
@@ -73,6 +77,14 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         }
     }
     
+/*    private void setParentFactory(AtomFactoryTree parent) {
+        parentFactory = parent;
+    }*/
+    public AtomFactoryTree parentFactory() {return parentFactory;}
+    public AtomFactoryTree rootFactory() {
+        return (parentFactory == null) ? this : parentFactory.rootFactory();
+    }
+    
     /**
      * Returns the factory that produces the leaf atoms of the tree.
      */
@@ -83,6 +95,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     
     //number of layers of atoms below the root atom
     int depth;
+    private AtomFactoryTree parentFactory;
     
     public static void main(String[] args) {
         Simulation sim = new Simulation();
