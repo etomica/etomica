@@ -44,7 +44,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
     
     public void setPhase(Phase p) {
         if(p == null) return;
-        moleculeIterator = p.makeMoleculeIterator();
+        moleculeIterator = new AtomIteratorMolecule(p);
         r0.PEa1Tv1(-0.5, p.boundary().dimensions());//subtract old
         super.setPhase(p);
         r0.PEa1Tv1(0.5,phase.boundary().dimensions());//add new
@@ -65,12 +65,12 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
         AtomIterator iter = lattice.iterator();
         iter.reset();
         while(iter.hasNext()) {
-            MySite site = (MySite)iter.next();
+            MySite site = (MySite)iter.nextAtom();
             site.calculateDeformedPosition(deformationScale);
         }
         iter.reset();
         while(iter.hasNext()) {
-            MySite site = (MySite)iter.next();
+            MySite site = (MySite)iter.nextAtom();
             if(site.c1 != null) site.c1.updateConstants();
             if(site.c2 != null) site.c2.updateConstants();
         }//end while
@@ -96,10 +96,10 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
         double scale = expand ? lattice.scale : 1.0/lattice.scale;
         setDeformationScale(deformationScale);
         lnJTot = 0.0;
-        moleculeIterator = p.makeMoleculeIterator();//change this so iterator isn't constructed with every call
+        moleculeIterator = new AtomIteratorMolecule(p);//change this so iterator isn't constructed with every call
         moleculeIterator.reset();
         while(moleculeIterator.hasNext()) {
-            Atom a = moleculeIterator.next();
+            Atom a = moleculeIterator.nextAtom();
             s.E(a.coord.position());
             s.ME(r0);
             phase.boundary().centralImage(s);
@@ -130,7 +130,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
     public void undo() {
         moleculeIterator.reset();
         while(moleculeIterator.hasNext()) {
-            moleculeIterator.next().coord.replace();
+            moleculeIterator.nextAtom().coord.replace();
         }
  //       phase.dimensions().DE(expand ? lattice.scale : 1.0/lattice.scale);
         phase.boundary().inflate(expand ? 1.0/lattice.scale : lattice.scale);
@@ -160,7 +160,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
         double yL = phase.boundary().dimensions().x(1);
         AtomIterator iter = lattice.iterator();
         while(iter.hasNext()) {
-                MySite site = (MySite)iter.next();
+                MySite site = (MySite)iter.nextAtom();
                 Space.Vector r = site.originalPosition;
                 int xP = origin[0] + (int)(toPixels*(xL*r.x(0)-0.5*diameter));
                 int yP = origin[1] + (int)(toPixels*(yL*r.x(1)-0.5*diameter));
@@ -180,7 +180,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
         double toPixelsX = toPixels*phase.boundary().dimensions().x(0);
         double toPixelsY = toPixels*phase.boundary().dimensions().x(1);
         while(iter.hasNext()) {
-            MySite site = (MySite)iter.next();
+            MySite site = (MySite)iter.nextAtom();
             MyCell cell = site.c1;
             if(cell == null) continue;
       //      java.awt.Polygon triangle = cell.getDeformedPolygon(origin,toPixelsX, toPixelsY);               

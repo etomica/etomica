@@ -260,6 +260,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 	}
 
     AtomIteratorList iter = new AtomIteratorList(displayPhase.getPhase().speciesMaster.atomList);
+    iter.reset();
     while(iter.hasNext()) {
       Atom a = iter.nextAtom();
       atoms[i/3] = a;

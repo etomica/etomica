@@ -41,7 +41,7 @@ public class ConfigurationZincblende extends Configuration {
         
         iterators[1].reset();
         while(iterators[1].hasNext()) {
-            Atom atom = iterators[1].next();
+            Atom atom = iterators[1].nextAtom();
             atom.coord.translateBy(shift);
         }
     }

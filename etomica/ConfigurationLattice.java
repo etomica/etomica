@@ -44,7 +44,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 		if(iterator.size() == 0) {return;}
 		if(iterator.size() == 1) {
 			iterator.reset();
-			iterator.next().coord.translateTo(space.origin());
+			iterator.nextAtom().coord.translateTo(space.origin());
 			return;
 		}
     
@@ -65,12 +65,12 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
    // Place molecules  
 		iterator.reset();
 		while(iterator.hasNext()) {
-			Atom a = iterator.next();
+			Atom a = iterator.nextAtom();
 			//initialize coordinates of child atoms
 			try {//may get null pointer exception when beginning simulation
 				a.creator().getConfiguration().initializeCoordinates(a);
 			} catch(NullPointerException e) {}
-			Atom site = siteIterator.next();
+			Atom site = siteIterator.nextAtom();
 			a.coord.translateTo(site.coord.position());//use translateTo instead of E because atom might be a group
 			if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
 		}

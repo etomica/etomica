@@ -140,7 +140,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         
         treeFactory.setNAtoms(new int[] {2,2,1});
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(phase);
-        while(moleculeIterator.hasNext()) treeFactory.build(moleculeIterator.next());
+        while(moleculeIterator.hasNext()) treeFactory.build(moleculeIterator.nextAtom());
         for(int i=0; i<6; i++) {
             System.out.println("i = "+i);
             iterator.setIterationDepth(i);

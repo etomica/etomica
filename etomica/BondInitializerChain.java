@@ -23,10 +23,10 @@ public class BondInitializerChain extends BondInitializer {
         if(a.node.isLeaf()) return;
         Atom a1 = null;
         Atom a2 = null;
-        iterator.setBasis(a);
+        iterator.setList(((AtomTreeNodeGroup)a.node).childList);
         iterator.reset();
         while(iterator.hasNext()) {
-            a2 = iterator.next();
+            a2 = iterator.nextAtom();
             if(a1 != null && a2 != null) Bond.makeBond(a1, a2);
             a1 = a2;
         }
