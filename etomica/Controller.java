@@ -43,17 +43,27 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 currentAction = actions[0];
                 removeAction(currentAction);
             }
-            boolean exceptionThrown = false;
 
             if(currentAction instanceof Activity) {
                 waitObject.currentActionDone = false;
+                waitObject.exceptionThrown = false;
                 Thread localRunner = new Thread(new Runnable() {
                     public void run() {
-                        currentAction.actionPerformed();
+                        RuntimeException exception = null;
+                        try {
+                            currentAction.actionPerformed();
+                        }
+                        catch (RuntimeException e) {
+                            exception = e;
+                            synchronized(waitObject) {
+                                waitObject.exceptionThrown = true;
+                            }
+                        }
                         synchronized(waitObject) {
                             waitObject.currentActionDone = true;
                             waitObject.notifyAll();
                         }
+                        throw exception;
                     }
                 });
                 localRunner.start();
@@ -63,16 +73,15 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                             //put group thread in wait state while current action runs
                             //need to check again that current action isn't done, to ensure that current-action thread didn't finish between while and here
                             if(urgentAction == null && !waitObject.currentActionDone) {
-                                while (localRunner.isAlive()) {
-                                    waitObject.wait(10000);
-                                }
-                                if (!localRunner.isAlive() && !waitObject.currentActionDone) {
-                                    throw new RuntimeException();
-                                }
+                                waitObject.wait();
                             }
 //                            System.out.println("done waiting for waitObject");
                         }
                     } catch(InterruptedException e) {}
+
+                    if (waitObject.exceptionThrown) {
+                        throw new RuntimeException("action failed");
+                    }
                     
                     synchronized(this) {
 //                        System.out.println("trying to do urgentAction");
@@ -86,22 +95,13 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 currentAction.actionPerformed();
             }
             
-            
-//            try {
-//              currentAction.actionPerformed();
-//          }
-//          catch (Exception e) {
-//              //TODO write message to error stream
-//              e.printStackTrace();
-//              exceptionThrown = true;
-//          }
             //TODO mark this as whether completed normally
             synchronized(this) {
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 currentAction = null;
             }
             doUrgentAction();
-            if(exceptionThrown || pauseRequested || pauseAfterEachAction) doWait();
+            if(pauseRequested || pauseAfterEachAction) doWait();
             if(haltRequested) break;
         }
         doUrgentAction();//could come straight here if doActionNow before adding other actions
@@ -178,7 +178,8 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
 
     private final WaitObject waitObject = new WaitObject();
     private static class WaitObject {
-        boolean currentActionDone = false;
+        boolean currentActionDone;
+        boolean exceptionThrown;
     };
 
 }//end of Controller
