@@ -38,8 +38,8 @@ public class DisplayToConsole extends simulate.Display
     public void doPaint(Graphics g) {
     }
         
-    public void paint(Graphics g) {
-    createOffScreen();
-    doPaint(g);
-    }
+//    public void paint(Graphics g) {
+//    createOffScreen();
+//    doPaint(g);
+//    }
 }

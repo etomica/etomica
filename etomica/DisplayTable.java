@@ -3,8 +3,10 @@ package simulate;
 import simulate.*;
 import java.beans.*;
 import java.awt.*;
-import javax.swing.JTable;
-import javax.swing.table.*;
+import java.awt.event.*;
+import com.sun.java.swing.JTable;
+import com.sun.java.swing.table.*;
+import com.sun.java.swing.Box;
 
 public class DisplayTable extends simulate.Display
 {
@@ -14,65 +16,54 @@ public class DisplayTable extends simulate.Display
     int nMeters = 0;
     private boolean showingPE = false;  //flag to indicate if PotentialEnergy meter should be displayed
     private boolean showingKE = false;  //same for KineticEnergy meter
+    Box panel = Box.createVerticalBox();
+    Button resetButton = new Button("Reset averages");
     
     public DisplayTable()
     {
         super();
         dataSource = new MyTableData();   //inner class, defined below
         table = new JTable(dataSource);
+		resetButton.addActionListener(new ActionListener() {
+		    public void actionPerformed(java.awt.event.ActionEvent event) {DisplayTable.this.resetAverages();}
+		});
 //        setVisible(false);  //get out of way of painting of table
-//        add(table);
+        panel.add(table);
+        panel.add(resetButton);
+        add(panel);
     }
     
+    public void resetAverages() {
+        for(int i=0; i<nMeters; i++) {meter[i].reset();}
+    }
+    public void setResetVisible(boolean b) {resetButton.setVisible(b);}
+    public boolean getResetVisible() {return resetButton.isVisible();}
     public void setShowingKE(boolean b) {showingKE = b;}
     public boolean isShowingKE() {return showingKE;}
     public void setShowingPE(boolean b) {showingPE = b;}
     public boolean isShowingPE() {return showingPE;}
     
-    public void createOffScreen () {
-        if (offScreen == null) {
-            System.out.println(pixels);
-            offScreen = createImage(pixels, pixels);
-            osg = offScreen.getGraphics();
-//            getParent().add(table);
-            table.setBounds(this.getBounds());
-        }
+    public void addMeter(Meter m) {
+        if(m instanceof MeterPotentialEnergy && !showingPE) {return;}
+        if(m instanceof MeterKineticEnergy && !showingKE) {return;}
+        nMeters++;
+        Meter[] temp = new Meter[nMeters];
+        for(int i=0; i<meter.length; i++) {temp[i] = meter[i];}
+        temp[nMeters-1] = m;
+        meter = temp;
     }
-        public void addMeter(Meter m) {
-            if(m instanceof MeterPotentialEnergy && !showingPE) {return;}
-            if(m instanceof MeterKineticEnergy && !showingKE) {return;}
-            nMeters++;
-            Meter[] temp = new Meter[nMeters];
-            for(int i=0; i<meter.length; i++) {temp[i] = meter[i];}
-            temp[nMeters-1] = m;
-            meter = temp;
-        }
         
-        public void setPhase(Phase p) {
-            for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {this.addMeter(m);}
-        }
-
-    public void doUpdate() {
-//        TableDataEvent event = new TableDataEvent(dataSource,0,0,0,0,TableDataEvent.RESET);
-//        dataSource.fireTableDataEvent(event);
+    public void setPhase(Phase p) {
+        for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {this.addMeter(m);}
     }
-    
-    public void doPaint(Graphics g) {
-        g.setColor(Color.red);
-        g.drawRect(0,0,getSize().width-1,getSize().height-1);
-        g.drawRect(1,1,getSize().width-3,getSize().height-3);
-        table.paint(g);
-    }
-    
-//    public void paint(Graphics g) {
-//      createOffScreen();
-//      doPaint(g);
-//    }
 
+    public void doUpdate() {}
+    public void repaint() {table.repaint();}
+    
     class MyTableData extends AbstractTableModel {
         
-        private final String[] columnNames = new String[] {"Property", "Current", "Average"};
-        private final Class[] columnClasses = {String.class, Double.class, Double.class};
+        String[] columnNames = new String[] {"Property", "Current", "Average"};
+        Class[] columnClasses = {String.class, Double.class, Double.class};
         
         MyTableData() {}
         
@@ -92,4 +83,5 @@ public class DisplayTable extends simulate.Display
         public String getColumnName(int column) {return columnNames[column];}
         public Class getColumnClass(int column) {return columnClasses[column];}
     }
+    
 }

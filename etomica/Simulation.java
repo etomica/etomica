@@ -45,7 +45,7 @@ public class Simulation extends Panel {
         if(haveIntegrator()) {
             controller.integrator.addIntegrationIntervalListener(d);
         }
-        if(d.displayTool != null) {super.add(d.displayTool);}
+//        if(d.displayTool != null) {super.add(d.displayTool);}
         for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {
             d.setPhase(p);
         }

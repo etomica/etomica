@@ -8,7 +8,7 @@ public class MeterNMolecules extends simulate.Meter
     public MeterNMolecules()
     {
         super();
-        setLabel("Number of molecules");
+        setLabel("Molecules");
     }
 
     public double currentValue()
