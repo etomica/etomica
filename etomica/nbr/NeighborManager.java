@@ -16,7 +16,7 @@ import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
 
 /**
- * Initiates the process of update the neighbor lists.  Acts as a
+ * Initiates the process of updating the neighbor lists.  Acts as a
  * listener of the integrator, and performs the update at regular intervals
  * upon receiving interval events.
  */

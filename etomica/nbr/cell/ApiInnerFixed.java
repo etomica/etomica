@@ -1,10 +1,9 @@
 package etomica.nbr.cell;
 import etomica.*;
-import etomica.IteratorFactoryCell.CellSequencer;
-import etomica.IteratorFactoryCell.NeighborSequencer;
 import etomica.action.AtomsetAction;
-import etomica.lattice.AbstractCell;
 import etomica.lattice.BravaisLattice;
+import etomica.math.geometry.Polyhedron;
+import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
 import etomica.utility.java2.HashMap;
 
 /**
@@ -173,9 +172,9 @@ public final class ApiInnerFixed implements AtomsetIterator {
 		if(atom == null) return;
 		AtomTreeNodeGroup basis = (AtomTreeNodeGroup)basisAtom.node;
 		if(basis.childAtomCount() == 0) return;
-		boolean basisIterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
+		boolean basisIterateCells = basis.childSequencerClass().equals(AtomSequencerCell.class);
 		BravaisLattice lattice = iteratorFactory.getLattice(basis.parentPhase());
-		AbstractCell referenceCell = ((CellSequencer)atom.seq).cell();//cell in which reference atom resides
+		Polyhedron referenceCell = ((CellSequencer)atom.seq).cell();//cell in which reference atom resides
 		if(basisIterateCells && referenceCell != null) {
 			HashMap hash = (HashMap)lattice.agents[0];
 			int tabIndex = ((Integer)hash.get(basis)).intValue();//index of tabs in each cell for the basis

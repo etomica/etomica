@@ -8,8 +8,8 @@ import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomIteratorAtomDependent;
 import etomica.AtomLinker;
-import etomica.AtomsetActive;
-import etomica.lattice.AbstractCell;
+import etomica.action.AtomsetAction;
+import etomica.math.geometry.Polyhedron;
 
 /**
  * @author kofke
@@ -91,14 +91,14 @@ public class AtomIteratorCell implements AtomIteratorAtomDependent {
 		return null;
 	}
 
-	public void setCell(AbstractCell referenceCell) {
+	public void setCell(Polyhedron referenceCell) {
 		this.referenceCell = referenceCell;
 	}
 	
 	/* (non-Javadoc)
 	 * @see etomica.AtomsetIterator#allAtoms(etomica.AtomsetActive)
 	 */
-	public void allAtoms(AtomsetActive action) {
+	public void allAtoms(AtomsetAction action) {
 		AtomLinker.Tab header = referenceCell.neighborManager().neighbors().header;
 		for(AtomLinker e=header.next; e!=header; e=e.next) {//loop over cells
 			AtomLinker.Tab[] tabs = (AtomLinker.Tab[])e.atom.agents[0];
@@ -130,6 +130,6 @@ public class AtomIteratorCell implements AtomIteratorAtomDependent {
 	}
 
 	AtomIterator atomIterator;
-	private AbstractCell referenceCell;
+	private Polyhedron referenceCell;
 	
 }

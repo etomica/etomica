@@ -4,10 +4,9 @@
  */
 package etomica.nbr.cell;
 import etomica.*;
-import etomica.IteratorFactoryCell.CellSequencer;
-import etomica.IteratorFactoryCell.NeighborSequencer;
-import etomica.lattice.AbstractCell;
 import etomica.lattice.BravaisLattice;
+import etomica.math.geometry.Polyhedron;
+import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
 import etomica.utility.java2.HashMap;
 
 /**
