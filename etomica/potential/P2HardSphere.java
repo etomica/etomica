@@ -75,7 +75,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         double time = Double.POSITIVE_INFINITY;
 
         if(bij < 0.0) {
-        	if (Default.FIX_OVERLAP && dr.squared() < sig2) return 0.0;
+        	if (Default.FIX_OVERLAP && dr.squared() < sig2) return falseTime;
             double v2 = dv.squared();
             double discriminant = bij*bij - v2 * ( dr.squared() - sig2 );
             if(discriminant > 0) {
