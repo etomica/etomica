@@ -58,9 +58,9 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
      */
     public double[] average() {
         int blockCount = blockSize - blockCountDown;
-        if(count+blockCount > 0) setNaN(average);
+        if(count+blockCount == 0) setNaN(average);
         else {
-	       	for(int i=nDataMinus1; i>=0; i--) {       		
+	       	for(int i=nDataMinus1; i>=0; i--) {
 	        	average[i] = sum[i]/(double)count;
 //		            average[i] = (sum[i] + blockSum[i]/blockSize)/(double)(count + (double)blockCount/(double)blockSize) 
 	        }
