@@ -6,6 +6,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -91,20 +93,30 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * tether distance
      */
     public final void bump(Atom[] pair, double falseTime) {
-        cPair.trueReset(pair[0].coord, pair[1].coord,falseTime);
-        double r2 = cPair.r2();
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        
         if (Debug.ON) {
-            if (cPair.vDotr()<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
+            if (bij<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+minBondLengthSquared);
             }
-            else if (cPair.vDotr()>0.0 && Math.abs(r2 - maxBondLengthSquared)/maxBondLengthSquared > 1.e-9) {
+            else if (bij>0.0 && Math.abs(r2 - maxBondLengthSquared)/maxBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+maxBondLengthSquared);
             }
         }
-        lastCollisionVirial = 2.0 / (pair[0].coord.rm() + pair[1].coord.rm()) * cPair.vDotr();
+        
+        lastCollisionVirial = 2.0 / (pair[0].type.rm() + pair[1].type.rm()) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
-        dr.Ea1Tv1(lastCollisionVirialr2,cPair.dr());
-        cPair.truePush(dr,falseTime);
+        dv.Ea1Tv1(lastCollisionVirialr2,dr);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
+        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
+        pair[1].coord.position().Ea1Tv1(falseTime,dv);
     }
 
     public final double lastCollisionVirial() {
@@ -122,9 +134,15 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * free-flight kinematics
      */
     public final double collisionTime(Atom[] pair, double falseTime) {
-        cPair.trueReset(pair[0].coord, pair[1].coord,falseTime);
-        double r2 = cPair.r2();
-        double bij = cPair.vDotr();
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double v2 = dv.squared();
+        
         if (Default.FIX_OVERLAP && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             //outside bond, moving apart or overalpped and moving together; collide now
@@ -136,7 +154,6 @@ public class P2HardBond extends Potential2 implements PotentialHard {
             System.out.println(pair[0].coord.position());
             System.out.println(pair[1].coord.position());
         }
-        double v2 = cPair.v2();
         double discr;
         if (bij < 0.0) {
             discr = bij*bij - v2 * (r2 - minBondLengthSquared);

@@ -4,6 +4,8 @@ import etomica.Atom;
 import etomica.Default;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -42,15 +44,19 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     */
     public void bump(Atom[] pair, double falseTime) {
         double eps = 1e-6;
-        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double r2 = cPair.r2();
-        double bij = cPair.vDotr();
-        //ke is kinetic energy from the components of velocity
-        double reduced_m = 1/(pair[0].coord.rm() + pair[1].coord.rm());
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+
+        double reduced_m = 1/(pair[0].type.rm() + pair[1].type.rm());
         dr.E(cPair.dr());
-        double ke = bij*bij*reduced_m/(2*r2);
         double nudge = 0;
         if (bij > 0.0) {    //Separating
+            double ke = bij*bij*reduced_m/(2*r2);
             if (ke < epsilon) {    //Not enough energy to escape the well
                 lastCollisionVirial = 2*bij*reduced_m;
                 nudge = -eps;
@@ -68,10 +74,13 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
             lastEnergyChange = -epsilon;
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        dr.TE(lastCollisionVirialr2);
-        cPair.truePush(dr,falseTime);
+        dv.Ea1Tv1(lastCollisionVirialr2,dr);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
+        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
+        pair[1].coord.position().Ea1Tv1(falseTime,dv);
         cPair.nudge(nudge);
-    }       //end of bump
+    }
     
     
     public double lastCollisionVirial() {return lastCollisionVirial;}
@@ -89,26 +98,29 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * collision of the wells.  Takes into account both separation and convergence.
     */
     public double collisionTime(Atom[] pair, double falseTime) {
-        double discr = 0.0;
-        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double bij = cPair.vDotr();
-        double r2 = cPair.r2();
-        double v2 = cPair.v2();
-        double tij = Double.MAX_VALUE;
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double v2 = dv.squared();
+        double time = Double.POSITIVE_INFINITY;
         
         if (r2 < wellDiameterSquared) {         //check to see if already inside wells
-            discr = bij*bij - v2 * (r2 - wellDiameterSquared );
-            tij = (-bij + Math.sqrt(discr))/v2;
+            double discr = bij*bij - v2 * (r2 - wellDiameterSquared);
+            time = (-bij + Math.sqrt(discr))/v2;
         }
         else {
             if (bij < 0.) { //Approaching
-                discr = bij*bij - v2 * (r2 - wellDiameterSquared );
+                double discr = bij*bij - v2 * (r2 - wellDiameterSquared );
                 if (discr > 0.) {
-                    tij = (-bij - Math.sqrt(discr))/v2;
+                    time = (-bij - Math.sqrt(discr))/v2;
                 }
             }
         }
-        return tij + falseTime;
+        return time + falseTime;
     }
     
   /**
