@@ -365,7 +365,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private class SliderListener implements ChangeListener {
         public void stateChanged(ChangeEvent evt) {
             if(modifyAction!=null) {
-                modifyAction.setValue(unit.toSim(slider.getDecimalSliderValue()));            
+                modifyAction.setValueForAction(unit.toSim(slider.getDecimalSliderValue()));            
                 textField.setText(String.valueOf(slider.getDecimalSliderValue()));
                 doAction(targetAction);
                 changeEventManager.fireChangeEvent(evt);
