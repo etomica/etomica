@@ -327,6 +327,7 @@ public class IntegratorHard extends IntegratorMD {
      * Do an upList call for each atom and reconstruct the event list.
      */
     public void neighborsUpdated() {
+        if(!initialized) return;
         super.neighborsUpdated();
         atomIterator.reset();
         while(atomIterator.hasNext()) {

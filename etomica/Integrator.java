@@ -36,6 +36,7 @@ public abstract class Integrator implements java.io.Serializable {
     protected Phase firstPhase;
     protected Phase[] phase;
     protected boolean equilibrating = false;
+    protected boolean initialized = false;
     public int phaseCount = 0;
     public int phaseCountMax = 1;
     protected int sleepPeriod = 10;
@@ -97,6 +98,7 @@ public abstract class Integrator implements java.io.Serializable {
      * potential energy.
      */
     public void reset() {
+        if(!initialized) return;
         meterPE.setPhase(phase);
         currentPotentialEnergy = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
@@ -124,13 +126,14 @@ public abstract class Integrator implements java.io.Serializable {
 
     /**
      * Initializes the integrator, performing the following steps: (1) deploys
-     * agents in all atoms; (2) call doReset method; (3) fires an event
+     * agents in all atoms; (2) call reset method; (3) fires an event
      * indicating to registered listeners indicating that initialization has
      * been performed (i.e. fires IntervalEvent of type field set to
      * INITIALIZE).
      */
     public void initialize() {
         deployAgents();
+        initialized = true;
         reset();
     }
 
