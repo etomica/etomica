@@ -50,18 +50,21 @@ public class TestSWChain extends Simulation {
         double neighborRangeFac = 1.2;
         double bondFactor = 0.15;
         Default.makeLJDefaults();
+        double timeStep = 0.005;
+        double simTime = 100000.0/numAtoms;
+        int nSteps = (int)(simTime / timeStep);
 
         // makes eta = 0.35
         Default.BOX_SIZE = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
         integrator = new IntegratorHard(potentialMaster);
-        integrator.setTimeStep(0.005);
+        integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         integrator.addIntervalListener(nbrManager);
         nbrManager.setRange(Default.ATOM_SIZE*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(2000000/numAtoms);
+        activityIntegrate.setMaxSteps(nSteps);
         int nCells = (int)(2*Default.BOX_SIZE/(neighborRangeFac*sqwLambda*Default.ATOM_SIZE));
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
         ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
@@ -124,18 +127,17 @@ public class TestSWChain extends Simulation {
         double PE = data[AccumulatorAverage.AVERAGE.index]/numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
-        double t2 = sim.integrator.temperature();
-        t2 *= t2;
-        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/t2/numMolecules;
+        double temp = sim.integrator.temperature();
+        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/(temp*temp*numMolecules);
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(Z-4.19) > 1.0) {
+        if (Math.abs(Z-4.5) > 1.5) {
             System.exit(1);
         }
-        if (Math.abs(PE+19.32) > 0.3) {
+        if (Math.abs(PE+19.32) > 0.12) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.046) > 0.05) {
+        if (Math.abs(Cv-0.05) > 0.05) {
             System.exit(1);
         }
     }

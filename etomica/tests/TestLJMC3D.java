@@ -97,10 +97,10 @@ public class TestLJMC3D extends Simulation {
         double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/(temp*temp*numAtoms);
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(Z-0.6) > 0.4) {
+        if (Math.abs(Z-0.7) > 0.1) {
             System.exit(1);
         }
-        if (Math.abs(PE+4.52) > 0.1) {
+        if (Math.abs(PE+4.52) > 0.03) {
             System.exit(1);
         }
         if (Math.abs(Cv-0.031) > 0.005) {
