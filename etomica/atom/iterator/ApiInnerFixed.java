@@ -3,8 +3,8 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
-import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 
 /**
@@ -20,7 +20,7 @@ import etomica.action.AtomsetAction;
   * 08/25/04 (DAK et al) new
   */
   
-public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
+public final class ApiInnerFixed implements AtomPairIterator, ApiComposite {
     
     /**
      * Construct a pair iterator using the given atom iterators.  Requires

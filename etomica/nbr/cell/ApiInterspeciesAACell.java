@@ -157,8 +157,8 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     
     public AtomSet next() {
         if(!hasNext()) return null;
-        AtomPair nextPair = listIterator.nextPair();
-        nextPair.copyTo(pair);
+        AtomPair nextPair = listIterator.nextPair();//returns AtomPair
+        nextPair.copyTo(pair);//copy to AtomPairVector
         pair.nearestImageVector = neighborIterator.getNearestImageVector();
         if(!listIterator.hasNext()) {
             advanceLists();

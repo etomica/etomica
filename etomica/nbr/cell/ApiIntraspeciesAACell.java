@@ -5,8 +5,8 @@
 package etomica.nbr.cell;
 
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
-import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
@@ -142,7 +142,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
     
     public AtomPair nextPair() {
         if(!hasNext()) return null;
-        AtomPair nextPair = (AtomPair)listIterator.next();
+        AtomPair nextPair = listIterator.nextPair();
         nextPair.copyTo(pair);
         pair.nearestImageVector = neighborIterator.getNearestImageVector();
         if(!listIterator.hasNext()) {
@@ -216,7 +216,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         return neighborIterator;
     }
    
-    private AtomsetIterator listIterator;
+    private AtomPairIterator listIterator;
     private final ApiListSimple intraListIterator;
     private final AtomIteratorListSimple aiInner, aiOuter;
     private final ApiInnerFixed interListIterator;
