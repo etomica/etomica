@@ -24,10 +24,10 @@ import etomica.units.Dimension;
 
 public class SWMD3D extends Simulation {
 
-	public class MyModifier extends Modifier {
+	public class MyModifier implements Modifier {
 
-        public MyModifier() {
-            super(Dimension.LENGTH);
+        public Dimension getDimension() {
+            return Dimension.LENGTH;
         }
 
 		/**
@@ -44,6 +44,10 @@ public class SWMD3D extends Simulation {
 		public double getValue() {
 			return potential.getCoreDiameter();
 		}
+        
+        public String getLabel() {
+            return "diameter";
+        }
 
 	}
 	

@@ -60,16 +60,16 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         return info;
     }
 
-    public void setPropertyLabels(String[] labels) {
-        int n = labels.length;
-        if(n != modifiers.length) {
-            System.out.println("Warning:  Number of labels given to DeviceTable disagrees with number of modifiers");
-            n = Math.min(n, modifiers.length);
-        }
-        for(int i=0; i<n; i++) {
-            modifiers[i].setLabel(labels[i]);
-        }
-    }
+//    public void setPropertyLabels(String[] labels) {
+//        int n = labels.length;
+//        if(n != modifiers.length) {
+//            System.out.println("Warning:  Number of labels given to DeviceTable disagrees with number of modifiers");
+//            n = Math.min(n, modifiers.length);
+//        }
+//        for(int i=0; i<n; i++) {
+//            modifiers[i].setLabel(labels[i]);
+//        }
+//    }
     
     public java.awt.Component graphic(Object obj) {return panel;}
 
