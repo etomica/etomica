@@ -81,7 +81,6 @@ public class TestSWChain extends Simulation {
         potentialChainIntra.bonded.setCriterion(criterion);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
         ((ConfigurationLinear)species.getFactory().getConfiguration()).setBondLength(Default.ATOM_SIZE);
-        ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 
         
         potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
@@ -94,7 +93,7 @@ public class TestSWChain extends Simulation {
         p2Inter.addPotential(potential,new ApiIntergroup());
         ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species});
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
-        ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
+        ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterionMolecular);
 
         phase = new Phase(space);
 
