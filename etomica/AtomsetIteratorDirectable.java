@@ -15,5 +15,12 @@ public interface AtomsetIteratorDirectable extends AtomsetIterator {
     public void setDirective(IteratorDirective id);
     
     public void setBasis(Atom[] atoms);
+    
+    /**
+     * Indicates the size of the basis needed to set the iterator.
+     * The length of the array given to setBasis should be this value.
+     * @return the size of the basis for this iterator.
+     */
+    public int basisSize();
 
 }

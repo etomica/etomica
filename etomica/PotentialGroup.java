@@ -54,12 +54,20 @@ public class PotentialGroup extends Potential {
 	 * this method is invoked by the setParentPotential method (or more likely, 
 	 * in the constructor) of the given potential.  
 	 */
+    
+    //this method needs AtomsetIterator to implement AtomsetDirectable, but PotentialMaster doesn't.
+    //need to reconcile differences
 	synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
 		if(potential == null || iterator == null) {
 			throw new NullPointerException(); 
 		}
+		//the order of the given potential should be consistent with the order of the iterator
 		if(potential.nBody() != iterator.nBody()) {
 			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
+		}
+		//the given iterator should expect a basis of atoms equal in number to the order of this potential
+		if(this.nBody() != ((AtomsetIteratorDirectable)iterator).basisSize()) {
+			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
 		}
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
 		//to be configured for calculation (i.e., iterators set up) first
