@@ -35,6 +35,7 @@ import etomica.space3d.Space3D;
 
 /**
  * Simple square-well chain simulation.
+ * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
  */
  
 public class TestSWChain extends Simulation {

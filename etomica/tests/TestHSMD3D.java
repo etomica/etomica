@@ -21,7 +21,7 @@ import etomica.space3d.Space3D;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
- *
+ * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
  * @author David Kofke
  */
  
@@ -95,7 +95,7 @@ public class TestHSMD3D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        int numAtoms = 2000;
+        int numAtoms = 4000;
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }

@@ -10,11 +10,10 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
+import etomica.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -25,7 +24,7 @@ import etomica.space3d.Space3D;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.
- *
+ * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
  * @author David Kofke
  */
  
@@ -62,12 +61,11 @@ public class TestSWMC3D extends Simulation {
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         
         ConfigurationFile config = new ConfigurationFile(space,"SWMC3D"+Integer.toString(numAtoms));
-//        phase.setConfiguration(config);
+        phase.setConfiguration(config);
         integrator.addPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
-//        integrator.addIntervalListener(new PhaseImposePbc(phase));
-//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
+//        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addIntervalListener(writeConfig);
     }
  

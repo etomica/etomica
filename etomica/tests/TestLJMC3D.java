@@ -23,8 +23,8 @@ import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
 
 /**
- * Simple hard-sphere Monte Carlo simulation in 2D.
- *
+ * Simple hard-sphere Monte Carlo simulation in 3D.
+ * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
  * @author David Kofke
  */
  
