@@ -111,6 +111,7 @@ public class PistonCylinderGraphic {
 
         displayCycles = new DisplayBox();
 
+        Default.FIX_OVERLAP = true;
         Default.ATOM_SIZE = 3.0;
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         historyLength = 100;
