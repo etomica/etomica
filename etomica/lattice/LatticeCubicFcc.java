@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.action.AtomAction;
 
 /**
  * fcc lattice formed to a cubic shape.  Note: does not extend BravaisLattice.
@@ -428,7 +429,7 @@ public static class Factory extends AtomFactory {
         System.out.println();
         
         System.out.println("Same, using allAtoms method");
-        AtomActive printSites = new AtomActive() {
+        AtomAction printSites = new AtomAction() {
             public void actionPerformed(Atom s) {
                 System.out.print(s.coord.position().toString()+" ");
        //         System.out.println(((Site)s).latticeCoordinate()[1]);

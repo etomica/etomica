@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.action.AtomActionAdapter;
 
 /**
  * Arbitrary-dimension Bravais Lattice. 
@@ -76,15 +77,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
                 Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
         return makeLattice(space, new Crystal(primitive, new Basis(space, 1, siteFactory)), dimensions);
     }
-    
-    /**
-     * Returns a new BravaisLattice in which the sites are the unit cells of the given primitive.
-     */
-     public static BravaisLattice makeUnitCellLattice(
-                Space space, int[] dimensions, Primitive primitive) {
-        return makeLattice(space, primitive.unitCellFactory(), dimensions, primitive);
-     }
-           
+               
     public int[] getDimensions() {return factory.dimensions;}
     public void setDimensions(int[] dim) {
         factory.setDimensions(dim);
@@ -460,8 +453,7 @@ protected static class Factory extends AtomFactoryTree {
 		super(space, AtomSequencerSimple.FACTORY, crystal.getBasis().atomFactory(), dimensions, configArray(space, crystal.getPrimitive().vectors()));
 		if(dimensions.length > space.D()) throw new IllegalArgumentException("Error: dimensions inconsistent with space");
 		this.crystal = crystal;
-		this.dimensions = new int[dimensions.length];
-		System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
+		this.dimensions = (int[])dimensions.clone();
 	}
 //	//01/20/04 (DAK) deleted this constructor and replaced with the one above
 //	Factory(Space space, AtomSequencer.Factory seqFactory, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
@@ -534,7 +526,7 @@ protected static class Factory extends AtomFactoryTree {
         System.out.println();
         
         System.out.println("Same, using allAtoms method");
-        AtomAction printSites = new AtomAction() {
+        AtomActionAdapter printSites = new AtomActionAdapter() {
             public void actionPerformed(Atom s) {
                 System.out.print(s.coord.position().toString()+" ");
        //         System.out.println(((Site)s).latticeCoordinate()[1]);

@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.math.geometry.Polyhedron;
 
 /**
  * Primitive group for a monoclinic system.  One primitive-vector
@@ -188,7 +189,7 @@ public class UnitCellFactory extends AtomFactory {
  * A orthorhombic unit cell.  Position of the cell is given by the vertex
  * in which each coordinate is minimized.
  */
-public class UnitCell extends AbstractCell {
+public class UnitCell extends Polyhedron {
     
     private final Space.Vector delta;
 
@@ -206,7 +207,7 @@ public class UnitCell extends AbstractCell {
      */
     public double volume() {
         double sizeN = 1.0;
-        for(int i=D()-1; i>=0; i--) sizeN *= size[i];
+        for(int i=space.D()-1; i>=0; i--) sizeN *= size[i];
         return sizeN;
     }
     /**
@@ -240,7 +241,7 @@ public class UnitCell extends AbstractCell {
     public boolean inCell(Space.Vector v) {
         delta.Ev1Mv2(v, coord.position());
         double x;
-        switch(D()) {
+        switch(space.D()) {
             case 3: x = delta.x(2);
                     if(x < 0.0 || x > size[2]) return false;
             case 2: x = delta.x(1);//fall through to check all dimensions

@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.AtomLinker.Tab;
 
 /**
  * Determines and keeps lists of neighbors uplist and downlist of a 
@@ -14,7 +15,8 @@ public class NeighborManager {
     private final Site site;
  //   public final AtomLinker.Tab tab;
     public /*final*/ AtomLinker tab;
-    
+    public final static int NEIGHBOR_TAB = Tab.requestTabType(); 
+
     public NeighborManager(Site s) {
         site = s;
         neighborList = new AtomList();
@@ -22,34 +24,12 @@ public class NeighborManager {
  //       neighborList.add(tab);
     }
         
-    public NeighborManager(Site s, AtomList list, Criterion criterion) {
-        this(s);
-        setupNeighbors(list, criterion);
-    }
-
     public Site site() {return site;}
     public int neighborCount() {return neighborList.size();}
     public boolean isNeighbor(Site s) {
         return (neighborList.contains(s));
     }
     
-    /**
-     * Returns the first neighbor that would be encountered when proceeding
-     * up the iterator used to construct the neighbor lists.
-     */
-/*    public Atom firstNeighbor() {
-        Atom nbr = neighborList.getFirst();
-        return (nbr == site) ? null : nbr;
-    }
-*/    /**
-     * Returns the last neighbor that would be encountered when proceeding
-     * up the iterator used to construct the neighbor lists.
-     */
- /*   public Atom lastNeighbor() {
-        Atom nbr = neighborList.getLast();
-        return (nbr == site) ? null : nbr;
-    }
- */   
     public AtomList neighbors() {return neighborList;}
     
     public void clearAll() {
@@ -64,12 +44,12 @@ public class NeighborManager {
       if(criterion.areNeighbors(site, site)) {//make self neighbor
           if(tab == null || tab instanceof AtomLinker.Tab) tab = new AtomLinker(site);
       } else {//not self neighbor
-          if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = AtomLinker.newTab();
+          if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = AtomLinker.newTab(neighborList, NEIGHBOR_TAB);
       }
       neighborList.add(tab);
       boolean down = true;
         while(iterator.hasNext()) {              //begin outer loop
-            Site s = (Site)iterator.next();
+            Site s = (Site)iterator.nextAtom();
             if(s == site) {down = false;}     //subsequent neighbors go in up-list
             else if(criterion.areNeighbors(s,site)) {
                 if(down) neighborList.addBefore(s, tab);

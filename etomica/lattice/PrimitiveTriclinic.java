@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.math.geometry.Polyhedron;
 
 /**
  * Primitive group for a triclinic system.  No restrictions on
@@ -185,43 +186,12 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     
     public String toString() {return "Triclinic";}
 
-///////////////////////////////////////////////////////////////////////////////////////////
-
-public class UnitCellFactory extends AtomFactory {
-
-    AtomType atomType;
-    
-    public UnitCellFactory(Space space) {
-        super(space, AtomSequencerSimple.FACTORY);
-        setType(new AtomType(this));//default
-    }
-    
-    public boolean isGroupFactory() {return false;}
-    
-    public void setType(AtomType t) {atomType = t;}
-    public AtomType type() {return atomType;}
-
-    /**
-     * Builds a single unit cell.
-     */
-    protected Atom build(AtomTreeNodeGroup parent) {
-        return new UnitCell(space, atomType, parent);
-    }
-
-    public Atom build(Atom atom) {
-        if(!(atom instanceof UnitCell)) throw new IllegalArgumentException("PrimitiveOrthorhombic.UnitCellFactory.build(Atom) attempted using an atom that is not an instance of UnitCell");
-        return atom;
-    }
-    
-}//end of UnitCellFactory
-
-///////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * A orthorhombic unit cell.  Position of the cell is given by the vertex
  * in which each coordinate is minimized.
  */
-public class UnitCell extends AbstractCell {
+public class UnitCell extends Polyhedron {
     
     private final Space.Vector delta;
 
@@ -239,7 +209,7 @@ public class UnitCell extends AbstractCell {
      */
     public double volume() {
         double sizeN = 1.0;
-        for(int i=D()-1; i>=0; i--) sizeN *= size[i];
+        for(int i=space.D()-1; i>=0; i--) sizeN *= size[i];
         return sizeN;
     }
     /**
@@ -273,7 +243,7 @@ public class UnitCell extends AbstractCell {
     public boolean inCell(Space.Vector v) {
         delta.Ev1Mv2(v, coord.position());
         double x;
-        switch(D()) {
+        switch(space.D()) {
             case 3: x = delta.x(2);
                     if(x < 0.0 || x > size[2]) return false;
             case 2: x = delta.x(1);//fall through to check all dimensions

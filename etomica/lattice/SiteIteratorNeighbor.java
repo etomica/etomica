@@ -1,5 +1,7 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.action.AtomAction;
+import etomica.action.AtomActionAdapter;
 
 /**
  * Iterates over the neighbors of a particular site, as specified by 
@@ -18,7 +20,7 @@ public class SiteIteratorNeighbor implements AtomIterator {
         localDirective.setSkipFirst(true);
     }
         
-	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
+	public void all(Atom basis, IteratorDirective dummy, final AtomAction action) {
 		if(basis == null || !(basis instanceof Site) || action == null) return;
 //		iterator.all(((Site)basis).neighborManager().neighbors(), dummy, action);
 		throw new RuntimeException("Method all not implemented in SiteIteratorNeighbor");
@@ -40,7 +42,7 @@ public class SiteIteratorNeighbor implements AtomIterator {
     }
     public Atom next() {return iterator.next();}
 
-    public void allAtoms(AtomAction act) {
+    public void allAtoms(AtomActionAdapter act) {
         iterator.allAtoms(act);
     }
     

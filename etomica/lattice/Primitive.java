@@ -1,5 +1,7 @@
 package etomica.lattice;
-import etomica.*;
+
+import etomica.Space;
+import etomica.math.geometry.Polytope;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -15,7 +17,6 @@ public abstract class Primitive {
     protected final double[] angle;
 //    private final double[] sizeCopy;
     public final Space space;
-//    protected Simulation simulation;
     protected BravaisLattice lattice;
     protected boolean immutable = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
@@ -207,19 +208,17 @@ public abstract class Primitive {
     public Primitive reciprocal() {return reciprocal;}
         
     /**
-     * Returns a factory for the Wigner-Seitz cell specified by this primitive.
-     * Each WS cell made by this factory remains tied to the primitive,
-     * so its behavior will change to reflect any subsequent changes
-     * in the primitive itself.
+     * Returns the Wigner-Seitz cell specified by this primitive.
+     * The returned cell does not remain tied to the primitive, and
+     * will not be updated with changes to the primitive.
      */
-    public abstract AtomFactory wignerSeitzCellFactory();
+    public abstract Polytope wignerSeitzCell();
     
     /**
-     * Returns a factory for the unit cell specified by this primitive.
-     * Each unit cell made by this factory remains tied to the primitive,
-     * so its behavior will change to reflect any subsequent changes
-     * in the primitive itself.
+     * Returns a the unit cell specified by this primitive.
+     * The returned cell does not remain tied to the primitive, and
+     * will not be updated with changes to the primitive.
      */
-    public abstract AtomFactory unitCellFactory();
+    public abstract Polytope unitCell();
     
 }
