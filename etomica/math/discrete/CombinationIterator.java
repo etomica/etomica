@@ -1,4 +1,4 @@
-package etomica.virial.cluster;
+package etomica.math.discrete;
 
 import etomica.math.SpecialFunctions;
 /**

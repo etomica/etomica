@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.Atom;
-import etomica.virial.cluster.PermutationIterator;
+import etomica.math.discrete.PermutationIterator;
 
 /**
  * @author kofke

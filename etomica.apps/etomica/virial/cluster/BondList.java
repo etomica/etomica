@@ -1,5 +1,6 @@
 package etomica.virial.cluster;
 
+import etomica.math.discrete.CombinationIterator;
 import etomica.virial.*;
 import etomica.virial.cluster.graphics.*;
 
