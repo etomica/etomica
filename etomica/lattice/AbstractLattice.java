@@ -11,8 +11,7 @@ public interface AbstractLattice {
 
     /**
      * Dimension of the lattice.  The value of D describes the number of
-     * integers needed to specify a site in the array.
-     * @return
+     * integers needed to specify a site (via the site method).
      */
     public int D();
 

@@ -45,7 +45,7 @@ public class ApiMolecule implements AtomsetIteratorMolecule {
     }
        
     public void setDirection(Direction direction) {
-        api1A.setDirection(direction);
+//        api1A.setDirection(direction);
     }
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)

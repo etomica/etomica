@@ -34,7 +34,6 @@ public class HSMD2D extends Simulation {
         super(space, new PotentialMasterNbr(space));
 //        super(space, new PotentialMaster(space,IteratorFactoryCell.INSTANCE));
         Default.makeLJDefaults();
-  //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
 //        Default.BOX_SIZE = 30.0;
         Default.ATOM_SIZE = 0.4;
         integrator = new IntegratorHard(potentialMaster);
@@ -44,9 +43,10 @@ public class HSMD2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-	    species.setNMolecules(50);
+	    species.setNMolecules(500);
 	    species2.setNMolecules(5);
 	    phase = new Phase(space);
+        ((PotentialMasterNbr)potentialMaster).getNbrCellManager(phase);
 	    potential = new P2HardSphere(space);
 	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});

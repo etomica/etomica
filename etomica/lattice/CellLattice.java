@@ -4,8 +4,8 @@
  */
 package etomica.lattice;
 
+import etomica.Default;
 import etomica.Space;
-
 
 /**
  * A lattice of arbitrarily-sized rectangular cells, such that a point in space can be 
@@ -14,46 +14,64 @@ import etomica.Space;
 public class CellLattice extends SimpleLattice {
 
     /**
-     * @param D the dimension of the lattice
-     * @param siteFactory makes the sites of the lattice 
+     * @param dimensions
+     *            the spatial dimensions of the lattice, such that the total
+     *            space occupied by the lattice cells a rectangular box with
+     *            each side of length dimensions.x(i)/size[i] for side i. The
+     *            dimensions at any time are given by the array passed here, so
+     *            any changes to the array external to this class will result in
+     *            a change in the dimensions of this lattice (this is useful in
+     *            resizing the lattice to the dimensions of a phase,
+     *            by giving a reference to phase.boundary().dimension() here).
+     *            The dimensions array reference is final and cannot be changed .
+     *            The lattice dimension D is given by dimensions.length.
+     * @param siteFactory
+     *            makes the sites of the lattice
      */
-    public CellLattice(int D, SiteFactory siteFactory) {
-        super(D, siteFactory);
-        cellSize = new double[D];
-        idx = new int[D];
+    public CellLattice(Space.Vector dimensions, SiteFactory siteFactory) {
+        super(dimensions.D(), siteFactory);
+        cellSize = new double[D()];
+        idx = new int[D()];
+        this.dimensions = dimensions;
     }
     
     /**
-     * Returns the cell in which the given point lies.  An ArrayIndexOutOfBounds exception
-     * is thrown if the point lies outside the bounds of the lattice (the boundary
-     * in each direction j is given by cellSize[j]*dimensions[j]).  The dimension of
-     * the vector is assumed to be consistent with the dimension D of the lattice (i.e.,
+     * Returns the cell in which the given point lies. An ArrayIndexOutOfBounds
+     * exception is thrown if the point lies outside the bounds of the lattice
+     * (less than zero or greater than dimensions). The dimension of the vector
+     * is assumed to be consistent with the dimension D of the lattice (i.e.,
      * r.D() == this.D()) but this is not checked.
      */
     public Object site(Space.Vector r) {
         for(int i=0; i<idx.length; i++) {
-            idx[i] = (int)(r.x(i)/cellSize[i]);
-//            double x = r.x(i)/cellSize[i];
-//            idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
-//            while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
-//            while(idx[i] < 0)              idx[i] += dimensions[i];
+            idx[i] = (int)(size[i]*r.x(i)/dimensions.x(i));
         }
         return site(idx);
 
     }
+    
+    /**
+     * Returns the array that specifies the spatial dimensions of the lattice of cells.
+     */
+    public Space.Vector getDimensions() {
+        return dimensions;
+    }
 
     /**
-     * Specifies the spatial dimensions of all cells in the lattice, such that a cell in the
+     * Returns the spatial dimensions of all cells in the lattice, such that a cell in the
      * lattice will have a size in each direction as given by the corresponding value
-     * in the argument.  An IllegalArgumentException is thrown if the length of the
-     * given array is not equal to the dimension D() of the lattice.
+     * in the returned array.  Value is computed on-the-fly using current value of dimensions
+     * and size.
      */
-    public void setCellSize(double[] newSize) {
-        if(newSize.length != this.cellSize.length) throw new IllegalArgumentException("Dimension of cell size array inconsistent with dimensions of cells");
-        System.arraycopy(newSize, 0, this.cellSize, 0, newSize.length);
+    public double[] getCellSize() {
+        for(int i=0; i<cellSize.length; i++) {
+            cellSize[i] = dimensions.x(i)/size[i];
+        }
+        return cellSize;
     }
     
     private final double[] cellSize;
+    private final Space.Vector dimensions;
     private final int[] idx;//a work array
 
     /**
@@ -64,6 +82,9 @@ public class CellLattice extends SimpleLattice {
         public NeighborIterator(int D) {
             super(D);
             idx = new int[D];
+            previousDimensions = Space.makeVector(D);
+            neighborDistance = new double[D];
+            setRange(Default.ATOM_SIZE);
         }
         
         /**
@@ -73,25 +94,42 @@ public class CellLattice extends SimpleLattice {
          */
         public void setRange(double neighborDistance) {
             for(int i=0; i<D; i++) {
-                idx[i] = 1+(int)(neighborDistance/((CellLattice)lattice).cellSize[i]);
+                this.neighborDistance[i] = neighborDistance;
             }
-            super.setRange(idx);
+            setRange(this.neighborDistance);
         }
 
         /**
          * Defines neighbors to be all cells that are within the given distance
          * from a central cell, possible with a different distance specified in 
          * each direction.  Specifically, the integer range in direction
-         * j is 1 + (int)(neighborDistance/cellSize[j]). 
+         * j is 1 + (int)(size[j]*neighborDistance/dimensions[j]). 
          */
         public void setRange(double[] neighborDistance) {
             if(neighborDistance.length != D) throw new IllegalArgumentException("Dimension of neighborDistance array inconsistent with dimension of lattice");
+            if(lattice == null) return;
             for(int i=0; i<D; i++) {
-                idx[i] = 1+(int)(neighborDistance[i]/((CellLattice)lattice).cellSize[i]);
+                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance[i]/((CellLattice)lattice).dimensions.x(i));
+                this.neighborDistance[i] = neighborDistance[i];
             }
             super.setRange(idx);
         }
         
+        /**
+         * Checks whether lattice dimensions have changed, and updates integer
+         * neighbor range if they have. 
+         */
+        public void checkDimensions() {
+            if(lattice == null) return;
+            Space.Vector currentDimensions = ((CellLattice)lattice).getDimensions();
+            if(!previousDimensions.equals(currentDimensions)) {
+                setRange(neighborDistance);
+                previousDimensions.E(currentDimensions);
+            }
+        }
+        
         private final int[] idx;//a work array
+        private final Space.Vector previousDimensions;
+        private final double[] neighborDistance;
     }//end of NeighborIterator
 }

@@ -93,7 +93,7 @@ public class SimpleLattice implements AbstractLattice {
     /* (non-Javadoc)
      * @see etomica.lattice.AbstractLattice#getDimensions()
      */
-    public int[] getSize() {
+    public final int[] getSize() {
         return size;
     }
 
@@ -361,10 +361,11 @@ public class SimpleLattice implements AbstractLattice {
                     throw new IllegalArgumentException("Neighbor range exceeds lattice size");
             }
             this.lattice = (SimpleLattice)lattice;
+            needNeighborUpdate = true;
         }
         /**
          * Method called on reset if any calls were previously made
-         * to setSite, setRange, or setDirection.
+         * to setLattice, setSite, setRange, or setDirection.
          */
         private void updateNeighborList() {
             neighborCount = (direction == null) ? 2*halfNeighborCount : halfNeighborCount;
@@ -495,6 +496,7 @@ public class SimpleLattice implements AbstractLattice {
 //        }
         
         protected final int D;
+        private boolean needNeighborUpdate = true;
         private final int[] range;
         private int[] neighbors;
         private final int[] centralSite;
@@ -503,7 +505,6 @@ public class SimpleLattice implements AbstractLattice {
         private int furthestNeighborDelta;
         private int neighborCount, halfNeighborCount;
         private boolean doUp, doDown;
-        private boolean needNeighborUpdate = true;
         private IteratorDirective.Direction direction;
     }//end of NeighborIterator
   

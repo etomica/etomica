@@ -54,6 +54,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
         aiInner = ((AtomIteratorListSimple)interListIterator.getInnerIterator());
         aiOuter = ((AtomIteratorListSimple)interListIterator.getOuterIterator());
         intraListIterator = new ApiListSimple();
+        listIterator = intraListIterator;
         index = species[0].getIndex();
 	}
 
@@ -68,6 +69,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
      */
     public void allAtoms(AtomsetAction action) {
         cellIterator.reset();
+        neighborIterator.checkDimensions();
         while(cellIterator.hasNext()) {//outer loop over all cells
             //get cell without advancing -- advance is done via nextIndex,
             // below
@@ -150,6 +152,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
     
     public void reset() {
         cellIterator.reset();
+        neighborIterator.checkDimensions();
         neighborIterator.unset();
         listIterator.unset();
         advanceLists();

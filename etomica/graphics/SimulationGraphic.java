@@ -75,7 +75,8 @@ public class SimulationGraphic implements SimulationContainer {
      public void add(Display display) {
          final java.awt.Component component = display.graphic(null);
          if(component == null) return; //display is not graphic
-         if(display instanceof DisplayBox) {
+//         if(display instanceof DisplayBox) {
+         if(false) {
              final java.awt.GridBagConstraints gbcBox = new java.awt.GridBagConstraints();
              gbcBox.gridx = 0;
              panel().displayBoxPanel.add(component, gbcBox);
@@ -141,8 +142,8 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
 //          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
 //      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
-//        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+//        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
 //        ColorSchemeByType.setColor(sim.species, java.awt.Color.red);
