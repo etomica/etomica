@@ -58,8 +58,21 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
        
     }//end of constructor
     
+    /**
+     * set the integrator's temperature to the selected value
+     */
+    public void updateIntegrator() {
+        Object item = selector.getSelectedItem();
+        if(item==adiabaticString) {
+            isothermal = false;
+        } else {
+            isothermal = true;
+            temperature = unit.toSim(((Double)item).doubleValue());
+        }
+        doAction(targetAction);
+    }
+
     public void setIntegrator(final Integrator integrator) {
-        this.integrator = integrator;
         targetAction = new Action() {
             public void actionPerformed() {
                 if(integrator == null) return;
@@ -67,7 +80,6 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                 if(isothermal) {
                     integrator.setTemperature(temperature);
                 }
-                integrator.reset();
             }
             public String getLabel() {
                 return DeviceThermoSelector.this.getLabel().toString();
@@ -128,14 +140,12 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
        // return selector;
     }
     
-    private ItemListener itemListener;
     private javax.swing.JComboBox selector;
     private javax.swing.JLabel label;
     private final String adiabaticString = "Adiabatic";
     private javax.swing.JPanel panel;
     
     private boolean includeAdiabatic = true;
-    private Integrator integrator;
     private boolean isothermal = false;
     private double temperature;
     private Action targetAction;
