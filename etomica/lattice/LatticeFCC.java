@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.Space3D;
+import etomica.Space;
 
 public class LatticeFCC extends LatticeCubic {
     
@@ -37,9 +38,9 @@ public class LatticeFCC extends LatticeCubic {
     
     public double latticeConstant() {return latticeConstant;}
     
-    public Space3D.Vector[] positions() {
+    public Space.Vector[] positions() {
         int n = siteCount();
-        Space3D.Vector[] r = new Space3D.Vector[n];
+        Space.Vector[] r = new Space.Vector[n];
         for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
         SiteIterator iteratorsites = iterator();
         iteratorsites.reset();
@@ -65,7 +66,7 @@ public class LatticeFCC extends LatticeCubic {
         }
     }
  */   
-    private static Space3D.Vector[] unitCell(double latticeConstant){
+    private static Space.Vector[] unitCell(double latticeConstant){
         Space3D.Vector[] p = new Space3D.Vector[4];
         for(int i=0; i<4; i++) {
             p[i] = new Space3D.Vector();

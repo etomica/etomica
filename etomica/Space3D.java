@@ -17,6 +17,8 @@ public class Space3D extends Space implements EtomicaElement {
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
     
+    public Space3D() {super(3);}
+    
     public double sphereVolume(double r) {return (Math.PI*4.0*r*r*r/3.0);}
     public double sphereArea(double r)  {return (Math.PI*4*r*r);}
     public Space.Vector makeVector() {return new Vector();}
@@ -87,6 +89,39 @@ public class Space3D extends Space implements EtomicaElement {
         public void TE(Vector u) {x *= u.x; y *= u.y; z *= u.z;}
         public void DE(double a) {x /= a; y /= a; z /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y ; z /= u.z;}
+        public void Ev1Pv2(Space.Vector u1, Space.Vector u2) {
+            Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
+            x = v1.x + v2.x;
+            y = v1.y + v2.y;
+            z = v1.z + v2.z;
+        }
+        public void Ev1Mv2(Space.Vector u1, Space.Vector u2) {
+            Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
+            x = v1.x - v2.x;
+            y = v1.y - v2.y;
+            z = v1.z - v2.z;
+        }
+        public void mod(Space.Vector u) {
+            mod((Vector)u);
+        }
+        public void mod(Vector u) {
+            while(x > u.x) x -= u.x;
+            while(x < 0.0) x += u.x;
+            while(y > u.y) y -= u.y;
+            while(y < 0.0) y += u.y;
+            while(z > u.z) z -= u.z;
+            while(z < 0.0) z += u.z;
+        }
+        public void mod(double a) {
+            while(x > a)   x -= a;
+            while(x < 0.0) x += a;
+            while(y > a)   y -= a;
+            while(y < 0.0) y += a;
+            while(z > a)   z -= a;
+            while(z < 0.0) z += a;
+        }
+
+        
         public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; WORK.z = z+u1.z; return WORK;}
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; WORK.z = z-u1.z; return WORK;}
         public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; WORK.z = z*u1.z; return WORK;}
@@ -288,11 +323,14 @@ public class Space3D extends Space implements EtomicaElement {
         }
         public double r2() {
          //   return r2;
-            dr.x = c2.r.x - c1.r.x;
+         /*   dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
             dr.z = c2.r.z - c1.r.z;
             c1.atom.node.parentPhase().boundary().nearestImage(dr);
-            return dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
+            return dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;*/
+            dr.Ev1Mv2(c2.r, c1.r);
+            c1.atom.node.parentPhase().boundary().nearestImage(dr);
+            return dr.squared();
         }
             
         public Space.Vector dr() {return dr;}
@@ -769,22 +807,30 @@ public class Space3D extends Space implements EtomicaElement {
       //      final double dimxHalf = 0.5*dimensions.x;
       //      final double dimyHalf = 0.5*dimensions.y;
       //      final double dimzHalf = 0.5*dimensions.z;
-            while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
+        /*    while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
             while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
             while(dr.y > +dimensionsHalf.y) dr.y -= dimensions.y;
             while(dr.y < -dimensionsHalf.y) dr.y += dimensions.y;
             while(dr.z > +dimensionsHalf.z) dr.z -= dimensions.z;
-            while(dr.z < -dimensionsHalf.z) dr.z += dimensions.z;
+            while(dr.z < -dimensionsHalf.z) dr.z += dimensions.z;*/
+            dr.PE(dimensionsHalf);
+            dr.mod(dimensions);
+            dr.ME(dimensionsHalf);
+        //    System.out.print(dr.x+"  ");dr.x %= dimensionsHalf.x; System.out.println(dr.x);
+        //    dr.x = ((dr.x + dimensions.x) % dimensions.x) - dimensionsHalf.x;
+        //    dr.y = ((dr.y + dimensions.y) % dimensions.y) - dimensionsHalf.y;
+        //    dr.z = ((dr.z + dimensions.z) % dimensions.z) - dimensionsHalf.z;
         }
         public void centralImage(Coordinate c) {centralImage(c.r);}
         public void centralImage(Space.Vector r) {centralImage((Vector) r);}
         public void centralImage(Vector r) {
-            while(r.x > dimensions.x) r.x -= dimensions.x;
+            r.mod(dimensions);
+       /*     while(r.x > dimensions.x) r.x -= dimensions.x;
             while(r.x < 0.0)          r.x += dimensions.x;
             while(r.y > dimensions.y) r.y -= dimensions.y;
             while(r.y < 0.0)          r.y += dimensions.y;
             while(r.z > dimensions.y) r.z -= dimensions.z;
-            while(r.z < 0.0)          r.z += dimensions.z;
+            while(r.z < 0.0)          r.z += dimensions.z;*/
          //   r.x -= dimensions.x* ((r.x>0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x - 1.0));
          //   r.y -= dimensions.y *((r.y>0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y - 1.0));
          //   r.z -= dimensions.z *((r.z>0) ? Math.floor(r.z/dimensions.z) : Math.ceil(r.z/dimensions.z - 1.0));

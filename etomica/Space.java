@@ -4,8 +4,14 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     
     public static String VERSION = "01.07.09";
 
-    public Space() {}
-    public abstract int D();
+    public final int D;
+    
+    public Space(int d) {
+        if(d < 1 || d > 3) throw new IllegalArgumentException("Illegal dimension for space");
+        D = d;
+    }
+    
+    public int D() {return D;}
     public abstract Vector origin();
     
     public abstract Vector makeVector();      //Space.Vector
@@ -18,8 +24,23 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public abstract Boundary makeBoundary(Boundary.Type type);
     public abstract Boundary.Type[] boundaryTypes();
     public boolean requiresSpecialBoundary() {return false;}
-    public abstract double sphereVolume(double r);  //volume of a sphere of radius r
-    public abstract double sphereArea(double r);    //surface area of sphere of radius r (used for differential shell volume)
+
+    public double sphereVolume(double r) {
+        switch(D) {
+            case 1: return 2*r;
+            case 2: return Math.PI*r*r;
+            default:
+            case 3: return (Math.PI*4.0*r*r*r/3.0);
+        }
+    }
+    public double sphereArea(double r)  {
+        switch(D) {
+            case 1: return 2;
+            case 2: return 2*Math.PI*r;
+            default:
+            case 3: return 4*Math.PI*r*r;
+        }
+    }
     
     /**
      * Returns the square distance between the two vectors, using the given boundary condition.
@@ -86,11 +107,15 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void DE(double a);                    //divides all components by a
         public abstract void Ea1Tv1(double a, Vector u);      //sets this vector to a*u
         public abstract void PEa1Tv1(double a, Vector u);     //adds a*u to this vector
+        public abstract void Ev1Pv2(Vector u1, Vector u2);    //sets equal to sum of vectors
+        public abstract void Ev1Mv2(Vector u1, Vector u2);    //sets equal to difference between vectors
         public abstract Space.Vector P(Space.Vector u);       //adds (+) component-by-component and returns result in another vector
         public abstract Space.Vector M(Space.Vector u);       //subtracts component-by-component and returns result in another vector
         public abstract Space.Vector T(Space.Vector u);       //multiplies component-by-component and returns result in another vector
         public abstract Space.Vector D(Space.Vector u);       //divides component-by-component and returns result in another vector
         public abstract Space.Vector abs();                   //takes absolute value of each component and returns result in another vector
+        public abstract void mod(double a);                   //each component replaced with itself modulo a
+        public abstract void mod(Space.Vector u);             //each component replaced with itself modulo component of vector
         public abstract double min();                         //returns minimum of all components
         public abstract double max();                         //returns maximum of all components
         public abstract double squared();                     //square-magnitude of vector (e.g., x^2 + y^2)

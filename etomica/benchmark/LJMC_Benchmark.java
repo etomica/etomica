@@ -26,7 +26,8 @@ public class LJMC_Benchmark {
             case 0:
             case 2:
 //                Simulation.instance = new Simulation(new SpaceP(3));
-               Simulation.instance = new Simulation(new Space3D());
+//               Simulation.instance = new Simulation(new Space3D());
+               Simulation.instance = new Simulation(new etomica.space.continuum.Space(3));
                break;
             case 1:
                 Simulation.instance = new Simulation(new SpaceP(3));
@@ -106,6 +107,7 @@ public class LJMC_Benchmark {
         System.out.println("Molecules: "+phase.moleculeCount());
         System.out.println("Starting");
         integrator.initialize();
+        System.out.println(meter4.currentValue());
         Stopwatch timer = new Stopwatch().start();
         integrator.run();
    //     integrator.start();

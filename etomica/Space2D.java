@@ -9,6 +9,8 @@ public class Space2D extends Space implements EtomicaElement {
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
     
+    public Space2D() {super(2);}
+    
     public double sphereVolume(double r) {return Math.PI*r*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0*Math.PI*r;}  //surface area of sphere of radius r (used for differential shell volume)
     public Space.Vector makeVector() {return new Vector();}
@@ -76,6 +78,32 @@ public class Space2D extends Space implements EtomicaElement {
         public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y;}
+        public void Ev1Pv2(Space.Vector u1, Space.Vector u2) {
+            Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
+            x = v1.x + v2.x;
+            y = v1.y + v2.y;
+        }
+        public void Ev1Mv2(Space.Vector u1, Space.Vector u2) {
+            Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
+            x = v1.x - v2.x;
+            y = v1.y - v2.y;
+        }
+        public void mod(Space.Vector u) {
+            mod((Vector)u);
+        }
+        public void mod(Vector u) {
+            while(x > u.x) x -= u.x;
+            while(x < 0.0) x += u.x;
+            while(y > u.y) y -= u.y;
+            while(y < 0.0) y += u.y;
+        }
+        public void mod(double a) {
+            while(x > a)   x -= a;
+            while(x < 0.0) x += a;
+            while(y > a)   y -= a;
+            while(y < 0.0) y += a;
+        }
+
         public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; return WORK;}
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; return WORK;}
         public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; return WORK;}

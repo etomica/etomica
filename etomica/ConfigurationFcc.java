@@ -33,7 +33,7 @@ public class ConfigurationFcc extends Configuration {
         fcc = new LatticeFCC(sumOfMolecules, dimensions[0]);
 
    // Place molecules  
-        Space3D.Vector[] rLat = fcc.positions();
+        Space.Vector[] rLat = fcc.positions();
         int i = 0;
         iterator.reset();
         while(iterator.hasNext()) {
@@ -60,7 +60,7 @@ public class ConfigurationFcc extends Configuration {
         int i = 0;
         while (iteratorsites.hasNext()&& i < n){
             Site site = iteratorsites.next();
-            r[i].E(((AbstractLattice.PositionCoordinate)site.coordinate()).position());
+            r[i].E((Space3D.Vector)((AbstractLattice.PositionCoordinate)site.coordinate()).position());
             i++ ;
         }
         return r;
