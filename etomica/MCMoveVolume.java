@@ -15,7 +15,8 @@ public class MCMoveVolume extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private AtomIterator affectedAtomIterator;
 
-    private transient double hOld, vNew, vScale;
+    private transient double uOld, hOld, vNew, vScale;
+    private transient double uNew = Double.NaN;
 
     public MCMoveVolume(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -35,13 +36,14 @@ public class MCMoveVolume extends MCMove {
     
     public boolean doTrial() {
         double vOld = phase.volume();
-        double uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+        uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/(double)phase.parentSimulation().space().D());
         inflate.setScale(rScale);
         inflate.attempt();
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -50,7 +52,7 @@ public class MCMoveVolume extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        double uNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
         double hNew = uNew + pressure*vNew;
         return -(hNew - hOld)/parentIntegrator.temperature;
     }
@@ -61,6 +63,8 @@ public class MCMoveVolume extends MCMove {
         inflate.undo();
     }
 
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    
     public AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.reset();

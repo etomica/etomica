@@ -6,6 +6,10 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
 public final class MCMoveMoleculeExchange extends MCMove {
     
     private Phase firstPhase;
@@ -18,6 +22,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private transient Phase iPhase, dPhase;
     private transient SpeciesAgent iSpecies, dSpecies;
     private transient double uOld;
+    private transient double uNew = Double.NaN;
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {
         super(parent);
@@ -50,7 +55,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
             iPhase = secondPhase;
             dPhase = firstPhase;
         }
-        if(dPhase.moleculeCount() == 0) {return false;} //no molecules to delete; trial is over
+        if(dPhase.moleculeCount() == 0) { //no molecules to delete; trial is over
+            uNew = uOld = 0.0;
+            return false;
+        }
         
         molecule = dPhase.randomMolecule();  //select random molecule to delete
         Species species = molecule.node.parentSpecies();
@@ -62,6 +70,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
         molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
         molecule.node.setParent(iSpecies);
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -73,7 +82,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        double uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -89,6 +98,12 @@ public final class MCMoveMoleculeExchange extends MCMove {
         affectedAtomIterator.setBasis(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
+    }
+    
+    public double energyChange(Phase phase) {
+        if(phase == iPhase) return uNew;
+        else if(phase == dPhase) return -uOld;
+        else return 0.0;
     }
 
 }//end of MCMoveMoleculeExchange

@@ -20,7 +20,14 @@ public class Histogram implements DataSource.X {
     private Dimension dimension = Dimension.NULL;
     private Dimension xDimension = Dimension.NULL;
 
+    /**
+     * Default constructor, making a 100-bin histogram.  Sets autoscale to true.
+     */
     public Histogram() {this(100);}
+    /**
+     * Makes a new histogram instance having a number of bins given by the argument.
+     * Sets autoscale to true.
+     */
     public Histogram(int n) {
 	    nValues = n;
 	    counts = new int[n];
@@ -28,6 +35,10 @@ public class Histogram implements DataSource.X {
         xvalues = new double[n];
         autoScale = true;
     }    
+    /**
+     * Makes a new histogram instance, with n bins and limiting x values of
+     * x0 and x1.  Sets autoscale to false.
+     */
     public Histogram(int n, double x0, double x1) {
         this(n);
         autoScale = false;
@@ -62,6 +73,7 @@ public class Histogram implements DataSource.X {
 	        counts[i] = 0;
 	        xvalues[i] = xMin + (i+0.5)*deltaX;
 	    }
+	    firstValue = autoScale;
 	}
 	
 	public void addValues(double[] x) {  //updates histogram through addition of multiple new values
@@ -84,7 +96,7 @@ public class Histogram implements DataSource.X {
             firstValue = false;
         }
         int i;
-      if(x < xMin) {
+        if(x < xMin) {
             xMinOld = xMin;
             if(autoScale) {xMin = x; redistribute();}
             i = 0;

@@ -11,6 +11,10 @@ package etomica;
  * @author David Kofke
  */
  
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
+  
 public class MCMoveSemigrand extends MCMove {
     
     private Species[] speciesSet;
@@ -24,6 +28,7 @@ public class MCMoveSemigrand extends MCMove {
     
     private transient Atom deleteMolecule, insertMolecule;
     private transient double uOld;
+    private transient double uNew = Double.NaN;
     private transient SpeciesAgent deleteAgent, insertAgent;
     private transient int iInsert, iDelete;
 
@@ -128,7 +133,10 @@ public class MCMoveSemigrand extends MCMove {
         //select species for deletion
         iDelete = (int)(Simulation.random.nextDouble()*nSpecies);//System.out.println("Random no. :"+randomNo);
         deleteAgent = agentSet[iDelete];
-        if(deleteAgent.moleculeCount() == 0) return false;
+        if(deleteAgent.moleculeCount() == 0) {
+            uNew = uOld = 0.0;
+            return false;
+        }
 
         //select species for insertion
         iInsert = iDelete;
@@ -143,6 +151,7 @@ public class MCMoveSemigrand extends MCMove {
         insertMolecule = insertAgent.addNewAtom();
         insertMolecule.coord.translateTo(deleteMolecule.coord.position());
         //in general, should also randomize orintation and internal coordinates
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -152,7 +161,7 @@ public class MCMoveSemigrand extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        double uNew = potential.calculate(iteratorDirective.set(insertMolecule), energy.reset()).sum();
+        uNew = potential.calculate(iteratorDirective.set(insertMolecule), energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature +
                 Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
@@ -164,6 +173,8 @@ public class MCMoveSemigrand extends MCMove {
         insertMolecule.sendToReservoir();
     }
 
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
         insertAtomIterator.setBasis(insertMolecule);

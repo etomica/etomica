@@ -53,6 +53,9 @@ public interface DataSource {
         public DataSource getDataSource();
     }
     
+    /**
+     * Indicates an object that uses multiple DataSources.
+     */
     public interface MultiUser {
         public void setDataSources(DataSource[] source);
         public void setDataSources(int i, DataSource source);

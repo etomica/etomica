@@ -8,6 +8,11 @@ import etomica.action.AtomActionTransform;
  * Has a bug, probably associated with incorrect replacement of the molecule when
  * rejecting the trial.
  */
+ 
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
+  
 public class MCMoveRotateMolecule extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
@@ -18,6 +23,7 @@ public class MCMoveRotateMolecule extends MCMove {
     private final AtomIterator leafAtomIterator = new AtomIteratorTree();
     
     private transient double uOld;
+    private transient double uNew = Double.NaN;
     private transient Atom molecule;
     private transient Space.Vector r0;
     private transient Space.RotationTensor rotationTensor;
@@ -51,13 +57,14 @@ public class MCMoveRotateMolecule extends MCMove {
         r0.E(molecule.node.firstLeafAtom().coord.position());
 //        AtomActionTransform.doAction(leafAtomIterator, molecule.coord.position(), rotationTensor);
         AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -69,6 +76,8 @@ public class MCMoveRotateMolecule extends MCMove {
         AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
     }
  
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.setBasis(molecule);

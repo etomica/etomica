@@ -6,6 +6,10 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
 public class MCMoveInsertDelete extends MCMove {
     
     //chemical potential
@@ -17,7 +21,8 @@ public class MCMoveInsertDelete extends MCMove {
     private SpeciesAgent speciesAgent;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom testMolecule;
-    private double hOld;
+    private double uOld;
+    private double uNew = Double.NaN;
     private boolean insert;
     private AtomReservoir reservoir;
 
@@ -51,15 +56,16 @@ public class MCMoveInsertDelete extends MCMove {
     public boolean doTrial() {
         insert = Simulation.random.nextDouble() < 0.5;
         if(insert) {
-            hOld = 0.0;
+            uOld = 0.0;
             testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
             testMolecule.coord.translateTo(phase.randomPosition());
         } else {//delete
             if(speciesAgent.moleculeCount() == 0) return false;
             testMolecule = speciesAgent.randomMolecule();
-            hOld = -mu + potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+            uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
             reservoir.addAtom(testMolecule);
-        }    
+        } 
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -69,9 +75,13 @@ public class MCMoveInsertDelete extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        double hNew = 0.0;
-        if(insert) hNew = -mu + potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
-        return -(hNew - hOld)/parentIntegrator.temperature;
+        if(insert) {
+            uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+            return (+mu - uNew)/parentIntegrator.temperature;
+        } else {//delete
+            uNew = 0.0;
+            return (-mu + uOld)/parentIntegrator.temperature;
+        }
     }
     
     public void acceptNotify() {
@@ -82,6 +92,8 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) testMolecule.sendToReservoir();
         else testMolecule.node.setParent((AtomTreeNodeGroup)speciesAgent.node);
     }
+    
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
 
     /**
      * Returns an iterator giving molecule that is being added or deleted 
@@ -108,6 +120,7 @@ public class MCMoveInsertDelete extends MCMove {
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
 /*    
     public static void main(String[] args) {
+        Default.TRUNCATE_POTENTIALS = false;
         etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
         Simulation.instance = sim;
 
@@ -128,5 +141,5 @@ public class MCMoveInsertDelete extends MCMove {
 
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
     }//end of main
-// */    
+// */   
 }//end of MCMoveInsertDelete

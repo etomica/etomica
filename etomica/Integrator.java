@@ -151,7 +151,8 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   
   /**
    * Performs activities needed to set up integrator to work on given phase.
-   * This method should not be called directly; instead it is invoked by the phase in its setIntegrator method.
+   * This method should not be called directly; instead it is invoked by the phase in 
+   * its setIntegrator method.
    * @return true if the phase was successfully added to the integrator; false otherwise
    */
    //perhaps should throw an exception rather than returning a boolean "false"

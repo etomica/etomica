@@ -7,12 +7,18 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
+  
 public class MCMoveAtom extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom atom;
-    double uOld;
+    private double uOld;
+    private double uNew = Double.NaN;
 /*debug* /    private PotentialCalculationEnergySumNearestPair energyDebug = 
              new PotentialCalculationEnergySumNearestPair();
     private int idx1 = 8;
@@ -71,6 +77,7 @@ public class MCMoveAtom extends MCMove {
             throw new RuntimeException("Overlap found in configuration");
         }    
         atom.coord.displaceWithin(stepSize);
+        uNew = Double.NaN;
  //       phase.boundary().centralImage(atom.coord.position());
         return true;
     }//end of doTrial
@@ -91,9 +98,11 @@ public class MCMoveAtom extends MCMove {
      * doTrial.
      */
     public double lnProbabilityRatio() {
-        double uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
+        uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
+    
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
     
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.

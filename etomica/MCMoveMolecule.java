@@ -7,12 +7,17 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
 public class MCMoveMolecule extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
     private double uOld;
+    private double uNew = Double.NaN;
 
     public MCMoveMolecule(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -39,13 +44,14 @@ public class MCMoveMolecule extends MCMove {
 
         uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
         molecule.coord.displaceWithin(stepSize);
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        double uNew = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
+        uNew = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -61,6 +67,9 @@ public class MCMoveMolecule extends MCMove {
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
+
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    
 
 /*    public static void main(String[] args) {
         

@@ -5,6 +5,10 @@ import etomica.units.*;
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
  */
 
+ /* History of changes
+  * 7/9/02 Added energyChange() method
+  */
+  
 public class MCMoveRotate extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
@@ -13,6 +17,7 @@ public class MCMoveRotate extends MCMove {
 
     private transient Atom molecule;
     private transient double uOld;
+    private transient double uNew = Double.NaN;
     private transient Space.Orientation orientation;
 
     public MCMoveRotate(IntegratorMC parentIntegrator) {
@@ -34,6 +39,7 @@ public class MCMoveRotate extends MCMove {
         orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
+        uNew = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -41,7 +47,7 @@ public class MCMoveRotate extends MCMove {
     
     public double lnProbabilityRatio() {
         potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
-        double uNew = energy.sum();
+        uNew = energy.sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -51,6 +57,8 @@ public class MCMoveRotate extends MCMove {
         orientation.E(oldOrientation);
     }
 
+    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.setBasis(molecule);

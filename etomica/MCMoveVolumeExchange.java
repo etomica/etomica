@@ -7,12 +7,20 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/9/02 added energyChange() method.
+  */
+
 public final class MCMoveVolumeExchange extends MCMove {
     
     private Phase firstPhase;
     private Phase secondPhase;
     private PhaseAction.Inflate inflate1;
     private PhaseAction.Inflate inflate2;
+    private transient double uOld1, uOld2;
+    private transient double uNew1 = Double.NaN;
+    private transient double uNew2 = Double.NaN;
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private AtomIterator phase1AtomIterator;
@@ -52,8 +60,9 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
     
     public boolean doTrial() {
-        hOld = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
-                    + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uOld1 = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uOld2 = potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
+        hOld = uOld1 + uOld2;
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
         double vRatio = v1Old/v2Old * Math.exp(stepSize*(Simulation.random.nextDouble() - 0.5));
@@ -65,6 +74,7 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2.setScale(Math.pow(v2Scale,ROOT));
         inflate1.attempt();
         inflate2.attempt();
+        uNew1 = uNew2 = Double.NaN;
         return true;
     }//end of doTrial
     
@@ -74,8 +84,9 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
         
     public double lnProbabilityRatio() {
-        double hNew = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
-                    + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew1 = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew2 = potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
+        double hNew = uNew1 + uNew2;
         return -(hNew - hOld)/parentIntegrator.temperature;
     }
     
@@ -86,6 +97,12 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2.undo();
     }
 
+    public double energyChange(Phase phase) {
+        if(this.firstPhase == phase) return uNew1 - uOld1;
+        else if(this.secondPhase == phase) return uNew2 - uOld2;
+        else return 0.0;
+    }
+    
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.firstPhase == phase) {
             phase1AtomIterator.reset();

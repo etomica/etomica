@@ -1,5 +1,18 @@
 package etomica;
 
+/**
+ * Parent class for all elementary Monte Carlo move classes, as used
+ * by IntegratorMC class.  
+ * Includes actions needed to complete trial move, and reports numbers needed
+ * to determined if move is accepted.
+ *
+ * @author David Kofke
+ */
+ 
+ /* History of changes
+  * 7/9/02 added abstract energyChange() method.
+  */
+
 public abstract class MCMove implements java.io.Serializable {
     
     private int frequency, fullFrequency;
@@ -86,6 +99,13 @@ public abstract class MCMove implements java.io.Serializable {
      * move's completion  by registering with the IntegratorMC as MCMoveEventListeners.
      */
     public abstract AtomIterator affectedAtoms(Phase phase);
+    
+    /**
+     * Returns the change in the energy of the given phase that results from the trial move.
+     * Should be called only after lnProbabilityRatio(); returns
+     * Double.NaN if invoked between calls to doTrial and lnProbabilityRatio.
+     */
+    public abstract double energyChange(Phase phase);
     
     public void setPhase(Phase[] p) {
         phases = p;

@@ -6,7 +6,7 @@ import etomica.units.Dimension;
  * The property or object may be unknown to the object that is using the modulator.
  * For example, a modulator may be constructed to adjust a certain property, and then
  * the modulator can be passed to a generic Device, thereby connecting the device to the property.
- * Direct subclasses of ModulatorAbstract handle scalar and vector quantities, respectively.
+ * @author David Kofke
  */
 
 public abstract class ModulatorAbstract implements java.io.Serializable, DatumSource {
