@@ -43,6 +43,13 @@ public class PotentialCalculationCellAssign extends PotentialCalculation {
             ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
         }
 		iterator.reset();
+        if (iterator.hasNext()) {
+            AtomPair atoms = (AtomPair)iterator.peek();
+            Atom atom0 = atoms.atom0;
+            Atom atom1 = atoms.atom1;
+            atom0.type.getNbrManagerAgent().addPotential(potential);
+            if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
+        }
 		while(iterator.hasNext()) {
 			AtomPair atoms = ((AtomPairIterator)iterator).nextPair();
             Atom atom0 = atoms.atom0;
@@ -53,8 +60,6 @@ public class PotentialCalculationCellAssign extends PotentialCalculation {
             if(((AtomSequencerCell)atom1.seq).cell == null) {
                 cellManager.assignCell(atom1);
             }
-            atom0.type.getNbrManagerAgent().addPotential(potential);
-            if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
 		}
 	}
     
