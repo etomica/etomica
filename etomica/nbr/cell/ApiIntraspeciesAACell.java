@@ -4,7 +4,8 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
@@ -15,6 +16,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPairVector;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.ApiListSimple;
@@ -122,8 +124,8 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
      * the iterator if reset in its present state. True only if an iterated pair
      * would match the atoms as ordered in the given array.
      */
-	public boolean contains(Atom[] atoms) {
-        if(atoms==null || atoms[0]==null || atoms[1]==null || atoms[0]==atoms[1]) return false;
+	public boolean contains(AtomSet atoms) {
+        if(!(atoms instanceof AtomPair) || ((AtomPair)atoms).atom0 == ((AtomPair)atoms).atom1) return false;
         AtomsetDetect detector = new AtomsetDetect(atoms);
         allAtoms(detector);
         return detector.detectedAtom();
@@ -133,19 +135,22 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         return listIterator.hasNext();
     }
     
-    public Atom[] next() {
+    public AtomSet next() {
+        return nextPair();
+    }
+    
+    public AtomPair nextPair() {
         if(!hasNext()) return null;
-        Atom[] nextPair = listIterator.next();
-        pair[0] = nextPair[0];
-        pair[1] = nextPair[1];
-        nearestImageVector = neighborIterator.getNearestImageVector();
+        AtomPair nextPair = (AtomPair)listIterator.next();
+        nextPair.copyTo(pair);
+        pair.nearestImageVector = neighborIterator.getNearestImageVector();
         if(!listIterator.hasNext()) {
             advanceLists();
         }
         return pair;
     }
     
-    public Atom[] peek() {
+    public AtomSet peek() {
         return listIterator.peek();
     }
     
@@ -219,5 +224,5 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
     private final int index;
     private Vector nearestImageVector;
     
-    private final Atom[] pair = new Atom[2];
+    private final AtomPairVector pair = new AtomPairVector();
 }
