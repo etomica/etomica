@@ -140,8 +140,8 @@ public class AccumulatorAverage extends DataAccumulator {
         allData[3] = standardDeviation;
         allData[4] = mostRecentBlock;
         for(int i=0; i<dataSinkList.length; i++) {
-            if(dataSinkList[i] instanceof AccumulatorPusher) {
-                ((AccumulatorPusher)dataSinkList[i]).setNData(nData);
+            if(dataSinkList[i] instanceof SinkWrapper) {
+                ((SinkWrapper)dataSinkList[i]).pusher.setNData(nData);
             }
         }
     }
@@ -252,7 +252,7 @@ public class AccumulatorAverage extends DataAccumulator {
             setNData(AccumulatorAverage.this.nData);
         }
 
-        //ignore argument, use data directly from outer class 
+        //push data obtained from outer class 
         protected void pushData() {
             if(nData == 1) {
                 for(int i=0; i<indexes.length; i++) {
@@ -284,19 +284,29 @@ public class AccumulatorAverage extends DataAccumulator {
         }
         
         protected DataSink makeDataSink() {
-            return new DataSink() {
-                public void putData(double[] dummy) {
-                    pushData();
-                }
-                public void setLabel(String s) {}
-                public void setDimension(Dimension d) {}
-            };
+            return new SinkWrapper(this);
         }
         
         private double[] selectedData;
         private final double[][] selectedAllData;
         private final int[] indexes;
         private DataTranslator selectedTranslator;
-    }//end of AccumulatorPipe
+    }//end of AccumulatorPusher
+    
+    /**
+     * Wraps an AccumulatorPusher instance so that it may be put 
+     * in the AccumulatorAverage's list of data sinks.
+     */
+    private static class SinkWrapper implements DataSink {
+        final AccumulatorPusher pusher;
+        SinkWrapper(AccumulatorPusher pusher) {
+            this.pusher = pusher;
+        }
+        public void putData(double[] dummy) {
+            pusher.pushData();
+        }
+        public void setLabel(String s) {pusher.setLabel(s);}
+        public void setDimension(Dimension d) {pusher.setDimension(d);}
+    }
     
 }//end of AccumulatorAverage
