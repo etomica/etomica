@@ -37,8 +37,7 @@ public class IntegratorHard extends IntegratorMD {
 
     protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
     protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
-    protected final AtomList listToUpdate = new AtomList();
-    protected final AtomIteratorListSimple reverseIterator = new AtomIteratorListSimple();
+    protected final AtomArrayList listToUpdate = new AtomArrayList();
 
     protected TreeList eventList;
 
@@ -225,10 +224,9 @@ public class IntegratorHard extends IntegratorMD {
      * changed.
      */
     private void processReverseList() {
-        reverseIterator.setList(listToUpdate); 
-        reverseIterator.reset();
-        while(reverseIterator.hasNext()) {
-            Atom reverseAtom = reverseIterator.nextAtom();
+        int size = listToUpdate.size();
+        for (int i=0; i<size; i++) {
+            Atom reverseAtom = listToUpdate.get(i);
             Agent agent = (Agent)reverseAtom.ia;
             if (agent.collisionTime < Double.MAX_VALUE) {
                 agent.eventLinker.remove();
@@ -406,12 +404,12 @@ public class IntegratorHard extends IntegratorMD {
 				double collisionTime = pHard.collisionTime(atomPair);
 				if(collisionTime < Double.MAX_VALUE) {
 					Agent aia = (Agent)atomPair[1].ia;
-					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
-						System.out.println("collision down time "+collisionTime+" for atom "+atoms[1]+" with "+atoms[0]);
+					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomPair)))) {
+						System.out.println("collision down time "+collisionTime+" for atom "+atomPair[1]+" with "+atomPair[0]);
 					}
 					if(collisionTime < aia.collisionTime()) {
-						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-							System.out.println("setting down time "+collisionTime+" for atom "+atoms[1]+" with "+atoms[0]);
+						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomPair))) {
+							System.out.println("setting down time "+collisionTime+" for atom "+atomPair[1]+" with "+atomPair[0]);
 						}
                         if (aia.collisionTime < Double.MAX_VALUE) {
                             aia.eventLinker.remove();
