@@ -182,7 +182,7 @@ public class IteratorFactoryCell implements IteratorFactory {
                     //we expect that primitive.lattice() == null, so change of size doesn't cause replacement of atoms in cells
                 if(evt.isotropic) {
                     primitiveCopy.scaleSize(evt.isoScale);
-                    cellIterator.setBasis(lattice.siteList());
+                    cellIterator.setList(lattice.siteList());
                     cellIterator.reset();
                     while(cellIterator.hasNext()) {
                         cellIterator.next().coord.inflate(evt.isoScale);
@@ -192,7 +192,7 @@ public class IteratorFactoryCell implements IteratorFactory {
                     newSize = ((PrimitiveOrthorhombic)primitiveCopy).getSize();
                     for(int i=0; i<newSize.length; i++) newSize[i] *= evt.anisoScale.x(i);
                     primitiveCopy.setSize(newSize);
-                    cellIterator.setBasis(lattice.siteList());
+                    cellIterator.setList(lattice.siteList());
                     cellIterator.reset();
                     while(cellIterator.hasNext()) {
                         cellIterator.next().coord.inflate(evt.anisoScale);
@@ -807,7 +807,7 @@ public static final class IntergroupNbrIterator extends AtomIterator {
         if(basisIterateCells) {
             AbstractCell referenceCell = ((CellSequencer)atom.seq).cell();
             iterateCells = (referenceCell != null);
-            if(iterateCells) simpleIterator.setBasis(referenceCell.neighborManager().neighbors());
+            if(iterateCells) simpleIterator.setList(referenceCell.neighborManager().neighbors());
         } else {
             iterateCells = false;
         }
@@ -816,7 +816,7 @@ public static final class IntergroupNbrIterator extends AtomIterator {
             listIterator.setBasis(basis);
             atomIterator = listIterator;
         } else { //simple iterator is atom iterator
-            simpleIterator.setBasis(basis.childList);
+            simpleIterator.setList(basis.childList);
             atomIterator = simpleIterator;
         }
         

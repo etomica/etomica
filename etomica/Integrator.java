@@ -108,7 +108,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     AtomIteratorListSimple iterator = new AtomIteratorListSimple();
     for(int i=0; i<phaseCount; i++) {
         Phase p = phase[i];
-        iterator.setBasis(p.speciesMaster.atomList);
+        iterator.setList(p.speciesMaster.atomList);
         iterator.reset();
         while(iterator.hasNext()) {//does only leaf atoms; do atom groups need agents?
             Atom a = iterator.next();

@@ -54,7 +54,8 @@ public final class ApiIntragroup1A implements AtomPairIterator {
 	}
 
     public void setBasis(Atom a) {
-        atomIterator.setBasis(a);
+        if(a.node.isLeaf()) atomIterator.unset();
+        else atomIterator.setList(((AtomTreeNodeGroup)a.node).childList);
         group = a;
         pair.cPair.setBoundary(group.node.parentPhase().boundary());
     }

@@ -41,7 +41,7 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        pairIterator.setBasis(phase);
+        pairIterator.setList(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {
             AtomPair pair = pairIterator.next();

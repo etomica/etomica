@@ -9,15 +9,33 @@ package etomica;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public interface AtomIterator extends AtomSetIterator {
+
+//consider using list classes, and making wrappers that use set methods
+//to take phase, species, atom, etc. and select list for list iterators
+//perhaps a setter class held by the iterator?
+//adapter class that holds list iterator and fronts its methods, allowing
+//subclasses to define set methods
+public interface AtomIterator /*extends AtomSetIterator*/ {
     
+	/**
+	 * Returns whether or not the atom is in the iterator.
+	 * @param atom
+	 * @return whether or not the atom is in the iterator.
+	 */
     public boolean contains(Atom atom);
+    
+    /**
+     * Indicates if the iterator has another atom.
+     */
+    public boolean hasNext();
     
     /**
      * Resets the iterator to loop through its iterates again.
      * The specific behavior depends on the type of iterator.
+     * @return tells what the first atom will be when the iterator runs
      */
-    public void reset();
+    //TODO do we want to change this to return void?
+    public Atom reset();
     
     /**
      * Puts iterator in a state in which next() returns null.
@@ -50,4 +68,17 @@ public interface AtomIterator extends AtomSetIterator {
      */
     public int size(); 
 
+    /**
+     * Static iterator that returns no atoms.
+     * @author kofke
+     */
+    public static AtomIterator NULL = new AtomIterator() {
+    	public void all(Atom basis, IteratorDirective id, AtomActive action) {}
+    	public boolean contains(Atom atom) {return false;}
+    	public boolean hasNext() {return false;}
+    	public Atom next() {return null;}
+    	public Atom reset() {return null;}
+    	public int size() {return 0;}
+    	public void unset() {}
+    };
 }

@@ -467,7 +467,7 @@ public class Space2D extends Space implements EtomicaElement {
         
         public CoordinateGroup(Atom a) {
             super(a);
-            childIterator.setBasis(((AtomTreeNodeGroup)a.node).childList);
+            childIterator.setList(((AtomTreeNodeGroup)a.node).childList);
         }
 
         /**

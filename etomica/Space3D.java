@@ -666,7 +666,7 @@ public static class CoordinateGroup extends Coordinate {
     
     public CoordinateGroup(Atom a) {
         super(a);
-        childIterator.setBasis(((AtomTreeNodeGroup)a.node).childList);
+        childIterator.setList(((AtomTreeNodeGroup)a.node).childList);
     }
 
     /**

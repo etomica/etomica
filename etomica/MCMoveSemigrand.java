@@ -177,8 +177,8 @@ public class MCMoveSemigrand extends MCMove {
     
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        insertAtomIterator.setBasis(insertMolecule);
-        deleteAtomIterator.setBasis(deleteMolecule);
+        insertAtomIterator.setList(insertMolecule);
+        deleteAtomIterator.setList(deleteMolecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }

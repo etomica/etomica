@@ -18,7 +18,7 @@ public class LatticeRenderer implements Drawable {
     
     public LatticeRenderer(AbstractLattice lattice) {
         this.lattice = lattice; 
-        iterator.setBasis(lattice.siteList());
+        iterator.setList(lattice.siteList());
         
     }
     
@@ -82,7 +82,7 @@ public class LatticeRenderer implements Drawable {
         }
         
         public void colorAllAtoms(Phase phase) {
-            allIterator.setBasis(phase.speciesMaster.atomList);
+            allIterator.setList(phase.speciesMaster.atomList);
             allIterator.reset();
 			//color all atoms according to their type
             while(allIterator.hasNext()) {
@@ -138,7 +138,7 @@ public class LatticeRenderer implements Drawable {
         }
         
         public void colorAllAtoms(Phase phase) {
-            allIterator.setBasis(phase.speciesMaster.atomList);
+            allIterator.setList(phase.speciesMaster.atomList);
             allIterator.reset();
             while(allIterator.hasNext()) {
                 Atom atom = allIterator.next();

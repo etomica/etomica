@@ -12,5 +12,7 @@ package etomica;
  */
 public interface AIAtomListDependent extends AtomIterator {
 
-	public void setBasis(AtomList atomList);
+	public void setList(AtomList atomList);
+	
+	
 }

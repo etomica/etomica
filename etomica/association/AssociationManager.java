@@ -59,7 +59,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
     public void clearLists() {
         associationList.clear();
         associationList.clearMemory();
-        listIterator.setBasis(basisNode1.childList);
+        listIterator.setList(basisNode1.childList);
         listIterator.reset();
         while(listIterator.hasNext()) {
             Atom atom = listIterator.next();
@@ -67,7 +67,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
             ((AtomListRestorable)atom.allatomAgents[index]).clearMemory();
         }
         if(basisNode1.equals(basisNode2)) return;
-        listIterator.setBasis(basisNode2.childList);
+        listIterator.setList(basisNode2.childList);
         listIterator.reset();
         while(listIterator.hasNext()) {
             Atom atom = listIterator.next();
@@ -82,14 +82,14 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
      */
     public void clearMemories() {
         associationList.clearMemory();
-        listIterator.setBasis(basisNode1.childList);
+        listIterator.setList(basisNode1.childList);
         listIterator.reset();
         while(listIterator.hasNext()) {
             Atom atom = listIterator.next();
             ((AtomListRestorable)atom.allatomAgents[index]).clearMemory();
         }
         if(basisNode1.equals(basisNode2)) return;
-        listIterator.setBasis(basisNode2.childList);
+        listIterator.setList(basisNode2.childList);
         listIterator.reset();
         while(listIterator.hasNext()) {
             Atom atom = listIterator.next();
@@ -163,7 +163,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
      */
     private void restoreLists(Atom atom){
         //restore list for atoms on atom's current list
-        listIterator.setBasis((AtomList)atom.allatomAgents[index]);
+        listIterator.setList((AtomList)atom.allatomAgents[index]);
         listIterator.reset();
         while(listIterator.hasNext()) {
             ((AtomListRestorable)listIterator.next().allatomAgents[index]).restore();
@@ -173,7 +173,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
         ((AtomListRestorable)atom.allatomAgents[index]).restore();
         
         //restore lists for atoms on atom's restored list
-        listIterator.setBasis((AtomList)atom.allatomAgents[index]);
+        listIterator.setList((AtomList)atom.allatomAgents[index]);
         listIterator.reset();
         while(listIterator.hasNext()) {
             ((AtomListRestorable)listIterator.next().allatomAgents[index]).restore();
@@ -210,7 +210,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
         //clear association list of atom and remove it from associates' list
         AtomList atomList = (AtomList)atom.allatomAgents[index];
         if(atomList.size() > 0) {
-            listIterator.setBasis(atomList);
+            listIterator.setList(atomList);
             listIterator.reset();
             while(listIterator.hasNext()) {
                 Atom atom2 = listIterator.next();

@@ -12,16 +12,16 @@ package etomica;
  * 02/21/03 (DAK) added all(AtomList...) method
  * 
  */
-public final class AtomIteratorListSimple implements AtomIterator {
+public final class AtomIteratorListSimple implements AIAtomListDependent {
     
-    private AtomList list;
-	private AtomLinker next;
-        
+	/**
+	 * Constructs iterator with an empty list for iteration.
+	 */
 	public AtomIteratorListSimple() {
-	    this(AtomList.NULL);
+	    this(new AtomList());
 	}
 	public AtomIteratorListSimple(AtomList list) {
-	    setBasis(list);
+	    setList(list);
 	    reset();
 	}
     
@@ -44,18 +44,16 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	 * Sets the childList of the given atom as the basis for iteration.
 	 * If atom is a leaf, hasNext is false.
 	 */
-    public void setBasis(Atom atom){
+   /* public void setBasis(Atom atom){
         if(atom.node.isLeaf()) unset();
         else setBasis(((AtomTreeNodeGroup)atom.node).childList);
-    }
-    public void setBasis(AtomList list) {
-        if(list == null) list = AtomList.NULL;
-        this.list = list;
+    }*/
+    public void setList(AtomList newList) {
+        list = (newList != null) ? list : new AtomList();
         next = list.header;
     }
-    public Atom getBasis(){return null;}//no implementation
  
-     /**
+    /**
      * Performs action on all atoms.
      */
     public void allAtoms(AtomAction action){
@@ -71,12 +69,7 @@ public final class AtomIteratorListSimple implements AtomIterator {
         while(next.atom == null && next != list.header) next = next.next;
         return next.atom;
     }
-    
-    /**
-     * Resets, ignoring given directive (same as reset()).
-     */
-    public Atom reset(IteratorDirective id) {return reset();}
-    
+        
     /**
      * Sets iterator such that hasNext() will return false.
      */
@@ -95,12 +88,11 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	 */
 	public int size() {return list.size();}
 
-	    
+	/**
+	 * Returns the next atom in the list.
+	 */    
     public Atom next() {
         return nextLinker().atom;
-    }
-    public AtomSet nextSet() {
-    	return next();
     }
     
     /**
@@ -127,6 +119,9 @@ public final class AtomIteratorListSimple implements AtomIterator {
 		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
 		 all((Atom)basis, id, (AtomActive)action);
 	}
+	
+    private AtomList list;
+	private AtomLinker next;
     
     public static void main(String[] args) {
         Simulation sim = new Simulation();

@@ -12,6 +12,6 @@ package etomica;
  */
 public interface AIPhaseDependent extends AtomIterator {
 
-	public void setBasis(Phase phase);
+	public void setPhase(Phase phase);
 	
 }
