@@ -29,8 +29,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     private double collisionRadius = 0.0;
     private boolean isothermal = false;
     private double temperature;
-    private double[] lastVirial = new double[2];
     private Atom atom;
+    private double lastVirial;
     
     public P1HardBoundary() {
         this(Simulation.getDefault().space);
@@ -106,8 +106,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
                 imin = i;
             }
         }
-        lastVirial[1-imin] = 0.0;
-        lastVirial[imin] = atom.type.getMass()*2.0*v.x(imin)*collisionRadius;
+        lastVirial = atom.type.getMass()*2.0*v.x(imin)*collisionRadius;
         v.setX(imin,-v.x(imin));
         // dv = 2*NewVelocity
         double newP = atom.coord.position().x(imin) - falseTime*v.x(imin)*2.0;
@@ -121,13 +120,10 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     public double getTemperature() {return temperature;}
     public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Dimension.TEMPERATURE;}
         
-    public double lastCollisionVirial(int i) {return lastVirial[i];}
-
     /**
      * not yet implemented
      */
-    public double lastCollisionVirial() {return lastVirial[0];}
-    //public double lastCollisionVirial() {return Double.NaN;}
+    public double lastCollisionVirial() {return lastVirial;}
     
     /**
      * not yet implemented.
