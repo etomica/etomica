@@ -40,16 +40,17 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         return info;
     }
 
- /**
-  * Returns infinity if overlap is true, zero otherwise
-  */
-  public double energy(Atom[] pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
+    /**
+     * Returns infinity if overlap is true, zero otherwise
+     */
+    public double energy(Atom[] pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
 
-  /**
-   * True if perpendicular distance between wall and sphere is less than collision radius (diameter/2), false otherwise
-   */
-  public boolean overlap(Atom[] pair) {
-  		cPair.reset(pair[0].coord,pair[1].coord);
+    /**
+     * True if perpendicular distance between wall and sphere is less than
+     * collision radius (diameter/2), false otherwise
+     */
+    public boolean overlap(Atom[] pair) {
+        cPair.reset(pair[0].coord,pair[1].coord);
         Atom sphere;
         Atom wall;
         if(pair[1].type instanceof AtomTypeWall) {
@@ -74,7 +75,8 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
     }
   
     /**
-     * Time to collision of sphere and wall, considering that one or both may be under the influence of a constant force.
+     * Time to collision of sphere and wall, considering that one or both may
+     * be under the influence of a constant force.
      */
     public double collisionTime(Atom[] pair) {
     	cPair.reset(pair[0].coord,pair[1].coord);
@@ -125,7 +127,9 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
                 int aSign = (a > 0) ? +1 : -1;
                 if(adr && adv) {time = Double.MAX_VALUE;}  //moving and accelerating away; no collision
                 else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;} //moving toward, accelerating away (- root is positive)
-            //    else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration; causes missed collisions--may need to handle dr*dv>0 too?
+                // else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));}
+                // series expansion for small acceleration; causes missed
+                // collisions--may need to handle dr*dv>0 too?
                 else {time = (-dv + aSign*Math.sqrt(discrim))/a;} //moving away, accelerating toward (- root is negative)
             }
         }
@@ -157,7 +161,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         AtomTypeWall wallType = (AtomTypeWall)wall.type;
     
         int i = (((AtomTypeWall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
-		cPair.resetV();
+        cPair.resetV();
         double pOld = sphere.coord.momentum(i);
         
         if(wall.coord.isStationary()) {
@@ -246,9 +250,9 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
     /**
      * Always returns zero (not yet implemented)
      */
-  public double lastCollisionVirial() {return 0.0;}
-  final Space.Tensor ZERO; //temporary
-  public Space.Tensor lastCollisionVirialTensor() {return ZERO;}
+    public double lastCollisionVirial() {return 0.0;}
+    final Space.Tensor ZERO; //temporary
+    public Space.Tensor lastCollisionVirialTensor() {return ZERO;}
 
 
     /**
