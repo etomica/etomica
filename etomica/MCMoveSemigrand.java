@@ -175,7 +175,7 @@ public class MCMoveSemigrand extends MCMove {
         deleteAtomIterator.setBasis(deleteMolecule);
         return affectedAtomIterator;
     }
-
+/*
     public static void main(String[] args) {
         
         Simulation.instance = new etomica.graphics.SimulationGraphic(new Space2D());
@@ -184,55 +184,39 @@ public class MCMoveSemigrand extends MCMove {
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
 	    MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(integrator);
 	    MCMoveRotateMolecule mcMoveRotate = new MCMoveRotateMolecule(integrator);
-///	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
+	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
 	    //one species with 3 atoms per molecule
 	    SpeciesSpheres species0 = new SpeciesSpheres(10,3);
 	    //two species with 1 atom per molecule
 	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(2);
 	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(2);
 	    
-///	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
+	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
         etomica.graphics.ColorSchemeByType.setColor(species1, java.awt.Color.red);
         etomica.graphics.ColorSchemeByType.setColor(species2, java.awt.Color.green);
 	    species0.setDiameter(3.0);
 	    species1.setDiameter(5.0);
 	    species2.setDiameter(1.0);
 	    Phase phase = new Phase();
-/*	    P2HardSphere potential00 = new P2HardSphere(3.0);
-	    P2HardSphere potential01 = new P2HardSphere(4.0);
-	    P2HardSphere potential02 = new P2HardSphere(2.0);
-	    P2HardSphere potential11 = new P2HardSphere(5.0);
-	    P2HardSphere potential12 = new P2HardSphere(3.0);
-	    P2HardSphere potential22 = new P2HardSphere(1.0);*/
 	    
 	    //intramolecular potential for 3-atom molecules
 	    P1TetheredHardSpheres potential0 = new P1TetheredHardSpheres();
-/*	    Potential1Group potential0 = new Potential1Group();
-	    P2Tether p2Tether = new P2Tether(potential0);
-	    p2Tether.setIterator(new AtomPairIterator(Simulation.instance.space,
-	            new AtomIteratorSequential(false),
-	            new AtomIteratorBonds()));
-*/	    
 	    //hard-sphere intermolecular potential for 3-atom molecules
 	    Potential2Group potential00 = new Potential2Group();
 	        Potential2 potential00a = new P2HardSphere(potential00, 3.0);
 	    //0-1 species potential
 	    Potential2Group potential01 = new Potential2Group();
 	        Potential2 potential01a = new P2HardSphere(potential01, 4.0);
-//	        potential01a.setIterator(new ApiGeneral(Simulation.instance.space,
-//	            new AtomIteratorChildren(), new AtomIteratorSinglet()));
 	    //0-2 species potential
 	    Potential2Group potential02 = new Potential2Group();
 	        Potential2 potential02a =new P2HardSphere(potential02, 2.0);
-//	        potential02a.setIterator(new ApiGeneral(Simulation.instance.space,
-//	            new AtomIteratorChildren(), new AtomIteratorSinglet()));
 	    //1-1 species potential
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
 	    //1-2 species potential
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
 	    //2-2 species potential
 	    P2HardSphere potential22 = new P2HardSphere(1.0);
-	///    potential0.setSpecies(species0);
+	    potential0.setSpecies(species0);
 	    potential00.setSpecies(species0, species0);
 	    potential01.setSpecies(species0, species1);
 	    potential02.setSpecies(species0, species2);
@@ -251,13 +235,20 @@ public class MCMoveSemigrand extends MCMove {
 		plot.setLabel("Species0 density");
 		plot.setDataSources(density0.getHistory());
 		
-/*		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(new ModulatorAbstract() {
-		    public double getValue() {return 100.*mcMoveSemi.getFugacityFraction(0);}
-		    public void setValue(double v) {mcMoveSemi.setFugacityFraction(0,0.01*v);}
-		    public etomica.units.Dimension getDimension() {return etomica.units.Dimension.NULL;}
+		MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+		energyMeter.setUpdateInterval(1);
+		energyMeter.setHistorying(true);
+		etomica.graphics.DisplayPlot energyPlot = new etomica.graphics.DisplayPlot();
+		energyPlot.setDataSources(energyMeter.getHistory());
+		
+		etomica.graphics.DeviceTernarySelector selector = 
+		    new etomica.graphics.DeviceTernarySelector(Simulation.instance, 
+		                            new String[] {"Black", "Red", "Green"});
+		selector.addListener(new etomica.graphics.DeviceTernarySelector.Listener() {
+		    public void ternaryAction(double x0, double x1, double x2) {
+		        mcMoveSemi.setFugacityFraction(new double[] {x0, x1, x2});
+		    }
 		});
-		slider.setMinimum(0);
-		slider.setMaximum(100);*/
 		
 		integrator.setSleepPeriod(2);
 		
@@ -267,5 +258,6 @@ public class MCMoveSemigrand extends MCMove {
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
+    */
     
 }//end of MCMoveSemigrand

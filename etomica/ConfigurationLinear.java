@@ -14,7 +14,7 @@ public class ConfigurationLinear extends Configuration {
     private double[] angle;
     
     public ConfigurationLinear(Space space) {
-        this(space, 0.5*Default.ATOM_SIZE);
+        this(space, 0.55*Default.ATOM_SIZE);
     }
     public ConfigurationLinear(Space space, double bondLength) {
         super(space);

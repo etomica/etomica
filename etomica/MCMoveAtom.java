@@ -31,21 +31,17 @@ public class MCMoveAtom extends MCMove {
         if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
         atom = phase.firstAtom();
- //       System.out.println(phase.atomCount()+ "  "+i); System.exit(0);
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {
- //           System.out.println(atom.signature());  //get ith atom in list
             atom = atom.nextAtom();
         }
- //       if(atom.node.parentSpeciesAgent().node.index() != 2) {
- //           System.out.println();
- //       }   
- //       System.out.println();
         uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
+        if(uOld > 1e10) {
+            System.out.println("Uold: "+uOld);
+            uOld = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();
+        }    
         atom.coord.displaceWithin(stepSize);
         uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
- //       if(atom.node.parentSpeciesAgent().node.index() != 2) System.out.println(uOld+"  "+uNew);
-        //System.out.println(uOld+"  "+uNew);
         if(uNew >= Double.MAX_VALUE) {
             atom.coord.replace();
             return false;

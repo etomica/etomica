@@ -26,6 +26,8 @@ public abstract class PotentialBase extends Potential
     
     public  Potential set(SpeciesMaster s){return this;} 
     public  Potential set(Atom[] atoms) {return this;}
+    public  void setSpecies(Species[] s) {}
+    public  Species[] getSpecies() {return null;}
     public abstract double energy(int l, int m);
     public void setArray(Phase phase1){
         phase=phase1;
