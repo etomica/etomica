@@ -358,7 +358,7 @@ public abstract class Integrator implements java.io.Serializable {
 		}
 
 		//class used to mark the different types of interval events
-		private final static class Type extends Constants.TypedConstant {
+		public final static class Type extends Constants.TypedConstant {
 			private Type(String label) {
 				super(label);
 			}

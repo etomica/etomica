@@ -5,6 +5,8 @@ import java.util.Observer;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.PhaseInflate;
+import etomica.lattice.BravaisLattice;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.utility.NameMaker;
 
 //Java2 imports
@@ -346,7 +348,25 @@ public class Phase {
     protected void fireEvent(PhaseEvent event) {
         eventManager.fireEvent(event);
     }    
-                                 
+     
+    
+    /**
+     * Temporary method for cell neighbor listing
+     * @return Returns the lattice.
+     */
+    public NeighborCellManager getLattice() {
+        return lattice;
+    }
+    /**
+     * Temporary method for cell neighbor listing
+     * @param lattice The lattice to set.
+     */
+    public void setLattice(NeighborCellManager lattice) {
+        this.lattice = lattice;
+    }
+    //temporary construct for cell neighbor listing
+    private NeighborCellManager lattice;
+    
     public Configuration configuration;
           
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();

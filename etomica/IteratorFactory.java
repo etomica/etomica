@@ -18,36 +18,35 @@ public interface IteratorFactory {
      * between two groups
      * @return the pair iterator
      */
-    public AtomsetIterator makeIntergroupNbrPairIterator();
+    public AtomsetIterator makeInterSpeciesPairIterator();
     
     /**
      * creates a pair iterator which loops over all pairs in a neighbor list
      * within one group
      * @return the pair iterator
      */
-    public AtomsetIterator makeIntragroupNbrPairIterator();
+    public AtomsetIterator makeIntraSpeciesPairIterator();
     
     /**
-     * Returns an atom sequencer that does not base ordering on any type
-     * of neighbor scheme.  Sequencer is assigned by atom factory when
-     * creating a new atom.
-     */
-    public AtomSequencer makeSimpleSequencer(Atom atom);
+     * Sequencer used for molecule-level atoms (those with a SpeciesAgent
+     * as the parent). Special because if cell lists are used, they are
+     * kept for these atoms.
+      */
+    public AtomSequencer.Factory moleculeSequencerFactory();
     
     /**
-     * Returns an atom sequencer that bases ordering on a neighbor scheme.
-     * The nature of the neighbor scheme depends on the way neighboring is
-     * set up by the IteratorFactory products. Sequencer is assigned by 
-     * atom factory when creating a new atom.
+     * Sequencer used for atoms on which concrete potentials (non-group) act.
+     * Special because if neighbor lists are used, they are kept for these atoms.
+     * @return
      */
-    public AtomSequencer makeNeighborSequencer(Atom atom);
-    
-    public Class simpleSequencerClass();
-    
-    public Class neighborSequencerClass();
-    
-    public AtomSequencer.Factory simpleSequencerFactory();
-    
-    public AtomSequencer.Factory neighborSequencerFactory();
-   
+    public AtomSequencer.Factory interactionAtomSequencerFactory();
+
+    /**
+     * Sequencer used for molecule-level atoms on which concrete potentials 
+     * (non-group) act.  Special because they must be able to handle both neighbor
+     * and cell listing.
+     * @return
+     */
+    public AtomSequencer.Factory interactionMoleculeSequencerFactory();
+
 }

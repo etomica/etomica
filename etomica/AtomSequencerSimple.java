@@ -4,7 +4,7 @@ package etomica;
  * 10/18/02 (DAK) added sequencerClass method to FACTORY
  */
 
-public final class AtomSequencerSimple extends AtomSequencer {
+public class AtomSequencerSimple extends AtomSequencer {
     
     public AtomSequencerSimple(Atom a) {
         super(a);

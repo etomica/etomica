@@ -32,11 +32,22 @@ public class PotentialMaster extends PotentialGroup {
 		return lrcMaster;
 	 }
 
+     /**
+      * Inherited from PotentialGroup, but not used by PotentialMaster class and
+      * throws RuntimeException if called.
+      */
 	 public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
 	 	throw new RuntimeException("Method inappropriate for PotentialMaster class");
 	 }
 	 
 	//should build on this to do more filtering of potentials based on directive
+     /**
+      * Performs the given PotentialCalculation on the atoms of the given Phase.
+      * Sets the phase for all molecule iterators and potentials, sets target
+      * and direction for iterators as specified by given IteratorDirective,
+      * and applies doCalculation of given PotentialCalculation with the iterators
+      * and potentials.
+      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
     	Atom[] targetAtoms = id.getTargetAtoms();
@@ -55,7 +66,7 @@ public class PotentialMaster extends PotentialGroup {
     
     /**
      * Indicates to the PotentialMaster that the given potential should apply to 
-     * the specified species.  Exception is thown if the potential.nBody() value
+     * the specified species.  Exception is thrown if the potential.nBody() value
      * is different from the length of the species array.  Thus, for example, if
      * giving a 2-body potential, then the array should contain exactly
      * two species; the species may refer to the same instance (appropriate for an 
@@ -74,23 +85,14 @@ public class PotentialMaster extends PotentialGroup {
     	addPotential(potential, iterator);
     }
  
-	/**
-	 * Convenient reformulation of the calculate method, applicable if the
-	 * potential calculation performs a sum.  The method returns the
-	 * summable potential calculation object, so that the sum can be accessed
-	 * in-line with the method call.
-	 */
-//   public final PotentialCalculation.Summable calculate(Phase phase, IteratorDirective id, PotentialCalculation.Summable pa) {
-//	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
-//	   return pa;
-//   }	    
-    
+    /**
+     * Performs no action.
+     */
     public void setSimulation(Simulation sim) {
     }
     
     public AtomSequencer.Factory sequencerFactory() {return AtomSequencerSimple.FACTORY;}
 
-   
 	protected PotentialGroupLrc lrcMaster;
 	protected Phase mostRecentPhase = null;
 

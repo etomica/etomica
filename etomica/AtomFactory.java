@@ -29,7 +29,16 @@ public abstract class AtomFactory {
     protected final AtomTypeGroup groupType = new AtomTypeGroup(this);
     protected final AtomTypeSphere spheretype = new AtomTypeSphere(this);
     protected AtomType atomType;
-        
+    
+    /**
+     * Makes an atom factory with atoms having AtomSequencerSimple and
+     * AtomTreeNodeGroup for sequencer and node, respectively.
+     * @param space
+     */
+    public AtomFactory(Space space) {
+        this(space, AtomSequencerSimple.FACTORY);
+    }
+    
     public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {
     	this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
