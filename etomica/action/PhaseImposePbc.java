@@ -8,6 +8,7 @@ import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Integrator;
 import etomica.Phase;
+import etomica.Space;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -78,10 +79,13 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	public void setPhase(Phase phase) {
 		super.setPhase(phase);
 		iterator.setPhase(phase);
-        translator = new AtomActionTranslateBy(phase.space());
-        moleculeTranslator = new AtomGroupAction(translator);
-        //XXX shouldn't clobber user-set moleculePosition, but DataSourceCOM needs the space
-        moleculePosition = new DataSourceCOM(phase.space());
+        if (space != phase.space()) {
+            space = phase.space();
+            translator = new AtomActionTranslateBy(phase.space());
+            moleculeTranslator = new AtomGroupAction(translator);
+            //XXX shouldn't clobber user-set moleculePosition, but DataSourceCOM needs the space
+            moleculePosition = new DataSourceCOM(phase.space());
+        }
 	}
 
 	/**
@@ -149,6 +153,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
     private AtomActionTranslateBy translator;
     private AtomGroupAction moleculeTranslator;
     private AtomPositionDefinition moleculePosition;
+    private Space space;
 
 	private boolean applyToMolecules;
 
