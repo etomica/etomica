@@ -104,7 +104,7 @@ public class IntegratorHard extends IntegratorMD {
         } 
         advanceAcrossTimeStep(interval);
         if(isothermal) {
-            scaleMomenta(Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster)));
+            scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
         }
         
     }//end of doStep
@@ -216,7 +216,7 @@ public class IntegratorHard extends IntegratorMD {
 	* Do an upList call for each atom and find the next collider
 	*/
 	protected void doReset() {
-		if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster)));
+		if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			((IntegratorHard.Agent)atomIterator.nextAtom().ia).resetCollision();

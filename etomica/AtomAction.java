@@ -1,4 +1,3 @@
-// This class includes a main method demonstrating its use.
 package etomica;
 
 /**

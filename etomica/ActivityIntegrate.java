@@ -19,7 +19,7 @@ public class ActivityIntegrate extends Activity {
 	public ActivityIntegrate(Integrator integrator) {
 		super();
 		this.integrator = integrator;
-		interval = 1;
+		setInterval(1);
 		doSleep = Default.DO_SLEEP;
 		sleepPeriod = 10;
 	}

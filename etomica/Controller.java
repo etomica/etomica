@@ -53,7 +53,7 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
      * start was called before, and actions remain to be completed).
      */
     public void start() {
-        if(runner != null) return;
+        if(isActive()) return;
         pauseRequested = false;
         runner = new Thread(this);
         runner.start();
@@ -72,13 +72,15 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
     			currentAction.actionPerformed();
     		}
     		catch (Exception e) {
+    			//TODO write message to error stream
+    			e.printStackTrace();
     			doPause = true;
     		}
     		completedActions.addLast(currentAction);//TODO mark this as whether completed normally
     		actions.removeFirst();
     		currentAction = null;
-    		if(haltRequested) break;
     		if(doPause || pauseRequested) doWait();
+    		if(haltRequested) break;
     	}
     	synchronized(this) {
     		notifyAll();
@@ -142,7 +144,6 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
      * but not running, then pause will take effect upon start.
      */
     public boolean isPaused() {
-    	if(currentAction == null) return false;
     	if(currentAction instanceof Activity) {
     		return ((Activity)currentAction).isPaused();
     	} else {
@@ -173,8 +174,9 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
      * is in effect.
      */
     public synchronized void halt() {
-        if(isActive()) haltRequested = true;
-        if(currentAction != null && currentAction instanceof Activity) ((Activity)currentAction).halt();
+        if(!isActive()) return;
+        haltRequested = true;
+        if(currentAction instanceof Activity) ((Activity)currentAction).halt();
         if(pauseRequested) unPause();
         try {
             wait();  //make thread requesting pause wait until halt is in effect
