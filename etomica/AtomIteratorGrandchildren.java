@@ -1,8 +1,9 @@
 package etomica;
 
 /**
- * Iterates over the child atoms (which are not necessarily 
- * the leaf atoms) of a sequence of atoms.
+ * Iterates of the grandchildren of a basis.  
+ * These are all the child atoms (which are not necessarily 
+ * the leaf atoms) of the child atoms of the basis.
  * Parent atoms themselves are not returned in the sequence.
  * Used by Phase to iterate over molecules (direct children of
  * species agents).
@@ -10,7 +11,7 @@ package etomica;
  * @author David Kofke
  */
  
-public final class AtomIteratorChildren implements AtomIterator {
+public final class AtomIteratorGrandchildren implements AtomIterator {
     
     private AtomIterator parentIterator;
     private boolean hasNext;
@@ -21,8 +22,9 @@ public final class AtomIteratorChildren implements AtomIterator {
     /**
      * @param iterator the iterator of the parent atoms.
      */      
-    public AtomIteratorChildren(AtomGroup group) {
+    public AtomIteratorGrandchildren(AtomGroup group) {
         parentIterator = new AtomIteratorSequential(group);
+        currentIterator = new AtomIteratorSequential();
     }
     
     public boolean hasNext() {return hasNext;}

@@ -16,7 +16,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     protected AtomIterator atomIterator;
     protected final PotentialCalculation.ForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    protected PotentialAgent phasePotential;
     final Space.Vector work1, work2;
     double zeta = 0.0;
     double chi = 0.0;
@@ -44,13 +43,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         return info;
     }
 
-          //need to modify to handle multiple-phase issues
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        phasePotential = p.potential();
-        return true;
-    }
-    
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         p1 = dt;
@@ -91,7 +83,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             ((IntegratorGear4.Agent)atomIterator.next().ia).force.E(0.0);
         }
         //Compute forces on each atom
-        phasePotential.calculate(allAtoms, forceSum);
+        potential.calculate(allAtoms, forceSum);
         
     }//end of calculateForces
     
@@ -220,16 +212,17 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    DisplayPlot plot = new DisplayPlot();
-//	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
-//	    timer.setUpdateInterval(10);
-	    integratorGear4.setTimeStep(0.005);
+	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
+	    timer.setUpdateInterval(10);
+	//    integratorGear4.setTimeStep(0.005);
+	    integratorGear4.setSleepPeriod(2);
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
         Meter ke = new MeterKineticEnergy();
         Meter temp = new MeterTemperature();
         Meter energy = new MeterEnergy();
         energy.setHistorying(true);
-        plot.setDataSource(energy.getHistory());
+        plot.setDataSources(energy.getHistory());
         Phase phase = Simulation.instance.phase(0);
         ke.setPhase(phase);
         temp.setPhase(phase);
@@ -244,12 +237,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         box3.setMeter(energy);
         box3.setPrecision(7);
                                             
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
+		Simulation.instance.elementCoordinator.go();
 
-        Potential2.Agent potentialAgent = (Potential2.Agent)P2LennardJones1.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
-		
+        P2LennardJones1.setIterator(new AtomPairIterator(phase));
+        P2LennardJones1.set(speciesDisks1.getAgent(phase));
+				
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
 }

@@ -136,11 +136,11 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         DisplayTableFunction rdfTable = new DisplayTableFunction();
         //end of unique part
         
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
+		Simulation.instance.elementCoordinator.go();
 		                                    
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
+        potential.setIterator(new AtomPairIterator(phase));
+//        potential.set(species.getAgent(phase));
+		
 		Simulation.instance.setBackground(java.awt.Color.yellow);
         Simulation.makeAndDisplayFrame(Simulation.instance);
         		                                    

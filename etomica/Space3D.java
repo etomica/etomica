@@ -24,7 +24,7 @@ public class Space3D extends Space implements EtomicaElement {
     public Space.Orientation makeOrientation() {System.out.println("Orientation class not yet developed in 3D"); return null;}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Atom a) {return new Coordinate(a);}
-    public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}
+    public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
 
     public Space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
     public Space.Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
@@ -208,20 +208,10 @@ public class Space3D extends Space implements EtomicaElement {
     public static final class CoordinatePair extends Space.CoordinatePair {
         Coordinate c1;
         Coordinate c2;
-        Boundary boundary;
-        final Vector dimensions;
         private final Vector dr = new Vector();
         private double dvx, dvy, drx, dry, dvz, drz;
-        public CoordinatePair() {this(new BoundaryNone());}
-        public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b; dimensions=(Vector)boundary.dimensions();}
-        public CoordinatePair(Phase p) {
-            this(p.boundary());
-            p.boundaryMonitor.addObserver(this);
-        }
-        /**
-         * Implementation of Observer interface to update boundary if notified of change by phase.
-         */
-        public void update(java.util.Observable obs, Object arg) {boundary = (Boundary)arg;}
+        public CoordinatePair() {super();}
+
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
@@ -231,7 +221,7 @@ public class Space3D extends Space implements EtomicaElement {
             dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
             dr.z = c2.r.z - c1.r.z;
-            boundary.nearestImage(dr);
+            c1.atom.parentPhase().boundary().nearestImage(dr);
             drx = dr.x;
             dry = dr.y;
             drz = dr.z;

@@ -20,8 +20,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         super(sim);
         forceSum = new IntegratorHardField.ForceSum(sim.space());
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
-            public boolean excludes(PotentialAgent potential) {
-                return !(potential.parentPotential() instanceof Potential1);
+            public boolean excludes(Potential potential) {
+                return !(potential instanceof Potential1);
             }
         });
     }
@@ -68,7 +68,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             iagent.forceFree = true;
         }
         //Compute forces on each atom
-        phasePotential.calculate(fieldsOnly, forceSum);
+        potential.calculate(fieldsOnly, forceSum);
         
     }//end of calculateForces
 

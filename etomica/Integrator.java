@@ -15,6 +15,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
   private String name;
   private boolean isPaused = true;
   protected boolean pauseRequested = false;
+  protected final PotentialMaster potential;
  
   protected Phase firstPhase;
   protected Phase[] phase;
@@ -43,6 +44,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     parentSimulation = sim;
     phase = new Phase[phaseCountMax];
     parentSimulation.register(this);
+    potential = sim.hamiltonian.potential;
   }
   
     public final Simulation parentSimulation() {return parentSimulation;}

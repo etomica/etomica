@@ -5,7 +5,7 @@ public class Potential1Group extends Potential1 {
     
     private final IteratorDirective localDirective = new IteratorDirective();
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
-    private PotentialLinker first;
+    protected PotentialLinker first;
     
     public Potential1Group(Simulation sim) {
         super(sim);
@@ -24,19 +24,14 @@ public class Potential1Group extends Potential1 {
         }//end while
     }//end calculate
 
-    public final PotentialCalculation.Sum calculate(IteratorDirective id, PotentialCalculation.Sum pa) {
-        this.calculate(id, (PotentialCalculation)pa);
-        return pa;
-    }
-        
     public void addPotential(Potential potential) {
         first = new PotentialLinker(potential, first);
     }
 
     public double energy(Atom atom) {
-        return calculate(localDirective.set().set(IteratorDirective.BOTH), energy).sum();
+        calculate(localDirective.set(atom).set(IteratorDirective.BOTH), energy);
+        return energy.sum();
     }
-        
 
 }//end Potential1Group
     

@@ -12,6 +12,8 @@ import etomica.utility.Iterator;
 
 
 /**
+ * This description is out of date.
+ *
  * A Phase collects all atoms that interact with one another; atoms in different phases do
  * not interact.  These are the important features of a Phase:<p> 
  * 
@@ -434,7 +436,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * (children of the species agents) in this phase.
      */
     public AtomIterator makeMoleculeIterator() {
-        return new AtomIteratorChildren(speciesMaster);
+        return new AtomIteratorGrandchildren(speciesMaster);
     }//end of makeMoleculeIterator
     
     /**

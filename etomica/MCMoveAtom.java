@@ -4,7 +4,6 @@ import etomica.units.Dimension;
 
 public class MCMoveAtom extends MCMove {
     
-    private PotentialMaster.Agent phasePotential;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
@@ -28,13 +27,11 @@ public class MCMoveAtom extends MCMove {
         Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
-//        phasePotential.calculate(iteratorDirective.set(a), energy.reset());
-//        uOld = energy.sum();
-        uOld = phase.potential.calculate(iteratorDirective.set(a), energy.reset()).sum();
+
+        uOld = potential.set(phase).calculate(iteratorDirective.set(a), energy.reset()).sum();
         a.coord.displaceWithin(stepSize);
-//        phase.boundary().centralImage(a.coord.position());  //maybe a better way than this
         phase.iteratorFactory().moveNotify(a);
-        uNew = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
+        uNew = potential.calculate(iteratorDirective.set(a), energy.reset()).sum();//not thread safe for multiphase systems
         if(uNew < uOld) {   //accept
             nAccept++;
             return;
@@ -65,14 +62,15 @@ public class MCMoveAtom extends MCMove {
 		energy.getHistory().setNValues(500);		
 		DisplayPlot plot = new DisplayPlot();
 		plot.setLabel("Energy");
-		plot.setDataSource(energy.getHistory());
+		plot.setDataSources(energy.getHistory());
 		
 		integrator.setSleepPeriod(2);
 		
 		Simulation.instance.elementCoordinator.go();
 	    integrator.add(mcMove);
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
+	    
+        potential.setIterator(new AtomPairIterator(phase));
+        potential.set(species.getAgent(phase));
         
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main

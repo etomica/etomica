@@ -35,13 +35,13 @@ public class AtomPairIterator implements java.io.Serializable {
     private AtomPairIterator() {
         hasNext = false;
         pair = null;
-        ai1 = ai2 = null;
+        ai1 = ai2 = AtomIterator.NULL;
     }
     /**
      * Constructs an iterator of all atom pairs in the given phase.
      */
     public AtomPairIterator(Phase p) {
-        this(p, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
+        this(p.parentSimulation().space, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
     }
     /**
      * Constructs an iterator of all pairs formed from the given species in the given phase.
@@ -50,11 +50,14 @@ public class AtomPairIterator implements java.io.Serializable {
         this(p, species1.getAgent(p).new LeafAtomIterator(),
                 species2.getAgent(p).new LeafAtomIterator());
      }*/
+     public AtomPairIterator(Space s) {
+        this(s, new AtomIteratorSequential(), new AtomIteratorSequential());
+     }
     /**
      * Construct a pair iterator for the given phase, using the given atom iterators
      */
-    public AtomPairIterator(Phase p, AtomIterator iter1, AtomIterator iter2) {
-        pair = new AtomPair(p);
+    public AtomPairIterator(Space s, AtomIterator iter1, AtomIterator iter2) {
+        pair = new AtomPair(s);
         actionWrapper = new AtomPairAction.Wrapper(pair);
         hasNext = false;
         ai1 = iter1;

@@ -1,9 +1,9 @@
 package etomica;
-import java.awt.*;
+import java.awt.Color;
 import etomica.units.Dimension;
 
 /**
- * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
+ * Species in which molecules are made of arbitrary number of disks,
  * with each disk having the same mass and size (same type).
  * 
  * @author David Kofke
@@ -12,6 +12,7 @@ public class SpeciesDisks extends Species implements EtomicaElement {
 
     private double mass;
     public AtomType.Disk protoType;
+    
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryHomo makeFactory(Simulation sim, int na) {
         AtomFactoryMono f = new AtomFactoryMono(sim);

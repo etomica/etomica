@@ -16,12 +16,10 @@ public final class MCMoveVolumeExchange extends MCMove {
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
-    private final PotentialMaster potential;
 
     public MCMoveVolumeExchange(IntegratorMC parent) {
         super();
-        parentIntegrator = parent;
-        potential = parentIntegrator.parentSimulation().hamiltonian.potential;
+        setParentIntegrator(parent);
         ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
@@ -44,8 +42,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
     
     public void thisTrial() {
-        double hOld = potential.calculate(iteratorDirective.set(firstPhase), energy.reset()).sum()
-                    + potential.calculate(iteratorDirective.set(secondPhase), energy.reset()).sum();
+        double hOld = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
+                    + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
         double vRatio = v1Old/v2Old * Math.exp(stepSize*(Simulation.random.nextDouble() - 0.5));
@@ -58,8 +56,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2.setScale(Math.pow(v2Scale,ROOT));
         inflate1.attempt();
         inflate2.attempt();
-        double hNew = potential.calculate(iteratorDirective.set(firstPhase), energy.reset()).sum()
-                    + potential.calculate(iteratorDirective.set(secondPhase), energy.reset()).sum();
+        double hNew = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
+                    + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+
                        (firstPhase.moleculeCount()+1)*Math.log(v1Scale) +

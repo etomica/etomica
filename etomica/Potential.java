@@ -35,4 +35,13 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
     public abstract Potential set(Atom a);
     public abstract Potential set(Atom a1, Atom a2);
     
+    public Potential set(SpeciesMaster s) {
+        //fill this in
+    }
+    
+    /**
+     * Marker interface for Null potentials, which are defined to have no action.
+     */
+    public interface Null {}
+    
 }//end of Potential

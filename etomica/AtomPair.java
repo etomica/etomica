@@ -6,22 +6,22 @@ package etomica;
  * for its complete definition
  */
 public final class AtomPair implements java.io.Serializable {
-    public static String getVersion() {return "01.06.25";}
+    public static String getVersion() {return "AtomPair:01.06.25";}
     public Atom atom1, atom2;
     public final Space.CoordinatePair cPair;
-//    public Potential potential;
+
    /**
     * Constructs an AtomPair for the given phase, but with no designated atoms.
     */
-    public AtomPair(Phase phase) {
-        cPair = phase.parentSimulation().space().makeCoordinatePair(phase);
+    public AtomPair(Space space) {
+        cPair = space.makeCoordinatePair();
     }
     /**
      * Constructs an AtomPair using the given atoms.  Assumes that the atoms are in the same phase.
      * The method atom1() will return the first atom in the argument list here, and atom2() the second.
      */
     public AtomPair(Atom a1, Atom a2) {  //Assumes a1 and a2 are in same phase
-        cPair = a1.parentSimulation().space().makeCoordinatePair(a1.parentPhase());
+        cPair = a1.parentSimulation().space().makeCoordinatePair();
         reset(a1, a2);
     }
     /**

@@ -51,7 +51,7 @@ public class MCMoveInsertDelete extends MCMove {
         Atom testMolecule = species.moleculeFactory().makeAtom();
         speciesAgent.addAtom(testMolecule);
         testMolecule.coord.translateTo(phase.randomPosition());
-        double uNew = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+        double uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap
             testMolecule.sendToReservoir();
             return;
@@ -69,7 +69,7 @@ public class MCMoveInsertDelete extends MCMove {
         int i = (int)(Simulation.random.nextDouble()*speciesAgent.moleculeCount());
         Atom testMolecule = speciesAgent.firstMolecule();
         for(int j=i; --j>=0; ) {testMolecule = testMolecule.nextAtom();}
-        double uOld = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+        double uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
         double bNew = speciesAgent.moleculeCount()/phase.volume();
         if(bNew > bOld || bNew > Simulation.random.nextDouble()*bOld) {  //accept

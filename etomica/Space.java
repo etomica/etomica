@@ -13,7 +13,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public abstract Orientation makeOrientation();
     public abstract Tensor makeTensor();
     public abstract Coordinate makeCoordinate(Atom a);
-    public abstract CoordinatePair makeCoordinatePair(Phase p);
+    public abstract CoordinatePair makeCoordinatePair();
     public abstract Boundary makeBoundary();  //makes boundary of default type
     public abstract Boundary makeBoundary(Boundary.Type type);
     public abstract Boundary.Type[] boundaryTypes();
@@ -233,7 +233,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void convertToSpaceFrame(Vector v);//changes the components of v from body frame to space frame
     }
     
-    public static abstract class CoordinatePair implements Cloneable, java.io.Serializable, java.util.Observer {
+    public static abstract class CoordinatePair implements Cloneable, java.io.Serializable {
         public double r2;
         public CoordinatePair() {}  //null constructor
         public abstract void reset();
@@ -257,9 +257,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
                 return (CoordinatePair)super.clone();
             } catch(CloneNotSupportedException e) {return null;}
         }
-        
-        public abstract void update(java.util.Observable obs, Object arg);
-            
     }
 
     public static abstract class Boundary implements java.io.Serializable {

@@ -1,8 +1,7 @@
 //This class includes a main method to demonstrate its use
 package etomica;
 
-import javax.swing.*;
-//import java.util.*;
+import javax.swing.JPanel;
 import etomica.units.UnitSystem;
 import java.beans.Beans;
 
@@ -201,7 +200,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         if(hamiltonian == null || element == hamiltonian.potential) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return;
-        if(element instanceof Potential) hamiltonian.potential.addPotential((Potential)element);
+        if(element instanceof Potential && !(element instanceof Potential.Null))
+                hamiltonian.potential.addPotential((Potential)element);
         element.setName(element.getClass().getName().substring(8) + Integer.toString(list.size()));
         list.add(element);
         allElements.add(element);

@@ -19,7 +19,7 @@ public class Space2D extends Space implements EtomicaElement {
         else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
-    public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}
+    public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
     
     public Space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
     public Space.Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
@@ -172,20 +172,10 @@ public class Space2D extends Space implements EtomicaElement {
     public static final class CoordinatePair extends Space.CoordinatePair {  
         Coordinate c1;
         Coordinate c2;
-        Boundary boundary;
-        final Vector dimensions;   //assumes this is not transferred between phases
         private final Vector dr = new Vector();  //note that dr is not cloned if this is cloned -- should change this if using dr in clones; also this makes cloned coordinatePairs not thread-safe
         private double drx, dry, dvx, dvy;
-        public CoordinatePair() {this(new BoundaryNone());}
-        public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b; dimensions = (Vector)boundary.dimensions();}
-        public CoordinatePair(Phase p) {
-            this(p.boundary());
-            p.boundaryMonitor.addObserver(this);
-        }
-        /**
-         * Implementation of Observer interface to update boundary if notified of change by phase.
-         */
-        public void update(java.util.Observable obs, Object arg) {boundary = (Boundary)arg;}
+        public CoordinatePair() {super();}
+
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
@@ -194,7 +184,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void reset() {
             dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
-            boundary.nearestImage(dr);
+            c1.atom.parentPhase().boundary().nearestImage(dr);
             drx = dr.x; 
             dry = dr.y;
             r2 = drx*drx + dry*dry;

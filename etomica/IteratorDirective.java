@@ -11,7 +11,6 @@ public final class IteratorDirective implements java.io.Serializable {
     private Atom atom1, atom2;
     private Direction direction;
     private int atomCount;
-    private Phase phase;
     PotentialCriterion potentialCriteriaHead;
     
     public IteratorDirective() {
@@ -27,7 +26,6 @@ public final class IteratorDirective implements java.io.Serializable {
      */
     public void copy(IteratorDirective id) {
         direction = id.direction();
-        phase = id.phase();
         atom1 = id.atom1();
         atom2 = id.atom2();
         if(atom1 == null) atomCount = 0;
@@ -61,14 +59,9 @@ public final class IteratorDirective implements java.io.Serializable {
         this.direction = direction;
         return this;
     }
-    public final IteratorDirective set(Phase phase) {
-        this.phase = phase;
-        return this;
-    }
 
     public final int atomCount() {return atomCount;}
     public final Direction direction() {return direction;}
-    public final Phase phase() {return phase;}
     
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}

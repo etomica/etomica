@@ -1,5 +1,10 @@
 package etomica;
 
+/**
+ * Parent class for all hard pair potentials.
+ *
+ * @author David Kofke
+ */
 public abstract class Potential2Hard extends Potential2 implements PotentialHard {
     
     public Potential2Hard(Simulation sim) {
@@ -26,16 +31,21 @@ public abstract class Potential2Hard extends Potential2 implements PotentialHard
         ((Potential2Calculation)pc).calculate(iterator, this); 
     }//end of calculate
 
+    /**
+     * Instance of hard pair potential corresponding to no interaction between atoms.
+     */
     public static Potential2Hard NULL = new NULL();
-    public static class NULL extends Potential2Hard {
-        private NULL() {super(Simulation.instance);}
+    private static class NULL extends Potential2Hard implements Potential.Null {
+        private NULL() {
+            super(Simulation.instance);
+            setIterator(AtomPairIterator.NULL);
+        }
         public double energy(AtomPair pair) {return 0.0;}
         public void bump(AtomPair pair) {}
         public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
         public double lastCollisionVirial() {return 0.0;}
         public Space.Tensor lastCollisionVirialTensor() {return null;} //need to know D to return zero tensor
     }
-
     
 }//end of Potential2Hard
 

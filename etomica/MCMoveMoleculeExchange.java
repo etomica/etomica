@@ -11,7 +11,6 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase firstPhase;
     private Phase secondPhase;
     private final double ROOT;
-    private PotentialMaster.Agent phasePotential;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
@@ -53,13 +52,13 @@ public final class MCMoveMoleculeExchange extends MCMove {
         SpeciesAgent iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         SpeciesAgent dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
-        double uOld = dPhase.potential.calculate(iteratorDirective.set(a), energy.reset()).sum();
+        double uOld = potential.set(dPhase).calculate(iteratorDirective.set(a), energy.reset()).sum();
 
         a.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
         dPhase.removeMolecule(a,dSpecies);
         iPhase.addMolecule(a,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
         iPhase.iteratorFactory().moveNotify(a);
-        double uNew = iPhase.potential.calculate(iteratorDirective, energy.reset()).sum();
+        double uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap; reject
             a.coord.replace();                //put it back 
             iPhase.removeMolecule(a,iSpecies);

@@ -160,7 +160,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             Atom aPartner = aAgent.collisionPartner();
             if(aPartner != null && (aPartner == partner || aPartner == collider)) {//aPartner != null handles case where aPartner and partner are both null
                 aAgent.resetCollision();
-                phasePotential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));
+                potential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));
             }
         }//end while
             //reset collision partners of atoms that are now up from this atom but still list it as their
@@ -172,7 +172,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             while(upAtomIterator.hasNext()) {
                 Atom atom = upAtomIterator.next();
                 if(((Agent)atom.ia).collisionPartner == a) {  //upList atom could have atom as collision partner if atom was just moved down list
-                    phasePotential.findCollisions(atom, UP, collisionHandlerUp);
+                    potential.findCollisions(atom, UP, collisionHandlerUp);
                 }
             }*/
             //to keep collision lists perfect, should do an upList on atoms that had this
@@ -180,12 +180,12 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 
 
         colliderAgent.resetCollision();
-        phasePotential.calculate(upList.set(collider), collisionHandlerUp.setAtom(collider));
-        phasePotential.calculate(downList.set(collider), collisionHandlerDown);
+        potential.calculate(upList.set(collider), collisionHandlerUp.setAtom(collider));
+        potential.calculate(downList.set(collider), collisionHandlerDown);
         if(partner != null) {
             ((IntegratorHardAbstract.Agent)partner.ia).resetCollision();
-            phasePotential.calculate(upList.set(partner), collisionHandlerUp.setAtom(partner));
-            phasePotential.calculate(downList.set(partner), collisionHandlerDown);
+            potential.calculate(upList.set(partner), collisionHandlerUp.setAtom(partner));
+            potential.calculate(downList.set(partner), collisionHandlerDown);
         }
 
     }//end of processCollision
@@ -217,7 +217,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         while(atomIterator.hasNext()) {
             ((IntegratorHardAbstract.Agent)atomIterator.next().ia).resetCollision();
         }
-        phasePotential.calculate(upList.set(), collisionHandlerUp);
+        potential.calculate(upList.set(), collisionHandlerUp);
         findNextCollider();
     }
                 
