@@ -403,6 +403,8 @@ public class Atom {
     if(atom != null) {atom.previousAtom = this;}
   }
   
+  public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.getNextAtom();}  //first atom on next molecule
+
   public final void clearPreviousAtom() {previousAtom = null;}
   
   public final Atom getPreviousAtom() {return previousAtom;}

@@ -411,6 +411,9 @@ public class Space extends Component {
     public double r1Mr2_S(double[] v1, double[] v2) {  //for overriding by subclasses
         return v1Mv2_S(v1, v2);
     }
+    public double r1iMr2i(int i, double[] v1, double[] v2) {  //for overriding
+        return v1[i] - v2[i];
+    }
     
     public static void uPEv1(double[] u, double[] v1) {
         u[0] += v1[0];

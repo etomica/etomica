@@ -277,8 +277,14 @@ public final class Phase extends Container {
   public void setInitialTemperature(double t) {initialTemperature = t;}
   public double getInitialTemperature() {return initialTemperature;}
   
-  public final Atom firstAtom() {return firstMolecule().firstAtom();}
-  public final Atom lastAtom() {return lastMolecule().lastAtom();}
+  public final Atom firstAtom() {
+     Molecule m = firstMolecule();
+     return (m != null) ? m.firstAtom() : null;
+  }
+  public final Atom lastAtom() {
+    Molecule m = lastMolecule();
+    return (m != null) ? m.lastAtom() : null;
+  }
   public final Molecule firstMolecule() {
     for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
         Molecule m = s.firstMolecule();
@@ -292,8 +298,6 @@ public final class Phase extends Container {
         if(m != null) {return m;}
     }
     return null;
-  
-  
   }
   public final Species firstSpecies() {return firstSpecies;}
   public final Species lastSpecies() {return lastSpecies;}

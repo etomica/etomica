@@ -55,13 +55,21 @@ public class IntegratorHard extends Integrator {
         downList(nextCollider);
     }
     else {
+//        Atom partnerNextAtom = partner.nextMoleculeFirstAtom();  //put this back in for multiatomic speciesSwitch; also need to do more work with loop below
+        Atom partnerNextAtom = partner.getNextAtom();
         nextCollider.getCollisionPotential().bump(nextCollider,partner);
-        for(Atom a=firstPhase.firstAtom(); a!=partner; a=a.getNextAtom()) {
-            if(a.getCollisionPartner()==nextCollider || a.getCollisionPartner()==partner || a==nextCollider) {
+        
+        boolean upListedN = false;
+        boolean upListedP = false;
+        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.getNextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
+            if(a.getCollisionPartner()==nextCollider || a.getCollisionPartner()==partner) {
                 upList(a);
+                if(a == nextCollider) {upListedN = true;}
+                else if(a == partner) {upListedP = true;}
             }
         }
-        upList(partner);
+        if(!upListedN) {upList(nextCollider);}
+        if(!upListedP) {upList(partner);}
         downList(nextCollider);
         downList(partner);
     }
@@ -117,15 +125,18 @@ public class IntegratorHard extends Integrator {
 
   protected void upList(Atom atom) {
     
-    Atom nextMoleculeAtom = atom.getMolecule().lastAtom.getNextAtom();  //first atom on next molecule
     double minCollisionTime = Double.MAX_VALUE;
-    for(int i=Space.D-1; i>=0; i--) {
-        double tnew = Math.abs(0.5*atom.parentMolecule.parentSpecies.parentPhase.space.getDimensions(i)/(atom.rm*atom.p[i]));
-        minCollisionTime = (tnew < minCollisionTime) ? tnew : minCollisionTime;
+    if(!atom.isStationary()) {  //if mobile, set collision time to time atom takes to move half a box edge
+        for(int i=Space.D-1; i>=0; i--) {
+            double tnew = Math.abs((atom.parentMolecule.parentSpecies.parentPhase.space.getDimensions(i)-1.0001*atom.getDiameter())/atom.p[i]);  //assumes range of potential is .le. diameter
+            minCollisionTime = (tnew < minCollisionTime) ? tnew : minCollisionTime;
+        }
+        minCollisionTime *= 0.5*atom.mass;
     }
-    
-    int atomSpeciesIndex = atom.getSpeciesIndex();
     atom.setCollision(minCollisionTime, null, null);
+    
+    Atom nextMoleculeAtom = atom.nextMoleculeFirstAtom();  //first atom on next molecule
+    int atomSpeciesIndex = atom.getSpeciesIndex();
     
     //Loop through remaining uplist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
@@ -155,7 +166,7 @@ public class IntegratorHard extends Integrator {
 
   protected void downList(Atom atom) {
     
-    Atom previousMoleculeAtom = atom.getMolecule().firstAtom.getPreviousAtom();
+    Atom previousMoleculeAtom = atom.getMolecule().firstAtom().getPreviousAtom();
     
     int atomSpeciesIndex = atom.getSpeciesIndex();
     

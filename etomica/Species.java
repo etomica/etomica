@@ -247,6 +247,10 @@ public abstract class Species extends Container {
   * @see #addMolecule
   */
   public final void deleteMolecule(Molecule m) {
+    if(m.parentSpecies != this) {
+        System.out.println("Error:  attempt to delete molecule from incorrect species");
+        return;
+    }
     Molecule next = m.getNextMolecule();
     Molecule previous = m.getPreviousMolecule();
     if(m == firstMolecule) {
@@ -261,6 +265,8 @@ public abstract class Species extends Container {
     else if(next != null) {next.clearPreviousMolecule();}  //beginning of list; no previous molecule for next
     nMolecules--;
     m.parentSpecies = null;
+    m.setNextMolecule(null);
+    m.clearPreviousMolecule();
     parentPhase.nMoleculeTotal--;
     parentPhase.nAtomTotal -= m.nAtoms;
   }
@@ -268,7 +274,7 @@ public abstract class Species extends Container {
  /**
   * Adds a molecule to this species and updates linked lists.  Does not handle
   * creation of molecule.  New molecule
-  * becomes last molecule of species.  Updates first/last Molecule/Atom
+  * becomes last molecule of species.  Updates first/last Molecule
   * for species, if appropriate.
   * Not yet correctly implemented for use in a phase containing multiple
   * species (i.e., mixtures).  Adjusts total molecule and atom count in parent phase.
@@ -285,14 +291,15 @@ public abstract class Species extends Container {
     else {  
         firstMolecule = m;
         lastMolecule = m;
-        m.setNextMolecule(null);  
+        m.setNextMolecule(null); 
         for(Species s=this.getNextSpecies(); s!=null; s=s.getNextSpecies()) { //loop forward in species, looking for next molecule
             if(s.firstMolecule() != null) {
                 m.setNextMolecule(s.firstMolecule());
                 break;
             }
         }
-        for(Species s=this.getPreviousSpecies(); s!=null; s=s.getPreviousSpecies()) { //loop forward in species, looking for next molecule
+        m.clearPreviousMolecule();
+        for(Species s=this.getPreviousSpecies(); s!=null; s=s.getPreviousSpecies()) { //loop backward in species, looking for previous molecule
             if(s.lastMolecule() != null) {
                 s.lastMolecule.setNextMolecule(m);
                 break;
@@ -303,6 +310,7 @@ public abstract class Species extends Container {
     m.parentSpecies = this;
     parentPhase.nMoleculeTotal++;
     parentPhase.nAtomTotal += m.nAtoms;
+    initializeMolecules();
     colorScheme.initializeMoleculeColor(m);
   }
         

@@ -91,4 +91,98 @@ public class Configuration1 extends Configuration{
         temperature = t;
         initializeCoordinates();
     }
+    public void setPx4(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a.p[0] = p;
+    }
+    public double getPx4() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        return a.p[0];
+    }
+    public void setPy4(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a.p[1] = p;
+    }
+    public double getPy4() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        return a.p[1];
+    }
+    
+    public void setPx3(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a.p[0] = p;
+    }
+    public double getPx3() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        return a.p[0];
+    }
+    
+    public void setPy3(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        a.p[1] = p;
+    }
+    public double getPy3() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a = a.getNextAtom();
+        return a.p[1];
+    }
+    
+    
+    public void setPx2(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a.p[0] = p;
+    }
+    public double getPx2() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        return a.p[0];
+    }
+    
+    public void setPy2(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        a.p[1] = p;
+    }
+    public double getPy2() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a = a.getNextAtom();
+        return a.p[1];
+    }
+    
+    public void setPx1(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a.p[0] = p;
+    }
+    public double getPx1() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        return a.p[0];
+    }
+    public void setPy1(double p) {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        a.p[1] = p;
+    }
+    public double getPy1() {
+        Atom a = ((Species)species.firstElement()).firstAtom();
+        return a.p[1];
+    }
 }

@@ -16,16 +16,29 @@ public class SpacePeriodicCubic extends Space {
     public final void uEr1Mr2(double[] u, double[] v1, double[] v2) {
         Space.uEv1Mv2(u, v1, v2);
         for(int i=Space.D; --i>=0; ) {  // i=0..D-1
-           if(u[i] > 0.5*dimensions[i]) {
-            u[i] -= dimensions[i];}
-           else if(u[i] < -0.5*dimensions[i]) {
-            u[i] += dimensions[i];}
+           double dim = dimensions[i];
+           if(u[i] > 0.5*dim) {
+              u[i] -= dim;}
+           else if(u[i] < -0.5*dim) {
+              u[i] += dim;
+           }
         }
         return;
     }
     public final double r1Mr2_S(double[] v1, double[] v2) {
         uEr1Mr2(dr, v1, v2);
         return dr[0]*dr[0] + dr[1]*dr[1];
+    }
+    
+    public final double r1iMr2i(int i, double[] v1, double[] v2) {
+        double u = v1[i] - v2[i];
+        double dim = dimensions[i];
+        if(u > 0.5*dim) {
+            u -= dim;}
+        else if(u < -0.5*dim) {
+            u += dim;
+        }
+        return u;
     }
 
     public void repositionMolecules(Species species) {

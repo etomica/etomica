@@ -30,7 +30,6 @@ public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
            wall = (AtomWall)atom1;
         }
         
-        double time = Double.MAX_VALUE;
         int i;
         
         if(wall.isVertical()) {i = 0;}
@@ -38,17 +37,15 @@ public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
         else {i = 0;}
         
         if(parentPhase.noGravity || i==0 || !(wall.isStationary() || disk.isStationary())) {
-            double dr, t, dtdr;
-            dr = wall.r[i] - disk.r[i];
-            dtdr = 1.0/(disk.p[i]*disk.rm);
-            t = dr*dtdr;
-
-            if(t > 0.0) {time = Math.max(0.0,t-collisionDiameter/2.0*Math.abs(dtdr));}
-            return time;
+            double dr = space.r1iMr2i(i,wall.r,disk.r);
+            double dv = wall.p[i]*wall.rm-disk.p[i]*disk.rm;
+            double time = -dr/dv;
+            return (time > 0.0) ? time : Double.MAX_VALUE;
         }
-        else {
+        else {  //This could be greatly simplified given that collisionRadius = 0
+            double time = Double.MAX_VALUE;
             double dr, dv;
-            dr = wall.r[i] - disk.r[i];
+            dr = space.r1iMr2i(i,wall.r,disk.r);
             dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
             if(Math.abs(dr) < collisionRadius) {   //this may still need some work
                 return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
@@ -68,25 +65,44 @@ public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
         }
     }
     
+// not suited for multiatomic molecules; need to work on IntegratorHard (advanceToCollision method) to make ready
+    
     public void bump(Atom atom1, Atom atom2)  //this needs updating to check for isStationary
     {
+        double eps = 1.0e-6;
+        
         Atom disk;
         AtomWall wall;
         if(atom2 instanceof AtomWall) {
            disk = atom1;
+           wall = (AtomWall)atom2;
         }
         else {
            disk = atom2;
+           wall = (AtomWall)atom1;
         }
         
        Molecule m = disk.parentMolecule;
        Species oldSpecies = m.parentSpecies;
        oldSpecies.deleteMolecule(m);
        changeSpecies.addMolecule(m);
-       for(Atom a=m.firstAtom; a!=m.lastAtom.getNextAtom(); a=a.getNextAtom()) {
+       for(Atom a=m.firstAtom(); a!=m.lastAtom.getNextAtom(); a=a.getNextAtom()) {
           a.setDiameter(changeSpecies.getDiameter());
        }
-        
+       
+       //Ensure wall and atom are separating
+        int i;
+        if(wall.isVertical()) {i = 0;}
+        else if(wall.isHorizontal()) {i = 1;}
+        else {i = 0;}
+        double dr = space.r1iMr2i(i,wall.r,disk.r);
+        double dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
+        if(dr*dv > 0.0) { //OK, they are separating
+            return;}  
+        else {            //otherwise, put atom just on other side of wall
+            int sign = (dv > 0.0) ? -1 : +1;
+            disk.r[i] = wall.r[i] + sign*eps;
+        }
     }
     
     public double getCollisionDiameter() {return collisionDiameter;}

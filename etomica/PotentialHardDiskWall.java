@@ -33,7 +33,7 @@ public class PotentialHardDiskWall extends simulate.Potential
         
         if(parentPhase.noGravity || i==0 || !(wall.isStationary() || disk.isStationary())) {
             double dr, t, dtdr;
-            dr = wall.r[i] - disk.r[i];
+            dr = space.r1iMr2i(i,wall.r,disk.r);
             dtdr = 1.0/(disk.p[i]*disk.rm);
             t = dr*dtdr;
 
@@ -42,7 +42,7 @@ public class PotentialHardDiskWall extends simulate.Potential
         }
         else {
             double dr, dv;
-            dr = wall.r[i] - disk.r[i];
+            dr = space.r1iMr2i(i,wall.r,disk.r);
             dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
             if(Math.abs(dr) < collisionRadius) {   //this may still need some work
                 return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision

@@ -80,7 +80,7 @@ public class PotentialHardDiskPiston extends simulate.Potential
         double dp = -2.0/(atom1.rm + atom2.rm)*dv;
         wall.p[i] += dp;
         disk.p[i] -= dp; 
-        double dr = wall.r[i] - disk.r[i];
+        double dr = space.r1iMr2i(i,wall.r,disk.r);
         disk.r[i] = wall.r[i] - (1.+1.e-5)*collisionRadius*Math.abs(dr)/dr;
     }
     
