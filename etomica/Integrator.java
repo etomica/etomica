@@ -239,7 +239,7 @@ public abstract class Integrator implements java.io.Serializable {
 		if (!this.wantsPhase()) {
 			return false;
 		} //if another phase not wanted, return false
-		phase = (Phase[])Arrays.addOjbect(phase,p);
+		phase = (Phase[])Arrays.addObject(phase,p);
 		firstPhase = phase[0];
         if (Debug.ON && p.index == Debug.PHASE_INDEX) {
             Debug.setAtoms(p);
@@ -256,7 +256,7 @@ public abstract class Integrator implements java.io.Serializable {
         for (int i = 0; i < phase.length; i++) {
             if (phase[i] == p) {//phase found; remove it
                 phase = (Phase[])Arrays.removeObject(phase,p);
-                if (phaseCount > 0) {
+                if (phase.length > 0) {
                     firstPhase = phase[0];
                 }
                 break;
