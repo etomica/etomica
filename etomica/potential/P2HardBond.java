@@ -113,10 +113,10 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         lastCollisionVirial = 2.0 / (pair[0].type.rm() + pair[1].type.rm()) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
-        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
-        pair[1].coord.position().Ea1Tv1(falseTime,dv);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PEa1Tv1(pair[0].type.rm(),dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().PEa1Tv1(-pair[1].type.rm(),dv);
+        pair[0].coord.position().PEa1Tv1(-falseTime*pair[0].type.rm(),dv);
+        pair[1].coord.position().PEa1Tv1(falseTime*pair[0].type.rm(),dv);
     }
 
     public final double lastCollisionVirial() {
@@ -138,7 +138,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
-        dr.Ea1Tv1(falseTime,dv);
+        dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double v2 = dv.squared();
@@ -176,8 +176,8 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     public double energy(Atom[] pair) {
         cPair.reset(pair[0].coord, pair[1].coord);
         double r2 = cPair.r2();
-        return (r2 > maxBondLengthSquared ||
-                r2 < minBondLengthSquared) ? Double.MAX_VALUE : 0.0;
+        if (r2 > minBondLengthSquared && r2 < maxBondLengthSquared) return 0.0;
+        return Double.POSITIVE_INFINITY;
     }
     
     public double energyChange() {return 0.0;}
