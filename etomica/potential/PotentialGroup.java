@@ -67,7 +67,7 @@ public class PotentialGroup extends Potential {
     
     //this method needs given iterator to implement AtomsetDirectable, but PotentialMaster doesn't.
     //need to reconcile differences
-	protected synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
+	public synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
 		//the order of the given potential should be consistent with the order of the iterator
 		if(potential.nBody() != iterator.nBody()) {
 			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
