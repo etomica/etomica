@@ -35,7 +35,7 @@ abstract class IteratorTest extends TestCase {
 		species2 = new SpeciesSpheresMono(nMolecules);
 		species3 = new SpeciesSpheresMono(1);
 		sim.elementCoordinator.go();
-		lister = Lister.listerArray(nLists,sim.space());
+		lister = Lister.listerArray(nLists);
 		basis1 = species1.getAgent(phase);
 		basis2 = species2.getAgent(phase);
 		pairBasis = new AtomPair(basis1,basis2);
@@ -59,7 +59,7 @@ abstract class IteratorTest extends TestCase {
 		midLinker2 = atomList2.entry(mid2);
 		outsideAtom = species3.getAgent(phase).firstMolecule();
 	}
-
+	
 	/**
 	 * Clears all of the lists.
 	 */
@@ -77,5 +77,49 @@ abstract class IteratorTest extends TestCase {
 				System.out.println(lister[i].list);
 			}
 			System.out.println();
+		}
+		
+		public static java.util.LinkedList generalIteratorTest(AtomsetIterator iterator) {
+			Lister[] lister = Lister.listerArray(4);
+			iterator.allAtoms(lister[0]);
+			
+			AtomIterator atomIterator = (iterator instanceof AtomIterator) ? (AtomIterator)iterator : null;
+			
+			iterator.reset();
+			while(iterator.hasNext()) {
+				Atom[] peekAtom = iterator.peek();
+				assertTrue(java.util.Arrays.equals(peekAtom, iterator.next()));
+				lister[1].actionPerformed(peekAtom);
+			}
+			
+			//test that allAtoms and hasNext/next give same set of iterates
+			assertEquals(lister[0].list, lister[1].list);
+			
+			iterator.reset();
+			iterator.unset();
+			assertFalse(iterator.hasNext());
+			assertNull(iterator.next()[0]);
+			if(atomIterator != null) assertNull(atomIterator.nextAtom());
+			assertFalse(iterator.hasNext());
+			
+			//test size method
+			assertEquals(iterator.size(), lister[0].list.size());
+			
+			//test contains method
+			if(atomIterator != null) {
+				AtomList atomList = new AtomList(atomIterator);
+				AtomIteratorList listIterator = new AtomIteratorList(atomList);
+				listIterator.reset();
+				while(listIterator.hasNext()) {
+					assertTrue(iterator.contains(listIterator.next()));
+				}
+				assertFalse(iterator.contains(null));
+			}
+			
+			//test nBody
+			iterator.reset();
+			assertEquals(iterator.next().length, iterator.nBody());
+						
+			return lister[0].list;
 		}
 }

@@ -7,63 +7,44 @@ import java.util.LinkedList;
  * @author aawalker
  *
  */
-class Lister implements AtomActive, AtomPairActive {
+class Lister implements AtomsetActive, AtomActive {
 	
 	public final LinkedList list;
-	private Space space;
 	
-	public Lister(Space spc) {
+	public Lister() {
 		list = new LinkedList();
-		space = spc;
 	}
 
 	/**
-	 * @see etomica.AtomPairActive#actionPerformed(etomica.AtomPair)
+	 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
 	 */
-	public void actionPerformed(AtomPair pair) {
-		list.add(pair.toString());
+	public void actionPerformed(Atom atom) {
+		list.add(atom.toString());
 	}
 
 	/**
-	 * @see etomica.AtomPairActive#innerWrapper()
+	 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
 	 */
-	public InnerWrapper innerWrapper() {
-		return new AtomPairActive.InnerWrapper(this,new AtomPair(space));
+	public void actionPerformed(Atom[] atom) {
+		String newString = "[";
+		for(int i=0; i<atom.length-1; i++) newString += atom[i].toString()+",";
+		if(atom.length > 0) newString += atom[atom.length-1].toString();
+		newString += "]";
+		list.add(newString);
 	}
 
-	/**
-	 * @see etomica.AtomPairActive#outerWrapper()
-	 */
-	public OuterWrapper outerWrapper() {
-		return new AtomPairActive.OuterWrapper(this);
-	}
-
-	/**
-	 * @see etomica.AtomsetActive#actionPerformed(etomica.AtomSet)
-	 */
-	public void actionPerformed(AtomSet atomSet) {
-		list.add(atomSet.toString());
-	}
-	
 	/**
 	 * Gives an array of listers each with their own list.
 	 * 
 	 * @param n the number of listers in the array
 	 * @return AtomLister[]
 	 */	
-	public static Lister[] listerArray(int n,Space space) {
+	public static Lister[] listerArray(int n) {
 		Lister[] lister = new Lister[n];
 		for (int i=0;i<n;i++) {
-			lister[i] = new Lister(space);
+			lister[i] = new Lister();
 		}
 		return lister;
-	}
-	
-	/**
-	 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
-	 */
-	public void actionPerformed(Atom atom) {
-		list.add(atom.toString());
 	}
 
 }
