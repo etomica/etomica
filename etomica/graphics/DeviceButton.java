@@ -45,6 +45,14 @@ public class DeviceButton extends Device implements EtomicaElement {
     }
     
     /**
+     * Performs the button's action. Same effect as if the button were pressed
+     * in the user interface.
+     */
+    public void press() {
+        buttonAction.actionPerformed(null);
+    }
+    
+    /**
      * Returns the currently defined action associated with the button.
      */
     public etomica.Action getAction() {return targetAction;}
