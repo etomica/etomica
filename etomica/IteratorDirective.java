@@ -33,26 +33,19 @@ public class IteratorDirective implements java.io.Serializable {
         atom1 = a;
         atom2 = null;
         atomCount = 1;
-//        bounds = FIRST;
         return this;
     }
     public final IteratorDirective set(Atom a1, Atom a2) {
         atom1 = a1;
         atom2 = a2;
         atomCount = 2;
-//        bounds = FIRST_LAST;
         return this;
     }
     public final IteratorDirective set(Direction direction) {
         this.direction = direction;
         return this;
     }
-/*    public final IteratorDirective set(Bounds bounds) {
-        this.bounds = bounds;
-        return this;
-    }
-*/    
-//    public final Bounds bounds() {return bounds;}
+
     public final int atomCount() {return atomCount;}
     public final Direction direction() {return direction;}
     
@@ -75,21 +68,4 @@ public class IteratorDirective implements java.io.Serializable {
     public static final Direction DOWN = Direction.CHOICES[1];
     public static final Direction SINGLET = Direction.CHOICES[2];
     
-    
-    //IteratorDirective.Bounds
-/*    public static final class Bounds extends Constants.TypedConstant {
-            
-        private Bounds(String label) {super(label);}
-        public static final Bounds[] CHOICES = new Bounds[] {
-            new Bounds("First"),
-            new Bounds("FirstLast"),
-            new Bounds("All")
-        };
-        
-        public final Constants.TypedConstant[] choices() {return CHOICES;}
-    }//end of Bounds
-    public static final Bounds FIRST = Bounds.CHOICES[0];
-    public static final Bounds FIRST_LAST = Bounds.CHOICES[1];
-    public static final Bounds ALL = Bounds.CHOICES[2];
- */   
 }//end of IteratorDirective    

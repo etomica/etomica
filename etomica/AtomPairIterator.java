@@ -56,7 +56,7 @@ public abstract class AtomPairIterator implements java.io.Serializable {
     
     public final boolean hasNext() {return hasNext;}
         
-    public void reset(IteratorDirective id) {
+    public abstract void reset(IteratorDirective id); /* {
         switch(id.atomCount()) {
             case 0:  reset(); 
                      break;
@@ -67,24 +67,24 @@ public abstract class AtomPairIterator implements java.io.Serializable {
             default: hasNext = false; 
                      break;
         }
-    }
+    }*/
 
     /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
      */
-    public abstract void reset();
+ //   public abstract void reset();
 
     /**
      * Resets the iterator so that it iterates over all pairs formed with the 
      * given atom.
      */
-    public abstract void reset(Atom atom);
+ //   public abstract void reset(Atom atom);
 
     /**
      * Resets iterator so that it iterates over all pairs formed from iterates
      * between and including the given atoms.
      */
-    public abstract void reset(Atom atom1, Atom atom2);
+ //   public abstract void reset(Atom atom1, Atom atom2);
         
         
     /**
@@ -108,8 +108,9 @@ public abstract class AtomPairIterator implements java.io.Serializable {
     }*/
             
     public final AtomPair next() {
-        //why not do away with this line and set pair.atom1 in while loop?
-///        if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //ai1 was advanced
+        //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
+        //it is not done directly in the while-loop because pair must first return with the old atom1 intact
+        if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //ai1 was advanced
         pair.atom2 = ai2.next();
         pair.reset();
         while(!ai2.hasNext()) {     //ai2 is done for this atom1, loop until it is prepared for next
@@ -117,8 +118,7 @@ public abstract class AtomPairIterator implements java.io.Serializable {
                 atom1 = ai1.next();           //...get it
                 if(ai2.reset(atom1) == atom1) //...reset ai2
                               ai2.next();     //...and advance if it's consequently set to return atom1
-///                needUpdate1 = true;           //...flag update of pair.atom1 for next time
-                pair.atom1 = atom1;
+                needUpdate1 = true;           //...flag update of pair.atom1 for next time
             }
             else {hasNext = false; break;} //ai1 has no more; all done with pairs
         }//end while
@@ -127,7 +127,7 @@ public abstract class AtomPairIterator implements java.io.Serializable {
     
     /**
      * This is called after ai1 and ai2 are defined and ai1 is reset, 
-     * and it readies iterators to give first pair (or put hasNext = false if no pairs
+     * and it readies iterators to give first pair (or puts hasNext = false if no pairs
      * are forthcoming).
      */
     protected final void setFirst() {
@@ -136,6 +136,7 @@ public abstract class AtomPairIterator implements java.io.Serializable {
             if(ai2.reset(pair.atom1) == pair.atom1) ai2.next(); //reset iterator 2 and advance if its first atom is atom1
             if(ai2.hasNext()) {
                 hasNext = true;
+                needUpdate1 = false;
                 return;        //...until iterator 2 hasNext
             }
         }//end while
@@ -146,7 +147,7 @@ public abstract class AtomPairIterator implements java.io.Serializable {
      * Performs the given action on all pairs returned by this iterator
      */
     public void allPairs(AtomPairAction act) {  
-        reset();
+// fix this        reset();
         ai1.reset();  //this shouldn't be here, in general; need to consider it more carefully
         actionWrapper.pairAction = act;
         while(ai1.hasNext()) {

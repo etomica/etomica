@@ -8,7 +8,7 @@ package etomica;
  */
 public class AtomPairIteratorInter extends AtomPairIterator {
     
-    private AtomIterator.Singlet singlet = new AtomIterator.Singlet();
+    private AtomIteratorSinglet singlet = new AtomIteratorSinglet();
     private AtomIterator ai1Iter, ai1Nbr, ai2Iter, ai2Nbr;
     
     /**
@@ -25,6 +25,9 @@ public class AtomPairIteratorInter extends AtomPairIterator {
         ai1Nbr = iter1Nbr;
         ai2Nbr = iter2Nbr;
     }
+    
+    //to be completed
+    public void reset(IteratorDirective id) {}
         
     public void reset() {
         ai1.reset();

@@ -18,9 +18,9 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public static String VERSION = "IntegratorHardAbstract:01.06.14/"+IntegratorMD.VERSION;
 
     //handle to the integrator agent holding information about the next collision
-    protected Agent colliderAgent;
+    protected IntegratorHardAbstract.Agent colliderAgent;
     //iterators for looping through atoms
-    protected AtomIterator upAtomIterator;
+    protected AtomIterator atomIterator;
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
@@ -37,7 +37,8 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
 	protected void makeIterators(IteratorFactory factory) {
-        upAtomIterator = factory.makeAtomIteratorUp();
+	    super.makeIterators(factory);
+        atomIterator = factory.makeAtomIterator();
     }
     
           //need to modify to handle multiple-phase issues
@@ -96,7 +97,8 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         }
         else {
             double tStepNew = tStep - collisionTimeStep;
-            advanceAcrossTimeStep(collisionTimeStep);
+ //           System.out.println(colliderAgent.atom().toString() +" "+ colliderAgent.collisionPartner().toString());
+            advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
             colliderAgent.collisionPotential.bump(colliderAgent);
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
@@ -140,9 +142,9 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     */
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
-        upAtomIterator.reset();
-        while(upAtomIterator.hasNext()) {
-            Atom a = upAtomIterator.next();
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.next();
             a.momentum().TE(s); //scale momentum
             ((Agent)a.ia).collisionTime *= rs;
         }
@@ -206,6 +208,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         // before it begins looking for collisions
         public final void setPotential(PotentialAgent.Hard p) {potential = p;}
         public abstract void addCollision(AtomPair atoms, double collisionTime);
+        public abstract CollisionHandler setAtom(Atom a);
     }//end of CollisionHandler
     
  /**

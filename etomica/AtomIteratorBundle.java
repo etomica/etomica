@@ -25,7 +25,7 @@ public final class AtomIteratorBundle extends AtomIterator {
     private void makeAtomIterators() {
         up = phase.iteratorFactory().makeAtomIteratorUp();
         down = phase.iteratorFactory().makeAtomIteratorDown();
-        singlet = new AtomIterator.Singlet();
+        singlet = new AtomIteratorSinglet();
         current = singlet;
     }//end of makeAtomIterators
     

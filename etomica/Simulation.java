@@ -453,15 +453,23 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
                                             
-	    IntegratorHard integratorHard1 = new IntegratorHard();
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
-	    Phase phase1 = new Phase();
-	    PotentialAbstract potential = new PotentialHardDisk();
+	    IntegratorHard integratorHard = new IntegratorHard();
+	    SpeciesDisks speciesDisks = new SpeciesDisks();
+	    speciesDisks.setNMolecules(20);
+	    Phase phase = new Phase();
+	    Potential2 potential = new PotentialHardDisk();
+	    Potential2.Agent potentialAgent = (Potential2.Agent)potential.makeAgent(phase);
 ///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
-	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-///	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+	    Controller controller = new Controller();
+	    DisplayPhase displayPhase = new DisplayPhase();
+///	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
 ///	    timer.setUpdateInterval(10);
+        phase.setPotential(potentialAgent);
+        potentialAgent.setIterator(new AtomPairIteratorIntra(phase,
+                                    phase.iteratorFactory().makeAtomIteratorUp(),
+                                    phase.iteratorFactory().makeAtomIteratorUpNeighbor(),
+                                    phase.iteratorFactory().makeAtomIteratorDown(),
+                                    phase.iteratorFactory().makeAtomIteratorDownNeighbor()));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
@@ -472,6 +480,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         f.pack();
         f.show();
         f.addWindowListener(Simulation.windowCloser);
+        controller.start();
     }//end of main
 }
 

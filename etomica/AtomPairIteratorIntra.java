@@ -8,29 +8,38 @@ package etomica;
  */
 public class AtomPairIteratorIntra extends AtomPairIterator {
     
-    private AtomIterator.Singlet singlet = new AtomIterator.Singlet();
-    private AtomIterator ai1Save;
+    private AtomIteratorSinglet singlet = new AtomIteratorSinglet();
+    private AtomIterator ai1Up, ai2Up, ai1Dn, ai2Dn;
     
-    public AtomPairIteratorIntra(Phase p, AtomIterator iter, AtomIterator iterNbr) {
-        super(p, iter, iterNbr);
-        ai1Save = ai1;
+    public AtomPairIteratorIntra(Phase p, AtomIterator iterUp, AtomIterator iterUpNbr,
+                                          AtomIterator iterDn, AtomIterator iterDnNbr) {
+        super(p, iterUp, iterUpNbr);
+        ai1Up = iterUp;
+        ai2Up = iterUpNbr;
+        ai1Dn = iterDn;
+        ai2Dn = iterDnNbr;
     }
         
-    public void reset() {
-        ai1 = ai1Save;
-        ai1.reset();
-        setFirst();
-    }
-        
-    public void reset(Atom atom) {
-        ai1 = singlet;
-        ai1.reset(atom);
-        setFirst();
-    }
-        
-    public void reset(Atom atom1, Atom atom2) {
-        ai1 = ai1Save;
-        ai1.reset(atom1, atom2);
+    public void reset(IteratorDirective id) {
+        if(id.direction() == IteratorDirective.UP) {
+            ai1 = ai1Up;
+            ai2 = ai2Up;
+        }
+        else {
+            ai1 = ai1Dn;
+            ai2 = ai2Dn;
+        }
+        switch(id.atomCount()) {
+            case 0:  ai1.reset(); 
+                     break;
+            case 1:  ai1 = singlet;
+                     ai1.reset(id.atom1());
+                     break;
+            case 2:  ai1.reset(id.atom1(), id.atom2()); 
+                     break;
+            default: hasNext = false; 
+                     return;
+        }//end switch
         setFirst();
     }
 }//end of Intra    

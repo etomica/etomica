@@ -13,11 +13,11 @@ package etomica;
     public class IteratorFactory implements java.io.Serializable {
         private Phase phase;
         public IteratorFactory(Phase p) {phase = p;}
-        public AtomIterator makeAtomIterator() {return makeAtomIteratorUp();}
-        public AtomIterator makeAtomIteratorUp() {return new AtomIterator.Up(phase);}
-        public AtomIterator makeAtomIteratorDown() {return new AtomIterator.Down(phase);}
-        public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIterator.Up(phase);}
-        public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIterator.Down(phase);}
+        public AtomIterator makeAtomIterator() {return new AtomIteratorUp(phase);}
+        public AtomIterator makeAtomIteratorUp() {return new AtomIteratorUp(phase);}
+        public AtomIterator makeAtomIteratorDown() {return new AtomIteratorDown(phase);}
+        public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIteratorUp(phase);}
+        public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIteratorDown(phase);}
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved

@@ -31,7 +31,7 @@ public abstract class Potential2HardAbstract extends Potential2 implements Poten
         return new Agent(p);
     }
         
-    //P2HardAbstract.Agent
+    //Potential2HardAbstract.Agent
     public class Agent extends Potential2.Agent implements PotentialAgent.Hard {
         private final AtomPair atomPair;
         public Agent(Phase p) {
