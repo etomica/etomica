@@ -515,7 +515,7 @@ public class PistonCylinderGraphic {
         DataManager targetTemperaturePlotManager = new DataManager(targetTemperatureHistory, plotT.makeDataSink());
         targetTemperatureDataManager.setUpdateInterval(10);
 
-        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
+        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
         AccumulatorAverage densityAvg = new AccumulatorAverage();
         AccumulatorHistory densityHistory = new AccumulatorHistory();
 //        densityHistory.setLabel("Density ("+dadUnit.symbol()+")");
