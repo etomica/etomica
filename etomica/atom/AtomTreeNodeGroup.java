@@ -116,14 +116,16 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     /**
      * Notifies this atom group that an atom has been added to it or one of its descendants.
      */
-    public void addAtomNotify(Atom atom) {
-        leafAtomCount += atom.node.leafAtomCount();
-        parentNode().addAtomNotify(atom);
+    public void addAtomNotify(Atom childAtom) {
+        leafAtomCount += childAtom.node.leafAtomCount();
+        if (parentNode() != null) {
+            parentNode().addAtomNotify(childAtom);
+        }
     }
     
-    public void removeAtomNotify(Atom atom) {
-        leafAtomCount -= atom.node.leafAtomCount();
-        parentNode().removeAtomNotify(atom);
+    public void removeAtomNotify(Atom childAtom) {
+        leafAtomCount -= childAtom.node.leafAtomCount();
+        parentNode().removeAtomNotify(childAtom);
     }
       
     protected int leafAtomCount;
