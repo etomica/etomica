@@ -13,6 +13,7 @@ import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomsetIteratorMolecule;
 import etomica.IteratorDirective;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.Species;
@@ -32,7 +33,8 @@ import etomica.lattice.CellLattice;
  * species, and (unlike ApiIntraspecies1ACell) is not connected to cell ordering.
  */
 
-public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular {
+public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
+        NearestImageVectorSource {
 
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -82,8 +84,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         identifyTargetMolecule();
 	}
     
-    public void nearestImage(Space.Vector dr) {
-        dr.ME(nearestImageVector);
+    public Space.Vector getNearestImageVector() {
+        return nearestImageVector;
     }
 
     /**
@@ -141,13 +143,9 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     public Atom[] next() {
         if(!hasNext()) return null;
         pair[1] = aiInner.nextAtom();
-        if (needUpdateImageVector) {
-            nearestImageVector.E(neighborIterator.currentPbc());
-            needUpdateImageVector = false;
-        }
+        nearestImageVector = neighborIterator.getNearestImageVector();
         if(!aiInner.hasNext()) {
             advanceLists();
-            needUpdateImageVector = true;
         }
         return pair;
     }
@@ -186,7 +184,6 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         if(!aiInner.hasNext()) { 
             advanceLists();
         }
-        needUpdateImageVector = true;
     }
     
     /**
@@ -312,5 +309,4 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private CellLattice lattice;
     
     private Space.Vector nearestImageVector;
-    private boolean needUpdateImageVector;
 }

@@ -7,10 +7,12 @@ package etomica.nbr;
 import etomica.ApiMolecule;
 import etomica.Atom;
 import etomica.AtomsetFilter;
-import etomica.AtomsetIterator;
 import etomica.AtomsetIteratorMolecule;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
+import etomica.Space;
 import etomica.IteratorDirective.Direction;
+import etomica.Space.Vector;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
@@ -23,7 +25,7 @@ import etomica.nbr.cell.AtomsetIteratorCellular;
  */
 //maybe make an AtomsetIteratorMoleculeFiltered that implements AtomsetIteratorMolecule
 //and leave this to implement just AtomsetIterator
-public class ApiFiltered implements AtomsetIteratorMolecule {
+public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorSource {
 	/**
 	 * Default constructor that causes no atoms to be filtered.
 	 * Iterator will give all iterates of the given iterator
@@ -66,14 +68,21 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
 	 * Puts iterator in state ready for iteration.
 	 */
 	public void reset() {
+        nearestImageVectorSource = (NearestImageVectorSource)iterator.getCurrentIterator();
         filter.setCellIterator((AtomsetIteratorCellular)iterator.getCurrentIterator());
+        filter.setNearestImageVectorSource(nearestImageVectorSource);
         iterator.reset();
 		next = null;
 		while(iterator.hasNext() && next == null) {
 			next = iterator.next();
 			if(!filter.accept(next)) next = null;
 		}
+        nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
 	}
+    
+    public Vector getNearestImageVector() {
+        return nearestImageVector;
+    }
 
 	/**
 	 * Sets iterator so that hasNext returns false.
@@ -92,10 +101,13 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
         nextAtoms[0] = next[0];
         nextAtoms[1] = next[1];
 		next = null;
+        nearestImageVector = nextNearestImageVector;
 		while(iterator.hasNext() && next == null) {
 			next = iterator.next();
+//            System.out.println("in ApiFiltered.next, "+next[0].coord.position()+" "+next[1].coord.position()+" "+cellIterator.getNearestImageVector());
 			if(!filter.accept(next)) next = null;
 		}
+        nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
 		return nextAtoms;
 	}
 	
@@ -141,7 +153,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
 	/**
 	 * @return the iterator wrapped by this filter.
 	 */
-	public AtomsetIterator getIterator() {
+	public ApiMolecule getIterator() {
 		return iterator;
 	}
 	
@@ -159,6 +171,8 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
 	private final NeighborCriterion filter;
 	private Atom[] next;
 	private final Atom[] nextAtoms;
+    private NearestImageVectorSource nearestImageVectorSource;
+    private Space.Vector nearestImageVector, nextNearestImageVector;
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed

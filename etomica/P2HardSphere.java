@@ -54,14 +54,14 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(Atom[] pair, double falseTime) {
-    	cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double r2 = cPair.r2();
-        double bij = cPair.vDotr();
+    	cPairNbr.trueReset(pair[0].coord,pair[1].coord,falseTime);
+        double r2 = cPairNbr.r2();
+        double bij = cPairNbr.vDotr();
         double time = Double.MAX_VALUE;
 
         if(bij < 0.0) {
         	if (Default.FIX_OVERLAP && r2 < sig2) return 0.0;
-        	double velocitySquared = cPair.v2();
+        	double velocitySquared = cPairNbr.v2();
             double discriminant = bij*bij - velocitySquared * ( r2 - sig2 );
             if(discriminant > 0) {
                 time = (-bij - Math.sqrt(discriminant))/velocitySquared;
@@ -83,6 +83,9 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
         dr.E(cPair.dr());  //used by lastCollisionVirialTensor
         lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(pair)) {
+            System.out.println("I'm here");
+        }
         dr.TE(lastCollisionVirialr2);
         cPair.truePush(dr,falseTime);
     }

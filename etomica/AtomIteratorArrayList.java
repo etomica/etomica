@@ -11,7 +11,7 @@ public class AtomIteratorArrayList implements AtomIterator {
 	/**
  	 * Index of element to be returned by subsequent call to next.
  	 */
- 	private int cursor = 0;
+ 	protected int cursor = 0;
  	private Atom atoms[] = new Atom[1];
  	private AtomArrayList list;
 
@@ -37,7 +37,7 @@ public class AtomIteratorArrayList implements AtomIterator {
  	}
  	
  	public Atom[] next() {
- 		atoms[0] = list.get(cursor++);
+ 		atoms[0] = nextAtom();
  		return atoms;
  	}
  

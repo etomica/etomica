@@ -4,6 +4,8 @@
  */
 package etomica.nbr;
 
+import java.util.ArrayList;
+
 import etomica.ApiInnerFixed;
 import etomica.ApiMolecule;
 import etomica.Atom;
@@ -16,8 +18,10 @@ import etomica.AtomTreeNodeGroup;
 import etomica.AtomsetIteratorMolecule;
 import etomica.Default;
 import etomica.IteratorDirective;
+import etomica.NearestImageTransformerVector;
 import etomica.Phase;
 import etomica.Potential;
+import etomica.Potential2;
 import etomica.PotentialCalculation;
 import etomica.PotentialMaster;
 import etomica.Simulation;
@@ -46,7 +50,7 @@ public class PotentialMasterNbr extends PotentialMaster {
         setNCells(10);
         setMaxNeighborRange(Default.POTENTIAL_CUTOFF_FACTOR*1.5);
 		neighborManager = new NeighborManager(this);
-		atomIterator = new AtomIteratorArrayList();
+		atomIterator = new MyIterator();
 		singletIterator = new AtomIteratorSinglet();
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
 	}
@@ -103,17 +107,25 @@ public class PotentialMasterNbr extends PotentialMaster {
 			AtomArrayList[] list;
 			if (direction == IteratorDirective.UP || direction == null) {
 				list = seq.getUpList();
+                vectors = seq.getUpListNearestImageVector();
+                atomIterator.nearestImageTransformer.setPlus(false);
 //              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
 				for (int i=0; i<list.length; i++) {
 					atomIterator.setList(list[i]);
+                    atomIterator.setVectors(vectors[i]);
+                    ((Potential2)potentials[i]).setNearestImageTransformer(atomIterator.nearestImageTransformer);
 					//System.out.println("Up :"+atomIterator.size());
 					pc.doCalculation(pairIterator, id, potentials[i]);
 				}
 			}
 			if (direction == IteratorDirective.DOWN || direction == null) {
 				list = seq.getDownList();
+                vectors = seq.getDownListNearestImageVector();
+                atomIterator.nearestImageTransformer.setPlus(true);
 				for (int i=0; i<list.length; i++) {
 					atomIterator.setList(list[i]);
+                    atomIterator.setVectors(vectors[i]);
+                    ((Potential2)potentials[i]).setNearestImageTransformer(atomIterator.nearestImageTransformer);
 					//System.out.println("Dn :"+atomIterator.size());
 					pc.doCalculation(pairIterator, id, potentials[i]);
 				}
@@ -198,7 +210,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
 
-	private final AtomIteratorArrayList atomIterator;
+	private final MyIterator atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
 	private final NeighborManager neighborManager;
@@ -206,4 +218,23 @@ public class PotentialMasterNbr extends PotentialMaster {
     private int nCells;
     private double maxNeighborRange;
     private final IteratorDirective idUp = new IteratorDirective();
+    private ArrayList[] vectors;
+    
+    public static class MyIterator extends AtomIteratorArrayList {
+        
+        public Atom nextAtom() {
+            nearestImageTransformer.setNearestImageVector((Space.Vector)vector.get(cursor));
+            Atom atom = super.nextAtom();
+            return atom;
+        }
+        
+        //TODO allAtoms
+        
+        public void setVectors(ArrayList vector) {
+            this.vector = vector;
+        }
+        
+        ArrayList vector;
+        NearestImageTransformerVector nearestImageTransformer = new NearestImageTransformerVector();
+    }
 }

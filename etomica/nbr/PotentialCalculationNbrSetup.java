@@ -4,7 +4,14 @@
  */
 package etomica.nbr;
 
-import etomica.*;
+import etomica.Atom;
+import etomica.AtomsetIterator;
+import etomica.AtomsetIteratorDirectable;
+import etomica.IteratorDirective;
+import etomica.NearestImageVectorSource;
+import etomica.Potential;
+import etomica.PotentialCalculation;
+import etomica.Space;
 
 /**
  * PotentialCalculation that performs setup of neighbor lists.  Takes all pair iterates
@@ -19,7 +26,19 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 	public PotentialCalculationNbrSetup() {
 		super();
 	}
+    
+    
 
+    /* (non-Javadoc)
+     * @see etomica.PotentialCalculation#doCalculation(etomica.AtomsetIterator, etomica.IteratorDirective, etomica.Potential)
+     */
+    public void doCalculation(AtomsetIterator iterator, IteratorDirective id,
+            Potential potential) {
+        if(iterator instanceof ApiFiltered) {
+            nearestImageVectorSource = (NearestImageVectorSource)iterator;
+        }
+        super.doCalculation(iterator, id, potential);
+    }
 	/**
      * Takes all pair iterates given by the iterator and puts each one of the
      * pair in the other's neighbor list. Performs no action if
@@ -35,10 +54,13 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();
+            Space.Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
-			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential);
-			((AtomSequencerNbr)atoms[1].seq).addDownNbr(atoms[0], potential);
+			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential, nearestImageVector);
+			((AtomSequencerNbr)atoms[1].seq).addDownNbr(atoms[0], potential, nearestImageVector);
 		}
 	}
+    
+    NearestImageVectorSource nearestImageVectorSource;
 }

@@ -5,6 +5,7 @@
 package etomica.nbr;
 
 import etomica.Atom;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 
@@ -56,5 +57,9 @@ public class NeighborCriterionAll extends NeighborCriterion {
      */
     public void setCellIterator(AtomsetIteratorCellular api) {
         //do nothing
+    }
+
+    public void setNearestImageVectorSource(NearestImageVectorSource nivs) {
+        //do lots of nothing
     }
 }

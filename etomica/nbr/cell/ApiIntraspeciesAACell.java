@@ -13,6 +13,7 @@ import etomica.AtomList;
 import etomica.AtomsetIterator;
 import etomica.AtomsetIteratorPhaseDependent;
 import etomica.IteratorDirective;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.Species;
@@ -27,7 +28,7 @@ import etomica.lattice.RectangularLattice;
  */
 
 public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, 
-                        AtomsetIteratorCellular {
+                        AtomsetIteratorCellular, NearestImageVectorSource {
 
     /**
      * @param D the dimension of the space of the simulation
@@ -67,10 +68,9 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         unset();
 	}
     
-    public void nearestImage(Space.Vector dr) {
-        dr.ME(nearestImageVector);
+    public Space.Vector getNearestImageVector() {
+        return nearestImageVector;
     }
-
     
     /**
      * Performs action on all iterates.
@@ -137,13 +137,9 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         Atom[] nextPair = listIterator.next();
         pair[0] = nextPair[0];
         pair[1] = nextPair[1];
-        if (needUpdateImageVector) {
-            nearestImageVector.E(neighborIterator.currentPbc());
-            needUpdateImageVector = false;
-        }
+        nearestImageVector = neighborIterator.getNearestImageVector();
         if(!listIterator.hasNext()) {
             advanceLists();
-            needUpdateImageVector = true;
         }
         return pair;
     }
@@ -169,7 +165,6 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         neighborIterator.unset();
         listIterator.unset();
         advanceLists();
-        needUpdateImageVector = true;
 
     }//end of reset
     
@@ -222,7 +217,6 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
     private final RectangularLattice.Iterator cellIterator;
     private final int index;
     private Space.Vector nearestImageVector;
-    private boolean needUpdateImageVector;
     
     private final Atom[] pair = new Atom[2];
 }

@@ -10,7 +10,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import etomica.IteratorDirective;
-import etomica.NearestImageTransformer;
+import etomica.NearestImageVectorSource;
 import etomica.Space;
 import etomica.graphics.SimulationGraphic;
 
@@ -209,7 +209,7 @@ public class RectangularLattice implements FiniteLattice {
      * to yield the up- and/or down-neighbors of the site.  The central site is
      * not is not included among the iterates (not a self-neighbor).
      */
-    public static class NeighborIterator implements SiteIterator, NearestImageTransformer {
+    public static class NeighborIterator implements SiteIterator, NearestImageVectorSource {
 
         /**
          * Constructs iterator that needs to be configured before use.  Must specify
@@ -221,9 +221,14 @@ public class RectangularLattice implements FiniteLattice {
             centralSite = new int[D];
             range = new int[D];
             cursor = Integer.MAX_VALUE;
-            currentPbc = Space.makeVector(D);
             period = Space.makeVector(D);
             period.E(1.0);
+            nearestImageVectors = new Space.Vector[Math.round((float)Math.pow(3,D))];
+            for (int i=0; i<nearestImageVectors.length; i++) {
+                nearestImageVectors[i] = Space.makeVector(D);
+            }
+            cursorJump = new int[D];
+            setPeriod(period);
         }
         
         public final int D() {
@@ -328,13 +333,8 @@ public class RectangularLattice implements FiniteLattice {
             return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
         }
         
-        public Space.Vector currentPbc() {
+        public Space.Vector getNearestImageVector() {
             return pbc[cursor];
-        }
-        
-        public void nearestImage(Space.Vector dr) {
-//            System.out.println(cursor+" "+dr.x(2)+" "+pbc[cursor].x(2));
-            dr.ME(pbc[cursor]);
         }
         
         /**
@@ -399,6 +399,7 @@ public class RectangularLattice implements FiniteLattice {
             neighborCount = (direction == null) ? 2*halfNeighborCount : halfNeighborCount;
             int centralSiteIndex = lattice.arrayIndex(centralSite);
             cursor = 0;
+            nearestImageVectorCursor = (nearestImageVectors.length-1)/2;
             if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
             if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
             needNeighborUpdate = false;
@@ -420,9 +421,9 @@ public class RectangularLattice implements FiniteLattice {
             //this block gathers all neighbors in the dimension d,
             //up to but not including the row where the central site is located
             if(iMin < 0) {//need to implement periodic boundaries
-                currentPbc.setX(d,+period.x(d));
+                nearestImageVectorCursor += cursorJump[d];
                 gatherNeighbors(d, -iMin, startIndex+dim*lattice.jumpCount[d]);
-                currentPbc.setX(d,0);//leave index equal to zero when finished
+                nearestImageVectorCursor -= cursorJump[d];
                 gatherNeighbors(d, centralIndex, startIndex-iMin*lattice.jumpCount[d]);//note that iMin<0
             } else {//no concern for PBC; gather all neighbors in plane
                 gatherNeighbors(d, range[d], startIndex);
@@ -449,9 +450,9 @@ public class RectangularLattice implements FiniteLattice {
             //advance through other rows
             if(iMax >= dim) {
                 gatherNeighbors(d, dim-centralIndex-1, startIndex);
-                currentPbc.setX(d,-period.x(d));
+                nearestImageVectorCursor -= cursorJump[d];
                 gatherNeighbors(d, iMax-dim+1, startIndex-(centralIndex+1)*lattice.jumpCount[d]);
-                currentPbc.setX(d,0);//leave index equal to zero when finished
+                nearestImageVectorCursor += cursorJump[d];
             } else {
                 gatherNeighbors(d, range[d], startIndex);
             }
@@ -467,7 +468,7 @@ public class RectangularLattice implements FiniteLattice {
             if(d == D-1) {//end of recursion -- here's where the actual gathering is done
                 for(int i=0; i<nSteps; i++) {
                     neighbors[cursor++] = startIndex++;
-                    pbc[cursor].E(currentPbc);
+                    pbc[cursor] = nearestImageVectors[nearestImageVectorCursor];
                 }
             } else {//step from one row to the next and gather neighbors in each row
                 int d1 = d+1;
@@ -478,18 +479,18 @@ public class RectangularLattice implements FiniteLattice {
                 if(iMin < 0) {//need to consider PBC below
                     for(int i=0; i<nSteps; i++) {
                         int startIndex1 = startIndex+i*lattice.jumpCount[d];
-                        currentPbc.setX(d1,+period.x(d1));
+                        nearestImageVectorCursor += cursorJump[d1];
                         gatherNeighbors(d1, -iMin, startIndex1+dim*lattice.jumpCount[d1]);
-                        currentPbc.setX(d1,0);
+                        nearestImageVectorCursor -= cursorJump[d1];
                         gatherNeighbors(d1, iMax+1, startIndex1-iMin*lattice.jumpCount[d1]);//note that iMin<0
                     }
                 } else if(iMax >= dim) {//need to consider PBC above
                     for(int i=0; i<nSteps; i++) {
                         int startIndex1 = startIndex+i*lattice.jumpCount[d];
                         gatherNeighbors(d1, dim-iMin, startIndex1);
-                        currentPbc.setX(d1,-period.x(d1));
+                        nearestImageVectorCursor -= cursorJump[d1];
                         gatherNeighbors(d1, iMax-dim+1, startIndex1-iMin*lattice.jumpCount[d1]);
-                        currentPbc.setX(d1,0);
+                        nearestImageVectorCursor += cursorJump[d1];
                     }
                 } else {//no need to consider PBC
                     for(int i=0; i<nSteps; i++) {
@@ -508,6 +509,30 @@ public class RectangularLattice implements FiniteLattice {
          */
         public void setPeriod(Space.Vector newPeriod) {
             this.period.E(newPeriod);
+
+            int[] idx = new int[D];
+            for (int i=0; i<D; i++) {
+                idx[i] = -1;
+            }
+            int count = 0;
+            double[] vectorElements = new double[D];
+            // increments the last dimension first, starting at {-1,-1,-1}
+            cursorJump[D-1] = 1;
+            for (int i=D-2; i>-1; i--) {
+                cursorJump[i] = cursorJump[i+1]*3;
+            }
+            while (idx[0] < 2) {
+                for(int j=0; j<D; j++) {
+                    vectorElements[j] = idx[j]*period.x(j);
+                }
+                nearestImageVectors[count++].E(vectorElements);
+                int i=D-1;
+                idx[i]++;
+                while (idx[i] > 1 && i > 0) {
+                    idx[i] = -1;
+                    idx[--i]++;
+                }
+            }
         }
 //        private void gatherAllNeighbors(int d, int startIndex) {
 //            int centralIndex = centralSite[d];
@@ -554,9 +579,11 @@ public class RectangularLattice implements FiniteLattice {
         private int neighborCount, halfNeighborCount;
         private boolean doUp, doDown;
         private IteratorDirective.Direction direction;
-        private final Space.Vector currentPbc;
         private Space.Vector[] pbc;
         private final Space.Vector period;
+        private final Space.Vector[] nearestImageVectors;
+        private int nearestImageVectorCursor;
+        private int[] cursorJump;
     }//end of NeighborIterator
   
     /**
@@ -620,7 +647,7 @@ public class RectangularLattice implements FiniteLattice {
 //                    System.out.println(site.index);
                     site.color = java.awt.Color.GREEN.darker().darker();
                     for(int i=0; i<3; i++) {
-                        double pbci = iterator.currentPbc().x(i);
+                        double pbci = iterator.getNearestImageVector().x(i);
                         if(pbci < 0) site.color = site.color.darker().darker();
                         if(pbci > 0) site.color = site.color.brighter().brighter();
                     }
@@ -634,7 +661,7 @@ public class RectangularLattice implements FiniteLattice {
 //                    System.out.println(site.index);
                     site.color = java.awt.Color.BLUE.darker().darker();
                     for(int i=0; i<3; i++) {
-                        double pbci = iterator.currentPbc().x(i);
+                        double pbci = iterator.getNearestImageVector().x(i);
                         if(pbci < 0) site.color = site.color.darker().darker();
                         if(pbci > 0) site.color = site.color.brighter().brighter();
                     }

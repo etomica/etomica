@@ -2,6 +2,8 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.Debug;
+import etomica.NearestImageTransformerVector;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.nbr.cell.AtomsetIteratorCellular;
@@ -20,6 +22,9 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
         cPair = space.makeCoordinatePair();
+        nearestImageTransformer = new NearestImageTransformerVector();
+        nearestImageTransformer.setPlus(false);
+        cPair.setNearestImageTransformer(nearestImageTransformer);
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -65,10 +70,13 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
     
     public void setCellIterator(AtomsetIteratorCellular api) {
-        cPair.setNearestImageTransformer(api);
         api.getNbrCellIterator().setPeriod(phase.boundary().dimensions());
     }
 
+    public void setNearestImageVectorSource(NearestImageVectorSource nivs) {
+        nearestImageVectorSource = nivs;
+    }
+    
 	public boolean unsafe() {
 		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("some atom exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
@@ -77,6 +85,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean accept(Atom[] a) {
+        nearestImageTransformer.setNearestImageVector(nearestImageVectorSource.getNearestImageVector());
 		cPair.reset(a[0].coord,a[1].coord);
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
 			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) {
@@ -100,5 +109,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     private Phase phase;
+    private final NearestImageTransformerVector nearestImageTransformer;
+    private NearestImageVectorSource nearestImageVectorSource;
 	
 }

@@ -5,6 +5,7 @@
 package etomica.nbr;
 import etomica.Atom;
 import etomica.AtomsetFilter;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 
@@ -53,6 +54,8 @@ public abstract class NeighborCriterion implements AtomsetFilter {
      * @param api
      */
     public abstract void setCellIterator(AtomsetIteratorCellular api);
+    
+    public abstract void setNearestImageVectorSource(NearestImageVectorSource nivs);
 	
 	//TODO consider ways to ensure this is removed from nbrmanager if no longer used
 }

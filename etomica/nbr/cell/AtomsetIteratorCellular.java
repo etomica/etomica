@@ -3,7 +3,6 @@
  */
 package etomica.nbr.cell;
 
-import etomica.NearestImageTransformer;
 import etomica.lattice.CellLattice;
 
 /**
@@ -13,7 +12,7 @@ import etomica.lattice.CellLattice;
  * the cell iterator is needed to adjust the neighbor range defining
  * the neighbor cells.
  */
-public interface AtomsetIteratorCellular extends NearestImageTransformer {
+public interface AtomsetIteratorCellular {
 
     /**
      * @return Returns the neighborCell Iterator.

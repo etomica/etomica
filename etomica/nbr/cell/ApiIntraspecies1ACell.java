@@ -16,6 +16,7 @@ import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomsetIteratorMolecule;
 import etomica.IteratorDirective;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.Species;
@@ -34,7 +35,8 @@ import etomica.lattice.CellLattice;
  * molecules in cell's occupant list.
  */
 
-public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular {
+public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
+        NearestImageVectorSource {
 
     /**
      * @param species species whose molecules will form the pair iterates
@@ -85,10 +87,10 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         identifyTargetMolecule();
 	}
 
-    public void nearestImage(Space.Vector dr) {
-        dr.ME(nearestImageVector);
+    public Space.Vector getNearestImageVector() {
+        return nearestImageVector;
     }
-    
+
     /**
      * Performs action on all iterates.
      */
@@ -144,13 +146,9 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     public Atom[] next() {
         if(!hasNext()) return null;
         pair[1] = aiInner.nextAtom();
-        if (needUpdateImageVector) {
-            nearestImageVector.E(neighborIterator.currentPbc());
-            needUpdateImageVector = false;
-        }
+        nearestImageVector = neighborIterator.getNearestImageVector();
         if(!aiInner.hasNext()) {
             advanceLists();
-            needUpdateImageVector = true;
         }
         return pair;
     }
@@ -281,5 +279,4 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private boolean finishedCentralCell;
 
     private Space.Vector nearestImageVector;
-    private boolean needUpdateImageVector;
 }
