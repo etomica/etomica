@@ -106,7 +106,6 @@ public class IntegratorGEMC extends IntegratorMC {
 	    temperatureSlider.setMaximum(500);
 	    speciesDisks1.setNMolecules(60);
 	    
-//		Simulation.instance.elementCoordinator = new MediatorBasic();
 		Simulation.instance.elementCoordinator.go(); 
 		 
 	    meter1.setPhase(phase1);
