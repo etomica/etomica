@@ -5,7 +5,6 @@
 package etomica.nbratom.cell;
 
 import etomica.Atom;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
@@ -14,7 +13,7 @@ import etomica.Space;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.atom.iterator.AtomIteratorTree;
 import etomica.lattice.CellLattice;
 
 /**
@@ -26,14 +25,11 @@ import etomica.lattice.CellLattice;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements Integrator.IntervalListener {
+public class NeighborCellManager {
 
     private final CellLattice lattice;
     private final Space space;
-    private final AtomIteratorPhaseDependent atomIterator;
-    private int iieCount;
-    private int updateInterval;
-    private int priority;
+    private final AtomIteratorTree atomIterator;
     private final AtomPositionDefinition positionDefinition;
     
     /**
@@ -47,9 +43,9 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     public NeighborCellManager(Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         space = phase.space();
-        atomIterator = new AtomIteratorAllMolecules(phase);
-        setPriority(150);
-        setUpdateInterval(1);
+        atomIterator = new AtomIteratorTree();
+        atomIterator.setDoAllNodes(true);
+        atomIterator.setRoot(phase.speciesMaster);
 
         lattice = new CellLattice(phase.boundary().dimensions(), NeighborCell.FACTORY);
         phase.setLattice(lattice);
@@ -76,19 +72,15 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     }
 
     /**
-     * @return the lattice of cells.
-     */
-    public CellLattice getCellLattice() {
-        return lattice;
-    }
-    
-    /**
      * Assigns cells to all molecules in the phase.
      */
     public void assignCellAll() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            assignCell(atomIterator.nextAtom());
+            Atom atom = atomIterator.nextAtom();
+            if (atom.type.getNbrManagerAgent().getPotentials().length > 0) {
+                assignCell(atom);
+            }
         }
     }
     
@@ -113,37 +105,4 @@ public class NeighborCellManager implements Integrator.IntervalListener {
         }
     }//end of assignCell
     
-    public void intervalAction(Integrator.IntervalEvent event) {
-        if (event.type() == Integrator.IntervalEvent.INITIALIZE) {
-            assignCellAll();
-        }
-        else if (event.type() == Integrator.IntervalEvent.INTERVAL) {
-            if (--iieCount == 0) {
-                assignCellAll();
-                iieCount = updateInterval;
-            }
-        }
-    }
-    
-    public void setUpdateInterval(int updateInterval) {
-        this.updateInterval = updateInterval;
-    }
-
-    public int getUpdateInterval() {
-        return updateInterval;
-    }
-    
-    /**
-     * @return the priority of this as an integrator interval-listenter (default is 150)
-     */
-    public int getPriority() {
-        return priority;
-    }
-
-    /**
-     * @param priority the priority of this as an integrator interval-listenter (default is 150)
-     */
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
 }//end of NeighborCellManager
