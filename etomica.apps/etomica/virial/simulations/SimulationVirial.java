@@ -17,24 +17,20 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
-import etomica.virial.Cluster;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.IntegratorClusterMC;
 import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
+import etomica.virial.MayerE;
+import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
 import etomica.virial.PhaseCluster;
-import etomica.virial.cluster.D4;
-import etomica.virial.cluster.D5;
-import etomica.virial.cluster.D6;
-import etomica.virial.cluster.Full;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -134,53 +130,46 @@ public class SimulationVirial extends Simulation {
 		double b0 = Standard.B2HS(sigmaHSRef);
         double c0 = Standard.C3HS(sigmaHSRef);
         double d0 = Standard.D4HS(sigmaHSRef);
+        double e0 = 0.1103*b0*b0*b0*b0;
 		Default.ATOM_SIZE = 1.0;
 		System.out.println("sigmaHSRef: "+sigmaHSRef);
 		System.out.println("B2HS: "+b0);
 		System.out.println("B3HS: "+c0+" = "+(c0/b0/b0)+" B2HS^2");
 		System.out.println("B4HS: "+d0+" = "+(d0/(b0*b0*b0))+" B2HS^3");
+        System.out.println("B5HS: "+e0+" = "+(e0/(b0*b0*b0*b0))+" B2HS^4");
 		
-		MayerHardSphere fRef = new MayerHardSphere(1.0);
-		P2LennardJones p2LJ = new P2LennardJones(new Space3D(),1.0,1.0,null);
+        Space space = new Space3D();
+        
+        MayerHardSphere fRef = new MayerHardSphere(1.0);
+        MayerEHardSphere eRef = new MayerEHardSphere(1.0);
+		P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0,null);
 		System.out.println("LJ sampling");
 		MayerGeneral fTarget = new MayerGeneral(p2LJ);
+        MayerE eTarget = new MayerE(p2LJ);
 		
-		//take care to define other clusters (below) appropriately if using ReeHoover
-//		Cluster sampleCluster = new Full(nMolecules, fSample);
-//		ClusterSum sampleCluster = new ClusterSum(new Cluster[] {new C3(fSample));
-//		ClusterSum refCluster = new ClusterSum(new Cluster[] {new D4(fSample), new D5(fSample), new D6(fSample)});
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, true, eRef);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, true, eTarget);
 
-//		Cluster targetCluster = new Cluster(5,
-//			new Cluster.BondGroup(f, new int[][] {{0,1},{0,2},{0,3},{0,4},{1,2},{1,3},{2,3},{2,4},{3,4}}));
-//		Cluster targetCluster = new etomica.virial.cluster.ReeHoover(4, new Cluster.BondGroup(f, Standard.D4));
-
-		ClusterAbstract refCluster, targetCluster;
-		if (nPoints < 4) {
-			refCluster = new Full(nPoints, fRef);
-            targetCluster = new Full(nPoints, fTarget);
-		}
-		else if (nPoints == 4) {
-			refCluster = new ClusterSum(new Cluster[] {new D4(fRef,true), new D5(fRef,true), new D6(fRef)}, new double[]{-3./8.,-3./4.,-1./8.});
-            targetCluster = new ClusterSum(new Cluster[] {new D4(fTarget,true), new D5(fTarget,true), new D6(fTarget)}, new double[]{-3./8.,-3./4.,-1./8.});
-		}
-		else throw new RuntimeException("I don't know how to do clusters with more than 4 points!");
-		ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster); //refCluster.makeClone(fSample);
+		ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster);
 		int steps = 10000000;
         Default.BLOCK_SIZE = steps/100;
 		
 		while (true) {
-			SimulationVirial sim = new SimulationVirial(new Space3D(),temperature,sampleCluster,refCluster,new ClusterAbstract[] {targetCluster});
+			SimulationVirial sim = new SimulationVirial(space,temperature,sampleCluster,refCluster,new ClusterAbstract[] {targetCluster});
 			sim.ai.setMaxSteps(steps);
 			sim.getController().run();
             AccumulatorAverage acc = (AccumulatorRatioAverage)sim.accumulator;
             double[][] allYourBase = (double[][])acc.getTranslator().fromArray(acc.getData());
-            System.out.println(allYourBase.length);
             System.out.println("average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
                               +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
-            System.out.println("hard sphere   average: "+allYourBase[AccumulatorRatioAverage.AVERAGE.index][0]
-                              +" stdev: "+allYourBase[AccumulatorRatioAverage.STANDARD_DEVIATION.index][0]);
-            System.out.println("lennard jones average: "+allYourBase[AccumulatorRatioAverage.AVERAGE.index][1]
-                              +" stdev: "+allYourBase[AccumulatorRatioAverage.STANDARD_DEVIATION.index][1]);
+            System.out.println("hard sphere   average: "+allYourBase[AccumulatorAverage.AVERAGE.index][0]
+                              +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][0]
+                              +" error: "+allYourBase[AccumulatorAverage.ERROR.index][0]
+                              );//+" correlation: "+allYourBase[AccumulatorAverage.BLOCK_CORRELATION.index][0]);
+            System.out.println("lennard jones average: "+allYourBase[AccumulatorAverage.AVERAGE.index][1]
+                              +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][1]
+                              +" error: "+allYourBase[AccumulatorAverage.ERROR.index][1]
+                              );//+" correlation: "+allYourBase[AccumulatorAverage.BLOCK_CORRELATION.index][1]);
 		}
 	}
 }

@@ -13,6 +13,7 @@ public class ClusterDiagram {
     private final int mNumRootPoints;
     private final int[] mRootPoints;
     private final boolean[] mIsRootPoint;
+    public int mReeHooverFactor;
 
     /**
      * Constructs a cluster having numBody points and numRootPoints root points.
@@ -28,6 +29,7 @@ public class ClusterDiagram {
             mRootPoints[i] = i;
             mIsRootPoint[i] = true;
         }
+        mReeHooverFactor = 1;
     }
 
     /**
@@ -35,14 +37,21 @@ public class ClusterDiagram {
      */
     public ClusterDiagram(ClusterDiagram cluster) {
         this(cluster.mNumBody, cluster.mNumRootPoints);
-        for (int i = 0; i < mNumBody; i++) {
-            System.arraycopy(cluster.mConnections[i], 0, mConnections[i], 0,
-                    mNumBody);
-        }
-        mNumConnections = cluster.mNumConnections;
-        mNumIdenticalPermutations = cluster.mNumIdenticalPermutations;
+        cluster.copyTo(this);
     }
 
+    public void copyTo(ClusterDiagram destCluster) {
+        // number of root points must already be equal
+        for (int i = 0; i < mNumBody; i++) {
+            System.arraycopy(mConnections[i], 0, destCluster.mConnections[i], 0,
+                    mNumBody);
+        }
+        destCluster.mNumConnections = mNumConnections;
+        destCluster.mNumIdenticalPermutations = mNumIdenticalPermutations;
+        destCluster.mReeHooverFactor = mReeHooverFactor;
+    }
+        
+    
     public int getNumRootPoints() {
         return mNumRootPoints;
     }
@@ -240,7 +249,7 @@ public class ClusterDiagram {
      */
     public void reset() {
         makeFullStar();
-
+        mNumIdenticalPermutations = 1;
         for (int i=0; i<mNumRootPoints; i++) {
             for (int j=0; j<i; j++) {
                 deleteConnection(i,j);

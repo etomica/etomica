@@ -12,12 +12,15 @@ public class ClusterGenerator {
     private boolean mOnlyDoublyConnected, mOnlyConnected;
     private boolean mExcludeNodalPoint, mExcludeArticulationPoint, mExcludeArticulationPair;
     private boolean mAllPermutations = true;
+    private boolean mReeHoover;
+    private ClusterDiagram mClusterCopy;
     private final int[] mConnectStack;
     private final int[][] mConnectList;
     private int mConnectStackLen;
     private int mTotalNumConnections;
     private int mCurrentConnection;
     public final ClusterDiagram mCluster;
+    private ClusterGenerator mReeHooverGenerator;
 
     public ClusterGenerator(ClusterDiagram aCluster) {
         mCluster = aCluster;
@@ -75,6 +78,20 @@ public class ClusterGenerator {
         mAllPermutations = flag;
     }
 
+    /**
+     * Set whether to generate Ree-Hoover diagrams.  If set, then
+     * connected points have an f-bond and all others have an e-bond.
+     */
+    public void setMakeReeHover(boolean flag) {
+        mReeHoover = flag;
+        if (flag) {
+            mClusterCopy = new ClusterDiagram(mCluster);
+            mReeHooverGenerator = new ClusterGenerator(mClusterCopy);
+            mReeHooverGenerator.setAllPermutations(true);
+            mReeHooverGenerator.setOnlyDoublyConnected(true);
+        }
+    }
+    
     /**
      * Determines whether any cluster permuted from the given one by
      * exchanging points from startPoint to stopPoint (inclusive) has a higher
@@ -390,22 +407,41 @@ public class ClusterGenerator {
     }
 
     /**
+     * Calculates the Ree-Hoover coefficient (coefficient for Ree-Hoover 
+     * diagram / coefficient for Mayer diagram) for mCluster and sets mCluster's
+     * mReeHooverFactor to it.
+     */
+    public void calcReeHoover() {
+        if (!mOnlyDoublyConnected) {
+            throw new IllegalStateException("Ree-Hoover diagrams only work for doubly-connected cluster diagrams");
+        }
+        int originalConnections = mCluster.getNumConnections();
+        mCluster.copyTo(mClusterCopy);
+        mReeHooverGenerator.reset();
+        mCluster.mReeHooverFactor = 1;
+        while (mReeHooverGenerator.advance()) {
+            int numRemoved = originalConnections - mClusterCopy.getNumConnections();
+            mCluster.mReeHooverFactor += (numRemoved % 2 == 0) ? 1 : -1;
+        }
+    }
+    
+    /**
      * Resets the cluster generator.  This resets the cluster, and prepares the
      * generator to generate clusters matching the appropriate criteria.
      */
     public void reset() {
-        mCluster.reset();
-        for (int k = 0, i = 0; i < mCluster.mNumBody-1; i++) {
-            for (int j = i + 1; j < mCluster.mNumBody; j++) {
-                if (!mCluster.isRootPoint(i) || !mCluster.isRootPoint(j)) {
+        for (int k = 0, i = 0; i < mCluster.mNumBody; i++) {
+            int[] iConnections = mCluster.mConnections[i];
+            for (int j = 0; iConnections[j] != -1; j++) {
+                if (i < iConnections[j]) {
                     mConnectList[k][0] = i;
-                    mConnectList[k][1] = j;
+                    mConnectList[k][1] = iConnections[j];
                     k++;
                 }
             }
         }
         
-        // get # of connections in fully-connected cluster
+        // get # of connections in fully-connected cluster (should be k)
         mTotalNumConnections = mCluster.getNumConnections();
         mCurrentConnection = 0;
         mConnectStackLen = 0;
@@ -491,6 +527,13 @@ public class ClusterGenerator {
                 mConnectStack[mConnectStackLen] = mCurrentConnection;
                 mConnectStackLen++;
                 if (mAllPermutations || isMaximumScore()) {
+                    if (mReeHoover) {
+                        calcReeHoover();
+                        if (mCluster.mReeHooverFactor == 0) {
+                            // cluster diagram is cancelled out in ReeHoover formulation
+                            continue;
+                        }
+                    }
                     mCurrentConnection++;
                     return true;
                 }
@@ -518,6 +561,7 @@ public class ClusterGenerator {
         generator.setExcludeArticulationPair(true);
         generator.setExcludeNodalPoint(true);
         cluster.reset();
+        generator.reset();
         long startTime = System.currentTimeMillis();
         int maxConnections = cluster.getNumConnections();
         int[] hist = new int[maxConnections];

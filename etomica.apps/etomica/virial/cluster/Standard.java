@@ -99,9 +99,9 @@ public final class Standard {
 	}
 
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
-        return virialCluster(nBody,f,true);
+        return virialCluster(nBody,f,true,new FTilde(f));
     }
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations) {
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e) {
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
         ClusterGenerator generator = new ClusterGenerator(clusterD);
         generator.setAllPermutations(!usePermutations);
@@ -109,30 +109,57 @@ public final class Standard {
         generator.setExcludeArticulationPoint(false);
         generator.setExcludeArticulationPair(false);
         generator.setExcludeNodalPoint(false);
+        generator.setMakeReeHover(e != null);
+        clusterD.reset();
         generator.reset();
+        generator.calcReeHoover();
         ClusterAbstract[] clusters = new ClusterAbstract[0];
         double[] weights = new double[0];
         int fullSymmetry = usePermutations ? SpecialFunctions.factorial(nBody) : 1;
         double weightPrefactor = -fullSymmetry*nBody/(double)(nBody-1);
         do {
+            int iBond = 0, iEBond = 0;
             int numBonds = clusterD.getNumConnections();
             int[][] bondList = new int[numBonds][2];
-            int iBond = 0;
+            int[][] eBondList = new int[nBody*(nBody-1)/2-numBonds][2];
             for (int i = 0; i < nBody; i++) {
+                int lastBond = i;
                 int[] iConnections = clusterD.mConnections[i];
-                for (int j = 0; j < nBody - 1 && iConnections[j] != -1; j++) {
-                    if (i < iConnections[j]) {
+                for (int j=0; j<nBody-1; j++) {
+                    if (iConnections[j] > i) {
+                        if (e != null) {
+                            
+                            for (int k=lastBond+1; k<iConnections[j]; k++) {
+                                eBondList[iEBond][0] = i;
+                                eBondList[iEBond++][1] = k;
+                            }
+                        }
                         bondList[iBond][0] = i;
                         bondList[iBond++][1] = iConnections[j];
+                        lastBond = iConnections[j];
                     }
+                    else if ((lastBond>i || iConnections[j] == -1) && e != null) {
+                        for (int k=lastBond+1; k<nBody; k++) {
+                            eBondList[iEBond][0] = i;
+                            eBondList[iEBond++][1] = k;
+                        }
+                    }
+                    if (iConnections[j] == -1) break;
                 }
             }
             // only use permutations if the diagram has permutations
-            boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < fullSymmetry; 
-            clusters = (ClusterAbstract[])Arrays.addObject(clusters,new Cluster(nBody, new BondGroup[] {new BondGroup(f, bondList)}, thisUsePermutations));
+            boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < fullSymmetry;
+            // only use e-bonds if one of the diagrms has some
+            int nBondTypes = (iEBond > 0) ? 2 : 1;
+            BondGroup[] bondGroups = new BondGroup[nBondTypes];
+            bondGroups[0] = new BondGroup(f,bondList);
+            if (iEBond > 0) {
+                bondGroups[1] = new BondGroup(e,eBondList);
+            }
+            clusters = (ClusterAbstract[])Arrays.addObject(clusters,new Cluster(nBody, bondGroups, thisUsePermutations));
             double [] newWeights = new double[weights.length+1];
             System.arraycopy(weights,0,newWeights,0,weights.length);
-            newWeights[weights.length] = weightPrefactor/(usePermutations ? clusterD.mNumIdenticalPermutations : 1);
+            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
 
