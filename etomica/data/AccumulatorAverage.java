@@ -75,7 +75,13 @@ public class AccumulatorAverage extends DataAccumulator {
         } else {
             for(int i=0; i<nData; i++) {
                 double currentBlockAverage = blockSum[i]/currentBlockCount;
-                double avg = (sum[i] + countFraction*currentBlockAverage)/currentCount;
+                double avg;
+                if (countFraction > 0) {
+                    avg = (sum[i] + countFraction*currentBlockAverage)/currentCount;
+                }
+                else {
+                    avg = sum[i] / count;
+                }
                 double avgSquared = avg*avg;
                 double err = Math.sqrt((sumSquare[i]/count - (sum[i]*sum[i]/count)/count)/(count-1));
                 double stdev = Math.sqrt((sumSquareBlock[i]+blockSumSq[i])/(currentCount*blockSize) - avgSquared);
@@ -115,12 +121,7 @@ public class AccumulatorAverage extends DataAccumulator {
     
     protected void setNData(int nData) {
     	this.nData = nData;
-        if (nData > 1) {
-            translator = new DataTranslatorArray(numStats(),nData);
-        }
-        else {
-            translator = DataTranslator.IDENTITY;
-        }
+        translator = new DataTranslatorArray(numStats(),nData);
         nDataMinus1 = nData-1;
         data = new double[numStats()*nData];
     	sum = redimension(nData, sum);
@@ -271,12 +272,7 @@ public class AccumulatorAverage extends DataAccumulator {
             for(int i=0; i<indexes.length; i++) {
                 selectedAllData[i] = allData[indexes[i]];
             }
-            if (nData > 1) {
-                selectedTranslator = new DataTranslatorArray(indexes.length,nData);
-            }
-            else {
-                selectedTranslator = DataTranslator.IDENTITY;
-            }
+            selectedTranslator = new DataTranslatorArray(indexes.length,nData);
         }
         
         public DataTranslator getTranslator() {
