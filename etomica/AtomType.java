@@ -468,6 +468,11 @@ public abstract class AtomType implements java.io.Serializable {
     public interface SphericalTop extends Rotator {} //guarantees Ixx = Iyy = Izz
     public interface CylindricalTop extends Rotator {} //guarantees Ixx = Iyy
     public interface AsymmetricTop extends Rotator {} //all moment-of-inertia elements unequal
+    
+    /**
+     * Type for an AtomGroup atom.
+     */
+    public static class Group extends AtomType {}
         
 }
         

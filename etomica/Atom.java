@@ -14,53 +14,23 @@ import java.awt.event.ActionEvent;
   * 
   * @author David Kofke
   * @author C. Daniel Barnes
-  * @see Molecule
   */
-public class Atom implements Space.Occupant, java.io.Serializable {
+public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "01.07.01";}
     
     public static int DEBUG = 0;
     public int debugIndex;
 
-    /**
-     * Constructs an atom with default values for mass, diameter, and color.
-     * Defaults for all coordinates and momenta are zero.
-     * 
-     * @param parent molecule in which atom resides
-     * @param index sequential index of atom as assigned by parent molecule
-     * @param t the type of the atom
-     */
-    public Atom(Molecule parent, AtomType t, int index) {
-        debugIndex = DEBUG++;
-        parentMolecule = parent;
-        atomIndex = index;
-        workVector = parentSimulation().space().makeVector();
-        rLast = parentSimulation().space().makeVector();
-        velocity = parentSimulation().space().makeVector();
-        type = t; //this must precede makeCoordinate call
-        coordinate = type.makeCoordinate(this);
-      //  coordinate = Simulation.space.makeCoordinate(this);
-        r = coordinate.position();
-        p = coordinate.momentum();
-        setStationary(false);
-        if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
-//        if(meterAgentCount > 0) meterAgents = new Meter.Agent(meterAgentCount);
-    }
-    public Atom(AtomGroup parent, AtomType t, int index) {
+    public Atom(AtomGroup parent, int index, AtomType t) {
         parentGroup = parent;
         this.index = index;
         depth = 0;
         atomIndex = index;
         workVector = parentSimulation().space().makeVector();
-        rLast = parentSimulation().space().makeVector();
-        velocity = parentSimulation().space().makeVector();
         type = t; //this must precede makeCoordinate call
-        coordinate = type.makeCoordinate(this);
+        coord = type.makeCoordinate(this, type);
       //  coordinate = Simulation.space.makeCoordinate(this);
-        r = coordinate.position();
-        p = coordinate.momentum();
-        setStationary(false);
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
     }
                     
@@ -70,82 +40,36 @@ public class Atom implements Space.Occupant, java.io.Serializable {
      * @param ia
      */
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
-        
-    /**
-     * Molecule that contains this atom
-     */
-    public final Molecule parentMolecule() {return parentMolecule;}
-    
+            
     public final AtomGroup parentGroup() {return parentGroup;}
 
     /**
      * Simulation in which this atom resides
      */
-    public final Simulation parentSimulation() {return parentMolecule.parentSimulation();}
+    public final Simulation parentSimulation() {return parentGroup.parentSimulation();}
         
     /**
      * Phase in which this atom resides
      */
-    public final Phase parentPhase() {return parentMolecule.parentPhase();}
+    public final Phase parentPhase() {return parentGroup.parentPhase();}
 
+/*   linked list of bonds
+    Bond firstBond;
+    
+    */
     /**
      * Coordinates of this atom.
      * When the atom is constructed the coordinate class is provided by the 
      * governing Space for the simulation.
      */
-    public final Space.Coordinate coordinate() {return coordinate;}
+    public final Space.Coordinate coord;
             
-    /**
-     * Index identifying the species of this atom's molecule.
-     */
-    public final int speciesIndex() {return parentMolecule.speciesIndex();}
-
     /**
      * Integer assigned to this atom by its parent molecule.
      * Assigned during construction of atom.
      */
     public final int atomIndex() {return atomIndex;}
         
-    /**
-     * The color of the atom when drawn to the screen.
-     * The atom color is often decided by the ColorScheme class, via the atom's setColor method.
-     * If the ColorScheme does nothing, the color is given by the atom's type field.
-     * 
-     * @see ColorScheme
-     */
-    public final Color getColor() {return color;}
-
-    /**
-     * Sets the color of the atom for drawing to the screen.
-     * 
-     * @param c
-     * @see ColorScheme
-     * @see getColor
-     */
-    public final void setColor(Color c) {this.color = c;}
-
-        
-    /**
-     * Sets the atom to be stationary or movable.
-     * The atom does not enforce the condition of being stationary, in that it does not
-     * override attempts to move it if it is set as stationary.  Rather, this is a flag
-     * that can be set and checked by an integrator when deciding how or whether to 
-     * move the atom.
-     * 
-     * @param b If true, the atom becomes stationary, if false it can be moved.
-     */
-    public void setStationary(boolean b) {
-        stationary = b;
-        if(!stationary) scaleMomentum(0.0);
-    }
-
-    /**
-     * Flag to indicate of the atom can or cannot be moved
-     * 
-     * @see setStationary
-     */
-    public final boolean isStationary() {return stationary;}
-
     /**
      * Sets atom following this one in linked list, and sets this to be that atom's previous atom in list
      * 
@@ -175,68 +99,6 @@ public class Atom implements Space.Occupant, java.io.Serializable {
      */
     public final Atom previousAtom() {return previousAtom;} 
     
-    /**
-     * @return mass of the atom, in Daltons
-     */
-    public final double mass() {return type.mass();}
-
-    /**
-     * @return reciprocal of the mass of the atom
-     */
-    public final double rm() {return type.rm();}
-
-    /**
-     * Draws the atom to the given graphics object
-     * 
-     * @param g
-     * @param origin
-     * @param scale
-     */
-    public void draw(Graphics g, int[] origin, double toPixels) {type.draw(g, origin, toPixels, this);}
-
-    /**
-     * Moves the atom by some vector distance
-     * 
-     * @param u
-     */
-    public final void translateBy(Space.Vector u) {r.PE(u);}
-    /**
-     * Moves the atom by some vector distance
-     * 
-     * @param u
-     */
-    public final void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
-    /**
-     * Moves the atom by some vector distance
-     * 
-     * @param u
-     */
-    public final void translateTo(Space.Vector u) {r.E(u);}      
-    public final void translateToRandom(etomica.Phase p) {translateTo(p.boundary().randomPosition());}
-    public final void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
-    public final void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
-    public final void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
-    public final void displaceWithin(double d) {workVector.setRandomCube(); displaceBy(d,workVector);}
-    public final void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
-    public final void replace() {r.E(rLast);}
-//    public final void inflate(double s) {r.TE(s);}
-
-    public final void accelerateBy(Space.Vector u) {p.PE(u);}
-    public final void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
-
-    public final double kineticEnergy() {return coordinate.kineticEnergy();}
-    public final void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
-        double magnitude = Math.sqrt(type.mass()*temperature*(double)parentSimulation().space().D());  //need to divide by sqrt(m) to get velocity
-        p.setRandomSphere();
-        p.TE(magnitude);
-    }
-    public final void scaleMomentum(double scale) {p.TE(scale);}
-
-    public final Space.Vector position() {return r;}
-    public final Space.Vector momentum() {return p;}
-    public final double position(int i) {return r.component(i);}
-    public final double momentum(int i) {return p.component(i);}
-    public final Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
 
     //needs work
     public final boolean preceeds(Atom atom) {
@@ -251,6 +113,25 @@ public class Atom implements Space.Occupant, java.io.Serializable {
         else if(this.depth < atom.depth) return this.preceeds(atom.parentGroup());
         else /*if(this.depth > atom.depth)* / return this.parentGroup.preceeds(atom);*/
     }
+
+    /**
+     * The color of the atom when drawn to the screen.
+     * The atom color is often decided by the ColorScheme class, via the atom's setColor method.
+     * If the ColorScheme does nothing, the color is given by the atom's type field.
+     * 
+     * @see ColorScheme
+     */
+    public final Color getColor() {return color;}
+
+    /**
+     * Sets the color of the atom for drawing to the screen.
+     * 
+     * @param c
+     * @see ColorScheme
+     * @see getColor
+     */
+    public final void setColor(Color c) {this.color = c;}
+
     public Integrator.Agent ia;
         
     /**
@@ -259,11 +140,6 @@ public class Atom implements Space.Occupant, java.io.Serializable {
     */
     Color color = Default.ATOM_COLOR;
         
-    /**
-    * Flag indicating whether atom is stationary or mobile.
-    * Default is false (atom is mobile)
-    */
-    private boolean stationary;
        
     /**
     * Instance of molecule in which this atom resides.
@@ -284,13 +160,7 @@ public class Atom implements Space.Occupant, java.io.Serializable {
     
     private Atom nextAtom, previousAtom;
         
-    public final Space.Coordinate coordinate;
-    public final Space.Vector r, p;  //position, momentum
-    private final Space.Vector workVector;
-    private final Space.Vector rLast;
-        
     public AtomType type;
-    private final Space.Vector velocity;
     private AtomGroup parentGroup;
     
  /** This is an array of AtomLinkers that enable lists of atoms to be constructed

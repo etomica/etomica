@@ -158,10 +158,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             if(a == partner) break; //finished with atoms before partner; we're done
             IntegratorHardAbstract.Agent aAgent = (IntegratorHardAbstract.Agent)a.ia;
             Atom aPartner = aAgent.collisionPartner();
-            if(aPartner == partner || aPartner == collider) {
-                if(aPartner != null) { aAgent.resetCollision();
-                phasePotential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));}
-                //if partner == null could do just collision update for collider with atom a
+            if(aPartner != null && (aPartner == partner || aPartner == collider)) {//aPartner != null handles case where aPartner and partner are both null
+                aAgent.resetCollision();
+                phasePotential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));
             }
         }//end while
             //reset collision partners of atoms that are now up from this atom but still list it as their
@@ -236,7 +235,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(30);
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(3);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    Controller controller1 = new Controller();

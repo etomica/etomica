@@ -378,7 +378,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
          * @see Species
          * @see Phase
          */
-    public final class Agent implements java.io.Serializable {
+    public final class Agent extends AtomGroup {
         public Phase parentPhase;  //want final, but won't compile
         private AtomIterator atomIterator;  //iterator for all atoms of this species in this phase
         

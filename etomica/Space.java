@@ -57,16 +57,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         }
     }
             
-    /**
-     * Something that occupies a Space, and therefore has a coordinate
-     * Usually an Atom or a Molecule
-     */
-    public interface Occupant {
-        public Coordinate coordinate();
-        public Phase parentPhase();
-        public double mass();
-        public double rm();
-    }
     
 //  Vector contains what is needed to describe a point in the space
     public static abstract class Vector implements java.io.Serializable { 
@@ -158,7 +148,87 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             public double kineticEnergy();
             public void freeFlight(double t);
         }
-    }
+        
+        /**
+        * Sets the atom to be stationary or movable.
+        * The atom does not enforce the condition of being stationary, in that it does not
+        * override attempts to move it if it is set as stationary.  Rather, this is a flag
+        * that can be set and checked by an integrator when deciding how or whether to 
+        * move the atom.
+        * 
+        * @param b If true, the atom becomes stationary, if false it can be moved.
+        */
+        public void setStationary(boolean b) {
+            stationary = b;
+            if(!stationary) scaleMomentum(0.0);
+        }
+
+        /**
+        * Flag to indicate of the atom can or cannot be moved
+        * 
+        * @see setStationary
+        */
+        public final boolean isStationary() {return stationary;}
+
+        /**
+        * @return mass of the atom, in Daltons
+        */
+        public final double mass() {return type.mass();}
+
+        /**
+        * @return reciprocal of the mass of the atom
+        */
+        public final double rm() {return type.rm();}
+
+        /**
+        * Moves the atom by some vector distance
+        * 
+        * @param u
+        */
+        public final void translateBy(Space.Vector u) {r.PE(u);}
+        /**
+        * Moves the atom by some vector distance
+        * 
+        * @param u
+        */
+        public final void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
+        /**
+        * Moves the atom by some vector distance
+        * 
+        * @param u
+        */
+        public final void translateTo(Space.Vector u) {r.E(u);}      
+        public final void translateToRandom(etomica.Phase p) {translateTo(p.boundary().randomPosition());}
+        public final void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
+        public final void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
+        public final void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
+        public final void displaceWithin(double d) {workVector.setRandomCube(); displaceBy(d,workVector);}
+        public final void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
+        public final void replace() {r.E(rLast);}
+    //    public final void inflate(double s) {r.TE(s);}
+
+        public final void accelerateBy(Space.Vector u) {p.PE(u);}
+        public final void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
+
+        public final void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+            double magnitude = Math.sqrt(type.mass()*temperature*(double)parentSimulation().space().D());  //need to divide by sqrt(m) to get velocity
+            p.setRandomSphere();
+            p.TE(magnitude);
+        }
+        public final void scaleMomentum(double scale) {p.TE(scale);}
+
+        public final Space.Vector position() {return r;}
+        public final Space.Vector momentum() {return p;}
+        public final double position(int i) {return r.component(i);}
+        public final double momentum(int i) {return p.component(i);}
+        public final Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
+
+        /**
+        * Flag indicating whether atom is stationary or mobile.
+        * Default is false (atom is mobile)
+        */
+        private boolean stationary;
+    }//end of Space.Coordinate
     
     public static abstract class Orientation {
         public abstract void E(Orientation o); //copies the given orientation to this
