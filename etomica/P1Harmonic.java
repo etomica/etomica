@@ -17,13 +17,13 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     private Atom atom;
     
     public P1Harmonic() {
-        this(Simulation.instance.hamiltonian.potential);
+        this(Simulation.getDefault().space);
     }
     
-    public P1Harmonic(SimulationElement parent) {
-        super(parent);
-        D = simulation().space().D();
-        force = simulation().space().makeVector();
+    public P1Harmonic(Space space) {
+        super(space);
+        D = space.D();
+        force = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -13,13 +13,13 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
     public final P2Tether p2Tether;
     
     public P1TetheredHardSpheres() {
-        this(Simulation.instance.hamiltonian.potential);
+        this(Simulation.getDefault().space);
     }
     
-    public P1TetheredHardSpheres(SimulationElement parent) {
-        super(1, parent);
-        p2HardSphere = new P2HardSphere(this);
-        p2Tether = new P2Tether(this);
+    public P1TetheredHardSpheres(Space space) {
+        super(1, space);
+        p2HardSphere = new P2HardSphere();
+        p2Tether = new P2Tether();
         addPotential(p2Tether, new ApiInnerVariable(new AtomIteratorList(),
 	            new AtomIteratorBonds()));
 	    addPotential(p2HardSphere, new ApiInnerVariable(new AtomIteratorList(),
@@ -46,11 +46,12 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
 	    Phase phase = new Phase();
 	    
 	    PotentialGroup potential2 = new PotentialGroup(2);
-	    Potential2 p2 = new P2HardSphere(potential2);
-	    sim.hamiltonian.potential.setSpecies(p2, new Species[]{speciesSpheres});
+	    Potential2 p2 = new P2HardSphere();
+	    sim.potentialMaster.setSpecies(p2, new Species[]{speciesSpheres});
+	    //XXX need to add p2 to potential2 with an iterator
 	    
 	    PotentialGroup p1 = new P1TetheredHardSpheres();
-	    sim.hamiltonian.potential.setSpecies(p1, new Species[]{speciesSpheres});
+	    sim.potentialMaster.setSpecies(p1, new Species[]{speciesSpheres});
 	    
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();

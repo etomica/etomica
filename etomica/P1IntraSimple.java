@@ -18,11 +18,11 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
     public Potential2 nonbonded;
     
     public P1IntraSimple() {
-        this(Simulation.instance.hamiltonian.potential);
+        this(Simulation.getDefault().space);
     }
     
-    public P1IntraSimple(SimulationElement parent) {
-        super(1, parent);
+    public P1IntraSimple(Space space) {
+        super(1, space);
     }
     
     /**
@@ -100,8 +100,9 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
 	    
 	    PotentialGroup p2 = new PotentialGroup(2);
 	    
-	    sim.hamiltonian.potential.setSpecies(p2, new Species[] {speciesSpheres});
-	    P2LennardJones p2LennardJones2 = new P2LennardJones(p2);
+	    sim.potentialMaster.setSpecies(p2, new Species[] {speciesSpheres});
+	    P2LennardJones p2LennardJones2 = new P2LennardJones();
+	    //XXX p2LennardJones2 needs to be added to p2 with an iterator!
 	    
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();

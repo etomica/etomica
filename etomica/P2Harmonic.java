@@ -19,10 +19,10 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
 	private double r0;
     
     public P2Harmonic(double w) {
-        this(Simulation.instance.hamiltonian.potential, w, 0.0);
+        this(Simulation.getDefault().space, w, 0.0);
     }
-    public P2Harmonic(SimulationElement parent, double w) {
-    	this(parent, w, 0.0);
+    public P2Harmonic(Space space, double w) {
+    	this(space, w, 0.0);
     }
     /**
      * 
@@ -31,8 +31,8 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
      * @param r0  Separation at which potential is at its minimum.  Default is
      * zero.
      */
-    public P2Harmonic(SimulationElement parent, double w, double r0) {
-        super(parent);
+    public P2Harmonic(Space space, double w, double r0) {
+        super(space);
         setSpringConstant(w);
         r0Zero = (r0 == 0.0);
         setR0(r0);

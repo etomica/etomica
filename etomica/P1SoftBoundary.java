@@ -14,11 +14,11 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	private Atom atom;
 	
 	public P1SoftBoundary() {
-		this(Simulation.instance.hamiltonian.potential);
+		this(Simulation.getDefault().space);
 	}
     
-	public P1SoftBoundary(SimulationElement parent) {
-		super(parent);
+	public P1SoftBoundary(Space space) {
+		super(space);
 		D = space.D();
 		gradient = space.makeVector();
 		setRadius(0.5*Default.ATOM_SIZE);

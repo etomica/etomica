@@ -19,20 +19,20 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
     private boolean isothermal = false;
     private double temperature = Default.TEMPERATURE;
 
-    public P2HardSphereWall() {this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);}
+    public P2HardSphereWall() {this(Simulation.getDefault().space, Default.ATOM_SIZE);}
     
     public P2HardSphereWall(double d) {
-        this(Simulation.instance.hamiltonian.potential, d);
+        this(Simulation.getDefault().space, d);
     }
     
-    public P2HardSphereWall(SimulationElement parent) {
-        this(parent, Default.ATOM_SIZE);
+    public P2HardSphereWall(Space space) {
+        this(space, Default.ATOM_SIZE);
     }
     
-    public P2HardSphereWall(SimulationElement parent, double d) {
-        super(parent);
+    public P2HardSphereWall(Space space, double d) {
+        super(space);
         setCollisionDiameter(d);
-        ZERO = simulation().space.makeTensor();//temporary
+        ZERO = space.makeTensor();//temporary
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -132,7 +132,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         else { //force free
             if(dr*dv > 0.0) {return Double.MAX_VALUE;}    //Separating, no collision
             double adr = Math.abs(dr);
-            if(adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
+            if(Default.FIX_OVERLAP && adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
             else {return (adr-collisionRadius)/Math.abs(dv);}  //Outside core and approaching; collision at core
         }
         return time;
@@ -193,7 +193,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         if(wall.coord.isStationary()) {//randomize x-y components of sphere momentum
             if(isothermal) {
                 double oldp2 = sphere.coord.momentum().squared();
-                double newp2 = sphere.coord.mass()*temperature*simulation().space().D();
+                double newp2 = sphere.coord.mass()*temperature*space.D();
                 sphere.coord.momentum().TE(Math.sqrt(newp2/oldp2));
             }
 

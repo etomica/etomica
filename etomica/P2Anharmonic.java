@@ -14,10 +14,10 @@ public class P2Anharmonic extends Potential2SoftSpherical implements EtomicaElem
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
     private double a = 0;	// Anharmonic spring constant
     public P2Anharmonic(double w) {
-        this(Simulation.instance.hamiltonian.potential, w);
+        this(Simulation.getDefault().space, w);
     }
-    public P2Anharmonic(SimulationElement parent, double w) {
-        super(parent);
+    public P2Anharmonic(Space space, double w) {
+        super(space);
         setSpringConstant(w);
     }
 

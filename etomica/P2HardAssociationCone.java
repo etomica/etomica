@@ -17,12 +17,12 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private Space.Vector e2;
     private double theta, ec2;
     
-    public P2HardAssociationCone() {this(Simulation.instance.hamiltonian.potential);}
+    public P2HardAssociationCone() {this(Simulation.getDefault().space);}
     
-    public P2HardAssociationCone(SimulationElement parent) {
-        super(parent);
-        e1 = simulation().space().makeVector();
-        e2 = simulation().space().makeVector();
+    public P2HardAssociationCone(Space space) {
+        super(space);
+        e1 = space.makeVector();
+        e2 = space.makeVector();
 
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);

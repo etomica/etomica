@@ -16,17 +16,17 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     private final Space.Vector dr;
     
     public P2HardAssociation() {
-        this(Simulation.instance.hamiltonian.potential, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+        this(Simulation.getDefault().space, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
     }
     public P2HardAssociation(double wellDiameter, double epsilon) {
-        this(Simulation.instance.hamiltonian.potential, wellDiameter, epsilon);
+        this(Simulation.getDefault().space, wellDiameter, epsilon);
     }
-    public P2HardAssociation(SimulationElement parent, double wellDiameter, double epsilon) {
-        super(parent);
+    public P2HardAssociation(Space space, double wellDiameter, double epsilon) {
+        super(space);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
-        dr = simulation().space().makeVector();
-        lastCollisionVirialTensor = simulation().space().makeTensor();
+        dr = space.makeVector();
+        lastCollisionVirialTensor = space.makeTensor();
     }
     
    /**

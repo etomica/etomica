@@ -25,13 +25,13 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     private Atom atom;
     
     public P1HardBoundary() {
-        this(Simulation.instance.hamiltonian.potential);
+        this(Simulation.getDefault().space);
     }
     
-    public P1HardBoundary(SimulationElement parent) {
-        super(parent);
+    public P1HardBoundary(Space space) {
+        super(space);
         temperature = Default.TEMPERATURE;
-        D = parent.simulation().space.D();
+        D = space.D();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

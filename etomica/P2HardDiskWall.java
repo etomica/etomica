@@ -24,20 +24,20 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
     private boolean isothermal = false;
     private double temperature = Default.TEMPERATURE;
 
-    public P2HardDiskWall() {this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);}
+    public P2HardDiskWall() {this(Simulation.getDefault().space, Default.ATOM_SIZE);}
     
-    public P2HardDiskWall(SimulationElement parent) {
-        this(parent, Default.ATOM_SIZE);
+    public P2HardDiskWall(Space space) {
+        this(space, Default.ATOM_SIZE);
     }
     
     public P2HardDiskWall(double d) {
-        this(Simulation.instance.hamiltonian.potential, d);
+        this(Simulation.getDefault().space, d);
     }
     
-    public P2HardDiskWall(SimulationElement parent, double d) {
-        super(parent);
+    public P2HardDiskWall(Space space, double d) {
+        super(space);
         setCollisionDiameter(d);
-        ZERO = simulation().space.makeTensor();//temporary
+        ZERO = space.makeTensor();//temporary
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -134,7 +134,7 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
         else { //force free
             if(dr*dv > 0.0) {return Double.MAX_VALUE;}    //Separating, no collision
             double adr = Math.abs(dr);
-            if(adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
+            if(Default.FIX_OVERLAP && adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
             else {return (adr-collisionRadius)/Math.abs(dv);}  //Outside core and approaching; collision at core
         }
         return time;

@@ -58,15 +58,19 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
         double r2 = cPair.r2();
         cPair.resetV();
         double bij = cPair.vDotr();
-        if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
         double time = Double.MAX_VALUE;
 
         if(bij < 0.0) {
-          double velocitySquared = cPair.v2();
-          double discriminant = bij*bij - velocitySquared * ( r2 - sig2 );
-          if(discriminant > 0) {
-            time = (-bij - Math.sqrt(discriminant))/velocitySquared;
-          }
+        	if (Default.FIX_OVERLAP && r2 < sig2) return 0.0;
+        	double velocitySquared = cPair.v2();
+            double discriminant = bij*bij - velocitySquared * ( r2 - sig2 );
+            if(discriminant > 0) {
+                time = (-bij - Math.sqrt(discriminant))/velocitySquared;
+            }
+        }
+        if (Debug.ON && (Debug.DEBUG_NOW && Debug.allAtoms(pair)) || time < 0.0) {
+        	System.out.println("atoms "+pair[0]+" and "+pair[1]+" r2 "+r2+" bij "+bij+" time "+time);
+        	if (time < 0.0) throw new RuntimeException("negative collision time for hard spheres");
         }
         return time;
     }
