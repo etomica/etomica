@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -37,9 +38,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 		return info;
 	}
     
-	public double energy(Atom[] a) {
-		atom = a[0];
-		Vector dimensions = atom.node.parentPhase().boundary().dimensions();
+	public double energy(AtomSet a) {
+		Vector dimensions = ((Atom)a).node.parentPhase().boundary().dimensions();
 		double rx = atom.coord.position().x(0);
 		double ry = atom.coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);
@@ -61,10 +61,9 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 		return -12*r6*r6/r;
 	}
 	
-	public Vector gradient(Atom[] a) {
-		atom = a[0];
+	public Vector gradient(AtomSet a) {
 		Vector dimensions = boundary.dimensions();
-		double rx = atom.coord.position().x(0);
+		double rx = ((Atom)a).coord.position().x(0);
 		double ry = atom.coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
