@@ -225,7 +225,7 @@ public final class IntegratorGear4 extends IntegratorMD {
         Meter ke = new MeterKineticEnergy();
         Meter temp = new MeterTemperature();
         Meter energy = new MeterEnergy();
-        Phase phase = Simulation.phase(0);
+        Phase phase = Simulation.instance.phase(0);
         ke.setPhase(phase);
         temp.setPhase(phase);
         energy.setPhase(phase);

@@ -23,8 +23,8 @@ import java.awt.event.ActionListener;
 public class MeterEditorPane extends SimulationEditorPane {
     private static int IDnumber = 0;
     
-    MeterEditorPane(){
-        super();
+    MeterEditorPane(SimulationEditor ed){
+        super(ed);
         setTitle("Meter");
         setDividerLocation(0.65);
         leftPanePanel.setMinimumSize(new java.awt.Dimension(360, getHeight()));
@@ -37,18 +37,17 @@ public class MeterEditorPane extends SimulationEditorPane {
         remove.setEnabled(false);
 		
         // The new actionListener will add an instance of the class that corresponds to the currently
-        // selected radioButton to the Simulation.instance object as well as to the meterEditorPane's
+        // selected radioButton to the simulationEditor.getSimulation() object as well as to the meterEditorPane's
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
 
 	                try {   // Try to make an instance of the selected class
 	                    setComponent(((Class)currentButton.cls).newInstance());
 	                    ((MeterAbstract)getComponent()).setName(((Class)currentButton.cls).getName().substring(9) + Integer.toString(IDnumber++));
 	                    componentList.addElement(getComponent()); // Add new object to the componentList
-                        Simulation.instance.elementCoordinator.add((Simulation.Element)getComponent());
+                        simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
 	                }
 	                catch(InstantiationException exc) {}
 	                catch(IllegalAccessException exc) {}
@@ -61,12 +60,12 @@ public class MeterEditorPane extends SimulationEditorPane {
         addStartButton();   // Creates and adds the new JButton 'Start'
 
         // The new actionListener will remove the object corresponding to the current selection of the
-        // componentList from the Simulation.instance object.
+        // componentList from the simulationEditor.getSimulation() object.
 	    remove.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
-                Simulation.instance.unregister(((Meter)componentList.getElementAt(getCurrentSelection())));
+                simulationEditor.getSimulation().unregister(((Meter)componentList.getElementAt(getCurrentSelection())));
 	            componentList.remove(getCurrentSelection());
-                wrapper = new Wrapper(FileActions.LOAD, "null", "null"); 
+                wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
                 propertySheet.setTarget(wrapper);
 
                 if (componentList.getSize() == 0)

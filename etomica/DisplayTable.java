@@ -218,7 +218,7 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         Meter meter1 = new MeterPressureHard();
         Meter meter2 = new MeterTemperature();
         MeterFunction rdf = new MeterRDF();
-        Phase phase = Simulation.phase(0);
+        Phase phase = Simulation.instance.phase(0);
         DisplayTable table = new DisplayTable();
         DisplayTable rdfTable = new DisplayTable();
         //end of unique part

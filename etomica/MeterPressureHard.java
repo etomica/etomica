@@ -90,8 +90,8 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
         Simulation.makeSimpleSimulation();  
         
         //here's the part unique to this class
-        Phase phase = Simulation.phase(0);
-        Integrator integrator = Simulation.integrator(0);
+        Phase phase = Simulation.instance.phase(0);
+        Integrator integrator = Simulation.instance.integrator(0);
         integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(300.));
         //make the meter and register it with the integrator

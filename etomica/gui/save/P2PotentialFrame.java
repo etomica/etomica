@@ -21,13 +21,15 @@ import javax.swing.JInternalFrame;
 
 public class P2PotentialFrame extends PotentialFrame {
     private static int IDnumber = 0;
+    private SimulationEditor simulationEditor;
     
     /**
      * Constructor that takes the potential type (P1 or P2) and the removeButton from the Potential tab
-     * of the SimEditorTabMenu that called this constructor.  It determines the necessary size based on
+     * of the simulationEditor that called this constructor.  It determines the necessary size based on
      * the type of potentials being used, sets the title, and adds the JInternalFrame to the JDesktopPane
      */
-    public P2PotentialFrame(){
+    public P2PotentialFrame(SimulationEditor ed){
+        simulationEditor = ed;
         setBounds(515,60,200,345);
         setTitle("P2 Potentials");  
         panelWidth = 200;
@@ -48,7 +50,7 @@ public class P2PotentialFrame extends PotentialFrame {
         addToSim.addActionListener(new MyActionListener(){
             public void actionPerformed(ActionEvent e){
                 EtomicaMenuBar.selectSpaceItem.setEnabled(false);
-                SimulationEditorFrame.simEditorTabMenu.getParent().repaint();
+                simulationEditor.getParent().repaint();
                         
                 for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
                     ((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).potential = ((Class)currentButton.cls);
@@ -100,8 +102,8 @@ public class P2PotentialFrame extends PotentialFrame {
 	            }
 	                    
 
-	            if (SimEditorTabMenu.allRemoveEnabled())
-	                    SimEditorTabMenu.setAllStart(true);
+	            if (simulationEditor.allRemoveEnabled())
+	                    simulationEditor.setAllStart(true);
 
 	            addToSim.removeActionListener(this);
             }});

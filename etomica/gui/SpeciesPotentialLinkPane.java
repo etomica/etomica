@@ -84,7 +84,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
     /**
      * Number of species added from the species pane
      */
-    private static int numOSpecies = 0;
+    private int numOSpecies = 0;
     
     /**
      * Button for removing objects from the JList of the right pane.  Only enabled if an object is in the
@@ -174,7 +174,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
      * Handle to a static instance of the PotentialViewer class used for viewing all potentials that
      * are contained in a Potential1 or Potential2 object.
      */
-    public static final PotentialViewer potentialViewer = new PotentialViewer();
+    public final PotentialViewer potentialViewer;
     
     /**
      * Initial height of splitPane
@@ -206,12 +206,15 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
      */
     static final protected int jButtonHeight = 32;
 
+    protected SimulationEditor simulationEditor;
     /**
      * Constructor that creates all of the left pane's radiobuttons and JButtons, as well as, the right 
      * pane's scrollpane and JList.  It also creates all the listeners for these swing components so that
      * the simulation can be updated as needed.
      */
-    public SpeciesPotentialLinkPane(){
+    public SpeciesPotentialLinkPane(SimulationEditor ed){
+        simulationEditor = ed;
+        potentialViewer = new PotentialViewer(simulationEditor);
         setSize(580, 580);
 		setLeftComponent(leftPane);
         setRightComponent(rightPane);
@@ -273,6 +276,8 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
 	    leftPanePanel.setMinimumSize(new java.awt.Dimension(300, 200));
     }
 
+    public SimulationEditor simulationEditor() {return simulationEditor;}
+    
     /**
      * This method is called when a species is added or removed from the species pane.  It figures out
      * the number of possible potential interactions, creates buttons for each of these interactions,
@@ -331,16 +336,16 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
                         Simulation.instance.unregister((Potential2)componentList.getElementAt(currentSelection));
 	                }
 	                componentList.remove(currentSelection); // Removes selected potential from the component list
-                    wrapper = new Wrapper(FileActions.LOAD, "null", "null"); 
+                    wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
                     propertySheet.setTarget(wrapper);
                     if (componentList.getSize() == 0)
                         ((JButton)e.getSource()).setEnabled(false);
                         
                     // Check if a sufficient number of components are added to allow a working simulation.
                     // If so, enable the start button.
-	                if (SimEditorTabMenu.allRemoveEnabled())
-	                    SimEditorTabMenu.setAllStart(true);
-	                else SimEditorTabMenu.setAllStart(false);
+	                if (simulationEditor.allRemoveEnabled())
+	                    simulationEditor.setAllStart(true);
+	                else simulationEditor.setAllStart(false);
 	            }});
 	    }
 	    gbl.setConstraints(remove,gbc);
@@ -365,7 +370,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
                     propertySheet.setTarget(wrapper);   // Updates property sheet with the selected object's properties
                 }
                 else {
-                    wrapper = new Wrapper(FileActions.LOAD, "null", "null"); 
+                    wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
                     propertySheet.setTarget(wrapper);
                 }
                 try {
@@ -397,8 +402,8 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
      */
     public static void setPropertySheet(PropertySheet p){ propertySheet = p; }
     
-    public static void setNumOSpecies(int n){ numOSpecies = n; }
-    public static int getNumOSpecies(){ return numOSpecies; }
+    public void setNumOSpecies(int n){ numOSpecies = n; }
+    public int getNumOSpecies(){ return numOSpecies; }
     
     public void setComponent(Object o) { component = o; }
     public Object getComponent() { return component; }
@@ -438,13 +443,13 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
 	    
 	    public void actionPerformed(ActionEvent evt) {
 	        currentButtons[buttonCount] = ((JButton)evt.getSource());
-	        DefineAtomPotentialFrame.setSpeciesIndex1(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1);
-	        DefineAtomPotentialFrame.setSpecies1(((Species)SimEditorTabMenu.speciesEditor.componentList.getElementAt(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1)));
-	        DefineAtomPotentialFrame.setSpecies2(((Species)SimEditorTabMenu.speciesEditor.componentList.getElementAt(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1)));
-            PotentialFrame.atomPairPotArray = new Class[DefineAtomPotentialFrame.species1.getAtomsPerMolecule()][DefineAtomPotentialFrame.species1.getAtomsPerMolecule()];
+	        DefinePotentialFrame.setSpeciesIndex1(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1);
+	        DefinePotentialFrame.setSpecies1(((Species)simulationEditor.speciesEditor.componentList.getElementAt(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1)));
+	        DefinePotentialFrame.setSpecies2(((Species)simulationEditor.speciesEditor.componentList.getElementAt(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1)));
+            PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species1.getAtomsPerMolecule()];
 	        try {
-	            DefineAtomPotentialFrame.setSpeciesIndex2(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex2);
-                PotentialFrame.atomPairPotArray = new Class[DefineAtomPotentialFrame.species1.getAtomsPerMolecule()][DefineAtomPotentialFrame.species2.getAtomsPerMolecule()];
+	            DefinePotentialFrame.setSpeciesIndex2(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex2);
+                PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species2.getAtomsPerMolecule()];
 	        }
 	        catch (java.lang.ArrayIndexOutOfBoundsException exc) {}
 	        
@@ -464,12 +469,14 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
 	        if (buttonCount == 1){
 	            PotentialFrame.setRemoveButton(remove);
 	            if (getTitle() == "Potential1") {
-	                potentialFrame = new P1PotentialFrame();
-	                potentialFrame.setPotentialEditor(SimEditorTabMenu.potential1Editor);
+	                potentialFrame = new PotentialFrame(simulationEditor);
+	                potentialFrame.setTitle(getTitle());
+	                potentialFrame.setPotentialEditor(simulationEditor.potential1Editor);
 	            }
 	            else {
-	                potentialFrame = new P2PotentialFrame();
-	                potentialFrame.setPotentialEditor(SimEditorTabMenu.potential2Editor);
+	                potentialFrame = new PotentialFrame(simulationEditor);
+	                potentialFrame.setTitle(getTitle());
+	                potentialFrame.setPotentialEditor(simulationEditor.potential2Editor);
 	            }
 	            Etomica.DesktopFrame.desktop.add(potentialFrame);
 	            try {

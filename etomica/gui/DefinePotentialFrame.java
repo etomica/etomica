@@ -28,7 +28,7 @@ import javax.swing.event.InternalFrameEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 
-public class DefineAtomPotentialFrame extends JInternalFrame {
+public class DefinePotentialFrame extends JInternalFrame {
     /**
      * Lists all of the simulation components corresponding to the respective tabs name.  These are listed
      * as radio buttons.
@@ -112,13 +112,16 @@ public class DefineAtomPotentialFrame extends JInternalFrame {
     public static JButton currentButton;
     JButton remove = new JButton();
     private static int P1IDnumber = 0, P2IDnumber = 0;
+    
+    protected SimulationEditor simulationEditor;
 
     /**
      * Constructor that creates all of the left pane's radiobuttons and JButtons, as well as, the right 
      * pane's scrollpane and JList.  It also creates all the listeners for these swing components so that
      * the simulation can be updated as needed.
      */
-    public DefineAtomPotentialFrame(){
+    public DefinePotentialFrame(SimulationEditor ed){
+        simulationEditor = ed;
         setBounds(515,490,PotentialFrame.atomPairPotArray[0].length*50 + 150,PotentialFrame.atomPairPotArray.length*25 + 100);
         setResizable(true);
         setVisible(true);
@@ -199,15 +202,15 @@ public class DefineAtomPotentialFrame extends JInternalFrame {
 	            if (PotentialFrame.getPotentialEditor().getTitle() == "Potential1") {
 	                P1DefinedPotential newPotential = new P1DefinedPotential(PotentialFrame.atomPairPotArray);
 	                newPotential.setName("Bryan's P1 Potential - " + Integer.toString(P1IDnumber++));
-	                SimEditorTabMenu.potential1Editor.componentList.addElement(newPotential);
-                    Simulation.instance.potential1[speciesIndex1] = newPotential;
+	                simulationEditor.potential1Editor.componentList.addElement(newPotential);
+                    simulationEditor.getSimulation().potential1[speciesIndex1] = newPotential;
                 }
                 else {
 	                P2DefinedPotential newPotential = new P2DefinedPotential(PotentialFrame.atomPairPotArray);
 	                newPotential.setName("Bryan's P2 Potential - " + Integer.toString(P2IDnumber++));
-                    SimEditorTabMenu.potential2Editor.componentList.addElement(newPotential);
-                    Simulation.instance.potential2[speciesIndex1][speciesIndex2] = newPotential;
-                    Simulation.instance.potential2[speciesIndex2][speciesIndex1] = newPotential;
+                    simulationEditor.potential2Editor.componentList.addElement(newPotential);
+                    simulationEditor.getSimulation().potential2[speciesIndex1][speciesIndex2] = newPotential;
+                    simulationEditor.getSimulation().potential2[speciesIndex2][speciesIndex1] = newPotential;
                 }
 	            
 	            
@@ -271,11 +274,12 @@ public class DefineAtomPotentialFrame extends JInternalFrame {
 	        ((java.awt.Component)evt.getSource()).setBackground(Color.red);
 
             if (makePotArrays) {
-//                Simulation.instance.potential1 = new Potential1[SpeciesPotentialLinkPane.getNumOSpecies()];
-//                Simulation.instance.potential2 = new Potential2[SpeciesPotentialLinkPane.getNumOSpecies()][SpeciesPotentialLinkPane.getNumOSpecies()];
+//                simulationEditor.getSimulation().potential1 = new Potential1[SpeciesPotentialLinkPane.getNumOSpecies()];
+//                simulationEditor.getSimulation().potential2 = new Potential2[SpeciesPotentialLinkPane.getNumOSpecies()][SpeciesPotentialLinkPane.getNumOSpecies()];
                 makePotArrays = false;
             }
-	        potentialFrame = new AtomPotentialFrame();
+	        potentialFrame = new PotentialFrame(simulationEditor);
+	        potentialFrame.setTitle(getTitle());
             Etomica.DesktopFrame.desktop.add(potentialFrame);
 	        try {
 	            potentialFrame.setSelected(true);

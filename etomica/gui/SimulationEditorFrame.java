@@ -11,11 +11,8 @@
 
 package simulate.gui;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 public class SimulationEditorFrame extends javax.swing.JInternalFrame {
-    static SimEditorTabMenu simEditorTabMenu = new SimEditorTabMenu();
+    SimulationEditor simulationEditor = new SimulationEditor(simulate.Simulation.instance);
     
     public SimulationEditorFrame(){
         setResizable(true);
@@ -23,17 +20,14 @@ public class SimulationEditorFrame extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setClosable(true);
         setTitle("Simulation Editor");
-        
-        getContentPane().add(simEditorTabMenu);
+        getContentPane().add(simulationEditor);
     }// end of SimulationEditorFrame constructor
     
-    private void writeObject(ObjectOutputStream out) throws java.io.IOException {
-        out.defaultWriteObject();
-        out.writeObject(simEditorTabMenu);
+    public void setSimulationEditor(SimulationEditor ed) {
+        getContentPane().remove(simulationEditor);
+        simulationEditor = ed;
+        getContentPane().add(simulationEditor);
     }
+    public SimulationEditor getSimulationEditor() {return simulationEditor;}
     
-    private void readObject(ObjectInputStream in) throws java.io.IOException, java.lang.ClassNotFoundException {
-        in.defaultReadObject();
-        simEditorTabMenu = (SimEditorTabMenu)in.readObject();
-    }    
 }// end of SimulationEditorFrame class

@@ -20,8 +20,8 @@ import java.awt.event.ActionListener;
 public class SpeciesEditorPane extends SimulationEditorPane {
     private static int IDnumber = 0;
     
-    SpeciesEditorPane(){
-        super();
+    SpeciesEditorPane(SimulationEditor ed){
+        super(ed);
         setTitle("Species");
         
         // Calls introspection method from SimulationEditorPane to instantiate the related species
@@ -43,11 +43,10 @@ public class SpeciesEditorPane extends SimulationEditorPane {
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
 
         // The new actionListener will add an instance of the class that corresponds to the currently
-        // selected radioButton to the Simulation.instance object as well as to the speciesEditorPane's
+        // selected radioButton to the simulationEditor.getSimulation() object as well as to the speciesEditorPane's
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
                     
                     // If currentButton.cls == null, that means the 'Define Molecule' radioButton was
@@ -58,21 +57,21 @@ public class SpeciesEditorPane extends SimulationEditorPane {
 	                        setComponent(((Class)currentButton.cls).newInstance());
 	                        ((Species)getComponent()).setName(((Class)currentButton.cls).getName().substring(9) + Integer.toString(IDnumber++));
 	                        componentList.addElement(getComponent()); // Add new object to the componentList
-                            Simulation.instance.elementCoordinator.add((Simulation.Element)getComponent());
+                            simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
 	                    }
 	                    catch(InstantiationException exc) {}
 	                    catch(IllegalAccessException exc) {}
                     }
                     else {
-                        SimEditorTabMenu.potential1Editor.setEnabled(false);
-                        SimEditorTabMenu.potential2Editor.setEnabled(false);
-                        SimEditorTabMenu.integratorEditor.setEnabled(false);
-                        SimEditorTabMenu.phaseEditor.setEnabled(false);
-                        SimEditorTabMenu.controllerEditor.setEnabled(false);
-                        SimEditorTabMenu.displayEditor.setEnabled(false);
-                        SimEditorTabMenu.deviceEditor.setEnabled(false);
-                        SimEditorTabMenu.meterEditor.setEnabled(false);
-                        DefineMoleculeFrame newMolFrame = new DefineMoleculeFrame();
+                        simulationEditor.potential1Editor.setEnabled(false);
+                        simulationEditor.potential2Editor.setEnabled(false);
+                        simulationEditor.integratorEditor.setEnabled(false);
+                        simulationEditor.phaseEditor.setEnabled(false);
+                        simulationEditor.controllerEditor.setEnabled(false);
+                        simulationEditor.displayEditor.setEnabled(false);
+                        simulationEditor.deviceEditor.setEnabled(false);
+                        simulationEditor.meterEditor.setEnabled(false);
+                        DefineMoleculeFrame newMolFrame = new DefineMoleculeFrame(simulationEditor);
                         Etomica.DesktopFrame.desktop.add(newMolFrame);
                         try { newMolFrame.setSelected(true); }
                         catch (java.beans.PropertyVetoException pve){}
@@ -89,12 +88,12 @@ public class SpeciesEditorPane extends SimulationEditorPane {
         addStartButton();   // Creates and adds the new JButton 'Start'
         
         // The new actionListener will remove the object corresponding to the current selection of the
-        // componentList from the Simulation.instance object.
+        // componentList from the simulationEditor.getSimulation() object.
 	    remove.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
-                Simulation.instance.unregister(((Species)componentList.getElementAt(getCurrentSelection())));
+                simulationEditor.getSimulation().unregister(((Species)componentList.getElementAt(getCurrentSelection())));
 	            componentList.remove(getCurrentSelection());
-                wrapper = new Wrapper(FileActions.LOAD, "null", "null"); 
+                wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
                 propertySheet.setTarget(wrapper);
 
                 // Update total number of species as well as the SpeciesPotentialLinkPanes to 

@@ -34,11 +34,19 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
         baseUnit = unit.baseUnit();
         availableUnits = BaseUnit.all(dimension); //all BaseUnit classes of the given dimensions
         availableUnitNames = new StringBuffer[availableUnits.length];
-        for(int i=0; i<availableUnits.length; i++) {
+        for(int i=0; i<availableUnitNames.length; i++) {
             availableUnitNames[i] = new StringBuffer();
         }
         setUpNames();
         unitList = new JComboBox(availableUnitNames);
+        //set unitlist combo box so it shows current value of unit
+        //do this before adding listeners
+        for(int i=0; i<availableUnits.length; i++) {
+            if(availableUnitNames[i].toString().equals(unit.toString())) {
+                unitList.setSelectedIndex(i);
+            }
+        }
+        //add unitList listeners
         unitList.addItemListener(this);
         unitList.setKeySelectionManager(this);
     }

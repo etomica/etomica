@@ -79,7 +79,7 @@ public class Mediator implements java.io.Serializable {
         element.setAdded(true);
     }
             
-    public abstract static class Subset {
+    public abstract static class Subset implements java.io.Serializable {
         protected Subset priorSubset;
         protected boolean superceding = false;
         protected Mediator mediator;

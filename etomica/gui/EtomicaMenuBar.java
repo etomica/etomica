@@ -41,9 +41,10 @@ public class EtomicaMenuBar extends JMenuBar {
 	 * File MenuItem Handles
 	 */
 	static final JMenuItem newSimulationItem = new JMenuItem("New Simulation");
-	static final JMenuItem serAppletItem = new JMenuItem("Serialize (Applet Form)");
-	static final JMenuItem serEditItem = new JMenuItem("Serialize (Edit Form)");
-	static final JMenuItem loadItem = new JMenuItem("Load");
+	static final JMenu librarySimulationMenu = new JMenu("Library Simulation");
+	static final JMenuItem openItem = new JMenuItem("Open");
+	static final JMenuItem serAppletItem = new JMenuItem("Export (Applet Form)");
+	static final JMenuItem serEditItem = new JMenuItem("Export (Edit Form)");
 	static final JMenuItem printItem = new JMenuItem("Print");
 	static final JMenuItem clearItem = new JMenuItem("Clear");
 	static final JMenuItem exitItem = new JMenuItem("Exit");
@@ -108,7 +109,6 @@ public class EtomicaMenuBar extends JMenuBar {
     /**
      * SimulationItem Menu Handles
      */
-    static final JMenuItem selectSpaceItem = new JMenuItem("Select Space");
     static final JMenuItem editSimulationItem = new JMenuItem("Edit Simulation");
     
     /**
@@ -138,26 +138,38 @@ public class EtomicaMenuBar extends JMenuBar {
          */
         this.add(fileMenu);
         newSimulationItem.addActionListener(FileActions.NEW_SIMULATION);
+        newSimulationItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK));
+		newSimulationItem.setMnemonic((int)'N');
         fileMenu.add(newSimulationItem);
+        
+		openItem.setActionCommand("Open");
+		openItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.CTRL_MASK));
+		openItem.setMnemonic((int)'O');
+        openItem.addActionListener(FileActions.OPEN);
+        fileMenu.add(openItem);
+        
+        fileMenu.add(librarySimulationMenu);
+        
+        fileMenu.add(JSeparator1);
+        
         serEditItem.addActionListener(FileActions.SEREDIT);
 		serEditItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK));
         serEditItem.setEnabled(false);
         fileMenu.add(serEditItem);
+        
         serAppletItem.addActionListener(FileActions.SERAPPLET);
         serAppletItem.setEnabled(false);
         fileMenu.add(serAppletItem);
-		loadItem.setActionCommand("Load");
-		loadItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.Event.CTRL_MASK));
-		loadItem.setMnemonic((int)'L');
-        loadItem.addActionListener(FileActions.LOAD);
-        fileMenu.add(loadItem);
+        
         printItem.setActionCommand("Print");
 		printItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.Event.CTRL_MASK));
 		printItem.setMnemonic((int)'P');
         printItem.addActionListener(FileActions.PRINT);
         fileMenu.add(printItem);
+        
         clearItem.addActionListener(FileActions.CLEAR);
         fileMenu.add(clearItem);
+        
         exitItem.setActionCommand("Exit");
 		exitItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.Event.ALT_MASK));
         exitItem.addActionListener(FileActions.EXIT);
@@ -318,8 +330,6 @@ public class EtomicaMenuBar extends JMenuBar {
          * Simulate Menu naming, adding to menu, and listener creating 
          */
         this.add(simulationMenu);
-        selectSpaceItem.addActionListener(SimulateActions.SELECTSPACE);
-        simulationMenu.add(selectSpaceItem);
         editSimulationItem.setEnabled(false);
         editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
         simulationMenu.add(editSimulationItem);
@@ -336,4 +346,33 @@ public class EtomicaMenuBar extends JMenuBar {
         aboutItem.addActionListener(HelpActions.ABOUT);
 		helpMenu.add(aboutItem);
 	}// end of EtmoicaMenuBar constructor
+	
+	static {
+	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY+"/simulations");
+	    String[] files = dir.list(new java.io.FilenameFilter() {
+	        public boolean accept(java.io.File d, String name) {
+	                return name.endsWith("class")
+	                && name.indexOf("$") == -1;}
+	        });
+	    for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        try{
+	            final Class libraryClass = Class.forName("simulate.simulations."+files[i]);
+	            JMenuItem libraryItem = new JMenuItem(libraryClass.toString());
+	            librarySimulationMenu.add(libraryItem);
+	            libraryItem.addActionListener(new java.awt.event.ActionListener() {
+	                final Class simulationClass = libraryClass;
+	                public void actionPerformed(java.awt.event.ActionEvent evt) {
+	                    try{
+	                        Simulation sim = (Simulation)simulationClass.newInstance();
+	                        Etomica.addSimulation(sim);
+	                    }
+            	        catch(IllegalAccessException e) {System.out.println("Illegal access error");}
+            	        catch(InstantiationException e) {System.out.println("Instantiation exception");}
+	                }
+	            });
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End of initialization of libraryClasses array
+	}
 }// end of EtomicaMenuBar class

@@ -6,8 +6,8 @@ import javax.swing.JLabel;
 
 public class Potential1EditorPane extends SpeciesPotentialLinkPane {
     
-    Potential1EditorPane(){
-        super();
+    Potential1EditorPane(SimulationEditor ed){
+        super(ed);
         setTitle("Potential1");
     }
     

@@ -114,7 +114,7 @@ public abstract class AtomAction extends simulate.Action {
       //make a simple simulation for this example
         Simulation.makeSimpleSimulation();
       //get a handle to the display in the simple simulation
-        final DisplayPhase display = (DisplayPhase)Simulation.displayList.get(0); 
+        final DisplayPhase display = (DisplayPhase)Simulation.instance.displayList.get(0); 
       //create an instance of the AtomAction that is being demonstrated here
         AtomAction.ChangeColor colorChanger = new AtomAction.ChangeColor();
       //wrap the action in a DisplayPhaseListener so it responds to MousePressed events

@@ -22,6 +22,7 @@ import javax.swing.JMenuItem;
 public class Etomica {
     
     public static java.util.LinkedList simulationList = new java.util.LinkedList();
+    public static Class[] spaceClasses;
     
     /**
      * This static main method creates an instance DesktopFrame which is a JFrame that contains all 
@@ -41,11 +42,65 @@ public class Etomica {
      */
     public static void addSimulation(Simulation sim) {
         simulationList.add(sim);
+        
         JMenuItem item = new JMenuItem(sim.toString());
         java.awt.event.ActionListener listener = new SimulateActions.SelectSimulationAction(sim);
         item.addActionListener(listener);
         listener.actionPerformed(null); //make new simulation the current one
+        
         EtomicaMenuBar.simulationMenu.add(item);
+        EtomicaMenuBar.editSimulationItem.setEnabled(true);
+        //new stuff
+  
+                        
+            // Create SimulationFrame
+                SimulationFrame simulationFrame = new SimulationFrame(sim);
+
+                SimulateActions.setApplet(simulationFrame);
+       /*         SimulateActions.getApplet().addInternalFrameListener(new SimulateActions.SelectSpaceAction.MyInternalFrameAdapter(){
+                    // When the simulation is closed, all of the tabs in the simulation editor
+                    // pane are reset to get ready for a new simulation
+                    public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt){
+                        EtomicaMenuBar.editSimulationItem.setEnabled(false);
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().resetAllComponentLists();
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().setAllStart(false);
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().setAllRemove(false);
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().potential1Editor.setNumOSpecies(0);
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().potential2Editor.setNumOSpecies(0);
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().potential1Editor.update();
+                        SimulateActions.getSimulationEditorFrame().getSimulationEditor().potential2Editor.update();
+                        try {
+                            SimulateActions.getSimulationEditorFrame().setClosed(true);
+                        }
+                        catch(java.beans.PropertyVetoException pve){}
+                    }});// end of resetting simulation editor pane
+                    */
+                SimulateActions.getApplet().reshape(520, 60, 470, 600);
+                SimulateActions.getApplet().setVisible(false);
+                Etomica.DesktopFrame.desktop.add(SimulateActions.getApplet());
+            // End creation of SimulationFrame    
+                                    
+            // Create SimulationEditorFrame
+                SimulateActions.setSimulationEditorFrame(new SimulationEditorFrame());
+      /*          SimulateActions.getSimulationEditorFrame().addInternalFrameListener(new SimulateActions.SelectSpaceAction.MyInternalFrameAdapter(){
+                    public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt){
+                        EtomicaMenuBar.editSimulationItem.setEnabled(true);
+                    }});*/
+                SimulateActions.getSimulationEditorFrame().setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+                SimulateActions.getSimulationEditorFrame().reshape(10, 60, 500, 600);
+                SimulateActions.getSimulationEditorFrame().setVisible(true);
+                Etomica.DesktopFrame.desktop.add(SimulateActions.getSimulationEditorFrame());
+            // End creation of SimulationEditorFrame
+                                
+            // Update MenuBars
+                EtomicaMenuBar.editSimulationItem.setEnabled(false);
+                EtomicaMenuBar.serEditItem.setEnabled(true);
+                EtomicaMenuBar.serAppletItem.setEnabled(true);
+                try{ 
+                    SimulateActions.getSimulationEditorFrame().setSelected(true);
+                }
+                catch(java.beans.PropertyVetoException exc){} // attempt was vetoed
+        //end of new stuff
     }
 
     /**
@@ -114,4 +169,27 @@ public class Etomica {
             }
         }// end of vetoableChange
     }
+    
+    static {
+	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY);
+	    String[] files = dir.list(new java.io.FilenameFilter() {
+	        public boolean accept(java.io.File d, String name) {
+	                return name.startsWith("Space")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.equals("Space.class");}
+	        });
+	    spaceClasses = new Class[files.length];
+	    for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        spaceClasses[i] = null;
+	        try{
+	            spaceClasses[i] = Class.forName("simulate."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End of initialization of spaceClasses array
+    }//end of static block
 }

@@ -63,7 +63,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         Simulation.makeSimpleSimulation();  
         //part unique to this example
              //get handles to components we need
-        DisplayPhase display = (DisplayPhase)Simulation.display(0);
+        DisplayPhase display = (DisplayPhase)Simulation.instance.display(0);
              //instantiate color scheme and link appropriately
         ColorSchemeTemperature colorScheme = new ColorSchemeTemperature();
         colorScheme.setTLow(Kelvin.UNIT.toSim(100.)); //select low of temperature scale

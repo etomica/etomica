@@ -184,7 +184,7 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
                                             //construction of the desired pieces of the simulation
         //part that is unique to this demonstration
         Meter ke = new MeterKineticEnergy();
-        Phase phase = Simulation.phase(0);
+        Phase phase = Simulation.instance.phase(0);
         ke.setPhase(phase);
         DisplayBox box = new DisplayBox();
         box.setMeter(ke);

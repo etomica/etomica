@@ -28,7 +28,7 @@ public class P2DiskSpeciesSwitchWall extends Potential2 {
   
   public final void setChangeSpeciesIndex(int i) {
     changeSpeciesIndex = i;
-    for (Species s=Simulation.firstSpecies(); s!=null; s=s.nextSpecies()) {
+    for (Species s=parentSimulation().firstSpecies(); s!=null; s=s.nextSpecies()) {
         if (s.getSpeciesIndex() == i) {
             onlyPotential.setChangeSpecies(s);
             return;

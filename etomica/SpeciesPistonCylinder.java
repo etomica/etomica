@@ -324,10 +324,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 	    IntegratorHard integratorHard1 = new IntegratorHardField();
         SpeciesPistonCylinder pistonCylinder = new SpeciesPistonCylinder();
         pistonCylinder.setLength(20.);
-        ((DisplayPhase)Simulation.display(0)).setColorScheme(new ColorSchemeByType());
+        ((DisplayPhase)Simulation.instance.display(0)).setColorScheme(new ColorSchemeByType());
         P2DiskWall p2DiskWall = new P2DiskWall();
         p2DiskWall.setSpeciesIndex(0,1);
-        Simulation.phase(0).setBoundary(pistonCylinder.new Boundary(Simulation.phase(0))); //have piston-cylinder system define boundary of phase
+        Simulation.instance.phase(0).setBoundary(pistonCylinder.new Boundary(Simulation.instance.phase(0))); //have piston-cylinder system define boundary of phase
         Meter thermometer = new MeterTemperature();
         thermometer.setPhase(phase1);
         DisplayBox tBox = new DisplayBox();

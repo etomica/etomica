@@ -10,8 +10,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
- * Contains many static fields and methods that provide a common point of reference
- * for all simulation objects.  Holds a single space object that is referenced in
+ * Holds a single space object that is referenced in
  * many places to obtain spatial elements such as vectors and boundaries.  Also
  * holds an object that specifies the unit system used to default all I/O.  A single
  * instance of Simulation is held as a static field.  This instance is used to hold
@@ -41,47 +40,47 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * List of all controllers that have been instantiated.
      */
-    public static LinkedList controllerList = new LinkedList();
+    public LinkedList controllerList = new LinkedList();
     /**
      * List of all phases that have been instantiated.
      */
-    public static LinkedList phaseList = new LinkedList();
+    public LinkedList phaseList = new LinkedList();
     /**
      * List of all species that have been instantiated.
      */
-    public static LinkedList speciesList = new LinkedList();
+    public LinkedList speciesList = new LinkedList();
     /**
      * List of all displays that have been instantiated.
      */
-    public static LinkedList displayList = new LinkedList();
+    public LinkedList displayList = new LinkedList();
     /**
      * List of all devices that have been instantiated.
      */
-    public static LinkedList deviceList = new LinkedList();
+    public LinkedList deviceList = new LinkedList();
     /**
      * List of all integrators that have been instantiated.
      */
-    public static LinkedList integratorList = new LinkedList();
+    public LinkedList integratorList = new LinkedList();
     /**
      * List of all intra-molecular potentials that have been instantiated.
      */
-    public static LinkedList potential1List = new LinkedList();
+    public LinkedList potential1List = new LinkedList();
     /**
      * List of all inter-molecular potentials that have been instantiated.
      */
-    public static LinkedList potential2List = new LinkedList();
+    public LinkedList potential2List = new LinkedList();
     /**
      * List of all meters that have been instantiated.
      */
-    public static LinkedList meterList = new LinkedList();
+    public LinkedList meterList = new LinkedList();
     /**
      * List of all graphicalElements (Devices or Displays) that have been instantiated.
      */
-    public static LinkedList graphicalElementList = new LinkedList();
+    public LinkedList graphicalElementList = new LinkedList();
     /**
      * List of all simulation elements.
      */
-     private static LinkedList allElements = new LinkedList();
+     private LinkedList allElements = new LinkedList();
 
     //default unit system for I/O (internal calculations are all done in simulation units)
     private static UnitSystem unitSystem = new UnitSystem.Sim();
@@ -99,7 +98,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * can then be added to an applet or application.
      */
     public static Simulation instance = new Simulation(new Space2D());
-   
+       
     public Simulation() {
         this(new Space2D());
     }
@@ -132,55 +131,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     }
     
     /**
-     * Sets the type of space used in <b>all</b> simulations
-     */
-//    public void setSpace(Space s) {
-//        space = s;
-//    }
-    
-    private void writeObject(ObjectOutputStream out) throws java.io.IOException {
-        out.defaultWriteObject();
-//        out.writeObject(space);  //removed when space was made non-static
-        out.writeObject(phaseList);
-        out.writeObject(integratorList);
-        out.writeObject(speciesList);
-        out.writeObject(potential1List);
-        out.writeObject(potential2List);
-        out.writeObject(controllerList);
-        out.writeObject(displayList);
-        out.writeObject(meterList);
-        out.writeObject(deviceList);
-        out.writeObject(graphicalElementList);
- //       out.writeObject(potential1);
- //       out.writeObject(potential2);
-        out.writeObject(firstSpecies);
-        out.writeObject(lastSpecies);
- //       out.writeObject(p1Null);
- //       out.writeObject(p2IdealGas);
-    }
-    
-    private void readObject(ObjectInputStream in) throws java.io.IOException, java.lang.ClassNotFoundException {
-        in.defaultReadObject();
-//        space = (Space)in.readObject();
-        phaseList = (LinkedList)in.readObject();
-        integratorList = (LinkedList)in.readObject();
-        speciesList = (LinkedList)in.readObject();
-        potential1List = (LinkedList)in.readObject();
-        potential2List = (LinkedList)in.readObject();
-        controllerList = (LinkedList)in.readObject();
-        displayList = (LinkedList)in.readObject();
-        meterList = (LinkedList)in.readObject();
-        deviceList = (LinkedList)in.readObject();
-        graphicalElementList = (LinkedList)in.readObject();
- //       potential1 = (Potential1[])in.readObject();
- //       potential2 = (Potential2[][])in.readObject();
-        firstSpecies = (Species)in.readObject();
-        lastSpecies = (Species)in.readObject();
- //       p1Null = (Potential1)in.readObject();
- //       p2IdealGas = (P2SimpleWrapper)in.readObject();
-    }
-    
-    /**
      * Accessor method for the default I/O unit system.
      */
     public static final UnitSystem unitSystem() {return unitSystem;}
@@ -193,11 +143,11 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * @return the <code>nth</code> instantiated phase (indexing from zero)
      */
-    public static final Phase phase(int n) {return (Phase)phaseList.get(n);}
+    public final Phase phase(int n) {return (Phase)phaseList.get(n);}
     /**
      * @return the <code>nth</code> instantiated species (indexing from zero)
      */
-    public static final Species species(int n) {return (Species)speciesList.get(n);}
+    public final Species species(int n) {return (Species)speciesList.get(n);}
     /**
      * @return the <code>nth</code> instantiated inter-molecular potential (indexing from zero)
      */
@@ -209,28 +159,28 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * @return the <code>nth</code> instantiated controller (indexing from zero)
      */
-    public static final Controller controller(int n) {return (Controller)controllerList.get(n);}
+    public final Controller controller(int n) {return (Controller)controllerList.get(n);}
     /**
      * @return the <code>nth</code> instantiated integrator (indexing from zero)
      */
-    public static final Integrator integrator(int n) {return (Integrator)integratorList.get(n);}
+    public final Integrator integrator(int n) {return (Integrator)integratorList.get(n);}
     /**
      * @return the <code>nth</code> instantiated meter (indexing from zero)
      */
-    public static final MeterAbstract meter(int n) {return (MeterAbstract)meterList.get(n);}
+    public final MeterAbstract meter(int n) {return (MeterAbstract)meterList.get(n);}
     /**
      * @return the <code>nth</code> instantiated display (indexing from zero)
      */
-    public static final Display display(int n) {return (Display)displayList.get(n);}
+    public final Display display(int n) {return (Display)displayList.get(n);}
     /**
      * @return the <code>nth</code> instantiated device (indexing from zero)
      */
-    public static final Device device(int n) {return (Device)deviceList.get(n);}
+    public final Device device(int n) {return (Device)deviceList.get(n);}
   
     /**
      * Method invoked in the constructor of a Controller object to list it with the simulation
      */
-    public static void register(Controller c) {
+    public void register(Controller c) {
         if(controllerList.contains(c)) return;
         controllerList.add(c);
         allElements.add(c);
@@ -239,7 +189,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a Display object to list it with the simulation
      */
-    public static void register(Display d) {
+    public void register(Display d) {
         if(displayList.contains(d)) return;
         displayList.add(d);
         allElements.add(d);
@@ -249,7 +199,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a Device object to list it with the simulation
      */
-    public static void register(Device d) {
+    public void register(Device d) {
         if(deviceList.contains(d)) return;
         deviceList.add(d);
         allElements.add(d);
@@ -259,7 +209,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a Phase object to list it with the simulation
      */
-    public static void register(Phase p) {
+    public void register(Phase p) {
         if(phaseList.contains(p)) return;
         phaseList.add(p);
         allElements.add(p);
@@ -275,7 +225,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of an Integrator object to list it with the simulation
      */
-    public static void register(Integrator i) {
+    public void register(Integrator i) {
         if(integratorList.contains(i)) return;
         integratorList.add(i); 
         allElements.add(i);
@@ -284,7 +234,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a MeterAbstract object to list it with the simulation
      */
-    public static void register(MeterAbstract m) {
+    public void register(MeterAbstract m) {
         if(meterList.contains(m)) return;
         meterList.add(m); 
         allElements.add(m);
@@ -336,7 +286,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a Potential1 object to list it with the simulation
      */
-    public static void register(Potential1 p1) {
+    public void register(Potential1 p1) {
         if(potential1List.contains(p1)) return;
         if(p1 instanceof P1Null) return;
         potential1List.add(p1);
@@ -346,7 +296,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a Potential2 object to list it with the simulation
      */
-    public static void register(Potential2 p2) {
+    public void register(Potential2 p2) {
         if(potential2List.contains(p2)) return;
         if(p2 instanceof P2IdealGas) return;  //to get an ideal-gas potential registered, make one using P2SimpleWrapper
         potential2List.add(p2);
@@ -504,7 +454,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
  * Endof Bryan's Remove methods
  *
  */                
-    public static LinkedList allElements() {
+    public LinkedList allElements() {
         LinkedList list;
  //       synchronized(this) {
             list = (LinkedList)allElements.clone();
@@ -515,15 +465,15 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Accessor of the first species in the linked list of species
      */
-    public static final Species firstSpecies() {return firstSpecies;}
+    public final Species firstSpecies() {return firstSpecies;}
     /**
      * Accessor of the last species in the linked list of species
      */
-    public static final Species lastSpecies() {return lastSpecies;}
+    public final Species lastSpecies() {return lastSpecies;}
     /**
      * @return the number of species that have been constructed and registered with the simulation
      */
-     public static final int speciesCount() {return speciesList.size();}
+     public final int speciesCount() {return speciesList.size();}
     /**
      * Returns the potential governing the interaction of the given atoms
      */
@@ -577,12 +527,12 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
     * First species in the linked list of species in this phase.
     */
-    public static Species firstSpecies;
+    public Species firstSpecies;
      
     /**
     * Last species in the linked list of species in this phase.
     */
-    public static Species lastSpecies;
+    public Species lastSpecies;
     
     //Instances used as default molecular potentials, for molecules and pairs that don't have 
     //Potential1 and Potential2 set explicitly.

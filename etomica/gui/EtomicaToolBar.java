@@ -100,7 +100,7 @@ public class EtomicaToolBar extends javax.swing.JToolBar {
 		openButton.setDefaultCapable(false);
 		openButton.setToolTipText("Open an existing document");
 		openButton.setMnemonic((int)'O');
-		openButton.addActionListener(FileActions.LOAD);
+		openButton.addActionListener(FileActions.OPEN);
 		this.add(openButton);
 		openButton.setBounds(67,4,51,27);
 		saveButton.setDefaultCapable(false);

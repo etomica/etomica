@@ -38,8 +38,10 @@ public class DefineConfigurationFrame extends JInternalFrame {
     JPanel configPanel = new JPanel();
     JTextField molName = new JTextField(8);
     AtomType[] typeArray;
+    SimulationEditor simulationEditor;
     
-    DefineConfigurationFrame(){
+    DefineConfigurationFrame(SimulationEditor ed){
+        simulationEditor = ed;
         mainFrameHandle = this;
         setResizable(true);
         setMaximizable(true);
@@ -84,7 +86,7 @@ public class DefineConfigurationFrame extends JInternalFrame {
                 if (typeArray[0] instanceof AtomType.Disk) {
                     SpeciesUserDefinedDisks newSpeciesDisk = new SpeciesUserDefinedDisks(typeArray);
                     newSpeciesDisk.setName(molTitle);
-                    SimEditorTabMenu.speciesEditor.componentList.addElement(newSpeciesDisk);
+                    simulationEditor.speciesEditor.componentList.addElement(newSpeciesDisk);
                 }
                 else { 
                     AtomType.Wall[] wallArray = new AtomType.Wall[1];
@@ -92,16 +94,16 @@ public class DefineConfigurationFrame extends JInternalFrame {
                         wallArray[i] = (AtomType.Wall)typeArray[i];
                     SpeciesWalls newSpeciesWall = new SpeciesWalls(1,(wallArray));
                     newSpeciesWall.setName(molTitle);
-                    SimEditorTabMenu.speciesEditor.componentList.addElement(newSpeciesWall);
+                    simulationEditor.speciesEditor.componentList.addElement(newSpeciesWall);
                 }
-                SimEditorTabMenu.potential1Editor.setEnabled(true);
-                SimEditorTabMenu.potential2Editor.setEnabled(true);
-                SimEditorTabMenu.integratorEditor.setEnabled(true);
-                SimEditorTabMenu.phaseEditor.setEnabled(true);
-                SimEditorTabMenu.controllerEditor.setEnabled(true);
-                SimEditorTabMenu.displayEditor.setEnabled(true);
-                SimEditorTabMenu.deviceEditor.setEnabled(true);
-                SimEditorTabMenu.meterEditor.setEnabled(true);
+                simulationEditor.potential1Editor.setEnabled(true);
+                simulationEditor.potential2Editor.setEnabled(true);
+                simulationEditor.integratorEditor.setEnabled(true);
+                simulationEditor.phaseEditor.setEnabled(true);
+                simulationEditor.controllerEditor.setEnabled(true);
+                simulationEditor.displayEditor.setEnabled(true);
+                simulationEditor.deviceEditor.setEnabled(true);
+                simulationEditor.meterEditor.setEnabled(true);
                 
                 //add to Species Tabbed Pane RadioButton list    
             }});

@@ -44,7 +44,10 @@ public class PotentialViewer extends JInternalFrame {
      */
     public static PropertySheet propSheet;
     
-    PotentialViewer(){
+    public SimulationEditor simulationEditor;
+    
+    PotentialViewer(SimulationEditor ed){
+        simulationEditor = ed;
         setBounds(515, 60, 250, 200);
         setResizable(true);
         setVisible(false);
@@ -71,8 +74,8 @@ public class PotentialViewer extends JInternalFrame {
         ok.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
                 Etomica.DesktopFrame.desktop.getComponent(0).setVisible(false);
-	            SimEditorTabMenu.potential1Editor.rightPaneList.clearSelection();
-	            SimEditorTabMenu.potential2Editor.rightPaneList.clearSelection();
+	            simulationEditor.potential1Editor.rightPaneList.clearSelection();
+	            simulationEditor.potential2Editor.rightPaneList.clearSelection();
             }});
         gbc.weightx = 0;
         gbc.weighty = 0;

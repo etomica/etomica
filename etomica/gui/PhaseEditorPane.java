@@ -23,8 +23,8 @@ import java.awt.event.ActionListener;
 public class PhaseEditorPane extends SimulationEditorPane {
     private static int IDnumber = 0;
     
-    PhaseEditorPane(){
-        super();
+    PhaseEditorPane(SimulationEditor ed){
+        super(ed);
         setTitle("Phase");
         setDividerLocation(0.5);
         leftPanelWidth = (int)(0.5*splitPaneWidth)-10;
@@ -47,35 +47,27 @@ public class PhaseEditorPane extends SimulationEditorPane {
 	    }
 	    catch(InstantiationException exc) {}
 	    catch(IllegalAccessException exc) {}
+        simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
         componentList.addElement(getComponent());
-	    if (SimEditorTabMenu.potential2Editor.remove.isEnabled() && SimEditorTabMenu.speciesEditor.remove.isEnabled() && 
-	        SimEditorTabMenu.integratorEditor.remove.isEnabled() && SimEditorTabMenu.phaseEditor.remove.isEnabled() && 
-	        SimEditorTabMenu.controllerEditor.remove.isEnabled() && SimEditorTabMenu.displayEditor.remove.isEnabled()){
-	            SimEditorTabMenu.potential1Editor.start.setEnabled(true);
-	            SimEditorTabMenu.potential2Editor.start.setEnabled(true);
-	            SimEditorTabMenu.speciesEditor.start.setEnabled(true);
-	            SimEditorTabMenu.integratorEditor.start.setEnabled(true);
-	            SimEditorTabMenu.phaseEditor.start.setEnabled(true);
-	            SimEditorTabMenu.controllerEditor.start.setEnabled(true);
-	            SimEditorTabMenu.displayEditor.start.setEnabled(true);
-	            SimEditorTabMenu.meterEditor.start.setEnabled(true);
-	            SimEditorTabMenu.deviceEditor.start.setEnabled(true);
+	    if (simulationEditor.potential2Editor.remove.isEnabled() && simulationEditor.speciesEditor.remove.isEnabled() && 
+	        simulationEditor.integratorEditor.remove.isEnabled() && simulationEditor.phaseEditor.remove.isEnabled() && 
+	        simulationEditor.controllerEditor.remove.isEnabled() && simulationEditor.displayEditor.remove.isEnabled()){
+	            simulationEditor.setAllStart(true);
 	    }
 		leftPanePanel.getComponent(0).setVisible(false);
 		
         // The new actionListener will add an instance of the class that corresponds to the currently
-        // selected radioButton to the Simulation.instance object as well as to the phaseEditorPane's
+        // selected radioButton to the simulationEditor.getSimulation() object as well as to the phaseEditorPane's
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
 
 	                //try {   // Try to make an instance of the selected class
 	                    setComponent(new Phase());//((Class)currentButton.cls).newInstance());
 	                    ((Phase)getComponent()).setName("Phase" + Integer.toString(IDnumber++));
 	                    componentList.addElement(getComponent()); // Add new object to the componentList
-                        Simulation.instance.elementCoordinator.add((Simulation.Element)getComponent());
+                        simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
 	                //}
 	                //catch(InstantiationException exc) {}
 	                //catch(IllegalAccessException exc) {}
@@ -88,12 +80,12 @@ public class PhaseEditorPane extends SimulationEditorPane {
         addStartButton();   // Creates and adds the new JButton 'Start'
 
         // The new actionListener will remove the object corresponding to the current selection of the
-        // componentList from the Simulation.instance object.
+        // componentList from the simulationEditor.getSimulation() object.
 	    remove.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
-                Simulation.instance.unregister(((Phase)componentList.getElementAt(getCurrentSelection())));
+                simulationEditor.getSimulation().unregister(((Phase)componentList.getElementAt(getCurrentSelection())));
 	            componentList.remove(getCurrentSelection());
-                wrapper = new Wrapper(FileActions.LOAD, "null", "null"); 
+                wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
                 propertySheet.setTarget(wrapper);
 
                 if (componentList.getSize() == 0)

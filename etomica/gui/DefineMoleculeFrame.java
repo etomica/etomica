@@ -25,7 +25,10 @@ public class DefineMoleculeFrame extends javax.swing.JInternalFrame {
      */
     public static Class[] atomTypeClasses;
     
-    DefineMoleculeFrame(){
+    SimulationEditor simulationEditor;
+        
+    DefineMoleculeFrame(SimulationEditor ed){
+        simulationEditor = ed;
         setResizable(true);
         setMaximizable(true);
         setIconifiable(true);
@@ -201,7 +204,7 @@ public class DefineMoleculeFrame extends javax.swing.JInternalFrame {
                         parentFrame.setClosed(true);
                     }
                     catch (java.beans.PropertyVetoException pve) {}
-                    DefineConfigurationFrame configFrame = new DefineConfigurationFrame();
+                    DefineConfigurationFrame configFrame = new DefineConfigurationFrame(simulationEditor);
                     configFrame.setAtomTypes(types);
                     Etomica.DesktopFrame.desktop.add(configFrame);
                     try {

@@ -68,8 +68,8 @@ public class ColorSchemeHeteroAtoms extends ColorScheme {
         Simulation.makeSimpleSimulation();  
         //part unique to this example
              //get handles to components we need
-        SpeciesDisks species = (SpeciesDisks)Simulation.species(0);
-        DisplayPhase display = (DisplayPhase)Simulation.display(0);
+        SpeciesDisks species = (SpeciesDisks)Simulation.instance.species(0);
+        DisplayPhase display = (DisplayPhase)Simulation.instance.display(0);
              //set species to have 3 atoms per molecule to use this color scheme
         species.setAtomsPerMolecule(3);    
         P1TetherHardDisk potentialTether = new P1TetherHardDisk(); //an intramolecular potential

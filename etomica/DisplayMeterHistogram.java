@@ -133,7 +133,7 @@ public class DisplayMeterHistogram extends Display implements Meter.User, MeterF
                                             //construction of the desired pieces of the simulation
         //part that is unique to this demonstration
         Meter meter = new MeterPressureHard();
-        Phase phase = Simulation.phase(0);
+        Phase phase = Simulation.instance.phase(0);
         DisplayMeterHistogram hist = new DisplayMeterHistogram();
         //end of unique part
                                             

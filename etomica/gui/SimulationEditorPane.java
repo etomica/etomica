@@ -155,13 +155,16 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
      * Height of one JButton.  Used for determining leftPanelHeight.
      */
     static final protected int jButtonHeight = 32;
+    
+    protected final SimulationEditor simulationEditor;
 
     /**
      * Constructor that creates all of the left pane's radiobuttons and JButtons, as well as, the right 
      * pane's scrollpane and JList.  It also creates all the listeners for these swing components so that
      * the simulation can be updated as needed.
      */
-    public SimulationEditorPane(){
+    public SimulationEditorPane(SimulationEditor ed){
+        simulationEditor = ed;
         setSize(splitPaneWidth, splitPaneHeight);
     	setLeftComponent(leftPane);
         setRightComponent(rightPane);
@@ -202,6 +205,8 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
         leftPanePanel.setMinimumSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
     }
+    
+    public SimulationEditor simulationEditor() {return simulationEditor;}
     
     private void writeObject(ObjectOutputStream out) throws java.io.IOException {
         out.defaultWriteObject();
@@ -258,21 +263,22 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
     public final void checkSimFeasibility(){
         // Check if a sufficient number of components are added to allow a working simulation.
         // If so, enable the start button.
-	    if (SimEditorTabMenu.allRemoveEnabled())
-	        SimEditorTabMenu.setAllStart(true);
-	    else SimEditorTabMenu.setAllStart(false);
+	    if (simulationEditor.allRemoveEnabled())
+	        simulationEditor.setAllStart(true);
+	    else simulationEditor.setAllStart(false);
     }
     
     public final void accountForNewSpecies(int i) {
-        SpeciesPotentialLinkPane.setNumOSpecies(SpeciesPotentialLinkPane.getNumOSpecies() + i);
-        SimEditorTabMenu.potential1Editor.update();
-        SimEditorTabMenu.potential2Editor.update();
+        simulationEditor.potential1Editor.setNumOSpecies(simulationEditor.potential1Editor.getNumOSpecies() + i);
+        simulationEditor.potential2Editor.setNumOSpecies(simulationEditor.potential2Editor.getNumOSpecies() + i);
+        simulationEditor.potential1Editor.update();
+        simulationEditor.potential2Editor.update();
     }
     
     /**
      * This section creates the "Add" button which when pressed creates an instance of the class that
      * corresponds to the currently selected radio button of the left pane.  It then adds this object
-     * to the JList of the rightpane and the simulation.instance object.
+     * to the JList of the rightpane and the getSimulation() object.
      */ 
     public final void addAddButton(){
         gbc.gridx = 0;
@@ -285,7 +291,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
     
     /**
      * This section creates the start button that makes the internal frame that contains the 
-     * simulation.instance object visible.  
+     * simulation object visible.  
      */
     public final void addStartButton(){
         gbc.gridx++;
@@ -293,7 +299,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
 	    start.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
 	            SimulateActions.getApplet().setVisible(true);
-//                Simulation.instance.elementCoordinator.go();
+//                simulationEditor.getSimulation().elementCoordinator.go();
                 SimulateActions.getApplet().getContentPane().repaint();
                 try { SimulateActions.getApplet().setSelected(true); }
                 catch (java.beans.PropertyVetoException exc){} // attempt was vetoed
@@ -305,7 +311,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
 	/**
      * This section creates a remove button which allows the user to remove components that are listed
 	 * in the JList of the right pane.  If pressed, the currently selected object of the JList is 
-	 * from both the JList and the simulation.instance object
+	 * from both the JList and the simulation object
 	 */
     public final void addRemoveButton(){
 	    gbc.gridx++;
@@ -331,7 +337,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane {
                     propertySheet.setTarget(wrapper);
                 }
                 else {
-                    wrapper = new Wrapper(FileActions.LOAD, "null", "null"); 
+                    wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
                     propertySheet.setTarget(wrapper);
                 }
                 try {

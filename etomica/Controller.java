@@ -31,6 +31,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
     private String name;
     private Simulation parentSimulation;
     private boolean added = false;
+    private Button startStopButton;
     
     private SimulationEventManager eventManager = new SimulationEventManager();
 
@@ -138,10 +139,12 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
     
     public void setMakeButton(boolean b) {
         if(!b || makeButton) return; //return if argument is false or already made button
-        new Button();
+        startStopButton = new Button();
         makeButton = true;
     }
     public boolean getMakeButton() {return makeButton;}
+    
+    public Button getButton() {return startStopButton;}
     
     /**
      * Accessor method of the name of this object

@@ -216,7 +216,7 @@ public class DeviceSlider extends Device {
         Simulation.makeSimpleSimulation();  
         
         //here's the part unique to this class
-        Integrator integrator = Simulation.integrator(0);
+        Integrator integrator = Simulation.instance.integrator(0);
         DeviceSlider mySlider = new DeviceSlider(integrator,"temperature");
         integrator.setIsothermal(true);
         //end of unique part
