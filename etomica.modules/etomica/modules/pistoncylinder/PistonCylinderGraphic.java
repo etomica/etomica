@@ -68,7 +68,7 @@ public class PistonCylinderGraphic {
     public PotentialGroup potentialGroupHS, potentialGroupSW;
     public DataSourceCountSteps meterCycles;
     public DataManager densityManager, temperatureManager, pressureManager;
-    public DisplayBox displayCycles, tBox; 
+    public DisplayBox displayCycles; 
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
     public DeviceTrioControllerButton controlButtons;
@@ -171,11 +171,6 @@ public class PistonCylinderGraphic {
 		Default.HISTORY_PERIOD = 1000;
 
 		thermometer = new MeterTemperature();
-		tBox = new DisplayBox();
-        tBox.setUpdateInterval(10);
-//		tBox.setWhichValue(MeterAbstract.CURRENT);
-		tBox.setLabel("Measured value");
-		tBox.setLabelPosition(Constants.NORTH);
 
         //plot of temperature and density histories
 /*		DisplayPlot plotD = new DisplayPlot(this);
@@ -289,8 +284,6 @@ public class PistonCylinderGraphic {
         gbc1.gridx = 0;  gbc1.gridy = 2;
         gbc1.gridwidth = 2;
         temperaturePanel.add(temperatureSlider.graphic(),gbc1);
-        gbc1.gridx = 0;  gbc1.gridy = 3;
-        temperaturePanel.add(tBox.graphic(),gbc1);
         
         //panel for pressure slider
         pressureSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
@@ -317,7 +310,6 @@ public class PistonCylinderGraphic {
            }
         });
 
-//        JPanel controlPanel = new JPanel(new java.awt.GridLayout(0,1));
         JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
         gbc2.gridx = 0;
@@ -346,24 +338,23 @@ public class PistonCylinderGraphic {
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
         
-        JPanel dataPanel = new JPanel(new GridBagLayout());
-        
         //panel for the density, temperature, and pressure displays
+        JPanel dataPanel = new JPanel(new GridBagLayout());
         
         densityDisplayBox = new PropertyDisplayBoxes();
         densityDisplayBox.setLabel("Density (mol/L)");
         densityDisplayBox.setLabelType(DisplayBox.BORDER);
-        dataPanel.add(densityDisplayBox.graphic());
+        dataPanel.add(densityDisplayBox.graphic(),gbc2);
         
         temperatureDisplayBox = new PropertyDisplayBoxes();
         temperatureDisplayBox.setLabel("Temperature (K)");
         temperatureDisplayBox.setLabelType(DisplayBox.BORDER);
-        dataPanel.add(temperatureDisplayBox.graphic());
+        dataPanel.add(temperatureDisplayBox.graphic(),gbc2);
         
         pressureDisplayBox = new PropertyDisplayBoxes();
         pressureDisplayBox.setLabel("Pressure (bar)");
         pressureDisplayBox.setLabelType(DisplayBox.BORDER);
-        dataPanel.add(pressureDisplayBox.graphic());
+        dataPanel.add(pressureDisplayBox.graphic(),gbc2);
         
         JPanel leftPanel = new JPanel(new GridBagLayout());
         
@@ -479,8 +470,6 @@ public class PistonCylinderGraphic {
         temperatureManager.setUpdateInterval(10);
         DataManager temperaturePlotManager = new DataManager(temperatureHistory, plotT.makeDataSink());
         temperaturePlotManager.setUpdateInterval(10);
-        tBox.setDataSource(thermometer);
-        tBox.setUnit(tUnit);
         
         DataSource targetPressureDataSource = new DataSourceAdapter(Dimension.PRESSURE) {
             double[] value = new double[1];
@@ -549,7 +538,6 @@ public class PistonCylinderGraphic {
         }
         densityMeter.setPhase(new Phase[] {pc.phase});
         
-        pc.integrator.addIntervalListener(tBox);
         scaleSlider.setController(pc.controller);
         pc.integrator.addIntervalListener(densityManager);
         pc.integrator.addIntervalListener(densityPlotManager);
