@@ -1,12 +1,14 @@
 package etomica.potential;
 
 import etomica.Atom;
+import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.integrator.IntegratorHard;
+import etomica.space.Boundary;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -27,6 +29,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
     private double force;
     private double pressure;
     private double lastVirial;
+    private final Boundary pistonBoundary;
     private Atom atom;
     
     /**
@@ -34,13 +37,14 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
      * @param space
      * @param wallDimension dimension which the wall is perpendicular to
      */
-    public P1HardMovingBoundary(Space space, int wallDimension, double mass) {
+    public P1HardMovingBoundary(Space space, Boundary boundary, int wallDimension, double mass) {
         super(space);
         D = space.D();
         wallD = wallDimension;
         wallPosition = 0.0;
         wallMass = mass;
         force = 0.0;
+        pistonBoundary = boundary;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -124,7 +128,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
-                final Vector dimensions = boundary.dimensions();
+                final Vector dimensions = pistonBoundary.dimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= dimensions.x(i);
@@ -134,9 +138,21 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
             force = pressure/area;
         }
         double trueWallVelocity = wallVelocity + falseTime*force/wallMass;
-        double dv = 2.0*(trueWallVelocity-v.x(wallD));
-        v.setX(wallD,v.x(wallD)+dv);
-        atom.coord.position().setX(wallD,-dv*falseTime);
+        double dv = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
+        lastVirial = -Math.abs(dv)*collisionRadius;
+        if (Debug.ON) {
+            double trueWallPosition = wallPosition + wallVelocity*falseTime + 0.5*falseTime*(force/wallMass)*(force/wallMass);
+            if (Math.abs(trueWallPosition-(r+v.x(wallD)*falseTime)) - collisionRadius > 1.e-9*collisionRadius) {
+                System.out.println("bork at "+falseTime+" ! "+atom+" "+r+" "+v);
+                System.out.println("wall bork! "+wallPosition+" "+wallVelocity+" "+force);
+                System.out.println("dr bork! "+((r+v.x(wallD)*falseTime)-trueWallPosition)+" "+collisionRadius);
+                throw new RuntimeException("bork!");
+            }
+        }
+        v.setX(wallD,v.x(wallD)+dv*atom.type.rm());
+        atom.coord.position().setX(wallD,r-dv*atom.type.rm()*falseTime);
+        wallVelocity -= dv/wallMass;
+        wallPosition += dv/wallMass*falseTime;
     }
     
     public double lastCollisionVirial() {return lastVirial;}
@@ -161,7 +177,23 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
 
     
     public void intervalAction(IntervalEvent evt) {
-        wallPosition += wallVelocity * ((IntegratorHard)evt.getSource()).getTimeStep();
+        if (pressure >= 0.0) {
+            double area = 1.0;
+            if (pressure > 0.0) {
+                final Vector dimensions = pistonBoundary.dimensions();
+                for (int i=0; i<D; i++) {
+                    if (i != wallD) {
+                        area *= dimensions.x(i);
+                    }
+                }
+            }
+            force = pressure/area;
+        }
+        double t = ((IntegratorHard)evt.getSource()).getTimeStep();
+        double a = force/wallMass;
+        wallPosition += wallVelocity * t + 0.5*t*a*a;
+        wallVelocity += t*a;
+        System.out.println("pressure => velocity "+(t*a)+" "+wallVelocity);
     }
  /*   
     public static void main(String[] args) {

@@ -51,10 +51,11 @@ public class PistonCylinder extends Simulation {
         wallPotential.setCollisionRadius(Default.ATOM_SIZE*0.5); //potential.getCoreDiameter()*0.5);
         potentialMaster.setSpecies(wallPotential,new Species[]{species});
         
-        pistonPotential = new P1HardMovingBoundary(space,1,Default.ATOM_MASS*10);
+        pistonPotential = new P1HardMovingBoundary(space,phase.boundary(),1,Default.ATOM_MASS*1000);
         pistonPotential.setCollisionRadius(Default.ATOM_SIZE*0.5);
         pistonPotential.setWallPosition(-Default.ATOM_SIZE);
-        pistonPotential.setWallVelocity(1.0);
+        pistonPotential.setWallVelocity(0.5);
+        pistonPotential.setPressure(200000.0);
         potentialMaster.setSpecies(pistonPotential,new Species[]{species});
 	    
 	    integrator = new IntegratorHard(potentialMaster);
