@@ -666,11 +666,11 @@ public class Space3D extends Space implements EtomicaElement {
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
         public void accelerateTo(Space.Vector u) {p.E(u);}
 
-        public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+        public void randomizeMomentum(double temperature) {
             if(isStationary()) {p.E(0.0); return;}
-            double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
-            momentum().setRandomSphere();
-            momentum().TE(magnitude);
+            p.setX(0,MaxwellBoltzmann.randomMomentumComponent(temperature,mass()));
+            p.setX(1,MaxwellBoltzmann.randomMomentumComponent(temperature,mass()));
+            p.setX(2,MaxwellBoltzmann.randomMomentumComponent(temperature,mass()));
         }
     }//end of Coordinate
     
