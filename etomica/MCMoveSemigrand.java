@@ -166,6 +166,7 @@ public class MCMoveSemigrand extends MCMove {
     public final AtomIterator affectedAtoms() {
         insertAtomIterator.setBasis(insertMolecule);
         deleteAtomIterator.setBasis(deleteMolecule);
+        affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 /*

@@ -70,6 +70,7 @@ public class MCMoveRotateMolecule extends MCMove {
  
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(molecule);
+        affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 

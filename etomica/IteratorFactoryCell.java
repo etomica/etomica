@@ -102,9 +102,12 @@ public class IteratorFactoryCell implements IteratorFactory {
     public BravaisLattice makeCellLattice(final Phase phase) {
         if(phase.parentSimulation() != simulation) throw new IllegalArgumentException("Attempt to apply iterator factory to a phase from a different simulation"); 
         //make the unit cell factory and set it to produce cells of the appropriate size
-        final PrimitiveCubic primitiveCopy = (PrimitiveCubic)primitive.copy();//each new lattice works with its own primitive
+        final Primitive primitiveCopy = primitive.copy();//each new lattice works with its own primitive
 ///        AtomFactory cellFactory = primitiveCopy.unitCellFactory();
-        ((PrimitiveCubic)primitiveCopy).setSize(phase.boundary().dimensions().x(0)/(double)dimensions[0]);//this needs work
+        Space.Vector primitiveSize = simulation.space.makeVector();
+        primitiveSize.E(phase.boundary().dimensions());
+        primitiveSize.DE(Space.makeVector(dimensions));
+        primitiveCopy.setSize(primitiveSize.toArray());
         //construct the lattice
 ///        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitiveCopy);
 ///        final BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
@@ -121,7 +124,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         lattice.setupNeighbors(neighborCriterion);
         
         //instantiate the hashmap that will hold the index Integers that
-        //are keyed to the the parent of cell-listed set of children
+        //are keyed to the the parentGroup of cell-listed set of children
         lattice.agents = new Object[1];
         lattice.agents[0] = new HashMap();
         
@@ -150,18 +153,32 @@ public class IteratorFactoryCell implements IteratorFactory {
         //cells if the phase undergoes an inflation of its boundary.
         //An inflation event should not, however, cause the molecules to be reassigned
         //to their lattice cells, since the atom positions and the cells scale proportionately
-        //Atoms in molecules may be reassigned, if they are the focus of neighbor listing (which is not usually the case0
+        //Atoms in molecules may be reassigned, if they are the focus of neighbor listing (which is not usually the case)
         phase.boundaryEventManager.addListener(new PhaseListener() {
+            final AtomIteratorListSimple cellIterator = new AtomIteratorListSimple();
+            double[] newSize;
             public void actionPerformed(PhaseEvent evt) {
                 if(!evt.type().equals(PhaseEvent.BOUNDARY_INFLATE)) return;
-                if(!evt.isotropic) throw new RuntimeException("Cannot handle anisotropic inflate in IteratorFactoryCell");
                     //we expect that primitive.lattice() == null, so change of size doesn't cause replacement of atoms in cells
-                primitiveCopy.setSize(evt.isoScale * primitiveCopy.getSize());
-                AtomIteratorListSimple cellIterator = new AtomIteratorListSimple(lattice.siteList());
-                while(cellIterator.hasNext()) {
-                    cellIterator.next().coord.inflate(evt.isoScale);
+                if(evt.isotropic) {
+                    primitiveCopy.scaleSize(evt.isoScale);
+                    cellIterator.setBasis(lattice.siteList());
+                    cellIterator.reset();
+                    while(cellIterator.hasNext()) {
+                        cellIterator.next().coord.inflate(evt.isoScale);
+                    }
+                } else {//anisotropic inflation
+                    if(primitiveCopy instanceof PrimitiveCubic) throw new RuntimeException("Cannot handle anisotropic inflate with cubic primitive used in IteratorFactoryCell");
+                    newSize = ((PrimitiveOrthorhombic)primitiveCopy).getSize();
+                    for(int i=0; i<newSize.length; i++) newSize[i] *= evt.anisoScale.x(i);
+                    primitiveCopy.setSize(newSize);
+                    cellIterator.setBasis(lattice.siteList());
+                    cellIterator.reset();
+                    while(cellIterator.hasNext()) {
+                        cellIterator.next().coord.inflate(evt.anisoScale);
+                    }
                 }
-            }
+            }//end actionPerformed
         });
         return lattice;
     }//end of makeCellLattice method

@@ -88,6 +88,7 @@ public class MCMoveInsertDelete extends MCMove {
      */
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(testMolecule);
+        affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 

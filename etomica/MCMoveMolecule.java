@@ -57,6 +57,7 @@ public class MCMoveMolecule extends MCMove {
         
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(molecule);
+        affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 

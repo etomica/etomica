@@ -120,6 +120,7 @@ public class MCMoveAtom extends MCMove {
     
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(atom);
+        affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 /*

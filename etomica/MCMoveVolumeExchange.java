@@ -44,8 +44,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         if(firstPhase == null && secondPhase == null) return;
         inflate1 = new PhaseAction.Inflate(firstPhase);
         inflate2 = new PhaseAction.Inflate(secondPhase);
-        phase1AtomIterator = firstPhase.makeAtomIterator();
-        phase2AtomIterator = secondPhase.makeAtomIterator();
+        phase1AtomIterator = firstPhase.makeMoleculeIterator();
+        phase2AtomIterator = secondPhase.makeMoleculeIterator();
         affectedAtomIterator 
             = new AtomIteratorCompound(new AtomIterator[] {phase1AtomIterator, phase2AtomIterator});
     }
@@ -86,6 +86,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
 
     public final AtomIterator affectedAtoms() {
+        affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 

@@ -29,7 +29,7 @@ public class MCMoveVolume extends MCMove {
         if(p == null) return;
         super.setPhase(p);
         inflate.setPhase(phase);
-        affectedAtomIterator = phase.makeAtomIterator();
+        affectedAtomIterator = phase.makeMoleculeIterator();
     }
     
     public boolean doTrial() {
@@ -60,7 +60,10 @@ public class MCMoveVolume extends MCMove {
         inflate.undo();
     }
 
-    public AtomIterator affectedAtoms() {return affectedAtomIterator;}
+    public AtomIterator affectedAtoms() {
+        affectedAtomIterator.reset();
+        return affectedAtomIterator;
+    }
 
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}

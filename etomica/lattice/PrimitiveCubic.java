@@ -47,8 +47,30 @@ public class PrimitiveCubic extends Primitive {
      */
     public double getSize() {return size;}
     
+    /**
+     * Sets the length of each primitive vector to the corresponding
+     * value in the given array.  All values in given array must be
+     * equal to each other or else and IllegalArgumentException is thrown.
+     */
+    public void setSize(double[] size) {
+        if(size.length != D) throw new IllegalArgumentException("Error in PrimitiveCubic.setSize: Number of sizes given is inconsistent with number of primitive vectors");
+        //check that all values in size array are equal to each other
+        double newSize = size[0];
+        for(int i=1; i<D; i++) {
+            if(size[i] != newSize) throw new IllegalArgumentException("Error in PrimitiveCubic.setSize(double[]): elements of size array are not identical in value");
+        }
+        setSize(newSize);
+    }
+    
+    public void scaleSize(double scale) {
+        setSize(scale*size);
+    }
+
     public int[] latticeIndex(Space.Vector q) {
-        for(int i=0; i<D; i++) idx[i] = (int)(q.x(i)/size);
+        for(int i=0; i<D; i++) {
+            double x = q.x(i)/size;
+            idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
+        }
         return idx;
     }
     
@@ -174,7 +196,7 @@ public class UnitCell extends AbstractCell {
     
     /**
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
-     * the cell, <code>false</code> otherwise.
+     * this cell, <code>false</code> otherwise.
      */
     public boolean inCell(Space.Vector v) {
         delta.Ev1Mv2(v, coord.position());

@@ -27,6 +27,17 @@ public abstract class Primitive {
             latticeVectorsCopy[i] = space.makeVector();
         }
     }
+
+    /**
+     * Sets the length of each primitive vector to the corresponding
+     * value in the given array.
+     */
+    public abstract void setSize(double[] size);
+    
+    /**
+     * Scales (multiplies) the size of each primitive vector by the given value.
+     */
+    public abstract void scaleSize(double scale);
     
     /**
      * Lattice associated with this may be defined to enable

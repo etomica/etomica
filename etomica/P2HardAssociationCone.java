@@ -8,7 +8,8 @@ import etomica.units.Dimension;
  */
 
 public class P2HardAssociationCone extends Potential2 implements EtomicaElement {
-    private double wellCutoff, wellCutoffSquared;
+    private double wellcutoffFactor;
+    private double /*wellCutoff, */wellCutoffSquared;
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
@@ -26,7 +27,8 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);
         setCutoffFactorLJ(Default.POTENTIAL_CUTOFF_FACTOR);
-        setWellCutoff(getSigma());
+//        setWellCutoff(getSigma());
+        setWellCutoffFactor(1.0);
         setWellEpsilon(8.0*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
     }
@@ -111,6 +113,21 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     public static final Dimension getCutoffFactorLJDimension() {return Dimension.NULL;}
    
     /**
+    * Accessor method for attractive-well diameter divided by sigma
+    */
+    public double getWellCutoffFactor() {return wellcutoffFactor;}
+    /**
+    * Accessor method for attractive-well diameter divided by sigma;
+    */
+    public void setWellCutoffFactor(double wcut) {
+        wellcutoffFactor=wcut;
+        double wellCutoff = sigma*wcut;
+        wellCutoffSquared = wellCutoff*wellCutoff;
+    }
+          
+    public static final Dimension getWellCutoffFactorDimension() {return Dimension.NULL;}
+
+    /**
     * Accessor method for Lennard-Jones energy parameter
     */ 
     public double getEpsilon() {return epsilon;}
@@ -126,15 +143,15 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     /**
     * Accessor method for attractive-well diameter.
     */
-    public double getWellCutoff() {return wellCutoff;}
+//    public double getWellCutoff() {return wellCutoff;}
     /**
     * Accessor method for attractive-well diameter.
     */
-    public void setWellCutoff(double wcut) {
+/*    public void setWellCutoff(double wcut) {
         wellCutoff = wcut;
         wellCutoffSquared = wcut*wcut;
     }
-          
+ */         
     public static final Dimension getWellCutoffDimension() {return Dimension.LENGTH;}
     
     /**

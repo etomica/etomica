@@ -80,6 +80,16 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
+    
+    /**
+     * Returns a Vector initialized to the given set of values in the array (cast to double).
+     * Spatial dimension of the Vector is determined by the length of a.
+     */
+    public static Vector makeVector(int[] k) {
+        double[] a = new double[k.length];
+        for(int i=0; i<k.length; i++) {a[i] = (double)k[i];}
+        return makeVector(a);
+    }
             
     
 //  Vector contains what is needed to describe a point in the space
