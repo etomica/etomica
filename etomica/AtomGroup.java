@@ -7,36 +7,18 @@ package etomica;
  */
 public class AtomGroup extends Atom {
     
-    protected final AtomFactory factory;
     protected int childCount;
-    protected final boolean resizable;
-    private static final IteratorDirective UP = new IteratorDirective(IteratorDirective.UP);
-    private static final IteratorDirective DOWN = new IteratorDirective(IteratorDirective.DOWN);
-    
-    //used to pause when adding/removing atoms
-    private transient Integrator integrator;
-    
-    protected AtomGroup(AtomGroup parent, int index, AtomType.Group type) {
-        super(parent, index, type);
+    protected boolean resizable;
+
+    /**
+     * Constructs an empty atom group with no associated factory.  Normally
+     * the new group will be filled with atoms following its construction.
+     */
+    public AtomGroup(AtomGroup parent, AtomType.Group type) {
+        super(parent, type);
         childCount = 0;
         resizable = true;
-        factory = null;
     }
-    public AtomGroup(AtomGroup parent, int index, AtomType.Group type, AtomFactory factory, 
-                        int nChild, boolean resizable) {
-        super(parent, index, type);
-        this.factory = factory;
-        for(int i=0; i<nChild; i++) {
-            addAtom(factory.makeAtom(this,i));
-        }
-        if(initializer != null) initializer.initializeCoordinates(this); //be sure this handles case of no atoms
-        childCount = nChild;
-        this.resizable = resizable;
-    }
-    
-    public AtomFactory atomFactory() {return factory;}
-    
-    public void setConfiguration(Configuration c) {}
     
     //to be completed
     public int atomCount() {return -1;}
@@ -68,6 +50,7 @@ public class AtomGroup extends Atom {
         }
         else return firstChild();
     }
+    
     /**
      * Returns the last leaf atom descended from this group.
      */
@@ -82,17 +65,11 @@ public class AtomGroup extends Atom {
         }
         else return lastChild();
     }
-    
-    public Atom addNewAtom() {
-        Atom aNew = atomFactory().makeAtom(this, childCount+1);
-        addAtom(aNew);
-        return aNew;
-    }
 
     public void addAtom(Atom aNew) {
-        if(!resizable) return;
+        if(!resizable) return; //should define an exception
         //ensure that the given atom is compatible
-        if(atomFactory().vetoAddition(aNew)) { //also checks for a null
+        if(aNew == null || creator().vetoAddition(aNew)) { //should ensure group/atom consistency with other children
             System.out.println("Error in AtomGroup.addAtom:  See source code");  //should throw an exception
             return;
         }
@@ -171,16 +148,18 @@ public class AtomGroup extends Atom {
             else if(next != null) next.clearPreviousAtom();
         }
         
-        factory.reservoir().addAtom(a);
     }//end of removeAtom
 
     /**
-     * Removes all child atoms of this group.  
+     * Removes all child atoms of this group.  Maintains their
+     * internal links, and returns the first child, so they may be recovered 
+     * for use elsewhere.
      * Does not remove this group from its parent group.
      */
-    public void removeAll() {
-        if(childCount == 0 || !resizable) return;
+    public Atom removeAll() {
+        if(childCount == 0 || !resizable) return null;
         
+        //disconnect leaf atoms from their their links to adjacent groups
         Atom first = firstLeafAtom();
         Atom last = lastLeafAtom();
         Atom next = (last != null) ? last.nextAtom() : null;
@@ -188,10 +167,12 @@ public class AtomGroup extends Atom {
         if(previous != null) previous.setNextAtom(next);
         else if(next != null) next.clearPreviousAtom();
         
+        //save first child for return, then erase links to them
+        first = firstChild();
         setFirstChild(null);
         setLastChild(null);
         childCount = 0;
-        
+        return first;
     }//end of removeAll
     
     /**
@@ -220,73 +201,9 @@ public class AtomGroup extends Atom {
      * or are leaf atoms.
      */
     public final boolean childrenAreGroups() {
-        return factory.producesAtomGroups();
+        return firstChild() instanceof AtomGroup;
     }
-    
-    /**
-    * Sets the number of molecules for this species.  Makes the given number
-    * of new molecules, linked-list orders and initializes them.
-    * Any previously existing molecules for this species in this phase are abandoned
-    * Any links to molecules of next or previous species are maintained.
-    * Takes no action at all if the new number of molecules equals the existing number
-    *
-    * @param n  the new number of molecules for this species
-    * @see #makeMolecule
-    * @see #deleteMolecule
-    * @see #addMolecule
-    */
-    public void setNAtoms(int n) {
-        if(!resizable) return;
-        boolean wasPaused = pauseIntegrator();
-        
-        if(n <= 0) removeAll();
-        else if(n > childCount) {
-            for(int i=childCount; i<n; i++) addNewAtom();
-        }
-        else if(n < childCount) {
-            for(int i=childCount; i>n; i--) removeAtom(lastChild());
-        }
-        
-        //reconsider this
-        parentPhase().configuration.initializeCoordinates(this);
-        parentPhase().iteratorFactory().reset();
-        
-        unpauseIntegrator(wasPaused);
-    }
-        
-    /**
-     * Same as setNAtoms, but takes a boolean argument that can indicate that all
-     * new molecules should be made.
-     */
-    public void setNAtoms(int n, boolean forceRebuild) {
-        if(!resizable) return;
-        boolean wasPaused = pauseIntegrator();
-        if(forceRebuild) removeAll();
-        setNAtoms(n);
-        unpauseIntegrator(wasPaused);
-    }
-    
-    private boolean pauseIntegrator() {
-        Phase phase = parentPhase();
-        integrator = (phase != null) ? phase.integrator() : null;
-        boolean wasPaused = true;
-        if(integrator != null) {
-            wasPaused = integrator.isPaused();//record pause state of integrator
-            if(!wasPaused) {
-                integrator.pause();
-                while(!integrator.isPaused()) {}
-            }
-        }
-        return wasPaused;
-    }
-    
-    private void unpauseIntegrator(boolean wasPaused) {
-        if(integrator != null) {
-            if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
-            if(!wasPaused) integrator.unPause();//resume if was not paused originally
-        }
-    }
-              
+
     /**
     * Chooses a child atom randomly from this group.
     *
@@ -349,5 +266,8 @@ public class AtomGroup extends Atom {
         }
         return null;
     }//end of findPreviousLeafAtom
+    
+    private static final IteratorDirective UP = new IteratorDirective(IteratorDirective.UP);
+    private static final IteratorDirective DOWN = new IteratorDirective(IteratorDirective.DOWN);
     
 }//end of AtomGroup

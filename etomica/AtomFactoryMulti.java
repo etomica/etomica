@@ -1,7 +1,7 @@
 package etomica;
 
 /**
- * Builder of a multiatomic atom group of identical atoms.
+ * Builds an atom group that comprises a set of identically formed atoms or atomgroups.
  *
  * @author David Kofke
  */
@@ -12,26 +12,45 @@ public class AtomFactoryMulti extends AtomFactory {
     private final AtomType.Group groupType = new AtomType.Group(this);
     private Configuration configuration;
     
-    public AtomFactoryMulti() {
-        this(new AtomType.Sphere());
+    /**
+     * @param factory the factory that makes the children held by the 
+                      each group built by this factory.
+     */
+    public AtomFactoryMulti(Simulation sim, AtomFactory factory) {
+        super(sim);
+        childFactory = factory;
+        configuration = new ConfigurationLinear(sim.space());
     }
     
-    public AtomFactoryMulti(AtomType type) {
-        childFactory = new AtomFactoryMono(type);
-        //need better way to get space
-        configuration = new ConfigurationLinear(Simulation.instance.space());
-    }
-    
-    public Atom makeNewAtom(AtomGroup parent, int index) {
-        AtomGroup group = new AtomGroup(parent, index, groupType, childFactory, 
-                                        atomsPerGroup, true);
+    public Atom build(AtomGroup parent) {
+        AtomGroup group = new AtomGroup(parent, groupType);
+        for(int i=0; i<atomsPerGroup; i++) {
+            group.addAtom(childFactory.build(group));
+        }
         configuration.initializeCoordinates(group);
+        return group;
     }
     
     public boolean producesAtomGroups() {return true;}
     
-    public boolean vetoAddition(Atom a) {return a.type == groupType;} 
-        //((GroupType)((AtomGroup)a).type).creator() == this;}
+    public boolean vetoAddition(Atom a) {return (a.type != groupType);} 
+        
+    public void renew(Atom a) {//need an exception in the case a is unrenewable
+        if(a.type != groupType) return;  //throw exception
+        AtomGroup group = (AtomGroup)a;
+        int childCount = group.childCount();
+        if(atomsPerGroup > childCount) {
+            for(int i=childCount; i<atomsPerGroup; i++) group.addAtom(childFactory.makeAtom());
+        }
+        else if(atomsPerGroup < childCount) {
+            for(int i=childCount; i>atomsPerGroup; i--) group.removeAtom(group.lastChild());
+        }
+        group.childIterator.reset();
+        while(group.childIterator.hasNext()) {
+            childFactory.renew(group.childIterator.next());
+        }
+        configuration.initializeCoordinates(group);
+    }       
         
     /**
      * Specifies the number of atoms in a molecule of this species.
@@ -43,15 +62,15 @@ public class AtomFactoryMulti extends AtomFactory {
      * 
      * @param na The new number of atoms per molecule
      */
-/*    public void setAtomsPerMolecule(int na) {
-        if(na == atomsPerMolecule) return;  //do nothing is value isn't changings
-        atomsPerMolecule = na;
+    public void setAtomsPerGroup(int na) {
+        if(na == atomsPerGroup) return;  //do nothing is value isn't changings
+        atomsPerGroup = na;
 //        if(parentSimulation == null) {return;}
-        Iterator e = agents.values().iterator();
+/*        Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             Agent a = (Agent)e.next();
             a.setNMolecules(a.nMolecules, true);//2nd argument indicates to make new molecules even though number of them is not changing
-        }
+        }*/
     }
             
     /**

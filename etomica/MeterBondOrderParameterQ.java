@@ -111,7 +111,7 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
         Meter meter = new MeterBondOrderParameterQ();
         DisplayBox box = new DisplayBox();
         Phase phase = new Phase();
-        Configuration configuration = new ConfigurationFcc();
+        Configuration configuration = new ConfigurationFcc(sim.space());
         DisplayPhase display = new DisplayPhase();
         
         phase.setConfiguration(configuration);

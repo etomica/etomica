@@ -11,8 +11,10 @@ public abstract class Configuration implements java.io.Serializable {
     protected double temperature = Default.TEMPERATURE;
     Random rand = new Random();
     protected final Space.Vector work;
+    protected final Space space;
     
     public Configuration(Space space) {
+        this.space = space;
         work = space.makeVector();
     }
 

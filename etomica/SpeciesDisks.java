@@ -14,6 +14,14 @@ public class SpeciesDisks extends Species implements EtomicaElement {
 //  Note that the parameters of the type can be changed; only the instance of it is frozen once the atoms are made
 //    (this is the same behavior as declaring it final)
     public AtomType.Disk protoType;
+    private static AtomFactory makeFactory(Simulation sim, int na) {
+        AtomFactoryMono f = new AtomFactoryMono(sim);
+        AtomType type = new AtomType.Disk(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        f.setType(type);
+        AtomFactoryMulti fm = new AtomFactoryMulti(sim,f);
+        fm.setAtomsPerGroup(na);
+        return fm;
+    }
         
     public SpeciesDisks() {
         this(Simulation.instance);
@@ -25,43 +33,24 @@ public class SpeciesDisks extends Species implements EtomicaElement {
         this(sim, Default.MOLECULE_COUNT);
     }
     public SpeciesDisks(Simulation sim, int n) {
-        super(sim);
-        atomsPerMolecule = 1;
-        if(sim.space().D() == 1) {
+        this(sim, n, 1);
+  /*      if(sim.space().D() == 1) {
             protoType = new AtomType.Rod(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE);
         }
         else {
             protoType = new AtomType.Disk(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE);
-        }
+        }*/
         nMolecules = n;        
-        moleculeConfiguration = new Molecule.Configuration.Linear(this);
+    }
+    public SpeciesDisks(Simulation sim, int nM, int nA) {
+        super(sim, makeFactory(sim, nA));
+        nMolecules = nM;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Species with molecules composed of one or more spherical atoms");
         return info;
     }
-
-    public SpeciesDisks(int nM, int nA) {
-        this(Simulation.instance, nM, nA);
-    }
-    public SpeciesDisks(Simulation sim, int nM, int nA) {
-        this(sim, nM, nA, new AtomType.Disk(Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE));
-    }
-              
-    public SpeciesDisks(Simulation sim, int nM, int nA, AtomType.Disk type) {
-        super(sim);
-        protoType = type;
-        atomsPerMolecule = nA;
-        nMolecules = nM;
-            
-        moleculeConfiguration = new Molecule.Configuration.Linear(this);
-    }
-    
-            
-    protected Molecule makeMolecule(Phase phase) {
-        return new Molecule(this, phase, protoType, atomsPerMolecule);
-    } 
               
     // Exposed Properties
     public final double getMass() {return protoType.mass();}

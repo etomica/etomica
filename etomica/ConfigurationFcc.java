@@ -3,11 +3,13 @@ import etomica.lattice.*;
 
 public class ConfigurationFcc extends Configuration {
     
-    public ConfigurationFcc() {
-        super();
+    public ConfigurationFcc(Space space) {
+        super(space);
     }
     
-    public void initializeCoordinates(AtomGroup group){
+    //need to revise so that coordinates of given group are
+    //initialized, instead of parentphase object
+    public void initializeCoordinates(Atom group){
         if(group == null) {return;}
         Phase parentPhase = group.parentPhase();
     
@@ -33,7 +35,7 @@ public class ConfigurationFcc extends Configuration {
                 i++;
             }
         }
-        initializeMomenta(parentPhase);
+        initializeMomenta(parentPhase.speciesMaster());
     }
     
     public Space3D.Vector[] fccLattice(int n) { 

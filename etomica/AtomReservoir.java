@@ -9,22 +9,32 @@ package etomica;
 public class AtomReservoir extends AtomGroup {
     
     private Atom[] atoms;
-    private int count = 0;
+    private int count = 0;  //index of where next atom is to be placed in atoms array
     private int maximumCapacity;
+    private Simulation parentSimulation;
     
-    public AtomReservoir() {
-        this(10,80);
+    public AtomReservoir(Simulation sim) {
+        this(sim, 10,80);
+        
     }
-    public AtomReservoir(int initialCapacity, int maximumCapacity) {
-        super(null, 0, AtomType.NULL);
+    public AtomReservoir(Simulation sim, int initialCapacity, int maximumCapacity) {
+        super(null, AtomType.NULL);
+        parentSimulation = sim;
+        if(initialCapacity < 1) initialCapacity = 1;
+        if(maximumCapacity < 1) maximumCapacity = 1;
         this.maximumCapacity = maximumCapacity;
         if(initialCapacity > maximumCapacity) initialCapacity = maximumCapacity;
         atoms = new Atom[initialCapacity];
     }
     
     public void addAtom(Atom atom) {
+        //safety check
         if(count >= maximumCapacity || atom == null) return;
+        //restore atom to condition when built
+        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
+        //add to reservoir
         atoms[count++] = atom;
+        //check reservoir size and expand to accommodate next addition if now full
         if(count == atoms.length) {
             int newCapacity = 2*atoms.length;
             if(newCapacity > maximumCapacity) newCapacity = maximumCapacity;
@@ -39,8 +49,9 @@ public class AtomReservoir extends AtomGroup {
     public Atom removeAtom() {
         Atom atom = null;
         while(atom == null && count > 0) {
-            atom = atoms[count--];
-            if(atom.parentGroup() != this) atom = null; //check that atom wasn't placed in another group without taking it from reservoir
+            atom = atoms[--count];
+            //check that atom wasn't placed in another group without taking it from reservoir
+            if(atom.parentGroup() != this) atom = null; 
         }
         return atom;
     }
@@ -49,8 +60,13 @@ public class AtomReservoir extends AtomGroup {
     
     public Phase parentPhase() {return null;}
     public Species parentSpecies() {return null;}
+    public SpeciesAgent parentSpeciesAgent() {return null;}
+    public Simulation parentSimulation() {return parentSimulation;}
     
-    public void setMaximumCapacity(int i) {maximumCapacity = i;}
+    public void setMaximumCapacity(int i) {
+        maximumCapacity = i; 
+        if(maximumCapacity < 1) maximumCapacity = 1;
+    }
     public int getMaximumCapacity() {return maximumCapacity;}
     
 }//end of AtomReservoir

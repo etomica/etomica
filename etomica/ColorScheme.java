@@ -12,7 +12,7 @@ import java.awt.*;
  
 public abstract class ColorScheme implements java.io.Serializable {
 
-    public static String getVersion() {return "01.01.17.0";}
+    public static String getVersion() {return "01.07.13";}
  
     private Phase phase;
     protected Color baseColor;
@@ -61,13 +61,6 @@ public abstract class ColorScheme implements java.io.Serializable {
      */
     public final void initialColorAllAtoms() {
         if(atomIterator != null) atomIterator.allAtoms(action);
-    }
-
-    public void colorMolecule(Molecule m) {
-        m.atomIterator.reset();
-        while(m.atomIterator.hasNext()) {
-            colorAtom(m.atomIterator.next());
-        }
     }
     
     public final void setBaseColor(Color c) {baseColor = c;}

@@ -64,9 +64,9 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         //don't use setIteratorFactory here to remove any possibility of complications with Observers
         if(sim.space() instanceof IteratorFactory.Maker) {
             iteratorFactory = ((IteratorFactory.Maker)sim.space()).makeIteratorFactory(this);
-            if(iteratorFactory instanceof PotentialField.Maker) {
+ //           if(iteratorFactory instanceof PotentialField.Maker) {
  //               addField(((PotentialField.Maker)iteratorFactory).makePotentialField(this));
-            }
+ //           }
         }
         else {
             iteratorFactory = new IteratorFactory(this);
@@ -78,9 +78,9 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         setBoundary(parentSimulation().space().makeBoundary());
 
         if(parentSimulation.space().D() < 3) 
-            add(new ConfigurationSequential());  //default configuration
+            add(new ConfigurationSequential(parentSimulation.space()));  //default configuration
         else
-            add(new ConfigurationFcc());
+            add(new ConfigurationFcc(parentSimulation.space()));
                 
         parentSimulation.register(this);
         

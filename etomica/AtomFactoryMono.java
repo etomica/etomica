@@ -1,7 +1,7 @@
 package etomica;
 
 /**
- * Builder of a monoatomic atom group, which is just an Atom.
+ * Builder of a monoatomic atom group, which comprises just an Atom.
  *
  * @author David Kofke
  */
@@ -9,20 +9,26 @@ public class AtomFactoryMono extends AtomFactory {
     
     AtomType atomType;
     
-    public AtomFactoryMono() {
-        this(new AtomType.Sphere());
+    public AtomFactoryMono(Simulation sim) {
+        super(sim);
     }
     
-    public AtomFactoryMono(AtomType type) {
+    //can't pass atomtype to constructor because atomtype needs this in its constructor
+/*    public AtomFactoryMono(AtomType type) {
         atomType = type;
     }
+*/    
+    public void setType(AtomType t) {atomType = t;}
     
-    public Atom makeNewAtom(AtomGroup parent, int index) {
-        return new Atom(parent, index, atomType);
+    /**
+     * Builds a single atom.
+     */
+    public Atom build(AtomGroup parent) {
+        return new Atom(parent, atomType);
     }
     
-    public boolean producesAtomGroups() {return false;}
+    public boolean vetoAddition(Atom a) {return (a.type != atomType);}
     
-    public boolean vetoAddition(Atom a) {return (a instanceof AtomGroup);}
+    public void renew(Atom a) {}
     
 }//end of AtomFactoryMono

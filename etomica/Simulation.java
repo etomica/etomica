@@ -44,7 +44,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
    /**
     * Object describing the nature of the physical space in which the simulation is performed
     */
-    public Space space; //would like to make final, but compiler doesn't allow
+    public final Space space; //would like to make final, but compiler doesn't allow
     
     /**
      * List of all controllers that have been instantiated.
@@ -200,7 +200,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         if(element == potentialMaster || potentialMaster == null) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return;
-        if(element instanceof P1Null) return;
         if(element instanceof P2IdealGas) return;
         element.setName(element.getClass().getName().substring(8) + Integer.toString(list.size()));
         list.add(element);

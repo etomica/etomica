@@ -27,17 +27,20 @@ public abstract class AtomType implements java.io.Serializable {
     private static int OxygenID = 0;
     private static int NitrogenID = 0;
     private String name;
+    private /*final*/ AtomFactory creator;
     
-    public AtomType() {
-        this(Default.ATOM_MASS, Default.ATOM_COLOR);
+    public AtomType(AtomFactory creator) {
+        this(creator, Default.ATOM_MASS, Default.ATOM_COLOR);
     }
     
-    public AtomType(double m, Color c) {
+    public AtomType(AtomFactory creator, double m, Color c) {
+        this.creator = creator;
         setMass(m);
         setColor(c);
         setElectroType(new ElectroType.Null());
     }
     
+    public AtomFactory creator() {return creator;}
     /**
      * Returns default coordinate type, which has no orientational component.
      * Override for atom types that require other coordinate features.
@@ -105,8 +108,8 @@ public abstract class AtomType implements java.io.Serializable {
     public static class Rod extends Disk {
         
         private int dh2;
-        public Rod(double m, Color c, double d) {
-            super(m, c, d);
+        public Rod(AtomFactory creator, double m, Color c, double d) {
+            super(creator, m, c, d);
             dh2 = Space1D.drawingHeight/2;
         }
         
@@ -138,8 +141,8 @@ public abstract class AtomType implements java.io.Serializable {
         
         double diameter, radius;
         
-        public Disk(double m, Color c, double d) {
-            super(m, c);
+        public Disk(AtomFactory creator, double m, Color c, double d) {
+            super(creator, m, c);
             setDiameter(d);
         }
                     
@@ -183,8 +186,8 @@ public abstract class AtomType implements java.io.Serializable {
     public final static class OrientedSphere extends Disk implements SphericalTop {
         
         private final double[] I = new double[3];
-        public OrientedSphere(double m, Color c, double d) {
-            super(m,c,d);
+        public OrientedSphere(AtomFactory creator, double m, Color c, double d) {
+            super(creator,m,c,d);
             updateI();
         }
         public double[] momentOfInertia() {return I;}
@@ -234,8 +237,8 @@ public abstract class AtomType implements java.io.Serializable {
         private double lambda;                    //diameter of well, in units of core diameter
         private double wellDiameter, wellRadius;  //size of well, in simulation units
         
-        public Well(double m, Color c, double d, double l) {
-            super(m, c, d);
+        public Well(AtomFactory creator, double m, Color c, double d, double l) {
+            super(creator, m, c, d);
             setDiameter(d);
             setLambda(l);
         }
@@ -303,8 +306,8 @@ public abstract class AtomType implements java.io.Serializable {
         private Constants.Alignment alignment;
         public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
-        public Wall(double m, Color c, double l, double a) {
-            super(m, c);
+        public Wall(AtomFactory creator, double m, Color c, double l, double a) {
+            super(creator, m, c);
             setLength(l);
             setAngle(a);
         }
@@ -416,12 +419,12 @@ public abstract class AtomType implements java.io.Serializable {
         
         private double diameter, radius;
         
-        public Sphere() {
-            super();
+        public Sphere(AtomFactory creator) {
+            super(creator);
             setDiameter(Default.ATOM_SIZE);
         }
-        public Sphere(double m, Color c, double d) {
-            super(m, c);
+        public Sphere(AtomFactory creator, double m, Color c, double d) {
+            super(creator, m, c);
             setDiameter(d);
         }
         
@@ -435,7 +438,7 @@ public abstract class AtomType implements java.io.Serializable {
     }
     
     //prototype of a real atom type
-    public final static class Carbon extends Sphere {
+/*    public final static class Carbon extends Sphere {
         public Carbon() {
             super(12.0, Color.black, 1.1);  //mass, color, diameter  
         }
@@ -468,7 +471,7 @@ public abstract class AtomType implements java.io.Serializable {
         }
     }    
     
-    
+*/    
     //interfaces for anisotropic atom types
     public interface Rotator {
         public double[] momentOfInertia(); //diagonal elements of (diagonalized) moment of inertia; should always be a 3-element array
@@ -483,12 +486,13 @@ public abstract class AtomType implements java.io.Serializable {
     public static class Group extends AtomType {
         private AtomFactory creator;
         public Group(AtomFactory creator) {
-            this.creator = creator;
+            super(creator);
         }
-        public AtomFactory creator() {return creator;}
+        public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}
     }
     
-    private static class Null extends AtomType {
+    private static class Null extends AtomType.Group {
+        public Null() {super(null);}
         public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}
     }
     public static final AtomType.Null NULL = new Null();

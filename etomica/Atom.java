@@ -19,9 +19,8 @@ public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "Atom:01.07.12";}
     
-    public Atom(AtomGroup parent, int index, AtomType t) {
+    public Atom(AtomGroup parent, AtomType t) {
         parentGroup = parent;
-        atomIndex = index;
         type = t;
         coord = parentSimulation().space().makeCoordinate(this);//must follow setting of type field
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
@@ -41,12 +40,10 @@ public class Atom implements java.io.Serializable {
     /**
      * Simulation in which this atom resides
      */
-    public Simulation parentSimulation() {return parentSpecies().parentSimulation();}
-        
+    public Simulation parentSimulation() {return parentSpecies().parentSimulation();}        
     /**
      * Phase in which this atom resides
      */
-     //change to container
     public Phase parentPhase() {return parentGroup.parentPhase();}
 
     public Species parentSpecies() {return parentSpeciesAgent().parentSpecies();}
@@ -56,6 +53,9 @@ public class Atom implements java.io.Serializable {
     Bond firstBond;
     
     */
+    public void sendToReservoir() {creator().reservoir().addAtom(this);}
+    public AtomFactory creator() {return type.creator();}
+    
     /**
      * Coordinates of this atom.
      * When the atom is constructed the coordinate class is provided by the 
@@ -160,7 +160,7 @@ public class Atom implements java.io.Serializable {
     
     private Atom nextAtom, previousAtom;
         
-    public AtomType type;
+    public final AtomType type;
     private AtomGroup parentGroup;
     
  /** This is an array of AtomLinkers that enable lists of atoms to be constructed
@@ -202,5 +202,4 @@ public class Atom implements java.io.Serializable {
         while(iter.hasNext()) {iter.next(); n++;}
         return n;
     }
- 
 }

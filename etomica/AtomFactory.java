@@ -3,31 +3,28 @@ package etomica;
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
  * that are collected in a given AtomGroup.
+ *
+ * @author David Kofke
  */
 public abstract class AtomFactory {
     
-    private AtomReservoir reservoir = new AtomReservoir();
+    private final AtomReservoir reservoir;
+    protected Simulation parentSimulation;
     
-    public Atom makeAtom(AtomGroup parent, int index) {
+    public AtomFactory(Simulation sim) {
+        parentSimulation = sim;
+        reservoir = new AtomReservoir(sim);
+    }
+    
+    public Atom makeAtom() {
         Atom atom = reservoir.removeAtom();
-        if(atom == null) {
-            atom = makeNewAtom(parent, index);
-        }
-        else {
-            atom.setParentGroup(parent);
-            atom.setIndex(index);
-        }
+        if(atom == null) atom = build(reservoir);
         return atom;
     }
     
-    public abstract Atom makeNewAtom(AtomGroup parent, int index);
+    protected abstract Atom build(AtomGroup parent);
     
-    /**
-     * Indicator of whether this factory makes atom groups, or if it 
-     * makes atoms that are not groups of other atoms (instance of AtomGroup).
-     */
-    public abstract boolean producesAtomGroups();
-    
+    protected abstract void renew(Atom a);
     
     public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
     

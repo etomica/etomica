@@ -15,17 +15,27 @@ public class ConfigurationSequential extends Configuration {
 
     private boolean fill;
     
-    public ConfigurationSequential() {
-        super();
+    public ConfigurationSequential(Space space) {
+        super(space);
         setFillVertical(true);
     }
     
     public void setFillVertical(boolean b) {fill = b;}
     public boolean getFillVertical() {return fill;}
     
-    public void initializeCoordinates(AtomGroup atoms) {
+    //need to revise to use given argument instead of parentphase
+    public void initializeCoordinates(Atom atom) {
+        AtomGroup atoms;
         
+        if(!(atom instanceof AtomGroup)) {
+            atom.coord.position().E(0.0);
+            return;
+        }
+        else atoms = (AtomGroup)atom;
+            
         Phase phase = atoms.parentPhase();
+        
+        
         if(phase == null) return;
         double Lx = phase.dimensions().component(0);
         double Ly = 0.0;
@@ -60,6 +70,6 @@ public class ConfigurationSequential extends Configuration {
                 i++;
             }
         }
-        initializeMomenta(phase);
+        initializeMomenta(phase.speciesMaster());
     }
 }

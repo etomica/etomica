@@ -65,7 +65,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     public static final String VERSION = "Species:01.07.09";
     private Simulation parentSimulation;
     private boolean added = false;
-    private AtomFactory factory;
+    protected AtomFactory factory;
     private int index;
     
     public Species(Simulation sim, AtomFactory factory) {
@@ -109,7 +109,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             SpeciesAgent a = (SpeciesAgent)e.next();
-            a.setNAtoms(n);
+            a.setNMolecules(n);
         }
     }
     
@@ -157,10 +157,9 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * @return The new agent.  Normally this is returned into the setAgent method of the given phase.
      * @see Species.Agent
      */
-    public SpeciesAgent makeAgent(SpeciesMaster parent, int index) {
+    public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.parentPhase();
-        SpeciesAgent a = new SpeciesAgent(this, parent, index, nMolecules, 
-                            phase.getConfiguration());
+        SpeciesAgent a = new SpeciesAgent(this, parent, nMolecules);
         agents.put(phase,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }
