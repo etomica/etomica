@@ -9,9 +9,10 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 public class MeterRDF extends MeterFunction implements EtomicaElement {
-    private AtomPairIterator iterator;
+    private AtomsetIteratorPhaseDependent iterator;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private double[] vShell;
+    private final Space.CoordinatePair cPair;
     protected double delr;
     
     public MeterRDF(SimulationElement parent) {
@@ -19,7 +20,8 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    ((DataSourceUniform)xDataSource).setDimension(Dimension.LENGTH);
 	    ((DataSourceUniform)xDataSource).setLabel("r");
 	    setLabel("rdf");
-	    iterator = AtomPairIterator.NULL;
+	    iterator = new ApiLeafAtoms();
+	    cPair = parent.space.makeCoordinatePair();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -27,8 +29,8 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
         return info;
     }
     
-    public void setIterator(AtomPairIterator iter) {iterator = iter;}
-    public AtomPairIterator getIterator() {return iterator;}
+    public void setIterator(AtomsetIteratorPhaseDependent iter) {iterator = iter;}
+    public AtomsetIteratorPhaseDependent getIterator() {return iterator;}
     
     public IteratorDirective getDirective() {return iteratorDirective;}
 
@@ -39,20 +41,26 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 *    For future development: It may be possible to extend to particular atom pairs by changing iterator and using a different normalization
 	 */
 	public double[] getDataAsArray(Phase phase) {
-		//TODO set up the iterator and phase
-		iterator.reset(iteratorDirective);          //prepare iterator of atom pairs
+		iterator.setPhase(phase);
+        cPair.setBoundary(phase.boundary());
 	    for(int i=0; i<nDataPerPhase; i++) {phaseData[i] = 0.0;}  //zero histogram
 	    double xMax = ((DataSourceUniform)xDataSource).getXMax();
 	    double xMaxSquared = xMax*xMax;
+	    int count = 0;
+	    iterator.reset();
 	    while(iterator.hasNext()) {                 //iterate over all pairs
-	        double r2 = iterator.next().r2();       //compute pair separation
+	    	Atom[] pair = iterator.next();
+	    	cPair.reset(pair[0].coord, pair[1].coord);
+	    	double r2 = cPair.r2();       //compute pair separation
 	        if(r2 < xMaxSquared) {
 	            int index = ((DataSourceUniform)xDataSource).getIndex(Math.sqrt(r2));  //determine histogram index
 	            phaseData[index]++;                        //add once for each atom
 	        }
+	        //TODO consider if this (count) is being used correctly
+	        count++;
 	    }
-	    int n = phase.atomCount();                  //compute normalization: divide by
-	    double norm = (n*(n-1)/2)/phase.volume();           //n, and density*(volume of shell)
+//	    int n = phase.atomCount();             //compute normalization: divide by
+	    double norm = count/phase.volume();    //n, and density*(volume of shell)
 	    double[] x = xDataSource.getData();
 	    Space space = phase.simulation().space();
 	    double xMin = ((DataSourceUniform)xDataSource).getXMin();
