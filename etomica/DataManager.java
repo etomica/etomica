@@ -12,7 +12,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.log.DataLogger;
 
 /**
- * Keeps a DataSource and one or more Accumulators and adds to Accumulators
+ * Keeps a DataSource and one or more DataSinks and adds to sinks
  * in response to IntervalEvents using data from the DataSource.
  */
 public class DataManager implements Integrator.IntervalListener {
@@ -25,7 +25,7 @@ public class DataManager implements Integrator.IntervalListener {
 	
 	/**
 	 * Constructs DataManager with the given DataSource and
-	 * Accumulators.
+	 * DataSinks.
 	 */
 	public DataManager(DataSource dataSource, DataSink[] dataSinks) {
 		if(dataSource == null) throw new NullPointerException("Error: cannot construct accumulator manager without a data source");
@@ -38,8 +38,7 @@ public class DataManager implements Integrator.IntervalListener {
 	}
 	
 	/**
-	 * Constructor with AccumulatorAverage as the default Accumulator.
-	 * @param dataSource
+	 * Constructor with AccumulatorAverage as the default DataSink.
 	 */
 	public DataManager(DataSource dataSource) {
 		this(dataSource, new DataSink[] {new AccumulatorAverage()});
@@ -200,10 +199,7 @@ public class DataManager implements Integrator.IntervalListener {
 	protected int updateInterval;
 
 	/**
-	 * Flag specifying whether the meter responds to integrator events
-	 * If false, the meter does not perform regular measurements or keep averages
-	 * In this situation the meter is probably measuring a property for use by some other object
-	 * Default is <code>true</code> for a Meter, but <code>false</code> for a MeterFunction.
+	 * Flag specifying whether the manager responds to integrator events
 	 */
 	protected boolean active=true;
 }
