@@ -76,6 +76,19 @@ public class SimpleLattice implements AbstractLattice {
         }
         return idx;
     }
+    
+    /**
+     * Returns the lattice index given the 1-d array index; reverses
+     * the effect of arrayIndex method.
+     */
+    private int[] latticeIndex(int index) {
+        int[] latticeIndex = new int[D];
+        for(int i=0; i<D; i++) {
+            latticeIndex[i] = index/jumpCount[i];
+            index -= latticeIndex[i]*jumpCount[i];
+        }
+        return latticeIndex;
+    }
 
     /* (non-Javadoc)
      * @see etomica.lattice.AbstractLattice#getDimensions()
@@ -95,22 +108,28 @@ public class SimpleLattice implements AbstractLattice {
         }
         sites = new Object[jumpCount[0]*size[0]];
         int[] idx = new int[D];
+        idx[D-1] = -1;
         for(int i=0; i<sites.length; i++) {
-            sites[i] = siteFactory.makeSite(this, idx);
             increment(idx, D-1);
+            sites[i] = siteFactory.makeSite(this, idx);
         }
 //        siteFactory.makeSites(this, sites);
     }
 
     //method used by setDimensions method to cycle the index array through its values
     //used recursively to advance each element as needed.
+    //also used by Iterator
     private void increment(int[] idx, int d) {
         idx[d]++;
-        if(d == 0) return;
-        if(idx[d] == size[d]) {
+        while(idx[d] == size[d] && d > 0) {//replaces recursive call
             idx[d] = 0;
-            increment(idx,d-1);
+            idx[--d]++;//decrement d, then increment idx
         }
+//        if(d == 0) return;
+//        if(idx[d] == size[d]) {
+//            idx[d] = 0;
+//            increment(idx,d-1);
+//        }
     }
     
     protected Object[] sites;
@@ -125,11 +144,29 @@ public class SimpleLattice implements AbstractLattice {
      */
     public static class Iterator implements SiteIterator {
         
+        public Iterator(int D) {
+            idx = new int[D];
+        }
+        
         public boolean hasNext() {
             return cursor < size;
         }
         public Object next() {
-            return hasNext() ? lattice.sites[cursor++] : null;
+            if(hasNext()) {
+                lattice.increment(idx,lattice.D-1);
+                return lattice.sites[cursor++];
+            } else {
+                return null;
+            }
+        }
+        public int[] nextIndex() {
+            if(hasNext()) {
+                lattice.increment(idx,lattice.D-1);
+                cursor++;
+                return idx;
+            } else {
+                return null;
+            }
         }
         public Object peek() {
             return hasNext() ? lattice.sites[cursor] : null;
@@ -137,6 +174,8 @@ public class SimpleLattice implements AbstractLattice {
         public void reset() {
             size = size();
             cursor = 0;
+            for(int i=0; i<idx.length; i++) idx[i] = 0;
+            idx[idx.length-1] = -1;
         }
         public int size() {
             return (lattice != null) ? lattice.sites.length : 0;
@@ -151,13 +190,15 @@ public class SimpleLattice implements AbstractLattice {
         private int cursor = Integer.MAX_VALUE;
         private SimpleLattice lattice;
         private int size = 0;
+        private final int[] idx;//index of the most recently returned iterate
     }//end of SiteIterator
 
     /**
      * An iterator that generates the neighboring sites of a given site.  The
      * neighbors are defined as those within a rectangular box centered on the 
      * site, with consideration of periodic boundaries.  Iterator can be configured
-     * to yield the up- and/or down-neighbors of the site.  
+     * to yield the up- and/or down-neighbors of the site.  The central site is
+     * not is not included among the iterates (not a self-neighbor).
      */
     public static class NeighborIterator implements SiteIterator {
 
@@ -200,6 +241,7 @@ public class SimpleLattice implements AbstractLattice {
          * Resets the iterator to loop through its iterates again.  This
          * must be done after any call to setRange, setDirection, or setSite.
          */
+        //other iterators assume that this call is inexpensive if neighbor list is not being updated
         public void reset() {
             if(needNeighborUpdate) updateNeighborList();
             cursor = 0;
@@ -252,7 +294,15 @@ public class SimpleLattice implements AbstractLattice {
         }
         
         /**
-         * Returns the next atom in the iteration sequence, or null
+         * Returns the index of the next iterate while advancing the
+         * iterator.
+         */
+        public int[] nextIndex() {
+            return lattice.latticeIndex(neighbors[cursor++]);
+        }
+        
+        /**
+         * Returns the next site in the iteration sequence, or null
          * if hasNext is false.
          */
         public Object next() {
@@ -472,13 +522,14 @@ public class SimpleLattice implements AbstractLattice {
         //define the site class
         class MySite {
             final int index;
+            final int[] coord;
             java.awt.Color color = java.awt.Color.white;
-            MySite(int i) {this.index = i;}
+            MySite(int i, int[] idx) {this.index = i;this.coord=(int[])idx.clone();}
         }
         //define a factory making the sites
         SiteFactory factory = new SiteFactory() {
             public Object makeSite(AbstractLattice lattice, int[] coord) {
-                return new MySite(((SimpleLattice)lattice).arrayIndex(coord));
+                return new MySite(((SimpleLattice)lattice).arrayIndex(coord),coord);
             }
 //            public void makeSites(AbstractLattice lattice, Object[] sites) {
 //                for(int i=0; i<sites.length; i++) {
@@ -490,14 +541,14 @@ public class SimpleLattice implements AbstractLattice {
         int dimension = 3;
         final SimpleLattice lattice = new SimpleLattice(dimension, factory);
         final SimpleLattice.NeighborIterator iterator = new NeighborIterator(dimension);
-        final SiteIterator siteIterator = new Iterator();
+        final SimpleLattice.Iterator siteIterator = new Iterator(dimension);
         iterator.setLattice(lattice);
         siteIterator.setLattice(lattice);
         //configure lattice
         //******change these values to perform different tests *********//
         //remember to change value of dimension in lattice constructor if using different dimensions here 
-        lattice.setSize(new int[] {19,11,15});
-        iterator.setSite(new int[] {10,5,8});
+        lattice.setSize(new int[] {12,11,15});
+        iterator.setSite(new int[] {0,5,8});
         iterator.setRange(new int[] {2,3,5});
 
         //define panel for display, so that it draws lattice with appropriately colored sites
@@ -514,7 +565,7 @@ public class SimpleLattice implements AbstractLattice {
                 iterator.reset();
                 while(iterator.hasNext()) {
                     MySite site = (MySite)iterator.next();
-                    System.out.println(site.index);
+//                    System.out.println(site.index);
                     site.color = java.awt.Color.YELLOW;
                 }
                 //generate up neighbors and color them blue
@@ -523,13 +574,21 @@ public class SimpleLattice implements AbstractLattice {
                 iterator.reset();
                 while(iterator.hasNext()) {
                     MySite site = (MySite)iterator.next();
-                    System.out.println(site.index);
+//                    System.out.println(site.index);
                     site.color = java.awt.Color.BLUE;
                 }
 //                siteIterator.reset();
 //                while(siteIterator.hasNext()) {
-//                    MySite site = (MySite)siteIterator.next();
-//                    System.out.println(site.index);
+//                    MySite site = (MySite)siteIterator.peek();
+//                    int[] coord = (int[])siteIterator.nextIndex();
+//                    System.out.print(site.index + "[");
+//                    for(int i=0; i<lattice.D(); i++) System.out.print(site.coord[i]+" ");
+//                    System.out.print(" [");
+//                    for(int i=0; i<lattice.D(); i++) System.out.print(coord[i]+" ");
+//                    System.out.print(" [");
+//                    int[] latticeIndex = lattice.latticeIndex(site.index);
+//                    for(int i=0; i<lattice.D(); i++) System.out.print(latticeIndex[i]+" ");
+//                    System.out.println();
 //                    site.color = java.awt.Color.BLUE;
 //                }
                 

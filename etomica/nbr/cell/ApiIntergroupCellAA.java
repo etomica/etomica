@@ -32,14 +32,14 @@ public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
 	 * Constructor makes iterator that must have phase specified and then be 
 	 * reset() before iteration.
      * 
-     * @param D the dimension of the space of the simulation (used to construct cell iterator)
+     * @param D the dimension of the space of the simulation (used to construct cell iterators)
      * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
 	public ApiIntergroupCellAA(int D, Species[] species) {
-        listIterator = ApiBuilder.makeInterlistIterator();
         cellIterator = new SimpleLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);
+        listIterator = ApiBuilder.makeInterlistIterator();
         aiInner = ((AtomIteratorListSimple)listIterator.getInnerIterator());
         aiOuter = ((AtomIteratorListSimple)listIterator.getOuterIterator());
         index0 = species[0].getIndex();
@@ -63,8 +63,8 @@ public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
             NeighborCell cell = (NeighborCell)cellIterator.peek();
             AtomList list0 = cell.occupants()[index0];
             AtomList list1 = cell.occupants()[index1];
-            boolean do0 = list0.size() > 0;
-            boolean do1 = list1.size() > 0;
+            boolean do0 = !list0.isEmpty();
+            boolean do1 = !list1.isEmpty();
             
             //no molecules of either species in cell
             if(!do0 && !do1) {
@@ -170,45 +170,10 @@ public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
     
     public void reset() {
         cellIterator.reset();
-        if(!cellIterator.hasNext()) {
-            listIterator.unset();
-            return;
-        }
-        centralCell = (NeighborCell)cellIterator.peek();
-        neighborIterator.setSite(cellIterator.nextIndex());
-        AtomList[] occupantLists = centralCell.occupants();
-
-        if(occupantLists[index0].size() > 0) {//central cell has (at least) molecules of species0 
-            aiOuter.setList(occupantLists[index0]);
-            innerIndex = index1;
-            neighborIterator.reset();
-
-            if(occupantLists[index1].size() > 0) {//central cell has molecules of both species
-                aiInner.setList(occupantLists[index1]);
-                listIterator.reset();
-                doListSwap = true;
-                
-            } else {//central cell has only molecules of species0
-                listIterator.unset();
-                doListSwap = false;
-                advanceLists();
-            }
-            
-        } else if(occupantLists[index1].size() > 0) {//central cell has only molecules of species1
-            aiOuter.setList(occupantLists[index1]);
-            innerIndex = index0;
-            neighborIterator.reset();
-            listIterator.unset();
-            doListSwap = false;
-            advanceLists();
-            
-        } else {//no molecules of either species in central cell
-            neighborIterator.unset();
-            doListSwap = false;
-            listIterator.unset();
-            advanceLists();
-        }
-        
+        neighborIterator.unset();
+        doListSwap = false;
+        listIterator.unset();
+        advanceLists();
     }
     
     // Moves to next pair of lists that can provide an iterate
@@ -222,24 +187,47 @@ public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
 
              //change from cellA/index0-cellB/index1 iteration to cellA/index1-cellB/index0
             } else if(doListSwap) {
+                //we'll get here only if list1 is not empty
                 aiOuter.setList(centralCell.occupants()[index1]);
+                innerIndex = index0;
+                neighborIterator.reset();
                 doListSwap = false;
-                if(aiOuter.size() > 0) {
-                    innerIndex = index0;
-                    neighborIterator.reset();
-                }
 
-                //advance central cell and set up neighbor cell iterator if central cell has some molecules
+                //advance central cell, prepare to iterate over pairs in it, and set up neighbor cell iterator
             } else if(cellIterator.hasNext()) {
                 centralCell = (NeighborCell)cellIterator.peek();
                 neighborIterator.setSite(cellIterator.nextIndex());
-                
-                aiOuter.setList(centralCell.occupants()[index0]);
-                doListSwap = true;
-                //do nbrCell iteration only if central cell has occupants
-                if(aiOuter.size() > 0) {
+ 
+                AtomList list0 = centralCell.occupants()[index0];
+                AtomList list1 = centralCell.occupants()[index1];
+
+                if(!list0.isEmpty()) {//central cell has (at least) molecules of species0 
+                    aiOuter.setList(list0);
                     innerIndex = index1;
                     neighborIterator.reset();
+
+                    if(!list1.isEmpty()) {//central cell has molecules of both species
+                        aiInner.setList(list1);
+                        listIterator.reset();//this is only place where listIterator is set with both centralCell lists
+                        doListSwap = true;//swap because want centralCell to be outer loop for both species
+                        
+                    } else {//central cell has molecules of species0 only
+                        listIterator.unset();
+                        doListSwap = false;
+                    }
+                    
+                } else if(!list1.isEmpty()) {//central cell has molecules of species1 only
+                    aiOuter.setList(list1);
+                    innerIndex = index0;
+                    neighborIterator.reset();
+                    listIterator.unset();
+                    doListSwap = false;
+                    
+                } else {//no molecules of either species in central cell
+                    neighborIterator.unset();
+                    doListSwap = false;
+                    listIterator.unset();
+                    advanceLists();
                 }
             } else {//no more cells at all
                 break;
@@ -288,6 +276,5 @@ public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
     private NeighborCell centralCell, neighborCell;
     private boolean doListSwap;
     private final Atom[] pair = new Atom[2];
-    private AtomList list0, list1;
     private int innerIndex;
 }

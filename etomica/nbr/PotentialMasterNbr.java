@@ -42,7 +42,7 @@ public class PotentialMasterNbr extends PotentialMaster {
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
 	public PotentialMasterNbr(Space space) {
-        super(space,IteratorFactoryCell.INSTANCE);
+        super(space,new IteratorFactoryCell(space.D()));
         setNCells(10);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new AtomIteratorArrayList();

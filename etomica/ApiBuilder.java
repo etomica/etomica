@@ -51,6 +51,8 @@ public final class ApiBuilder {
      * ((AtomIteratorListSimple)pairIterator.getInnerIterator).setList(innerList);
      * ((AtomIteratorListSimple)pairIterator.getOuterIterator).setList(outerList);
      * </code>
+     * Proper functioning of iterator requires that the lists be different
+     * instances, but this requirement is not enforced by the iterator. 
      */
     public static ApiInnerFixed makeInterlistIterator() {
         return new ApiInnerFixed(new AtomIteratorListSimple(), new AtomIteratorListSimple());

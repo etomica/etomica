@@ -17,14 +17,9 @@ import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
 import etomica.SpeciesAgent;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.LatticeEvent;
-import etomica.lattice.LatticeListener;
-import etomica.lattice.Primitive;
+import etomica.lattice.CellLattice;
 import etomica.lattice.PrimitiveCubic;
 import etomica.lattice.PrimitiveOrthorhombic;
-import etomica.lattice.SimpleLattice;
-import etomica.lattice.Site;
 
 /**
  * Class that defines and manages construction and use of lattice of cells 
@@ -36,7 +31,6 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     private final CellLattice lattice;
     private final int[] dimensions;
     private final Space space;
-    private final Primitive primitive;
     private final Phase phase;
     protected double neighborRange;
     private int listCount;
@@ -45,16 +39,12 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     private int updateInterval;
     private int priority;
     
-    public NeighborCellManager(Phase phase, int nCells) {
-        this(phase, nCells, new PrimitiveCubic(phase.space()));
-    }
     /**
      * 
      */
-    public NeighborCellManager(Phase phase, int nCells, Primitive primitive) {
+    public NeighborCellManager(Phase phase, int nCells) {
         this.phase = phase;
         space = phase.space();
-        this.primitive = primitive;
         neighborRange = Default.ATOM_SIZE;
         dimensions = new int[space.D()];
         for(int i=0; i<space.D(); i++) dimensions[i] = nCells;
@@ -73,35 +63,13 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      * deployedLattices array kept by this iterator factory class, and by 
      * the reference in each neighbor sequencer to the cell containing its atom.
      */
-    private BravaisLattice makeCellLattice(final Phase phase) {
-        //make the unit cell factory and set it to produce cells of the appropriate size
-        final Primitive primitiveCopy = primitive.copy();//each new lattice works with its own primitive
-        Space.Vector primitiveSize = space.makeVector();
-        primitiveSize.E(phase.boundary().dimensions());
-        primitiveSize.DE(Space.makeVector(dimensions));
-        primitiveCopy.setSize(primitiveSize.toArray());
+    private CellLattice makeCellLattice(final Phase phase) {
         //construct the lattice
-        final BravaisLattice lattice = 
-            BravaisLattice.makeLattice(space, NeighborCell.makeFactory(space,primitiveCopy),
-                                        dimensions, primitiveCopy);
-        lattice.shiftFirstToOrigin();
-        
-        //set up the neighbor lists for each cell in the lattice
-        //TODO merge with etomica.nbr.NeighborCriterion, or just use AtomFilter
-        lattice.setupNeighbors(makeNeighborCriterion());
+        final CellLattice lattice = new CellLattice(space.D, NeighborCell.FACTORY);
+        Space.Vector cellSize = (Space.Vector)phase.boundary().dimensions().clone();
+        cellSize.DE(Space.makeVector(dimensions));
+        lattice.setCellSize(cellSize.toArray());
                 
-        //add listener to notify all sequencers of any lattice events (resizing of lattice, for example)
-        lattice.eventManager.addListener(new LatticeListener() {
-            public void actionPerformed(SimulationEvent evt) {
-                actionPerformed((LatticeEvent)evt);
-            }
-            public void actionPerformed(LatticeEvent evt) {
-                if(evt.type() == LatticeEvent.REBUILD || evt.type() == LatticeEvent.ALL_SITE) {
-                    assignCellAll();
-                }//end if
-            }
-        });
-        
         //add listener to phase to update the size and placement of the lattice
         //cells if the phase undergoes an inflation of its boundary.
         //An inflation event should not, however, cause the molecules to be reassigned
@@ -231,11 +199,10 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      * with a cell holds the molecules of a given species that are in that cell.
      */
     public void addList() {
-        AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
-        iterator.reset();
         listCount++;
-        while(iterator.hasNext()) {//loop over cells
-            ((NeighborCell)iterator.nextAtom()).addOccupantList();
+        Object[] sites = lattice.sites();
+        for(int i=sites.length-1; i>=0; i--) {
+            ((NeighborCell)sites[i]).addOccupantList();
         }
     }
 
@@ -266,21 +233,4 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     public void setPriority(int priority) {
         this.priority = priority;
     }
-    
-    //returns a criterion used to set up neighboring cells in lattice
-    private etomica.lattice.NeighborManager.Criterion makeNeighborCriterion() {
-        return new etomica.lattice.NeighborManager.Criterion() {
-            final Space.Vector dr = space.makeVector();
-            final Space.CoordinatePair cPair;
-            //initializer
-            {   cPair = space.makeCoordinatePair();
-                cPair.setBoundary(phase.boundary());
-             }
-            public boolean areNeighbors(Site s1, Site s2) {
-                cPair.reset(s1.coord, s2.coord);
-                return ((AtomTypeCell)s1.type).unitCell.r2NearestVertex(cPair.dr()) < neighborRange*neighborRange;
-            }
-        };
-    }
-
 }
