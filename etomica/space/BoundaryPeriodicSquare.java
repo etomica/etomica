@@ -3,7 +3,6 @@ package etomica.space;
 import etomica.Default;
 import etomica.Space;
 import etomica.lattice.IndexIteratorSequential;
-import etomica.space3d.Vector3D;
 
 /*
  * History Created on Jan 24, 2005 by kofke
@@ -49,14 +48,6 @@ public class BoundaryPeriodicSquare extends Boundary {
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);
-    }
-
-    //Converts dr to its nearest-image value and returns in shift
-    //the difference between the new and old values of dr
-    public void nearestImage(Vector3D dr, Vector3D shift) {
-        shift.EMod2Shift(dr, dimensionsHalf);
-        if (!shift.isZero())
-            dr.PE(shift);
     }
 
     public Vector centralImage(Vector r) {
@@ -145,6 +136,5 @@ public class BoundaryPeriodicSquare extends Boundary {
     protected final Vector dimensionsHalf;
     private final IndexIteratorSequential indexIterator;
     boolean[] needShift;
-    private final float[][] shift0= new float[0][0];
 
 }

@@ -50,8 +50,6 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
             public final void nearestImage(Vector dr) {}
             public final Vector centralImage(Vector r) {return null;}
             public double volume() {return 0.0;}
-            public void inflate(double s) {}
-            public void inflate(Vector s) {}
             public void setDimensions(Vector v) {}
             public double[][] imageOrigins(int nShells) {return null;}
             public float[][] getOverflowShifts(Vector r, double distance) {return null;}
