@@ -1,4 +1,6 @@
-package etomica.utility;
+package etomica.math;
+
+import etomica.utility.AssociatedPolynomial;
 
 
 public class SphericalHarmonics{

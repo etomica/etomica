@@ -29,6 +29,8 @@ public interface Histogram {
 	public void setXRange(DoubleRange range);
 	public DoubleRange getXRange();
 	
+	public void reset();
+	
 	public interface Factory {
 		public Histogram makeHistogram();
 		public Histogram makeHistogram(int n);

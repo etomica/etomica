@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.math;
 
 /**
  * Static-method library of various functions

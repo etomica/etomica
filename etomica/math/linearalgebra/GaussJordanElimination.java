@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.math.linearalgebra;
 
 
 public class GaussJordanElimination{

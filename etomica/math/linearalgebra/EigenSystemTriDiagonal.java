@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.math.linearalgebra;
 
 
 //Eigenvalues and Eigenvectors of a tridiagonal matrix Refer Numerical Recipes page 480-481 

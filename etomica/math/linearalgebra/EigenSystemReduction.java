@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.math.linearalgebra;
 
 //Reduction of a symmetric matrix to tridiagonal form Refer Numerical Recipes page474-475 
 public class EigenSystemReduction {
