@@ -244,7 +244,8 @@ public class RectangularLattice implements FiniteLattice {
          */
         public void setSite(int[] index) {
             if(index.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setSite");
-            System.arraycopy(index, 0, centralSite, 0, D);
+            for(int i=D-1; i>=0; i--) centralSite[i] = index[i];
+//            System.arraycopy(index, 0, centralSite, 0, D);
             needNeighborUpdate = true;
             unset();
         }
@@ -329,8 +330,7 @@ public class RectangularLattice implements FiniteLattice {
 //            if(!hasNext()) return null;
  //           currentPbc = pbc[cursor];
 //            return lattice.sites[neighbors[cursor++]];
-//            return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
-            return lattice.sites[neighbors[cursor++]];
+            return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
         }
         
         public Vector getNearestImageVector() {

@@ -134,7 +134,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
     }
     
     public Atom[] next() {
-//        if(!hasNext()) return null;
+        if(!hasNext()) return null;
         Atom[] nextPair = listIterator.next();
         pair[0] = nextPair[0];
         pair[1] = nextPair[1];
