@@ -23,15 +23,17 @@ public class ConfigurationSequential extends Configuration {
     public void setFillVertical(boolean b) {fill = b;}
     public boolean getFillVertical() {return fill;}
     
-    public void initializeCoordinates(Phase phase) {
+    public void initializeCoordinates(AtomGroup atoms) {
         
+        Phase phase = atoms.parentPhase();
+        if(phase == null) return;
         double Lx = phase.dimensions().component(0);
         double Ly = 0.0;
         if(phase.parentSimulation().space().D()>1)  Ly = phase.dimensions().component(1);
 
     // Count number of molecules
         int sumOfMolecules = 0;
-        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             sumOfMolecules += s.moleculeCount();
         }
@@ -49,10 +51,12 @@ public class ConfigurationSequential extends Configuration {
         
    // Place molecules     
         int i = 0;
-        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
-                m.setCOM(rLat[i]);
+            AtomIterator iterator = s.childIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                iterator.next().coord.translateTo(rLat[i]);
                 i++;
             }
         }

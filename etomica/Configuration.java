@@ -43,9 +43,12 @@ public abstract class Configuration implements java.io.Serializable {
     public void initializeMomenta(Phase phase) {
         Space.Vector momentumSum = phase.parentSimulation().space().makeVector();
         int sum = 0;
-        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
+            AtomIterator iterator = s.childIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom a = iterator.next();
                 a.coord.randomizeMomentum(temperature);
                 sum++;
                 momentumSum.PE(a.coord.momentum());
@@ -53,10 +56,12 @@ public abstract class Configuration implements java.io.Serializable {
 	    }
     //    Zero center-of-mass momentum
         momentumSum.DE((double)sum);
-        for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
-                a.coord.momentum().ME(momentumSum);
+            AtomIterator iterator = s.childIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                iterator.next().coord.momentum().ME(momentumSum);
             }
         }
     }

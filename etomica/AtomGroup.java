@@ -44,6 +44,18 @@ public class AtomGroup extends Atom {
     public int atomCount() {return -1;}
     public int childCount() {return childCount;}
     
+    public Atom getAtom(int i) {
+        if(i < 0 || i >= childCount) {
+            throw new IndexOutOfBoundsException("Index: "+i+
+                                                ", Number of atoms: "+childCount);
+        }
+        //could make more efficient by selecting to iterate from start or end of list
+        Atom atom = firstChild();
+        for(int j=i; j>0; j--) atom = atom.nextAtom();
+        return atom;
+    }
+            
+            
     /**
      * Returns the first leaf atom descended from this group.
      */
@@ -193,11 +205,13 @@ public class AtomGroup extends Atom {
     /**
      * Iterator of the children of this group.
      */
-    public final AtomIteratorSequential childIterator = new AtomIteratorSequential() {
+    public final AtomIteratorSequential childIterator = new Iterator();
+    
+    public final class Iterator extends AtomIteratorSequential {
         public Atom defaultFirstAtom() {return firstChild();}
         public Atom defaultLastAtom() {return lastChild();}
         public boolean contains(Atom a) {return a.parentGroup() == AtomGroup.this;}
-    };
+    }
     /**
      * Indicates whether the children of this group are themselves atom groups,
      * or are leaf atoms.
@@ -205,8 +219,6 @@ public class AtomGroup extends Atom {
     public final boolean childrenAreGroups() {
         return factory.producesAtomGroups();
     }
-
-    
     
     /**
     * Sets the number of molecules for this species.  Makes the given number

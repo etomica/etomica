@@ -270,7 +270,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                     g.setColor(java.awt.Color.gray);
 	                g.drawString(text, xP, yP-20);
 	                g.setColor(java.awt.Color.red);
-	                g.drawString(Integer.toString(a.debugIndex), xP-20, yP-20);
+	                g.drawString(Integer.toString(a.index()), xP-20, yP-20);
 	            }
 	        }
 	    });

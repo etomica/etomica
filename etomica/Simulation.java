@@ -205,36 +205,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         element.setName(element.getClass().getName().substring(8) + Integer.toString(list.size()));
         list.add(element);
         allElements.add(element);
-        
-        if(element instanceof Species) {
-            Species species = (Species)element;
-            
-            //update linked list of species
-            if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
-            else {firstSpecies = species;}
-            lastSpecies = species;
-            
-            //set default index of species
-            species.setSpeciesIndex(speciesCount()-1);
-            
-            //resize potential arrays
-            int n = speciesCount()-1; //size of old arrayss
-            Potential1[] new1 = new Potential1[n+1];
-            Potential2[][] new2 = new Potential2[n+1][n+1];
-            
-            for(int i=0; i<n; i++) {
-                new1[i] = potential1[i];
-                new2[n][i] = p2IdealGas;
-                new2[i][n] = p2IdealGas;
-                for(int j=0; j<n; j++) {       
-                    new2[i][j] = potential2[i][j];
-                }
-            }
-            new1[n] = p1Null;
-            new2[n][n] = p2IdealGas;
-            potential1 = new1;
-            potential2 = new2;
-        }//end of if(element instanceof Species)
     }//end of register method
                 
     public void unregister(Simulation.Element element) {

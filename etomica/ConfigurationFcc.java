@@ -13,7 +13,7 @@ public class ConfigurationFcc extends Configuration {
     
     // Count number of molecules
         int sumOfMolecules = 0;
-        for(Species.Agent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(SpeciesAgent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             sumOfMolecules += s.moleculeCount();
         }
@@ -24,10 +24,12 @@ public class ConfigurationFcc extends Configuration {
 
    // Place molecules     
         int i = 0;
-        for(Species.Agent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(SpeciesAgent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
-                m.setCOM(rLat[i]);
+            AtomIterator iterator = s.childIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                iterator.next().coord.translateTo(rLat[i]);
                 i++;
             }
         }

@@ -51,9 +51,7 @@ public abstract class PhaseAction extends etomica.Action {
         
         public static void doAction(Phase p, Space.Vector v) {
             if(v == null || p == null) return;
-            for(Molecule m=p.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.translateBy(v);
-            }
+            m.masterSpecies().translateBy(v);
         }
         public void attempt() {doAction(phase, translationVector);}
         public void undo() {

@@ -41,7 +41,7 @@ public class Atom implements java.io.Serializable {
     /**
      * Simulation in which this atom resides
      */
-    public final Simulation parentSimulation() {return parentSpecies().parentSimulation();}
+    public Simulation parentSimulation() {return parentSpecies().parentSimulation();}
         
     /**
      * Phase in which this atom resides
@@ -49,8 +49,9 @@ public class Atom implements java.io.Serializable {
      //change to container
     public Phase parentPhase() {return parentGroup.parentPhase();}
 
-    public Species parentSpecies() {return parentGroup.parentSpecies();}
-
+    public Species parentSpecies() {return parentSpeciesAgent().parentSpecies();}
+    
+    public SpeciesAgent parentSpeciesAgent() {return parentGroup.parentSpeciesAgent();}
 /*   linked list of bonds
     Bond firstBond;
     

@@ -283,16 +283,16 @@ public class Space2D extends Space implements EtomicaElement {
         * 
         * @param u
         */
-        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Space2D.Vector)u);}
+        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Vector)u);}
         /**
         * Moves the atom by some vector distance
         * 
         * @param u
         */
         public void translateTo(Space.Vector u) {r.E((Space2D.Vector)u);}      
-        public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Space2D.Vector)u);}
-        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Space2D.Vector)u);}
-        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Space2D.Vector)u);}  
+        public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
+        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
+        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
         public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
         public void replace() {r.E(rLast);}
@@ -421,8 +421,8 @@ public class Space2D extends Space implements EtomicaElement {
                 coord.randomizeMomentum(temperature);
             }
         }
-    }
-/* comment until space3d ready    
+    }//end of CoordinateGroup
+
     public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
         private double L = 0.0; //magnitude of angular momentum
         private final Space3D.Vector vector = new Space3D.Vector();//used to return vector quantities (be sure to keep x and y components zero)
@@ -442,7 +442,6 @@ public class Space2D extends Space implements EtomicaElement {
             orientation.rotateBy(t*L/I[0]);//all elements of I equal for spherical top
         }
     }
- */   
     public static class Orientation extends Space.Orientation {
         //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
         //components in the body-fixed frame

@@ -13,13 +13,18 @@ public class SpeciesAgent extends AtomGroup {
     private final Species parentSpecies;
     
     public SpeciesAgent(Species s, SpeciesMaster parent, int index, int nChild,
-                        CoordinateInitializer initializer) {
-        super(parent, index, s.atomFactory(), nChild, initializer, true);
+                        Configuration initializer) {
+        super(parent, index, AtomType.NULL, s.moleculeFactory(), nChild, initializer, true);
         parentSpecies = s;
     }
         
     public final Species parentSpecies() {return parentSpecies;}
     
-    public final byte depth() {return 1;}
+    public final SpeciesAgent parentSpeciesAgent() {return this;}
+    
+    public SpeciesAgent nextSpecies() {return (SpeciesAgent)nextAtom();}
+    public int moleculeCount() {return childCount();}
+    
+    public final int depth() {return 1;}
         
 } //end of SpeciesAgent

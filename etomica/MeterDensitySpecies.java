@@ -8,7 +8,7 @@ package etomica;
 public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
 {
     private Species species;
-    private Species.Agent speciesAgent;
+    private SpeciesAgent speciesAgent;
     
     public MeterDensitySpecies() {
         this(Simulation.instance);

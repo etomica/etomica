@@ -18,18 +18,9 @@ package etomica;
         private Phase phase;
         public IteratorFactory(Phase p) {phase = p;}
         public AtomIterator makeAtomIterator() {return phase.new AtomIterator();}
-/*        public AtomIterator makeAtomIteratorUp() {return new AtomIteratorUp(phase);}
-        public AtomIterator makeAtomIteratorDown() {return new AtomIteratorDown(phase);}
-        public AtomIterator makeAtomIteratorUpDown() {return new AtomIteratorUpDown(phase);}
-        public AtomIterator makeAtomIterator(AtomIterator.Initiation init) {return new AtomIteratorUp(phase, init);}
-        public AtomIterator makeAtomIteratorUp(AtomIterator.Initiation init) {return new AtomIteratorUp(phase, init);}
-        public AtomIterator makeAtomIteratorDown(AtomIterator.Initiation init) {return new AtomIteratorDown(phase, init);}
-        public AtomIterator makeAtomIteratorUpDown(AtomIterator.Initiation init) {return new AtomIteratorUpDown(phase, init);}
-        public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIteratorUp(phase, AtomIterator.SKIP_FIRST);}
-        public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIteratorDown(phase, AtomIterator.SKIP_FIRST);}
-  */
-        public void addMolecule(Molecule m) {}
-        public void deleteMolecule(Molecule m) {}
+
+        public void addAtom(Atom a) {}
+        public void deleteAtom(Atom a) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved
         public void reset() {}
         public Phase phase() {return phase;}
