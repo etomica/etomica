@@ -167,7 +167,7 @@ public final class Atom implements Space.Occupant {
         public Atom next();
         public void reset(Atom a);
         public void reset();
-        public void allAtoms(Action act);
+        public void all(final Action act);
             
 //        public Phase phase();
 //        public Atom first();  //simply returns the first atom, without affecting status of iterator
@@ -184,7 +184,7 @@ public final class Atom implements Space.Occupant {
             public void reset() {hasNext = (atom != null);}
             public void reset(Atom a) {atom = a; reset();}
             public Atom next() {hasNext = false; return atom;}
-            public void allAtoms(Atom.Action act) {act.action(atom);}
+            public void all(final Atom.Action act) {act.action(atom);}
         }
         
         public static class Up implements Iterator {
@@ -207,7 +207,7 @@ public final class Atom implements Space.Occupant {
                 hasNext = (atom != null);
                 return nextAtom;
             }
-            public void allAtoms(Atom.Action act) {
+            public void all(final Atom.Action act) {
                 for(Atom a=atom; a!=null; a=a.nextAtom()) {act.action(a);}
             }
         } //end of Atom.Iterator.Up
@@ -251,7 +251,7 @@ public final class Atom implements Space.Occupant {
                 if(atom == null) {hasNext = false;}
                 return nextAtom;
             }
-            public void allAtoms(Atom.Action act) {
+            public void all(Atom.Action act) {
                 for(Atom a=atom; a!=null; a=a.previousAtom()) {act.action(a);}
             }
         } //end of Atom.Iterator.Down

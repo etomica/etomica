@@ -12,6 +12,10 @@ public interface Lattice {
     public Site randomSite();            //get a random site
     public Site.Iterator iterator();     //iterator for all sites in lattice
     
+    public interface Metric extends Lattice {
+        public double r2(Site s1, Site s2);
+    }
+    
     public interface Coordinate {}
     
     public interface Occupant {
@@ -23,9 +27,16 @@ public interface Lattice {
         public Lattice lattice();             //lattice on which the site resides
         public boolean isAdjacentTo(Site s);  //test for adjacency of the site to another site
         public Coordinate coordinate();       //coordinate of the site
+        public Site makeAnother(Lattice lat); //returns a new site of the same type
         
         public interface Habitable extends Site {
             public Occupant[] occupants();
+        }
+        
+        public interface Cell extends Site {
+            public double[][] vertices();
+            public double volume();
+            public boolean contains(Space.Vector r);
         }
         
         public interface Iterator extends Cloneable {
@@ -33,7 +44,7 @@ public interface Lattice {
             public void reset();              //put iterator back in beginning state
             public Site first();              //return first element of list without affecting state of iterator
             public Site next();               //advance iterator and return next element
-            public void allSites(Action act); //method to perform an action sequentially to every site given by iterator
+            public void all(Action act); //method to perform an action sequentially to every site given by iterator
             public Object clone();            //intended to create a shallow copy of the iterator, which permits iteration over the same set of sites independently of (and without interfering with) the original
         }
 
@@ -59,13 +70,13 @@ public interface Lattice {
                 if(nextLink==null && doBoth==true) {nextLink = firstDown; doBoth = false;}
                 return nextSite;
             }
-            public void allSitesUp(Lattice.Site.Action act) {  //method to perform an action sequentially to every up-site given by iterator
+            public void allUp(final Lattice.Site.Action act) {  //method to perform an action sequentially to every up-site given by iterator
                 for(Lattice.Site.Linker l=firstUp; l!=null; l=l.next) {act.action(l.site);}
             }
-            public void allSitesDown(Lattice.Site.Action act) { //method to perform an action sequentially to every down-site given by iterator
+            public void allDown(final Lattice.Site.Action act) { //method to perform an action sequentially to every down-site given by iterator
                 for(Lattice.Site.Linker l=firstDown; l!=null; l=l.next) {act.action(l.site);}
             }
-            public void allSites(Lattice.Site.Action act) {
+            public void all(final Lattice.Site.Action act) {
                 for(Lattice.Site.Linker l=firstUp; l!=null; l=l.next) {act.action(l.site);}
                 for(Lattice.Site.Linker l=firstDown; l!=null; l=l.next) {act.action(l.site);}
             }

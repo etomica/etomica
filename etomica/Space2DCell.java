@@ -12,7 +12,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
        
     public class Coordinate extends Space2D.Coordinate implements Lattice.Occupant {
         Coordinate nextNeighbor, previousNeighbor;  //next and previous coordinates in neighbor list
-        public LatticeSquare.Site cell;             //cell currently occupied by this coordinate; ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
+        public LatticeBravais.SimpleCubic.Cell cell;             //cell currently occupied by this coordinate; ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
         public Coordinate(Space.Occupant o) {super(o);}
         public final void setNextNeighbor(Coordinate c) {
             nextNeighbor = c;
@@ -25,7 +25,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
 
    //Determines appropriate cell and assigns it
         public void assignCell() {             
-            LatticeSquare cells = ((NeighborIterator)parentPhase().iterator()).cells;
+            LatticeBravais.SimpleCubic cells = ((NeighborIterator)parentPhase().iterator()).cells;
             LatticeSquare.Site newCell = cells.nearestSite(this.r, (Space2D.Vector)parentPhase().dimensions());
             if(newCell != cell) {assignCell(newCell);}
         }
@@ -53,7 +53,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
         public NeighborIterator(Phase p) {
             super(p);
             xCells = yCells = 15;
-            cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
+            cells = new LatticeBravais.SimpleCubic(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
         
         public void moveNotify(Atom a) {
