@@ -26,9 +26,9 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
                 double stdevRatio = Double.NaN;
                 if (average[0] != 0.0) {
                     errorRatio = error[i]/average[i];
-                    errorRatio = Math.sqrt(errorRatio*errorRatio + errorRatio0) * average[i]/average[0];
+                    errorRatio = Math.sqrt(errorRatio*errorRatio + errorRatio0) * Math.abs(average[i]/average[0]);
                     stdevRatio = standardDeviation[i]/average[i];
-                    stdevRatio = Math.sqrt(stdevRatio*stdevRatio + stdevRatio0) * average[i]/average[0];
+                    stdevRatio = Math.sqrt(stdevRatio*stdevRatio + stdevRatio0) * Math.abs(average[i]/average[0]);
                 }
                 data[(numBaseStats+0)*nData+i] = sum[i]/sum[0];
                 data[(numBaseStats+1)*nData+i] = ratioError[i] = errorRatio;
