@@ -33,6 +33,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         setMass(mass);
         force = 0.0;
         pistonBoundary = boundary;
+        virialSum = 0.0;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -163,7 +164,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         }
         if (Default.FIX_OVERLAP && t<0.0) t = 0.0;
         if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(atoms))) {
-            System.out.println(a+" "+dr+" "+dv+" "+discr+" "+t+" "+atom);
+            System.out.println(atom+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(atom.coord.position().x(wallD)+((ICoordinateKinetic)atom.coord).velocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
         }
         return t + falseTime;
@@ -197,12 +198,27 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             }
         }
         double dp = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
+        virialSum += dp;
         v.setX(wallD,v.x(wallD)+dp*atom.type.rm());
         atom.coord.position().setX(wallD,r-dp*atom.type.rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
         
     }
+    
+    public double lastWallVirial() {
+        double area = 1.0;
+        final Vector dimensions = pistonBoundary.dimensions();
+        for (int i=0; i<D; i++) {
+            if (i != wallD) {
+                area *= (dimensions.x(i)-collisionRadius*2.0);
+            }
+        }
+        double s = virialSum / area;
+        virialSum = 0.0;
+        return s;
+    }
+        
     
     public double lastCollisionVirial() {return 0;}
     
@@ -228,12 +244,10 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void advanceAcrossTimeStep(double tStep) {
         if (pressure >= 0.0) {
             double area = 1.0;
-            if (pressure > 0.0) {
-                final Vector dimensions = pistonBoundary.dimensions();
-                for (int i=0; i<D; i++) {
-                    if (i != wallD) {
-                        area *= (dimensions.x(i)-collisionRadius*2.0);
-                    }
+            final Vector dimensions = pistonBoundary.dimensions();
+            for (int i=0; i<D; i++) {
+                if (i != wallD) {
+                    area *= (dimensions.x(i)-collisionRadius*2.0);
                 }
             }
             force = pressure*area;
@@ -271,6 +285,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private final Boundary pistonBoundary;
     private Atom atom;
     private double thickness = 0.0;
+    private double virialSum;
     
 }//end of P1HardBoundary
    
