@@ -48,10 +48,11 @@ public class PotentialHardDiskPiston extends simulate.Potential
         if(discrim > 0) {
             boolean adr = (a*dr > 0);
             boolean adv = (a*dv > 0);
+            int aSign = (a > 0) ? +1 : -1;
             if(adr && adv) {time = Double.MAX_VALUE;}
-            else if(adr) {time = (-dv - Math.sqrt(discrim))/a;}
+            else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;}
             else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));}
-            else {time = (-dv + Math.sqrt(discrim))/a;}
+            else {time = (-dv + aSign*Math.sqrt(discrim))/a;}
         }
 //        System.out.println(dr+"  "+dv+"  "+a+"  "+time);
         return time;

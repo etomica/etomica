@@ -47,15 +47,16 @@ public class PotentialHardDiskWall extends simulate.Potential
             if(Math.abs(dr) < collisionRadius) {   //this may still need some work
                 return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
             dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
-            double a = (wall.isStationary() ? +parentPhase.getG() : -parentPhase.getG());
+            double a = wall.isStationary() ? -(parentPhase.getG()) : parentPhase.getG();
             double discrim = dv*dv - 2*a*dr;
             if(discrim > 0) {
                 boolean adr = (a*dr > 0);
                 boolean adv = (a*dv > 0);
+                int aSign = (a > 0) ? +1 : -1;
                 if(adr && adv) {time = Double.MAX_VALUE;}
-                else if(adr) {time = (-dv - Math.sqrt(discrim))/a;}
+                else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;}
                 else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration
-                else {time = (-dv + Math.sqrt(discrim))/a;}
+                else {time = (-dv + aSign*Math.sqrt(discrim))/a;}
             }
             return time;
         }
