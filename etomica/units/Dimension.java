@@ -1,27 +1,6 @@
 package etomica.units;
+import etomica.Default;
 import etomica.Simulation;
-
-/**
- * Collection of interfaces for dimensions of physical quantities.
- * These are used by get[FIELDNAME]Dimension() methods to determine the
- * physical dimensions of the field variable [FIELDNAME].  This information is used
- * by Devices and Displays to present options for setting the I/O units.<br>
- *
- * This interface defines a static final instance of each inner interface.
- * These fields are returned by the get[FIELDNAME]Dimension() methods to
- * specify the dimension of the quantity described by FIELDNAME.
- * For example, if the field timeStep has dimensions of time, then this would
- * be indicated by the method as follows:<br>
- * public Dimension getTimeStepDimension() {return Dimension.TIME;}
- * These instances are also returned by Meter and Modulator to indicate the dimensions of 
- * the quantity being measured or modulated.
- *
- * @author David Kofke
- */
-
-//Java2 imports
-//import java.util.LinkedList;
-
 import etomica.utility.java2.LinkedList;
 
 public abstract class Dimension implements java.io.Serializable {
@@ -77,7 +56,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 0., 0., 1.};
         public double[] signature() {return signature;}
         public String toString() {return "Quantity";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().quantity();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.quantity();}
         public Class baseUnit() {return BaseUnit.Quantity.class;}
     }
     
@@ -89,7 +68,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 0., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Decimal";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().fraction();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.fraction();}
         public Class baseUnit() {return BaseUnit.Fraction.class;}
    	
     }
@@ -99,7 +78,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {1., 0., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Mass";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().mass();}
+        public Unit defaultIOUnit() {return etomica.Default.UNIT_SYSTEM.mass();}
         public Class baseUnit() {return BaseUnit.Mass.class;}
     }
     public static class Length extends Dimension {
@@ -107,7 +86,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 1., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Length";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().length();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.length();}
         public Class baseUnit() {return BaseUnit.Length.class;}
     }
     public static class Time extends Dimension {
@@ -115,7 +94,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 0., 1., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Time";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().time();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.time();}
         public Class baseUnit() {return BaseUnit.Time.class;}
     }
     public static class Angle extends Dimension {
@@ -123,7 +102,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 0., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Angle";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().angle();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.angle();}
         public Class baseUnit() {return BaseUnit.Angle.class;}
     }
     public static class Charge extends Dimension {//(D-A^3/ps^2)^(1/2)
@@ -131,7 +110,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0.5, 1.5, -1., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Charge";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().charge();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.charge();}
         public Class baseUnit() {return BaseUnit.Charge.class;}
     }
     public static class Dipole extends Dimension {//(D-A^5/ps^2)^(1/2)
@@ -139,7 +118,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0.5, 2.5, -1., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Dipole moment";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().dipole();}
+        public Unit defaultIOUnit() {return etomica.Default.UNIT_SYSTEM.dipole();}
         public Class baseUnit() {return BaseUnit.Dipole.class;}
     }
     public static class Energy extends Dimension {//D-A^2/ps^2
@@ -147,13 +126,13 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {1., 2., -2., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Energy";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().energy();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.energy();}
         public Class baseUnit() {return BaseUnit.Energy.class;}
     }
     public static class Temperature extends Energy {
         private Temperature() {}
         public String toString() {return "Temperature";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().temperature();}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.temperature();}
         public Class baseUnit() {return BaseUnit.Temperature.class;}
     }
     public static class Pressure extends Dimension {//(D-A/ps^2)/A^2 = D/(A-ps^2)
@@ -161,7 +140,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {1., -1., -2., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Pressure";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().pressure(Simulation.instance.space().D());}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.pressure(Simulation.instance.space().D());}
         public Class baseUnit() {return BaseUnit.Pressure.class;}
     }
     public static class Pressure2D extends Pressure {//(D-A/ps^2)/A = D/ps^2
@@ -169,7 +148,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {1., 0., -2., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "2D pressure";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().pressure(2);}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.pressure(2);}
         public Class baseUnit() {return BaseUnit.Pressure2D.class;}
     }
     public static class Volume extends Dimension {
@@ -177,7 +156,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 3., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Volume";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().volume(Simulation.instance.space().D());}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.volume(Simulation.instance.space().D());}
         public Class baseUnit() {return BaseUnit.Volume.class;}
     }
     public static class Volume2D extends Volume {
@@ -185,7 +164,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 2., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "2D volume";}
-        public Unit defaultIOUnit() {return Simulation.unitSystem().volume(2);}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.volume(2);}
         public Class baseUnit() {return BaseUnit.Volume2D.class;}
     }
     
