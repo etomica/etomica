@@ -211,21 +211,22 @@ public class IntegratorHard extends IntegratorMD {
 		}
 	}
 
-	/**
-	* Sets up the integrator for action.
-	* Do an upList call for each atom and find the next collider
-	*/
-	public void reset() {
-		if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
-		atomIterator.reset();
-		while(atomIterator.hasNext()) {
-			((IntegratorHard.Agent)atomIterator.nextAtom().ia).resetCollision();
-		}
-		targetAtom[0] = null;
-		upList.setTargetAtoms(targetAtom);
-		potential.calculate(firstPhase, upList, collisionHandlerUp); //assumes only one phase
-		findNextCollider();
-	}
+    /**
+     * Sets up the integrator for action.
+     * Do an upList call for each atom and find the next collider
+     */
+    public void reset() {
+        super.reset();
+        if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            ((IntegratorHard.Agent)atomIterator.nextAtom().ia).resetCollision();
+        }
+        targetAtom[0] = null;
+        upList.setTargetAtoms(targetAtom);
+        potential.calculate(firstPhase, upList, collisionHandlerUp); //assumes only one phase
+        findNextCollider();
+    }
                 
     /**
     * The simulation time elapsed since the start of the integration.

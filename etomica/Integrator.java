@@ -29,39 +29,29 @@ import etomica.utility.NameMaker;
  */
 public abstract class Integrator implements java.io.Serializable {
 
-	protected final PotentialMaster potential;
-
-	protected Phase firstPhase;
-
-	protected Phase[] phase;
-
-	protected boolean equilibrating = false;
-
-	int phaseCount = 0;
-
-	int phaseCountMax = 1;
-
-	protected int sleepPeriod = 10;
-
+    protected final PotentialMaster potential;
+    protected Phase firstPhase;
+    protected Phase[] phase;
+    protected boolean equilibrating = false;
+    int phaseCount = 0;
+    int phaseCountMax = 1;
+    protected int sleepPeriod = 10;
     private final LinkedList intervalListeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
-    
-	int integrationCount = 0;
-
-	protected double temperature = Default.TEMPERATURE;
-
-	protected boolean isothermal = false;
-    
+    int integrationCount = 0;
+    protected double temperature = Default.TEMPERATURE;
+    protected boolean isothermal = false;
     private String name;
+    protected double[] currentPotentialEnergy;
 
-	public Integrator(PotentialMaster potentialMaster) {
+    public Integrator(PotentialMaster potentialMaster) {
         setName(NameMaker.makeName(this.getClass()));
-		phase = new Phase[phaseCountMax];
-		this.potential = potentialMaster;
+        phase = new Phase[phaseCountMax];
+        this.potential = potentialMaster;
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);
         }
-	}
+    }
 
 
     /**
@@ -89,68 +79,103 @@ public abstract class Integrator implements java.io.Serializable {
     public String toString() {return getName();}
 
     /**
-	 * Performs the elementary integration step, such as a molecular dynamics
-	 * time step, or a Monte Carlo trial.
-	 */
-	public abstract void doStep();
+     * Performs the elementary integration step, such as a molecular dynamics
+     * time step, or a Monte Carlo trial.
+     */
+    public abstract void doStep();
 
-	/**
-	 * Defines the actions taken by the integrator to reset itself, such as
-	 * required if a perturbation is applied to the simulated phase (e.g.,
-	 * addition or deletion of a molecule). Also invoked when the
-	 * integrator is started or initialized.
-	 */
-	public abstract void reset(); 
+    /**
+     * Defines the actions taken by the integrator to reset itself, such as
+     * required if a perturbation is applied to the simulated phase (e.g.,
+     * addition or deletion of a molecule). Also invoked when the
+     * integrator is started or initialized. This also recalculates the 
+     * potential energy.
+     */
+    public void reset() {
+        PotentialCalculationEnergySum pc = new PotentialCalculationEnergySum();
+        currentPotentialEnergy = new double[phase.length];
+        for (int i=0; i<phase.length; i++) {
+            pc.zeroSum();
+            potential.calculate(phase[i],new IteratorDirective(),pc);
+            currentPotentialEnergy[i] = pc.getSum();
+            if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
+                throw new RuntimeException("overlap in "+phase[i]);
+            }
+        }
+    }
+
 	
-	/**
-	 * Returns a new instance of an agent of this integrator for placement in
-	 * the given atom in the ia (IntegratorAgent) field.
-	 */
-	public abstract Object makeAgent(Atom a);
+    /**
+      ;* Returns a new instance of an agent of this integrator for placement in
+     * the given atom in the ia (IntegratorAgent) field.
+     */
+    public abstract Object makeAgent(Atom a);
 
-	/**
-	 * Initializes the integrator, performing the following steps: (1) deploys
-	 * agents in all atoms; (2) call doReset method; (3) fires an event
-	 * indicating to registered listeners indicating that initialization has
-	 * been performed (i.e. fires IntervalEvent of type field set to
-	 * INITIALIZE).
-	 */
-	public void initialize() {
-		deployAgents();
-		reset();
-	}
+    /**
+     * Initializes the integrator, performing the following steps: (1) deploys
+     * agents in all atoms; (2) call doReset method; (3) fires an event
+     * indicating to registered listeners indicating that initialization has
+     * been performed (i.e. fires IntervalEvent of type field set to
+     * INITIALIZE).
+     */
+    public void initialize() {
+        deployAgents();
+        reset();
+    }
 
-	//how do agents get placed in atoms made during the simulation?
-	protected void deployAgents() { //puts an Agent of this integrator in each
-									// atom of all phases
-		AtomIteratorListSimple iterator = new AtomIteratorListSimple();
-		for (int i = 0; i < phaseCount; i++) {
-			Phase p = phase[i];
-			iterator.setList(p.speciesMaster.atomList);
-			iterator.reset();
-			while (iterator.hasNext()) {//does only leaf atoms; do atom groups
-										// need agents?
-				Atom a = iterator.nextAtom();
-				a.setIntegratorAgent(makeAgent(a));
-			}
-		}
-	}
+    //how do agents get placed in atoms made during the simulation?
+    protected void deployAgents() { //puts an Agent of this integrator in each
+        // atom of all phases
+        AtomIteratorListSimple iterator = new AtomIteratorListSimple();
+        for (int i = 0; i < phaseCount; i++) {
+            Phase p = phase[i];
+            iterator.setList(p.speciesMaster.atomList);
+            iterator.reset();
+            while (iterator.hasNext()) {//does only leaf atoms; do atom groups
+                // need agents?
+                Atom a = iterator.nextAtom();
+                a.setIntegratorAgent(makeAgent(a));
+            }
+        }
+    }
 
-	public void setTemperature(double t) {
-		temperature = t;
-	}
+    /**
+     * sets the temperature for this integrator
+     */
+    public void setTemperature(double t) {
+        temperature = t;
+    }
 
-	public final double getTemperature() {
-		return temperature;
-	}
+    /**
+     * @return the integrator's temperature
+     */
+    //XXX redundant with temperature(). one of these needs to go
+    public final double getTemperature() {
+        return temperature;
+    }
 
-	public final double temperature() {
-		return temperature;
-	}
+    /**
+     * @return the integrator's temperature
+     */
+    //XXX redundant with getTemperature(). one of these needs to go
+    public final double temperature() {
+        return temperature;
+    }
 
-	public Dimension getTemperatureDimension() {
-		return Dimension.TEMPERATURE;
-	}
+    /**
+     * @return the dimenension of temperature (TEMPERATURE)
+     */ 
+    public final Dimension getTemperatureDimension() {
+        return Dimension.TEMPERATURE;
+    }
+
+    /**
+     * @return the potential energy of each phase handled by this integrator
+     */
+    public double[] getPotentialEnergy() {
+        return currentPotentialEnergy;
+    }
+
 
 	//Other introspected properties
 	public void setIsothermal(boolean b) {

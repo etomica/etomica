@@ -153,6 +153,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
 
     public void reset() {
+        //XXX is this check really necessary?
         if(potential == null || firstPhase == null) return;
         calculateForces();
         atomIterator.reset();
@@ -168,6 +169,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             agent.dp3.E(0.0);
             agent.dp4.E(0.0);
         }
+        super.reset();
     }
               
 //--------------------------------------------------------------

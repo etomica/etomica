@@ -125,6 +125,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             agent.force.E(0.0);
         }
         potential.calculate(firstPhase, allAtoms, forceSum);//assumes only one phase
+        super.reset();
     }
               
 //--------------------------------------------------------------

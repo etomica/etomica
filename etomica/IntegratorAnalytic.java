@@ -35,7 +35,8 @@ package etomica;
     }
     
     public void reset() {
-    	elapsedTime = 0.0;
+        elapsedTime = 0.0;
+        super.reset();
     }
     
     public void setAction(AtomAction action) {this.action = action;}

@@ -227,17 +227,17 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		}
 	}
 
-	/**
-	 * Causes recalculation of move frequencies and zero of selection counts for
-	 * moves.
-	 */
-	public void reset() {
-		recomputeMoveFrequencies();
-		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			link.selectionCount = 0;
-		}
-
-	}
+    /**
+     * Causes recalculation of move frequencies and zero of selection counts for
+     * moves.
+     */
+    public void reset() {
+        recomputeMoveFrequencies();
+        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+            link.selectionCount = 0;
+        }
+        super.reset();
+    }
 
 	/**
 	 * Adds a listener that will be notified when a MCMove trial is attempted

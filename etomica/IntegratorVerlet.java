@@ -80,6 +80,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             Agent agent = (Agent)a.ia;
             agent.rMrLast.Ea1Tv1(timeStep*a.coord.rm(),a.coord.momentum());//06/13/03 removed minus sign before timeStep
         }
+        super.reset();
     }
               
 //--------------------------------------------------------------
