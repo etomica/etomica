@@ -44,23 +44,24 @@ public class TestSWChain extends Simulation {
 
     public TestSWChain(Space space, int numMolecules) {
         super(space, new PotentialMasterNbr(space));
-        int chainLength = 4;
+        int chainLength = 10;
+        int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;
         double neighborRangeFac = 1.2;
         double bondFactor = 0.15;
         Default.makeLJDefaults();
 
         // makes eta = 0.35
-        Default.BOX_SIZE = 14.4094*Math.pow((numMolecules*chainLength/2000.0),1.0/3.0);
+        Default.BOX_SIZE = 14.4094*Math.pow(numAtoms/2000.0,1.0/3.0);
         integrator = new IntegratorHard(potentialMaster);
-        integrator.setTimeStep(0.006);
+        integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         integrator.addIntervalListener(nbrManager);
         nbrManager.setRange(Default.ATOM_SIZE*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(500000/numMolecules);
+        activityIntegrate.setMaxSteps(10000000/numAtoms);
         int nCells = (int)(2*Default.BOX_SIZE/(neighborRangeFac*sqwLambda*Default.ATOM_SIZE));
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
         ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
@@ -81,7 +82,6 @@ public class TestSWChain extends Simulation {
         potentialChainIntra.bonded.setCriterion(criterion);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
         ((ConfigurationLinear)species.getFactory().getConfiguration()).setBondLength(Default.ATOM_SIZE);
-
         
         potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
         nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -100,11 +100,11 @@ public class TestSWChain extends Simulation {
         phase.setConfiguration(null);
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
-        phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)));
+        phase.setConfiguration(new ConfigurationFile(space,"SWchain"+Integer.toString(numMolecules)));
     }
     
     public static void main(String[] args) {
-        int numMolecules = 1000;
+        int numMolecules = 500;
         if (args.length > 0) {
             numMolecules = Integer.valueOf(args[0]).intValue();
         }
@@ -121,12 +121,12 @@ public class TestSWChain extends Simulation {
         
         double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.temperature());
         double[] data = energyAccumulator.getData();
-        double PE = data[1]/numMolecules;
+        double PE = data[AccumulatorAverage.AVERAGE.index]/numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
         double t2 = sim.integrator.temperature();
         t2 *= t2;
-        double Cv = data[3]/t2/numMolecules;
+        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/t2/numMolecules;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(Z-3.23) > 0.4) {
