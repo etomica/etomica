@@ -1,9 +1,3 @@
-/*
- * Created on Feb 10, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.graphics;
 
 import java.awt.Component;
@@ -12,17 +6,27 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.Constants;
+import etomica.DataSink;
 import etomica.data.AccumulatorAverage;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterPressureHard;
 import etomica.graphics.DisplayBox.LabelType;
+import etomica.integrator.IntervalActionAdapter;
+import etomica.simulations.HSMD2D;
+import etomica.units.Dimension;
 import etomica.units.Unit;
 
 /**
+ * Display that presents three boxes with the current value, average, 
+ * and error, respectively, given by an AccumulatorAverage.
+ * 
  * @author kenbenjamin
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PropertyDisplayBoxes extends Display{
+
+/*
+ * Created on Feb 10, 2005
+ */
+public class DisplayBoxesCAE extends Display implements DataSink {
 
 	public AccumulatorAverage accumulatorAverage;
 	public DisplayBox currentBox, averageBox, errorBox;
@@ -31,12 +35,9 @@ public class PropertyDisplayBoxes extends Display{
     protected Constants.CompassDirection labelPosition = Constants.NORTH;
     protected LabelType labelType;
 
-	
 	JLabel jLabelPanelParentGroup = new JLabel();
-	/**
-	 * 
-	 */
-	public PropertyDisplayBoxes() {
+    
+	public DisplayBoxesCAE() {
 		super();
 		currentBox = new DisplayBox();
 		averageBox = new DisplayBox();
@@ -46,34 +47,32 @@ public class PropertyDisplayBoxes extends Display{
         panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
         panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.CENTER);
         panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
-        setLabel("Label");
+        setLabel("");
         setLabelType(DisplayBox.STRING);
         currentBox.setLabel("Current");
         averageBox.setLabel("Average");
         errorBox.setLabel("Error");
-
-        
-        // TODO Auto-generated constructor stub
 	}
 
     /**
-     * Specifies the datasourcethat generates the displayed value.
+     * Specifies the accumulator that generates the displayed values.
+     * Sets up this display to receive the current, average, and error
+     * values from the accumulator.
      */
     public void setAccumulator(AccumulatorAverage accumulatorAverage) {
         this.accumulatorAverage = accumulatorAverage;
-        currentBox.setDataSource(accumulatorAverage.makeDataSourceMostRecent());
-        averageBox.setDataSource(accumulatorAverage.makeDataSourceAverage());
-        errorBox.setDataSource(accumulatorAverage.makeDataSourceError());
-
+        accumulatorAverage.makeDataPipe(new AccumulatorAverage.Type[] {
+                AccumulatorAverage.MOST_RECENT,
+                AccumulatorAverage.AVERAGE,
+                AccumulatorAverage.ERROR}).addDataSink(this);
     }
     
     /**
-     * Accessor method for the datsource that generates the displayed value.
+     * Accessor method for the data source that generates the displayed value.
      */
     public AccumulatorAverage getAccumulator() {
         return accumulatorAverage;
     }
-
 	
 	public Component graphic(Object obj){
         return panelParentGroup;
@@ -104,11 +103,17 @@ public class PropertyDisplayBoxes extends Display{
         setLabel(jLabelPanelParentGroup.getText());
     }
 
-
-    public void doUpdate() {
-    		currentBox.doUpdate();
-    		averageBox.doUpdate();
-    		errorBox.doUpdate();
+    public void putData(double[] data) {
+        datumC[0] = data[0];
+        currentBox.putData(datumC);
+        datumA[0] = data[1];
+        averageBox.putData(datumA);
+        datumE[0] = data[2];
+        errorBox.putData(datumE);
+    }
+    
+    public void setDimension(Dimension dimension) {
+        if(unit == Unit.UNDEFINED) setUnit(dimension.defaultIOUnit());
     }
 
     public void setUnit(Unit unit) {
@@ -117,4 +122,24 @@ public class PropertyDisplayBoxes extends Display{
     		errorBox.setUnit(unit);
     }
     
+    private final double[] datumC = new double[1];
+    private final double[] datumA = new double[1];
+    private final double[] datumE = new double[1];
+    private Unit unit = Unit.UNDEFINED;
+    
+    public static void main(String[] args) {
+        HSMD2D sim = new HSMD2D();
+        SimulationGraphic graphic = new SimulationGraphic(sim);
+        sim.integrator.setIsothermal(true);
+        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
+        pressureMeter.setPhase(sim.phase);
+        AccumulatorAverage accumulator = new AccumulatorAverage();
+        DataPump dataPump = new DataPump(pressureMeter, accumulator);
+        IntervalActionAdapter iaa = new IntervalActionAdapter(dataPump, sim.integrator);
+        DisplayBoxesCAE boxes = new DisplayBoxesCAE();
+        boxes.setAccumulator(accumulator);
+        graphic.add(boxes);
+        graphic.makeAndDisplayFrame();
+    }
+
 }
