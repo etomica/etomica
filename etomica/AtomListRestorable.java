@@ -123,8 +123,8 @@ package etomica;
      */
     public static void main(String[] args) {
         Simulation sim = new Simulation();
-        Phase phase = new Phase();
-        SpeciesSpheresMono species = new SpeciesSpheresMono();
+        Phase phase = new Phase(sim.space);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         species.setNMolecules(10);
         sim.elementCoordinator.go();
         
