@@ -73,7 +73,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }//end of doStep
     
 
-    protected void doReset() {
+    protected void reset() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();

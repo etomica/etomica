@@ -64,16 +64,12 @@ public abstract class Integrator implements java.io.Serializable {
 
 	/**
 	 * Defines the actions taken by the integrator to reset itself, such as
-	 * required if a perturbation is applied to the simulated phase by (e.g.,
-	 * another thread adds or deletes a molecule). Also invoked when the
-	 * integrator is started or initialized. This method is called by the
-	 * integrator's thread when running if the reset() method was previously
-	 * called on another thread. This (doReset) method should not be called by
-	 * another class.
+	 * required if a perturbation is applied to the simulated phase (e.g.,
+	 * addition or deletion of a molecule). Also invoked when the
+	 * integrator is started or initialized.
 	 */
-	protected abstract void doReset(); //protected because runs on integrator's
-									   // thread
-
+	public abstract void reset(); 
+	
 	/**
 	 * Returns a new instance of an agent of this integrator for placement in
 	 * the given atom in the ia (IntegratorAgent) field.
@@ -89,7 +85,7 @@ public abstract class Integrator implements java.io.Serializable {
 	 */
 	public void initialize() {
 		deployAgents();
-		doReset();
+		reset();
 	}
 
 	//how do agents get placed in atoms made during the simulation?
@@ -306,21 +302,6 @@ public abstract class Integrator implements java.io.Serializable {
 		intervalListenersBeforePbc.removeAllElements();
 		intervalListenersImposePbc.removeAllElements();
 		intervalListenersAfterPbc.removeAllElements();
-	}
-
-	/**
-	 * Requests that the integrator reset itself; if integrator is not running,
-	 * then reset will be performed immediately. The actual action an integrator
-	 * takes to do this differs with the type of integrator. The reset is not
-	 * performed until the completion of the current integration step, or until
-	 * the integrator is unpaused if currently in a paused state.
-	 */
-	public void reset() {
-		resetRequested = true;
-	}
-
-	public boolean resetRequested() {
-		return resetRequested;
 	}
 
 	public Phase[] getPhases() {

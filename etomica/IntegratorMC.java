@@ -229,7 +229,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	 * Causes recalculation of move frequencies and zero of selection counts for
 	 * moves.
 	 */
-	public void doReset() {
+	public void reset() {
 		recomputeMoveFrequencies();
 		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
 			link.selectionCount = 0;

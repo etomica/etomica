@@ -5,7 +5,6 @@
 package etomica.action.activity;
 
 import etomica.Action;
-import etomica.ActivityIntegrate;
 import etomica.Integrator;
 import etomica.action.ResetAccumulators;
 import etomica.utility.java2.LinkedList;

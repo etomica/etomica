@@ -117,7 +117,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             
 //--------------------------------------------------------------
 
-    protected void doReset() {
+    protected void reset() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();

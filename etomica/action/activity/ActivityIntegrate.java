@@ -2,8 +2,12 @@
  * History
  * Created on Oct 26, 2004 by kofke
  */
-package etomica;
+package etomica.action.activity;
 
+import etomica.Activity;
+import etomica.Debug;
+import etomica.Default;
+import etomica.Integrator;
 import etomica.Integrator.IntervalEvent;
 
 /**
@@ -41,7 +45,7 @@ public class ActivityIntegrate extends Activity {
         	if (Debug.ON && stepCount == Debug.STOP) halt();
         	if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
         	if (!doContinue()) break;
-        	if (integrator.resetRequested()) {integrator.doReset();}
+        	if (resetRequested) {integrator.reset();}
             integrator.doStep();
             if(--iieCount == 0) {
                 integrator.fireIntervalEvent(intervalEvent);
@@ -131,6 +135,22 @@ public class ActivityIntegrate extends Activity {
 		if(maxSteps < 0) maxSteps = 0;
 		this.maxSteps = maxSteps;
 	}
+	
+	/**
+	 * Requests that the integrator reset itself; if integrator is not running,
+	 * then reset will be performed immediately. The actual action an integrator
+	 * takes to do this differs with the type of integrator. The reset is not
+	 * performed until the completion of the current integration step, or until
+	 * the integrator is unpaused if currently in a paused state.
+	 */
+	public void reset() {
+		resetRequested = true;
+	}
+
+	public boolean resetRequested() {
+		return resetRequested;
+	}
+
 
 	/**
 	 * @return Returns the integrator.
@@ -141,6 +161,7 @@ public class ActivityIntegrate extends Activity {
 	
 	private final Integrator integrator;
 	protected int interval;
+	private boolean resetRequested;
 	private boolean doSleep;
 	private int sleepPeriod;
 	protected int maxSteps = Integer.MAX_VALUE;

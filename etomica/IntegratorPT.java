@@ -90,10 +90,10 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     /**
      * Resets this integrator and passes on the reset to all managed integrators.
      */
-    public void doReset() {
-        super.doReset();
+    public void reset() {
+        super.reset();
 	    for(int i=0; i<nIntegrators; i++) {
-	        integrators[i].doReset();
+	        integrators[i].reset();
 	    }
 	}
     

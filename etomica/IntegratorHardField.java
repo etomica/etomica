@@ -63,9 +63,9 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         }
     }
     
-    protected void doReset() {
+    protected void reset() {
         calculateForces();
-        super.doReset();
+        super.reset();
     }
 
     private void calculateForces() {
