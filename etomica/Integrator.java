@@ -81,7 +81,7 @@ public abstract class Integrator extends Container implements Observer, PhaseInt
     }
     for(int i = 0; i < currentListeners.size(); i++) {
         IntegrationIntervalListener listener = (IntegrationIntervalListener)currentListeners.elementAt(i);
-        listener.updateAverage(iie);
+        listener.updateData(iie);
     }
   }
   

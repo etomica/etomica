@@ -80,6 +80,16 @@ public abstract class Species extends Container {
   */
   protected int nAtomsPerMolecule;
   
+   /**emk
+  * Mass of molecule 
+  */
+  protected double mass;
+  
+  /**emk
+  * atom-atom separation, used only for initial configuration
+  */
+  protected double L;
+  
  /**
   * Don't quite remember what this is used for; hope to deprecate it.
   */
@@ -468,7 +478,7 @@ public abstract class Species extends Container {
                a.draw(g,shiftOrigin,scale);
             }
         }
-    }     
+    } 
   }
   
  /**
@@ -481,15 +491,11 @@ public abstract class Species extends Container {
   */
   public abstract void initializeSpecies(Phase phase);
   
-  public void initializeSpecies() {
-    if(parentPhase != null) initializeSpecies(parentPhase);
-  }
-  
   public void setBounds(int x, int y, int width, int height) {
     Rectangle r = getBounds();
     if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
         super.setBounds(x, y, width, height);
-        initializeSpecies();
+        //initializeSpecies();
     }
   }
 }

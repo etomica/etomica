@@ -4,6 +4,7 @@ import java.io.*;//for Serializable and Stream.
 import java.util.*; //for type Vector
 import java.beans.*;//for PropertyChangeSupport and other beans convenience classes.
 import java.util.*; //for neighborList
+import java.awt.event.*;
 
 /**
  * A Phase comprises a Space, one or more Species, and Potentials that characterize
@@ -193,6 +194,24 @@ public final class Phase extends Container {
   */
   public double initialTemperature = 300.;
   
+  /********************Eliza's Code**********************/
+  /*//Frame for choosing Initial Configuration
+  Frame choice = new Frame();
+
+  //Index of Configuration chosen from list
+  int c=-99;
+  
+  //Panel for list
+  Panel mypanel = new Panel();
+  
+  //List of configuration on frame
+  List configlist = new List();
+  */
+  //Configuration object chosen (defaults to cover whole phase)
+  Configuration configuration = new Configuration1();
+
+  /****************End of Eliza's Code*******************/
+    
   public Phase() {
     setLayout(null);
     setSize(300,300);
@@ -203,7 +222,64 @@ public final class Phase extends Container {
     nAtomTotal = nMoleculeTotal = 0;
     gravity = new Gravity(0.0);
     noGravity = true;
+//    initializeFrame();
   }
+ 
+   /********************Eliza's Code**********************/
+  /*public void initializeFrame(){  
+   
+      Button done = new Button("Done");
+      done.addMouseListener(new java.awt.event.MouseAdapter()
+   	                         {
+             	               public void mouseReleased(MouseEvent e)
+                    	         {
+				                  choice.setVisible(false);
+                                  pickConstructor();
+                                  Repaint();  
+                         	     }
+                           	});
+    
+      choice.setSize(200,200);
+	  choice.setBackground(Color.gray);
+
+      done.setBackground(Color.white);
+	  done.setBounds(90,150,45,30);
+	  
+	  configlist.setBackground(Color.white);
+	  configlist.addItem("Configuration1");
+	  configlist.addItem("Configuration2");
+      configlist.addMouseListener(new java.awt.event.MouseAdapter()
+                   		        {
+                           		  public void mouseReleased(MouseEvent e)
+                               	   {
+                               	    c = configlist.getSelectedIndex();
+                                   }
+                               	}); 
+    
+      mypanel.add(configlist);
+	  choice.add(done);
+	  choice.add(mypanel);
+	  choice.setVisible(true);
+  }
+
+
+  private void pickConstructor(){
+    switch(c){
+      case 0 : configuration= new Configuration1();
+                break;
+      case 1 : configuration= new Configuration2();
+                break;
+     }
+  
+    C.add(firstSpecies);
+
+  }
+  //updates screen after done button is pushed and frame closes
+  private void Repaint(){
+    repaint();
+  }
+  */
+   /****************End of Eliza's Code*******************/
  
  /**
   * Returns the temperature (in Kelvin) of this phase as computed via the equipartition
@@ -344,6 +420,7 @@ public final class Phase extends Container {
     public void add(Species species) {
         super.add(species);
         species.initializeSpecies(this);
+        configuration.add(species);
         speciesVector.addElement(species);
         if(speciesCount > 0) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
@@ -385,6 +462,7 @@ public final class Phase extends Container {
             }
         }
     }
+    
   
      public void add(Space space) {
         super.add(space);
@@ -423,6 +501,13 @@ public final class Phase extends Container {
                     s.setNeighborUpdateSquareDisplacement(d);
                 }
             }
+        }
+    }
+    
+    public void add(Configuration c){
+        configuration = c;
+        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
+            configuration.add(s);
         }
     }
     

@@ -4,11 +4,11 @@ import java.awt.*;
 import java.beans.*;
 
 public class SpeciesDisks extends Species {
-      public double L;    //atom-atom separation, used only for initial configuration;
+ ///     public double L;    //atom-atom separation, used only for initial configuration;
 
 
   double[] speciesOrigin = {0,0}; //origin less depth of boundaries, shifts origin to accomodate boundaries.
-  double mass;
+///  double mass;
   double diameter;
   double radius;
   Color color;
@@ -58,10 +58,10 @@ public class SpeciesDisks extends Species {
         
 
   //for default boundary widths of zero
-  public void initializeCoordinates(double[] simulationRunDimensions) {
-    double[] array = {0,0};
-    initializeCoordinates(simulationRunDimensions, array);
-  }
+ /// public void initializeCoordinates(double[] simulationRunDimensions) {
+ ///   double[] array = {0,0};
+ ///   initializeCoordinates(simulationRunDimensions, array);
+ /// }
 
    // initializeSpecies called by this.paint at design time, and by phase.add at run time
   public void initializeSpecies(Phase phase) {
@@ -94,7 +94,7 @@ public class SpeciesDisks extends Species {
         simulationRunDimensions[0] *= ((double)getSize().width)/(double)phase.getSize().width;
         simulationRunDimensions[1] *= ((double)getSize().height)/(double)phase.getSize().height;
     }
-    initializeCoordinates(simulationRunDimensions);
+ ///   initializeCoordinates(simulationRunDimensions);
 /*    if(parentPhase.useNeighborList) {
         for(Molecule m=firstMolecule; m!=lastMolecule.getNextMolecule(); m=m.getNextMolecule()) {
             m.needNeighborUpdate = true;
@@ -102,7 +102,7 @@ public class SpeciesDisks extends Species {
     }
     */
   }
-
+/*
     public void initializeCoordinates(double[] simulationRunDimensions, double[] simulationOrigin) {
     int moleculeColumns, moleculeRows, i, j, ix, iy;
     double momentumSumX=0, momentumSumY=0, moleculeInitialSpacingX, moleculeInitialSpacingY, momentumNorm;
@@ -165,7 +165,7 @@ public class SpeciesDisks extends Species {
 //        molecule[i].r[0] += 0.01*(2.0*rand.nextDouble()-1.0);
 //        molecule[i].r[1] += 0.01*(2.0*rand.nextDouble()-1.0);
         }
-  }
+  }*/
 }
 
 
