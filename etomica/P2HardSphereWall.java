@@ -182,18 +182,28 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
           sphere.coord.momentum().PE(i,-dp);
   //        wallType.pAccumulator -= dp;
         }
-        double px = sphere.coord.momentum(0);
-        double py = sphere.coord.momentum(1);
-        double xSign = px/Math.abs(px);
-        double ySign = py/Math.abs(py);
-        double p2Tot = px*px + py*py;
-        px = xSign*Math.sqrt(Simulation.random.nextDouble()*p2Tot);
-        py = ySign*Math.sqrt(p2Tot - px*px);
         
+        if(wall.coord.isStationary()) {//randomize x-y components of sphere momentum
+            if(isothermal) {
+                double oldp2 = sphere.coord.momentum().squared();
+                double newp2 = sphere.coord.mass()*temperature*parentSimulation().space().D();
+                sphere.coord.momentum().TE(Math.sqrt(newp2/oldp2));
+            }
+
+            double px = sphere.coord.momentum(0);
+            double py = sphere.coord.momentum(1);
+            double xSign = px/Math.abs(px);
+            double ySign = py/Math.abs(py);
+            double p2Tot = px*px + py*py;
+            px = xSign*Math.sqrt(Simulation.random.nextDouble()*p2Tot);
+            py = ySign*Math.sqrt(p2Tot - px*px);
+            sphere.coord.momentum().setComponent(0,px);
+            sphere.coord.momentum().setComponent(1,py);
+        }
         double deltaP = sphere.coord.momentum(i) - pOld;
         if(!wall.coord.isStationary()) wall.coord.momentum().PE(i,-deltaP);
         
-        wallType.pAccumulator += sphere.coord.momentum(i) - pOld;
+        wallType.pAccumulator += deltaP;
         moveToContact(i, pair);
         
     }

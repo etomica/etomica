@@ -111,6 +111,10 @@ public class Space1D extends Space implements EtomicaElement {
         public void XE(Space3D.Vector u) {x = 0.0;}
         public Space3D.Vector cross(Space2D.Vector u) {return null;}
         public Space3D.Vector cross(Space3D.Vector u) {return null;}
+        public void randomRotate(double deltheta){//no implementation in 1D
+        }
+        public void randomOrientation(double ro, double theta){//no implementation in 1D
+        }
     }
     
     public static class Tensor implements Space.Tensor {

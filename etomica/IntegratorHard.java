@@ -190,6 +190,13 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         }
 
     }//end of processCollision
+    
+    protected void updateAtom(Atom a) {
+        Agent agent = (Agent)a.ia;
+        agent.resetCollision();
+        potential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));
+        potential.calculate(downList.set(a), collisionHandlerDown);
+    }
 
     /**
     * Advances all atom coordinates by tStep, without any intervening collisions.

@@ -138,25 +138,21 @@ public class Space3D extends Space implements EtomicaElement {
             y = z2/r;
             z = z3/r;
         }
-        public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y; z = ORIGIN.z;}
-        public void randomDirection() {//check before using
-            double z1 = 0.0;
-            double z2 = 0.0;
-            double z3 = 0.0;
-            double rsq = Double.MAX_VALUE;
-            while(rsq > 1.0) {
-                
-                z1 = 1.0 - 2.0*Simulation.random.nextDouble();
-                z2 = 1.0 - 2.0*Simulation.random.nextDouble();
-                z3 = 1.0 - 2.0*Simulation.random.nextDouble();
-        
-                rsq = z1*z1+z2*z2+z3*z3;
-            }
-            double r = Math.sqrt(rsq);
-            x = z1/r;
-            y = z2/r;
-            z = z3/r;
+        public void randomRotate(double thetaStep){//check before using
+            //could be made more efficient by merging with setRandomSphere
+            if(thetaStep == 0.0) return;
+            if(Math.abs(thetaStep) > Math.PI) {setRandomSphere(); return;}
+            double xOld = x; double yOld = y; double zOld = z;
+            double r = Math.sqrt(x*x + y*y + z*z);
+            double dotMin = r*Math.cos(thetaStep);
+            do {
+                setRandomSphere();
+            } while(xOld*x + yOld*y + zOld*z < dotMin);
+            x *= r; y *= r; z*=r;
         }
+        
+        public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y; z = ORIGIN.z;}
+
         public void E(Space.Vector u) {E((Vector) u);}
         public void PE(Space.Vector u) {PE((Vector) u);}
         public void TE(Space.Vector u) {TE((Vector) u);}

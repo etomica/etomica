@@ -183,6 +183,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public void setPressure(double p) {
         pressure = p;
         force = pressure*diameter; //compute force as pressure * length
+//        System.out.println("pressure, diameter, force: "+pressure+" "+diameter+" "+force);
         parentSimulation().resetIntegrators();
 //        if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
 //                    phase().integrator().reset();
@@ -201,7 +202,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      */
     public Space.Vector gradient(Atom a) {
         gradientVector.Ea1Tv1(-force,unitNormal);
-//        System.out.println(gradientVector.toString());
+ //       System.out.println(gradientVector.toString());
         return gradientVector;
     }
     /**
@@ -332,8 +333,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             int index31 = 1-index20;//0 or 1, opposite of index20
               //volume is diameter of cylinder times distance between piston (first atom) and base (atom 2) of cylinder
  //           return (diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS)
-            return Math.abs(m.getAtom(3).coord.position().component(index31) - m.getAtom(1).coord.position().component(index31))
-                    * Math.abs(m.getAtom(0).coord.position().component(index20) - m.getAtom(2).coord.position().component(index20));
+            double dx = m.getAtom(3).coord.position().component(index31) - m.getAtom(1).coord.position().component(index31);
+            double dy = m.getAtom(0).coord.position().component(index20) - m.getAtom(2).coord.position().component(index20);
+//            System.out.println(dx + " " + dy);
+            return Math.abs(dx*dy);
         }
     }//end of Boundary class
     

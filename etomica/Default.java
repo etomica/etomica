@@ -31,7 +31,7 @@ public final class Default {
     
     public static double TEMPERATURE = Kelvin.UNIT.toSim(300.);
     
-    public static double PRESSURE = 1.0;
+    public static double PRESSURE = Bar.UNIT.toSim(1.0);
     
     public static double POTENTIAL_WELL = Kelvin.UNIT.toSim(300.);
     

@@ -57,9 +57,9 @@ public class Space2D extends Space implements EtomicaElement {
         public double[] toArray() {return new double[] {x, y};}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y);
-            result[1] = Math.atan2(x, y);  //theta
+            result[1] = Math.atan2(y,x);  //theta
         }
-        public int length() {return D;}
+        public int length() {return D;}//bad name for this
         public int D() {return D;}
         public double component(int i) {return (i==0) ? x : y;}
         public void setComponent(int i, double d) {if(i==0) x=d; else y=d;}
@@ -139,11 +139,15 @@ public class Space2D extends Space implements EtomicaElement {
             y = Math.sqrt(1.0 - x*x);
             if(Simulation.random.nextDouble() < 0.5) y = -y;
         }
-        public void randomDirection() {
-            x = Math.cos(Math.PI*Simulation.random.nextDouble()); 
-            y = Math.sqrt(1.0 - x*x);
-            if(Simulation.random.nextDouble() < 0.5) y = -y;
+        public void randomRotate(double thetaStep){
+            double deltheta = (2*Simulation.random.nextDouble() - 1.0)*thetaStep;
+            double theta = Math.atan2(y,x);
+            theta += deltheta;
+            double r = Math.sqrt(x*x + y*y);
+            x = r*Math.cos(theta);
+            y = r*Math.sin(theta);
         }
+        
         public void E(Space.Vector u) {E((Vector)u);}
         public void PE(Space.Vector u) {PE((Vector)u);}
         public void ME(Space.Vector u) {ME((Vector)u);}

@@ -189,5 +189,40 @@ public abstract class PhaseAction extends etomica.Action {
                 phase.iteratorFactory().moveNotify(m);
             }
         }
+        
+        public void attempt(Space.Vector vector){
+            temp.Ea1Tv1(scale-1.0,vector);
+            temp.PE(1.0);
+            phase.boundary().dimensions().TE(temp);
+
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+               
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                        
+                temp.E(m.coord.position());
+                temp.TE(vector);
+                temp.TE(scale-1.0);
+                       
+                m.coord.displaceBy(temp);   //displaceBy doesn't use temp
+    //               if(display != null && i % 10 ==0) display.repaint();
+            }
+        }
+         
+        public void undo(Space.Vector vector){
+
+            temp.Ea1Tv1(scale-1.0,vector);
+            temp.PE(1.0);
+            phase.boundary().dimensions().DE(temp);
+
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                iterator.next().coord.replace();
+            }
+              
+        }
+         
     }//end of Inflate 
 }//end of PhaseAction

@@ -8,6 +8,7 @@
  *
  * @author Bryan C. Mihalick
  * 12/20/00
+ * 29-Sep-01 D. Kofke; Updated for revision of design of Potential
  */
 
 package etomica.gui;
@@ -64,7 +65,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
     boolean instantiate = true;
 
     /**
-     * Array of class names created in the SimulateActions classe's static block
+     * Array of class names created in the SimulateActions class' static block
      */
     Class[] className;
     
@@ -299,19 +300,19 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	                    try {
 	                        if (getTitle() == "P1 Potentials"){
 	                            component = ((Class)currentButton.cls).newInstance();
-                                ((Potential1)component).setSpecies(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
+                                ((Potential1)component).setSpecies(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).species1);
 	                            ((Potential1)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
                             else {
 	                            if (currentButton.cls.toString().startsWith("class etomica.Potential")) {
 	                                potential = (Potential)((Class)currentButton.cls).newInstance();
-	                                component = new P2SimpleWrapper(potential);
+	                                component = potential;
     	                            potential.setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
 	                            }
 	                            else component = ((Class)currentButton.cls).newInstance();
 	                            
-                                ((Potential2)component).setSpecies1Index(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
-                                ((Potential2)component).setSpecies2Index(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex2);
+                                ((Potential2)component).setSpecies(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).species1,
+                                                                   ((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).species2);
 	                            ((Potential2)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
 	                    }
@@ -321,14 +322,14 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
                         Simulation currentSimulation = simulationEditor.getSimulation();
 	                    if (getTitle() == "P1 Potentials"){
                             for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                                currentSimulation.potential1[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential1)component;
+                      //          currentSimulation.potential1[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential1)component;
                                 potentialEditor.currentButtons[i] = null;
                             }
                         }
                         else {
                             for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                                currentSimulation.potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2] = (Potential2)component;
-                                currentSimulation.potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential2)component;
+                       //         currentSimulation.potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2] = (Potential2)component;
+                       //         currentSimulation.potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential2)component;
                                 potentialEditor.currentButtons[i] = null;
                             }
                         }

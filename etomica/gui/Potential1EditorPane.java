@@ -2,6 +2,7 @@ package etomica.gui;
 
 import etomica.Simulation;
 import etomica.Potential1;
+import etomica.Species;
 import etomica.utility.HashMap2;
 import java.awt.Color;
 import javax.swing.JButton;
@@ -57,7 +58,7 @@ public class Potential1EditorPane extends PotentialEditorPane {
 
             SpeciesPairButton button = new SpeciesPairButton(String.valueOf(i));
             potentialButtons.put(Integer.toString(0),Integer.toString(i),button);
-            button.speciesIndex1 = i;
+            button.species1 = (Species)simulationEditor.getSimulation().speciesList().get(i);
             potButtons[i] = button;
             button.setBackground(Color.lightGray);
             button.addActionListener(new ButtonListener());
@@ -71,10 +72,10 @@ public class Potential1EditorPane extends PotentialEditorPane {
         if (speciesCount() != 0)
             addButtons();
         
-        linkButtons(); // Associate a potential to each button if one is present in the simulation
+//        linkButtons(); // Associate a potential to each button if one is present in the simulation
     }// end of update method
     
-    private void linkButtons(){
+/*    private void linkButtons(){
         LinkedList list = simulationEditor().getSimulation().potential1List();
 
         for(int i = 0; i < list.size(); i++){
@@ -85,6 +86,6 @@ public class Potential1EditorPane extends PotentialEditorPane {
             button.setBackground(Color.lightGray);
         }
     }
-    
+*/    
     public HashMap2 potentialButtons(){ return potentialButtons; }
 }

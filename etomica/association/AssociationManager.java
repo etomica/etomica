@@ -91,6 +91,10 @@ public class AssociationManager implements MCMoveEventListener {
             }
             //restore atom's list
             copyList(atom.atomList[fromIndex], atom.atomList[toIndex]);
+            boolean wasAssociated = associatedAtoms.contains(atom);
+            boolean isAssociated = atom.atomList[index].size() != 0;
+            if(isAssociated && !wasAssociated) associatedAtoms.add(atom);
+            else if(wasAssociated && !isAssociated) associatedAtoms.remove(atom);
         }
     }
     

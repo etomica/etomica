@@ -147,7 +147,7 @@ public abstract class EditorPane extends javax.swing.JSplitPane {
     
     public SimulationEditor simulationEditor() {return simulationEditor;}
     
-    public int speciesCount(){ return simulationEditor().getSimulation().speciesCount(); }
+    public int speciesCount() {return simulationEditor().getSimulation().speciesList().size();}
     
     public javax.swing.DefaultListModel getComponentList(){ return componentList; }
 

@@ -283,8 +283,8 @@ public abstract class PotentialEditorPane extends EditorPane {
     public class SpeciesPairButton extends javax.swing.JButton{
         Class potential = null;
         int index = -1;
-        int speciesIndex1 = -1;
-        int speciesIndex2 = -1;
+        Species species1;
+        Species species2;
         
         SpeciesPairButton(String name){
             super(name);
@@ -299,14 +299,15 @@ public abstract class PotentialEditorPane extends EditorPane {
 	protected class ButtonListener implements ActionListener, java.io.Serializable {
 	    
 	    public void actionPerformed(ActionEvent evt) {
-	        currentButtons[buttonCount] = ((JButton)evt.getSource());
-	        DefinePotentialFrame.setSpeciesIndex1(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1);
-	        DefinePotentialFrame.setSpecies1(((Species)simulationEditor.speciesEditor.componentList.getElementAt(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1)));
-	        DefinePotentialFrame.setSpecies2(((Species)simulationEditor.speciesEditor.componentList.getElementAt(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex1)));
-            PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species1.getAtomsPerMolecule()];
+	        currentButtons[buttonCount] = (JButton)evt.getSource();
+	        DefinePotentialFrame.setSpeciesIndex1(((SpeciesPairButton)currentButtons[buttonCount]).species1.index);
+	        DefinePotentialFrame.setSpecies1(((SpeciesPairButton)currentButtons[buttonCount]).species1);
+	        //why not species2 in argument???
+	        DefinePotentialFrame.setSpecies2(((SpeciesPairButton)currentButtons[buttonCount]).species1);
+//            PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species1.getAtomsPerMolecule()];
 	        try {
-	            DefinePotentialFrame.setSpeciesIndex2(((SpeciesPairButton)currentButtons[buttonCount]).speciesIndex2);
-                PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species2.getAtomsPerMolecule()];
+	            DefinePotentialFrame.setSpeciesIndex2(((SpeciesPairButton)currentButtons[buttonCount]).species2.index);
+//                PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species2.getAtomsPerMolecule()];
 	        }
 	        catch (java.lang.ArrayIndexOutOfBoundsException exc) {}
 	        

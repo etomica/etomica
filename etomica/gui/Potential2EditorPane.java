@@ -2,6 +2,7 @@ package etomica.gui;
 
 import etomica.Simulation;
 import etomica.Potential2;
+import etomica.Species;
 import etomica.utility.HashMap2;
 import java.awt.Color;
 import javax.swing.JButton;
@@ -66,8 +67,8 @@ public class Potential2EditorPane extends PotentialEditorPane {
             for (int k = 0; k < speciesCount()-i; k++){
                 SpeciesPairButton button = new SpeciesPairButton(String.valueOf(i) + "," + String.valueOf(k+i));
                 potentialButtons.put(Integer.toString(i),Integer.toString(k+i),button);
-                button.speciesIndex1 = i;
-                button.speciesIndex2 = k+i;
+                button.species1 = (Species)simulationEditor.getSimulation().speciesList().get(i);
+                button.species2 = (Species)simulationEditor.getSimulation().speciesList().get(k+i);
                 potButtons[k + potButtonsSpacer] = button;
                 button.setBackground(Color.lightGray);
                 button.addActionListener(buttonListener);
@@ -88,11 +89,11 @@ public class Potential2EditorPane extends PotentialEditorPane {
         leftPanePanel.setMinimumSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
     
-        linkButtons();
+//        linkButtons();
     }
     
-    private void linkButtons(){
-        LinkedList list = simulationEditor().getSimulation().potential2List();
+/*    private void linkButtons(){
+        LinkedList list = simulationEditor().getSimulation().potentialList();
 
         for(int i = 0; i < list.size(); i++){
             Potential2 potential = (Potential2)list.get(i);
@@ -102,6 +103,6 @@ public class Potential2EditorPane extends PotentialEditorPane {
             button.setBackground(Color.lightGray);
         }
     }
-
+*/
     public HashMap2 potentialButtons(){ return potentialButtons; }
 }

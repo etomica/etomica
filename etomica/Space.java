@@ -115,6 +115,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             else if(u instanceof Space2D.Vector) {return cross((Space2D.Vector)u);}
             else return null;
         }
+        public abstract void randomRotate(double thetaStep);
     }
     
 //    public static abstract class Tensor implements java.io.Serializable {

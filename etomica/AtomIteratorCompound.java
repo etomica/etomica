@@ -34,7 +34,7 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseEventListe
      */
     public AtomIteratorCompound(AtomIterator[] iterators) {
         iteratorSet = iterators;
-        reset();
+//        reset();
     }
     
     private static AtomIterator[] makeIteratorArray(AtomGroup group) {

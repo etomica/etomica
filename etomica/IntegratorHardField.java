@@ -46,7 +46,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
             a.coord.freeFlight(tStep);
             if(!agent.forceFree) {
-//                System.out.println(agent.force.toString()+" "+a.toString());
+//                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
                 a.coord.translateBy(t2*a.coord.rm(),agent.force);
                 a.coord.accelerateBy(tStep,agent.force);
             }
@@ -71,6 +71,43 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         potential.calculate(fieldsOnly, forceSum);
         
     }//end of calculateForces
+    
+    /**
+    *
+    */
+    public void scaleMomenta(double s) {
+        double rs = 1.0/s;
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.next();
+            if(a.type instanceof AtomType.Wall &&
+                !((Agent)a.ia).forceFree) continue;
+            a.coord.momentum().TE(s); //scale momentum
+            ((Agent)a.ia).collisionTime *= rs;
+        }
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.next();
+ //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
+ //                               a.coord.momentum().squared());
+            Agent iagent = (Agent)a.ia;
+            if(!iagent.forceFree) updateAtom(a);//update because not force free
+            Atom partner = iagent.collisionPartner();
+            if(partner == null) continue;
+            Agent jagent = (Agent)partner.ia;
+            if(!iagent.forceFree) {
+                updateAtom(partner);//update because partner not force free
+                continue;
+            }
+            if(!jagent.forceFree) {
+                updateAtom(partner);
+                updateAtom(a);
+            }
+        }
+        findNextCollider();
+ //       System.out.println();
+    }
+    
 
     /**
     * Produces the Agent defined by this integrator.

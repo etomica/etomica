@@ -60,6 +60,7 @@ public class MeterKineticEnergy extends Meter
     public static double currentValue(Phase p) {
         double ke = 0.0;
         for(Atom atom=p.firstAtom(); atom!=null; atom=atom.nextAtom()) {
+            if(atom.type instanceof AtomType.Wall) continue;
             ke += atom.coord.kineticEnergy();
         }
         return ke;
