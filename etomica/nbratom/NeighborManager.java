@@ -224,16 +224,18 @@ public class NeighborManager implements IntervalListener {
 	private static class NeighborCheck extends AtomsetActionAdapter {
 		private boolean needUpdate = false, unsafe = false;
 		public void actionPerformed(AtomSet atom) {
-			NeighborCriterion criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
-			if (criterion != null && criterion.needUpdate((Atom)atom)) {
-				needUpdate = true;
-				if (criterion.unsafe()) {
-					if (Debug.DEBUG_NOW) {
-						System.out.println("atom "+atom+" exceeded safe limit");
-					}
-					unsafe = true;
-				}
-			}
+			final NeighborCriterion[] criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
+            for (int i=0; i<criterion.length; i++) {
+                if (criterion[i].needUpdate((Atom)atom)) {
+                    needUpdate = true;
+                    if (criterion[i].unsafe()) {
+                        if (Debug.DEBUG_NOW) {
+                            System.out.println("atom "+atom+" exceeded safe limit");
+                        }
+                        unsafe = true;
+                    }
+                }
+            }
 		}
 		
 		public void reset() {
@@ -247,10 +249,10 @@ public class NeighborManager implements IntervalListener {
 		public void actionPerformed(AtomSet atom) {
             //FIXME changes to depth might make this wrong
             if(((Atom)atom).type.getDepth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
-			NeighborCriterion criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
+			final NeighborCriterion[] criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)((Atom)atom).seq).clearNbrs();
-			if (criterion != null) {
-				criterion.reset((Atom)atom);
+			for (int i=0; i<criterion.length; i++) {
+				criterion[i].reset((Atom)atom);
 			}
 		}
 	}

@@ -80,8 +80,8 @@ public class NeighborManagerAgent {
     	return potentials;
     }
     
-    public NeighborCriterion getCriterion() {
-    	return (criteria.length<1 ? null : criteria[0]);
+    public NeighborCriterion[] getCriterion() {
+    	return criteria;
     }
     public void addCriterion(NeighborCriterion criterion) {
     	for(int i=0; i<criteria.length; i++) {
