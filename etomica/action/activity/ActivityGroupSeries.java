@@ -157,7 +157,7 @@ public class ActivityGroupSeries extends Activity {
     protected int numActions;
     protected boolean isPaused = false;
     protected Action[] actions = new Action[0];
-    protected Action[] completedActions;
+    protected Action[] completedActions = new Action[0];
 
 }//end of Controller
 
