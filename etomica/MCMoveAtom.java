@@ -15,8 +15,8 @@ import etomica.units.Dimension;
   
 public class MCMoveAtom extends MCMove {
     
-    protected final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -34,7 +34,7 @@ public class MCMoveAtom extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
         setPerParticleFrequency(true);
-        iteratorDirective.includeLrc = false;
+        energyMeter.setIncludeLrc(false);
         setName("MCMoveAtom");
     }
     
@@ -59,7 +59,8 @@ public class MCMoveAtom extends MCMove {
     
             System.out.println("hi!");
         }// */
-        uOld = potential.calculate(phase, iteratorDirective.set(atom), energy.reset()).sum();
+        energyMeter.setTarget(atom);
+        uOld = energyMeter.getDataAsScalar(phase);
         if(uOld > 1e10) {
             System.out.println("Uold: "+uOld);
    /*debug* /         uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
@@ -100,7 +101,8 @@ public class MCMoveAtom extends MCMove {
      * doTrial.
      */
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(phase, iteratorDirective.set(atom), energy.reset()).sum();
+//        energyMeter.setTarget(atom);
+        uNew = energyMeter.getDataAsScalar(phase);
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -132,8 +134,7 @@ public class MCMoveAtom extends MCMove {
     
     public AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setBasis(atom);
-        affectedAtomIterator.reset();
+        affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }
 /*
@@ -179,24 +180,24 @@ public class MCMoveAtom extends MCMove {
      * Class used to examine configuration in cases when a large energy is found
      * before the trial is made.  A debugging tool.
      */
-      private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
-        public double r2Min;
-        Atom atom1, atom2;
-
-        public void calculate(AtomPairIterator iterator, Potential2 potential) {
-            r2Min = Double.MAX_VALUE;
-            atom1 = atom2 = null;
-            while(iterator.hasNext()) {
-                AtomPair pair = iterator.next();
-                sum += potential.energy(pair);
-                if(pair.r2() < r2Min) {
-                    r2Min = pair.r2();
-                    atom1 = pair.atom1();
-                    atom2 = pair.atom2();
-                }
-                if(sum >= Double.MAX_VALUE) return;
-            }//end while
-        }//end of calculate
-    }
+//      private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
+//        public double r2Min;
+//        Atom atom1, atom2;
+//
+//        public void calculate(AtomPairIterator iterator, Potential2 potential) {
+//            r2Min = Double.MAX_VALUE;
+//            atom1 = atom2 = null;
+//            while(iterator.hasNext()) {
+//                AtomPair pair = iterator.next();
+//                sum += potential.energy(pair);
+//                if(pair.r2() < r2Min) {
+//                    r2Min = pair.r2();
+//                    atom1 = pair.atom1();
+//                    atom2 = pair.atom2();
+//                }
+//                if(sum >= Double.MAX_VALUE) return;
+//            }//end while
+//        }//end of calculate
+//    }
  // */   
 }
