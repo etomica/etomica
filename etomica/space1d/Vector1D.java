@@ -18,8 +18,7 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public Vector1D (double a1) {x = a1;}
         public Vector1D (double[] a) {x = a[0];}//should check length of a for exception
         public Vector1D (Vector1D u) {this.E(u);}
-        public boolean equals(etomica.space.Vector v) {return equals((Vector1D)v);}
-        public boolean equals(Vector1D v) {return (x == v.x);}
+        public boolean equals(Vector v) {return (x == ((Vector1D)v).x);}
         public boolean isZero() {return x==0;}
         public String toString() {return "("+x+")";}
         public int D() {return 1;}
@@ -28,27 +27,21 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public void assignTo(double[] array) {array[0] = x;}
         public double[] toArray() {return new double[] {x};}
         public void sphericalCoordinates(double[] result) {result[0] = x;}
-        public void E(Vector1D u) {x = u.x;}
         public void E(double a) {x = a;}
         public void E(double[] a) {x = a[0];}
         public void E(int[] a) {x = a[0];}
-        public void Ea1Tv1(double a1, etomica.space.Vector u) {Vector1D u1=(Vector1D)u; x = a1*u1.x;}
+        public void Ea1Tv1(double a1, Vector u) {Vector1D u1=(Vector1D)u; x = a1*u1.x;}
         public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
             x = ((Vector1D)v1).x + a1*((Vector1D)v2).x; 
         }
-        public void PEa1Tv1(double a1, etomica.space.Vector u) {Vector1D u1=(Vector1D)u; x += a1*u1.x;}
-        public void PE(Vector1D u) {x += u.x;}
+        public void PEa1Tv1(double a1, Vector u) {x += a1*((Vector1D)u).x;}
         public void PE(double a) {x += a;}
-        public void ME(Vector1D u) {x -= u.x;}
         public void PE(int i, double a) {x += a;}
         public void TE(double a) {x *= a;}
-        public void TE(Vector1D u) {x *= u.x;}
         public void TE(int i, double a) {x *= a;}
         public void DE(double a) {x /= a;}
-        public void DE(Vector1D u) {x /= u.x;}
-        public void Ev1Pv2(etomica.space.Vector u1, etomica.space.Vector u2) {
-            Vector1D v1 = (Vector1D)u1; Vector1D v2 = (Vector1D)u2;
-            x = v1.x + v2.x;
+        public void Ev1Pv2(Vector u1, Vector u2) {
+            x = ((Vector1D)u1).x + ((Vector1D)u2).x;
         }
         public void Ev1Mv2(etomica.space.Vector u1, etomica.space.Vector u2) {
             Vector1D v1 = (Vector1D)u1; Vector1D v2 = (Vector1D)u2;
@@ -101,9 +94,7 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public double max() {return x;}
         public double squared() {return x*x;}
         public void normalize() {x = 1.0;}
-        public double dot(Vector1D u) {return x*u.x;}
-        public void transform(etomica.space.Tensor A) {transform((Tensor1D)A);}
-        public void transform(Tensor1D A) {x = A.xx * x;}
+        public void transform(etomica.space.Tensor A) {x = ((Tensor1D)A).xx * x;}
         public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform(b, (Vector1D)r0, (Tensor1D)A);}
         public void transform(Boundary b, Vector1D r0, Tensor1D A) {
             WORK.x = x-r0.x; b.nearestImage(WORK); x = r0.x + A.xx*WORK.x;
@@ -115,12 +106,12 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public void setRandomInSphere() {setRandomCube();}
         public void setRandomSphere() {randomDirection();}
         public void randomDirection() {x = (Simulation.random.nextDouble() < 0.5) ? -1.0 : +1.0;}
-        public void E(etomica.space.Vector u) {E((Vector1D)u);}
-        public void PE(etomica.space.Vector u) {PE((Vector1D)u);}
-        public void ME(etomica.space.Vector u) {ME((Vector1D)u);}
-        public void TE(etomica.space.Vector u) {TE((Vector1D)u);}
-        public void DE(etomica.space.Vector u) {DE((Vector1D)u);}
-        public double dot(etomica.space.Vector u) {return dot((Vector1D)u);}
+        public void E(Vector u) {x = ((Vector1D)u).x;}
+        public void PE(Vector u) {x += ((Vector1D)u).x;}
+        public void ME(Vector u) {x -= ((Vector1D)u).x;}
+        public void TE(Vector u) {x *= ((Vector1D)u).x;}
+        public void DE(Vector u) {x /= ((Vector1D)u).x;}
+        public double dot(Vector u) {return ((Vector1D)u).x * x;}
         /**
          * Sets this vector equal to its cross product of with a 3D vector.
          * Result is projected into this space, and thus outcome is to make this vector zero.
