@@ -581,8 +581,8 @@ public class Space3D extends Space implements EtomicaElement {
             c1.p.PE(u);
             c2.p.ME(u);
             
-            c1.r.PEa1Tv1(-falseTime,u);
-            c2.r.PEa1Tv1(falseTime,u);
+            c1.r.PEa1Tv1(-falseTime*c1.rm(),u);
+            c2.r.PEa1Tv1(falseTime*c2.rm(),u);
         }
         public void nudge(double rDelta) {
             double ratio = c2.mass()*c1.rm()*rDelta;

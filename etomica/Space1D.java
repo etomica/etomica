@@ -267,7 +267,6 @@ public class Space1D extends Space implements EtomicaElement {
         public void reset(Space1D.Vector M) {
             dr.x = c2.r.x - c1.r.x + M.x;
             drx = dr.x;
-            r2 = drx*drx;
         }
         public Space.Vector dr() {return dr;}
         public double dr(int i) {return drx;}
@@ -288,8 +287,8 @@ public class Space1D extends Space implements EtomicaElement {
             c1.p.PE(u);
             c2.p.ME(u);
             
-            c1.r.PEa1Tv1(-falseTime,u);
-            c2.r.PEa1Tv1(falseTime,u);
+            c1.r.PEa1Tv1(-falseTime*c1.rm(),u);
+            c2.r.PEa1Tv1(falseTime*c2.rm(),u);
         }
         public void nudge(double rDelta) {
             double ratio = c2.mass()*c1.rm()*rDelta;

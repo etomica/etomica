@@ -370,7 +370,6 @@ public abstract class Space implements java.io.Serializable {
     }
     
     public static abstract class CoordinatePair implements Cloneable, java.io.Serializable {
-        public double r2;
         public CoordinatePair() {}  //null constructor
         public abstract void reset();
         public abstract void resetV(); //computes dv
