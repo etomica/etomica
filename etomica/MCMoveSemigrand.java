@@ -17,12 +17,16 @@ public class MCMoveSemigrand extends MCMove {
     private SpeciesAgent[] agentSet;
     private double[] fugacityFraction;
     private int nSpecies;
-    private transient Atom deleteMolecule, insertMolecule;
     private final AtomIteratorListSimple deleteAtomIterator;
     private final AtomIteratorListSimple insertAtomIterator;
     private final AtomIteratorCompound affectedAtomIterator; 
-
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    
+    private transient Atom deleteMolecule, insertMolecule;
+    private transient double uOld;
+    private transient SpeciesAgent deleteAgent, insertAgent;
+    private transient int iInsert, iDelete;
+
     
     public MCMoveSemigrand(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -119,26 +123,17 @@ public class MCMoveSemigrand extends MCMove {
      */
     public double[] getFugacityFraction() {return fugacityFraction;}
     
-        
-    
-    /**
-     * Performs the trial and decides acceptance.
-     */
-    public final boolean thisTrial() {
-        
-        double uOld = 0.0;
-        double uNew = 0.0;
-
+    public boolean doTrial() {
         //select species for deletion
-        int iDelete = (int)(Simulation.random.nextDouble()*nSpecies);//System.out.println("Random no. :"+randomNo);
-        SpeciesAgent deleteAgent = agentSet[iDelete];
+        iDelete = (int)(Simulation.random.nextDouble()*nSpecies);//System.out.println("Random no. :"+randomNo);
+        deleteAgent = agentSet[iDelete];
         if(deleteAgent.moleculeCount() == 0) return false;
 
         //select species for insertion
-        int iInsert = iDelete;
+        iInsert = iDelete;
         if(nSpecies == 2) iInsert = 1 - iDelete;
         else while(iInsert == iDelete) {iInsert = (int)(Simulation.random.nextDouble()*nSpecies);}
-        SpeciesAgent insertAgent = agentSet[iInsert];
+        insertAgent = agentSet[iInsert];
   
         deleteMolecule = deleteAgent.randomMolecule();
         uOld = potential.set(phase).calculate(iteratorDirective.set(deleteMolecule), energy.reset()).sum();
@@ -147,30 +142,27 @@ public class MCMoveSemigrand extends MCMove {
         insertMolecule = insertAgent.addNewAtom();
         insertMolecule.coord.translateTo(deleteMolecule.coord.position());
         //in general, should also randomize orintation and internal coordinates
-        
-        uNew = potential.calculate(iteratorDirective.set(insertMolecule), energy.reset()).sum();
-//        if(iInsert==0) System.out.println(iDelete + "   "+ iInsert + "   "+uOld+"   "+uNew);
-
-        if(uNew == Double.MAX_VALUE) {//reject
-            deleteMolecule.node.setParent(deleteAgent);
-            insertMolecule.sendToReservoir();
-            return false;
-        }
-        double w = ((double)(deleteAgent.moleculeCount()+1)/(double)insertAgent.moleculeCount())
-                * (fugacityFraction[iInsert]/fugacityFraction[iDelete])
-                * Math.exp(-(uNew-uOld)/parentIntegrator.temperature);
-        
-        if(w > 1.0 || Simulation.random.nextDouble() < w) {//accept
-            return true;
-        }
-        
-        //reject
+        return true;
+    }//end of doTrial
+    
+    public double lnTrialRatio() {
+        return Math.log((double)(deleteAgent.moleculeCount()+1)
+                        /(double)insertAgent.moleculeCount());
+    }
+    
+    public double lnProbabilityRatio() {
+        double uNew = potential.calculate(iteratorDirective.set(insertMolecule), energy.reset()).sum();
+        return -(uNew - uOld)/parentIntegrator.temperature +
+                Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
+    }
+    
+    public void acceptNotify() {  /* do nothing */}
+    
+    public void rejectNotify() {
         deleteMolecule.node.setParent(deleteAgent);
         insertMolecule.sendToReservoir();
-        return false;
-        
-    }//end of thisTrial
-    
+    }
+
     public final AtomIterator affectedAtoms() {
         insertAtomIterator.setBasis(insertMolecule);
         deleteAtomIterator.setBasis(deleteMolecule);
@@ -259,6 +251,6 @@ public class MCMoveSemigrand extends MCMove {
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
-    */
-    
+// */
+
 }//end of MCMoveSemigrand

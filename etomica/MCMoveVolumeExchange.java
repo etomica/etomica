@@ -18,6 +18,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     private AtomIterator phase1AtomIterator;
     private AtomIterator phase2AtomIterator;
     private AtomIteratorCompound affectedAtomIterator;
+    
+    private transient double hOld, v1Scale, v2Scale;
 
     public MCMoveVolumeExchange(IntegratorMC parent) {
         super(parent);
@@ -48,36 +50,41 @@ public final class MCMoveVolumeExchange extends MCMove {
             = new AtomIteratorCompound(new AtomIterator[] {phase1AtomIterator, phase2AtomIterator});
     }
     
-    public boolean thisTrial() {
-        double hOld = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
+    public boolean doTrial() {
+        hOld = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
                     + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
         double vRatio = v1Old/v2Old * Math.exp(stepSize*(Simulation.random.nextDouble() - 0.5));
         double v2New = (v1Old + v2Old)/(1 + vRatio);
         double v1New = (v1Old + v2Old - v2New);
-        double v1Scale = v1New/v1Old;
-        double v2Scale = v2New/v2Old;
-//        System.out.println(v1Scale + "  " + v2Scale + " " +stepSize + " "+nTrials+" "+nAccept+" "+adjustInterval+" "+frequency);
+        v1Scale = v1New/v1Old;
+        v2Scale = v2New/v2Old;
         inflate1.setScale(Math.pow(v1Scale,ROOT));
         inflate2.setScale(Math.pow(v2Scale,ROOT));
         inflate1.attempt();
         inflate2.attempt();
+        return true;
+    }//end of doTrial
+    
+    public double lnTrialRatio() {
+        return (firstPhase.moleculeCount()+1)*Math.log(v1Scale) +
+                + (secondPhase.moleculeCount()+1)*Math.log(v2Scale);
+    }
+        
+    public double lnProbabilityRatio() {
         double hNew = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
                     + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
-        if(hNew >= Double.MAX_VALUE ||
-             Math.exp(-(hNew-hOld)/parentIntegrator.temperature+
-                       (firstPhase.moleculeCount()+1)*Math.log(v1Scale) +
-                       (secondPhase.moleculeCount()+1)*Math.log(v2Scale))
-                < Simulation.random.nextDouble()) 
-            {  //reject
-              inflate1.undo();
-              inflate2.undo();
-              return false;
-        }
-        else return true;
-    }//end of thisTrial
+        return -(hNew - hOld)/parentIntegrator.temperature;
+    }
     
+    public void acceptNotify() {  /* do nothing */}
+    
+    public void rejectNotify() {
+        inflate1.undo();
+        inflate2.undo();
+    }
+
     public final AtomIterator affectedAtoms() {
         return affectedAtomIterator;
     }

@@ -77,7 +77,7 @@ public class AtomReservoir extends Atom {
     /**
      * Special AtomTreeNode class for AtomReservoir.
      */
-    private static final class ReservoirAtomTreeNode extends AtomTreeNodeGroup {
+    public static final class ReservoirAtomTreeNode extends AtomTreeNodeGroup {
         
         private final AtomReservoir reservoir;
         

@@ -17,6 +17,9 @@ public class MCMoveInsertDelete extends MCMove {
     private SpeciesAgent speciesAgent;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom testMolecule;
+    private double hOld;
+    private boolean insert;
+    private AtomReservoir reservoir;
 
     public MCMoveInsertDelete(IntegratorMC parent) {
         super(parent);
@@ -31,6 +34,7 @@ public class MCMoveInsertDelete extends MCMove {
     public void setSpecies(Species s) {
         species = s;
         if(phase != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
+        reservoir = new AtomReservoir(s.moleculeFactory());
     }
     public Species getSpecies() {return species;}
     
@@ -39,44 +43,49 @@ public class MCMoveInsertDelete extends MCMove {
         if(species != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
     }
     
-    public final boolean thisTrial() {
-        if(Simulation.random.nextDouble() < 0.5) {
-            return trialInsert();
-        }
-        else {
-            return trialDelete();
-        }
-    }
-                                                                                                                                                                                                                                                                                                                                                                       
-    private final boolean trialInsert() {
-        testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
-        testMolecule.coord.translateTo(phase.randomPosition());
-        double uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
-        if(uNew == Double.MAX_VALUE) {  //overlap
-            testMolecule.sendToReservoir();
-            return false;
-        }      
-        double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.volume()/(speciesAgent.moleculeCount()+1);
-        if(bNew < 1.0 && bNew < Simulation.random.nextDouble()) {  //reject
-            testMolecule.sendToReservoir();
-            return false;
-        }
-        else return true;
+    /**
+     * Chooses and performs with equal probability an elementary molecule insertion
+     * or deletion.
+     */
+    public boolean doTrial() {
+        insert = Simulation.random.nextDouble() < 0.5;
+        if(insert) {
+            hOld = 0.0;
+            testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
+            testMolecule.coord.translateTo(phase.randomPosition());
+        } else {//delete
+            if(speciesAgent.moleculeCount() == 0) return false;
+            testMolecule = speciesAgent.randomMolecule();
+            hOld = -mu + potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+            reservoir.addAtom(testMolecule);
+        }    
+        return true;
+    }//end of doTrial
+    
+    public double lnTrialRatio() {//note that moleculeCount() gives the number of molecules after the trial is attempted
+        return insert ? Math.log(phase.volume()/speciesAgent.moleculeCount()) 
+                      : Math.log((speciesAgent.moleculeCount()+1)/phase.volume());        
     }
     
-    private final boolean trialDelete() {
-        if(speciesAgent.moleculeCount() == 0) {return false;}
-        testMolecule = speciesAgent.randomMolecule();
-        double uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
-        double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
-        double bNew = speciesAgent.moleculeCount()/phase.volume();
-        if(bNew > bOld || bNew > Simulation.random.nextDouble()*bOld) {  //accept
-            testMolecule.sendToReservoir();
-            return true;
-        }
-        else return false;
+    public double lnProbabilityRatio() {
+        double hNew = 0.0;
+        if(insert) hNew = -mu + potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+        return -(hNew - hOld)/parentIntegrator.temperature;
+    }
+    
+    public void acceptNotify() {
+        if(!insert) testMolecule.sendToReservoir();
+    }
+    
+    public void rejectNotify() {
+        if(insert) testMolecule.sendToReservoir();
+        else testMolecule.node.setParent((AtomTreeNodeGroup)speciesAgent.node);
     }
 
+    /**
+     * Returns an iterator giving molecule that is being added or deleted 
+     * in the current or most recent trial.
+     */
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(testMolecule);
         return affectedAtomIterator;
@@ -94,22 +103,27 @@ public class MCMoveInsertDelete extends MCMove {
      * Indicates that chemical potential has dimensions of energy.
      */
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
-    
-/*    public static void main(String[] args) {
+/*    
+    public static void main(String[] args) {
         etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
         Simulation.instance = sim;
 
         MeterNMolecules meterN = new MeterNMolecules();
-        DisplayBox box = new DisplayBox(meterN);
+        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox(meterN);
         box.setUpdateInterval(10);
-
-		Simulation.instance.elementCoordinator.go();
-
+        
         MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);
         mcMoveInsDel.setSpecies(sim.species);
         mcMoveInsDel.setMu(-2000.);
+        
+        sim.integrator(0).setTemperature(1.0);
 		                                    
-        Simulation.makeAndDisplayFrame(sim);
+        etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel,"mu");
+        slider.setMinimum(-20);
+        slider.setMaximum(+20);
+		Simulation.instance.elementCoordinator.go();
+
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
     }//end of main
-    */
+// */    
 }//end of MCMoveInsertDelete

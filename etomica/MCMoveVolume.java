@@ -15,6 +15,8 @@ public class MCMoveVolume extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private AtomIterator affectedAtomIterator;
 
+    private transient double hOld, vNew, vScale;
+
     public MCMoveVolume(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
         setStepSizeMax(1.0);
@@ -30,31 +32,34 @@ public class MCMoveVolume extends MCMove {
         affectedAtomIterator = phase.makeAtomIterator();
     }
     
-    public boolean thisTrial() {
-    //debug    System.out.print("volume");
-        double hOld, hNew, vOld, vNew, uOld, uNew;
-        vOld = phase.volume();
-        uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+    public boolean doTrial() {
+        double vOld = phase.volume();
+        double uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
         hOld = uOld + pressure*vOld;
-        double vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
+        vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/(double)phase.parentSimulation().space().D());
         inflate.setScale(rScale);
         inflate.attempt();
-        uNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
-        hNew = uNew + pressure*vNew;
-        if(hNew >= Double.MAX_VALUE ||
-             Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount()+1)*vScale)
-                < Simulation.random.nextDouble()) 
-            {  //reject
-              inflate.undo();
-     //debug         System.out.println("reject");
-              return false;
-            }
-     //debug   System.out.println("accept");
-        return true;   //accept
+        return true;
+    }//end of doTrial
+    
+    public double lnTrialRatio() {
+        return (phase.moleculeCount()+1)*vScale;
     }
     
+    public double lnProbabilityRatio() {
+        double uNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+        double hNew = uNew + pressure*vNew;
+        return -(hNew - hOld)/parentIntegrator.temperature;
+    }
+    
+    public void acceptNotify() {  /* do nothing */}
+    
+    public void rejectNotify() {
+        inflate.undo();
+    }
+
     public AtomIterator affectedAtoms() {return affectedAtomIterator;}
 
     public void setPressure(double p) {pressure = p;}

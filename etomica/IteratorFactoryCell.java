@@ -998,7 +998,7 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
      * in the childList of the given parent (if it is not null).
      */
     public void setParentNotify(AtomTreeNodeGroup newParent) {
-        if(newParent == null) {
+        if(newParent == null || newParent instanceof AtomReservoir.ReservoirAtomTreeNode) {
             cell = null;
             lattice = null;
             return;
@@ -1074,7 +1074,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
   //      IntergroupNbrIterator.main(args); 
         boolean cellListing = true;
         boolean doDisplay = true;
-        boolean md = true;
+        boolean md = false;
         int nAtoms = 90;
         boolean fixedLengthRun = false;
         boolean mixture = true;
@@ -1084,7 +1084,7 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         System.out.println("number of atoms in simulation: "+2*nAtoms);
         
         Default.ATOM_SIZE = 150./(double)nAtoms;
-        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space3D());
+        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space2D());
         Simulation.instance = sim;
 
         if(cellListing) sim.setIteratorFactory(new IteratorFactoryCell(sim));

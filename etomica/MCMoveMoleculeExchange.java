@@ -13,7 +13,11 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private Atom molecule;
+
+    private transient Atom molecule;
+    private transient Phase iPhase, dPhase;
+    private transient SpeciesAgent iSpecies, dSpecies;
+    private transient double uOld;
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {
         super(parent);
@@ -36,8 +40,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         secondPhase = p[1];
     }
         
-    public boolean thisTrial() {
-        Phase iPhase, dPhase;
+    public boolean doTrial() {
         if(Simulation.random.nextDouble() < 0.5) {
             iPhase = firstPhase;
             dPhase = secondPhase;
@@ -51,39 +54,35 @@ public final class MCMoveMoleculeExchange extends MCMove {
         molecule = dPhase.randomMolecule();  //select random molecule to delete
         Species species = molecule.node.parentSpecies();
         
-        SpeciesAgent iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
-        SpeciesAgent dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
+        iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
+        dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
-        double uOld = potential.set(dPhase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
+        uOld = potential.set(dPhase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
 
         molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
         molecule.node.setParent(iSpecies);
- //       dPhase.removeMolecule(molecule,dSpecies);
- //       iPhase.addMolecule(molecule,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
-        double uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
-        if(uNew == Double.MAX_VALUE) {  //overlap; reject
-            molecule.coord.replace();                //put it back 
-            molecule.node.setParent(dSpecies);
-        //    iPhase.removeMolecule(molecule,iSpecies);
-        //    dPhase.addMolecule(molecule,dSpecies);
-            return false;        
-        }
-        
-        double bFactor = (dSpecies.moleculeCount()+1)/dPhase.volume()  //acceptance probability
-                         * iPhase.volume()/(iSpecies.moleculeCount())                   //note that dSpecies.nMolecules has been decremented
-                         * Math.exp(-(uNew-uOld)/parentIntegrator.temperature);    //and iSpecies.nMolecules has been incremented
-        if(bFactor > 1.0 || bFactor > Simulation.random.nextDouble()) {  //accept
-            return true;
-        }
-        else {              //reject
-            molecule.coord.replace();    //put it back
-            molecule.node.setParent(dSpecies);
-        //    iPhase.removeMolecule(molecule,iSpecies);
-        //    dPhase.addMolecule(molecule,dSpecies); //place molecule in phase
-            return false;
-        }
-    }//end of thisTrial
+        return true;
+    }//end of doTrial
     
+    public double lnTrialRatio() {
+        //note that dSpecies.nMolecules has been decremented
+        //and iSpecies.nMolecules has been incremented
+        return Math.log( (dSpecies.moleculeCount()+1)/dPhase.volume()
+                         * iPhase.volume()/iSpecies.moleculeCount() ); 
+    }
+    
+    public double lnProbabilityRatio() {
+        double uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
+        return -(uNew - uOld)/parentIntegrator.temperature;
+    }
+    
+    public void acceptNotify() {  /* do nothing */}
+    
+    public void rejectNotify() {
+        molecule.coord.replace();
+        molecule.node.setParent(dSpecies);
+    }
+
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(molecule);
         return affectedAtomIterator;

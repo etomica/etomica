@@ -12,11 +12,13 @@ public class MCMoveAtom extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom atom;
+    double uOld;
 /*debug* /    private PotentialCalculationEnergySumNearestPair energyDebug = 
              new PotentialCalculationEnergySumNearestPair();
     private int idx1 = 0;
     private int idx2 = 15;
     private int kmax = 0;
+    private int k = 0;
     private Atom atomIdx1, atomIdx2;
 /* */
     public MCMoveAtom(IntegratorMC parentIntegrator) {
@@ -31,14 +33,15 @@ public class MCMoveAtom extends MCMove {
     public final Dimension getStepSizeMaxDimension() {return Dimension.LENGTH;}
     public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
     
-    int k = 0;
-    public boolean thisTrial() {
+    /**
+     * Method to perform trial move.
+     */
+    public boolean doTrial() {
         Atom atom0 = phase.speciesMaster.atomList.getFirst();
   //      System.out.println(((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom0.seq).cell.agents[0])[0].toString());
  /*debug* / atomIdx1 = phase.speciesMaster.atomList.get(idx1);
            atomIdx2 = phase.speciesMaster.atomList.get(idx2);  // */
-        double uOld, uNew;
-        if(phase.atomCount()==0) {return false;}
+        if(phase.atomCount()==0) return false;
  /*debug* /       k++;  // */
         atom = phase.speciesMaster.atomList.getRandom();
 /*debug* /        if(k>11000 && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k + " " + atom.node.index()+atom.coord.position().toString());
@@ -67,33 +70,53 @@ public class MCMoveAtom extends MCMove {
             throw new RuntimeException("Overlap found in configuration");
         }    
         atom.coord.displaceWithin(stepSize);
-        phase.boundary().centralImage(atom.coord.position());
-        uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
-        if(uNew >= Double.MAX_VALUE) {
+ //       phase.boundary().centralImage(atom.coord.position());
+        return true;
+    }//end of doTrial
+    
+    
+    /**
+     * Returns log of the ratio of the trial probabilities, ln(Tij/Tji) for the
+     * states encountered before (i) and after (j) the most recent call to doTrial(). 
+     * Tij is the probability that this move would generate state j from state i, and
+     * Tji is the probability that a subsequent call to doTrial would return to state i
+     * from state j.
+     */
+    public double lnTrialRatio() {return 0.0;}
+    
+    /**
+     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
+     * for the states encountered before (i) and after (j) the most recent call to 
+     * doTrial.
+     */
+    public double lnProbabilityRatio() {
+        double uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
+        return -(uNew - uOld)/parentIntegrator.temperature;
+    }
+    
+    /**
+     * Method called by IntegratorMC in the event that the most recent trial is accepted.
+     */
+    public void acceptNotify() {  /* do nothing */
+  /*debug* /      if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  acc2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
+                 if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
+    // */  
+    }
+    
+    /**
+     * Method called by IntegratorMC in the event that the most recent trial move is
+     * rejected.  This method should cause the system to be restored to the condition
+     * before the most recent call to doTrial.
+     */
+    public void rejectNotify() {
   /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej1 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
                      if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
   /* //  */          atom.coord.replace();
   /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
                      if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-  /* // */          return false;
-        } else if(uNew <= uOld) {   //accept
-  /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  acc1 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-  /* // */          return true;
-        } else if(  //Metropolis test, reject
-            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
-  /*debug* /         if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej3 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-  /* // */          atom.coord.replace();
-   /*debug* /         if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej4 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-  /* // */           return false;
-      }
-        //accept
-  /*debug* /      if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  acc2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-                 if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-  /* // */     return true;
-    }//end thisTrial
+      } // */
+    }
+        
     
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(atom);

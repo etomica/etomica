@@ -30,29 +30,54 @@ public abstract class MCMove implements java.io.Serializable {
     }
     
     /**
-     * Method called by IntegratorMC to conduct Monte Carlo trial move and decide
-     * acceptance.  Performs other bookkeeping tasks common to all subclasses.
-     * Actual definition of the trial for each subclass is given by the
-     * thisTrial method, which is invoked by this method.
+     * Updates statistics regarding the rate of acceptance of trials
+     * for this move.
      */
-    public final boolean doTrial() {
+    public void updateCounts(boolean moveWasAccepted) {
         nTrials++;
-        boolean moveWasAccepted = thisTrial();
         if(moveWasAccepted) nAccept++;
         if(nTrials > adjustInterval*frequency) {adjustStepSize();}
-        return moveWasAccepted;
     }
     
     public IntegratorMC parentIntegrator() {return parentIntegrator;}
     
     /**
-     * Method to perform trial and decide acceptance.  Returns boolean
-     * indicating if move was accepted (true) or not.
+     * Method to perform trial move.  Returns false if the trial could
+     * not be attempted, for example if there were no molecules in the
+     * phase and the trial is designed to displace an atom; returns true otherwise.
      */
-    public abstract boolean thisTrial();
+    public abstract boolean doTrial();
     
     /**
-     * Returns an iterator that yields the (leaf) atoms that were affected by
+     * Returns log of the ratio of the trial probabilities, ln(Tji/Tij) for the
+     * states encountered before (i) and after (j) the most recent call to doTrial(). 
+     * Tij is the probability that this move would generate state j from state i, and
+     * Tji is the probability that a subsequent call to doTrial would return to state i
+     * from state j.
+     */
+    public abstract double lnTrialRatio();
+    
+    /**
+     * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
+     * for the states encountered before (i) and after (j) the most recent call to 
+     * doTrial.
+     */
+    public abstract double lnProbabilityRatio();
+    
+    /**
+     * Method called by IntegratorMC in the event that the most recent trial is accepted.
+     */
+    public abstract void acceptNotify();
+    
+    /**
+     * Method called by IntegratorMC in the event that the most recent trial move is
+     * rejected.  This method should cause the system to be restored to the condition
+     * before the most recent call to doTrial.
+     */
+    public abstract void rejectNotify();
+    
+    /**
+     * Returns an iterator that yields the atoms that were affected by
      * the trial move the last time thisTrial was invoked 
      * (regardless of whether the move was accepted).  This information usually
      * is not needed, but it is available in cases where required by objects that

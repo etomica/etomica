@@ -12,6 +12,7 @@ public class MCMoveMolecule extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
+    private double uOld;
 
     public MCMoveMolecule(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -31,27 +32,29 @@ public class MCMoveMolecule extends MCMove {
     public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
     
 
-    public boolean thisTrial() {
-        if(phase.moleculeCount()==0) {return false;}
+    public boolean doTrial() {
+        if(phase.moleculeCount()==0) return false;
+        
         molecule = phase.randomMolecule();
 
-        double uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
+        uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
         molecule.coord.displaceWithin(stepSize);
-        double uNew = potential.calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
-        if(uNew >= Double.MAX_VALUE) {//reject
-            molecule.coord.replace();
-            return false;
-        } else if(uNew <= uOld) {   //accept
-            return true;
-        } else if(  //reject
-           Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
-             molecule.coord.replace();
-             return false;
-        }
-        //accept
         return true;
-    }//end thisTrial
+    }//end of doTrial
     
+    public double lnTrialRatio() {return 0.0;}
+    
+    public double lnProbabilityRatio() {
+        double uNew = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
+        return -(uNew - uOld)/parentIntegrator.temperature;
+    }
+    
+    public void acceptNotify() {  /* do nothing */}
+    
+    public void rejectNotify() {
+        molecule.coord.replace();
+    }
+        
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(molecule);
         return affectedAtomIterator;

@@ -8,9 +8,12 @@ import etomica.units.*;
 public class MCMoveRotate extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final Space.Orientation oldOrientation;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private Atom molecule;
+    private final Space.Orientation oldOrientation;
+
+    private transient Atom molecule;
+    private transient double uOld;
+    private transient Space.Orientation orientation;
 
     public MCMoveRotate(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -21,61 +24,59 @@ public class MCMoveRotate extends MCMove {
         setPerParticleFrequency(true);
     }
      
-    public boolean thisTrial(){   
-         
+    public boolean doTrial() {
         if(phase.moleculeCount()==0) {return false;}
         molecule = phase.randomMolecule();
 
-        /*if(phase.atomCount()==0) {return false;}
-        int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
-        molecule = phase.firstAtom();
-        for(int j=i; --j>=0; ) {molecule = molecule.nextAtom();}  
-         */   
         potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
-        double uOld = energy.sum();
-        Space.Orientation orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
+        uOld = energy.sum();
+        orientation = ((Space.Coordinate.Angular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
+        return true;
+    }//end of doTrial
+    
+    public double lnTrialRatio() {return 0.0;}
+    
+    public double lnProbabilityRatio() {
         potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset());
         double uNew = energy.sum();
-        if(uNew < uOld) {   //accept
-            return true;
-        }
-        if(uNew >= Double.MAX_VALUE ||  //reject
-            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
-                // restore the old values of orientation.
-            orientation.E(oldOrientation);
-            return false;
-        }
-        return true;//accept
+        return -(uNew - uOld)/parentIntegrator.temperature;
     }
- 
+    
+    public void acceptNotify() {  /* do nothing */}
+    
+    public void rejectNotify() {
+        orientation.E(oldOrientation);
+    }
+
     public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setBasis(molecule);
         return affectedAtomIterator;
     }
 
-/*   public static void main(String[] args) {
+ /*
+    public static void main(String[] args) {
         Default.ATOM_SIZE =1.2;
-        Simulation.instance = new Simulation(/*new Space2DCell()* /);
+        Simulation.instance = new Simulation();
         Phase phase1 = new Phase();
         
         IntegratorMC integratorMC1 = new IntegratorMC();
         MCMoveAtom mcmove= new MCMoveAtom(integratorMC1);
         MCMoveRotate mcrotate = new MCMoveRotate(integratorMC1);
-         Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(1.30);
+        Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(1.30);
         //MCMoveVolumeXY mcmovevolume = new MCMoveVolumeXY();
-        MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
+//        MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
 	    integratorMC1.setDoSleep(false);
 
-	    meterp.setPhase(phase1);
+/*	    meterp.setPhase(phase1);
 	    meterp.setInflateDimensions(new boolean[] {true, false});
 	    meterp.setActive(true);
-        DisplayPlot plot1 = new DisplayPlot();
+        etomica.graphics.DisplayPlot plot1 = new etomica.graphics.DisplayPlot();
 	    plot1.setDataSources(meterp);
 	       
 	    plot1.setWhichValue(MeterAbstract.AVERAGE);
-        integratorMC1.setTemperature(Default.TEMPERATURE);  
+* /        integratorMC1.setTemperature(Default.TEMPERATURE);  
 
 	    SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(80);
 	  //  SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(200);
@@ -86,23 +87,23 @@ public class MCMoveRotate extends MCMove {
 	    
 	    Controller controller1 = new Controller();
 	  
-	    DisplayPhase displayPhase1 = new DisplayPhase();
+	    etomica.graphics.DisplayPhase displayPhase1 = new etomica.graphics.DisplayPhase();
 	    MeterEnergy meterEnergy1 = new MeterEnergy();
 	    
-	    DisplayBox box1 = new DisplayBox();
+	    etomica.graphics.DisplayBox box1 = new etomica.graphics.DisplayBox();
 	    
 	    box1.setMeter(meterEnergy1);
 	    box1.setWhichValue(MeterAbstract.AVERAGE);
 		
 		displayPhase1.setPhase(phase1);
 		
-		DeviceSlider temperatureSlider = new DeviceSlider(integratorMC1, "temperature");
+		etomica.graphics.DeviceSlider temperatureSlider = new etomica.graphics.DeviceSlider(integratorMC1, "temperature");
 	    temperatureSlider.setUnit(new etomica.units.Unit(Kelvin.UNIT));
 	    temperatureSlider.setMinimum(50);
 	    temperatureSlider.setMaximum(500);
 	   
 	    phase1.setIntegrator(integratorMC1);
-        phase1.boundary().dimensions().setComponent(0,15);
+        phase1.boundary().dimensions().setX(0,15);
         
 		Simulation.instance.elementCoordinator.go(); 
         //phase1.integrator().setTemperature();
@@ -116,10 +117,8 @@ public class MCMoveRotate extends MCMove {
 //        integratorMC1.addIntervalListener(phase1);
      //  controller1.add(integratorMC1);
         
-		Simulation.instance.panel().setBackground(java.awt.Color.blue);		
-	//	((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
-    //    ((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(6,10);
-        Simulation.makeAndDisplayFrame(Simulation.instance);
+	//	Simulation.instance.panel().setBackground(java.awt.Color.blue);		
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-   */
-}
+//   */
+}//end of MCMoveRotate

@@ -1,14 +1,23 @@
 package etomica;
 
+/**
+ * Integrator to perform Metropolis Monte Carlo sampling.  Works with a set
+ * of MCMove instances that are added to the integrator upon their construction.
+ * A step performed by the integrator consists of selecting a MCMove from the
+ * set, performing the trial defined by the MCMove, and deciding acceptance
+ * of the trial using information from the MCMove.
+ *
+ * @author David Kofke
+ */
 public class IntegratorMC extends Integrator implements EtomicaElement {
     
-    public String version() {return "IntegratorMC:01.09.04"+Integrator.VERSION;}
+    public String version() {return "IntegratorMC:02.03.19"+Integrator.VERSION;}
     
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
     private int moveCount;
     private SimulationEventManager eventManager;
-    protected final MCMoveEvent event = new MCMoveEvent(this);
+    private final MCMoveEvent event = new MCMoveEvent(this);
     
     public IntegratorMC() {
         this(Simulation.instance);
@@ -50,16 +59,13 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      */
     void add(MCMove move) {
         //make sure this is this parent of the move being added
-        if(move.parentIntegrator() != this) {//need an exception
-            System.out.println("Inappropriate move added in IntegratorMC");
-            return;
+        if(move.parentIntegrator() != this) {
+            throw new RuntimeException("Inappropriate move added in IntegratorMC");
         }
         //make sure move wasn't added already
         for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
-            if(move == m) {//need an exception
-                System.out.println("Attempt to add move twice in IntegratorMC");
-                System.out.println("Move is added in its constructor, and should not be added again");
-                return;
+            if(move == m) {
+                throw new RuntimeException("Attempt to add move twice in IntegratorMC; Move is added in its constructor, and should not be added again");
             }
         }
         if(firstMove == null) {firstMove = move;}
@@ -88,17 +94,42 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * After completing move, fires an MCMove event if there are any listeners.
      */
     public void doStep() {
+        //select the move
         if(firstMove == null) return;
         int i = (int)(Simulation.random.nextDouble()*frequencyTotal);
-        MCMove trialMove = firstMove;
-        while((i-=trialMove.fullFrequency()) >= 0) {
-            trialMove = trialMove.nextMove();
+        MCMove move = firstMove;
+        while((i-=move.fullFrequency()) >= 0) {
+            move = move.nextMove();
         }
-        event.acceptedMove = trialMove.doTrial();
+        
+        //perform the trial
+        if(!move.doTrial()) return;
+        
+        //notify any listeners that move has been attempted
         if(eventManager != null) { //consider using a final boolean flag that is set in constructor
-            event.mcMove = trialMove;
+            event.mcMove = move;
+            event.isTrialNotify = true;
             eventManager.fireEvent(event);
         }
+        
+        //decide acceptance
+        double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
+        if(lnChi <= -Double.MAX_VALUE || 
+                (lnChi < 0.0 && Math.exp(lnChi) < Simulation.random.nextDouble())) {//reject
+            move.rejectNotify();
+            event.wasAccepted = false;
+        } else {
+            move.acceptNotify();
+            event.wasAccepted = true;
+        }
+
+        //notify listeners of outcome
+        if(eventManager != null) { //consider using a final boolean flag that is set in constructor
+            event.isTrialNotify = false;
+            eventManager.fireEvent(event);
+        }
+        
+        move.updateCounts(event.wasAccepted);
     }
     
     /**
@@ -124,10 +155,4 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     public Integrator.Agent makeAgent(Atom a) {
         return null;
     }
-    
-/*    public class Agent implements Integrator.Agent {
-        public Atom atom;
-        public Agent(Atom a) {atom = a;}
-    }
-    */
-}
+}//end of IntegratorMC

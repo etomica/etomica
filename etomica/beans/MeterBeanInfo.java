@@ -18,9 +18,9 @@ public class MeterBeanInfo extends SimpleBeanInfo {
 
             return new PropertyDescriptor[] {
                 phaseDescriptor,
-                new PropertyDescriptor("mostRecent",Meter.class,"mostRecent",null),
-                new PropertyDescriptor("average",Meter.class,"average",null),
-                new PropertyDescriptor("error",Meter.class,"error",null),
+                new PropertyDescriptor("mostRecent",MeterScalar.class,"mostRecent",null),
+                new PropertyDescriptor("average",MeterScalar.class,"average",null),
+                new PropertyDescriptor("error",MeterScalar.class,"error",null),
                 new PropertyDescriptor("active",MeterAbstract.class),
                 new PropertyDescriptor("historying",MeterAbstract.class),
                 new PropertyDescriptor("histogramming",MeterAbstract.class),
