@@ -56,35 +56,44 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
  */
   public void bump(Atom[] pair) {
   	cPair.reset(pair[0].coord,pair[1].coord);
-    double eps = 1.0e-6;
+    double eps = 1.0e-10;
     double r2 = cPair.r2();
 	cPair.resetV();
     double bij = cPair.vDotr();
-    // ke is kinetic energy due to components of velocity
     double reduced_m = 1.0/(pair[0].coord.rm() + pair[1].coord.rm());
-    dr.E(cPair.dr());
-    double ke = bij*bij*reduced_m/(2.0*r2);
-    double s, r2New;
+    double r2New;
     if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
+        if (Debug.ON && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
+            throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+coreDiameterSquared);
+        }
       lastCollisionVirial = 2.0*reduced_m*bij;
       r2New = r2;
     }
     else {    // Well collision
+      // ke is kinetic energy due to components of velocity
+      double ke = bij*bij*reduced_m/(2.0*r2);
       if(bij > 0.0) {         // Separating
 	    if(ke < epsilon) {     // Not enough kinetic energy to escape
+            if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
+                throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
+            }
 	       lastCollisionVirial = 2.0*reduced_m*bij;
-	       r2New = (1-eps)*wellDiameterSquared; 
+	       r2New = (1-eps)*wellDiameterSquared;
 	    }
 	    else {                 // Escape
-//	  s = (0.5*bij/r - Math.sqrt(0.5*(ke - epsilon)))/r;
+            if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
+                throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
+            }
 	       lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
 	       r2New = (1+eps)*wellDiameterSquared;
 	    }
       }
       else {                  // Approaching
-//	s = (0.5*bij/r + Math.sqrt(0.5*(ke + epsilon)))/r;
+          if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
+              throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
+          }
 	     lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
-	     r2New = (1-eps)*wellDiameterSquared; 
+	     r2New = (1-eps)*wellDiameterSquared;
       }
     }
     lastCollisionVirialr2 = lastCollisionVirial/r2;
