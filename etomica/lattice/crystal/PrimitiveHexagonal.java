@@ -138,8 +138,8 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     
     /**
      * Main method to demonstrate use and to aid debugging
-     * /
-    public static void main(String[] args) {
+     */
+/*    public static void main(String[] args) {
         System.out.println("main method for PrimitiveCubic");
         Space space = new Space2D();
         Simulation sim = new Simulation(space);
@@ -206,8 +206,7 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
         System.out.println();
 
         System.out.println("cell volume: "+testSite.volume());
-  
-        /*
+
         //write out vertices of some cells
         System.out.println();
         System.out.println("Unit-cell vertices of first cell");
@@ -221,8 +220,8 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
         for(int i=0; i<vertices.length; i++) {
             System.out.println(vertices[i].toString());
         }
-        * /
-    }//end of main
-  // */  
-}//end of PrimitiveCubic
+        
+    }
+*/  
+}
     
