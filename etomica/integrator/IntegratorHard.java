@@ -14,6 +14,7 @@ import etomica.atom.AtomArrayList;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.space.CoordinatePair;
+import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.utility.TreeLinker;
@@ -96,10 +97,14 @@ public class IntegratorHard extends IntegratorMD {
                 if (atoms[1] != null) {
                     cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                     cPairDebug.setNearestImageTransformer(firstPhase.boundary());
-//                    cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
-                    System.out.println("distance at last collision time was "+Math.sqrt(cPairDebug.r2()));
-//                    cPairDebug.trueReset(collisionTimeStep);
-                    System.out.println("distance now "+Math.sqrt(cPairDebug.r2()));
+                    cPairDebug.reset(atoms[0].coord,atoms[1].coord);
+                    ((CoordinatePairKinetic)cPairDebug).resetV();
+                    Vector dr = cPairDebug.dr();
+                    Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
+                    dr.PEa1Tv1(oldTime,dv);
+                    System.out.println("distance at last collision time was "+Math.sqrt(dr.squared()));
+                    dr.PEa1Tv1(collisionTimeStep-oldTime,dv);
+                    System.out.println("distance now "+Math.sqrt(dr.squared()));
                 }
                 throw new RuntimeException("this simulation is not a time machine");
             }
@@ -110,13 +115,19 @@ public class IntegratorHard extends IntegratorMD {
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                 cPairDebug.setNearestImageTransformer(firstPhase.boundary());
-//                cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
-                double r2 = cPairDebug.r2();
+                cPairDebug.reset(Debug.ATOM1.coord,Debug.ATOM2.coord);
+                ((CoordinatePairKinetic)cPairDebug).resetV();
+                Vector dr = cPairDebug.dr();
+                Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
+                dr.PEa1Tv1(collisionTimeStep,dv);
+                double r2 = dr.squared();
                 if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
                     System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
                     if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-//                        System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.truePosition(collisionTimeStep));
-//                        System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.truePosition(collisionTimeStep));
+                        dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM1.coord).velocity());
+                        System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position().P(dr));
+                        dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM2.coord).velocity());
+                        System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.position().P(dr));
                     }
                 }
                 Debug.checkAtoms();
