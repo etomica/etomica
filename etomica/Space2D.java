@@ -436,7 +436,7 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.x(i);}
-        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*p.x(i);}
+        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*rm()*p.x(i);}
         public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {

@@ -380,7 +380,7 @@ public class Space1D extends Space implements EtomicaElement {
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
         public void accelerateTo(Space.Vector u) {p.E(u);}
         public void trueAccelerateTo(Space.Vector u, double falseTime) {
-            r.x -= falseTime * (((Vector)u).x - p.x);
+            r.x -= falseTime*rm() * (((Vector)u).x - p.x);
             p.x = ((Vector)u).x;
         }
         
