@@ -138,12 +138,16 @@ public class ApiListSimple implements AtomsetIterator {
 
 	private void advanceOuter() {
         nextOuter = nextOuter.next;
-        while(nextOuter.atom == null && nextOuter != list.header) {nextOuter = nextOuter.next;}
+        while(nextOuter.atom == null && nextOuter != list.header) {
+            nextOuter = nextOuter.next;
+        }
     }
 
 	private void advanceInner() {
         nextInner = nextInner.next;
-        while(nextInner.atom == null && nextInner != list.header) {nextInner = nextInner.next;}
+        while(nextInner.atom == null && nextInner != list.header) {
+            nextInner = nextInner.next;
+        }
     }
 
 	
