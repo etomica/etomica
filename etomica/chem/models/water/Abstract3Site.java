@@ -183,12 +183,12 @@ public class Abstract3Site extends ModelMolecular {
 		private double bondLengthOH = 1.0;
 		private double angleHOH = 109.5*Math.PI/180.;
 
-		public ConfigurationWater(Space space) {
-			super(space);
+		public ConfigurationWater() {
+			super();
 		}
     
 		public ConfigurationWater(double rOH, double theta) {
-			super(new Space3D());
+			super();
 			bondLengthOH = rOH;
 			angleHOH = theta;
 		}
