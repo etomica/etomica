@@ -25,7 +25,7 @@ public class MCMoveMolecule extends MCMove {
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(0.1*Default.ATOM_SIZE);
-        setPerParticleFrequency(true);
+        perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
         //set directive to exclude intramolecular contributions to the energy
 

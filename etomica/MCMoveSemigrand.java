@@ -40,7 +40,7 @@ public class MCMoveSemigrand extends MCMove {
         insertAtomIterator = new AtomIteratorSinglet();
         affectedAtomIterator = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
         setTunable(false);
-        setPerParticleFrequency(true);
+        perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
     }
     

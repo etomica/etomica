@@ -31,7 +31,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
-        setPerParticleFrequency(true);
+        perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
         //TODO enable this
         //set directive to exclude intramolecular contributions to the energy

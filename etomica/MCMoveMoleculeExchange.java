@@ -29,7 +29,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         ROOT = 1.0/space.D();
         setTunable(false);
-        setPerParticleFrequency(true);
+        perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
     }
     

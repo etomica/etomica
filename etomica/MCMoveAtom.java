@@ -34,7 +34,7 @@ public class MCMoveAtom extends MCMove {
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
-        setPerParticleFrequency(true);
+        perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
         setName("MCMoveAtom");
     }
