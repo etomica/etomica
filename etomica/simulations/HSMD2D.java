@@ -38,18 +38,20 @@ public class HSMD2D extends SimulationGraphic {
     
     public HSMD2D(Space2D space) {
         super(space, new PotentialMasterNbr(space));
+        Default.makeLJDefaults();
   //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
-        Default.ATOM_SIZE = 2.0;
+//        Default.BOX_SIZE = 30.0;
+        Default.ATOM_SIZE = 0.4;
         integrator = new IntegratorHard(this);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setInterval(1);
-        integrator.setTimeStep(0.02);
+        integrator.setTimeStep(0.01);
         species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-	    species.setNMolecules(160);
+	    species.setNMolecules(500);
 	    species2.setNMolecules(5);
 	    phase = new Phase(this);
-	    potential = new P2HardSphere();
+	    potential = new P2HardSphere(space);
 //	    potential = new P2HardSphere();
 	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});

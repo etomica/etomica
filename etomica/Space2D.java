@@ -798,6 +798,11 @@ public class Space2D extends Space implements EtomicaElement {
         private final Vector dimensionsCopy = new Vector();
         private final Vector dimensionsHalf = new Vector();
         public final Space.Vector dimensions() {return dimensionsCopy;}
+        //temporary methods included to test combobox selector
+        public Constants.Alignment align = Constants.VERTICAL;
+        public Constants.Alignment getAlign() {return align;}
+        public void setAlign(Constants.Alignment newAlign) {align = newAlign;}
+        //end of temporary methods
         private final void updateDimensions() {
             dimensionsHalf.Ea1Tv1(0.5,dimensions);
             dimensionsCopy.E(dimensions);
