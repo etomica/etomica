@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.AtomPair;
 import etomica.NearestImageTransformer;
 import etomica.Space;
 
@@ -18,6 +19,10 @@ public class CoordinatePair {
 
     public NearestImageTransformer getNearestImageTransformer() {
         return nearestImageTransformer;
+    }
+    
+    public Vector reset(AtomPair pair) {
+        return reset(pair.atom0.coord, pair.atom1.coord);
     }
 
     public Vector reset(ICoordinate coord1, ICoordinate coord2) {
