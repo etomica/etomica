@@ -16,8 +16,8 @@ import etomica.atom.iterator.AtomsetIteratorFiltered;
 import etomica.data.DataSourceCOM;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionFake;
 import etomica.nbr.NeighborCriterionSimple;
+import etomica.nbr.NeighborCriterionWrapper;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
@@ -70,10 +70,11 @@ public class ChainHSMD3D extends Simulation {
         potential = new P2HardSphere(space);
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         AtomsetIteratorFiltered interIterator = new AtomsetIteratorFiltered(new ApiIntergroup(),criterion);
-        p2Inter.addPotential(potential,new ApiIntergroup());
-        NeighborCriterionFake fakeCriterion = new NeighborCriterionFake();
-        fakeCriterion.setNeighborRange(3.5 + criterion.getNeighborRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},fakeCriterion);
+        p2Inter.addPotential(potential,interIterator);
+        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
+        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
+        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
+        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
         
         //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
