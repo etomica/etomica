@@ -31,19 +31,7 @@ public class ConfigurationLinear extends Configuration {
         for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
         zeroTotalMomentum = false;
     }
-    //remove these constructors when possible
-    public ConfigurationLinear(Simulation sim) {
-        this(sim, 0.55*Default.ATOM_SIZE);
-    }
-    public ConfigurationLinear(Simulation sim, double bondLength) {
-        super(sim);
-        this.bondLength = bondLength;
-        orientation = space.makeVector();
-        angle = new double[space.D()];
-        setAngle(0,etomica.units.Degree.UNIT.toSim(45.));
-        zeroTotalMomentum = false;
-    }
-              
+
     public void setBondLength(double b) {
         bondLength = b;
     }
