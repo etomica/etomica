@@ -60,39 +60,39 @@ public class PotentialMasterNbr extends PotentialMaster {
 	}
 
     /**
-     * Overrides superclass method to enable direct neighbor-list iteration instead
-     * of iteration via species/potential hierarchy.  If given PotentialCalculation
-     * is for neighbor setup (instance of PotentialCalculationNbrSetup) then superclass
-     * method is invoked and set-up is performed iterating using species/potential 
-     * hierarchy.  Otherwise neighbor list facility is used to perform given calculation.
-     * If no target atoms are specified in directive, neighborlist iteration is begun
-     * with speciesMaster of phase, and repeated recursively down species hierarchy; if
-     * one atom is specified, neighborlist iteration is performed on it and down
-     * species hierarchy from it; if two or more atoms are specified, superclass method
-     * is invoked.
+     * Performs neighbor-setup potentialCalculation.  Assigns all molecules
+     * to their cells, and invokes superclass method causing setup to be
+     * performed iterating using species/potential hierarchy.
      */
-	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Phase phase, IteratorDirective id, PotentialCalculationNbrSetup pc) {
+        getNbrCellManager(phase).assignCellAll();
+        super.calculate(phase, id, pc);
+    }
+
+    /**
+     * Overrides superclass method to enable direct neighbor-list iteration
+     * instead of iteration via species/potential hierarchy. If no target atoms are
+     * specified in directive, neighborlist iteration is begun with
+     * speciesMaster of phase, and repeated recursively down species hierarchy;
+     * if one atom is specified, neighborlist iteration is performed on it and
+     * down species hierarchy from it; if two or more atoms are specified,
+     * superclass method is invoked.
+     */
+    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
-	   	if(pc instanceof PotentialCalculationNbrSetup) {
-            getNbrCellManager(phase).assignCellAll();
-	   		super.calculate(phase, id, pc);
-	   	}
- 		else {
- 	    	Atom[] targetAtoms = id.getTargetAtoms();
- 	    	if (targetAtoms.length == 0 || targetAtoms[0] == null) {
- 	    		//no target atoms specified -- do one-target algorithm to SpeciesMaster
- 	    		calculate(phase.speciesMaster, new IteratorDirective(), pc);
- 	    	}
- 	    	else if (targetAtoms.length == 1 || targetAtoms[1] == null) {
- 	    		// one target atom
-    			calculate(targetAtoms[0], id, pc);
- 	    	}
- 	    	else {
- 	    		//more than one target atom
- 	    		super.calculate(phase, id, pc);
- 	    	}
-		}
-		
+    	Atom[] targetAtoms = id.getTargetAtoms();
+    	if (targetAtoms.length == 0 || targetAtoms[0] == null) {
+    		//no target atoms specified -- do one-target algorithm to SpeciesMaster
+    		calculate(phase.speciesMaster, new IteratorDirective(), pc);
+    	}
+    	else if (targetAtoms.length == 1 || targetAtoms[1] == null) {
+    		// one target atom
+			calculate(targetAtoms[0], id, pc);
+    	}
+    	else {
+    		//more than one target atom
+    		super.calculate(phase, id, pc);
+    	}
 	}//end calculate
 	
     /**
