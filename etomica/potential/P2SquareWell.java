@@ -17,6 +17,7 @@ import etomica.units.Dimension;
  * Energy is infinite if spheres overlap, is -epsilon if less than lambda*sigma and not overlapping,
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
+ * Can be used with negative value for epsilon to produce square-shoulder potential. 
  */
 public class P2SquareWell extends Potential2HardSpherical {
 
@@ -82,33 +83,32 @@ public class P2SquareWell extends Potential2HardSpherical {
             lastEnergyChange = 0.0;
         }
         else {    // Well collision
+            if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
+                throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
+            }
             // ke is kinetic energy due to components of velocity
             double ke = bij*bij*reduced_m/(2.0*r2);
             if(bij > 0.0) {         // Separating
                 if(ke < epsilon) {     // Not enough kinetic energy to escape
-                    if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
-                        throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
-                    }
                     lastCollisionVirial = 2.0*reduced_m*bij;
                     nudge = -eps;
                     lastEnergyChange = 0.0;
                 }
                 else {                 // Escape
-                    if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
-                        throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
-                    }
                     lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
                     nudge = eps;
                     lastEnergyChange = epsilon;
                 }
             }
-            else {                  // Approaching
-                if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
-                    throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
-                }
+            else if(ke > -epsilon) {   // Approach/capture
                 lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
                 nudge = -eps;
                 lastEnergyChange = -epsilon;
+            }
+            else {                     // Not enough kinetic energy to overcome square-shoulder
+                lastCollisionVirial = 2.0*reduced_m*bij;
+                nudge = eps;
+                lastEnergyChange = 0.0;
             }
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
