@@ -40,14 +40,15 @@ public class NeighborManager {
     public void setupNeighbors(AtomList list, Criterion criterion) {  //set up neighbors according to given criterion
   //      clearAll();
         neighborList.clear();
+        if(criterion.areNeighbors(site, site)) {//make self neighbor
+            if(tab == null || tab instanceof AtomLinker.Tab) tab = new AtomLinker(site);
+        } else {//not self neighbor
+            if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = AtomLinker.newTab(neighborList, NEIGHBOR_TAB);
+        } 
+        neighborList.add(tab);
+        boolean down = true;
         AtomIteratorList iterator = new AtomIteratorList(list);
-      if(criterion.areNeighbors(site, site)) {//make self neighbor
-          if(tab == null || tab instanceof AtomLinker.Tab) tab = new AtomLinker(site);
-      } else {//not self neighbor
-          if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = AtomLinker.newTab(neighborList, NEIGHBOR_TAB);
-      }
-      neighborList.add(tab);
-      boolean down = true;
+        iterator.reset();
         while(iterator.hasNext()) {              //begin outer loop
             Site s = (Site)iterator.nextAtom();
             if(s == site) {down = false;}     //subsequent neighbors go in up-list

@@ -61,7 +61,10 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
         if (upOnly) {
             cellIterator.setFirst(cellLinker);
             cellIterator.reset();//reset cell iterator
-            AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
+            NeighborCell nextCell = (NeighborCell)cellIterator.nextAtom();
+            AtomList[] occupants = nextCell.occupants();
+            AtomList nbrList = occupants[nbrListIndex];
+//            AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
             atomIterator.setList(nbrList);
             atomIterator.setFirst(((AtomSequencerCell)atom.seq).nbrLink);
             atomIterator.reset();

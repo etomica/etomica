@@ -16,7 +16,6 @@ import etomica.AtomsetIterator;
 import etomica.AtomsetIteratorFiltered;
 import etomica.AtomsetIteratorMolecule;
 import etomica.IteratorDirective;
-import etomica.IteratorFactory;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialCalculation;
@@ -26,6 +25,8 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.utility.Arrays;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -51,6 +52,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	 */
 	public PotentialMasterNbr(Space space) {
         super(space,IteratorFactoryCell.INSTANCE);
+        setNCells(10);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
@@ -72,6 +74,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
 	   	if(pc instanceof PotentialCalculationNbrSetup) {
+            getNbrCellManager(phase).assignCellAll();
 	   		super.calculate(phase, id, pc);
 	   	}
  		else {
@@ -189,10 +192,29 @@ public class PotentialMasterNbr extends PotentialMaster {
 
     public NeighborManager getNeighborManager() {return neighborManager;}
 
+    
+    public NeighborCellManager getNbrCellManager(Phase phase) {
+        if(phase.index > neighborCellManager.length-1) {
+            neighborCellManager = (NeighborCellManager[])Arrays.resizeArray(neighborCellManager, phase.index+1);
+        }
+        if(neighborCellManager[phase.index] == null) {
+            neighborCellManager[phase.index] = new NeighborCellManager(phase,nCells);
+        }
+        return neighborCellManager[phase.index];
+    }
+
+    public int getNCells() {
+        return nCells;
+    }
+    public void setNCells(int cells) {
+        nCells = cells;
+    }
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
 
 	private final AtomIteratorArrayList atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
 	private final NeighborManager neighborManager;
+    private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
+    private int nCells;
 }

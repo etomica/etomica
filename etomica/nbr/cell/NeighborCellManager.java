@@ -61,6 +61,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
         atomIterator = new AtomIteratorMolecule(phase);
         setPriority(150);
         setUpdateInterval(1);
+        addList(phase.speciesMaster.node.childAtomCount());//add occupant lists to cells for each species already present in phase
     }
     /**
      * Constructs the cell lattice used to organize all cell-listed atoms
@@ -220,7 +221,10 @@ public class NeighborCellManager implements Integrator.IntervalListener {
         }
     }//end of assignCell
     
-
+    private void addList(int n) {
+        for(int i=0; i<n; i++) addList();
+    }
+    
     /**
      * Adds an AtomList to each cell of the lattice.  This is performed
      * when a new species is added to the simulation.  Each list associated

@@ -63,14 +63,16 @@ public class ActivityGroupSeries extends Activity {
     			removeAction(currentAction);
     		}
     		boolean exceptionThrown = false;
-    		try {
-    			currentAction.actionPerformed();
-    		}
-    		catch (Exception e) {
-    			//TODO write message to error stream
-    			e.printStackTrace();
-    			exceptionThrown = true;
-    		}
+            currentAction.actionPerformed();
+
+//            try {
+//    			currentAction.actionPerformed();
+//    		}
+//    		catch (Exception e) {
+//    			//TODO write message to error stream
+//    			e.printStackTrace();
+//    			exceptionThrown = true;
+//    		}
     		//TODO mark this as whether completed normally
     		synchronized(this) {
     			completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
