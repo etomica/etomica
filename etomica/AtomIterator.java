@@ -20,9 +20,11 @@ public interface AtomIterator {
     
     public boolean contains(Atom atom);
     
-    public void reset(IteratorDirective id);
+    public Atom reset(IteratorDirective id);
     
-    public void reset();  //maybe should remove this
+    public void setAsNeighbor(boolean b);
+    
+    public Atom reset();  //maybe should remove this
     
     public Atom next();
     
@@ -36,8 +38,9 @@ public interface AtomIterator {
     static final class Null implements AtomIterator {
         public boolean hasNext() {return false;}
         public boolean contains(Atom atom) {return false;}
-        public void reset(IteratorDirective id) {}
-        public void reset() {}
+        public Atom reset(IteratorDirective id) {return null;}
+        public void setAsNeighbor(boolean b) {}
+        public Atom reset() {return null;}
         public Atom next() {return null;}
         public void allAtoms(AtomAction act) {}
     }//end of Null    

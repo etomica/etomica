@@ -9,18 +9,17 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
 
     protected boolean hasNext;
     protected Atom atom, nextAtom, terminator;
-    protected final AtomIterator.Initiation initiation;
+    protected boolean upListNow, doGoDown;
+    protected boolean isNeighborIterator;
+    protected Atom setAtom, terminator2;
 
     /**
      * Iterator is constructed not ready for iteration.  Must call a reset
      * method before use.  hasNext returns false until then.
      */
-    public AtomIteratorAbstract(AtomIterator.Initiation init) {
-        initiation = init;
+    public AtomIteratorAbstract() {
         hasNext = false;
     }
-    
-    public AtomIterator.Initiation initiation() {return initiation;}
     
     /**
      * Natural first atom returned by this iterator.  First atom actually returned
@@ -36,7 +35,14 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     public abstract Atom defaultLastAtom();
     
     /**
-     * Returns true if atom1 preceeds atom2 in the sequence of iterates
+     * Indicates if the given atom is among the iterates returned by this iterator.
+     *
+     * @return <code>true</code> if atom is one of the iterates.
+     */
+    public abstract boolean contains(Atom atom);
+
+    /**
+     * Returns true if atom1 preceeds atom2 in the up-direction sequence of iterates
      * returned by this iterator.  Also returns true if atom1 and atom2 are
      * the same.  Returns false if atom1 succeeds atom2 in sequence, or
      * if either atom1 or atom2 are not among the iterates in the list, or are null.
@@ -47,6 +53,9 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * @return the next atom in the list
      */
     public abstract Atom next();
+    
+    protected abstract Atom firstUpNeighbor(Atom a);
+    protected abstract Atom firstDownNeighbor(Atom a);
     
     /**
      * Performs the given Action on each atom in the list in sequence.
@@ -61,36 +70,49 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * call to next(), false otherwise.
      */
     public boolean hasNext() {return hasNext;}
+    
+    public void setAsNeighbor(boolean b) {isNeighborIterator = b;}
 
-    public void reset(IteratorDirective id) {
+    /**
+     * Returns the first neighbor of the given atom, considering
+     * the value of the direction field.
+     */
+    public Atom firstNeighbor(Atom a) {
+        Atom neighbor = null;
+        if(upListNow) neighbor = firstUpNeighbor(a);
+        if(neighbor == null && doGoDown) {
+            upListNow = false;
+            neighbor = firstDownNeighbor(a);
+        }
+        return neighbor;
+    }
+    
+    public Atom reset(IteratorDirective id) {
+        upListNow = id.direction().doUp();
+        doGoDown = id.direction().doDown();
         switch(id.atomCount()) {
-            case 0:  reset(); 
-                     break;
-            case 1:  reset(id.atom1()); 
-                     break;
-            case 2:  reset(id.atom1(), id.atom2()); 
-                     break;
+            case 0:  return reset(); 
+            case 1:  return reset(id.atom1()); 
+            case 2:  return reset(id.atom1(), id.atom2()); 
             default: hasNext = false; 
-                     break;
+            return null;
         }
     }
     
-    /**
-     * Indicates if the given atom is among the iterates returned by this iterator.
-     *
-     * @return <code>true</code> if atom is one of the iterates.
-     */
-    public boolean contains(Atom atom) {
-        return isOrdered(defaultFirstAtom(), atom) && isOrdered(atom, defaultLastAtom());
-    }
-
     /**
      * Resets the iterator, so that it is ready to go through its list again, beginning
      * with its natural first iterate (the identity of which depends on the iterator).
      *
      * @return the atom that will be returned with the first call to next() 
      */
-    public Atom reset() {return reset(defaultFirstAtom());}
+    public Atom reset() {
+        if(isNeighborIterator) atom = null;
+        else if(upListNow) atom = reset(defaultFirstAtom());
+        else if(doGoDown) atom = reset(defaultLastAtom());
+        else atom = null;
+        hasNext = (atom != null);
+        return atom;
+    }
 
     /**
      * Resets the iterator so that it is ready to go through its list beginning from
@@ -102,14 +124,18 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * @param a  the nominal first atom returned by the iterator
      * @return   the atom that will be returned with the next subsequent call to next()
      */
-    public Atom reset(Atom a) {
-        if(!contains(a)) {  //also ensures that a is not null
-            hasNext = false;
-            return null;
-        }
-        terminator = defaultLastAtom();
-        if(initiation == SKIP_FIRST) a = a.nextAtom();
-        atom = a;
+    protected Atom reset(Atom a) {
+        if(isNeighborIterator) atom = firstNeighbor(a);
+        else atom = contains(a) ? a : null; //also ensures that a is not null
+        
+        //these are needed only if direction == BOTH
+        setAtom = a;
+        terminator2 = defaultFirstAtom();
+        
+        if(upListNow) terminator = defaultLastAtom();
+        else terminator = doGoDown ? terminator2 : a;
+        
+  //      terminator = doGoDown ? defaultFirstAtom() : (upListNow ? defaultLastAtom() : a);
         hasNext = (atom != null);
         return atom;
     }
@@ -125,14 +151,30 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * @param last  the nominal last atom returned by the iterator
      * @return      the atom that will be returned with the first call to next()
      */
-    public Atom reset(Atom first, Atom last) {
-        if(!isOrdered(first,last)) {
-            hasNext = false;
-            return null;
+     protected Atom reset(Atom first, Atom last) {
+        if(isNeighborIterator) {
+            if(contains(last)) { //won't work right is last is downlist of first
+                atom = firstNeighbor(first);
+                terminator = last;
+            }
+            else atom = null;
         }
-        reset(first);
-        terminator = last;
+        else {
+            if(isOrdered(first,last) && upListNow) {
+                doGoDown = false;//go through list only once
+                reset(first);
+                terminator = last;
+            }
+            else if(isOrdered(last, first) && doGoDown) {
+                upListNow = false;
+                reset(first);
+                terminator = last;
+            } 
+            else atom = null;
+        }
+        hasNext = atom != null;
         return atom;
-    }
+    }//end of reset(Atom, Atom)
+    
 }//end of AtomIteratorAbstract
     

@@ -665,29 +665,14 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         /**
          * Iterator for all atoms of this species in this phase
          */
-        public final class AtomIterator extends etomica.AtomIterator {
-            private Atom atom, nextAtom;
-            private boolean hasNext;
-            public AtomIterator() {reset();}
-            public boolean hasNext() {return hasNext;}
-            public Atom reset() {
-                atom = firstAtom();
-                hasNext = (atom != null);
-                return atom;
-            }
+        public final class AtomIterator extends AtomIteratorUp {
+            public AtomIterator() {super(null, AtomIterator.INCLUDE_FIRST);}
             public boolean contains(Atom atom) {return atom.parentMolecule.parentSpecies() == Species.this;}
-            public Atom reset(Atom a) {return reset();}
-            public Atom reset(Atom a1, Atom a2) {return reset();}
-            public Atom next() {
-                nextAtom = atom;
-                if(atom == lastAtom()) {hasNext = false;}
-                else {atom = atom.nextAtom();}
-                return nextAtom;
-            }
-            public void allAtoms(AtomAction act) {
-                Atom term = terminationAtom();
-                for(Atom a=firstAtom(); a!=term; a=a.nextAtom()) {act.actionPerformed(a);}
-            }
+            public Atom defaultFirstAtom() {return firstAtom();}
+            public Atom defaultLastAtom() {return lastAtom();}
+
+            //inherited allAtoms method won't work correctly
+            
         } //end of AtomIterator
 
     } //end of Agent

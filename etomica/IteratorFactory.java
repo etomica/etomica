@@ -17,8 +17,8 @@ package etomica;
     public class IteratorFactory implements java.io.Serializable {
         private Phase phase;
         public IteratorFactory(Phase p) {phase = p;}
-        public AtomIterator makeAtomIterator() {return new AtomIteratorUp(phase);}
-        public AtomIterator makeAtomIteratorUp() {return new AtomIteratorUp(phase);}
+        public AtomIterator makeAtomIterator() {return phase.new Iterator();}
+/*        public AtomIterator makeAtomIteratorUp() {return new AtomIteratorUp(phase);}
         public AtomIterator makeAtomIteratorDown() {return new AtomIteratorDown(phase);}
         public AtomIterator makeAtomIteratorUpDown() {return new AtomIteratorUpDown(phase);}
         public AtomIterator makeAtomIterator(AtomIterator.Initiation init) {return new AtomIteratorUp(phase, init);}
@@ -27,6 +27,7 @@ package etomica;
         public AtomIterator makeAtomIteratorUpDown(AtomIterator.Initiation init) {return new AtomIteratorUpDown(phase, init);}
         public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIteratorUp(phase, AtomIterator.SKIP_FIRST);}
         public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIteratorDown(phase, AtomIterator.SKIP_FIRST);}
+  */
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved

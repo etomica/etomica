@@ -585,6 +585,12 @@ public void deleteMolecule(Molecule m) {
         public final void setNext(Phase.Linker l) {next = l;}
     }//end of Phase.Linker
     
+    public class Iterator extends AtomIteratorSequence {
+        
+        public Atom defaultFirstAtom() {return Phase.this.firstAtom();}
+        public Atom defaultLastAtom() {return Phase.this.lastAtom();}
+        public boolean contains(Atom a) {return a.parentPhase() == Phase.this;}
+    }
     
 } //end of Phase
         

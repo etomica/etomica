@@ -1,11 +1,18 @@
 package etomica;
 
 /**
- * Generic iterator that permits addition and removal of atoms.
+ * Generic iterator that permits addition and removal of atomss
  *
  * @author David Kofke
  */
-public final class AtomIteratorList extends AtomIterator {
+ 
+ /* in revision
+    need to decide if should implement AtomIterator or extend AtomIteratorAbstract;
+    is it important to be able to go either way in list--should iterator pay
+    attention to Direction directive?
+    should check for contains always be done?
+    */
+public final class AtomIteratorList extends AtomIteratorAbstract {
     
     private AtomLinker first, last, next;
     private Atom terminator;

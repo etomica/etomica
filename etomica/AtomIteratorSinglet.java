@@ -10,7 +10,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public final class AtomIteratorSinglet extends AtomIteratorAbstract { //could equally well write to implement AtomIterator
+public class AtomIteratorSinglet extends AtomIteratorAbstract { //could equally well write to implement AtomIterator
     
     private Atom atom1, atom2, next;
     

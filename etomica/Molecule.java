@@ -395,34 +395,15 @@ public class Molecule implements Space.Occupant, Serializable {
     firstAtom.clearPreviousAtom();
   }
   
-  public final class AtomIterator extends etomica.AtomIterator {
-        private Atom atom, nextAtom;
-        private boolean hasNext;
-        public AtomIterator() {reset();}
-        public boolean hasNext() {return hasNext;}
-        public Atom reset() {
-            atom = firstAtom;
-            hasNext = true;
-            return atom;
-        }
+  public final class AtomIterator extends AtomIteratorUp {
+        public AtomIterator() {super(null, AtomIterator.INCLUDE_FIRST);}
         public boolean contains(Atom atom) {return atom.parentMolecule == Molecule.this;}
-        public Atom reset(Atom a) {return reset();}
-        public Atom reset(Atom a1, Atom a2) {return reset();}
-        public Atom next() {
-            nextAtom = atom;
-            if(atom == lastAtom) {hasNext = false;}
-            else {atom = atom.nextAtom();}
-            return nextAtom;
-        }
-        public void allAtoms(AtomAction act) {
-            Atom term = lastAtom.nextAtom();
-            for(Atom a=firstAtom; a!=term; a=a.nextAtom()) {act.actionPerformed(a);}
-        }
+        public Atom defaultFirstAtom() {return Molecule.this.firstAtom;}
+        public Atom defaultLastAtom() {return Molecule.this.lastAtom;}
     } //end of AtomIterator
-  public final class MonoAtomIterator extends etomica.AtomIterator {
-        private boolean hasNext;
-        public MonoAtomIterator() {reset();}
-        public boolean hasNext() {return hasNext;}
+    
+  public final class MonoAtomIterator extends etomica.AtomIteratorSinglet {
+        public MonoAtomIterator() {super(); super.reset(firstAtom);}
         public boolean contains(Atom atom) {return atom == firstAtom;}
         public Atom reset() {hasNext = true; return firstAtom;}
         public Atom reset(Atom a) {return reset();}

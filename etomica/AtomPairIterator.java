@@ -11,11 +11,14 @@ package etomica;
 public abstract class AtomPairIterator implements java.io.Serializable {
     
     private AtomPair pair; //want final, but Null inner class won't allow
+    private IteratorDirective.Direction direction;
+    private final IteratorDirective localDirective = new IteratorDirective();
 
     /**
      * The iterators used to generate the sets of atoms
      */
-    protected AtomIterator ai1, ai2;
+    protected /*final*/ AtomIterator ai1, ai2;
+    protected AtomIterator aiInner, aiOuter;
     
     /**
      * A pair action wrapper used to enable the allPairs method
@@ -32,24 +35,7 @@ public abstract class AtomPairIterator implements java.io.Serializable {
     private AtomPairIterator() {
         hasNext = false;
         pair = null;
-    }
-        
-    /**
-     * Construct a pair iterator for use in the given phase.  Initial state is hasNext = false
-     */
-    public AtomPairIterator(Phase p) {
-        pair = new AtomPair(p); 
-        actionWrapper = new AtomPairAction.Wrapper(pair);
-        hasNext = false;
-    }
-    /**
-     * Construct a pair iterator for use in the given phase and which performs the given action.
-     * Initial state is hasNext = false
-     */
-    public AtomPairIterator(Phase p, AtomPairAction.Wrapper wrap) {
-        pair = new AtomPair(p); 
-        actionWrapper = wrap;
-        hasNext = false;
+        ai1 = ai2 = null;
     }
     /**
      * Construct a pair iterator for the given phase, using the given atom iterators
@@ -64,7 +50,8 @@ public abstract class AtomPairIterator implements java.io.Serializable {
     
     public final boolean hasNext() {return hasNext;}
         
-    public abstract void reset(IteratorDirective id); /* {
+    public void reset(IteratorDirective id) {
+        direction = id.direction();
         switch(id.atomCount()) {
             case 0:  reset(); 
                      break;
@@ -75,92 +62,106 @@ public abstract class AtomPairIterator implements java.io.Serializable {
             default: hasNext = false; 
                      break;
         }
-    }*/
+    }
+    
+    private final void setOuterInner(AtomIterator outIter, AtomIterator inIter) {
+        aiOuter = outIter;
+        aiInner = inIter;
+        aiOuter.setAsNeighbor(false);
+        aiInner.setAsNeighbor(true);
+    }
 
     /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
      */
- //   public abstract void reset();
-
+    public void reset() {
+        if(direction == IteratorDirective.BOTH) direction = IteratorDirective.UP;
+        setOuterInner(ai1, ai2);
+        aiOuter.reset(localDirective.set().set(direction));
+        aiInner.reset(localDirective);
+        setFirst();
+    }
+        
     /**
      * Resets the iterator so that it iterates over all pairs formed with the 
      * given atom.
      */
- //   public abstract void reset(Atom atom);
-
+    public void reset(Atom atom) {
+        if(ai1.contains(atom)) setOuterInner(ai1, ai2);
+        else if(ai2.contains(atom)) setOuterInner(ai2, ai1);
+        else {hasNext = false; return;}
+        aiOuter.reset(localDirective.set(atom).set(IteratorDirective.NEITHER));
+        aiInner.reset(localDirective.set().set(direction));//reset inner last to leave localDirective in proper state for inner-loop resets
+        setFirst();
+    }
+    
     /**
      * Resets iterator so that it iterates over all pairs formed from iterates
      * between and including the given atoms.
      */
- //   public abstract void reset(Atom atom1, Atom atom2);
-        
+     public void reset(Atom atom1, Atom atom2) {
+        ai1.setAsNeighbor(false);
+        ai2.setAsNeighbor(false);
+        if(ai1.reset(localDirective.set(atom1,atom2).set(direction)) != null) {
+            setOuterInner(ai1, ai2);
+        }
+        else if(ai2.reset(localDirective) != null) {
+            setOuterInner(ai2, ai1);
+        }
+        else {hasNext = false; return;}
+        aiOuter.reset(localDirective);
+        //maybe want to do something with setting inner considering atom2
+        setFirst();
+     }
         
     /**
-        * Resets the first atom iterator with the given atom as an argument
-        * Then resets the second iterator using the first non-null atom obtained from 
-        * the first iterator.
-        */
-        //removed because of conflict with reset(IteratorDirective) and call to reset(null)
-/*        public void reset(Atom a1) {
-        if(a1==null) ai1.reset();
-        else ai1.reset(a1);
-        do {                  //advance up list of atoms until a pair is found
-            if(ai1.hasNext()) {
-                atom1 = ai1.next();
-                ai2.reset(atom1);
-            }  
-            else {hasNext = false; return;}}   //end of list of atoms
-        while(!ai2.hasNext());
-        needUpdate1 = true;
-        hasNext = true;
-    }*/
-            
-    public final AtomPair next() {
-        //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
-        //it is not done directly in the while-loop because pair must first return with the old atom1 intact
-        if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //ai1 was advanced
-        pair.atom2 = ai2.next();
-        pair.reset();
-        while(!ai2.hasNext()) {     //ai2 is done for this atom1, loop until it is prepared for next
-            if(ai1.hasNext()) {     //ai1 has another atom1...
-                atom1 = ai1.next();           //...get it
-                if(ai2.reset(atom1) == atom1) //...reset ai2
-                              ai2.next();     //...and advance if it's consequently set to return atom1
-                needUpdate1 = true;           //...flag update of pair.atom1 for next time
-            }
-            else {hasNext = false; break;} //ai1 has no more; all done with pairs
-        }//end while
-        return pair;
-    }
-    
-    /**
-     * This is called after ai1 and ai2 are defined and ai1 is reset, 
+     * This is called after aiOuter and aiInner are are reset, 
      * and it readies iterators to give first pair (or puts hasNext = false if no pairs
      * are forthcoming).
      */
     protected final void setFirst() {
-        while(ai1.hasNext()) { //loop over iterator 1...
-            pair.atom1 = ai1.next();
-            if(ai2.reset(pair.atom1) == pair.atom1) ai2.next(); //reset iterator 2 and advance if its first atom is atom1
-            if(ai2.hasNext()) {
+ //       localDirective.set(IteratorDirective.UNCHANGED); //prepare for use in resetting inner loop here and in next
+        hasNext = false;
+        while(aiOuter.hasNext()) { //loop over iterator 1...
+            pair.atom1 = aiOuter.next();
+            aiInner.reset(localDirective.set(pair.atom1));
+//            if(aiInner.reset(pair.atom1) == pair.atom1) aiInner.next(); //reset iterator 2 and advance if its first atom is atom1
+            if(aiInner.hasNext()) {
                 hasNext = true;
                 needUpdate1 = false;
-                return;        //...until iterator 2 hasNext
+                break;        //...until iterator 2 hasNext
             }
         }//end while
-        hasNext = false;
     }//end setFirst
         
+    public final AtomPair next() {
+        //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
+        //it is not done directly in the while-loop because pair must first return with the old atom1 intact
+        if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
+        pair.atom2 = aiInner.next();
+        pair.reset();
+        while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
+            if(aiOuter.hasNext()) {     //Outer has another atom1...
+                atom1 = aiOuter.next();           //...get it
+                aiInner.reset(localDirective.set(atom1)); //...reset Inner
+                needUpdate1 = true;           //...flag update of pair.atom1 for next time
+            }
+            else {hasNext = false; break;} //Outer has no more; all done with pairs
+        }//end while
+        return pair;
+    }
+
     /**
-     * Performs the given action on all pairs returned by this iterator
+     * Performs the given action on all pairs returned by this iterator.
      */
+     //not carefully checked
     public void allPairs(AtomPairAction act) {  
-// fix this        reset();
-        ai1.reset();  //this shouldn't be here, in general; need to consider it more carefully
+        reset();
+//        ai1.reset();  //this shouldn't be here, in general; need to consider it more carefully
         actionWrapper.pairAction = act;
         while(ai1.hasNext()) {
             pair.atom1 = ai1.next();
-            ai2.reset(pair.atom1);
+            ai2.reset(localDirective.set(pair.atom1));
             ai2.allAtoms(actionWrapper);
         }
     }

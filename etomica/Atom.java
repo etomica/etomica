@@ -234,7 +234,9 @@ public class Atom implements Space.Occupant, java.io.Serializable {
     public final double momentum(int i) {return p.component(i);}
     public final Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
 
+    //needs work
     public final boolean preceeds(Atom atom) {
+        if(atom == parentPhase().firstAtom()) return false;
         return true;
         /* //work this out later when atomGroup is in place
         //want to return true if atoms are the same atoms
