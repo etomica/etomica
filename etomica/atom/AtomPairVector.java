@@ -27,4 +27,8 @@ public class AtomPairVector extends AtomPair {
         super.copyTo(pair);
         ((AtomPairVector)pair).nearestImageVector = this.nearestImageVector;
     }
+    
+    public String toString() {
+        return super.toString()+" "+nearestImageVector;
+    }
 }

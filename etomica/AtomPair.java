@@ -43,6 +43,10 @@ public class AtomPair implements AtomSet {
                 && ((AtomPair)pair).atom1 == atom1;
     }
     
+    public String toString() {
+        return atom0+" and "+atom1;
+    }
+    
     public Atom atom0, atom1;
 
 }
