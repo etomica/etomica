@@ -70,7 +70,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
            type.setZAngle(zAngle);
            protoType[i] = type;
         }
-        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(space));
+        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel());
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -141,8 +141,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         private double temperature = Default.TEMPERATURE;
         private double placement;
         
-        public ConfigurationParallel(Space space) {
-            super(space);
+        public ConfigurationParallel() {
+            super();
             setAngle(0.0);
             setLongWall(false);
             setPlacement(0.0);
