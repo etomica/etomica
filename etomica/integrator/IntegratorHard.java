@@ -118,7 +118,7 @@ public class IntegratorHard extends IntegratorMD {
                 throw new RuntimeException("this simulation is not a time machine");
             }
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) || Debug.anyAtom(atoms))) {
-                System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+collisionTimeStep);
+                System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
@@ -376,6 +376,14 @@ public class IntegratorHard extends IntegratorMD {
     }
     
     /**
+     * Updates collision timee appropriately after randomizing momentum
+     * as part of the Andersen thermostat.
+     */
+    protected void randomizeMomentum(Atom atom) {
+        super.randomizeMomentum(atom);
+        updateAtom(atom);
+    }
+    /**
      * Registers an object that implements the CollisionListener interface.
      * This causes the collisionAction method of the object to be called after each collision.
      * If the listener is already in the list, no action is taken to add it again.
@@ -586,7 +594,7 @@ public class IntegratorHard extends IntegratorMD {
         }
         
         public String toString() {
-            return "Collider: "+atom.toString()+"; Partner: "+collisionPartner.toString()+"; Potential: "+collisionPotential.toString();
+            return "Collider: "+atom+"; Partner: "+collisionPartner+"; Potential: "+collisionPotential;
         }
         public final Atom atom() {return atom;}
         public final Atom collisionPartner() {return collisionPartner;}

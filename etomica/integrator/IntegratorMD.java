@@ -1,12 +1,16 @@
 package etomica.integrator;
 
+import java.util.Random;
+
 import etomica.Atom;
 import etomica.Constants;
 import etomica.Default;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.Simulation;
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.exception.MethodNotImplementedException;
@@ -64,7 +68,7 @@ public abstract class IntegratorMD extends Integrator {
 
     public void setIsothermal(boolean b) {
         super.setIsothermal(b);
-        if (initialized) {
+        if (initialized && isothermal) {
             // trigger immediate thermostat
             thermostatCount = 1;
             doThermostat();
@@ -88,10 +92,11 @@ public abstract class IntegratorMD extends Integrator {
     protected static final ThermostatType[] CHOICES = 
         new ThermostatType[] {
             new ThermostatType("Velocity Scaling"), new ThermostatType("Andersen"),
-            new ThermostatType("Nose Hoover")};
+            new ThermostatType("Andersen Single"), new ThermostatType("Nose Hoover")};
     public static final ThermostatType VELOCITY_SCALING = CHOICES[0];
     public static final ThermostatType ANDERSEN = CHOICES[1];
-    public static final ThermostatType NOSE_HOOVER = CHOICES[2];
+    public static final ThermostatType ANDERSEN_SINGLE = CHOICES[2];
+    public static final ThermostatType NOSE_HOOVER = CHOICES[3];
     
     /**
      * Sets the type of thermostat used by the integrator.
@@ -132,6 +137,14 @@ public abstract class IntegratorMD extends Integrator {
                 }
                 currentKineticEnergy = meterKE.getData();
             }
+            else if (thermostat == ANDERSEN_SINGLE) {
+                for (int i=0; i<phase.length; i++) {
+                    AtomList atomList = phase[i].speciesMaster.atomList;
+                    int index = Simulation.random.nextInt(atomList.size());
+                    System.out.println("randomizing "+index);
+                    randomizeMomentum(atomList.get(index));
+                }
+            }
             else if (thermostat == NOSE_HOOVER) {
                 throw new MethodNotImplementedException("feel free to write the Nose Hoover thermostat");
             }
@@ -152,6 +165,18 @@ public abstract class IntegratorMD extends Integrator {
         atomIterator.setPhase(aPhase);
         atomActionRandomizeVelocity.setTemperature(temperature);
         atomIterator.allAtoms(atomActionRandomizeVelocity);
+    }
+    
+    /**
+     * randomizes the velocity of an atom in the given phase using velocities
+     * chosen form a Maxwell-Boltzmann distribution as in the Andersen 
+     * thermostat.  The state of the integrator needs to be updated 
+     * after calling this method.
+     * @param atom whose momenta is be randomized
+     */
+    protected void randomizeMomentum(Atom atom) {
+        atomActionRandomizeVelocity.setTemperature(temperature);
+        atomActionRandomizeVelocity.actionPerformed(atom);
     }
     
     /**
