@@ -5,17 +5,13 @@
 package etomica;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- * 
- * TODO update comments to reflect this is not an integrator
+ * An Action that supports the capability of pausing/unpausing 
+ * and terminating on request.
  */
 public abstract class Activity implements Action {
 
 	/**
-	 * 
+	 * Create class with a simple default label.
 	 */
 	public Activity() {
 		setLabel("Activity");
@@ -60,17 +56,13 @@ public abstract class Activity implements Action {
     }
     
     /**
-     * Method to put integrator in a condition of being paused.
+     * Method to put activity in a condition of being paused.
      */
     private synchronized void doWait() {
-//        isPaused = true;
-		//System.out.println("pausing");
         notifyAll(); //release any threads waiting for pause to take effect
         try {
             wait(); //put in paused state
         } catch(InterruptedException e) {}
-//        isPaused = false;
-		//System.out.println("done pausing");
     }
     
     //suspend and resume functions
@@ -90,7 +82,10 @@ public abstract class Activity implements Action {
     /**
      * Removes the integrator from the paused state, resuming execution where it left off.
      */
-    public synchronized void unPause() {pauseRequested = false; notifyAll();}
+    public synchronized void unPause() {
+    	pauseRequested = false; 
+    	notifyAll();
+    }
     /**
      * Queries whether the integrator is in a state of being paused.  This may
      * occur independent of whether the integrator is running or not.  If paused
@@ -131,8 +126,6 @@ public abstract class Activity implements Action {
 	private boolean running = false;
 	private boolean haltRequested = false;
 	private boolean resetRequested = false;
-	 //looking to eliminate isPaused field and used just pauseRequested
-	//	  private boolean isPaused = true;
 	protected boolean pauseRequested = false;
 	private String label;
 

@@ -1,10 +1,6 @@
 package etomica;
 
-//Java2 imports
 import java.util.LinkedList;
-
-//import etomica.utility.java2.LinkedList;
-//import etomica.utility.java2.Iterator;
 
 /**
  * Organizer of actions of the integrators.  Controller sets the protocol for
@@ -15,25 +11,6 @@ import java.util.LinkedList;
  * each on its own thread.
  */
 public class Controller implements Runnable, java.io.Serializable, EtomicaElement {
-
-  /**
-   * List of integrators managed by the controller
-   */
-    private final LinkedList actions = new LinkedList();
-    private final LinkedList completedActions = new LinkedList();
-  /**
-   * Thread used to run the controller
-   */
-    protected transient Thread runner;
-    
-    private SimulationEventManager eventManager = new SimulationEventManager();
-
-    /**
-     * Creates a new controller.
-     *
-     */
-    public Controller() {
-    }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
@@ -42,53 +19,50 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
     }
  
    /**
-    * Adds an integrator to the list of integrators managed by this controller.
-    * Starts the integrator immediately if autoStart is true
+    * Adds the given action to the list of actions performed by this controller.
+    * If action is already in list of actions to be performed, method returns
+    * without doing anything.
     */
-    public synchronized void add(Action i) {
-        if (!actions.contains(i)) actions.add(i);
+    public synchronized void add(Action action) {
+        if (!actions.contains(action)) actions.add(action);
     }
 
-    public synchronized void remove(Action i) {
-        if (i != currentAction) actions.remove(i);
+    /**
+     * Removes the given action from the list of actions performed by this controller.
+     * If action is currently running, or is not in list of actions to be performed,
+     * method returns without doing anything.
+     */
+    public synchronized void remove(Action action) {
+        if (action != currentAction) actions.remove(action);
     }
         
     /**
-     * @return a list of the integrators managed by this controller
+     * @return a list of the actions yet to be performed by this controller, 
+     * including the action currently being performed (if there is one).
      */
     public LinkedList actions() {return actions;}
     
     /**
-     * Accessor method for the autoStart flag.
-     * autoStart flags for whether the integrators start as soon as added to the controller.
-     * Default is false
+     * @return a list of the actions completed by this controller.
      */
-    public void setAutoStart(boolean b) {autoStart = b;}
-    /**
-     * Accessor method for the autoStart flag.
-     * autoStart flags for whether the integrators start as soon as added to the controller.
-     * Default is false
-     */
-    public boolean getAutoStart() {return autoStart;}
+    public LinkedList completedActions() {return completedActions;}
     
-
     /**
-     * Method to start this controller's thread, causing execution of the run() method
+     * Method to start this controller's thread, causing execution of the run() method.
+     * No action is performed if a thread is already running this controller (i.e., if
+     * start was called before, and actions remain to be completed).
      */
     public void start() {
         if(runner != null) return;
-        paused = false;
+        pauseRequested = false;
         runner = new Thread(this);
         runner.start();
     }
                     
     /**
-     * Activity performed by this controller once its start method is called.
-     * This controller simply initiates each integrator on its own thread, which
-     * is initiated by calling its start method.  Controller subclasses would override
-     * this method to perform some other function.<p>
-     * An integrator can be run on the controller's thread by instead calling
-     * the run() method of the integrator.
+     * Causes uncompleted actions added to this controller to be run in sequence.  Should not be
+     * executed directly, but instead as part of the Runnable interface it is executed
+     * by a thread made upon invoking the start method.
      */
     public void run() {
     	while(actions.size() > 0) {
@@ -100,11 +74,11 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
     		catch (Exception e) {
     			doPause = true;
     		}
-    		completedActions.addLast(currentAction);
+    		completedActions.addLast(currentAction);//TODO mark this as whether completed normally
     		actions.removeFirst();
     		currentAction = null;
     		if(haltRequested) break;
-    		if(doPause) pause();
+    		if(doPause || pauseRequested) doWait();
     	}
     	synchronized(this) {
     		notifyAll();
@@ -113,8 +87,7 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
     }
             
     /**
-     * Returns true if any integrator governed by this controller is active.
-     * Returns false if none are active.
+     * Returns true if a thread exists performing this controller's actions.
      */
     public boolean isActive() {
     	return runner != null;
@@ -124,44 +97,71 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
      * Method to put controller in a condition of being paused.
      */
     private synchronized void doWait() {
-//        isPaused = true;
-		//System.out.println("pausing");
         notifyAll(); //release any threads waiting for pause to take effect
         try {
             wait(); //put in paused state
         } catch(InterruptedException e) {}
-//        isPaused = false;
-		//System.out.println("done pausing");
+        pauseRequested = false;
     }
     
-    //suspend and resume functions
     /**
-     * Requests that the integrator pause its execution.  The actual suspension
-     * of execution occurs only after completion of the current integration step.
-     * The calling thread is put in a wait state until the pause takes effect.
+     * Requests a pause in the performance of the actions. If the current action is
+     * an Activity, it is paused; if a simple Action, pause takes effect once it
+     * has completed. In either case, calling thread is put in a wait state until 
+     * the pause takes effect.
      */
     public synchronized void pause() {
-        if(isActive() && !pauseRequested/*!isPaused*/) {
-            pauseRequested = true;
-            try {
-                wait();  //make thread requesting pause wait until pause is in effect
-            } catch(InterruptedException e) {}
+        if(!isActive() || currentAction == null) return;//nothing going on, no need to pause
+        
+        if(currentAction instanceof Activity) {
+        	((Activity)currentAction).pause();//activity enforces pause and has calling thread waits till in effect
+        } else {//currentAction is not a pausable activity; put pause in controller loop
+        	pauseRequested = true;
+	        try {
+	            wait();  //make thread requesting pause wait until pause is in effect
+	        } catch(InterruptedException e) {}
         }
     }
+    
     /**
-     * Removes the integrator from the paused state, resuming execution where it left off.
+     * Removes controller from the paused state, resuming execution where it left off.
      */
-    public synchronized void unPause() {pauseRequested = false; notifyAll();}
+    public synchronized void unPause() {
+        if(currentAction != null && currentAction instanceof Activity) {
+        	((Activity)currentAction).unPause();
+        } else {
+    		notifyAll();
+    	}
+    	pauseRequested = false;
+
+    }
+    
     /**
      * Queries whether the integrator is in a state of being paused.  This may
      * occur independent of whether the integrator is running or not.  If paused
      * but not running, then pause will take effect upon start.
      */
-    public boolean isPaused() {return pauseRequested;}//isPaused;}
+    public boolean isPaused() {
+    	if(currentAction == null) return false;
+    	if(currentAction instanceof Activity) {
+    		return ((Activity)currentAction).isPaused();
+    	} else {
+    		return pauseRequested;
+    	}
+    }
      
+    /**
+     * @return flag specifying whether controller should pause upon completing each
+     * action.
+     */
 	public boolean isPauseAfterEachActivity() {
 		return pauseAfterEachAction;
 	}
+	/**
+	 * @param pauseAfterEachAction specifies whether controller should pause upon
+	 * completing each action (true), or if next action should begin immediately
+	 * upon completion of current action.
+	 */
 	public void setPauseAfterEachActivity(boolean pauseAfterEachAction) {
 		this.pauseAfterEachAction = pauseAfterEachAction;
 	}
@@ -196,14 +196,23 @@ public class Controller implements Runnable, java.io.Serializable, EtomicaElemen
         eventManager.fireEvent(event);
     }    
     
-    private boolean initialized = false;
-    private boolean autoStart = false;
-    private int maxSteps;
-    private boolean paused = true;
     private Action currentAction;
     private boolean pauseAfterEachAction;
     private boolean pauseRequested;
     private boolean haltRequested;
+    
+    /**
+     * List of actions managed by the controller
+     */
+      private final LinkedList actions = new LinkedList();
+      private final LinkedList completedActions = new LinkedList();
+      
+    /**
+     * Thread used to run the controller
+     */
+      protected transient Thread runner;
+      
+      private SimulationEventManager eventManager = new SimulationEventManager();
 
 }//end of Controller
 
