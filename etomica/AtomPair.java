@@ -21,6 +21,10 @@ public class AtomPair {
         atom2 = a2;
         cPair = cp;
     }
+    public final double r2() {return cPair.r2();}
+    public final double v2() {return cPair.v2();}
+    public final double vDotr() {return cPair.vDotr();}
+    
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
     

@@ -28,12 +28,15 @@ public class Molecule implements Space.Occupant, Serializable {
   public Molecule(Species ps, Phase pp, AtomType type, int n) {  
     parentSpecies = ps;
     parentPhase = pp;
-    coordinate = parentSpecies.parentSimulation.space.makeCoordinate();
+    coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
     r = coordinate.position();
     p = coordinate.momentum();
     temp = parentPhase.parentSimulation.space.makeVector();
     nAtoms = n;
-    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
+//    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
+    if(nAtoms > 1) atomIterator = new AtomIterator();
+    else atomIterator = new MonoAtomIterator();
+    
     
     firstAtom = new Atom(this,type,0);
     lastAtom = firstAtom;
@@ -52,11 +55,12 @@ public class Molecule implements Space.Occupant, Serializable {
   public Molecule(Species ps, Phase pp, AtomType[] type) {  
     parentSpecies = ps;
     parentPhase = pp;
-    coordinate = parentSpecies.parentSimulation.space.makeCoordinate();
+    coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
     r = coordinate.position();
     p = coordinate.momentum();
     nAtoms = type.length;
-    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
+    if(nAtoms > 1) atomIterator = new AtomIterator();
+    else atomIterator = new MonoAtomIterator();
     temp = parentPhase.parentSimulation.space.makeVector();
     
     firstAtom = new Atom(this,type[0],0);
@@ -367,6 +371,7 @@ public class Molecule implements Space.Occupant, Serializable {
             atom = firstAtom;
             hasNext = true;
         }
+        public void reset(Atom a) {reset();}
         public Atom next() {
             nextAtom = atom;
             if(atom == lastAtom) {hasNext = false;}
@@ -379,6 +384,7 @@ public class Molecule implements Space.Occupant, Serializable {
         public MonoAtomIterator() {reset();}
         public boolean hasNext() {return hasNext;}
         public void reset() {hasNext = true;}
+        public void reset(Atom a) {reset();}
         public Atom next() {
             hasNext = false;
             return firstAtom;

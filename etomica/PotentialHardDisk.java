@@ -30,7 +30,7 @@ public class PotentialHardDisk extends Potential implements PotentialHard
     public void bump(AtomPair pair) {
         double r2 = pair.r2();
         double factor = 2.0/(pair.atom1().rm() + pair.atom2().rm())*pair.vDotr()/r2;
-        pair.push(factor);
+        pair.cPair.push(factor);
     }
     
     public double getCollisionDiameter() {return collisionDiameter;}

@@ -114,7 +114,7 @@ protected void advanceToCollision() {
         boolean upListedP = false;
 //        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
 //        upAtomIterator.reset(firstPhase.firstAtom());
-        upAtomIterator.reset(((Space2DCell)parentController.parentSimulation.space()).cells.firstAtom());  //first atom in first cell
+        upAtomIterator.reset();  //first atom in first cell
         while(upAtomIterator.hasNext()) {
             Atom a = upAtomIterator.next();
             if(a == partnerNextAtom) break;

@@ -44,7 +44,7 @@ public abstract class Configuration extends Component{
         for(int j=0; j<species.size(); j++) {
             Species.Agent s = (Species.Agent)species.elementAt(j);
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
-                a.coordinate.randomizeMomentum(temperature);
+                a.randomizeMomentum(temperature);
                 sum++;
                 momentumSum.PE(a.coordinate.momentum());
 	        }

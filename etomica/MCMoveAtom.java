@@ -22,7 +22,7 @@ public class MCMoveAtom extends MCMove {
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
         uOld = phase.potentialEnergy.currentValue(a);
-        a.coordinate.displaceWithin(stepSize);
+        a.displaceWithin(stepSize);
         uNew = phase.potentialEnergy.currentValue(a);
         if(uNew < uOld) {   //accept
             nAccept++;
@@ -30,7 +30,7 @@ public class MCMoveAtom extends MCMove {
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
-             a.coordinate.replace();
+             a.replace();
              return;
         }
         nAccept++;   //accept

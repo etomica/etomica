@@ -33,16 +33,16 @@ public class LatticeSquare extends Lattice {
     }
     
     public final void clearCells() {
-        for(Site s=origin; s!=null; s=s.nextSite()) {s.firstAtom = null;}
+        for(Site s=origin; s!=null; s=s.nextSite()) {s.setFirst(null);}
     }
     
-    public final Atom firstAtom() {
+    public final Lattice.Occupant firstOccupant() {
         Site s = origin;
-        Atom a = s.firstAtom();
+        Lattice.Occupant a = s.first();
         while(a == null) {
             s = s.nextSite();
             if(s == null) return null;
-            a = s.firstAtom();
+            a = s.first();
         }
         return a;
     }
@@ -78,7 +78,7 @@ public class LatticeSquare extends Lattice {
     }
     
     public static class Site implements Lattice.Site {
-        public Space.AtomCoordinate firstAtom;
+        public Lattice.Occupant first;
         private Linker firstUpNeighbor;
         private Linker firstDownNeighbor;
         public final Color color = Constants.RandomColor();
@@ -94,8 +94,8 @@ public class LatticeSquare extends Lattice {
         protected void setE(Site k) {e = k; k.w = this;}
         protected void setW(Site k) {w = k; k.e = this;}
         protected void setS(Site k) {s = k; k.n = this;}
-        public final Space.AtomCoordinate firstAtom() {return firstAtom;}
-        public final void setFirstAtom(Space.AtomCoordinate a) {firstAtom = a;}
+        public final Lattice.Occupant first() {return first;}
+        public final void setFirst(Lattice.Occupant o) {first = o;}
         public final Linker firstUpNeighbor() {return firstUpNeighbor;}
         public final Linker firstDownNeighbor() {return firstDownNeighbor;}
         public final int[] coordinate() {return coordinate;}

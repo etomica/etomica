@@ -125,10 +125,10 @@ atomCoordinate methods
     }
 
     interface NeighborIterator {
-        public void setNeighborRadius(double radius);
-        public double getNeighborRadius();
+//        public void setNeighborRadius(double radius);
+//        public double getNeighborRadius();
         public Iterator makeIterator(Phase p);
-        public void clear();
+//        public void clear();
     }
         
     interface Boundary {

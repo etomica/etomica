@@ -12,7 +12,7 @@ public class MeterKineticEnergy extends simulate.Meter
     {
         double ke = 0.0;
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
-            ke += a.coordinate.kineticEnergy();
+            ke += a.kineticEnergy();
         }
         return ke;
     }

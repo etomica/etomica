@@ -53,16 +53,16 @@ public class Space2D extends Space {
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
-    private static final class CoordinatePair extends Space.CoordinatePair {  
+    protected static final class CoordinatePair extends Space.CoordinatePair {  
         Coordinate c1;
         Coordinate c2;
         final Boundary boundary;
         private final Vector dr = new Vector();
         private double drx, dry, dvx, dvy;
         public CoordinatePair() {boundary = new BoundaryNone();}
-        public CoordinatePair(Boundary b) {boundary = b;}
-        public CoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Boundary b) {
-            boundary = b;
+        public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b;}
+        public CoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary b) {
+            boundary = (Boundary)b;
             if(c1 != null && c2 != null) {reset(c1,c2);}
         }
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
@@ -126,7 +126,7 @@ public class Space2D extends Space {
         public double momentum(int i) {return p.component(i);}
         public Space.Vector makeVector() {return new Vector();}
         
-        Coordinate nextNeighbor, previousNeighbor;
+/*        Coordinate nextNeighbor, previousNeighbor;
         public final void setNextNeighbor(Space.Coordinate c) {
             nextNeighbor = (Coordinate)c;
             if(c != null) {((Coordinate)c).previousNeighbor = this;}
@@ -134,7 +134,8 @@ public class Space2D extends Space {
         public final void clearPreviousNeighbor() {previousNeighbor = null;}
         public final Space.Coordinate nextNeighbor() {return nextNeighbor;}
         public final Space.Coordinate previousNeighbor() {return previousNeighbor;}
-        public final void assignCell() {}
+//        public final void assignCell() {}
+*/
         public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
     } 
     
@@ -153,7 +154,7 @@ public class Space2D extends Space {
     /**
      * Class for implementing no periodic boundary conditions
      */
-    private static final class BoundaryNone implements Boundary {
+    protected static final class BoundaryNone implements Boundary {
         private final Vector temp = new Vector();
         private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
@@ -173,7 +174,7 @@ public class Space2D extends Space {
     /**
      * Class for implementing rectangular periodic boundary conditions
      */
-    private static final class BoundaryPeriodicSquare implements Boundary {
+    protected static final class BoundaryPeriodicSquare implements Boundary {
         private final Vector temp = new Vector();
         public static final Random random = new Random();
         private final double[][] shift0 = new double[0][D];

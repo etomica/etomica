@@ -18,9 +18,14 @@ public abstract class Lattice {
     public abstract double[][] getBasis();
     public abstract void setBasis(double[][] b);
         
+    public interface Occupant {
+        public Site site();
+    }
+    
     public interface Site {
-        public Atom firstAtom();
-        public void setFirstAtom(Space.AtomCoordinate c);
+        public Occupant first();
+        public void setFirst(Occupant o);
+        
 //        public Linker firstUpNeighbor();
 //        public Linker firstDownNeighbor();
         public int[] coordinate();

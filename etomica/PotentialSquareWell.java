@@ -57,8 +57,8 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
       }
     }
 
-    pair.push(s);
-    if(r2New != r2) pair.setSeparation(r2New);
+    pair.cPair.push(s);
+    if(r2New != r2) pair.cPair.setSeparation(r2New);
   }
 
 //----------------------------------------------------------------------

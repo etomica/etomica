@@ -19,7 +19,7 @@ public class Phase extends Container {
     public void initialize(Simulation ps) {
         parentSimulation = ps;
         if(ps.space() instanceof Space.NeighborIterator) {
-            iterator = ps.space().makeIterator(this);
+            iterator = ((Space.NeighborIterator)ps.space()).makeIterator(this);
         }
         else {
             iterator = new Iterator(this);
@@ -46,10 +46,12 @@ public class Phase extends Container {
     public final int getBoundary() {return iBoundary;}
     public final Space.Boundary boundary() {return boundary;}
     
+    public final Iterator iterator() {return iterator;}
+    
     public final Space space() {return parentSimulation.space();}
     
-    public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
-    public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
+//    public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
+//    public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
         
     public void paint(Graphics g, int[] origin, double scale) {} 
                     

@@ -6,19 +6,13 @@ import java.util.Random;
 
 public class Space2DCell extends Space2D implements Space.NeighborIterator {
     
-    public void setNeighborRadius(double radius) {
-        neighborRadius = radius; 
-        cells.setNeighborIndexCutoff(radius*radius);  //probably should do assignCell for each atom
-    }
-    public double getNeighborRadius() {return neighborRadius;}
     public Iterator makeIterator(Phase p) {return new NeighborIterator(p);}
 
     public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
-    public Space.CoordinatePair makeCoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary boundary) {return new CoordinatePair(c1, c2, (Boundary)boundary);}
-    public Space.CoordinatePair makeCoordinatePair(Space.Boundary boundary) {return new CoordinatePair((Boundary)boundary);}
+//    public Space.CoordinatePair makeCoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary boundary) {return new CoordinatePair(c1, c2, (Boundary)boundary);}
+//    public Space.CoordinatePair makeCoordinatePair(Space.Boundary boundary) {return new CoordinatePair((Boundary)boundary);}
 
     public Space.Vector makeVector() {return new Vector();}
-    public final void clearCells() {cells.clearCells();}
     public Potential makePotential() {return new CellPotential();}
     public Space.Boundary makeBoundary(int b) {
         switch(b) {
@@ -31,7 +25,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
     public static class Vector extends Space2D.Vector {
     }
     
-    private class Coordinate extends Space2D.Coordinate {
+    private class Coordinate extends Space2D.Coordinate implements Lattice.Occupant {
         Coordinate nextNeighbor, previousNeighbor;
         public LatticeSquare.Site cell;        //ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
         public Coordinate(Space.Occupant o) {super(o);}
@@ -39,6 +33,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             nextNeighbor = c;
             if(c != null) {c.previousNeighbor = this;}
         }
+        public final Lattice.Site site() {return cell;}
         public final void clearPreviousNeighbor() {previousNeighbor = null;}
         public final Coordinate nextNeighbor() {return nextNeighbor;}
         public final Coordinate previousNeighbor() {return previousNeighbor;}
@@ -58,12 +53,12 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
    //Assigns atom to given cell
         public void assignCell(LatticeSquare.Site newCell) {
             if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
-            else {if(cell != null) cell.setFirstAtom(nextNeighbor); if(nextNeighbor != null) nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
+            else {if(cell != null) cell.setFirst(nextNeighbor); if(nextNeighbor != null) nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
             cell = newCell;
-            setNextNeighbor(cell.firstAtom());
-            cell.setFirstAtom(this);
+            setNextNeighbor((Space2DCell.Coordinate)cell.first());
+            cell.setFirst(this);
             clearPreviousNeighbor();
-            atom.setColor(cell.color);
+            ((Atom)parent).setColor(cell.color);
         }
     } 
     
@@ -75,37 +70,42 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
     private static final class NeighborIterator extends Iterator {
         public LatticeSquare cells;  //want to declare final, but won't compile
         private int xCells, yCells;
+        private double neighborRadius;
         
         public NeighborIterator(Phase p) {
             super(p);
             xCells = yCells = 15;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
-        public final simulate.AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase);}
-        public final simulate.AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPairIteratorUp(phase);}
-        public final simulate.AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPairIteratorDown(phase);}
-        public final Atom.Iterator makeAtomIteratorUp() {return new AtomIteratorUp();}
-        public final Atom.Iterator makeAtomIteratorDown() {return new AtomIteratorDown();}
+        
+        public void setNeighborRadius(double radius) {
+            neighborRadius = radius; 
+            cells.setNeighborIndexCutoff(radius*radius);  //probably should do assignCell for each atom
+        }
+        public double getNeighborRadius() {return neighborRadius;}
+
+        public final AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase, cells.origin);}
+        public final AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPairIteratorUp(phase, cells.origin);}
+        public final AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPairIteratorDown(phase, cells.origin);}
+        public final Atom.Iterator makeAtomIteratorUp() {return new AtomIteratorUp(cells.origin);}
+        public final Atom.Iterator makeAtomIteratorDown() {return new AtomIteratorDown(cells.origin);}
 
         private static final class AtomPairIteratorUp implements simulate.AtomPair.Iterator.A {
+            private final Phase phase;
             final AtomPair pair;
             final Space2D.CoordinatePair cPair;
             Atom atom;
             private boolean hasNext;
+            private final LatticeSquare.Site origin;
             private Coordinate coordinate, neighborCoordinate;
             private LatticeSquare.Site neighborCell;
             private LatticeSquare.Linker nextLinker;
-            public AtomPairIteratorUp(Phase p) {
-                phase = p; 
+            public AtomPairIteratorUp(Phase p, LatticeSquare.Site o) {
+                phase = p;
+                origin = o;
                 pair = new AtomPair(p);
-                cPair = new Space2D.CoordinatePair(p.boundary());
+                cPair = (Space2D.CoordinatePair)phase.space().makeCoordinatePair(p.boundary());
                 hasNext = false;
-            }
-            public AtomPairIteratorUp(Phase p, Atom a) {
-                phase = p; 
-                pair = new AtomPair(p); 
-                cPair = new Space2D.CoordinatePair(p.boundary());
-                reset(a,true);
             }
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
@@ -144,6 +144,8 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
 
         private static final class AtomPairIteratorDown implements simulate.AtomPair.Iterator.A {
             final AtomPair pair;
+            private final Phase phase;
+            private final LatticeSquare.Site origin;  //not used correctly down
             final Space2D.CoordinatePair cPair;
             Atom atom;
             private boolean hasNext;
@@ -151,17 +153,12 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             private LatticeSquare.Site neighborCell;
             private LatticeSquare.Linker nextLinker;
             private boolean firstCell;
-            public AtomPairIteratorDown(Phase p) {
+            public AtomPairIteratorDown(Phase p, LatticeSquare.Site o) {
                 phase = p; 
+                origin = o;
                 pair = new AtomPair(p);
-                cPair = new Space2D.CoordinatePair(p.boundary());
+                cPair = (Space2D.CoordinatePair)phase.space().makeCoordinatePair(p.boundary());
                 hasNext = false;
-            }
-            public AtomPairIteratorDown(Phase p, Atom a) {
-                phase = p; 
-                pair = new AtomPair(p); 
-                cPair = new Space2D.CoordinatePair(p.boundary());
-                reset(a,true);
             }
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
@@ -205,13 +202,17 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         private static final class AtomIteratorUp implements Atom.Iterator {
             private Coordinate coordinate;
             private Atom nextAtom, firstAtom;
+            private final LatticeSquare.Site origin;
             private boolean hasNext;
             private LatticeSquare.Site cell;
-            public AtomIteratorUp() {hasNext = false;}
-            public AtomIteratorUp(Atom a) {reset(a);}
+            public AtomIteratorUp(LatticeSquare.Site o) {hasNext = false;  origin = o;}
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
-            public void reset() {reset(firstAtom);}
+            public void reset() {  //resets to first atom in list  
+                cell = origin;  //rewrite this to use cells.firstOccupant
+                coordinate = (Coordinate)cell.first();
+                if(coordinate == null) {advanceCell();}
+            }
             public void reset(Atom a) {
                 firstAtom = a;
                 if(a == null) {allDone(); return;}
@@ -227,7 +228,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
                         allDone();
                         return;
                     }
-                    coordinate = cell.first;
+                    coordinate = (Coordinate)cell.first;
                 }
             }
             public Atom next() {
@@ -242,12 +243,12 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         private static final class AtomIteratorDown implements Atom.Iterator {
             private Coordinate coordinate;
             private Atom nextAtom, firstAtom;
+            private final LatticeSquare.Site origin;  //not used correctly down
             private boolean hasNext;
             private LatticeSquare.Site cell, neighborCell;
             private LatticeSquare.Linker nextLinker;
             private boolean firstCell;
-            public AtomIteratorDown() {hasNext = false;}
-            public AtomIteratorDown(Atom a) {reset(a);}
+            public AtomIteratorDown(LatticeSquare.Site o) {hasNext = false; origin = o;}
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
             public void reset() {reset(firstAtom);}
@@ -268,7 +269,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
                         allDone();
                         return;
                     }
-                    coordinate = cell.first;
+                    coordinate = (Coordinate)cell.first();
                 }
             }
             public Atom next() {
@@ -285,16 +286,16 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         // Perhaps interitance would work, but haven't tried it
             
         //"Full" --> Each iteration of inner loop begins with same first atom
- /*       private static final class PairIteratorFull implements simulate.AtomPair.Iterator.A {
+ /*       private static final class AtomPairIteratorFull implements simulate.AtomPair.Iterator.A {
             final AtomPair pair;
             Atom outer, inner;
             private Atom iFirst, iLast, oFirst, oLast;
             private boolean hasNext;
-            public PairIteratorFull(Space.Boundary b) {  //null constructor
+            public AtomPairIteratorFull(Space.Boundary b) {  //null constructor
                 pair = new AtomPair((Boundary)b);
                 hasNext = false;
             }  
-            public PairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
+            public AtomPairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
                 pair = new AtomPair((Boundary)b);
                 reset(iF,iL,oF,oL);
             }
@@ -323,7 +324,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             public boolean hasNext() {return hasNext;}
             public void reset() {reset(iFirst, iLast, oFirst, oLast);}
         }
- */           
+            
         //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
 /*        private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
             final AtomPair pair;
@@ -391,7 +392,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             double tx = Math.abs(dx/atomCoordinate.p.x);
             double dy = (atomCoordinate.p.y > 0) ? cell.vertices()[0][1] - atomCoordinate.r.y : cell.vertices()[2][1] - atomCoordinate.r.y;
             double ty = Math.abs(dy/atomCoordinate.p.y);
-            return (tx > ty) ? ty*atomCoordinate.atom().mass() : tx*atomCoordinate.atom().mass();
+            return (tx > ty) ? ty*atomCoordinate.parent().mass() : tx*atomCoordinate.parent().mass();
 //        double tnew = Math.abs((0.5*atom.phase().parentSimulation.space.getNeighborRadius()-0.5*1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
         }
     }
