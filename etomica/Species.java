@@ -477,7 +477,19 @@ public abstract class Species extends Container {
   * origin and value to fill entire space in Phase; if fillVolume is <code>
   * false</code>, will not do this, and thereby permit adjustment of 
   * origin and size of occupied volume at design time.
-  * Called by paint at design time, and by Phase.add at run time
+  * Called by paint at design time, and by Phase.add at run time, and by this.setBounds (override of superclass)
   */
   public abstract void initializeSpecies(Phase phase);
+  
+  public void initializeSpecies() {
+    if(parentPhase != null) initializeSpecies(parentPhase);
+  }
+  
+  public void setBounds(int x, int y, int width, int height) {
+    Rectangle r = getBounds();
+    if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
+        super.setBounds(x, y, width, height);
+        initializeSpecies();
+    }
+  }
 }

@@ -9,14 +9,10 @@ public class SpeciesDiskWell extends SpeciesDisks {
 
   public SpeciesDiskWell() {
     super();
-  }
-  
-  public void setDefaults() {
-    super.setDefaults();
     setWellColor(Color.gray);
     setLambda(1.5);
   }
-
+  
   void initializeMolecules() {
     initializeMolecules(diameter, mass, color, lambda, wellColor);
   }

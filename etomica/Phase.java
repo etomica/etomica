@@ -81,7 +81,7 @@ public final class Phase extends Container {
   * Total number of species contained in this phase.
   */
   int speciesCount=0;
-  private transient final int[] origin = new int[Space.D];     //origin for drawing space and species
+  private transient int[] origin;     //origin for drawing space and species
   private transient final int[] phaseSize = new int[Space.D];  //array form of width, height
   
  /**
@@ -120,6 +120,12 @@ public final class Phase extends Container {
   */
   Space space;
  
+ /**
+  * Object used to describe presence and magnitude of constant gravitational acceleration
+  */
+  public Gravity gravity;
+  public boolean noGravity = true;
+    
  /**
   * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
   * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
@@ -195,7 +201,8 @@ public final class Phase extends Container {
     updatedNeighbors = updatedFutureNeighbors = false;
     useNeighborList = false;
     nAtomTotal = nMoleculeTotal = 0;
-    setG(0.0);
+    gravity = new Gravity(0.0);
+    noGravity = true;
   }
  
  /**
@@ -265,12 +272,6 @@ public final class Phase extends Container {
   public void setDrawBoundingBox(boolean b) {drawBoundingBox = b;}
   public boolean getDrawBoundingBox() {return drawBoundingBox;}
   
- /**
-  * Object used to describe presence and magnitude of constant gravitational acceleration
-  */
-  public final Gravity gravity = new Gravity();
-  public boolean noGravity = true;
-    
   public final double getG() {return gravity.getG();}
   public void setG(double g) {
     gravity.setG(g);
@@ -313,6 +314,7 @@ public final class Phase extends Container {
     phaseSize[0] = width;
     phaseSize[1] = height;
     resetTO_PIXELS();
+    if(space != null) {space.resetOrigins(imageShells);}
   }
   
   public int[] getPhaseSize() {return phaseSize;}
@@ -546,7 +548,7 @@ public final class Phase extends Container {
   * to enforce (for example) periodic boundaries, then invoking the draw method
   * of the species.  The draw method of <code>space</code> is then invoked.
   * If imageShells is non-zero, the getImageOrigins method of space is invoked to
-  * determine the origins for all images, and copies of the just-completed image
+  * determine the origins for all images, and a replica of the just-completed image
   * of the central cell is copied to all of the periodic images.  The complete
   * off-screen image is then transferred to the graphics object g.  
   *
@@ -571,12 +573,11 @@ public final class Phase extends Container {
         int h = getSize().height;
         offScreenGraphics.setColor(getBackground());
         offScreenGraphics.fillRect(0,0,w,h);
-        int[] spaceSize = space.getDrawSize();
-        Space.uEa1T_v1Mv2_(origin,0.5,phaseSize,spaceSize);
         if(drawBoundingBox) {
             offScreenGraphics.setColor(Color.gray);
             offScreenGraphics.drawRect(0,0,w-1,h-1);
             }
+        origin = space.getCentralOrigin();
         for(int i = 0; i < speciesVector.size(); i++) {
             Species species = (Species)speciesVector.elementAt(i);
             if(species.firstAtom == null) {continue;}
@@ -584,8 +585,10 @@ public final class Phase extends Container {
             species.draw(offScreenGraphics, origin, space.getScale());
             }
         space.draw(offScreenGraphics, origin);
+        origin = space.getCopyOrigin();
         if(imageShells > 0) {
             int[][] origins = space.getImageOrigins(imageShells);
+            int[] spaceSize = space.getDrawSize();
             for(int i=0; i<origins.length; i++) {
             
     /*        // brute-force way to make periodic images (doesn't work well)

@@ -126,6 +126,11 @@ public class Space extends Component {
     protected int nImages;
    
    /**
+    * Coordinate origin for central image
+    */
+    protected final int[] centralOrigin = new int[D];
+    
+   /**
     * Coordinate origins for all images about central image.
     */
     protected int[][] origins;
@@ -256,15 +261,34 @@ public class Space extends Component {
     }
     
    /**
-    * Computes origins needed to draw periodic images.  Likely to override
-    * in subclasses.
+    * Computes origins needed to draw central and periodic images.
     */
     protected void resetOrigins(int n) {    //likely to override
         nShells = n;
+        if(parentPhase != null) resetCentralOrigin(parentPhase.getPhaseSize());
+        resetImageOrigins();
+    }
+    
+   /**Likely to override
+    * in subclasses.
+    */
+    public void resetImageOrigins() {
         nImages = 0;
         origins = new int[nImages][];
     }
    
+    protected void resetCentralOrigin(int[] phaseSize) {
+        Space.uEa1T_v1Mv2_(centralOrigin,0.5,phaseSize,drawSize);  // Maybe get this from space;  origin = 0.5*(phaseSize - spaceSize)
+    }
+        
+    public final int[] getCentralOrigin() {
+        return centralOrigin;
+    }
+    
+    public int[] getCopyOrigin() {  //Origin for original copy used to produce periodic images
+        return centralOrigin;
+    }
+    
    /**
     * Takes value for nShells, checks to see if it matches current value,
     * resets value and origins if they differ, then returns imageOrigins array for
@@ -326,10 +350,22 @@ public class Space extends Component {
         u[0] = u[1] = a1;
     }
     
+    public static void uEa1(int[] u, int a1) {
+        u[0] = u[1] = a1;
+    }
+    
    /**
     * Element-by-element copy of array v1 to array u (u = v1)
     */
     public static void uEv1(double[] u, double[] v1) {
+        u[0] = v1[0];
+        u[1] = v1[1];
+    }
+
+   /**
+    * Element-by-element copy of array v1 to array u (u = v1)
+    */
+    public static void uEv1(int[] u, int[] v1) {
         u[0] = v1[0];
         u[1] = v1[1];
     }

@@ -50,8 +50,7 @@ public class SpacePeriodicCubic extends Space {
     
     /** Computes origins for periodic images
     */
-    protected void resetOrigins(int n) {
-        nShells = n;
+    public void resetImageOrigins() {
         nImages = (2*nShells+1)*(2*nShells+1)-1;
         origins = new int[nImages][];
         int k = 0;

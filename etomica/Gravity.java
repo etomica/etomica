@@ -12,19 +12,16 @@ import java.util.*;
   * Default value of gravitational acceleration is zero.
   */
 
-public class Gravity extends java.util.Observable  {
+public class Gravity extends java.util.Observable      {
     
     public static final double G_EARTH = 9.8*1e10/1e24;  //acceleration of gravity (on Earth), in A/ps^2
     private double g = 0.0;                  //acceleration of gravity for simulated system
     public double deltaG = 0.0;
-    public final double[] gVector = new double[Space.D];
+    public double[] gVector;
 
-    public Gravity() {
-        this(0.0);
-    }
-    
     public Gravity(double g) {
         this.g = g;
+        gVector = new double[Space.D];
         Space.uEa1(gVector,0.0);
         gVector[Space.D-1] = g;
     }

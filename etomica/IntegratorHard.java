@@ -50,15 +50,21 @@ public class IntegratorHard extends Integrator {
     
     advanceAcrossTimeStep(nextCollider.getCollisionTime());
     Atom partner = nextCollider.getCollisionPartner();
-    nextCollider.getCollisionPotential().bump(nextCollider,partner);
-    for(Atom a=firstPhase.firstAtom; a!=partner; a=a.getNextAtom()) {
-        if(a.getCollisionPartner()==nextCollider || a.getCollisionPartner()==partner || a==nextCollider) {
-            upList(a);
-        }
+    if(partner == null) {
+        upList(nextCollider);
+        downList(nextCollider);
     }
-    upList(partner);
-    downList(nextCollider);
-    downList(partner);
+    else {
+        nextCollider.getCollisionPotential().bump(nextCollider,partner);
+        for(Atom a=firstPhase.firstAtom; a!=partner; a=a.getNextAtom()) {
+            if(a.getCollisionPartner()==nextCollider || a.getCollisionPartner()==partner || a==nextCollider) {
+                upList(a);
+            }
+        }
+        upList(partner);
+        downList(nextCollider);
+        downList(partner);
+    }
 
     findNextCollider();
     
@@ -113,9 +119,13 @@ public class IntegratorHard extends Integrator {
     
     Atom nextMoleculeAtom = atom.getMolecule().lastAtom.getNextAtom();  //first atom on next molecule
     double minCollisionTime = Double.MAX_VALUE;
+    for(int i=Space.D-1; i>=0; i--) {
+        double tnew = Math.abs(0.5*atom.parentMolecule.parentSpecies.parentPhase.space.getDimensions(i)/(atom.rm*atom.p[i]));
+        minCollisionTime = (tnew < minCollisionTime) ? tnew : minCollisionTime;
+    }
     
     int atomSpeciesIndex = atom.getSpeciesIndex();
-    atom.setCollision(Double.MAX_VALUE, null, null);
+    atom.setCollision(minCollisionTime, null, null);
     
     //Loop through remaining uplist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
