@@ -6,12 +6,14 @@ package etomica;
  * next.  Management of sequence of collisions is delegated to the subclass.
  * Determination of time of collision and implementation of collision
  * dynamics is handled by the potential between the atoms, which therefore must
- * implement PotentialHard.
+ * have an Agent that implements PotentialAgent.Hard.
  *
- * @see PotentialHard
  * @author David Kofke
  *
  */
+ 
+ //note that thread safety of this class is compromised by the
+ //Space.Vector methods used in the periodCollisionTime method of Agent
  
 public abstract class IntegratorHardAbstract extends IntegratorMD {
 

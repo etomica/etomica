@@ -7,8 +7,8 @@ public abstract class PotentialAgent implements java.io.Serializable {
     private PotentialAgent next;
     
     /**
-        * @param p The phase in which this agent will be placed
-        */
+     * @param p The phase in which this agent will be placed
+     */
     public PotentialAgent(PotentialAbstract potential, Phase phase) {
         parentPotential = potential;
         parentPhase = phase;
@@ -17,9 +17,8 @@ public abstract class PotentialAgent implements java.io.Serializable {
     }
     public final Phase parentPhase() {return parentPhase;}
         
-    public PotentialAgent next() {return next;}
-//    public PotentialAgent previous() {return previous;}
-    public void setNext(PotentialAgent potl) {next = potl;}
+    public PotentialAgent nextAgent() {return next;}
+    public void setNextAgent(PotentialAgent potl) {next = potl;}
 
     protected abstract void makeIterator();
     
@@ -30,6 +29,18 @@ public abstract class PotentialAgent implements java.io.Serializable {
         public double energy(IteratorDirective id);
         public void findCollisions(IteratorDirective id, IntegratorHardAbstract.CollisionHandler c);
         public void bump(IntegratorHardAbstract.Agent agent);
+        
+        public static final class Linker implements java.io.Serializable {
+            public final PotentialAgent.Hard agent;
+            public Linker next = null;
+            //Constructors
+            public Linker(Hard a) {agent = a;}
+            public Linker(Hard a, Linker l) {agent = a; next = l;}
+            //Access methods
+ //           public PotentialAgent.Hard agent() {return agent;}
+            public Linker next() {return next;}
+            public void setNext(Linker l) {next = l;}
+        }//end of Linker
     }//end of Hard
     
     /**

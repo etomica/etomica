@@ -52,12 +52,4 @@ public abstract class PotentialAbstract implements Simulation.Element, java.io.S
     
     public final HashMap agents() {return agents;}
  
-    /**
-     * Interface for a class that can make a PotentialAbstract object.
-     */
-    public interface Maker {
-        public PotentialAbstract makePotential(Simulation sim);
-    }
-    
- 
 }//end of PotentialAbstract

@@ -10,7 +10,6 @@ public class HSMD2D extends Simulation {
     public IntegratorHard integrator;
     public SpeciesDisks species;
     public Phase phase;
-    public P2SimpleWrapper p2;
     public PotentialHardDisk potential;
     public Controller controller;
     public DisplayPhase display;
@@ -23,12 +22,19 @@ public class HSMD2D extends Simulation {
 	    species.setNMolecules(56);
 	    phase = new Phase(this);
 	    potential = new PotentialHardDisk(this);
-	    p2 = new P2SimpleWrapper(this,potential);
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-	    timer.setUpdateInterval(10);
+//	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+//	    timer.setUpdateInterval(10);
 		setBackground(java.awt.Color.yellow);
+		elementCoordinator.go();
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIteratorIntra(phase,
+                                    phase.iteratorFactory().makeAtomIteratorUp(),
+                                    phase.iteratorFactory().makeAtomIteratorUpNeighbor(),
+                                    phase.iteratorFactory().makeAtomIteratorDown(),
+                                    phase.iteratorFactory().makeAtomIteratorDownNeighbor()));
+		
     }
     
     /**
@@ -45,9 +51,7 @@ public class HSMD2D extends Simulation {
         
         f.pack();
         f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        f.addWindowListener(Simulation.WINDOW_CLOSER);
     }//end of main
     
 }

@@ -6,7 +6,7 @@ import etomica.units.*;
 
 public class Space2D extends Space implements EtomicaElement {
     
-    public static String version() {return "01.03.04.0";}
+    public static String version() {return "Space2D:01.06.29/"+Space.VERSION;}
     public static final int D = 2;
     public final int D() {return D;}
     
@@ -26,7 +26,6 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Boundary makeBoundary(Space.Boundary.Type t) {
         if(t == Boundary.NONE) {return new BoundaryNone();}
         else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
-///        else if(t == Boundary.HARD) return new BoundaryHard();
         else if(t == Boundary.SLIDING_BRICK) return new BoundarySlidingBrick();
         else return null;
     }
@@ -341,9 +340,8 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public static final Type NONE = new Type("None");
         public static final Type PERIODIC_SQUARE = new Type("Periodic Square");
-        public static final Type HARD = new Type("Hard");
         public static final Type SLIDING_BRICK = new Type("Sliding Brick");
-        public static final Type[] TYPES = {NONE,PERIODIC_SQUARE,HARD,SLIDING_BRICK};
+        public static final Type[] TYPES = {NONE,PERIODIC_SQUARE,SLIDING_BRICK};
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
@@ -378,55 +376,7 @@ public class Space2D extends Space implements EtomicaElement {
             return temp;
         }
         public void draw(Graphics g, int[] origin, double scale) {}
-    }
-    public static final class BoundaryHard extends BoundaryPeriodicSquare {
-        public double pAccumulator = 0.0;
-        private double collisionRadius = 0.0;
-        public BoundaryHard() {super();}
-        public BoundaryHard(Phase p) {super(p);}
-        public BoundaryHard(Phase p, double lx, double ly) {super(p,lx,ly);}
-        public Space.Boundary.Type type() {return Boundary.HARD;}
-        public final void nearestImage(Vector dr) {}
-        public final void centralImage(Vector r) {}
-        public final void centralImage(Coordinate c) {}
-        public void setCollisionRadius(double d) {collisionRadius = d;}
-        public double getCollisionRadius() {return collisionRadius;}
-        public Dimension getCollisionRadiusDimension() {return Dimension.LENGTH;}
-        public PotentialAbstract makePotential(Simulation sim) {return new Field(sim);}
-        class Field extends Potential1HardAbstract {
-            Field(Simulation sim) {
-                super(sim);
- //               maker = BoundaryHard.this;
-            }
-            public double collisionTime(Atom a) {
-                Vector r = (Vector)a.coordinate().position();
-                Vector p = (Vector)a.coordinate().momentum();
-                double tx = (p.x > 0.0) ? (dimensions.x - r.x - collisionRadius)/(p.x*a.rm()) : (-r.x + collisionRadius)/(p.x*a.rm());
-                double ty = (p.y > 0.0) ? (dimensions.y - r.y - collisionRadius)/(p.y*a.rm()) : (-r.y + collisionRadius)/(p.y*a.rm());
-                return Math.min(tx,ty);
-            }
-            public void bump(Atom a) {
-                Vector r = (Vector)a.coordinate().position();
-                Vector p = (Vector)a.coordinate().momentum();
-                double dx = (p.x > 0.0) ? Math.abs(dimensions.x - r.x - collisionRadius) : Math.abs(-r.x + collisionRadius);
-                double dy = (p.y > 0.0) ? Math.abs(dimensions.y - r.y - collisionRadius) : Math.abs(-r.y + collisionRadius);
-    //            double dx = Math.abs(r.x/dimensions.x-0.5);   //determine which component is farther from center
-    //            double dy = Math.abs(r.y/dimensions.y-0.5);
-    //            if(dx > dy) {
-                if(dx < dy) {
-                    pAccumulator += 2*Math.abs(p.x);
-                    p.x *= -1;
-                }
-                else {
-                    pAccumulator += 2*Math.abs(p.y);
-                    p.y *= -1;
-                }
-            }
-            public double energy(Atom a) {return 0.0;}
-            
-        }//end of Field
-   
-    } //end of BoundaryHard   
+    }//end of BoundaryNone
 
     /**
      * Class for implementing rectangular periodic boundary conditions
@@ -461,47 +411,6 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
-        
-        public PotentialAbstract makePotential(Simulation sim) {return new Field(sim);}
-        class Field extends Potential1HardAbstract {
-            Field(Simulation sim) {
-                super(sim);
-  //              maker = BoundaryPeriodicSquare.this;
-            }
-            //"Collision" whenever atom travels half the edge length of the simulation volume
-            //needs some work to handle non-disk atoms better
-            public double collisionTime(Atom a) {
-                if(!(a.type instanceof AtomType.Disk)) {
-                    return Double.MAX_VALUE;}
-                Vector p = (Vector)a.coordinate().momentum();
-                double diameter = ((AtomType.Disk)a.type).diameter();
-                //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
-                return 0.5*(dimensions.y-1.0001*diameter)/(a.rm()*Math.sqrt(p.squared()));  
-            }
-            //No action needed at collision, just want to update neighbor list
-            public void bump(Atom a) {}
-            public double lastCollisionVirial() {return 0.0;}
-            public Space.Tensor lastCollisionVirialTensor() {return Tensor.ZERO;}
-            public double energy(Atom a) {return 0.0;}
-            public boolean overlap(Atom a) {return false;}
-            public PotentialAgent makeAgent(Phase p) {return new Agent(this, p);}
-            
-            private class Agent extends Potential1HardAbstract.Agent {
-                public Agent(PotentialAbstract potential, Phase phase) {
-                    super(potential, phase);
-                    phase.boundaryMonitor.addObserver( new java.util.Observer() {
-                        public void update(java.util.Observable obs, Object obj) {makeIterator();}
-                    });
-                }
-                
-                protected void makeIterator() {
-                    if(parentPhase().boundary() == BoundaryPeriodicSquare.this) 
-                        iterator = parentPhase.iteratorFactory().makeAtomIteratorUp();
-                    else
-                        iterator = AtomIterator.NULL;
-                }
-            }//end of Space2D.BoundaryPeriodicSquare.Field.Agent
-        }//end of Field
         
         public void draw(Graphics g, int[] origin, double scale) {
             g.setColor(Color.gray);
@@ -621,7 +530,7 @@ public class Space2D extends Space implements EtomicaElement {
                 }
             }
             return origins;
-        }
-    }
+        }//end of imageOrigins
+    }//end of BoundarySlidingBrick
             
-}
+}//end of Space2D

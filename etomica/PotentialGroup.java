@@ -2,8 +2,6 @@ package etomica;
 
 public class PotentialGroup extends PotentialAbstract {
     
-    private PotentialAbstract first;
-    private PotentialAbstract last;
 //    private PotentialGroup parentGroup;
     
     public PotentialGroup() {
@@ -13,19 +11,35 @@ public class PotentialGroup extends PotentialAbstract {
         super(sim);
     }
     
-    public double energy(IteratorDirective id) {
-        double sum = 0.0;
-        for(PotentialAbstract p=first; p!=null; p=p.next) {
-           sum += p.energy(id);
-        }
-        return sum;
+    public PotentialAgent makeAgent(Phase p) {
+        return new Agent(this, p);
     }
     
-    public void addPotential(PotentialAbstract potential) {
-        if(first == null) first = potential;
-        if(last != null) last.next = potential;
- //       potential.previous = last;
-        last = potential;
+    //---------------------------------------//
+    public class Agent extends PotentialAgent {
+
+        private PotentialAgent first;
+        private PotentialAgent last;
+        
+        public Agent(PotentialAbstract potential, Phase phase) {
+            super(potential, phase);
+        }
+        
+        public double energy(IteratorDirective id) {
+            double sum = 0.0;
+            for(PotentialAgent p=first; p!=null; p=p.nextAgent()) {
+                sum += p.energy(id);
+            }
+            return sum;
+        }
+        
+        public void makeIterator() {}
+        
+        public void addPotential(PotentialAgent potential) {
+            if(first == null) first = potential;
+            if(last != null) last.setNextAgent(potential);
+            last = potential;
+        }
     }
         
 }//end of PotentialGroup

@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 public abstract class Space implements Space.Boundary.Maker, java.io.Serializable {
     
-    public static String version() {return "01.03.04.0";}
+    public static String VERSION = "01.06.29";
 
     public Space() {}
     public abstract int D();

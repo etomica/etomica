@@ -39,6 +39,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public Mediator elementCoordinator;
     private HashMap elementLists = new HashMap(16);
+    private final PotentialGroupMaster masterPotential = new PotentialGroupMaster(this);
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
@@ -196,6 +197,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public final LinkedList deviceList() {return deviceList;}
   
     public void register(Simulation.Element element) {
+        if(element == masterPotential || masterPotential == null) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return;
         if(element instanceof P1Null) return;
@@ -322,6 +324,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
  //       }
         return list;
     }
+    
+    public final PotentialGroup masterPotential() {return masterPotential;}
             
     /**
      * Accessor of the first species in the linked list of species
@@ -442,7 +446,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 		Simulation.instance.setBackground(java.awt.Color.yellow);
     }//end of makeSimpleSimulation
     
-    public static java.awt.event.WindowAdapter windowCloser 
+    public static final java.awt.event.WindowAdapter WINDOW_CLOSER 
         = new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
@@ -451,7 +455,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public static void main(String[] args) {
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
+        f.setSize(600,500);
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesDisks speciesDisks = new SpeciesDisks();
@@ -478,11 +482,11 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
                                     phase.iteratorFactory().makeAtomIteratorDownNeighbor()));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
-        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance.panel());         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();
-        f.addWindowListener(Simulation.windowCloser);
+        f.addWindowListener(Simulation.WINDOW_CLOSER);
      //   controller.start();
     }//end of main
 }

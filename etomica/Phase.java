@@ -50,7 +50,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private PotentialField firstField;
     private String name;
     private final Simulation parentSimulation;
-    private PotentialAgent potential;
+    private final PotentialGroup.Agent potential;
     public SimulationEventManager potentialMonitor = new SimulationEventManager();
     private boolean added = false;
     
@@ -60,6 +60,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     
     public Phase(Simulation sim) {
         parentSimulation = sim;
+        potential = (PotentialGroup.Agent)sim.masterPotential().makeAgent(this);
         inflater = new PhaseAction.Inflate(this);
         //don't use setIteratorFactory here to remove any possibility of complications with Observers
         if(sim.space() instanceof IteratorFactory.Maker) {
@@ -167,11 +168,11 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
      * Sets the potential (agent) governing all interactions in this phase.
      * Notifies listeners of change.
      */
-     public void setPotential(PotentialAgent newPotential) {
+/*     public void setPotential(PotentialAgent newPotential) {
         potential = newPotential;
         potentialMonitor.fireEvent(new SimulationEvent(this));
      }
-     
+*/     
      /**
       * Accessor method for the potential governing all interactions in this phase.
       */
@@ -381,9 +382,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     }
     
     public void addPotential(PotentialAgent pot) {
-        if(potential == null) setPotential(pot);
-        
-        else {} //do a potentialGroup thing
+        potential.addPotential(pot);
     }
     
     
