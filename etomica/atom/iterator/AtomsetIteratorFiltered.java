@@ -6,7 +6,6 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomsetIterator;
-import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
@@ -17,16 +16,14 @@ import etomica.atom.AtomsetFilter;
  * Wraps an AtomIterator and filters its iterates so that
  * only those meeting specified criteria are returned.
  */
-//maybe make an AtomsetIteratorMoleculeFiltered that implements AtomsetIteratorMolecule
-//and leave this to implement just AtomsetIterator
-public class AtomsetIteratorFiltered implements AtomsetIteratorMolecule {
+
+public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, AtomsetIteratorDirectable {
 	/**
 	 * Default constructor that causes no atoms to be filtered.
 	 * Iterator will give all iterates of the given iterator
 	 * until another filter is specified.
 	 */
-    //specific to AtomsetIteratorMolecule because used by PotentialMasterCell
-	public AtomsetIteratorFiltered(AtomsetIteratorMolecule iterator) {
+	public AtomsetIteratorFiltered(AtomsetIterator iterator) {
 		this(iterator, AtomsetFilter.ACCEPT_ALL);
 	}
 	
@@ -36,7 +33,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorMolecule {
 	 * @param iterator
 	 * @param filter
 	 */
-	public AtomsetIteratorFiltered(AtomsetIteratorMolecule iterator, AtomsetFilter filter) {
+	public AtomsetIteratorFiltered(AtomsetIterator iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
 		nextAtoms = new Atom[iterator.nBody()];
@@ -144,17 +141,18 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorMolecule {
 		return iterator;
 	}
 	
-	public void setPhase(Phase phase) {
-		iterator.setPhase(phase);
-	}
 	public void setDirection(Direction direction) {
-		iterator.setDirection(direction);
+		if (iterator instanceof AtomsetIteratorDirectable) {
+		    ((AtomsetIteratorDirectable)iterator).setDirection(direction);
+        }
 	}
 	public void setTarget(Atom[] targetAtoms) {
-		iterator.setTarget(targetAtoms);
+	    if (iterator instanceof AtomsetIteratorTargetable) {
+	        ((AtomsetIteratorTargetable)iterator).setTarget(targetAtoms);
+        }
 	}
 
-	private final AtomsetIteratorMolecule iterator;
+	private final AtomsetIterator iterator;
 	private AtomsetFilter filter;
 	private Atom[] next;
 	private final Atom[] nextAtoms;

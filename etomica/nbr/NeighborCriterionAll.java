@@ -24,6 +24,10 @@ public class NeighborCriterionAll extends NeighborCriterion {
         return false;
     }
 
+    public double getNeighborRange() {
+        return Double.POSITIVE_INFINITY;
+    }
+    
     /**
      * Performs no action.
      */

@@ -48,6 +48,12 @@ public abstract class NeighborCriterion implements AtomsetFilter {
 	public abstract void reset(Atom atom);
     
     /**
+     * Returns the nominal distance within which two atoms are considered
+     * neighbors.
+     */
+    public abstract double getNeighborRange();
+    
+    /**
      * Neighbor list is to be used with cell lists, and this identifies
      * the cell iterator to the neighbor criterion, so it can use the
      * iterator for minimum-image calculations.

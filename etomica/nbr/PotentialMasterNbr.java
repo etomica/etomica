@@ -16,6 +16,8 @@ import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
@@ -29,6 +31,7 @@ import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialGroup;
 import etomica.space.Vector;
 import etomica.utility.Arrays;
 import etomica.utility.ObjectArrayList;
@@ -54,6 +57,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 		atomIterator = new MyIterator();
 		singletIterator = new AtomIteratorSinglet();
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
+        positionDefinition = new AtomPositionDefinitionSimple();
 	}
 
     /**
@@ -154,8 +158,9 @@ public class PotentialMasterNbr extends PotentialMaster {
      * and (if potential is a 2-body potential) constructs a default 
      * NeighborCriterionSimple instance to define the neighbors.
      */
+    //TODO warn that potentialGroups don't get cells or criterion through this method
     public void setSpecies(Potential potential, Species[] species) {
-    	if(potential.nBody() == 2) {
+    	if(potential.nBody() == 2 && !(potential instanceof PotentialGroup)) {
 		    NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),2.0*potential.getRange());
 	    	setSpecies(potential, species, criterion);
     	} else {
@@ -171,10 +176,11 @@ public class PotentialMasterNbr extends PotentialMaster {
     	if (species.length <= 1 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
+        double neighborRange = criterion.getNeighborRange();
         ApiMolecule iterator = (ApiMolecule)iteratorFactory.makeMoleculeIterator(species);
-        ((AtomsetIteratorCellular)iterator.getApiAA()).getNbrCellIterator().setRange(maxNeighborRange);
-        ((AtomsetIteratorCellular)iterator.getApi1A()).getNbrCellIterator().setRange(maxNeighborRange);
-        AtomsetIteratorMolecule iteratorFiltered = new ApiFiltered(iterator, (NeighborCriterionSimple)criterion);
+        ((AtomsetIteratorCellular)iterator.getApiAA()).getNbrCellIterator().setRange(neighborRange);
+        ((AtomsetIteratorCellular)iterator.getApi1A()).getNbrCellIterator().setRange(neighborRange);
+        AtomsetIteratorMolecule iteratorFiltered = new ApiFiltered(iterator, criterion);
 		neighborManager.addCriterion(criterion);//add criterion to manager so criterion can be informed of the phase
     	for(int i=0; i<species.length; i++) {
     		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
@@ -194,7 +200,7 @@ public class PotentialMasterNbr extends PotentialMaster {
             neighborCellManager = (NeighborCellManager[])Arrays.resizeArray(neighborCellManager, phase.index+1);
         }
         if(neighborCellManager[phase.index] == null) {
-            neighborCellManager[phase.index] = new NeighborCellManager(phase,nCells);
+            neighborCellManager[phase.index] = new NeighborCellManager(phase,nCells,positionDefinition);
         }
         return neighborCellManager[phase.index];
     }
@@ -211,6 +217,13 @@ public class PotentialMasterNbr extends PotentialMaster {
     }
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
+    
+    public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
+        this.positionDefinition = positionDefinition;
+    }
+    public AtomPositionDefinition getAtomPositionDefinition() {
+        return positionDefinition;
+    }
 
 	private final MyIterator atomIterator;
 	private final AtomIteratorSinglet singletIterator;
@@ -220,6 +233,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     private int nCells;
     private double maxNeighborRange;
     private final IteratorDirective idUp = new IteratorDirective();
+    private AtomPositionDefinition positionDefinition;
     
     public static class MyIterator extends AtomIteratorArrayList {
         

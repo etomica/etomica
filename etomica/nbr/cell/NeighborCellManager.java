@@ -12,6 +12,8 @@ import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
 import etomica.SpeciesAgent;
+import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
@@ -31,13 +33,19 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     private int iieCount;
     private int updateInterval;
     private int priority;
+    private final AtomPositionDefinition positionDefinition;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
      * cells in each dimension is given by nCells. 
      */
     public NeighborCellManager(Phase phase, int nCells) {
+        this(phase,nCells,new AtomPositionDefinitionSimple());
+    }
+    
+    public NeighborCellManager(Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
         this.phase = phase;
+        this.positionDefinition = positionDefinition;
         space = phase.space();
         atomIterator = new AtomIteratorAllMolecules(phase);
         setPriority(150);
@@ -101,7 +109,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      */
     public void assignCell(Atom atom) {
         AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
-        NeighborCell newCell = (NeighborCell)lattice.site(atom.coord.position());
+        NeighborCell newCell = (NeighborCell)lattice.site(positionDefinition.position(atom));
         if(newCell != seq.cell) {assignCell(seq, newCell, atom.type.getSpeciesIndex());}
     }
     

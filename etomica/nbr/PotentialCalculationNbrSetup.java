@@ -50,7 +50,9 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
      */
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 		if(iterator.nBody() != 2) return;
-		((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
+        if (iterator instanceof AtomsetIteratorDirectable) {
+            ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
+        }
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();

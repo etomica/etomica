@@ -30,7 +30,9 @@ public class AtomSequencerCell extends AtomLinker {
      */
     public void remove() {
         super.remove();
-        cell.occupants()[atom.node.parentSpeciesAgent().node.index()].remove(nbrLink);
+        if (cell != null) {
+            cell.occupants()[atom.node.parentSpeciesAgent().node.index()].remove(nbrLink);
+        }
         nbrLink.remove();
     }
     

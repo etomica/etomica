@@ -99,7 +99,13 @@ public class PotentialGroup extends Potential {
 	}
 	
 	public double getRange() {
-		return Double.MAX_VALUE;
+	    double range = 0;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if (link.potential.getRange() > range) {
+                range = link.potential.getRange();
+            }
+        }
+        return range;
 	}
 	
 	/**
@@ -130,7 +136,9 @@ public class PotentialGroup extends Potential {
     	//TODO consider separate loops for targetable and directable
  		for (PotentialLinker link=first; link!= null; link=link.next) {
 			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
-			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
+            if (link.iterator instanceof AtomsetIteratorDirectable) {
+                ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
+            }
 		}
     	iterator.reset();//loop over atom groups affected by this potential group
 		while (iterator.hasNext()) {

@@ -41,7 +41,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 		return safetyFactor;
 	}
 	
-	public void setNeighborRadius(double r) {
+	public void setNeighborRange(double r) {
 		if (r < interactionRange) throw new IllegalArgumentException("Neighbor radius must be larger than interaction range");
 		neighborRadius2 = r*r;
 		double displacementLimit = (r - interactionRange) * safetyFactor;
@@ -49,7 +49,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
         r2MaxSafe = displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
 	
-	public double getNeighborRadius() {
+	public double getNeighborRange() {
 		return Math.sqrt(neighborRadius2);
 	}
 	
