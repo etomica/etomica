@@ -12,7 +12,7 @@ import etomica.AtomSequencerFactory;
 /**
  * Sequencer used for atoms being cell listed.
  */
-public class AtomSequencerCell extends AtomLinker implements Cellular {
+public class AtomSequencerCell extends AtomLinker {
     
     NeighborCell cell;       //cell currently occupied by this atom
     final AtomLinker nbrLink;  //linker used to arrange atom in sequence within the cells
@@ -22,9 +22,6 @@ public class AtomSequencerCell extends AtomLinker implements Cellular {
         nbrLink = new AtomLinker(a);
     }
     
-    //Cellular interface method
-    public NeighborCell getCell() {return cell;}
-
 //    public int listIndex() {return listIndex;}
 
     public void remove() {

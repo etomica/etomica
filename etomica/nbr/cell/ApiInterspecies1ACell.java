@@ -20,7 +20,6 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.lattice.CellLattice;
-import etomica.lattice.RectangularLattice;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,

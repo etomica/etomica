@@ -1,23 +1,21 @@
 /*
  * Created on Jan 7, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package etomica.nbr.cell;
 
 import etomica.lattice.CellLattice;
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Interface for atomset iterators that use cell-based neighbor
+ * lists for iteration.  Defines a method that returns the iterator
+ * the loops over the cells neighboring a given cell.  Access to
+ * the cell iterator is needed to adjust the neighbor range defining
+ * the neighbor cells.
  */
 public interface AtomsetIteratorCellular {
 
     /**
-     * @return Returns the cellIterator.
+     * @return Returns the neighborCell Iterator.
      */
     public CellLattice.NeighborIterator getNbrCellIterator();
 }
