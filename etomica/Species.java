@@ -60,17 +60,10 @@ import etomica.utility.NameMaker;
      
 public class Species {
 
-    public static final String VERSION = "Species:03.01.25";
-    
-    protected final AtomFactory factory;
-    protected Model model;
-    private String name;
-    
     /**
-     * Constructs species and registers it as part of the given simulation, with
-     * molecules built by the given atom factory.
+     * Constructs species with molecules built by the given atom factory.
      */
-    public Species(Simulation sim, AtomFactory factory) {
+    public Species(AtomFactory factory) {
         this.factory = factory;
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);
@@ -78,8 +71,12 @@ public class Species {
         setName(NameMaker.makeName(this.getClass()));
     }
     
-    public Species(Simulation sim, Model model) {
-    	this(sim, model.makeAtomFactory(sim));
+    /**
+     * Constructs species with an atom factory that makes molecules from
+     * the given model for the given space.
+     */
+    public Species(Space space, Model model) {
+    	this(model.makeAtomFactory(space));
     }
                   
     /**
@@ -177,7 +174,7 @@ public class Species {
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.node.parentPhase();
-        SpeciesAgent a = new SpeciesAgent(this, nMolecules, parent.node);
+        SpeciesAgent a = new SpeciesAgent(factory.space, this, nMolecules, parent.node);
         agents.put(phase,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }
@@ -198,7 +195,10 @@ public class Species {
      */
  //   final HashMap agents = new HashMap();
     final AgentList agents = new AgentList();
-    
+    protected final AtomFactory factory;
+    protected Model model;
+    private String name;
+
     /**
      * Class that keeps a list of all agents in a way that
      * they can be referenced according to the phase they are in.
@@ -213,9 +213,10 @@ public class Species {
             int index = phase.index;
             //expand array size
             if(index >= agentArray.length) {
-                SpeciesAgent[] newArray = new SpeciesAgent[index+1];
-                for(int i=0; i<agentArray.length; i++) newArray[i] = agentArray[i];
-                agentArray = newArray;
+                agentArray = (SpeciesAgent[])etomica.utility.Arrays.resizeArray(agentArray,index+1);
+//                new SpeciesAgent[index+1];
+//                for(int i=0; i<agentArray.length; i++) newArray[i] = agentArray[i];
+//                agentArray = newArray;
             }
             agentArray[index] = agent;
         }

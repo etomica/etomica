@@ -14,13 +14,20 @@ public class MCMoveVolume extends MCMove {
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected final PhaseInflate inflate = new PhaseInflate();
-     private AtomIterator affectedAtomIterator;
+    private AtomIterator affectedAtomIterator;
+    private final int D;
 
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
-    public MCMoveVolume(PotentialMaster potentialMaster) {
+    /**
+     * 
+     * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
+     * @param D the spatial dimension of the simulation, Space.D()
+     */
+    public MCMoveVolume(PotentialMaster potentialMaster, int D) {
         super(potentialMaster);
+        this.D = D;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
@@ -43,7 +50,7 @@ public class MCMoveVolume extends MCMove {
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
-        double rScale = Math.exp(vScale/(double)phase.simulation().space().D());
+        double rScale = Math.exp(vScale/(double)D);
         inflate.setScale(rScale);
         inflate.actionPerformed();
         uNew = Double.NaN;

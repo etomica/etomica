@@ -9,13 +9,12 @@ public class ConfigurationZincblende extends Configuration {
     
     private ConfigurationFcc fcc;
     
-    public ConfigurationZincblende(Simulation sim) {
-        super(sim);
+    public ConfigurationZincblende(Space space) {
+        super(space);
         if(space.D() != 3) {//need an exception for this
-            System.out.println("Illegal dimension for ConfigurationZincBlende");
-            System.exit(1);
+            throw new IllegalArgumentException("Illegal dimension for ConfigurationZincBlende");
         }
-        fcc = new ConfigurationFcc(sim);
+        fcc = new ConfigurationFcc(space);
     }
     
     /**
@@ -54,8 +53,8 @@ public class ConfigurationZincblende extends Configuration {
         Simulation.instance = sim;
         Default.ATOM_SIZE = 5.0;
     //    Default.DISPLAY_USE_OPENGL = false;
-        etomica.Phase phase0  = new etomica.Phase();
-        phase0.setConfiguration(new ConfigurationZincblende(sim));
+        etomica.Phase phase0  = new etomica.Phase(sim.space);
+        phase0.setConfiguration(new ConfigurationZincblende(sim.space));
         etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
         etomica.SpeciesSpheresMono speciesSpheres1  = new etomica.SpeciesSpheresMono();
         speciesSpheres0.setNMolecules(32);

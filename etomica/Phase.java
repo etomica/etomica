@@ -72,16 +72,15 @@ public class Phase {
     private static int instanceCount;
     
     /**
-     * Constructs phase and registers it as part of the given simulation.
+     * Constructs phase.
      */
     public Phase(Space space) {
         index = instanceCount++;
-        speciesMaster = new SpeciesMaster(this);
+        speciesMaster = new SpeciesMaster(space, this);
          
         setName(NameMaker.makeName(this.getClass()));
         inflater = new PhaseInflate(this);
 
-//        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(space.makeBoundary());
 
         if(space.D() < 3) 

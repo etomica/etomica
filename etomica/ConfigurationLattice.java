@@ -85,7 +85,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space3D());
 		Default.ATOM_SIZE = 5.0;
 		Space space = sim.space;
-		Phase phase = new Phase(sim);
+		Phase phase = new Phase(space);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 		int k = 2;
 		species.setNMolecules(4*k*k*k);

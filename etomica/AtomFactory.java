@@ -22,7 +22,6 @@ public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
     public final Space space;
-    public final Simulation simulation;
     private Species species;
     protected Configuration configuration;
     protected AtomSequencer.Factory sequencerFactory;
@@ -33,25 +32,11 @@ public abstract class AtomFactory {
     protected final AtomType.Sphere spheretype = new AtomType.Sphere(this);
     protected AtomType atomType;
         
-    public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory) {
-    	this(sim, sequencerFactory, AtomTreeNodeGroup.FACTORY);
-    }
-
-	public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory) {    
-    	this.simulation = sim;
-    	this.space = sim.space;
-    	this.sequencerFactory = sequencerFactory;
-    	this.nodeFactory = nodeFactory;
-    	this.atomType = groupType;
-    	reservoir = new AtomReservoir(this);
-    }
-    
     public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {
     	this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
     
     public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory) {
-    	simulation = null;
         this.space = space;
         this.sequencerFactory = sequencerFactory;
         this.nodeFactory = nodeFactory;
@@ -123,8 +108,6 @@ public abstract class AtomFactory {
     public AtomReservoir reservoir() {return reservoir;}
     
     public Space space() {return space;}
-    
-    public Simulation simulation() {return simulation;}
     
     public void setSpecies(Species species) {this.species = species;}
     public Species species() {return species;}

@@ -1,8 +1,16 @@
 package etomica.log;
-import etomica.*;
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import etomica.Action;
+import etomica.Default;
+import etomica.Integrator;
+import etomica.IntegratorHard;
+import etomica.Simulation;
+import etomica.utility.NameMaker;
 
 /**
  * Abstract class, used to define the basic methods of reading in/writing out the data.
@@ -16,23 +24,18 @@ import java.text.*;
  * apart actions in doWrite method
  */
 
-public abstract class LoggerAbstract extends SimulationElement implements Integrator.IntervalListener,
-                                                                            java.io.Serializable {
+public abstract class LoggerAbstract implements Integrator.IntervalListener,
+                                               java.io.Serializable {
     
     public LoggerAbstract(){
-        this(Simulation.instance);
-    }
-    
-    public LoggerAbstract(Simulation sim, Integrator integrator){
-        this(sim);
+        setName(NameMaker.makeName(this.getClass()));
         setIntegrator(integrator);//for a given integrator.
-    }
-    
-    public LoggerAbstract(Simulation sim){
-        super(sim, LoggerAbstract.class);
         setUpdateInterval(100);
-    }
-    
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
+
+    }  
     
     /**
      * Identifies the integrator that fires interval events causing the logger
@@ -179,7 +182,20 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
     public void setCloseFileEachTime(boolean closeFileEachTime) { this.closeFileEachTime = closeFileEachTime;}
     
     public boolean isCloseFileEachTime() {return closeFileEachTime;}
-        
+    
+    
+    /**
+     * @return Returns the name.
+     */
+    public String getName() {
+        return name;
+    }
+    /**
+     * @param name The name to set.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
     private int count; //counts number of events received before calling doAction().
     private int updateInterval; //number of times specified by the user between two actions.
                                 //could be set by setUpdateInterval() method.
@@ -192,13 +208,16 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
     private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private boolean fileIsOpen = false; //at the beginning, it is false.
-    
-	private class WriteAction extends etomica.Action {
+    private String name;
+	private class WriteAction implements etomica.Action {
 		public WriteAction() {
 			setLabel("Write");
 		}
 		public void actionPerformed() {
 			doWrite();
 		}
+        public String getLabel() {return label;}
+        public void setLabel(String label) {this.label = label;}
+        private String label;
 	}
 }

@@ -15,6 +15,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 */
     public MeterRDF(Space space) {
 	    super(new DataSourceUniform());
+        this.space = space;
 	    xDataSourceUniform = (DataSourceUniform)xDataSource;
 	    xDataSourceUniform.setDimension(Dimension.LENGTH);
 	    xDataSourceUniform.setLabel("r");
@@ -75,7 +76,6 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 //	    int n = phase.atomCount();             //compute normalization: divide by
 	    double norm = count/phase.volume();    //n, and density*(volume of shell)
 	    double[] x = xDataSourceUniform.getData();
-	    Space space = phase.simulation().space();
 	    double dx2 = 0.5*(xMax - xDataSourceUniform.getXMin())/(double)nDataPerPhase;
 	    for(int i=0; i<nDataPerPhase; i++) {
 	        double vShell = space.sphereVolume(x[i]+dx2)-space.sphereVolume(x[i]-dx2);
@@ -84,6 +84,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    return phaseData;
 	}
 	
+    private final Space space;
     private AtomsetIteratorPhaseDependent iterator;
     private final Space.CoordinatePair cPair;
     private final DataSourceUniform xDataSourceUniform;//local copy of xDataSource to avoid repeated casts

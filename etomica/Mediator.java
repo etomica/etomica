@@ -243,7 +243,7 @@ public class Mediator implements java.io.Serializable {
 		   * integrator.
 		   */
 		  public void add(Integrator integrator) {
-			  for(Iterator ip=mediator.parentSimulation().loggerList().iterator(); ip.hasNext(); ) {
+			  for(Iterator ip=mediator.parentSimulation().getLoggerList().iterator(); ip.hasNext(); ) {
 				  LoggerAbstract logger = (LoggerAbstract)ip.next();
 				  if(logger.getIntegrator() == null) { 
 					  logger.setIntegrator(integrator);

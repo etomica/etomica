@@ -71,8 +71,8 @@ public class ConfigurationFcc extends Configuration {
     etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new etomica.Space3D());
     Default.ATOM_SIZE = 6.6;
 //    Default.DISPLAY_USE_OPENGL = false;
-    etomica.Phase phase0  = new etomica.Phase();
-    phase0.setConfiguration(new ConfigurationFcc(sim));
+    etomica.Phase phase0  = new etomica.Phase(sim.space);
+    phase0.setConfiguration(new ConfigurationFcc(sim.space));
     etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
 //    etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
       speciesSpheres0.setNMolecules(32);

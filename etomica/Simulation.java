@@ -1,15 +1,10 @@
 package etomica;
 
 import etomica.log.LoggerAbstract;
-
-//Java2 imports
-//import java.util.HashMap;
-//import java.util.LinkedList;
-//import java.util.Iterator;
-
+import etomica.utility.NameMaker;
 import etomica.utility.java2.HashMap;
-import etomica.utility.java2.LinkedList;
 import etomica.utility.java2.Iterator;
+import etomica.utility.java2.LinkedList;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -26,7 +21,7 @@ import etomica.utility.java2.Iterator;
  * 04/18/03 (DAK) added LoggerList
  */
  
-public class Simulation extends SimulationElement {
+public class Simulation {
     
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
@@ -41,8 +36,7 @@ public class Simulation extends SimulationElement {
     protected HashMap elementLists = new HashMap(16);
     
     public final PotentialMaster potentialMaster;
-    
-    private static final LinkedList instances = new LinkedList();
+    public final Space space;
     
     /**
      * A static instance of a Simulation, for which the current value at any time is
@@ -64,15 +58,11 @@ public class Simulation extends SimulationElement {
     }
     
     public Simulation(Space space, PotentialMaster potentialMaster) {
-        super(space, instanceCount++, Simulation.class);
+        this.space = space;
         instance = this;
+        instanceCount++;
         instances.add(this);
-        setName("Simulation" + Integer.toString(instanceCount));
-        elementLists.put(Species.class, new LinkedList());
-        elementLists.put(Integrator.class, new LinkedList());
-        elementLists.put(Phase.class, new LinkedList());
-		elementLists.put(MeterAbstract.class, new LinkedList());
-		elementLists.put(LoggerAbstract.class, new LinkedList());
+        setName(NameMaker.makeName(this.getClass()));
         elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
         potentialMaster.setSimulation(this);
@@ -116,7 +106,7 @@ public class Simulation extends SimulationElement {
 		else return list.get(n);
 	}
 	
-	public final LinkedList loggerList() {return (LinkedList)elementLists.get(LoggerAbstract.class);}
+	public final LinkedList getLoggerList() {return loggerList;}
     public final LinkedList getAccumulatorManagerList() {return accumulatorManagerList;}
     public final LinkedList getPhaseList() {return phaseList;}
     public final LinkedList getMeterList() {return meterList;}
@@ -140,14 +130,6 @@ public class Simulation extends SimulationElement {
     	instances.remove(this);
     }
     
-    int register(SimulationElement element) {
-    	super.register(element);
-        LinkedList list = (LinkedList)elementLists.get(element.baseClass());
-        if(list == null || list.contains(element)) return -1;
-        list.add(element);
-        return list.size() - 1;
-    }//end of register method
-
     /**
      * Add the given accumulatorManger to a list kept by the simulation.
      * No other effect results from registering the accumulatorManager.  
@@ -176,11 +158,8 @@ public class Simulation extends SimulationElement {
         speciesList.add(species);
     }
     
-    public void unregister(SimulationElement element) {
-    	super.unregister(element);
-        LinkedList list = (LinkedList)elementLists.get(element.baseClass());
-        if(!list.contains(element)) return;
-        list.remove(element);
+    public void register(LoggerAbstract logger) {
+        loggerList.add(logger);
     }
     
     /**
@@ -209,6 +188,10 @@ public class Simulation extends SimulationElement {
         speciesList.remove(species);
     }
     
+    public void unregister(LoggerAbstract logger) {
+        loggerList.remove(logger);
+    }
+    
     public void resetIntegrators() {
         for(Iterator is=getIntegratorList().iterator(); is.hasNext(); ) {
             Integrator integrator = (Integrator)is.next();
@@ -224,6 +207,31 @@ public class Simulation extends SimulationElement {
 	public void setController(Controller controller) {
 		this.controller = controller;
 	}
+    
+    /**
+     * Accessor method of the name of this simulation.
+     * 
+     * @return The given name of this phase
+     */
+    public final String getName() {return name;}
+    /**
+     * Method to set the name of this simulation. The simulation's name
+     * provides a convenient way to label output data that is associated with
+     * it.  This method might be used, for example, to place a heading on a
+     * column of data. Default name is the base class followed by the integer
+     * index of this simulation.
+     * 
+     * @param name The name string to be associated with this element
+     */
+    public void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the phase
+     */
+    public String toString() {return getName();}
+    
     private static int instanceCount = 0;
     
 //    public static final java.util.Random random = new java.util.Random();
@@ -240,15 +248,15 @@ public class Simulation extends SimulationElement {
      public Simulation simulation() {return this;}
      
      public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
- 
-     private Controller controller;
-     
+     private static final LinkedList instances = new LinkedList();
+     private Controller controller;     
      private final LinkedList accumulatorManagerList = new LinkedList();
      private final LinkedList phaseList = new LinkedList();
+     private final LinkedList loggerList = new LinkedList();
      private final LinkedList meterList = new LinkedList();
      private final LinkedList integratorList = new LinkedList();
      private final LinkedList speciesList = new LinkedList();
-     
+     private String name;
      /**
      * Demonstrates how this class is implemented.
      */

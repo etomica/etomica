@@ -19,7 +19,7 @@ public final class SpeciesMaster extends Atom {
     private final PhaseEvent additionEvent = new PhaseEvent(this, PhaseEvent.ATOM_ADDED);
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
     public int index;
-    public /*final*/ AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
+    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     public final static int SPECIES_TAB = Tab.requestTabType();
     
     /**
@@ -27,9 +27,9 @@ public final class SpeciesMaster extends Atom {
      */
     public final AtomList atomList = new AtomList();
 
-    public SpeciesMaster(Phase p) {
-        super(p.simulation().space(), AtomType.NULL, new NodeFactory(p), 
-                p.simulation().potentialMaster.sequencerFactory(), null);//parent is null
+    public SpeciesMaster(Space space, Phase p) {
+        super(space, AtomType.NULL, new NodeFactory(p), 
+                AtomSequencerSimple.FACTORY, null);//parent is null
         index = p.index;
         node = (AtomTreeNodeGroup)super.node;
   //      ((MasterAtomTreeNode)node).speciesMaster = this;
@@ -84,7 +84,6 @@ public final class SpeciesMaster extends Atom {
         public SpeciesAgent parentSpeciesAgent() {
             throw new RuntimeException("Error:  Unexpected call to parentSpeciesAgent in SpeciesMaster");
         }
-        public Simulation parentSimulation() {return parentPhase.simulation();}
         /**
         * Returns null, because a species master is not contained within a molecule.
         */
@@ -161,13 +160,14 @@ public final class SpeciesMaster extends Atom {
         
         Simulation sim = new Simulation();
         Simulation.instance = sim;
-        Species species2 = new SpeciesSpheresMono();
-        Species species1 = new SpeciesSpheres(3,3);
-        Species species0 = new SpeciesSpheres(3,2);
+        AtomSequencer.Factory seqFactory = sim.potentialMaster.sequencerFactory();
+        Species species2 = new SpeciesSpheresMono(sim.space);
+        Species species1 = new SpeciesSpheres(sim.space,seqFactory,3,3);
+        Species species0 = new SpeciesSpheres(sim.space,seqFactory,3,2);
         species0.setNMolecules(4);
         species1.setNMolecules(2);
         species2.setNMolecules(2);
-        Phase phase = new Phase();
+        Phase phase = new Phase(sim.space);
         sim.elementCoordinator.go();
         
         AtomIteratorList listIterator = new AtomIteratorList();

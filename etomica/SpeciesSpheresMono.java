@@ -20,25 +20,35 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     private double mass;
     public AtomType.Sphere protoType;
+    
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Simulation sim) {
-        AtomFactoryMono f = new AtomFactoryMono(sim, sim.potentialMaster.sequencerFactory());
+    private static AtomFactoryMono makeFactory(Space space, 
+                                                AtomSequencer.Factory seqFactory) {
+        AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
         AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         return f;
     }
-        
-    public SpeciesSpheresMono() {
-        this(Simulation.instance);
-    }
-    public SpeciesSpheresMono(int n) {
-        this(Simulation.instance, n);
-    }
+    
+//    public SpeciesSpheresMono() {
+//        this(Simulation.getDefault());
+//    }
+    
     public SpeciesSpheresMono(Simulation sim) {
-        this(sim, Default.MOLECULE_COUNT);
+        this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT);
     }
-    public SpeciesSpheresMono(Simulation sim, int nM) {
-        super(sim, makeFactory(sim));
+        
+    /**
+     * Constructs instance with simple sequencer factory and default
+     * number of molecules given by Default.MOLECULE_COUNT. 
+     * @param space
+     */
+    public SpeciesSpheresMono(Space space) {
+        this(space, AtomSequencerSimple.FACTORY, Default.MOLECULE_COUNT);
+    }
+    
+    public SpeciesSpheresMono(Space space, AtomSequencer.Factory seqFactory, int nM) {
+        super(makeFactory(space, seqFactory));
         factory.setSpecies(this);
         protoType = (AtomType.Sphere)((AtomFactoryMono)factory).type();
         mass = protoType.getMass();
