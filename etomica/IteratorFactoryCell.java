@@ -218,7 +218,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     public Phase getPhase(BravaisLattice lattice) {
         if(lattice == null) return null;
         //check all phases that have been added to the simulation
-        for(Iterator ip=simulation.phaseList().iterator(); ip.hasNext(); ) {
+        for(Iterator ip=simulation.getPhaseList().iterator(); ip.hasNext(); ) {
             Phase phase = (Phase)ip.next();
             if(getLattice(phase) == lattice) return phase;
         }

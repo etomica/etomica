@@ -4,6 +4,8 @@
  */
 package etomica;
 
+import etomica.utility.NameMaker;
+
 /**
  * An Action that supports the capability of pausing/unpausing and terminating
  * on request.
@@ -15,6 +17,7 @@ public abstract class Activity implements Action {
 	 */
 	public Activity() {
 		setLabel("Activity");
+        setName(NameMaker.makeName(this.getClass()));
 	}
 
 	/**
@@ -141,6 +144,18 @@ public abstract class Activity implements Action {
 		this.label = label;
 	}
 
+    /**
+     * @return Returns the name.
+     */
+    public String getName() {
+        return name;
+    }
+    /**
+     * @param name The name to set.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 	private boolean isActive = false;
 
 	private boolean haltRequested = false;
@@ -150,5 +165,7 @@ public abstract class Activity implements Action {
 	private boolean isPaused = false;
 
 	private String label;
+    
+    private String name;
 
 }

@@ -47,6 +47,8 @@ public final class Default {
     
     public static final boolean FIX_OVERLAP = false;
     
+    public static boolean AUTO_REGISTER = true;
+    
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
      * atom hierarchy.  Maximum depth is given by the size of the array.  Each

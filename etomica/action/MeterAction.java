@@ -39,7 +39,7 @@ public abstract class MeterAction implements etomica.Action {
      */
     public MeterAction(Simulation sim) {
         super();
-        meterList = sim.meterList();
+        meterList = sim.getMeterList();
     }
         
     /**

@@ -3,9 +3,9 @@ package etomica;
 import java.util.Observable;
 import java.util.Observer;
 
-import etomica.action.PhaseInflate;
-import etomica.action.PhaseActionAdapter;
 import etomica.action.PhaseImposePbc;
+import etomica.action.PhaseInflate;
+import etomica.utility.NameMaker;
 
 //Java2 imports
 //import java.util.LinkedList;
@@ -58,7 +58,7 @@ import etomica.action.PhaseImposePbc;
   * 7/3/02  added reset method
   */
   
-public class Phase extends SimulationElement {
+public class Phase {
         
     private Space.Boundary boundary;
     private PhaseInflate inflater;
@@ -67,33 +67,58 @@ public class Phase extends SimulationElement {
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private static int nonSimCount = 0;//number of times instantiated without a parent simulation
     private PhaseImposePbc centralImageEnforcer;
-    
-    /**
-     * Constructs phase and registers as part of the current Simulation.instance.
-     */
-    public Phase() {
-        this(Simulation.instance);
-    }
+    private String name;
+    public final int index;
+    private static int instanceCount;
     
     /**
      * Constructs phase and registers it as part of the given simulation.
      */
-    public Phase(SimulationElement parent) {
-        super(parent, Phase.class);
-        
+    public Phase(Space space) {
+        index = instanceCount++;
         speciesMaster = new SpeciesMaster(this);
-                
+         
+        setName(NameMaker.makeName(this.getClass()));
         inflater = new PhaseInflate(this);
 
 //        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(space.makeBoundary());
 
         if(space.D() < 3) 
-            setConfiguration(new ConfigurationSequential(parent.simulation()));  //default configuration
+            setConfiguration(new ConfigurationSequential(space));  //default configuration
         else
-            setConfiguration(new ConfigurationFcc(parent.simulation()));
+            setConfiguration(new ConfigurationFcc(space));
+
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
     }//end of constructor
    
+
+    /**
+     * Accessor method of the name of this phase
+     * 
+     * @return The given name of this phase
+     */
+    public final String getName() {return name;}
+    /**
+     * Method to set the name of this simulation element. The element's name
+     * provides a convenient way to label output data that is associated with
+     * it.  This method might be used, for example, to place a heading on a
+     * column of data. Default name is the base class followed by the integer
+     * index of this element.
+     * 
+     * @param name The name string to be associated with this element
+     */
+    public void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the phase
+     */
+    public String toString() {return getName();}
+    
     /**
      * Mutator method for flag that enables or disables application of long-range
      * correction to truncated potentials.  Enabled by default.
@@ -245,7 +270,7 @@ public class Phase extends SimulationElement {
     
     public void setDensity(double rho) {
         double vNew = moleculeCount()/rho;
-        double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
+        double scale = Math.pow(vNew/boundary.volume(), 1.0/boundary.dimensions().D());
         inflater.setScale(scale);
         inflater.actionPerformed();
     }

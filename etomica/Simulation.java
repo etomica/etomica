@@ -116,13 +116,12 @@ public class Simulation extends SimulationElement {
 		else return list.get(n);
 	}
 	
-    public final LinkedList phaseList() {return (LinkedList)elementLists.get(Phase.class);}
-	public final LinkedList meterList() {return (LinkedList)elementLists.get(MeterAbstract.class);}
 	public final LinkedList loggerList() {return (LinkedList)elementLists.get(LoggerAbstract.class);}
-    public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
-    public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
-    public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
     public final LinkedList getAccumulatorManagerList() {return accumulatorManagerList;}
+    public final LinkedList getPhaseList() {return phaseList;}
+    public final LinkedList getMeterList() {return meterList;}
+    public final LinkedList getIntegratorList() {return integratorList;}
+    public final LinkedList getSpeciesList() {return speciesList;}
     
     public static Simulation getDefault() {
     	if(instance == null) instance = new Simulation(new Space2D());
@@ -159,8 +158,24 @@ public class Simulation extends SimulationElement {
      */
     public void register(AccumulatorManager accumulatorManager) {
      	accumulatorManagerList.add(accumulatorManager);
-     }
-     
+    }
+
+    public void register(Phase phase) {
+        phaseList.add(phase);
+    }
+    
+    public void register(MeterAbstract meter) {
+        meterList.add(meter);
+    }
+    
+    public void register(Integrator integrator) {
+        integratorList.add(integrator);
+    }
+    
+    public void register(Species species) {
+        speciesList.add(species);
+    }
+    
     public void unregister(SimulationElement element) {
     	super.unregister(element);
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
@@ -178,8 +193,24 @@ public class Simulation extends SimulationElement {
     	accumulatorManagerList.remove(accumulatorManager);
     }
      
+    public void unregister(Phase phase) {
+        phaseList.remove(phase);
+    }
+    
+    public void unregister(MeterAbstract meter) {
+        meterList.remove(meter);
+    }
+    
+    public void unregister(Integrator integrator) {
+        integratorList.remove(integrator);
+    }
+    
+    public void unregister(Species species) {
+        speciesList.remove(species);
+    }
+    
     public void resetIntegrators() {
-        for(Iterator is=integratorList().iterator(); is.hasNext(); ) {
+        for(Iterator is=getIntegratorList().iterator(); is.hasNext(); ) {
             Integrator integrator = (Integrator)is.next();
             integrator.reset();
         }
@@ -213,6 +244,10 @@ public class Simulation extends SimulationElement {
      private Controller controller;
      
      private final LinkedList accumulatorManagerList = new LinkedList();
+     private final LinkedList phaseList = new LinkedList();
+     private final LinkedList meterList = new LinkedList();
+     private final LinkedList integratorList = new LinkedList();
+     private final LinkedList speciesList = new LinkedList();
      
      /**
      * Demonstrates how this class is implemented.

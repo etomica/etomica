@@ -35,7 +35,10 @@ public abstract class Configuration implements java.io.Serializable {
         zero.E(0.0);
         dimensions = space.makeArrayD(Default.BOX_SIZE);
     }
-        //remove this constructor when possible   
+        //remove this constructor when possible
+    /**
+     * @deprecated
+     */
     public Configuration(Simulation sim) {
         simulation = sim;
         space = sim.space;

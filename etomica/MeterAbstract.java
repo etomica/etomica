@@ -3,6 +3,7 @@ package etomica;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.utility.IntegerRange;
+import etomica.utility.NameMaker;
 
 /**
  * Parent of classes that perform measurements on one or more phases.  
@@ -48,8 +49,12 @@ public abstract class MeterAbstract implements DataSource {
     private static final IntegerRange phaseCountRange = new IntegerRange(1,Integer.MAX_VALUE);
     
 	public MeterAbstract(int nDataPerPhase) {
+        setName(NameMaker.makeName(this.getClass()));
 	    this.nDataPerPhase = nDataPerPhase;
 	    phaseData = new double[nDataPerPhase];
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
 	}
 	    	
 	/**
@@ -95,13 +100,27 @@ public abstract class MeterAbstract implements DataSource {
 	public void setLabel(String s) {label = s;}
 
     /**
-     * Method to set the name of this object
+     * Method to set the name of this Meter
      * 
-     * @param name The name string to be associated with this object
+     * @param name The name string to be associated with this Meter
      */
     public void setName(String name) {
         this.name = name;
     }
+    /**
+     * Accessor method of the name of this Meter
+     * 
+     * @return The given name of this Meter
+     */
+    public final String getName() {return name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the Meter
+     */
+    public String toString() {return getName();}
+    
       
 	/**
 	 * Defined by the subclass to specify what property is measured by 

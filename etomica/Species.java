@@ -1,7 +1,7 @@
 package etomica;
+import etomica.chem.Model;
 import etomica.units.Dimension;
-import etomica.chem.*;
-import etomica.chem.models.*;
+import etomica.utility.NameMaker;
 //Java2 imports
 //import java.util.HashMap;
 //import java.util.Iterator;
@@ -58,26 +58,54 @@ import etomica.chem.models.*;
       * @see SpeciesAgent
       */
      
-public class Species extends SimulationElement {
+public class Species {
 
     public static final String VERSION = "Species:03.01.25";
     
     protected final AtomFactory factory;
     protected Model model;
+    private String name;
     
     /**
      * Constructs species and registers it as part of the given simulation, with
      * molecules built by the given atom factory.
      */
     public Species(Simulation sim, AtomFactory factory) {
-        super(sim, Species.class);
         this.factory = factory;
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
+        setName(NameMaker.makeName(this.getClass()));
     }
     
     public Species(Simulation sim, Model model) {
     	this(sim, model.makeAtomFactory(sim));
     }
                   
+    /**
+     * Accessor method of the name of this phase
+     * 
+     * @return The given name of this phase
+     */
+    public final String getName() {return name;}
+    /**
+     * Method to set the name of this simulation element. The element's name
+     * provides a convenient way to label output data that is associated with
+     * it.  This method might be used, for example, to place a heading on a
+     * column of data. Default name is the base class followed by the integer
+     * index of this element.
+     * 
+     * @param name The name string to be associated with this element
+     */
+    public void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the phase
+     */
+    public String toString() {return getName();}
+    
     public AtomFactory moleculeFactory() {return factory;}
     
     /**

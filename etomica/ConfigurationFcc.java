@@ -5,8 +5,8 @@ public class ConfigurationFcc extends Configuration {
     
     LatticeCubicFcc fcc;
     
-    public ConfigurationFcc(Simulation sim) {
-        super(sim);
+    public ConfigurationFcc(Space space) {
+        super(space);
     }
     
     public double latticeConstant() {

@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.utility.NameMaker;
+
 /**
  * Superclass for all Potential classes, which define how the atoms in the
  * system interact with each other.
@@ -21,12 +23,14 @@ public abstract class Potential {
 	private Potential0Lrc p0Lrc;
 	protected final Space space;
 	PotentialGroup parentGroup;
+    private String name;
 
 	/**
 	 * Constructor for use only by PotentialMaster subclass.
 	 * @param sim Simulation instance in which potential is used.
 	 */
 	Potential(Simulation sim) {
+        setName(NameMaker.makeName(this.getClass()));
 		space = sim.space;
 		nBody = 0;
 		potentialTruncation = PotentialTruncation.NULL;
@@ -103,5 +107,17 @@ public abstract class Potential {
 		this.p0Lrc = p0Lrc;
 	}
 
+    /**
+     * @return Returns the name.
+     */
+    public String getName() {
+        return name;
+    }
+    /**
+     * @param name The name to set.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 }//end of Potential
 

@@ -27,8 +27,8 @@ public final class SimulationRestart extends SimulationActionAdapter {
         
     public void actionPerformed() {
         
-        for(Iterator iter=simulation.integratorList().iterator(); iter.hasNext(); ) {
-            Integrator integrator = (Integrator)iter.next();
+        for (Iterator iter = simulation.getIntegratorList().iterator(); iter.hasNext();) {
+            Integrator integrator = (Integrator) iter.next();
             integrator.halt();//request integrator to stop
             integrator.join();//wait till it does
         }
@@ -50,7 +50,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             controller.reset();
         }
  */       
-        for(Iterator iter=simulation.meterList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation.getMeterList().iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             //take care that histxxx is reset but restored to prior OnMeterReset condition
             boolean resetHistory = meter.isResetHistoryOnMeterReset();

@@ -20,8 +20,8 @@ public class ConfigurationSequential extends Configuration {
 	private Space.Vector dimensions;
 	private boolean squareConfig;
     
-	public ConfigurationSequential(Simulation sim) {
-		super(sim);
+	public ConfigurationSequential(Space space) {
+		super(space);
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
 		dimensions = space.makeVector();

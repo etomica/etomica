@@ -1,7 +1,10 @@
 package etomica;
 
-import java.util.*;
-import etomica.units.*;
+import java.util.EventObject;
+import java.util.Vector;
+
+import etomica.units.Dimension;
+import etomica.utility.NameMaker;
 
 /**
  * Integrator is used to define the algorithm used to move the atoms around and
@@ -50,13 +53,44 @@ public abstract class Integrator implements java.io.Serializable {
 	protected double temperature = Default.TEMPERATURE;
 
 	protected boolean isothermal = false;
+    
+    private String name;
 
 	public Integrator(PotentialMaster potentialMaster) {
+        setName(NameMaker.makeName(this.getClass()));
 		phase = new Phase[phaseCountMax];
 		this.potential = potentialMaster;
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
 	}
 
-	/**
+
+    /**
+     * Accessor method of the name of this phase
+     * 
+     * @return The given name of this phase
+     */
+    public final String getName() {return name;}
+    /**
+     * Method to set the name of this simulation element. The element's name
+     * provides a convenient way to label output data that is associated with
+     * it.  This method might be used, for example, to place a heading on a
+     * column of data. Default name is the base class followed by the integer
+     * index of this element.
+     * 
+     * @param name The name string to be associated with this element
+     */
+    public void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the phase
+     */
+    public String toString() {return getName();}
+
+    /**
 	 * Performs the elementary integration step, such as a molecular dynamics
 	 * time step, or a Monte Carlo trial.
 	 */

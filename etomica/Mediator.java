@@ -135,13 +135,13 @@ public class Mediator implements java.io.Serializable {
         public static class Default extends PhaseSpecies {
             public Default(Mediator m) {super(m);}
             public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().speciesList().iterator(); is.hasNext(); ) {
+                for(Iterator is=mediator.parentSimulation().getSpeciesList().iterator(); is.hasNext(); ) {
                     Species species = (Species)is.next();
                     if(species.wasAdded()) phase.speciesMaster.addSpecies(species);
                 }
             }
             public void add(Species species) {
-                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getPhaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded()) phase.speciesMaster.addSpecies(species);
                 }
@@ -230,7 +230,7 @@ public class Mediator implements java.io.Serializable {
 		   * finds
 		   */ 
 		  public void add(LoggerAbstract logger) {
-			  for(Iterator is=mediator.parentSimulation().integratorList().iterator(); is.hasNext(); ) {
+			  for(Iterator is=mediator.parentSimulation().getIntegratorList().iterator(); is.hasNext(); ) {
 				  Integrator integrator = (Integrator)is.next();
 				  if(logger.getIntegrator()==null) {
 					  logger.setIntegrator(integrator);
@@ -274,7 +274,7 @@ public class Mediator implements java.io.Serializable {
              * Loops over all integrators and adds phase to first that wants a phase
              */
             public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().integratorList().iterator(); is.hasNext(); ) {
+                for(Iterator is=mediator.parentSimulation().getIntegratorList().iterator(); is.hasNext(); ) {
                     Integrator integrator = (Integrator)is.next();
                     if(integrator.wasAdded() && integrator.wantsPhase() && phase.integrator()==null) {
                         phase.setIntegrator(integrator);
@@ -289,7 +289,7 @@ public class Mediator implements java.io.Serializable {
              * Sets this as the integrator for all phases that have no integrator.
              */
             public void add(Integrator integrator) {
-                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getPhaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded() && integrator.wantsPhase() && phase.integrator() == null) { 
                         phase.setIntegrator(integrator);
@@ -310,7 +310,7 @@ public class Mediator implements java.io.Serializable {
              * Loops over all integrators and adds phase to first that wants a phase
              */
             public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().integratorList().iterator(); is.hasNext(); ) {
+                for(Iterator is=mediator.parentSimulation().getIntegratorList().iterator(); is.hasNext(); ) {
                     Integrator integrator = (Integrator)is.next();
                     if(integrator.wasAdded() && integrator.wantsPhase() && phase.integrator()==null) {
                         phase.setIntegrator(integrator);
@@ -322,7 +322,7 @@ public class Mediator implements java.io.Serializable {
              * Sets this as the integrator for all phases that have no integrator.
              */
             public void add(Integrator integrator) {
-                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getPhaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded() && integrator.wantsPhase() && phase.integrator() == null) { 
                         phase.setIntegrator(integrator);
@@ -362,7 +362,7 @@ public class Mediator implements java.io.Serializable {
              * it to be the phase of all subsequently added meters, until another phase is added.
              */
             public void add(Phase phase) {
-                for(Iterator ip=mediator.parentSimulation().meterList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getMeterList().iterator(); ip.hasNext(); ) {
                     MeterAbstract meter = (MeterAbstract)ip.next();
 //                    if(meter.wasAdded() && meter.getPhase() == null) meter.setPhase(phase);
                 }
