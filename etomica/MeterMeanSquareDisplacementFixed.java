@@ -32,6 +32,7 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
     private Space.Vector[] rLast;
     private Space.Vector rAccum;
     private int iPtr;
+    private double timeStep;
     
     public MeterMeanSquareDisplacementFixed() {
         this(Simulation.instance);
@@ -46,6 +47,8 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
         setUpdateInterval(1);
         rAccum = sim.space.makeVector();
         setActive(true);
+        setXLabel("time");
+        setXMin(0.0);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -56,6 +59,24 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
     public etomica.units.Dimension getXDimension() {return etomica.units.Dimension.TIME;}
 
     public Unit defaultIOUnit() {return new Unit(Count.UNIT);}
+    
+    public void setPhaseIntegrator(Integrator integrator) {
+        super.setPhaseIntegrator(integrator);
+        timeStep = ((IntegratorMD)integrator).getTimeStep();
+        setXMax(nPoints*timeStep);
+    }
+    
+    /**
+     * Override to check that integrator's time step has not changed.
+     * If so, x values must be updated first.
+     */
+    public double[] xValues() {
+        if(integrator != null && ((IntegratorMD)integrator).getTimeStep() != timeStep) {
+            timeStep = ((IntegratorMD)integrator).getTimeStep();
+            setXMax(nPoints*timeStep);
+        }
+        return super.xValues();
+    }
     
     /**
      * Overrides superclass method so that updateInterval is always 1.
