@@ -4,6 +4,7 @@ import etomica.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.space2d.Vector2D;
 
 /*
  * History
@@ -21,15 +22,14 @@ public final class Vector3D extends Vector {
         public double x(int i) {return((i==0) ? x : (i==1) ? y : z);}
         public double[] toArray() {return new double[] {x, y, z};}
         public void assignTo(double[] array) {array[0] = x; array[1] = y; array[2] = z;}
-        public boolean equals(Vector v) {return equals((Vector3D)v);}
-        public boolean equals(Vector3D v) {return (x == v.x) && (y == v.y) && (z == v.z);}
+        public boolean equals(Vector v) {return (x == ((Vector3D)v).x) && (y == ((Vector3D)v).y) && (z == ((Vector3D)v).z);}
 		public boolean isZero() {return (x == 0.0) && (y == 0.0) && (z == 0);}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y + z*z);
             result[1] = Math.acos(z/result[0]); //theta
             result[2] = Math.atan2(x, y);  //phi
         }
-        public void E(Vector3D u) {x = u.x; y = u.y; z = u.z;}
+        public void E(Vector u) {x = ((Vector3D)u).x; y = ((Vector3D)u).y; z = ((Vector3D)u).z;}
         public void E(double a) {x = a; y = a; z = a;}
         public void E(double a, double b, double c) {x = a; y = b; z = c;}
         public void E(double[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
@@ -41,15 +41,15 @@ public final class Vector3D extends Vector {
             y = ((Vector3D)v1).y + a1*((Vector3D)v2).y; 
             z = ((Vector3D)v1).z + a1*((Vector3D)v2).z; 
         }
-        public void PE(Vector3D u) {x += u.x; y += u.y; z += u.z;}
+        public void PE(Vector u) {x += ((Vector3D)u).x; y += ((Vector3D)u).y; z += ((Vector3D)u).z;}
         public void PE(double a) {x += a; y += a; z += a;}
-        public void ME(Vector3D u) {x -= u.x; y -= u.y; z -= u.z;}
+        public void ME(Vector u) {x -= ((Vector3D)u).x; y -= ((Vector3D)u).y; z -= ((Vector3D)u).z;}
         public void PE(int i, double a) {if (i==0) x+=a; else if (i==1) y+=a; else z+=a;}
         public void TE(double a) {x *= a; y *= a; z *= a;}
         public void TE(int i, double a) {if (i==0) x*=a; else if (i==1) y*=a; else z*=a;}
-        public void TE(Vector3D u) {x *= u.x; y *= u.y; z *= u.z;}
+        public void TE(Vector u) {x *= ((Vector3D)u).x; y *= ((Vector3D)u).y; z *= ((Vector3D)u).z;}
         public void DE(double a) {x /= a; y /= a; z /= a;}
-        public void DE(Vector3D u) {x /= u.x; y /= u.y ; z /= u.z;}
+        public void DE(Vector u) {x /= ((Vector3D)u).x; y /= ((Vector3D)u).y ; z /= ((Vector3D)u).z;}
         public void Ev1Pv2(Vector u1, Vector u2) {
             x = ((Vector3D)u1).x + ((Vector3D)u2).x;
             y = ((Vector3D)u1).y + ((Vector3D)u2).y;
@@ -154,12 +154,12 @@ public final class Vector3D extends Vector {
 			double dz = z-((Vector3D)u).z;
 			return dx*dx + dy*dy + dz*dz;
 		}
-        public double dot(Vector3D u) {return x*u.x + y*u.y + z*u.z;}
-        public void transform(etomica.space.Tensor A) {transform((Tensor3D)A);}
-        public void transform(Tensor3D A) {
-            double x1 = A.xx*x + A.xy*y + A.xz*z; 
-            double y1 = A.yx*x + A.yy*y + A.yz*z;
-                    z = A.zx*x + A.zy*y + A.zz*z;
+        public double dot(Vector u) {return x*((Vector3D)u).x + y*((Vector3D)u).y + z*((Vector3D)u).z;}
+        public void transform(Tensor A) {
+            Tensor3D A3D = (Tensor3D)A;
+            double x1 = A3D.xx*x + A3D.xy*y + A3D.xz*z; 
+            double y1 = A3D.yx*x + A3D.yy*y + A3D.yz*z;
+                    z = A3D.zx*x + A3D.zy*y + A3D.zz*z;
                     x=x1; 
                     y=y1;
         }
@@ -250,13 +250,7 @@ public final class Vector3D extends Vector {
             x *= r; y *= r; z*=r;
         }
         
-        public void E(Vector u) {E((Vector3D) u);}
-        public void PE(Vector u) {PE((Vector3D) u);}
-        public void TE(Vector u) {TE((Vector3D) u);}
-        public void ME(Vector u) {ME((Vector3D) u);}
-        public void DE(Vector u) {DE((Vector3D) u);}
-        public double dot(Vector u) {return dot((Vector3D)u);}
-        public Vector3D cross(etomica.space2d.Vector2D u) {//does 3d cross-product taking u.z = 0
+        public Vector3D cross(Vector2D u) {//does 3d cross-product taking u.z = 0
         	Vector3D work = new Vector3D(this);
         	work.x = -z*u.x(1);
             work.y = z*u.x(0);
