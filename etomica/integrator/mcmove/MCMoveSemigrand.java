@@ -59,9 +59,8 @@ public class MCMoveSemigrand extends MCMove {
         setTunable(false);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
-        atomPositionDefinition = new DataSourceCOM(potentialMaster.getSpace());
         moleculeTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
-        
+        setAtomPositionDefinition(new DataSourceCOM(potentialMaster.getSpace()));
     }
     
     /**
@@ -210,13 +209,13 @@ public class MCMoveSemigrand extends MCMove {
     /**
      * @return Returns the positionDefinition.
      */
-    public AtomPositionDefinition getPositionDefinition() {
+    public AtomPositionDefinition geAtomPositionDefinition() {
         return atomPositionDefinition;
     }
     /**
      * @param positionDefinition The positionDefinition to set.
      */
-    public void setPositionDefinition(AtomPositionDefinition positionDefinition) {
+    public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
         this.atomPositionDefinition = positionDefinition;
         moleculeTranslator.setAtomPositionDefinition(positionDefinition);
     }

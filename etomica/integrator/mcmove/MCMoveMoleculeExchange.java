@@ -8,9 +8,14 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesAgent;
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.space.Vector;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one phase to another.
@@ -29,7 +34,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private final double ROOT;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-
+    private final AtomActionTranslateTo moleculeTranslator;
+    private final AtomActionTranslateBy moleculeReplacer;
+    private final Vector translationVector;
+    
     private transient Atom molecule;
     private transient Phase iPhase, dPhase;
     private transient SpeciesAgent iSpecies, dSpecies;
@@ -43,6 +51,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
         setTunable(false);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
+        moleculeReplacer = new AtomActionTranslateBy(space);
+        moleculeTranslator = new AtomActionTranslateTo(space);
+        translationVector = moleculeTranslator.getTranslationVector();
+        setAtomPositionDefinition(new DataSourceCOM(space));
     }
     
     public void setPhase(Phase[] p) {
@@ -74,7 +86,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar(dPhase);
 
-        molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
+        moleculeTranslator.setDestination(iPhase.randomPosition());         //place at random in insertion phase
+        moleculeTranslator.actionPerformed(molecule);
         molecule.node.setParent(iSpecies);
         uNew = Double.NaN;
         return true;
@@ -96,7 +109,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
     public void acceptNotify() {  /* do nothing */}
     
     public void rejectNotify() {
-        molecule.coord.replace();
+        translationVector.TE(-1);
+        moleculeReplacer.setTranslationVector(translationVector);
+        moleculeReplacer.actionPerformed(molecule);
         molecule.node.setParent(dSpecies);
     }
 
@@ -113,4 +128,18 @@ public final class MCMoveMoleculeExchange extends MCMove {
         else return 0.0;
     }
 
+    
+    /**
+     * @return Returns the atomPositionDefinition.
+     */
+    public AtomPositionDefinition getAtomPositionDefinition() {
+        return moleculeTranslator.getAtomPositionDefinition();
+    }
+    /**
+     * @param atomPositionDefinition The atomPositionDefinition to set.
+     */
+    public void setAtomPositionDefinition(
+            AtomPositionDefinition atomPositionDefinition) {
+        moleculeTranslator.setAtomPositionDefinition(atomPositionDefinition);
+    }
 }//end of MCMoveMoleculeExchange
