@@ -8,6 +8,7 @@ import etomica.Controller;
 import etomica.Simulation;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationRestart;
+import etomica.simulations.HSMD2D;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 
@@ -19,7 +20,6 @@ import etomica.action.SimulationRestart;
  
  /* History of changes.
   * 07/03/02 Created
-  * 01/04/03 Added methods to access buttons
   */
 public class DeviceTrioControllerButton extends Device {
     
@@ -154,28 +154,19 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * main method to show how to work with this class 
      */        
-//     public static void main(String[] args) {
-//        
-//        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
-//
-//        Phase phase0  = new Phase();
-//            phase0.setLrcEnabled(false);
-//        IntegratorHard integrator = new IntegratorHard();    
-//        P2SquareWell p2Squarewell0  = new P2SquareWell();
-//        SpeciesSpheresMono speciesSpheres0  = new SpeciesSpheresMono();
-//        DisplayPhase displayPhase0  = new DisplayPhase();
-//        MeterTemperature meterEnergy = new MeterTemperature();
-//        DisplayTable table = new DisplayTable();
-//            table.setWhichValues(new AccumulatorAverage.Type[] {AccumulatorAverage.MOST_RECENT, AccumulatorAverage.AVERAGE});
-//
-//        DeviceTrioControllerButton button = new DeviceTrioControllerButton();
-//            button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
-////        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
-////          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
-//        
-//        Simulation.instance.elementCoordinator.go();
-//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-//    }
+     public static void main(String[] args) {
+        
+        HSMD2D sim = new HSMD2D(); 
+
+        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
+            button.setShape("HORIZONTAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
+//        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
+//          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
+        
+        SimulationGraphic graphic = new SimulationGraphic(sim);
+        graphic.add(button);
+        graphic.makeAndDisplayFrame();
+    }
     
        
 }//end DeviceTrioControllerButton
