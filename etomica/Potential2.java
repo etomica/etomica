@@ -5,8 +5,8 @@ import java.awt.Graphics;
 public abstract class Potential2 extends Component {
 
   int species1Index, species2Index;
-  Potential[][] potential;
-  int nAtoms1, nAtoms2;
+  public Potential[][] potential;
+  public int nAtoms1, nAtoms2;
   double skinThickness, potentialCutoff, neighborRadius, squareNeighborRadius;
 
   public Potential2() {

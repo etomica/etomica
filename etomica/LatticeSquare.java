@@ -30,6 +30,7 @@ public class LatticeSquare extends Lattice {
             }
         }
         origin = sites[0][0];
+        setNeighborIndexCutoff(0.02);
     }
     
     public final void clearOccupants() {
@@ -154,7 +155,7 @@ public class LatticeSquare extends Lattice {
 //        protected void setW(Site k) {super.setW(k); vertices[3]=((Cell)k).vertices[0]; vertices[2]=((Cell)k).vertices[1];}
 //        protected void setS(Site k) {super.setS(k); vertices[3]=((Cell)k).vertices[2]; vertices[0]=((Cell)k).vertices[1];}
  
-        public boolean inCell(Atom a) {
+        public boolean inCell(Atom a) {  //change this to take occupant or coordinate as argument
             double x = a.coordinate.position().component(0);
             double y = a.coordinate.position().component(1);
             return 0.99999*vertices[2][0] <= x && x <= 1.000001*vertices[0][0] && 0.99999*vertices[2][1] <= y && y <= 1.00001*vertices[0][1];

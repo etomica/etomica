@@ -2,15 +2,11 @@ package simulate;
 import java.awt.Graphics;
 import java.util.Random;
 
-//need to rewrite to put neighborCells inside phase
-
 public class Space2DCell extends Space2D implements Space.NeighborIterator {
     
     public Iterator makeIterator(Phase p) {return new NeighborIterator(p);}
 
     public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
-//    public Space.CoordinatePair makeCoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary boundary) {return new CoordinatePair(c1, c2, (Boundary)boundary);}
-//    public Space.CoordinatePair makeCoordinatePair(Space.Boundary boundary) {return new CoordinatePair((Boundary)boundary);}
 
     public Space.Vector makeVector() {return new Vector();}
     public Potential makePotential() {return new CellPotential();}
@@ -25,7 +21,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
     public static class Vector extends Space2D.Vector {
     }
     
-    private class Coordinate extends Space2D.Coordinate implements Lattice.Occupant {
+    public class Coordinate extends Space2D.Coordinate implements Lattice.Occupant {
         Coordinate nextNeighbor, previousNeighbor;
         public LatticeSquare.Site cell;        //ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
         public Coordinate(Space.Occupant o) {super(o);}
@@ -75,7 +71,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 5;
+            xCells = yCells = 10;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
         

@@ -122,23 +122,30 @@ public class Atom implements Space.Occupant {
     * Assigned in Atom constructor.
     * @see Molecule#makeAtoms
     */
-    final Molecule parentMolecule;
+//    final Molecule parentMolecule;
+     Molecule parentMolecule;
         
     /**
     * Identifier of atom within molecule.
     * Assigned by parent molecule when invoking Atom constructor.
     * @see Molecule#makeAtoms
     */
-    final int atomIndex;
+//    final int atomIndex;
+     int atomIndex;
     
     private Atom nextAtom, previousAtom;
         
-    public final Space.Coordinate coordinate;
-    public final Space.Vector r, p;  //position, momentum
+    public  Space.Coordinate coordinate;
+    public  Space.Vector r, p;  //position, momentum
         
-    public final AtomType type;
+    public  AtomType type;
+//    public final Space.Coordinate coordinate;
+//    public final Space.Vector r, p;  //position, momentum
         
-    public final Space.Vector workVector, rLast, velocity;
+//    public final AtomType type;
+        
+//    public final Space.Vector workVector, rLast, velocity;
+    public  Space.Vector workVector, rLast, velocity;
         
     public interface Iterator {        
         public boolean hasNext();

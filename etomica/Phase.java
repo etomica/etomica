@@ -8,15 +8,16 @@ public class Phase extends Container {
     private int iBoundary;
         
     public Phase() {
+    }
+    
+    public void initialize(Simulation ps) {
         iBoundary = 1;
         setLayout(null);
         setSize(300,300);
         atomCount = moleculeCount = 0;
         gravity = new Gravity(0.0);
         noGravity = true;
-    }
-    
-    public void initialize(Simulation ps) {
+
         parentSimulation = ps;
         if(ps.space() instanceof Space.NeighborIterator) {
             iterator = ((Space.NeighborIterator)ps.space()).makeIterator(this);

@@ -230,15 +230,22 @@ public class Molecule implements Space.Occupant, Serializable {
  /**
   * Center-of-mass (COM) coordinate
   */
-  public final Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
-  public final Space.Vector r;
-  public final Space.Vector p;
+//  public final Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
+//  public final Space.Vector r;
+//  public final Space.Vector p;
   
-  public final Atom.Iterator atomIterator;
+//  public final Atom.Iterator atomIterator;
+  public  Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
+  public  Space.Vector r;
+  public  Space.Vector p;
+  
+  public  Atom.Iterator atomIterator;
   
 //-------------------------------------------------------------------------
 
-        protected final Space.Vector temp;
+//        protected final Space.Vector temp;
+        protected  Space.Vector temp;
+        
         public void updateR() {  //recomputes COM position from atom positions
             if(nAtoms==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
             else {  //multiatomic

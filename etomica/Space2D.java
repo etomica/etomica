@@ -19,7 +19,7 @@ public class Space2D extends Space {
         }
     }
         
-    public static class Vector implements Space.Vector {  //declared final for efficient method calls
+    public static class Vector extends Space.Vector {  //declared final for efficient method calls
         public static final Random random = new Random();
         public static final Vector ORIGIN = new Vector(0.0,0.0);
         double x, y;
@@ -125,24 +125,8 @@ public class Space2D extends Space {
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
         public Space.Vector makeVector() {return new Vector();}
-        
-/*        Coordinate nextNeighbor, previousNeighbor;
-        public final void setNextNeighbor(Space.Coordinate c) {
-            nextNeighbor = (Coordinate)c;
-            if(c != null) {((Coordinate)c).previousNeighbor = this;}
-        }
-        public final void clearPreviousNeighbor() {previousNeighbor = null;}
-        public final Space.Coordinate nextNeighbor() {return nextNeighbor;}
-        public final Space.Coordinate previousNeighbor() {return previousNeighbor;}
-//        public final void assignCell() {}
-*/
         public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
     } 
-    
-    static class Link {
-        public Link next;
-        public Coordinate coordinate;
-    }
     
     public interface Boundary extends Space.Boundary {
         public static final int NONE = 0;

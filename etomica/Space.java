@@ -10,6 +10,10 @@ public abstract class Space {
     public abstract CoordinatePair makeCoordinatePair(Boundary b);
     public abstract Boundary makeBoundary(int iBoundary);
 
+    /**
+     * Something that occupies a Space, and therefore has a coordinate
+     * Usually an Atom or a Molecule
+     */
     interface Occupant {
         public Coordinate coordinate();
         public Phase parentPhase();
@@ -18,29 +22,29 @@ public abstract class Space {
     }
     
 //  Vector contains what is needed to describe a point in the space
-    interface Vector {    //probably want this to be an abstract class
-        public double component(int i);
-        public void setComponent(int i, double d);
-        public void E(Vector u);
-        public void E(double a);
-        public void PE(Vector u);
-        public void ME(Vector u);
-        public void TE(Vector u);
-        public void DE(Vector u);
-        public void TE(double a);
-        public void DE(double a);
-        public void Ea1Tv1(double a, Vector u);
-        public double squared();
-        public double dot(Vector u);
-        public void setRandom(double d);
-        public void PEa1Tv1(double a, Vector u);
-        public void setRandomSphere();  //random point in unit sphere
-        public void setRandomCube(); //random point in a unit cube
+    public static abstract class Vector {    //probably want this to be an abstract class
+        public abstract double component(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)
+        public abstract void setComponent(int i, double d);   //sets ith component of vector to d
+        public abstract void E(Vector u);                     //sets each element of the vector equal to the elements of the vector u
+        public abstract void E(double a);                     //sets all components of the vector equal to the constant a
+        public abstract void PE(Vector u);                    //adds (PE is +=) the vector u to this vector
+        public abstract void ME(Vector u);                    //subtracts (-=)
+        public abstract void TE(Vector u);                    //multiplies (*=) component-by-component
+        public abstract void DE(Vector u);                    //divide (/=) component-by-component
+        public abstract void TE(double a);                    //multipies all components by the constant a
+        public abstract void DE(double a);                    //divides all components by a
+        public abstract void Ea1Tv1(double a, Vector u);      //sets this vector to a*u
+        public abstract void PEa1Tv1(double a, Vector u);     //adds a*u to this vector
+        public abstract double squared();                     //square-magnitude of vector (e.g., x^2 + y^2)
+        public abstract double dot(Vector u);                 //dot product of this vector with the vector u
+        public abstract void setRandom(double d);             //
+        public abstract void setRandomSphere();               //random point in unit sphere
+        public abstract void setRandomCube();                 //random point in a unit cube
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     public static abstract class Coordinate {
-        protected final Space.Occupant parent;        
+        protected final Space.Occupant parent;        //parent is the "Space-occupant" that has this as its coordinate        
         Coordinate(Occupant p) {parent = p;}          //constructor
         public final Space.Occupant parent() {return parent;}
         public final Phase parentPhase() {return parent.parentPhase();}
@@ -51,59 +55,6 @@ public abstract class Space {
         public abstract double momentum(int i);
         public abstract double kineticEnergy(double mass);
         public void scaleMomentum(double scale) {momentum().TE(scale);}
-/*        public void setNextCoordinate(Coordinate c);
-        public void clearPreviousCoordinate();
-        
-        public void translateTo(Vector r);
-        public void translateToward(Vector e, double amount);
-        public void translateBy(Vector dr);
-        public void displaceTo(Vector r);
-//        public void displaceBy(Vector dr);
-        public void displaceWithin(double d);
-        public void displaceToRandom(Phase p);
-        public void translateToRandom(Phase p);
-        public void randomizeMomentum(double temperature);
-        public void replace();
-        public void inflate(double s);
-        public double kineticEnergy();
-        public Vector position();
-        public Vector momentum();
-
-atomCoordinate methods
-        public void translateTo(Vector r);
-        public void translateToward(Vector e, double amount);
-        public void translateBy(Vector dr);
-        public void displaceTo(Vector r);
-        public void displaceBy(Vector dr);
-        public void displaceWithin(double d);
-        public void displaceToRandom(Phase p);
-        public void translateToRandom(Phase p);
-        public void randomizeMomentum(double temperature);
-        public void replace();
-        public void inflate(double s);
-        public double kineticEnergy();
-        public Vector position();
-        public Vector momentum();
-        public double position(int i);
-        public double momentum(int i);
- 
-        public Atom nextAtom();
-        public Atom previousAtom();
-        public Atom atom();
-        public AtomCoordinate nextCoordinate();
-        public AtomCoordinate previousCoordinate();
-        public void scaleMomentum(double scale);
-        public void accelerate(Vector dv);
-        public void accelerateToward(Vector e, double amount);
-        public Vector velocity();
-        public void setNextCoordinate(AtomCoordinate c);
-        public void clearPreviousCoordinate();
-        public void setNextNeighbor(Space.AtomCoordinate c);
-        public void clearPreviousNeighbor();
-        public Space.AtomCoordinate nextNeighbor();
-        public Space.AtomCoordinate previousNeighbor();
-        public void assignCell();
-        */
     }
     
     public static abstract class CoordinatePair {
@@ -152,18 +103,6 @@ atomCoordinate methods
         public abstract double[][] imageOrigins(int nShells);
     }
     
-    // No-op version of boundary for manipulation at design time
-    // Used by Phase.Virtual
-//    public static class VirtualBoundary implements Boundary {
-//        public void centralImage(Vector r) {}
-//        public double volume() {return 0.0;}
-//        public Vector dimensions() {return null;}
-//        public Vector randomPosition() {return null;}
-//       public double[][] getOverflowShifts(Vector r, double distance) {return null;}
-//        public void inflate(double s) {}
-//        public  double[][] imageOrigins(int nShells) {return null;}
-//    }
-
     public Potential makePotential() {return new PotentialIdealGas();}  //default  
     
     
