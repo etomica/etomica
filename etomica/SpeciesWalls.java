@@ -1,7 +1,8 @@
 //This class includes a main method to demonstrate its use
 package etomica;
 import etomica.action.AtomActionAdapter;
-import etomica.units.*;
+import etomica.action.AtomsetAction;
+import etomica.units.Dimension;
 
 /* History
  * 08/12/03 (DAK) use sim instead of space in AtomFactoryMono constructor
@@ -18,14 +19,14 @@ public class SpeciesWalls extends Species implements EtomicaElement {
  */
     public AtomTypeWall[] protoType;
 
-    private static AtomFactoryHetero makeFactory(Simulation sim, int nA) {
+    private static AtomFactoryHetero makeFactory(Space space, int nA, AtomSequencerFactory sequencerFactory) {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
-            f[i] = new AtomFactoryMono(sim, sim.iteratorFactory.neighborSequencerFactory());
+            f[i] = new AtomFactoryMono(space, sequencerFactory);
             AtomType type = new AtomTypeWall(f[i], Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
             f[i].setType(type);
         }
-        AtomFactoryHetero fm = new AtomFactoryHetero(sim, f);
+        AtomFactoryHetero fm = new AtomFactoryHetero(space, sequencerFactory, f);
         return fm;
     }
         
@@ -33,27 +34,27 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     * Default constructor.  Creates species containing 1 molecule with 1 horizontal wall atom.
     */
     public SpeciesWalls() {
-        this(Simulation.instance);
+        this(Simulation.getDefault().space);
     }
     public SpeciesWalls(int n) {
-        this(Simulation.instance, n);
+        this(Simulation.getDefault().space, n);
     }
-    public SpeciesWalls(Simulation sim) {
-        this(sim, 1);
+    public SpeciesWalls(Space space) {
+        this(space, 1);
     }
-    public SpeciesWalls(Simulation sim, int n) {
-        this(sim, n, 1);
+    public SpeciesWalls(Space space, int n) {
+        this(space, n, 1);
     }
     public SpeciesWalls(int nM, int nA) {
-        this(Simulation.instance, nM, nA);
+        this(Simulation.getDefault().space, nM, nA);
     }
 
-    public SpeciesWalls(Simulation sim, int nM, int nA) {
-        this(sim, nM, nA, Double.MAX_VALUE, 0, 0, 0);
+    public SpeciesWalls(Space space, int nM, int nA) {
+        this(space, nM, nA, Double.MAX_VALUE, 0, 0, 0);
     }
     
-    public SpeciesWalls(Simulation sim, int nM, int nA, double length, int xAngle, int yAngle, int zAngle) {  //angle is in radians
-        super(sim, makeFactory(sim, nA));
+    public SpeciesWalls(Space space, int nM, int nA, double length, int xAngle, int yAngle, int zAngle) {  //angle is in radians
+        super(makeFactory(space, nA, AtomSequencerFactory.SIMPLE));
         factory.setSpecies(this);
         //get a handle to the factories used to make the walls and create an array (protoType)
         //of handles to the types attached to each
@@ -69,7 +70,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
            type.setZAngle(zAngle);
            protoType[i] = type;
         }
-        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(sim));
+        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(space));
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -90,12 +91,16 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     public double getMass() {return mass;}
     public void setMass(double m) {
         mass = m;
-        allAtoms(new AtomActionAdapter() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+        for (int i=0; i<protoType.length; i++) {
+            protoType[i].setMass(m);
+        }
     }
     public boolean isStationary() {return stationary;}
+    //XXX there is no allAtoms method
     public void setStationary(boolean b) {
         stationary = b;
-        allAtoms(new AtomActionAdapter() {public void actionPerformed(Atom a) {a.coord.setStationary(stationary);}});
+        throw new RuntimeException("fixme");
+//        allAtoms(new AtomActionAdapter() {public void actionPerformed(Atom a) {a.coord.setStationary(stationary);}});
     }
     public Dimension getMassDimension() {return Dimension.MASS;}
                 
@@ -136,8 +141,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         private double temperature = Default.TEMPERATURE;
         private double placement;
         
-        public ConfigurationParallel(Simulation sim) {
-            super(sim);
+        public ConfigurationParallel(Space space) {
+            super(space);
             setAngle(0.0);
             setLongWall(false);
             setPlacement(0.0);
@@ -203,7 +208,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             }                    //2D explicit
             iterator.reset();
             while(iterator.hasNext()) {//equally space all "wall atoms"
-                Atom a = iterator.next();
+                Atom a = iterator.nextAtom();
                 Space.Vector r = a.coord.position();
                 a.coord.momentum().E(0.0);
                 a.coord.setStationary(stationary);
