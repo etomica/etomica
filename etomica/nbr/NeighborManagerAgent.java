@@ -5,6 +5,7 @@
 package etomica.nbr;
 
 import etomica.Potential;
+import etomica.utility.Arrays;
 
 /**
  * Instances of this class are created by AtomType classes to
@@ -61,6 +62,11 @@ public class NeighborManagerAgent {
     	return potentials.length-1;
     }
 
+    /**
+     * Removes the given potential from the list held by this type instance,
+     * and returns the index that was assigned to it.  If the potential was
+     * not previously added to this instance, returns -1.
+     */
     public int removePotential(Potential potential) {
     	for (int i=0; i<potentials.length; i++) {
     		if (potentials[i] == potential) {
@@ -85,23 +91,13 @@ public class NeighborManagerAgent {
     	for(int i=0; i<criteria.length; i++) {
     		if(criteria[i] == criterion) return;
     	}
-    	NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length+1];
-    	System.arraycopy(criteria,0,newCriteria,0,criteria.length);
-    	newCriteria[criteria.length] = criterion;
-    	criteria = newCriteria;
+        criteria = (NeighborCriterion[])Arrays.addObject(criteria, criterion);
     }
     
     public boolean removeCriterion(NeighborCriterion criterion) {
-    	for (int i=0; i<criteria.length; i++) {
-    		if (criteria[i] == criterion) {
-    	    	NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length-1];
-    	    	System.arraycopy(criteria,0,newCriteria,0,i);
-    	    	System.arraycopy(criteria,i+1,newCriteria,i,criteria.length-i-1);
-    	    	criteria = newCriteria;
-    	    	return true;
-    		}
-    	}
-    	return false;
+        int oldLength = criteria.length;
+        criteria = (NeighborCriterion[])Arrays.removeObject(criteria, criterion);
+        return (oldLength != criteria.length);
     }
     
     private Potential[] potentials = new Potential[0];

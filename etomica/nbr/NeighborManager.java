@@ -14,16 +14,36 @@ import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
+import etomica.utility.Arrays;
 
 /**
- * Initiates the process of updating the neighbor lists.  Acts as a
- * listener of the integrator, and performs the update at regular intervals
- * upon receiving interval events.
+ * Initiates the process of updating the neighbor lists.   
+ * Instance is constructed by PotentialMasterNbr constructor.
+ * Acts as a listener of the integrator(s), and performs the update at regular intervals
+ * upon receiving interval events.  Each event causes the manager to loop through
+ * all phases acted upon by the integrator (as given by the integrator's getPhase
+ * method), and check each atom against any neighbor criteria that apply to it, seeing
+ * if it has changed (e.g., moved) in a way that requires its neighbor lists to be
+ * updated.  When this is found for any atom, all atom neighbor lists are updated
+ * via a call to the calculate method of PotentialMasterNbr, passing a 
+ * PotentialCalculationNbrSetup instance as the PotentialCalculation.  
+ * <br>
+ * Instances of NeighborCriterion are used to specify if a pair of atoms are neighbors,
+ * and to determine if a given atom requires updating of its list.  NeighborCriterion
+ * instances are given via the setSpecies method of PotentialMasterNbr, and are recorded
+ * in three places.<ul>
+ * <li> Each criterion is held by this NeighborManager, which keeps a master list only to
+ * be able to setPhase for all of them when an update is initiated.  
+ * <li> Each criterion is also kept by the AtomType of each atom, and these are used to 
+ * idenfity all criteria applying to an atom when checking if neighbor updates are needed.
+ * <li> Each criterion is used to wrap a AtomIteratorFiltered instance around the 
+ * iterator for the potential, so that any atom pairs yielded by the iterator are, by
+ * definition, neighbors.
  */
 public class NeighborManager implements IntervalListener {
 
 	/**
-	 * 
+	 * Configures instance for use by the given PotentialMaster.
 	 */
 	public NeighborManager(PotentialMasterNbr potentialMaster) {
 		super();
@@ -66,6 +86,7 @@ public class NeighborManager implements IntervalListener {
 		}
 	}
 
+    
 	public void updateNbrsIfNeeded(Integrator integrator) {
         boolean resetIntegrator = false;
         Phase[] phase = integrator.getPhase();
@@ -101,24 +122,23 @@ public class NeighborManager implements IntervalListener {
 		this.updateInterval = updateInterval;
 	}
 	
+    /**
+     * Adds the given criterion to the list of those held by this manager.
+     * Does not check whether criterion already was added to list.
+     */
 	public void addCriterion(NeighborCriterion criterion) {
-		NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length+1];
-		System.arraycopy(criteria, 0, newCriteria, 0, criteria.length);
-		newCriteria[criteria.length] = criterion;
-		criteria = newCriteria;
+        criteria = (NeighborCriterion[])Arrays.addObject(criteria, criterion);
 	}
 
+    /**
+     * Removes the given criterion from the list of those held by this manager.
+     * @param criterion Criterion to be removed from the list
+     * @return false if the criterion was not previously added to this manager.
+     */
     public boolean removeCriterion(NeighborCriterion criterion) {
-    	for (int i=0; i<criteria.length; i++) {
-    		if (criteria[i] == criterion) {
-    	    	NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length-1];
-    	    	System.arraycopy(criteria,0,newCriteria,0,i);
-    	    	System.arraycopy(criteria,i+1,newCriteria,i,criteria.length-i-1);
-    	    	criteria = newCriteria;
-    	    	return true;
-    		}
-    	}
-    	return false;
+        int oldLength = criteria.length;
+        criteria = (NeighborCriterion[])Arrays.removeObject(criteria, criterion);
+        return (oldLength != criteria.length);
     }
     
     /**
