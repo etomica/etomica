@@ -18,6 +18,10 @@ public class MeterPistonDensity extends MeterScalar {
         collisionDiameter = atomDiameter;
     }
 
+    public void setAtomDiameter(double d) {
+        collisionDiameter = d;
+    }
+    
     public double getDataAsScalar(Phase p) {
         double volume = 1;
         final Vector dimensions = p.boundary().dimensions();
