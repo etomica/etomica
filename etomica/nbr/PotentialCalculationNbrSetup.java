@@ -22,8 +22,7 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 
 	/**
      * Takes all pair iterates given by the iterator and puts each one of the
-     * pair in the other's neighbor list. The second atom in each pair given by
-     * the iterator should be uplist of the first atom. Performs no action if
+     * pair in the other's neighbor list. Performs no action if
      * the order of the iterator is not exactly 2. The given potential should be
      * a concrete potential, not a potential group (this method is called by the
      * 3-argument PotentialCalculation.doCalculation method after screening out
@@ -36,6 +35,8 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();
+            //up and down will be defined here, and might not be consistent
+            //with definition used elsewhere
 			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential);
 			((AtomSequencerNbr)atoms[1].seq).addDownNbr(atoms[0], potential);
 		}
