@@ -5,7 +5,7 @@ import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.*;
 
-public class P2WaterSPC extends Potential2 implements Potential2.Soft {
+public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
 	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
 		this(space, potentialTruncation);

@@ -10,6 +10,7 @@ import etomica.EtomicaElement;
 import etomica.Potential2SoftSpherical;
 import etomica.Simulation;
 import etomica.SimulationElement;
+import etomica.Potential2Soft;
 import etomica.Space;
 import etomica.Default;
 import etomica.Potential2;
@@ -20,7 +21,7 @@ import etomica.Potential2;
  * @author cribbin
  *
  */
-public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement {
+public class P2DPD extends Potential2 implements Potential2Soft, EtomicaElement {
 	double maxRepel; 	//maximum repulsion parameter (aij)
 	double sigma;		//noise amplitude parameter
 	double rC, rC2;			//cutoff radius, square
@@ -66,21 +67,21 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 	}
 	/**
 	 * Not implemented
-	 * @see etomica.Potential2.Soft#virial(AtomPair)
+	 * @see etomica.Potential2.Potential2Soft#virial(AtomPair)
 	 */
 	public double virial(AtomPair pair) {
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	/**
 	 * Not implemented
-	 * @see etomica.Potential2.Soft#hyperVirial(AtomPair)
+	 * @see etomica.Potential2.Potential2Soft#hyperVirial(AtomPair)
 	 */
 	public double hyperVirial(AtomPair pair) {
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	/**
 	 * Not implemented
-	 * @see etomica.Potential2.Soft#integral(double)
+	 * @see etomica.Potential2Soft#integral(double)
 	 */
 	public double integral(double rCut) {
 		throw new etomica.exception.MethodNotImplementedException();

@@ -20,7 +20,7 @@ public class PotentialCalculationVirialSum extends PotentialCalculation {
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 		iterator.reset();
 		while(iterator.hasNext()) {
-			sum += ((Potential2.Soft)potential).virial(iterator.next());
+			sum += ((Potential2Soft)potential).virial(iterator.next());
 		}
 	}
 	

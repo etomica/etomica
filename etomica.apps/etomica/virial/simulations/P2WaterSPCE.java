@@ -13,7 +13,7 @@ import etomica.models.water.*;
  * Special version of water model that permits no truncation of the potential
  * and no periodic boundary. Used for cluster calculations.
  */
-public class P2WaterSPCE extends Potential2 implements Potential2.Soft {
+public class P2WaterSPCE extends Potential2 implements Potential2Soft {
 
 	public P2WaterSPCE(SimulationElement parent) {
 		super(parent);

@@ -58,22 +58,6 @@ public abstract class Potential2 extends Potential {
         cPairNbr.setNearestImageTransformer(nearestImageTransformer);
     }
     
-	/**
-	 * Methods for properties obtained for a soft, differentiable pair potential.
-	 *
-	 * @author David Kofke
-	 */
-    public interface Soft extends PotentialSoft {
-		public double hyperVirial(Atom[] pair);
-
-		public double virial(Atom[] pair);
-	    
-		/**
-		 * Integral used to evaluate correction to truncation of potential.
-		 */
-		public abstract double integral(double rC);
-    }
-    
 }//end of Potential2
 
 

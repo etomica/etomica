@@ -239,7 +239,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
         //pair
         public void doCalculation(AtomsetIterator iterator, Potential potential2) {
-            Potential2.Soft potentialSoft = (Potential2.Soft)potential2;
+            Potential2Soft potentialSoft = (Potential2Soft)potential2;
             while(iterator.hasNext()) {
                 Atom[] pair = iterator.next();
                 cPair.reset(pair[0].coord,pair[1].coord);

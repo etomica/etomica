@@ -3,12 +3,13 @@ package etomica.chem.models.water;
 import etomica.Atom;
 import etomica.Potential2;
 import etomica.PotentialTruncation;
+import etomica.Potential2Soft;
 import etomica.Space;
 import etomica.Space3D;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
-public class P2WaterTIP5P extends Potential2 implements Potential2.Soft {
+public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 
 	public P2WaterTIP5P(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
 		this(space, potentialTruncation);
