@@ -5,8 +5,6 @@ import javax.swing.*;
 import java.util.*;
 import etomica.units.UnitSystem;
 import java.beans.Beans;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 /**
  * The main class that organizes the elements of a molecular simulation.

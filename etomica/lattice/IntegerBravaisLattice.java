@@ -61,7 +61,7 @@ public class IntegerBravaisLattice implements AbstractLattice {
             lattice = lattice.parentLattice();
         }
         iterator = new SingletIterator(siteFactory.makeSite(top, new SiteIterator.Neighbor(), coordFactory.makeCoordinate(coordIndex)));
-        iterator.first().adjacentIterator().setSite(iterator.first());
+        iterator.first().neighborIterator().setSite(iterator.first());
         siteCount = 1;
         nRows = 0;
     }
@@ -102,8 +102,8 @@ public class IntegerBravaisLattice implements AbstractLattice {
             while(pIterator.hasNext()) {
                 Site pSite = pIterator.next(); 
                 Site nSite = nIterator.next();
-                pSite.adjacentIterator().addUp(nSite);
-                nSite.adjacentIterator().addDown(pSite);
+                pSite.neighborIterator().addUp(nSite);
+                nSite.neighborIterator().addDown(pSite);
             }
         }
         if(rows[0].D() == 0) return;
@@ -120,8 +120,11 @@ public class IntegerBravaisLattice implements AbstractLattice {
     public int coordinationNumber() {return 2*D;}
     public Site site(AbstractLattice.Coordinate coord) {return site((IndexedCoordinate)coord);}
     public Site site(IndexedCoordinate coord) {
-        //exceptions needed to check type and size of index in coordinate
-        return (D==0) ? iterator.first() : rows[coord.index()[D-1]].site(coord);
+        return site(coord.index());
+    }
+    public Site site(int[] idx) {
+        //exceptions needed to check type and size of index
+        return (D==0) ? iterator.first() : rows[idx[D-1]].site(idx);
     }
         
     /**
@@ -264,8 +267,8 @@ public class IntegerBravaisLattice implements AbstractLattice {
         System.out.println(testSite.toString());
         System.out.println();
         
-        System.out.println("Sites up-adjacent to this site:");
-        iterator = testSite.adjacentIterator();
+        System.out.println("Sites up-neighbor to this site:");
+        iterator = testSite.neighborIterator();
         ((SiteIterator.Neighbor)iterator).resetUp();
         while(iterator.hasNext()) {  //print out coordinates of each site
             System.out.print(iterator.next().toString()+" ");
@@ -273,8 +276,8 @@ public class IntegerBravaisLattice implements AbstractLattice {
         System.out.println();
         System.out.println();
         
-        System.out.println("Sites down-adjacent to this site:");
-        iterator = testSite.adjacentIterator();
+        System.out.println("Sites down-neighbor to this site:");
+        iterator = testSite.neighborIterator();
         ((SiteIterator.Neighbor)iterator).resetDown();
         while(iterator.hasNext()) {  //print out coordinates of each site
             System.out.print(iterator.next().toString()+" ");
@@ -282,8 +285,8 @@ public class IntegerBravaisLattice implements AbstractLattice {
         System.out.println();
         System.out.println();
 
-        System.out.println("All adjacent sites, using a cursor:");
-        SiteIterator.Neighbor.Cursor nbrCursor = testSite.adjacentIterator().makeCursor();
+        System.out.println("All neighbor sites, using a cursor:");
+        SiteIterator.Neighbor.Cursor nbrCursor = testSite.neighborIterator().makeCursor();
         nbrCursor.reset();
         while(nbrCursor.hasNext()) {  //print out coordinates of each site
             System.out.print(nbrCursor.next().toString()+" ");

@@ -12,7 +12,13 @@ public class SquareLattice extends BravaisLattice {
     private Space2D.Vector translation2D;
     
     /**
-     * Constructs a square (2D) lattice with lattice constant given by <code>a</code>.
+     * Constructs a "square" square lattice, i.e., one with the same number of sites in each dimension.
+     */
+    public SquareLattice(int dimension, SiteFactory factory, double pVectorLength) {
+        this(new int[] {dimension, dimension}, factory, pVectorLength);
+    }
+    /**
+     * Constructs a square (2D) lattice with lattice constant given by <code>pVectorLength</code>.
      * Number of cells in each dimension is given by the dimensions array, and the sites
      * of the lattice are constructed by the given SiteFactory.
      */

@@ -40,6 +40,7 @@ public class Space1D extends Space {
         public Vector () {x = 0.0;}
         public Vector (double a1) {x = a1;}
         public Vector (double[] a) {x = a[0];}//should check length of a for exception
+        public Vector (Vector u) {this.E(u);}
         public int length() {return D;}
         public int D() {return D;}
         public double component(int i) {return x;}

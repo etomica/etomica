@@ -3,34 +3,34 @@ package etomica.lattice;
 public class Site implements java.io.Serializable {
     
     private AbstractLattice lattice;
-    private SiteIterator.Neighbor adjacentIterator;
+    private SiteIterator.Neighbor neighborIterator;
     private AbstractLattice.Coordinate coordinate;
     
     /**
      * Creates a site having the given parent lattice and coordinate.
-     * Adjacent-iterator is set to an empty SiteIterator.Neighbor class, and may be subsequently filled or reassigned.
+     * Neighbor-iterator is set to an empty SiteIterator.Neighbor class, and may be subsequently filled or reassigned.
      */
     public Site(AbstractLattice parent, AbstractLattice.Coordinate coord) {
         this(parent, new SiteIterator.Neighbor(), coord);
     }
     public Site(AbstractLattice parent, SiteIterator.Neighbor iterator, AbstractLattice.Coordinate coord) {
         lattice = parent;
-        adjacentIterator = iterator;
+        neighborIterator = iterator;
         this.coordinate = coord;
     }
     
     public AbstractLattice lattice() {return lattice;}  //returns the (top-level) lattice on which this site resides
-    public SiteIterator.Neighbor adjacentIterator() {return adjacentIterator;}
-    public void setAdjacentIterator(SiteIterator.Neighbor iterator) {adjacentIterator = iterator;}
+    public SiteIterator.Neighbor neighborIterator() {return neighborIterator;}
+    public void setNeighborIterator(SiteIterator.Neighbor iterator) {neighborIterator = iterator;}
     public AbstractLattice.Coordinate coordinate() {return coordinate;}
     public void setCoordinate(AbstractLattice.Coordinate coord) {coordinate = coord;}
     /**
      * Test for adjacency of the site to another site
      */
-    public boolean isAdjacentTo(Site s) {
-        adjacentIterator.reset();
-        while(adjacentIterator.hasNext()) {
-            if(s == adjacentIterator.next()) {return true;}
+    public boolean isNeighborOf(Site s) {
+        neighborIterator.reset();
+        while(neighborIterator.hasNext()) {
+            if(s == neighborIterator.next()) {return true;}
         }
         return false;
     }

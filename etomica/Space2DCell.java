@@ -149,7 +149,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
             SiteIterator.Cursor cursor = latticeIterator.makeCursor();
             latticeIterator.reset();
             while(latticeIterator.hasNext()) {
-                SiteIterator.Neighbor nbrIterator = latticeIterator.next().adjacentIterator();
+                SiteIterator.Neighbor nbrIterator = latticeIterator.next().neighborIterator();
                 nbrIterator.clearAll();
                 nbrIterator.setNeighbors(cursor, neighborCriterion);
          //       System.out.println(nbrIterator.neighborCount());
@@ -213,7 +213,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
                 referenceAtom = a;
                 if(a == null) {hasNext = false; return;}
                 nextCoordinate = (Coordinate)a.coordinate();
-                cellIterator = nextCoordinate.cell.adjacentIterator(); //cell-neighbor iterator for cell containing this atom
+                cellIterator = nextCoordinate.cell.neighborIterator(); //cell-neighbor iterator for cell containing this atom
                 cellIterator.resetUp();  //next cell returned by iterator is first up the neighbor list
                 //need to finish current cell before advancing to next one
                 nextCoordinate = nextCoordinate.nextNeighbor; //next atom returned is first up list from given atom
@@ -269,7 +269,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
                 if(a == null) {hasNext = false; return;}
                 inNbrCell = false;
                 nextCoordinate = (Coordinate)a.coordinate();
-                cellIterator = nextCoordinate.cell.adjacentIterator(); //cell-neighbor iterator for cell containing this atom
+                cellIterator = nextCoordinate.cell.neighborIterator(); //cell-neighbor iterator for cell containing this atom
                 cellIterator.resetDown();  //next cell returned by iterator is first down the neighbor list
                 //need to finish current cell before advancing to next one
                 nextCoordinate = nextCoordinate.previousNeighbor; //next atom returned is first down list from given atom

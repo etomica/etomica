@@ -1,3 +1,5 @@
+// includes a main method
+
 package etomica;
 import etomica.units.*;
 

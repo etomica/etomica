@@ -66,7 +66,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }
     
 //  Vector contains what is needed to describe a point in the space
-    public static abstract class Vector implements java.io.Serializable {    
+    public static abstract class Vector implements java.io.Serializable { 
         public abstract int length();                         //number of components to vector; equal to the dimension of the space
         public abstract int D();                              //dimension of the space occupied by vector
         public abstract double component(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)

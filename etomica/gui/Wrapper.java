@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.applet.Applet;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import sunw.beanbox.PropertyHookup;
 
 public class Wrapper extends JPanel implements Serializable {
     

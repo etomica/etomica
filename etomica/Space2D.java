@@ -44,6 +44,7 @@ public class Space2D extends Space {
         public Vector () {x = 0.0; y = 0.0;}
         public Vector (double x, double y) {this.x = x; this.y = y;}
         public Vector (double[] a) {x = a[0]; y = a[1];}//should check length of a for exception
+        public Vector (Vector u) {this.E(u);}
         public int length() {return D;}
         public int D() {return D;}
         public double component(int i) {return (i==0) ? x : y;}

@@ -181,8 +181,8 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
         System.out.println(testSite.toString());
         System.out.println();
                 
-        System.out.println("Sites up-adjacent to this site:");
-        iterator = testSite.adjacentIterator();
+        System.out.println("Sites up-neighbor to this site:");
+        iterator = testSite.neighborIterator();
         ((SiteIterator.Neighbor)iterator).resetUp();
         while(iterator.hasNext()) {  //print out coordinates of each site
             System.out.print(iterator.next().toString()+" ");
@@ -190,8 +190,8 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
         System.out.println();
         System.out.println();
         
-        System.out.println("Sites down-adjacent to this site:");
-        iterator = testSite.adjacentIterator();
+        System.out.println("Sites down-neighbor to this site:");
+        iterator = testSite.neighborIterator();
         ((SiteIterator.Neighbor)iterator).resetDown();
         while(iterator.hasNext()) {  //print out coordinates of each site
             System.out.print(iterator.next().toString()+" ");

@@ -6,9 +6,6 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Frame;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
@@ -185,7 +182,7 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Frame f = new Frame();   //create a window
+        java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
         Simulation.makeSimpleSimulation();  //for more general simulations, replace this call with
                                             //construction of the desired pieces of the simulation
@@ -208,8 +205,8 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
                                             //display the graphical components
         f.pack();
         f.show();
-        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(WindowEvent e) {System.exit(0);}
+        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }
 
