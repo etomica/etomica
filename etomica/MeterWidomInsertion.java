@@ -2,6 +2,12 @@ package etomica;
 import java.awt.Color;
 import etomica.units.Dimension;
 
+//Java2 imports
+//import java.util.Iterator;
+
+import etomica.utility.Iterator;
+
+
 /**
  * Meter to measure the chemical potential of a species via the Widom insertion method
  */
@@ -37,7 +43,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
             }
             public void add(MeterAbstract meter) {
                 if(meter != MeterWidomInsertion.this) return;
-                for(java.util.Iterator ip=mediator.parentSimulation().speciesList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().speciesList.iterator(); ip.hasNext(); ) {
                     Species species = (Species)ip.next();
                     if(species.wasAdded())  {//will make first species the one
                         MeterWidomInsertion.this.setSpecies(species);

@@ -14,6 +14,11 @@ import etomica.*;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+//Java2 imports
+//import java.util.Iterator;
+
+import etomica.utility.Iterator;
+
 public class SimulationEditor extends javax.swing.JTabbedPane {
     /**
      * Static splitpane that displays all the potential 1 classes on the left (as radiobuttons) and 
@@ -123,7 +128,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
     }
     public void updateElements() {
         resetAllComponentLists();
-        for(java.util.Iterator iter=simulation.allElements().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation.allElements().iterator(); iter.hasNext(); ) {
             Simulation.Element element = (Simulation.Element)iter.next();
             EditorPane editorPane = (EditorPane)editorPanes.get(element.baseClass());
             editorPane.getComponentList().addElement(element);

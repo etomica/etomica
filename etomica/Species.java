@@ -1,9 +1,15 @@
 package etomica;
 import etomica.units.Unit;
 import java.util.Random;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.beans.Beans;
+
+//Java2 imports
+//import java.util.HashMap;
+//import java.util.Iterator;
+
+import etomica.utility.HashMap;
+import etomica.utility.Iterator;
+
 
      /**
       * A Species is a collection of identically formed Molecules.  Subclasses of

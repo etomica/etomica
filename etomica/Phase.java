@@ -4,9 +4,16 @@ import java.awt.Graphics;
 import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.LinkedList;
-import java.util.Iterator;
 import java.beans.Beans;
+
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
+
+
 /**
  * A Phase collects all atoms that interact with one another; atoms in different phases do
  * not interact.  These are the important features of a Phase:<p> 

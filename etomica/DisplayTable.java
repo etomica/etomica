@@ -17,7 +17,8 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     public String getVersion() {return "DisplayTable:01.05.29/"+super.getVersion();}
 
     public JTable table;
-    Box panel;
+  //  Box panel;
+    javax.swing.JPanel panel;
     
     private boolean showLabels = true;
         
@@ -40,7 +41,8 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
      * data sources are added or changed.
      */
     protected void setupDisplay() {
-        if(panel == null) panel = Box.createVerticalBox();
+   //     if(panel == null) panel = Box.createVerticalBox();
+        if(panel == null) panel = new javax.swing.JPanel(new java.awt.FlowLayout());
         else panel.removeAll();
         panel.setSize(100,150);
         if(ySource == null || ySource.length == 0) return;

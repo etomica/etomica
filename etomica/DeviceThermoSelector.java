@@ -1,6 +1,11 @@
 package etomica;
 import etomica.units.*;
 
+//Java2 imports
+//import java.util.Iterator;
+
+import etomica.utility.Iterator;
+
 /**
  * Permits selection of temperature from a discrete set of values.  Also has option
  * to select adiabatic.  Enforces selection by manipulating properties of integrator.
@@ -67,7 +72,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
             }
             public void add(Device device) {
                 if(device != DeviceThermoSelector.this) return;
-                for(java.util.Iterator ip=mediator.parentSimulation().integratorList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().integratorList.iterator(); ip.hasNext(); ) {
                     Integrator integrator = (Integrator)ip.next();
                     if(integrator.wasAdded())  {//will make last integrator the one
                         DeviceThermoSelector.this.integrator = integrator;

@@ -1,5 +1,11 @@
 package etomica;
 import java.beans.PropertyEditorSupport;
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
 
 /**
  * Editor for selection of data source objects.
@@ -49,10 +55,10 @@ public class DataSourceEditor extends PropertyEditorSupport implements java.io.S
     public String[] getTags() {return dataSourceNames;}
 
     protected void makeDataSourceList() {
-        java.util.LinkedList dataSourceList = etomica.Simulation.instance.allElements();
+        LinkedList dataSourceList = etomica.Simulation.instance.allElements();
         //count number of DataSource objects
         int count=1;
-        for(java.util.Iterator iter=dataSourceList.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=dataSourceList.iterator(); iter.hasNext(); ) {
             Object obj = iter.next();
             if(obj instanceof DataSource) count++;
             if(obj instanceof DataSource.Wrapper) 
@@ -65,7 +71,7 @@ public class DataSourceEditor extends PropertyEditorSupport implements java.io.S
         dataSourceNames[0] = "null";
         dataSourceObjects[0] = null;
         int i=1;
-        for(java.util.Iterator iter=dataSourceList.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=dataSourceList.iterator(); iter.hasNext(); ) {
             Object obj = iter.next();
             if(obj instanceof DataSource) {
                 dataSourceObjects[i] = (DataSource)obj;

@@ -2,6 +2,11 @@
 package etomica;
 import etomica.units.*;
 import etomica.units.Dimension;
+//Java2 imports
+//import java.util.HashMap;
+
+import etomica.utility.HashMap;
+
 
 import java.awt.Graphics;
 
@@ -14,7 +19,7 @@ import java.awt.Graphics;
  
 public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement {
 
-    public final String getVersion() {return "SpeciesPistonCylinder:01.03.15.0/"+super.getVersion();}
+    public final String getVersion() {return "SpeciesPistonCylinder:01.06.05/"+super.getVersion();}
  
     private Constants.Direction direction = Constants.NORTH;
     Space2D.Vector dimensions = new Space2D.Vector();
@@ -26,7 +31,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     private int pistonThickness = 8;//piston thickness
     private double diameter = 28.0;//diameter of cylinder
     private double length = 20.0;//length of cylinder
-    private java.util.HashMap deployedFields = new java.util.HashMap(5);
+    private HashMap deployedFields = new HashMap(5);
     
     public SpeciesPistonCylinder() {
         this(Simulation.instance);

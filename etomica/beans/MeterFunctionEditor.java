@@ -1,5 +1,11 @@
 package etomica;
 import java.beans.PropertyEditorSupport;
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
 
 /**
  * Editor to create a list of instantiated objects of type MeterFunction.
@@ -36,11 +42,11 @@ public class MeterFunctionEditor extends PropertyEditorSupport implements java.i
     }
 
     protected void makeMeterLists() {
-        java.util.LinkedList list = Simulation.instance.meterList();
+        LinkedList list = Simulation.instance.meterList();
         //count how many of all MeterAbstract objects are MeterFunction objects
         int nMeters = 1;
 
-        for(java.util.Iterator iter=list.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=list.iterator(); iter.hasNext(); ) {
             if(iter.next() instanceof MeterFunction) nMeters++;
         }
         //loop again, save all the MeterFunction objects in the arrays
@@ -49,7 +55,7 @@ public class MeterFunctionEditor extends PropertyEditorSupport implements java.i
         meterNames[0] = "";
         meterObjects[0] = null;
         nMeters = 1;
-        for(java.util.Iterator iter=list.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=list.iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             if(meter instanceof MeterFunction) {
                 meterObjects[nMeters] = meter;

@@ -2,9 +2,18 @@
 package etomica;
 
 import javax.swing.*;
-import java.util.*;
+//import java.util.*;
 import etomica.units.UnitSystem;
 import java.beans.Beans;
+
+//Java2 imports
+//import java.util.HashMap;
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.HashMap;
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -18,7 +27,7 @@ import java.beans.Beans;
  */
 public class Simulation extends javax.swing.JPanel implements java.io.Serializable {
     
-    public String getVersion() {return "Simulation:01.03.23";}
+    public String getVersion() {return "Simulation:01.06.05";}
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -29,7 +38,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * Default choice is the CoordinatorOneIntegrator.
      */
     public Mediator elementCoordinator;
-    private java.util.HashMap elementLists = new java.util.HashMap(16);
+    private HashMap elementLists = new HashMap(16);
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
@@ -300,7 +309,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 //        species.setSpeciesIndex(speciesCount()-1);
         
         /*if(Beans.isDesignTime()) {
-            for(java.util.Iterator ip=Simulation.phaseList.iterator(); ip.hasNext(); ) {
+            for(Iterator ip=Simulation.phaseList.iterator(); ip.hasNext(); ) {
                 Phase p = (Phase)ip.next();
                 p.remove(species.makeAgent(p));
             }

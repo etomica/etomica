@@ -29,6 +29,7 @@ public class UnitEditor extends PropertyEditorSupport
     private void setupUnits(Unit currentUnit) {
         Dimension dimension;
         if(currentUnit == null) dimension = Dimension.NULL;
+        if(currentUnit instanceof UnitRatio) dimension = Dimension.NULL; //chokes on UnitRatio because cannot instantiate in setupNames method
         else dimension = currentUnit.dimension();
         unit = currentUnit;
         prefix = unit.prefix();

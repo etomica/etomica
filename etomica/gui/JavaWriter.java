@@ -1,6 +1,12 @@
 package etomica.gui;
 
 import etomica.*;
+//Java2 imports
+//import java.util.HashMap;
+//import java.util.Iterator;
+
+import etomica.utility.HashMap;
+import etomica.utility.Iterator;
 
 /**
  * This class enables the writing of Java source code suitable to construct a
@@ -16,14 +22,14 @@ import etomica.*;
  
 public final class JavaWriter {
     
-    public static String getVersion() {return "JavaWriter:01.03.23.0";}
+    public static String getVersion() {return "JavaWriter:01.03.23";}
 
     private Simulation simulation;
-    private java.util.HashMap elements = new java.util.HashMap();
+    private HashMap elements = new HashMap();
     
     public JavaWriter(Simulation sim) {
         simulation = sim;
-        for(java.util.Iterator iter=sim.allElements().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=sim.allElements().iterator(); iter.hasNext(); ) {
             add((Simulation.Element)iter.next());
         }
     }
@@ -67,14 +73,14 @@ public final class JavaWriter {
             writeTop(className, javaFile);
             
             //Loop over elements and write initialization strings
-            for(java.util.Iterator iter=elements.values().iterator(); iter.hasNext(); ) {
+            for(Iterator iter=elements.values().iterator(); iter.hasNext(); ) {
                 ElementWriter ew = (ElementWriter)iter.next();
                 if(ew.element instanceof P2SimpleWrapper) continue;
                 ew.write(javaFile);
             }
             
             //Write P2SimpleWrapper strings
-            for(java.util.Iterator iter=elements.values().iterator(); iter.hasNext(); ) {
+            for(Iterator iter=elements.values().iterator(); iter.hasNext(); ) {
                 ElementWriter ew = (ElementWriter)iter.next();
                 if(!(ew.element instanceof P2SimpleWrapper)) continue;
                 ew.write(javaFile);

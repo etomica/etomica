@@ -5,7 +5,12 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Component;
 import java.awt.event.*;
-import java.util.*;
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
 
 /**
  * Organizer of activities of the integrators.  Controller sets the protocol for
@@ -102,7 +107,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
      */
     public void setMaxSteps(int m) {
         maxSteps = m;
-        for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             ((Integrator)iter.next()).setMaxSteps(m);
         }
     }
@@ -127,7 +132,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
      */
     public void run() {
         parentSimulation().elementCoordinator.go();  //perhaps redundant, but safe since it returns without performing any action if already completed
-        for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             ((Integrator)iter.next()).start();
         }
         runner = null;
@@ -137,7 +142,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
      * Sends a halt (stop) signal to all integrators.
      */
     public void halt() {
-        for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             ((Integrator)iter.next()).halt();
         }
     }        
@@ -266,13 +271,13 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
             }
             else if(running) {
                 running = false;
-                for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+                for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
                     ((Integrator)iter.next()).pause();
                 }
                 button.setText("Continue");
             }
             else {
-                for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+                for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
                     ((Integrator)iter.next()).unPause();
                 }
                 running = true;

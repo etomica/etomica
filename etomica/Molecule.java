@@ -1,7 +1,12 @@
 package etomica;
 import java.io.*;
-import java.util.*;
 import java.awt.Graphics;
+
+//Java2 imports
+//import java.util.Iterator;
+
+import etomica.utility.Iterator;
+
 
 /**
  * A Molecule is a collection of Atoms.  Molecules differ in the number
@@ -457,7 +462,7 @@ public class Molecule implements Space.Occupant, Serializable {
       
     public void initializeCoordinates() {
         if(parentSpecies == null) {return;}
-        java.util.Iterator e = parentSpecies.agents.values().iterator();
+        Iterator e = parentSpecies.agents.values().iterator();
         while(e.hasNext()) {
             Species.Agent agent = (Species.Agent)e.next();
             for(Molecule m=agent.firstMolecule(); m!=agent.terminationMolecule(); m=m.nextMolecule()) {

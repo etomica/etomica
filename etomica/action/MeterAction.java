@@ -2,6 +2,13 @@ package etomica;
 
 import java.awt.event.ActionEvent;
 
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
+
  /**
   * Superclass of classes that apply some elementary action (transformation) to 
   * one or more Meters.
@@ -14,7 +21,7 @@ public abstract class MeterAction extends etomica.Action {
     public static String getVersion() {return "MeterAction:01.06.04/"+Action.VERSION;}
 
     protected MeterAbstract[] meters;
-    protected java.util.LinkedList meterList;
+    protected LinkedList meterList;
     
     /**
      * Constructor giving array defining the meters subject to this action.
@@ -109,7 +116,7 @@ public abstract class MeterAction extends etomica.Action {
             }
         }
         if(meterList != null) {
-            for(java.util.Iterator iter=meterList.iterator(); iter.hasNext(); ) {
+            for(Iterator iter=meterList.iterator(); iter.hasNext(); ) {
                 actionPerformed((MeterAbstract)iter.next());
             }
         }

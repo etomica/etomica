@@ -154,7 +154,7 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
 	 * Histogram is recorded only if histogramming is set to true.  
 	 * If histogram was never kept for this meter, an all-zero histogram is returned.
 	 */
-	 public Histogram histogram() {return accumulator.histogram();}
+	 public Histogram getHistogram() {return accumulator.histogram();}
 	 
 	/**
 	 * Interface for a meter that can return a value given an arbitrary atom.

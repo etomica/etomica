@@ -4,6 +4,11 @@ import etomica.units.*;
 import javax.swing.*;
 import java.lang.reflect.*;
 import java.beans.*;
+//Java2 imports
+//import java.util.Iterator;
+
+import etomica.utility.Iterator;
+
 
 /**
  * Implements logging functionality, performing writing of simulation information and results to a log file.
@@ -52,7 +57,7 @@ public class DisplayToLog extends Display {
     
     private void writeHeading() {
         logFile.println("Heading");
-        for(java.util.Iterator iter=parentSimulation().allElements().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=parentSimulation().allElements().iterator(); iter.hasNext(); ) {
             printProperties(iter.next());
         }
         logFile.println("=========================");
@@ -64,7 +69,7 @@ public class DisplayToLog extends Display {
     }
     
     public void doUpdate() {
-        for(java.util.Iterator iter=parentSimulation().meterList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=parentSimulation().meterList().iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             if(!(meter instanceof Meter)) continue;
             logFile.print(((Meter)meter).average() + " " + ((Meter)meter).error()+ "  ");

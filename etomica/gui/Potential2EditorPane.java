@@ -6,6 +6,10 @@ import etomica.utility.HashMap2;
 import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+//Java2 imports
+//import java.util.LinkedList;
+
+import etomica.utility.LinkedList;
 
 public class Potential2EditorPane extends PotentialEditorPane {
     HashMap2 potentialButtons = new HashMap2();
@@ -88,7 +92,7 @@ public class Potential2EditorPane extends PotentialEditorPane {
     }
     
     private void linkButtons(){
-        java.util.LinkedList list = simulationEditor().getSimulation().potential2List();
+        LinkedList list = simulationEditor().getSimulation().potential2List();
 
         for(int i = 0; i < list.size(); i++){
             Potential2 potential = (Potential2)list.get(i);

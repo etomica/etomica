@@ -5,6 +5,13 @@ import java.awt.Color;
 import java.util.Random;
 import java.util.Observer;
 import java.util.Observable;
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
+
 
 public class Space2DCell extends Space2D implements IteratorFactory.Maker, EtomicaElement {
     
@@ -103,7 +110,8 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker, Etomi
     public static final class CellListIteratorFactory extends IteratorFactory implements PotentialField.Maker {
         private SquareLattice lattice; 
         private SiteIterator.List latticeIterator;
-        private java.util.ArrayList iterators = new java.util.ArrayList(10);
+  //      private java.util.ArrayList iterators = new java.util.ArrayList(10);
+        private LinkedList iterators = new LinkedList();
         private int xCells, yCells;
         private double neighborDistance, absoluteNeighborDistance;  //look at this more carefully if boundary size fluctuates
         
@@ -157,7 +165,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker, Etomi
             //Construct a List iterator that can make Cursors
             latticeIterator = new SiteIterator.List(lattice.iterator());
             //notify any iterators already produced that the lattice has been replaced
-            for(java.util.Iterator iter=iterators.iterator(); iter.hasNext(); ) {
+            for(Iterator iter=iterators.iterator(); iter.hasNext(); ) {
                 ((CellListIterator)iter.next()).update();
             }
             //Set up neighbors of each site

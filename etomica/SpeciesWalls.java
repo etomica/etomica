@@ -2,7 +2,6 @@
 package etomica;
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.util.Iterator;
 import etomica.units.*;
 
 public class SpeciesWalls extends Species implements EtomicaElement {

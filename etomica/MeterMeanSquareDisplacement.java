@@ -17,7 +17,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
                                                 Integrator.IntervalListener.AfterPbc, 
                                                 EtomicaElement {
 
-    public static final String getVersion() {return "MeterMeanSquareDisplacement:01.03.24.0/"+Meter.VERSION;}
+    public static final String getVersion() {return "MeterMeanSquareDisplacement:01.03.24/"+Meter.VERSION;}
  
     private int nAtoms = 0;
     Atom.Iterator iterator;

@@ -1,12 +1,18 @@
 package etomica;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Iterator; 
 import java.util.Observer;
 import java.util.Observable;
 import java.util.Vector;
 import etomica.units.*;
 import javax.swing.JDialog;
+
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
 
 /**
  * Displays a picture of a phase, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  
@@ -19,7 +25,7 @@ import javax.swing.JDialog;
  */
 public class DisplayPhase extends Display implements Integrator.IntervalListener.AfterPbc, EtomicaElement {
         
-    public String getVersion() {return "DisplayPhase:01.03.11.0/"+Display.VERSION;}
+    public String getVersion() {return "DisplayPhase:01.03.11/"+Display.VERSION;}
     
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
@@ -28,7 +34,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     public static final int BOTTOM = +1;
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
-    java.util.ArrayList drawables = new java.util.ArrayList(10);
+    LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
         
 //    private final ConfigurationCanvas canvas = new ConfigurationCanvas();
     public Canvas canvas;  //do not instantiate here; instead must be in graphic method
@@ -417,7 +423,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             if(drawBoundary) {phase().boundary().draw(g, centralOrigin, scale);}
 
             //do drawing of all drawing objects that have been added to the display
-            for(java.util.Iterator iter=drawables.iterator(); iter.hasNext(); ) {
+            for(Iterator iter=drawables.iterator(); iter.hasNext(); ) {
                 Drawable obj = (Drawable)iter.next();
                 obj.draw(g, centralOrigin, scale);
             }

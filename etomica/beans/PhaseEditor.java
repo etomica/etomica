@@ -1,6 +1,11 @@
 package etomica;
 import java.beans.*;
-import java.util.*;
+//Java2 imports
+//import java.util.LinkedList;
+//import java.util.Iterator;
+
+import etomica.utility.LinkedList;
+import etomica.utility.Iterator;
 
 /**
  * A property editor for setting the a Phase property in an object.
@@ -36,11 +41,11 @@ public class PhaseEditor extends PropertyEditorSupport {
     public String[] getTags() {return phaseNames;}
 
     protected void makePhaseLists() {
-        java.util.LinkedList phaseList = etomica.Simulation.instance.phaseList();
+        LinkedList phaseList = etomica.Simulation.instance.phaseList();
         phaseNames = new String[phaseList.size()];
         phaseObjects = new Object[phaseList.size()];
         int i=0;
-        for(java.util.Iterator iter=phaseList.iterator(); iter.hasNext(); i++) {
+        for(Iterator iter=phaseList.iterator(); iter.hasNext(); i++) {
             phaseObjects[i] = (Phase)iter.next();
             phaseNames[i] = phaseObjects[i].toString();
         }

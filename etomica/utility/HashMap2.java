@@ -1,5 +1,8 @@
 package etomica.utility;
-import java.util.HashMap;
+//Java2 imports
+//import java.util.HashMap;
+
+import etomica.utility.HashMap;
 
 /**
  * Implementation of a hash map in which entries are keyed to a pair of objects,

@@ -18,7 +18,9 @@ public final class DimensionRatio extends Dimension {
     public double[] signature() {return signature;}
     public Dimension nDimension() {return nDimension;}
     public Dimension dDimension() {return dDimension;}
-    public Unit defaultIOUnit() {return new UnitRatio(nDimension.defaultIOUnit(),dDimension.defaultIOUnit());}
+    public Unit defaultIOUnit() {
+        return new UnitRatio(nDimension.defaultIOUnit(),dDimension.defaultIOUnit());
+    }
     public Class baseUnit() {return UnitRatio.class;}
     public String toString() {return nDimension.toString() + "/" + dDimension.toString();}
 }
