@@ -27,19 +27,21 @@ public class AtomSequencerNbr extends AtomSequencer {
 		int index = 0;
 		try {
 			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+			upList[index].add(a);
 		} catch(ArrayIndexOutOfBoundsException e) {
 			index = addPotential(potential);
+			upList[index].add(a);
 		}
-		upList[index].add(a);
 	}
 	public void addDownNbr(Atom a, Potential potential) {
 		int index = 0;
 		try {
 			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+			downList[index].add(a);
 		} catch(ArrayIndexOutOfBoundsException e) {
 			index = addPotential(potential);
+			downList[index].add(a);
 		}
-		downList[index].add(a);
 	}
 	
 	public AtomArrayList[] getUpList() {

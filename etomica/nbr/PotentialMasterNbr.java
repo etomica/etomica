@@ -15,7 +15,7 @@ import etomica.*;
 public class PotentialMasterNbr extends PotentialMaster {
 
 	/**
-	 * @param nBody
+	 * @param space
 	 */
 	public PotentialMasterNbr(Space space) {
 		super(space);

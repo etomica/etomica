@@ -10,7 +10,7 @@ import etomica.Space;
  * Simple neighbor criterion based on distance moved by a leaf atom since
  * the last update.
  */
-public class NeighborCriterionSimple extends NeighborCriterion implements Atom.AgentSource {
+public class NeighborCriterionSimple extends NeighborCriterion  {
 
 	public NeighborCriterionSimple(NeighborManager neighborManager, NeighborManagerAgent[] nbrAgents, Space space, 
 			double interactionRange, double neighborRadius) {
@@ -19,11 +19,6 @@ public class NeighborCriterionSimple extends NeighborCriterion implements Atom.A
 		double displacementLimit = (neighborRadius - interactionRange) * safetyFactor;
 		displacementLimit2 = displacementLimit * displacementLimit;
 		neighborRadius2 = neighborRadius * neighborRadius;
-		if (NeighborCriterionSimple.space == null) {
-			NeighborCriterionSimple.space = space;
-			agentIndex = Atom.requestAgentIndex(this);
-		}
-		NeighborCriterionSimple.space = space;
         cPair = space.makeCoordinatePair();
 	}
 	
@@ -49,12 +44,8 @@ public class NeighborCriterionSimple extends NeighborCriterion implements Atom.A
 		return Math.sqrt(neighborRadius2);
 	}
 	
-	public Object makeAgent(Atom atom) {
-		return NeighborCriterionSimple.space.makeVector();
-	}
-
 	public boolean needUpdate(Atom atom) {
-		double r2 = atom.coord.position().Mv1Squared((Space.Vector)atom.allatomAgents[agentIndex]);
+		r2 = atom.coord.position().Mv1Squared((Space.Vector)atom.allatomAgents[agentIndex]);
 		return r2 > displacementLimit2;
 	}
 
@@ -62,8 +53,7 @@ public class NeighborCriterionSimple extends NeighborCriterion implements Atom.A
     	cPair.setBoundary(phase.boundary());
 	}
 
-	public boolean unsafe(Atom atom) {
-		double r2 = atom.coord.position().Mv1Squared((Space.Vector)atom.allatomAgents[agentIndex]);
+	public boolean unsafe() {
 		return r2 > displacementLimit2 * 4.0 / (safetyFactor*safetyFactor);
 	}
 
@@ -78,8 +68,12 @@ public class NeighborCriterionSimple extends NeighborCriterion implements Atom.A
 
 	private double interactionRange, displacementLimit2, neighborRadius2;
 	private Space.CoordinatePair cPair;
-	protected static Space space;
-	protected static int agentIndex;
+	protected static int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
+		public Object makeAgent(Atom atom) {
+			return atom.coord.position().clone();
+		}
+	});
 	protected double safetyFactor = 0.4;
+	protected double r2;
 	
 }

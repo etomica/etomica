@@ -26,7 +26,7 @@ public abstract class NeighborCriterion implements AtomsetFilter {
 	
 	public abstract void setPhase(Phase phase);
 	
-	public abstract boolean unsafe(Atom atom);
+	public abstract boolean unsafe();
 	
 	public abstract void reset(Atom atom);
 	

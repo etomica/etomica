@@ -102,7 +102,7 @@ public class NeighborManager implements IntervalListener {
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
 			if (criterion != null && criterion.needUpdate(atom[0])) {
 				needUpdate = true;
-				if (criterion.unsafe(atom[0])) {
+				if (criterion.unsafe()) {
 					unsafe = true;
 				}
 			}
