@@ -5,7 +5,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaInfo;
-import etomica.ModulatorAbstract;
+import etomica.Modifier;
 import etomica.units.Unit;
 
 /**
@@ -15,14 +15,14 @@ import etomica.units.Unit;
  */
  
  //does not work work Etomica because isn't called with constructor that 
- //provides modulators.
+ //provides modifiers.
  //need to return a non-null graphic (instantiate panel in all constructors)
- //and set up set/get methods for modulators
+ //and set up set/get methods for modifiers
 public class DeviceTable extends Device /*implements EtomicaElement*/ {
     
     public JTable table;
     MyTableData dataSource;
-    ModulatorAbstract[] modulators;
+    Modifier[] modifiers;
     DimensionedDoubleEditor[] editors;
     PropertyText[] views;
     JPanel panel;
@@ -31,16 +31,16 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         super();
     }
     
-    public DeviceTable(ModulatorAbstract[] mods) {
+    public DeviceTable(Modifier[] mods) {
         super();
-        modulators = mods;
-        editors = new DimensionedDoubleEditor[modulators.length];
-        views = new PropertyText[modulators.length];
+        modifiers = mods;
+        editors = new DimensionedDoubleEditor[modifiers.length];
+        views = new PropertyText[modifiers.length];
         setupTable();
-        for(int i=0; i<modulators.length; i++) {
-            editors[i] = new DimensionedDoubleEditor(modulators[i].getDimension());
-            editors[i].setValue(modulators[i].getValue());
-            new Adapter(editors[i], modulators[i]);
+        for(int i=0; i<modifiers.length; i++) {
+            editors[i] = new DimensionedDoubleEditor(modifiers[i].getDimension());
+            editors[i].setValue(modifiers[i].getValue());
+            new Adapter(editors[i], modifiers[i]);
             views[i] = new PropertyText(editors[i]);
         }
     }
@@ -62,12 +62,12 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
 
     public void setPropertyLabels(String[] labels) {
         int n = labels.length;
-        if(n != modulators.length) {
-            System.out.println("Warning:  Number of labels given to DeviceTable disagrees with number of modulators");
-            n = Math.min(n, modulators.length);
+        if(n != modifiers.length) {
+            System.out.println("Warning:  Number of labels given to DeviceTable disagrees with number of modifiers");
+            n = Math.min(n, modifiers.length);
         }
         for(int i=0; i<n; i++) {
-            modulators[i].setLabel(labels[i]);
+            modifiers[i].setLabel(labels[i]);
         }
     }
     
@@ -85,14 +85,14 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         
         public Object getValueAt(int row, int column) {
             switch(column) {
-                case 0: return modulators[row].getLabel();
+                case 0: return modifiers[row].getLabel();
                 case 1: return editors[row].getAsText();
                 case 2: return editors[row].getUnit();
                 default: return null;
             }
         }
         
-        public int getRowCount() {return modulators.length;}
+        public int getRowCount() {return modifiers.length;}
         public int getColumnCount() {return 3;}
        
         public boolean isCellEditable(int row, int column) {return column != 0;}        
@@ -135,20 +135,20 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
     }//end of ValueEditor
     
     /**
-     * Class to tie together DimensionedDoubleEditor, modulator, and table.
+     * Class to tie together DimensionedDoubleEditor, modifier, and table.
      */
     class Adapter implements java.beans.PropertyChangeListener {
         private DimensionedDoubleEditor editor;
-        private ModulatorAbstract modulator;
-        Adapter(DimensionedDoubleEditor ed, ModulatorAbstract mod) {
+        private Modifier modifier;
+        Adapter(DimensionedDoubleEditor ed, Modifier mod) {
             editor = ed;
-            modulator = mod;
+            modifier = mod;
             ed.addPropertyChangeListener(this);
         }
         //method called when DimensionedDoubleEditor changes value
         public void propertyChange(java.beans.PropertyChangeEvent evt) {
             double newValue = ((Double)editor.getValue()).doubleValue();
-            modulator.setValue(newValue);
+            modifier.setValue(newValue);
             panel.repaint();
         }        
     }//end of Adapter
@@ -166,9 +166,9 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
 
         PotentialSquareWell potential = new PotentialSquareWell(sim);
         sim.p2 = new P2SimpleWrapper(sim,sim.potential);
-        Modulator mod1 = new Modulator(sim.integrator, "timeStep");
-        Modulator mod2 = new Modulator(potential, "epsilon");
-        DeviceTable table = new DeviceTable(Simulation.instance, new Modulator[] {mod1, mod2});
+        Modifier mod1 = new Modifier(sim.integrator, "timeStep");
+        Modifier mod2 = new Modifier(potential, "epsilon");
+        DeviceTable table = new DeviceTable(Simulation.instance, new Modifier[] {mod1, mod2});
         sim.integrator.setIsothermal(true);
         sim.integrator.setTemperature(Kelvin.UNIT.toSim(300.));
 		DisplayBox box1 = new DisplayBox();

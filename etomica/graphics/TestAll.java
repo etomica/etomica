@@ -21,7 +21,7 @@ public class TestAll {
         "IntegratorGEMC", "IntegratorGear4", "MCMoveAtom", "MCMoveInsertDelete", "MCMovePointVolume",
         "MCMoveRotate", "MCMoveVolume", "MeterBondOrderParameterQ",
         "MeterPressureByVolumeChange", "MeterPressureHard", "MeterRDF",
-        "Modulator", "PotentialAssociationCone",
+        "Modifier", "PotentialAssociationCone",
         "PotentialFieldGravity", "PotentialRoughSphere", "Simulation",
         "SpeciesPistonCylinder", "SpeciesWalls"
     };

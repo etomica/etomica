@@ -8,8 +8,7 @@ import etomica.Atom;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.ModulatorAbstract;
-import etomica.ModulatorBoolean;
+import etomica.Modifier;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SpeciesSpheresMono;
@@ -25,6 +24,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.log.LoggerAbstract;
+import etomica.modifier.ModifierBoolean;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space2d.Space2D;
@@ -47,15 +47,15 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 	 * To enable and disable the creation of type comments go to
 	 * Window>Preferences>Java>Code Generation.
 	 */
-	public class MyBoolModulator extends ModulatorBoolean {
+	public class MyBoolModifier extends ModifierBoolean {
 
 		/**
-		 * @see etomica.ModulatorBoolean#setBoolean(boolean)
+		 * @see etomica.modifier.ModifierBoolean#setBoolean(boolean)
 		 */
 		public void setBoolean(boolean b) {auto = b;}
 
 		/**
-		 * @see etomica.ModulatorBoolean#getBoolean()
+		 * @see etomica.modifier.ModifierBoolean#getBoolean()
 		 */
 		public boolean getBoolean() {
 			return auto;
@@ -145,7 +145,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		MyAction action = new MyAction();
 		DeviceButton button = new DeviceButton(action);
 		integrator.addIntervalListener(action);
-		DeviceSlider speedSlider = new DeviceSlider(new MyModulator());
+		DeviceSlider speedSlider = new DeviceSlider(new MyModifier());
 		speedSlider.setMinimum(0.0);
 		speedSlider.setMaximum(200.0);
 		speedSlider.setValue(10.0);
@@ -175,7 +175,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		wHist.setUpdateInterval(1000);
 		eHist.getPlot().setXLabel("exp(-W/kT)");
 		wHist.getPlot().setXLabel("W/kT");
-		DeviceToggleButton auto = new DeviceToggleButton(this,new MyBoolModulator(),"Auto","Manual");
+		DeviceToggleButton auto = new DeviceToggleButton(this,new MyBoolModifier(),"Auto","Manual");
 		
 		panel().remove(panel().devicePanel);
 		javax.swing.JPanel myDevicePanel = new javax.swing.JPanel();
@@ -207,8 +207,8 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 
 	}
 	
-	class MyModulator extends ModulatorAbstract {
-        public MyModulator() {
+	class MyModifier extends Modifier {
+        public MyModifier() {
             super(Dimension.LENGTH); // VELOCITY???
         }
 		public void setValue(double v) {speed = (v+1)/10.;}

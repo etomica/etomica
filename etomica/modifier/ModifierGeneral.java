@@ -1,4 +1,4 @@
-package etomica;
+package etomica.modifier;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -6,19 +6,20 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import etomica.Modifier;
 import etomica.units.Dimension;
 
 /**
- * Implements the Modulator functionality using introspection to obtain the accessor methods for a property.
- * Capable of modulating the same property for several objects at once (e.g., temperature for two different
- * integrator objects can be set simultaneously).  In the case of multi-object modulation, calls to readValue
+ * Implements the Modifier functionality using introspection to obtain the accessor methods for a property.
+ * Capable of modifying the same property for several objects at once (e.g., temperature for two different
+ * integrator objects can be set simultaneously).  In the case of multi-object modification, calls to readValue
  * are taken from only the first object in the list, which assumes all would return the same value
  *
  * @author David Kofke
  * @author Jhumpa Adhikari
  */
 
-public class Modulator extends ModulatorAbstract {
+public class ModifierGeneral extends Modifier {
 
     protected Object[] object;
     protected String property;
@@ -27,15 +28,15 @@ public class Modulator extends ModulatorAbstract {
     private int nObjects;
     
     /**
-     * Constructor connecting the modulator's getValue and setValue methods to the set/get accessor
-     * methods of the object being modulated.  If the accessor methods of the object are, for
+     * Constructor connecting the modifier's getValue and setValue methods to the set/get accessor
+     * methods of the object being modifier.  If the accessor methods of the object are, for
      * example getTime and setTime, then the string "time" should be passed in the constructor.
      * Note the adherance to the JavaBeans case conventions for property and accessor names.
      *
-     * @param obj the object with the property to be modulated
-     * @param property the name of the property being modulated
+     * @param obj the object with the property to be modified
+     * @param property the name of the property being modified
      */
-    public Modulator(Object[] obj, String prop) {
+    public ModifierGeneral(Object[] obj, String prop) {
         super(Dimension.NULL);
         nObjects = obj.length;
         object    = new Object[nObjects];
@@ -45,9 +46,9 @@ public class Modulator extends ModulatorAbstract {
         initialize();
     }
     /**
-     * Modulator for property of a single object (most common use)
+     * Modifier for property of a single object (most common use)
      */
-    public Modulator(Object obj, String prop) {
+    public ModifierGeneral(Object obj, String prop) {
         this(new Object[] {obj}, prop);
     }
     
@@ -81,10 +82,10 @@ public class Modulator extends ModulatorAbstract {
                 }
             }
             if(readMethod[j] == null || writeMethod[j] == null) {  //should define an exception for this
-                System.out.println("Error in modulator construction");
+                System.out.println("Error in modifier construction");
                 System.exit(1);
             }
-            if(j == 0) {//discover dimension of modulated property by looking at getDimension method of first object
+            if(j == 0) {//discover dimension of modified property by looking at getDimension method of first object
                 dimension = Dimension.introspect(object[0],property,bi);
 /*                MethodDescriptor[] methods = bi.getMethodDescriptors();
                 for(int i=0; i<methods.length; i++) {
@@ -115,12 +116,12 @@ public class Modulator extends ModulatorAbstract {
                 writeMethod[j].invoke(object[j], new Double[] {new Double(d)});
             }
             catch(InvocationTargetException ex) {
-                System.out.println("InvocationTargetException in Modulator.setValue");
+                System.out.println("InvocationTargetException in Modifier.setValue");
                 ex.printStackTrace();
                 System.exit(1);
             }
             catch(IllegalAccessException ex) {
-                System.out.println("IllegalAccessException in Modulator.setValue");
+                System.out.println("IllegalAccessException in Modifier.setValue");
                 System.exit(1);
             }
         }//end of j-loop
@@ -147,27 +148,27 @@ public class Modulator extends ModulatorAbstract {
     public String getProperty() {return property;}
     
     /**
-     * Method to demonstrate how to implement and use a modulator
+     * Method to demonstrate how to implement and use a modifier
      */
 /*    public static void main(String[] args) {
         
-      //A typical class to demonstrate use of the Modulator.
-      //Modulator will be used to set and get the pressure field of this class.
+      //A typical class to demonstrate use of the Modifier
+      //Modifier will be used to set and get the pressure field of this class.
         IntegratorMC integrator = new IntegratorMC();
         MCMoveVolume target = new MCMoveVolume(integrator);
       
       //Pass the instance of the target object and a string indicating the name of the field
-      // to be accessed with the modulator
-        Modulator modulator = new Modulator(target, "pressure");
+      // to be accessed with the modifier
+        Modifier modifier = new Modifier(target, "pressure");
         
-        System.out.println("Setting field to 10.5 using modulator");
-        modulator.setValue(10.5);
+        System.out.println("Setting field to 10.5 using modifier");
+        modifier.setValue(10.5);
         System.out.println("Value of field as obtained directly from object: "+target.getPressure());
-        System.out.println("Value of field as obtained using modulator: "+modulator.getValue());
-        System.out.println("Dimensions of field as obtained by modulator: "+modulator.getDimension().toString());
-        boolean isMass = modulator.getDimension() instanceof Dimension.Mass;
+        System.out.println("Value of field as obtained using modifier: "+modifier.getValue());
+        System.out.println("Dimensions of field as obtained by modifier: "+modifier.getDimension().toString());
+        boolean isMass = modifier.getDimension() instanceof Dimension.Mass;
         System.out.println("Does the field have dimensions of MASS? "+isMass);
-        boolean isPressure = modulator.getDimension() instanceof Dimension.Pressure;
+        boolean isPressure = modifier.getDimension() instanceof Dimension.Pressure;
         System.out.println("Does the field have dimensions of PRESSURE? "+isPressure);
     }
     */

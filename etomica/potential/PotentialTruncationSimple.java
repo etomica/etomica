@@ -178,7 +178,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
 		integrator.setSleepPeriod(2);
 		
 		etomica.graphics.DeviceToggleButton lrcToggle = new etomica.graphics.DeviceToggleButton(Simulation.instance,
-		    new ModulatorBoolean() {
+		    new ModifierBoolean() {
 		        public void setBoolean(boolean b) {phase.setLrcEnabled(b);}
 		        public boolean getBoolean() {return phase.isLrcEnabled();}
 		    },"LRC enabled", "LRC disabled" );

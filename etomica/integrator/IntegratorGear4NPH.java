@@ -7,7 +7,6 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.IteratorDirective;
-import etomica.ModulatorBoolean;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
@@ -15,6 +14,7 @@ import etomica.Space;
 import etomica.action.PhaseInflate;
 import etomica.data.meter.MeterGroup;
 import etomica.data.meter.MeterTemperature;
+import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
 import etomica.space.CoordinatePair;
@@ -199,7 +199,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     //inner class used to toggle between NPT and NPH ensembles
-    public class EnsembleToggler extends ModulatorBoolean {
+    public class EnsembleToggler extends ModifierBoolean {
         public void setBoolean(boolean isothermal) {
             setIsothermal(isothermal);
             if(!isothermal) {

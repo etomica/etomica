@@ -4,33 +4,33 @@ import javax.swing.JCheckBox;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.ModulatorBoolean;
+import etomica.modifier.ModifierBoolean;
 
 /**
  * Button that toggles a boolean value via a check box.  This device can connect to any object
  * capable of switching between two states.  The device operates through a 
- * ModulatorBoolean instance that must be connected to the state of the
+ * ModifierBoolean instance that must be connected to the state of the
  * controlled object.
  * 
  * @author David Kofke
  */
 public class DeviceCheckBox extends Device implements EtomicaElement {
     
-    private ModulatorBoolean modulator;
+    private ModifierBoolean modifier;
     private JCheckBox box;
     private boolean currentValue = false;
     
-    public DeviceCheckBox(ModulatorBoolean modulator) {
-        this("Select", modulator);
+    public DeviceCheckBox(ModifierBoolean modifier) {
+        this("Select", modifier);
     }
-    public DeviceCheckBox(String label, ModulatorBoolean modulator) {
+    public DeviceCheckBox(String label, ModifierBoolean modifier) {
         super();
-        init(label, modulator);
+        init(label, modifier);
     }
     
-    private void init(String label, ModulatorBoolean modulator) {
-        this.modulator = modulator;
-        currentValue = modulator.getBoolean();
+    private void init(String label, ModifierBoolean modifier) {
+        this.modifier = modifier;
+        currentValue = modifier.getBoolean();
         box = new JCheckBox(label,currentValue);
         box.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -61,20 +61,20 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
      */
     public void toggle() {
         currentValue = !currentValue;
-        modulator.setBoolean(currentValue);
+        modifier.setBoolean(currentValue);
         box.setSelected(currentValue);
     }
     
     /**
-     * Specifies the boolean modulator that is set between true and false by the button.
+     * Specifies the boolean modifier that is set between true and false by the button.
      */
-    public ModulatorBoolean getModulator() {return modulator;}
+    public ModifierBoolean getModifier() {return modifier;}
     /**
-     * Returns the boolean modulator set by this button.
+     * Returns the boolean modifier set by this button.
      */
-    public void setModulator(ModulatorBoolean newModulator) {
-        modulator = newModulator;
-        modulator.setBoolean(currentValue);
+    public void setModifier(ModifierBoolean newModifier) {
+        modifier = newModifier;
+        modifier.setBoolean(currentValue);
     }
     
     /**
@@ -102,7 +102,7 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
 //        //sets up box to toggle atoms between red and blue
 //        final ColorSchemeByType colorScheme = new ColorSchemeByType();
 //        sim.display.setColorScheme(colorScheme);
-//        ModulatorBoolean modulator = new ModulatorBoolean() {
+//        ModifierBoolean modifier = new ModifierBoolean() {
 //            public void setBoolean(boolean b) {
 //                if(b) ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.blue);
 //                else ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.red);
@@ -112,8 +112,8 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
 //            }
 //            public boolean getBoolean() {return colorScheme.atomColor(sim.phase.firstAtom()) == java.awt.Color.blue;}
 //        };
-//        modulator.setBoolean(true);
-//        DeviceCheckBox button = new DeviceCheckBox(sim, "Blue", modulator);
+//        modifier.setBoolean(true);
+//        DeviceCheckBox button = new DeviceCheckBox(sim, "Blue", modifier);
 //        //end of unique part
 // 
 //        sim.elementCoordinator.go();

@@ -13,17 +13,17 @@ import javax.swing.event.ChangeListener;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Modulator;
-import etomica.ModulatorAbstract;
+import etomica.Modifier;
 import etomica.event.ChangeEventManager;
+import etomica.modifier.ModifierGeneral;
 import etomica.units.Unit;
 import etomica.utility.DecimalSlider;
 import etomica.utility.StringUtility;
 
 /**
- * Device the changes a property using a graphical slider, via a Modulator.
+ * Device the changes a property using a graphical slider, via a Modifier.
  *
- * @see Modulator
+ * @see ModifierGeneral
  */
  
  /* History
@@ -42,9 +42,9 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     private String label;
     /**
-     * Modulator connecting the slider to the property
+     * Modifier connecting the slider to the property
      */
-    protected ModulatorAbstract modulator;
+    protected Modifier modifier;
     /**
      * Subclass of Swing slider displayed to screen
      * located in utility package 
@@ -102,17 +102,17 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * Constructs a slider connected to the given property of the given object
      */
     public DeviceSlider(Object object, String property) {
-        this(new Modulator(object, property));
+        this(new ModifierGeneral(object, property));
         component = object;
         this.property = property;
     }
     /**
-     * Constructs a slider connected to the get/set Value methods of the given Modulator
+     * Constructs a slider connected to the get/set Value methods of the given Modifier
      */
-    public DeviceSlider(ModulatorAbstract m) {
+    public DeviceSlider(Modifier m) {
         this();
         //set component and property in some way
-        setModulator(m);
+        setModifier(m);
     }
 
     private void init() {
@@ -160,26 +160,26 @@ public class DeviceSlider extends Device implements EtomicaElement {
         setLabelDefault();
     }
     
-    public final void setModulator(ModulatorAbstract m) {
-        modulator = m;
-        unit = modulator.getDimension().defaultIOUnit();
+    public final void setModifier(Modifier m) {
+        modifier = m;
+        unit = modifier.getDimension().defaultIOUnit();
         setLabelDefault();
-        slider.setDecimalSliderValue(unit.fromSim(modulator.getValue()));        
+        slider.setDecimalSliderValue(unit.fromSim(modifier.getValue()));        
         setMinimum(getMinimum());
         setMaximum(getMaximum());
     }
-    public final ModulatorAbstract getModulator() {return modulator;}
+    public final Modifier getModifier() {return modifier;}
     
     public String getProperty() {return property;}
     public void setProperty(String s) {
         property = s;
-        if(component != null) setModulator(new Modulator(component, property));
+        if(component != null) setModifier(new ModifierGeneral(component, property));
     }
     
     public Object getComponent() {return component;}
     public void setComponent(Object obj) {
         component = obj;
-        if(property != null) setModulator(new Modulator(component,property));
+        if(property != null) setModifier(new ModifierGeneral(component,property));
     }
     
     public double getMinimum() {return minimum;}
@@ -236,7 +236,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
              setSliderValueShape("VERTICAL");
              textField.addActionListener(new ActionListener(){
                   public void actionPerformed( ActionEvent e){
-                    //sets value of slider, which then fires event to modulator, taking care of units
+                    //sets value of slider, which then fires event to modifier, taking care of units
                        setValue((Double.parseDouble(e.getActionCommand())));
 //                       setValue(unit.toSim(Double.parseDouble(e.getActionCommand())));
              }});}     
@@ -296,8 +296,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     private void setLabelDefault() {
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        if(modulator != null) 
-            setLabel(StringUtility.capitalize(modulator.getLabel())+suffix);
+        if(modifier != null) 
+            setLabel(StringUtility.capitalize(modifier.getLabel())+suffix);
     }
 
     /**
@@ -345,12 +345,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
      public void removeChangeListener(ChangeListener l) {changeEventManager.removeChangeListener(l);}
     
     /**
-     * Slider listener, which relays the slider change events to the modulator
+     * Slider listener, which relays the slider change events to the modifier
      */
     private class SliderListener implements ChangeListener {
         public void stateChanged(ChangeEvent evt) {
-            if(modulator!=null) {
-                modulator.setValue(unit.toSim(slider.getDecimalSliderValue()));            
+            if(modifier!=null) {
+                modifier.setValue(unit.toSim(slider.getDecimalSliderValue()));            
                 textField.setText(String.valueOf(slider.getDecimalSliderValue())); 
                 changeEventManager.fireChangeEvent(evt);
             }
@@ -363,8 +363,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
 //    public static void main(String[] args) {
 //         
-//// inner class of Modulator that works with Slider*************************************************************
-//           class DiameterModulator extends etomica.ModulatorAbstract {
+//// inner class of Modifier that works with Slider*************************************************************
+//           class DiameterModifier extends etomica.ModifierAbstract {
 //
 //                public double fullDiameter;
 //                public double currentValue;
@@ -373,7 +373,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
 //                private etomica.SpeciesSpheresMono speciesSpheres01;
 //                private JPanel valuePanel;
 //
-//                public DiameterModulator(etomica.P2SquareWell pot, etomica.SpeciesSpheresMono ssm){
+//                public DiameterModifier(etomica.P2SquareWell pot, etomica.SpeciesSpheresMono ssm){
 //                    p2SquareWell = pot;
 //                    speciesSpheres01 = ssm;
 //                    fullDiameter = pot.getCoreDiameter();
@@ -393,7 +393,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
 //                    this.display = display;
 //                }
 //            } 
-////end of DiameterModulator class*********************************************************************
+////end of DiameterModifier class*********************************************************************
 //           
 //        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
 //
@@ -407,17 +407,17 @@ public class DeviceSlider extends Device implements EtomicaElement {
 //        DeviceTrioControllerButton button = new DeviceTrioControllerButton();
 ////           button.setTrioControllerButtonShape("VERTICAL");     
 //
-//        DiameterModulator diaModulator= new DiameterModulator(p2SquareWell, speciesSpheres0);
-//           diaModulator.setDisplay(displayPhase0);
+//        DiameterModifier diaModifier= new DiameterModifier(p2SquareWell, speciesSpheres0);
+//           diaModifier.setDisplay(displayPhase0);
 //           
 //        DeviceSlider mySlider = new DeviceSlider();
 ////           mySlider.setShowMinorValues(true);
 //           mySlider.setPrecision(3);  // default "0" - working with integer without setting precision, better higher precesion than minimum and maximum
 //           mySlider.setMinimum(0);  // possible to give double value
 //           mySlider.setMaximum(6.2); // possible to give double value
-//           mySlider.setModulator(diaModulator); // call modulator instance after setting precision, minimum, and maximum
-////           mySlider.setValue(2*Default.ATOM_SIZE);// if modulator instance is called first then setValue method should be called to set slider value
-////           mySlider.setLabel("  ");  // without this, shows modulator demension  
+//           mySlider.setModifier(diaModifier); // call modifier instance after setting precision, minimum, and maximum
+////           mySlider.setValue(2*Default.ATOM_SIZE);// if modifier instance is called first then setValue method should be called to set slider value
+////           mySlider.setLabel("  ");  // without this, shows modifier demension  
 //           mySlider.setShowValues(true); // default "false" - true makes panel to put Slider and TextField, which shows the values of slider
 //           mySlider.setEditValues(true); // defaulst " false" - decide to edit the values after true setShowValues 
 //           mySlider.setLabel("Diameter");

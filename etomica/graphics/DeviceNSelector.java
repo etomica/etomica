@@ -2,14 +2,15 @@ package etomica.graphics;
 
 import etomica.Controller;
 import etomica.Integrator;
-import etomica.ModulatorAbstract;
+import etomica.Modifier;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SpeciesAgent;
 import etomica.SpeciesSpheresMono;
 import etomica.integrator.IntegratorHard;
+import etomica.modifier.ModifierNMolecule;
 import etomica.potential.P2HardSphere;
-import etomica.space2d.Space2D;
+import etomica.simulations.HSMD2D;
 import etomica.units.Dimension;
 
 /**
@@ -31,13 +32,13 @@ public class DeviceNSelector extends DeviceSlider {
     private etomica.action.SimulationRestart restartAction;
     private DisplayPhase display;
     
-    public DeviceNSelector(SpeciesAgent agent) {
+    public DeviceNSelector(Controller controller, SpeciesAgent agent) {
         super();
         this.speciesAgent = agent;
-        this.integrator = agent.node.parentPhase().integrator();
-        restartAction = new etomica.action.SimulationRestart(agent.node.parentSimulation());
+        this.integrator = integrator;
+        restartAction = new etomica.action.SimulationRestart(sim);
         
-        setModulator(new NMoleculeModulator());
+        setModifier(new ModifierNMolecule());
 //        setNMajor(6);
 	    setMinimum(0);
 	    setMaximum(60);
@@ -60,53 +61,17 @@ public class DeviceNSelector extends DeviceSlider {
     
 
        
-    //Modulator class to connect slider to species agents to change the
-    //number of molecules
-    private class NMoleculeModulator extends ModulatorAbstract {
-        
-        public NMoleculeModulator() {
-            super(Dimension.QUANTITY);
-        }
-        
-        public void setValue(double d) {
- //           if(initializing) return;
-            if(d < 0) d = 0;
-            boolean isPaused = integrator.isPaused();
-   //         if(!isPaused) {
-                try {
-                    restartAction.actionPerformed();
-                } catch (NullPointerException ex) {return;}
-   //         }
-            try {
-                 speciesAgent.setNMolecules((int)d);
-            } catch(NullPointerException ex) {}
-                try {
-                    restartAction.actionPerformed();
-                } catch (NullPointerException ex) {return;}
-            if(display != null) display.repaint();
-            integrator.reset();
-        }
-        public double getValue() {return (speciesAgent!=null)?(double)speciesAgent.moleculeCount():0;}
-    }//end of NMoleculeModulator
-    
     //main method to demonstrate and test class
     public static void main(String[] args) {
         
-        SimulationGraphic sim = new SimulationGraphic(new Space2D());
-        Simulation.instance = sim;
-        SpeciesSpheresMono species = new SpeciesSpheresMono();
-        species.setName("Disk");
-        Phase phase = new Phase();
-        P2HardSphere potential = new P2HardSphere();
-        IntegratorHard integrator = new IntegratorHard();
-        Controller controller = new Controller();
-        DisplayPhase display = new DisplayPhase();
+        HSMD2D sim = new HSMD2D();
+        SimulationGraphic graphic = new SimulationGraphic(sim);
+        sim.species.setName("Disk");
         
 //        sim.elementCoordinator.go();
-        DeviceNSelector nSelector = new DeviceNSelector(phase.getAgent(species));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.phase.getAgent(sim.species));
         nSelector.setDisplayPhase(display);
-//        sim.elementCoordinator.go();
-        sim.makeAndDisplayFrame();
+        graphic.makeAndDisplayFrame();
     }//end of main
     
 

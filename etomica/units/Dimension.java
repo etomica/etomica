@@ -213,7 +213,7 @@ public abstract class Dimension implements java.io.Serializable {
      * @param property the name of the property, such that getPROPERTYDimension would return the dimension of the property
      * @param beaninfo BeanInfo class obtained by prior introspection of the object
      */
-     //used by modulator, propertysheet
+     //used by modifier, propertysheet
      public static Dimension introspect(Object obj, String property, java.beans.BeanInfo beaninfo) {
         java.beans.MethodDescriptor[] methods = beaninfo.getMethodDescriptors();
         for(int i=0; i<methods.length; i++) {

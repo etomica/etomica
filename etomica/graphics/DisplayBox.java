@@ -261,7 +261,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
         potentialAgent.setIterator(new AtomPairIterator(phase));
 
         //part that is unique to this demonstration
-        Modulator mod1 = new Modulator(integrator, "timeStep");
+        Modifier mod1 = new Modifier(integrator, "timeStep");
         Meter ke = new MeterKineticEnergy();
         Meter energy = new MeterEnergy();
         ke.setPhase(phase);
@@ -273,7 +273,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
         box0.setWhichValue(MeterAbstract.CURRENT);
         box0.setLabelType(DisplayBox.STRING);
         box0.setLabelPosition(Constants.SOUTH);
-        //here's a DisplayBox tied to a Modulator
+        //here's a DisplayBox tied to a Modifier
 		DisplayBox box1 = new DisplayBox();
 		box1.setDatumSource(mod1);
         //end of unique part

@@ -9,6 +9,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.modifier.ModifierBoolean;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Boundary;
 import etomica.space3d.Space3D;
@@ -411,7 +412,7 @@ public class SimulationVirial extends SimulationGraphic {
 		meterCycles.setUpdateInterval(1);
 		displayCycles.setDatumSource(meterCycles);
 		
-		ModulatorStepSize modStep = sim.new ModulatorStepSize();
+		ModifierStepSize modStep = sim.new ModifierStepSize();
 		DeviceToggleButton stepSizeAdjustButton = new DeviceToggleButton(sim, modStep, "Adjusting step", "Not adjusting step");
 		
 		//rdf tabulation used to debug B2 calculation
@@ -467,7 +468,7 @@ public class SimulationVirial extends SimulationGraphic {
 
 	}//end of main
 	
-	private class ModulatorStepSize extends ModulatorBoolean {
+	private class ModifierStepSize extends ModifierBoolean {
 		
 		boolean value = false;
 		public void setBoolean(boolean value) {

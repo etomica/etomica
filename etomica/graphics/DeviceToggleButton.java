@@ -4,28 +4,28 @@ import javax.swing.JButton;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.ModulatorBoolean;
+import etomica.modifier.ModifierBoolean;
 
 /**
  * Button that toggles a boolean value.  This device can connect to any object
  * capable of switching between two states.  The device operates through a 
- * ModulatorBoolean instance that must be connected to the state of the
+ * ModifierBoolean instance that must be connected to the state of the
  * controlled object.
  * 
  * @author David Kofke
  */
 public class DeviceToggleButton extends Device implements EtomicaElement {
     
-    private ModulatorBoolean modulator;
+    private ModifierBoolean modifier;
     private JButton button;
     private String trueLabel = "True";
     private String falseLabel = "False";
     private boolean currentValue = false;
     
-    public DeviceToggleButton(ModulatorBoolean modulator) {
-        this(modulator, "True", "False");
+    public DeviceToggleButton(ModifierBoolean modifier) {
+        this(modifier, "True", "False");
     }
-    public DeviceToggleButton(ModulatorBoolean modulator, 
+    public DeviceToggleButton(ModifierBoolean modifier, 
                                 String trueText, String falseText) {
         super();
         button = new JButton();
@@ -34,8 +34,8 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
                 toggle();
             }
         });
-        currentValue = modulator.getBoolean();
-        setModulator(modulator);
+        currentValue = modifier.getBoolean();
+        setModifier(modifier);
         setTrueLabel(trueText);
         setFalseLabel(falseText);//sets label to correct state
     }
@@ -62,21 +62,21 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
      */
     public void toggle() {
         currentValue = !currentValue;
-        modulator.setBoolean(currentValue);
+        modifier.setBoolean(currentValue);
         if(currentValue == true) button.setText(trueLabel);
         else button.setText(falseLabel);
     }
     
     /**
-     * Specifies the boolean modulator that is set between true and false by the button.
+     * Specifies the boolean modifier that is set between true and false by the button.
      */
-    public ModulatorBoolean getModulator() {return modulator;}
+    public ModifierBoolean getModifier() {return modifier;}
     /**
-     * Returns the boolean modulator set by this button.
+     * Returns the boolean modifier set by this button.
      */
-    public void setModulator(ModulatorBoolean newModulator) {
-        modulator = newModulator;
-        modulator.setBoolean(currentValue);
+    public void setModifier(ModifierBoolean newModifier) {
+        modifier = newModifier;
+        modifier.setBoolean(currentValue);
     }
     
     /**
@@ -128,7 +128,7 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue
         sim.display.setColorScheme(new ColorSchemeNull());
-        ModulatorBoolean modulator = new ModulatorBoolean() {
+        ModifierBoolean modifier = new ModifierBoolean() {
             public void setBoolean(boolean b) {
                 if(b) sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.red);}});
                 else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
@@ -136,7 +136,7 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
             }
             public boolean getBoolean() {return sim.phase.firstAtom().getColor() == java.awt.Color.red;}
         };
-        DeviceToggleButton button = new DeviceToggleButton(sim, modulator);
+        DeviceToggleButton button = new DeviceToggleButton(sim, modifier);
         button.setTrueLabel("Red");
         button.setFalseLabel("Blue");
         //end of unique part

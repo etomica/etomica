@@ -9,7 +9,7 @@ import javax.swing.JTextField;
 import etomica.Constants;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.ModulatorAbstract;
+import etomica.Modifier;
 
 /**
  * A simple device the permits editing of a single value via a textbox 
@@ -43,9 +43,9 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      */
     protected JPanel panel = new JPanel(new java.awt.BorderLayout());
     /**
-     * Modulator that relays the changes to the object controlled by the device
+     * Modifier that relays the changes to the object controlled by the device
      */
-    protected ModulatorAbstract modulator;
+    protected Modifier modifier;
     /**
      * Integer specifying the number of significant figures to be displayed.
      * Default is 4.
@@ -64,9 +64,9 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         super();
         init();
     }
-    public DeviceBox(ModulatorAbstract m) {
+    public DeviceBox(Modifier m) {
         this();
-        setModulator(m);
+        setModifier(m);
     }
 
     private void init() {
@@ -98,13 +98,13 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     }
     
     /**
-     * Updates the display of the box with the current value given by the modulator.
+     * Updates the display of the box with the current value given by the modifier.
      */
     public void doUpdate() {
-        if(modulator == null) return;
+        if(modifier == null) return;
 //        value.setText(Double.toString(m.getValue()));
-        if(integer) value.setText(Integer.toString((int)unit.fromSim(modulator.getValue())));
-        else value.setText(format(unit.fromSim(modulator.getValue()),precision));
+        if(integer) value.setText(Integer.toString((int)unit.fromSim(modifier.getValue())));
+        else value.setText(format(unit.fromSim(modifier.getValue()),precision));
     }
     
     public void setEditable(boolean b) {value.setEditable(b);}
@@ -128,7 +128,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Obtained from the meter associated with this display.
      */
     public etomica.units.Dimension dimension() {
-        if(modulator != null) return modulator.getDimension();
+        if(modifier != null) return modifier.getDimension();
         else return etomica.units.Dimension.NULL;
     }
     
@@ -153,10 +153,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     public boolean isInteger() {return integer;}
     
     /**
-     * Specifies the modulator that receives the edit.
+     * Specifies the modifier that receives the edit.
      */
-    public void setModulator(ModulatorAbstract m) {
-        modulator = m;
+    public void setModifier(Modifier m) {
+        modifier = m;
         if(m == null) return;
         setUnit(m.getDimension().defaultIOUnit());
         setLabel();
@@ -164,19 +164,19 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     }
     
     /**
-     * Accessor method for the modulator that receives the edit.
+     * Accessor method for the modifier that receives the edit.
      */
-    public ModulatorAbstract getModulator() {
-        return modulator;
+    public Modifier getModifier() {
+        return modifier;
     }
     
     /**
      * Sets the value of a descriptive label using the meter's label and the unit's symbol (abbreviation).
      */
     private void setLabel() {
-        if(modulator == null) return;
+        if(modifier == null) return;
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        setLabel(modulator.getLabel()+suffix);
+        setLabel(modifier.getLabel()+suffix);
     }
     
     /**
@@ -225,8 +225,8 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         
     private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            if(modulator == null) return;
-            double x = unit.fromSim(modulator.getValue());
+            if(modifier == null) return;
+            double x = unit.fromSim(modifier.getValue());
             try { 
                 x = Double.parseDouble(value.getText());
             } catch(NumberFormatException ex) {//if bad format, just restore original value
@@ -234,7 +234,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
                 doUpdate();
                 return;
                 }
-            if(modulator!=null) modulator.setValue(unit.toSim(x));
+            if(modifier!=null) modifier.setValue(unit.toSim(x));
        }
        public void keyReleased(java.awt.event.KeyEvent evt) {
             if(!isInteger()) return;
@@ -245,7 +245,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             if(step == 0) return;
             int i = Integer.parseInt(value.getText()) + step;
             value.setText(Integer.toString(i));
-            if(modulator!=null) modulator.setValue(unit.toSim(i));
+            if(modifier!=null) modifier.setValue(unit.toSim(i));
        }
     }
     
@@ -270,10 +270,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
 //
 //        //part that is unique to this demonstration
 //        integrator.setIsothermal(true);
-//        Modulator mod1 = new Modulator(integrator, "temperature");
+//        Modifier mod1 = new Modifier(integrator, "temperature");
 //        //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
 //        DeviceBox box0 = new DeviceBox(mod1);
-//        //here's a DisplayBox tied to a Modulator
+//        //here's a DisplayBox tied to a Modifier
 //		DisplayBox box1 = new DisplayBox();
 ////broken		box1.setDatumSource(mod1);
 //        //end of unique part

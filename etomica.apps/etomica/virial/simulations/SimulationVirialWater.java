@@ -17,6 +17,7 @@ import etomica.virial.*;
 import etomica.virial.cluster.*;
 import etomica.virial.simulations.*;
 import etomica.models.water.*;
+import etomica.modifier.ModifierBoolean;
 
 /**
  * @author kofke
@@ -242,7 +243,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 		meterCycles.setUpdateInterval(1);
 		displayCycles.setDatumSource(meterCycles);
 		
-		ModulatorStepSize modStep = sim.new ModulatorStepSize();
+		ModifierStepSize modStep = sim.new ModifierStepSize();
 		DeviceToggleButton stepSizeAdjustButton = new DeviceToggleButton(sim, modStep, "Adjusting step", "Not adjusting step");
 		
 		sim.elementCoordinator.go();
@@ -251,7 +252,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 
 	}//end of main
 	
-	private class ModulatorStepSize extends ModulatorBoolean {
+	private class ModifierStepSize extends ModifierBoolean {
 		
 		boolean value = false;
 		public void setBoolean(boolean value) {

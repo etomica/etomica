@@ -6,20 +6,20 @@ import javax.swing.JRadioButton;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.ModulatorBoolean;
+import etomica.modifier.ModifierBoolean;
 
 /**
  * Button that toggles a boolean value using a pair of radio buttons.  
  * This device can connect to any object
  * capable of switching between two states.  The device operates through a 
- * ModulatorBoolean instance that must be connected to the state of the
+ * ModifierBoolean instance that must be connected to the state of the
  * controlled object.
  * 
  * @author David Kofke
  */
 public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
     
-    private ModulatorBoolean modulator;
+    private ModifierBoolean modifier;
     private JPanel panel;
     private JRadioButton trueButton, falseButton;
     
@@ -27,23 +27,23 @@ public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
      * Constructor with default labels of a blank title and "True" and "False" for
      * the true/false labels.
      */
-    public DeviceToggleRadioButtons(ModulatorBoolean modulator) {
-        this(modulator, "", "True", "False");
+    public DeviceToggleRadioButtons(ModifierBoolean modifier) {
+        this(modifier, "", "True", "False");
     }
     
     /**
      * @param sim       the parent simulation of this device
-     * @param modulator the boolean modulator controlled by this device
+     * @param modifier the boolean modifier controlled by this device
      * @param title     a descriptive string.  If empty ("") provides plain border; if null, provides no border.
-     * @param trueText  text associated with "true" state of modulator
-     * @param falseText text associated with "false" state of modulator
+     * @param trueText  text associated with "true" state of modifier
+     * @param falseText text associated with "false" state of modifier
      */
-    public DeviceToggleRadioButtons(final ModulatorBoolean modulator, 
+    public DeviceToggleRadioButtons(final ModifierBoolean modifier, 
                                 String title, String trueText, String falseText) {
 
         java.awt.event.ActionListener al = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                modulator.setBoolean(getState());
+                modifier.setBoolean(getState());
             }
         };
   
@@ -59,8 +59,8 @@ public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
         panel.add(trueButton);
         panel.add(falseButton);
 
-        falseButton.setSelected(!modulator.getBoolean());
-        setModulator(modulator);
+        falseButton.setSelected(!modifier.getBoolean());
+        setModifier(modifier);
         
         if(title != null /*&& !title.equals("")*/) setTitle(title);
     }
@@ -84,15 +84,15 @@ public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
     public boolean getState() {return trueButton.isSelected();}
         
     /**
-     * Specifies the boolean modulator that is set between true and false by the button.
+     * Specifies the boolean modifier that is set between true and false by the button.
      */
-    public ModulatorBoolean getModulator() {return modulator;}
+    public ModifierBoolean getModifier() {return modifier;}
     /**
-     * Returns the boolean modulator set by this button.
+     * Returns the boolean modifier set by this button.
      */
-    public void setModulator(ModulatorBoolean newModulator) {
-        modulator = newModulator;
-        modulator.setBoolean(getState());
+    public void setModifier(ModifierBoolean newModifier) {
+        modifier = newModifier;
+        modifier.setBoolean(getState());
     }
     
     /**
@@ -154,7 +154,7 @@ public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue
         sim.display.setColorScheme(new ColorSchemeNull());
-        ModulatorBoolean modulator = new ModulatorBoolean() {
+        ModifierBoolean modifier = new ModifierBoolean() {
             public void setBoolean(boolean b) {
                 if(b) sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.red);}});
                 else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
@@ -162,7 +162,7 @@ public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
             }
             public boolean getBoolean() {return sim.phase.firstAtom().getColor() == java.awt.Color.red;}
         };
-        DeviceToggleRadioButtons selector = new DeviceToggleRadioButtons(sim, modulator);
+        DeviceToggleRadioButtons selector = new DeviceToggleRadioButtons(sim, modifier);
         selector.setTrueLabel("Red");
         selector.setFalseLabel("Blue");
 //        selector.setTitle("Color");

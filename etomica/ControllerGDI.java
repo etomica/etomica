@@ -1,6 +1,7 @@
 package etomica ;
 import etomica.data.AccumulatorAverage;
 import etomica.data.meter.MeterScalar;
+import etomica.modifier.ModifierGeneral;
 import etomica.utility.Function;
 
 /**
@@ -22,7 +23,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     private  double          h = 0.0001;// step size
     private  double          factor;
     private  Integrator      integrator1,integrator2;
-    private  Modulator       modulatorIndependentVariable,modulatorDependentVariable;
+    private  ModifierGeneral       modifierIndependentVariable,modifierDependentVariable;
     private  MeterScalar     meter1phase1,meter1phase2,meter2phase1,meter2phase2;
     private  AccumulatorAverage accAve1phase1, accAve1phase2, accAve2phase1, accAve2phase2;
     private  DataManager AM1phase1, AM1phase2, AM2phase1, AM2phase2;
@@ -45,38 +46,38 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public ControllerGDI(Simulation sim) {
         super(sim);
     }
-    public ControllerGDI(Simulation sim, Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
+    public ControllerGDI(Simulation sim, ModifierGeneral modifierIndependentVariable1, ModifierGeneral modifierDependentVariable1,
                             double i1, double d1, double finalvalue,
                             Integrator int1, Integrator int2,
                             MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4) {
-        this(sim, modulatorIndependentVariable1, modulatorDependentVariable1,
+        this(sim, modifierIndependentVariable1, modifierDependentVariable1,
                             i1,d1,finalvalue,
                             int1, int2,
                             m1, m2, m3, m4,
                             new Function.Identity(), new Function.Identity());
     }
-    public ControllerGDI(Simulation sim, Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
+    public ControllerGDI(Simulation sim, ModifierGeneral modifierIndependentVariable1, ModifierGeneral modifierDependentVariable1,
                             double i1, double d1, double finalvalue,
                             Integrator int1, Integrator int2,
                             MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4,
                             Function iFunction, Function dFunction) {
         super(sim);
-        this.definition(modulatorIndependentVariable1, modulatorDependentVariable1,
+        this.definition(modifierIndependentVariable1, modifierDependentVariable1,
                             i1,d1,finalvalue,
                             int1, int2,
                             m1, m2, m3, m4,
                             iFunction, dFunction);
     }
     
-    public void definition(Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
+    public void definition(ModifierGeneral modifierIndependentVariable1, ModifierGeneral modifierDependentVariable1,
                             double i1,double d1,double finalvalue,
                             Integrator int1,Integrator int2,
                             MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4,
                             Function iFunction, Function dFunction) {
         iF = iFunction;
         dF = dFunction;
-        modulatorIndependentVariable = modulatorIndependentVariable1;
-        modulatorDependentVariable   = modulatorDependentVariable1;
+        modifierIndependentVariable = modifierIndependentVariable1;
+        modifierDependentVariable   = modifierDependentVariable1;
         integrator1 = int1;
         integrator2 = int2;
         meter1phase1 = m1;
@@ -152,7 +153,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     }
     
     private double slope() {
-        factor = dF.dfdx(modulatorDependentVariable.getValue())/iF.dfdx(modulatorIndependentVariable.getValue());
+        factor = dF.dfdx(modifierDependentVariable.getValue())/iF.dfdx(modifierIndependentVariable.getValue());
         numerator   = accAve1phase1.average()[0] - accAve1phase2.average()[0];
         denominator = accAve2phase1.average()[0] - accAve2phase2.average()[0];
         numerator *= factor;
@@ -164,8 +165,8 @@ public class ControllerGDI extends Controller implements EtomicaElement {
 //        outputFile = new OutputFile(outputFileName);
  
         independentVariable = iF.f(i0);
-        modulatorIndependentVariable.setValue(i0);
-        modulatorDependentVariable.setValue(d0);
+        modifierIndependentVariable.setValue(i0);
+        modifierDependentVariable.setValue(d0);
 
         if(!initialSlopeGiven) {
             doSimulation(prodCycles);//simulate at initial conditions
@@ -176,9 +177,9 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     
     private void predictor() {
         f0 = f1;
-        dependentVariableOld  = dF.f(modulatorDependentVariable.getValue());
+        dependentVariableOld  = dF.f(modifierDependentVariable.getValue());
         dependentVariableNew = dependentVariableOld + f0*h;
-        modulatorDependentVariable.setValue(dF.inverse(dependentVariableNew));
+        modifierDependentVariable.setValue(dF.inverse(dependentVariableNew));
         doSimulation(pCycles);
         f1 = slope();
     }
@@ -186,13 +187,13 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     
     private void corrector(int nCycles) {
         dependentVariableNew = dependentVariableOld + (f0 + f1)*0.5*h;
-        modulatorDependentVariable.setValue(dF.inverse(dependentVariableNew));
+        modifierDependentVariable.setValue(dF.inverse(dependentVariableNew));
         doSimulation(nCycles);
         f1 = slope();
     }
     
 //     private void output() {
-//        outputFile.println(modulatorIndependentVariable.getValue() +"\t"+ modulatorDependentVariable.getValue());
+//        outputFile.println(modifierIndependentVariable.getValue() +"\t"+ modifierDependentVariable.getValue());
 //     }
  
      public void run() {
@@ -202,7 +203,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
         while(independentVariable < independentVariableFinal){
             
             independentVariable += h;
-            modulatorIndependentVariable.setValue(iF.inverse(independentVariable));
+            modifierIndependentVariable.setValue(iF.inverse(independentVariable));
             
             currentEvent = predictorEvent;
             predictor();

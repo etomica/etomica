@@ -1,25 +1,25 @@
-package etomica;
+package etomica.modifier;
 
 import etomica.utility.Function;
 
 /**
- * Extends the configurable modulator to permit a function to be applied to
+ * Extends the configurable modifier to permit a function to be applied to
  * a value before the modulated property is set.  Correspondingly, the value
  * obtained from a get of the modulated property has applied the inverse
  * of the function.
  *
- * @see Modulator
+ * @see ModifierGeneral
  * @author David Kofke
  */
  
-public class ModulatorFunction extends Modulator {
+public class ModifierFunctionWrapper extends ModifierGeneral {
     
     private Function function = new Function.Identity();
     
-    public ModulatorFunction(Object[] obj, String prop) {
+    public ModifierFunctionWrapper(Object[] obj, String prop) {
         super(obj, prop);
     }
-    public ModulatorFunction(Object obj, String prop) {
+    public ModifierFunctionWrapper(Object obj, String prop) {
         super(obj, prop);
     }
 

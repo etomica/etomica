@@ -5,7 +5,7 @@ package etomica.simulations;
 import etomica.Atom;
 import etomica.ConfigurationLattice;
 import etomica.Controller;
-import etomica.ModulatorAbstract;
+import etomica.Modifier;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
@@ -24,14 +24,14 @@ import etomica.units.Dimension;
 
 public class SWMD3D extends Simulation {
 
-	public class MyModulator extends ModulatorAbstract {
+	public class MyModifier extends Modifier {
 
-        public MyModulator() {
+        public MyModifier() {
             super(Dimension.LENGTH);
         }
 
 		/**
-		 * @see etomica.ModulatorAbstract#setValue(double)
+		 * @see etomica.Modifier#setValue(double)
 		 */
 		public void setValue(double d) {
 			potential.setCoreDiameter(d);
@@ -39,7 +39,7 @@ public class SWMD3D extends Simulation {
 		}
 
 		/**
-		 * @see etomica.ModulatorAbstract#getValue()
+		 * @see etomica.Modifier#getValue()
 		 */
 		public double getValue() {
 			return potential.getCoreDiameter();
@@ -72,7 +72,7 @@ public class SWMD3D extends Simulation {
 
 	
 //	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");
-//	DeviceSlider sigmaControl = new DeviceSlider(new MyModulator());
+//	DeviceSlider sigmaControl = new DeviceSlider(new MyModifier());
 //	DeviceSlider lambdaControl = new DeviceSlider(potential0, "lambda");
 //	tControl.setLabel("Temperature (K)");
 //	sigmaControl.setLabel("Atom size (Angstroms)");
