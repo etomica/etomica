@@ -30,6 +30,7 @@ public class IntegratorMC extends Integrator {
     }
     
     public void initialize() {
+        deployAgents();
         frequencyTotal = 0;
         for(MCMove m=firstMove; m!=null; m=m.getNextMove()) {
             m.resetFrequency(firstPhase);
@@ -37,10 +38,12 @@ public class IntegratorMC extends Integrator {
         }
     }
     
-    public IntegratorAgent makeAgent() {
-        return new Agent();
+    public IntegratorAgent makeAgent(Atom a) {
+        return new Agent(a);
     }
     
     private class Agent implements IntegratorAgent {
+        public Atom atom;
+        public Agent(Atom a) {atom = a;}
     }
 }

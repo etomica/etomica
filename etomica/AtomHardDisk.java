@@ -4,7 +4,7 @@ import java.awt.*;//for Graphics
 import java.util.*; //for neighborList
 import java.beans.Beans;
 
-public class AtomHardDisk extends AtomHard implements AtomDisk {
+public class AtomHardDisk extends AtomC implements AtomDisk {
 
     /**
      * Diameter (Angstrom) used to specify the size of the atom when drawn to screen.

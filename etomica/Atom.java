@@ -12,54 +12,6 @@ import java.awt.*;
  */
 public abstract class Atom {
 
-    public IntegratorAgent ia;
-    
-    /**
-     * Color of the atom when drawn on the screen
-     */
-    Color color = Color.black;
-    
-    /**
-     * Ratio of atom mass to mass of parent molecule.
-     * Used to locate the center-of-mass of the molecule
-     * @see Molecule#COM
-     */
-    double COMFraction = 1.0;
-
-    /**
-     * Instance of molecule in which this atom resides.
-     * Assigned in Atom constructor.
-     * @see Molecule#makeAtoms
-     */
-    Molecule parentMolecule = null;
-    
-    /**
-     * Identifier of atom within molecule.
-     * Assigned by parent molecule when invoking Atom constructor.
-     * @see Molecule#makeAtoms
-     */
-    int atomIndex;
-    
-    
-    /**
-     * next atom in linked list of atoms
-     * @see #setNextAtom
-     */
-    Atom nextAtom = null;
-    
-    /**
-     * previous atom in linked list of atoms
-     *
-     * @see #setNextAtom
-     */
-    Atom previousAtom = null;
-        
-    /**
-     * Flag indicating whether atom is stationary or mobile.
-     * Default is false (atom is mobile)
-     */
-    private boolean stationary;
-    
     /**
      * Constructs an atom with no initialization if parent is null; otherwise constructs atom with default atomIndex = 0.  
      * Expected use of such an Atom is for the construction of other Atoms via makeAtom method
@@ -84,6 +36,8 @@ public abstract class Atom {
     }
         
     public abstract Atom makeAtom(Molecule m, int i);
+    
+    public void setIntegratorAgent(IntegratorAgent ia) {this.ia = ia;}
     
     public final Molecule getMolecule() {return parentMolecule;}
     
@@ -131,4 +85,55 @@ public abstract class Atom {
   public final Atom getPreviousAtom() {return previousAtom;}
   
   public abstract void draw(Graphics g, int[] origin, double scale);
+
+//    public IntegratorHard integrator = new IntegratorHard();
+//    public IntegratorAgent ia = integrator.makeAgent(this);
+    public IntegratorAgent ia;
+    
+    /**
+     * Color of the atom when drawn on the screen
+     */
+    Color color = Color.black;
+    
+    /**
+     * Ratio of atom mass to mass of parent molecule.
+     * Used to locate the center-of-mass of the molecule
+     * @see Molecule#COM
+     */
+    double COMFraction = 1.0;
+
+    /**
+     * Instance of molecule in which this atom resides.
+     * Assigned in Atom constructor.
+     * @see Molecule#makeAtoms
+     */
+    Molecule parentMolecule = null;
+    
+    /**
+     * Identifier of atom within molecule.
+     * Assigned by parent molecule when invoking Atom constructor.
+     * @see Molecule#makeAtoms
+     */
+    int atomIndex;
+    
+    
+    /**
+     * next atom in linked list of atoms
+     * @see #setNextAtom
+     */
+    Atom nextAtom = null;
+    
+    /**
+     * previous atom in linked list of atoms
+     *
+     * @see #setNextAtom
+     */
+    Atom previousAtom = null;
+        
+    /**
+     * Flag indicating whether atom is stationary or mobile.
+     * Default is false (atom is mobile)
+     */
+    private boolean stationary;
+   
 }

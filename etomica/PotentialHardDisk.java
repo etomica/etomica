@@ -14,7 +14,7 @@ public class PotentialHardDisk extends Potential implements PotentialHard
         setCollisionDiameter(d);
     }
 
-    public double collisionTime(AtomHard atom1, AtomHard atom2) {
+    public double collisionTime(AtomC atom1, AtomC atom2) {
         parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
         Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1 = (p/m)2 - (p/m)1
         double bij = Space.v1Dv2(r12,v12);                           //r12 . v12
@@ -35,7 +35,7 @@ public class PotentialHardDisk extends Potential implements PotentialHard
         return time;
     }
     
-    public void bump(AtomHard atom1, AtomHard atom2)
+    public void bump(AtomC atom1, AtomC atom2)
     {
         parentPhase.space.uEr1Mr2(r12, atom2.r, atom1.r);     //instance method      //r2-r1
         Space.uEa1Tv1Ma2Tv2(v12, atom2.rm, atom2.p, atom1.rm, atom1.p);  //v2-v1 = (p/m)2 - (p/m)1

@@ -36,14 +36,22 @@ public abstract class Integrator extends Container implements Observer, Serializ
     phase = new Phase[nPhasesMax];
   }
   
-  public abstract IntegratorAgent makeAgent();
+  public abstract IntegratorAgent makeAgent(Atom a);
   
+  protected void deployAgents() {  //puts an Agent of this integrator in each atom of all phases
+    for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {
+        for(Atom a=p.firstAtom(); a!=null; a=a.getNextAtom()) {
+            a.setIntegratorAgent(makeAgent(a));
+        }
+    }
+  }
+    
   public final int getSleepPeriod() {return sleepPeriod;}
   public final void setSleepPeriod(int s) {sleepPeriod = s;}
 
 // abstract methods
   public abstract void doStep(double tStep);
-  public abstract void initialize();
+  public abstract void initialize();  //put here a call to deployAgents, among other things
   
   // Introspected properties
   public final void setTemperature(double t) {temperature = t;}

@@ -29,7 +29,7 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
   }
  */
  
-  public void bump(AtomHard atom1, AtomHard atom2) {
+  public void bump(AtomC atom1, AtomC atom2) {
     double eps = 1.0e-6;
     parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
@@ -74,7 +74,7 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
 
 //----------------------------------------------------------------------
 
-  public double collisionTime(AtomHard atom1, AtomHard atom2) {
+  public double collisionTime(AtomC atom1, AtomC atom2) {
     double discr = 0.0;
 
     parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1

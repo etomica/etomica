@@ -2,7 +2,7 @@ package simulate;
 
 public interface PotentialHard {
     
-    public void bump(AtomHard atom1, AtomHard atom2);
-    public double collisionTime(AtomHard atom1, AtomHard atom2);
+    public void bump(AtomC atom1, AtomC atom2);
+    public double collisionTime(AtomC atom1, AtomC atom2);
     
 }

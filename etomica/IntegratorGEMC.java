@@ -166,17 +166,20 @@ public class IntegratorGEMC extends Integrator {
     public final void setMaxVStep(double s) {maxVStep = s;}
     
     public void initialize() {
+        deployAgents();
         iDisplace = freqDisplace * firstPhase.nMoleculeTotal;
         iVolume = iDisplace + freqVolume;
         iMolecule = iVolume + freqMolecule*firstPhase.nMoleculeTotal;    
         iTotal = iMolecule;
     }
     
-    public IntegratorAgent makeAgent() {
-        return new Agent();
+    public IntegratorAgent makeAgent(Atom a) {
+        return new Agent(a);
     }
     
     private class Agent implements IntegratorAgent {
+        public Atom atom;
+        public Agent(Atom a) {atom = a;}
     }
 
 }

@@ -4,7 +4,7 @@ import java.awt.*;//for Graphics
 import java.util.*; //for neighborList
 import java.beans.Beans;
 
-public class AtomHardWall extends AtomHard implements AtomWall {
+public class AtomHardWall extends AtomC implements AtomWall {
 
     int thickness;
     private boolean vertical, horizontal;
