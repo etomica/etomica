@@ -263,6 +263,14 @@ public class IntegratorHard extends IntegratorMD {
      */
     public void reset() {
         super.reset();
+        neighborsUpdated();
+    }
+
+    /**
+     * Do an upList call for each atom and find the next collider
+     */
+    public void neighborsUpdated() {
+        super.neighborsUpdated();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             ((Agent)atomIterator.nextAtom().ia).resetCollision();

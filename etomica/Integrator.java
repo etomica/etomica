@@ -107,7 +107,12 @@ public abstract class Integrator implements java.io.Serializable {
             }
         }
     }
-	
+
+    /**
+     * Perform any action necessary when neighbor lists are updated 
+     */
+    public void neighborsUpdated() {}
+    
     /**
       ;* Returns a new instance of an agent of this integrator for placement in
      * the given atom in the ia (IntegratorAgent) field.

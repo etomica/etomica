@@ -99,7 +99,7 @@ public class NeighborManager implements IntervalListener {
 			}
 		}
         //TODO consider a reset(Phase) method for integrator to reset relative to just the affected phase
-        if(resetIntegrator) integrator.reset();
+        if(resetIntegrator) integrator.neighborsUpdated();
 	}
 	
 	public int getUpdateInterval() {
