@@ -77,10 +77,7 @@ public class ConfigurationLinear extends Configuration {
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
                 Configuration config = a.type.creator().getConfiguration();
-                if (config != null) {
-                    //may get null pointer exception when beginning simulation
-                    config.initializeCoordinates(a);
-                }
+                config.initializeCoordinates(a);
             }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);
