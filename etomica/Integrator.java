@@ -98,7 +98,6 @@ public abstract class Integrator implements java.io.Serializable {
      * potential energy.
      */
     public void reset() {
-        if(!initialized) return;
         meterPE.setPhase(phase);
         currentPotentialEnergy = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
@@ -131,10 +130,14 @@ public abstract class Integrator implements java.io.Serializable {
      * been performed (i.e. fires IntervalEvent of type field set to
      * INITIALIZE).
      */
-    public void initialize() {
-        deployAgents();
-        reset();
+    public final void initialize() {
+        setup();
         initialized = true;
+        reset();
+    }
+
+    protected void setup() {
+        deployAgents();
     }
 
     //how do agents get placed in atoms made during the simulation?
