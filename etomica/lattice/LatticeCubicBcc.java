@@ -8,7 +8,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
  * Cubic primitive with a 2-site bcc basis.
  */
 
-public class LatticeCubicBcc extends LatticeCrystal implements LatticeCubic {
+public class LatticeCubicBcc extends LatticeCrystal implements CubicLattice {
     
 	/**
 	 * Cubic bcc crystal with a lattice constant that gives a

@@ -57,7 +57,11 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
         positions.Ev1Pv2(latticePosition,basisPositions[index[D-1]]);
         return positions;
     }
-
+    
+    public int getBasisSize() {
+        return crystal.getBasis().size();
+    }
+    
     protected final Crystal crystal;
     private final int[] crystalIndex;
     private final Space.Vector positions;

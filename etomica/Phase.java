@@ -81,8 +81,8 @@ public class Phase {
 
         if(space.D() < 3) 
             setConfiguration(new ConfigurationSequential(space));  //default configuration
-        else
-            setConfiguration(new ConfigurationFcc(space));
+ //       else
+ //           setConfiguration(new ConfigurationFcc(space));
 
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);

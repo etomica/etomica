@@ -4,7 +4,7 @@ import etomica.Space3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
-import etomica.lattice.LatticeCubic;
+import etomica.lattice.CubicLattice;
 
 /**
  * Cubic primitive with a 4-site fcc basis.
@@ -18,7 +18,7 @@ import etomica.lattice.LatticeCubic;
   * sites under basis from BravisLattice)
   * 01/20/04 (DAK) restructured constructors
   */
-public class CrystalFcc extends LatticeCrystal implements LatticeCubic {
+public class CrystalFcc extends LatticeCrystal implements CubicLattice {
 
     /**
      * Cubic bcc crystal with a lattice constant that gives a

@@ -11,7 +11,6 @@ import etomica.Space;
 public class BravaisLattice implements SpaceLattice {
 
     public BravaisLattice(Primitive primitive) {
-//        super(primitive.space.D(), new BravaisSiteFactory());
         this.primitive = primitive;
     }
 
@@ -22,21 +21,24 @@ public class BravaisLattice implements SpaceLattice {
     public Space getSpace() {
         return primitive.space;
     }
+    
     /**
      * Calculates and returns a new vector that is the spatial position given
      * by adding together the primitive vectors, each multiplied by the corresponding
-     * integer index given by the array argument.
+     * integer index given by the array argument.  Vectors are constructed and computed
+     * on-the-fly.  Index may comprise any integer values (positive, negative, or zero).
      */
     public Object site(int[] index) {
         if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
         Space.Vector vector = getSpace().makeVector();
+        //TODO figure a way to get unscaled lattice vectors without this
+        //method call, which makes copies each tim
+        Space.Vector[] latticeVectors = primitive.vectors();
         for(int i=0; i<index.length; i++) {
-            vector.PEa1Tv1(index[i], primitive.latticeVectors[i]);
+            vector.PEa1Tv1(index[i], latticeVectors[i]);
         }
         return vector;
     }
-
-    
 
     /**
      * Sets the primitive for this lattice to the one given, and
@@ -44,7 +46,6 @@ public class BravaisLattice implements SpaceLattice {
      */
     public void setPrimitive(Primitive primitive) {
         this.primitive = primitive;
-//        setSize(size);//rebuilds sites
     }
     
     /**
@@ -70,16 +71,6 @@ public class BravaisLattice implements SpaceLattice {
 //        }
 //        return site;
 //    }
-
-//    /**
-//     * Returns the event manager that registers listeners and notifies them of
-//     * events indicating changes in this lattice. Part of AbstractLattice
-//     * interface.
-//     */
-//    public SimulationEventManager eventManager() {
-//        return eventManager;
-//    }
-//
 //    /**
 //     * Returns "BravaisLattice" plus the array size, e.g., BravaisLattice{20,20,10}.
 //     */
@@ -87,19 +78,7 @@ public class BravaisLattice implements SpaceLattice {
 //        return "BravaisLattice"+Arrays.toString(size);
 //    }
 //
-//    private static class BravaisSiteFactory implements SiteFactory {
-//        public Object makeSite(AbstractLattice lattice, int[] index) {
-//            return ((BravaisLattice)lattice).getPrimitive().position(index);
-//        }
-//    }
 
     private Primitive primitive;
-//    public final SimulationEventManager eventManager = new SimulationEventManager();
-//    private final LatticeEvent rebuildEvent = new LatticeEvent(this,
-//            LatticeEvent.REBUILD);
-//    private final LatticeEvent allSiteEvent = new LatticeEvent(this,
-//            LatticeEvent.ALL_SITE);
-//    private final LatticeEvent resetNbrEvent = new LatticeEvent(this,
-//            LatticeEvent.RESET_NBRS);
     
 }//end of BravaisLattice

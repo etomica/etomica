@@ -13,10 +13,26 @@ public abstract class Space implements java.io.Serializable {
     public final int D;
     private final double rD; // reciprocal of D
     
-    public Space(int d) {
+    protected Space(int d) {
         if(d < 1 || d > 3) throw new IllegalArgumentException("Illegal dimension for space");
         D = d;
         rD = 1.0/D;
+    }
+    
+    /**
+     * Returns a space instance of the given dimension, which must be 1, 2, or 3.
+     */
+    public static Space makeSpace(int D) {
+        switch(D) {
+        case 1: 
+            return Space1D.INSTANCE;
+        case 2:
+            return Space2D.INSTANCE;
+        case 3:
+            return Space3D.INSTANCE;
+        default:
+            throw new IllegalArgumentException("Illegal dimension for space");
+        }
     }
     
     public int D() {return D;}

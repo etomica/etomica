@@ -5,8 +5,8 @@ public class ConfigurationFcc extends Configuration {
     
     LatticeCubicFcc fcc;
     
-    public ConfigurationFcc(Space space) {
-        super(space);
+    public ConfigurationFcc() {
+        super();
     }
     
     public double latticeConstant() {
@@ -22,7 +22,7 @@ public class ConfigurationFcc extends Configuration {
         if(iterator.size() == 0) {return;}
         if(iterator.size() == 1) {
             iterator.reset();
-            iterator.nextAtom().coord.translateTo(space.origin());
+            iterator.nextAtom().coord.translateTo(Space3D.INSTANCE.origin());
             return;
         }
     

@@ -13,7 +13,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
   * 09/26/02 (DAK) new
   * 01/20/04 (DAK) revised constructors; added one taking atomFactory argument
   */
-public class LatticeCubicDiamond extends LatticeCrystal implements LatticeCubic {
+public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice {
     
     /**
      * Cubic bcc crystal with a lattice constant that gives a

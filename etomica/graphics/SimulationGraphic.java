@@ -60,16 +60,20 @@ public class SimulationGraphic implements SimulationContainer {
      
      private void setupDisplayPhase() {
          LinkedList integratorList = simulation.getIntegratorList();
-         Iterator iterator = integratorList.iterator();
+         
+         //TODO find another way to update display
+         Integrator integrator = null;
+         if(integratorList.size() > 0) integrator = (Integrator)integratorList.getFirst();
+         
+         LinkedList phaseList = simulation.getPhaseList();
+         Iterator iterator = phaseList.iterator();
          while (iterator.hasNext()) {
-             Integrator integrator = (Integrator)iterator.next();
-             Phase[] phases = integrator.getPhase();
-             for (int i=0; i<phases.length; i++) {
-                 Display display = new DisplayPhase(phases[i]);
-                 add(display);
-                 integrator.addIntervalListener(display);
-             }
+             Phase phase = (Phase)iterator.next();
+             Display display = new DisplayPhase(phase);
+             add(display);
+             if(integrator != null) integrator.addIntervalListener(display);
          }
+         
      }
 
      public void add(Display display) {

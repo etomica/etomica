@@ -12,8 +12,8 @@ import etomica.Space;
 public interface Basis {
     
 	/**
-	 * Number of atoms in the basis.
-	 * @return int
+	 * Number of atoms in the basis; length of the Space.Vector array
+     * returned by positions method.
 	 */
 	public int size();
     
@@ -22,6 +22,8 @@ public interface Basis {
      * is, the points for a site located at the origin of the Bravais lattice.  
      * A molecular crystal would be produced by copying and translating
      * these points to the different sites of a Bravais lattice.
+     * 
+     * @return array of Space.Vector with the positions of the basis sites.
      */
     public Space.Vector[] positions();
 

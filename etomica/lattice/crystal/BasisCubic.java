@@ -13,8 +13,6 @@ import etomica.lattice.Basis;
 public class BasisCubic implements Basis {
     
     /**
-     * Makes a basis with a default that uses AtomFactoryMono for making atom
-     * occupying each site.
      * @param primitive Primitive of the cubic lattice housing this basis.
      * Needed to ensure that separation of basis atoms is consistent with
      * spacing of atoms on lattice.

@@ -3,7 +3,7 @@ package etomica.lattice;
 import etomica.Space;
 
 /**
- * A class packaging together a Primitive and a Basis to define a crystal lattice.
+ * A class packaging together a lattice and a basis to define a crystal lattice.
  * Physically this would represent a molecular crystal, in which the basis describes
  * placement of the atoms of a molecule, with the molecule repeated on the regular site
  * of a lattice. The sites of this class are an array of vectors indicating the placement 
@@ -11,6 +11,19 @@ import etomica.Space;
  */
 public class Crystal implements AbstractLattice {
     
+    /**
+     * Constructs a crystal using the given basis and a Bravais lattice 
+     * based on the given primitive, and 
+     */
+    public Crystal(Primitive primitive, Basis basis) {
+        this(new BravaisLattice(primitive), basis);
+    }
+    
+    /**
+     * Constructs crystal such that the basis is (virtually) copied to each point
+     * of the given lattice.  No sites are actually constructed until requested via the
+     * site method.
+     */
     public Crystal(SpaceLattice lattice, Basis basis) {
         this.basis = basis;
         this.lattice = lattice;

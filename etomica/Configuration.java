@@ -16,24 +16,12 @@ package etomica;
   */
 public abstract class Configuration implements java.io.Serializable {
 
-    protected /*final*/ Space space;
-    protected /*final*/ Simulation simulation;
-    protected double[] dimensions;
     protected boolean zeroTotalMomentum = true;
-    private /*final*/ Space.Vector zero;
+    protected double[] dimensions;
     
-    // used only for Null inner class
-    private Configuration() {
-        space = null;
-        simulation = null;
-        zero = null;
+    public Configuration(Space space) {//delete this constructor
     }
-    public Configuration(Space space) {
-        simulation = null;
-        this.space = space;
-        zero = space.makeVector();
-        zero.E(0.0);
-        dimensions = space.makeArrayD(Default.BOX_SIZE);
+    public Configuration() {
     }
 
     public abstract void initializePositions(AtomIterator[] iterator);
@@ -47,9 +35,9 @@ public abstract class Configuration implements java.io.Serializable {
     }
     
     public void setDimensions(double[] dim) {
-        if(dim.length != dimensions.length) throw new IllegalArgumentException("size of new dimension array not equal to old in Configuration.setDimensions(double[])");
-        for(int i=0; i<dim.length; i++) dimensions[i] = dim[i];
+        dimensions = (double[])dim.clone();
     }
+
     public double[] getDimensions() {return dimensions;}
     
     /** 
@@ -71,7 +59,11 @@ public abstract class Configuration implements java.io.Serializable {
     }
     public void initializeMomenta(Atom atom, double temperature) {
         atom.coord.randomizeMomentum(temperature);
-        if(zeroTotalMomentum) atom.coord.accelerateTo(zero);
+        if(zeroTotalMomentum) {
+            Space.Vector zero = (Space.Vector)atom.coord.position().clone();
+            zero.E(0.0);
+            atom.coord.accelerateTo(zero);
+        }
     }//end of initializeMomenta
     
     /**
