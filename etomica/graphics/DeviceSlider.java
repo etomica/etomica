@@ -164,8 +164,10 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public final void setModifier(Modifier m) {
         if(m == null) throw new NullPointerException();
         modifier = null;
-        unit = m.getDimension().defaultIOUnit();
-        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));        
+        if (unit == null) {
+            setUnit(m.getDimension().defaultIOUnit());
+        }
+        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));  
         modifier = new ModifyAction(m);
         targetAction = modifier;
         setLabelDefault();
@@ -193,9 +195,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     public void setMinimum(double min) {
         minimum = min;
+        ModifyAction tmpModifier = modifier;
+        modifier = null;
         slider.setDecimalSliderMinimum(min);
         slider.setInverted(maximum < minimum);
         setTicks();
+        modifier = tmpModifier;
     }
         
     public double getMaximum() {return maximum;}
@@ -205,9 +210,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     public void setMaximum(double max) {
         maximum = max;
+        ModifyAction tmpModifier = modifier;
+        modifier = null;
         slider.setDecimalSliderMaximum(max);
         slider.setInverted(maximum < minimum);
         setTicks();
+        modifier = tmpModifier;
     }
     
     private boolean showMinorValues = false;
@@ -224,7 +232,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private void setTicks() {
         double minorTick = 1.0 ;
        if(showMinorValues){ minorTick = 2;}
-       double spacing = (getMaximum()-getMinimum())/(double)nMajor; 
+       double spacing = (getMaximum()-getMinimum())/nMajor; 
        if(spacing <= 0) return;
         slider.setDecimalSliderMajorTickSpacing(spacing);
         slider.setDecimalSliderMinorTickSpacing(spacing/2.0);
