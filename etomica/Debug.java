@@ -13,7 +13,7 @@ public final class Debug {
 	/**
 	 * true if any debugging should be done
 	 */
-	public static final boolean ON = false;
+	public static final boolean ON = true;
         
 	/**
 	 * what step of the integrator deubgging should start from.
@@ -41,14 +41,14 @@ public final class Debug {
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = 18;
+	public static final int ATOM1_NUM = 136;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = 38;
+	public static final int ATOM2_NUM = 155;
 	
 	/**
 	 * true if debugging is currently enabled (when the integrator reaches step START) 
@@ -106,7 +106,7 @@ public final class Debug {
 		double r2 = cPair.r2();
 		//XXX What's the pair hard-core diameter?  Elephino!  Could check energy instead.  fun.
 		if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-			System.out.println("squared distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
+			System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
     		if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
     			System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position());
     			System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.position());
