@@ -261,12 +261,14 @@ public class AtomIteratorTree implements AtomIterator {
     public static void main(String args[]) {
         
         Simulation sim = new Simulation();
-        Species species2 = new SpeciesSpheresMono();
-        Species species1 = new SpeciesSpheres(3,3);
-        Species species0 = new SpeciesSpheres(3,2);
+        Species species2 = new SpeciesSpheresMono(sim);
+        SpeciesSpheres species1 = new SpeciesSpheres(sim);
+        SpeciesSpheres species0 = new SpeciesSpheres(sim);
         species0.setNMolecules(3);
         species1.setNMolecules(2);
         species2.setNMolecules(2);
+        species1.setAtomsPerMolecule(3);
+        species0.setAtomsPerMolecule(2);
         Phase phase = new Phase(sim.space);
         sim.elementCoordinator.go();
         
