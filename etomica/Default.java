@@ -33,7 +33,7 @@ public final class Default {
     
     public static double POTENTIAL_WELL = Kelvin.UNIT.toSim(300.);
     
-    public static double POTENTIAL_CUTOFF = 2.5; //dimensionless multiplier for cutoff distance of potential
+    public static double POTENTIAL_CUTOFF_FACTOR = 2.5; //dimensionless multiplier for cutoff distance of potential
     
     public static double TIME_STEP = 0.05;  //picoseconds 
     

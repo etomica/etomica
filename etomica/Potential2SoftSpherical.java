@@ -2,8 +2,12 @@ package etomica;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
+ *
+ * @author David Kofke
  */
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
+   
+   public static String VERSION = "Potential2SoftSpherical:01.07.05/"+Potential2.VERSION;
    
    public Potential2SoftSpherical(Simulation sim) {
         super(sim);
@@ -27,21 +31,15 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     public abstract double d2u(double r2);
         
    /**
-    * Long-range contribution to the energy, calculated assuming a uniform distribution
-    * of other particles from the cutoff to infinity.
+    * Integral of the potential, used to evaluate corrections for potential truncation.
+    * Specifically, this is the integral from rC (the argument) to infinity of
+    * u(r) A r^(D-1), where D is the spatial dimension, and A is the area of a unit
+    * sphere in D dimensions.  Normally, the long-range potential correction would be obtained
+    * by multiplying this quantity by the pair density nPairs/V, where nPairs is the number of pairs of atoms
+    * affected by this potential, and V is the volume they occupy.
     */
-    public abstract double uLRC();
-        
-   /**
-    * Long-range contribution to the energy first derivative.
-    */
-    public abstract double duLRC();
-        
-   /**
-    * Long-range contribution to the energy second derivative.
-    */
-    public abstract double d2uLRC();
-    
+    public abstract double uInt(double rC);
+      
     public double energy(AtomPair pair) {
         return u(pair.r2());
     }
@@ -61,6 +59,10 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         work1.E(pair.dr());
         work1.TE(v/r2);
         return work1;
+    }
+    
+    public double integral(double rC) {
+        return uInt(rC);
     }
     
 }//end of Potential2SoftSpherical

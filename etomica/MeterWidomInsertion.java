@@ -32,7 +32,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
     }
     public MeterWidomInsertion(Simulation sim) {
         super(sim);
-        setLabel("exp(\u03BC/kT)");  //"\u03BC" is Unicode for greek "mu"
+        setLabel("exp(-\u03BC/kT)");  //"\u03BC" is Unicode for greek "mu"
         nInsert = 100;
         setResidual(true);
         
@@ -139,7 +139,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }
         this.addMolecule(testMolecule);           //remove molecule from phase by placing it back in this meter
-        if(!residual) sum *= speciesAgent.moleculeCount()/phase.volume(); //multiply by N/V
+        if(!residual) sum *= phase.volume()/speciesAgent.moleculeCount(); //multiply by V/N
         return sum/(double)nInsert;               //return average
     }
     
