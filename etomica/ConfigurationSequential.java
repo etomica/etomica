@@ -42,12 +42,13 @@ public class ConfigurationSequential extends Configuration {
             Species.Agent s = (Species.Agent)species.elementAt(j);
             for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
                 m.setCOM(rLat[i]);
+//                m.firstAtom().r.setRandom(1.0);
                 i++;
             }
         }
 //        parentPhase.parentSimulation.space().clearCells();
-//        for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-//            a.coordinate.assignCell();}
+ //       for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {
+ //           a.coordinate.assignCell();}
         initializeMomenta();
     }
 }

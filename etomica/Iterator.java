@@ -18,10 +18,12 @@ package simulate;
         public static final boolean INTER = false;
         public Phase phase;
         public Iterator(Phase p) {phase = p;}
-        public Atom.Iterator makeAtomIteratorUp() {return new Atom.Iterator.Up();}
-        public Atom.Iterator makeAtomIteratorDown() {return new Atom.Iterator.Down();}
+        public Atom.Iterator makeAtomIteratorUp() {return new Atom.Iterator.Up(phase);}
+        public Atom.Iterator makeAtomIteratorDown() {return new Atom.Iterator.Down(phase);}
         public AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
         public AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
         public AtomPair.Iterator makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
+        public void addMolecule(Molecule m) {}
+        public void deleteMolecule(Molecule m) {}
         public void reset() {}
     }

@@ -113,26 +113,24 @@ public class IntegratorGEMC extends Integrator {
         if(dSpecies.nMolecules == 0) {return;}
         
         Molecule m = dSpecies.randomMolecule();
-        uOld = dSpecies.parentPhase.potentialEnergy.currentValue(m);
+        uOld = dPhase.potentialEnergy.currentValue(m);
         m.displaceToRandom(iPhase);
-//        m.parentSpecies = iSpecies;
-        uNew = iSpecies.parentPhase.potentialEnergy.insertionValue(m);
-        if(uNew == Double.MAX_VALUE) {
+        uNew = iPhase.potentialEnergy.insertionValue(m);
+        if(uNew == Double.MAX_VALUE) {  //overlap
             m.replace(); 
-//            m.parentSpecies = dSpecies; 
-            return;        //overlap
+            return;        
         }        
-        double bFactor = dSpecies.nMolecules/dSpecies.parentPhase.volume()
-                         * iSpecies.parentPhase.volume()/(iSpecies.nMolecules+1)
+        double bFactor = dSpecies.nMolecules/dPhase.volume()
+                         * iPhase.volume()/(iSpecies.nMolecules+1)
                          * Math.exp(-(uNew-uOld)/temperature);
         if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
-//            m.parentSpecies = dSpecies; 
-            dSpecies.deleteMolecule(m);
-            iSpecies.addMolecule(m);
+//            dSpecies.deleteMolecule(m);
+//            iSpecies.addMolecule(m);
+            dPhase.deleteMolecule(m,dSpecies);
+            iPhase.addMolecule(m,iSpecies);
         }
         else {              //reject
             m.replace();
-//            m.parentSpecies = dSpecies;
             return;
         }
     }

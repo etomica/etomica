@@ -50,31 +50,19 @@ public class MeterPotentialEnergy extends simulate.Meter
         apiUp.reset(a,Iterator.INTER);
         while(apiUp.hasNext()) {
             AtomPair pair = apiUp.next();
-            pe += pair.potential.energy(pair);
+            pe += phase.parentSimulation.getPotential(pair).energy(pair);
+//            pe += pair.potential.energy(pair);
         }
         apiDown.reset(a,Iterator.INTER);
         while(apiDown.hasNext()) {
             AtomPair pair = apiDown.next();
-            pe += pair.potential.energy(pair);
+            pe += phase.parentSimulation.getPotential(pair).energy(pair);
+//            pe += pair.potential.energy(pair);
         }
         return pe;
     }
 
 
-  /**
-   * Computes total potential energy for atom (not present in phase), with all atoms in phase
-   * Does not check to see if atom is actually in phase, which would contribute a (probably catastrophic) self-ineraction
-   * Does not include intramolecular potential of atom
-   */
-/*    public final double insertionValue(AtomC a) {
-      double pe = 0.0;
-      Potential2[] p2 = phase.potential2[a.getSpeciesIndex()];
-      for(AtomC b=(AtomC)phase.firstAtom(); b!=null; b=b.getNextAtomC()) {       //intermolecular
-          if(b == a) System.out.println("atom error");
-          pe += p2[b.getSpeciesIndex()].getPotential(a,b).energy(a,b);
-      }
-      return pe;
-    }*/
  /**
   * Computes and returns the intermolecular contribution of a molecule to energy of phase
   * Does not include intramolecular energy of molecule
@@ -84,9 +72,10 @@ public class MeterPotentialEnergy extends simulate.Meter
     public final double currentValue(Molecule m) {
         iteratorMP.reset(m);
         double pe = 0.0;
-        while(iteratorMP.hasNext()) {
+        while(iteratorMP.hasNext()) {            //iterator not returning a pair here
             AtomPair pair = iteratorMP.next();
-            pe += pair.potential.energy(pair);
+//            pe += pair.potential.energy(pair);
+            pe += phase.parentSimulation.getPotential(pair).energy(pair);
         }
         return pe;
     }
@@ -102,62 +91,11 @@ public class MeterPotentialEnergy extends simulate.Meter
         double pe = 0.0;
         while(iteratorMP.hasNext()) {
             AtomPair pair = iteratorMP.next();
-            pe += pair.potential.energy(pair);
-        }
-/*      iteratorFMAM.reset(m);
-      int index = m.parentSpecies.speciesIndex;                 
-      double pe = 0.0;
-      for(Species.Agent s1=phase.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
-        Potential2 p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][index];
-        iteratorFMAM.reset(s1);
-        while(iteratorFMAM.hasNext()) {
-            AtomPair pair = iteratorFMAM.next();
-            pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
-        }
-      }*/
-    
+            pe += phase.parentSimulation.getPotential(pair).energy(pair);
+//            pe += pair.potential.energy(pair);
+        }    
       return pe;
     }
 
     
-/*    private double upListInter(AtomC a) {
-      double pe = 0.0;
-      AtomC nextMoleculeAtom = (AtomC)a.nextMoleculeFirstAtom();  //first atom on next molecule
-      Potential2[] p2 = phase.potential2[a.getSpeciesIndex()];
-      for(AtomC b=nextMoleculeAtom; b!=null; b=b.getNextAtomC()) {       //intermolecular
-          pe += p2[b.getSpeciesIndex()].getPotential(a,b).energy(a,b);
-      }
-      return pe;
-    }
-
-    private double downListInter(AtomC a) {
-      double pe = 0.0;
-      AtomC previousMoleculeAtom = (AtomC)a.previousMoleculeLastAtom();  //first atom on next molecule
-      Potential2[] p2 = phase.potential2[a.getSpeciesIndex()];
-      for(AtomC b=previousMoleculeAtom; b!=null; b=b.getPreviousAtomC()) {       //intermolecular
-          pe += p2[b.getSpeciesIndex()].getPotential(a,b).energy(a,b);
-      }
-      return pe;
-    }
-
-    private double upListIntra(AtomC a) {
-      double pe = 0.0;
-      AtomC nextMoleculeAtom = (AtomC)a.nextMoleculeFirstAtom();  //first atom on next molecule
-      Potential1 p1 = phase.potential1[a.getSpeciesIndex()];            
-      for(AtomC b=a.getNextAtomC(); b!=nextMoleculeAtom; b=b.getNextAtomC()) { //intramolecular
-          pe += p1.getPotential(a,b).energy(a,b);
-      }
-      return pe;
-    }
-
-    private double downListIntra(AtomC a) {
-      double pe = 0.0;
-      AtomC previousMoleculeAtom = (AtomC)a.previousMoleculeLastAtom();  //first atom on next molecule
-      Potential1 p1 = phase.potential1[a.getSpeciesIndex()];            
-      for(AtomC b=a.getPreviousAtomC(); b!=previousMoleculeAtom; b=b.getPreviousAtomC()) { //intramolecular
-          pe += p1.getPotential(a,b).energy(a,b);
-      }
-      return pe;
-    }*/
-
 }

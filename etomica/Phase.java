@@ -176,6 +176,45 @@ public class Phase extends Container {
         for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
     }
     
+    public void addMolecule(Molecule m, Species.Agent s) {
+        m.parentPhase = this;
+        moleculeCount++;
+        atomCount += m.nAtoms;
+        s.addMolecule(m);
+        iterator.addMolecule(m);
+    }
+    public void addMolecule(Molecule m) {
+        addMolecule(m, m.getSpecies().getAgent(this));
+    }
+    
+    public void deleteMolecule(Molecule m, Species.Agent s) {
+        m.parentPhase = null;        
+        moleculeCount--;
+        atomCount -= m.nAtoms;
+        s.deleteMolecule(m);
+        iterator.deleteMolecule(m);
+    }
+    public void deleteMolecule(Molecule m) {
+        deleteMolecule(m, m.getSpecies().getAgent(this));
+    }
+    /**
+    * Synchronized version of deleteMolecule.  
+    * Useful if molecules are being deleted by GUI events, rather than by integrator 
+    */
+    public final synchronized void deleteMoleculeSafely(Molecule m) {  //will this make deleteMolecule synchronized?
+        deleteMolecule(m);
+    }
+    
+    /**
+    * Synchronized version of addMolecule
+    * Useful if molecules are being added by GUI events, rather than by integrator 
+    */
+    public final synchronized void addMoleculeSafely(Molecule m) {
+        addMolecule(m);
+    }
+              
+              
+    
     Potential potential;
     public Potential potential() {return potential;}
             

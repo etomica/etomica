@@ -154,18 +154,18 @@ public class Atom implements Space.Occupant {
         public void reset();
     
         public static final class Up implements Iterator {
-            private Atom atom, nextAtom, firstAtom;
+            private Atom atom, nextAtom;
             private boolean hasNext;
-            public Up() {hasNext = false;}
-            public Up(Atom a) {reset(a);}
+            private Phase phase;
+            public Up(Phase p) {phase = p; hasNext = false;}
+            public Up(Phase p, Atom a) {phase = p; reset(a);}
             public boolean hasNext() {return hasNext;}
             public void reset(Atom a) {
-                firstAtom = a;
                 if(a == null) {hasNext = false; return;}
                 atom = a;
                 hasNext = true;
             }
-            public void reset() {reset(firstAtom);}
+            public void reset() {reset(phase.firstAtom());}
             public Atom next() {
                 nextAtom = atom;
                 atom = atom.nextAtom();
@@ -177,15 +177,16 @@ public class Atom implements Space.Occupant {
         public static final class Down implements Iterator {
             private Atom atom, nextAtom, firstAtom;
             private boolean hasNext;
-            public Down() {hasNext = false;}
-            public Down(Atom a) {reset(a);}
+            private Phase phase;
+            public Down(Phase p) {phase = p; hasNext = false;}
+            public Down(Phase p, Atom a) {phase = p; reset(a);}
             public boolean hasNext() {return hasNext;}
             public void reset(Atom a) {
                 if(a == null) {hasNext = false; return;}
                 atom = a;
                 hasNext = true;
             }
-            public void reset() {reset(firstAtom);}
+            public void reset() {reset(phase.firstAtom());}
             public Atom next() {
                 nextAtom = atom;
                 atom = atom.previousAtom();

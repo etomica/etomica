@@ -91,6 +91,7 @@ public class AtomPair {
          * The molecule may or may not be in the phase
          * Intramolecular pairs are not generated
          */
+         // Probably needs to be fixed to handle multi-atom molecules
         public static class MP implements M {
             private final Iterator.A apiUp, apiDown;
             private Iterator.A apiCurrent;
@@ -124,7 +125,7 @@ public class AtomPair {
                 return thisPair;
             }
             public void reset(Molecule m) {
-                apiUp.reset(m.lastAtom(),false);
+                apiUp.reset(m.lastAtom(),false);     //may be missing atoms on molecule between first and last
                 apiDown.reset(m.firstAtom(),false);
                 if(apiUp.hasNext()) {
                     apiCurrent = apiUp;
@@ -134,6 +135,7 @@ public class AtomPair {
                     upDone = true;
                 }
                 hasNext = apiCurrent.hasNext();
+                if(hasNext) nextPair = apiCurrent.next();
             }
         }
                     

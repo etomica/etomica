@@ -251,14 +251,6 @@ public abstract class Species extends Container {
         }
                 
         /**
-        * Synchronized version of deleteMolecule.  
-        * Useful if molecules are being deleted by GUI events, rather than by integrator 
-        */
-        public final synchronized void deleteMoleculeSafely(Molecule m) {  //will this make deleteMolecule synchronized?
-            deleteMolecule(m);
-        }
-              
-        /**
         * Removes molecule from species, and updates atom and molecule linked lists.
         * Updates all values of first/last Molecule/Atom for species and
         * phase, if appropriate.  Also updates number-of-atom/molecule variables
@@ -288,22 +280,14 @@ public abstract class Species extends Container {
             if(previous != null) {previous.setNextMolecule(next);} //reconnect linked list if not at beginning
             else if(next != null) {next.clearPreviousMolecule();}  //beginning of list; no previous molecule for next
             nMolecules--;
-            m.parentPhase = null;        //line deleted because of spareMolecule
+       //     m.parentPhase = null;        //line deleted because of spareMolecule
             m.setNextMolecule(null);
             m.clearPreviousMolecule();
-            parentPhase.moleculeCount--;
-            parentPhase.atomCount -= m.nAtoms;
+        //    parentPhase.moleculeCount--;
+        //    parentPhase.atomCount -= m.nAtoms;
         //    if(spareMolecule == null) spareMolecule = m;
         }
 
-        /**
-        * Synchronized version of addMolecule
-        * Useful if molecules are being added by GUI events, rather than by integrator 
-        */
-        public final synchronized void addMoleculeSafely(Molecule m) {
-            addMolecule(m);
-        }
-              
         /**
         * Adds a molecule to this species and updates linked lists.  Does not handle
         * creation of molecule.  New molecule
@@ -340,9 +324,9 @@ public abstract class Species extends Container {
                 }
             }
             nMolecules++;
-            m.parentPhase = parentPhase;
-            parentPhase.moleculeCount++;
-            parentPhase.atomCount += m.nAtoms;
+//            m.parentPhase = parentPhase;
+//            parentPhase.moleculeCount++;
+//            parentPhase.atomCount += m.nAtoms;
             colorScheme.initializeMoleculeColor(m);
         }
               

@@ -37,6 +37,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
             else {if(cell != null) cell.setFirst(nextNeighbor); if(nextNeighbor != null) nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
             cell = newCell;
+            if(newCell == null) return;
             setNextNeighbor((Space2DCell.Coordinate)cell.first());
             cell.setFirst(this);
             clearPreviousNeighbor();
@@ -51,8 +52,22 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 10;
+            xCells = yCells = 15;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
+        }
+        
+        public void addMolecule(Molecule m) {
+            m.atomIterator.reset();
+            while(m.atomIterator.hasNext()) {
+                ((Coordinate)m.atomIterator.next().coordinate).assignCell();
+            }
+        }
+        
+        public void deleteMolecule(Molecule m) {
+            m.atomIterator.reset();
+            while(m.atomIterator.hasNext()) {
+                ((Coordinate)m.atomIterator.next().coordinate).assignCell(null);
+            }
         }
         
         /**

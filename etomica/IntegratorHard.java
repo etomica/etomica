@@ -38,7 +38,7 @@ public void doStep(double tStep) {
         if(isothermal) {
             scaleMomenta(Math.sqrt(this.temperature/firstPhase.kineticTemperature()));
         }
-        debugMethod();
+//        debugMethod();
         return;
     }
 

@@ -13,7 +13,8 @@ public class P2SquareWell extends Potential2 {
     nAtoms1 = 1;
     nAtoms2 = 1;
     potential = new Potential[nAtoms1][nAtoms2];
-    potential[0][0] = new PotentialSquareWell(coreDiameter,lambda,epsilon);
+//    potential[0][0] = new PotentialSquareWell(coreDiameter,lambda,epsilon);
+    potential[0][0] = new PotentialSquareWell(0.1, 1.5, 300.);
     setLambda(lambda);  //set potentialCutoff, etc.
   }
     
