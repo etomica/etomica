@@ -11,13 +11,16 @@ public class SiteIteratorNeighbor extends AtomIterator {
     private final AtomIteratorList iterator = new AtomIteratorList();
     private boolean upListNow, doGoDown;
     private Atom next;
+    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);
     
     public SiteIteratorNeighbor() {
         iterator.setSkipFirstAtom(true);
+        localDirective.setSkipFirst(true);
     }
         
-	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
-		if(basis == null || basis.node.isLeaf() || action == null) return;
+	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
+		if(basis == null || !(basis instanceof Site) || action == null) return;
+		iterator.all(((Site)basis).neighborManager().neighbors(), dummy, action);
 		throw new RuntimeException("Method all not implemented in SiteIteratorNeighbor");
 	}
    public boolean hasNext() {return iterator.hasNext();}

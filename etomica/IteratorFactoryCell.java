@@ -399,7 +399,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
     }
     
 	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
 		 all((Atom)basis, id, (AtomActive)action);
 	}
     

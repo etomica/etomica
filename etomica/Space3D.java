@@ -17,6 +17,7 @@ package etomica;
   *                if accelerating to nonzero momentum).
   * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
   * values were being used prematurely
+  * 01/31/03 (JKS/DAK) modifications to make thread-safe
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -62,17 +63,16 @@ public class Space3D extends Space implements EtomicaElement {
     }
 
     public static final double r2(Vector u1, Vector u2, Boundary b) {
-        Vector.WORK.x = u1.x - u2.x;
-        Vector.WORK.y = u1.y - u2.y;
-        Vector.WORK.z = u1.z - u2.z;
-        b.nearestImage(Vector.WORK);
-        return Vector.WORK.x*Vector.WORK.x + Vector.WORK.y*Vector.WORK.y + Vector.WORK.z*Vector.WORK.z;
+    	return r2(u1, u2, b, new Vector());
     }
-   
+    public static final double r2(Vector u1, Vector u2, Boundary b, Vector work) {
+    	work.Ev1Mv2(u1, u2);
+        b.nearestImage(work);
+        return work.squared();
+    }  
     
     public static final class Vector extends Space.Vector{
         public static final Vector ORIGIN = new Vector(0.0, 0.0, 0.0);
-        public static final Vector WORK = new Vector();
         private double x, y, z;
         public int length() {return D;}
         public int D() {return D;}
@@ -139,31 +139,29 @@ public class Space3D extends Space implements EtomicaElement {
         }
 
         
-        public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; WORK.z = z+u1.z; return WORK;}
-        public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; WORK.z = z-u1.z; return WORK;}
-        public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; WORK.z = z*u1.z; return WORK;}
-        public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; WORK.y = y/u1.y; WORK.z = z/u1.z; return WORK;}
-        public Space.Vector abs() {WORK.x = (x>0)?x:-x; WORK.y = (y>0)?y:-y; WORK.z = (z>0)?z:-z; return WORK;}
+		public Space.Vector P(Space.Vector u) {Vector work = new Vector(); work.Ev1Pv2(this,u); return work;}
+		public Space.Vector M(Space.Vector u) {Vector work = new Vector(); work.Ev1Mv2(this,u); return work;}
+		public Space.Vector T(Space.Vector u) {Vector work = new Vector(); work.E(this); work.TE(u); return work;}
+		public Space.Vector D(Space.Vector u) {Vector work = new Vector(); work.E(this); work.DE(u); return work;}
+		public Space.Vector abs() {Vector work = new Vector(); work.E(this); work.abs(); return work;}
         public double min() {return (x < y) ? (x<z)?x:z : (y<z)?y:z;}
         public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
         public double squared() {return x*x + y*y + z*z;}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
         public void transform(Space.Tensor A) {transform((Tensor)A);}
         public void transform(Tensor A) {
-        	double x0 = x;
-        	double y0 = y;
-        	double z0 = z;
-            x = A.xx*x0 + A.xy*y0 + A.xz*z0; 
-            y = A.yx*x0 + A.yy*y0 + A.yz*z0;
-            z = A.zx*x0 + A.zy*y0 + A.zz*z0;
+            double x1 = A.xx*x + A.xy*y + A.xz*z; 
+            double y1 = A.yx*x + A.yy*y + A.yz*z;
+                    z = A.zx*x + A.zy*y + A.zz*z;
+                    x=x1; 
+                    y=y1;
         }
         public void transform(Space.Boundary b, Space.Vector r0, Space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
         public void transform(Boundary b, Vector r0, Tensor A) {
-            WORK.x = x - r0.x; WORK.y = y - r0.y; WORK.z = z - r0.z;
-            b.nearestImage(WORK);
-            x = r0.x + A.xx*WORK.x + A.xy*WORK.y + A.xz*WORK.z;
-            y = r0.y + A.yx*WORK.x + A.yy*WORK.y + A.yz*WORK.z;
-            z = r0.z + A.zx*WORK.x + A.zy*WORK.y + A.zz*WORK.z;
+        	this.ME(r0);
+        	b.nearestImage(this);
+        	this.transform(A);
+        	this.PE(r0);
         }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1)*d; y +=(2.*Simulation.random.nextDouble()-1)*d; z +=(2.*Simulation.random.nextDouble()-1)*d;}
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d; z = Simulation.random.nextDouble()*d;}
@@ -193,6 +191,26 @@ public class Space3D extends Space implements EtomicaElement {
             y = z2/r;
             z = z3/r;
         }
+        
+        /**
+        * Creating a random unit vector on unit sphere
+        * Uses only two random number generator at a time
+        * 
+        * @author Jayant Singh
+        */
+        public void randomVectorOnUnitSphere(){
+            double z1=0.0,z2=0.0,zsq=20.0;
+            while(zsq > 1.0) {       
+                z1  = 2.0*Simulation.random.nextDouble() - 1.0; 
+                z2  = 2.0*Simulation.random.nextDouble() - 1.0;  
+                zsq = z1*z1 + z2*z2;
+            }
+                 
+            double ranh = 2.0*Math.sqrt(1.0 - zsq) ;   
+            x = z1*ranh;     
+            y = z2*ranh;     
+            z = 1.0 - 2.0*zsq;
+        }
         public void randomRotate(double thetaStep){//check before using
             //could be made more efficient by merging with setRandomSphere
             if(thetaStep == 0.0) return;
@@ -214,17 +232,22 @@ public class Space3D extends Space implements EtomicaElement {
         public void ME(Space.Vector u) {ME((Vector) u);}
         public void DE(Space.Vector u) {DE((Vector) u);}
         public double dot(Space.Vector u) {return dot((Vector)u);}
-        public Space3D.Vector cross(Space2D.Vector u) {
-            Space3D.Vector.WORK.x = -z*u.x(1);
-            Space3D.Vector.WORK.y = z*u.x(0);
-            Space3D.Vector.WORK.z = x*u.x(1) - y*u.x(0);
-            return Space3D.Vector.WORK;
+        public Space3D.Vector cross(Space2D.Vector u) {//does 3d cross-product taking u.z = 0
+        	Vector work = new Vector(this);
+        	work.x = -z*u.x(1);
+            work.y = z*u.x(0);
+            work.z = x*u.x(1) - y*u.x(0);
+            return work;
         }
+        /**
+         * Makes a new vector and assigns it the cross product of this with
+         * given vector.  This vector is unchanged.
+         * @see etomica.Space.Vector#cross(Vector)
+         */
         public Space3D.Vector cross(Space3D.Vector u) {//not thread safe
-            Space3D.Vector.WORK.x = y*u.z - z*u.y;
-            Space3D.Vector.WORK.y = z*u.x - x*u.z;
-            Space3D.Vector.WORK.z = x*u.y - y*u.x;
-            return Space3D.Vector.WORK;
+        	Vector work = new Vector(this);
+        	work.XE(u);
+        	return work;
         }
         public void XE(Vector u) {//cross product
             double xNew = y*u.z - z*u.y;
@@ -244,7 +267,6 @@ public class Space3D extends Space implements EtomicaElement {
     public static class Tensor implements Space.Tensor {
         double xx, xy, xz, yx, yy, yz, zx, zy, zz;
         public static final Tensor ORIGIN = new Tensor();
-        public static final Tensor WORK = new Tensor();
         public Tensor () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
         public Tensor (double xx, double xy, double xz, double yx, double yy, double yz, double zx, double zy, double zz) {
             this.xx=xx; this.xy=xy; this.xz=xz; this.yx=yx; this.yy=yy; this.yz=yz; this.zx=zx; this.zy=zy; this.zz=zz;
