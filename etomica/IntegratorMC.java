@@ -142,6 +142,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		} else {
 			move.acceptNotify();
 			event.wasAccepted = true;
+            for (int i=0; i<phase.length; i++) {
+                currentPotentialEnergy[i] += move.energyChange(phase[i]);
+            }
 		}
 
 		//notify listeners of outcome
@@ -268,13 +271,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	}
 
 	private MCMoveLinker firstMoveLink, lastMoveLink;
-
 	private int frequencyTotal;
-
 	private int moveCount;
-
 	protected SimulationEventManager eventManager;
-
 	protected final MCMoveEvent event = new MCMoveEvent(this);
 
 	/**
