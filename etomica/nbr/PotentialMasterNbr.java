@@ -14,6 +14,7 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
+import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
@@ -224,11 +225,17 @@ public class PotentialMasterNbr extends PotentialMaster {
         
         public Atom nextAtom() {
             nearestImageTransformer.setNearestImageVector((Vector)vector.get(cursor));
-            Atom atom = super.nextAtom();
-            return atom;
+            return super.nextAtom();
         }
         
-        //TODO allAtoms
+        public void allAtoms(AtomsetAction act) {
+            int arraySize = size();
+            for (int i=0; i<arraySize; i++) {
+                nearestImageTransformer.setNearestImageVector((Vector)vector.get(i));
+                atoms[0] = list.get(i);
+                act.actionPerformed(atoms);
+            }
+        }
         
         public void setVectors(ObjectArrayList vector) {
             this.vector = vector;
