@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.ConfigurationMolecule;
+import etomica.Configuration;
 import etomica.Space;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListCompound;
@@ -12,7 +12,7 @@ import etomica.space.Vector;
  * Generates a configuration such that the value of the phase's
  * sampling cluster is positive at beta = 1.
  */
-public class ConfigurationCluster extends ConfigurationMolecule {
+public class ConfigurationCluster extends Configuration {
 
 	/**
 	 * Constructor for ConfigurationCluster.

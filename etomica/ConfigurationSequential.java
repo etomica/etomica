@@ -20,7 +20,7 @@ import etomica.space.Vector;
  * 01/14/03 (DAK) fixed typo in name of getSquareConfig method
  */
  
-public class ConfigurationSequential extends ConfigurationMolecule {
+public class ConfigurationSequential extends Configuration {
 
 	private boolean fill;
 	private boolean squareConfig;

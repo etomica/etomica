@@ -13,7 +13,7 @@ import etomica.space3d.Vector3D;
  * of two fcc lattices, with one shifted in each direction by one-quarter
  * of the lattice constant.
  */
-public class ConfigurationZincblende extends ConfigurationMolecule {
+public class ConfigurationZincblende extends Configuration {
     
     private final ConfigurationLattice fcc;
     private final AtomGroupAction translator;

@@ -16,7 +16,7 @@ import etomica.space3d.Space3D;
  * capability to assign lattice site to atoms when specifying their coordinates.
  * See setAssigningSitesToAtoms method.
  */
-public class ConfigurationLattice extends ConfigurationMolecule implements Atom.AgentSource {
+public class ConfigurationLattice extends Configuration implements Atom.AgentSource {
 
     public ConfigurationLattice(CubicLattice lattice) {
         this(lattice, new IndexIteratorSequential(lattice.D()));//need a default iterator

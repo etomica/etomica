@@ -12,7 +12,7 @@ import etomica.space.Vector;
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a phase
  */
-public class ConfigurationFile extends ConfigurationMolecule {
+public class ConfigurationFile extends Configuration {
 
     public ConfigurationFile(Space space, String aConfName) {
         super(space);
