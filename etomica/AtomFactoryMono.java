@@ -21,4 +21,6 @@ public class AtomFactoryMono extends AtomFactory {
         return new Atom(parent, index, atomType);
     }
     
+    public boolean producesAtomGroups() {return false;}
+    
 }//end of AtomFactoryMono

@@ -41,6 +41,9 @@ public class Atom implements java.io.Serializable {
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
             
     public final AtomGroup parentGroup() {return parentGroup;}
+    
+    //can set parent group only by adding to the group, so method is "protected"
+    protected void setParentGroup(AtomGroup parent) {parentGroup = parent;}
 
     /**
      * Simulation in which this atom resides

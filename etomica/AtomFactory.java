@@ -8,4 +8,10 @@ public abstract class AtomFactory implements java.io.Serializable {
     
     public abstract Atom makeAtom(AtomGroup parent, int index);
     
+    /**
+     * Indicator of whether this factory makes atom groups, or if it 
+     * makes atoms that are not groups of other atoms (instance of AtomGroup).
+     */
+    public abstract boolean producesAtomGroups();
+    
 }
