@@ -245,7 +245,7 @@ public static class Factory extends AtomFactoryTree {
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
     public Factory(Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        super(sim, siteFactory, dimensions, configArray(sim.space, primitive.vectors()));
+        super(sim, siteFactory, dimensions, configArray(sim, primitive.vectors()));
         this.primitive = primitive;
         this.dimensions = new int[dimensions.length];
         System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
@@ -269,11 +269,11 @@ public static class Factory extends AtomFactoryTree {
         return group;
     }
 
-    private static Configuration[] configArray(Space space, Space.Vector[] pVectors) {
-        if(pVectors.length != space.D()) throw new IllegalArgumentException("Error in BravaisLattice.Factory constructor:  number of primitive vectors inconsistent with dimension of space");
+    private static Configuration[] configArray(Simulation sim, Space.Vector[] pVectors) {
+        if(pVectors.length != sim.space.D()) throw new IllegalArgumentException("Error in BravaisLattice.Factory constructor:  number of primitive vectors inconsistent with dimension of space");
         Configuration[] array = new Configuration[pVectors.length];
         for(int i=0; i<array.length; i++) {
-            array[i] = new ConfigurationLinear(space);
+            array[i] = new ConfigurationLinear(sim);
             ((ConfigurationLinear)array[i]).setOffset(pVectors[i]);
         }
         return array;

@@ -53,7 +53,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         protoType[3].setLongWall(true);
         setUnitNormal();
         factory.setSpecies(this);
-        factory.setConfiguration(new PistonCylinderConfiguration(sim.space));
+        factory.setConfiguration(new PistonCylinderConfiguration(sim));
         computeDimensions();
     }
     
@@ -233,8 +233,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    */
   private final class PistonCylinderConfiguration extends Configuration {
       
-      PistonCylinderConfiguration(Space s) {
-        super(s);
+      PistonCylinderConfiguration(Simulation sim) {
+        super(sim);
       }
       public void initializePositions(AtomIterator[] iter) {/*no implementation*/}
       public void initializeCoordinates(Atom atom) {

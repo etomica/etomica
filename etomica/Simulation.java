@@ -56,7 +56,8 @@ public class Simulation implements java.io.Serializable {
     
     /**
      * A static instance of a Simulation, for which the current value at any time is
-     * used as a default simulation in many places.
+     * used as a default simulation in many places.  Any new instance of a Simulation
+     * is assigned to this field upon construction.
      */
     public static Simulation instance = new Simulation(new Space2D());
        
@@ -65,11 +66,13 @@ public class Simulation implements java.io.Serializable {
     }
     
     /**
-     * Constructor requires specification of the space used by the simulation
+     * Creates a new simulation using the given space, and sets the static
+     * instance field equal to the new instance.
      */
     public Simulation(Space s) {
         super();
         space = s;
+        instance = this;
         setName("Simulation" + Integer.toString(instanceCount++));
         elementLists.put(Potential.class, new LinkedList());
         elementLists.put(Species.class, new LinkedList());

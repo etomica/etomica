@@ -8,10 +8,12 @@ package etomica;
 public abstract class Configuration implements java.io.Serializable {
 
     protected final Space space;
+    protected final Simulation simulation;
     protected double[] dimensions;
     
-    public Configuration(Space space) {
-        this.space = space;
+    public Configuration(Simulation sim) {
+        simulation = sim;
+        space = sim.space;
         dimensions = new double[space.D()];
         for(int i=0; i<dimensions.length; i++) {dimensions[i] = Default.BOX_SIZE;}
     }
@@ -22,8 +24,9 @@ public abstract class Configuration implements java.io.Serializable {
         initializePositions(new AtomIterator[] {iterator});
     }
     
-    public void setDimensions(double[] dimensions) {
-        this.dimensions = dimensions;
+    public void setDimensions(double[] dim) {
+        if(dim.length != dimensions.length) throw new IllegalArgumentException("size of new dimension array not equal to old in Configuration.setDimensions(double[])");
+        for(int i=0; i<dim.length; i++) dimensions[i] = dim[i];
     }
     public double[] getDimensions() {return dimensions;}
     

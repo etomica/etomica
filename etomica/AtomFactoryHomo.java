@@ -21,7 +21,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      */
     public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms) {
-        this(sim, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim.space));
+        this(sim, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim));
     }
     /**
      * @param factory the factory that makes each of the identical children.

@@ -173,6 +173,22 @@ public class Mediator implements java.io.Serializable {
         }//end of Default
     }//end of PhasePotential
     
+
+    public abstract static class PhaseNull extends Subset {
+        public PhaseNull(Mediator m) {super(m);}
+
+        public Class[] elementClasses() {return new Class[] {Phase.class, null};}
+        
+        public void add(SimulationElement element) {
+            if(!superceding && priorSubset != null) priorSubset.add(element);
+            if(element instanceof Phase) add((Phase)element);
+        }
+        
+        public abstract void add(Phase d);
+        
+        //no Default defined
+    }//end of PhaseNull
+
     public abstract static class PotentialSpecies extends Subset {
         public PotentialSpecies(Mediator m) {super(m);}
 

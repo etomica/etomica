@@ -270,7 +270,7 @@ public static class Factory extends AtomFactory {
         this.dimensions = new int[dimensions.length];
         System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
         this.latticeConstant = latticeConstant;
-        configuration = new Configuration4(sim.space,latticeConstant);
+        configuration = new Configuration4(sim,latticeConstant);
     }
     
     /**
@@ -309,8 +309,8 @@ public static class Factory extends AtomFactory {
     private static class Configuration4 extends Configuration {
 
         private double latticeConstant;
-        Configuration4(Space s, double a) {
-            super(s);
+        Configuration4(Simulation sim, double a) {
+            super(sim);
             latticeConstant = a;
         }
         

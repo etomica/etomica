@@ -11,7 +11,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     private BravaisLattice[] deployedLattices = new BravaisLattice[0];
     
     public IteratorFactoryCell(Simulation sim) {
-        this(sim, new PrimitiveCubic(sim), 8);
+        this(sim, new PrimitiveCubic(sim), 4);
     }
     
     public IteratorFactoryCell(Simulation sim, Primitive primitive, int nCells) {
@@ -19,6 +19,11 @@ public class IteratorFactoryCell implements IteratorFactory {
         this.primitive = primitive;
         dimensions = new int[sim.space.D()];
         for(int i=0; i<sim.space.D(); i++) dimensions[i] = nCells;
+        
+        //Add mediator that places a cell lattice in each phase.
+        sim.mediator().addMediatorPair( new Mediator.PhaseNull(sim.mediator()) {
+            public void add(Phase phase) {makeCellLattice(phase);}
+        });        
     }
     
     public BravaisLattice makeCellLattice(final Phase phase) {
@@ -66,6 +71,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     public AtomSequencer makeAtomSequencer(Atom atom) {
         return IteratorFactorySimple.INSTANCE.makeAtomSequencer(atom);
     }
+    
     public AtomSequencer makeNeighborSequencer(Atom atom) {return new Sequencer(atom);}
     //maybe need an "AboveNbrLayerSequencer" and "BelowNbrLayerSequencer"
     
@@ -522,11 +528,11 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
 	    speciesSpheres.setNMolecules(300);
 	    
 	    Phase phase = new Phase();
-	    iteratorFactory.makeCellLattice(phase);
 	    
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();
+	    integratorHard.setSleepPeriod(1);
         integratorHard.setTimeStep(0.01);
         
         //this method call invokes the mediator to tie together all the assembled components.

@@ -16,7 +16,7 @@ public class AtomFactoryHetero extends AtomFactory {
      * @param factory the factory that makes each of the identical children.
      */
     public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
-        this(sim, factory, new ConfigurationLinear(sim.space));
+        this(sim, factory, new ConfigurationLinear(sim));
     }
     /**
      * @param factory the factory that makes each of the identical children.

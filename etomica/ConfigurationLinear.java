@@ -13,11 +13,11 @@ public class ConfigurationLinear extends Configuration {
     private Space.Vector orientation;
     private double[] angle;
     
-    public ConfigurationLinear(Space space) {
-        this(space, 0.55*Default.ATOM_SIZE);
+    public ConfigurationLinear(Simulation sim) {
+        this(sim, 0.55*Default.ATOM_SIZE);
     }
-    public ConfigurationLinear(Space space, double bondLength) {
-        super(space);
+    public ConfigurationLinear(Simulation sim, double bondLength) {
+        super(sim);
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];

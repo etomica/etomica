@@ -82,9 +82,9 @@ public class Phase extends SimulationElement {
         setBoundary(space.makeBoundary());
 
         if(space.D() < 3) 
-            setConfiguration(new ConfigurationSequential(space));  //default configuration
+            setConfiguration(new ConfigurationSequential(sim));  //default configuration
         else
-            setConfiguration(new ConfigurationFcc(space));
+            setConfiguration(new ConfigurationFcc(sim));
     }//end of constructor
    
     /**

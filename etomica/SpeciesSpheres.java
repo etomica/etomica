@@ -38,7 +38,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         this(Simulation.instance, nM, nA);
     }
     public SpeciesSpheres(Simulation sim, int nM, int nA) {
-        this(sim, nM, nA, new BondInitializerChain(), new ConfigurationLinear(sim.space));
+        this(sim, nM, nA, new BondInitializerChain(), new ConfigurationLinear(sim));
     }
     public SpeciesSpheres(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
         super(sim, makeFactory(sim, nA, bondInitializer, config));

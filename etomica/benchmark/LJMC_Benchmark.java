@@ -27,7 +27,7 @@ public class LJMC_Benchmark {
             case 2:
 //                Simulation.instance = new Simulation(new SpaceP(3));
 
-               Simulation.instance = new Simulation(new Space2D());
+               Simulation.instance = new Simulation(new Space3D());
 //               Simulation.instance = new Simulation(new etomica.space.continuum.Space(3));
                break;
             case 1:
@@ -38,8 +38,8 @@ public class LJMC_Benchmark {
         Simulation sim = Simulation.instance;
         sim.random.setSeed(0); 
         
-//        IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
-//        sim.setIteratorFactory(iteratorFactory);
+        IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
+        sim.setIteratorFactory(iteratorFactory);
         
         switch(VERSION) {
             default:
@@ -76,7 +76,7 @@ public class LJMC_Benchmark {
         }       
         
         Phase phase = new Phase(sim);
-//	    iteratorFactory.makeCellLattice(phase);
+	    iteratorFactory.makeCellLattice(phase);
         
         Controller controller = new Controller();
         IntegratorMC integrator = new IntegratorMC();
@@ -129,6 +129,7 @@ public class LJMC_Benchmark {
  
  2D average energy: -28125.923188136127
  3D average energy: - 9783.048798461032
+                    - 9762.231901434858 (after rewrite of IteratorFactory, lattice package)
  
  Time -- Configuration
  -----------------------
@@ -163,6 +164,9 @@ public class LJMC_Benchmark {
  26   -- Action to iterator
  
  9.6  -- (1); action to iterator; Api pair iterators
+ 
+ 10.5 -- (0); after rewrite of IteratorFactory and lattice package
+         3D/while/mom/iterator to action
  
  43.9 -- Home W2K Athlon/64/1000 (2)  (32.6 when run with HotSpot Server)
   2.7 -- Home/64/1000 (1)            (3.0 HotSpot Server, based on 10K cycles) (34.0 HotSpot Classic)

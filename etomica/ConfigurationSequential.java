@@ -14,8 +14,8 @@ public class ConfigurationSequential extends Configuration {
     private boolean fill;
     private Space.Vector dimensions;
     
-    public ConfigurationSequential(Space space) {
-        super(space);
+    public ConfigurationSequential(Simulation sim) {
+        super(sim);
         setFillVertical(true);
         dimensions = space.makeVector();
         dimensions.E(Default.BOX_SIZE);

@@ -9,13 +9,13 @@ public class ConfigurationZincblende extends Configuration {
     
     private ConfigurationFcc fcc;
     
-    public ConfigurationZincblende(Space space) {
-        super(space);
+    public ConfigurationZincblende(Simulation sim) {
+        super(sim);
         if(space.D() != 3) {//need an exception for this
             System.out.println("Illegal dimension for ConfigurationZincBlende");
             System.exit(1);
         }
-        fcc = new ConfigurationFcc(space);
+        fcc = new ConfigurationFcc(sim);
     }
     
     /**
