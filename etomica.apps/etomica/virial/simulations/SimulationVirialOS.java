@@ -59,8 +59,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 		integrator.setSleepPeriod(1);
 		integrator.setTemperature(simTemperature);
 		MCMoveAtom mcMoveAtom1 = new MeterVirial.MyMCMoveAtom(integrator);
-		MCMoveAtomMulti mcMoveAtom2 = new MCMoveAtomMulti(integrator,2);
-		for(int n=3; n<nMolecules; n++) {
+		for(int n=2; n<nMolecules; n++) {
 			new MCMoveAtomMulti(integrator, n);
 		}
 		
@@ -201,7 +200,9 @@ public class SimulationVirialOS extends SimulationGraphic {
 		MayerGeneral f = new MayerGeneral(p2LJ);
 		
 		//take care to define other clusters (below) appropriately if using ReeHoover
-		Cluster targetCluster = new Full(nMolecules, 1.0, f);
+//		Cluster targetCluster = new Full(nMolecules, 1.0, f);
+		Cluster targetCluster = new Cluster(5,1.0,
+			new Cluster.BondGroup(f, new int[][] {{0,1},{0,2},{0,3},{0,4},{1,2},{1,3},{2,3},{2,4},{3,4}}));
 //		Cluster targetCluster = new etomica.virial.cluster.ReeHoover(4, 1.0, new Cluster.BondGroup(f, Standard.D4));
 
 		SimulationVirialOS sim = new SimulationVirialOS(temperature, targetCluster, sigmaHSRef);
@@ -217,7 +218,8 @@ public class SimulationVirialOS extends SimulationGraphic {
 		positive.integrator().setDoSleep(doSleep);
 		positive.makeAndDisplayFrame();
 
-		Cluster targetNCluster = new Ring(nMolecules, 1.0, new MayerGeneral(p2LJ));
+//		Cluster targetNCluster = new Ring(nMolecules, 1.0, new MayerGeneral(p2LJ));
+		Cluster targetNCluster = new Cluster(new MayerGeneral(p2LJ), targetCluster);
 		Cluster refNCluster = new Cluster(new MayerHardSphere(sigmaHSRef), targetCluster);
 		SimulationOSTarget negative = new SimulationOSTarget(sim.space, temperature, false, 
 										refNCluster, targetNCluster);

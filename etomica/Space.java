@@ -395,6 +395,7 @@ public abstract class Space implements java.io.Serializable {
         public static abstract class Type extends Constants.TypedConstant {
             protected Type(String label) {super(label);}
         }
+        
       /**
        * Interface for a class that can make a boundary
        */
