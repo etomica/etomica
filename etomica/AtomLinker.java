@@ -7,6 +7,7 @@ package etomica;
  */
 public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
+    //TODO make these private and access with final methods, but test if performance suffers from change
     public AtomLinker next, previous;
     
     /**
@@ -27,7 +28,7 @@ public class AtomLinker implements java.io.Serializable {
     public void remove() {
 	    previous.next = next;
 	    next.previous = previous;
-	    next = previous = this;
+	    if(Debug.ON) next = previous = this;
     }
     
     /**
@@ -35,25 +36,18 @@ public class AtomLinker implements java.io.Serializable {
      * and after the linker that originally preceded the given one.
      */
     public void addBefore(AtomLinker newNext) {
+        if(Debug.ON && next != this) {//also implies (previous!=this)
+            throw new IllegalStateException("Illegal attempt to add a linker to a list while it has not been removed from another list.");
+        }
+        if(Debug.ON && this == newNext) {
+            throw new IllegalArgumentException("Illegal attempt to link a linker to itself.");
+        }
         next = newNext;
         previous = newNext.previous;
         previous.next = this;
         newNext.previous = this;
 	}
-//TODO consider make addBefore and moveBefore the same (putBefore), but check that doesn't break (at least) IteratorFactoryCellLeaf	
-	/**
-	 * Moves the linker from its current position to the one before the given linker.
-	 */
-	public void moveBefore(AtomLinker newNext) {
-	    remove();
-	    addBefore(newNext);
-	}
 
-    //will add a reservoir of linkers, so this is used as constructor for now
-    public static AtomLinker makeLinker(Atom a) {
-        return new AtomLinker(a);
-    }
-    
 	/**
 	 * Creates a new tab that is flagged as not a header.
 	 * @return Tab

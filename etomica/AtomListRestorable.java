@@ -126,7 +126,8 @@ package etomica;
         Phase phase = new Phase(sim.space);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         species.setNMolecules(10);
-        sim.elementCoordinator.go();
+        phase.speciesMaster.addSpecies(species);
+//        sim.elementCoordinator.go();
         
         boolean pauseForInput = true;
         
@@ -135,14 +136,14 @@ package etomica;
         
         System.out.println("Original list");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.remove(7);
         list.remove(2);
         System.out.println("Removed elements 7 and 2");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.add(species.factory.makeAtom());
@@ -150,51 +151,51 @@ package etomica;
         list.add(species.factory.makeAtom());
         System.out.println("Added 3 atoms");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored again (should be no change)");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.clear();
         System.out.println("Cleared list");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
  
         list.add(species.factory.makeAtom());
         list.add(species.factory.makeAtom());
         System.out.println("Added 2 atoms");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.clearMemory();
         list.add(species.factory.makeAtom());
         System.out.println("Cleared memory and added 1 atom");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored (should have two extra atoms)");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         Atom last = list.removeLast();
@@ -202,27 +203,27 @@ package etomica;
         list.addFirst(species.factory.makeAtom());
         System.out.println("Removed first and last and added a new first");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.removeFirst();
         list.add(first);
         System.out.println("Removed new first and added original first at end");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.clear();
         list.clearMemory();
         System.out.println("Cleared list and memory");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
@@ -235,19 +236,19 @@ package etomica;
         list.add(species.factory.makeAtom());
         System.out.println("Added 2 atoms");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored; should be empty");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
         list.restore();
         System.out.println("Restored again (should be no change)");
         iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();
         
     }//end main

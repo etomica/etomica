@@ -50,18 +50,21 @@ import java.util.*;
  * @since JDK1.2
  */
 
+/* The atomlist is not very hard to screw up.  It can
+ * get circular links among other things.  Do not
+ * add a linker that is already in the list. Do not remove
+ * a linker that is not in the list.  Do not taunt the list.  Turning
+ * on Debug will attempt to catch problems.
+ */
+
 public class AtomList implements java.io.Serializable
 {
     public final AtomLinker.Tab header = AtomLinker.newHeader(this);//modification for tab entry
-    private int size = 0;
     
     /**
      * Constructs an empty list.
      */
-    public AtomList() {
-        header.next = header.previous = header;
-        header.nextTab = header.previousTab = header;
-    }
+    public AtomList() {}
 
     /**
      * Constructs a list containing the elements of the specified
@@ -78,55 +81,43 @@ public class AtomList implements java.io.Serializable
       * May be overridden in subclasses to use linkers with other features.
       */
      protected AtomLinker makeLinker(Atom atom) {
-        return AtomLinker.makeLinker(atom);
+        return new AtomLinker(atom);
      }
      
-	/**
-	 * Positions the given tab in front of the header, effectively allowing it to serve
-	 * as the header in this list.  It is assumed that the given tab lies in a 
-	 * linked-list ring of atoms.  All atoms currently in this list are cleared and
-	 * are automatically replaced by all atoms in new tab's ring.
-	 * This is used for the cell neighbor list to place the neighborlisted atoms
-	 * in a proper AtomList.  The integer argument newSize gives the number of
-	 * (non-Tab) atoms in the pseudoHeader ring.
-	 */
-	 //used by IteratorFactoryCell.SequentialIterator
-	public void setAsHeader(AtomLinker.Tab pseudoHeader, int newSize) {
-	    header.remove();
-	    header.addBefore(pseudoHeader);
-	    size = newSize;
-	//    size = 0;
-	//    for(AtomLinker link=header.next; link!=header; link=link.next) {
-	//        if(link.atom != null) size++;
-	//    }
-	}
-
+     /**
+      * Returns true if the list has no atoms.
+      */
+     public final boolean isEmpty() {
+         return size == 0;
+     }
+     
      /**
       * Returns a randomly selected atom from the list.
+      * Returns null if list is empty.
       */
      public Atom getRandom() {
-        if(size==0) return null;
+        if(isEmpty()) return null;
         return entry((int)(Simulation.random.nextDouble()*size)).atom;
      }
 
     /**
      * Returns the first element in this list.
+     * Returns null if the list is empty.
      *
      * @return the first element in this list.
      */
     public Atom getFirst() {
-	    if (size==0) return null;
+	    if (isEmpty()) return null;
 	    return firstEntry().atom;
     }
 
     /**
      * Returns the last element in this list.
-     *
+     * Returns null if the list is empty.
      * @return the last element in this list.
-     * @throws    NoSuchElementException if this list is empty.
      */
     public Atom getLast()  {
-	    if (size==0) return null;
+	    if (isEmpty()) return null;
 	    return lastEntry().atom;
     }
 
@@ -137,7 +128,7 @@ public class AtomList implements java.io.Serializable
      * @throws    NoSuchElementException if this list is empty.
      */
     public Atom removeFirst() {
-        if(size == 0) return null;
+        if(isEmpty()) return null;
         AtomLinker firstEntry = firstEntry();
 	    remove(firstEntry);
 	    return firstEntry.atom;
@@ -149,7 +140,7 @@ public class AtomList implements java.io.Serializable
      * @return the last element from this list, or null if it is empty
      */
     public Atom removeLast() {
-        if(size == 0) return null;
+        if(isEmpty()) return null;
 	    AtomLinker lastEntry = lastEntry();
 	    remove(lastEntry);
 	    return lastEntry.atom;
@@ -356,13 +347,13 @@ public class AtomList implements java.io.Serializable
      * 		  range (<tt>index &lt; 0 || index &gt;= size()</tt>).
      */
     public Atom remove(int index) {
-        AtomLinker e = entry(index);
+        AtomLinker e = entry(index);//check of index is done in entry method
         remove(e);
         return e.atom;
     }
 
     /**
-     * Return the indexed entry.
+     * Return the indexed entry, counting from 0.
      */
     public AtomLinker entry(int index) {
         if (index < 0 || index >= size)
@@ -385,11 +376,12 @@ public class AtomList implements java.io.Serializable
 
     /**
      * Returns the first entry (linker with non-null atom) in this list.
+     * Returns null if the list is empty.
      *
      * @return the first entry in this list.
      */
     public AtomLinker firstEntry() {
-	    if (size==0) return null;
+	    if (isEmpty()) return null;
 	    AtomLinker entry = header.next;
 	    while(entry.atom == null) entry = entry.next;//modification for tab entry
 	    return entry;
@@ -397,12 +389,10 @@ public class AtomList implements java.io.Serializable
 
     /**
      * Returns the last entry (linker with non-null atom) in this list.
-     *
-     * @return the last entry in this list.
-     * @throws    NoSuchElementException if this list is empty.
+     * Returns null if the list is empty.
      */
     public AtomLinker lastEntry()  {
-	    if (size==0) return null;
+	    if (isEmpty()) return null;
 	    AtomLinker entry = header.previous;
 	    while(entry.atom == null) entry = entry.previous;
 	    return entry;
@@ -412,7 +402,7 @@ public class AtomList implements java.io.Serializable
     
     /**
      * Returns the linker associated with the given atom in this list.
-     * Returns null if the atom is not in the list.
+     * Returns null if the atom is not in the list, or if the atom is null.
      */
     public AtomLinker entry(Atom atom) {
         if(atom == null) return null;
@@ -429,16 +419,16 @@ public class AtomList implements java.io.Serializable
      * <tt>(o==null ? get(i)==null : o.equals(get(i)))</tt>, or -1 if
      * there is no such index.
      *
-     * @param o element to search for.
+     * @param atom element to search for.
      * @return the index in this list of the first occurrence of the
      * 	       specified element, or -1 if the list does not contain this
      * 	       element.
      */
-    public int indexOf(Atom o) {
-        if(o == null) return -1;
+    public int indexOf(Atom atom) {
+        if(atom == null) return -1;
         int index = 0;
         for (AtomLinker e = header.next; e != header; e = e.next) {
-            if (o.equals(e.atom)) return index;
+            if (atom.equals(e.atom)) return index;
             if(e.atom != null) index++;//modification for tab entry
         }
         return -1;
@@ -482,35 +472,27 @@ public class AtomList implements java.io.Serializable
 	 * more atoms/linkers to the list work through this method.
 	 */
 	public AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
-        if(newAtomLinker.next != newAtomLinker || newAtomLinker.previous != newAtomLinker) {
-            throw new IllegalArgumentException("Illegal attempt to add a linker that has not been removed from another list.  It may be that the method is called with the arguments in the wrong order.");
-        }
 	    if(newAtomLinker.atom != null) size++;//modification for tab entry
 	    newAtomLinker.addBefore(e);	        
 	    return newAtomLinker;
     }
     
-    
-    /**
-     * Moves the first linker to the position before the second one.
-     * Equivalent to remove(moving); addBefore(moving, newNext); but
-     * saves incrementing and decrementing size.
-     * Assumes both entries are already in the list, and that they are 
-     * not the same entry.
-     */
-    public void moveBefore(AtomLinker moving, AtomLinker newNext) {
-        moving.moveBefore(newNext);
-    }        
-
     /**
      * Removes the given linker from this list.  Does not check that linker
      * is in fact contained in list.  All methods that remove an atom/linker
      * from this list work through this method.
      */
     public void remove(AtomLinker e) {
-	    if (e.atom != null) size--;//decrement size counter if not removing a Tab
-	    else if(e == header) throw new NoSuchElementException();
-	    e.remove();
+        if(Debug.ON && !inList(e)) throw new IllegalArgumentException("Illegal attempt to remove a linker that is not in the list");
+	    size--;//decrement size counter
+	    e.remove();//e.remove
+    }
+    
+    private boolean inList(AtomLinker linker) {
+        for (AtomLinker e = header.next; e != header; e = e.next) {
+            if (e == linker) return true;
+        }
+        return false;
     }
 
     /**
@@ -529,6 +511,7 @@ public class AtomList implements java.io.Serializable
 	    return result;
     }
 
+    private int size = 0;
     
     //main method to demonstrate and test this class
 /*    public static void main(String[] args) throws java.io.IOException {
@@ -575,7 +558,5 @@ public class AtomList implements java.io.Serializable
        }
     }//end of main
    */ 
-    //meant to be a permanently empty list that can be used as a place holder when needed
-    public static final AtomList NULL = new AtomList();
     
 }
