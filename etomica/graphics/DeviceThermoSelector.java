@@ -1,8 +1,16 @@
 package etomica.graphics;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import etomica.Action;
+import etomica.Controller;
+import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.units.Kelvin;
+import etomica.simulations.HSMD3D;
 import etomica.units.PrefixedUnit;
 
 /**
@@ -14,74 +22,56 @@ import etomica.units.PrefixedUnit;
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
-    /**
-     * Descriptive text label to be displayed with the value
-     */
-    private javax.swing.JComboBox selector;
-    private javax.swing.JLabel label;
-    private final String adiabaticString = "Adiabatic";
-    private Integrator integrator;
-    private javax.swing.JPanel panel;
-    
-    private boolean includeAdiabatic = true;
-    
-    public DeviceThermoSelector() {
-        super();
+     public DeviceThermoSelector(Controller controller, final Integrator integrator) {
+        super(controller);
         selector = new javax.swing.JComboBox(new Object[] {new Object()}); //swingall JComboBox doesn't chokes if we don't give initialize without an object in the list
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
         label = new javax.swing.JLabel("");
-        setUnit(new PrefixedUnit(Kelvin.UNIT));
-        
+        setUnit(Default.UNIT_SYSTEM.temperature());
+
         panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
         panel.add(label, java.awt.BorderLayout.NORTH);
         panel.add(selector, java.awt.BorderLayout.SOUTH);
         panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
+
         
-        
-/*        selector.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e){
-                Object item = ((javax.swing.JComboBox)e.getSource()).getSelectedItem();
-		        if(item==adiabaticString) integrator.setIsothermal(false);
-		        else {
-		            integrator.setIsothermal(true);
-		            integrator.setTemperature(unit.toSim(((Double)item).doubleValue()));
-		        }
+        //listener to combo box gets value and initiates action
+        selector.addItemListener( new ItemListener() {
+            public void itemStateChanged(ItemEvent event) {
+                Object item = event.getItem();
+                if(item==adiabaticString) {
+                    isothermal = false;
+                } else {
+                    isothermal = true;
+                    temperature = unit.toSim(((Double)item).doubleValue());
+                }
+                doAction();
             }
-        });*/
-        selector.addItemListener(new java.awt.event.ItemListener() {
-		    public void itemStateChanged(java.awt.event.ItemEvent event) {
-		        if(integrator==null) return;
-		        Object item = event.getItem();
-		        if(item==adiabaticString) integrator.setIsothermal(false);
-		        else {
-		        	integrator.pause();
-		            integrator.setIsothermal(true);
-		            integrator.setTemperature(unit.toSim(((Double)item).doubleValue()));
-		            integrator.reset();
-		            integrator.unPause();
-		        }
-		    }
-		});//end of addItemListener
-		
-//		//add mediator so that last integrator added to simulation is controlled by this device
-//        sim.elementCoordinator.addMediatorPair(new MediatorGraphic.DeviceIntegrator(sim.elementCoordinator) {
-//            public void add(Integrator integrator) {
-//                DeviceThermoSelector.this.integrator = integrator;
-//            }
-//            public void add(Device device) {
-//                if(device != DeviceThermoSelector.this) return;
-//                for(Iterator ip=mediator.parentSimulation().getIntegratorList().iterator(); ip.hasNext(); ) {
-//                    Integrator integrator = (Integrator)ip.next();
-//                    if(integrator.wasAdded())  {//will make last integrator the one
-//                        DeviceThermoSelector.this.integrator = integrator;
-//                    }
-//                }
-//            }
-//        });
-		
+        });
+       
+        setIntegrator(integrator);
+
     }//end of constructor
     
+    public void setIntegrator(final Integrator integrator) {
+        this.integrator = integrator;
+        targetAction = new Action() {
+            public void actionPerformed() {
+                if(integrator == null) return;
+                integrator.setIsothermal(isothermal);
+                if(isothermal) {
+                    integrator.setTemperature(temperature);
+                }
+                integrator.reset();
+            }
+            public String getLabel() {
+                return DeviceThermoSelector.this.getLabel().toString();
+            }
+        };
+        
+
+    }
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
         info.setDescription("Select isothermal at a set of temperatures, or adiabatic");
@@ -135,4 +125,34 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         return panel;
        // return selector;
     }
+    
+    private ItemListener itemListener;
+    private javax.swing.JComboBox selector;
+    private javax.swing.JLabel label;
+    private final String adiabaticString = "Adiabatic";
+    private javax.swing.JPanel panel;
+    
+    private boolean includeAdiabatic = true;
+    private Integrator integrator;
+    private boolean isothermal = false;
+    private double temperature;
+    
+    //main method to demonstrate and test class
+    public static void main(String[] args) {
+        
+        HSMD3D sim = new HSMD3D();
+        SimulationGraphic graphic = new SimulationGraphic(sim);
+        
+        DeviceThermoSelector device = new DeviceThermoSelector(sim.getController(), sim.integrator);
+        graphic.add(device);
+        LinkedList displays = graphic.displayList();
+        for(Iterator iter=displays.iterator(); iter.hasNext();) {
+            Display next = (Display)iter.next();
+            if(next instanceof DisplayPhase) {
+                ((DisplayPhase)next).setColorScheme(new ColorSchemeTemperature());
+            }
+        }
+        graphic.makeAndDisplayFrame();
+    }//end of main
+
 }
