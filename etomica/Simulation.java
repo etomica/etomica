@@ -475,11 +475,9 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 		                                    //calling it a second time has no effect
 		                                    
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIteratorIntra(phase,
-                                    phase.iteratorFactory().makeAtomIteratorUp(),
-                                    phase.iteratorFactory().makeAtomIteratorUpNeighbor(),
-                                    phase.iteratorFactory().makeAtomIteratorDown(),
-                                    phase.iteratorFactory().makeAtomIteratorDownNeighbor()));
+        potentialAgent.setIterator(new AtomPairIterator(phase,
+                                    phase.iteratorFactory().makeAtomIterator(),
+                                    phase.iteratorFactory().makeAtomIterator()));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
         f.getContentPane().add(Simulation.instance.panel());         //access the static instance of the simulation to

@@ -8,7 +8,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public abstract class AtomPairIterator implements java.io.Serializable {
+public class AtomPairIterator implements java.io.Serializable {
     
     private AtomPair pair; //want final, but Null inner class won't allow
     private IteratorDirective.Direction direction;
@@ -36,6 +36,9 @@ public abstract class AtomPairIterator implements java.io.Serializable {
         hasNext = false;
         pair = null;
         ai1 = ai2 = null;
+    }
+    public AtomPairIterator(Phase p) {
+        this(p, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
     }
     /**
      * Construct a pair iterator for the given phase, using the given atom iterators

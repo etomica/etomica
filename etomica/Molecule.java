@@ -39,8 +39,9 @@ public class Molecule implements Space.Occupant, Serializable {
     temp = parentSimulation().space().makeVector();
     atomCount = n;
 //    atomIterator = (atomCount > 1) ? new AtomIterator() : new MonoAtomIterator();
-    if(atomCount > 1) atomIterator = new AtomIterator();
-    else atomIterator = new MonoAtomIterator();
+///    if(atomCount > 1) 
+        atomIterator = new AtomIterator();
+///    else atomIterator = new MonoAtomIterator();
     
     
     firstAtom = new Atom(this,type,0);
@@ -69,14 +70,14 @@ public class Molecule implements Space.Occupant, Serializable {
         lastAtom.setNextAtom(new Atom(this,type[i],i));
         lastAtom = lastAtom.nextAtom();
     }
-    if(atomCount > 1) { //Multi-atomic
+//    if(atomCount > 1) { //Multi-atomic
         atomIterator = new AtomIterator();
         coordinate = parentSimulation().space().makeCoordinate(this);
-    }
+/*    }
     else {  //Mono-atomic
         atomIterator = new MonoAtomIterator();
         coordinate = firstAtom.coordinate();
-    }
+    }*/
     r = coordinate.position();
     p = coordinate.momentum();
     temp = parentSimulation().space().makeVector();
@@ -395,14 +396,14 @@ public class Molecule implements Space.Occupant, Serializable {
     firstAtom.clearPreviousAtom();
   }
   
-  public final class AtomIterator extends AtomIteratorUp {
-        public AtomIterator() {super(null, AtomIterator.INCLUDE_FIRST);}
+  public final class AtomIterator extends AtomIteratorSequential {
+        public AtomIterator() {super();}
         public boolean contains(Atom atom) {return atom.parentMolecule == Molecule.this;}
         public Atom defaultFirstAtom() {return Molecule.this.firstAtom;}
         public Atom defaultLastAtom() {return Molecule.this.lastAtom;}
     } //end of AtomIterator
     
-  public final class MonoAtomIterator extends etomica.AtomIteratorSinglet {
+/*  public final class MonoAtomIterator extends etomica.AtomIteratorSinglet {
         public MonoAtomIterator() {super(); super.reset(firstAtom);}
         public boolean contains(Atom atom) {return atom == firstAtom;}
         public Atom reset() {hasNext = true; return firstAtom;}
@@ -414,7 +415,7 @@ public class Molecule implements Space.Occupant, Serializable {
         }
         public void allAtoms(AtomAction act) {act.actionPerformed(firstAtom);}
     } //end of MonoAtomIterator
-
+*/
   /**
    * Molecule.Container
    * Interface for molecule reservoirs and phases

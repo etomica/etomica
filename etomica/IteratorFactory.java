@@ -17,7 +17,7 @@ package etomica;
     public class IteratorFactory implements java.io.Serializable {
         private Phase phase;
         public IteratorFactory(Phase p) {phase = p;}
-        public AtomIterator makeAtomIterator() {return phase.new Iterator();}
+        public AtomIterator makeAtomIterator() {return phase.new AtomIterator();}
 /*        public AtomIterator makeAtomIteratorUp() {return new AtomIteratorUp(phase);}
         public AtomIterator makeAtomIteratorDown() {return new AtomIteratorDown(phase);}
         public AtomIterator makeAtomIteratorUpDown() {return new AtomIteratorUpDown(phase);}

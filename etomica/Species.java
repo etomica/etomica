@@ -665,8 +665,8 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         /**
          * Iterator for all atoms of this species in this phase
          */
-        public final class AtomIterator extends AtomIteratorUp {
-            public AtomIterator() {super(null, AtomIterator.INCLUDE_FIRST);}
+        public final class AtomIterator extends AtomIteratorSequential {
+            public AtomIterator() {super();}
             public boolean contains(Atom atom) {return atom.parentMolecule.parentSpecies() == Species.this;}
             public Atom defaultFirstAtom() {return firstAtom();}
             public Atom defaultLastAtom() {return lastAtom();}

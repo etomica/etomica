@@ -92,7 +92,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	 */
 	protected void makeIterators(IteratorFactory factory) {
 	    super.makeIterators(factory);
-        upAtomIterator = factory.makeAtomIteratorUp();
+        upAtomIterator = factory.makeAtomIterator();
     }
 
     /**

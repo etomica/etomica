@@ -29,11 +29,7 @@ public class HSMD2D extends Simulation {
 		setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIteratorIntra(phase,
-                                    phase.iteratorFactory().makeAtomIteratorUp(),
-                                    phase.iteratorFactory().makeAtomIteratorUpNeighbor(),
-                                    phase.iteratorFactory().makeAtomIteratorDown(),
-                                    phase.iteratorFactory().makeAtomIteratorDownNeighbor()));
+        potentialAgent.setIterator(new AtomPairIterator(phase));
 		
     }
     

@@ -19,6 +19,9 @@ import java.awt.event.ActionEvent;
 public class Atom implements Space.Occupant, java.io.Serializable {
 
     public static String getVersion() {return "01.01.17";}
+    
+    public static int DEBUG = 0;
+    public int debugIndex;
 
     /**
      * Constructs an atom with default values for mass, diameter, and color.
@@ -29,6 +32,7 @@ public class Atom implements Space.Occupant, java.io.Serializable {
      * @param t the type of the atom
      */
     public Atom(Molecule parent, AtomType t, int index) {
+        debugIndex = DEBUG++;
         parentMolecule = parent;
         atomIndex = index;
         workVector = parentSimulation().space().makeVector();

@@ -24,7 +24,7 @@ public interface AtomIterator {
     
     public void setAsNeighbor(boolean b);
     
-    public Atom reset();  //maybe should remove this
+    public Atom reset();
     
     public Atom next();
     
@@ -52,7 +52,7 @@ public interface AtomIterator {
      * loop of an atom pair iterator.  The Initiation field of an iterator derived
      * from AtomIteratorAbstract is final and cannot be changed after construction.
      */
-    public static final class Initiation extends Constants.TypedConstant {
+/*    public static final class Initiation extends Constants.TypedConstant {
             
         private Initiation(String label) {super(label);}
         public static final Initiation[] CHOICES = new Initiation[] {
@@ -64,5 +64,5 @@ public interface AtomIterator {
     }//end of Initiation
     public static final Initiation SKIP_FIRST = Initiation.CHOICES[0];
     public static final Initiation INCLUDE_FIRST = Initiation.CHOICES[1];
-
+*/
 }//end of AtomIterator

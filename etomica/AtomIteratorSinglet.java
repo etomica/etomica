@@ -4,53 +4,48 @@ package etomica;
  * Iterator that expires after returning a single atom, which is
  * specified by a call to the reset(Atom) method.
  * A second atom may be specified using the reset(Atom, Atom) method. 
- * Then if the initiation flag indicates SKIP_FIRST, the second atom
- * is the only one returned; if the flag indicates INCLUDE_FIRST, then
+ * Then if the iterator is set to isAsNeighbor, the second atom
+ * is the only one returned; otherwise
  * the first atom is the only one returned.
  *
  * @author David Kofke
  */
-public class AtomIteratorSinglet extends AtomIteratorAbstract { //could equally well write to implement AtomIterator
+public class AtomIteratorSinglet implements AtomIterator {
     
     private Atom atom1, atom2, next;
+    private boolean hasNext, isAsNeighbor;
     
-    public AtomIteratorSinglet() {this(AtomIterator.INCLUDE_FIRST);}
-    public AtomIteratorSinglet(AtomIterator.Initiation init) {
-        super(init);
-    }
-    
-    /**
-     * Returns the atom given in the last call to reset(Atom).
-     */
-    public Atom defaultFirstAtom() {return atom1;}
-    
-    /**
-     * Returns the atom given in the last call to reset(Atom).
-     */
-    public Atom defaultLastAtom() {
-        return (initiation == AtomIterator.INCLUDE_FIRST) ? atom1 : atom2;}
-    
-    public boolean isOrdered(Atom a1, Atom a2) {
-        if(a1 == null || a2 == null) return false;
-        else if(a1 == a2 && (a1 == atom1 || a1 == atom2)) return true;
-        else if(a1 == atom1 && a2 == atom2) return true;
-        else return false;
-    }
-    
+    public AtomIteratorSinglet() {hasNext = false;}
+    public AtomIteratorSinglet(Atom a) {reset(a);}
+        
     /**
      * Returns true if the given atom is the atom passed to the last call to reset(Atom),
      * or is one of the atoms passed to the last call to reset(Atom, Atom).
      */
     public boolean contains(Atom a) {return (a == atom1 || a == atom2) && a != null;}
     
+    public boolean hasNext() {return hasNext;}
+    
+    public void setAsNeighbor(boolean b) {isAsNeighbor = b;}
+    
+    public Atom reset(IteratorDirective id) {
+        switch(id.atomCount()) {
+            case 0:  return reset(); 
+            case 1:  return reset(id.atom1()); 
+            case 2:  return reset(id.atom1(), id.atom2()); 
+            default: hasNext = false; 
+            return null;
+        }
+    }
+    
     /**
      * Resets iterator to return atom specified by previous call to reset(Atom), or
      * to the second atom of the last call to reset(Atom, Atom) if SKIP_FIRST.
      */
     public Atom reset() {
-        next = (initiation == AtomIterator.INCLUDE_FIRST) ? atom1 : atom2;
+        next = isAsNeighbor ? atom1 : atom2;
         hasNext = (next != null); 
-        return atom;
+        return next;
     }
     
     /**
@@ -63,7 +58,7 @@ public class AtomIteratorSinglet extends AtomIteratorAbstract { //could equally 
     }
     
     /**
-     * Same as call to reset(first).  Second argument is ignored.
+     * 
      */
     public Atom reset(Atom first, Atom last) {
         atom1 = first;
@@ -77,5 +72,5 @@ public class AtomIteratorSinglet extends AtomIteratorAbstract { //could equally 
         reset();
         act.actionPerformed(next);
     }
-}//end of AtomIterator.Singlet
+}//end of AtomIteratorSinglet
         

@@ -1,7 +1,8 @@
 package etomica;
 
 /**
- * Parent class for most atom iterators.
+ * Parent class for most atom iterators.  Default state of new iterator
+ * is direction == UP, beginning from the default first atom.
  *
  * @author David Kofke
  */
@@ -12,13 +13,16 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     protected boolean upListNow, doGoDown;
     protected boolean isNeighborIterator;
     protected Atom setAtom, terminator2;
+    protected IteratorDirective.Direction direction;
 
     /**
-     * Iterator is constructed not ready for iteration.  Must call a reset
-     * method before use.  hasNext returns false until then.
+     * Construct iterator with default configuration of direction == UP
+     * Not set to iterate until a reset method is invoked.
      */
     public AtomIteratorAbstract() {
         hasNext = false;
+        direction = IteratorDirective.UP;
+ //       reset(new IteratorDirective().set().set(IteratorDirective.UP));
     }
     
     /**
@@ -88,30 +92,37 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     }
     
     public Atom reset(IteratorDirective id) {
-        upListNow = id.direction().doUp();
-        doGoDown = id.direction().doDown();
+        direction = id.direction();//save for reset()
         switch(id.atomCount()) {
             case 0:  return reset(); 
-            case 1:  return reset(id.atom1()); 
-            case 2:  return reset(id.atom1(), id.atom2()); 
+            case 1:  applyDirection(); return reset(id.atom1()); 
+            case 2:  applyDirection(); return reset(id.atom1(), id.atom2()); 
             default: hasNext = false; 
             return null;
         }
     }
     
+    private void applyDirection() {
+        upListNow = direction.doUp();
+        doGoDown = direction.doDown();
+    }
+    
     /**
-     * Resets the iterator, so that it is ready to go through its list again, beginning
-     * with its natural first iterate (the identity of which depends on the iterator).
+     * Resets the iterator to the state it had after the last call to reset(Atom).
+     * Will not reset to exact state of a prior call to reset(Atom, Atom).
      *
      * @return the atom that will be returned with the first call to next() 
      */
     public Atom reset() {
-        if(isNeighborIterator) atom = null;
+        applyDirection(); //need to reapply because upListNow may have been changed during previous iteration
+        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
+        return reset(setAtom);
+/*        if(isNeighborIterator) atom = null;
         else if(upListNow) atom = reset(defaultFirstAtom());
         else if(doGoDown) atom = reset(defaultLastAtom());
         else atom = null;
         hasNext = (atom != null);
-        return atom;
+        return atom;*/
     }
 
     /**
@@ -153,7 +164,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      */
      protected Atom reset(Atom first, Atom last) {
         if(isNeighborIterator) {
-            if(contains(last)) { //won't work right is last is downlist of first
+            if(contains(last)) { //won't work right if last is downlist of first
                 atom = firstNeighbor(first);
                 terminator = last;
             }

@@ -57,7 +57,7 @@ public class P1HardBoundary extends PotentialAbstract {
          * Sets iterator to one that gives all atoms in the phase.
          */
         protected void makeDefaultIterator() {
-           iterator = parentPhase.iteratorFactory().makeAtomIteratorUp();
+           iterator = parentPhase.iteratorFactory().makeAtomIterator();
         }
             
         public void setIterator(AtomIterator iterator) {
