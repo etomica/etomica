@@ -8,8 +8,8 @@ public class ConfigurationTIP4PWater extends Configuration {
     private double angleHOH = 104.52*Math.PI/180.;
     private double bondLengthOcharge = 0.15;
     
-    public ConfigurationTIP4PWater(Simulation sim) {
-        super(sim);
+    public ConfigurationTIP4PWater(Space space) {
+        super(space);
     }
     
     public void initializePositions(AtomIterator[] iterators){
@@ -21,16 +21,16 @@ public class ConfigurationTIP4PWater extends Configuration {
         
         iterator.reset();
         
-        Atom o = iterator.next();
+        Atom o = iterator.nextAtom();
         o.coord.position().E(new double[] {x, y, 0.0});
                
-        Atom h1 = iterator.next();
+        Atom h1 = iterator.nextAtom();
         h1.coord.position().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        Atom h2 = iterator.next();
+        Atom h2 = iterator.nextAtom();
         h2.coord.position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
 
-        Atom charge = iterator.next();
+        Atom charge = iterator.nextAtom();
         charge.coord.position().E(new double[] {x+bondLengthOcharge*Math.cos(angleHOH/2), y+bondLengthOcharge*Math.sin(angleHOH/2), 0.0});
     }//end of initializePositions
     

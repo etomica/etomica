@@ -6,12 +6,12 @@ import etomica.*;
 
 public class P2WaterTIP4P extends Potential2 implements Potential2.Soft {
 
-	public P2WaterTIP4P(SimulationElement parent, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
-		this(parent, potentialTruncation);
+	public P2WaterTIP4P(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+		this(space, potentialTruncation);
 		this.boundary = boundary;
 	}
-	public P2WaterTIP4P(SimulationElement parent, PotentialTruncation potentialTruncation) {
-		super(parent);
+	public P2WaterTIP4P(Space space, PotentialTruncation potentialTruncation) {
+		super(space, potentialTruncation);
 		setSigma(3.15365);
 		setEpsilon(Kelvin.UNIT.toSim(77.94));
 		this.potentialTruncation = potentialTruncation;
@@ -19,12 +19,12 @@ public class P2WaterTIP4P extends Potential2 implements Potential2.Soft {
 		shift = (Space3D.Vector)space.makeVector();
 		setCharges();
 	}   
-	public double energy(AtomPair pair){
+	public double energy(Atom[] pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeTIP4PWater node1 = (AtomTreeNodeTIP4PWater)pair.atom1().node;
-		AtomTreeNodeTIP4PWater node2 = (AtomTreeNodeTIP4PWater)pair.atom2().node;
+		AtomTreeNodeTIP4PWater node1 = (AtomTreeNodeTIP4PWater)pair[0].node;
+		AtomTreeNodeTIP4PWater node2 = (AtomTreeNodeTIP4PWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
 		Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
@@ -104,16 +104,16 @@ public class P2WaterTIP4P extends Potential2 implements Potential2.Soft {
 		return sum;																					        
 	}//end of energy
     
-	public Space.Vector gradient(AtomPair pair){
+	public Space.Vector gradient(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double hyperVirial(AtomPair pair){
+	public double hyperVirial(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double integral(double rC){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double virial(AtomPair pair){
+	public double virial(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
     

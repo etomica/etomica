@@ -36,8 +36,8 @@ public class Abstract3Site extends ModelMolecular {
 		return new Model[] {oxygen, hydrogen};
 	}
 	
-	public Potential makePotential(SimulationElement parent) {
-		PotentialWW potential = new PotentialWW(parent, truncation);
+	public Potential makePotential(Space space) {
+		PotentialWW potential = new PotentialWW(space, truncation);
 		potential.setParameters((LennardJones)models[0], (Charge)((ModelAtomic)models[1]).getElectrostatic());
 		return potential;
 	}
@@ -45,8 +45,8 @@ public class Abstract3Site extends ModelMolecular {
 	public static void main(String[] args) {
 		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(Space3D.INSTANCE);
 		Model waterModel = new Abstract3Site(3.0, 100.0, 0.5, 1.0, Math.PI*109./180.);
-		Species species = new Species(sim, waterModel);
-		Phase phase = new Phase(sim);
+		Species species = new Species(Space3D.INSTANCE, waterModel);
+		Phase phase = new Phase(Space3D.INSTANCE);
 		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(sim);
 		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();
@@ -54,18 +54,17 @@ public class Abstract3Site extends ModelMolecular {
 	
 	public static class PotentialWW extends Potential2 implements Potential2.Soft {
 
-		public PotentialWW(SimulationElement parent, PotentialTruncation potentialTruncation) {
-			super(parent);
-			this.potentialTruncation = potentialTruncation;
+		public PotentialWW(Space space, PotentialTruncation potentialTruncation) {
+			super(space,potentialTruncation);
 			dr = (Space3D.Vector)space.makeVector();
 			shift = (Space3D.Vector)space.makeVector();
 		}   
-		public double energy(AtomPair pair){
+		public double energy(Atom[] pair){
 			double sum = 0.0;
 			double r2 = 0.0;
 			
-			Atom[] atomArray1 = ((AtomTreeNodeGroupArray)pair.atom1().node).childAtomArray();
-			Atom[] atomArray2 = ((AtomTreeNodeGroupArray)pair.atom2().node).childAtomArray();
+			Atom[] atomArray1 = ((AtomTreeNodeGroupArray)pair[0].node).childAtomArray();
+			Atom[] atomArray2 = ((AtomTreeNodeGroupArray)pair[1].node).childAtomArray();
 		
 			//compute O-O distance to consider truncation	
 			Space3D.Vector O1r = (Space3D.Vector)atomArray1[0].coord.position();
@@ -127,16 +126,16 @@ public class Abstract3Site extends ModelMolecular {
 			return sum;																					        
 		}//end of energy
     
-		public Space.Vector gradient(AtomPair pair){
+		public Space.Vector gradient(Atom[] pair){
 			throw new etomica.exception.MethodNotImplementedException();
 		}
-		public double hyperVirial(AtomPair pair){
+		public double hyperVirial(Atom[] pair){
 			throw new etomica.exception.MethodNotImplementedException();
 		}
 		public double integral(double rC){
 			throw new etomica.exception.MethodNotImplementedException();
 		}
-		public double virial(AtomPair pair){
+		public double virial(Atom[] pair){
 			throw new etomica.exception.MethodNotImplementedException();
 		}
     
@@ -157,8 +156,6 @@ public class Abstract3Site extends ModelMolecular {
     
 		public double sigma , sigma2;
 		public double epsilon, epsilon4;
-		private PotentialTruncation potentialTruncation;
-		private Atom O1, H11, H12, O2, H21, H22;
 		private Space3D.Boundary boundary;
 		private double chargeH;
 		private double chargeO;
@@ -186,8 +183,8 @@ public class Abstract3Site extends ModelMolecular {
 		private double bondLengthOH = 1.0;
 		private double angleHOH = 109.5*Math.PI/180.;
 
-		public ConfigurationWater(Simulation sim) {
-			super(sim);
+		public ConfigurationWater(Space space) {
+			super(space);
 		}
     
 		public ConfigurationWater(double rOH, double theta) {
@@ -205,13 +202,13 @@ public class Abstract3Site extends ModelMolecular {
         
 			iterator.reset();
         
-			Atom o = iterator.next();
+			Atom o = iterator.nextAtom();
 			o.coord.position().E(new double[] {x, y, 0.0});
                
-			Atom h1 = iterator.next();
+			Atom h1 = iterator.nextAtom();
 			h1.coord.position().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-			Atom h2 = iterator.next();
+			Atom h2 = iterator.nextAtom();
 			h2.coord.position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
 
 		}//end of initializePositions

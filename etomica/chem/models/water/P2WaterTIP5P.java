@@ -1,30 +1,33 @@
 package etomica.chem.models.water;
 
+import etomica.Atom;
+import etomica.Potential2;
+import etomica.PotentialTruncation;
+import etomica.Space;
+import etomica.Space3D;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.*;
 
 public class P2WaterTIP5P extends Potential2 implements Potential2.Soft {
 
-	public P2WaterTIP5P(SimulationElement parent, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
-		this(parent, potentialTruncation);
+	public P2WaterTIP5P(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+		this(space, potentialTruncation);
 		this.boundary = boundary;
 	}
-	public P2WaterTIP5P(SimulationElement parent, PotentialTruncation potentialTruncation) {
-		super(parent);
+	public P2WaterTIP5P(Space space, PotentialTruncation potentialTruncation) {
+		super(space, potentialTruncation);
 		setSigma(3.12);
 		setEpsilon(Kelvin.UNIT.toSim(80.51));
-		this.potentialTruncation = potentialTruncation;
 		work = (Space3D.Vector)space.makeVector();
 		shift = (Space3D.Vector)space.makeVector();
 		setCharges();
 	}   
-	public double energy(AtomPair pair){
+	public double energy(Atom[] pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeTIP5PWater node1 = (AtomTreeNodeTIP5PWater)pair.atom1().node;
-		AtomTreeNodeTIP5PWater node2 = (AtomTreeNodeTIP5PWater)pair.atom2().node;
+		AtomTreeNodeTIP5PWater node1 = (AtomTreeNodeTIP5PWater)pair[0].node;
+		AtomTreeNodeTIP5PWater node2 = (AtomTreeNodeTIP5PWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
 		Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
@@ -139,16 +142,16 @@ public class P2WaterTIP5P extends Potential2 implements Potential2.Soft {
 		return sum;																					        
 	}//end of energy
     
-	public Space.Vector gradient(AtomPair pair){
+	public Space.Vector gradient(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double hyperVirial(AtomPair pair){
+	public double hyperVirial(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double integral(double rC){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double virial(AtomPair pair){
+	public double virial(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
     
@@ -173,8 +176,6 @@ public class P2WaterTIP5P extends Potential2 implements Potential2.Soft {
     
 	public double sigma , sigma2;
 	public double epsilon, epsilon4;
-	private PotentialTruncation potentialTruncation;
-	private Atom O1, H11, H12, O2, H21, H22, Charge11, Charge12, Charge21, Charge22;
 	private Space3D.Boundary boundary;
 	private double chargeH = Electron.UNIT.toSim(0.241);
 	private double chargeCharge = Electron.UNIT.toSim(-0.241);
