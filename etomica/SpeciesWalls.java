@@ -45,7 +45,7 @@ public class SpeciesWalls extends Species {
         this.add(new ConfigurationMoleculeWallsParallel());
     }
 
-    public Molecule makeMolecule(Phase phase) {
+    protected Molecule makeMolecule(Phase phase) {
         return new Molecule(this, phase, protoType);
     } 
               

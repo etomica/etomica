@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Controller extends Container implements Runnable {
 
-  public Integrator integrator;
+  private Integrator integrator;
   public Phase phase;
   public Simulation parentSimulation;
   Thread runner;
@@ -30,6 +30,8 @@ public class Controller extends Container implements Runnable {
         p.integrator = i;
     }
   }
+  
+  public Integrator integrator() {return integrator;}
   
   public void paint(Graphics g) {
 //    initialized = true;    //assumes first call to paint comes when everything is in place

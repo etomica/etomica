@@ -45,12 +45,12 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     protected void computeDimensions() {
         if(parentSpecies()==null) return;
         dim[1] = 0.0;
-        Molecule m = parentSpecies().makeMolecule();  //a typical molecule
+        Molecule m = parentSpecies().getMolecule();  //a typical molecule
         initializeCoordinates(m);
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
             dim[1] = Math.max(dim[1], ((AtomType.Disk)a.type).diameter());  //width is that of largest atom
         }
-        dim[0] = 0.5*(((AtomType.Disk)m.firstAtom().type).diameter() + ((AtomType.Disk)m.lastAtom().type).diameter()) + (m.nAtoms-1) * bondLength;
+        dim[0] = 0.5*(((AtomType.Disk)m.firstAtom().type).diameter() + ((AtomType.Disk)m.lastAtom().type).diameter()) + (m.atomCount-1) * bondLength;
     }
 
   public void setParentSpecies(Species s) {

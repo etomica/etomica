@@ -26,35 +26,42 @@ public class PotentialHardDiskSpeciesSwitchWall extends PotentialHardDiskWall im
         
         Atom disk;
         Atom wall;
+        boolean wallFirst;
         if(pair.atom2().type instanceof AtomType.Wall) {
            disk = pair.atom1();
            wall = pair.atom2();
+           wallFirst = false;
         }
         else {
            disk = pair.atom2;
            wall = pair.atom1;
+           wallFirst = true;
         }
         
        Molecule m = disk.parentMolecule;
-       Species oldSpecies = m.parentSpecies;
-       oldSpecies.deleteMolecule(m);
-       changeSpecies.addMolecule(m);
-       for(Atom a=m.firstAtom(); a!=m.lastAtom.getNextAtom(); a=a.getNextAtom()) {
-          ((AtomDisk)a).setDiameter(changeSpecies.getDiameter());
-       }
-       
+       Space.Coordinate coord = m.coordinate();
+       Phase phase = m.parentPhase();
+       phase.deleteMolecule(m);
+       m = changeSpecies.getMolecule();
+       phase.addMolecule(m);
+       m.translateTo(coord.position());
+       m.accelerateTo(coord.momentum());
+       disk = m.firstAtom();
+       if(wallFirst) pair.reset(wall,disk);  //not suited to multiatomics
+       else pair.reset(disk,wall);
+
        //Ensure wall and atom are separating
-        int i;
-        if(wall.isVertical()) {i = 0;}
-        else if(wall.isHorizontal()) {i = 1;}
-        else {i = 0;}
-        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-        double dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
+        int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+//        double dr = wall.position(i) - disk.position(i);   //no PBC
+//        double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
+        double dr = pair.dr(i);
+        double dv = pair.dv(i);
         if(dr*dv > 0.0) { //OK, they are separating
             return;}  
         else {            //otherwise, put atom just on other side of wall
             int sign = (dv > 0.0) ? -1 : +1;
-            disk.r[i] = wall.r[i] + sign*eps;
+//            disk.r[i] = wall.r[i] + sign*eps;
+            disk.position().PE(i,sign*eps);
         }
     }
 }

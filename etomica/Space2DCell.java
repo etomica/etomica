@@ -52,7 +52,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 15;
+            xCells = yCells = 10;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
         

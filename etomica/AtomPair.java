@@ -24,6 +24,8 @@ public class AtomPair {
     public final double r2() {return cPair.r2();}
     public final double v2() {return cPair.v2();}
     public final double vDotr() {return cPair.vDotr();}
+    public final double dr(int i) {return cPair.dr(i);}
+    public final double dv(int i) {return cPair.dv(i);}
     
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
@@ -54,7 +56,7 @@ public class AtomPair {
             private final Atom.Iterator atomUp;
             private boolean intra;
             private boolean hasNext;
-            private AtomPair thisPair, nextPair;
+            private AtomPair thisPair;
             public All(Phase p) {
                 apiUp = p.iterator.makeAtomPairIteratorUp();
                 apiReserve = p.iterator.makeAtomPairIteratorUp();
@@ -74,17 +76,6 @@ public class AtomPair {
                     apiReserve = temp;            // (this doesn't advance apiUp, so it is safe)
                 }
                 return thisPair;
-                
-       /*         thisPair = nextPair;
-                if(apiUp.hasNext()) {nextPair = apiUp.next();}
-                else {
-                    do {  //advance up list of atoms until one with a pair is found
-                        if(atomUp.hasNext()) {apiUp.reset(atomUp.next(),intra);}
-                        else {hasNext = false; return thisPair;}}   //end of list of atoms
-                    while(!apiUp.hasNext());
-                    nextPair = apiUp.next();
-                }
-                return thisPair;   */
             }
             public void reset() {reset(intra);}
             public void reset(boolean i) {
@@ -94,7 +85,6 @@ public class AtomPair {
                     if(atomUp.hasNext()) {apiUp.reset(atomUp.next(),intra);}
                     else {hasNext = false; return;}}   //end of list of atoms
                 while(!apiUp.hasNext());
-                nextPair = apiUp.next();
                 hasNext = true;
             }
          }
@@ -109,7 +99,7 @@ public class AtomPair {
             private final Iterator.A apiUp, apiDown;
             private Iterator.A apiCurrent;
             private boolean hasNext, upDone;
-            private AtomPair nextPair, thisPair;
+            private AtomPair thisPair;
             public MP(Phase p) {
                 apiUp = p.iterator.makeAtomPairIteratorUp();
                 apiDown = p.iterator.makeAtomPairIteratorDown();
@@ -124,17 +114,6 @@ public class AtomPair {
                 System.out.println("reset in AtomPair.Iterator.MP is not implemented");}  
             public boolean hasNext() {return hasNext;}
             public AtomPair next() {
-//                thisPair = nextPair;
-/*                if(apiCurrent.hasNext()) {nextPair = apiCurrent.next();}
-                else {
-                    if(upDone) {hasNext = false;}  //all done
-                    else {                         //switch to down iterator
-                        apiCurrent = apiDown;
-                        upDone = true;
-                        hasNext = apiCurrent.hasNext();
-                        if(hasNext) nextPair = apiCurrent.next();
-                    }
-                }*/
                 thisPair = apiCurrent.next();
                 if(!apiCurrent.hasNext()) {
                     if(upDone) {hasNext = false;}  //all done
@@ -157,7 +136,6 @@ public class AtomPair {
                     upDone = true;
                 }
                 hasNext = apiCurrent.hasNext();
-//                if(hasNext) nextPair = apiCurrent.next();
             }
         }
                     

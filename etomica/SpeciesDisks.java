@@ -44,7 +44,7 @@ public class SpeciesDisks extends Species {
     }
     
             
-    public Molecule makeMolecule(Phase phase) {
+    protected Molecule makeMolecule(Phase phase) {
         return new Molecule(this, phase, protoType, atomsPerMolecule);
     } 
               

@@ -24,7 +24,8 @@ public final class Atom implements Space.Occupant {
         parentMolecule = parent;
         type = t;
         atomIndex = index;
-        coordinate = parentMolecule.parentSpecies.parentSimulation.space.makeCoordinate(this);
+        Simulation sim = parentMolecule.parentSpecies.parentSimulation;
+        coordinate = sim.space.makeCoordinate(this);
         r = coordinate.position();
         p = coordinate.momentum();
         workVector = coordinate.makeVector();
@@ -32,6 +33,7 @@ public final class Atom implements Space.Occupant {
         velocity = coordinate.makeVector();
         setStationary(false);
         useTypeColor();
+        if(sim.hasIntegrator()) setIntegratorAgent(sim.integrator().makeAgent(this));
     }
                     
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
@@ -73,7 +75,7 @@ public final class Atom implements Space.Occupant {
     public final double mass() {return type.mass();}
     public final double rm() {return type.rm();}
 
-    public final Phase parentPhase() {return parentMolecule.parentPhase;}
+    public final Phase parentPhase() {return parentMolecule.parentPhase();}
 
     public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, this);}
 
@@ -138,7 +140,7 @@ public final class Atom implements Space.Occupant {
     
     private Atom nextAtom, previousAtom;
         
-    public  Space.Coordinate coordinate;
+    public final Space.Coordinate coordinate;
     public  Space.Vector r, p;  //position, momentum
         
     public  AtomType type;
@@ -172,7 +174,7 @@ public final class Atom implements Space.Occupant {
             public Atom next() {
                 nextAtom = atom;
                 atom = atom.nextAtom();
-                if(atom == null) {hasNext = false;}
+                hasNext = (atom != null);
                 return nextAtom;
             }
         } //end of Atom.Iterator.Up

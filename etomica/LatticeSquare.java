@@ -30,7 +30,7 @@ public class LatticeSquare extends Lattice {
             }
         }
         origin = sites[0][0];
-        setNeighborIndexCutoff(0.06);
+        setNeighborIndexCutoff(2.5*0.05);
     }
     
     public final Site nearestSite(Space2D.Vector r) {

@@ -141,27 +141,34 @@ protected void advanceToCollision() {
         Atom partnerNextAtom = null;  //remove this -- temporary
         atomPair.reset(nextCollider.atom,partner);
         nextCollider.getCollisionPotential().bump(atomPair);
+        Atom a1N = atomPair.atom1();  //bump might have changed nextCollider or partner to new atoms in atomPair
+        Atom a2P = atomPair.atom2();
 //        nextCollider.getCollisionPotential().bump(nextCollider.atom,partner);
                 
-        boolean upListedN = false;
-        boolean upListedP = false;
+//        boolean upListedN = false;
+//        boolean upListedP = false;
 //        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
 //        upAtomIterator.reset(firstPhase.firstAtom());
+
+//   Do upList for any atoms that were scheduled to collide with atoms colliding now
         upAtomIterator.reset();  //first atom in first cell
         while(upAtomIterator.hasNext()) {
             Atom a = upAtomIterator.next();
+            if(a == a1N || a == a2P) continue;
             if(a == partnerNextAtom) break;
             Atom aPartner = ((Agent)a.ia).getCollisionPartner();
             if(aPartner==nextCollider.atom || aPartner==partner) {
                 upList(a);
-                if(a == nextCollider.atom) {upListedN = true;}
-                else if(a == partner) {upListedP = true;}
+//                if(a == nextCollider.atom) {upListedN = true;}
+//                else if(a == partner) {upListedP = true;}
             }
         }
-        if(!upListedN) {upList(nextCollider.atom);}
-        if(!upListedP) {upList(partner);}
-        downList(nextCollider.atom);
-        downList(partner);
+//        if(!upListedN) {upList(atomPair.atom1());}  //nextCollider.atom
+//        if(!upListedP) {upList(atomPair.atom2());}  //partner
+        upList(a1N);
+        upList(a2P);
+        downList(a1N);
+        downList(a2P);
     }
 
     findNextCollider();

@@ -88,13 +88,13 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
         double xyNext;
         double wh;
         if(horizontal) {
-            delta = (h-y)/(m.nAtoms-1);
+            delta = (h-y)/(m.atomCount-1);
             i = 1;
             xyNext = y;
             wh = w;
         }
         else { //vertical
-            delta = (w-x)/(m.nAtoms-1);
+            delta = (w-x)/(m.atomCount-1);
             i = 0;
             xyNext = x;
             wh = h;
@@ -112,7 +112,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     
     protected void computeDimensions() {
         if(parentSpecies()==null) return;
-        Molecule m = parentSpecies.makeMolecule();
+        Molecule m = parentSpecies.getMolecule();
 //        initializeCoordinates(m);
         if(horizontal) {
 //            dim[0] = ((AtomType.Wall)m.firstAtom().type).getLength();

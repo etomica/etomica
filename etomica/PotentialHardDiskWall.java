@@ -9,6 +9,8 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
 {
     protected double collisionDiameter, collisionRadius;
 
+    public PotentialHardDiskWall() {this(0.0);}
+    
     public PotentialHardDiskWall(double d) {
         setCollisionDiameter(d);
     }
@@ -28,7 +30,8 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
                 
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
-        
+        double dr = pair.dr(i);
+        double dv = pair.dv(i);
         //wall or disk has non-zero force
  //       if(!wall.isForceFree() || !disk.isForceFree()) {  
  //           return timeWithAcceleration(i, disk, wall);
@@ -38,13 +41,13 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
  //           return timeWithAcceleration(i, disk, wall);
  //       }
  //       else {
-            return timeNoAcceleration(i, disk, wall);//}
+            return timeNoAcceleration(dr, dv);//}
     }
     
-    private double timeNoAcceleration(int i, Atom disk, Atom wall) {
+    private double timeNoAcceleration(double dr, double dv) {
 //      double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-      double dr = wall.position(i) - disk.position(i);   //no PBC
-      double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
+//      double dr = wall.position(i) - disk.position(i);   //no PBC
+//      double dv = wall.momentum(i)*wall.rm()-disk.momentum(i)*disk.rm();
        
       if(dr*dv > 0.0) {return Double.MAX_VALUE;}    //Separating, no collision
 

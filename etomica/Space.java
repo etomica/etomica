@@ -77,7 +77,9 @@ public abstract class Space {
         public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
         public final Coordinate coordinate1() {return coordinate1;}
         public final Coordinate coordinate2() {return coordinate2;}
-        public final double r2() {return r2;}       
+        public final double r2() {return r2;}
+        public abstract double dr(int i);    //component of separation vector
+        public abstract double dv(int i);    //component of velocity-difference vector
     }
 
 //    interface NeighborIterator {

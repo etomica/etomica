@@ -82,7 +82,7 @@ public abstract class Species extends Container {
     * Creates new molecule of this species.  
     */
     private Molecule makeMolecule() {return makeMolecule(null);}
-    private abstract Molecule makeMolecule(Phase p);
+    protected abstract Molecule makeMolecule(Phase p);
 
     public void setAtomsPerMolecule(int na) {
         atomsPerMolecule = na;
@@ -123,10 +123,13 @@ public abstract class Species extends Container {
     public final Agent getAgent(Phase p) {return (Agent)agents.get(p);}
     
     public final Molecule getMolecule() {
-        if(reservoir.isEmpty()) return makeMolecule();
-        else return reservoir.getMolecule();
+        if(reservoir.isEmpty()) {
+            Molecule m = makeMolecule();
+            reservoir.addNewMolecule(m);
+        }
+        return reservoir.nextMolecule();
     }
-    public final void putMolecule(Molecule m) {reservoir.putMolecule(m);}
+    public final Reservoir reservoir() {return reservoir;}
     
     /*
     * A name to be associated with the species.  Use is optional.
@@ -395,7 +398,7 @@ public abstract class Species extends Container {
             if(DisplayConfiguration.DRAW_OVERFLOW) {
                 for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
                     if(a.type instanceof AtomType.Disk) {
-                        double[][] shifts = a.parentMolecule.parentPhase.boundary().getOverflowShifts(a.coordinate.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
+                        double[][] shifts = a.parentMolecule.parentPhase().boundary().getOverflowShifts(a.coordinate.position(),((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
                         for(int i=0; i<shifts.length; i++) {
                         shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
                         shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
@@ -513,20 +516,37 @@ public abstract class Species extends Container {
      * Useful for semigrand and grand canonical simulations
      * Keeps molecules in a linked list
      */
-    protected static final class Reservoir {
+    protected static final class Reservoir implements Molecule.Container {
         
         private Molecule next;
 
-        public Molecule getMolecule() {
-            Molecule m = next;
-            if(m != null) next = m.nextMolecule();
-            return m;    
+        public Molecule nextMolecule() {return next;}  //peek
+
+      /**
+       * Adds a freshly made molecule
+       * Same as addMolecule, but does not attempt to remove from original container first
+       */
+        private void addNewMolecule(Molecule m) {
+            m.setNextMolecule(next);
+            m.setContainer(this);
+            next = m;
         }
         
         //does not handle m==null
-        public void putMolecule(Molecule m) {
+        //does not clear parentPhase
+        //addMolecule is responsible for removing molecule from original container
+        public void addMolecule(Molecule m) {
+            m.container.removeMolecule(m);
             m.setNextMolecule(next);
+            m.setContainer(this);
             next = m;
+        }
+        
+        public void removeMolecule(Molecule m) {
+            if(m != next) {  //should throw an exception
+                System.out.println("Error:  removal of inappropriate molecule from reservoir");
+            }
+            if(next != null) next = next.nextMolecule();
         }
         
         public boolean isEmpty() {return next==null;}

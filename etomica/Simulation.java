@@ -42,8 +42,8 @@ public class Simulation extends Panel {
         if(lastDisplay != null) {lastDisplay.setNextDisplay(d);}
         else {firstDisplay = d;}
         lastDisplay = d;
-        if(haveIntegrator()) {
-            controller.integrator.addIntegrationIntervalListener(d);
+        if(this.hasIntegrator()) {
+            controller.integrator().addIntegrationIntervalListener(d);
         }
 //        if(d.displayTool != null) {super.add(d.displayTool);}
         for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {
@@ -58,10 +58,10 @@ public class Simulation extends Panel {
         if(lastPhase != null) {lastPhase.setNextPhase(p);}
         else {firstPhase = p;}
         lastPhase = p;
-        if(haveIntegrator()) {
-            controller.integrator.registerPhase(p);
-            p.gravity.addObserver(controller.integrator);
-            p.integrator = controller.integrator;
+        if(this.hasIntegrator()) {
+            controller.integrator().registerPhase(p);
+            p.gravity.addObserver(controller.integrator());
+            p.integrator = controller.integrator();
         }
         for(Display d=firstDisplay; d!=null; d=d.getNextDisplay()) {d.setPhase(p);}
         for(Species s=firstSpecies; s!=null; s=s.nextSpecies()) {p.add(s.makeAgent(p));}
@@ -134,11 +134,17 @@ public class Simulation extends Panel {
         this.potential2[p2.species2Index][p2.species1Index] = p2;
     }
                 
-    public Phase firstPhase() {return firstPhase;}
-    public Phase lastPhase() {return lastPhase;}
+    public final Phase firstPhase() {return firstPhase;}
+    public final Phase lastPhase() {return lastPhase;}
+    public final Species firstSpecies() {return firstSpecies;}
+    public final Species lastSpecies() {return lastSpecies;}
               
-    public boolean haveIntegrator() {
-        return (controller != null && controller.integrator != null);
+    public boolean hasIntegrator() {
+        return (controller != null && controller.integrator() != null);
+    }
+    public Integrator integrator() {
+        if(controller == null) return null;
+        else return controller.integrator();
     }
     
     //This can be made much more clever

@@ -3,7 +3,7 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Color;
 
-public class Phase extends Container {   // container of meters
+public final class Phase extends Container implements Molecule.Container {   // container of meters
         
     protected Space.Boundary boundary;
     private int iBoundary;
@@ -141,8 +141,8 @@ public class Phase extends Container {   // container of meters
 	    meterCount++;
 	    m.setPhase(this);
 	    m.initialize();
-	    if(parentSimulation != null && parentSimulation.haveIntegrator()) {
-	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
+	    if(parentSimulation != null && parentSimulation.hasIntegrator()) {
+	        parentSimulation.controller.integrator().addIntegrationIntervalListener(m);
 	    }
 	}
         	
@@ -179,27 +179,37 @@ public class Phase extends Container {   // container of meters
         for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
     }
     
-    public void addMolecule(Molecule m, Species.Agent s) {
-        m.parentPhase().deleteMolecule(m);
-        m.parentPhase = this;
-        moleculeCount++;
-        atomCount += m.nAtoms;
-        s.addMolecule(m);
-        iterator.addMolecule(m);
-    }
     public void addMolecule(Molecule m) {
         addMolecule(m, m.getSpecies().getAgent(this));
     }
+    public void addMolecule(Molecule m, Species.Agent s) {
+        m.container().removeMolecule(m);
+        m.setParentPhase(this);
+        moleculeCount++;
+        atomCount += m.atomCount;
+        s.addMolecule(m);
+        iterator.addMolecule(m);
+    }
     
-    public void deleteMolecule(Molecule m, Species.Agent s) {
-        m.parentPhase = null;        
+    /**
+     * Removes molecule from phase.  
+     * Should be called only by an addMolecule method of another container
+     * Use deleteMolecule to remove molecule while not adding it to another phase (adds it to species reservoir)
+     */
+    public void removeMolecule(Molecule m) {
+        removeMolecule(m, m.getSpecies().getAgent(this));
+    }
+    public void removeMolecule(Molecule m, Species.Agent s) {
+        m.setParentPhase(null);        
         moleculeCount--;
-        atomCount -= m.nAtoms;
+        atomCount -= m.atomCount;
         s.deleteMolecule(m);
         iterator.deleteMolecule(m);
     }
-    public void deleteMolecule(Molecule m) {
-        deleteMolecule(m, m.getSpecies().getAgent(this));
+// deletes molecule by adding it to reservoir
+
+public void deleteMolecule(Molecule m) {
+        m.getSpecies().reservoir().addMolecule(m);
     }
     /**
     * Synchronized version of deleteMolecule.  

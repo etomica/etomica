@@ -27,20 +27,20 @@ public class Molecule implements Space.Occupant, Serializable {
    */
   public Molecule(Species ps, Phase pp, AtomType type, int n) {  
     parentSpecies = ps;
-    parentPhase = pp;
+    setParentPhase(pp);
     coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
     r = coordinate.position();
     p = coordinate.momentum();
     temp = parentSpecies.parentSimulation.space.makeVector();
-    nAtoms = n;
-//    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
-    if(nAtoms > 1) atomIterator = new AtomIterator();
+    atomCount = n;
+//    atomIterator = (atomCount > 1) ? new AtomIterator() : new MonoAtomIterator();
+    if(atomCount > 1) atomIterator = new AtomIterator();
     else atomIterator = new MonoAtomIterator();
     
     
     firstAtom = new Atom(this,type,0);
     lastAtom = firstAtom;
-    for(int i=1; i<nAtoms; i++) {
+    for(int i=1; i<atomCount; i++) {
         lastAtom.setNextAtom(new Atom(this,type,i));
         lastAtom = lastAtom.nextAtom();
     }
@@ -54,30 +54,34 @@ public class Molecule implements Space.Occupant, Serializable {
    */
   public Molecule(Species ps, Phase pp, AtomType[] type) {  
     parentSpecies = ps;
-    parentPhase = pp;
+    setParentPhase(pp);
     coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
     r = coordinate.position();
     p = coordinate.momentum();
-    nAtoms = type.length;
-    if(nAtoms > 1) atomIterator = new AtomIterator();
+    atomCount = type.length;
+    if(atomCount > 1) atomIterator = new AtomIterator();
     else atomIterator = new MonoAtomIterator();
     temp = parentSpecies.parentSimulation.space.makeVector();
     
     firstAtom = new Atom(this,type[0],0);
     lastAtom = firstAtom;
-    for(int i=1; i<nAtoms; i++) {
+    for(int i=1; i<atomCount; i++) {
         lastAtom.setNextAtom(new Atom(this,type[i],i));
         lastAtom = lastAtom.nextAtom();
     }
   }
   
   public final Phase parentPhase() {return parentPhase;}
-  public final Space.Coordinate coordinate() {return coordinate;}
+  public final Space.Coordinate coordinate() {
+    updateR();
+    updateP();
+    return coordinate;
+  }
 
  /**
   * @return the number of atoms in this molecule
   */
-  public final int getNAtoms() {return nAtoms;}
+  public final int atomCount() {return atomCount;}
   
  /**
   * Sets the number of atoms in the molecule, makes and links them, and
@@ -127,14 +131,14 @@ public class Molecule implements Space.Occupant, Serializable {
 //  public final Phase getPhase() {return parentPhase;}
   
   public final double mass() {
-    if(nAtoms==1) {return firstAtom.type.mass();}
+    if(atomCount==1) {return firstAtom.type.mass();}
     double mass = 0.0;
     for(Atom a=firstAtom(); a!=terminationAtom(); a=a.nextAtom()) {mass += a.type.mass();}
     return mass;
   }
   
   public final double rm() {
-    if(nAtoms==1) {return firstAtom.type.rm();}
+    if(atomCount==1) {return firstAtom.type.rm();}
     else {return 1.0/mass();}
   }
   
@@ -176,7 +180,14 @@ public class Molecule implements Space.Occupant, Serializable {
   public final Atom lastAtom() {return lastAtom;}
   public final Atom terminationAtom() {return lastAtom.nextAtom();}
   
-  Phase parentPhase;
+  public final void setParentPhase(Phase p) {
+    parentPhase = p;
+    setContainer(p);
+  }
+  public final Molecule.Container container() {return container;}
+  public final void setContainer(Molecule.Container mc) {container = mc;}
+  
+  private Phase parentPhase;
   
  /**
   * Instance of the species in which this molecule resides
@@ -216,7 +227,7 @@ public class Molecule implements Space.Occupant, Serializable {
   * @see setNAtoms
   * @see Species#makeMolecules
   */
-  int nAtoms;
+  int atomCount;
   
  /**
   * Constructs a molecule and all atoms within it.  Atoms are arranged in
@@ -241,13 +252,15 @@ public class Molecule implements Space.Occupant, Serializable {
   
   public  Atom.Iterator atomIterator;
   
+  public Molecule.Container container;
+  
 //-------------------------------------------------------------------------
 
 //        protected final Space.Vector temp;
         protected  Space.Vector temp;
         
         public void updateR() {  //recomputes COM position from atom positions
-            if(nAtoms==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
+            if(atomCount==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
             else {  //multiatomic
                 r.E(0.0);
                 atomIterator.reset();
@@ -269,6 +282,16 @@ public class Molecule implements Space.Occupant, Serializable {
         public void translateBy(Space.Vector u) {
             atomIterator.reset();
             while(atomIterator.hasNext()) {atomIterator.next().translateBy(u);}
+        }
+        public void accelerateBy(Space.Vector u) {
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {atomIterator.next().accelerateBy(u);}
+        }
+        public void accelerateTo(Space.Vector u) {
+            updateP();  //update COM vector
+            temp.E(u);  //temp = destination vector
+            temp.ME(p);   //temp = destination - original = dr
+            accelerateBy(temp);
         }
         public void translateTo(Space.Vector u) {
             updateR();  //update COM vector
@@ -398,5 +421,19 @@ public class Molecule implements Space.Occupant, Serializable {
             return firstAtom;
         }
     } //end of MonoAtomIterator
-    
+
+  /**
+   * Molecule.Container
+   * Interface for molecule reservoirs and phases
+   */
+  public interface Container {
+ /** addMolecule should first remove molecule from original container, then
+  *  do what is necessary to add molecule to new container
+  */
+      public void addMolecule(Molecule m);
+  /**
+   * removeMolecule should be called only by the addMolecule method of another container
+   */
+      public void removeMolecule(Molecule m);
+  }
 }

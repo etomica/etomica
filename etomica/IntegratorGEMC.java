@@ -108,8 +108,8 @@ public class IntegratorGEMC extends Integrator {
         if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
 //            dSpecies.deleteMolecule(m);
 //            iSpecies.addMolecule(m);
-            dPhase.deleteMolecule(m,dSpecies);
-            iPhase.addMolecule(m,iSpecies);
+//            dPhase.deleteMolecule(m,dSpecies);
+            iPhase.addMolecule(m,iSpecies);  //this handles deletion from dPhase too
         }
         else {              //reject
             m.replace();

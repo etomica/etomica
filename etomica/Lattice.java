@@ -5,7 +5,7 @@ public abstract class Lattice {
     protected double neighborIndexCutoff;
     
     public Lattice() {
-        setNeighborIndexCutoff(1.0);
+        setNeighborIndexCutoff(2.5);
     }
     
     public final void setNeighborIndexCutoff(double c) {neighborIndexCutoff = c; setupNeighbors();}

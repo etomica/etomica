@@ -22,8 +22,8 @@ public class P2DiskSpeciesSwitchWall extends Potential2 {
   
   public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
   
-  public void setPhase(Phase p) {
-    super.setPhase(p);
+  public void setSimulation(Simulation s) {
+    super.setSimulation(s);
     setChangeSpeciesIndex(changeSpeciesIndex);
   }
   
@@ -33,9 +33,9 @@ public class P2DiskSpeciesSwitchWall extends Potential2 {
   
   public final void setChangeSpeciesIndex(int i) {
     changeSpeciesIndex = i;
-    Phase phase = potential[0][0].parentPhase;
-    if (phase == null) {return;}
-    for (Species s=phase.firstSpecies(); s!=null; s=s.getNextSpecies()) {
+    Simulation simulation = potential[0][0].parentSimulation;
+    if (simulation == null) {return;}
+    for (Species s=simulation.firstSpecies(); s!=null; s=s.nextSpecies()) {
         if (s.getSpeciesIndex() == i) {
             ((PotentialHardDiskSpeciesSwitchWall)potential[0][0]).setChangeSpecies(s);
             return;

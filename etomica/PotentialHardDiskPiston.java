@@ -85,7 +85,7 @@ public class PotentialHardDiskPiston extends Potential implements PotentialHard
         double dr = wall.position(i) - disk.position(i);
 //        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
 //        disk.r[i] = wall.r[i] - (1.+1.e-5)*collisionRadius*Math.abs(dr)/dr;
-        disk.position().PE(i,-1.e-5*dr);
+        disk.position().PE(i,-1.e-8*dr);
     }
     
     public double getCollisionDiameter() {return collisionDiameter;}

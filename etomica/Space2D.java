@@ -99,18 +99,12 @@ public class Space2D extends Space {
             dvx = (rm2*c2.p.x - rm1*c1.p.x);  
             dvy = (rm2*c2.p.y - rm1*c1.p.y);  
         }
-                
-//        public double r2() {
-//            return r2;
-//        }
+        public double dr(int i) {return (i==0) ? drx : dry;}
+        public double dv(int i) {return (i==0) ? dvx : dvy;}
         public double v2() {
-            double rm1 = c1.parent().rm();
-            double rm2 = c2.parent().rm();
             return dvx*dvx + dvy*dvy;
         }
         public double vDotr() {
-            double rm1 = c1.parent().rm();
-            double rm2 = c2.parent().rm();
             return drx*dvx + dry*dvy;
         }
         public void push(double impulse) {  //changes momentum in the direction joining the atoms
@@ -131,9 +125,8 @@ public class Space2D extends Space {
     }
 
     static class Coordinate extends Space.Coordinate {
-        public final Vector r = new Vector();  //Cartesian coordinates, scaled by volume
+        public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
-        public final Vector posn = new Vector();  //Unscaled coordinates
         public Coordinate(Space.Occupant o) {super(o);}
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
