@@ -61,7 +61,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
      */
     public void setAccumulator(AccumulatorAverage accumulatorAverage) {
         this.accumulatorAverage = accumulatorAverage;
-        accumulatorAverage.makeDataPipe(new AccumulatorAverage.Type[] {
+        accumulatorAverage.makeDataPusher(new AccumulatorAverage.Type[] {
                 AccumulatorAverage.MOST_RECENT,
                 AccumulatorAverage.AVERAGE,
                 AccumulatorAverage.ERROR}).addDataSink(this);
