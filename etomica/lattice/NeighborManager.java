@@ -18,7 +18,7 @@ public class NeighborManager {
     public NeighborManager(Site s) {
         site = s;
         neighborList = new AtomList();
- //       tab = selfNeighbor ? new AtomLinker(s) : new AtomLinker.Tab();
+ //       tab = selfNeighbor ? new AtomLinker(s) : AtomLinker.newTab();
  //       neighborList.add(tab);
     }
         
@@ -64,7 +64,7 @@ public class NeighborManager {
       if(criterion.areNeighbors(site, site)) {//make self neighbor
           if(tab == null || tab instanceof AtomLinker.Tab) tab = new AtomLinker(site);
       } else {//not self neighbor
-          if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = new AtomLinker.Tab();
+          if(tab == null || !(tab instanceof AtomLinker.Tab)) tab = AtomLinker.newTab();
       }
       neighborList.add(tab);
       boolean down = true;

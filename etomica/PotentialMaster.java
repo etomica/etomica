@@ -109,7 +109,7 @@ public final class PotentialMaster extends PotentialGroup {
 				basisArray = newArray;
 			}
 			AtomSet newBasis = null;
-			switch(species.length) {
+			switch(species.length) {//if getting null pointer error here, make sure setSpecies is called by potential in main
 				case 1: newBasis = species[0].getAgent(m); break; 
 				case 2: 
 					SpeciesAgent speciesA = species[0].getAgent(m);

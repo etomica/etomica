@@ -155,9 +155,16 @@ public final class AtomIteratorList extends AtomIterator {
 				first = referenceNode.atom.seq;
 				terminator = header;
 			}
-		} 
+		}
 		if(first == header) return;
-		next = first;
+		AtomIteratorList.all(first, terminator, id, action);
+	}
+	
+	//method made to begin moving AtomIteratorList to not deal with hierarchy
+	public static void all(AtomLinker first, AtomLinker.Tab terminator, IteratorDirective id, final AtomActive action) { 
+		AtomLinker next = first;
+		boolean upListNow = id.direction().doUp();
+		boolean doGoDown = id.direction().doDown();
 		if(upListNow) {
 			if(id.skipFirst) next = next.next;
 			if(terminator == null) {//end loop when first tag is encountered
@@ -191,7 +198,8 @@ public final class AtomIteratorList extends AtomIterator {
 					next = next.previous;
 				}
 			} else {//end loop when header is encountered
-				while(next.atom != null || next != header) {//first part of "or" may be omitted, but in most cases it gives true (and thus precludes evaluation of part after "or") and it is perhaps faster to evaluate than comparison with header
+//	changed "header" to "terminator" when made static method			while(next.atom != null || next != header) {//first part of "or" may be omitted, but in most cases it gives true (and thus precludes evaluation of part after "or") and it is perhaps faster to evaluate than comparison with header
+				while(next.atom != null || next != terminator) {//first part of "or" may be omitted, but in most cases it gives true (and thus precludes evaluation of part after "or") and it is perhaps faster to evaluate than comparison with header
 					if(next.atom != null) action.actionPerformed(next.atom);
 					next = next.previous;
 				}
@@ -203,6 +211,38 @@ public final class AtomIteratorList extends AtomIterator {
 		//then direction == NEITHER, and loop over only current atom if it is not null
 		if(next.atom != null) action.actionPerformed(next.atom);		
 	}
+
+	//method made to begin moving AtomIteratorList to not deal with hierarchy
+	//loops from given linker and ends when header is found
+	public static void all(AtomLinker first, IteratorDirective id, final AtomActive action) { 
+		AtomLinker next = first;
+		boolean upListNow = id.direction().doUp();
+		boolean doGoDown = id.direction().doDown();
+		if(upListNow) {
+			if(id.skipFirst) next = next.next;
+			while(next.atom != null || !((AtomLinker.Tab)next).isHeader()) {
+				if(next.atom != null) action.actionPerformed(next.atom);
+				next = next.next;
+			}//end while
+			if(!doGoDown) return;//for NEITHER case, handled at end of method
+		}//end if(upListNow)
+        
+		if(doGoDown) {
+			if(id.skipFirst || upListNow) {//skip first down iterate, either because iterator is set to do so, or it was already given in up iteration
+				next = first.previous;
+			}//end if                
+			while(next.atom != null || !((AtomLinker.Tab)next).isHeader()) {//first part of "or" may be omitted, but in most cases it gives true (and thus precludes evaluation of part after "or") and it is perhaps faster to evaluate than comparison with header
+				if(next.atom != null) action.actionPerformed(next.atom);
+				next = next.previous;
+			}
+			return;
+		}//end if(doGoDown)
+        
+		//if reaching here uplistNow and doGoDown are both false at the outset;
+		//then direction == NEITHER, and loop over only current atom if it is not null
+		if(next.atom != null) action.actionPerformed(next.atom);		
+	}
+
     /**
      * Performs action on all atoms as prescribed in most recent call to reset.
      * Set of atoms for this method is same as that which would be given

@@ -54,6 +54,21 @@ public class AtomLinker implements java.io.Serializable {
         return new AtomLinker(a);
     }
     
+	/**
+	 * Creates a new tab that is flagged as not a header.
+	 * @return Tab
+	 */
+	public static Tab newTab() {
+		return new Tab(false);
+	}
+	/**
+	 * Creates a new tab that is flagged as being a header of a list.
+	 * @return Tab
+	 */
+	public static Tab newHeader() {
+		return new Tab(true);
+	}
+
     /**
      * Linker that does not reference an atom, but is used to hold or index
      * a position in the linked list.  This is the only type of linker that
@@ -63,10 +78,19 @@ public class AtomLinker implements java.io.Serializable {
      */
     public static class Tab extends AtomLinker {
         public Tab nextTab, previousTab;
-        public Tab() {
+        private final boolean isHeader;
+        /**
+         * Private constructor.  Use AtomLinker methods newTab or newHeader, as
+         * appropriate, to make new instance.
+         * @param isHeader
+         */
+        private Tab(boolean isHeader) {
             super(null);
             nextTab = previousTab = this;
+            this.isHeader = isHeader;
         }
+        
+        public final boolean isHeader() {return isHeader;}
         
         /**
          * Removes references to previous/next tabs while removing linker from list.

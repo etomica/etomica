@@ -20,7 +20,7 @@ public class SiteIteratorNeighbor extends AtomIterator {
         
 	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
 		if(basis == null || !(basis instanceof Site) || action == null) return;
-		iterator.all(((Site)basis).neighborManager().neighbors(), dummy, action);
+//		iterator.all(((Site)basis).neighborManager().neighbors(), dummy, action);
 		throw new RuntimeException("Method all not implemented in SiteIteratorNeighbor");
 	}
    public boolean hasNext() {return iterator.hasNext();}

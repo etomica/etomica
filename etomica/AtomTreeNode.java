@@ -172,8 +172,7 @@ public abstract class AtomTreeNode {
      * If this node is not descended from the given node, returns null.
      */
     public AtomTreeNode childWhereDescendedFrom(AtomTreeNode node) {
-        if(parentNode == node) return this;
-        else return parentNode.childWhereDescendedFrom(node);
+        return (parentNode == node) ? this : parentNode.childWhereDescendedFrom(node);
     }
         
     protected final Atom atom;

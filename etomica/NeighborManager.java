@@ -17,7 +17,7 @@ public class NeighborManager {
     public NeighborManager(Atom s) {
         atom = s;
         neighborList = new AtomList();
-        tab = new AtomLinker.Tab();
+        tab = AtomLinker.Tab.newTab();
  //       tab = new AtomLinker(s);
         neighborList.add(tab);
     }

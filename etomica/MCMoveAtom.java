@@ -99,7 +99,7 @@ public class MCMoveAtom extends MCMove {
      * doTrial.
      */
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(phase, iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
+        uNew = potential.calculate(phase, iteratorDirective.set(atom), energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     

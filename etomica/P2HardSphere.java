@@ -108,6 +108,9 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
      * Zero if separation is greater than collision diameter, infinity otherwise
      */
     public double energy(AtomPair pair) {
+    	if(pair.r2() < sig2) {
+//    		System.out.println("uh oh in p2hardsphere");
+    	}
         return (pair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
     }
     
