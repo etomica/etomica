@@ -60,12 +60,7 @@ public class FileActions {
      * Static action listener for printing a simulation window
      */
     public static final ActionListener PRINT = new PrintAction();
-    
-    /**
-     * Static action listener for clearing a simulation
-     */
-    public static final ActionListener CLEAR = new ClearAction();
-    
+        
     /**
      * Static action listener for exiting the etomica environment
      */
@@ -130,8 +125,7 @@ public class FileActions {
 	            ObjectOutputStream oos = new ObjectOutputStream(f);
 	            // Ask the Wrapper to serialize the "naked" bean.
 	            // as in copy()
-	            oos.writeObject(SimulateActions.getApplet());//Simulation.instance);
-	            oos.writeObject(SimulateActions.getSimulationEditorFrame());
+	            oos.writeObject(Simulation.instance);
 	            oos.close();
 	        } 
 	        catch (Exception ex) {
@@ -200,7 +194,7 @@ public class FileActions {
     private static class OpenAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            FileDialog fd = new FileDialog(Etomica.DesktopFrame.etomicaFrame, "Open saved Simulation", FileDialog.LOAD);
+/*            FileDialog fd = new FileDialog(Etomica.DesktopFrame.etomicaFrame, "Open saved Simulation", FileDialog.LOAD);
 	        // needed for a bug under Solaris...
 	        fd.setDirectory(System.getProperty("user.dir"));
 	        fd.setFile(defaultStoreFile);
@@ -217,22 +211,17 @@ public class FileActions {
 	            // get the one object as a bean...
 	            FileInputStream f = new FileInputStream(file);
 	            ObjectInputStream ois = new ObjectInputStream(f);
-                Object applet = ois.readObject();
-                Object editor = ois.readObject();
+                Object sim = ois.readObject();
                 ois.close();
                
-                SimulateActions.setApplet((SimulationFrame)applet);
-                Etomica.DesktopFrame.desktop.add(SimulateActions.getApplet());
-                Object instance = ((JInternalFrame)SimulateActions.getApplet()).getContentPane().getComponent(0);
-
-                SimulateActions.setSimulationEditorFrame((SimulationEditorFrame)editor);
-                Etomica.DesktopFrame.desktop.add(SimulateActions.getSimulationEditorFrame());
+                Etomica.addSimulation((Simulation)sim);
                 EtomicaMenuBar.editSimulationItem.setEnabled(false);
                 EtomicaMenuBar.serEditItem.setEnabled(true);
                 EtomicaMenuBar.serAppletItem.setEnabled(true);
 	        } 
 	        catch(java.io.IOException ioe){ ioe.printStackTrace(); }
 	        catch(ClassNotFoundException cnfe){ cnfe.printStackTrace(); }
+        */
         }// end of actionPerformed
     }// end of OpenAction
     
@@ -242,7 +231,7 @@ public class FileActions {
     private static class PrintAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            java.awt.PrintJob pj = java.awt.Toolkit.getDefaultToolkit().getPrintJob(Etomica.DesktopFrame.etomicaFrame, "Printing Test", (java.util.Properties)null);
+/*            java.awt.PrintJob pj = java.awt.Toolkit.getDefaultToolkit().getPrintJob(Etomica.DesktopFrame.etomicaFrame, "Printing Test", (java.util.Properties)null);
 
     	    if (pj != null) {
 //	    	    Graphics g;
@@ -276,39 +265,10 @@ public class FileActions {
 	            pj.end();
 	        } 
 	        else System.err.println("PrintJob cancelled.");     
+        */
 
         }// end of actionPerformed
     }// end of PrintAction
-    
-    /**
-     * Static class that handles the clear the simulation action
-     */
-    private static class ClearAction implements ActionListener {
-        
-        public void actionPerformed(ActionEvent event) {
-            try {
-                SimulateActions.getApplet().setClosed(true);
-                SimulateActions.getSimulationEditorFrame().setClosed(true);
-            }
-            catch (java.beans.PropertyVetoException pve){}
-            SimulateActions.getApplet().getContentPane().removeAll();
-            SimulateActions.getSimulationEditorFrame().getSimulationEditor().resetAllComponentLists();
-  //          Simulation.elementCoordinator.completed = false;
-            Simulation.instance.speciesList = new LinkedList();
-            Simulation.instance.potential1List = new LinkedList();
-            Simulation.instance.potential2List = new LinkedList();
-            Simulation.instance.integratorList = new LinkedList();
-            Simulation.instance.phaseList = new LinkedList();
-            Simulation.instance.controllerList = new LinkedList();
-            Simulation.instance.displayList = new LinkedList();
-            Simulation.instance.meterList = new LinkedList();
-            Simulation.instance.deviceList = new LinkedList();
-            Simulation.instance.graphicalElementList = new LinkedList();
-//            Species.count = 0;
-//            Simulation.instance = new simulate.Simulation(new simulate.Space2D());
-            //SimulateActions.getApplet().getContentPane().add(Simulation.instance);
-        }// end of actionPerformed
-    }// end of ClearAction
     
     /**
      * Static class that handles the exit the Etomica environment action

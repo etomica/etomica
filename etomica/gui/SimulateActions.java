@@ -96,38 +96,14 @@ public class SimulateActions {
     private static SimulationEditorFrame editorFrame;
 
     /**
-     * Static mutator method for setting the JInternalFrame that contains the simulation.instance object
-     */
-    public static void setApplet(SimulationFrame applet) {appletFrame = applet;}
-    
-    /**
-     * Static accessor method that returns the JInternalFrame that contains the simulation.instance object
-     */
-    public static JInternalFrame getApplet(){ return appletFrame; }
-
-    /**
-     * Static mutator method that sets the editor window that corresponds to the current simulation
-     */
-    public static void setSimulationEditorFrame(SimulationEditorFrame frame){ editorFrame = frame; }
-    
-    /**
-     * Static accessor method that gets the editor window that corresponds to the current simulation
-     */
-    public static SimulationEditorFrame getSimulationEditorFrame(){ return editorFrame; }
-
-    /**
      * Static class that handles the edit simulation action
      */
     private static class EditSimulationAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
             EtomicaMenuBar.editSimulationItem.setEnabled(false);
-            try {
-                SimulateActions.getSimulationEditorFrame().setClosed(false);
-                SimulateActions.getSimulationEditorFrame().setSelected(true);
-            }
-            catch(java.beans.PropertyVetoException pve){}
-            Etomica.DesktopFrame.desktop.add(SimulateActions.getSimulationEditorFrame());
+            Etomica.simulationEditorFrame.setSimulationEditor(new SimulationEditor(Simulation.instance));
+            Etomica.simulationEditorFrame.setVisible(true);
         }// end of actionPerformed
     }// end of EditSimulationAction class
     

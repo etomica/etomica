@@ -46,7 +46,6 @@ public class EtomicaMenuBar extends JMenuBar {
 	static final JMenuItem serAppletItem = new JMenuItem("Export (Applet Form)");
 	static final JMenuItem serEditItem = new JMenuItem("Export (Edit Form)");
 	static final JMenuItem printItem = new JMenuItem("Print");
-	static final JMenuItem clearItem = new JMenuItem("Clear");
 	static final JMenuItem exitItem = new JMenuItem("Exit");
 	static final JSeparator JSeparator1 = new JSeparator();
 	
@@ -166,9 +165,6 @@ public class EtomicaMenuBar extends JMenuBar {
 		printItem.setMnemonic((int)'P');
         printItem.addActionListener(FileActions.PRINT);
         fileMenu.add(printItem);
-        
-        clearItem.addActionListener(FileActions.CLEAR);
-        fileMenu.add(clearItem);
         
         exitItem.setActionCommand("Exit");
 		exitItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.Event.ALT_MASK));

@@ -12,7 +12,7 @@
 package simulate.gui;
 
 public class SimulationEditorFrame extends javax.swing.JInternalFrame {
-    SimulationEditor simulationEditor = new SimulationEditor(simulate.Simulation.instance);
+    SimulationEditor simulationEditor;
     
     public SimulationEditorFrame(){
         setResizable(true);
@@ -20,11 +20,11 @@ public class SimulationEditorFrame extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setClosable(true);
         setTitle("Simulation Editor");
-        getContentPane().add(simulationEditor);
+//        getContentPane().add(simulationEditor);
     }// end of SimulationEditorFrame constructor
     
     public void setSimulationEditor(SimulationEditor ed) {
-        getContentPane().remove(simulationEditor);
+        getContentPane().removeAll();
         simulationEditor = ed;
         getContentPane().add(simulationEditor);
     }
