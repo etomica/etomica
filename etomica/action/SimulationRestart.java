@@ -15,25 +15,25 @@ import etomica.utility.java2.Iterator;
   * 7/03/02 (DAK/SKK) Modified to loop through all elements, using reset method (new to SimulationElement).
   */
 
-public final class SimulationRestart extends SimulationAction {
+public final class SimulationRestart extends SimulationActionAdapter {
     
     public SimulationRestart() {
-        setLabel("Reset");
+        super("Reset");
     }
     public SimulationRestart(Simulation sim) {
         this();
         setSimulation(sim);
     }
         
-    public static void doAction(Simulation sim) {
+    public void actionPerformed() {
         
-        for(Iterator iter=sim.integratorList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation.integratorList().iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
             integrator.halt();//request integrator to stop
             integrator.join();//wait till it does
         }
         
-        for(Iterator iter=sim.allElements().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation.allElements().iterator(); iter.hasNext(); ) {
             ((SimulationElement)iter.next()).reset();
         }
                 
@@ -50,7 +50,7 @@ public final class SimulationRestart extends SimulationAction {
             controller.reset();
         }
  */       
-        for(Iterator iter=sim.meterList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation.meterList().iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             //take care that histxxx is reset but restored to prior OnMeterReset condition
             boolean resetHistory = meter.isResetHistoryOnMeterReset();
@@ -68,8 +68,5 @@ public final class SimulationRestart extends SimulationAction {
         }*/
     }
     
-    public void actionPerformed(Simulation sim) {
-        SimulationRestart.doAction(sim);
-    }
 }
         

@@ -4,6 +4,7 @@
  */
 package etomica.action.activity;
 
+import etomica.Action;
 import etomica.ActivityIntegrate;
 import etomica.Integrator;
 
@@ -20,7 +21,14 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 			Integrator productionIntegrator) {
 		equilibrationActivity = new ActivityIntegrate(equilibrationIntegrator);
 		productionActivity = new ActivityIntegrate(productionIntegrator);
+		equilibrationActivity.getIntegrator().setEquilibrating(true);
 		addAction(equilibrationActivity);
+		
+		productionPreparationActivity = new ActivityGroupSeries();
+		productionPreparationActivity.addAction(setIntegratorForProduction);
+		addAction(productionPreparationActivity);
+		
+		//reset accumulators
 		addAction(productionActivity);
 	}
 	
@@ -31,9 +39,22 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	public ActivityIntegrate getEquilibrationActivity() {
 		return equilibrationActivity;
 	}
+	public ActivityGroupSeries getProductionPreparationActivity() {
+		return productionPreparationActivity;
+	}
 	public ActivityIntegrate getProductionActivity() {
 		return productionActivity;
 	}
 	
 	private final ActivityIntegrate equilibrationActivity, productionActivity;
+	private final ActivityGroupSeries productionPreparationActivity;
+	
+	private Action setIntegratorForProduction = new Action() {
+		private String label = "Set integrator for production";
+		public void actionPerformed() {
+			productionActivity.getIntegrator().setEquilibrating(false);
+		}
+		public String getLabel() {return label;}
+		public void setLabel(String label) {this.label = label;}
+	};
 }

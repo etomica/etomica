@@ -46,10 +46,10 @@ public abstract class MCMove implements java.io.Serializable {
      * Updates statistics regarding the rate of acceptance of trials
      * for this move.
      */
-    public void updateCounts(boolean moveWasAccepted) {
+    public void updateCounts(boolean moveWasAccepted, boolean doAdjustStepSize) {
         nTrials++;
         if(moveWasAccepted) nAccept++;
-        if(nTrials > adjustInterval*frequency) {adjustStepSize();}
+        if(doAdjustStepSize && nTrials > adjustInterval) {adjustStepSize();}
     }
     
     public IntegratorMC parentIntegrator() {return parentIntegrator;}
@@ -120,7 +120,7 @@ public abstract class MCMove implements java.io.Serializable {
     }
     public Phase[] getPhases() {return phases;}
     
-    public void adjustStepSize() {
+    protected void adjustStepSize() {
         if(nTrials == 0) {return;}
         nTrialsSum += nTrials;
         nAcceptSum += nAccept;
@@ -145,7 +145,7 @@ public abstract class MCMove implements java.io.Serializable {
      */
     public void setFrequency(int f) {
         frequency = f;
-        if(parentIntegrator != null) parentIntegrator.doReset();
+        if(parentIntegrator != null) parentIntegrator.recomputeMoveFrequencies();
     }
     /**
      * Accessor method for move frequency.
