@@ -6,7 +6,7 @@ package etomica;
 /**
  * Interface for classes that loop over a set of atoms. Permits
  * iteration via a hasNext()-next() while loop (iterator returns
- * atoms to client) or via a call to allAtoms(AtomActive) (client gives
+ * atoms to client) or via a call to allAtoms(AtomsetActive) (client gives
  * action to iterator).
  */
 
@@ -31,7 +31,7 @@ public interface AtomsetIterator {
     public void reset();
     
 	/**
-	 * Puts iterator in a state in which next() returns null.
+	 * Puts iterator in a state in which hasNext() returns false.
 	 */
     public void unset();
     

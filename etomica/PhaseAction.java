@@ -82,7 +82,7 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
 			Space.Boundary boundary = phase.boundary();
 			iterator.reset();
 			while(iterator.hasNext()) {
-				Atom a = iterator.next();
+				Atom a = iterator.nextAtom();
 				//centralImage returns true if it causes the atom to be moved
 //				if(boundary.centralImage(a.coord)) a.seq.moveNotify();
 				boundary.centralImage(a.coord); //08/27/03 - don't need to notify sequencer because coord.translateBy does this
@@ -184,10 +184,10 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
          */
         public static void doAction(Phase phase, double scale) {
             phase.boundary().inflate(scale);
-            moleculeIterator.setBasis(phase);
+            moleculeIterator.setPhase(phase);
             moleculeIterator.reset();
             while(moleculeIterator.hasNext()) {
-                moleculeIterator.next().coord.inflate(scale);
+                moleculeIterator.nextAtom().coord.inflate(scale);
             }
         }
         
@@ -237,10 +237,10 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         public static void doAction(Phase phase, Space.Vector scale, Space.Vector work) {
             phase.boundary().inflate(scale);
       //      scale.PE(-1.0);
-            moleculeIterator.setBasis(phase);
+            moleculeIterator.setPhase(phase);
             moleculeIterator.reset();
             while(moleculeIterator.hasNext()) {
-                moleculeIterator.next().coord.inflate(scale);
+                moleculeIterator.nextAtom().coord.inflate(scale);
               //  Atom m = iterator.next();
               //  work.E(m.coord.position());
               //  work.TE(scale);

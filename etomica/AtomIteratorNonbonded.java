@@ -9,7 +9,7 @@ package etomica;
   * 12/06/02 (DAK) deleted line in reset(IteratorDirective) that resets basis using reference atom
   */
 
-public class AtomIteratorNonbonded implements AtomIterator {
+public class AtomIteratorNonbonded implements AtomIteratorAtomDependent {
     
     private final AtomIterator iterator;
     

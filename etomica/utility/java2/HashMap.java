@@ -80,6 +80,7 @@ public class HashMap implements java.io.Serializable {
         }
         public boolean hasNext() {return enumeration.hasMoreElements();}
         public Object next() {return translate(enumeration.nextElement());}
+        public void reset() {}
     }//end of EnumerationWrapper
     
         

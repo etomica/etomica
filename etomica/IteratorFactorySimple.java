@@ -36,7 +36,7 @@ public class IteratorFactorySimple implements IteratorFactory {
     * @author David Kofke
     */
 
-private static final class SequentialIterator extends AtomIterator {
+private static final class SequentialIterator implements AtomIterator {
     
     private AtomIteratorList listIterator = new AtomIteratorList();
     private AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();

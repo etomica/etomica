@@ -20,7 +20,7 @@ public final class ApiInnerVariable implements AtomsetIterator {
      * Construct a pair iterator using the given atom iterators.  Requires
      * call to reset() before beginning iteration.
      */
-    public ApiInnerVariable(Space space, AtomIterator aiOuter, 
+    public ApiInnerVariable(AtomIterator aiOuter, 
     						AtomIteratorAtomDependent aiInner) {
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;

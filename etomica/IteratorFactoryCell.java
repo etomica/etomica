@@ -275,7 +275,7 @@ public class IteratorFactoryCell implements IteratorFactory {
  * with neighborlist sequence but without limiting them to those neighboring a
  * reference atom.
  */
-public static final class SequentialIterator extends AtomIterator {
+public static final class SequentialIterator implements AtomIterator {
     
     private AtomIteratorList listIterator = new AtomIteratorList();
     private AtomList neighborSequenceList = new AtomList();
@@ -424,7 +424,7 @@ public static final class SequentialIterator extends AtomIterator {
  * a child of the same basis.
  */
 //would like to modify so that central atom can be any descendant of the basis.
-public static final class IntragroupNbrIterator extends AtomIterator {
+public static final class IntragroupNbrIterator implements AtomIterator {
 	
 	private final IteratorDirective upSkip = new IteratorDirective(IteratorDirective.UP);
 	private final IteratorDirective dnSkip = new IteratorDirective(IteratorDirective.DOWN);
@@ -727,7 +727,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
  * a child of a different basis.
  */
 //would like to modify so that central atom can be any descendant of the basis.
-public static final class IntergroupNbrIterator extends AtomIterator {
+public static final class IntergroupNbrIterator implements AtomIterator {
     
     public IntergroupNbrIterator(IteratorFactoryCell factory) {
         iteratorFactory = factory;

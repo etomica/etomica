@@ -5,7 +5,7 @@ import etomica.*;
  * Iterates over the neighbors of a particular site, as specified by 
  * the site's neighborManager.
  */
-public class SiteIteratorNeighbor extends AtomIterator {
+public class SiteIteratorNeighbor implements AtomIterator {
     
     private NeighborManager neighborManager;
     private final AtomIteratorList iterator = new AtomIteratorList();

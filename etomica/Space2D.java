@@ -489,7 +489,7 @@ public class Space2D extends Space implements EtomicaElement {
             r.E(0.0); double massSum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 r.PEa1Tv1(a.coord.mass(), a.coord.positionCOM()); 
                 massSum += a.coord.mass();
             }
@@ -500,7 +500,7 @@ public class Space2D extends Space implements EtomicaElement {
             p.E(0.0);
             childIterator.reset();
             while(childIterator.hasNext()) {
-                p.PE(childIterator.next().coord.momentum());
+                p.PE(childIterator.nextAtom().coord.momentum());
             }
             return p;
         }
@@ -508,7 +508,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0; double massSum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 sum += a.coord.mass()*a.coord.position(i); 
                 massSum += a.coord.mass();
             }
@@ -519,7 +519,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 sum += a.coord.mass()*a.coord.momentum(i);
             }
             return sum;
@@ -528,7 +528,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
-                sum += childIterator.next().coord.kineticEnergy();
+                sum += childIterator.nextAtom().coord.kineticEnergy();
             }
             return sum;
         }
@@ -536,7 +536,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
-                childIterator.next().coord.freeFlight(t);
+                childIterator.nextAtom().coord.freeFlight(t);
             }
             atom.seq.moveNotify();
         }
@@ -555,14 +555,14 @@ public class Space2D extends Space implements EtomicaElement {
         public void translateBy(Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                childIterator.next().coord.translateBy(u);
+                childIterator.nextAtom().coord.translateBy(u);
             }
             atom.seq.moveNotify();
         }
         public void translateBy(double d, Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                childIterator.next().coord.translateBy(d, u);
+                childIterator.nextAtom().coord.translateBy(d, u);
             }
             atom.seq.moveNotify();
         }
@@ -588,7 +588,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void displaceBy(Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 a.coord.displaceBy(u);
             }
             atom.seq.moveNotify();
@@ -596,7 +596,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void displaceBy(double d, Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 a.coord.displaceBy(d, u);
             }
             atom.seq.moveNotify();
@@ -612,7 +612,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void replace() {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 a.coord.replace();
             }
             atom.seq.moveNotify();
@@ -620,14 +620,14 @@ public class Space2D extends Space implements EtomicaElement {
         public void accelerateBy(Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 a.coord.accelerateBy(u);
             }
         }
         public void accelerateBy(double d, Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next();
+                Atom a = childIterator.nextAtom();
                 a.coord.accelerateBy(d, u);
             }
         }
@@ -648,7 +648,7 @@ public class Space2D extends Space implements EtomicaElement {
      //               work.E(0.0); double sum=0.0;
                     childIterator.reset();
                     while(childIterator.hasNext()) {
-                        Atom a = childIterator.next();
+                        Atom a = childIterator.nextAtom();
                         a.coord.randomizeMomentum(temperature);
      //                   work.PE(a.coord.momentum());
      //                   sum++;

@@ -153,7 +153,7 @@ public class Phase extends SimulationElement {
 	    	double r2Min = Double.MAX_VALUE;
 	    	iterator.reset();
 	    	while(iterator.hasNext()) {
-	    		Atom atom = iterator.next();
+	    		Atom atom = iterator.nextAtom();
 	    		double r2 = Space.r2(atom.coord.position(), r[i], boundary);
 	    		if(r2 < r2Min) {
 	    			r2Min = r2;

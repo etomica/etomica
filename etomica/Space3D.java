@@ -697,7 +697,7 @@ public static class CoordinateGroup extends Coordinate {
         r.E(0.0); double massSum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
-            Atom a = childIterator.next();
+            Atom a = childIterator.nextAtom();
             r.PEa1Tv1(a.coord.mass(), a.coord.positionCOM()); 
             massSum += a.coord.mass();
         }
@@ -709,7 +709,7 @@ public static class CoordinateGroup extends Coordinate {
         p.E(0.0);
         childIterator.reset();
         while(childIterator.hasNext()) {
-            p.PE(childIterator.next().coord.momentum());
+            p.PE(childIterator.nextAtom().coord.momentum());
         }
         return p;
     }
@@ -717,7 +717,7 @@ public static class CoordinateGroup extends Coordinate {
         double sum = 0.0; double massSum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
-            Atom a = childIterator.next();
+            Atom a = childIterator.nextAtom();
             sum += a.coord.mass()*a.coord.position(i); 
             massSum += a.coord.mass();
         }
@@ -729,7 +729,7 @@ public static class CoordinateGroup extends Coordinate {
         double sum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
-            Atom a = childIterator.next();
+            Atom a = childIterator.nextAtom();
             sum += a.coord.mass()*a.coord.momentum(i);
         }
         return sum;
@@ -738,7 +738,7 @@ public static class CoordinateGroup extends Coordinate {
         double sum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
-            sum += childIterator.next().coord.kineticEnergy();
+            sum += childIterator.nextAtom().coord.kineticEnergy();
         }
         return sum;
     }
@@ -746,7 +746,7 @@ public static class CoordinateGroup extends Coordinate {
         double sum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.freeFlight(t);
+            childIterator.nextAtom().coord.freeFlight(t);
         }
         atom.seq.moveNotify();
     }
@@ -766,14 +766,14 @@ public static class CoordinateGroup extends Coordinate {
     protected void translateBy(Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.translateBy(u);
+            childIterator.nextAtom().coord.translateBy(u);
         }
         atom.seq.moveNotify();
     }
     public void translateBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.translateBy(d, u);
+            childIterator.nextAtom().coord.translateBy(d, u);
         }
         atom.seq.moveNotify();
     }
@@ -797,14 +797,14 @@ public static class CoordinateGroup extends Coordinate {
     public void displaceBy(Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.displaceBy(u);
+            childIterator.nextAtom().coord.displaceBy(u);
         }
         atom.seq.moveNotify();
     }
     public void displaceBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.displaceBy(d, u);
+            childIterator.nextAtom().coord.displaceBy(d, u);
         }
         atom.seq.moveNotify();
     }
@@ -819,20 +819,20 @@ public static class CoordinateGroup extends Coordinate {
     public void replace() {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.replace();
+            childIterator.nextAtom().coord.replace();
         }
         atom.seq.moveNotify();
     }
     public void accelerateBy(Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.accelerateBy(u);
+            childIterator.nextAtom().coord.accelerateBy(u);
         }
     }
     public void accelerateBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.accelerateBy(d, u);
+            childIterator.nextAtom().coord.accelerateBy(d, u);
         }
     }
     public void accelerateTo(Space.Vector u) {
@@ -851,7 +851,7 @@ public static class CoordinateGroup extends Coordinate {
    //             work.E(0.0); double sum=0.0;
                 childIterator.reset();
                 while(childIterator.hasNext()) {
-                    Atom a = childIterator.next();
+                    Atom a = childIterator.nextAtom();
                     a.coord.randomizeMomentum(temperature);
    //                 work.PE(a.coord.momentum());
    //                 sum++;

@@ -7,7 +7,7 @@ package etomica;
 * @author David Kofke
 */
 
-public class AtomIteratorBonds implements AtomIterator {
+public class AtomIteratorBonds implements AtomIteratorAtomDependent {
     
     private boolean hasNext;
     private boolean upListNow, doGoDown;
