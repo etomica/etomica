@@ -55,7 +55,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	
 	public boolean needUpdate(Atom atom) {
 		r2 = atom.coord.position().Mv1Squared((Vector)atom.allatomAgents[agentIndex]);
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisAtom(atom)) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisAtom(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+atom.coord.position());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
