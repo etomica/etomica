@@ -20,6 +20,10 @@ import etomica.modifier.ModifierBoolean;
  */
 public class DeviceToggleButton extends DeviceButton {
 
+    public DeviceToggleButton(Controller controller) {
+        super(controller);
+    }
+    
     public DeviceToggleButton(Controller controller, ModifierBoolean modifier) {
         this(controller, modifier, "True", "False");
     }
@@ -27,14 +31,18 @@ public class DeviceToggleButton extends DeviceButton {
     public DeviceToggleButton(Controller controller, ModifierBoolean modifier,
             String trueText, String falseText) {
         super(controller);
-        toggleAction = new ActionToggle(modifier, trueText, falseText);
-        setAction(new ActionGroup(new Action[] { toggleAction, relabelButton }));
+        setModifier(modifier, trueText, falseText);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo();
         info.setDescription("Button that toggles a boolean value");
         return info;
+    }
+    
+    public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
+        toggleAction = new ActionToggle(modifier, trueText, falseText);
+        setAction(new ActionGroup(new Action[] { toggleAction, relabelButton }));
     }
 
     /**

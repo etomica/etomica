@@ -48,7 +48,7 @@ public class DeviceTrioControllerButton extends Device {
      */
     public DeviceTrioControllerButton() {
         super();
-        jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
+        jp = new JPanel(new java.awt.GridLayout(1,0)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
         jp.setOpaque(false);
 //        jp.setBackground(DefaultGraphic.BORDER_COLOR);
@@ -123,8 +123,8 @@ public class DeviceTrioControllerButton extends Device {
      */
     public void setShape(String s){
         shape = s;
-        if(s=="HORIZONTAL"){jp.setLayout(new java.awt.GridLayout(1,3));jp.updateUI();}
-        if(s=="VERTICAL"){jp.setLayout(new java.awt.GridLayout(3,1));jp.updateUI();}
+        if(s=="HORIZONTAL"){jp.setLayout(new java.awt.GridLayout(1,0));jp.updateUI();}
+        if(s=="VERTICAL"){jp.setLayout(new java.awt.GridLayout(0,1));jp.updateUI();}
         if(s=="AUTOMATIC"){jp.getParent().addComponentListener(new ComponentEventControllerButton());}
     }
     public String getShape() {return shape;}
