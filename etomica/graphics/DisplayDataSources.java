@@ -19,9 +19,7 @@ import etomica.units.Unit;
  * Dimension to not have error if default is null
  */
  
-public abstract class DisplayDataSources extends Display implements DataSource.MultiUser
-{
-    public String getVersion() {return "DisplayDataSources:01.05.29/"+Display.VERSION;}
+public abstract class DisplayDataSources extends Display {
 
     protected DataSource[] ySource;
     protected DataSource xSource;
@@ -34,7 +32,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     protected boolean allowAddSources = true;
         
     public DisplayDataSources(Simulation sim)  {
-        super(sim);
+        super();
         setXUnit(Unit.NULL);
         setYUnit(Unit.NULL);
     }
@@ -109,25 +107,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     public void setDataSources(DataSource s) {
         setDataSources(new DataSource[] {s});
     }
-    
-    /**
-     * Temporary method to enable function of propertysheet
-     *
-     * @deprecated
-     */
-    public void setDataSource(DataSource s) {
-        setDataSources(new DataSource[] {s});
-    }
-    /**
-     * Temporary method to enable function of propertysheet
-     *
-     * @deprecated
-     */
-    public DataSource getDataSource() {
-        if(ySource == null) return null;
-        return ySource[0];
-    }
-    
+        
     /**
      * Adds the given source to the sources being plotted.
      * Existing sources are retained.

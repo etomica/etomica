@@ -17,7 +17,7 @@ import etomica.EtomicaInfo;
  * @author David Kofke
  */
  
-public class DisplayBox extends Display implements etomica.units.Dimensioned, DataSource.User, EtomicaElement, javax.swing.event.ChangeListener {
+public class DisplayBox extends Display implements etomica.units.Dimensioned, EtomicaElement, javax.swing.event.ChangeListener {
     
     /**
      * Descriptive text label to be displayed with the value
