@@ -6,6 +6,7 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -28,7 +29,6 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     private double collisionRadius = 0.0;
     private boolean isothermal = false;
     private double temperature;
-    private final int D;
     private double[] lastVirial = new double[2];
     private Atom atom;
     
@@ -39,7 +39,6 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     public P1HardBoundary(Space space) {
         super(space);
         temperature = Default.TEMPERATURE;
-        D = space.D();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -52,8 +51,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         double e = 0.0;
         Vector dimensions = boundary.dimensions();
         double collisionRadiusSquared = collisionRadius*collisionRadius;
-        double rx = atom.coord.position(0);
-        double ry = atom.coord.position(1);
+        double rx = atom.coord.position().x(0);
+        double ry = atom.coord.position().x(1);
         double dx0_2 = rx*rx;
         double dy0_2 = ry*ry;
         double dx1_2 = (rx - dimensions.x(0))*(rx - dimensions.x(0));
@@ -69,61 +68,50 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     
     public double collisionTime(Atom[] a, double falseTime) {
     	atom = a[0];
-        Vector r = atom.coord.truePosition(falseTime);
-        Vector p = atom.coord.momentum();
+        Vector r = atom.coord.position();
+        Vector v = ((ICoordinateKinetic)atom.coord).velocity();
+        r.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.dimensions();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=r.length()-1; i>=0; i--) {
-            double px = p.x(i);
-            if(px == 0.0) continue;
+            double vx = v.x(i);
+            if(vx == 0.0) continue;
             double rx = r.x(i);
             double dx = dimensions.x(i);
-            double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
+            double t = (vx > 0.0) ? (dx - rx - collisionRadius)/vx : (-rx + collisionRadius)/vx;
             if(t < tmin) tmin = t;
         }
         if (Default.FIX_OVERLAP && tmin<0.0) tmin = 0.0;
-        return atom.coord.mass()*tmin + falseTime;
+        return tmin + falseTime;
     }
                 
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
     public void bump(Atom[] a, double falseTime) {
     	atom = a[0];
-        Vector r = atom.coord.truePosition(falseTime);
-        Vector p = atom.coord.momentum();
+        Vector r = atom.coord.position();
+        Vector v = ((ICoordinateKinetic)atom.coord).velocity();
+        r.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
         for(int i=r.length()-1; i>=0; i--) {
             double rx = r.x(i);
-            double px = p.x(i);
+            double vx = v.x(i);
             double dx = dimensions.x(i);
-            double del = (px > 0.0) ? Math.abs(dx - rx - collisionRadius) : Math.abs(-rx + collisionRadius);
+            double del = (vx > 0.0) ? Math.abs(dx - rx - collisionRadius) : Math.abs(-rx + collisionRadius);
             if(del < delmin) {
                 delmin = del;
                 imin = i;
             }
         }
-//        pAccumulator += 2*Math.abs(p.x(imin));
-        lastVirial[0] = 0.0;
-        lastVirial[1] = 0.0;
-        if(imin == 0){
-            if(p.x(0) > 0.0){
-                lastVirial[0] = 2.0*p.x(0)*(dimensions.x(0)-r.x(0));
-            }else{
-                lastVirial[1] = 2.0*p.x(0)*(0.0-r.x(0));
-            }
-        }
-        Vector newP = Space.makeVector(D);
-        newP.E(p);
-        newP.setX(imin,-p.x(imin)); //multiply momentum component by -1
-        if(isothermal) {
-            //XXX Evil.  If anything, atoms should get velocity from Maxwell-Boltzmann
-            //distribution such that the atom is moving away from the wall
-            newP.TE(Math.sqrt(D*temperature*atom.coord.mass()/newP.squared()));
-        }
-        atom.coord.trueAccelerateTo(newP,falseTime);
+        lastVirial[1-imin] = 0.0;
+        lastVirial[imin] = atom.type.getMass()*2.0*v.x(imin)*collisionRadius;
+        ((ICoordinateKinetic)atom.coord).velocity().setX(imin,-v.x(imin));
+        // dv = 2*NewVelocity
+        double newP = atom.coord.position().x(imin) - falseTime*v.x(imin)*2.0;
+        atom.coord.position().setX(imin,newP);
     }//end of bump
     
     public void setIsothermal(boolean b) {isothermal = b;}
