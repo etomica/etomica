@@ -89,9 +89,10 @@ public final class ApiInterspecies1A implements AtomPairIterator {
 
     /**
      * Performs the given action on all pairs returned by this iterator.
+     * Not yet implemented.
      */
     public void allPairs(AtomPairAction act) {
-        
+        throw new RuntimeException("Method allPairs not implemented in ApiInterspecies1A");
     }
     
 }  //end of class AtomPairIterator

@@ -9,19 +9,10 @@ package etomica;
  
 public final class ApiIntergroupAA implements AtomPairIterator {
     
-    private boolean hasNext;
-    private boolean needUpdate1;
-    
-    //no neighbor iterator here (not species iterator)
-    private final AtomIterator aiOuter = new AtomIteratorChildren();
-    private final AtomIterator aiInner = new AtomIteratorChildren();
-    
-    private final IteratorDirective localDirective = new IteratorDirective();
-    private final AtomPair pair;
-    private Atom atom1;
-    
     public ApiIntergroupAA() {
         pair = new AtomPair(Simulation.instance.space);
+        outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
+        outerWrapper.aiInner = aiInner;
     }
     
     public void setBasis(Atom a1, Atom a2) {
@@ -90,9 +81,26 @@ public final class ApiIntergroupAA implements AtomPairIterator {
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
+     //not carefully checked
     public void allPairs(AtomPairAction act) {
-        
+        //might be better to do loops explicitly, rather than 
+        //via atom iterator
+        outerWrapper.innerWrapper.pairAction = act;
+        aiOuter.allAtoms(outerWrapper);
+        hasNext = false;
     }
+    
+    private boolean hasNext;
+    private boolean needUpdate1;
+    
+    //no neighbor iterator here (not species iterator)
+    private final AtomIterator aiOuter = new AtomIteratorChildren();
+    private final AtomIterator aiInner = new AtomIteratorChildren();
+    
+    private final AtomPairAction.OuterWrapper outerWrapper;
+    private final IteratorDirective localDirective = new IteratorDirective();
+    private final AtomPair pair;
+    private Atom atom1;
     
 }  //end of class ApiIntergroupAA
     

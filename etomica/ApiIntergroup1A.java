@@ -7,14 +7,6 @@ package etomica;
  */
 public final class ApiIntergroup1A implements AtomPairIterator {
     
-    private final AtomIteratorChildren iterator = new AtomIteratorChildren();
-    private Atom basis1, basis2;
-    private Atom atom1;
-    private boolean hasNext;
-    private final IteratorDirective localDirective = new IteratorDirective();
-    
-    private final AtomPair pair;
-    
     public ApiIntergroup1A() {
         pair = new AtomPair(Simulation.instance.space);
     }
@@ -83,11 +75,26 @@ public final class ApiIntergroup1A implements AtomPairIterator {
         return pair;
     }
 
-    /**
-     * Performs the given action on all pairs returned by this iterator.
-     */
+     //needs to change for neighbor iteration
     public void allPairs(AtomPairAction act) {
+        Atom basis = iterator.getBasis();
+        if(basis == null || atom1 == null) return;
+        Atom last = basis.node.lastChildAtom();
+        for(Atom atom = basis.node.firstChildAtom(); atom != null; atom=atom.nextAtom()) {
+            pair.atom2 = atom;
+            pair.reset();
+            act.action(pair);
+            if(atom == last) break;
+        }
     }
+    
+    private final AtomIteratorChildren iterator = new AtomIteratorChildren();
+    private Atom basis1, basis2;
+    private Atom atom1;
+    private boolean hasNext;
+    private final IteratorDirective localDirective = new IteratorDirective();
+    
+    private final AtomPair pair;
     
 }  //end of class AtomPairIterator
     

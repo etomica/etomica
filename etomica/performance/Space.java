@@ -1,13 +1,12 @@
-package etomica.performance;
+package etomica;
 
-import etomica.*;
-public class SpaceP extends Space{
+public class Space {
 
     public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
 
     public static int D=3;   
 
-    public SpaceP(int dimension){
+    public Space(int dimension){
 
         D=dimension;
 
@@ -112,7 +111,7 @@ public class SpaceP extends Space{
 
     
 
-    public final static class Vector extends Space.Vector{  //declared final for efficient method calls
+    public final static class Vector {  //declared final for efficient method calls
 
     
 
@@ -163,17 +162,17 @@ public class SpaceP extends Space{
         public void E(double dx, double dy, double dz){X[0]=dx;X[1]=dy;X[2]=dz;}
 
 
-        public void E(Space.Vector u) {
+/*        public void E(Space.Vector u) {
              if (u instanceof Space3D.Vector){
-         X=u.toArray();
+             X=u.toArray();
          }
         else 
                 E((Vector)u);
-        }
+        }*/
 
-        public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u;for(int i=0;i<D;i++)X[i]=a1*u1.X[i];}
+        public void Ea1Tv1(double a1, Space.Vector u1) {for(int i=0;i<D;i++)X[i]=a1*u1.X[i];}
 
-        public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; for(int i=0;i<D;i++)X[i]+=a1*u1.X[i];}
+        public void PEa1Tv1(double a1, Space.Vector u1) {for(int i=0;i<D;i++)X[i]+=a1*u1.X[i];}
 
         public void PE(Vector u) {for(int i=0;i<D;i++)X[i]+=u.X[i];}
 
@@ -312,16 +311,11 @@ public class SpaceP extends Space{
         
 
         public double[] getArray(){return X;}
-        public void PE(Space.Vector u) {PE((Vector)u);}
-        public void ME(Space.Vector u) {ME((Vector)u);}
-        public void TE(Space.Vector u) {TE((Vector)u);}
-        public void DE(Space.Vector u) {DE((Vector)u);}
-        public double dot(Space.Vector u) {return dot((Vector)u);}
     }
 
         
 
-   public static class Coordinate extends Space.Coordinate {
+   public static class Coordinate {
 
         public Coordinate nextCoordinate, previousCoordinate;
 
@@ -353,9 +347,9 @@ public class SpaceP extends Space{
 
             else {
 
-                nextCoordinate = (Coordinate)a.coord;
+                nextCoordinate = a.coord;
 
-                ((Coordinate)a.coord).previousCoordinate = this;
+                a.coord.previousCoordinate = this;
 
             }
 
@@ -401,7 +395,7 @@ public class SpaceP extends Space{
 
         public void transform(Space.Vector r0, Space.Tensor A) {
 
-            r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
+            r.transform(atom.node.parentPhase().boundary(), r0, A);}
 
         /**
 
@@ -425,7 +419,7 @@ public class SpaceP extends Space{
 
         */
 
-        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Vector)u);}
+        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
 
         /**
 
@@ -442,7 +436,7 @@ public class SpaceP extends Space{
         public void displaceBy(Space.Vector u) {rLast.E(r); 
         
         
-        translateBy((Vector)u);}
+        translateBy(u);}
 
         public void displaceBy(double d, Space.Vector u) {
             
@@ -451,9 +445,9 @@ public class SpaceP extends Space{
        // System.out.println(rLast.X[0] +" it should have " + r.X[0]);
         
             
-            translateBy(d,(Vector)u);}
+            translateBy(d,u);}
 
-        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
+        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
 
         public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
 
@@ -477,7 +471,7 @@ public class SpaceP extends Space{
 
     }
 
-    public static final class CoordinatePair extends Space.CoordinatePair {
+    public static final class CoordinatePair {
         Coordinate c1;
         Coordinate c2;
         private final Vector dr = new Vector();
@@ -485,8 +479,8 @@ public class SpaceP extends Space{
         public CoordinatePair() {super();}
 
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
-            c1 = (Coordinate)coord1;
-            c2 = (Coordinate)coord2;
+            c1 = coord1;
+            c2 = coord2;
       //      reset();
         }
         public void reset() {
@@ -566,33 +560,35 @@ public class SpaceP extends Space{
          */
         public void transform(Space.Vector r0, Space.Tensor A) {
             work.E(position()); //work = r
-            work.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);
+            work.transform(atom.node.parentPhase().boundary(),r0, A);
             work.ME(r);//now work vector contains translation vector for COM
             translateBy(work);
         }
-        public Space.Vector position() {
+/*        public Space.Vector position() {
             r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 r.PEa1Tv1(coord.mass(), coord.position()); massSum += coord.mass();
                 if(coord == lastChild) break;
             }
             r.DE(massSum);
+            System.out.println("youch! I'm in Space.Coordinate.position()");
             return r;
-        }
-        public Space.Vector momentum() {
+        }*/
+/*        public Space.Vector momentum() {
             p.E(0.0);
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 p.PE(coord.momentum());
                 if(coord == lastChild) break;
             }
             return p;
-        }
+        }*/
         public double position(int i) {
             double sum = 0.0; double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 sum += coord.mass()*coord.position(i); massSum += coord.mass();
                 if(coord == lastChild) break;
             }
+            System.out.println("youch! I'm in Space.Coordinate.position()");
             sum /= massSum;
             return sum;
         }
@@ -619,17 +615,9 @@ public class SpaceP extends Space{
                 if(coord == lastChild) break;
             }
         }
-        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
         public void translateBy(Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.translateBy(u0);
-                if(coord == lastChild) break;
-            }
-        }
-        public void translateBy(double d, Space.Vector u) {
-            Vector u0 = (Vector)u;
-            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                coord.translateBy(d, u0);
                 if(coord == lastChild) break;
             }
         }
@@ -640,7 +628,7 @@ public class SpaceP extends Space{
                 work2.X[2] = ((Space3D.Vector)u).z;
             } else work2.E(u);
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
-            work.PE((Vector)work2);
+            work.PE(work2);
             translateBy(work);
         }
         public void translateTo(Space3D.Vector u) {
@@ -649,15 +637,13 @@ public class SpaceP extends Space{
             work2.X[2] = u.z;
             translateTo(work2);
         }
-        public void displaceBy(Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void displaceBy(Space.Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.displaceBy(u0);
                 if(coord == lastChild) break;
             }
         }
-        public void displaceBy(double d, Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void displaceBy(double d, Space.Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.displaceBy(d, u0);
                 if(coord == lastChild) break;
@@ -677,21 +663,19 @@ public class SpaceP extends Space{
                 if(coord == lastChild) break;
             }
         }
-        public void accelerateBy(Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void accelerateBy(Space.Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.accelerateBy(u0);
                 if(coord == lastChild) break;
             }
         }
-        public void accelerateBy(double d, Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void accelerateBy(double d, Space.Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.accelerateBy(d, u0);
                 if(coord == lastChild) break;
             }
         }
-        public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {
             switch(((AtomGroup)atom).node.childAtomCount()) {

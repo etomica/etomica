@@ -7,21 +7,11 @@ package etomica;
  */
 public final class ApiIntraspeciesAA implements AtomPairIterator {
     
-    private Species species; 
-    private boolean hasNext;
-    private boolean needUpdate1;
-    
-    private final AtomIterator aiOuter = new AtomIteratorSequential();
-    //this should be a neighbor iterator
-    private final AtomIterator aiInner = new AtomIteratorSequential();
-    
-    private final IteratorDirective localDirective = new IteratorDirective();
-    private final AtomPair pair;
-    private Atom atom1;
-    
     public ApiIntraspeciesAA() {
         aiInner.setAsNeighbor(true);
         pair = new AtomPair(Simulation.instance.space);
+        outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
+        outerWrapper.aiInner = aiInner;
     }
     
     public void setBasis(Atom a1, Atom a2) {
@@ -111,9 +101,25 @@ public final class ApiIntraspeciesAA implements AtomPairIterator {
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
-    public void allPairs(AtomPairAction act) {
-        
+    public void allPairs(AtomPairAction act) {  
+        outerWrapper.innerWrapper.pairAction = act;
+        aiOuter.reset(); //need to reset again because of setFirst call in this.reset()
+        aiOuter.allAtoms(outerWrapper);
+        hasNext = false;
     }
     
+    private final AtomPairAction.OuterWrapper outerWrapper;
+    private Species species; 
+    private boolean hasNext;
+    private boolean needUpdate1;
+    
+    private final AtomIterator aiOuter = new AtomIteratorSequential();
+    //this should be a neighbor iterator
+    private final AtomIterator aiInner = new AtomIteratorSequential();
+    
+    private final IteratorDirective localDirective = new IteratorDirective();
+    private final AtomPair pair;
+    private Atom atom1;
+        
 }  //end of class ApiIntraspeciesAA
     

@@ -3,7 +3,6 @@ package etomica.benchmark;
 import etomica.*;
 import etomica.performance.*;
 import etomica.units.*;
-//import etomica.graphics.*;
 
 public class LJMC_Benchmark {
     
@@ -12,7 +11,7 @@ public class LJMC_Benchmark {
         // 0 = standard
         // 1 = performance
         // 2 = molecule layer
-        final int VERSION = 2;
+        final int VERSION = 0;
         final int nCycles = 1000;
         
         Default.BOX_SIZE=30.;
@@ -26,6 +25,7 @@ public class LJMC_Benchmark {
             default:
             case 0:
             case 2:
+//                Simulation.instance = new Simulation(new SpaceP(3));
                Simulation.instance = new Simulation(new Space3D());
                break;
             case 1:
@@ -54,7 +54,6 @@ public class LJMC_Benchmark {
             case 0:
                P2LennardJones potential = new P2LennardJones();
                potential.setSpecies(species, species);
-        //       potential.setIterator(new ApiIntraspecies1A());
                break;
             case 1:  //performance
                 potential1 = new PotentialLJ(Simulation.instance.hamiltonian.potential,species.getNMolecules());
@@ -67,11 +66,7 @@ public class LJMC_Benchmark {
             case 2:  //molecule layer
                 Potential2Group group = new Potential2Group();
                 P2LennardJones potential2 = new P2LennardJones(group);
-      //          group.setIterator(new ApiIntraspecies1A());
                 group.setSpecies(species,species);
-      //          potential2.setIterator(new ApiIntergroup1A());
-//                potential2.setIterator(new AtomPairIteratorSynthetic(Simulation.instance.space,
-//                    new AtomIteratorChildren(), new AtomIteratorChildren()));
                 break;
         }       
         
@@ -158,6 +153,9 @@ public class LJMC_Benchmark {
  26   -- ApiIntraspecies1a, ApiIntergroup1A
  29
  27   -- Storing parentPhase in each node
+ 26   -- Action to iterator
+ 
+ 9.6  -- (1); action to iterator; Api pair iterators
  
  43.9 -- Home W2K Athlon/64/1000 (2)  (32.6 when run with HotSpot Server)
   2.7 -- Home/64/1000 (1)            (3.0 HotSpot Server, based on 10K cycles) (34.0 HotSpot Classic)

@@ -9,14 +9,6 @@ package etomica;
  */
 public final class ApiIntraspecies1A implements AtomPairIterator {
     
-    //this should be a neighbor iterator
-    private final AtomIterator atomIterator = new AtomIteratorSequential();
-    
-    private Atom molecule;
-    private final IteratorDirective localDirective = new IteratorDirective();
-    private final AtomPair pair;
-    private SpeciesAgent basis;
-    
     public ApiIntraspecies1A() {
         atomIterator.setAsNeighbor(true);
         pair = new AtomPair(Simulation.instance.space);
@@ -74,10 +66,35 @@ public final class ApiIntraspecies1A implements AtomPairIterator {
 
     /**
      * Performs the given action on all pairs returned by this iterator.
+     * Must call reset before invoking.
      */
+     
+     //needs to change for neighbor iteration
     public void allPairs(AtomPairAction act) {
+        if(basis == null || molecule == null) return;
+        Atom last = basis.node.lastChildAtom();
+        for(Atom atom = basis.node.firstChildAtom(); atom != molecule; atom=atom.nextAtom()) {
+            pair.atom2 = atom;
+            pair.reset();
+            act.action(pair);
+        }
+        if(molecule == last) return;
+        for(Atom atom = molecule.nextAtom(); atom != null; atom=atom.nextAtom()) {
+            pair.atom2 = atom;
+            pair.reset();
+            act.action(pair);
+            if(atom == last) break;
+        }
         
     }
+    
+    //this should be a neighbor iterator
+    private final AtomIterator atomIterator = new AtomIteratorSequential();
+    
+    private Atom molecule;
+    private final IteratorDirective localDirective = new IteratorDirective();
+    private final AtomPair pair;
+    private SpeciesAgent basis;
     
 }  //end of class AtomPairIterator
     

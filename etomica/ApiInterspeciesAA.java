@@ -7,21 +7,11 @@ package etomica;
  */
 public final class ApiInterspeciesAA implements AtomPairIterator {
     
-    private Species species1, species2; 
-    private boolean hasNext;
-    private boolean needUpdate1;
-    
-    private final AtomIterator aiOuter = new AtomIteratorChildren();
-    //this should be a neighbor iterator
-    private final AtomIterator aiInner = new AtomIteratorChildren();
-    
-    private final IteratorDirective localDirective = new IteratorDirective();
-    private final AtomPair pair;
-    private Atom atom1;
-    
     public ApiInterspeciesAA() {
         aiInner.setAsNeighbor(true);
         pair = new AtomPair(Simulation.instance.space);
+        outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
+        outerWrapper.aiInner = aiInner;
     }
     
     public void setBasis(Atom a1, Atom a2) {
@@ -115,9 +105,26 @@ public final class ApiInterspeciesAA implements AtomPairIterator {
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
-    public void allPairs(AtomPairAction act) {
-        
+    public void allPairs(AtomPairAction act) {  
+        outerWrapper.innerWrapper.pairAction = act;
+        aiOuter.allAtoms(outerWrapper);
+        hasNext = false;
     }
+    
+    private final AtomPairAction.OuterWrapper outerWrapper;
+
+    private Species species1, species2; 
+    private boolean hasNext;
+    private boolean needUpdate1;
+    
+    private final AtomIterator aiOuter = new AtomIteratorChildren();
+    //this should be a neighbor iterator
+    private final AtomIterator aiInner = new AtomIteratorChildren();
+    
+    private final IteratorDirective localDirective = new IteratorDirective();
+    private final AtomPair pair;
+    private Atom atom1;
+    
     
 }  //end of class ApiInterspeciesAA
     
