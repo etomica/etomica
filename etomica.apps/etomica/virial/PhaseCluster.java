@@ -1,8 +1,9 @@
 package etomica.virial;
 
 import etomica.Phase;
-import etomica.Simulation;
-import etomica.atom.AtomList;
+import etomica.Space;
+import etomica.space.BoundaryNone;
+import etomica.space3d.Space3D;
 
 /**
  * @author kofke
@@ -14,30 +15,49 @@ public class PhaseCluster extends Phase {
 
 	/**
 	 * Constructor for PhaseCluster.
-	 */
-	public PhaseCluster() {
-		this(Simulation.instance);
-	}
-
-	/**
-	 * Constructor for PhaseCluster.
 	 * @param parent
 	 */
-	public PhaseCluster(SimulationElement parent) {
-		super(parent);
-		setBoundary(space.makeBoundary(etomica.space3d.Boundary.NONE));	
+	public PhaseCluster(Space space, ClusterWeight cluster) {
+		super(space);
+        sampleCluster = cluster;
+        setBoundary(new BoundaryNone(space));
 	}
 	
-	public PairSet getPairSet() {
-		if(pairSet == null && speciesMaster.atomList.size() > 0) {
-//			pairSet = new PairSet(speciesMaster.atomList);
-			pairSet = new PairSet(new AtomList(makeMoleculeIterator()));
+	public CoordinatePairSet getCPairSet() {
+		if(cPairSet == null && speciesMaster.atomList.size() > 0) {
+			cPairSet = new CoordinatePairSet(speciesMaster.atomList,new Space3D());
+			cPairTrialSet = new CoordinatePairSet(speciesMaster.atomList,new Space3D());
+			// coordinate pairs are "reset" in the constructor, so we don't need to do it here
 		}
-		return pairSet;
+		return isTrial ? cPairTrialSet : cPairSet;
 	}
-	public void setPairSet(PairSet pairs) {
-		this.pairSet = pairs;
+    public ClusterWeight getSampleCluster() {
+        return sampleCluster;
+    }
+	
+	public void trialNotify() {
+		// atom(s) have been moved.  leave cPairSet as is and update
+		// cPairTrialSet and set a flag to use it.
+		isTrial = true;
+		// increase ID to notify clusters to recalculate value
+		cPairTrialSet.reset();
 	}
-
-	private PairSet pairSet;
+	
+	public void acceptNotify() {
+	    // move was accepted.  swap out trial cPairSet and cPairTrialSet since
+		// cPairTrialSet is already up-to-date
+		isTrial = false;
+		cPairSetTmp = cPairSet;
+		cPairSet = cPairTrialSet;
+		cPairTrialSet = cPairSetTmp;
+	}
+	
+	public void rejectNotify() {
+		// move was rejected.  stop using cPairTrialSet.
+		isTrial = false;
+	}
+	
+	private boolean isTrial;
+	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
+	private final ClusterWeight sampleCluster;
 }
