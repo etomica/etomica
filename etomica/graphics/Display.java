@@ -5,19 +5,17 @@ import java.beans.PropertyChangeSupport;
 
 import javax.swing.JPanel;
 
-import etomica.Action;
 import etomica.Phase;
 import etomica.utility.NameMaker;
 
 /**
  * Superclass of all classes that display something from the simulation.  
  * Included are displays of graphical and tabular data, and views of the molecules as they
- * move about during the simulation.  Displays are also used to output simulation data and
- * results to file.
+ * move about during the simulation.
  *
  * @author David Kofke
  */
-public abstract class Display implements Action, GraphicalElement, java.io.Serializable {
+public abstract class Display implements GraphicalElement, java.io.Serializable {
 
   /**
    * Descriptive text for the display.  Used to set the text in the tab of the tabbed display panel.
@@ -26,16 +24,14 @@ public abstract class Display implements Action, GraphicalElement, java.io.Seria
    
    private JPanel panel = new JPanel();
     
-    protected Phase phase;  //consider removing this and putting in subclasses only as needed
-                            //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph
-    // Constructor
+     // Constructor
     public Display() {
         setName(NameMaker.makeName(this.getClass()));
     }
     
-    public void actionPerformed() {
-        repaint();
-    }
+//    public void actionPerformed() {
+//        repaint();
+//    }
     
     /**
      * Method to associate a phase with this display.

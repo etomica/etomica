@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import etomica.Action;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.EtomicaElement;
@@ -40,7 +41,7 @@ import etomica.utility.java2.LinkedList;
   * 08/08/03 (DAK) added listener for '<' and '>' keypresses to affect
   * drawExpansionFactor in DisplayPhaseCanvas3DOpenGL
   */
-public class DisplayPhase extends Display implements EtomicaElement {
+public class DisplayPhase extends Display implements Action, EtomicaElement {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
@@ -135,6 +136,10 @@ public class DisplayPhase extends Display implements EtomicaElement {
         canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
+    }
+    
+    public void actionPerformed() {
+        repaint();
     }
     
     /**
