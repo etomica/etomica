@@ -33,7 +33,15 @@ public class DataSourceUniform implements DataSource {
      * Default constructor. Chooses 100 points between 0 and 1, inclusive.
      */
     public DataSourceUniform() {
-        this(100, 0.0, 1.0, INCLUSIVE, INCLUSIVE);
+        this(100, 0.0, 1.0);
+    }
+    
+    /**
+     * Constructs a DataSourceUniform using the indicated number of values
+     * and x range, and INCLUSIVE limits.
+     */
+    public DataSourceUniform(int nValues, double xMin, double xMax) {
+    	this(nValues, xMin, xMax, INCLUSIVE, INCLUSIVE);
     }
     
     public DataSourceUniform(int nValues, double xMin, double xMax, 

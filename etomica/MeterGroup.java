@@ -2,7 +2,7 @@ package etomica;
 
 import etomica.units.*;
 import etomica.utility.HistogramSimple;
-import etomica.utility.History;
+import etomica.utility.HistoryScrolling;
 import etomica.utility.Function;
 
 /**
@@ -140,7 +140,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    if(text.equals("History")) 
 	        for(int i=0; i<nMeters; i++) {
 	            sources[i] = accumulator[i].history();
-	            ((History)sources[i]).setLabel(labels[i]);
+	            ((HistoryScrolling)sources[i]).setLabel(labels[i]);
 	        }
 	    else if(text.equals("HistogramSimple")) 
 	        for(int i=0; i<nMeters; i++) {
@@ -150,7 +150,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    return sources;
 	}
 	
-	public History getHistory(int i) {
+	public HistoryScrolling getHistory(int i) {
 	    return accumulator[i].history();
 	}
 	

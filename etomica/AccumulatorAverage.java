@@ -178,7 +178,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     */
     public void setHistorying() {
         if(historying && history == null) {
-            history = new History(Default.HISTORY_PERIOD);
+            history = new HistoryScrolling(Default.HISTORY_PERIOD);
             history.setName(MeterAbstract.this.toString() + ":History");
             history.setLabel(MeterAbstract.this.getLabel() + " history");
         }

@@ -2,7 +2,7 @@ package etomica.simulations;
 
 import etomica.*;
 import etomica.graphics.*;
-import etomica.utility.History;
+import etomica.utility.HistoryScrolling;
 
 /**
  * @author David Kofke
