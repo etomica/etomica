@@ -1,13 +1,10 @@
 package etomica.graphics;
-import etomica.*;
 
-import gl4java.GLFunc;
 
 public final class gluSphere {
   /* Make it not a power of two to avoid cache thrashing on the chip */
   private static final int CACHE_SIZE = 240;
   private static final boolean lines = false;
-  private static gl4java.GLEnum glt;
 
   public static /*float[][]*/void gluSmoothSphere(gl4java.GLFunc glf, double radius, int divisions) {
     float sinCache1[] = new float[CACHE_SIZE];
