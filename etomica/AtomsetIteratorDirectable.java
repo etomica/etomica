@@ -5,8 +5,12 @@
 package etomica;
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
+ * Interface for an iterator that can interpret specification of
+ * direction UP or DOWN.
+ *
+ * @author David Kofke
+ *
  */
 public interface AtomsetIteratorDirectable extends AtomsetIterator {
 

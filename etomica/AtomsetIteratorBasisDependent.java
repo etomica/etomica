@@ -5,8 +5,6 @@
 package etomica;
 
 /**
- * @author kofke
- *
  * Interface for an AtomIterator that can be conditioned with
  * target and basis atoms.
  */
