@@ -431,7 +431,7 @@ public class Space2D extends Space implements EtomicaElement {
         public Space.Vector position() {return r;}
         public Space.Vector truePosition(double falseTime) {
             work.E(r);
-            work.PEa1Tv1(falseTime,p);
+            work.PEa1Tv1(falseTime*rm(),p);
             return work;
         }
         public Space.Vector momentum() {return p;}
@@ -489,8 +489,9 @@ public class Space2D extends Space implements EtomicaElement {
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
         public void accelerateTo(Space.Vector u) {p.E(u);}
         public void trueAccelerateTo(Space.Vector u, double falseTime) {
-            r.x -= falseTime * (((Vector)u).x - p.x);
-            r.y -= falseTime * (((Vector)u).y - p.y);
+            double tm = falseTime*rm();
+            r.x -= tm * (((Vector)u).x - p.x);
+            r.y -= tm * (((Vector)u).y - p.y);
             p.x = ((Vector)u).x;
             p.y = ((Vector)u).y;
         }

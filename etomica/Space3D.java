@@ -618,12 +618,12 @@ public class Space3D extends Space implements EtomicaElement {
         public Space.Vector position() {return r;}
         public Space.Vector truePosition(double falseTime) {
             work.E(r);
-            work.PEa1Tv1(falseTime,p);
+            work.PEa1Tv1(falseTime*rm(),p);
             return work;
         }
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.x(i);}
-        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*p.x(i);}
+        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*rm()*p.x(i);}
         public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {
@@ -684,9 +684,10 @@ public class Space3D extends Space implements EtomicaElement {
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
         public void accelerateTo(Space.Vector u) {p.E(u);}
         public void trueAccelerateTo(Space.Vector u, double falseTime) {
-            r.x -= falseTime * (((Vector)u).x - p.x);
-            r.y -= falseTime * (((Vector)u).y - p.y);
-            r.z -= falseTime * (((Vector)u).z - p.z);
+            double tm = falseTime * rm();
+            r.x -= tm * (((Vector)u).x - p.x);
+            r.y -= tm * (((Vector)u).y - p.y);
+            r.z -= tm * (((Vector)u).z - p.z);
             p.x = ((Vector)u).x;
             p.y = ((Vector)u).x;
             p.z = ((Vector)u).z;

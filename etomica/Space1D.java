@@ -330,12 +330,12 @@ public class Space1D extends Space implements EtomicaElement {
         public Space.Vector position() {return r;}
         public Space.Vector truePosition(double falseTime) {
             work.E(r);
-            work.PEa1Tv1(falseTime,p);
+            work.PEa1Tv1(falseTime*rm(),p);
             return work;
         }
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.x(i);}
-        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*p.x(i);}
+        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*rm()*p.x(i);}
         public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {r.x += p.x*t*rm();}
