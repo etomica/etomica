@@ -46,7 +46,7 @@ public class TestHSMD3D extends Simulation {
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(2000000/numAtoms);
+        activityIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
