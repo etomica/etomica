@@ -102,6 +102,7 @@ public class PistonCylinderGraphic {
     public DataSourceWallPressure pressureMeter;
     public int plotUpdateInterval, dataInterval, guiInterval;
     public Unit eUnit;
+    double lambda, epsilon;
     
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
@@ -112,8 +113,6 @@ public class PistonCylinderGraphic {
 
         Default.ATOM_SIZE = 3.0;
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
-        potentialSW = new P2SquareWell(Default.ATOM_SIZE,2.0,eUnit.toSim(1500.0));
-        potentialHS = new P2HardSphere(Default.ATOM_SIZE);
         historyLength = 100;
         
         plotUpdateInterval = 10;
@@ -121,6 +120,9 @@ public class PistonCylinderGraphic {
         guiInterval = 10;
 
         final int p0 = 500;
+        
+        lambda = 2.0;
+        epsilon = eUnit.toSim(1500.0);
         
         //restart action and button
         controlButtons = new DeviceTrioControllerButton();
@@ -395,6 +397,8 @@ public class PistonCylinderGraphic {
         boolean pistonHeld = true;
         if (pc != null) {
             pistonHeld = pc.pistonPotential.isStationary();
+            lambda = potentialSW.getLambda();
+            epsilon = potentialSW.getEpsilon();
             pc.getController().halt();
         }
         pc = sim;
@@ -482,6 +486,8 @@ public class PistonCylinderGraphic {
         temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         temperatureSlider.setController(pc.getController());
 
+        potentialSW = new P2SquareWell(pc.space,Default.ATOM_SIZE,lambda,epsilon);
+        potentialHS = new P2HardSphere(pc.space,Default.ATOM_SIZE);
 /*        pc.potentialMaster.setSpecies(potentialHS, new Species[] {pc.species, pc.species});
         pc.potentialMaster.setEnabled(potentialHS, false);
         pc.potentialMaster.setEnabled(potentialSW, false);*/
