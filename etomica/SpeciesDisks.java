@@ -17,15 +17,16 @@ public class SpeciesDisks extends Species {
     /**
     * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
     */
-    public SpeciesDisks() {
-        this(20,1);
+    public SpeciesDisks(PhaseSpace ps) {
+        this(ps,20,1);
     }
               
-    public SpeciesDisks(int nM, int nA) {
-        this(nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
+    public SpeciesDisks(PhaseSpace ps, int nM, int nA) {
+        this(ps, nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
     }
               
-    public SpeciesDisks(int nM, int nA, AtomType.Disk type) {
+    public SpeciesDisks(PhaseSpace ps, int nM, int nA, AtomType.Disk type) {
+        parentPhaseSpace = ps;
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
         protoType = type;
         atomsPerMolecule = nA;

@@ -28,9 +28,12 @@ public abstract class PhaseSpace extends Container {
     public abstract AtomPair.Iterator.A makePairIteratorHalf();
     
     public abstract double volume();
+    public abstract Vector dimensions();
 
 //  Vector contains what is needed to describe a point in the space
     interface Vector {
+        public double component(int i);
+        public void setComponent(int i, double d);
         public void E(Vector u);
         public void E(double a);
         public void PE(Vector u);
@@ -49,7 +52,7 @@ public abstract class PhaseSpace extends Container {
         public void clearPreviousCoordinate();
         
         public void translateTo(Vector r);
-        public void translateToward(Vector e, double distance);
+        public void translateToward(Vector e, double amount);
         public void translateBy(Vector dr);
         public void displaceTo(Vector r);
         public void displaceBy(Vector dr);
@@ -59,11 +62,11 @@ public abstract class PhaseSpace extends Container {
         public void randomizeMomentum(double temperature);
         public void replace();
         public void inflate(double s);
-        public void accelerate(Vector dv);
         public double kineticEnergy();
         public Vector position();
         public Vector momentum();
-        public Vector velocity();
+        public double position(int i);
+        public double momentum(int i);
     }
     
     interface AtomCoordinate extends Coordinate {      //cannot be a class here because must inherit from Coordinate as it is defined in the PhaseSpace subclass
@@ -72,6 +75,10 @@ public abstract class PhaseSpace extends Container {
         public Atom atom();
         public AtomCoordinate nextCoordinate();
         public AtomCoordinate previousCoordinate();
+        public void scaleMomentum(double scale);
+        public void accelerate(Vector dv);
+        public void accelerateToward(Vector e, double amount);
+        public Vector velocity();
     }
     interface MoleculeCoordinate extends Coordinate {
         public Molecule nextMolecule();
@@ -134,6 +141,14 @@ public abstract class PhaseSpace extends Container {
     noGravity = (g == 0.0);
   }
   
+ /**
+  * Returns the temperature (in Kelvin) of this phase as computed via the equipartition
+  * theorem from the kinetic energy summed over all (atomic) degrees of freedom
+  */  
+  public double kineticTemperature() {
+    return (2./(double)(atomCount*D()))*kineticEnergy.currentValue()*Constants.KE2T;
+  }
+
     public void add(Species species) {
         super.add(species);
         species.parentPhaseSpace = this;
@@ -217,16 +232,14 @@ public abstract class PhaseSpace extends Container {
         return m;
     }
 
-    public void inflate(double scale) {
-        dimensions.TE(scale);
-    }
+    public abstract void inflate(double scale);
 
 //    public final boolean isPeriodic() {return periodic;}  
         
    /**
     * @return the dimensions[] array
     */
-    public Vector getDimensions() {return dimensions;}
+//    public Vector getDimensions() {return dimensions;}
    
    /** Set of vectors describing the displacements needed to translate the central image
     *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
@@ -322,7 +335,7 @@ public abstract class PhaseSpace extends Container {
   * Size of Phase (width, height) in Angstroms
   * Default value is 1.0 for each dimension.
   */
-    protected Vector dimensions;
+//    protected Vector dimensions;
 
    /**
     * Volume of the phase, in Angstroms^D.

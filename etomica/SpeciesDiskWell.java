@@ -7,11 +7,11 @@ public class SpeciesDiskWell extends SpeciesDisks {
   double lambda;
   Color wellColor;
 
-  public SpeciesDiskWell() {
-    this(20,1);
+  public SpeciesDiskWell(PhaseSpace ps) {
+    this(ps, 20,1);
   }
-  public SpeciesDiskWell(int nM, int nA) {
-    super(nM, nA, new AtomType.Well(1.0,Color.black,0.1,1.5));
+  public SpeciesDiskWell(PhaseSpace ps, int nM, int nA) {
+    super(ps, nM, nA, new AtomType.Well(1.0,Color.black,0.1,1.5));
   }
   
 /*  public void draw(Graphics g, int[] origin, double scale) {

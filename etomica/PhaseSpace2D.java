@@ -18,6 +18,7 @@ public class PhaseSpace2D extends PhaseSpace {
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
     
     public final double volume() {return Double.MAX_VALUE;}  //infinite volume unless using PBC
+    public final PhaseSpace.Vector dimensions() {return dimensions;}
  
     public static final class Vector implements PhaseSpace.Vector {  //declared final for efficient method calls
         public static final Random random = new Random();
@@ -25,6 +26,8 @@ public class PhaseSpace2D extends PhaseSpace {
         double x, y;
         public Vector () {x = 0.0; y = 0.0;}
         public Vector (double a1, double a2) {x = a1; y = a2;}
+        public double component(int i) {return (i==0) ? x : y;}
+        public void setComponent(int i, double d) {if(i==0) x=d; else y=d;}
         public void E(PhaseSpace.Vector u) {E((Vector)u);}
         public void PE(PhaseSpace.Vector u) {PE((Vector)u);}
         public void ME(PhaseSpace.Vector u) {ME((Vector)u);}
@@ -77,7 +80,8 @@ public class PhaseSpace2D extends PhaseSpace {
         
         public void translateTo(PhaseSpace.Vector u) {r.E((Vector)u);}      //if using PBC, apply here
         public void translateBy(PhaseSpace.Vector u) {r.PE((Vector)u);}
-        public void translateToward(PhaseSpace.Vector u, double d) {temp.Ea1Tv1(d,(Vector)u); translateBy(temp);}
+        public void translateToward(PhaseSpace.Vector u, double d) {translateToward((Vector)u,d);}
+        public void translateToward(Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
         public void displaceTo(PhaseSpace.Vector u) {rLast.E(r); r.E((Vector)u);}  //want to eliminate these casts
         public void displaceBy(PhaseSpace.Vector u) {rLast.E(r); r.PE((Vector)u);}
         public void displaceWithin(double d) {rLast.E(r); r.randomStep(d);}
@@ -88,7 +92,9 @@ public class PhaseSpace2D extends PhaseSpace {
         public void translateToRandom() {r.setRandom(dimensions.x, dimensions.y);}
         public void displaceTo(Vector u) {rLast.E(r); r.E(u);}  
         public void displaceBy(Vector u) {rLast.E(r); r.PE(u);}
-        public void accelerate(Vector u) {p.PE(u);}
+        public void accelerateBy(Vector u) {p.PE(u);}
+        public void accelerateToward(PhaseSpace.Vector u, double d) {accelerateToward((Vector)u,d);}
+        public void accelerateToward(Vector u, double d) {temp.Ea1Tv1(d,u); accelerateBy(temp);}
         public void replace() {r.E(rLast);}
         public void inflate(double s) {r.TE(s);}
         public double kineticEnergy() {return 0.5*p.squared()*atom.type.rm();}
@@ -97,8 +103,11 @@ public class PhaseSpace2D extends PhaseSpace {
             p.randomDirection();
             p.TE(momentum);
         }
+        public void scaleMomentum(double scale) {p.TE(scale);}
         public PhaseSpace.Vector position() {return r;}
         public PhaseSpace.Vector momentum() {return p;}
+        public double position(int i) {return r.component(i);}
+        public double momentum(int i) {return p.component(i);}
         public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
         
         //following methods are same in all PhaseSpace classes
@@ -143,9 +152,9 @@ public class PhaseSpace2D extends PhaseSpace {
             do {c=c.nextCoordinate; p.PE(c.p);} while (c.atom!=molecule.lastAtom);
         }
         public void translateToward(PhaseSpace.Vector u, double d) {temp.Ea1Tv1(d,(Vector)u); translateBy(temp);}
-        public void translateBy(PhaseSpace.Vector uu) {
+        public void translateBy(PhaseSpace.Vector u) {translateBy((Vector)u);}
+        public void translateBy(Vector u) {
             AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            Vector u = (Vector)uu;
             c.translateBy(u);
             if(molecule.nAtoms == 1) {return;}
             do {c=c.nextCoordinate; c.translateBy(u);} while (c.atom!=molecule.lastAtom);
@@ -197,6 +206,8 @@ public class PhaseSpace2D extends PhaseSpace {
         }
         public PhaseSpace.Vector position() {updateR(); return r;}
         public PhaseSpace.Vector momentum() {updateP(); return p;}
+        public double position(int i) {updateR(); return r.component(i);}
+        public double momentum(int i) {updateR(); return r.component(i);}
         public double kineticEnergy() {return 0.5*p.squared()*molecule.rm();}
         public void randomizeMomentum(double temperature) {
             AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
@@ -205,11 +216,11 @@ public class PhaseSpace2D extends PhaseSpace {
             do {c=c.nextCoordinate; c.randomizeMomentum(temperature);} while (c.atom!=molecule.lastAtom);
         }
         //the rest of these methods are just copied from AtomCoordinate, and need to be translated for MoleculeCoordinate
-        public void accelerate(PhaseSpace.Vector u) {p.PE((Vector)u);}
-        public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(molecule.rm()); return temp;}  //returned vector is not thread-safe
+//        public void accelerate(PhaseSpace.Vector u) {p.PE((Vector)u);}
+//        public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(molecule.rm()); return temp;}  //returned vector is not thread-safe
         //
-        public PhaseSpace.MoleculeCoordinate nextCoordinate() {return nextCoordinate();}
-        public PhaseSpace.MoleculeCoordinate previousCoordinate() {return previousCoordinate();}
+        public PhaseSpace.MoleculeCoordinate nextCoordinate() {return nextCoordinate;}
+        public PhaseSpace.MoleculeCoordinate previousCoordinate() {return previousCoordinate;}
         public final void setNextCoordinate(PhaseSpace.Coordinate c) {
            nextCoordinate = (MoleculeCoordinate)c;
            if(c != null) {((MoleculeCoordinate)c).previousCoordinate = this;}
@@ -323,6 +334,7 @@ public class PhaseSpace2D extends PhaseSpace {
                 if(outer == oLast) {hasNext = false;}                //all done
                 else {outer = outer.nextCoordinate; inner = iFirst;} //advance outer, reset inner
             }
+            else {inner = inner.nextCoordinate;}
             return pair;
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
@@ -353,6 +365,7 @@ public class PhaseSpace2D extends PhaseSpace {
                 if(outer == oLast) {hasNext = false;}                //all done
                 else {outer = outer.nextCoordinate; inner = outer.nextCoordinate;} //advance outer, reset inner
             }
+            else {inner = inner.nextCoordinate;}
             return pair;
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs

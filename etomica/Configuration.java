@@ -78,6 +78,7 @@ public abstract class Configuration extends Component{
      */
     public static PhaseSpace2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
         PhaseSpace2D.Vector[] r = new PhaseSpace2D.Vector[n];
+        for(int i=0; i<n; i++) {r[i] = new PhaseSpace2D.Vector();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;

@@ -37,39 +37,18 @@ public interface AtomPair {
          */
 
         /**
-         * Iterator for all (intramolecular) atom pairs in a single molecule
-         */
-        public static class FM implements M {  //AllMoleculeIntraPairs
-            private final Iterator.A iterator;
-            public FM(PhaseSpace ps) {iterator = ps.makePairIteratorHalf();} //constructor
-            public FM(PhaseSpace ps, Molecule m) {  //constructor
-                iterator = ps.makePairIteratorHalf(); 
-                reset(m);
-            } 
-            public boolean hasNext() {return iterator.hasNext();}
-            public AtomPair next() {return iterator.next();}
-            public final void reset(Molecule m) {
-                if(m == null || m.nAtoms < 2) {iterator.allDone(); return;}
-                Atom oF = m.firstAtom();
-                Atom iF = oF.nextAtom();
-                Atom oL = m.terminationAtom();
-                iterator.reset(iF,oF,oL);
-            }  
-        }
-
-        /**
          * Iterator for all intramolecular atom pairs within species
          */
         public static class AM implements S {   //AllSpeciesIntraPairs
             private boolean mLast;
             private Molecule m, lastM;
-            private final FM mPairs;
+            private FM mPairs;
             public AM(PhaseSpace ps) {  //constructor
-                mPairs = new FM(ps);  
+                mPairs = new FM(ps);
                 mLast = true;
             }
             public AM(PhaseSpace ps, Species s) {  //constructor
-                mPairs = new FM(ps);  
+                mPairs = new FM(ps);
                 reset(s);
             }  
             public final boolean hasNext() {return (mPairs.hasNext() || !mLast);}
@@ -91,6 +70,27 @@ public interface AtomPair {
             } 
         }
         
+        /**
+         * Iterator for all (intramolecular) atom pairs in a single molecule
+         */
+        public static class FM implements M {  //AllMoleculeIntraPairs
+            private final Iterator.A iterator;
+            public FM(PhaseSpace ps) {iterator = ps.makePairIteratorHalf();} //constructor
+            public FM(PhaseSpace ps, Molecule m) {  //constructor
+                iterator = ps.makePairIteratorHalf(); 
+                reset(m);
+            } 
+            public boolean hasNext() {return iterator.hasNext();}
+            public AtomPair next() {return iterator.next();}
+            public final void reset(Molecule m) {
+                if(m == null || m.nAtoms < 2) {iterator.allDone(); return;}
+                Atom oF = m.firstAtom();
+                Atom iF = oF.nextAtom();
+                Atom oL = m.terminationAtom();
+                iterator.reset(iF,oF,oL);
+            }  
+        }
+
         /**
          * Iterates over all intermolecular atom pairs between a fixed molecule and all molecules in a species
          */
