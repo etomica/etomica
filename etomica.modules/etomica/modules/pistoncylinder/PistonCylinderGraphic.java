@@ -46,8 +46,6 @@ import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
-import etomica.units.Prefix;
-import etomica.units.PrefixedUnit;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 
@@ -72,14 +70,13 @@ public class PistonCylinderGraphic {
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
     public DeviceSlider scaleSlider, pressureSlider;
+    public JPanel pressureSliderPanel;
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plot;
-    public Unit pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
     public final javax.swing.JTabbedPane displayPanel;
-    public Unit dUnit, dadUnit, tUnit;
     public DeviceBox sigBox, epsBox, lamBox;
-
+    
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
         displayPhase = new DisplayPhase(null);
@@ -87,11 +84,7 @@ public class PistonCylinderGraphic {
 
         displayCycles = new DisplayBox();
 
-        dUnit = new UnitRatio(Mole.UNIT, 
-                                           new BaseUnitPseudo3D.Volume(Liter.UNIT));
-        dadUnit = new UnitRatio(new PrefixedUnit(Prefix.DECI, Mole.UNIT), 
-                                   new PrefixedUnit(new BaseUnitPseudo3D.Volume(Liter.UNIT)));
-        tUnit = Kelvin.UNIT;
+        Unit tUnit = Kelvin.UNIT;
         
         Default.ATOM_SIZE = 3.0;
         
@@ -157,19 +150,16 @@ public class PistonCylinderGraphic {
         //meter and display for density
         dBoxAvg = new DisplayBox();
         dBoxAvg.setUpdateInterval(100);
-        dBoxAvg.setUnit(dUnit);
         dBoxAvg.setLabelType(DisplayBox.BORDER);
         dBoxAvg.setLabel("Average");
         dBoxAvg.setPrecision(6);
         dBoxErr= new DisplayBox();
         dBoxErr.setUpdateInterval(100);
-        dBoxErr.setUnit(dUnit);
         dBoxErr.setLabelType(DisplayBox.BORDER);
         dBoxErr.setLabel("Error");
         dBoxErr.setPrecision(6);
         dBoxCur = new DisplayBox();
         dBoxCur.setUpdateInterval(10);
-        dBoxCur.setUnit(dUnit);
         dBoxCur.setLabelType(DisplayBox.BORDER);
         dBoxCur.setLabel("Current");
         dBoxCur.setPrecision(6);
@@ -200,7 +190,6 @@ public class PistonCylinderGraphic {
         pressureSlider = new DeviceSlider(null);
         pressureSlider.setShowValues(true);
         pressureSlider.setEditValues(true);
-        pressureSlider.setUnit(pUnit);
         pressureSlider.setMinimum(00);
         pressureSlider.setMaximum(1000);
 	    pressureSlider.getSlider().setMajorTickSpacing(200);
@@ -290,10 +279,9 @@ public class PistonCylinderGraphic {
         temperaturePanel.add(tBox.graphic(null),gbc1);
         
         //panel for pressure slider
-        JPanel sliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        pressureSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
         pressureSlider.setShowBorder(false);
-        sliderPanel.add(pressureSlider.graphic(null));
-        sliderPanel.setBorder(new javax.swing.border.TitledBorder("Set pressure ("+pUnit.toString()+")"));
+        pressureSliderPanel.add(pressureSlider.graphic());
         
         //panel for all the controls
         JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
@@ -314,7 +302,7 @@ public class PistonCylinderGraphic {
                }
            }
         });
-        
+
 //        JPanel controlPanel = new JPanel(new java.awt.GridLayout(0,1));
         JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
@@ -329,7 +317,7 @@ public class PistonCylinderGraphic {
         
         JPanel statePanel = new JPanel(new GridBagLayout());
         statePanel.add(temperaturePanel, gbc2);
-        statePanel.add(sliderPanel, gbc2);
+        statePanel.add(pressureSliderPanel, gbc2);
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(potentialChooser,gbc2);
@@ -371,10 +359,13 @@ public class PistonCylinderGraphic {
     }
     
     public void setSimulation(PistonCylinder sim) {
+        boolean pistonHeld = true;
         if (pc != null) {
+            pistonHeld = pc.pistonPotential.isStationary();
             pc.getController().halt();
         }
         pc = sim;
+        int D = pc.space.D();
 
         BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
         if (pc.space.D() == 2) {
@@ -396,7 +387,7 @@ public class PistonCylinderGraphic {
             displayPhasePanel.remove(displayPhase.graphic());
             displayPanel.remove(displayPhasePanel);
         }
-        if (sim.space.D() == 2) {
+        if (D == 2) {
             displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
             displayPhase.setPhase(pc.phase);
             displayPhase.setAlign(1,DisplayPhase.BOTTOM);
@@ -467,7 +458,23 @@ public class PistonCylinderGraphic {
         dBoxAvg.setDataSource(densityAvg.makeDataSourceAverage());
         dBoxErr.setDataSource(densityAvg.makeDataSourceError());
         dBoxCur.setDataSource(densityMeter);
+        Unit dUnit, dadUnit;
+        if (D == 3) {
+            dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
+            dadUnit = new UnitRatio(new PrefixedUnit(Prefix.DECI, Mole.UNIT), 
+                                    new PrefixedUnit(Liter.UNIT));
+        }
+        else {
+            dUnit = new UnitRatio(Mole.UNIT, 
+                    new BaseUnitPseudo3D.Volume(Liter.UNIT));
+            dadUnit = new UnitRatio(new PrefixedUnit(Prefix.DECI, Mole.UNIT), 
+                                    new PrefixedUnit(new BaseUnitPseudo3D.Volume(Liter.UNIT)));
+        }
+        dBoxAvg.setUnit(dUnit);
+        dBoxErr.setUnit(dUnit);
+        dBoxCur.setUnit(dUnit);
         densityMeter.setPhase(new Phase[] {pc.phase});
+        
         pc.integrator.addIntervalListener(tBox);
         scaleSlider.setController(pc.controller);
         pc.integrator.addIntervalListener(densityManager);
@@ -477,7 +484,15 @@ public class PistonCylinderGraphic {
         pc.integrator.addIntervalListener(dBoxAvg);
         pc.integrator.addIntervalListener(dBoxErr);
         pc.integrator.addIntervalListener(dBoxCur);
-        int D = pc.space.D();
+        Unit pUnit;
+        if (D == 3) {
+            pUnit = Bar.UNIT;
+        }
+        else {
+            pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
+        }
+        pressureSlider.setUnit(pUnit);
+        pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set pressure ("+pUnit.toString()+")"));
         Dimension pDim = (D==2) ? Dimension.PRESSURE2D : Dimension.PRESSURE;
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
@@ -495,8 +510,7 @@ public class PistonCylinderGraphic {
         fixPistonButton.setController(pc.controller);
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
         fixPistonButton.setPostAction(new ActionPistonUpdate(pc.integrator));
-        fixPistonButton.setState(true);
-
+        fixPistonButton.setState(pistonHeld);
     }
     
     public void setPotential(String potentialDesc) {
