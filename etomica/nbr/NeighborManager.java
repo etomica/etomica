@@ -74,7 +74,7 @@ public class NeighborManager implements IntervalListener {
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborCheck);
 			if (neighborCheck.needUpdate) {
-				if (Debug.DEBUG_NOW) {
+				if (Debug.ON && Debug.DEBUG_NOW) {
 					System.out.println("Updating neighbors");
 				}
 				if (neighborCheck.unsafe) {
