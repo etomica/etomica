@@ -11,6 +11,7 @@ public abstract class Lattice {
     public final void setNeighborIndexCutoff(double c) {neighborIndexCutoff = c; setupNeighbors();}
     public final double getNeighborIndexCutoff() {return neighborIndexCutoff;}
     
+    public abstract int[] dimensions();
     public abstract int siteCount();
     public abstract void setupNeighbors();
     
@@ -18,14 +19,13 @@ public abstract class Lattice {
     public abstract void setBasis(double[][] b);
         
     public interface Site {
-        public Site makeSite(int[] i);
-        public Space.Coordinate firstAtom();
-        public void setFirstAtom(Space.Coordinate c);
+        public Space.AtomCoordinate firstAtom();
+        public void setFirstAtom(Space.AtomCoordinate c);
 //        public Linker firstUpNeighbor();
 //        public Linker firstDownNeighbor();
         public int[] coordinate();
-        public void setCoordinate(int[] i);
-        public double neighborIndex(Site s);
+        public void setCoordinate(int[] i, double[][] basis);
+        public double neighborIndex(Site s, int[] d);
     }
     
     public interface Point extends Site {

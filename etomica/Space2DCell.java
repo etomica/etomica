@@ -6,16 +6,16 @@ public class Space2DCell extends Space {
     
     public static final int D = 2;
     public final int D() {return D;}
-    private final LatticeSquare cells;
+    private LatticeSquare cells;  //want to declare final, but won't compile
     private int xCells, yCells;
     
     public Space2DCell() {
         xCells = yCells = 4;
-        cells = new LatticeSquare(cells.new Cell(new int[] {0,0}),xCells,yCells);
+        cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
     }
     public Space2DCell(int n) {
         xCells = yCells = n;
-        cells = new LatticeSquare(cells.new Cell(new int[] {0,0}),xCells,yCells);
+        cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
     }
 
     public Space.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
@@ -366,7 +366,7 @@ public class Space2DCell extends Space {
             cell = (LatticeSquare.Site)cells.sites()[ix][iy];
             if(cell != oldCell) {
                 if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
-                else {oldCell.firstAtom() = nextNeighbor; nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
+                else {oldCell.setFirstAtom(nextNeighbor); nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
                 setNextNeighbor(cell.firstAtom());
                 cell.setFirstAtom(this);
             }
@@ -379,9 +379,9 @@ public class Space2DCell extends Space {
         final AtomPair pair;
         Atom atom;
         private boolean hasNext;
-        private Atom neighborAtom;
-        private LatticeSquare.Cell cell;
-        private Coordinate coordinate;
+        private AtomCoordinate neighborAtom;
+        private LatticeSquare.Site cell, neighborCell;
+        private AtomCoordinate coordinate;
         private LatticeSquare.Linker nextLinker;
         public UpNeighborIterator(Space.Boundary b) {
             pair = new AtomPair((Boundary)b);
@@ -389,16 +389,19 @@ public class Space2DCell extends Space {
         }
         public UpNeighborIterator(Space.Boundary b, Atom a) {
             pair = new AtomPair((Boundary)b);
-            reset(a);
+            reset(a,null,null,null);
         }
         public boolean hasNext() {return hasNext;}
-        public void reset(Atom a) {
+        public void allDone() {hasNext = false;}
+        public void reset() {reset(atom,null,null,null);}
+        public void reset(Atom a, Atom d1, Atom d2) {reset(a, d1, d2, null);}
+        public void reset(Atom a, Atom d1, Atom d2, Atom d3) {
             atom = a;
-            coordinate = (Coordinate)a.coordinate();
+            coordinate = (AtomCoordinate)a.coordinate;
             pair.c1 = coordinate;
-            cell = coordinate.cell();
+            cell = coordinate.cell;
             nextLinker = cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
-            neighborAtom = atom.nextNeighbor();   //this is the next atom to be paired with the fixed atom
+            neighborAtom = (AtomCoordinate)coordinate.nextNeighbor();   //this is the next atom to be paired with the fixed atom
             hasNext = true;
             if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
             else {hasNext = true;}
@@ -411,15 +414,16 @@ public class Space2DCell extends Space {
                     return;
                 }
                 neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
-                neighborAtom = neighborCell.firstAtom();   //get first atom of another neighbor cell; this is null if cell is empty
+                neighborAtom = (AtomCoordinate)neighborCell.firstAtom;   //get first atom of another neighbor cell; this is null if cell is empty
                 nextLinker = nextLinker.next();
             }
         }
         public simulate.AtomPair next() {
-            pair.c2 = (Coordinate)nextNeighbor().coordinate();
+            pair.c2 = neighborAtom;
             pair.reset();
-            neighborAtom = neighborAtom.nextNeighbor();
+            neighborAtom = neighborAtom.nextNeighbor;
             if(neighborAtom == null) {advanceCell();}
+            return pair;
         }
     } //end of UpNeighborIterator
 
@@ -507,13 +511,5 @@ public class Space2DCell extends Space {
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
         public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
-    }
-    
-    public static final class ListIterator implements Atom.Iterator {
-        private boolean hasNext;
-        public boolean hasNext() {return hasNext;}
-        public simulate.Atom next() {}
-        
-        public void reset() {}
     }
 }

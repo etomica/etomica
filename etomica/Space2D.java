@@ -347,6 +347,17 @@ public class Space2D extends Space {
             return (c==null) ? null : c.atom();
         }
         public final Atom atom() {return atom;}
+        
+        
+        AtomCoordinate nextNeighbor, previousNeighbor;
+        public final void setNextNeighbor(Space.AtomCoordinate c) {
+            nextNeighbor = (AtomCoordinate)c;
+            if(c != null) {((AtomCoordinate)c).previousNeighbor = this;}
+        }
+        public final void clearPreviousNeighbor() {previousNeighbor = null;}
+        public final Space.AtomCoordinate nextNeighbor() {return nextNeighbor;}
+        public final Space.AtomCoordinate previousNeighbor() {return previousNeighbor;}
+
     } 
 
     //These iterators are identical in every Space class; they are repeated in each
@@ -435,11 +446,4 @@ public class Space2D extends Space {
         public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
     }
     
-    public static final class ListIterator implements Atom.Iterator {
-        private boolean hasNext;
-        public boolean hasNext() {return hasNext;}
-        public simulate.Atom next() {}
-        
-        public void reset() {}
-    }
 }

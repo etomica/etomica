@@ -4,19 +4,24 @@ public class LatticeSquare extends Lattice {
     
     public Site origin;
     public double[][] basis = {{1.0,0.0}, {0.0,1.0}};
-    private int columns, rows;
+    private int[] dimensions;
     private Site[][] sites;
 
-    public LatticeSquare(Site site, int nx, int ny) {
-        rows = ny;
-        columns = nx;
-        basis[0][0] = 1.0/(double)nx;    //square lattice
-        basis[1][1] = 1.0/(double)ny;
+    public LatticeSquare(Class siteType, int[] dim) {
+        dimensions = dim;
+        basis[0][0] = 1.0/(double)dimensions[0];    //square lattice
+        basis[1][1] = 1.0/(double)dimensions[1];
         Site last = null;
-        sites = new Site[nx][ny];
-        for(int j=0; j<ny; j++) {
-            for(int i=0; i<nx; i++) {
-                sites[i][j] = (Site)site.makeSite(new int[] {i,j});
+        sites = new Site[dimensions[0]][dimensions[1]];
+        for(int j=0; j<dimensions[1]; j++) {
+            for(int i=0; i<dimensions[0]; i++) {
+                try {
+                    sites[i][j] = (Site)siteType.newInstance();
+                } 
+                catch (InstantiationException e) {}
+                catch (IllegalAccessException e) {}
+                sites[i][j].setCoordinate(new int[] {i,j}, basis);
+//                sites[i][j] = (Site)site.makeSite(new int[] {i,j});
                 if(last != null) last.setNextSite(sites[i][j]);
                 last = sites[i][j];
             }
@@ -27,14 +32,15 @@ public class LatticeSquare extends Lattice {
     public final double[][] getBasis() {return basis;}
     public final void setBasis(double[][] b) {basis = b;}
     
-    public final int siteCount() {return rows*columns;}
+    public final int[] dimensions() {return dimensions;}
+    public final int siteCount() {return dimensions[0]*dimensions[1];}
     
     public final Site[][] sites() {return sites;}
     
     public void setupNeighbors() {
         for(Site s1=origin; s1!=null; s1=s1.nextSite()) {
             for(Site s2=s1.nextSite(); s2!=null; s2=s2.nextSite()) {
-                if (s1.neighborIndex(s2) < neighborIndexCutoff) {
+                if (s1.neighborIndex(s2,dimensions) < neighborIndexCutoff) {
                      s1.firstUpNeighbor = new Linker(s1.firstUpNeighbor,s2);  //first upNeighbor of s1 now points to what was the first upneighbor, and represents s2
                      s2.firstDownNeighbor = new Linker(s2.firstDownNeighbor,s1); //likewise for first downNeighbor of s2;
                 }
@@ -42,7 +48,7 @@ public class LatticeSquare extends Lattice {
         }
     }
     
-    public final static class Linker {
+    public static final class Linker {
         public final Linker next;
         public final Site site;
         public Linker(Linker n, Site s) {
@@ -53,42 +59,41 @@ public class LatticeSquare extends Lattice {
         public final Site site() {return site;}
     }
     
-    public class Site implements Lattice.Site {
-        private Space.Coordinate firstAtom;
+    public static class Site implements Lattice.Site {
+        public Space.AtomCoordinate firstAtom;
         private Linker firstUpNeighbor;
         private Linker firstDownNeighbor;
         private Site nextSite;
         
         private int[] coordinate;
-        public Site(int[] i) {setCoordinate(i);}
-        public final Lattice.Site makeSite(int[] i) {return new Site(i);}
-        public final Space.Coordinate firstAtom() {return firstAtom;}
-        public final void setFirstAtom(Space.Coordinate a) {firstAtom = a;}
+        public Site() {}
+        public final Space.AtomCoordinate firstAtom() {return firstAtom;}
+        public final void setFirstAtom(Space.AtomCoordinate a) {firstAtom = a;}
         public final Linker firstUpNeighbor() {return firstUpNeighbor;}
         public final Linker firstDownNeighbor() {return firstDownNeighbor;}
         public final int[] coordinate() {return coordinate;}
-        public final void setCoordinate(int[] i) {coordinate = i;}
+        public void setCoordinate(int[] i, double[][] basis) {coordinate = i;}
         public final Site nextSite() {return nextSite;}
         public final void setNextSite(Site s) {nextSite = s;}
-        public double neighborIndex(simulate.Lattice.Site ss) {
+        public double neighborIndex(simulate.Lattice.Site ss, int[] dimensions) {
             Site s = (Site)ss;
             int dx = Math.abs(s.coordinate()[0] - coordinate[0]);  
             int dy = Math.abs(s.coordinate()[1] - coordinate[1]);
-            if(2*dx > columns) dx -= columns;
-            if(2*dy > rows) dy -= rows;
+            if(2*dx > dimensions[0]) dx -= dimensions[0];
+            if(2*dy > dimensions[1]) dy -= dimensions[1];
             return (double)(dx*dx + dy*dy);
         }
     }
     
-    public class Point extends Site implements Lattice.Point {
+    public static class Point extends Site implements Lattice.Point {
         private double[] position;
-        public Point(int[] i) {
-            super(i);
+        public void setCoordinate(int[] i, double[][] basis) {
+            super.setCoordinate(i,basis);
             position[0] = coordinate()[0]*basis[0][0] + coordinate()[1]*basis[1][0];
             position[1] = coordinate()[0]*basis[0][1] + coordinate()[1]*basis[1][1];
         }
-        public double[] position() {return position;}
-        public double neighborIndex(simulate.Lattice.Site s) {
+        public final double[] position() {return position;}
+        public double neighborIndex(simulate.Lattice.Site s, int[] dimensions) {
             Point p = (Point)s;
             double dx = Math.abs(p.position()[0] - position[0]);
             double dy = Math.abs(p.position()[1] - position[1]);
@@ -98,11 +103,14 @@ public class LatticeSquare extends Lattice {
         }
     }
     
-    public final class Cell extends Point implements Lattice.Cell {
+    public static final class Cell extends Point implements Lattice.Cell {
         private final double[][] vertices = {{0.5,0.5},{-0.5,0.5},{0.5,-0.5},{-0.5,-0.5}};
-        private int nVertices = 4;
-        public Cell(int[] i) {
-            super(i);
+        private final int nVertices = 4;
+        private double volume;
+        public Cell() {}
+        public void setCoordinate(int[] i, double[][] basis) {
+            super.setCoordinate(i,basis);
+            volume = basis[0][0]*basis[1][1];   //square cell
             for(int k=0; k<nVertices; k++) {
                 vertices[k][0] *= basis[0][0];
                 vertices[k][1] *= basis[1][1];
@@ -112,7 +120,7 @@ public class LatticeSquare extends Lattice {
         }
         
         //Returns square distances between nearest vertices of the two cells
-        public double neighborIndex(simulate.Lattice.Site s) {
+        public double neighborIndex(simulate.Lattice.Site s, int[] dimensions) {
             Cell c = (Cell)s;
             double r2Min = Double.MAX_VALUE;
             for(int k1=0; k1<nVertices; k1++) {
@@ -127,7 +135,7 @@ public class LatticeSquare extends Lattice {
             return r2Min;
         }
         public double[][] vertices() {return vertices;}
-        public double volume() {return basis[0][0]*basis[1][1];}   //square cell
+        public double volume() {return volume;}   
     }
 }
     
