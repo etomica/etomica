@@ -109,7 +109,7 @@ public final class IteratorDirective implements java.io.Serializable {
     }
     
     public void setTargetAtoms(Atom[] atoms) {targetAtoms = atoms;}
-    public Atom[] targetAtoms() {return targetAtoms;}
+    public Atom[] getTargetAtoms() {return targetAtoms;}
     
     public Atom[] targetAtoms;
     

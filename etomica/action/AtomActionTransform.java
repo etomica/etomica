@@ -7,7 +7,7 @@ public class AtomActionTransform extends AtomAction {
     
     public static void doAction(AtomIterator iterator, Space.Vector r0, Space.Tensor transformMatrix) {
         while(iterator.hasNext()) {
-            iterator.next().coord.transform(r0, transformMatrix);
+            iterator.nextAtom().coord.transform(r0, transformMatrix);
         }
     }
     

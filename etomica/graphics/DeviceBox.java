@@ -268,7 +268,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
 	    Display display = new DisplayPhase();
 		
         Potential2 potential = new P2SquareWell();
-        potential.setSpecies(species, species);
+        sim.hamiltonian.potential.setSpecies(potential, new Species[] {species, species});
  //       Potential2 potential = new P2HardSphere(sim);
 		sim.elementCoordinator.go();
 

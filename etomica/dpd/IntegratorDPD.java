@@ -5,6 +5,7 @@ package etomica.dpd;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomIteratorLeafAtoms;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -72,7 +73,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
     
 	public boolean addPhase(Phase p) {
 		if(!super.addPhase(p)) return false;
-		atomIterator = p.makeAtomIterator();
+		atomIterator = new AtomIteratorLeafAtoms(p);
 		meterTemperature.setPhase(new Phase[] {p});
 		return true;
 	}
@@ -91,7 +92,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 
 		atomIterator.reset();              //reset iterator of atoms
 		while(atomIterator.hasNext()) {    //loop over all atoms
-			Atom a = atomIterator.next();  //  advancing positions full step
+			Atom a = atomIterator.nextAtom();  //  advancing positions full step
 			MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
 			Space.Vector r = a.coord.position();
 			Space.Vector p = a.coord.momentum();
@@ -109,7 +110,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 		//Finish integration step
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {     //loop over atoms again
-			Atom a = atomIterator.next();   //  finishing the momentum step
+			Atom a = atomIterator.nextAtom();   //  finishing the momentum step
 			Space.Vector p = a.coord.momentum();
 			MyAgent agent = (MyAgent)a.ia;
 			p.PEa1Tv1((0.5-lambdaV)*timeStep, agent.fOld);//p += f(old)*(1/2 - lambdaV)*dt
@@ -123,7 +124,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 	protected void doReset() {
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.next();
+			Atom a = atomIterator.nextAtom();
 			MyAgent agent = (MyAgent)a.ia;
 			agent.force.E(0.0);
 		}

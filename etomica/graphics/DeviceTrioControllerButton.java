@@ -182,7 +182,7 @@ public class DeviceTrioControllerButton extends Device {
         DisplayPhase displayPhase0  = new DisplayPhase();
         MeterTemperature meterEnergy = new MeterTemperature();
         DisplayTable table = new DisplayTable();
-            table.setWhichValues(new MeterAbstract.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE});
+            table.setWhichValues(new AccumulatorAverage.Type[] {AccumulatorAverage.MOST_RECENT, AccumulatorAverage.AVERAGE});
 
         DeviceTrioControllerButton button = new DeviceTrioControllerButton();
             button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"          

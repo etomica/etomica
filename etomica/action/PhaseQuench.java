@@ -41,7 +41,7 @@ public class PhaseQuench extends PhaseAction {
 		double scale = Math.sqrt(temperature/currentTemperature);
 		atomIterator.setList(phase.speciesMaster.atomList);
 		atomIterator.reset();
-		while(atomIterator.hasNext()) atomIterator.next().coord.momentum().TE(scale); //scale momentum
+		while(atomIterator.hasNext()) atomIterator.nextAtom().coord.momentum().TE(scale); //scale momentum
 	}
 
 
