@@ -39,15 +39,31 @@ public class MeterPotentialEnergy extends simulate.Meter
     }
   
   /**
-   * Computes total potential energy for atom, which must be in the list of atoms in phaseSpace
+   * Computes intermolecular contribution to potential energy for atom.  Returns zero if atom is not in phaseSpace.
+   * Does not include intramolecular contribution
    */
-/*    public final double currentValue(AtomC a) {
-      double pe = 0.0;
-      if(a.parentMolecule.nAtoms > 1) {pe += upListIntra(a) + downListIntra(a);}
-      pe += upListInter(a) + downListInter(a);
-      return pe;
+    public final double currentValue(Atom a) {
+        if(phaseSpace != a.phaseSpace()) {return 0.0;}  //also handles condition that phase contains no atoms
+        AtomPair.Iterator.A iterator = phaseSpace.makePairIteratorFull();
+        Potential2[] p2 = phaseSpace.potential2[a.getSpeciesIndex()];
+        double pe = 0.0;
+        if(a.parentMolecule != phaseSpace.firstMolecule()) { //loop from first atom to last one in molecule before a
+            iterator.reset(phaseSpace.firstAtom(),a.previousMoleculeLastAtom(),a,a); 
+            while(iterator.hasNext()) {
+                AtomPair pair = iterator.next();  //following line counts on iterator to put inner-looping atom as atom2
+                pe += p2[pair.atom2().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2()).energy(pair);
+            }
+        }
+        if(a.parentMolecule != phaseSpace.lastMolecule()) {  //loop from first atom in next molecule to last atom in phase
+            iterator.reset(a.nextMoleculeFirstAtom(),phaseSpace.lastAtom(),a,a);  
+            while(iterator.hasNext()) {
+                AtomPair pair = iterator.next();  //following line counts on iterator to put inner-looping atom as atom2
+                pe += p2[pair.atom2().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2()).energy(pair);
+            }
+        }
+        return pe;
     }
-*/
+
 
   /**
    * Computes total potential energy for atom (not present in phaseSpace), with all atoms in phaseSpace

@@ -44,6 +44,7 @@ public class PhaseSpace2D extends PhaseSpace {
         public void randomStep(double d) {x += (2.*random.nextDouble()-1.0)*d; y+= (2.*random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = random.nextDouble()*dx; y = random.nextDouble()*dy;}
+        public void setRandom(Vector u) {setRandom(u.x,u.y);}
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
@@ -149,6 +150,7 @@ public class PhaseSpace2D extends PhaseSpace {
             if(molecule.nAtoms == 1) {return;}
             do {c=c.nextCoordinate; c.translateBy(u);} while (c.atom!=molecule.lastAtom);
         }
+        public void displaceToRandom(PhaseSpace.Vector dim) {temp.setRandom((Vector)dim); displaceTo(temp);} 
         public void translateTo(PhaseSpace.Vector u) {
             updateR();  //update COM vector
             temp.E((Vector)u);  //temp = destination vector
@@ -315,7 +317,7 @@ public class PhaseSpace2D extends PhaseSpace {
         }
         public simulate.AtomPair next() {
             if(!hasNext) {return null;}
-            pair.c1 = outer;
+            pair.c1 = outer;   //c1 should always be outer
             pair.c2 = inner;
             if(inner == iLast) {                                     //end of inner loop
                 if(outer == oLast) {hasNext = false;}                //all done
@@ -345,7 +347,7 @@ public class PhaseSpace2D extends PhaseSpace {
             hasNext = (inner != null);
         }
         public simulate.AtomPair next() {
-            pair.c1 = outer;
+            pair.c1 = outer;   //c1 should always be outer
             pair.c2 = inner;
             if(inner == iLast) {                                     //end of inner loop
                 if(outer == oLast) {hasNext = false;}                //all done

@@ -12,6 +12,7 @@ public abstract class PhaseSpace extends Container {
         noGravity = true;
         add(new ConfigurationSequential());  //default configuration
         potentialEnergy = new MeterPotentialEnergy();
+        kineticEnergy = new MeterKineticEnergy();
         add(potentialEnergy);
     }
     
@@ -78,6 +79,7 @@ public abstract class PhaseSpace extends Container {
         public Molecule molecule();
         public MoleculeCoordinate nextCoordinate();
         public MoleculeCoordinate previousCoordinate();
+        public void displaceToRandom(Vector dim);
     }
         
  /**
@@ -314,6 +316,7 @@ public abstract class PhaseSpace extends Container {
   public Integrator integrator;
   
   public MeterPotentialEnergy potentialEnergy;
+  public MeterKineticEnergy kineticEnergy;
     
  /**
   * Size of Phase (width, height) in Angstroms

@@ -292,8 +292,8 @@ public abstract class Species extends Container {
         if(parentPhaseSpace != null) {
             int[] origin = new int[Simulation.D];
             double scale = 1.0;
-            origin[0] = (parentPhaseSpace.getSize().width - DisplayConfiguration.SIM2PIXELS*scale)/2;  //1.0 -> dimension.x
-            origin[1] = (parentPhaseSpace.getSize().height - DisplayConfiguration.SIM2PIXELS*scale)/2; //       dimension.y
+            origin[0] = (int)(parentPhaseSpace.getSize().width - DisplayConfiguration.SIM2PIXELS*scale*1.0)/2;  //1.0 -> dimension.x
+            origin[1] = (int)(parentPhaseSpace.getSize().height - DisplayConfiguration.SIM2PIXELS*scale*1.0)/2; //       dimension.y
             draw(g,origin,scale);
         }
     }

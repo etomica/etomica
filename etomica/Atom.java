@@ -62,6 +62,8 @@ public class Atom {
 
   public final double mass() {return type.mass();}
   public final double rm() {return type.rm();}
+  
+  public final PhaseSpace phaseSpace() {return parentMolecule.parentSpecies.parentPhaseSpace;}
 
   public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, color, coordinate);}
 

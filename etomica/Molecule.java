@@ -200,7 +200,7 @@ public class Molecule implements Serializable {
    *
    * @see replace
    */
-   public void inflate(double scale) {coordinate.inflate(scale);}
+ //  public void inflate(double scale) {coordinate.inflate(scale);}
 /*      Space.uEa1Tv1(dr,scale-1.0,COM());
       this.displace(dr);
    }*/

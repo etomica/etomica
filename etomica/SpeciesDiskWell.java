@@ -8,26 +8,16 @@ public class SpeciesDiskWell extends SpeciesDisks {
   Color wellColor;
 
   public SpeciesDiskWell() {
-    super();
-    setWellColor(Color.gray);
-    setLambda(1.5);
+    this(20,1);
+  }
+  public SpeciesDiskWell(int nM, int nA) {
+    super(nM, nA, new AtomType.Well(1.0,Color.black,0.1,1.5));
   }
   
-  void initializeMolecules() {
-    initializeMolecules(diameter, mass, colorScheme.getBaseColor(), lambda, wellColor);
-  }
-  void initializeMolecules(double d, double m, Color c, double l, Color w) {
-    setDiameter(d);    //call set methods to pass diameter and mass to atoms
-    setMass(m);
-    setColor(c);
-    setLambda(l);
-    setWellColor(w);
-  }
-
-  public void draw(Graphics g, int[] origin, double scale) {
-    double toPixels = scale*Phase.TO_PIXELS;
+/*  public void draw(Graphics g, int[] origin, double scale) {
+    double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
     double halfWell = radius*lambda;
-    Atom nextSpeciesAtom = lastAtom().getNextAtom();
+    Atom nextSpeciesAtom = lastAtom().nextAtom();
     int wellP = (int)(toPixels*diameter*lambda);
     int diameterP = (int)(toPixels*diameter);
     
@@ -61,11 +51,8 @@ public class SpeciesDiskWell extends SpeciesDisks {
         g.setColor(a.getColor());
         g.fillOval(xP,yP,diameterP,diameterP);
     }         
-  }
+  }*/
 
-  public double getLambda() {return lambda;}
-  public void setLambda(double lam) {lambda = lam;}
-
-  public Color getWellColor() {return wellColor;}
-  public void setWellColor(Color c) {wellColor = c;}
+  public double getLambda() {return ((AtomType.Well)protoType).lambda();}
+  public void setLambda(double lam) {((AtomType.Well)protoType).setLambda(lam);}
 }

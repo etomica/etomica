@@ -8,7 +8,7 @@ import java.util.*;
 public class Controller extends Container implements Runnable {
 
   public Integrator integrator;
-  public Phase phase;
+  public PhaseSpace phaseSpace;
   public Simulation parentSimulation;
   Thread runner;
   private boolean initialized = false;
@@ -23,7 +23,7 @@ public class Controller extends Container implements Runnable {
 //    super.add(i);
     this.integrator = i;
 
-    for(PhaseSpace p=parentSimulation.firstPhase(); p!=null; p=p.nextPhaseSpace()) {
+    for(PhaseSpace p=parentSimulation.firstPhaseSpace(); p!=null; p=p.nextPhaseSpace()) {
         i.registerPhaseSpace(p);
         p.gravity.addObserver(i);
         p.integrator = i;

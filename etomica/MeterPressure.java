@@ -22,7 +22,7 @@ public class MeterPressure extends simulate.Meter
     
     public void integrationIntervalAction(IntegrationIntervalEvent evt) {
         timeSum += evt.integrator.drawTimeStep * evt.integrator.integrationInterval;
-        updateStatistics(phase);}
+        updateStatistics(phaseSpace);}
 
     public double currentValue()
     {
@@ -30,8 +30,8 @@ public class MeterPressure extends simulate.Meter
         int count = 0;
         for(Species s=phaseSpace.firstSpecies(); s!=null; s=s.nextSpecies()) {
            if(s.speciesIndex == meterIndex) {
-              for(Atom a=s.firstAtom(); a!=terminationAtom(); a=a.nextAtom()) {
-                if(Atom.ia instanceof IntegratorHard.Agent) {
+              for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
+                if(a.ia instanceof IntegratorHard.Agent) {
                     IntegratorHard.Agent ia = (IntegratorHard.Agent)a.ia;
                     flux = 0.5*ia.pAccumulator*Constants.SCALE/(timeSum * Constants.SCALE * Constants.DEPTH);
                     ia.pAccumulator = 0.0;
@@ -39,8 +39,8 @@ public class MeterPressure extends simulate.Meter
                 }
               }  //else handle pressure for soft potential
               timeSum = 0.0;
-              fluxCalc=flux/(count*Constants.BAR2SIM);   //count should be total area instead of number of atoms
-              break;
+              flux /= count*Constants.BAR2SIM;   //count should be total area instead of number of atoms
+              break;  //out of loop over species (or is it only breaking out of if block?)
            }
         }
         

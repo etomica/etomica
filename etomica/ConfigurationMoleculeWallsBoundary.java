@@ -85,6 +85,6 @@ public class ConfigurationMoleculeWallsBoundary extends ConfigurationMolecule {
     }
         
     protected void computeDimensions() {
-        Space.uEa1(dim,1.0);  //no meaningful choice possible here.
+        dim.E(1.0);  //no meaningful choice possible here.
     }
 }

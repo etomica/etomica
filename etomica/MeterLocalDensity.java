@@ -52,8 +52,8 @@ public abstract class MeterLocalDensity extends simulate.Meter
     {
         if(moleFractionMode) {  //compute local mole fraction
             int totalSum = 0, speciesSum = 0;
-            for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
-                 if(this.contains(m) && !(m.firstAtom() instanceof AtomHardWall)) {
+            for(Molecule m=phaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
+                 if(this.contains(m) && !(m.firstAtom.type instanceof AtomType.Wall)) {
                     totalSum++;
                     if(m.getSpeciesIndex() == speciesIndex) speciesSum++;
                  }
@@ -64,11 +64,11 @@ public abstract class MeterLocalDensity extends simulate.Meter
         else {                 //compute local molar density
             int nSum = 0;
             if(speciesIndex == ALL_SPECIES) {   //total density
-              for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
-                 if(this.contains(m) && !(m.firstAtom() instanceof AtomHardWall)) nSum++;
+              for(Molecule m=phaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
+                 if(this.contains(m) && !(m.firstAtom.type instanceof AtomType.Wall)) nSum++;
               }}
             else {                              //species density
-              for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
+              for(Molecule m=phaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
                  if(this.contains(m) && m.getSpeciesIndex()==speciesIndex) nSum++;
                }
             }       

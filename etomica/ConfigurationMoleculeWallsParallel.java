@@ -4,6 +4,8 @@ import java.awt.Rectangle;
 
 /**
  * Places all walls parallel to each other, equally spaced
+ * 
+ * 2-D explicit
  */
 
 public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
@@ -54,7 +56,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             width = Integer.MAX_VALUE;
         }
         else {
-            x = (double)rect.x/Phase.TO_PIXELS;
+            x = (double)rect.x/DisplayConfiguration.SIM2PIXELS;
             width = rect.width;
         }
         if(longWall && vertical) {
@@ -62,15 +64,15 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             height = Integer.MAX_VALUE;
         }
         else {
-            y = (double)rect.y/Phase.TO_PIXELS;
+            y = (double)rect.y/DisplayConfiguration.SIM2PIXELS;
             height = rect.height;
         }
 //        int  width = (longWall && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if longWall, to species otherwise
 //        int height = (longWall && phase != null) ? phase.getBounds().height : rect.height;
 //        double x = (horizontal && longWall) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
 //        double y = (vertical && longWall)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
-        double w = (double)width/Phase.TO_PIXELS;
-        double h = (double)height/Phase.TO_PIXELS;
+        double w = (double)width/DisplayConfiguration.SIM2PIXELS;
+        double h = (double)height/DisplayConfiguration.SIM2PIXELS;
         int i = 0;
         double delta = 0.0;
         double xyNext = x;
@@ -86,25 +88,26 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             i = 0;
             xyNext = x;
             wh = h;
-        }
-        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {  //equally space all "wall atoms"
-            Space.uEa1(a.r,0.0);
-            a.r[i] = xyNext;
+        }                    //2D explicit
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {  //equally space all "wall atoms"
+            PhaseSpace2D.Vector r = (PhaseSpace2D.Vector)a.coordinate.position();
+            if(i==0) {r.x = xyNext;}
+            else {r.y = xyNext;}
             xyNext += delta;
-            ((AtomWall)a).setLength(wh);   //length of wall
-            ((AtomWall)a).setAngle(angle);
-            ((AtomWall)a).setTemperature(temperature);
+            ((AtomType.Wall)a.type).setLength(wh);   //length of wall
+            ((AtomType.Wall)a.type).setAngle(angle);
+            ((AtomType.Wall)a.type).setTemperature(temperature);
         }
     }
     
     protected void computeDimensions() {
         if(horizontal) {
-            dim[0] = ((AtomHardWall)parentSpecies.firstAtom()).getLength();
+            dim[0] = ((AtomType.Wall)parentSpecies.firstAtom().type).getLength();
             dim[1] = 0.0;
         }
         else if(vertical) {
             dim[0] = 0.0;
-            dim[1] = ((AtomHardWall)parentSpecies.firstAtom()).getLength();
+            dim[1] = ((AtomType.Wall)parentSpecies.firstAtom().type).getLength();
         }
         else {
             //does not handle walls that are neither horizontal nor vertical

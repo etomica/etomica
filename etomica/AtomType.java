@@ -48,7 +48,7 @@ public abstract class AtomType {
 
     
     // Disk-shaped atom.  Assumed to be in 2D
-    public final static class Disk extends AtomType {
+    public static class Disk extends AtomType {
         
         double diameter, radius;
         
@@ -65,7 +65,7 @@ public abstract class AtomType {
         *
         * @param d   new value for diameter
         */
-        public final void setDiameter(double d) {diameter = d; radius = 0.5*d;}
+        public void setDiameter(double d) {diameter = d; radius = 0.5*d;}
                 
         /**
         * Draws this atom using current values of its position, diameter and color.
@@ -91,26 +91,23 @@ public abstract class AtomType {
     }
     
     // Disk with a concentric well.  Assumed to be in 2D
-    public final static class Well extends AtomType {  //could extend disk, but class is simple enough not to
+    public final static class Well extends Disk {  
         
-        private double diameter, radius;          //size of core
         private double lambda;                    //diameter of well, in units of core diameter
         private double wellDiameter, wellRadius;  //size of well, in simulation units
         
         public Well(double m, Color c, double d, double l) {
-            super(m, c);
+            super(m, c, d);
             setDiameter(d);
             setLambda(l);
         }
                     
         public final double lambda() {return lambda;}
-        public final double radius() {return radius;}
-        public final double diameter() {return diameter;}
         public final double wellDiameter() {return wellDiameter;}
         public final double wellRadius() {return wellRadius;}
         
-        public final void setDiameter(double d) {diameter = d; radius = 0.5*d; setLambda(lambda);}
-        public final void setLambda(double l) {lambda = l; wellDiameter = lambda*diameter; wellRadius = 0.5*wellDiameter;}
+        public final void setDiameter(double d) {super.setDiameter(d); setLambda(lambda);}
+        public final void setLambda(double l) {lambda = l; wellDiameter = lambda*diameter(); wellRadius = 0.5*wellDiameter;}
                 
         /**
         * Draws this atom using current values of its position, diameter and color.
@@ -128,12 +125,14 @@ public abstract class AtomType {
             PhaseSpace2D.AtomCoordinate c2 = (PhaseSpace2D.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
 
+            //Draw core
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
             int yP = origin[1] + (int)(toPixels*(c2.r.y-radius));
             g.setColor(color);
             g.fillOval(xP,yP,sigmaP,sigmaP);
             
+            //Draw well
             sigmaP = (int)(toPixels*wellDiameter);
             xP = origin[0] + (int)(toPixels*(c2.r.x-wellRadius));
             yP = origin[1] + (int)(toPixels*(c2.r.y-wellRadius));

@@ -166,7 +166,7 @@ public class DisplayConfiguration extends Display {
         createOffScreen(wh);
         phaseSpace2D.inflate(rScale);
         for(Molecule m=phaseSpace2D.firstMolecule(); m!=null; m=m.nextMolecule()) {
-          m.inflate(rScale);
+          m.coordinate.inflate(rScale);
         }
         phaseSpace2D.integrator.initialize();
       }

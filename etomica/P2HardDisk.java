@@ -18,10 +18,6 @@ public class P2HardDisk extends Potential2 {
     setCollisionDiameter(collisionDiameter);  //sets up neighbor distances 
   }
   
-  public final boolean isNeighbor(Molecule m1, Molecule m2) {
-    return (space.r1Mr2_S(m1.COM(), m2.COM()) < squareNeighborRadius);
-  }
-  
 //  public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
   public final Potential getPotential(Atom a1, Atom a2) {return onlyPotential;}
 

@@ -13,9 +13,8 @@ public class MeterTemperature extends simulate.Meter
 
     public double currentValue()
     {
-        // This method is derived from class simulate.Meter
-        // to do: code goes here
-        return phase.getKineticTemperature() * Constants.SCALE * Constants.SCALE;
+        double ke = phaseSpace.kineticEnergy.currentValue();
+        return (2./(double)(phaseSpace.atomCount*Simulation.D))*ke*Constants.KE2T* Constants.SCALE * Constants.SCALE;
     }
 
 }

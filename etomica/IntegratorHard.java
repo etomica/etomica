@@ -220,7 +220,7 @@ public void initialize() {
         return new Agent(a);
     }
         
-    private class Agent implements Integrator.Agent {
+    public class Agent implements Integrator.Agent {  //need public so to use with instanceof
         public Atom atom;
         public double time0;  //time since last collision
         private double collisionTime = Double.MAX_VALUE; //time to next collision

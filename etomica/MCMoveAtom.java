@@ -13,10 +13,11 @@ public class MCMoveAtom extends MCMove {
         setStepSize(0.10);
     }
     
+    //under revision--- does not work for multiatomics, since intramolecular energy is not considered
     public void thisTrial(PhaseSpace phaseSpace) {
         double uOld, uNew;
         if(phaseSpace.atomCount==0) {return;}
-        int i = (int)(rand.nextDouble()*phaseSpace.nAtomTotal);
+        int i = (int)(rand.nextDouble()*phaseSpace.atomCount);
         Atom a = phaseSpace.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list

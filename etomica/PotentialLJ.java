@@ -23,7 +23,7 @@ public class PotentialLJ extends Potential implements PotentialSoft {
         }
     }
  
-    public double virial(PhaseSpace.AtomPair pair) {  //not carefully checked for correctness
+    public double virial(AtomPair pair) {  //not carefully checked for correctness
         double r2 = pair.r2();
         if(r2 > cutoffDiameterSquared) {return 0.0;}
         else {

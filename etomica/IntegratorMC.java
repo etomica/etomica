@@ -26,23 +26,23 @@ public class IntegratorMC extends Integrator {
         while((i-=trialMove.getFrequency()) >= 0) {
             trialMove = trialMove.getNextMove();
         }
-        trialMove.doTrial(firstPhase);
+        trialMove.doTrial(firstPhaseSpace);
     }
     
     public void initialize() {
         deployAgents();
         frequencyTotal = 0;
         for(MCMove m=firstMove; m!=null; m=m.getNextMove()) {
-            m.resetFrequency(firstPhase);
+            m.resetFrequency(firstPhaseSpace);
             frequencyTotal += m.getFrequency();
         }
     }
     
-    public IntegratorAgent makeAgent(Atom a) {
+    public Integrator.Agent makeAgent(Atom a) {
         return new Agent(a);
     }
     
-    private class Agent implements IntegratorAgent {
+    public class Agent implements Integrator.Agent {
         public Atom atom;
         public Agent(Atom a) {atom = a;}
     }
