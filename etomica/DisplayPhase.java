@@ -434,7 +434,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             //Draw all atoms
             Space.Boundary boundary = phase().boundary();
             for(Atom a = phase().firstAtom(); a!=null; a=a.nextAtom()) {
-  //              boundary.centralImage(a.coordinate);        //move atom to central image
                 a.type.draw(g,centralOrigin,toPixels, a);
             }
             //Draw overflow images if so indicated

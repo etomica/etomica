@@ -16,7 +16,7 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Atom a) {//may want to revise this for o instanceof Molecule
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
-//        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
+        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
     public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}

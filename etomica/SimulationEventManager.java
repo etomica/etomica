@@ -11,7 +11,7 @@ package etomica;
  */
 public class SimulationEventManager implements java.io.Serializable {
     
-    //A Linker class is used to construct a linked list of listeners. (say that 10 times quickly!)
+    //A Linker class is used to construct a linked list of listeners.
     private SimulationEventListener.Linker first, last;
     
     /**
@@ -46,9 +46,22 @@ public class SimulationEventManager implements java.io.Serializable {
 //probably ok to make not synchronized.  Addition and removal of listeners
 //while firing event does not disturb complete event firing, since the the link keeps its next/previous
 //handles when removed, and additions are made only to the end of the list
-    public void fireEvent(SimulationEvent event) {
+/*    public void fireEvent(SimulationEvent event) {
         for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
             link.listener.simulationAction(event);
         }
     }
+*/
+    public void fireEvent(PhaseEvent event) {
+        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
+            ((PhaseEventListener)link.listener).phaseAction(event);
+        }
+    }
+
+    public void fireEvent(ControllerEvent event) {
+        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
+            ((ControllerEventListener)link.listener).controllerAction(event);
+        }
+    }
+
 }

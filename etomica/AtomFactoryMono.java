@@ -19,6 +19,7 @@ public class AtomFactoryMono extends AtomFactory {
     }
 */    
     public void setType(AtomType t) {atomType = t;}
+    public AtomType type() {return atomType;}
     
     /**
      * Builds a single atom.

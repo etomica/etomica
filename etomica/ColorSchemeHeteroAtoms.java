@@ -1,13 +1,11 @@
 //includes a main method to demonstrate use and to test
 package etomica;
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Color;
 
 /**
  * Color scheme that permits different colors for each atom of a molecule.
- * @author David Kofke
  *
+ * @author David Kofke
  */
  
  //needs work to tie better with species
@@ -63,8 +61,6 @@ public class ColorSchemeHeteroAtoms extends ColorScheme {
      * Appropriate for system having only one species.  For multiple species, see ColorSchemeBySpecies
      */
     public static void main(String[] args) {
-        Frame f = new Frame();   //create a window
-        f.setSize(600,350);
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
 
@@ -81,13 +77,7 @@ public class ColorSchemeHeteroAtoms extends ColorScheme {
         colorScheme.setAtomColors(new Color[] {Color.red, Color.yellow, Color.blue});
         display.setColorScheme(colorScheme);
         //end of unique part
-		Simulation.instance.elementCoordinator.go(); 
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(WindowEvent e) {System.exit(0);}
-        });
-    }
+		sim.elementCoordinator.go(); 
+        Simulation.makeAndDisplayFrame(sim);         
+    }//end main
 }

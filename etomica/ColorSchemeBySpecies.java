@@ -3,7 +3,8 @@ package etomica;
 import java.awt.Color;
 
 /**
-* Color scheme that sets and uses a different color scheme for each species
+* Color scheme that sets and uses a different color scheme for each species.
+*
 * @author David Kofke
 */
 public class ColorSchemeBySpecies extends ColorScheme {

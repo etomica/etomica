@@ -1,5 +1,8 @@
 package etomica;
 
+import java.awt.Color;
+import etomica.units.Dimension;
+
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
  *
@@ -7,26 +10,72 @@ package etomica;
  * @see AtomType.OrientedSphere
  * 
  */
-public class SpeciesSpheresRotating extends SpeciesDisks implements EtomicaElement {
+public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
+    public double mass;
+    
+    public AtomType.OrientedSphere protoType;
+    //static method used to make factory on-the-fly in the constructor
+    private static AtomFactoryMono makeFactory(Simulation sim) {
+        AtomFactoryMono f = new AtomFactoryMono(sim);
+        AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        f.setType(type);
+        return f;
+    }
+        
     public SpeciesSpheresRotating() {
         this(Simulation.instance);
+    }
+    public SpeciesSpheresRotating(int n) {
+        this(Simulation.instance, n);
     }
     public SpeciesSpheresRotating(Simulation sim) {
         this(sim, Default.MOLECULE_COUNT);
     }
-    public SpeciesSpheresRotating(int nM) {
-        this(Simulation.instance, nM);
-    }
     public SpeciesSpheresRotating(Simulation sim, int nM) {
-        super(sim, nM, 1, new AtomType.OrientedSphere(Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE));
+        super(sim, makeFactory(sim));
+        protoType = (AtomType.OrientedSphere)((AtomFactoryMono)factory).type();
+        nMolecules = nM;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Molecules formed from spheres with an attached rotatable direction");
         return info;
     }
-
+              
+    // Exposed Properties
+    public final double getMass() {return protoType.mass();}
+    public final void setMass(double m) {
+        mass = m;
+        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+    }
+    public Dimension getMassDimension() {return Dimension.MASS;}
+                
+    public final double getDiameter() {return protoType.diameter();}
+    public void setDiameter(double d) {protoType.setDiameter(d);}
+    public Dimension getDiameterDimension() {return Dimension.LENGTH;}
+                    
+    public final Color getColor() {return protoType.color();}
+    public final void setColor(Color c) {protoType.setColor(c);}
+    
+    public static void main(String[] args) {
+        Simulation sim = new Simulation(new Space2D());
+        Simulation.instance = sim;
+	    IntegratorHard integrator = new IntegratorHard(sim);
+	    Species species = new SpeciesSpheresRotating(sim);
+	    species.setNMolecules(25);
+	    Phase phase = new Phase(sim);
+	    P2RoughSphere potential = new P2RoughSphere();
+	    Controller controller = new Controller(sim);
+	    Display display = new DisplayPhase(sim);
+//	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+//	    timer.setUpdateInterval(10);
+		sim.setBackground(java.awt.Color.yellow);
+		sim.elementCoordinator.go();
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
+        Simulation.makeAndDisplayFrame(sim);
+    }
     
 }
 

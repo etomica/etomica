@@ -217,7 +217,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
       * Event class that can indicate whether the controller is starting/finishing a predictor/corrector/production simulation.
       * Fired before and after performing a simulation for all phases.
       */
-     public final class Event extends SimulationEvent {
+     public final class Event extends ControllerEvent {
         private final boolean predictor;
         private final boolean corrector;
         private final boolean production;

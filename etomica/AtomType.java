@@ -5,7 +5,7 @@ import etomica.units.*;
 import etomica.electrostatics.*;
 
 /**
- * AtomType holds atom parameters, including the mass.  
+ * AtomType holds atom parameters.  
  * It is used to set the general features of the atom (e.g., whether it is a disk, wall, sphere, etc.),
  * and to prescribe how it is drawn to the screen.
  * AtomType is responsible for selecting the appropriate type of coordinate needed to describe the

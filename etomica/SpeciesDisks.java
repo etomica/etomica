@@ -5,23 +5,21 @@ import etomica.units.Dimension;
 /**
  * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
  * with each disk having the same mass and size (same type).
+ * 
+ * @author David Kofke
  */
 public class SpeciesDisks extends Species implements EtomicaElement {
 
-//  The atomType is not declared final here becuase it makes setting up the constructors easier,
-//  but effectively it cannot be changed once initialized; the instance is passed to the atoms, where
-//  it is declared final
-//  Note that the parameters of the type can be changed; only the instance of it is frozen once the atoms are made
-//    (this is the same behavior as declaring it final)
+    private double mass;
     public AtomType.Disk protoType;
-    private static AtomFactory makeFactory(Simulation sim, int na) {
+    //static method used to make factory on-the-fly in the constructor
+    private static AtomFactoryHomo makeFactory(Simulation sim, int na) {
         AtomFactoryMono f = new AtomFactoryMono(sim);
         AtomType type = new AtomType.Disk(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
-        AtomFactoryMulti fm = new AtomFactoryMulti(sim,f);
-        fm.setAtomsPerGroup(na);
- //       return fm;
-        return f;
+        AtomFactoryHomo fm = new AtomFactoryHomo(sim,f, na);
+        return fm;
+ //       return f;
     }
         
     public SpeciesDisks() {
@@ -35,19 +33,13 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     }
     public SpeciesDisks(Simulation sim, int n) {
         this(sim, n, 1);
-  /*      if(sim.space().D() == 1) {
-            protoType = new AtomType.Rod(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE);
-        }
-        else {
-            protoType = new AtomType.Disk(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE);
-        }*/
-        nMolecules = n;        
     }
     public SpeciesDisks(int nM, int nA) {
         this(Simulation.instance, nM, nA);
     }
     public SpeciesDisks(Simulation sim, int nM, int nA) {
         super(sim, makeFactory(sim, nA));
+        protoType = (AtomType.Disk)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
     }
     
@@ -57,8 +49,11 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     }
               
     // Exposed Properties
-    public final double getMass() {return protoType.mass();}
-    public final void setMass(double mass) {protoType.setMass(mass);}
+    public final double getMass() {return mass;}
+    public final void setMass(double m) {
+        mass = m;
+        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+    }
     public Dimension getMassDimension() {return Dimension.MASS;}
                 
     public final double getDiameter() {return protoType.diameter();}

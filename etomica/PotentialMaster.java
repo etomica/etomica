@@ -9,8 +9,6 @@ package etomica;
  */
 public class PotentialMaster extends PotentialGroup {
     
-//    private PotentialGroup parentGroup;
-    
     public PotentialMaster(Simulation sim) {
         super(sim);
     }

@@ -3,6 +3,8 @@ package etomica;
 /**
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.
  * Suitable for use in space of any dimension.
+ *
+ * @author David Kofke
  */
 public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
 
@@ -105,11 +107,11 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
 	    DisplayBox displayEnergy = new DisplayBox();
 	    displayEnergy.setMeter(meterEnergy);
 		Simulation.instance.setBackground(java.awt.Color.yellow);
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
+		Simulation.instance.elementCoordinator.go();
 		                                    
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
         potentialAgent.setIterator(new AtomPairIterator(phase));
+        
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
     

@@ -341,7 +341,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     public void addMolecule(Atom a, SpeciesAgent s) {
         if(a == null || s == null) return;
         s.addAtom(a);
-        iteratorFactory.addAtom(a);
     }
     
     /**
@@ -354,7 +353,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     public void removeMolecule(Atom a, SpeciesAgent s) {
         if(a == null || s == null) return;
         s.removeAtom(a);
-        iteratorFactory.deleteAtom(a);
     }
 
 //need a better way

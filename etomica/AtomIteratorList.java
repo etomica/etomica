@@ -1,7 +1,7 @@
 package etomica;
 
 /**
- * Generic iterator that permits addition and removal of atomss
+ * Generic iterator that permits addition and removal of atoms
  *
  * @author David Kofke
  */

@@ -19,8 +19,6 @@ package etomica;
         public IteratorFactory(Phase p) {phase = p;}
         public AtomIterator makeAtomIterator() {return phase.makeAtomIterator();}
 
-        public void addAtom(Atom a) {}
-        public void deleteAtom(Atom a) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved
         public void reset() {}
         public Phase phase() {return phase;}

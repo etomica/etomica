@@ -147,15 +147,15 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
         }
     }        
     
-    public synchronized void addListener(SimulationEventListener listener) {
+    public synchronized void addListener(ControllerEventListener listener) {
         eventManager.addListener(listener);
     }
 
-    public synchronized void removeListener(SimulationEventListener listener) {
+    public synchronized void removeListener(ControllerEventListener listener) {
         eventManager.removeListener(listener);
     }
 
-    protected void fireEvent(SimulationEvent event) {
+    protected void fireEvent(ControllerEvent event) {
         eventManager.fireEvent(event);
     }    
     

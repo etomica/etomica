@@ -22,7 +22,7 @@ public abstract class PhaseAction extends etomica.Action {
     public Phase getPhase() {return phase;}
         
     public void actionPerformed(PhaseEvent pe) {
-        actionPerformed(pe.getPhase());
+        actionPerformed(pe.phase());
     }
     
     public void actionPerformed() {actionPerformed(phase);}

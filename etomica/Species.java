@@ -13,6 +13,9 @@ import etomica.utility.LinkedList;
 
 
      /**
+      *
+      * This description is out-of-date.
+      *
       * A Species is a collection of identically formed Molecules.  Subclasses of
       * Species differ in the type of molecules that they collect.  Subclassing
       * Species is the primary way to define new types of molecules (Molecule is
@@ -54,20 +57,17 @@ import etomica.utility.LinkedList;
       * 
       * @author David Kofke
       * @author C. Daniel Barnes
-      * @see Molecule
-      * @see Simulation#getPotential
-      * @see Species.Agent
-      * @see Species.Reservoir
+      * @see SpeciesAgent
       */
      
-public abstract class Species implements Simulation.Element, java.io.Serializable {
+public class Species implements Simulation.Element, java.io.Serializable {
 
     public static final String VERSION = "Species:01.07.09";
-    private static int instanceCount = 0;
+    private static int instanceCount = 0;//used to assign unique index to each species
     
     private Simulation parentSimulation;
     private boolean added = false;
-    protected AtomFactory factory;
+    protected final AtomFactory factory;
     public final int index;
     
     public Species(Simulation sim, AtomFactory factory) {
@@ -105,6 +105,16 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     protected int nMolecules;
     
     /**
+     * Accessor method for nominal number of molecules in each phase.  Actual 
+     * number of molecules of this species in a given phase is obtained via
+     * the getNMolecules method of Species.Agent
+     * 
+     * @return Nominal number of molecules in each phase
+     * @see Species.Agent#getNMolecules
+     */
+    public int getNMolecules() {return nMolecules;}
+    
+    /**
      * Sets the number of molecules of this species for each phase.
      * Propagates the change to agents of this species in all phases, so
      * it creates the given number of molecules in every phase.
@@ -114,22 +124,48 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      */
     public void setNMolecules(int n) {
         nMolecules = n;
+        allAgents(new AtomAction() {public void actionPerformed(Atom a) {((SpeciesAgent)a).setNMolecules(nMolecules);}});
+    }
+    
+    /**
+     * Performs the given action on all of this species agents in all phases.
+     */
+    public void allAgents(AtomAction action) {
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
-            SpeciesAgent a = (SpeciesAgent)e.next();
-            a.setNMolecules(n);
+            action.actionPerformed((Atom)e.next());
         }
     }
     
     /**
-     * Accessor method for nominal number of molecules in each phase.  Actual 
-     * number of molecules of this species in a given phase is obtained via
-     * the getNMolecules method of Species.Agent
-     * 
-     * @return Nominal number of molecules in each phase
-     * @see Species.Agent#getNMolecules
+     * Performs the given action on all of this species molecules in all phases.
      */
-    public int getNMolecules() {return nMolecules;}
+    public void allMolecules(AtomAction action) {
+        Iterator e = agents.values().iterator();
+        while(e.hasNext()) {
+            SpeciesAgent agent = (SpeciesAgent)e.next();
+            for(Atom a=agent.firstMolecule(); a!=null; a=a.nextAtom()) {
+                action.actionPerformed(a);
+            }
+        }
+    }
+    
+    /**
+     * Performs the given action on all of this species (leaf) atoms in all phases.
+     */
+    public void allAtoms(AtomAction action) {
+        Iterator e = agents.values().iterator();
+        while(e.hasNext()) {
+            SpeciesAgent agent = (SpeciesAgent)e.next();
+            Atom a = agent.firstLeafAtom();
+            if(a == null) return;
+            Atom last = agent.lastLeafAtom();
+            do {
+                action.actionPerformed(a);
+                a = a.nextAtom();
+            } while(a != last);
+        }
+    }
     
     /**
      * Accessor method of the name of this species
@@ -185,8 +221,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     * A name to be associated with the species.  Use is optional.
     */
     String name;
-          
-              
+
     /**
      * Hashtable to associate agents with phases
      */

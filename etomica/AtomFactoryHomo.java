@@ -5,23 +5,42 @@ package etomica;
  *
  * @author David Kofke
  */
-public class AtomFactoryMulti extends AtomFactory {
+public class AtomFactoryHomo extends AtomFactory {
     
     private AtomFactory childFactory;
-    private int atomsPerGroup = 1;
+    private int atomsPerGroup;
     private final AtomType.Group groupType = new AtomType.Group(this);
     private Configuration configuration;
     
     /**
-     * @param factory the factory that makes the children held by the 
-                      each group built by this factory.
+     * @param factory the factory that makes each of the identical children.
      */
-    public AtomFactoryMulti(Simulation sim, AtomFactory factory) {
+    public AtomFactoryHomo(Simulation sim, AtomFactory factory) {
+        this(sim, factory, 1);
+    }
+    /**
+     * @param factory the factory that makes each of the identical children.
+     * @param atoms the number of identical children per group (default is 1).
+     */
+    public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms) {
+        this(sim, factory, atoms, new ConfigurationLinear(sim.space()));
+    }
+    /**
+     * @param factory the factory that makes each of the identical children.
+     * @param atoms the number of identical children per group (default is 1).
+     * @param config the configuration applied to each group that is built (default is Linear).
+     */
+    public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms,
+                            Configuration config) {    
         super(sim);
         childFactory = factory;
-        configuration = new ConfigurationLinear(sim.space());
+        atomsPerGroup = atoms;
+        configuration = config;
     }
     
+    /**
+     * Constructs a new group.
+     */
     public Atom build() {
         AtomGroup group = new AtomGroup(parentSimulation.space(), groupType);
         for(int i=0; i<atomsPerGroup; i++) {
@@ -30,6 +49,12 @@ public class AtomFactoryMulti extends AtomFactory {
         configuration.initializeCoordinates(group);
         return group;
     }
+    
+    /**
+     * Returns the subfactory that produces each of the identical atoms
+     * in the group made by this factory.
+     */
+    public AtomFactory childFactory() {return childFactory;}
     
     public boolean producesAtomGroups() {return true;}
     
@@ -63,7 +88,7 @@ public class AtomFactoryMulti extends AtomFactory {
      * @param na The new number of atoms per molecule
      */
     public void setAtomsPerGroup(int na) {
-        if(na == atomsPerGroup) return;  //do nothing is value isn't changings
+        if(na == atomsPerGroup) return;  //do nothing if value isn't changings
         atomsPerGroup = na;
 //        if(parentSimulation == null) {return;}
 /*        Iterator e = agents.values().iterator();
@@ -80,5 +105,5 @@ public class AtomFactoryMulti extends AtomFactory {
      */
      public int getAtomsPerGroup() {return atomsPerGroup;}
 
-}//end of AtomFactoryMulti
+}//end of AtomFactoryHomo
     

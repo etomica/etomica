@@ -3,11 +3,12 @@ package etomica;
 /**
  * Interface for an object that can be registered as a listener to another simulation element.
  * Can be managed by a SimulationEventManager.
+ *
+ * @author David Kofke
  */
- 
 public interface SimulationEventListener extends java.util.EventListener {
 
-    public void simulationAction(SimulationEvent event);
+//    public void simulationAction(SimulationEvent event);
 
     /**
      * Class used to construct a two-way linked list of listeners.

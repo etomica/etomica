@@ -17,10 +17,17 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     public String getVersion() {return "DisplayTable:01.05.29/"+super.getVersion();}
 
     public JTable table;
-  //  Box panel;
     javax.swing.JPanel panel;
-    
     private boolean showLabels = true;
+    
+        //structures used to adjust precision of displayed values
+	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+    private final javax.swing.table.DefaultTableCellRenderer numberRenderer =
+        new javax.swing.table.DefaultTableCellRenderer() { 
+            public void setValue(Object value) { 
+        		setText((value == null) ? "" : formatter.format(value)); 
+	        }
+        };
         
     public DisplayTable() {
         this(Simulation.instance);
@@ -29,6 +36,8 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         super(sim);
         setupDisplay();
         setLabel("Data");
+        numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
+        setPrecision(4);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -48,6 +57,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         if(ySource == null || ySource.length == 0) return;
         MyTableData tableSource = new MyTableData();   //inner class, defined below
         table = new JTable(tableSource);
+        table.setDefaultRenderer(Number.class, numberRenderer);
         panel.add(new JScrollPane(table));
         doUpdate();
         
@@ -65,6 +75,16 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
      */
     public boolean isShowLabels() {return showLabels;}
             
+    /**
+     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
+     */
+    public int getPrecision() {return formatter.getMaximumFractionDigits();}
+    /**
+     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
+     */
+    public void setPrecision(int n) {
+	    formatter.setMaximumFractionDigits(n);
+    }
     public void repaint() {table.repaint();}
 
     public Component graphic(Object obj) {return panel;}
@@ -127,6 +147,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         table.setDatumSources(pMeter);
         table.addDatumSources(nMeter);
         table.setWhichValues(new MeterAbstract.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE});
+        table.setPrecision(7);
         
         Simulation.makeAndDisplayFrame(sim);
     }//end of main

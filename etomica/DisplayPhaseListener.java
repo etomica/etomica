@@ -60,7 +60,7 @@ public interface DisplayPhaseListener extends EventListener {
         public void displayPhaseAction(DisplayPhaseEvent dpe) {
             MouseEvent mouseEvent = dpe.getMouseEvent();
             if(mouseEvent == null) return;
-            Atom atom = dpe.getAtom();
+            Atom atom = dpe.atom();
             if(atom == null) return;
             switch(mouseEvent.getID()) {
                 case MouseEvent.MOUSE_PRESSED:
