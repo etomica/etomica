@@ -31,7 +31,7 @@ public class HsMc2d extends Simulation {
 	    display = new DisplayPhase(this);
 	    meterCycles = new MeterCycles(this);
 	    displayCycles = new DisplayBox(this,meterCycles);
-		setBackground(java.awt.Color.yellow);
+		panel().setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
     }
     

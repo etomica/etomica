@@ -74,7 +74,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         display.setColorScheme(colorScheme);
         //end of unique part
 		Simulation.instance.elementCoordinator.go(); 
-        f.add(Simulation.instance);         //access the static instance of the simulation to
+        f.add(Simulation.instance.panel());         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();

@@ -1,7 +1,8 @@
 package etomica;
 
 /**
-* Loops over the atoms in the bond list of a given atom.
+* Loops over the atoms in the bond list of a given atom, which
+* is identified via the setBasis method.
 *
 * @author David Kofke
 */
@@ -107,7 +108,7 @@ public class AtomIteratorBonds implements AtomIterator {
     }
 
     /**
-     * Sets basis to given atom, and sets hasNext to false (must perform a separate call to reset
+     * Sets basis to be given atom, and sets hasNext to false (must perform a separate call to reset
      * before commencing iteration).
      */
     public void setBasis(Atom atom) {

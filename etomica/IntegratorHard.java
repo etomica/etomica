@@ -258,7 +258,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	    timer.setUpdateInterval(10);
 	    MeterRDF meterRDF = new MeterRDF();
 	    DisplayPlot plot = new DisplayPlot();
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
 		Simulation.instance.elementCoordinator.go(); 
 		
 		potential12.setSpecies(speciesSpheres1, speciesSpheres2);

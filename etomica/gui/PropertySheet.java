@@ -407,7 +407,7 @@ class PropertySheetPanel extends JPanel {
 	        Class type = property.getPropertyType();  //Type (class) of this property
 	        Method getter = property.getReadMethod(); //method used to read value of property in this object
 	        Method setter = property.getWriteMethod();//method used to set value of property
-	        // Only display read/write properties.
+	        // Display only read/write properties.
 	        if (getter == null || (setter == null && !(parentNode.object() instanceof Meter)) || type == Class.class) {
 		        return null;
 	        }
@@ -429,6 +429,9 @@ class PropertySheetPanel extends JPanel {
 	            }
 	            else if(etomica.MCMove[].class.isAssignableFrom(type)) {
 	                editor = new McMoveEditor((etomica.IntegratorMC)parentNode.object());
+	            }
+	            else if(etomica.SimulationElement.class.isAssignableFrom(type)) {
+	                editor = new etomica.SimulationElementEditor(type);
 	            }
 	            else {
         	        //property is a dimensioned number

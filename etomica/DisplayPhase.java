@@ -125,9 +125,9 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
                     if(DeviceConfigurationEditor.exists) return;
                     Device editor = new DeviceConfigurationEditor(DisplayPhase.this);
-                    parentSimulation().add(editor.graphic(null));
-                    parentSimulation().validate();
-                    parentSimulation().repaint();
+                    parentSimulation().panel().add(editor.graphic(null));
+                    parentSimulation().panel().validate();
+                    parentSimulation().panel().repaint();
                 }
             }
         });

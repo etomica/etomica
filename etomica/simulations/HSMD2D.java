@@ -28,7 +28,7 @@ public class HSMD2D extends Simulation {
 	    display = new DisplayPhase(this);
 	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
 	    timer.setUpdateInterval(10);
-		setBackground(java.awt.Color.yellow);
+		panel().setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
 		
   //      potential.setIterator(new AtomPairIterator(phase));

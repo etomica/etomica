@@ -1,7 +1,6 @@
 //This class includes a main method to demonstrate its use
 package etomica;
 
-import javax.swing.JPanel;
 import etomica.units.UnitSystem;
 
 //Java2 imports
@@ -23,7 +22,7 @@ import etomica.utility.Iterator;
  *
  * @author David Kofke
  */
-public class Simulation extends javax.swing.JPanel implements java.io.Serializable {
+public class Simulation implements java.io.Serializable {
     
     public String getVersion() {return "Simulation:01.07.25";}
     /**
@@ -42,6 +41,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     
     public PotentialCalculationEnergySum energySum;
     
+    private SimulationPanel simulationPanel;
+    
    /**
     * Object describing the nature of the physical space in which the simulation is performed
     */
@@ -55,12 +56,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     //default unit system for I/O (internal calculations are all done in simulation units)
     private static UnitSystem unitSystem = new UnitSystem.Sim();
     
-	public final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridBagLayout());
-//    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
-    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridBagLayout());
-//    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.FlowLayout());
-
     /**
      * A static instance of a Simulation, for which the current value at any time is
      * used as a default simulation in many places.
@@ -87,30 +82,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         elementLists.put(MeterAbstract.class, new LinkedList());
         elementLists.put(Device.class, new LinkedList());
         elementCoordinator = new Mediator(this);
-        setSize(800,550);
-        setLayout(new java.awt.FlowLayout());
-        add(devicePanel);
-        add(displayBoxPanel);
-        add(displayPanel);
-/*        setLayout(new java.awt.BorderLayout());
-        add(devicePanel, java.awt.BorderLayout.NORTH);
-        add(displayPanel, java.awt.BorderLayout.EAST);
-        add(displayBoxPanel, java.awt.BorderLayout.WEST);*/
-/*        setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-        gbc.gridx = 0;
-        add(devicePanel, gbc);
-        add(displayBoxPanel, gbc);
-        gbc.gridx = 1;
-        add(displayPanel, gbc);*/
-        //workaround for JTabbedPane bug in JDK 1.2
-        displayPanel.addChangeListener(
-            new javax.swing.event.ChangeListener() {
-                public void stateChanged(javax.swing.event.ChangeEvent event) {
-                    displayPanel.invalidate();
-                    displayPanel.validate();
-                }
-        });
     }//end of constructor
     
     /**
@@ -164,6 +135,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public final LinkedList potentialList() {return (LinkedList)elementLists.get(Potential.class);}
     public final LinkedList displayList() {return (LinkedList)elementLists.get(Display.class);}
     public final LinkedList deviceList() {return (LinkedList)elementLists.get(Device.class);}
+    public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
   
     int register(SimulationElement element) {
 //        if(hamiltonian == null || element == hamiltonian.potential) return;
@@ -280,7 +252,10 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * A visual display of the simulation via a JPanel.
      * This may become more important if Simulation itself is revised to not extend JPanel.
      */
-     public javax.swing.JPanel panel() {return this;}
+     public SimulationPanel panel() {
+        if(simulationPanel == null) simulationPanel = new SimulationPanel(this);
+        return simulationPanel;
+     }
      
      /**
       * Returns the mediator that coordinates the elements of the simulation.
@@ -344,7 +319,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
 		                                    
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
         Simulation.makeAndDisplayFrame(Simulation.instance);
         
      //   controller.start();

@@ -87,6 +87,7 @@ public class Space3D extends Space implements EtomicaElement {
         public void TE(int i, double a) {if (i==0) x*=a; else if (i==1) y*=a; else z*=a;}
         public void TE(Vector u) {x *= u.x; y *= u.y; z *= u.z;}
         public void DE(double a) {x /= a; y /= a; z /= a;}
+        public void DE(Vector u) {x /= u.x; y /= u.y ; z /= u.z;}
         public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; WORK.z = z+u1.z; return WORK;}
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; WORK.z = z-u1.z; return WORK;}
         public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; WORK.z = z*u1.z; return WORK;}

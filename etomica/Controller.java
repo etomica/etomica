@@ -29,7 +29,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
   /**
    * Thread used to run the controller
    */
-    transient Thread runner;
+    protected transient Thread runner;
     private boolean initialized = false;
     private boolean autoStart = false;
     private int maxSteps;

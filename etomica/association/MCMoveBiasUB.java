@@ -9,6 +9,7 @@ public class MCMoveBiasUB extends MCMove {
     private AssociationManager associationManager;
     private int Ni, Nai;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 
     public MCMoveBiasUB(IntegratorMC parentIntegrator, BiasVolume bv) {
         super(parentIntegrator);
@@ -20,10 +21,10 @@ public class MCMoveBiasUB extends MCMove {
         associationManager = new AssociationManager(bv);
     }
     
-    public void thisTrial() {
+    public boolean thisTrial() {
         
         int N = phase.moleculeCount();
-        if(N < 2) return;
+        if(N < 2) return false;
         /*
         choose bonding or unbonding
         */
@@ -53,7 +54,7 @@ public class MCMoveBiasUB extends MCMove {
             uNew = potential.set(phase).calculate(iteratorDirective.set(atomA), energy.reset()).sum();
             if(uNew == Double.MAX_VALUE) {
                 atomA.coord.replace(); 
-                return;
+                return false;
             }
             
             deltaU = uNew - uOld;
@@ -65,7 +66,7 @@ public class MCMoveBiasUB extends MCMove {
         }//end bonding
         else { // unbonding
         
-            atomA = associationManager.randomAssociatededAtom();
+            atomA = associationManager.randomAssociatedAtom();
             ni = associationManager.associationCount(atomA);
             Nai = associationManager.associatedAtomCount();
             deltai = (ni == 0) ? 0 : 1;
@@ -77,7 +78,7 @@ public class MCMoveBiasUB extends MCMove {
             uNew = potential.set(phase).calculate(iteratorDirective.set(atomA), energy.reset()).sum();
             if(uNew == Double.MAX_VALUE) {
                 atomA.coord.replace(); 
-                return;
+                return false;
             }
             
             deltaU = uNew - uOld;
@@ -99,9 +100,10 @@ public class MCMoveBiasUB extends MCMove {
         if ( chi < Simulation.random.nextDouble()) {// reject
             atomA.coord.replace();
             associationManager.update(atomA);
-            return;
+            return false;
         }
-        nAccept++;   //accept 
+        nAccept++;   //accept
+        return true;
     }//end thisTrial
  
 }//end of MCMoveBiasUB

@@ -121,7 +121,7 @@ public class MCMoveRotateMolecule extends MCMove {
 //        integratorMC1.addIntervalListener(phase1);
      //  controller1.add(integratorMC1);
         
-		Simulation.instance.setBackground(java.awt.Color.blue);		
+		Simulation.instance.panel().setBackground(java.awt.Color.blue);		
 	//	((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
     //    ((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(6,10);
         Simulation.makeAndDisplayFrame(Simulation.instance);

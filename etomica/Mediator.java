@@ -476,16 +476,16 @@ public class Mediator implements java.io.Serializable {
                 final java.awt.Component component = display.graphic(null);
                 if(component == null) return; //display is not graphic
                 if(display instanceof DisplayBox) {
-                    mediator.parentSimulation().displayBoxPanel.add(component, gbcBox);
+                    mediator.parentSimulation().panel().displayBoxPanel.add(component, gbcBox);
                 }
                 else {
-                    mediator.parentSimulation().displayPanel.add(display.getLabel(),component);
+                    mediator.parentSimulation().panel().displayPanel.add(display.getLabel(),component);
                     //add a listener to update the tab label if the name of the display changes
                     display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
                         public void propertyChange(java.beans.PropertyChangeEvent evt) {
                             if(evt.getPropertyName().equals("label")) {
-                                int idx = mediator.parentSimulation.displayPanel.indexOfComponent(component);
-                                mediator.parentSimulation().displayPanel.setTitleAt(idx,evt.getNewValue().toString());
+                                int idx = mediator.parentSimulation.panel().displayPanel.indexOfComponent(component);
+                                mediator.parentSimulation().panel().displayPanel.setTitleAt(idx,evt.getNewValue().toString());
                             }
                         }
                     });
@@ -534,10 +534,10 @@ public class Mediator implements java.io.Serializable {
             public void add(Device device) {
                 java.awt.Component component = device.graphic(null);
                 if(device instanceof DeviceTable) {
-                    mediator.parentSimulation().displayPanel.add(component);
+                    mediator.parentSimulation().panel().displayPanel.add(component);
                 }
                 else {
-                    mediator.parentSimulation().devicePanel.add(component,gbc);
+                    mediator.parentSimulation().panel().devicePanel.add(component,gbc);
                 }
             }
         }//end of Default

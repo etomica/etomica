@@ -130,7 +130,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 	    displayPhase1.setColorScheme(color1);
 	    displayPhase2.setColorScheme(color2);
 	    
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
 		
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main

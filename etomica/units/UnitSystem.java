@@ -57,8 +57,12 @@ public abstract class UnitSystem implements java.io.Serializable {
         public Unit dipole() {return new Unit(Debye.UNIT);}  //??
         public Unit energy() {return new Unit(Joule.UNIT);}
         public Unit temperature() {return new Unit(Kelvin.UNIT);}
-        public Unit pressure(int D) {return new Unit(Bar.UNIT);}  //??
-        public Unit volume(int D) {return new Unit(CubicMeter.UNIT);} //??
+        public Unit pressure(int D) {return (D==2) ?
+            new Unit(new BaseUnitPseudo3D.Pressure(Bar.UNIT)) :
+            new Unit(Bar.UNIT);}
+        public Unit volume(int D) {return (D==2) ?
+            new Unit(new BaseUnitPseudo3D.Volume(CubicMeter.UNIT)) :
+            new Unit(CubicMeter.UNIT);}
     }
     
     /**

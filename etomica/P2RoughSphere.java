@@ -106,7 +106,7 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
 	    meterEnergy.setPhase(phase);
 	    DisplayBox displayEnergy = new DisplayBox();
 	    displayEnergy.setMeter(meterEnergy);
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
 		Simulation.instance.elementCoordinator.go();
 		                                            
         Simulation.makeAndDisplayFrame(Simulation.instance);

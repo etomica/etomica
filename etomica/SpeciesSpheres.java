@@ -99,7 +99,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
 	    meterEnergy.setPhase(phase);
 	    DisplayBox displayEnergy = new DisplayBox();
 	    displayEnergy.setMeter(meterEnergy);
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    

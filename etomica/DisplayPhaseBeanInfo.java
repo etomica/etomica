@@ -7,7 +7,7 @@ import java.beans.*;
 public class DisplayPhaseBeanInfo extends SimpleBeanInfo {
     
     static {
-        PropertyEditorManager.registerEditor(Phase.class, PhaseEditor.class);
+    //    PropertyEditorManager.registerEditor(Phase.class, PhaseEditor.class);
         //PropertyEditorManager.registerEditor(Unit.class, DeviceUnitEditor.class);
     }
     

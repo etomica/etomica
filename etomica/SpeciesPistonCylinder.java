@@ -373,7 +373,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 	    P2HardSphere P2HardSphere1 = new P2HardSphere();
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
         
         //part unique to this class
 	    IntegratorHard integratorHard1 = new IntegratorHardField();

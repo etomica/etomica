@@ -210,7 +210,7 @@ public class FileActions {
 	            // Ask the Wrapper to serialize the "naked" bean.
 	            // as in copy()
 	            JApplet applet = new JApplet();
-	            applet.getContentPane().add(Simulation.instance);
+	            applet.getContentPane().add(Simulation.instance.panel());
 	            oos.writeObject(applet);//Simulation.instance);
 	            oos.close();
 	        } 

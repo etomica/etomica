@@ -141,7 +141,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         potential.setIterator(new AtomPairIterator(phase));
 //        potential.set(species.getAgent(phase));
 		
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
         Simulation.makeAndDisplayFrame(Simulation.instance);
         		                                    
         rdfTable.setDataSources(rdf);

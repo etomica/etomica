@@ -217,7 +217,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 	    timer.setUpdateInterval(10);
 	//    integratorGear4.setTimeStep(0.005);
 	    integratorGear4.setSleepPeriod(2);
-		Simulation.instance.setBackground(java.awt.Color.yellow);
+		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
 
         Meter ke = new MeterKineticEnergy();
         Meter temp = new MeterTemperature();
