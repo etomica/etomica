@@ -5,7 +5,9 @@
 package etomica.action;
 
 import etomica.Phase;
+import etomica.PhaseEvent;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.space.Vector;
 
 /**
  * Performs actions that cause volume of system to expand, with molecule
@@ -22,6 +24,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
 		super("Inflate");
 		moleculeIterator = new AtomIteratorAllMolecules();
 		setScale(1.0);
+        inflateEvent = new PhaseEvent(this,PhaseEvent.BOUNDARY_INFLATE);
 	}
 
 	/**
@@ -66,10 +69,13 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
 	 */
 	public void actionPerformed() {
 		if(phase == null) return;
-		phase.boundary().inflate(scale);
+        Vector dimensions = phase.boundary().dimensions();
+        dimensions.TE(scale);
+        phase.boundary().setDimensions(dimensions);
+        phase.boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
 		moleculeIterator.reset();
 		while (moleculeIterator.hasNext()) {
-			moleculeIterator.nextAtom().coord.inflate(scale);
+			moleculeIterator.nextAtom().coord.position().TE(scale);
 		}
 	}
 
@@ -85,7 +91,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
 	}
 
 	private AtomIteratorAllMolecules moleculeIterator;
-
+	private PhaseEvent inflateEvent;
 	private double scale = 1.0;
 
 }
