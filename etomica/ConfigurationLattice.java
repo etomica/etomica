@@ -25,15 +25,6 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	}
 
 	/**
-	 * Constructor for ConfigurationLattice.
-	 * @param sim
-	 */
-	public ConfigurationLattice(Simulation sim, BravaisLattice lattice) {
-		super(sim);
-		this.lattice = lattice;
-	}
-
-	/**
 	 * @see etomica.Configuration#initializePositions(etomica.AtomIterator)
 	 */
 	public void initializePositions(AtomIterator[] iterators) {
@@ -64,6 +55,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 
    // Place molecules  
 		iterator.reset();
+        siteIterator.reset();
 		while(iterator.hasNext()) {
 			Atom a = iterator.nextAtom();
 			//initialize coordinates of child atoms
@@ -81,22 +73,22 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	private boolean assigningSitesToAtoms = false;
 	private int siteIndex = -1;
 
-	public static void main(String[] args) {
-		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space3D());
-		Default.ATOM_SIZE = 5.0;
-		Space space = sim.space;
-		Phase phase = new Phase(space);
-		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
-		int k = 2;
-		species.setNMolecules(4*k*k*k);
-		etomica.graphics.ColorSchemeByType.setColor(species, java.awt.Color.red);
-		Crystal crystal = new CrystalFcc(space);
-		ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
-		phase.setConfiguration(configuration);
-		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
-		sim.elementCoordinator.go();
-		sim.makeAndDisplayFrame();
-	}
+//	public static void main(String[] args) {
+//		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space3D());
+//		Default.ATOM_SIZE = 5.0;
+//		Space space = sim.space;
+//		Phase phase = new Phase(space);
+//		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
+//		int k = 2;
+//		species.setNMolecules(4*k*k*k);
+//		etomica.graphics.ColorSchemeByType.setColor(species, java.awt.Color.red);
+//		Crystal crystal = new CrystalFcc(space);
+//		ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
+//		phase.setConfiguration(configuration);
+//		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
+//		sim.elementCoordinator.go();
+//		sim.makeAndDisplayFrame();
+//	}
 	/**
 	 * Returns the resizeLatticeToFitVolume flag.
 	 * @return boolean
