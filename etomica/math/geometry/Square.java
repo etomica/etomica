@@ -5,30 +5,30 @@
 package etomica.math.geometry;
 
 import etomica.Space;
-import etomica.Space3D;
+import etomica.Space2D;
 
 /**
  * @author kofke
  *
- * A geometric cube.
+ * A geometric square.
  */
-public class Cube extends Polyhedron {
+public class Square extends Polyhedron {
 
     /**
-     * Constructs a cube of unit size.
+     * Constructs a square of unit size.
      */
-    public Cube() {
+    public Square() {
         this(1.0);
     }
     
     /**
-     * Constructs a cube with edge length having the given value.
+     * Constructs a square with edge length having the given value.
      * @param size edge length of the cube
      */
-    public Cube(double size) {
+    public Square(double size) {
         super();
-        vertices = new Space3D.Vector[8];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new Space3D.Vector();
+        vertices = new Space2D.Vector[4];
+        for(int i=0; i<vertices.length; i++) vertices[i] = new Space2D.Vector();
         setSize(size);
     }
 
@@ -36,7 +36,7 @@ public class Cube extends Polyhedron {
      * Returns size^3.
      */
     public double volume() {
-        return size*size*size;
+        return size*size;
     }
 
     /**
@@ -46,14 +46,10 @@ public class Cube extends Polyhedron {
      * but if doing so be careful to update them if any transformations are done to the lattice.
      */
     public Space.Vector[] vertex() {
-        vertices[0].E(n,n,n);
-        vertices[1].E(n,n,p);
-        vertices[2].E(n,p,n);
-        vertices[3].E(n,p,p);
-        vertices[4].E(p,n,n);
-        vertices[5].E(p,n,p);
-        vertices[6].E(p,p,n);
-        vertices[7].E(p,p,p);
+        vertices[0].E(n,n);
+        vertices[1].E(n,p);
+        vertices[2].E(p,n);
+        vertices[3].E(p,p);
         return vertices;
     }//end of vertex
 
@@ -64,8 +60,7 @@ public class Cube extends Polyhedron {
     public boolean inCell(Space.Vector v) {
         double x = v.x(0);
         double y = v.x(1);
-        double z = v.x(2);
-        return (x>=n) && (x<=p) && (y>=n) && (y<=p) && (z>=n) && (z<=p);
+         return (x>=n) && (x<=p) && (y>=n) && (y<=p);
     }
     
     /**
@@ -84,6 +79,6 @@ public class Cube extends Polyhedron {
     }
     private double size;
     private double n, p;//n = -size/2, p = +size/2
-    private final Space3D.Vector[] vertices;
+    private final Space2D.Vector[] vertices;
 
 }
