@@ -196,7 +196,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
         AtomIteratorList iterator = new AtomIteratorList(siteList);
         iterator.reset();
         while(iterator.hasNext()) {
-            Site site = (Site)iterator.next();
+            Site site = (Site)iterator.nextAtom();
             site.neighborManager().setupNeighbors(siteList, criterion);
         }
         eventManager.fireEvent(resetNbrEvent);
@@ -210,7 +210,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
         iteratorsites.reset();
         int i = 0;
         while (iteratorsites.hasNext()){
-            Atom site = iteratorsites.next();
+            Atom site = iteratorsites.nextAtom();
             r[i++].E(site.coord.position());
         }
         return r;
@@ -326,7 +326,8 @@ public static class Factory extends AtomFactory {
             new LatticeFactoryCubic(space, siteFactory, group.getDimensions(), group.getLatticeConstant());
         for(int i=0; i<4; i++) subFactory.makeAtom((AtomTreeNodeGroup)group.node);
         //set up siteList
-        AtomIteratorTree leafIterator = new AtomIteratorTree(group);
+        AtomIteratorTree leafIterator = new AtomIteratorTree();
+        leafIterator.setRoot(group);
         leafIterator.reset();
         group.siteList.clear();
         group.siteList.addAll(leafIterator);
@@ -357,7 +358,7 @@ public static class Factory extends AtomFactory {
             int i = 0;
             Space.Vector[] dr = unitCell(latticeConstant);
             while(iterator.hasNext()) {
-                iterator.next().coord.translateTo(dr[i++]);
+                iterator.nextAtom().coord.translateTo(dr[i++]);
             }
         }
     
@@ -422,25 +423,25 @@ public static class Factory extends AtomFactory {
         AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
         iterator.reset();
         while(iterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(iterator.next().coord.position().toString()+" ");
+            System.out.print(iterator.nextAtom().coord.position().toString()+" ");
         }
         System.out.println();
         
         System.out.println("Same, using allAtoms method");
-        AtomAction printSites = new AtomAction() {
+        AtomActive printSites = new AtomActive() {
             public void actionPerformed(Atom s) {
                 System.out.print(s.coord.position().toString()+" ");
        //         System.out.println(((Site)s).latticeCoordinate()[1]);
                 if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
             }
         };
-        iterator.allAtoms(printSites);
+ //       iterator.allAtoms(printSites);
         System.out.println();
         
         System.out.println();
         System.out.println("Changing dimensions");
         lattice.setDimensions(new int[] {nx, ny+1, nz});
-        iterator.allAtoms(printSites);
+//        iterator.allAtoms(printSites);
         System.out.println();
         
         Atom testSite = lattice.site(new int[] {0,1,0,1});
@@ -449,13 +450,13 @@ public static class Factory extends AtomFactory {
         System.out.println();
         System.out.println("Translating lattice by (-1.0, 2.0, 0.0)");
         lattice.coord.translateBy(Space.makeVector(new double[] {-1.0, 2.0, 0.0}));
-        iterator.allAtoms(printSites);
+//        iterator.allAtoms(printSites);
         System.out.println();
  
         System.out.println();
         System.out.println("Translating to origin");
         lattice.shiftFirstToOrigin();
-        iterator.allAtoms(printSites);
+//        iterator.allAtoms(printSites);
         System.out.println();
    /*     
         System.out.print("Accessing site (1,1): ");

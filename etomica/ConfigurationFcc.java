@@ -22,7 +22,7 @@ public class ConfigurationFcc extends Configuration {
         if(iterator.size() == 0) {return;}
         if(iterator.size() == 1) {
             iterator.reset();
-            iterator.next().coord.translateTo(space.origin());
+            iterator.nextAtom().coord.translateTo(space.origin());
             return;
         }
     
@@ -38,7 +38,7 @@ public class ConfigurationFcc extends Configuration {
         int i = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            Atom a = iterator.next();
+            Atom a = iterator.nextAtom();
             //initialize coordinates of child atoms
             try {//may get null pointer exception when beginning simulation
                 a.creator().getConfiguration().initializeCoordinates(a);
@@ -60,7 +60,7 @@ public class ConfigurationFcc extends Configuration {
         iteratorsites.reset();
         int i = 0;
         while (iteratorsites.hasNext()&& i < n){
-            Atom site = iteratorsites.next();
+            Atom site = iteratorsites.nextAtom();
             r[i].E(site.coord.position());
             i++ ;
         }

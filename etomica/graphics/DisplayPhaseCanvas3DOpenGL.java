@@ -261,7 +261,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 
     AtomIteratorList iter = new AtomIteratorList(displayPhase.getPhase().speciesMaster.atomList);
     while(iter.hasNext()) {
-      Atom a = iter.next();
+      Atom a = iter.nextAtom();
       atoms[i/3] = a;
       vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
       vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;

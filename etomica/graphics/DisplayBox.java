@@ -17,7 +17,6 @@ import javax.swing.JLabel;
  
 public class DisplayBox extends Display implements etomica.units.Dimensioned, DatumSource.User, EtomicaElement, javax.swing.event.ChangeListener {
     
-    public String getVersion() {return "DisplayBox:01.07.16/"+Display.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */

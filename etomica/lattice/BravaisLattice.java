@@ -192,7 +192,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     	Atom site = null;
     	double r2min = Double.MAX_VALUE;
     	while(iterator.hasNext()) {
-    		Atom a = iterator.next();
+    		Atom a = iterator.nextAtom();
     		double r2 = a.coord.position().Mv1Squared(r);
     		if(r2 < r2min) {
     			r2min = r2;
@@ -361,7 +361,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         iN = new int[D];
         NbrCriterion nbrCriterion = new NbrCriterion();
         while(iterator.hasNext()) {
-            nbrCriterion.root = (Site)iterator.next();
+            nbrCriterion.root = (Site)iterator.nextAtom();
             i0 = nbrCriterion.root.latticeCoordinate();
             nbrCriterion.nbrList.clear();
             for(n=0; n<nbrCount; n++) {
@@ -478,7 +478,8 @@ protected static class Factory extends AtomFactoryTree {
         super.build(atom);
         BravaisLattice group = (BravaisLattice)atom;
         group.factory = this;
-        AtomIteratorTree leafIterator = new AtomIteratorTree(group);
+        AtomIteratorTree leafIterator = new AtomIteratorTree();
+        leafIterator.setRoot(group);
         leafIterator.reset();
         group.siteList.clear();
         group.siteList.addAll(leafIterator);
@@ -528,7 +529,7 @@ protected static class Factory extends AtomFactoryTree {
         AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
         iterator.reset();
         while(iterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(iterator.next().coord.position().toString()+" ");
+            System.out.print(iterator.nextAtom().coord.position().toString()+" ");
         }
         System.out.println();
         
@@ -540,7 +541,7 @@ protected static class Factory extends AtomFactoryTree {
                 if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
             }
         };
-        iterator.allAtoms(printSites);
+ //       iterator.allAtoms(printSites);
         System.out.println();
         
         System.out.println();
@@ -549,7 +550,7 @@ protected static class Factory extends AtomFactoryTree {
         lattice.update();
  //       lattice.setPrimitiveVector(new Space.Vector[] {Space.makeVector(new double[] {0.,1.}),
  //                                                      Space.makeVector(new double[] {0.5,0.})});
-        iterator.allAtoms(printSites);
+ //       iterator.allAtoms(printSites);
         System.out.println();
         
         Atom testSite = lattice.site(new int[] {1,1});
@@ -558,13 +559,13 @@ protected static class Factory extends AtomFactoryTree {
         System.out.println();
         System.out.println("Translating lattice by (-1.0, 2.0)");
         lattice.coord.translateBy(Space.makeVector(new double[] {-1.0, 2.0}));
-        iterator.allAtoms(printSites);
+ //       iterator.allAtoms(printSites);
         System.out.println();
  
         System.out.println();
         System.out.println("Translating to origin");
         lattice.shiftFirstToOrigin();
-        iterator.allAtoms(printSites);
+ //       iterator.allAtoms(printSites);
         System.out.println();
    /*     
         System.out.print("Accessing site (1,1): ");
@@ -606,7 +607,7 @@ protected static class Factory extends AtomFactoryTree {
         System.out.println();
         
         System.out.println("All neighbors of this site:");
-        nbrIterator.reset(IteratorDirective.BOTH);
+//        nbrIterator.reset(IteratorDirective.BOTH);
         while(nbrIterator.hasNext()) {  //print out coordinates of each site
             System.out.print(nbrIterator.next().toString()+" ");
         }
@@ -640,7 +641,7 @@ protected static class Factory extends AtomFactoryTree {
         System.out.println();
         
         System.out.println("All neighbors of this site:");
-        nbrIterator.reset(IteratorDirective.BOTH);
+ //       nbrIterator.reset(IteratorDirective.BOTH);
         while(nbrIterator.hasNext()) {  //print out coordinates of each site
             System.out.print(nbrIterator.next().toString()+" ");
         }

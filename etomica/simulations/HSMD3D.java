@@ -42,7 +42,7 @@ public class HSMD3D extends SimulationGraphic {
     etomica.Controller controller0  = new etomica.Controller();
     new DeviceTrioControllerButton(this, controller0);
     etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
-	potentialHardSphere0.setSpecies(speciesSpheres0);
+    this.hamiltonian.potential.setSpecies(potentialHardSphere0, new Species[] {speciesSpheres0,speciesSpheres0});
 //    etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
       speciesSpheres0.setNMolecules(108);
 //      speciesSpheres0.setColor(new java.awt.Color(0,255,0));
@@ -57,8 +57,8 @@ public class HSMD3D extends SimulationGraphic {
  //     integratorHard0.setIsothermal(true);
  //     integratorHard0.setTemperature(1500.);
  	MeterPressureHard meterPressure = new MeterPressureHard();
- 	DisplayBox box = new DisplayBox();
- 	box.setDatumSource(meterPressure);
+// 	DisplayBox box = new DisplayBox();
+// 	box.setDatumSource(meterPressure);
     mediator().go();
     phase0.setDensity(0.5);
     System.out.println(phase0.getAgent(speciesSpheres0).coord.momentum().toString());

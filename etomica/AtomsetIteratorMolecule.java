@@ -32,7 +32,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
 	 * formed from molecules of the species; in this case the species may be the
 	 * same instance (resulting in intra-species pair iteration) or different
 	 * instances (resulting in inter-species pair iteration).  If null, zero, or more than
-	 * two species are specified, an InvalidArgumentException is thrown.
+	 * two species are specified, an IllegalArgumentException is thrown.
 	 */
 	public AtomsetIteratorMolecule(Species[] species) {
 		super(makeIterator(species));
@@ -41,7 +41,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
 		basisSize = species.length;
 		agents = new SpeciesAgent[basisSize];
 		targetAtoms = new Atom[nBody()];
-		ignoreDirection = basisSize == 1 || species[0] == species[1];
+		ignoreDirection = (basisSize == 1) || (species[0] == species[1]);
 	}
 
 	/**
