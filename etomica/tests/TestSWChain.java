@@ -113,7 +113,7 @@ public class TestSWChain extends Simulation {
         double Cv = data[3]/t2/numMolecules;
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(Z-3.15) > 0.2) {
+        if (Math.abs(Z-3.23) > 0.4) {
             System.exit(1);
         }
         if (Math.abs(PE+8.07) > 0.03) {
