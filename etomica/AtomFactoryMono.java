@@ -11,6 +11,7 @@ public class AtomFactoryMono extends AtomFactory {
     
     public AtomFactoryMono(Space space) {
         super(space);
+        setType(new AtomType.Sphere(this));//default
     }
     
     //can't pass atomtype to constructor because atomtype needs this in its constructor

@@ -46,8 +46,13 @@ public final class AtomIteratorList implements AtomIterator {
     }
     public Atom getBasis(){return null;}//no implementation
 
+    /**
+     * Performs action on all atoms.
+     */
+     //needs development to perform action according to settings of terminator etc.
     public void allAtoms(AtomAction action){
-        for (AtomLinker e = header.next; e != header; e = e.next) action.actionPerformed(e.atom);
+        for (AtomLinker e = header.next; e != header; e = e.next) 
+            if(e.atom != null) action.actionPerformed(e.atom);
     }
     
     /**

@@ -261,15 +261,12 @@ public static final class Sequencer extends AtomSequencer implements AbstractLat
 /**
  * A factory that makes Sites of type AtomCell
  */
-private static final class AtomCellFactory implements SiteFactory {
+/*private static final class AtomCellFactory implements SiteFactory {
     public Site makeSite(AbstractLattice parent, AbstractLattice.Coordinate coord) {
-        if(!(coord instanceof BravaisLattice.Coordinate)) {
-            throw new IllegalArgumentException("IteratorFactoryCell.AtomCellFactory: coordinate must be of type BravaisLattice.Coordinate");
-        }
         AbstractCell cell = ((Lattice)parent).makeWignerSeitzCell((AbstractLattice.PositionCoordinate)coord);
         return new AtomCell((Lattice)parent, cell);
     }
-}//end of AtomCellFactory
+}*///end of AtomCellFactory
     
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -281,7 +278,7 @@ private static final class AtomCell extends AbstractCell {
     AbstractCell cell;
     private AtomLinker.Tab[] firstTab, lastTab;
     public AtomCell(Lattice parent, AbstractCell cell) {
-        super(parent, (AbstractLattice.PositionCoordinate)cell.coordinate());
+//        super(parent, (AbstractLattice.PositionCoordinate)cell.coordinate());
         this.cell = cell;
 //        color = Constants.RandomColor();
 //            position = (Space2D.Vector)coord.position();

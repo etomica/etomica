@@ -12,7 +12,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
 
     public Atom atom() {return atom;}
         
-    public AtomGroup parentGroup() {
+    public Atom parentGroup() {
         return parentGroup;
     }
     public AtomTreeNodeGroup parentNode() {
@@ -32,14 +32,17 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         return (parentNode.atom() instanceof SpeciesAgent) ? this.atom : parentNode.parentMolecule();
     }
     
-    public void setParentGroup(AtomGroup parent) {
-        parentGroup = parent;
-        parentNode = (parent != null) ? (AtomTreeNodeGroup)parent.node : null;
+    public void setParent(Atom parent) {setParent((AtomTreeNodeGroup)parent.node);}
+    
+    public void setParent(AtomTreeNodeGroup parent) {
+        parentNode = parent;
+        parentGroup = (parent != null) ? parent.atom : null;
         if(parentNode != null) {
             depth = parentNode.depth() + 1;
             parentPhase = parentNode.parentPhase();
         }
     }
+        
 
     public void setDepth(int d) {
         depth = d;
@@ -184,7 +187,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             throw new NullPointerException("Attempting to add null Atom in AtomTreeNodeGroup.addAtom");
         }
         //set up links within this group
-        aNew.node.setParentGroup((AtomGroup)atom);
+        aNew.node.setParent(this);
         aNew.node.setDepth(depth+1);
         
         if(childAtomCount() > 0) { //siblings
@@ -231,7 +234,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         //childList.remove(a.seq); //could do this if method not private in AtomList
         
         removeAtomNotify(a);
-        a.node.setParentGroup(null);//must follow notify for SpeciesMaster moleculeCount to be updated
+        a.node.setParent((AtomTreeNodeGroup)null);//must follow notify for SpeciesMaster moleculeCount to be updated
     }//end of removeAtom
 
     /**
@@ -266,14 +269,14 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      * Searches the atom hierarchy up from (and not including) the given group 
      * to find the closest (leaf) atom in that direction.
      */
-    private static Atom findNextLeafAtom(AtomGroup a) {
-        AtomGroup parent = a; //search up siblings first
+    private static Atom findNextLeafAtom(Atom a) {
+        Atom parent = a; //search up siblings first
         while(parent != null) {
-            AtomGroup uncle = (AtomGroup)parent.nextAtom();
+            Atom uncle = parent.nextAtom();
             while(uncle != null) {
                 Atom first = uncle.node.firstLeafAtom();
                 if(first != null) return first; //found it
-                uncle = (AtomGroup)uncle.nextAtom();
+                uncle = uncle.nextAtom();
             }
             parent = parent.node.parentGroup();
         }
@@ -285,14 +288,14 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      * to find the closest (leaf) atom in that direction.
      * The first leaf atom of the given group will have the returned atom as its previous atom. 
      */
-    private static Atom findPreviousLeafAtom(AtomGroup a) {
-        AtomGroup parent = a;
+    private static Atom findPreviousLeafAtom(Atom a) {
+        Atom parent = a;
         while(parent != null) {
-            AtomGroup uncle = (AtomGroup)parent.previousAtom();
+            Atom uncle = parent.previousAtom();
             while(uncle != null) {
                 Atom last = uncle.node.lastLeafAtom();
                 if(last != null) return last;
-                uncle = (AtomGroup)uncle.previousAtom();
+                uncle = uncle.previousAtom();
             }
             parent = parent.node.parentGroup();
         }
@@ -304,7 +307,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     protected int atomIndex;
     protected int leafAtomCount;
     private AtomTreeNodeGroup parentNode;
-    private AtomGroup parentGroup;
+    private Atom parentGroup;
     private Phase parentPhase;
     
     //childlist is public, but should not add/remove atoms except via node's methods.

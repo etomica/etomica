@@ -42,10 +42,18 @@ public abstract class Configuration implements java.io.Serializable {
      * Initializes positions and momenta of the given atom group.
      */
     public void initializeCoordinates(Atom group) {
-        initializePositions(new AtomIteratorSequential(group));
+        if(group.node.isLeaf()) throw new IllegalArgumentException("Error in Configuration.initializeCoordinates:  Attempt to initialize child coordinates of leaf atom");
+        initializePositions(new AtomIteratorList(((AtomTreeNodeGroup)group.node).childList));
         initializeMomenta(group);
     }
     
+    /**
+     * Initializes positions of the given atom group.
+     */
+    public void initializePositions(Atom group) {
+        if(group.node.isLeaf()) throw new IllegalArgumentException("Error in Configuration.initializeCoordinates:  Attempt to initialize child coordinates of leaf atom");
+        initializePositions(new AtomIteratorList(((AtomTreeNodeGroup)group.node).childList));
+    }
     /**
      * Initializes positions and momenta of the given atom groups.
      */

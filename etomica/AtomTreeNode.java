@@ -21,7 +21,7 @@ package etomica;
 
 public interface AtomTreeNode {
     
-    public AtomGroup parentGroup();
+    public Atom parentGroup();
     public AtomTreeNodeGroup parentNode();
     public Atom parentMolecule();
     public SpeciesAgent parentSpeciesAgent();
@@ -62,7 +62,9 @@ public interface AtomTreeNode {
     
     public boolean isLeaf();
     
-    public void setParentGroup(AtomGroup group);
+//    public void setParentGroup(AtomGroup group);
+    public void setParent(Atom parent);
+    public void setParent(AtomTreeNodeGroup parentNode);
  
     public interface Factory {
         public AtomTreeNode makeNode(Atom atom);

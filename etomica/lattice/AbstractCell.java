@@ -1,13 +1,13 @@
 package etomica.lattice;
-import etomica.Space;
+import etomica.*;
 
 /**
  * A Site with vertices and a volume.
  */
 public abstract class AbstractCell extends Site {
     
-    public AbstractCell(AbstractLattice parent, AbstractLattice.PositionCoordinate coord) {
-        super(parent, coord);
+    public AbstractCell(Space space, AtomType type) {
+        super(space, type);
         //position null at this point
 //        if(coord.position().D() != this.D()) { //define an exception for this (DimensionConflictException ?)
 //            System.out.println("Dimension conflict in Cell constructor");

@@ -19,9 +19,9 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
 
     public Atom atom() {return atom;}
         
-    public AtomGroup parentGroup() {
+    public Atom parentGroup() {
         return parentGroup;
-   //     return (parentNode != null) ? (AtomGroup)parentNode.atom() : null;
+   //     return (parentNode != null) ? parentNode.atom() : null;
     }
     
     public AtomTreeNodeGroup parentNode() {
@@ -36,10 +36,15 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
         return (parentNode.atom() instanceof SpeciesAgent) ? this.atom : parentNode.parentMolecule();
     }
     
-    public void setParentGroup(AtomGroup parent) {
-        parentGroup = parent;
-        parentNode = (parent != null) ? (AtomTreeNodeGroup)parent.node : null;
-        if(parentNode != null) depth = parentNode.depth() + 1;
+    public void setParent(Atom parent) {setParent((AtomTreeNodeGroup)parent.node);}
+    
+    public void setParent(AtomTreeNodeGroup parent) {
+        parentNode = parent;
+        parentGroup = (parent != null) ? parent.atom : null;
+        if(parentNode != null) {
+            depth = parentNode.depth() + 1;
+            //parentPhase = parentNode.parentPhase();
+        }
     }
 
     public void setDepth(int d) {
@@ -171,7 +176,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     }
     
     private AtomTreeNodeGroup parentNode;
-    private AtomGroup parentGroup;
+    private Atom parentGroup;
     private Phase parentPhase;
     private final Atom atom;
     private int leafCount;

@@ -1,7 +1,7 @@
 package etomica.lattice;
 import etomica.Space;
 
-public class LatticeCubic extends Lattice {
+public class LatticeCubic extends BravaisLattice {
     
     /**
      * Create a cubic Bravais lattice (same number of sites in each dimension) of dimension "d" 
