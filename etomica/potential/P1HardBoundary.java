@@ -1,12 +1,15 @@
 //includes main method
 package etomica.potential;
 
+import java.awt.Color;
+
 import etomica.Atom;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.graphics.Drawable;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -25,7 +28,7 @@ import etomica.space.Vector;
  //of the phase by the parent potential, since this is probably a common situation for
  //one-body potentials
  
-public class P1HardBoundary extends Potential1 implements PotentialHard {
+public class P1HardBoundary extends Potential1 implements PotentialHard, Drawable {
     
     private double collisionRadius = 0.0;
     private boolean isothermal = false;
@@ -33,6 +36,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     private Atom atom;
     private double lastVirial;
     private final Vector work;
+    private int[] pixPosition;
+    private int[] thickness;
     
     public P1HardBoundary() {
         this(Simulation.getDefault().space);
@@ -42,6 +47,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         super(space);
         temperature = Default.TEMPERATURE;
         work = space.makeVector();
+        isActiveDim = new boolean[space.D()][2];
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -81,12 +87,26 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
             if(vx == 0.0) continue;
             double rx = work.x(i);
             double dx = dimensions.x(i);
-            double t = (vx > 0.0) ? (dx - rx - collisionRadius)/vx : (-rx + collisionRadius)/vx;
+            double t;
+            if (vx > 0.0) {
+                if (isActiveDim[i][1]) {
+                    t = (dx - rx - collisionRadius)/vx;
+                }
+                else {
+                    continue;
+                }
+            }
+            else if (isActiveDim[i][0]) {
+                t = (-rx + collisionRadius)/vx;
+            }
+            else {
+                continue;
+            }
             if(t < tmin) tmin = t;
         }
         if (Default.FIX_OVERLAP && tmin<0.0) tmin = 0.0;
         if (Debug.ON && tmin < 0.0) {
-            System.out.println("t "+tmin+" "+atom+" "+work+" "+v);
+            System.out.println("t "+tmin+" "+atom+" "+work+" "+v+" "+boundary.dimensions());
             throw new RuntimeException("you screwed up");
         }
         return tmin + falseTime;
@@ -155,6 +175,48 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
      */
     public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
 
+    public void setActive(int dim, boolean first, boolean isActive) {
+        isActiveDim[dim][first?0:1] = isActive;
+    }
+    
+    public void setLongWall(int dim, boolean first, boolean longWall) {
+        if (longWallDim == null) {
+            longWallDim = new boolean[2][2];
+            pixPosition = new int[2];
+            thickness = new int[2];
+        }
+        longWallDim[dim][first?0:1] = longWall;
+    }
+    
+    public void draw(java.awt.Graphics g, int[] origin, double scale) {
+        if (boundary == null) return;
+        g.setColor(Color.gray);
+        double toPixel = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
+        // if not 2D serious problems!
+        for (int i=0; i<2; i++) {
+            for (int j=0; j<2; j++) {
+                if (!isActiveDim[i][j]) continue;
+                pixPosition[i] = origin[i];
+                thickness[i] = 1;
+                if (longWallDim == null || !longWallDim[i][j]) {
+                    pixPosition[1-i] = origin[1-i];
+                    thickness[1-i] = (int)(boundary.dimensions().x(1-i)*toPixel);
+                }
+                else {
+                    pixPosition[1-i] = 0;
+                    thickness[1-i] = Integer.MAX_VALUE;
+                }
+                if (j==1) {
+                    pixPosition[i] += (int)(boundary.dimensions().x(i)*toPixel);
+                }
+                g.fillRect(pixPosition[0],pixPosition[1],thickness[0],thickness[1]);
+            }
+        }
+    }
+    
+    private boolean[][] isActiveDim;
+    private boolean[][] longWallDim;
+        
  /*   
     public static void main(String[] args) {
         
