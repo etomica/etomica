@@ -92,10 +92,6 @@ public class AtomSequencerNbr extends AtomSequencer {
         }
         public Class sequencerClass() {return AtomSequencerNbr.class;}
     };
-	public void moveNotify() {
-		// TODO Auto-generated method stub
-
-	}
 	public boolean preceeds(Atom a) {
 		// TODO Auto-generated method stub
 		return false;

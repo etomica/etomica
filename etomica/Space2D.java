@@ -377,7 +377,7 @@ public class Space2D extends Space implements EtomicaElement {
             c1.r.y -= ratio*delta*dry;
             c2.r.x += delta*drx;
             c2.r.y += delta*dry;
-            //need call reset, moveNotify?
+            //need call reset?
         }
     }
 
@@ -409,7 +409,6 @@ public class Space2D extends Space implements EtomicaElement {
             double tM = t*rm(); // t/mass
             r.x += p.x*tM;
             r.y += p.y*tM;
-            atom.seq.moveNotify();
         }
         
         public void inflate(double s) {r.x *= s; r.y *= s;}
@@ -417,7 +416,6 @@ public class Space2D extends Space implements EtomicaElement {
         
         public void transform(Space.Vector r0, Space.Tensor A) {
             r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);
-            atom.seq.moveNotify();
         }
         /**
         * Moves the atom by some vector distance
@@ -426,7 +424,6 @@ public class Space2D extends Space implements EtomicaElement {
         */
         public void translateBy(Space.Vector u) {
             r.PE((Space2D.Vector)u);
-            atom.seq.moveNotify();
         }
         /**
         * Moves the atom by some vector distance
@@ -435,7 +432,6 @@ public class Space2D extends Space implements EtomicaElement {
         */
         public void translateBy(double d, Space.Vector u) {
             r.PEa1Tv1(d,(Vector)u);
-            atom.seq.moveNotify();
         }
         /**
         * Moves the atom by some vector distance
@@ -444,7 +440,6 @@ public class Space2D extends Space implements EtomicaElement {
         */
         public void translateTo(Space.Vector u) {
             r.E((Space2D.Vector)u);
-            atom.seq.moveNotify();
         }      
         public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
         public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
@@ -453,7 +448,6 @@ public class Space2D extends Space implements EtomicaElement {
         public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
         public void replace() {
             r.E(rLast);
-            atom.seq.moveNotify();
         }
     //    public final void inflate(double s) {r.TE(s);}
 
@@ -550,7 +544,6 @@ public class Space2D extends Space implements EtomicaElement {
             while(childIterator.hasNext()) {
                 childIterator.nextAtom().coord.freeFlight(t);
             }
-            atom.seq.moveNotify();
         }
         public void inflate(double scale) {
             work.E(position());
@@ -569,14 +562,12 @@ public class Space2D extends Space implements EtomicaElement {
             while(childIterator.hasNext()) {
                 childIterator.nextAtom().coord.translateBy(u);
             }
-            atom.seq.moveNotify();
         }
         public void translateBy(double d, Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
                 childIterator.nextAtom().coord.translateBy(d, u);
             }
-            atom.seq.moveNotify();
         }
 		/**
 		 * Translates center of mass of group to the given position.
@@ -595,7 +586,6 @@ public class Space2D extends Space implements EtomicaElement {
             work.PE(u);
             translateBy(work);
         }
-        //these don't invoke moveNotify, but should.
         //plan to do away with displace methods
         public void displaceBy(Space.Vector u) {
             childIterator.reset();
@@ -603,7 +593,6 @@ public class Space2D extends Space implements EtomicaElement {
                 Atom a = childIterator.nextAtom();
                 a.coord.displaceBy(u);
             }
-            atom.seq.moveNotify();
         }
         public void displaceBy(double d, Space.Vector u) {
             childIterator.reset();
@@ -611,7 +600,6 @@ public class Space2D extends Space implements EtomicaElement {
                 Atom a = childIterator.nextAtom();
                 a.coord.displaceBy(d, u);
             }
-            atom.seq.moveNotify();
         }
         public void displaceTo(Space.Vector u) {
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -627,7 +615,6 @@ public class Space2D extends Space implements EtomicaElement {
                 Atom a = childIterator.nextAtom();
                 a.coord.replace();
             }
-            atom.seq.moveNotify();
         }
         public void accelerateBy(Space.Vector u) {
             childIterator.reset();

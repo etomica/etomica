@@ -9,13 +9,7 @@ public final class AtomSequencerSimple extends AtomSequencer {
     public AtomSequencerSimple(Atom a) {
         super(a);
     }
-    
-    /**
-     * Called when position of atom is changed by translateBy or translateTo
-     * methods.  In this sequencer this method performs no action.
-     */
-    public void moveNotify() {}
-    
+        
     /**
      * Called when parent of atom is changed by the node.  
      * In this sequencer this method performs no action.

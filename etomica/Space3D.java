@@ -593,7 +593,6 @@ public class Space3D extends Space implements EtomicaElement {
                         
         public void transform(Space.Vector r0, Space.Tensor A) {
             r.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);
-            atom.seq.moveNotify();
         }
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
@@ -605,7 +604,6 @@ public class Space3D extends Space implements EtomicaElement {
             r.x += p.x*tM;
             r.y += p.y*tM;
             r.z += p.z*tM;
-            atom.seq.moveNotify();
         }
         /**
          * Scales positions of atoms by multiplying by given value.  Does not notify sequencers.
@@ -623,14 +621,12 @@ public class Space3D extends Space implements EtomicaElement {
         * @param u
         */
         public void translateBy(Space.Vector u) {translateBy((Vector)u);}
-//            r.PE((Vector)u); 
-//            atom.seq.moveNotify();
+//            r.PE((Vector)u);
 //        }
         //for use by other methods/classes in Space3D
         //(not sure if this is used, or the Space.Vector version)
 		protected void translateBy(Vector u) {
-			r.PE(u); 
-			atom.seq.moveNotify();
+			r.PE(u);
 		}
         /**
         * Moves the atom by some vector distance
@@ -639,7 +635,6 @@ public class Space3D extends Space implements EtomicaElement {
         */
         public void translateBy(double d, Space.Vector u) {
             r.PEa1Tv1(d,(Vector)u);
-            atom.seq.moveNotify();
         }
         /**
         * Moves the atom by some vector distance
@@ -648,9 +643,8 @@ public class Space3D extends Space implements EtomicaElement {
         */
         public void translateTo(Space.Vector u) {
             r.E((Vector)u);
-            atom.seq.moveNotify();
         }      
-        public void replace() {r.E(rLast); atom.seq.moveNotify();}
+        public void replace() {r.E(rLast);}
         
         public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
         public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
@@ -760,7 +754,6 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.freeFlight(t);
         }
-        atom.seq.moveNotify();
     }
     public void inflate(double scale) {
         work.E(position());
@@ -780,14 +773,12 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.translateBy(u);
         }
-        atom.seq.moveNotify();
     }
     public void translateBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.translateBy(d, u);
         }
-        atom.seq.moveNotify();
     }
     /**
  	 * Translates group so that first atom is at the given position.
@@ -811,14 +802,12 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.displaceBy(u);
         }
-        atom.seq.moveNotify();
     }
     public void displaceBy(double d, Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.displaceBy(d, u);
         }
-        atom.seq.moveNotify();
     }
     public void displaceTo(Space.Vector u) {
         work.Ea1Tv1(-1,position()); //position() uses work, so need this first
@@ -833,7 +822,6 @@ public static class CoordinateGroup extends Coordinate {
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.replace();
         }
-        atom.seq.moveNotify();
     }
     public void accelerateBy(Space.Vector u) {
         childIterator.reset();

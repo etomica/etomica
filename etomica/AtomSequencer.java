@@ -19,14 +19,7 @@ package etomica;
 public abstract class AtomSequencer extends AtomLinker {
     
     public AtomSequencer(Atom a) {super(a);}
-    
-    /**
-     * Notifies sequencer that atom has been moved to a new position
-     * in the simulation volume.  Called most often by the translate
-     * methods of Coordinate.
-     */
-    public abstract void moveNotify();
-    
+        
     /**
      * Notifies sequencer that the parent group of the atom has been
      * changed.  Called by the setParent method of AtomTreeNode.

@@ -5,31 +5,23 @@
 package etomica.nbr.cell;
 
 import etomica.Atom;
-import etomica.AtomIteratorList;
 import etomica.AtomIteratorListSimple;
 import etomica.AtomLinker;
-import etomica.AtomList;
 import etomica.AtomReservoir;
 import etomica.AtomSequencer;
 import etomica.AtomTreeNodeGroup;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.Site;
-import etomica.math.geometry.Polyhedron;
 import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
-import etomica.utility.java2.HashMap;
 
 
 /**
- * Sequencer used for atoms being neighbor listed.
+ * Sequencer used for atoms being cell listed.
  */
-
 public final class AtomSequencerCell extends AtomSequencer implements CellSequencer {
     
-    public Polyhedron cell;         //cell currently occupied by this atom
+    public NeighborCell cell;         //cell currently occupied by this atom
     public NeighborCellManager neighborCellManager;    //cell lattice in the phase occupied by this atom
     private int listIndex;
     public final AtomLinker nbrLink;  //linker used to arrange atom in sequence according to cells
-    private static int tabType = AtomLinker.Tab.requestTabType();
     
     public AtomSequencerCell(Atom a) {
         super(a);
@@ -47,7 +39,7 @@ public final class AtomSequencerCell extends AtomSequencer implements CellSequen
     }
 
     //CellSequencer interface method
-    public Polyhedron cell() {return cell;}
+    public NeighborCell cell() {return cell;}
 
     public int listIndex() {return listIndex;}
 
@@ -106,14 +98,6 @@ public final class AtomSequencerCell extends AtomSequencer implements CellSequen
     }
     
     /**
-     * Method called when a translate method of coordinate is invoked.
-     */
-    public void moveNotify() {
-    //    if(!cell.inCell(atom.coord.position())) assignCell();
-        assignCell();
-    }
-    
-    /**
      * Method called when the parent of the atom is changed.
      * By the time this method is called, the atom has been placed
      * in the childList of the given parent (if it is not null).
@@ -137,11 +121,11 @@ public final class AtomSequencerCell extends AtomSequencer implements CellSequen
 //Determines appropriate cell and assigns it
     public void assignCell() {
         int[] latticeIndex = neighborCellManager.getCellLattice().getPrimitive().latticeIndex(atom.coord.position(), neighborCellManager.getCellLattice().getDimensions());
-        Polyhedron newCell = (Polyhedron)neighborCellManager.getCellLattice().site(latticeIndex);
+        NeighborCell newCell = (NeighborCell)neighborCellManager.getCellLattice().site(latticeIndex);
         if(newCell != cell) {assignCell(newCell);}
     }
 //Assigns atom to given cell
-    public void assignCell(Polyhedron newCell) {
+    public void assignCell(NeighborCell newCell) {
         cell = newCell;
         if(newCell == null) {
         	nbrLink.remove();//08/12/03 (DAK) added this line
