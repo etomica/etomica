@@ -74,6 +74,8 @@ public class MCMoveAtomMulti extends MCMoveAtom {
 		}
 	}
 	
+	
+	
 	private final int nAtoms;
 	private final int[] selectedList;
 	private final Atom[] selectedAtoms;
@@ -94,4 +96,12 @@ public class MCMoveAtomMulti extends MCMoveAtom {
 			System.out.println();
 		}
 	}//end of main
+	/**
+	 * @see etomica.MCMove#adjustStepSize()
+	 */
+	public void adjustStepSize() {
+		super.adjustStepSize();
+//		System.out.println("MCMoveAtomMulti nAtoms, stepsize, accept ratio: "+nAtoms+" "+stepSize+" "+acceptanceRatio());
+	}
+
 }

@@ -46,7 +46,8 @@ public class SimulationVirial extends SimulationGraphic {
 		integrator.setTemperature(simTemperature);
 		MCMoveAtom mcMoveAtom = new MeterVirial.MyMCMoveAtom(integrator);
 		for(int n=2; n<nMolecules; n++) {
-			new MCMoveAtomMulti(integrator, n);
+			MCMoveAtomMulti move = new MCMoveAtomMulti(integrator, n);
+//			move.setAcceptanceTarget(0.10);
 		}
 		
 		DisplayPhase display = new DisplayPhase();
@@ -136,8 +137,8 @@ public class SimulationVirial extends SimulationGraphic {
 			clusterMeter[i].getHistory().setNValues(1000);
 		}
 		clusterPlot.setDataSources(new DataSource[] {
-									clusterMeter[0].getHistory(),
-									clusterMeter[1].getHistory()
+									clusterMeter[0].getHistory()//,
+//									clusterMeter[1].getHistory()
 									});
 //		clusterPlot.setDataSources(meterVirial.getDataSources("History"));
 //		clusterPlot.setWhichValue(MeterAbstract.AVERAGE);
@@ -186,7 +187,7 @@ public class SimulationVirial extends SimulationGraphic {
 		double sigmaHSMod = sigmaLJ1B(1.0/simTemperature); //range in which modified-f for sampling will apply abs() function
 		System.out.println((1./simTemperature)+" "+sigmaHSRef);
 		System.out.println((1./temperature)+" "+sigmaHSMod);
-		int nMolecules = 6;
+		int nMolecules = 2;
 		SimulationVirial sim = new SimulationVirial(nMolecules, simTemperature);
 		
 		sim.species().setDiameter(sigmaHSRef);
@@ -194,16 +195,19 @@ public class SimulationVirial extends SimulationGraphic {
 		//set up simulation potential
 		P2LennardJones p2LJ = new P2LennardJones(new Simulation());//give dummy simulation
 		Simulation.instance = sim;
-//		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
-		MayerFunction f = new MayerGeneral(p2LJ);
+		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
 //		MayerFunction f = new etomica.virial.dos.MayerDOS2();
+//		MayerFunction f = new MayerGeneral(p2LJ);
+//		MayerE e = new MayerE(p2LJ);
+//		MayerFunction f = new MayerHardSphere();
 //		MayerE e = new MayerEHardSphere();
-		MayerE e = new MayerE(p2LJ);
 //		Cluster simCluster = new Ring(nMolecules, 1.0, f);
-//		Cluster simCluster = new Chain(nMolecules, 1.0, f);
+		Cluster simCluster = new Chain(nMolecules, 1.0, f);
 //		Cluster simCluster = new C3e(f);
 //		Cluster simCluster = new etomica.virial.dos.ClusterGrouped(7.0);
-		ClusterAbstract simCluster = new etomica.virial.cluster.ClusterBz(nMolecules, e);
+//		ClusterAbstract simCluster = new etomica.virial.cluster.ClusterBz(nMolecules, e);
+//		ClusterAbstract simCluster = new etomica.virial.ClusterSum(1.0, Standard.B6Clusters(f));
+
 		P0Cluster p0 = new P0Cluster(sim.hamiltonian.potential, simCluster);
 		sim.setSimPotential(p0);
 		
@@ -212,10 +216,13 @@ public class SimulationVirial extends SimulationGraphic {
 		double refTemperature = temperature;
 //		Cluster refCluster = new C3e(new MayerHardSphere(1.187193));
 //		Cluster refCluster = new C3e(new MayerHardSphere(7.0));
-		ClusterAbstract refCluster = simCluster;
+//		ClusterAbstract refCluster = simCluster;
+		Cluster refCluster = new etomica.virial.cluster.Full(nMolecules,1.0,new MayerHardSphere(1.0));
 		System.out.println("Setting up target cluster");
 //		ClusterAbstract targetCluster = new Cluster(nMolecules, 1.0, new Cluster.BondGroup[] {new Cluster.BondGroup(new MayerHardSphere(), Standard.chain(nMolecules))}, true);
-		ClusterAbstract targetCluster = new Cluster(nMolecules, 1.0, new Cluster.BondGroup[] {new Cluster.BondGroup(f, Standard.chain(nMolecules))}, true);
+		ClusterAbstract targetCluster = new Cluster(nMolecules, 1.0, new Cluster.BondGroup[] {new Cluster.BondGroup(new MayerGeneral(p2LJ), Standard.chain(nMolecules))}, true);
+//		ClusterAbstract targetCluster = new Cluster(nMolecules, 1.0, new Cluster.BondGroup[] {new Cluster.BondGroup(f, Standard.chain(nMolecules))}, true);
+//		ClusterAbstract targetCluster = new Cluster(nMolecules, 1.0, new Cluster.BondGroup[] {new Cluster.BondGroup(f, Standard.ring(nMolecules))}, true);
 //		Cluster targetCluster = new C3e(f);
 		double refIntegral = 1.0;
 		MeterVirial meterVirial = new MeterVirial(sim, 

@@ -89,16 +89,37 @@ public class BCalculator {
 
 	public static void main(String[] args) {
 		BCalculator calc = new BCalculator();
-		double b2 = 3.31774;
-		double[] bRatios = new double[] { 1.0    ,2.1245  ,1.7378   ,1.2309};
-		double[] bError = new double[]  { 0.0    ,0.002  ,0.002  ,0.01};
+		double b2 = 5.31575;
+		double[] bRatios = new double[] { 1.0    ,2.03392  ,1.55684   ,1.0171};
+//		double b2 = 1.3145;
+//		double[] bRatios = new double[] { 1.0    ,2.76782  ,4.35115   ,165.072};
+//		double b2 = 3.31774;
+//		double[] bRatios = new double[] { 1.0    ,2.1245  ,1.7378   ,1.23096};
+//		double[] bError = new double[]  { 0.0    ,0.002  ,0.002  ,0.01};
+		
+		double b2HS = -2.*Math.PI/3.;
+		double b3RatioHS = -8.0/(5./8. - 4.);
+		double[] bRatiosHS = new double[] {1.0, 2.3703703703703703704, 
+												2.2509954663107567552, //b4
+												1.8892976717277971446, //b5
+												1.466374, //b6
+												1.0823, //b7
+												0.757};//b8
+		double[] bError = new double[] {1.0, b3RatioHS, 
+												0.003, //b4
+												0.004, //b5
+												0.007, //b6
+												0.01, //b7
+												0.007};//b8
+		bRatios = bRatiosHS; b2 = b2HS;
 		double[] bz = new double[bRatios.length]; //bk = bz[k-2]
 		bz[0] = b2;
-		for(int i=1; i<bz.length; i++) bz[i] = (1.0/bRatios[i])*power(2.0*b2,i+1);
+//		for(int i=1; i<bz.length; i++) bz[i] = (1.0/bRatios[i])*power(2.0*b2,i+1);
+		for(int i=1; i<bz.length; i++) bz[i] = (1.0/bRatios[i])*power(2,i+1); bz[0] = 1.0;
 		calc.setBz(bz);
 		double[] B = calc.getB();
 		for(int i=0; i<B.length; i++) {
-			System.out.println("B"+(i+2)+": "+B[i]);
+			System.out.println("B"+(i+2)+": "+B[i]+"  "+B[i]/power(B[0],i+1));
 		}
 	}
 }

@@ -10,6 +10,7 @@ import etomica.action.AtomActionTransform;
  
  /* History of changes
   * 7/9/02 Added energyChange() method
+  * 10/06/03 (DAK) added check in constructor to ensure simulation is 2D
   */
   
 public class MCMoveRotateMolecule extends MCMove {
@@ -29,6 +30,7 @@ public class MCMoveRotateMolecule extends MCMove {
 
     public MCMoveRotateMolecule(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
+        if(parentIntegrator.simulation().space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
         rotationTensor = (Space.RotationTensor)parentIntegrator.simulation().space.makeRotationTensor();
         r0 = parentIntegrator.simulation().space.makeVector();
         setStepSizeMax(Math.PI);
