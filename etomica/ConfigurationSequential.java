@@ -32,6 +32,7 @@ public class ConfigurationSequential extends Configuration {
         int sumOfMolecules = 0;
         for(int j=0; j<species.size(); j++) {   
             Species.Agent s = (Species.Agent)species.elementAt(j);
+            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             sumOfMolecules += s.getNMolecules();
         }
         
@@ -42,6 +43,7 @@ public class ConfigurationSequential extends Configuration {
         int i = 0;
         for(int j=0; j<species.size(); j++) {
             Species.Agent s = (Species.Agent)species.elementAt(j);
+            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
                 m.setCOM(rLat[i]);
 //                m.firstAtom().r.setRandom(1.0);

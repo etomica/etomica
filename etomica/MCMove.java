@@ -39,6 +39,7 @@ public abstract class MCMove extends Component {
         nAcceptSum += nAccept;
         nTrials = 0;
         nAccept = 0;
+//        System.out.println(stepSize);
     }
     
     public void setFrequency(int f) {

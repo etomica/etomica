@@ -47,7 +47,10 @@ public final class Atom implements Space.Occupant {
     public final void setColor(Color c) {this.color = c;}
     public final void useTypeColor() {this.color = type.color();}  //indicates that atom color is determined by its type
         
-    public void setStationary(boolean b) {stationary = b;}
+    public void setStationary(boolean b) {
+        stationary = b;
+        if(!stationary) scaleMomentum(0.0);
+    }
     public final boolean isStationary() {return stationary;}
 
     /**

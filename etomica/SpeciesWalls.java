@@ -29,7 +29,7 @@ public class SpeciesWalls extends Species {
  //       this(nM, protoType);  //can't do this because must be first line in constructor
         setSpeciesIndex(1);     
         atomsPerMolecule = nA;
-//        setNMolecules(nM);
+        setNMolecules(nM);
         
         colorScheme = new ColorSchemeNull();
         this.add(new ConfigurationMoleculeWallsParallel());

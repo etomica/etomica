@@ -63,9 +63,14 @@ public abstract class Species extends Container {
            //Temporary method to handle setting of nMolecules for all phases
            //Allows only one value for all phases
     private int nMolecules;
+/**
+ * Sets the number of molecules of this species for each phase
+ * If parentSimulation is not null, creates the given number of molecules in every phase
+ * This is called by the species constructor, and by the add(Species) method of simulation
+ */
     public void setNMolecules(int n) {
         nMolecules = n;
-        if(parentSimulation == null) {return;}
+        if(parentSimulation == null) {return;}  
         Enumeration e = agents.elements();
         while(e.hasMoreElements()) {
             Agent a = (Agent)e.nextElement();

@@ -1,5 +1,7 @@
 package simulate;
 
+import java.awt.Graphics;
+
 public abstract class Space {
     
     public abstract int D();
@@ -26,12 +28,15 @@ public abstract class Space {
         public abstract double component(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)
         public abstract void setComponent(int i, double d);   //sets ith component of vector to d
         public abstract void E(Vector u);                     //sets each element of the vector equal to the elements of the vector u
+        public abstract void E(int i, double a);              //sets component i of this vector equal to a
         public abstract void E(double a);                     //sets all components of the vector equal to the constant a
         public abstract void PE(Vector u);                    //adds (PE is +=) the vector u to this vector
+        public abstract void PE(int i, double a);             //adds (+=) a to component i of this vector
         public abstract void ME(Vector u);                    //subtracts (-=)
         public abstract void TE(Vector u);                    //multiplies (*=) component-by-component
         public abstract void DE(Vector u);                    //divide (/=) component-by-component
         public abstract void TE(double a);                    //multipies all components by the constant a
+        public abstract void TE(int i, double a);             //multiplies "a" times the component i of this vector
         public abstract void DE(double a);                    //divides all components by a
         public abstract void Ea1Tv1(double a, Vector u);      //sets this vector to a*u
         public abstract void PEa1Tv1(double a, Vector u);     //adds a*u to this vector
@@ -92,6 +97,7 @@ public abstract class Space {
         public Vector randomPosition();
         public double[][] getOverflowShifts(Vector r, double distance);
         public void inflate(double s);
+        public void draw(Graphics g, int[] origin, double scale);
     /** Set of vectors describing the displacements needed to translate the central image
         *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
         *  first index specifies each perioidic image, while the second index indicates the
@@ -105,5 +111,5 @@ public abstract class Space {
     
     public Potential makePotential() {return new PotentialIdealGas();}  //default  
     
-    
+    public void draw(Graphics g, int[] origin, double scale) {}
 }    

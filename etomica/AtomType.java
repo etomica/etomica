@@ -106,8 +106,15 @@ public abstract class AtomType {
         public final double wellDiameter() {return wellDiameter;}
         public final double wellRadius() {return wellRadius;}
         
-        public final void setDiameter(double d) {super.setDiameter(d); setLambda(lambda);}
-        public final void setLambda(double l) {lambda = l; wellDiameter = lambda*diameter(); wellRadius = 0.5*wellDiameter;}
+        public final void setDiameter(double d) {
+            super.setDiameter(d); 
+            setLambda(lambda);
+        }
+        public final void setLambda(double l) {
+            lambda = l; 
+            wellDiameter = lambda*diameter(); 
+            wellRadius = 0.5*wellDiameter;
+        }
                 
         /**
         * Draws this atom using current values of its position, diameter and color.
@@ -178,12 +185,15 @@ public abstract class AtomType {
         public final void setThickness(int thickness) {this.thickness = thickness;}
         
         public final double getLength() {return length;}
-        public final void setLength(double length) {this.length = length; longWall = (length == Double.MAX_VALUE);}
+        public final void setLength(double length) {
+            this.length = length; 
+            longWall = (length == Double.MAX_VALUE);
+        }
         
         public final boolean isLongWall() {return longWall;}
         
         public final double getTemperature() {return temperature;}
-        public final void setTemperature(int t) {setTemperature((double)t);}  //for connection to sliders, etc.
+//        public final void setTemperature(int t) {setTemperature((double)t);}  //for connection to sliders, etc.
         public final void setTemperature(double t) {temperature = t;}
         
         public final boolean isAdiabatic() {return adiabatic;}

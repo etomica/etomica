@@ -23,16 +23,12 @@ public class MCMoveVolume extends MCMove {
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/(double)Simulation.D);
         phase.inflate(rScale);
-//        for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {  this is done by phase
-//            m.coordinate.inflate(rScale);
-//        }
         hNew = phase.potentialEnergy.currentValue() + pressure*vNew*Constants.PV2T;
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount+1)*vScale)
                 < rand.nextDouble()) 
             {  //reject
               phase.inflate(1.0/rScale);
-              for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {m.replace();}
             }
         nAccept++;   //accept
     }

@@ -34,13 +34,13 @@ public class DisplayConfiguration extends Display {
   * Flag specifying whether a line tracing the boundary of the display should be drawn
   * Default value is <code>true</code>
   */
-  private boolean drawBoundingBox = true;
+  private boolean drawBoundary = true;
   
  /**
   * Flag specifying whether a line tracing the boundary of the space should be drawn
   * Default value is <code>false</code>
   */
-  private boolean drawPhase = false;
+  private boolean drawSpace = false;
   
  /**
   * Number of periodic-image shells to be drawn when drawing this phase to the
@@ -123,10 +123,10 @@ public class DisplayConfiguration extends Display {
         }
     }
             
-    public void setDrawBoundingBox(boolean b) {drawBoundingBox = b;}
-    public boolean getDrawBoundingBox() {return drawBoundingBox;}
-    public void setDrawPhase(boolean b) {drawPhase = b;}
-    public boolean getDrawPhase() {return drawPhase;}
+    public void setDrawBoundary(boolean b) {drawBoundary = b;}
+    public boolean getDrawBoundary() {return drawBoundary;}
+    public void setDrawSpace(boolean b) {drawSpace = b;}
+    public boolean getDrawSpace() {return drawSpace;}
 
     public void doUpdate() {;}
     public void repaint() {canvas.repaint();}
@@ -254,20 +254,17 @@ public class DisplayConfiguration extends Display {
             int h = getSize().height;
             g.setColor(getBackground());
             g.fillRect(0,0,w,h);
-            if(drawBoundingBox) {
-                g.setColor(Color.gray);
-                g.drawRect(0,0,w-1,h-1);
-                }
             double toPixels = scale*SIM2PIXELS;
             drawSize[0] = (int)(toPixels*phase2D.boundary().dimensions().component(0));
             drawSize[1] = (int)(toPixels*phase2D.boundary().dimensions().component(1));
             centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
             centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
+            if(drawBoundary) {phase2D.boundary().draw(g, centralOrigin, scale);}
+            if(drawSpace) {phase2D.space().draw(g, centralOrigin, scale);}
             for(Species.Agent s=phase2D.firstSpecies(); s!=null; s=s.nextSpecies()) {
                 if(s.firstAtom() == null) {continue;}
                 s.draw(g, centralOrigin, scale);
             }
-            if(drawPhase) {phase2D.paint(g, centralOrigin, scale);}
             if(imageShells > 0) {
                 double[][] origins = phase2D.boundary().imageOrigins(imageShells);  //more efficient to save rather than recompute each time
                 for(int i=0; i<origins.length; i++) {

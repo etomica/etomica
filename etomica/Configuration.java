@@ -43,6 +43,7 @@ public abstract class Configuration extends Component{
         int sum = 0;
         for(int j=0; j<species.size(); j++) {
             Species.Agent s = (Species.Agent)species.elementAt(j);
+            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 a.randomizeMomentum(temperature);
                 sum++;
@@ -53,6 +54,7 @@ public abstract class Configuration extends Component{
         momentumSum.DE((double)sum);
         for(int j=0; j<species.size(); j++) {
             Species.Agent s = (Species.Agent)species.elementAt(j);
+            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 a.coordinate.momentum().ME(momentumSum);
             }

@@ -79,10 +79,13 @@ public class Simulation extends Panel {
               
     public void add(Species species) {
         species.parentSimulation = this;
+        
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
+        
         if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
+        
         species.setNMolecules(species.getNMolecules());
         species.add(species.colorScheme);
         species.add(species.configurationMolecule);

@@ -12,28 +12,28 @@ public class PotentialHardDiskPiston extends Potential implements PotentialHard
         setCollisionDiameter(d);
     }
 
-    public double collisionTime(AtomHard atom1, AtomHard atom2) {
+    public double collisionTime(AtomPair pair) {
    
-        AtomHardDisk disk;
-        AtomHardWall wall;
-        if(atom2 instanceof AtomHardWall) {
-           disk = (AtomHardDisk)atom1;
-           wall = (AtomHardWall)atom2;
+        Atom disk;
+        Atom wall;
+        if(pair.atom2().type instanceof AtomType.Wall) {
+           disk = pair.atom1();
+           wall = pair.atom2();
         }
         else {
-           disk = (AtomHardDisk)atom2;
-           wall = (AtomHardWall)atom1;
+           disk = pair.atom2;
+           wall = pair.atom1;
         }
         
         double time = Double.MAX_VALUE;
         double dr, dv;
         int i;
         
-        if(wall.isVertical()) {i = 0;}
-        else if(wall.isHorizontal()) {i = 1;}
-        else {i = 0;}
+        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        if(wallType.isVertical()) {i = 0;}
+        else {i = 1;}
         
-        dr = wall.r[i] - disk.r[i];
+        dr = wall.position(i) - disk.position(i);
         if(Math.abs(dr) < collisionRadius) { 
  /*           double eps = 1.e-5;
             wall.r[i] = 0.5*((2+eps)*wall.r[i] - eps*disk.r[i]);
@@ -42,8 +42,9 @@ public class PotentialHardDiskPiston extends Potential implements PotentialHard
         }
 */            return 0.0;}  //inside wall; no collision
         dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
-        dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
-        double a = wall.f[i]*wall.rm;
+        dv = wall.momentum(i)*wall.rm() - disk.momentum(i)*disk.rm();
+//        double a = wall.f[i]*wall.rm;  //acceleration of wall
+        double a = 0.0;   //temporary
         double discrim = dv*dv - 2*a*dr;
         if(discrim > 0) {
             boolean adr = (a*dr > 0);
@@ -58,30 +59,33 @@ public class PotentialHardDiskPiston extends Potential implements PotentialHard
         return time;
     }
     
-    public void bump(AtomHard atom1, AtomHard atom2)
+    public void bump(AtomPair pair)
     {
-        AtomHardDisk disk;
-        AtomHardWall wall;
-        if(atom2 instanceof AtomHardWall) {
-           disk = (AtomHardDisk)atom1;
-           wall = (AtomHardWall)atom2;
+        Atom disk;
+        Atom wall;
+        if(pair.atom2().type instanceof AtomType.Wall) {
+           disk = pair.atom1();
+           wall = pair.atom2();
         }
         else {
-           disk = (AtomHardDisk)atom2;
-           wall = (AtomHardWall)atom1;
+           disk = pair.atom2;
+           wall = pair.atom1;
         }
 
         int i;
-        if(wall.isVertical()) {i = 0;}
-        else if(wall.isHorizontal()) {i = 1;}
+        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        if(wallType.isVertical()) {i = 0;}
+        else if(wallType.isHorizontal()) {i = 1;}
         else {i = 0;}
 
-        double dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
-        double dp = -2.0/(atom1.rm + atom2.rm)*dv;
-        wall.p[i] += dp;
-        disk.p[i] -= dp; 
-        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-        disk.r[i] = wall.r[i] - (1.+1.e-5)*collisionRadius*Math.abs(dr)/dr;
+        double dv = wall.momentum(i)*wall.rm() - disk.momentum(i)*disk.rm();
+        double dp = -2.0/(pair.atom1().rm() + pair.atom2().rm())*dv;
+        if(!wall.isStationary()) wall.momentum().PE(i,dp);
+        if(!disk.isStationary()) disk.momentum().PE(i,-dp);
+        double dr = wall.position(i) - disk.position(i);
+//        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
+//        disk.r[i] = wall.r[i] - (1.+1.e-5)*collisionRadius*Math.abs(dr)/dr;
+        disk.position().PE(i,-1.e-5*dr);
     }
     
     public double getCollisionDiameter() {return collisionDiameter;}

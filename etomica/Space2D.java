@@ -1,5 +1,6 @@
 package simulate;
 import java.awt.Graphics;
+import java.awt.Color;
 import java.util.Random;
 
 public class Space2D extends Space {
@@ -19,7 +20,7 @@ public class Space2D extends Space {
         }
     }
         
-    public static class Vector extends Space.Vector {  //declared final for efficient method calls
+    public final static class Vector extends Space.Vector {  //declared final for efficient method calls
         public static final Random random = new Random();
         public static final Vector ORIGIN = new Vector(0.0,0.0);
         double x, y;
@@ -35,11 +36,14 @@ public class Space2D extends Space {
         public double dot(Space.Vector u) {return dot((Vector)u);}
         public void E(Vector u) {x = u.x; y = u.y;}
         public void E(double a) {x = a; y = a;}
+        public void E(int i, double a) {if(i==0) x = a; else y = a;}  //assumes i = 0 or 1
         public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y;}
         public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y;}
         public void PE(Vector u) {x += u.x; y += u.y;}
         public void ME(Vector u) {x -= u.x; y -= u.y;}
+        public void PE(int i, double a) {if(i==0) x += a; else y += a;}
         public void TE(double a) {x *= a; y *= a;}
+        public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
         public double squared() {return x*x + y*y;}
         public double dot(Vector u) {return x*u.x + y*u.y;}
@@ -168,6 +172,7 @@ public class Space2D extends Space {
             temp.y = random.nextDouble(); 
             return temp;
         }
+        public void draw(Graphics g, int[] origin, double scale) {}
     }
 
     /**
@@ -199,6 +204,11 @@ public class Space2D extends Space {
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
+        public void draw(Graphics g, int[] origin, double scale) {
+            g.setColor(Color.gray);
+            double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
+            g.drawRect(origin[0],origin[1],(int)(toPixels*dimensions.component(0))-1,(int)(toPixels*dimensions.component(1))-1);
+            }
         /** Computes origins for periodic images
         */
         public double[][] imageOrigins(int nShells) {
