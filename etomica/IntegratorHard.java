@@ -21,8 +21,6 @@ public class IntegratorHard extends IntegratorMD {
 
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHard.Agent colliderAgent;
-    //iterators for looping through atoms
-    protected AtomIteratorListSimple atomIterator = new AtomIteratorListSimple();
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
@@ -30,12 +28,18 @@ public class IntegratorHard extends IntegratorMD {
     Space.Vector c3;
     Space.CoordinatePair cPairDebug;
 
-	protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
-	protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
-	protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
-	protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
+    protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
+    protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
+    protected final ReverseCollisionHandler reverseCollisionHandler = new ReverseCollisionHandler();
 
-	private Atom[] targetAtom = new Atom[1];
+    protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
+    protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
+    protected final AtomList listToUpdate = new AtomList();
+    protected final AtomIteratorListSimple reverseIterator = new AtomIteratorListSimple();
+
+
+
+    private Atom[] targetAtom = new Atom[1];
 	
     
     public IntegratorHard(PotentialMaster potentialMaster) {
@@ -99,7 +103,7 @@ public class IntegratorHard extends IntegratorMD {
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
             }
-            updateCollisions();
+            updateAtoms(atoms);
             findNextCollider(); //this sets colliderAgent for the next collision
             
             timeInterval -= collisionTimeStep;
@@ -145,76 +149,82 @@ public class IntegratorHard extends IntegratorMD {
 		}
 	}
 
-	/**
-	* Updates collision times/partners for collider and partner, and 
-	* for atoms that were to collide with one of them.
-	*/
-	protected void updateCollisions() {
-        
-		Atom collider = colliderAgent.atom();
-		Atom partner = colliderAgent.collisionPartner();
-//		  if (partner != null) System.out.println(collider.toString()+"\t"+partner.toString());
-//		  else System.out.println(collider.toString());
-            
-	//   Do upList for any atoms that were scheduled to collide with atoms colliding now
-	//   Assumes collider and partner haven't moved in list
-		atomIterator.reset();  //first atom in first cell
-		while(atomIterator.hasNext()) {
-            
-			//to be fixed...
-			//as constructed using AtomIteratorListSimple with speciesMaster.atomList as the basis,
-			// this atom iterator is not going through the atoms in sequence
-			Atom a = atomIterator.nextAtom();
-			if(a == collider) { //finished with atoms before collider...
-				if(partner == null) break;  //and there is no partner, so we're done, or...
-				continue;                   //...else just skip this atom and continue with loop
-			}
-			if(a == partner) break; //finished with atoms before partner; we're done
-			IntegratorHard.Agent aAgent = (IntegratorHard.Agent)a.ia;
-			Atom aPartner = aAgent.collisionPartner();
-			if(aPartner != null && (aPartner == partner || aPartner == collider)) {//aPartner != null handles case where aPartner and partner are both null
-				aAgent.resetCollision();
-				targetAtom[0] = a;
-				upList.setTargetAtoms(targetAtom);
-                collisionHandlerUp.setAtom(a);
-				potential.calculate(firstPhase, upList, collisionHandlerUp.setAtom(a));
-			}
-		}//end while
+    /**
+     * Updates collision times/partners for collider and partner, and 
+     * for atoms that were to collide with one of them.  This method 
+     * should not be called for 1-body collisions (call updateAtom).
+     */
+    protected void updateAtoms(Atom[] colliders) {
 
-		colliderAgent.resetCollision();
-		targetAtom[0] = collider;
-		upList.setTargetAtoms(targetAtom);
-		downList.setTargetAtoms(targetAtom);
-        collisionHandler.setAtom(collider);
-		potential.calculate(firstPhase, upList, collisionHandlerUp);
-		potential.calculate(firstPhase, downList, collisionHandlerDown);
-		if(partner != null) {
-			((IntegratorHard.Agent)partner.ia).resetCollision();
-			targetAtom[0] = partner;
-			upList.setTargetAtoms(targetAtom);
-			downList.setTargetAtoms(targetAtom);
-            collisionHandlerUp.setAtom(partner);
-			potential.calculate(firstPhase, upList, collisionHandlerUp);
-			potential.calculate(firstPhase, downList, collisionHandlerDown);
-		}
+        listToUpdate.clear();
 
-	}//end of processCollision
+        targetAtom[0] = colliders[0];
+        downList.setTargetAtoms(targetAtom);
+        potential.calculate(firstPhase, downList, reverseCollisionHandler);
+        targetAtom[0] = colliders[1];
+        downList.setTargetAtoms(targetAtom);
+        potential.calculate(firstPhase, downList, reverseCollisionHandler);
+
+        // this will also update colliders[0] since it thought it would collide 
+        // with colliders[1] (and did)
+        processReverseList();
+
+        targetAtom[0] = colliders[0];
+        downList.setTargetAtoms(targetAtom);
+        potential.calculate(firstPhase, downList, collisionHandlerDown);
+
+        ((Agent)colliders[1].ia).resetCollision();
+        targetAtom[0] = colliders[1];
+        upList.setTargetAtoms(targetAtom);
+        potential.calculate(firstPhase, upList, collisionHandlerUp);
+        downList.setTargetAtoms(targetAtom);
+        collisionHandlerUp.setAtom(colliders[1]);
+        potential.calculate(firstPhase, downList, collisionHandlerDown);
+
+    }//end of processCollision
     
-	/**
-	 * updates collision time for a single atom (and any atom that might a collision
-	 * with the atom)
-	 * @param a
-	 */
-	protected void updateAtom(Atom a) {
-		Agent agent = (Agent)a.ia;
-		agent.resetCollision();
-		targetAtom[0] = a;
-		upList.setTargetAtoms(targetAtom);
-		downList.setTargetAtoms(targetAtom);
+
+    /**
+     * updates collision time for a single atom (and any atom that might a 
+     * collision with the atom)
+     */
+    protected void updateAtom(Atom a) {
+
+        listToUpdate.clear();
+
+        targetAtom[0] = a;
+        downList.setTargetAtoms(targetAtom);
+        potential.calculate(firstPhase, downList, reverseCollisionHandler);
+        processReverseList();
+
+        Agent agent = (Agent)a.ia;
+        agent.resetCollision();
+        targetAtom[0] = a;
+        upList.setTargetAtoms(targetAtom);
+        downList.setTargetAtoms(targetAtom);
         collisionHandlerUp.setAtom(a);
-		potential.calculate(firstPhase, upList, collisionHandlerUp);
-		potential.calculate(firstPhase, downList, collisionHandlerDown);
-	}
+        potential.calculate(firstPhase, upList, collisionHandlerUp);
+        potential.calculate(firstPhase, downList, collisionHandlerDown);
+    }
+
+    /**
+     * Recalculate collision times (up) for any atoms atoms in the "reverse"
+     * list of atoms that thought they would collide with an atom that's
+     * changed.
+     */
+    private void processReverseList() {
+        reverseIterator.setList(listToUpdate); 
+        reverseIterator.reset();
+        while(reverseIterator.hasNext()) {
+            Atom reverseAtom = reverseIterator.nextAtom();
+            ((Agent)reverseAtom.ia).resetCollision();
+            targetAtom[0] = reverseAtom;
+            upList.setTargetAtoms(targetAtom);
+            collisionHandlerUp.setAtom(reverseAtom);
+            potential.calculate(firstPhase, upList, collisionHandlerUp);
+        }//end while
+    }
+    
 
 	/**
 	* Advances all atom coordinates by tStep, without any intervening collisions.
@@ -242,6 +252,7 @@ public class IntegratorHard extends IntegratorMD {
         }
         targetAtom[0] = null;
         upList.setTargetAtoms(targetAtom);
+        collisionHandlerUp.reset();
         potential.calculate(firstPhase, upList, collisionHandlerUp); //assumes only one phase
         findNextCollider();
     }
@@ -273,6 +284,7 @@ public class IntegratorHard extends IntegratorMD {
         }
         targetAtom[0] = null;
         upList.setTargetAtoms(targetAtom);
+        collisionHandlerUp.reset();
         potential.calculate(aPhase, upList, collisionHandlerUp); //assumes only one phase
         findNextCollider();
     }
@@ -311,48 +323,59 @@ public class IntegratorHard extends IntegratorMD {
         }
     }//end of removeCollisionListener
     
-	//collision handler is passed to the potential and is notified of each collision
-	//the potential detects.  The collision handler contains the necessary logic to
-	//process this information so that the collision lists are kept up to date.
-	//The potential should call the handler's setPotential method, with itself as the
-	//argument, before beginning to detect collisions. 
-    
-	//the up-handler has the logic of the Allen & Tildesley upList subroutine
-	//sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-	private static final class CollisionHandlerUp extends PotentialCalculation {
-		double minCollisionTime;
-		IntegratorHard.Agent aia;
-		Atom atom1;
+    //collision handler is passed to the potential and is notified of each collision
+    //the potential detects.  The collision handler contains the necessary logic to
+    //process this information so that the collision lists are kept up to date.
+    //The potential should call the handler's setPotential method, with itself as the
+    //argument, before beginning to detect collisions. 
+
+    //the up-handler has the logic of the Allen & Tildesley upList subroutine
+    //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
+    private static final class CollisionHandlerUp extends PotentialCalculation {
+       double minCollisionTime;
+       IntegratorHard.Agent aia;
+       Atom atom1;
+
+       /**
+        * resets the "atom" held by this class, ensuring the method will
+        * work even if (coincidentally) the atom is the same as the same 
+        * one as the last time the method was called.
+        */
+       public void reset() {
+          atom1 = null;
+       }
+
+        /**
+         * sets the atom whose collision time is to be calculated
+         */
+       public void setAtom(Atom a) {
+          atom1 = a;
+          aia = (IntegratorHard.Agent)a.ia;
+          minCollisionTime = aia.collisionTime();
+       }//end of setAtom
         
-		public void setAtom(Atom a) {
-			atom1 = a;
-			aia = (IntegratorHard.Agent)a.ia;
-			minCollisionTime = aia.collisionTime();
-		}//end of setAtom
-        
-		//atom pair
-		public void doCalculation(AtomsetIterator iterator, Potential potential) {
-//			System.out.println("collisionhandlerup "+pair.toString());
-			iterator.reset();
-			PotentialHard pHard = (PotentialHard)potential; 
-			while (iterator.hasNext()) {
-				Atom[] atoms = iterator.next();
-				if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
-				double collisionTime = pHard.collisionTime(atoms);
-				if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
-					System.out.println("collision up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
-				}
-				if(collisionTime < minCollisionTime) {
-					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
-						System.out.println("setting up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
-					}
-					minCollisionTime = collisionTime;
-					aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
-				}//end if
-			}
-		}//end of calculate(AtomPair...
-        
-	} //end of collisionHandlerUp
+       //atom pair
+       public void doCalculation(AtomsetIterator iterator, Potential potential) {
+          iterator.reset();
+          PotentialHard pHard = (PotentialHard)potential; 
+          while (iterator.hasNext()) {
+             Atom[] atoms = iterator.next();
+             if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
+             double collisionTime = pHard.collisionTime(atoms);
+             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
+                System.out.println("collision up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
+             }
+             if(collisionTime < minCollisionTime) {
+                if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+                   System.out.println("setting up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
+                }
+                minCollisionTime = collisionTime;
+                aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
+             }//end if
+          }
+       }//end of calculate(AtomPair...
+
+    } //end of collisionHandlerUp
 
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
@@ -380,6 +403,34 @@ public class IntegratorHard extends IntegratorMD {
 			}
 		}//end of actionPerformed
 	} //end of collisionHandlerDown
+
+
+    /**
+     * A PotentialCalculation to find atoms that thought they would collide
+     * with an atom.  The iterator should return an atom and its "down"
+     * neighbors.  
+     */
+    private final class ReverseCollisionHandler extends PotentialCalculation {
+        
+        public void doCalculation(AtomsetIterator iterator, Potential p) {
+            iterator.reset();
+            // look for pairs in which pair[0] is the collision partner of pair[1]
+            while (iterator.hasNext()) {
+                Atom[] pair = iterator.next();
+                Agent aAgent = (Agent)pair[1].ia;
+                Atom aPartner = aAgent.collisionPartner();
+                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || (Debug.LEVEL > 1 && Debug.anyAtom(pair)) || Debug.LEVEL > 2)) {
+                    System.out.println(pair[1]+" thought it would collide with "+aPartner);
+                }
+                if(aPartner == pair[0]) {
+                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.anyAtom(pair) || Debug.LEVEL > 1)) {
+                        System.out.println("Will update "+pair[1]+" because it wanted to collide with "+aPartner);
+                    }
+                    listToUpdate.add(pair[1]);
+                }
+            }
+        }
+    }
 
 	public static EtomicaInfo getEtomicaInfo() {
 		EtomicaInfo info = new EtomicaInfo("Collision-based molecular dynamics simulation of hard potentials");
