@@ -14,12 +14,12 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     private double gamma = 0.5*Math.PI, sinGamma = Math.sin(gamma), cosGamma = Math.cos(gamma);
     private boolean isReciprocal = false;
     
-    public PrimitiveTriclinic(Simulation sim) {
-        this(sim, 1.0, 1.0, 1.0, rightAngle, rightAngle, rightAngle);
+    public PrimitiveTriclinic(Space space) {
+        this(space, 1.0, 1.0, 1.0, rightAngle, rightAngle, rightAngle);
     }
-    public PrimitiveTriclinic(Simulation sim, double a, double b, double c, 
+    public PrimitiveTriclinic(Space space, double a, double b, double c, 
                                               double alpha, double beta, double gamma) {
-        super(sim);
+        super(space);
         setA(a);
         setB(b);
         setC(c);
@@ -30,14 +30,14 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveTriclinic(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveTriclinic(Space space, Primitive direct) {
+        super(space, direct);
         isReciprocal = true;
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveTriclinic(simulation, this);
+        return new PrimitiveTriclinic(space, this);
     }
     
     //called by update method of superclass
@@ -148,7 +148,7 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
      * Returns a new, identical instance of this primitive.
      */
     public Primitive copy() {
-        return new PrimitiveTriclinic(simulation, a, b, c, alpha, beta, gamma);
+        return new PrimitiveTriclinic(space, a, b, c, alpha, beta, gamma);
     }
         
     public void scaleSize(double scale) {
@@ -180,7 +180,7 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     }
     
     public AtomFactory unitCellFactory() {
-        return new UnitCellFactory(simulation);
+        return new UnitCellFactory(space);
     }
     
     public String toString() {return "Triclinic";}
@@ -191,8 +191,8 @@ public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
     
-    public UnitCellFactory(Simulation sim) {
-        super(sim);
+    public UnitCellFactory(Space space) {
+        super(space, AtomSequencerSimple.FACTORY);
         setType(new AtomType(this));//default
     }
     

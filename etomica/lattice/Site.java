@@ -65,8 +65,8 @@ public static class Factory extends AtomFactory {
     
     AtomType atomType;
     
-    public Factory(Simulation sim) {
-        super(sim);
+    public Factory(Space space) {
+        super(space, AtomSequencerSimple.FACTORY);
         setType(new AtomType(this));//default
     }
     
@@ -79,7 +79,7 @@ public static class Factory extends AtomFactory {
      * Builds a single site.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
-        return new Site(parentSimulation().space, atomType, parent);
+        return new Site(space, atomType, parent);
     }
 
     public Atom build(Atom atom) {

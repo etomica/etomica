@@ -12,11 +12,11 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     //default size is 1.0
     private double size;
     
-    public PrimitiveCubic(Simulation sim) {
-        this(sim, 1.0);
+    public PrimitiveCubic(Space space) {
+        this(space, 1.0);
     }
-    public PrimitiveCubic(Simulation sim, double latticeConstant) {
-        super(sim); //also makes reciprocal
+    public PrimitiveCubic(Space space, double latticeConstant) {
+        super(space); //also makes reciprocal
         //set up orthogonal vectors of unit size
         for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
         setSize(latticeConstant); //also sets reciprocal via update
@@ -24,14 +24,14 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveCubic(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveCubic(Space space, Primitive direct) {
+        super(space, direct);
         for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveCubic(simulation, this);
+        return new PrimitiveCubic(space, this);
     }
     
     //called by update method of superclass
@@ -68,7 +68,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveCubic(simulation, size);
+        return new PrimitiveCubic(space, size);
     }
     
     //override superclass method to scale copy-vectors to current size
@@ -119,7 +119,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     }
     
     public AtomFactory unitCellFactory() {
-        return new UnitCellFactory(simulation);
+        return new UnitCellFactory(space);
     }
     
     public String toString() {return "Cubic";}
@@ -130,8 +130,8 @@ public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
     
-    public UnitCellFactory(Simulation sim) {
-        super(sim);
+    public UnitCellFactory(Space space) {
+        super(space, AtomSequencerSimple.FACTORY);
         setType(new AtomType(this));//default
     }
     
@@ -251,13 +251,13 @@ public class UnitCell extends AbstractCell {
     public static void main(String[] args) {
         System.out.println("main method for PrimitiveCubic");
         Space space = new Space2D();
-        Simulation sim = new Simulation(space);
+//        Simulation sim = new Simulation(space);
         int D = space.D();
-        PrimitiveCubic primitive = new PrimitiveCubic(sim);
+        PrimitiveCubic primitive = new PrimitiveCubic(space);
         AtomFactory siteFactory = primitive.unitCellFactory();
         final int nx = 4;
         final int ny = 5;
-        BravaisLattice lattice = BravaisLattice.makeLattice(sim, 
+        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
                                 siteFactory, 
                                 new int[] {nx,ny},
                                 primitive);

@@ -1,5 +1,5 @@
 package etomica.lattice;
-import etomica.Simulation;
+import etomica.Space;
 import etomica.Default;
 
 /**
@@ -11,13 +11,13 @@ import etomica.Default;
   */
 public class CrystalFcc extends Crystal {
     
-    public CrystalFcc(Simulation sim) {
-        super(new PrimitiveCubic(sim));
+    public CrystalFcc(Space space) {
+        super(new PrimitiveCubic(space));
         
         //set primitive to size for close packing if atoms are default size
         ((PrimitiveCubic)primitive).setSize(Math.sqrt(2.0)*Default.ATOM_SIZE);
         
-        siteFactory = new BasisCubicFcc(sim, (PrimitiveCubic)primitive);
+        siteFactory = new BasisCubicFcc(space, (PrimitiveCubic)primitive);
     }
     
     public String toString() {return "Fcc";}

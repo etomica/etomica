@@ -23,8 +23,8 @@ public class AtomReservoir extends Atom {
      * Construct reservoir that will accept up to the given number of atoms.
      */
     public AtomReservoir(AtomFactory factory, int capacity) {
-        super(factory.parentSimulation().space, AtomType.NULL, new NodeFactory(), 
-                factory.parentSimulation().getIteratorFactory().simpleSequencerFactory(), null);
+        super(factory.space, AtomType.NULL, new NodeFactory(), 
+                AtomSequencerSimple.FACTORY, null);
         this.factory = factory;
         if(capacity < 0) capacity = 0;
         this.capacity = capacity;
@@ -110,7 +110,8 @@ public class AtomReservoir extends Atom {
         * Overrides super class method and terminates recursive call to identify
         * a constituent atom's simulation.
         */
-        public Simulation parentSimulation() {return reservoir.factory.parentSimulation();}
+//        public Simulation parentSimulation() {return reservoir.factory.parentSimulation();}
+        public Simulation parentSimulation() {return null;}
         
         /**
          * Returns null.

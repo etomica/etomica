@@ -14,18 +14,18 @@ public class LatticeFactoryCubic extends BravaisLattice.Factory {
      * spatial dimension "D" with "dimension" elements in each direction, 
      * using a cubic primitive and occupied by the sites formed by the given factory.
      */
-    public LatticeFactoryCubic(Simulation sim, AtomFactory siteFactory, 
+    public LatticeFactoryCubic(Space space, AtomFactory siteFactory, 
                                 int D, int dimension, double latticeConstant) {
-        this(sim, siteFactory, dArray(D, dimension), latticeConstant);
+        this(space, siteFactory, dArray(D, dimension), latticeConstant);
     }
     /**
      * Creates a Bravais lattice with the given basis.  Number of lattice sites in each
      * dimension is determined by the given integer array.  Size of this array also
      * determines the dimension of the lattice.
      */
-    public LatticeFactoryCubic(Simulation sim, AtomFactory siteFactory, 
+    public LatticeFactoryCubic(Space space, AtomFactory siteFactory, 
                                 int[] dimensions, double latticeConstant) {
-        super(sim, siteFactory, dimensions, new PrimitiveCubic(sim));
+        super(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, new PrimitiveCubic(space));
         ((PrimitiveCubic)primitive).setSize(latticeConstant);
     }
     

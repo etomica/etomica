@@ -19,6 +19,7 @@ import etomica.units.*;
   * 7/16/02 (DAK) AtomType.Sphere.diameter method modified to take atom as argument
   *               Added AtomType.SphereVariable inner class
   * 8/18/02 (DAK) added drawShift to AtomType.Wall 
+  * 10/18/02 (DAK) modified Wall to get space from creator not via parentSimulation
   */
 
 public class AtomType implements java.io.Serializable {
@@ -240,7 +241,7 @@ public class AtomType implements java.io.Serializable {
             setXAngle(x);
             setYAngle(y);
             setZAngle(z);
-            drawShift = new int[creator.parentSimulation().space.D()];
+            drawShift = new int[creator.space.D()];
         }
         
         private void checkAlignment() {

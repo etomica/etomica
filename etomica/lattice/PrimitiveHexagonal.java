@@ -14,11 +14,11 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     private final double cosGamma = Math.cos(gamma);
     private final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveHexagonal(Simulation sim) {
-        this(sim, 1.0, 1.0);
+    public PrimitiveHexagonal(Space space) {
+        this(space, 1.0, 1.0);
     }
-    public PrimitiveHexagonal(Simulation sim, double ab, double c) {
-        super(sim);
+    public PrimitiveHexagonal(Space space, double ab, double c) {
+        super(space);
         setAB(ab);
         setC(c);
     }
@@ -26,15 +26,15 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveHexagonal(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveHexagonal(Space space, Primitive direct) {
+        super(space, direct);
         ix = 1;
         iy = 0;
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveHexagonal(simulation, this);
+        return new PrimitiveHexagonal(space, this);
     }
     
     //called by update method of superclass
@@ -94,7 +94,7 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveHexagonal(simulation, ab, c);
+        return new PrimitiveHexagonal(space, ab, c);
     }
     
     public void scaleSize(double scale) {

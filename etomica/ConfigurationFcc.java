@@ -30,7 +30,7 @@ public class ConfigurationFcc extends Configuration {
         int sumOfMolecules = iterator.size();
         if(sumOfMolecules == 0) {return;}
         
-        fcc = LatticeCubicFcc.makeLattice(simulation, sumOfMolecules, dimensions[0]);
+        fcc = LatticeCubicFcc.makeLattice(space, sumOfMolecules, dimensions[0]);
         fcc.shiftFirstToOrigin();
 
    // Place molecules  
@@ -55,7 +55,7 @@ public class ConfigurationFcc extends Configuration {
     public static Space3D.Vector[] lattice(int n) { 
         Space3D.Vector[] r = new Space3D.Vector[n];
         for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
-        LatticeCubicFcc fcc = LatticeCubicFcc.makeLattice(Simulation.instance, n, Default.BOX_SIZE);//need to extend--assumes cubic box
+        LatticeCubicFcc fcc = LatticeCubicFcc.makeLattice(Simulation.instance.space, n, Default.BOX_SIZE);//need to extend--assumes cubic box
         AtomIteratorList iteratorsites = new AtomIteratorList(fcc.siteList());
         iteratorsites.reset();
         int i = 0;

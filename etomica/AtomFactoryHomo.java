@@ -15,33 +15,37 @@ public class AtomFactoryHomo extends AtomFactory {
     protected AtomFactory childFactory;
     private int atomsPerGroup;
     
+    public AtomFactoryHomo(Simulation sim, AtomFactory factory) {
+        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), factory);
+    }
     /**
      * @param factory the factory that makes each of the identical children.
      */
-    public AtomFactoryHomo(Simulation sim, AtomFactory factory) {
-        this(sim, factory, 1);
+    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory) {
+        this(space, sequencerFactory, factory, 1);
     }
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms) {
-        this(sim, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim));
+    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory, int atoms) {
+        this(space, sequencerFactory, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(space));
     }
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Simulation sim, AtomFactory factory, int atoms, BondInitializer bondInit,
-                            Configuration config) {    
-        super(sim);
+    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory, 
+                            int atoms, BondInitializer bondInit, Configuration config) {    
+        super(space, sequencerFactory);
         childFactory = factory;
         atomsPerGroup = atoms;
         bondInitializer = bondInit;
         configuration = config;
         //set up fields of Group type (can't build sample atoms because factories defined by subclassing this one may not be ready to build at atom at this point)
-        groupType.childSequencerClass = sim.iteratorFactory.simpleSequencerClass();
+
+        groupType.childSequencerClass = sequencerFactory.sequencerClass();
         groupType.childrenAreGroups = factory.isGroupFactory();
     }
     

@@ -11,11 +11,11 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     private double[] sizeCopy;
 //    private double a, b, c;
     
-    public PrimitiveOrthorhombic(Simulation sim) {
-        this(sim, 1.0, 1.0, 1.0);
+    public PrimitiveOrthorhombic(Space space) {
+        this(space, 1.0, 1.0, 1.0);
     }
-    public PrimitiveOrthorhombic(Simulation sim, double a, double b, double c) {
-        super(sim); //also makes reciprocal
+    public PrimitiveOrthorhombic(Space space, double a, double b, double c) {
+        super(space); //also makes reciprocal
         //set up orthogonal vectors of unit size
         setA(a);  
         setB(b);
@@ -24,8 +24,8 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveOrthorhombic(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveOrthorhombic(Space space, Primitive direct) {
+        super(space, direct);
         for(int i=0; i<D; i++) if(size[i] == 0.0) size[i] = 1.0;
         sizeCopy = new double[space.D()];
     }
@@ -33,7 +33,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     //called by superclass constructor
     protected Primitive makeReciprocal() {
         for(int i=0; i<D; i++) if(size[i] == 0.0) size[i] = 1.0;
-        return new PrimitiveOrthorhombic(simulation, this);
+        return new PrimitiveOrthorhombic(space, this);
     }
     
     //called by update method of superclass
@@ -87,7 +87,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      * Returns a new, identical instance of this primitive.
      */
     public Primitive copy() {
-        return new PrimitiveOrthorhombic(simulation, size[0], size[1], size[2]);
+        return new PrimitiveOrthorhombic(space, size[0], size[1], size[2]);
     }
     
     
@@ -144,7 +144,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     }
     
     public AtomFactory unitCellFactory() {
-        return new UnitCellFactory(simulation);
+        return new UnitCellFactory(space);
     }
     
     
@@ -156,8 +156,8 @@ public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
     
-    public UnitCellFactory(Simulation sim) {
-        super(sim);
+    public UnitCellFactory(Space space) {
+        super(space, AtomSequencerSimple.FACTORY);
         setType(new AtomType(this));//default
     }
     

@@ -65,7 +65,7 @@ public class IteratorFactoryCell implements IteratorFactory {
      * sim.setIteratorFactory(new IteratorFactoryCell(sim));
      */
     public IteratorFactoryCell(Simulation sim) {
-        this(sim, new PrimitiveCubic(sim), 10);
+        this(sim, new PrimitiveCubic(sim.space), 10);
     }
     
     /**
@@ -112,7 +112,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         //construct the lattice
 ///        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitiveCopy);
 ///        final BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
-        final BravaisLattice lattice = BravaisLattice.makeUnitCellLattice(simulation, dimensions, primitiveCopy);
+        final BravaisLattice lattice = BravaisLattice.makeUnitCellLattice(simulation.space, dimensions, primitiveCopy);
         lattice.shiftFirstToOrigin();
         primitiveCopy.setLattice(null);
         
@@ -924,6 +924,7 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
         public AtomSequencer makeSequencer(Atom atom) {
             return new SimpleSequencer(atom);
         }
+        public Class sequencerClass() {return SimpleSequencer.class;}
     };
 }
 
@@ -1062,6 +1063,7 @@ public static final class NeighborSequencer extends AtomSequencer implements Cel
     
     public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
         public AtomSequencer makeSequencer(Atom atom) {return new NeighborSequencer(atom);}
+        public Class sequencerClass() {return NeighborSequencer.class;}
     };
 }//end of NeighborSequencer
 

@@ -9,24 +9,24 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     
     private double ab = 1.0, c = 1.0;
     
-    public PrimitiveTetragonal(Simulation sim) {
-        this(sim, 1.0, 1.0);
+    public PrimitiveTetragonal(Space space) {
+        this(space, 1.0, 1.0);
     }
-    public PrimitiveTetragonal(Simulation sim, double ab, double c) {
-        super(sim);//also makes reciprocal
+    public PrimitiveTetragonal(Space space, double ab, double c) {
+        super(space);//also makes reciprocal
         setAB(ab); //also sets reciprocal via update
         setC(c);
     }
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveTetragonal(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveTetragonal(Space space, Primitive direct) {
+        super(space, direct);
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveTetragonal(simulation, this);
+        return new PrimitiveTetragonal(space, this);
     }
     
     //called by update method of superclass
@@ -80,7 +80,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveTetragonal(simulation, ab, c);
+        return new PrimitiveTetragonal(space, ab, c);
     }
     
     public void scaleSize(double scale) {

@@ -10,15 +10,15 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
     private Space.Vector[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
-    public PrimitiveBcc(Simulation sim) {
-        this(sim, 1.0);
+    public PrimitiveBcc(Space space) {
+        this(space, 1.0);
     }
-    public PrimitiveBcc(Simulation sim, double size) {
-        super(sim); //also makes reciprocal
+    public PrimitiveBcc(Space space, double size) {
+        super(space); //also makes reciprocal
         //set up orthogonal vectors of unit size
         unitVectors = new Space.Vector[D];
         for(int i=0; i<D; i++) {
-            unitVectors[i] = sim.space.makeVector();
+            unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(3.0));
             unitVectors[i].setX(i,-1.0/Math.sqrt(3.0));
         }
@@ -27,11 +27,11 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method of PrimitiveFcc.
      */
-    PrimitiveBcc(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    PrimitiveBcc(Space space, Primitive direct) {
+        super(space, direct);
         unitVectors = new Space.Vector[D];
         for(int i=0; i<D; i++) {
-            unitVectors[i] = sim.space.makeVector();
+            unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(3.0));
             unitVectors[i].setX(i,-1.0/Math.sqrt(3.0));
         }
@@ -39,7 +39,7 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveFcc(simulation, this);
+        return new PrimitiveFcc(space, this);
     }
     
     //called by update method of superclass
@@ -76,7 +76,7 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveBcc(simulation, size);
+        return new PrimitiveBcc(space, size);
     }
     
     /**

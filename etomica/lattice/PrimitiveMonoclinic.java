@@ -12,11 +12,11 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     private double a = 1.0, b = 1.0, c = 1.0;
     private double beta = 0.5*Math.PI, sinBeta = Math.sin(beta), cosBeta = Math.cos(beta);
     
-    public PrimitiveMonoclinic(Simulation sim) {
-        this(sim, 1.0, 1.0, 1.0, rightAngle);
+    public PrimitiveMonoclinic(Space space) {
+        this(space, 1.0, 1.0, 1.0, rightAngle);
     }
-    public PrimitiveMonoclinic(Simulation sim, double a, double b, double c, double beta) {
-        super(sim);//also makes reciprocal
+    public PrimitiveMonoclinic(Space space, double a, double b, double c, double beta) {
+        super(space);//also makes reciprocal
         setA(a);//also sets reciprocal via update
         setB(b);
         setC(c);
@@ -25,14 +25,14 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveMonoclinic(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    private PrimitiveMonoclinic(Space space, Primitive direct) {
+        super(space, direct);
         isReciprocal = true;
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveMonoclinic(simulation, this);
+        return new PrimitiveMonoclinic(space, this);
     }
     
     //called by update method of superclass
@@ -114,7 +114,7 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
      * Returns a new, identical instance of this primitive.
      */
     public Primitive copy() {
-        return new PrimitiveMonoclinic(simulation, a, b, c, beta);
+        return new PrimitiveMonoclinic(space, a, b, c, beta);
     }
         
     public void scaleSize(double scale) {
@@ -147,7 +147,7 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     }
     
     public AtomFactory unitCellFactory() {
-        return new UnitCellFactory(simulation);
+        return new UnitCellFactory(space);
     }
     
     public String toString() {return "Monoclinic";}
@@ -158,8 +158,8 @@ public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
     
-    public UnitCellFactory(Simulation sim) {
-        super(sim);
+    public UnitCellFactory(Space space) {
+        super(space, AtomSequencerSimple.FACTORY);
         setType(new AtomType(this));//default
     }
     

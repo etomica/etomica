@@ -11,6 +11,10 @@ package etomica;
  * @author David Kofke
  * @version 02.03.09
  */
+ 
+ /* History
+  * 10/18/02 (DAK) added sequencerClass method to Factory interface
+  */
 
 public abstract class AtomSequencer extends AtomLinker {
     
@@ -33,6 +37,7 @@ public abstract class AtomSequencer extends AtomLinker {
     
     public interface Factory {
         public AtomSequencer makeSequencer(Atom atom);
+        public Class sequencerClass();
     }
     
 }

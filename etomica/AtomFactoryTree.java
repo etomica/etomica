@@ -29,7 +29,11 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      *               child atoms under each of the root's child atoms, etc.
      */
     public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
-        super(sim, subFactory(sim, leafFactory, nAtoms, null), nAtoms[0]);
+        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), leafFactory, nAtoms);
+    }
+    public AtomFactoryTree(Space space, AtomSequencer.Factory seqFactory, 
+                            AtomFactory leafFactory, int[] nAtoms) {
+        super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, null), nAtoms[0]);
         if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
@@ -42,17 +46,17 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * of all the atoms below it in the tree, and thus prescribes in part the positioning of 
      * all atoms below its level.
      */
-    public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms, 
-                            Configuration[] config) {
-        super(sim, subFactory(sim, leafFactory, nAtoms, config), 
+    public AtomFactoryTree(Space space, AtomSequencer.Factory seqFactory, 
+                                AtomFactory leafFactory, int[] nAtoms, Configuration[] config) {
+        super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, config), 
                 nAtoms[0], BondInitializer.NULL, config[0]);
         if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
-    private static AtomFactory subFactory(Simulation sim, AtomFactory leafFactory, 
-                                          int[] nAtoms, Configuration[] config) {
+    private static AtomFactory subFactory(Space space, AtomSequencer.Factory seqFactory,
+                            AtomFactory leafFactory, int[] nAtoms, Configuration[] config) {
         if(nAtoms.length < 1) throw new IllegalArgumentException("Error: Attempt to prescribe zero-dimensional lattice in AtomFactoryLattice" );
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
         if(nAtoms.length == 1) return leafFactory; 
@@ -60,11 +64,11 @@ public class AtomFactoryTree extends AtomFactoryHomo {
             int[] newDim = new int[nAtoms.length-1];//arraycopy
             for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
             if(config == null) {
-                return new AtomFactoryTree(sim, leafFactory, newDim);
+                return new AtomFactoryTree(space, seqFactory, leafFactory, newDim);
             } else {
                 Configuration[] newConfig = new Configuration[config.length-1];//arraycopy
                 for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
-                return new AtomFactoryTree(sim, leafFactory, newDim, newConfig);
+                return new AtomFactoryTree(space, seqFactory, leafFactory, newDim, newConfig);
             }
         }
     }//end of subFactory

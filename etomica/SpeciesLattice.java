@@ -32,8 +32,9 @@ public class SpeciesLattice extends Species {
      */
     public SpeciesLattice(Simulation sim, int size) {
         this(sim, 
-             new BravaisLattice.Factory(sim, new AtomFactoryMono(sim), sim.space.makeArrayD(size), 
-             new PrimitiveCubic(sim,10.)));
+             new BravaisLattice.Factory(sim.space, sim.iteratorFactory.neighborSequencerFactory(),
+                new AtomFactoryMono(sim), sim.space.makeArrayD(size), 
+                new PrimitiveCubic(sim.space,10.)));
     }
     public SpeciesLattice(Simulation sim, BravaisLattice.Factory factory) {
         super(sim, factory);

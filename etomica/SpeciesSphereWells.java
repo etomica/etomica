@@ -9,6 +9,10 @@ import etomica.units.Dimension;
  * 
  * @author David Kofke
  */
+ 
+ /* History
+  * 10/18/02 Modified makeFactory method to construct AtomFactoryHomo using sim.* arguments, instead of sim.
+  */
 public class SpeciesSphereWells extends Species implements EtomicaElement {
 
     private double mass;
@@ -19,7 +23,7 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
         AtomFactoryMono f = new AtomFactoryMono(sim);
         AtomType type = new AtomType.Well(f, Default.ATOM_MASS, Default.ATOM_SIZE, 1.5);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(sim, f, na, bondInit, config);
+        AtomFactoryHomo fm = new AtomFactoryHomo(sim.space, sim.iteratorFactory.neighborSequencerFactory(), f, na, bondInit, config);
         return fm;
  //       return f;
     }

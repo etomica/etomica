@@ -12,20 +12,14 @@ public class AtomFactoryHetero extends AtomFactory {
     private AtomFactory[] childFactory;
     private final AtomType.Group groupType = new AtomType.Group(this);
     
+    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
+        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), factory);
+    }
     /**
      * @param factory array of atom factories, each of which makes a different child.
      */
-    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
-        this(sim, factory, new ConfigurationLinear(sim));
-    }
-    /**
-     * @param factory the factory that makes each of the identical children.
-     * @param atoms the number of identical children per group (default is 1).
-     * @param config the configuration applied to each group that is built (default is Linear).
-     */
-    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory, 
-                            Configuration config) {
-        this(sim, factory, config, sim.getIteratorFactory().simpleSequencerFactory());
+    public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory) {
+        this(space, sequencerFactory, factory, new ConfigurationLinear(space));
     }
     /**
      * @param factory the factory that makes each of the identical children.
@@ -33,14 +27,13 @@ public class AtomFactoryHetero extends AtomFactory {
      * @param config the configuration applied to each group that is built (default is Linear).
      * @param sequencerFactory the factory making sequencers used in the groups made by this factory (default is simple sequencer).
      */
-    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory, 
-                            Configuration config, AtomSequencer.Factory sequencerFactory) {
-        super(sim, sequencerFactory);
+    public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
+                            Configuration config) {
+        super(space, sequencerFactory);
         childFactory = factory;
         configuration = config;
         //set up fields of Group type
-        //children are forced (for now) to use simple sequencer
-        groupType.childSequencerClass = sim.iteratorFactory.simpleSequencerClass();
+        groupType.childSequencerClass = sequencerFactory.sequencerClass();
         for(int i=0; i<factory.length; i++) {
             groupType.childrenAreGroups = factory[i].isGroupFactory();
             if(groupType.childrenAreGroups) break;

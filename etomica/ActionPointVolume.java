@@ -521,7 +521,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
     private class MySiteFactory extends AtomFactoryMono {
         MySiteFactory(Simulation sim) {super(sim);}
         protected Atom build(AtomTreeNodeGroup parent) {
-            return new MySite(parentSimulation.space, parent);
+            return new MySite(space, parent);
         }
     }
 

@@ -1,5 +1,5 @@
 package etomica.lattice;
-import etomica.Simulation;
+import etomica.Space;
 import etomica.Default;
 
 /**
@@ -11,11 +11,11 @@ import etomica.Default;
   */
 public class CrystalHcp extends Crystal {
     
-    public CrystalHcp(Simulation sim) {
-        super(new PrimitiveHexagonal(sim));
+    public CrystalHcp(Space space) {
+        super(new PrimitiveHexagonal(space));
         ((PrimitiveHexagonal)primitive).setA(Default.ATOM_SIZE);
         ((PrimitiveHexagonal)primitive).setC(Math.sqrt(8.0/3.0)*Default.ATOM_SIZE);
-        siteFactory = new BasisHcp(sim, (PrimitiveHexagonal)primitive);
+        siteFactory = new BasisHcp(space, (PrimitiveHexagonal)primitive);
     }
     
     public String toString() {return "Hcp";}

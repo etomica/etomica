@@ -1,5 +1,5 @@
 package etomica.lattice;
-import etomica.Simulation;
+import etomica.Space;
 import etomica.Default;
 
 /**
@@ -11,10 +11,10 @@ import etomica.Default;
   */
 public class CrystalBcc extends Crystal {
     
-    public CrystalBcc(Simulation sim) {
-        super(new PrimitiveCubic(sim));
+    public CrystalBcc(Space space) {
+        super(new PrimitiveCubic(space));
         ((PrimitiveCubic)primitive).setSize(2.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
-        siteFactory = new BasisCubicBcc(sim, (PrimitiveCubic)primitive);
+        siteFactory = new BasisCubicBcc(space, (PrimitiveCubic)primitive);
     }
     
     public String toString() {return "Bcc";}

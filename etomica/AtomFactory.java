@@ -6,13 +6,19 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History
+  * 10/18/02 (DAK) Modified to remove Simulation instance, using Space instance instead.
+  *          Many other classes (other factories, lattice classes, modified to be consistent 
+  *          with this change.
+  */
 public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
-    public final Simulation parentSimulation;
+    public final Space space;
     private Species species;
     protected Configuration configuration;
-    private AtomSequencer.Factory sequencerFactory;
+    protected AtomSequencer.Factory sequencerFactory;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomType.Group groupType = new AtomType.Group(this);
@@ -20,11 +26,8 @@ public abstract class AtomFactory {
     /**
      * @param sim the parent simulation using this factory
      */
-    public AtomFactory(Simulation sim) {
-        this(sim, sim.getIteratorFactory().simpleSequencerFactory());
-    }
-    public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory) {
-        parentSimulation = sim;
+    public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {
+        this.space = space;
         this.sequencerFactory = sequencerFactory;
         reservoir = new AtomReservoir(this);
     }
@@ -62,7 +65,7 @@ public abstract class AtomFactory {
      * not use the group AtomTreeNode, or that is a subclass of Atom.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
-        Atom group = new Atom(parentSimulation.space, groupType, AtomTreeNodeGroup.FACTORY, 
+        Atom group = new Atom(space, groupType, AtomTreeNodeGroup.FACTORY, 
                 sequencerFactory, parent);
         return build(group);
     }
@@ -86,7 +89,7 @@ public abstract class AtomFactory {
     
     public AtomReservoir reservoir() {return reservoir;}
     
-    public Simulation parentSimulation() {return parentSimulation;}
+    public Space space() {return space;}
     
     public void setSpecies(Species species) {this.species = species;}
     public Species species() {return species;}

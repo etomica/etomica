@@ -47,23 +47,23 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     * Constructs a unique BravaisLattice factory and returns a new lattice from it.
     */
     public static BravaisLattice makeLattice(
-                Simulation sim, Crystal crystal, int[] dimensions) {
-        return makeLattice(sim, crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
+                Space space, Crystal crystal, int[] dimensions) {
+        return makeLattice(space, crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
     }
    /**
     * Constructs a unique BravaisLattice factory and returns a new lattice from it.
     */
     public static BravaisLattice makeLattice(
-                Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        return (BravaisLattice)new Factory(sim, siteFactory, dimensions, primitive).makeAtom();
+                Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
+        return (BravaisLattice)new Factory(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, primitive).makeAtom();
     }
     
     /**
      * Returns a new BravaisLattice in which the sites are the unit cells of the given primitive.
      */
      public static BravaisLattice makeUnitCellLattice(
-                Simulation sim, int[] dimensions, Primitive primitive) {
-        BravaisLattice lattice = makeLattice(sim, primitive.unitCellFactory(), dimensions, primitive);
+                Space space, int[] dimensions, Primitive primitive) {
+        BravaisLattice lattice = makeLattice(space, primitive.unitCellFactory(), dimensions, primitive);
         lattice.setPrimitive(primitive);
         return lattice;
      }
@@ -355,17 +355,18 @@ public static class Factory extends AtomFactoryTree {
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
     public Factory(Simulation sim, Crystal crystal, int[] dimensions) {
-        this(sim, crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
+        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), 
+                crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
     }
-    public Factory(Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        super(sim, siteFactory, dimensions, configArray(sim, primitive.vectors()));
+    public Factory(Space space, AtomSequencer.Factory seqFactory, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
+        super(space, seqFactory, siteFactory, dimensions, configArray(space, primitive.vectors()));
         this.primitive = primitive;
         this.dimensions = new int[dimensions.length];
         System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
     }
     
     public Atom build(AtomTreeNodeGroup parent) {
-        BravaisLattice group = new BravaisLattice(parentSimulation().space, groupType, dimensions, parent);
+        BravaisLattice group = new BravaisLattice(space, groupType, dimensions, parent);
         return build(group);
     }
     
@@ -384,11 +385,11 @@ public static class Factory extends AtomFactoryTree {
         return group;
     }
 
-    private static Configuration[] configArray(Simulation sim, Space.Vector[] pVectors) {
-        if(pVectors.length != sim.space.D()) throw new IllegalArgumentException("Error in BravaisLattice.Factory constructor:  number of primitive vectors inconsistent with dimension of space");
+    private static Configuration[] configArray(Space space, Space.Vector[] pVectors) {
+        if(pVectors.length != space.D()) throw new IllegalArgumentException("Error in BravaisLattice.Factory constructor:  number of primitive vectors inconsistent with dimension of space");
         Configuration[] array = new Configuration[pVectors.length];
         for(int i=0; i<array.length; i++) {
-            array[i] = new ConfigurationLinear(sim);
+            array[i] = new ConfigurationLinear(space);
             ((ConfigurationLinear)array[i]).setOffset(pVectors[i]);
         }
         return array;
@@ -413,11 +414,11 @@ public static class Factory extends AtomFactoryTree {
         Simulation sim = Simulation.instance;
         Space space = new Space2D();
         int D = space.D();
-        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim);
+        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
         final int nx = 4;
         final int ny = 5;
-        BravaisLattice lattice = BravaisLattice.makeLattice(sim, 
-                                new Site.Factory(sim),
+        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
+                                new Site.Factory(space),
                                 new int[] {nx,ny},
                                 primitive);        
         System.out.println("Total number of sites: "+lattice.siteList().size());

@@ -17,7 +17,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     public AtomType.Sphere protoType;
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Simulation sim) {
-        AtomFactoryMono f = new AtomFactoryMono(sim);
+        AtomFactoryMono f = new AtomFactoryMono(sim.space, sim.iteratorFactory.neighborSequencerFactory());
         AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         return f;

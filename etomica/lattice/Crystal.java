@@ -10,7 +10,7 @@ import etomica.*;
 public class Crystal {
     
     public Crystal(Primitive primitive) {
-        this(primitive, new AtomFactoryMono(primitive.parentSimulation()));
+        this(primitive, new AtomFactoryMono(primitive.space, AtomSequencerSimple.FACTORY));
     }
     public Crystal(Primitive primitive, AtomFactory factory) {
         this.primitive = primitive;

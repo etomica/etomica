@@ -19,21 +19,23 @@ public class BasisCubicFccDiamond extends AtomFactoryHomo {
      * Makes a basis using a default that uses AtomFactoryMono
      * for making atom occupying each site.
      */
-    public BasisCubicFccDiamond(Simulation sim, PrimitiveCubic primitive) {
-        this(sim, new AtomFactoryMono(sim), primitive);
+    public BasisCubicFccDiamond(Space space, PrimitiveCubic primitive) {
+        this(space, AtomSequencerSimple.FACTORY, 
+                new AtomFactoryMono(space, AtomSequencerSimple.FACTORY), primitive);
     }
     /**
      * Makes a diamond-on-fcc 2-atom basis using the given factory to make the atoms.
      */
-    public BasisCubicFccDiamond(Simulation sim, AtomFactory factory, PrimitiveCubic primitive) {
-        super(sim, factory, 2, BondInitializer.NULL, new Configuration(sim,primitive));
+    public BasisCubicFccDiamond(Space space, AtomSequencer.Factory seqFactory, 
+                                AtomFactory factory, PrimitiveCubic primitive) {
+        super(space, seqFactory, factory, 2, BondInitializer.NULL, new Configuration(space,primitive));
     }
     
     
     private static class Configuration extends etomica.Configuration {
         
-        private Configuration(Simulation sim, PrimitiveCubic primitive) {
-            super(sim);
+        private Configuration(Space space, PrimitiveCubic primitive) {
+            super(space);
             this.primitive = primitive;
         }
         

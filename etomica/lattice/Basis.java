@@ -19,8 +19,8 @@ import etomica.*;
  //   and return 'this';
 public abstract class Basis extends AtomFactory {
     
-    public Basis(Simulation sim) {
-        super(sim);
+    public Basis(Space space, AtomSequencer.Factory seqFactory) {
+        super(space, seqFactory);
     }
     
     //add methods for neighbor distances

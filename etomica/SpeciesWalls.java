@@ -19,7 +19,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     private static AtomFactoryHetero makeFactory(Simulation sim, int nA) {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
-            f[i] = new AtomFactoryMono(sim);
+            f[i] = new AtomFactoryMono(sim.space, sim.iteratorFactory.neighborSequencerFactory());
             AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
             f[i].setType(type);
         }

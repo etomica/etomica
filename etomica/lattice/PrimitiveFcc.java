@@ -13,15 +13,15 @@ public class PrimitiveFcc extends Primitive implements Primitive3D {
     private Space.Vector[] unitVectors;
     private static final double FCC_ANGLE = Math.acos(0.5);
     
-    public PrimitiveFcc(Simulation sim) {
-        this(sim, 1.0);
+    public PrimitiveFcc(Space space) {
+        this(space, 1.0);
     }
-    public PrimitiveFcc(Simulation sim, double size) {
-        super(sim); //also makes reciprocal
+    public PrimitiveFcc(Space space, double size) {
+        super(space); //also makes reciprocal
         //set up orthogonal vectors of unit size
         unitVectors = new Space.Vector[D];
         for(int i=0; i<D; i++) {
-            unitVectors[i] = sim.space.makeVector();
+            unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(2.0));
             unitVectors[i].setX(i,0.0);
         }
@@ -30,11 +30,11 @@ public class PrimitiveFcc extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method of PrimitiveBcc.
      */
-    PrimitiveFcc(Simulation sim, Primitive direct) {
-        super(sim, direct);
+    PrimitiveFcc(Space space, Primitive direct) {
+        super(space, direct);
         unitVectors = new Space.Vector[D];
         for(int i=0; i<D; i++) {
-            unitVectors[i] = sim.space.makeVector();
+            unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(2.0));
             unitVectors[i].setX(i,0.0);
         }
@@ -42,7 +42,7 @@ public class PrimitiveFcc extends Primitive implements Primitive3D {
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveBcc(simulation, this);
+        return new PrimitiveBcc(space, this);
     }
     
     //called by update method of superclass
@@ -79,7 +79,7 @@ public class PrimitiveFcc extends Primitive implements Primitive3D {
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveFcc(simulation, size);
+        return new PrimitiveFcc(space, size);
     }
     
     /**

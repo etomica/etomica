@@ -18,21 +18,21 @@ public class BasisHcp extends AtomFactoryHomo {
      * Makes a basis using a default that uses AtomFactoryMono
      * for making atom occupying each site.
      */
-    public BasisHcp(Simulation sim, PrimitiveHexagonal primitive) {
-        this(sim, new AtomFactoryMono(sim), primitive);
+    public BasisHcp(Space space, PrimitiveHexagonal primitive) {
+        this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY), primitive);
     }
     /**
      * Makes a hcp 2-atom basis using the given factory to make the atoms.
      */
-    public BasisHcp(Simulation sim, AtomFactory factory, PrimitiveHexagonal primitive) {
-        super(sim, factory, 2, BondInitializer.NULL, new Configuration(sim,primitive));
+    public BasisHcp(Space space, AtomFactory factory, PrimitiveHexagonal primitive) {
+        super(space, AtomSequencerSimple.FACTORY, factory, 2, BondInitializer.NULL, new Configuration(space,primitive));
     }
     
     
     private static class Configuration extends etomica.Configuration {
         
-        private Configuration(Simulation sim, PrimitiveHexagonal primitive) {
-            super(sim);
+        private Configuration(Space space, PrimitiveHexagonal primitive) {
+            super(space);
             this.primitive = primitive;
         }
         

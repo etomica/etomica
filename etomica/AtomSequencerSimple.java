@@ -1,5 +1,9 @@
 package etomica;
 
+/* History
+ * 10/18/02 (DAK) added sequencerClass method to FACTORY
+ */
+
 public final class AtomSequencerSimple extends AtomSequencer {
     
     public AtomSequencerSimple(Atom a) {
@@ -38,5 +42,6 @@ public final class AtomSequencerSimple extends AtomSequencer {
         public AtomSequencer makeSequencer(Atom atom) {
             return new AtomSequencerSimple(atom);
         }
+        public Class sequencerClass() {return AtomSequencerSimple.class;}
     };
 }

@@ -41,30 +41,30 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
      * Creates an fcc lattice with the given number of sites in a box of the given size,
      * using a simple site factory (Site.Factory).
      */
-    public static LatticeCubicFcc makeLattice(Simulation sim, int nSites, double boxSize) {
-        return makeLattice(sim, new Site.Factory(sim), calculateSize(nSites), 
+    public static LatticeCubicFcc makeLattice(Space space, int nSites, double boxSize) {
+        return makeLattice(space, new Site.Factory(space), calculateSize(nSites), 
                             calculateLatticeConstant(nSites,boxSize)); 
     }
     /**
      * Creates an fcc lattice with the given number of sites in a box of the given size,
      * using the given site factory.
      */
-    public static LatticeCubicFcc makeLattice(Simulation sim, AtomFactory siteFactory, 
+    public static LatticeCubicFcc makeLattice(Space space, AtomFactory siteFactory, 
                                                 int nSites, double boxSize) {
-        return makeLattice(sim, siteFactory, calculateSize(nSites), 
+        return makeLattice(space, siteFactory, calculateSize(nSites), 
                             calculateLatticeConstant(nSites,boxSize)); 
     }
     /**
      * Creates an fcc lattice with 4*dimensions[1]*dimensions[2]*dimensions[3] sites, using the given lattice constant
      * and a simple site factory.
      */
-    public static LatticeCubicFcc makeLattice(Simulation sim, int[] dimensions, double latticeConstant) {
-        return makeLattice(sim, new Site.Factory(sim), dimensions, latticeConstant);
+    public static LatticeCubicFcc makeLattice(Space space, int[] dimensions, double latticeConstant) {
+        return makeLattice(space, new Site.Factory(space), dimensions, latticeConstant);
     }
     
-    public static LatticeCubicFcc makeLattice(Simulation sim, AtomFactory siteFactory, 
+    public static LatticeCubicFcc makeLattice(Space space, AtomFactory siteFactory, 
                                                 int[] dimensions, double latticeConstant) {
-        return (LatticeCubicFcc)new Factory(sim, siteFactory, dimensions, latticeConstant).makeAtom();
+        return (LatticeCubicFcc)new Factory(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, latticeConstant).makeAtom();
     }
     
     /**
@@ -293,13 +293,13 @@ public static class Factory extends AtomFactory {
      * Creates an fcc lattice with 4*dimensions[1]*dimensions[2]*dimensions[3] sites, 
      * using the given lattice constant and site factory.
      */
-    public Factory(Simulation sim, AtomFactory siteFactory, int[] dimensions, double latticeConstant) {
-        super(sim);
+    public Factory(Space space, AtomSequencer.Factory seqFactory, AtomFactory siteFactory, int[] dimensions, double latticeConstant) {
+        super(space, seqFactory);
         this.siteFactory = siteFactory;
         this.dimensions = new int[dimensions.length];
         System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
         this.latticeConstant = latticeConstant;
-        configuration = new Configuration4(sim,latticeConstant);
+        configuration = new Configuration4(space,latticeConstant);
     }
     
     public boolean isGroupFactory() {return false;}
@@ -310,7 +310,7 @@ public static class Factory extends AtomFactory {
      */
     public Atom build(AtomTreeNodeGroup parent) {
         groupType.childrenAreGroups = true;
-        Atom group = new LatticeCubicFcc(parentSimulation.space, groupType, dimensions, parent, latticeConstant);
+        Atom group = new LatticeCubicFcc(space, groupType, dimensions, parent, latticeConstant);
         return build(group);
     }
     
@@ -323,7 +323,7 @@ public static class Factory extends AtomFactory {
         LatticeCubicFcc group = (LatticeCubicFcc)atom;
         ((AtomTreeNodeGroup)group.node).removeAllChildren();
         LatticeFactoryCubic subFactory = 
-            new LatticeFactoryCubic(parentSimulation, siteFactory, group.getDimensions(), group.getLatticeConstant());
+            new LatticeFactoryCubic(space, siteFactory, group.getDimensions(), group.getLatticeConstant());
         for(int i=0; i<4; i++) subFactory.makeAtom((AtomTreeNodeGroup)group.node);
         //set up siteList
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);
@@ -341,8 +341,8 @@ public static class Factory extends AtomFactory {
     private static class Configuration4 extends Configuration {
 
         private double latticeConstant;
-        Configuration4(Simulation sim, double a) {
-            super(sim);
+        Configuration4(Space space, double a) {
+            super(space);
             latticeConstant = a;
         }
         
@@ -412,8 +412,8 @@ public static class Factory extends AtomFactory {
         Simulation.instance = sim;
         int D = space.D();
         final int nx = 2, ny = 1, nz = 2;
-        LatticeCubicFcc lattice = LatticeCubicFcc.makeLattice(sim, 
-                                new Site.Factory(sim),
+        LatticeCubicFcc lattice = LatticeCubicFcc.makeLattice(space, 
+                                new Site.Factory(space),
                                 new int[] {nx,ny,nz},
                                 1.0);        
         System.out.println("Total number of sites: "+lattice.siteList().size());

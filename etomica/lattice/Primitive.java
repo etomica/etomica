@@ -15,7 +15,7 @@ public abstract class Primitive {
     protected final double[] angle;
     private final double[] sizeCopy;
     public final Space space;
-    protected Simulation simulation;
+//    protected Simulation simulation;
     protected BravaisLattice lattice;
     protected boolean immutable = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
@@ -24,17 +24,16 @@ public abstract class Primitive {
     /**
      * This constructor is used by when making the direct-lattice primitive.
      */
-    protected Primitive(Simulation sim) {
-        this(sim, null);
+    protected Primitive(Space space) {
+        this(space, null);
     }
     /**
      * This constructor is called directly when a Primitive is constructing
      * its reciprocal primitive.  For construction of the direct-lattice
      * primitive, this constructor is called via the Primitive(Simulation) constructor.
      */
-    protected Primitive(Simulation sim, Primitive reciprocal) {
-        simulation = sim;
-        space = sim.space;
+    protected Primitive(Space space, Primitive reciprocal) {
+        this.space = space;
         D = space.D();
         if(!( (this instanceof Primitive2D && D==2) || (this instanceof Primitive3D && D==3))) throw new RuntimeException("Error: inconsistency between spatial dimension and interface of Primitive");
         latticeVectors = new Space.Vector[D];
@@ -205,12 +204,7 @@ public abstract class Primitive {
      * Returns the primitive for the reciprocal lattice vectors.
      */
     public Primitive reciprocal() {return reciprocal;}
-    
-    /**
-     * Return the simulation using this Primitive.
-     */
-    public Simulation parentSimulation() {return simulation;}
-    
+        
     /**
      * Returns a factory for the Wigner-Seitz cell specified by this primitive.
      * Each WS cell made by this factory remains tied to the primitive,
