@@ -11,18 +11,17 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     AtomIterator atomIterator;
     
     public final PotentialCalculationForceSum forceSum;
+    private final Space space;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    private final MeterTemperature meterTemperature = new MeterTemperature(this);
+    private final MeterTemperature meterTemperature = new MeterTemperature();
     
     //Fields for Andersen thermostat
     double nu = 0.001;  //heat bath "collision" frequency
     private boolean andersenThermostat = false;
                 
-    public IntegratorVelocityVerlet() {
-        this(Simulation.instance);
-    }
-    public IntegratorVelocityVerlet(SimulationElement parent) {
-        super(parent);
+    public IntegratorVelocityVerlet(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
         
         setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
@@ -94,7 +93,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         if(isothermal) {
         	if(!andersenThermostat) {
 	            //velocity-rescaling thermostat
-	            double s = Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster));
+	            double s = Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase));
 	            atomIterator.reset();
 	            while(atomIterator.hasNext()) {
 	                Atom a = atomIterator.nextAtom();
@@ -131,16 +130,16 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 //--------------------------------------------------------------
 
     public final Object makeAgent(Atom a) {
-        return new MyAgent(simulation(),a);
+        return new MyAgent(space,a);
     }
             
     public final static class MyAgent implements Integrator.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
 
-        public MyAgent(Simulation sim, Atom a) {
+        public MyAgent(Space space, Atom a) {
             atom = a;
-            force = sim.space().makeVector();
+            force = space.makeVector();
         }
         
         public Space.Vector force() {return force;}

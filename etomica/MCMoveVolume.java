@@ -12,15 +12,16 @@ import etomica.units.Dimension;
 public class MCMoveVolume extends MCMove {
     
     protected double pressure;
-    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private MeterPotentialEnergy energyMeter;
     protected final PhaseInflate inflate = new PhaseInflate();
      private AtomIterator affectedAtomIterator;
 
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
-    public MCMoveVolume(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
+    public MCMoveVolume(PotentialMaster potentialMaster) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
@@ -56,7 +57,7 @@ public class MCMoveVolume extends MCMove {
     public double lnProbabilityRatio() {
         uNew = energyMeter.getDataAsScalar(phase);
         double hNew = uNew + pressure*vNew;
-        return -(hNew - hOld)/parentIntegrator.temperature;
+        return -(hNew - hOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */}

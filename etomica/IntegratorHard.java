@@ -28,7 +28,7 @@ public class IntegratorHard extends IntegratorMD {
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
     private Atom[] atoms;
-    protected final MeterTemperature meterTemperature = new MeterTemperature(this);
+    protected final MeterTemperature meterTemperature = new MeterTemperature();
     Space.Vector c3;
     Space.CoordinatePair cPairDebug;
 
@@ -40,8 +40,8 @@ public class IntegratorHard extends IntegratorMD {
 	private Atom[] targetAtom = new Atom[1];
 	
     
-    public IntegratorHard(Simulation sim) {
-        super(sim);
+    public IntegratorHard(PotentialMaster potentialMaster) {
+        super(potentialMaster);
         Agent.nullPotential = null; //(PotentialHard)Potential.NullPotential(sim);
         atoms = new Atom[2];
     }//end of constructor
@@ -71,7 +71,7 @@ public class IntegratorHard extends IntegratorMD {
         		System.out.println("previous collision occured before current one");
         		System.out.println("previous time: "+(timeStep-interval)+"current time: "+(timeStep-interval+collisionTimeStep));
         		System.out.println("collision between "+atoms[0]+" and "+atoms[1]);
-        		cPairDebug = space.makeCoordinatePair();
+        		cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
         		cPairDebug.setBoundary(firstPhase.boundary());
         		cPairDebug.reset(atoms[0].coord,atoms[1].coord);
         		System.out.println("distance at last collision time was "+cPairDebug.r2());
@@ -85,7 +85,7 @@ public class IntegratorHard extends IntegratorMD {
         	}
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
     		if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null && Debug.ATOM2 != null) {
-    			cPairDebug = space.makeCoordinatePair();
+    			cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
     			cPairDebug.setBoundary(firstPhase.boundary());
     			Debug.checkAtoms(cPairDebug);
     		}

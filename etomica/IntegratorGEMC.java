@@ -15,11 +15,8 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     private final MCMoveVolumeExchange volumeExchange = new MCMoveVolumeExchange(this);
     private final MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(this);
     
-    public IntegratorGEMC() {
-        this(Simulation.instance);
-    }
-    public IntegratorGEMC(Simulation sim) {
-        super(sim);
+    public IntegratorGEMC(PotentialMaster potentialMaster) {
+        super(potentialMaster);
         phaseCountMax = 2;
 //        super.phaseCountMax = 2;
         phase = new Phase[phaseCountMax];

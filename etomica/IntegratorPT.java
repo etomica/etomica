@@ -27,8 +27,6 @@ import etomica.units.Dimension;
 
 public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
-    public String version() {return "IntegratorPT:02.07.16"+super.version();}
-
     public IntegratorPT() {
         this(Simulation.instance);
     }

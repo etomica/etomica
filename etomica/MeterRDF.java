@@ -13,14 +13,14 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 * leaf atoms in a phase.
 	 * @param parent
 	 */
-    public MeterRDF(SimulationElement parent) {
-	    super(parent, new DataSourceUniform());
+    public MeterRDF(Space space) {
+	    super(new DataSourceUniform());
 	    xDataSourceUniform = (DataSourceUniform)xDataSource;
 	    xDataSourceUniform.setDimension(Dimension.LENGTH);
 	    xDataSourceUniform.setLabel("r");
 	    setLabel("rdf");
 	    iterator = new ApiLeafAtoms();
-	    cPair = parent.space.makeCoordinatePair();
+	    cPair = space.makeCoordinatePair();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

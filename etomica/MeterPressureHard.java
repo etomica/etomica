@@ -1,4 +1,3 @@
-//this class includes a main method to demonstrate its use
 package etomica;
 import etomica.units.*;
 
@@ -20,12 +19,9 @@ public final class MeterPressureHard extends MeterScalar implements
     private double value = 0.0; //holds meter value from one call to the next
     private final int D;
     
-    public MeterPressureHard() {
-        this(Simulation.instance);
-    }
-    public MeterPressureHard(Simulation sim) {
-        super(sim);
-        D = simulation().space().D();
+    public MeterPressureHard(Space space) {
+        super();
+        D = space.D();
         setLabel("PV/Nk");
     }
         

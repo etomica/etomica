@@ -10,10 +10,7 @@ public class MeterNMolecules extends MeterScalar implements EtomicaElement {
     private Species species;
     
     public MeterNMolecules() {
-        this(Simulation.instance);
-    }
-    public MeterNMolecules(Simulation sim) {
-        super(sim);
+        super();
         setLabel("Molecules");
     }
     

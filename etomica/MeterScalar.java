@@ -12,8 +12,8 @@ public abstract class MeterScalar extends MeterAbstract {
     
     public static final String VERSION = "Meter:01.05.14/"+MeterAbstract.VERSION;
     
-	public MeterScalar(SimulationElement parent) {
-	    super(parent, 1);
+	public MeterScalar() {
+	    super(1);
 	}
 	
 	public abstract double getDataAsScalar(Phase phase);

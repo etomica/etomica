@@ -18,14 +18,11 @@ public abstract class MeterMultiFunction extends MeterFunction {
      */
     protected final int nFunctions;
     
-    public MeterMultiFunction(int nF) {
-        this(Simulation.instance, nF);
-    }
     /**
      *  @param nF the number of functions to be measured
      */     
-    public MeterMultiFunction(Simulation sim, int nF) {
-        super(sim);
+    public MeterMultiFunction(int nF) {
+        super();
         nFunctions = nF;
         meters = new MeterFunction[nF];
     }

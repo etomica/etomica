@@ -19,11 +19,8 @@ package etomica;
     private final AtomIteratorList atomIterator = new AtomIteratorList();
     private AtomAction action;
     
-    public IntegratorAnalytic() {
-        this(Simulation.instance);
-    }
-    public IntegratorAnalytic(Simulation sim) {
-        super(sim);
+    public IntegratorAnalytic(PotentialMaster potentialMaster) {
+        super(potentialMaster);
     }
     
     public void doStep() {

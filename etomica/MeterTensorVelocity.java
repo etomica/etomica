@@ -28,13 +28,10 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
      */
     private Space.Tensor velocityTensor;
     
-    public MeterTensorVelocity() {
-        this(Simulation.instance);
-    }
-    public MeterTensorVelocity(Simulation sim) {
-        super(sim);
-        velocity = sim.space().makeTensor();
-        velocityTensor = sim.space().makeTensor();
+    public MeterTensorVelocity(Space space) {
+        super(space);
+        velocity = space.makeTensor();
+        velocityTensor = space.makeTensor();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

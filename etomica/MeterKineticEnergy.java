@@ -17,10 +17,6 @@ public class MeterKineticEnergy extends MeterScalar
     private AtomIteratorPhaseDependent iterator;
     
     public MeterKineticEnergy() {
-        this(Simulation.instance);
-    }
-    public MeterKineticEnergy(SimulationElement parent) {
-        super(parent);
         setLabel("Kinetic Energy");
         setIterator(new AtomIteratorLeafAtoms());
     }

@@ -11,10 +11,7 @@ import etomica.units.*;
 public class MeterDensity extends MeterScalar implements EtomicaElement
 {
     public MeterDensity() {
-        this(Simulation.instance);
-    }
-    public MeterDensity(Simulation sim) {
-        super(sim);
+        super();
         setLabel("Number density");
     }
 

@@ -12,12 +12,12 @@ public abstract class MeterFunction extends MeterArray implements DataSource {
     /**
      * Default constructor.  Sets the xDataSource to a DataSourceUniform
      */
-    public MeterFunction(SimulationElement parent) {
-        this(parent, new DataSourceUniform());
+    public MeterFunction() {
+        this(new DataSourceUniform());
     }
 
-    public MeterFunction(SimulationElement parent, DataSource xDataSource) {
-    	super(parent);
+    public MeterFunction(DataSource xDataSource) {
+    	super();
     	this.xDataSource = xDataSource;
     }
 	 

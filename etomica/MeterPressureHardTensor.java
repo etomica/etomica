@@ -10,16 +10,13 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     private IntegratorHard integratorHard;
     private int D;
     
-    public MeterPressureHardTensor() {
-        this(Simulation.instance);
-    }
-    public MeterPressureHardTensor(Simulation sim) {
-        super(sim);
-        D = sim.space().D();
+    public MeterPressureHardTensor(Space space) {
+        super();
+        D = space.D();
         virialSum = new double[D][D];
-        pressureTensor = sim.space().makeTensor();
-        velocityTensor = sim.space().makeTensor();
-        v = sim.space().makeTensor();
+        pressureTensor = space.makeTensor();
+        velocityTensor = space.makeTensor();
+        v = space.makeTensor();
         setLabel("PV/Nk");
     }
 

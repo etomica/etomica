@@ -18,22 +18,19 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    
+    private final Space space;
     Space.Vector work, work1, work2, work3, work4;
     double halfTime, mass;
                 
-    public IntegratorConNVT() {
-        this(Simulation.instance);
-    }
-    public IntegratorConNVT(final Simulation sim) {
-        super(sim);
-        forceSum = new PotentialCalculationForceSum(sim.space());
-       
-        work = sim.space().makeVector();
-        work1 = sim.space().makeVector();
-        work2 = sim.space().makeVector();
-        work3 = sim.space().makeVector();
-       	work4 = sim.space().makeVector();
+    public IntegratorConNVT(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        forceSum = new PotentialCalculationForceSum(space);
+        this.space = space;
+        work = space.makeVector();
+        work1 = space.makeVector();
+        work2 = space.makeVector();
+        work3 = space.makeVector();
+       	work4 = space.makeVector();
        	
         setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
@@ -156,7 +153,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 //--------------------------------------------------------------
 
     public final Object makeAgent(Atom a) {
-        return new Agent(simulation(),a);
+        return new Agent(space,a);
     }
             
 	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
@@ -164,9 +161,9 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         public Space.Vector force;
     
 
-        public Agent(Simulation sim, Atom a) {
+        public Agent(Space space, Atom a) {
             atom = a;
-            force = sim.space().makeVector();
+            force = space.makeVector();
         }
         
         public Space.Vector force() {return force;}

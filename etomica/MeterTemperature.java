@@ -16,14 +16,9 @@ public final class MeterTemperature extends MeterScalar implements
 		EtomicaElement {
 
 	public MeterTemperature() {
-		this(Simulation.instance);
-	}
-
-	public MeterTemperature(SimulationElement parent) {
-		super(parent);
+		super();
 		setLabel("Temperature");
-		meterKE = new MeterKineticEnergy(this);
-		D = parent.space.D();
+		meterKE = new MeterKineticEnergy();
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -33,7 +28,7 @@ public final class MeterTemperature extends MeterScalar implements
 	}
 
 	public double getDataAsScalar(Phase phase) {
-		return (2. / (double) (phase.atomCount() * D))
+		return (2. / (double) (phase.atomCount() * phase.boundary().dimensions().D()))
 				* meterKE.getDataAsScalar(phase);
 	}
 
@@ -42,6 +37,4 @@ public final class MeterTemperature extends MeterScalar implements
 	}
 
 	private final MeterKineticEnergy meterKE;
-	private final int D;
-
 }

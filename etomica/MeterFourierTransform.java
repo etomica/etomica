@@ -25,11 +25,8 @@ public class MeterFourierTransform extends MeterFunction {
 	FastFourierTransform fourier;
 	
 
-	public MeterFourierTransform() {
-		this(Simulation.instance,true);
-	}
-	public MeterFourierTransform(SimulationElement parent,boolean real) {
-		super((Simulation) parent);
+	public MeterFourierTransform(boolean real) {
+		super();
 		this.REAL=real;
 		if (real){setLabel("Real");}
 		else {setLabel("Imaginary");}

@@ -16,7 +16,7 @@ import etomica.units.Dimension;
 public class MCMoveAtom extends MCMove {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -28,8 +28,9 @@ public class MCMoveAtom extends MCMove {
     private int k = 0;
     private Atom atomIdx1, atomIdx2;
 /* */
-    public MCMoveAtom(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
+    public MCMoveAtom(PotentialMaster potentialMaster) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
@@ -103,7 +104,7 @@ public class MCMoveAtom extends MCMove {
     public double lnProbabilityRatio() {
 //        energyMeter.setTarget(atom);
         uNew = energyMeter.getDataAsScalar(phase);
-        return -(uNew - uOld)/parentIntegrator.temperature;
+        return -(uNew - uOld)/temperature;
     }
     
     public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}

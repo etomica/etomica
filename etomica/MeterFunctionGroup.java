@@ -21,8 +21,8 @@ public abstract class MeterFunctionGroup extends MeterAbstract  {
 	protected double[][] y;
 	protected int nPoints;
     
-	public MeterFunctionGroup(Simulation sim, int nMeters) {
-		super(sim);
+	public MeterFunctionGroup(int nMeters) {
+		super();
 		setActive(true);  //default is to have meter do averages after some number of integrationIntervalEvents
 		this.nMeters = nMeters;
 		makeMeters();

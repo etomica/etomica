@@ -36,14 +36,11 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
      */
     private double t0;
     
-    public MeterTensorVirialHard() {
-        this(Simulation.instance);
-    }
-    public MeterTensorVirialHard(Simulation sim) {
-        super(sim);
-        collisionVirial = sim.space().makeTensor();
-        virialTensor = sim.space().makeTensor();
-        virialSum = new double[sim.space().D()][sim.space().D()];
+    public MeterTensorVirialHard(Space space) {
+        super(space);
+        collisionVirial = space.makeTensor();
+        virialTensor = space.makeTensor();
+        virialSum = new double[space.D()][space.D()];
     }
     
     public static EtomicaInfo getEtomicaInfo() {

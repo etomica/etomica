@@ -18,22 +18,10 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     private final PotentialMaster potential;
     private int nDimension;
     
-    public MeterPressureByVolumeChange() {
-        this(null);
-    }
-    
-    /**
-     * Constructor that indicates volume change should be performed anisotropically.
-     * @param dimensions array indicating which dimensions should be inflated
-     */
-    public MeterPressureByVolumeChange(boolean[] dimensions) {
-        this(Simulation.instance, dimensions);
-    }
-    
-    public MeterPressureByVolumeChange(Simulation sim, boolean[] dimensions) {
-        super(sim);
-        space = sim.space;
-        potential = sim.hamiltonian.potential;
+    public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
+        super();
+        this.space = space;
+        potential = potentialMaster;
         energy = sim.energySum(this);
         setX(-0.001, 0.001, 10);
         inflateDimensions = new boolean[space.D()];

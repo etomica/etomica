@@ -25,18 +25,15 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     private double rrh = 300.;
     private double kp, kh;
     private int D;
-    private final MeterTemperature meterTemperature = new MeterTemperature(this);
+    private final MeterTemperature meterTemperature = new MeterTemperature();
     
-    public IntegratorGear4NPH() {
-        this(Simulation.instance);
-    }
-    public IntegratorGear4NPH(final Simulation sim) {
-        super(sim);
+    public IntegratorGear4NPH(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster, space);
         kp = 1.0/rrp/timeStep();
         kh = 1.0/rrh/timeStep();
-        D = sim.space().D();
+        D = space.D();
         setIsothermal(true);
-        forceSumNPH = new ForceSumNPH(sim.space());
+        forceSumNPH = new ForceSumNPH(space);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -109,7 +106,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     public void drivePH() {
-        kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
+        kineticT = meterTemperature.getDataAsScalar(firstPhase);
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -175,12 +172,12 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 //--------------------------------------------------------------
 
     public Object makeAgent(Atom a) {
-        return new Agent(simulation(),a);
+        return new Agent(space,a);
     }
             
     public static class Agent extends IntegratorGear4.Agent {  //need public so to use with instanceof
-        public Agent(Simulation sim, Atom a) {
-            super(sim, a);
+        public Agent(Space space, Atom a) {
+            super(space, a);
         }
     }
     
@@ -205,15 +202,15 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     //most recent call to the ForceSumNPH instance
     public final class MeterTPH extends MeterGroup {
         
-        public MeterTPH(Simulation sim) {
-            super(sim, 3);//3 is number of meters in group
+        public MeterTPH() {
+            super(3);//3 is number of meters in group
             labels[0] = "Temperature";
             labels[1] = "Pressure";
             labels[2] = "Enthalpy";
         }
         public void updateValues() {
             if(firstPhase == null) return;
-            kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
+            kineticT = meterTemperature.getDataAsScalar(firstPhase);
             double mvsq = kineticT * D * firstPhase.atomCount();
             double volume = firstPhase.volume();
             double pCurrent = firstPhase.getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);

@@ -149,6 +149,14 @@ public class Simulation extends SimulationElement {
         return list.size() - 1;
     }//end of register method
 
+    /**
+     * Add the given accumulatorManger to a list kept by the simulation.
+     * No other effect results from registering the accumulatorManager.  
+     * The list of registered accumulationManagers may be retrieved via
+     * the getAccumulatorManagerList method.  An accumulatorManager may be
+     * removed from the list via the unregister method.
+     * @param accumulatorManager
+     */
     public void register(AccumulatorManager accumulatorManager) {
      	accumulatorManagerList.add(accumulatorManager);
      }
@@ -160,6 +168,12 @@ public class Simulation extends SimulationElement {
         list.remove(element);
     }
     
+    /**
+     * Removes the given accumulatorManager from the list of accumulatorManagers
+     * kept by the simulation.  No other action results upon removing it from
+     * this list.  If the given accumulatorManager is not in the list already,
+     * the method returns without taking any action.
+     */
     public void unregister(AccumulatorManager accumulatorManager) {
     	accumulatorManagerList.remove(accumulatorManager);
     }

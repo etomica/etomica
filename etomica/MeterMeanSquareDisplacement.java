@@ -24,18 +24,15 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
     private Space.Vector[] rAccum, rLast;
     private Space.Vector deltaR;
     
-    public MeterMeanSquareDisplacement() {
-        this(Simulation.instance);
-    }
-    public MeterMeanSquareDisplacement(AtomIterator iter) {
-        this(Simulation.instance);
+    public MeterMeanSquareDisplacement(Space space, AtomIterator iter) {
+        this(space);
         setAtoms(iter);
     }
-    public MeterMeanSquareDisplacement(Simulation sim) {
-        super(sim, 1);
+    public MeterMeanSquareDisplacement(Space space) {
+        super(1);
         setLabel("Mean square displacement");
         setUpdateInterval(1);
-        deltaR = sim.space().makeVector();
+        deltaR = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

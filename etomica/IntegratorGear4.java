@@ -14,6 +14,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     protected final AtomIteratorList atomIterator = new AtomIteratorList();
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
+    protected final Space space;
     final Space.Vector work1, work2;
     double zeta = 0.0;
     double chi = 0.0;
@@ -25,14 +26,12 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     static final double GEAR3 = 1./3.;
     static final double GEAR4 = 1./24.;
                 
-    public IntegratorGear4() {
-        this(Simulation.instance);
-    }
-    public IntegratorGear4(final Simulation sim) {
-        super(sim);
-        forceSum = new PotentialCalculationForceSum(sim.space());
-        work1 = sim.space().makeVector();
-        work2 = sim.space().makeVector();
+    public IntegratorGear4(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        this.space = space;
+        forceSum = new PotentialCalculationForceSum(space);
+        work1 = space.makeVector();
+        work2 = space.makeVector();
         setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
     
@@ -174,7 +173,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 //--------------------------------------------------------------
 
     public Object makeAgent(Atom a) {
-        return new Agent(simulation(),a);
+        return new Agent(space,a);
     }
             
     public static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
@@ -183,17 +182,17 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         public Space.Vector dr1, dr2, dr3, dr4;
         public Space.Vector dp1, dp2, dp3, dp4;
 
-        public Agent(Simulation sim, Atom a) {
+        public Agent(Space space, Atom a) {
             atom = a;
-            force = sim.space().makeVector();
-            dr1 = sim.space().makeVector();
-            dr2 = sim.space().makeVector();
-            dr3 = sim.space().makeVector();
-            dr4 = sim.space().makeVector();
-            dp1 = sim.space().makeVector();
-            dp2 = sim.space().makeVector();
-            dp3 = sim.space().makeVector();
-            dp4 = sim.space().makeVector();
+            force = space.makeVector();
+            dr1 = space.makeVector();
+            dr2 = space.makeVector();
+            dr3 = space.makeVector();
+            dr4 = space.makeVector();
+            dp1 = space.makeVector();
+            dp2 = space.makeVector();
+            dp3 = space.makeVector();
+            dp4 = space.makeVector();
         }
         
         public Space.Vector force() {return force;}

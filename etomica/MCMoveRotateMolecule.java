@@ -15,7 +15,7 @@ import etomica.action.AtomActionTransform;
   
 public class MCMoveRotateMolecule extends MCMove {
     
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
     //not sure that tree iterator will give all leaf atoms of a molecule
@@ -28,11 +28,12 @@ public class MCMoveRotateMolecule extends MCMove {
     private transient Space.Vector r0;
     private transient Space.RotationTensor rotationTensor;
 
-    public MCMoveRotateMolecule(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
-        if(parentIntegrator.simulation().space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
-        rotationTensor = (Space.RotationTensor)parentIntegrator.simulation().space.makeRotationTensor();
-        r0 = parentIntegrator.simulation().space.makeVector();
+    public MCMoveRotateMolecule(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        if(space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
+        rotationTensor = (Space.RotationTensor)space.makeRotationTensor();
+        r0 = space.makeVector();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
@@ -67,7 +68,7 @@ public class MCMoveRotateMolecule extends MCMove {
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar(phase);
-        return -(uNew - uOld)/parentIntegrator.temperature;
+        return -(uNew - uOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */}

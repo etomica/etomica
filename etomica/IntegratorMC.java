@@ -21,11 +21,8 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     protected SimulationEventManager eventManager;
     protected final MCMoveEvent event = new MCMoveEvent(this);
     
-    public IntegratorMC() {
-        this(Simulation.instance);
-    }
-    public IntegratorMC(SimulationElement parent) {
-        super(parent);
+    public IntegratorMC(PotentialMaster potentialMaster) {
+        super(potentialMaster);
         setIsothermal(true); //has no practical effect, but sets value of isothermal to be consistent with way integrator is sampling
     }
     
@@ -60,10 +57,6 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * Called only in constructor of the MCMove class.
      */
     void add(MCMove move) {
-        //make sure this is this parent of the move being added
-        if(move.parentIntegrator() != this) {
-            throw new RuntimeException("Inappropriate move added in IntegratorMC");
-        }
         //make sure move wasn't added already
         for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
             if(move == m) {
@@ -75,6 +68,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         lastMove = move;
         move.setNextMove(null);
         move.setPhase(phase);
+        move.setTemperature(temperature);
         moveCount++;
     }
     
@@ -152,7 +146,15 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
             m.reset();
         }
     }
-    
+
+    public void setTemperature(double temperature) {
+    	super.setTemperature(temperature);
+        frequencyTotal = 0;
+        for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
+            m.setTemperature(temperature);
+        }
+    }
+
     public void doReset() {
     	recomputeMoveFrequencies();
     }

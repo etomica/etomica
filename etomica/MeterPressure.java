@@ -18,18 +18,14 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
     private double temperature;
     private final double rD;
     
-    public MeterPressure() {
-        this(Simulation.instance);
-    }
-
-    public MeterPressure(Simulation sim) {
-        super(sim);
+    public MeterPressure(PotentialMaster potentialMaster, Space space) {
+    	super();
         setTemperature(temperature);
-        rD = 1.0/(double)simulation().space.D();
+        rD = 1.0/(double)space.D();
         setLabel("Pressure");
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
-        potential = simulation().potentialMaster;
+        potential = potentialMaster;
         virial = new PotentialCalculationVirialSum();
     }
       

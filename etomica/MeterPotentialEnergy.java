@@ -11,14 +11,11 @@ import etomica.units.Dimension;
  
 public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement {
     
-    public MeterPotentialEnergy() {
-        this(Simulation.instance);
-    }
-    public MeterPotentialEnergy(Simulation sim) {
-        super(sim);
+    public MeterPotentialEnergy(PotentialMaster potentialMaster) {
+        super();
         setLabel("Potential Energy");
         iteratorDirective.includeLrc = true;
-        potential = sim.potentialMaster;
+        potential = potentialMaster;
     }
       
     public static EtomicaInfo getEtomicaInfo() {

@@ -15,7 +15,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase firstPhase;
     private Phase secondPhase;
     private final double ROOT;
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 
     private transient Atom molecule;
@@ -24,9 +24,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private transient double uOld;
     private transient double uNew = Double.NaN;
 
-    public MCMoveMoleculeExchange(IntegratorMC parent) {
-        super(parent);
-        ROOT = 1.0/(double)parentIntegrator.simulation().space().D();
+    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        ROOT = 1.0/space.D();
         setTunable(false);
         setPerParticleFrequency(true);
         energyMeter.setIncludeLrc(true);
@@ -85,7 +86,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar(iPhase);
-        return -(uNew - uOld)/parentIntegrator.temperature;
+        return -(uNew - uOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */}

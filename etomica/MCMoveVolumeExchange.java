@@ -17,7 +17,7 @@ import etomica.exception.MethodNotImplementedException;
 
 public final class MCMoveVolumeExchange extends MCMove {
     
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     private Phase firstPhase;
     private Phase secondPhase;
     private PhaseInflate inflate1;
@@ -31,9 +31,10 @@ public final class MCMoveVolumeExchange extends MCMove {
     
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(IntegratorMC parent) {
-        super(parent);
-        ROOT = 1.0/(double)parentIntegrator.simulation().space().D();
+    public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        ROOT = 1.0/(double)space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.3);
@@ -91,7 +92,7 @@ public final class MCMoveVolumeExchange extends MCMove {
         uNew1 = energyMeter.getDataAsScalar(firstPhase);
         uNew2 = energyMeter.getDataAsScalar(secondPhase);
         double hNew = uNew1 + uNew2;
-        return -(hNew - hOld)/parentIntegrator.temperature;
+        return -(hNew - hOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */}

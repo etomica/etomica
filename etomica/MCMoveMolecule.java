@@ -13,14 +13,15 @@ import etomica.units.Dimension;
   */
 public class MCMoveMolecule extends MCMove {
     
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
     protected double uOld;
     protected double uNew = Double.NaN;
 
-    public MCMoveMolecule(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
+    public MCMoveMolecule(PotentialMaster potentialMaster) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(0.1*Default.ATOM_SIZE);
@@ -58,7 +59,7 @@ public class MCMoveMolecule extends MCMove {
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar(phase);
-        return -(uNew - uOld)/parentIntegrator.temperature;
+        return -(uNew - uOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */}

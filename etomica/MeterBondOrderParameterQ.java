@@ -12,14 +12,12 @@ import etomica.utility.*;
 
 public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaElement {
 	
-    public MeterBondOrderParameterQ() {this(Simulation.getDefault());}
-    
-    public MeterBondOrderParameterQ(Simulation sim) {
-        super(sim, 1);
+    public MeterBondOrderParameterQ(Space space) {
+        super(1);
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
         setLabel("Bond Q Order Parameter");
-        cPair = sim.space.makeCoordinatePair();
+        cPair = space.makeCoordinatePair();
     }
     
     public static EtomicaInfo getEtomicaInfo() {

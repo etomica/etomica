@@ -17,13 +17,10 @@ public class MeterSurfaceTensionHard extends MeterScalar implements MeterAtomic,
     private double surfaceTension, collisionValue, velocityValue;
     private int D;
     
-    public MeterSurfaceTensionHard() {
-        this(Simulation.instance);
-    }
-    public MeterSurfaceTensionHard(Simulation sim) {
-        super(sim);
-        pressureTensor = sim.space().makeTensor();
-        D = sim.space().D();
+    public MeterSurfaceTensionHard(Space space) {
+        super();
+        pressureTensor = space.makeTensor();
+        D = space.D();
         setLabel("Surface Tension");
     }
     

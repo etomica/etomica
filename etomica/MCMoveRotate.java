@@ -10,7 +10,7 @@ package etomica;
   
 public class MCMoveRotate extends MCMove {
     
-    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final Space.Orientation oldOrientation;
 
@@ -19,9 +19,10 @@ public class MCMoveRotate extends MCMove {
     private transient double uNew = Double.NaN;
     private transient Space.Orientation orientation;
 
-    public MCMoveRotate(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
-        oldOrientation = parentIntegrator.simulation().space().makeOrientation();
+    public MCMoveRotate(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        oldOrientation = space.makeOrientation();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
@@ -47,7 +48,7 @@ public class MCMoveRotate extends MCMove {
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar(phase);
-        return -(uNew - uOld)/parentIntegrator.temperature;
+        return -(uNew - uOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */}

@@ -11,16 +11,15 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
+    private final Space space;
     
     Space.Vector work;
                 
-    public IntegratorVerlet() {
-        this(Simulation.instance);
-    }
-    public IntegratorVerlet(final Simulation sim) {
-        super(sim);
-        forceSum = new PotentialCalculationForceSum(sim.space());
-        work = sim.space().makeVector();
+    public IntegratorVerlet(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        this.space = space;
+        forceSum = new PotentialCalculationForceSum(space);
+        work = space.makeVector();
         setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
 
@@ -86,7 +85,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 //--------------------------------------------------------------
 
     public final Object makeAgent(Atom a) {
-        return new Agent(simulation(),a);
+        return new Agent(space,a);
     }
             
 	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
@@ -94,10 +93,10 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         public Space.Vector force;
         public Space.Vector rMrLast;  //r - rLast
 
-        public Agent(Simulation sim, Atom a) {
+        public Agent(Space space, Atom a) {
             atom = a;
-            force = sim.space().makeVector();
-            rMrLast = sim.space().makeVector();
+            force = space.makeVector();
+            rMrLast = space.makeVector();
         }
         
         public Space.Vector force() {return force;}

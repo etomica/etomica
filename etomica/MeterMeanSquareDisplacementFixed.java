@@ -34,18 +34,15 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
     private int iPtr;
     private double timeStep;
     
-    public MeterMeanSquareDisplacementFixed() {
-        this(Simulation.instance);
-    }
-    public MeterMeanSquareDisplacementFixed(AtomIterator iter) {
-        this(Simulation.instance);
+    public MeterMeanSquareDisplacementFixed(Space space, AtomIterator iter) {
+        this(space);
         setAtoms(iter);
     }
-    public MeterMeanSquareDisplacementFixed(Simulation sim) {
-        super(sim);
+    public MeterMeanSquareDisplacementFixed(Space space) {
+        super();
         setLabel("Mean square displacement");
         setUpdateInterval(1);
-        rAccum = sim.space.makeVector();
+        rAccum = space.makeVector();
         setActive(true);
         setXLabel("time");
         setXMin(0.0);

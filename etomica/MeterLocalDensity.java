@@ -19,7 +19,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
      * @see #setSpeciesIndex
      */
     private Species species;
-    private AtomIteratorMolecule iterator = new AtomIteratorMolecule();
+    private AtomIteratorSpeciesDependent iterator = new AtomIteratorMolecule();
     protected double volume;
     /**
      * If <code>true</code> average mole fraction (n<sub>i</sub>/n<sub>total</sub>), if <code>false</code>, average total number density (n<sub>i</sub>/V)
@@ -29,10 +29,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
     private String initialLabel;
     
     public MeterLocalDensity() {
-        this(Simulation.instance);
-    }
-    public MeterLocalDensity(Simulation sim) {
-        super(sim);
+        super();
         initialLabel = "Local Density";
         setLabel(initialLabel);
         setSpecies(null);
@@ -100,10 +97,10 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
     {
         if(moleFractionMode) {  //compute local mole fraction
             int totalSum = 0, speciesSum = 0;
-            iterator.setBasis(p);
+            iterator.setPhase(p);
             iterator.reset();
             while(iterator.hasNext()) {
-                Atom m = iterator.next();
+                Atom m = iterator.nextAtom();
                 if(this.contains(m)) {
                     totalSum++;
                     if(m.node.parentSpecies() == species) speciesSum++;
@@ -115,16 +112,17 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
         //compute local molar density
         int nSum = 0;
         if(species == null) {   //total density
-            iterator.setBasis(p);
+            iterator.setPhase(p);
             iterator.reset();
             while(iterator.hasNext()) {
-                if(this.contains(iterator.next())) nSum++;
+                if(this.contains(iterator.nextAtom())) nSum++;
             }
         }
         else {                              //species density
-            iterator.setBasis(p, species);
+            iterator.setPhase(p);
+            iterator.setSpecies(new Species[] {species});
             while(iterator.hasNext()) {
-                if(this.contains(iterator.next())) nSum++;
+                if(this.contains(iterator.nextAtom())) nSum++;
            }
         }       
         return nSum/volume;

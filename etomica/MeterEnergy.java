@@ -12,14 +12,11 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement {
     private MeterKineticEnergy kinetic;
     private MeterPotentialEnergy potential;
     
-    public MeterEnergy() {
-        this(Simulation.instance);
-    }
-    public MeterEnergy(Simulation sim) {
-        super(sim);
+    public MeterEnergy(PotentialMaster potentialMaster) {
+    	super();
         setLabel("Energy");
         kinetic = new MeterKineticEnergy();
-        potential = new MeterPotentialEnergy();
+        potential = new MeterPotentialEnergy(potentialMaster);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

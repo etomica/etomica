@@ -17,7 +17,7 @@ public class MCMoveInsertDelete extends MCMove {
     protected double mu;
     
     //directive must specify "BOTH" to get energy with all atom pairs
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
 	protected Species species;
 	protected SpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -27,8 +27,9 @@ public class MCMoveInsertDelete extends MCMove {
 	protected boolean insert;
 	protected AtomReservoir reservoir;
 
-    public MCMoveInsertDelete(IntegratorMC parent) {
-        super(parent);
+    public MCMoveInsertDelete(PotentialMaster potentialMaster) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
@@ -83,10 +84,10 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar(phase);
-           return (+mu - uNew)/parentIntegrator.temperature;
+           return (+mu - uNew)/temperature;
         } else {//delete
             uNew = 0.0;
-            return (-mu + uOld)/parentIntegrator.temperature;
+            return (-mu + uOld)/temperature;
         }
     }
     

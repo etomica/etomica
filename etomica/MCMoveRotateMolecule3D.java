@@ -4,7 +4,7 @@ import etomica.action.AtomActionTransform;
 
 public class MCMoveRotateMolecule3D extends MCMove {
     
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
     private final AtomIterator leafAtomIterator = new AtomIteratorTree();
@@ -22,10 +22,11 @@ public class MCMoveRotateMolecule3D extends MCMove {
     private int j;
     private double uOldSave;
     
-    public MCMoveRotateMolecule3D(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
-        rotationTensor = (Space3D.RotationTensor)parentIntegrator.space.makeRotationTensor();
-        r0 = (Space3D.Vector)parentIntegrator.space.makeVector();
+    public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, Space space) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        rotationTensor = (Space3D.RotationTensor)space.makeRotationTensor();
+        r0 = (Space3D.Vector)space.makeVector();
        
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
@@ -64,7 +65,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar(phase);
         if(uOld > Double.MAX_VALUE) uOld = uOldSave;
-        return -(uNew - uOld)/parentIntegrator.temperature;
+        return -(uNew - uOld)/temperature;
     }
     
     public void acceptNotify() {  /* do nothing */

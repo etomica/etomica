@@ -20,9 +20,9 @@ public abstract class MeterTensor extends MeterAbstract {
     private int D;
     
     
-    public MeterTensor(Simulation sim) {
-        super(sim);
-        D = sim.space().D();
+    public MeterTensor(Space space) {
+        super();
+        D = space.D();
         accumulator = new MeterAbstract.Accumulator[D][D];
         setActive(true);
         for (int i=0; i<D; i++) {
@@ -30,10 +30,10 @@ public abstract class MeterTensor extends MeterAbstract {
                 accumulator[i][j] = new MeterAbstract.Accumulator();
             }
         }
-        values = sim.space().makeTensor();
-        average = sim.space().makeTensor();
-        error = sim.space().makeTensor();
-        y = sim.space().makeTensor();
+        values = space.makeTensor();
+        average = space.makeTensor();
+        error = space.makeTensor();
+        y = space.makeTensor();
     }    
     
     public abstract Space.Tensor getData();

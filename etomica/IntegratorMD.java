@@ -26,8 +26,8 @@ public abstract class IntegratorMD extends Integrator {
      */
     private double t0 = 0.0;
     
-    public IntegratorMD(SimulationElement parent) {
-        super(parent);
+    public IntegratorMD(PotentialMaster potentialMaster) {
+        super(potentialMaster);
         setTimeStep(Default.TIME_STEP);
     }
     

@@ -27,12 +27,9 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterProfile() {
-        this(Simulation.instance);
-    }
-    public MeterProfile(Simulation sim) {
-        super(sim);
-        profileVector = sim.space().makeVector();
+    public MeterProfile(Space space) {
+        super();
+        profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
     }
     

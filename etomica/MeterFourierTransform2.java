@@ -23,8 +23,8 @@ public class MeterFourierTransform2 extends MeterGroup {
 	 * @param nMeters
 	 * @param transform
 	 */
-	public MeterFourierTransform2(Simulation sim, int nMeters,MeterFourierTransform transform) {
-		super(sim, nMeters);
+	public MeterFourierTransform2(int nMeters,MeterFourierTransform transform) {
+		super(nMeters);
 		setResetHistoryOnMeterReset(true);
 		setHistorying(true);
 		for (int i=0;i<nMeters;i++) {

@@ -11,7 +11,7 @@ import etomica.utility.IntegerRange;
  *
  * @author David Kofke
  */
-public abstract class MeterAbstract extends SimulationElement implements DataSource {
+public abstract class MeterAbstract implements DataSource {
 
     public static final String VERSION = "MeterAbstract:01.07.25";
     
@@ -35,6 +35,12 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
     private double[] data;
     
     /**
+     * String used to identify this particular meter
+     */
+    //TODO attach an instance-count number to this
+    private String name = "Meter";
+    
+    /**
      * Array used to hold data returned for each phase.
      */
     protected double[] phaseData;
@@ -43,8 +49,7 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
     
     private static final IntegerRange phaseCountRange = new IntegerRange(1,Integer.MAX_VALUE);
     
-	public MeterAbstract(SimulationElement parent, int nDataPerPhase) {
-	    super(parent, MeterAbstract.class);
+	public MeterAbstract(int nDataPerPhase) {
 	    this.nDataPerPhase = nDataPerPhase;
 	    phaseData = new double[nDataPerPhase];
 	}

@@ -88,23 +88,23 @@ public final class SpeciesAgent extends Atom {
     public int getNMolecules() {return moleculeCount();}
     public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
 
-    private boolean pauseIntegrator() {
-        Phase phase = node.parentPhase();
-        integrator = (phase != null) ? phase.integrator() : null;
-        boolean wasPaused = true;
-        if(integrator != null) {
-            wasPaused = integrator.isPaused();//record pause state of integrator
-            if(!wasPaused) integrator.pause();//and waits until integrator puts pause in effect
-        }
-        return wasPaused;
-    }
-    
-    private void unpauseIntegrator(boolean wasPaused) {
-        if(integrator != null) {
-            if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
-            if(!wasPaused) integrator.unPause();//resume if was not paused originally
-        }
-    }
+//    private boolean pauseIntegrator() {
+//        Phase phase = node.parentPhase();
+//        integrator = (phase != null) ? phase.integrator() : null;
+//        boolean wasPaused = true;
+//        if(integrator != null) {
+//            wasPaused = integrator.isPaused();//record pause state of integrator
+//            if(!wasPaused) integrator.pause();//and waits until integrator puts pause in effect
+//        }
+//        return wasPaused;
+//    }
+//    
+//    private void unpauseIntegrator(boolean wasPaused) {
+//        if(integrator != null) {
+//            if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
+//            if(!wasPaused) integrator.unPause();//resume if was not paused originally
+//        }
+//    }
     
     /**
      * Special AtomTreeNode class for SpeciesAgent.

@@ -24,7 +24,7 @@ public class MCMoveSemigrand extends MCMove {
     private final AtomIteratorSinglet deleteAtomIterator;
     private final AtomIteratorSinglet insertAtomIterator;
     private final AtomIteratorCompound affectedAtomIterator; 
-    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter;
     
     private transient Atom deleteMolecule, insertMolecule;
     private transient double uOld;
@@ -33,8 +33,9 @@ public class MCMoveSemigrand extends MCMove {
     private transient int iInsert, iDelete;
 
     
-    public MCMoveSemigrand(IntegratorMC parentIntegrator) {
-        super(parentIntegrator);
+    public MCMoveSemigrand(PotentialMaster potentialMaster) {
+        super(potentialMaster);
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
         deleteAtomIterator = new AtomIteratorSinglet();
         insertAtomIterator = new AtomIteratorSinglet();
         affectedAtomIterator = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
@@ -164,7 +165,7 @@ public class MCMoveSemigrand extends MCMove {
     public double lnProbabilityRatio() {
         energyMeter.setTarget(insertMolecule);
         uNew = energyMeter.getDataAsScalar(phase);
-        return -(uNew - uOld)/parentIntegrator.temperature +
+        return -(uNew - uOld)/temperature +
                 Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
     

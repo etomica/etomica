@@ -13,12 +13,12 @@ public abstract class MeterArray extends MeterAbstract {
 	 * Constructor with default nDataPerPhase = 1
 	 * @param parent
 	 */
-	public MeterArray(SimulationElement parent) {
-	    this(parent, 1);
+	public MeterArray() {
+	    this(1);
 	}
 	
-	public MeterArray(SimulationElement parent, int nDataPerPhase) {
-		super(parent, nDataPerPhase);
+	public MeterArray(int nDataPerPhase) {
+		super(nDataPerPhase);
 	}
 	
 	/**

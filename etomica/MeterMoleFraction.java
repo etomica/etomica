@@ -10,10 +10,7 @@ public class MeterMoleFraction extends MeterScalar implements EtomicaElement {
     private Species species;
    
     public MeterMoleFraction() {
-        this(Simulation.instance);
-    }
-    public MeterMoleFraction(Simulation sim) {
-        super(sim);
+        super();
         setLabel("Mole fraction");
     }
     
