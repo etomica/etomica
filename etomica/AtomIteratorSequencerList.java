@@ -5,7 +5,6 @@
 package etomica;
 
 import etomica.action.AtomsetAction;
-import etomica.action.AtomsetActionAdapter;
 
 /**
  * Iterator for looping through the sequence list relative to a
@@ -32,32 +31,30 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 	public void reset() {
 		if(firstAtom == null) return;
 		listIterator.reset();
-		if(skippingFirst) listIterator.next();
+        int n = numToSkip;
+		while (n-- != 0 && listIterator.hasNext()) listIterator.next();
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#allAtoms(etomica.AtomActive)
 	 */
 	public void allAtoms(AtomsetAction action) {
-		if(skippingFirst) listIterator.allAtoms(skipFirstWrapper(action));
-		else listIterator.allAtoms(action);
+		reset();
+        while (listIterator.hasNext()) {
+            action.actionPerformed(listIterator.next());
+        }
 	}
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#contains(etomica.Atom)
-	 */
+
 	public boolean contains(Atom[] atom) {
-		return skippingFirst ? (atom[0] != firstAtom && listIterator.contains(atom)) 
-							 : listIterator.contains(atom);
+        return (listIterator.getList().indexOf(atom[0]) >= numToSkip);
 	}
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#size()
-	 */
+
 	public int size() {
-		return skippingFirst ? listIterator.size() : listIterator.size() - 1;
+        int s = listIterator.size();
+        if (s > numToSkip) return s - numToSkip;
+        return 0;
 	}
-	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorPhaseDependent#setPhase(etomica.Phase)
-	 */
+
 	public void setAtom(Atom atom) {
 		firstAtom = atom;
 		if(atom != null) listIterator.setFirst(atom.seq);
@@ -65,16 +62,16 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 	}
 
 	/**
-	 * @return Returns the skippingFirst.
+	 * @return Returns the number of atoms to skip.
 	 */
-	public boolean isSkippingFirst() {
-		return skippingFirst;
+	public int getNumToSkip() {
+		return numToSkip;
 	}
 	/**
-	 * @param skippingFirst The skippingFirst to set.
+	 * @param numToSkip: the number of atoms to skip.
 	 */
-	public void setSkippingFirst(boolean skippingFirst) {
-		this.skippingFirst = skippingFirst;
+	public void setNumToSkip(int numToSkip) {
+		this.numToSkip = numToSkip;
 	}
 	
 	public void setIterationDirection(IteratorDirective.Direction direction) {
@@ -85,24 +82,7 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 	}
 	
 	private final AtomIteratorList listIterator;
-	private boolean skippingFirst = false;
+	private int numToSkip = 0;
 	private Atom firstAtom = null;
-
-	/**
-	 * Constructs an AtomActive class that wraps another, with the
-	 * effect of preventing it from performing its action on firstAtom.
-	 * Used by the allAtoms method if skippingFirst.
-	 */
-	private AtomsetAction skipFirstWrapper(final AtomsetAction realAction) {
-        return new AtomsetActionAdapter() {
-                //fake action for first iterate
-                private AtomsetAction action = new AtomsetActionAdapter() {
-                        public void actionPerformed(Atom[] atom) {action = realAction;}
-                };
-                public void actionPerformed(Atom[] atom) {
-                        action.actionPerformed(atom);
-                }
-        };
-}
 
 }

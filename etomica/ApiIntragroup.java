@@ -24,7 +24,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		pairIterator = (ApiInnerVariable)iterator;
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
 		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
-		aiInner.setNumSkipped(1);
+		aiInner.setNumToSkip(1);
 	}
 
 	/* (non-Javadoc)
