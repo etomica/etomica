@@ -1,6 +1,5 @@
 package etomica.lattice;
 
-import etomica.Space;
 import etomica.space.Vector;
 
 /**

@@ -1,12 +1,8 @@
 package etomica.atom;
 import etomica.Default;
 import etomica.Parameter;
-import etomica.units.*;
-import etomica.Parameter.Energy;
-import etomica.Parameter.Mass;
-import etomica.Parameter.Size;
-import etomica.Parameter.Source;
 import etomica.nbr.NeighborManagerAgent;
+import etomica.units.Dimension;
 //import etomica.electrostatics.*;
 
 /**

@@ -4,7 +4,6 @@
  */
 package etomica.math.geometry;
 
-import etomica.Space;
 import etomica.space.Orientation;
 import etomica.space.Vector;
 

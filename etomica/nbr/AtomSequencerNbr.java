@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import etomica.Atom;
 import etomica.Potential;
-import etomica.Space;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;

@@ -3,7 +3,6 @@ import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
 
 /**
  * Primitive group for a triclinic system.  No restrictions on

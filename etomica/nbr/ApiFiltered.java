@@ -7,7 +7,6 @@ package etomica.nbr;
 import etomica.Atom;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
-import etomica.Space;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;

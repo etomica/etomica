@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
 /**

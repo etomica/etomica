@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.*;
 import etomica.lattice.Basis;
 import etomica.space.Vector;
 

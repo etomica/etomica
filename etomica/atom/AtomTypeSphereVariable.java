@@ -7,7 +7,6 @@ package etomica.atom;
 import etomica.Atom;
 import etomica.Default;
 import etomica.Parameter;
-import etomica.Parameter.Size;
 
 
 public class AtomTypeSphereVariable extends AtomTypeSphere {

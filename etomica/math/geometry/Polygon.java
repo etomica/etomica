@@ -1,5 +1,4 @@
 package etomica.math.geometry;
-import etomica.*;
 import etomica.space2d.Space2D;
 
 /**

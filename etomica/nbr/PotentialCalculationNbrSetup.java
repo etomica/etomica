@@ -9,7 +9,6 @@ import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Potential;
-import etomica.Space;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Vector;

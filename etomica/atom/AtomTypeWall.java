@@ -6,8 +6,6 @@ package etomica.atom;
 
 import etomica.Constants;
 import etomica.Phase;
-import etomica.Constants.Alignment;
-import etomica.units.Dimension;
 import etomica.units.Kelvin;
 
 

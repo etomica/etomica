@@ -4,7 +4,6 @@ import etomica.Atom;
 import etomica.Configuration;
 import etomica.ConfigurationLinear;
 import etomica.Space;
-import etomica.atom.AtomTreeNode.Factory;
 
 /**
  * Builds an atom group that comprises a set of differently formed atoms or atomgroups.

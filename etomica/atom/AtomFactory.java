@@ -4,8 +4,6 @@ import etomica.Atom;
 import etomica.Configuration;
 import etomica.Space;
 import etomica.Species;
-import etomica.Atom.AgentSource;
-import etomica.atom.AtomTreeNode.Factory;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
