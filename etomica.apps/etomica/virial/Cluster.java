@@ -41,7 +41,7 @@ public class Cluster implements ClusterAbstract {
 	 */	
 	public Cluster(int n, BondGroup[] bonds, boolean usePermutations) {
 		super();
-		this.n = n;
+		this.nPoints = n;
 		bondCount = 0;
 		for(int i=0; i<bonds.length; i++) bondCount += bonds[i].pairs.length;
 		bondArray = new MayerFunction[n][n];
@@ -81,10 +81,10 @@ public class Cluster implements ClusterAbstract {
 	}
 	
 	public String toString() {
-		String string = "Cluster \n Number of points: " + n + "\n";
+		String string = "Cluster \n Number of points: " + nPoints + "\n";
 		if(!usePermutations) {
-			for(int i=0; i<n; i++) {
-				for(int j=0; j<n; j++) {
+			for(int i=0; i<nPoints; i++) {
+				for(int j=0; j<nPoints; j++) {
 					string += "("+i+","+j+")"+String.valueOf(bondArray[i][j]) + "\t";
 				}
 				string += "\n";
@@ -93,9 +93,9 @@ public class Cluster implements ClusterAbstract {
 			string += "Using permutations \n";
 			for(int s=0; s<nPermutations; s++) {
 				int[] p = permutations[s];// e.g. {0,2,1,4} 
-				for(int i=0; i<n; i++) {
+				for(int i=0; i<nPoints; i++) {
 					int ip = p[i];//index of atom in position i for permuted labeling (e.g., i=1, ip=2}
-					for(int j=0; j<n; j++) {
+					for(int j=0; j<nPoints; j++) {
 						int jp = p[j];
 						int protoIndex = bondIndexArray[i][j];//index of bond between i and j in prototype diagram
 						MayerFunction bond = (protoIndex < 0) ? null : bondGroup[protoIndex].f;
@@ -110,7 +110,7 @@ public class Cluster implements ClusterAbstract {
 	}
 	
 	
-	public int pointCount() {return n;}
+	public int pointCount() {return nPoints;}
 	
 	public int bondCount() {return bondCount;}
 	
@@ -146,8 +146,8 @@ public class Cluster implements ClusterAbstract {
 		value = 0.0;
 		if(usePermutations) return valueUsingPermutations(cPairs, beta);
 		double p = 1.0;
-		for(int i=0; i<n-1; i++) {
-			for(int j=i+1; j<n; j++) {
+		for(int i=0; i<nPoints-1; i++) {
+			for(int j=i+1; j<nPoints; j++) {
 				if(bondArray[i][j]==null) continue;
 				p *= bondArray[i][j].f(cPairs.getCPair(i,j),beta);
 				if(p == 0.0) return 0.0;
@@ -168,8 +168,8 @@ public class Cluster implements ClusterAbstract {
 		double sum = 0;
 		
 		//evaluate and store values of all bonds between all pairs
-		for(int i=0; i<n-1; i++) {
-			for(int j=i+1; j<n; j++) {
+		for(int i=0; i<nPoints-1; i++) {
+			for(int j=i+1; j<nPoints; j++) {
 				for(int k=0; k<nBondTypes; k++) {
 					f[i][j][k] = bondGroup[k].f.f(cPairs.getCPair(i,j),beta);
 					f[j][i][k] = f[i][j][k];
@@ -181,10 +181,10 @@ public class Cluster implements ClusterAbstract {
 		for(int s=0; s<nPermutations; s++) {
 			int[] p = permutations[s];// e.g. {0,2,1,4} 
 			double prod = 1.0;
-			pairLoop: for(int i=0; i<n-1; i++) {
+			pairLoop: for(int i=0; i<nPoints-1; i++) {
 				double[][] fj = f[p[i]];//p[i] = index of atom in position i for permuted labeling (e.g., i=1, ip=2}
 				int[] bi = bondIndexArray[i];
-				for(int j=i+1; j<n; j++) {
+				for(int j=i+1; j<nPoints; j++) {
 					int protoIndex = bi[j];//index of bond between i and j in prototype diagram
 					if(protoIndex < 0) continue;//no bond there
 					prod *= fj[p[j]][protoIndex];//value of bond for permuted diagram
@@ -209,7 +209,7 @@ public class Cluster implements ClusterAbstract {
 	public double value(Atom atom, CoordinatePairSet cPairs, double beta) {
 		int i = atom.node.index();
 		double p = 1.0;
-		for(int j=0; j<n; j++) {
+		for(int j=0; j<nPoints; j++) {
 			if(bondArray[i][j]==null) continue;
 			p *= bondArray[i][j].f(cPairs.getCPair(i,j),beta);
 		}
@@ -236,7 +236,7 @@ public class Cluster implements ClusterAbstract {
 		return (bondArray[i][j]==null) ? 1.0 : bondArray[i][j].f(cPairs.getCPair(i,j),beta);
 	}
 
-	private final int n; //number of points (molecules) in cluster
+	private final int nPoints; //number of points (molecules) in cluster
 	protected int bondCount;//number of bonds in cluster (not to be confused with number of types of bonds, nBondTypes)
  	protected final MayerFunction[][] bondArray;//array of bonds between pairs in prototype (unpermuted) cluster 
  	protected final int[][] bondIndexArray;//array giving bondGroup index of each bond in bondArray
@@ -282,9 +282,9 @@ public class Cluster implements ClusterAbstract {
 		if(super.equals(obj)) return true;//return true if this is the same instance as the test cluster
 		if(!(obj instanceof Cluster)) return false;
 		Cluster test = (Cluster)obj;
-		if(this.n != test.n) return false;
-		for(int i=0; i<n-1; i++) {
-			for(int j=i+1; j<n; j++) {
+		if(this.nPoints != test.nPoints) return false;
+		for(int i=0; i<nPoints-1; i++) {
+			for(int j=i+1; j<nPoints; j++) {
 				MayerFunction thisBond = this.bondArray[i][j];
 				MayerFunction testBond = test.bondArray[i][j];
 				if((thisBond==null) ? (testBond==null) : thisBond.equals(testBond)) continue;//both bonds are null, or they're equal; keep going
@@ -299,7 +299,7 @@ public class Cluster implements ClusterAbstract {
 		java.util.LinkedList pList = new java.util.LinkedList();//permutations giving unique arrays
 		java.util.LinkedList aList = new java.util.LinkedList();//unique permuted arrays
 		
-		PermutationIterator pIter = new PermutationIterator(n);//iterator over permutations
+		PermutationIterator pIter = new PermutationIterator(nPoints);//iterator over permutations
 		pLoop: while(pIter.hasNext()) {//loop over permutations
 			int[] p = pIter.next();
 			int[][] pIntBondArray = PermutationIterator.matrixPermutation(p, bondIndexArray);//permute array according to permutations
@@ -314,12 +314,12 @@ public class Cluster implements ClusterAbstract {
 		permutations = new int[nPermutations][];
 		pList.toArray(permutations);//fill permutations array with the elements of pList
 		rPermutations = 1.0/(double)nPermutations;
-		f = new double[n][n][nBondTypes];
+		f = new double[nPoints][nPoints][nBondTypes];
 	}//end of makePermutations
 
 	//returns true if all elements in two arrays are equal term by term
 	private boolean intArrayEqual(int[][] a0, int[][] a1) {
-		for(int i=0; i<n; i++) for(int j=0; j<n; j++) if(a0[i][j] != a1[i][j]) return false;
+		for(int i=0; i<nPoints; i++) for(int j=0; j<nPoints; j++) if(a0[i][j] != a1[i][j]) return false;
 		return true;
 	}
 	/**
