@@ -2,7 +2,9 @@ package etomica.space2d;
 
 import etomica.Simulation;
 import etomica.space.Boundary;
+import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 
 
 
@@ -21,8 +23,7 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
         public String toString() {return "("+x+", "+y+")";}
         public void assignTo(double[] array) {array[0] = x; array[1] = y;}
         public double[] toArray() {return new double[] {x, y};}
-        public boolean equals(etomica.space.Vector v) {return equals((Vector2D)v);}
-        public boolean equals(Vector2D v) {return (x == v.x) && (y == v.y);}
+        public boolean equals(Vector v) {return (x == ((Vector2D)v).x) && (y == ((Vector2D)v).y);}
         public boolean isZero() {return (x == 0.0) && (y == 0.0);}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y);
@@ -31,50 +32,48 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
         public int D() {return 2;}
         public double x(int i) {return (i==0) ? x : y;}
         public void setX(int i, double d) {if(i==0) x=d; else y=d;}
-        public void E(Vector2D u) {x = u.x; y = u.y;}
+        public void E(Vector u) {x = ((Vector2D)u).x; y = ((Vector2D)u).y;}
         public void E(double[] u) {x = u[0]; y = u[1];}  //should check length of array for exception
         public void E(int[] u) {x = u[0]; y = u[1];}  //should check length of array for exception
         public void E(double a) {x = a; y = a;}
         public void E(double a, double b) {x = a; y = b;}
-        public void Ea1Tv1(double a1, etomica.space.Vector u) {Vector2D u1=(Vector2D)u; x = a1*u1.x; y = a1*u1.y;}
+        public void Ea1Tv1(double a1, Vector u) {Vector2D u1=(Vector2D)u; x = a1*u1.x; y = a1*u1.y;}
         public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
             x = ((Vector2D)v1).x + a1*((Vector2D)v2).x; 
             y = ((Vector2D)v1).y + a1*((Vector2D)v2).y; 
         }
-        public void PEa1Tv1(double a1, etomica.space.Vector u) {Vector2D u1=(Vector2D)u; x += a1*u1.x; y += a1*u1.y;}
-        public void PE(Vector2D u) {x += u.x; y += u.y;}
+        public void PEa1Tv1(double a1, Vector u) {Vector2D u1=(Vector2D)u; x += a1*u1.x; y += a1*u1.y;}
+        public void PE(Vector u) {x += ((Vector2D)u).x; y += ((Vector2D)u).y;}
         public void PE(double a) {x += a; y += a;}
-        public void ME(Vector2D u) {x -= u.x; y -= u.y;}
+        public void ME(Vector u) {x -= ((Vector2D)u).x; y -= ((Vector2D)u).y;}
         public void PE(int i, double a) {if(i==0) x += a; else y += a;}
         public void TE(double a) {x *= a; y *= a;}
-        public void TE(Vector2D u) {x *= u.x; y *= u.y;}
+        public void TE(Vector u) {x *= ((Vector2D)u).x; y *= ((Vector2D)u).y;}
         public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
-        public void DE(Vector2D u) {x /= u.x; y /= u.y;}
+        public void DE(Vector u) {x /= ((Vector2D)u).x; y /= ((Vector2D)u).y;}
 		public double Mv1Squared(etomica.space.Vector u) {
 			Vector2D u1 = (Vector2D)u;
 			double dx = x-u1.x;
 			double dy = y-u1.y;
 			return dx*dx + dy*dy;
 		}
-        public void Ev1Pv2(etomica.space.Vector u1, etomica.space.Vector u2) {
+        public void Ev1Pv2(Vector u1, Vector u2) {
             Vector2D v1 = (Vector2D)u1; Vector2D v2 = (Vector2D)u2;
             x = v1.x + v2.x;
             y = v1.y + v2.y;
         }
-        public void Ev1Mv2(etomica.space.Vector u1, etomica.space.Vector u2) {
+        public void Ev1Mv2(Vector u1, Vector u2) {
             Vector2D v1 = (Vector2D)u1; Vector2D v2 = (Vector2D)u2;
             x = v1.x - v2.x;
             y = v1.y - v2.y;
         }
-        public void mod(etomica.space.Vector u) {
-            mod((Vector2D)u);
-        }
-        public void mod(Vector2D u) {
-            while(x > u.x) x -= u.x;
-            while(x < 0.0) x += u.x;
-            while(y > u.y) y -= u.y;
-            while(y < 0.0) y += u.y;
+        public void mod(Vector u) {
+            Vector2D u2 = (Vector2D)u;
+            while(x > u2.x) x -= u2.x;
+            while(x < 0.0) x += u2.x;
+            while(y > u2.y) y -= u2.y;
+            while(y < 0.0) y += u2.y;
         }
         public void mod(double a) {
             while(x > a)   x -= a;
@@ -112,23 +111,23 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
             y -= r2d.y;
         }
  
-        public etomica.space.Vector P(etomica.space.Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x+u1.x; WORK.y = y+u1.y; return WORK;}
-        public etomica.space.Vector M(etomica.space.Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x-u1.x; WORK.y = y-u1.y; return WORK;}
-        public etomica.space.Vector T(etomica.space.Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x*u1.x; WORK.y = y*u1.y; return WORK;}
-        public etomica.space.Vector D(etomica.space.Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x/u1.x; WORK.y = y/u1.y; return WORK;}
+        public etomica.space.Vector P(Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x+u1.x; WORK.y = y+u1.y; return WORK;}
+        public etomica.space.Vector M(Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x-u1.x; WORK.y = y-u1.y; return WORK;}
+        public etomica.space.Vector T(Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x*u1.x; WORK.y = y*u1.y; return WORK;}
+        public etomica.space.Vector D(Vector u) {Vector2D u1=(Vector2D)u; WORK.x = x/u1.x; WORK.y = y/u1.y; return WORK;}
         public void abs() {x = (x>0)?x:-x; y = (y>0)?y:-y;}
         public double min() {return (x < y) ? x : y;}
         public double max() {return (x > y) ? x : y;}
         public double squared() {return x*x + y*y;}
-        public double dot(Vector2D u) {return x*u.x + y*u.y;}
-        public etomica.space3d.Vector3D cross(etomica.space3d.Vector3D u) {
-        	return new etomica.space3d.Vector3D(y*u.x(2), -x*u.x(2), x*u.x(1)-y*u.x(0));
+        public double dot(Vector u) {return x*((Vector2D)u).x + y*((Vector2D)u).y;}
+        public Vector3D cross(Vector3D u) {
+        	return new Vector3D(y*u.x(2), -x*u.x(2), x*u.x(1)-y*u.x(0));
 //        	work.setX(0, y*u.x(2));
 //            work.setX(1,-x*u.x(2));
 //            work.setX(2, x*u.x(1) - y*u.x(0));
         }
-        public etomica.space3d.Vector3D cross(Vector2D u) {
-			return new etomica.space3d.Vector3D(0.0, 0.0, x*u.y - y*u.x);
+        public Vector3D cross(Vector2D u) {
+			return new Vector3D(0.0, 0.0, x*u.y - y*u.x);
 //            Space3D.Vector.WORK.setX(0, 0.0);
 //            Space3D.Vector.WORK.setX(1, 0.0);
 //            Space3D.Vector.WORK.setX(2, x*u.y - y*u.x);
@@ -138,7 +137,7 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
          * Replaces this vector with its cross-product with the given 3D vector, with result projected
          * onto the 2D plane.  This vector becomes the result of (this vector) X u.
          */
-        public void XE(etomica.space3d.Vector3D u) {
+        public void XE(Vector3D u) {
             double xNew = y*u.x(2);
             y = -x*u.x(2);
             x = xNew;
@@ -149,19 +148,19 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
             x *= norm;
             y *= norm;
         }
-        public void transform(etomica.space.Tensor A) {transform((Tensor2D)A);}
-        public void transform(Tensor2D A) {
+        public void transform(Tensor A) {
         	double x0 = x;
         	double y0 = y;
-            x = A.xx*x0 + A.xy*y0; 
-            y = A.yx*x0 + A.yy*y0;
+            x = ((Tensor2D)A).xx*x0 + ((Tensor2D)A).xy*y0; 
+            y = ((Tensor2D)A).yx*x0 + ((Tensor2D)A).yy*y0;
         }
-        public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform(b, (Vector2D)r0, (Tensor2D)A);}
-        public void transform(Boundary b, Vector2D r0, Tensor2D A) {
-            WORK.x = x - r0.x; WORK.y = y - r0.y;
+        public void transform(Boundary b, Vector r, Tensor A) {
+            Vector2D r2 = (Vector2D)r;
+            Tensor2D A2 = (Tensor2D)A;
+            WORK.x = x - r2.x; WORK.y = y - r2.y;
             b.nearestImage(WORK);
-            x = r0.x + A.xx*WORK.x + A.xy*WORK.y;
-            y = r0.y + A.yx*WORK.x + A.yy*WORK.y;
+            x = r2.x + A2.xx*WORK.x + A2.xy*WORK.y;
+            y = r2.y + A2.yx*WORK.x + A2.yy*WORK.y;
         }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d; y+= (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d;}
@@ -201,12 +200,6 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
             y = r*Math.sin(theta);
         }
         
-        public void E(etomica.space.Vector u) {E((Vector2D)u);}
-        public void PE(etomica.space.Vector u) {PE((Vector2D)u);}
-        public void ME(etomica.space.Vector u) {ME((Vector2D)u);}
-        public void TE(etomica.space.Vector u) {TE((Vector2D)u);}
-        public void DE(etomica.space.Vector u) {DE((Vector2D)u);}
-        public double dot(etomica.space.Vector u) {return dot((Vector2D)u);}
         public double productOfElements() {
             return x*y;
         }
