@@ -11,6 +11,12 @@ import etomica.*;
   * 09/16/02 (DAK) new
   */
  
+ //maybe set up as an interface?
+ 
+ // ? set a constructor in BravaisLattice to take a basis
+ //   as an argument; add a getFactory method to the Basis
+ //   interface; some implementations would extend AtomFactory
+ //   and return 'this';
 public abstract class Basis extends AtomFactory {
     
     public Basis(Simulation sim) {

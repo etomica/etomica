@@ -47,6 +47,13 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     * Constructs a unique BravaisLattice factory and returns a new lattice from it.
     */
     public static BravaisLattice makeLattice(
+                Simulation sim, Crystal crystal, int[] dimensions) {
+        return makeLattice(sim, crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
+    }
+   /**
+    * Constructs a unique BravaisLattice factory and returns a new lattice from it.
+    */
+    public static BravaisLattice makeLattice(
                 Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
         return (BravaisLattice)new Factory(sim, siteFactory, dimensions, primitive).makeAtom();
     }
@@ -78,7 +85,17 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         shift.ME(siteList.getFirst().coord.position());
         this.coord.translateBy(shift);
     }
-   
+
+    /** 
+     * Sets the primitive and site factory to those specified by the given
+     * Crystal class, and rebuilds the lattice.
+     */
+    public void setCrystal(Crystal crystal) {
+        this.primitive = crystal.getPrimitive();
+        primitive.setLattice(this);
+        ((Factory)creator()).setLeafFactory(crystal.getSiteFactory());
+        rebuild();
+    }
     /**
      * Sets the primitive for this lattice to the one given, and 
      * updates the site positions.
@@ -336,6 +353,9 @@ public static class Factory extends AtomFactoryTree {
      //dimension of embedding space equals the length of each primitive vector
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
+    public Factory(Simulation sim, Crystal crystal, int[] dimensions) {
+        this(sim, crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
+    }
     public Factory(Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
         super(sim, siteFactory, dimensions, configArray(sim, primitive.vectors()));
         this.primitive = primitive;

@@ -205,6 +205,11 @@ public abstract class Primitive {
     public Primitive reciprocal() {return reciprocal;}
     
     /**
+     * Return the simulation using this Primitive.
+     */
+    public Simulation parentSimulation() {return simulation;}
+    
+    /**
      * Returns a factory for the Wigner-Seitz cell specified by this primitive.
      * Each WS cell made by this factory remains tied to the primitive,
      * so its behavior will change to reflect any subsequent changes

@@ -88,10 +88,18 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     /**
      * Returns the factory that produces the leaf atoms of the tree.
      */
-     public AtomFactory leafFactory() {
+     public AtomFactory getLeafFactory() {
         return (childFactory() instanceof AtomFactoryTree) ?
-                ((AtomFactoryTree)childFactory()).leafFactory() : childFactory();
-     }         
+                ((AtomFactoryTree)childFactory()).getLeafFactory() : childFactory();
+     } 
+     
+     /**
+      * Sets the factory that makes the leaf atoms of the tree.
+      */
+     public void setLeafFactory(AtomFactory factory) {
+        if(childFactory instanceof AtomFactoryTree) ((AtomFactoryTree)childFactory).setLeafFactory(factory);
+        else childFactory = factory;
+     }
     
     //number of layers of atoms below the root atom
     int depth;

@@ -5,9 +5,14 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 09/23/02 (DAK) changed childFactory from private to protected so that AtomFactoryTree can implement a method to change it
+  */
+  
 public class AtomFactoryHomo extends AtomFactory {
     
-    private AtomFactory childFactory;
+    protected AtomFactory childFactory;
     private int atomsPerGroup;
     
     /**

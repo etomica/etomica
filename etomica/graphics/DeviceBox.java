@@ -6,6 +6,7 @@ import etomica.*;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import java.awt.event.KeyEvent;
 
 /**
  * A simple device the permits editing of a single value via a textbox 
@@ -16,6 +17,8 @@ import javax.swing.JLabel;
  
  /* History of changes
   * 09/05/02 (DAK) new from DisplayBox
+  * 09/22/02 (DAK) added integer flag to indicate display as decimal or integer
+  * 09/24/02 (DAK) added key listener that increments/decrements with arrow keys, if integer
   */
  
 public class DeviceBox extends Device implements EtomicaElement {
@@ -45,6 +48,7 @@ public class DeviceBox extends Device implements EtomicaElement {
      */
     int precision;
     private LabelType labelType;
+    private boolean integer = false;
     
     /**
      * Physical units associated with the displayed value.
@@ -81,7 +85,9 @@ public class DeviceBox extends Device implements EtomicaElement {
         unit = new etomica.units.Unit(etomica.units.BaseUnit.Null.UNIT);
         setPrecision(4);
         
-        value.addActionListener(new BoxListener());
+        BoxListener listener = new BoxListener();
+        value.addActionListener(listener);
+        value.addKeyListener(listener);
         
     }//end of constructor
     
@@ -96,7 +102,8 @@ public class DeviceBox extends Device implements EtomicaElement {
     public void doUpdate() {
         if(modulator == null) return;
 //        value.setText(Double.toString(m.getValue()));
-        value.setText(format(unit.fromSim(modulator.getValue()),precision));
+        if(integer) value.setText(Integer.toString((int)unit.fromSim(modulator.getValue())));
+        else value.setText(format(unit.fromSim(modulator.getValue()),precision));
     }
     
     /**
@@ -134,6 +141,12 @@ public class DeviceBox extends Device implements EtomicaElement {
         value.setColumns(n);
         precision = n;
     }
+    
+    /**
+     * Sets a flag indicating if the value should be displayed as an integer.
+     */
+    public void setInteger(boolean b) {integer = b;}
+    public boolean isInteger() {return integer;}
     
     /**
      * Specifies the modulator that receives the edit.
@@ -206,10 +219,21 @@ public class DeviceBox extends Device implements EtomicaElement {
     public Constants.CompassDirection getLabelPosition() {return labelPosition;}
         
         
-    private class BoxListener implements java.awt.event.ActionListener {
+    private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             double x = Double.parseDouble(value.getText());
             if(modulator!=null) modulator.setValue(unit.toSim(x));
+       }
+       public void keyReleased(java.awt.event.KeyEvent evt) {
+            if(!isInteger()) return;
+            int key = evt.getKeyCode();
+            int step = 0;
+            if(key == KeyEvent.VK_UP || key == KeyEvent.VK_RIGHT) step = 1;
+            else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_LEFT) step = -1;
+            if(step == 0) return;
+            int i = Integer.parseInt(value.getText()) + step;
+            value.setText(Integer.toString(i));
+            if(modulator!=null) modulator.setValue(unit.toSim(i));
        }
     }
     

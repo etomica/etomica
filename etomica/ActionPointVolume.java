@@ -493,7 +493,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
         public int D() {return 2;}
         public int[] getDimensions() {return squareLattice.getDimensions();} //not used
 //        public int siteCount() {return 2*squareLattice.siteCount();}
-        public Site site(int[] index) {return squareLattice.site(index);} //not used
+        public Atom site(int[] index) {return squareLattice.site(index);} //not used
         
         public Site randomSite() {return (Site)squareLattice.siteList().getRandom();}
         public AtomIterator iterator() {iterator.reset(); return iterator;}     //iterator for all sites in lattice
