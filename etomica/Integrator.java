@@ -98,7 +98,12 @@ public abstract class Integrator implements java.io.Serializable {
         currentPotentialEnergy = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
             if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
-                throw new RuntimeException("overlap in "+phase[i]);
+                if (Default.FIX_OVERLAP) {
+                    System.out.println("overlap in "+phase[i]);
+                }
+                else {
+                    throw new RuntimeException("overlap in "+phase[i]);
+                }
             }
         }
     }
@@ -226,7 +231,7 @@ public abstract class Integrator implements java.io.Serializable {
 		phase[phaseCount] = p;
 		phaseCount++;
 		firstPhase = phase[0];
-        if (p.index == Debug.PHASE_INDEX) {
+        if (Debug.ON && p.index == Debug.PHASE_INDEX) {
             Debug.setAtoms(p);
         }
 		return true;
