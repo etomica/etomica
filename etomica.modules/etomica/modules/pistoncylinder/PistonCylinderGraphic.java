@@ -86,6 +86,7 @@ public class PistonCylinderGraphic {
     public int historyLength;
     public DataSourceWallPressure pressureMeter;
     public int plotUpdateInterval, dataInterval, guiInterval;
+    public Unit eUnit;
     
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
@@ -95,6 +96,9 @@ public class PistonCylinderGraphic {
         displayCycles = new DisplayBox();
 
         Default.ATOM_SIZE = 3.0;
+        eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
+        potentialSW = new P2SquareWell(Default.ATOM_SIZE,2.0,eUnit.toSim(1500.0));
+        potentialHS = new P2HardSphere(Default.ATOM_SIZE);
         historyLength = 100;
         
         plotUpdateInterval = 10;
@@ -401,7 +405,7 @@ public class PistonCylinderGraphic {
         }
 
         // set up GUI
-        BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
+        BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.boundary().dimensions().x(1);
         pc.ai.setDoSleep(true);
         pc.integrator.setTimeStep(0.5);
         pc.integrator.clearIntervalListeners();
@@ -463,8 +467,6 @@ public class PistonCylinderGraphic {
         temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         temperatureSlider.setController(pc.getController());
 
-        potentialSW = new P2SquareWell();
-        potentialHS = new P2HardSphere();
 /*        pc.potentialMaster.setSpecies(potentialHS, new Species[] {pc.species, pc.species});
         pc.potentialMaster.setEnabled(potentialHS, false);
         pc.potentialMaster.setEnabled(potentialSW, false);*/
@@ -484,8 +486,8 @@ public class PistonCylinderGraphic {
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
         sigBox.setModifier(sigModifier);
+        epsBox.setUnit(eUnit);
         epsBox.setModifier(epsModifier);
-        epsBox.setUnit(new UnitRatio(Joule.UNIT,Mole.UNIT));
         lamBox.setModifier(lamModifier);
         sigBox.setController(pc.getController());
         epsBox.setController(pc.getController());
@@ -601,6 +603,11 @@ public class PistonCylinderGraphic {
         plotP.setXSource(xSource);
         plotD.setXSource(xSource);
 
+        java.awt.Dimension d = plotT.getPlot().getPreferredSize();
+        d.height = 250;
+        plotT.getPlot().setSize(d);
+        plotP.getPlot().setSize(d);
+        plotD.getPlot().setSize(d);
     }
     
     public void setPotential(String potentialDesc) {
