@@ -20,7 +20,10 @@ public abstract class Space {
     public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b);
     public abstract AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary);
     public abstract AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary);
+    public abstract Atom.Iterator makeUpAtomIterator();
+    public abstract Atom.Iterator makeDownAtomIterator();
     public abstract simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2);
+    public abstract void clearCells();
 //  Vector contains what is needed to describe a point in the space
     interface Vector {
         public double component(int i);

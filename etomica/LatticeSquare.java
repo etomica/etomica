@@ -27,6 +27,10 @@ public class LatticeSquare extends Lattice {
         origin = sites[0][0];
     }
     
+    public final void clearCells() {
+        for(Site s=origin; s!=null; s=s.nextSite()) {s.firstAtom = null;}
+    }
+    
     public final double[][] getBasis() {return basis;}
     public final void setBasis(double[][] b) {basis = b;}
     
@@ -61,7 +65,7 @@ public class LatticeSquare extends Lattice {
         public Space.AtomCoordinate firstAtom;
         private Linker firstUpNeighbor;
         private Linker firstDownNeighbor;
-        private Site nextSite;
+        private Site nextSite, previousSite;
         
         private int[] coordinate;
         public Site() {}
@@ -72,7 +76,8 @@ public class LatticeSquare extends Lattice {
         public final int[] coordinate() {return coordinate;}
         public void setCoordinate(int[] i, double[][] basis) {coordinate = i;}
         public final Site nextSite() {return nextSite;}
-        public final void setNextSite(Site s) {nextSite = s;}
+        public final Site previousSite() {return previousSite;}
+        public final void setNextSite(Site s) {nextSite = s; if(s!=null) s.previousSite = this;}
         public double neighborIndex(simulate.Lattice.Site ss, int[] dimensions) {
             Site s = (Site)ss;
             int dx = Math.abs(s.coordinate()[0] - coordinate[0]);  

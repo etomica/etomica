@@ -108,12 +108,12 @@ public class Atom {
     
     public final AtomType type;
     
-    public Atom nextNeighbor, previousNeighbor;
+//    public Atom nextNeighbor, previousNeighbor;
  
     public interface Iterator {        
         public boolean hasNext();
-        public AtomPair next();
-        public void reset();
+        public Space.AtomCoordinate next();
+        public void reset(Atom a);
     }
         
 }

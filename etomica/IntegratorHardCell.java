@@ -5,7 +5,8 @@ import java.awt.Color;
 public final class IntegratorHardCell extends Integrator {
 
 private Agent nextCollider;
-private AtomPair.Iterator.A upIterator, downIterator;
+private AtomPair.Iterator.A upPairIterator, downPairIterator;
+private Atom.Iterator upAtomIterator, downAtomIterator;
 private AtomPair atomPair;
 
 boolean bb = true;
@@ -16,8 +17,10 @@ public IntegratorHardCell() {
 
 public void registerPhase(Phase p) {
     super.registerPhase(p);
-    upIterator = p.makeUpIterator();
-    downIterator = p.makeDownIterator();
+    upPairIterator = p.makeUpIterator();
+    downPairIterator = p.makeDownIterator();
+    upAtomIterator = parentController.parentSimulation.space().makeUpAtomIterator();
+    downAtomIterator = parentController.parentSimulation.space().makeDownAtomIterator();
     atomPair = p.makeAtomPair();
 }
 
@@ -75,14 +78,19 @@ protected void advanceToCollision() {
     }
     else {
 //        Atom partnerNextAtom = partner.nextMoleculeFirstAtom();  //put this back in for multiatomic speciesSwitch; also need to do more work with loop below
-        Atom partnerNextAtom = partner.nextAtom();
+//        Atom partnerNextAtom = partner.coordinate.nextNeighbor().atom();
+        Atom partnerNextAtom = null;  //remove this -- temporary
         atomPair.reset(nextCollider.atom,partner);
         nextCollider.getCollisionPotential().bump(atomPair);
 //        nextCollider.getCollisionPotential().bump(nextCollider.atom,partner);
                 
         boolean upListedN = false;
         boolean upListedP = false;
-        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
+//        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
+        upAtomIterator.reset(firstPhase.firstAtom());
+        while(upAtomIterator.hasNext()) {
+            Atom a = upAtomIterator.next().atom();
+            if(a == partnerNextAtom) break;
             Atom aPartner = ((Agent)a.ia).getCollisionPartner();
             if(aPartner==nextCollider.atom || aPartner==partner) {
                 upList(a);
@@ -182,9 +190,9 @@ protected void upList(Atom atom) {  //specific to 2D
 */            
     //Loop through remaining uplist atoms in firstPhase
 //    if(atom.parentMolecule != atom.phase().lastMolecule()) {
-        upIterator.reset(atom,null,null);
-        while(upIterator.hasNext()) {
-            AtomPair pair = upIterator.next();
+        upPairIterator.reset(atom,null,null);
+        while(upPairIterator.hasNext()) {
+            AtomPair pair = upPairIterator.next();
             PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
             double time = potential.collisionTime(pair);
             if(time < minCollisionTime) {
@@ -241,9 +249,9 @@ protected void downList(Atom atom) {
     //Loop through remaining downlist atoms in firstPhase
 //   Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
 //    if(atom.parentMolecule != atom.phase().firstMolecule()) {
-        downIterator.reset(atom,null,null);
-        while(downIterator.hasNext()) {
-            AtomPair pair = downIterator.next();
+        downPairIterator.reset(atom,null,null);
+        while(downPairIterator.hasNext()) {
+            AtomPair pair = downPairIterator.next();
             Agent aia = (Agent)pair.atom2().ia;  //atom2 is inner loop
             PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
     //       Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
@@ -273,6 +281,24 @@ public void initialize() {
         upList(a);
     }
     findNextCollider();
+   
+   //debugging code
+   
+        upAtomIterator.reset(firstPhase.firstAtom());
+        int i=0;
+        while(upAtomIterator.hasNext()) {
+            Atom a = upAtomIterator.next().atom();
+            i++;
+            if(a.ia == null) System.out.println(i+" null agent");
+        } 
+        System.out.println("Cell list atoms: "+ i);
+        i=0;
+        for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
+            upList(a);
+            i++;
+            if(a.ia == null) System.out.println(i+" null agent");
+        } 
+        System.out.println("Atom list atoms: " + i);
 }
           
 //--------------------------------------------------------------

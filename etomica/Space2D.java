@@ -17,6 +17,9 @@ public class Space2D extends Space {
     public simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
     public AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary) {return null;}
     public AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary) {return null;}
+    public final Atom.Iterator makeUpAtomIterator() {return null;}
+    public final Atom.Iterator makeDownAtomIterator() {return null;}
+    public final void clearCells() {}
     public Space.Boundary makeBoundary(int b) {
         switch(b) {
             case(Boundary.NONE):            return new BoundaryNone();

@@ -34,7 +34,10 @@ public class Space2DCell extends Space {
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary) {return new PairIteratorHalf((Boundary)boundary);}
     public final simulate.AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary) {return new UpNeighborIterator(boundary);}
     public final simulate.AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary) {return new DownNeighborIterator(boundary);}
+    public final Atom.Iterator makeUpAtomIterator() {return new UpAtomIterator();}
+    public final Atom.Iterator makeDownAtomIterator() {return new DownAtomIterator();}
     public simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
+    public final void clearCells() {cells.clearCells();}
     public Space.Boundary makeBoundary(int b) {
         switch(b) {
             case(Boundary.NONE):            return new BoundaryNone();
@@ -409,6 +412,18 @@ public class Space2DCell extends Space {
             coordinate = (AtomCoordinate)a.coordinate;
             pair.c1 = coordinate;
             cell = coordinate.cell;
+            // changes from UpNeighborIterator
+            nextLinker = cell.firstDownNeighbor();  //this points to the cell after the current neighbor cell
+            neighborAtom = (AtomCoordinate)coordinate.previousNeighbor();   //this is the next atom to be paired with the fixed atom
+            //////
+            hasNext = true;
+            if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
+            else {hasNext = true;}
+
+            atom = a;
+            coordinate = (AtomCoordinate)a.coordinate;
+            pair.c1 = coordinate;
+            cell = coordinate.cell;
             nextLinker = cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
             neighborAtom = (AtomCoordinate)coordinate.nextNeighbor();   //this is the next atom to be paired with the fixed atom
             hasNext = true;
@@ -461,7 +476,7 @@ public class Space2DCell extends Space {
             coordinate = (AtomCoordinate)a.coordinate;
             pair.c1 = coordinate;
             cell = coordinate.cell;
-            //these are the only changes from UpNeighborIterator
+            // changes from UpNeighborIterator
             nextLinker = cell.firstDownNeighbor();  //this points to the cell after the current neighbor cell
             neighborAtom = (AtomCoordinate)coordinate.previousNeighbor();   //this is the next atom to be paired with the fixed atom
             //////
@@ -484,12 +499,93 @@ public class Space2DCell extends Space {
         public simulate.AtomPair next() {
             pair.c2 = neighborAtom;
             pair.reset();
-            neighborAtom = neighborAtom.nextNeighbor;
+            neighborAtom = neighborAtom.previousNeighbor;  //////another change from UpNeighborIterator
             if(neighborAtom == null) {advanceCell();}
             return pair;
         }
     } //end of DownNeighborIterator
 
+    private static final class UpAtomIterator implements Atom.Iterator {
+        AtomCoordinate atom, nextAtom;
+        private boolean hasNext;
+        private LatticeSquare.Site cell;
+        public UpAtomIterator() {
+            hasNext = false;
+        }
+        public UpAtomIterator(Atom a) {
+            reset(a);
+        }
+        public boolean hasNext() {return hasNext;}
+        public void allDone() {hasNext = false;}
+        public void reset(Atom a) {
+            if(a == null) {allDone(); return;}
+            atom = (AtomCoordinate)a.coordinate;
+            cell = atom.cell;
+            hasNext = true;
+        }
+        // Finds first atom of next occupied cell
+        private void advanceCell() {
+            while(atom == null) {
+                cell = cell.nextSite();
+                if(cell == null) {        //no more cells;
+                    allDone();
+                    return;
+                }
+                atom = (AtomCoordinate)cell.firstAtom;
+            }
+        }
+        public Space.AtomCoordinate next() {
+            nextAtom = atom;
+            atom = atom.nextNeighbor;      //next atom in cell
+            if(atom == null) {advanceCell();}
+            return nextAtom;
+        }
+    } //end of UpAtomIterator
+    
+    
+    private static final class DownAtomIterator implements Atom.Iterator {
+        AtomCoordinate atom, nextAtom;
+        private boolean hasNext;
+        private LatticeSquare.Site cell, neighborCell;
+        private LatticeSquare.Linker nextLinker;
+        private boolean newCell;
+        public DownAtomIterator() {
+            hasNext = false;
+        }
+        public DownAtomIterator(Atom a) {
+            reset(a);
+        }
+        public boolean hasNext() {return hasNext;}
+        public void allDone() {hasNext = false;}
+
+        public void reset(Atom a) {
+            if(a == null) {allDone(); return;}
+            atom = (AtomCoordinate)a.coordinate;
+            cell = atom.cell;
+            hasNext = true;
+            newCell = false;
+        }
+        // Finds first atom of next occupied cell
+        private void advanceCell() {
+            newCell = true;
+            while(atom == null) {
+                cell = cell.previousSite();
+                if(cell == null) {        //no more cells;
+                    allDone();
+                    return;
+                }
+                atom = (AtomCoordinate)cell.firstAtom;
+            }
+        }
+        public Space.AtomCoordinate next() {
+            nextAtom = atom;
+            atom = (newCell) ? atom.nextNeighbor : atom.previousNeighbor; //advance down in atom's cell, advance up in all cells below it (because they begin with first atom in cell, not last)
+            if(atom == null) {advanceCell();}
+            return nextAtom;
+        }
+    } //end of DownAtomIterator
+
+    
     //These iterators are identical in every Space class; they are repeated in each
     //because they make direct use of the Coordinate type in the class; otherwise casting would be needed
     // Perhaps interitance would work, but haven't tried it
