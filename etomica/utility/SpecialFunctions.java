@@ -24,11 +24,22 @@ public final class SpecialFunctions {
     
     public static int factorial(int i){
         if(i < 0){
-            throw new IllegalArgumentException("Argument less than zero");
+            throw new IllegalArgumentException("Argument less than zero: "+i);
         }
         else{
             return (i <= 1) ? 1 :(i*factorial(i-1));
         }
     }
     
+    //non-recursive version
+//	public static int factorial(int n) {
+//		if(n < 0) throw new IllegalArgumentException("Illegal to pass negative value to factorial");
+//		int factorial = 1;
+//		for (int i=2; i<=n; i++) {
+//		   factorial *= i;
+//		}
+//		return factorial;	
+//	}
+	
+   
 }

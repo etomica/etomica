@@ -53,7 +53,7 @@ public class PairSet {
 	
 	/**
 	 * Calls  reset method for all pairs, computing all r-squared values for
-	 * current configuration.  Returns this pairSet, so reset can be called in-
+	 * current configuration.  Returns this pairSet, so method can be called in-
 	 * line.
 	 */
 	public PairSet resetPairs() {

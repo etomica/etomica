@@ -104,8 +104,8 @@ public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement
 			double wR = 1.0 - r/rC;
 			double g = 0.0;
 			g += maxRepel(pair);  //conservative     maxRepel*cR/r dr
-			g += -gamma*wR*pair.vDotr()/r;  //dissipative  -gamma*cR*cR*vdotr/r dr
 			g += constR*rand;// random  constR*cR/r dr,  constR = sigma/sqrt(dt)
+			g += -gamma*wR*pair.vDotr()/r;  //dissipative  -gamma*cR*cR*vdotr/r dr
 			grad.Ea1Tv1(-g*wR/r, pair.dr());  //minus because force is negative of gradient
 //			grad.TE(-1.0);
 //			fConservative.Ea1Tv1(maxRepel*cR/r, pair.dr());

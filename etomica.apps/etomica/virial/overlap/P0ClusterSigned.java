@@ -14,6 +14,11 @@ import etomica.virial.*;
  * if the sign of the value is not positive or negative (depending on
  * specification given via setSign method.
  */
+
+/* History
+ * 08/20/03 (DAK) modified to make compatible with earlier revisions to
+ * P0Cluster
+ */
 public class P0ClusterSigned extends P0Cluster {
 
 	/**
@@ -31,29 +36,19 @@ public class P0ClusterSigned extends P0Cluster {
 	}
 
 	public boolean signPositive;
+	
 	/**
-	 * @see etomica.Potential0#energy(etomica.Phase)
+	 * Same as superclass method, but returns zero if sign of cluster is not in
+	 * accord with signPositive value.  That is, returns zero if 
+	 * [signPositive != (value > 0)]
+	 * @see etomica.virial.P0Cluster#pi(PhaseCluster)
 	 */
-	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-	   if(!enabled) return;
-	   double beta = 1.0/phase.integrator().temperature();
-	   PairSet pairs = ((PhaseCluster)phase).getPairSet();
-	   g = cluster.value(pairs, beta);
-//	   switch(id.atomCount()) {
-//			case 0: g = cluster.value(pairs, beta); break;
-//			case 1: g = cluster.value(id.atom1(), pairs, beta); break;
-//			default: throw new RuntimeException();
-//	   }
-	   ((PotentialCalculationEnergySum)pc).set(this).actionPerformed(phase);
-	}//end of calculate
-
-	public double energy(Phase phase) {
-		if(g == 0) return Double.POSITIVE_INFINITY;
-//		double absg = (g>0) ? g : -g;
-		if( signPositive != (g>0)) return Double.POSITIVE_INFINITY;
-		else return -phase.integrator().temperature()*Math.log( (g>0) ? g : -g); //arg to log is abs(g)
+	public double pi(PhaseCluster phase) {
+		double pi = cluster.value(phase.getPairSet(), 1.0/phase.integrator().temperature());
+		if(signPositive != (pi>0)) return 0.0;
+		else return (pi>0) ? pi : -pi;
 	}
-
+	
 	/**
 	 * Sets the sign.
 	 * @param sign The sign to set

@@ -13,6 +13,11 @@ import etomica.SimulationElement;
  * Pair potential given according to the Mayer bonds in a cluster integral.
  * Does not require that the value of the cluster is non-negative
  */
+
+/* History
+ * 08/20/03 (DAK) small changes to energy method (check for g = 0; abs(g)->g in
+ * log argument
+ */
 public class P0Cluster extends Potential0 {
 
 	protected Cluster cluster;
@@ -56,7 +61,7 @@ public class P0Cluster extends Potential0 {
 
 	public double energy(Phase phase) {
 		double g = pi((PhaseCluster)phase);
-		return (g==1.0) ? 0.0 : -phase.integrator().temperature()*Math.log((g>0)?g:-g);
+		return (g==1.0) ? 0.0 : ( (g==0) ? Double.POSITIVE_INFINITY : -phase.integrator().temperature()*Math.log(g) );
 	}
 
 }

@@ -21,6 +21,7 @@ import etomica.utility.java2.Iterator;
      * 09/27/02 (DAK) set zoom based on size of phase boundary (in init method)
      * 08/08/03 (DAK) added drawExpansionFactor to draw in a box larger than
      * simulated one
+     * 08/14/03 (DAK) improved selection of default zoom level
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -134,7 +135,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(phase != null) {
             float b = (float)phase.boundary().dimensions().x(0);
 //			float z = -70f + (30f/b - 1f)*22f;
-			float z = -190f + (30f/b - 1f)*22f;//08/12/03 DAK changed 70 to 190 
+//			float z = -190f + (30f/b - 1f)*22f;//08/12/03 DAK changed 70 to 190
+			float z = -1.30847f - 2.449f * b;//08/14/03 DAK changed to this by linear regressing observed "best" z vs b values
+//			System.out.println(b+"  "+z); 
             setZoom(z);
         }
     }//end DAK
@@ -601,7 +604,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Reset The View
     gl.glLoadIdentity();
     //Translate & Zoom to the desired position
-    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
+//    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
+	gl.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.phase.boundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
     //Rotate accordingly
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);
