@@ -120,7 +120,7 @@ public abstract class Integrator extends Container implements Observer, Serializ
                 for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {p.space.repositionMolecules();}                
                 fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhase));
             }
-///            for (int i=0; i<nPhases; i++) {phase[i].repaint();}
+//            for (int i=0; i<nPhases; i++) {phase[i].repaint();}  //not needed now that displayConfiguration does painting
 
 ///            try { Thread.sleep(sleepPeriod); }
 ///            catch (InterruptedException e) { }

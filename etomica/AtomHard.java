@@ -36,6 +36,9 @@ public abstract class AtomHard extends AtomC {
      */
     PotentialHard collisionPotential;
     
+    AtomHard nextAtomHard;
+    AtomHard previousAtomHard;
+    
     /**
      * Constructs an atom with no initialization if parent is null; otherwise constructs atom with default atomIndex = 0.  
      * Expected use of such an Atom is for the construction of other Atoms via makeAtom method
@@ -87,8 +90,12 @@ public abstract class AtomHard extends AtomC {
   
   public final AtomHard getCollisionPartner() {return collisionPartner;}
   
-  //Override to avoid need to cast when looping through atoms
-//  AtomHard nextAtom, previousAtom;
-//  public AtomHard getNextAtom() {return nextAtom;}
-//  public AtomHard getPreviousAtom() {return previousAtom;}
+  public void setNextAtom(Atom atom) {
+    super.setNextAtom(atom);
+    this.nextAtomHard = (AtomHard)atom;
+    if(atom != null) {((AtomHard)atom).previousAtomHard = this;}
+  }
+    
+  public final AtomHard getNextAtomHard() {return nextAtomHard;}
+  public final AtomHard getPreviousAtomHard() {return previousAtomHard;}
 }

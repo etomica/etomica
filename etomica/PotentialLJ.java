@@ -30,8 +30,8 @@ public class PotentialLJ extends Potential implements PotentialSoft {
   }
  */
    
-    public double energy(Atom atom1, Atom atom2) {
-        double r2 = parentPhase.space.r1Mr2_S(((AtomC)atom1).r, ((AtomC)atom2).r);
+    public double energy(AtomC atom1, AtomC atom2) {
+        double r2 = parentPhase.space.r1Mr2_S(atom1.r, atom2.r);
         if(r2 > cutoffDiameterSquared) {return 0.0;}
         else {
             double s2 = sigmaSquared/r2;
@@ -40,8 +40,8 @@ public class PotentialLJ extends Potential implements PotentialSoft {
         }
     }
  
-    public double virial(Atom atom1, Atom atom2) {  //not carefully checked for correctness
-        double r2 = parentPhase.space.r1Mr2_S(((AtomC)atom1).r, ((AtomC)atom2).r);
+    public double virial(AtomC atom1, AtomC atom2) {  //not carefully checked for correctness
+        double r2 = parentPhase.space.r1Mr2_S(atom1.r, atom2.r);
         if(r2 > cutoffDiameterSquared) {return 0.0;}
         else {
             double s2 = sigmaSquared/r2;
@@ -50,8 +50,8 @@ public class PotentialLJ extends Potential implements PotentialSoft {
         }
     }
     
-    public double[] force(Atom atom1, Atom atom2) {  //not carefully checked for correctness
-        parentPhase.space.uEr1Mr2(r12,((AtomC)atom1).r, ((AtomC)atom2).r);
+    public double[] force(AtomC atom1, AtomC atom2) {  //not carefully checked for correctness
+        parentPhase.space.uEr1Mr2(r12,atom1.r, atom2.r);
         double r2 = Space.v1S(r12);
         if(r2 > cutoffDiameterSquared) {Space.uEa1(f12,0.0);}
         else {

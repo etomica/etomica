@@ -52,7 +52,7 @@ public class LatticeSquare {
     
     private class Site implements LatticeSite {
         private Site n, e, w, s;  //neighbors
-        private AtomP atom;
+        private AtomL atom;
         private Site nextSite;
         private Site[] neighbors;
         private int ix, iy;       //indices describing "position", for painting image to screen
@@ -68,8 +68,8 @@ public class LatticeSquare {
             neighbors[2] = w;
             neighbors[3] = s;
         }
-        public void putAtom(AtomP a) {atom = a;}
-        public AtomP atom() {return atom;}
+        public void putAtom(AtomL a) {atom = a;}
+        public AtomL atom() {return atom;}
         public LatticeSite[] neighbors() {return neighbors;}
     }
 }

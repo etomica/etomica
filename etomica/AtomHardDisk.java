@@ -19,6 +19,9 @@ public class AtomHardDisk extends AtomHard implements AtomDisk {
      */
     double radius;
     
+    AtomHardDisk nextAtomHardDisk;
+    AtomHardDisk previousAtomHardDisk;
+    
     /**
      * Constructs an atom with no initialization if parent is null; otherwise constructs atom with default atomIndex = 0.  
      * Expected use of such an Atom is for the construction of other Atoms via makeAtom method
@@ -74,4 +77,14 @@ public class AtomHardDisk extends AtomHard implements AtomDisk {
     int yP = origin[1] + (int)(toPixels*(r[1]-radius));
     g.fillOval(xP,yP,sigmaP,sigmaP);
   }
+  
+  
+  public void setNextAtom(Atom atom) {
+    super.setNextAtom(atom);
+    this.nextAtomHardDisk = (AtomHardDisk)atom;
+    if(atom != null) {((AtomHardDisk)atom).previousAtomHardDisk = this;}
+  }
+    
+  public final AtomHardDisk getNextAtomHardDisk() {return nextAtomHardDisk;}
+  public final AtomHardDisk getPreviousAtomHardDisk() {return previousAtomHardDisk;}
 }

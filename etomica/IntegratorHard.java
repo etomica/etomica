@@ -36,7 +36,7 @@ public class IntegratorHard extends Integrator {
   protected void findNextCollider() {
     //find next collision pair by looking for minimum collisionTime
     double minCollisionTime = Double.MAX_VALUE;
-    for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=(AtomHard)a.getNextAtom()) {
+    for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=a.getNextAtomHard()) {
       if(a.getCollisionTime() < minCollisionTime) {
         minCollisionTime = a.getCollisionTime();
         nextCollider = a;}
@@ -61,7 +61,7 @@ public class IntegratorHard extends Integrator {
         
         boolean upListedN = false;
         boolean upListedP = false;
-        for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=partnerNextAtom; a=(AtomHard)a.getNextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
+        for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=partnerNextAtom; a=a.getNextAtomHard()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
             if(a.getCollisionPartner()==nextCollider || a.getCollisionPartner()==partner) {
                 upList(a);
                 if(a == nextCollider) {upListedN = true;}
@@ -86,7 +86,7 @@ public class IntegratorHard extends Integrator {
   protected void advanceAcrossTimeStep(double tStep) {
     
     if(firstPhase.noGravity) {
-        for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=(AtomHard)a.getNextAtom()) {
+        for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=a.getNextAtomHard()) {
             a.decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
             Space.uEa1Tv1(dr,tStep*a.rm,a.p);
@@ -95,7 +95,7 @@ public class IntegratorHard extends Integrator {
     }
     else {
         double t2 = tStep*tStep;
-        for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=(AtomHard)a.getNextAtom()) {
+        for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=a.getNextAtomHard()) {
             a.decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
             Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2,firstPhase.gravity.gVector);
@@ -111,7 +111,7 @@ public class IntegratorHard extends Integrator {
   */
   public void update(Observable o, Object arg) {
     if(o instanceof Gravity) {
-      for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=(AtomHard)a.getNextAtom()) {
+      for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=a.getNextAtomHard()) {
         if(a.isStationary() || a.getCollisionPartner().isStationary()) {
             upList(a);
         }
@@ -140,7 +140,7 @@ public class IntegratorHard extends Integrator {
     
     //Loop through remaining uplist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
-    for(AtomHard a=(AtomHard)atom.getNextAtom(); a!=nextMoleculeAtom; a=(AtomHard)a.getNextAtom()) {
+    for(AtomHard a=(AtomHard)atom.getNextAtom(); a!=nextMoleculeAtom; a=a.getNextAtomHard()) {
         PotentialHard potential = (PotentialHard)p1.getPotential(atom,a);
         double time = potential.collisionTime(atom,a);
         if(time < minCollisionTime) {
@@ -151,7 +151,7 @@ public class IntegratorHard extends Integrator {
     
     //Loop through remaining uplist atoms in firstPhase
 //    Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
-    for(AtomHard a=(AtomHard)nextMoleculeAtom; a!=null; a=(AtomHard)a.getNextAtom()) {
+    for(AtomHard a=(AtomHard)nextMoleculeAtom; a!=null; a=a.getNextAtomHard()) {
 //        Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
         PotentialHard potential = (PotentialHard)firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
         double time = potential.collisionTime(atom,a);
@@ -172,7 +172,7 @@ public class IntegratorHard extends Integrator {
     
     //Loop through remaining downlist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
-    for(AtomHard a=(AtomHard)atom.getPreviousAtom(); a!=previousMoleculeAtom; a=(AtomHard)a.getPreviousAtom()) {
+    for(AtomHard a=(AtomHard)atom.getPreviousAtom(); a!=previousMoleculeAtom; a=a.getPreviousAtomHard()) {
         PotentialHard potential = (PotentialHard)p1.getPotential(a,atom);
         double time = potential.collisionTime(a,atom);
         if(time < a.getCollisionTime()) {
@@ -182,7 +182,7 @@ public class IntegratorHard extends Integrator {
     
     //Loop through remaining downlist atoms in firstPhase
  //   Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
-    for(AtomHard a=previousMoleculeAtom; a!=null; a=(AtomHard)a.getPreviousAtom()) {
+    for(AtomHard a=previousMoleculeAtom; a!=null; a=a.getPreviousAtomHard()) {
         PotentialHard potential = (PotentialHard)firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
  //       Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
         double time = potential.collisionTime(atom,a);
@@ -195,7 +195,7 @@ public class IntegratorHard extends Integrator {
 //--------------------------------------------------------------
 
   public void initialize() {
-    for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=(AtomHard)a.getNextAtom()) {
+    for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=a.getNextAtomHard()) {
         upList(a);
     }
     findNextCollider();
@@ -205,7 +205,7 @@ public class IntegratorHard extends Integrator {
 
     public void scaleMomenta(double s) {
       double rs = 1.0/s;
-      for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=(AtomHard)a.getNextAtom()) {
+      for(AtomHard a=(AtomHard)firstPhase.firstAtom(); a!=null; a=a.getNextAtomHard()) {
         Space.uTEa1(a.p,s);
         a.collisionTime *= rs;
       }

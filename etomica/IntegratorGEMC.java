@@ -49,16 +49,16 @@ public class IntegratorGEMC extends Integrator {
         if(p.nMoleculeTotal == 0) {return;}
         double uOld, uNew;
         int i = (int)(rand.nextDouble()*p.nAtomTotal);
-        Atom a = p.firstAtom();
-        for(int j=i; --j>=0; ) {a = a.getNextAtom();}  //get ith atom in list
+        AtomC a = (AtomC)p.firstAtom();
+        for(int j=i; --j>=0; ) {a = a.getNextAtomC();}  //get ith atom in list
         uOld = a.potentialEnergy();
         Space.randomVector(dr, maxRStep, rand);
-        ((AtomC)a).displace(dr);
+        a.displace(dr);
         uNew = a.potentialEnergy();
         if(uNew < uOld) {return;}   //accept
         if(uNew >= Double.MAX_VALUE || 
            Math.exp(-(uNew-uOld)/temperature) < rand.nextDouble()) { //reject
-             ((AtomC)a).replace();
+             a.replace();
              return;
         }           
     }
@@ -66,7 +66,7 @@ public class IntegratorGEMC extends Integrator {
     private void trialVolume() {
         double v1Old = firstPhase.space.volume;
         double v2Old = secondPhase.space.volume;
-        double hOld = firstPhase.potentialEnergy() + secondPhase.potentialEnergy();
+        double hOld = energy(firstPhase) + energy(secondPhase);
         double vStep = (2.*rand.nextDouble()-1.)*maxVStep;
         double v1New = v1Old + vStep;
         double v2New = v2Old - vStep;
@@ -82,7 +82,7 @@ public class IntegratorGEMC extends Integrator {
         for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
             m.inflate(r2Scale);
         }
-        double hNew = firstPhase.potentialEnergy() + secondPhase.potentialEnergy();
+        double hNew = energy(firstPhase) + energy(secondPhase);
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/temperature+
                        firstPhase.nMoleculeTotal*Math.log(v1Scale) +
@@ -133,7 +133,25 @@ public class IntegratorGEMC extends Integrator {
             return;
         }
     }
-            
+           
+    //Computes total energy of phase
+    private double energy(Phase p) {
+        double energy = 0.0;
+        for(AtomC a=(AtomC)p.firstAtom(); a!=null; a=a.getNextAtomC()) {
+            AtomC nextMoleculeAtom = (AtomC)a.nextMoleculeFirstAtom();
+            Potential1 p1 = a.parentMolecule.getP1();
+            for(AtomC b=a.getNextAtomC(); b!=nextMoleculeAtom; b=b.getNextAtomC()) {
+                energy += p1.getPotential(a,b).energy(a,b);
+            }
+            Potential2[] p2 = a.parentMolecule.getP2();
+            for(AtomC b=nextMoleculeAtom; b!=null; b=b.getNextAtomC()) {
+                energy += p2[b.getSpeciesIndex()].getPotential(a,b).energy(a,b);
+                if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
+            }
+        }
+        return energy;
+    }
+    
     public final int getFreqVolume() {return freqVolume;}
     public final void setFreqVolume(int f) {freqVolume = f;}
     public final int getFreqMolecule() {return freqMolecule;}

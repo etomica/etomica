@@ -1,7 +1,7 @@
 package simulate;
 
 public interface LatticeSite {
-    public AtomP atom();
-    public void putAtom(AtomP a);
+    public AtomL atom();
+    public void putAtom(AtomL a);
     public LatticeSite[] neighbors();
 }

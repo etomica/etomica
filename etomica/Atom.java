@@ -106,42 +106,8 @@ public abstract class Atom {
         return intraPotentialEnergy() + interPotentialEnergy();
     }
     
-    /**
-     * Computes and returns the potential energy of the atom due to its interactions
-     * with all other atoms in the molecule (intramolecular)
-     *
-     * @return (potential energy)/kB in Kelvins
-     */
-    public final double intraPotentialEnergy() {
-        Potential1 p1 = parentMolecule.getP1();
-        double energy = 0.0;
-        for(Atom a=parentMolecule.firstAtom; a!=parentMolecule.lastAtom.getNextAtom(); a=a.getNextAtom()) {
-            if(a == this) {continue;}
-            energy += p1.getPotential(this,a).energy(this,a);
-        }
-        return energy;
-    }
-        
-    /**
-     * Computes and returns the potential energy of the atom due to its interactions
-     * with all other atoms in all other molecules in the phase (intermolecular)
-     *
-     * @return (potential energy)/kB in Kelvins
-     */
-    public final double interPotentialEnergy() {
-        Potential2[] p2 = parentMolecule.getP2();
-        double energy = 0.0;
-        Atom endAtom = parentMolecule.firstAtom;
-        for(Atom a=parentMolecule.getPhase().firstAtom(); a!=endAtom && a!=null; a=a.getNextAtom()) {
-            energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
-            if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
-        }
-        for(Atom a=parentMolecule.lastAtom.getNextAtom(); a!=null; a=a.getNextAtom()) {
-            energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
-            if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
-        }
-        return energy;
-    }
+  public abstract double interPotentialEnergy();
+  public abstract double intraPotentialEnergy();
     
   public final Atom getNextAtom() {return nextAtom;}
   /**
@@ -151,7 +117,7 @@ public abstract class Atom {
    * @param atom  the next atom in the list
    * @see Molecule#orderAtoms
    */
-  public final void setNextAtom(Atom atom) {
+  public void setNextAtom(Atom atom) {
     this.nextAtom = atom;
     if(atom != null) {atom.previousAtom = this;}
   }

@@ -59,6 +59,10 @@ public abstract class AtomC extends Atom {
      * @param parent       molecule in which atom resides
      * @param index        sequential index of atom as assigned by parent molecule
      */
+     
+     AtomC nextAtomC;
+     AtomC previousAtomC;
+     
     public AtomC(Molecule parent, int index) {
         super(parent, index);
         if(parent != null) {    //null parent indicates atom is used only to generate other atoms
@@ -71,6 +75,44 @@ public abstract class AtomC extends Atom {
     
     }
 
+    /**
+     * Computes and returns the potential energy of the atom due to its interactions
+     * with all other atoms in all other molecules in the phase (intermolecular)
+     *
+     * @return (potential energy)/kB in Kelvins
+     */
+    public double interPotentialEnergy() {
+        Potential2[] p2 = parentMolecule.getP2();
+        double energy = 0.0;
+        Atom endAtom = parentMolecule.firstAtom;
+        for(AtomC a=(AtomC)parentMolecule.getPhase().firstAtom(); a!=endAtom && a!=null; a=a.getNextAtomC()) {
+            energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
+            if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
+        }
+        for(AtomC a=(AtomC)parentMolecule.lastAtom.getNextAtom(); a!=null; a=a.getNextAtomC()) {
+            energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
+            if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
+        }
+        return energy;
+    }
+    
+    /**
+     * Computes and returns the potential energy of the atom due to its interactions
+     * with all other atoms in the molecule (intramolecular)
+     *
+     * @return (potential energy)/kB in Kelvins
+     */
+    public final double intraPotentialEnergy() {
+        if(parentMolecule.nAtoms == 1) return 0.0;
+        Potential1 p1 = parentMolecule.getP1();
+        double energy = 0.0;
+        for(AtomC a=(AtomC)parentMolecule.firstAtom; a!=parentMolecule.lastAtom.getNextAtom(); a=a.getNextAtomC()) {
+            if(a == this) {continue;}
+            energy += p1.getPotential(this,a).energy(this,a);
+        }
+        return energy;
+    }
+        
     public final double getRm() {return rm;}
     
     /**
@@ -187,5 +229,13 @@ public abstract class AtomC extends Atom {
     public final void addForce(double[] force) { Space.uPEv1(f, force);}
     public final void subtractForce(double[] force) {Space.uMEv1(f, force);}
     
-  
+    public void setNextAtom(Atom atom) {
+      super.setNextAtom(atom);
+      this.nextAtomC = (AtomC)atom;
+      if(atom != null) {((AtomC)atom).previousAtomC = this;}
+    }
+    
+    public final AtomC getNextAtomC() {return nextAtomC;}
+    public final AtomC getPreviousAtomC() {return previousAtomC;}
+    
 }

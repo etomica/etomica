@@ -2,8 +2,8 @@ package simulate;
 
 public interface PotentialSoft {
     
-    public double[] force(Atom atom1, Atom atom2);
-    public double virial(Atom atom1, Atom atom2);
+//    public double[] force(AtomC atom1, AtomC atom2);
+//    public double virial(AtomC atom1, AtomC atom2);
     
     
     //Storing some code here for later use

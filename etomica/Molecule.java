@@ -72,12 +72,6 @@ public class Molecule implements Serializable {
   Atom lastAtom;
   
  /**
-  * Array of atoms in this molecule.  This data structure may be
-  * eliminated in future revisions in lieu of just the linked list.
-  */
-//  Atom[] atom;
-  
- /**
   * Number of atoms in this molecule.  Assigned by species when invoking
   * the molecule's constructor
   * @see setNAtoms
