@@ -1204,10 +1204,10 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         }
         integrator.initialize();
         System.out.println("Starting");
-        etomica.benchmark.Stopwatch timer = new etomica.benchmark.Stopwatch().start();
-        integrator.run();
-        timer.stop();
-        System.out.println("Elapsed time: "+0.001*timer.getElapsedTime());
+//        etomica.benchmark.Stopwatch timer = new etomica.benchmark.Stopwatch().start();
+//        integrator.run();
+//        timer.stop();
+//        System.out.println("Elapsed time: "+0.001*timer.getElapsedTime());
         
      //   controller.start();
     }//end of main
