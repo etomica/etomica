@@ -18,7 +18,7 @@ import etomica.electrostatics.*;
  */
 
 public abstract class AtomType implements java.io.Serializable {
-    public static String getVersion() {return "01.03.05";}
+    public static String getVersion() {return "AtomType:01.07.10";}
     private double mass, rm;
     private Color color;
     private ElectroType electroType;
@@ -474,7 +474,12 @@ public abstract class AtomType implements java.io.Serializable {
     /**
      * Type for an AtomGroup atom.
      */
-    public static class Group extends AtomType {}
+//    public static class Group extends AtomType {}
+    
+    private static class Null extends AtomType {
+        public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}
+    }
+    public static final AtomType.Null NULL = new Null();
         
 }
         

@@ -16,7 +16,7 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Atom a) {//may want to revise this for o instanceof Molecule
-        if(a instanceof AtomGroup) return new CoordinateGroup(a);
+        if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
 //        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
@@ -244,12 +244,24 @@ public class Space2D extends Space implements EtomicaElement {
     }
 
     public static class Coordinate extends Space.Coordinate {
-        public Coordinate nextCoordinate;
+        public Coordinate nextCoordinate, previousCoordinate;
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
         public final Vector rLast = new Vector();  //vector for saving position
         public final Vector work = new Vector();
         public Coordinate(Atom a) {super(a);}
+        
+        public void setNextAtom(Atom a) {
+            if(a == null) nextCoordinate = null;
+            else {
+                nextCoordinate = (Coordinate)a.coord;
+                ((Coordinate)a.coord).previousCoordinate = this;
+            }
+        }
+        public Atom nextAtom() {return nextCoordinate!=null ? nextCoordinate.atom : null;}
+        public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
+        public void clearPreviousAtom() {previousCoordinate = null;}
+                
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
@@ -265,68 +277,150 @@ public class Space2D extends Space implements EtomicaElement {
         * 
         * @param u
         */
-        public final void translateBy(Space.Vector u) {r.PE((Space2D.Vector)u);}
+        public void translateBy(Space.Vector u) {r.PE((Space2D.Vector)u);}
         /**
         * Moves the atom by some vector distance
         * 
         * @param u
         */
-        public final void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Space2D.Vector)u);}
+        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Space2D.Vector)u);}
         /**
         * Moves the atom by some vector distance
         * 
         * @param u
         */
-        public final void translateTo(Space.Vector u) {r.E((Space2D.Vector)u);}      
-        public final void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Space2D.Vector)u);}
-        public final void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Space2D.Vector)u);}
-        public final void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Space2D.Vector)u);}  
-        public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
-        public final void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
-        public final void replace() {r.E(rLast);}
+        public void translateTo(Space.Vector u) {r.E((Space2D.Vector)u);}      
+        public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Space2D.Vector)u);}
+        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Space2D.Vector)u);}
+        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Space2D.Vector)u);}  
+        public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
+        public void replace() {r.E(rLast);}
     //    public final void inflate(double s) {r.TE(s);}
 
-        public final void accelerateBy(Space.Vector u) {p.PE(u);}
-        public final void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
+        public void accelerateBy(Space.Vector u) {p.PE(u);}
+        public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
 
-        public final void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+        public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
             double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
             momentum().setRandomSphere();
             momentum().TE(magnitude);
         }
     }
     
-    public static class CoordinateGroup extends Space.CoordinateGroup {
+    public static class CoordinateGroup extends Coordinate implements Space.CoordinateGroup {
         private final Vector work = new Vector();
-        private Coordinate firstCoordinate;
+        public Coordinate firstChild, lastChild;
         public CoordinateGroup(AtomGroup a) {super(a);}
 
-        public void addCoordinate(Coordinate coord) {
-            coord.nextCoordinate = firstCoordinate;
-            firstCoordinate = coord;
-        }
-        public void removeCoordinate(Coordinate coord) {
-            //to be completed
-        }
+        public final Atom firstChild() {return firstChild.atom;}
+        public final void setFirstChild(Atom atom) {firstChild = (Coordinate)atom.coord;}
+        public final Atom lastChild() {return lastChild.atom;}
+        public final void setLastChild(Atom atom) {lastChild = (Coordinate)atom.coord;}
         
-        public abstract Space.Vector position();
-        public abstract Space.Vector momentum();
-        public abstract double position(int i);
-        public abstract double momentum(int i);
-        public abstract double kineticEnergy();
-        public abstract void freeFlight(double t);
-        public abstract void translateBy(Space.Vector u);
-        public abstract void translateBy(double d, Space.Vector u);
-        public abstract void translateTo(Space.Vector u);   
-        public abstract void displaceBy(Space.Vector u);
-        public abstract void displaceBy(double d, Space.Vector u);
-        public abstract void displaceTo(Space.Vector u);
-        public abstract void displaceToRandom(etomica.Phase p);
-        public abstract void replace();
-        public abstract void accelerateBy(Space.Vector u);
-        public abstract void accelerateBy(double d, Space.Vector u);
-        public abstract void displaceWithin(double d);
-        public abstract void randomizeMomentum(double temperature);
+        public Space.Vector position() {
+            work.E(0.0); double massSum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                work.PEa1Tv1(coord.mass(), coord.position()); massSum += coord.mass();
+            }
+            work.DE(massSum);
+            return work;
+        }
+        public Space.Vector momentum() {
+            work.E(0.0);
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                work.PE(coord.momentum());
+            }
+            return work;
+        }
+        public double position(int i) {
+            double sum = 0.0; double massSum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum += coord.mass()*coord.position(i); massSum += coord.mass();
+            }
+            sum /= massSum;
+            return sum;
+        }
+        public double momentum(int i) {
+            double sum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum += coord.mass()*coord.momentum(i);
+            }
+            return sum;
+        }
+        public double kineticEnergy() {
+            double sum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                sum += coord.kineticEnergy();
+            }
+            return sum;
+        }
+        public void freeFlight(double t) {
+            double sum = 0.0;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.freeFlight(t);
+            }
+        }
+        public void translateBy(Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.translateBy(u0);
+            }
+        }
+        public void translateBy(double d, Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.translateBy(d, u0);
+            }
+        }
+        public void translateTo(Space.Vector u) {
+            work.E((Vector)u);
+            work.ME(position());
+            translateBy(work);
+        }
+        public void displaceBy(Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.displaceBy(u0);
+            }
+        }
+        public void displaceBy(double d, Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.displaceBy(d, u0);
+            }
+        }
+        public void displaceTo(Space.Vector u) {
+            work.E((Vector)u);
+            work.ME(position());
+            displaceBy(work);
+        }
+        public void displaceToRandom(etomica.Phase p) {
+            displaceTo((Vector)p.boundary().randomPosition());
+        }
+        public void replace() {
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.replace();
+            }
+        }
+        public void accelerateBy(Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.accelerateBy(u0);
+            }
+        }
+        public void accelerateBy(double d, Space.Vector u) {
+            Vector u0 = (Vector)u;
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.accelerateBy(d, u0);
+            }
+        }
+        public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        public void randomizeMomentum(double temperature) {
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.randomizeMomentum(temperature);
+            }
+        }
     }
 /* comment until space3d ready    
     public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {

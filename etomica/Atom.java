@@ -17,20 +17,13 @@ import java.awt.event.ActionEvent;
   */
 public class Atom implements java.io.Serializable {
 
-    public static String getVersion() {return "Atom:01.07.01";}
+    public static String getVersion() {return "Atom:01.07.10";}
     
-    public static int DEBUG = 0;
-    public int debugIndex;
-
     public Atom(AtomGroup parent, int index, AtomType t) {
         parentGroup = parent;
-        this.index = index;
-        depth = 0;
         atomIndex = index;
-        type = t; //this must precede makeCoordinate call
-        coord = type.makeCoordinate(this);
-  //      coord = type.makeCoordinate(this, type);
-      //  coordinate = Simulation.space.makeCoordinate(this);
+        type = t;
+        coord = parentSimulation().space().makeCoordinate(this);//must follow setting of type field
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
     }
                     
@@ -43,13 +36,12 @@ public class Atom implements java.io.Serializable {
             
     public final AtomGroup parentGroup() {return parentGroup;}
     
-    //can set parent group only by adding to the group, so method is "protected"
-    protected void setParentGroup(AtomGroup parent) {parentGroup = parent;}
+    public void setParentGroup(AtomGroup parent) {parentGroup = parent;}
 
     /**
      * Simulation in which this atom resides
      */
-    public final Simulation parentSimulation() {return parentGroup.parentSimulation();}
+    public final Simulation parentSimulation() {return parentSpecies().parentSimulation();}
         
     /**
      * Phase in which this atom resides
@@ -58,6 +50,7 @@ public class Atom implements java.io.Serializable {
     public Phase parentPhase() {return parentGroup.parentPhase();}
 
     public Species parentSpecies() {return parentGroup.parentSpecies();}
+
 /*   linked list of bonds
     Bond firstBond;
     
@@ -82,8 +75,11 @@ public class Atom implements java.io.Serializable {
      * @param atom the next atom in the list
      */
     public final void setNextAtom(Atom atom) {
+        coord.setNextAtom(atom);
+        /*
         nextAtom = atom;
-        if(atom!=null) {atom.previousAtom = this;}
+        if(atom != null) atom.previousAtom = this;
+        */
     }
 
     /**
@@ -105,19 +101,17 @@ public class Atom implements java.io.Serializable {
      */
     public final Atom previousAtom() {return previousAtom;} 
     
-
-    //needs work
+    public int depth() {return parentGroup.depth()+1;}
+    
     public final boolean preceeds(Atom atom) {
-        return debugIndex < atom.debugIndex;
-  //      if(atom == parentPhase().firstAtom()) return false;
-  //      return true;
-        /* //work this out later when atomGroup is in place
         //want to return true if atoms are the same atoms
         if(atom == null) return true;
-        if(this.parentGroup == atom.parentGroup()) return this.index <= atom.index;//works also if both parentGroups are null
-        else if(this.depth == atom.depth) return this.parentGroup.preceeds(atom.parentGroup());
-        else if(this.depth < atom.depth) return this.preceeds(atom.parentGroup());
-        else /*if(this.depth > atom.depth)* / return this.parentGroup.preceeds(atom);*/
+        if(this.parentGroup == atom.parentGroup()) return this.index() <= atom.index();//works also if both parentGroups are null
+        int thisDepth = depth();
+        int atomDepth = atom.depth();
+        if(thisDepth == atomDepth) return this.parentGroup.preceeds(atom.parentGroup());
+        else if(thisDepth < atomDepth) return this.preceeds(atom.parentGroup());
+        else /*if(this.depth > atom.depth)*/ return this.parentGroup.preceeds(atom);
     }
 
     /**
@@ -146,23 +140,11 @@ public class Atom implements java.io.Serializable {
     */
     Color color = Default.ATOM_COLOR;
         
-       
-    /**
-    * Instance of molecule in which this atom resides.
-    * Assigned in Atom constructor.
-    */
-//    final Molecule parentMolecule;
-     Molecule parentMolecule;
-        
     /**
     * Identifier of atom within molecule.
     * Assigned by parent molecule when invoking Atom constructor.
     */
-//    final int atomIndex;
      int atomIndex;
-     
-     public int index;
-     public byte depth;
     
     private Atom nextAtom, previousAtom;
         

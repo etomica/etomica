@@ -86,78 +86,78 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
         Atom atom6 = null;
         while(iterator.hasNext()) {
             Atom next = iterator.next();
-            System.out.println(next.debugIndex);
-            if(next.debugIndex == 3) atom3 = next;
-            if(next.debugIndex == 6) atom6 = next;
+            System.out.println(next.index());
+            if(next.index() == 3) atom3 = next;
+            if(next.index() == 6) atom6 = next;
         }
         
         String line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(3)UP: 3..7/4..7");
         iterator.reset(new IteratorDirective().set(atom3));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
         
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("()DOWN; 3..0/2..0");
         iterator.reset(new IteratorDirective().set().set(IteratorDirective.DOWN));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(3)DOWN; 3..0/2..0");
         iterator.reset(new IteratorDirective().set(atom3).set(IteratorDirective.DOWN));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(3)NEITHER; 3/null");
         iterator.reset(new IteratorDirective().set(atom3).set(IteratorDirective.NEITHER));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(3)BOTH; 3..7,2..0/4..7,2..0");
         iterator.reset(new IteratorDirective().set(atom3).set(IteratorDirective.BOTH));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(0)UP; 0..7/1..7");
         iterator.reset(new IteratorDirective().set(phase.firstAtom()).set(IteratorDirective.UP));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(0)DOWN; 0/null");
         iterator.reset(new IteratorDirective().set(phase.firstAtom()).set(IteratorDirective.DOWN));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(0)BOTH; 0..7/1..7");
         iterator.reset(new IteratorDirective().set(phase.firstAtom()).set(IteratorDirective.BOTH));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(7)BOTH; 7..0/6..0");
         iterator.reset(new IteratorDirective().set(phase.lastAtom()).set(IteratorDirective.BOTH));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(X)BOTH; null/7..0");
         iterator.reset(new IteratorDirective().set(phase2.firstAtom()).set(IteratorDirective.BOTH));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(X)UP; null/null");
         iterator.reset(new IteratorDirective().set(phase2.firstAtom()).set(IteratorDirective.UP));
-        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
-        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+        while(iterator.hasNext()) System.out.println(iterator.next().index()); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().index());
 
         line = in.readLine();  System.exit(0);
-    }
+    }//end of main
         
 } //end of AtomIteratorSequence

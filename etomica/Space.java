@@ -129,12 +129,13 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     public static abstract class Coordinate implements java.io.Serializable {
-        protected final Atom atom;  //atom that has this as its coordinate        
+        public final Atom atom;  //atom that has this as its coordinate        
         private double mass, rm;    //mass and its reciprocal
         Coordinate(Atom a) {atom = a;}          //constructor
         
         public final Atom atom() {return atom;}
-
+        
+        public abstract void setNextAtom(Atom a);
         public abstract Vector position();
         public abstract Vector momentum();
         public abstract double position(int i);
@@ -211,10 +212,11 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         }
     }//end of Space.Coordinate
     
-    public static abstract class CoordinateGroup extends Coordinate {
-        public CoordinateGroup(AtomGroup a) {super(a);}
-        
-        public abstract void addCoordinate(Coordinate coord);
+    public interface CoordinateGroup {        
+        public Atom firstChild();
+        public void setFirstChild(Atom atom);
+        public Atom lastChild();
+        public void setLastChild(Atom atom);
     }
     
     public static abstract class Orientation {

@@ -61,16 +61,15 @@ import etomica.utility.Iterator;
      
 public abstract class Species implements Simulation.Element, java.io.Serializable {
 
-    public static final String VERSION = "Species:01.02.14.0";
+    public static final String VERSION = "Species:01.07.09";
     private boolean stationary;
     private Simulation parentSimulation;
     private boolean added = false;
+    private AtomFactory factory;
     
-//    public static int count = 0;
-    
-    public Species(Simulation sim) {
+    public Species(Simulation sim, AtomFactory factory) {
         parentSimulation = sim;
-//        setSpeciesIndex(count++);
+        this.factory = factory;
         parentSimulation.register(this);
     }
           
@@ -79,44 +78,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     public final boolean wasAdded() {return added;}
     public final void setAdded(boolean b) {added = b;}
           
-    /**
-     * Changes the default molecule configuration associated with this species.  
-     * Propagates the change to agents of this species in all phases.
-     * 
-     * @param mc The new Molecule.Configuration object
-     * @see Molecule.Configuration
-     */
-    public void add(Molecule.Configuration mc) {
-        mc.setParentSpecies(this);
-        this.moleculeConfiguration = mc;
-        initializeMoleculeCoordinates();
-    }
-    
-    /**
-     * Sets all molecule coordinates to those given by the Molecule Configuration object
-     */
-    public void initializeMoleculeCoordinates() {
-        Iterator e = agents.keySet().iterator();
-        while(e.hasNext()) {
-            Phase p = (Phase)e.next();
-            moleculeConfiguration.initializeCoordinates(p);
-        }
-    }        
-           
-    /**
-     * Sets the "stationary" field of all atoms of this species to the given value
-     */
-    public void setStationary(boolean b) {
-        stationary = b;
-        Iterator e = agents.values().iterator();
-        while(e.hasNext()) {
-            Agent a = (Agent)e.next();
-            AtomIterator aIter = a.makeAtomIterator();
-            while(aIter.hasNext()) {aIter.next().coord.setStationary(b);}
-        }
-    }
-    
-    public boolean getStationary() {return stationary;}
         
            /**
             * Nominal number of molecules of this species in each phase.
@@ -134,7 +95,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * @param n The new number of molecules of this species in each phase
      * @see Species.Agent#setNMolecules
      */
-    public void setNMolecules(int n) {
+    public void setN(int n) {
         nMolecules = n;
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
@@ -198,30 +159,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      */
     public int getAtomsPerMolecule() {return atomsPerMolecule;}
             
-    /**
-     * Sets the next species in the linked list of species
-     * and sets this species to be the previous species of the given species
-     * 
-     * @param s The species to follow this one in the linked list of species
-     */
-    public final void setNextSpecies(Species s) {
-        this.nextSpecies = s;
-        if(s != null) s.previousSpecies = this;
-    }
-
-    /**
-     * Accessor method of the species following this one in the linked list of species.
-     * 
-     * @return The next species in the linked list
-     */
-    public final Species nextSpecies() {return nextSpecies;}
-
-    /**
-     * Accessor method of the species preceding this one in the linked list of species
-     * 
-     * @return The previous species in the linked list of species
-     */
-    public final Species previousSpecies() {return previousSpecies;}
             
     /**
      * Accessor method of the name of this species
@@ -249,13 +186,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     public String toString() {return getName();}  //override Object method
           
     /**
-     * Accessor method for the index of this species
-     * 
-     * @param index The index of this species
-     */
-    public final int getSpeciesIndex() {return speciesIndex;}
-
-    /**
      * Sets the value of the index of this species
      * Value is set by the register method of Simulation when the species is constructed
      * Index is used to associate species with the potentials governing interactions
@@ -276,11 +206,9 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * @return The new agent.  Normally this is returned into the setAgent method of the given phase.
      * @see Species.Agent
      */
-    public Agent makeAgent(Phase p) {
-        Agent a = new Agent(p);
-        a.setNMolecules(nMolecules);
-        AtomIterator aIter = a.makeAtomIterator();
-        while(aIter.hasNext()) {aIter.next().coord.setStationary(stationary);}
+    public SpeciesAgent makeAgent(SpeciesMaster parent, int index) {
+        Agent a = new Agent(this, parent, index, nAtoms, 
+                            parent.parentPhase().coordinateInitializer());
         agents.put(p,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }
@@ -293,14 +221,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * @return The agent of this species in the phase
      */
     public final Agent getAgent(Phase p) {return (Agent)agents.get(p);}
-    
-    /**
-     * Returns an atom iterator for this species in the given phase
-     */
-     public final AtomIterator makeAtomIterator(Phase p) {
-        if(p != null) return getAgent(p).makeAtomIterator();
-        else return null;
-     }
     
     /**
      * Primary method for other classes to obtain a molecule of this species
@@ -332,23 +252,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     */
     String name;
           
-    public ColorScheme colorScheme;
-         
-    /**
-    * A unique integer that identifies the species.  Used to associate
-    * inter- and intra-molecular potentials to the Species.  Assigned
-    * by Simulation when species is registered.  Indices are assigned starting
-    * from zero and increase in the order that the species are constructed.
-    * 
-    * @see Phase#potential2
-    * @see Phase#potential1
-    */
-    int speciesIndex;
-          
-    /**
-    * Number of atoms in each molecule of this species
-    */
-    protected int atomsPerMolecule;
               
     /**
      * Hashtable to associate agents with phases
@@ -356,326 +259,12 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     final HashMap agents = new HashMap();
 
     /**
-    * Object responsible for setting default configuration of atoms in molecule
-    */
-    public Molecule.Configuration moleculeConfiguration;
-    
-    Species previousSpecies, nextSpecies;
-    
-    /**
      * Class for storing molecules that are not presently in any phase
      */
     private final Reservoir reservoir = new Reservoir(this);
           
     private final Random rand = new Random();  //for choosing molecule at random
 
-        /**
-         * The Species.Agent is a representative of the species in each phase.
-         * The agent handles addition, deletion, link-list ordering, counting, etc. of 
-         * molecules in a phase.  Each phase has an agent from every species instance.
-         * 
-         * @author David Kofke
-         * @see Species
-         * @see Phase
-         */
-    public final class Agent extends AtomGroup {
-        public Phase parentPhase;  //want final, but won't compile
-        private AtomIterator atomIterator;  //iterator for all atoms of this species in this phase
-        
-        /**
-         * @param p The phase in which this agent will be placed
-         */
-        public Agent(Phase p) {
-            parentPhase = p;
-            atomIterator = new AtomIterator();
-        }
-        
-        public final Species parentSpecies() {return Species.this;}
-        public final Phase parentPhase() {return parentPhase;}
-        
-        /**
-         * Returns a new, unique instance of an atom iterator for the species in the phase
-         */
-        public final AtomIterator makeAtomIterator() {return new AtomIterator();}
-        
-        /**
-        * @return the number of molecules for this species in this phase
-        */
-        public final int moleculeCount() {return nMolecules;}
-              
-        /**
-        * Sets the number of molecules for this species.  Makes the given number
-        * of new molecules, linked-list orders and initializes them.
-        * Any previously existing molecules for this species in this phase are abandoned
-        * Any links to molecules of next or previous species are maintained.
-        * Takes no action at all if the new number of molecules equals the existing number
-        *
-        * @param n  the new number of molecules for this species
-        * @see #makeMolecule
-        * @see #deleteMolecule
-        * @see #addMolecule
-        */
-        public void setNMolecules(int n) {
-            setNMolecules(n, false);
-        }
-        
-        /**
-         * Same as setNMolecules, but takes a boolean argument that can indicate that all
-         * new molecules should be made even if the number of molecules is not changing.
-         * @param forceRebuild if true will cause making of new molecules even if number is not changing.
-         */
-        public void setNMolecules(int n, boolean forceRebuild) {
-            if(n == nMolecules && !forceRebuild) return; //do nothing if number is not changing
-            Integrator integrator = parentPhase.integrator();
-            boolean wasPaused = false;
-            if(integrator != null) {
-                wasPaused = integrator.isPaused();//record pause state of integrator
-                integrator.pause();
-            }
-            Molecule previous = null;
-            Molecule next = null;
-            if(firstMolecule != null) previous = firstMolecule.previousMolecule();
-            if(lastMolecule != null) next = lastMolecule.nextMolecule();
-            nMolecules = n;
-            if(nMolecules == 0) {
-                firstMolecule = null;
-                lastMolecule = null;
-                if(previous != null) previous.setNextMolecule(next);
-            }
-            else {
-                firstMolecule = makeMolecule(parentPhase);
-                lastMolecule = firstMolecule;
-                for(int i=1; i<nMolecules; i++) {
-                    lastMolecule.setNextMolecule(makeMolecule(parentPhase));
-                    lastMolecule = lastMolecule.nextMolecule();
-                }
-                lastMolecule.setNextMolecule(next);
-                if(previous != null) previous.setNextMolecule(firstMolecule);
-            }
-            parentPhase.updateCounts();
-            parentPhase.configuration.initializeCoordinates(parentPhase);
-            parentPhase.iteratorFactory().reset();
-            if(integrator != null) {
-                if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
-                if(!wasPaused) integrator.unPause();//resume if was not paused originally
-            }
-        }
-              
-        /**
-        * Chooses a molecule randomly from Species
-        *
-        * @return the randomly seleted molecule
-        */
-        public final Molecule randomMolecule() {
-            int i = (int)(rand.nextDouble()*nMolecules);
-            Molecule m = firstMolecule;
-            for(int j=i; --j>=0; ) {m = m.nextMolecule();}
-            return m;
-        }
-                
-        /**
-        * Chooses a molecule randomly from Species, and deletes it (removes it from the linked list)
-        *
-        * @return the deleted molecule
-        */
- /*       public final Molecule deleteMolecule() {
-            Molecule m = this.randomMolecule();
-            deleteMolecule(m);
-            return m;
-        }
-*/                
-        /**
-        * Removes molecule from species, and updates atom and molecule linked lists.
-        * Updates all values of first/last Molecule/Atom for species and
-        * phase, if appropriate.  Also updates number-of-atom/molecule variables
-        * for species and phase.
-        * No measures are taken to remove this species if it holds zero molecules
-        * after this molecule is deleted.
-        *
-        * @param m the molecule being deleted
-        * @see #addMolecule
-        */
-              
-        public final void deleteMolecule(Molecule m) {
-            if(m.parentSpecies != Species.this) {
-                System.out.println("Error:  attempt to delete molecule from incorrect species");
-                return;
-            }
-            Molecule next = m.nextMolecule();
-            Molecule previous = m.previousMolecule();
-            if(m == firstMolecule) {
-                if(nMolecules == 1) {firstMolecule = null;}  //deleting the first and only molecule of the species
-                else {firstMolecule = next;}                 //deleting first molecule, but others are present
-            }
-            if(m == lastMolecule) {
-                if(nMolecules == 1) {lastMolecule = null;}
-                else {lastMolecule = previous;}
-            }
-            if(previous != null) {previous.setNextMolecule(next);} //reconnect linked list if not at beginning
-            else if(next != null) {next.clearPreviousMolecule();}  //beginning of list; no previous molecule for next
-            nMolecules--;
-       //     m.parentPhase = null;        //line deleted because of spareMolecule
-            m.setNextMolecule(null);
-            m.clearPreviousMolecule();
-        //    parentPhase.moleculeCount--;
-        //    parentPhase.atomCount -= m.nAtoms;
-        //    if(spareMolecule == null) spareMolecule = m;
-        }
-
-        /**
-        * Adds a molecule to this species and updates linked lists.  Does not handle
-        * creation of molecule.  New molecule
-        * becomes last molecule of species.  Updates first/last Molecule
-        * for species, if appropriate.
-        * Not yet correctly implemented for use in a phase containing multiple
-        * species (i.e., mixtures).  Does not adjust total molecule and atom count in parent phase.
-        *
-        * @param m the molecule being added
-        * @see deleteMolecule
-        */
-        public final void addMolecule(Molecule m) {
-            if(nMolecules > 0) {
-                m.setNextMolecule(lastMolecule.nextMolecule());
-                lastMolecule.setNextMolecule(m);
-                lastMolecule = m;
-            }
-            else {  //m is going to be the only molecule in species
-                firstMolecule = m;
-                lastMolecule = m;
-                m.setNextMolecule(null); 
-                for(Species.Agent s=this.nextSpecies(); s!=null; s=s.nextSpecies()) { //loop forward in species, looking for next molecule
-                    if(s.firstMolecule() != null) {
-                        m.setNextMolecule(s.firstMolecule());
-                        break;
-                    }
-                }
-                m.clearPreviousMolecule();
-                for(Species.Agent s=this.previousSpecies(); s!=null; s=s.previousSpecies()) { //loop backward in species, looking for previous molecule
-                    if(s.lastMolecule() != null) {
-                        s.lastMolecule.setNextMolecule(m);
-                        break;
-                    }
-                }
-            }
-            nMolecules++;
-//            m.parentPhase = parentPhase;
-//            parentPhase.moleculeCount++;
-//            parentPhase.atomCount += m.nAtoms;
-//            colorScheme.initializeMoleculeColor(m);  //need to deal with this for changes in colorscheme
-        }
-              
-        /**
-        * @return the next species in the linked list of species.  Returns null if this is the last species.
-        */
-        public final Agent nextSpecies() {return nextSpecies;}
-             
-        /**
-        * Sets the species following this one in the linked list of species.
-        * Also links last Molecule/Atom of this species to the corresponding
-        * first Molecule/Atom of the next species
-        *
-        * @param s the species to be designated as this species nextSpecies
-        */
-        public final void setNextSpecies(Agent s) {
-            this.nextSpecies = s;
-            Molecule last = lastMolecule();
-            if(s==null) {
-                if(last!=null) last.setNextMolecule(null); 
-                return;
-            }
-            s.previousSpecies = this;
-            if(last != null) {last.setNextMolecule(s.firstMolecule);}
-        }
-        /**
-        * @return the species preceding this one in the linked list of species.  Returns null if this is the first species.
-        */
-        public final Agent previousSpecies() {return previousSpecies;}   
-              
-        /**
-        * Method that sets the initial coordinates of the molecules in the
-        * species.  If fillVolume is <code>true</code>, will set coordinate
-        * origin and value to fill entire space in Phase; if fillVolume is <code>
-        * false</code>, will not do this, and thereby permit adjustment of 
-        * origin and size of occupied volume at design time.
-        * Called by paint at design time, and by Phase.add at run time, and by this.setBounds (override of superclass)
-        */
-        //  public abstract void initializeSpecies(Phase phase);
-              
-        public void setBounds(int x, int y, int width, int height) {
-        ///    Rectangle r = getBounds();
-        ///    if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
-        ///        super.setBounds(x, y, width, height);
-        //        if(parentSimulation != null) initializeSpecies(parentSimulation);
-        ///    }
-        }
-
-        public final Molecule firstMolecule() {return firstMolecule;}
-        public final Molecule lastMolecule() {return lastMolecule;}
-              
-        /**
-        * Used to terminate loops over molecules in species
-        */
-        public final Molecule terminationMolecule() {
-            return (lastMolecule == null) ? null : lastMolecule.nextMolecule();
-        }  
-        public final Atom firstAtom() { //return firstAtom;
-            return (firstMolecule == null) ? null : firstMolecule.firstAtom();
-        }
-        public final Atom lastAtom() { //return lastAtom;
-            return (lastMolecule == null) ? null : lastMolecule.lastAtom();
-        }
-              
-        /**
-        * Used to terminate loops over atoms in species
-        */
-        public final Atom terminationAtom() {
-            Atom last = lastAtom();
-            return (last == null) ? null : last.nextAtom();
-        }
-              
-        /**
-        * Number of molecules for this species
-        */
-        protected int nMolecules;
-              
-        /**
-        * The Species following this one in the linked list of Species
-        */
-        Agent nextSpecies;
-             
-        /**
-        * The Species preceding this one in the linked list of Species
-        */
-        Agent previousSpecies;
-              
-        /**
-        * First molecule in this Species
-        *
-        * @see Molecule
-        */
-        protected Molecule firstMolecule;
-              
-        /**
-        * Last molecule in this Species
-        *
-        * @see Molecule
-        */
-        protected Molecule lastMolecule;
-        
-        /**
-         * Iterator for all atoms of this species in this phase
-         */
-        public final class AtomIterator extends AtomIteratorSequential {
-            public AtomIterator() {super();}
-            public boolean contains(Atom atom) {return atom.parentMolecule.parentSpecies() == Species.this;}
-            public Atom defaultFirstAtom() {return firstAtom();}
-            public Atom defaultLastAtom() {return lastAtom();}
-
-            //inherited allAtoms method won't work correctly
-            
-        } //end of AtomIterator
-
-    } //end of Agent
     
     /**
      * Class to store molecules that are not presently in any particular phase

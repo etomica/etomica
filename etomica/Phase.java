@@ -1,10 +1,7 @@
 package etomica;
 
-import java.awt.Graphics;
-import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
-import java.beans.Beans;
 
 //Java2 imports
 //import java.util.LinkedList;
@@ -42,7 +39,7 @@ import etomica.utility.Iterator;
  * @see Space.Boundary
  * @see MeterAbstract
  */
-public final class Phase implements Simulation.Element, Molecule.Container, java.io.Serializable {
+public final class Phase implements Simulation.Element, java.io.Serializable {
         
     private Space.Boundary boundary;
     private transient final LinkedList meterList = new LinkedList();
@@ -50,7 +47,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private String name;
     private final Simulation parentSimulation;
     private final PotentialMaster.Agent potential;
-    private final AtomGroup species;
+    private final SpeciesMaster speciesMaster;
     private boolean added = false;
     
     public Phase() {
@@ -59,8 +56,9 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     
     public Phase(Simulation sim) {
         parentSimulation = sim;
+        
         potential = (PotentialMaster.Agent)sim.potentialMaster().makeAgent(this);
-        species = new SpeciesMaster.Agent(this);
+        speciesMaster = new SpeciesMaster(this);
         
         inflater = new PhaseAction.Inflate(this);
         //don't use setIteratorFactory here to remove any possibility of complications with Observers
@@ -92,6 +90,8 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     public final Class baseClass() {return Phase.class;}
     public final boolean wasAdded() {return added;}
     public final void setAdded(boolean b) {added = b;}
+    
+    public void addSpecies(Species s) {speciesMaster.addSpecies(s);}
     
     public Space.Vector randomPosition() {return boundary.randomPosition();}
     

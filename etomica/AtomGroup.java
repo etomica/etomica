@@ -5,27 +5,35 @@ package etomica;
  *
  * @author David Kofke
  */
-public class AtomGroup extends Atom implements java.io.Serializable {
+public class AtomGroup extends Atom {
     
-    private Atom firstChild;
-    private Atom lastChild;
-    private final AtomFactory factory;
-    private int childCount;
-    private boolean resizable = true;
+    protected final AtomFactory factory;
+    private Configuration initializer;
+    protected int childCount;
+    protected final boolean resizable;
     private static final IteratorDirective UP = new IteratorDirective(IteratorDirective.UP);
     private static final IteratorDirective DOWN = new IteratorDirective(IteratorDirective.DOWN);
     
-    public AtomGroup(AtomGroup parent, int index, AtomFactory factory, 
-                        int nChild, Configuration configuration) {
-        super(parent, new AtomType.Group(), index);
+    //used to pause when adding/removing atoms
+    private transient Integrator integrator;
+    
+    protected AtomGroup(AtomGroup parent, int index, AtomType type) {
+        super(parent, index, type);
+        childCount = 0;
+        resizable = true;
+        factory = null;
+    }
+    public AtomGroup(AtomGroup parent, int index, AtomType type, AtomFactory factory, 
+                        int nChild, Configuration initializer, boolean resizable) {
+        super(parent, index, type);
         this.factory = factory;
-        this.configuration = configuration;
+        this.initializer = initializer;
         for(int i=0; i<nChild; i++) {
             addAtom(factory.makeAtom(this,i));
-            ((Space.CoordinateGroup)coord).addCoordinate(lastAtom.coord);
         }
-        factory.configuration().initializeCoordinates(this); //be sure this handles case of no atoms
+        if(initializer != null) initializer.initializeCoordinates(this); //be sure this handles case of no atoms
         childCount = nChild;
+        this.resizable = resizable;
     }
     
     public AtomFactory atomFactory() {return factory;}
@@ -48,7 +56,7 @@ public class AtomGroup extends Atom implements java.io.Serializable {
             }
             return null;
         }
-        else return firstChild;
+        else return firstChild();
     }
     /**
      * Returns the last leaf atom descended from this group.
@@ -62,10 +70,17 @@ public class AtomGroup extends Atom implements java.io.Serializable {
             }
             return null;
         }
-        else return lastChild;
+        else return lastChild();
+    }
+    
+    public Atom addNewAtom() {
+        Atom aNew = atomFactory().makeAtom(this, childCount+1);
+        addAtom(aNew);
+        return aNew;
     }
 
     public void addAtom(Atom aNew) {
+        if(!resizable) return;
         //ensure that the given atom is compatible
         if(atomFactory().vetoAddition(aNew)) { //also checks for a null
             System.out.println("Error in AtomGroup.addAtom:  See source code");  //should throw an exception
@@ -74,17 +89,17 @@ public class AtomGroup extends Atom implements java.io.Serializable {
         //set up links within this group
         aNew.setParentGroup(this);
         if(childCount > 0) { //siblings
-            aNew.setNextAtom(lastChild.nextAtom());
-            lastChild.setNextAtom(aNew);
-            aNew.setIndex(lastChild.index()+1);
+            aNew.setNextAtom(lastChild().nextAtom());
+            lastChild().setNextAtom(aNew);
+            aNew.setIndex(lastChild().index()+1);
         }
         else {  //only child
-            firstChild = aNew;
+            setFirstChild(aNew);
             aNew.setNextAtom(null);
             aNew.clearPreviousAtom();
             aNew.setIndex(0);
         }   
-        lastChild = aNew;
+        setLastChild(aNew);
         
         //set up leaf links
         if(aNew instanceof AtomGroup) {
@@ -110,7 +125,7 @@ public class AtomGroup extends Atom implements java.io.Serializable {
 
 
     public void removeAtom(Atom a) {
-        if(a == null) return;
+        if(a == null || !resizable) return;
         //ensure that the given atom is compatible
         if(a.parentGroup() != this) {
             System.out.println("Error in AtomGroup.removeAtom:  See source code");  //should throw an exception
@@ -120,13 +135,13 @@ public class AtomGroup extends Atom implements java.io.Serializable {
         Atom previous = a.previousAtom();
         
         //update links within this group
-        if(a == firstChild) {
-            if(childCount == 1) firstChild = null;
-            else firstChild = next;
+        if(a == firstChild()) {
+            if(childCount == 1) setFirstChild(null);
+            else setFirstChild(next);
         }
-        if(a == lastChild) {
-            if(childCount == 1) lastChild = null;
-            else lastChild = previous;
+        if(a == lastChild()) {
+            if(childCount == 1) setLastChild(null);
+            else setLastChild(previous);
         }
         if(previous != null) previous.setNextAtom(next);
         else if(next != null) next.clearPreviousAtom();
@@ -144,31 +159,145 @@ public class AtomGroup extends Atom implements java.io.Serializable {
             previous = (first != null) ? first.previousAtom() : null;
             if(previous != null) previous.setNextAtom(next);
             else if(next != null) next.clearPreviousAtom();
-        }              
-    }//end of removeAtom
-/*      
-    public boolean isResizable() {return resizable;}
-    public void setResizable(boolean b) {
-        resizable = b;
-        if(resizable) parentGroup.setResizable(true);//if this is resizable, so must its parents
-        else if(factory.producesAtomGroups()) {//if this isn't resizable, neither can its children
-            childIterator.reset();
-            while(childIterator.hasNext()) {
-                ((AtomGroup)childIterator.next()).setResizable(false);
-            }
         }
-    }//end setResizable
-   */
-   
+        
+        factory.reservoir().addAtom(a);
+    }//end of removeAtom
+
+    /**
+     * Removes all child atoms of this group.  
+     * Does not remove this group from its parent group.
+     */
+    public void removeAll() {
+        if(childCount == 0 || !resizable) return;
+        
+        Atom first = firstLeafAtom();
+        Atom last = lastLeafAtom();
+        Atom next = (last != null) ? last.nextAtom() : null;
+        Atom previous = (first != null) ? first.previousAtom() : null;
+        if(previous != null) previous.setNextAtom(next);
+        else if(next != null) next.clearPreviousAtom();
+        
+        setFirstChild(null);
+        setLastChild(null);
+        childCount = 0;
+        
+    }//end of removeAll
+    
+    /**
+     * Indicates whether the number of child atoms of this group can be changed.
+     */
+    public boolean isResizable() {return resizable;}
+//    public void setResizable(boolean b) {resizable = b;}
+    
     /**
      * Iterator of the children of this group.
      */
     public final AtomIteratorSequential childIterator = new AtomIteratorSequential() {
-        public Atom defaultFirstAtom() {return firstChild;}
-        public Atom defaultLastAtom() {return lastChild;}
+        public Atom defaultFirstAtom() {return firstChild();}
+        public Atom defaultLastAtom() {return lastChild();}
         public boolean contains(Atom a) {return a.parentGroup() == AtomGroup.this;}
     };
+    /**
+     * Indicates whether the children of this group are themselves atom groups,
+     * or are leaf atoms.
+     */
+    public final boolean childrenAreGroups() {
+        return factory.producesAtomGroups();
+    }
+
     
+    
+    /**
+    * Sets the number of molecules for this species.  Makes the given number
+    * of new molecules, linked-list orders and initializes them.
+    * Any previously existing molecules for this species in this phase are abandoned
+    * Any links to molecules of next or previous species are maintained.
+    * Takes no action at all if the new number of molecules equals the existing number
+    *
+    * @param n  the new number of molecules for this species
+    * @see #makeMolecule
+    * @see #deleteMolecule
+    * @see #addMolecule
+    */
+    public void setNAtoms(int n) {
+        if(!resizable) return;
+        boolean wasPaused = pauseIntegrator();
+        
+        if(n <= 0) removeAll();
+        else if(n > childCount) {
+            for(int i=childCount; i<n; i++) addNewAtom();
+        }
+        else if(n < childCount) {
+            for(int i=childCount; i>n; i--) removeAtom(lastChild());
+        }
+        
+        //reconsider this
+        parentPhase().configuration.initializeCoordinates(this);
+        parentPhase().iteratorFactory().reset();
+        
+        unpauseIntegrator(wasPaused);
+    }
+        
+    /**
+     * Same as setNAtoms, but takes a boolean argument that can indicate that all
+     * new molecules should be made.
+     */
+    public void setNAtoms(int n, boolean forceRebuild) {
+        if(!resizable) return;
+        boolean wasPaused = pauseIntegrator();
+        if(forceRebuild) removeAll();
+        setNAtoms(n);
+        unpauseIntegrator(wasPaused);
+    }
+    
+    private boolean pauseIntegrator() {
+        Phase phase = parentPhase();
+        integrator = (phase != null) ? phase.integrator() : null;
+        boolean wasPaused = true;
+        if(integrator != null) {
+            wasPaused = integrator.isPaused();//record pause state of integrator
+            if(!wasPaused) {
+                integrator.pause();
+                while(!integrator.isPaused()) {}
+            }
+        }
+        return wasPaused;
+    }
+    
+    private void unpauseIntegrator(boolean wasPaused) {
+        if(integrator != null) {
+            if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
+            if(!wasPaused) integrator.unPause();//resume if was not paused originally
+        }
+    }
+              
+    /**
+    * Chooses a child atom randomly from this group.
+    *
+    * @return the randomly seleted atom
+    */
+/*    public Atom randomAtom() {
+        int i = (int)(rand.nextDouble()*childCount);
+        Atom a = firstChild;
+        for(int j=i; --j>=0; ) {a = a.nextAtom();}
+        return a;
+    }
+*/   
+
+    public final Atom firstChild() {return ((Space.CoordinateGroup)coord).firstChild();}
+    protected final void setFirstChild(Atom atom) {((Space.CoordinateGroup)coord).setFirstChild(atom);}
+    public final Atom lastChild() {return ((Space.CoordinateGroup)coord).lastChild();}
+    protected final void setLastChild(Atom atom) {((Space.CoordinateGroup)coord).setLastChild(atom);}
+/*
+    //alternative approach that doesn't delegate link structure to coordinates
+    private Atom firstChild;
+    private Atom lastChild;
+    public final Atom firstChild() {return firstChild;}
+    protected final void setFirstChild(Atom atom) {firstChild = atom;}
+    public final Atom lastChild() {return lastChild;}
+    protected final void setLastChild(Atom atom) {lastChild = atom;}
+ */   
     /**
      * Searches the atom hierarchy up from (and not including) the given group 
      * to find the closest (leaf) atom in that direction.
@@ -205,13 +334,5 @@ public class AtomGroup extends Atom implements java.io.Serializable {
         }
         return null;
     }//end of findPreviousLeafAtom
-    
-    /**
-     * Indicates whether the children of this group are themselves atom groups,
-     * or are leaf atoms.
-     */
-    public final boolean childrenAreGroups() {
-        return factory.producesAtomGroups();
-    }
     
 }//end of AtomGroup
