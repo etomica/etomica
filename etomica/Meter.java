@@ -6,27 +6,27 @@ import java.util.*;
 
 public abstract class Meter extends Component
 {
-    int updateInterval = 1;
-    int iieCount = 0;
+    int updateInterval;
+    int iieCount;
     boolean firstCall = true;
     double sum, sumSquare;
     int count = 0;
     private Meter nextMeter, previousMeter;
     public DataDisplay parentDisplay;
 
-	public Meter()
-	{
+	public Meter() {
+	    setUpdateInterval(1);
 	}
 
     public final int getUpdateInterval() {return updateInterval;}
     public final void setUpdateInterval(int i) {
-        if(updateInterval > 0) {
+        if(i > 0) {
             updateInterval = i;
             iieCount = updateInterval;
         }
     }
     
-	public void update(Phase phase) {
+	public void updateStatistics(Phase phase) {
 	    if(firstCall) {
 	        firstCall = false;
 	    }
@@ -40,12 +40,12 @@ public abstract class Meter extends Component
 	}
 		
 	public double average() {
-	    return (count>0) ? sum/(double)count : Double.MAX_VALUE;
+	    return (count>0) ? sum/(double)count : 0.0;
 	}
 	
 	public double error() {
 	    double avg = average();
-	    return (count>1) ? Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1)) : Double.MAX_VALUE;
+	    return (count>1) ? Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1)) : 0.0;
 	}
 	
 	public void reset() {

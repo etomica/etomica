@@ -1,19 +1,30 @@
 package simulate;
 import java.awt.*;
 
-    public class DataViewScrollingGraph extends DataView {
+    public class DataViewScrollingGraph extends View {
 
         Color bgColor = new Color(255, 255, 240);
         int margin = 10;
         int number = 0;
         int current = 0;
+        int pixels = 300;
         int stepsToGraph = 100;
+        boolean useMeterStatistics;
         double[] values = new double[stepsToGraph];
         double vMin = -1000;
         double vMax = 1000;
         String legend = new String("");
         int ticks = 5;
         double[] tickValues = {-1000.0, -500, 0.0, 500, 1000};
+        double xScale = (pixels - 2 * margin) / (double) stepsToGraph;
+        double yScale = (pixels - 2 * margin) / (vMax - vMin);
+        double vAvg;
+        double v2Avg;
+        double stdDev;
+        
+        public DataViewScrollingGraph() {
+            useMeterStatistics = false;
+        }
 
         void clear () {
             current = number = 0;
@@ -28,7 +39,6 @@ import java.awt.*;
                 for (int v = 0; v < temp.length; v++)
                     values[v] = temp[v];
             }
-
             if (number < stepsToGraph - 1)
                 ++number;
             if (++current == stepsToGraph)
@@ -36,31 +46,36 @@ import java.awt.*;
             values[current] = value;
 
         }
-
-        public void paint (Graphics g) {
-            update(g);
+        
+        public void updateView() {
+            add(((DataDisplay)parentDisplay).firstMeter.currentValue(parentDisplay.phase));
         }
-
-        public void update (Graphics osg) {
-            add(parentDisplay.firstMeter.currentValue(parentDisplay.phase));
+        
+        private void updateStatistics() {
+            if(useMeterStatistics) {
+                vAvg = ((DataDisplay)parentDisplay).firstMeter.average();
+                stdDev = ((DataDisplay)parentDisplay).firstMeter.error();
+            }
+            else {
+                vAvg = v2Avg = 0;
+                for (int n = 0; n < number; n++) {
+                    vAvg += values[n];
+                    v2Avg += values[n] * values[n];
+                }
+                stdDev = 0;
+                if (number > 0) {
+                    vAvg /= number;
+                    v2Avg /= number;
+                    stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
+                }
+            }
+        }         
+        
+        public void paint(Graphics osg) {
             osg.setColor(bgColor);
             int pixels = parentDisplay.pixels;
             osg.fillRect(0, 0, pixels, pixels);
-
-            double vAvg = 0;
-            double v2Avg = 0;
-            for (int n = 0; n < number; n++) {
-                vAvg += values[n];
-                v2Avg += values[n] * values[n];
-            }
-            double stdDev = 0;
-            if (number > 0) {
-                vAvg /= number;
-                v2Avg /= number;
-                stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
-            }
-            double xScale = (pixels - 2 * margin) / (double) stepsToGraph;
-            double yScale = (pixels - 2 * margin) / (vMax - vMin);
+            updateStatistics();
             int x = margin + (int) (number * xScale);
             int y = margin + (int) ((vMax - vAvg) * yScale);
             int dy = (int) (stdDev * yScale);
@@ -100,7 +115,16 @@ import java.awt.*;
             osg.drawString(legend, pixels / 4, pixels - margin / 2);
         }
 
-    public void setVMin(double v) {vMin = v;}
-    public void setVMax(double v) {vMax = v;}
+    public void setVMin(double v) {
+        vMin = v;
+        yScale = (pixels - 2 * margin) / (vMax - vMin);
     }
+    public void setVMax(double v) {
+        vMax = v;
+        yScale = (pixels - 2 * margin) / (vMax - vMin);
+    }
+    
+    public void setUseMeterStatistics(boolean b) {useMeterStatistics = b;}
+    public boolean getUseMeterStatistics() {return useMeterStatistics;}
+}
 

@@ -1,11 +1,10 @@
 package simulate;
 
-
 import simulate.*;
 import java.beans.*;
 import java.awt.*;
 
-public class DataDisplay extends Display implements simulate.IntegrationIntervalListener
+public class DataDisplay extends Display
 {
     
 	public DataDisplay()
@@ -20,9 +19,7 @@ public class DataDisplay extends Display implements simulate.IntegrationInterval
 
 	//{{DECLARE_CONTROLS
 	Meter firstMeter, lastMeter;
-	DataView view;
 	private int nMeters = 0;
-	Phase phase;
 	//}}
 	
 	public void setPhase(Phase p) {phase = p;}
@@ -33,12 +30,6 @@ public class DataDisplay extends Display implements simulate.IntegrationInterval
 	    lastMeter = m;
 	    nMeters++;
 	    m.parentDisplay = this;
-	}
-	
-	public void add(DataView v) {
-	    super.add(v);
-	    view = v;
-	    view.parentDisplay = this;
 	}
 	
 	// Returns ith meter in linked list of meters, with i=0 being the first meter
@@ -53,20 +44,9 @@ public class DataDisplay extends Display implements simulate.IntegrationInterval
     {
         // This method is derived from interface simulate.IntegrationIntervalListener
         for(Meter m=firstMeter; m!=null; m=m.getNextMeter()) {
-            m.update(evt.phase);
+            m.updateStatistics(evt.phase);
         }
+        view.updateView();
         repaint();
     }
-
-  public void paint(Graphics g) {
-    if(Beans.isDesignTime()) {
-      g.setColor(Color.red);
-      g.drawRect(0,0,getSize().width-1,getSize().height-1);
-      g.drawRect(1,1,getSize().width-3,getSize().height-3);
-    } 
-    createOffScreen();
-    view.update(osg);
-    g.drawImage(offScreen, 0, 0, null);
-  }
-
 }

@@ -3,9 +3,9 @@ package simulate;
 import simulate.*;
 import java.beans.*;
 
-public class MeterEnergy extends simulate.Meter
+public class MeterTemperature extends simulate.Meter
 {
-    public MeterEnergy()
+    public MeterTemperature()
     {
         super();
     }
@@ -14,7 +14,7 @@ public class MeterEnergy extends simulate.Meter
     {
         // This method is derived from class simulate.Meter
         // to do: code goes here
-        return phase.getTotalEnergy()/phase.nMoleculeTotal;
+        return phase.getKineticTemperature();
     }
 
 }

@@ -5,7 +5,7 @@ import java.beans.*;
 import jclass.table3.*;
 import java.awt.*;
 
-public class DataViewJTable extends simulate.DataView
+public class DataViewJTable extends simulate.View
 {
     Table table;
     MyTableData dataSource;
@@ -17,6 +17,8 @@ public class DataViewJTable extends simulate.DataView
         table.setDataSource(dataSource);
     }
     
+    public void updateView() {;}
+    
     public void paint(Graphics g) {table.paint(g);}
 
     class MyTableData extends jclass.table3.TableDataSupport {
@@ -26,8 +28,9 @@ public class DataViewJTable extends simulate.DataView
         
         public Object getTableDataItem(int row, int column) {
             if(column==0) {
-                double value = parentDisplay.getMeter(row).currentValue(parentDisplay.phase);
-                return new Double(value);
+ //               double value = parentDisplay.getMeter(row).currentValue(parentDisplay.phase);
+//                return new Double(value);
+                    return null;
             }
             else {
                 return null;
@@ -45,5 +48,7 @@ public class DataViewJTable extends simulate.DataView
         public Object getTableColumnLabel(int column) {
             return "Some Data";
         }
+        
+        public void update(Graphics g) {;}
     }
 }
