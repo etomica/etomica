@@ -77,9 +77,14 @@ public class ConfigurationLinear extends Configuration {
         iterator.reset();
         while(iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            try {//may get null pointer exception when beginning simulation
-                a.type.creator().getConfiguration().initializePositions(a);
-            } catch(NullPointerException e) {}
+            if (!a.node.isLeaf()) {
+                //initialize coordinates of child atoms
+                Configuration config = a.type.creator().getConfiguration();
+                if (config != null) {
+                    //may get null pointer exception when beginning simulation
+                    config.initializeCoordinates(a);
+                }
+            }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);
             translator.actionPerformed(a);

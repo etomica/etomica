@@ -101,18 +101,23 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         // Place molecules  
 		iterator.reset();
         indexIterator.reset();
-		while(iterator.hasNext()) {
-			Atom a = iterator.nextAtom();
-			//initialize coordinates of child atoms
-			try {//may get null pointer exception when beginning simulation
-				a.type.creator().getConfiguration().initializeCoordinates(a);
-			} catch(NullPointerException e) {}
+        while(iterator.hasNext()) {
+            Atom a = iterator.nextAtom();
+            if (!a.node.isLeaf()) {
+                //initialize coordinates of child atoms
+                Configuration config = a.type.creator().getConfiguration();
+                System.out.println(a+" "+config);
+                if (config != null) {
+                    //may get null pointer exception when beginning simulation
+                    config.initializeCoordinates(a);
+                }
+            }
             Vector site = (Vector)lattice.site(indexIterator.next());
             site.PE(offsetVector);
             atomActionTranslateTo.setDestination(site);
-			atomActionTranslateTo.actionPerformed(a);
-			if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
-		}
+            atomActionTranslateTo.actionPerformed(a);
+            if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
+        }
 	}
     
     public double getLatticeConstant() {
