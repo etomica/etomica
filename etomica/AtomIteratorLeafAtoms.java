@@ -8,7 +8,7 @@ package etomica;
  * @author kofke
  * Iterator that will loop over all leaf atoms in a phase.
  */
-public class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements AtomIteratorPhaseDependent {
+public class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements AtomsetIteratorSpeciesDependent {
 
 	private final AtomIteratorList listIterator;
 	private Phase phase;
@@ -45,8 +45,8 @@ public class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements AtomIt
 		}
 	}
 	
-	public void setSpecies(Species species) {
-		this.species = species;
+	public void setSpecies(Species[] species) {
+		this.species = (species != null && species.length > 0) ? species[0] : null;
 		setPhase(phase);
 	}
 

@@ -1,8 +1,8 @@
 package etomica;
 
 /**
- * Encapsulation of a set of instructions that an (Atom/AtomPair)Iterator
- * uses to select the atoms/pairs it presents on iteration.
+ * Encapsulation of a set of instructions that an AtomsetIterator
+ * uses to select the atoms it presents on iteration.
  *
  * @author David Kofke
  */
@@ -24,13 +24,7 @@ public final class IteratorDirective implements java.io.Serializable {
      * be included in calculation.  Default is <b>true</b>.
      */
     public boolean includeLrc = true;
-    
-    /**
-     * Interpreted  by some iterators to cause them to skip the first atom that
-     * would otherwise be returned.  Default is <b>false</b>.
-     */
-    public boolean skipFirst = false;
-    
+        
     public IteratorDirective() {
         this(UP);
     }

@@ -53,7 +53,7 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 		return skippingFirst ? listIterator.size() : listIterator.size() - 1;
 	}
 	/* (non-Javadoc)
-	 * @see etomica.AtomIteratorPhaseDependent#setPhase(etomica.Phase)
+	 * @see etomica.AtomsetIteratorPhaseDependent#setPhase(etomica.Phase)
 	 */
 	public void setAtom(Atom atom) {
 		firstAtom = atom;

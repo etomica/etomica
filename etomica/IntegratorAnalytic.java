@@ -31,7 +31,7 @@ package etomica;
         action.setTime(elapsedTime());
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom atom = atomIterator.next();
+            Atom atom = atomIterator.nextAtom();
             action.actionPerformed(atom);
         }
     }

@@ -1,7 +1,5 @@
 package etomica;
 
-import etomica.PotentialGroup.PotentialLinker;
-
 /**
  * Master potential that oversees all other potentials in the Hamiltonian.
  * Most calls to compute the energy or other potential calculations begin
@@ -20,8 +18,6 @@ import etomica.PotentialGroup.PotentialLinker;
   */
 public final class PotentialMaster extends PotentialGroup {
     
-	private PotentialGroupLrc lrcMaster;
-
     public PotentialMaster(Simulation sim) {
         super(-1, sim);
     } 
@@ -42,48 +38,26 @@ public final class PotentialMaster extends PotentialGroup {
 	//should build on this to do more filtering of potentials based on directive
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
- 		for (PotentialLinker link=first; link!= null; link=link.next) {
-			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
-		}
-		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
-		}
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-        	((AtomIteratorPhaseDependent)link.iterator).setPhase(phase);
+    	Atom[] targetAtoms = id.targetAtoms();
+    	boolean phaseChanged = (phase != mostRecentPhase);
+    	mostRecentPhase = phase;
+    	for(PotentialLinker link=first; link!=null; link=link.next) {
+			if(phaseChanged) ((AtomsetIteratorPhaseDependent)link.iterator).setPhase(phase);
+			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
         	pc.doCalculation(link.iterator, link.potential);
         }//end for
         for(PotentialLinker link=firstGroup; link!=null; link=link.next) {
-        	((AtomIteratorPhaseDependent)link.iterator).setPhase(phase);
-            ((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
+        	if(phaseChanged) ((AtomsetIteratorPhaseDependent)link.iterator).setPhase(phase);
+			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
+           ((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
         }
     }//end calculate
     
     public void setSpecies(Potential potential, Species[] species) {
-    	if (species.length == 0 || potential.nBody() < species.length) {
+    	if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-    	AtomsetIterator iterator;
-    	switch (potential.nBody()) {
-    	    case 0: break;
-    	    case 1:
-    	    	iterator = new AtomIteratorMolecule();
-    	    	iterator.setSpecies(species[0]);
-    	    	break;
-    	    case 2:
-    	    	if(species.length == 1 || species[0] == species[1]) {
-    	    		iterator = new ApiIntragroup();
-    	    	} else {
-    	    		iterator = new ApiIntergroup();
-    	    	}
-    	    	AtomIteratorMolecule aiOuter = new AtomIteratorMolecule();
-    	    	aiOuter.setSpecies(species[0]);
-    	    	AtomIteratorNeighbor aiInner = new AtomIteratorNeighbor();
-    	    	aiInner.setSpecies(species[species.length-1]);
-    	    	iterator = new ApiInnerVariable(aiOuter, aiInner);
-    	    	break;
-    	    default:
-    	    	throw new IllegalArgumentException("Handling potentials with more than 2-body interactions not implemented");
-    	}
+    	AtomsetIteratorMolecule iterator = new AtomsetIteratorMolecule(species);
     	addPotential(potential, iterator);
     }
  
@@ -97,6 +71,10 @@ public final class PotentialMaster extends PotentialGroup {
 	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
 	   return pa;
    }	    
+   
+	private PotentialGroupLrc lrcMaster;
+	private Phase mostRecentPhase = null;
+
 	
 }//end of PotentialMaster
     

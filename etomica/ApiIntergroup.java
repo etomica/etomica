@@ -10,8 +10,8 @@ package etomica;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class ApiIntergroup extends AtomsetIteratorAdapter implements
-		AtomsetIteratorDirectable {
+public final class ApiIntergroup extends AtomsetIteratorAdapter implements
+		AtomsetIteratorBasisDependent {
 
 	public ApiIntergroup() {
 		super(new ApiInnerVariable(
@@ -23,14 +23,14 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
 	}
 
 	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorDirectable#setDirective(etomica.IteratorDirective)
+	 * @see etomica.AtomsetIteratorBasisDependent#setDirective(etomica.IteratorDirective)
 	 */
-	public void setDirective(IteratorDirective id) {
-		aiOuter.setDirective(id);
+	public void setTarget(Atom[] targetAtoms) {
+		aiOuter.setTarget(targetAtoms);
 	}
 
 	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorDirectable#setBasis(etomica.Atom[])
+	 * @see etomica.AtomsetIteratorBasisDependent#setBasis(etomica.Atom[])
 	 */
 	public void setBasis(Atom[] atoms) {
 		atom[0] = atoms[0];
@@ -39,7 +39,7 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
 	}
 
 	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorDirectable#basisSize()
+	 * @see etomica.AtomsetIteratorBasisDependent#basisSize()
 	 */
 	public int basisSize() {
 		return 2;

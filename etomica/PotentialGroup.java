@@ -66,7 +66,7 @@ public class PotentialGroup extends Potential {
 			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
 		}
 		//the given iterator should expect a basis of atoms equal in number to the order of this potential
-		if(this.nBody() != ((AtomsetIteratorDirectable)iterator).basisSize()) {
+		if(this.nBody() != ((AtomsetIteratorBasisDependent)iterator).basisSize()) {
 			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
 		}
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
@@ -99,16 +99,16 @@ public class PotentialGroup extends Potential {
 		}
 		double sum = 0.0;
 		for (PotentialLinker link=first; link!= null; link=link.next) {		
-			//if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
-			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);
+			//if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
+			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);
 			link.iterator.reset();
 			while(link.iterator.hasNext()) {
 				sum += link.potential.energy(link.iterator.next());
 			}
 		}
 		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			//if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
-			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);  			
+			//if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
+			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);  			
 			link.iterator.reset();
 			while(link.iterator.hasNext()) {
 				sum += link.potential.energy(link.iterator.next());
@@ -155,20 +155,20 @@ public class PotentialGroup extends Potential {
     	if(!enabled) return;
 		//loop over sub-potentials
  		for (PotentialLinker link=first; link!= null; link=link.next) {
-			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+			((AtomsetIteratorBasisDependent)link.iterator).setTarget(id);
 		}
 		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+			((AtomsetIteratorBasisDependent)link.iterator).setTarget(id);
 		}
     	iterator.reset();
 		while (iterator.hasNext()) {
     		Atom[] basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
-    			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);   			
+    			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			
     			pc.doCalculation(link.iterator,link.potential);
     		}
     		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-    			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);   			
+    			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			
      			((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
     		}
      	}

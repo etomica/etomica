@@ -111,7 +111,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
         iterator.setList(p.speciesMaster.atomList);
         iterator.reset();
         while(iterator.hasNext()) {//does only leaf atoms; do atom groups need agents?
-            Atom a = iterator.next();
+            Atom a = iterator.nextAtom();
             a.setIntegratorAgent(makeAgent(a));
         }
     }

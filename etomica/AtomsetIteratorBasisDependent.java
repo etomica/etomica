@@ -10,10 +10,8 @@ package etomica;
  * Interface for an AtomIterator that can be conditioned with an
  * IteratorDirective and a set of basis atoms.
  */
-public interface AtomsetIteratorDirectable extends AtomsetIterator {
+public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetDependent {
 
-    public void setDirective(IteratorDirective id);
-    
     public void setBasis(Atom[] atoms);
     
     /**
