@@ -30,7 +30,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         D = space.D();
         wallD = wallDimension;
         wallPosition = 0.0;
-        wallMass = mass;
+        setMass(mass);
         force = 0.0;
         pistonBoundary = boundary;
     }
@@ -62,6 +62,22 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void setPressure(double p) {
         pressure = p;
     }
+    public double getPressure() {
+        return pressure;
+    }
+    
+    public void setStationary(boolean b) {
+        if(b) {
+            wallMass = Double.POSITIVE_INFINITY;
+            wallVelocity = 0.0;
+        } else {
+            wallMass = setWallMass;
+        }
+    }
+    
+    public boolean isStationary() {
+        return Double.isInfinite(wallMass);
+    }
 
     /**
      * @return Returns the mass.
@@ -74,6 +90,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      */
     public void setMass(double mass) {
         wallMass = mass;
+        setWallMass = mass;
     }
     
     public double energy(Atom[] a) {
@@ -137,7 +154,9 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 else if (dr*dv < 0.0 && dr*a < 0.0) {
                     t = -dv/a + discr/Math.abs(a);
                 }
-                else {
+                else if (a == 0.0) {
+                    if (dr*dv < 0.0) t = -drc/dv;
+                } else {
                     throw new RuntimeException("oops");
                 }
             }
@@ -256,6 +275,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private double wallPosition;
     private double wallVelocity;
     private double wallMass;
+    private double setWallMass;
     private double force;
     private double pressure;
     private double lastVirial;
