@@ -5,6 +5,7 @@
 package etomica.action;
 
 import etomica.Phase;
+import etomica.PhaseEvent;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.space.Vector;
@@ -23,6 +24,7 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	public PhaseInflateAnisotropic(Phase phase) {
 		this(phase.space());
 		setPhase(phase);
+        inflateEvent = new PhaseEvent(this,PhaseEvent.BOUNDARY_INFLATE);
 	}
 
 	/**
@@ -73,10 +75,13 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	 * Performs anisotropic inflation using current phase and scale.
 	 */
 	public void actionPerformed() {
-		phase.boundary().inflate(scale);
+        Vector dimensions = phase.boundary().dimensions();
+        dimensions.TE(scale);
+        phase.boundary().setDimensions(dimensions);
+        phase.boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
 		moleculeIterator.reset();
 		while (moleculeIterator.hasNext()) {
-			moleculeIterator.nextAtom().coord.inflate(scale);
+			moleculeIterator.nextAtom().coord.position().TE(scale);
 		}
 	}
 
@@ -96,11 +101,9 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	}
 
 	private AtomIteratorAllMolecules moleculeIterator;
-
 	protected Vector scale;
-
 	protected transient Vector temp;
-
 	private transient Vector oldDimensions;
+    private PhaseEvent inflateEvent;
 
 }

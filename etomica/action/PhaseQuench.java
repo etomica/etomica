@@ -4,6 +4,7 @@ import etomica.Default;
 import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
+import etomica.space.ICoordinateKinetic;
 
 /**
  * Scales all velocities of a phase so that its kinetic temperature is equal to
@@ -48,8 +49,7 @@ public class PhaseQuench extends PhaseActionAdapter {
 		atomIterator.setPhase(phase);
 		atomIterator.reset();
 		while (atomIterator.hasNext())
-			atomIterator.nextAtom().coord.momentum().TE(scale); //scale
-																// momentum
+			((ICoordinateKinetic)atomIterator.nextAtom().coord).velocity().TE(scale);
 	}
 
 	/**
