@@ -80,11 +80,11 @@ public class AccumulatorAverage extends DataAccumulator {
                 double err = Math.sqrt(currentSumSquare/currentCount - avgSquared)/(currentCount-1);
                 double stdev = Math.sqrt((sumSquareBlock[i]+blockSumSq[i])/(currentCount*blockSize) - avgSquared);
                 double mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
-                data[0*nDataMinus1+i] = mostRecent[i];
-                data[1*nDataMinus1+i] = average[i] = avg;
-                data[2*nDataMinus1+i] = error[i] = err;
-                data[3*nDataMinus1+i] = standardDeviation[i] = stdev;
-                data[4*nDataMinus1+i] = mrBlock;
+                data[0*nData+i] = mostRecent[i];
+                data[1*nData+i] = average[i] = avg;
+                data[2*nData+i] = error[i] = err;
+                data[3*nData+i] = standardDeviation[i] = stdev;
+                data[4*nData+i] = mrBlock;
             }
         }
         return data;
