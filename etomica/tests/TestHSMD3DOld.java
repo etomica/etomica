@@ -12,9 +12,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbratom.CriterionSpecies;
-import etomica.nbratom.NeighborManager;
-import etomica.nbratom.PotentialMasterNbr;
+import etomica.nbr.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space3d.Space3D;
@@ -25,14 +23,14 @@ import etomica.space3d.Space3D;
  * @author David Kofke
  */
  
-public class TestHSMD3DAtom extends Simulation {
+public class TestHSMD3DOld extends Simulation {
     
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
     public Phase phase;
     public Potential2 potential;
 
-    public TestHSMD3DAtom(Space space, int numAtoms) {
+    public TestHSMD3DOld(Space space, int numAtoms) {
         super(space, new PotentialMasterNbr(space));
         
         double neighborRangeFac = 1.6;
@@ -42,9 +40,7 @@ public class TestHSMD3DAtom extends Simulation {
         Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
         ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
         integrator = new IntegratorHard(potentialMaster);
-        NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
-        nbrManager.setRange(Default.ATOM_SIZE*1.6);
-        integrator.addIntervalListener(nbrManager);
+        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -55,34 +51,14 @@ public class TestHSMD3DAtom extends Simulation {
         species.setNMolecules(numAtoms);
         species2.setNMolecules(numAtoms/100);
         phase = new Phase(space);
-
         potential = new P2HardSphere(space);
-        NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        CriterionSpecies criterion = new CriterionSpecies(nbrCriterion);
-        criterion.setIntraSpecies(true);
-        potential.setCriterion(criterion);
-        potentialMaster.setSpecies(potential,new Species[]{species,species});
-        nbrManager.addCriterion(nbrCriterion);
-        species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
-        potential = new P2HardSphere(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        criterion = new CriterionSpecies(nbrCriterion);
-        criterion.setIntraSpecies(false);
-        potential.setCriterion(criterion);
-        potentialMaster.setSpecies(potential,new Species[]{species,species2});
-        nbrManager.addCriterion(nbrCriterion);
-        species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
-        species2.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
-
-        potential = new P2HardSphere(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        criterion = new CriterionSpecies(nbrCriterion);
-        criterion.setIntraSpecies(true);
-        potential.setCriterion(criterion);
-        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
-        nbrManager.addCriterion(nbrCriterion);
-        species2.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
+        NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
+        criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species2},criterion);
+        criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species2},criterion);
         
         phase.setConfiguration(null);
         phase.speciesMaster.addSpecies(species);
@@ -102,9 +78,9 @@ public class TestHSMD3DAtom extends Simulation {
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        TestHSMD3DAtom sim = new TestHSMD3DAtom(new Space3D(), numAtoms);
+        TestHSMD3DOld sim = new TestHSMD3DOld(new Space3D(), numAtoms);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator); 
         
         sim.getController().actionPerformed();
         
