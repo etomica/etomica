@@ -15,6 +15,7 @@ public class ConfigurationFile extends Configuration {
     }
     
     public void initializePositions(AtomIterator[] iterators){
+        if (iterators.length == 0) return;
         String fileName = confName+".pos";
         FileReader fileReader;
         try {
