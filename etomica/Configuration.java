@@ -23,9 +23,9 @@ public abstract class Configuration extends Component{
     }
     
     public void add(Species.Agent s){
-        if(s.firstAtom().type instanceof AtomType.Wall) {return;}
+ //       if(s.firstAtom().type instanceof AtomType.Wall) {return;}
         species.addElement(s);
-        initializeCoordinates();
+        if(s.getNMolecules() > 0) initializeCoordinates();
     }
 
     public double getTemperature(){

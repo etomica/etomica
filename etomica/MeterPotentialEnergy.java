@@ -3,34 +3,45 @@ package simulate;
 public class MeterPotentialEnergy extends simulate.Meter
 {
   AtomPair.Iterator iterator;
+  AtomPair.Iterator.AM iteratorAM;
+  AtomPair.Iterator.AMAM iteratorAMAM;
+  AtomPair.Iterator.A iteratorAFull;
+  AtomPair.Iterator.FMAM iteratorFMAM;
   
   public MeterPotentialEnergy() {
     super();
     setLabel("Potential Energy");
   }
+  
+  public void setPhase(Phase p) {
+    super.setPhase(p);
+    iteratorAM = new AtomPair.Iterator.AM(p);
+    iteratorAMAM = new AtomPair.Iterator.AMAM(p);
+    iteratorAFull = p.makePairIteratorFull();
+    iteratorFMAM = new AtomPair.Iterator.FMAM(p);
+  }
+    
 
  /**
   * Computes total potential energy for all atom pairs in phase
   */
     public final double currentValue() {
-      AtomPair.Iterator.AM allIntra = new AtomPair.Iterator.AM(phase);
-      AtomPair.Iterator.AMAM allInter = new AtomPair.Iterator.AMAM(phase);
       
                         //could make special case for single species, monatomic
       
       double pe = 0.0;
       for(Species.Agent s1=phase.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
         Potential1 p1 = phase.parentSimulation.potential1[s1.parentSpecies().speciesIndex];
-        allIntra.reset(s1);
-        while(allIntra.hasNext()) {
-            AtomPair pair = allIntra.next();
+        iteratorAM.reset(s1);
+        while(iteratorAM.hasNext()) {
+            AtomPair pair = iteratorAM.next();
             pe += p1.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
         for(Species.Agent s2=s1; s2!=null; s2=s2.nextSpecies()) {
             Potential2 p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][s2.parentSpecies().speciesIndex];
-            allInter.reset(s1,s2);
-            while(allInter.hasNext()) {
-                AtomPair pair = allInter.next();
+            iteratorAMAM.reset(s1,s2);
+            while(iteratorAMAM.hasNext()) {
+                AtomPair pair = iteratorAMAM.next();
                 pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
             }
         }
@@ -44,20 +55,19 @@ public class MeterPotentialEnergy extends simulate.Meter
    */
     public final double currentValue(Atom a) {
         if(phase != a.phase()) {return 0.0;}  //also handles condition that phase contains no atoms
-        AtomPair.Iterator.A iterator = phase.makePairIteratorFull();
         Potential2[] p2 = phase.parentSimulation.potential2[a.getSpeciesIndex()];
         double pe = 0.0;
         if(a.parentMolecule != phase.firstMolecule()) { //loop from first atom to last one in molecule before a
-            iterator.reset(phase.firstAtom(),a.previousMoleculeLastAtom(),a,a); 
-            while(iterator.hasNext()) {
-                AtomPair pair = iterator.next();  //following line counts on iterator to put inner-looping atom as atom2
+            iteratorAFull.reset(phase.firstAtom(),a.previousMoleculeLastAtom(),a,a); 
+            while(iteratorAFull.hasNext()) {
+                AtomPair pair = iteratorAFull.next();  //following line counts on iterator to put inner-looping atom as atom2
                 pe += p2[pair.atom2().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2()).energy(pair);
             }
         }
         if(a.parentMolecule != phase.lastMolecule()) {  //loop from first atom in next molecule to last atom in phase
-            iterator.reset(a.nextMoleculeFirstAtom(),phase.lastAtom(),a,a);  
-            while(iterator.hasNext()) {
-                AtomPair pair = iterator.next();  //following line counts on iterator to put inner-looping atom as atom2
+            iteratorAFull.reset(a.nextMoleculeFirstAtom(),phase.lastAtom(),a,a);  
+            while(iteratorAFull.hasNext()) {
+                AtomPair pair = iteratorAFull.next();  //following line counts on iterator to put inner-looping atom as atom2
                 pe += p2[pair.atom2().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2()).energy(pair);
             }
         }
@@ -86,14 +96,14 @@ public class MeterPotentialEnergy extends simulate.Meter
   * @return  this molecule's inter-molecular potential energy, divided by kB, in Kelvin
   */
     public final double currentValue(Molecule m) {
-      AtomPair.Iterator.FMAM iterator = new AtomPair.Iterator.FMAM(phase,m);
+      iteratorFMAM.reset(m);
       int index = m.parentSpecies.speciesIndex;     
       double pe = 0.0;
       for(Species.Agent s1=phase.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
         Potential2 p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][index];
-        iterator.reset(s1);
-        while(iterator.hasNext()) {
-            AtomPair pair = iterator.next();
+        iteratorFMAM.reset(s1);
+        while(iteratorFMAM.hasNext()) {
+            AtomPair pair = iteratorFMAM.next();
             pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
       }
@@ -106,14 +116,14 @@ public class MeterPotentialEnergy extends simulate.Meter
   */
     public final double insertionValue(Molecule m) {
 
-      AtomPair.Iterator.FMAM iterator = new AtomPair.Iterator.FMAM(phase,m);
+      iteratorFMAM.reset(m);
       int index = m.parentSpecies.speciesIndex;                 
       double pe = 0.0;
       for(Species.Agent s1=phase.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
         Potential2 p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][index];
-        iterator.reset(s1);
-        while(iterator.hasNext()) {
-            AtomPair pair = iterator.next();
+        iteratorFMAM.reset(s1);
+        while(iteratorFMAM.hasNext()) {
+            AtomPair pair = iteratorFMAM.next();
             pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
       }

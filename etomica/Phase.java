@@ -4,7 +4,10 @@ import java.awt.Graphics;
 
 public abstract class Phase extends Container {
     
-    public Phase() {
+    protected final Space.Boundary boundary;
+    
+    public Phase(Space.Boundary b) {
+        boundary = b;
         setLayout(null);
         setSize(300,300);
         atomCount = moleculeCount = 0;
@@ -12,11 +15,15 @@ public abstract class Phase extends Container {
         noGravity = true;
         add(new ConfigurationSequential());  //default configuration
         potentialEnergy = new MeterPotentialEnergy();
+        potentialEnergy.setUpdateInterval(Integer.MAX_VALUE);  //these meters are placed to permit phase to report its potential and kinetic energies
         kineticEnergy = new MeterKineticEnergy();
+        kineticEnergy.setUpdateInterval(Integer.MAX_VALUE);    //change updateInterval if desired to use for averaging also
         add(potentialEnergy);
-        add(kineticEnergy);
+//        add(kineticEnergy);
     }
 
+    public final Space.Boundary boundary() {return boundary;}
+    public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
     public abstract simulate.AtomPair makeAtomPair(Atom a1, Atom a2);
     public abstract AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
     public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
@@ -26,8 +33,6 @@ public abstract class Phase extends Container {
     public abstract double volume();
     public abstract Space.Vector dimensions();
     
-    public abstract Space.Boundary boundary();
-
   public final Atom firstAtom() {
      Molecule m = firstMolecule();
      return (m != null) ? m.firstAtom() : null;
@@ -92,7 +97,7 @@ public abstract class Phase extends Container {
 	    else {firstMeter = m;}
 	    lastMeter = m;
 	    meterCount++;
-	    m.phase = this;
+	    m.setPhase(this);
 	    m.initialize();
 	    if(parentSimulation != null && parentSimulation.haveIntegrator()) {
 	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
@@ -130,6 +135,13 @@ public abstract class Phase extends Container {
     public abstract void paint(Graphics g, int[] origin, double scale); 
     
   
+    public void updateCounts() {
+        moleculeCount = 0;
+        atomCount = 0;
+        for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
+        for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
+    }
+    
  /**
   * Object used to describe presence and magnitude of constant gravitational acceleration
   */

@@ -18,6 +18,7 @@ public class Simulation extends Container {
               
     public Simulation(Space s) {
         space = s;
+        D = space.D();
         setSize(400,300);
     }
               

@@ -25,8 +25,9 @@ public class Molecule implements Serializable {
    *  Makes molecule with specified number of atoms, all of the same type.
    *  Number of atoms on molecule can be changed.
    */
-  public Molecule(Species parent, AtomType type, int n) {  
-    parentSpecies = parent;
+  public Molecule(Species ps, Phase pp, AtomType type, int n) {  
+    parentSpecies = ps;
+    parentPhase = pp;
     coordinate = parentSpecies.parentSimulation.space.makeMoleculeCoordinate(this);
     nAtoms = n;
     
@@ -44,8 +45,9 @@ public class Molecule implements Serializable {
    *  Number of atoms cannot be changed.
    *  If all atoms are of same type with same parameters, can use the other constructor.
    */
-  public Molecule(Species parent, AtomType[] type) {  
-    parentSpecies = parent;
+  public Molecule(Species ps, Phase pp, AtomType[] type) {  
+    parentSpecies = ps;
+    parentPhase = pp;
     coordinate = parentSpecies.parentSimulation.space.makeMoleculeCoordinate(this);
     nAtoms = type.length;
     
@@ -55,7 +57,6 @@ public class Molecule implements Serializable {
         lastAtom.setNextAtom(new Atom(this,type[i],i));
         lastAtom = lastAtom.nextAtom();
     }
-
   }
 
  /**

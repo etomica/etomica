@@ -1,15 +1,16 @@
 package simulate;
 
-public interface AtomPair {
-    
-    public void reset();
-    public double r2();
-    public double v2();
-    public double vDotr();
-    public void push(double impulse);  //impart equal and opposite impulse to momenta
-    public void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
-    public Atom atom1();
-    public Atom atom2();
+public abstract class AtomPair {
+    public Atom atom1, atom2;
+    public abstract void reset();
+    public abstract void reset(Atom a1, Atom a2);
+    public abstract double r2();
+    public abstract double v2();
+    public abstract double vDotr();
+    public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
+    public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
+    public final Atom atom1() {return atom1;}
+    public final Atom atom2() {return atom2;}
     
     /**
      * Interface for classes that generate atom pairs according to various criteria

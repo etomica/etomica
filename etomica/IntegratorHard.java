@@ -1,10 +1,14 @@
 package simulate;
 import java.util.Observable;
+import java.awt.Color;
 
-public class IntegratorHard extends Integrator {
+public final class IntegratorHard extends Integrator {
 
 private Agent nextCollider;
 private AtomPair.Iterator.A iterator;
+private AtomPair atomPair;
+
+boolean bb = true;
             
 public IntegratorHard() {
     super();
@@ -13,6 +17,7 @@ public IntegratorHard() {
 public void registerPhase(Phase p) {
     super.registerPhase(p);
     iterator = p.makePairIteratorFull();
+    atomPair = p.makeAtomPair();
 }
 
           
@@ -43,6 +48,7 @@ protected void findNextCollider() {
     //find next collision pair by looking for minimum collisionTime
     double minCollisionTime = Double.MAX_VALUE;
     for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
+//        a.setColor(Color.black);
         Agent ia = (Agent)a.ia;
         double ct = ia.getCollisionTime();
         if( ct < minCollisionTime) {
@@ -50,6 +56,9 @@ protected void findNextCollider() {
             nextCollider = ia;
         }
     }
+//    if(nextCollider.getCollisionPartner()!=null) {nextCollider.atom.setColor(Color.green);}
+//    else if(bb) {nextCollider.atom.setColor(Color.blue); bb=!bb;}
+//    else {nextCollider.atom.setColor(Color.red); bb=!bb;}
 }
 //--------------------------------------------------------------
 // advances to next collision, applies collision dynamics to involved 
@@ -66,7 +75,8 @@ protected void advanceToCollision() {
     else {
 //        Atom partnerNextAtom = partner.nextMoleculeFirstAtom();  //put this back in for multiatomic speciesSwitch; also need to do more work with loop below
         Atom partnerNextAtom = partner.nextAtom();
-        nextCollider.getCollisionPotential().bump(firstPhase.makeAtomPair(nextCollider.atom,partner));  //should change this to avoid making pair every time
+        atomPair.reset(nextCollider.atom,partner);
+        nextCollider.getCollisionPotential().bump(atomPair);
 //        nextCollider.getCollisionPotential().bump(nextCollider.atom,partner);
                 
         boolean upListedN = false;
@@ -138,10 +148,12 @@ protected void upList(Atom atom) {  //specific to 2D
     double minCollisionTime = Double.MAX_VALUE;
     Agent aia = (Agent)atom.ia;
     if(!atom.isStationary() && atom.type instanceof AtomType.Disk) {  //if mobile, set collision time to time atom takes to move half a box edge
-        for(int i=Simulation.D-1; i>=0; i--) {
-            double tnew = Math.abs((atom.phase().dimensions().component(i)-1.0001*((AtomType.Disk)atom.type).diameter())/atom.coordinate.momentum(i));  //assumes range of potential is .le. diameter
-            minCollisionTime = (tnew < minCollisionTime) ? tnew : minCollisionTime;
-        }
+        double tnew = Math.abs((atom.phase().dimensions().component(0)-1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
+        minCollisionTime = tnew;
+//        for(int i=Simulation.D-1; i>=0; i--) {
+//            double tnew = Math.abs((atom.phase().dimensions().component(i)-1.0001*((AtomType.Disk)atom.type).diameter())/atom.coordinate.momentum(i));  //assumes range of potential is .le. diameter
+//            minCollisionTime = (tnew < minCollisionTime) ? tnew : minCollisionTime;
+//        }
         minCollisionTime *= 0.5*atom.mass();
     }
     aia.setCollision(minCollisionTime, null, null);
@@ -271,11 +283,11 @@ public void initialize() {
         }
     }
             
-    public Integrator.Agent makeAgent(Atom a) {
+    public final Integrator.Agent makeAgent(Atom a) {
         return new Agent(a);
     }
             
-    public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
+    public final static class Agent implements Integrator.Agent {  //need public so to use with instanceof
         public Atom atom;
         public double time0;  //time since last collision
         private double collisionTime = Double.MAX_VALUE; //time to next collision

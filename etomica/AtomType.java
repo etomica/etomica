@@ -85,7 +85,7 @@ public abstract class AtomType {
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
             int yP = origin[1] + (int)(toPixels*(c2.r.y-radius));
-            g.setColor(color);
+            g.setColor(c.atom().color);
             g.fillOval(xP,yP,sigmaP,sigmaP);
         }
     }

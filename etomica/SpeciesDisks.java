@@ -54,8 +54,8 @@ public class SpeciesDisks extends Species {
         this.add(new ConfigurationMoleculeLinear());
     }
 
-    public Molecule makeMolecule() {
-        return new Molecule(this, protoType, atomsPerMolecule);
+    public Molecule makeMolecule(Phase phase) {
+        return new Molecule(this, phase, protoType, atomsPerMolecule);
     } 
               
     // Exposed Properties

@@ -45,8 +45,8 @@ public class SpeciesWalls extends Species {
         this.add(new ConfigurationMoleculeWallsParallel());
     }
 
-    public Molecule makeMolecule() {
-        return new Molecule(this, protoType);
+    public Molecule makeMolecule(Phase phase) {
+        return new Molecule(this, phase, protoType);
     } 
               
     // Exposed Properties --- not implemented now because they must tie to AtomType array

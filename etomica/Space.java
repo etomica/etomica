@@ -72,6 +72,7 @@ public abstract class Space {
         public Vector dimensions();
         public Vector randomPosition();
         public double[][] getOverflowShifts(Vector r, double distance);
+        public void inflate(double s);
     /** Set of vectors describing the displacements needed to translate the central image
         *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
         *  first index specifies each perioidic image, while the second index indicates the

@@ -18,21 +18,21 @@ public class Space2D extends Space {
         }
     }
     
-    public static class Phase extends simulate.Phase {
-        private Boundary boundary;
+    public static final class Phase extends simulate.Phase {
+//        private final Boundary boundary;  //shadow variable
         public Phase(Boundary b) {
-            boundary = b;
+            super(b);
+//            boundary = b;
         }
-        public final Space.Boundary boundary() {return boundary;}
         public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
         public void inflate(double scale) {boundary.inflate(scale);}
-        public final Space.Vector dimensions() {return boundary.dimensions;}
-        public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(boundary,iF,iL,oF,oL);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(boundary,iL,oF,oL);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return new PairIteratorFull(boundary);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf(boundary);}
+        public final Space.Vector dimensions() {return boundary.dimensions();}
+        public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull((Boundary)boundary,iF,iL,oF,oL);}
+        public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf((Boundary)boundary,iL,oF,oL);}
+        public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return new PairIteratorFull((Boundary)boundary);}
+        public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf((Boundary)boundary);}
 
-        public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return new AtomPair(boundary, a1, a2);}
+        public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
         public void paint(Graphics g, int[] origin, double scale) {}
     }
     
@@ -77,15 +77,23 @@ public class Space2D extends Space {
         public BoundaryPeriodicSquare(double lx, double ly) {dimensions.x = lx; dimensions.y = ly;}
         public Space.Vector randomPosition() {temp.x = random.nextDouble()-0.5; temp.y = random.nextDouble()-0.5; return temp;}
         public void apply(Vector dr) {
-            if(dr.x > 0) {dr.x -= (dr.x > +0.5) ? dimensions.x : 0.0;}
-            else         {dr.x += (dr.x < -0.5) ? dimensions.x : 0.0;}
-            if(dr.y > 0) {dr.y -= (dr.y > +0.5) ? dimensions.y : 0.0;}
-            else         {dr.y += (dr.y < -0.5) ? dimensions.y : 0.0;}
+            dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
+            dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
+//            if(dr.x > 0) {dr.x -= Math.floor(dr.x+0.5);}
+//            else         {dr.x -= Math.ceil(dr.x-0.5);}
+//            if(dr.y > 0) {dr.y -= Math.floor(dr.y+0.5);}
+//            else         {dr.y -= Math.ceil(dr.y-0.5);}
             dr.x *= dimensions.x;
             dr.y *= dimensions.y;
         }
+        public void centralImage(Space.Vector r) {centralImage((Vector)r);}
         public void centralImage(Vector r) {
-            //central-image code
+            r.x -= (r.x > 0.0) ? Math.floor(r.x) : Math.ceil(r.x-1.0);
+            r.y -= (r.y > 0.0) ? Math.floor(r.y) : Math.ceil(r.y-1.0);
+ //           if(r.x > 0) {r.x -= Math.floor(r.x);}
+ //           else         {r.x -= Math.ceil(r.x-1.0);}
+ //           if(r.y > 0) {r.y -= Math.floor(r.y);}
+ //           else         {r.y -= Math.ceil(r.y-1.0);}
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
@@ -148,7 +156,7 @@ public class Space2D extends Space {
         } //end of getOverflowShifts
     }  //end of BoundarySquarePeriodic
             
-    private static final class AtomPair implements simulate.AtomPair {  
+    private static final class AtomPair extends simulate.AtomPair {  
         AtomCoordinate c1;
         AtomCoordinate c2;
         final Boundary boundary;
@@ -164,11 +172,26 @@ public class Space2D extends Space {
                 reset();
             }
         }
+        public void reset(Atom a1, Atom a2) {
+            c1 = (AtomCoordinate)a1.coordinate;
+            c2 = (AtomCoordinate)a2.coordinate;
+            reset();
+        }
         public void reset() {
             dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
+//                dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
+//                dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
             boundary.apply(dr);
             drx = dr.x; dry = dr.y;
+            atom1 = c1.atom;
+            atom2 = c2.atom;
+            double rm1 = atom1.type.rm();
+            double rm2 = atom2.type.rm();
+ //           double rm1 = 1.0;
+ //           double rm2 = 1.0;
+            dvx = rm2*c2.p.x - rm1*c1.p.x;
+            dvy = rm2*c2.p.y - rm1*c1.p.y;
         }
                 
         public double r2() {
@@ -177,15 +200,11 @@ public class Space2D extends Space {
         public double v2() {
             double rm1 = c1.atom.type.rm();
             double rm2 = c2.atom.type.rm();
-            double dvx = rm2*c2.p.x - rm1*c1.p.x;
-            double dvy = rm2*c2.p.y - rm1*c1.p.y;
             return dvx*dvx + dvy*dvy;
         }
         public double vDotr() {
             double rm1 = c1.atom.type.rm();
             double rm2 = c2.atom.type.rm();
-            double dvx = rm2*c2.p.x - rm1*c1.p.x;
-            double dvy = rm2*c2.p.y - rm1*c1.p.y;
             return drx*dvx + dry*dvy;
         }
         public void push(double impulse) {  //changes momentum in the direction joining the atoms
@@ -203,8 +222,8 @@ public class Space2D extends Space {
             c2.r.y += delta*dry;
             //need call reset?
         }
-        public final Atom atom1() {return c1.atom();}
-        public final Atom atom2() {return c2.atom();}
+   //     public final Atom atom1() {return c1.atom();}
+   //     public final Atom atom2() {return c2.atom();}
     }
 
     public static final class Vector implements Space.Vector {  //declared final for efficient method calls
@@ -423,7 +442,7 @@ public class Space2D extends Space {
     // Perhaps interitance would work, but haven't tried it
         
     //"Full" --> Each iteration of inner loop begins with same first atom
-    private static class PairIteratorFull implements simulate.AtomPair.Iterator.A {
+    private static final class PairIteratorFull implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
         AtomCoordinate outer, inner;
         private AtomCoordinate iFirst, iLast, oLast;
@@ -463,7 +482,7 @@ public class Space2D extends Space {
     }
         
     //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
-    private static class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
+    private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
         AtomCoordinate outer, inner;
         private AtomCoordinate iFirst, iLast, oLast;

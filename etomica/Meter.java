@@ -10,13 +10,15 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     double sum, sumSquare;
     int count = 0;
     private Meter nextMeter, previousMeter;
-    public Phase phase;
+    protected Phase phase;
     String label;
 
 	public Meter() {
 	    setUpdateInterval(1);
 	    label = "Property";
 	}
+	
+	public void setPhase(Phase p) {phase = p;}  //may override in subclasses to set up iterators
 	
 	public String getLabel() {
 	    return label;

@@ -61,7 +61,8 @@ public abstract class Species extends Container {
     /**
     * Creates new molecule of this species.  
     */
-    public abstract Molecule makeMolecule();
+    public Molecule makeMolecule() {return makeMolecule(null);}
+    public abstract Molecule makeMolecule(Phase p);
 
     public void setNAtomsPerMolecule(int na) {
         atomsPerMolecule = na;
@@ -91,25 +92,63 @@ public abstract class Species extends Container {
     public final int getSpeciesIndex() {return speciesIndex;}
     public final void setSpeciesIndex(int index) {speciesIndex = index;}
                     
-    /**
-    * Draws all molecules of the species using current values of their positions.
-    *
-    * @param g         graphics object to which molecules are drawn
-    * @param origin    origin of drawing coordinates (pixels)
-    * @param scale     factor determining size of drawn image relative to
-    *                  nominal drawing size
-    * @see Atom#draw
-    * @see Molecule#draw
-    * @see Phase#paint
-    */
-          
     public Agent makeAgent(Phase p) {
         Agent a = new Agent(p);
+        a.add(colorScheme);
         agents.put(p,a);   //associate agent with phase; retreive agent for a given phase using agents.get(p)
         return a;
     }
     public final Agent getAgent(Phase p) {return (Agent)agents.get(p);}
     
+    /*
+    * A name to be associated with the species.  Use is optional.
+    */
+    String name;
+          
+    public ColorScheme colorScheme;
+         
+    /**
+    * A unique integer that identifies the species.  Used to associate
+    * inter- and intra-molecular potentials to the Species.
+    * Default value is often 0, but may use setDefaults method in subclass
+    * to override this to another value if convenient; may also be set 
+    * at design time
+    * No two Species should have a common speciesIndex, but no check is made
+    * to prevent this. Failure to properly assign values will cause mis-association
+    * of Potentials and Species
+    * 
+    * @see Phase#potential2
+    * @see Phase#potential1
+    */
+    int speciesIndex;
+          
+    /**
+    * Number of atoms in each molecule of this species
+    */
+    protected int atomsPerMolecule;
+              
+    /**
+    * The simulation in which this species resides.  Assigned in add method of Simulation
+    *
+    */
+    Simulation parentSimulation;
+    
+    /**
+     * Hashtable to associate agents with phases
+     */
+    Hashtable agents = new Hashtable();
+    
+    private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
+
+    /**
+    * Object responsible for setting default configuration of atoms in molecule
+    */
+    public ConfigurationMolecule configurationMolecule;
+    
+    Species previousSpecies, nextSpecies;
+          
+    private final Random rand = new Random();  //for choosing molecule at random
+
         /**
         * Handles addition, deletions, ordering, etc. of molecules in a phase
         */
@@ -150,14 +189,16 @@ public abstract class Species extends Container {
                 lastMolecule = null;
                 return;
             }
-            firstMolecule = makeMolecule();
+            firstMolecule = makeMolecule(parentPhase);
             lastMolecule = firstMolecule;
             for(int i=1; i<nMolecules; i++) {
-                lastMolecule.setNextMolecule(makeMolecule());
+                lastMolecule.setNextMolecule(makeMolecule(parentPhase));
                 lastMolecule = lastMolecule.nextMolecule();
             }
             if(previous != null) previous.setNextMolecule(firstMolecule);
             lastMolecule.setNextMolecule(next);
+            parentPhase.updateCounts();
+            parentPhase.configuration.initializeCoordinates();
         }
               
               
@@ -301,6 +342,18 @@ public abstract class Species extends Container {
             return m;
         }
                     
+    /**
+    * Draws all molecules of the species using current values of their positions.
+    *
+    * @param g         graphics object to which molecules are drawn
+    * @param origin    origin of drawing coordinates (pixels)
+    * @param scale     factor determining size of drawn image relative to
+    *                  nominal drawing size
+    * @see Atom#draw
+    * @see Molecule#draw
+    * @see Phase#paint
+    */
+          
         public void draw(Graphics g, int[] origin, double scale) {
 
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
@@ -308,9 +361,9 @@ public abstract class Species extends Container {
             int diameterP = (int)(toPixels*diameter);
             g.setColor(color);
             */
-            Atom nextSpeciesAtom = lastAtom().nextAtom();
-            Molecule last = lastMolecule.nextMolecule();
+            Atom nextSpeciesAtom = terminationAtom();
             for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
+                parentPhase.boundary().centralImage(a.coordinate.position());        //move atom to central image
                 colorScheme.setAtomColor(a);
                 a.draw(g,origin,scale);
                 /*
@@ -434,53 +487,4 @@ public abstract class Species extends Container {
         public ColorScheme colorScheme;
         
     } //end of Agent
-        /**
-    * A name to be associated with the species.  Use is optional.
-    */
-    String name;
-          
-    public ColorScheme colorScheme;
-         
-    /**
-    * A unique integer that identifies the species.  Used to associate
-    * inter- and intra-molecular potentials to the Species.
-    * Default value is often 0, but may use setDefaults method in subclass
-    * to override this to another value if convenient; may also be set 
-    * at design time
-    * No two Species should have a common speciesIndex, but no check is made
-    * to prevent this. Failure to properly assign values will cause mis-association
-    * of Potentials and Species
-    * 
-    * @see Phase#potential2
-    * @see Phase#potential1
-    */
-    int speciesIndex;
-          
-    /**
-    * Number of atoms in each molecule of this species
-    */
-    protected int atomsPerMolecule;
-              
-    /**
-    * The simulation in which this species resides.  Assigned in add method of Simulation
-    *
-    */
-    Simulation parentSimulation;
-    
-    /**
-     * Hashtable to associate agents with phases
-     */
-    Hashtable agents = new Hashtable();
-    
-    private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
-
-    /**
-    * Object responsible for setting default configuration of atoms in molecule
-    */
-    public ConfigurationMolecule configurationMolecule;
-    
-    Species previousSpecies, nextSpecies;
-          
-    private final Random rand = new Random();  //for choosing molecule at random
-
 }
