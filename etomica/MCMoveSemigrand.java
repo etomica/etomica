@@ -133,7 +133,7 @@ public class MCMoveSemigrand extends MCMove {
         if(nSpecies == 2) iInsert = 1 - iDelete;
         else while(iInsert == iDelete) {iInsert = (int)(Simulation.random.nextDouble()*nSpecies);}
         SpeciesAgent insertAgent = agentSet[iInsert];
- 
+  
         Atom deleteMolecule = deleteAgent.randomMolecule();
         uOld = potential.set(phase).calculate(iteratorDirective.set(deleteMolecule), energy.reset()).sum();
         deleteAgent.removeAtom(deleteMolecule);
@@ -143,6 +143,7 @@ public class MCMoveSemigrand extends MCMove {
         //in general, should also randomize orintation and internal coordinates
         
         uNew = potential.calculate(iteratorDirective.set(insertMolecule), energy.reset()).sum();
+//        if(iInsert==0) System.out.println(iDelete + "   "+ iInsert + "   "+uOld+"   "+uNew);
 
         if(uNew == Double.MAX_VALUE) {//reject
             deleteAgent.addAtom(deleteMolecule);
@@ -170,19 +171,44 @@ public class MCMoveSemigrand extends MCMove {
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom();
 	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand();
-	    SpeciesSpheresMono species0 = new SpeciesSpheresMono();
-	    SpeciesSpheresMono species1 = new SpeciesSpheresMono();
-	    mcMoveSemi.setSpecies(new Species[] {species0, species1});
+	    SpeciesSpheres species0 = new SpeciesSpheres(10,3);
+	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(0);
+	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(4);
+	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
 	    species0.setColor(java.awt.Color.red);
+	    species2.setColor(java.awt.Color.green);
 	    species0.setDiameter(3.0);
 	    species1.setDiameter(5.0);
+	    species2.setDiameter(1.0);
 	    Phase phase = new Phase();
-	    P2HardSphere potential00 = new P2HardSphere(3.0);
+/*	    P2HardSphere potential00 = new P2HardSphere(3.0);
 	    P2HardSphere potential01 = new P2HardSphere(4.0);
+	    P2HardSphere potential02 = new P2HardSphere(2.0);
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
+	    P2HardSphere potential12 = new P2HardSphere(3.0);
+	    P2HardSphere potential22 = new P2HardSphere(1.0);*/
+	    Potential1Group potential0 = new Potential1Group();
+	    P2Tether p2Tether = new P2Tether(potential0);
+	    p2Tether.setIterator(new AtomPairIterator(Simulation.instance.space,
+	            new AtomIteratorSequential(false),
+	            new AtomIteratorBonds()));
+	    potential0.addPotential(p2Tether);
+	    Potential2Group potential00 = new Potential2Group();
+	    potential00.addPotential(new P2HardSphere(potential00, 3.0));
+	    Potential2Group potential01 = new Potential2Group();
+	    potential01.addPotential(new P2HardSphere(potential01, 4.0));
+	    Potential2Group potential02 = new Potential2Group();
+	    potential02.addPotential(new P2HardSphere(potential02, 2.0));
+	    P2HardSphere potential11 = new P2HardSphere(5.0);
+	    P2HardSphere potential12 = new P2HardSphere(3.0);
+	    P2HardSphere potential22 = new P2HardSphere(1.0);
+	    potential0.setSpecies(species0);
 	    potential00.setSpecies(species0, species0);
 	    potential01.setSpecies(species0, species1);
+	    potential02.setSpecies(species0, species2);
 	    potential11.setSpecies(species1, species1);
+	    potential12.setSpecies(species1, species2);
+	    potential22.setSpecies(species2, species2);
 	    Controller controller = new Controller();
 	    DisplayPhase display = new DisplayPhase();
 

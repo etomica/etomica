@@ -38,6 +38,12 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     }
     public Atom getBasis() {return basis;}
     
+    public int size() {
+        if(basis == null) return 0;
+        if(!(basis instanceof AtomGroup)) return 1;
+        return isLeafIterator ? basis.leafAtomCount() : ((AtomGroup)basis).childAtomCount();
+    }
+    
     /**
      * Natural first atom returned by this iterator.  First atom actually returned
      * may differ due to call to reset(Atom) or reset(Atom, Atom), or becuase 

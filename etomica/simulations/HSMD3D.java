@@ -17,7 +17,7 @@ public class HSMD3D extends Simulation {
     etomica.Controller controller0  = new etomica.Controller();
 //    etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
     etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
-      speciesSpheres0.setNMolecules(108);
+      speciesSpheres0.setNMolecules(32);
       speciesSpheres0.setColor(new java.awt.Color(0,255,0));
     etomica.DisplayPhase displayPhase0  = new etomica.DisplayPhase();
     etomica.IntegratorHard integratorHard0  = new etomica.IntegratorHard();
@@ -30,6 +30,6 @@ public class HSMD3D extends Simulation {
     Simulation sim = new HSMD3D();
     sim.mediator().go(); 
     Simulation.makeAndDisplayFrame(sim);
-    sim.controller(0).start();
+ //   sim.controller(0).start();
   }//end of main
 }//end of class

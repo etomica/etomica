@@ -8,6 +8,8 @@ public class Space2D extends Space implements EtomicaElement {
     public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
     public static final int D = 2;
     public final int D() {return D;}
+    public static final Vector ORIGIN = new Vector();
+    public final Space.Vector origin() {return ORIGIN;}
     
     public double sphereVolume(double r) {return Math.PI*r*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0*Math.PI*r;}  //surface area of sphere of radius r (used for differential shell volume)

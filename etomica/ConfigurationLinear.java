@@ -1,5 +1,4 @@
 package etomica;
-
 import etomica.units.Dimension;
 
 /**
@@ -50,19 +49,19 @@ public class ConfigurationLinear extends Configuration {
     * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
     * center of mass unchanged from the value before method was called
     */
-    public void initializeCoordinates(Atom group) {
+    public void initializeCoordinates(AtomIterator iterator) {
         
-        if(!(group instanceof AtomGroup) 
-            || ((AtomGroup)group).childAtomCount() < 2) return; //nothing to do if group is just one atom
+        int size = iterator.size();
+        if(iterator.size() == 0) return;
             
-        work.E(group.coord.position());//save original COM position
-        double xNext = 0.0;
-        for(Atom a=((AtomGroup)group).firstChildAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.translateTo(work);  //put all atoms at same point
+        double xNext = -bondLength*0.5*(double)(size-1);
+        iterator.reset();
+        while(iterator.hasNext()) {
+            Atom a = iterator.next();
+            a.coord.translateTo(space.origin());
             a.coord.translateBy(xNext,orientation);  //move xNext distance in direction orientation
             xNext += bondLength;
         }
-        group.coord.translateTo(work);  //shift molecule to original COM
     }//end of initializeCoordinates
 }//end of ConfigurationLinear
       

@@ -13,16 +13,18 @@ public final class SpeciesMaster extends AtomGroup {
     private final SimulationEventManager eventManager = new SimulationEventManager();
     private final PhaseEvent additionEvent = new PhaseEvent(this, PhaseEvent.ATOM_ADDED);
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
+    public final int index;
     
     public SpeciesMaster(Phase p) {
         super(p.parentSimulation().space(), AtomType.NULL);
         parentPhase = p;
+        index = p.index;
     }
         
     public void addSpecies(Species species) {
         SpeciesAgent agent = species.makeAgent(this);
         addAtom(agent);
-        parentPhase.getConfiguration().initializeCoordinates(this);
+        parentPhase.getConfiguration().initializeCoordinates(parentPhase.makeMoleculeIterator());
     }
     
     public int depth() {return 0;}

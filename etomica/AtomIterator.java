@@ -32,6 +32,9 @@ public interface AtomIterator {
     
     public void setBasis(Atom atom);
     
+    public Atom getBasis();
+    
+    public int size();   
 
     /**
      * A placeholder iterator that contains no atoms and always returns false for hasNext.
@@ -46,6 +49,8 @@ public interface AtomIterator {
         public Atom next() {return null;}
         public void allAtoms(AtomAction act) {}
         public void setBasis(Atom a) {}
+        public Atom getBasis() {return null;}
+        public int size() {return 0;}
     }//end of Null    
 
 }//end of AtomIterator

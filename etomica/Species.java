@@ -168,7 +168,8 @@ public class Species extends SimulationElement {
      * @param p The phase for which this species' agent is requested
      * @return The agent of this species in the phase
      */
-    public final SpeciesAgent getAgent(Phase p) {return (SpeciesAgent)agents.get(p);}
+    public final SpeciesAgent getAgent(Phase p) {return agents.get(p);}
+    public final SpeciesAgent getAgent(SpeciesMaster s) {return agents.get(s);}
         
 
     /**
@@ -199,6 +200,7 @@ public class Species extends SimulationElement {
         }
         
         SpeciesAgent get(Phase phase) {return agentArray[phase.index];}
+        SpeciesAgent get(SpeciesMaster s) {return agentArray[s.index];}
         
         void doToAll(AtomAction action) {
             for(int i=agentArray.length-1; i>=0; i--) action.actionPerformed(agentArray[i]);

@@ -16,6 +16,8 @@ public class Space3D extends Space implements EtomicaElement {
     public static String version() {return "Space3D:01.07.11/"+Space.VERSION;}
     public static final int D = 3;
     public final int D() {return D;}
+    public static final Vector ORIGIN = new Vector();
+    public final Space.Vector origin() {return ORIGIN;}
     
     public double sphereVolume(double r) {return (Math.PI*4.0*r*r*r/3.0);}
     public double sphereArea(double r)  {return (Math.PI*4*r*r);}

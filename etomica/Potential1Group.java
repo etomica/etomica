@@ -12,17 +12,19 @@ public class Potential1Group extends Potential1 implements PotentialGroup {
     }
     public Potential1Group(PotentialGroup parent) {
         super(parent);
+        //overwrite iterator with one that doesn't force looping over leaf atoms
+        iterator = new AtomIteratorSequential(false);
     }
     
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         iterator.reset(id);
-//        localDirective.copy(id);
+        localDirective.copy(id);
         while(iterator.hasNext()) {
             Atom atom = iterator.next();
-//            localDirective.set(atom);
+            if(atom == id.atom1()) localDirective.set();
             for(PotentialLinker link=first; link!=null; link=link.next) {
                 if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-                link.potential.set(atom).calculate(id, pc);
+                link.potential.set(atom).calculate(localDirective, pc);
             }//end for
         }//end while
     }//end calculate

@@ -8,6 +8,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
 
     public Space() {}
     public abstract int D();
+    public abstract Vector origin();
     
     public abstract Vector makeVector();      //Space.Vector
     public abstract Orientation makeOrientation();

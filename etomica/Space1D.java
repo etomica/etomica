@@ -10,6 +10,8 @@ public class Space1D extends Space implements EtomicaElement {
     public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}
+    public static final Vector ORIGIN = new Vector();
+    public final Space.Vector origin() {return ORIGIN;}
     
     public double sphereVolume(double r) {return 2.0*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0;}      //surface area of sphere of radius r (used for differential shell volume)

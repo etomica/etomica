@@ -112,18 +112,6 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
-        if(a.type instanceof AtomType.Sphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());  //should instead of radius have a size for all AtomC types
-            for(int i=0; i<shifts.length; i++) {
-                shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
-                shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);
-            }
-            return(true);
-        } else {
-            return(false);
-        }
-    }
       
     /**
     * doPaint is the method that handles the drawing of the phase to the screen.

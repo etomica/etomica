@@ -1,5 +1,4 @@
 package etomica;
-import java.util.*;
 import etomica.units.*;
 import etomica.lattice.*;
 
@@ -8,9 +7,8 @@ import etomica.lattice.*;
  */
 public abstract class Configuration implements java.io.Serializable {
 
-//    protected Vector species = new Vector();
+    private AtomIteratorSequential iterator = new AtomIteratorSequential();
     protected double temperature = Default.TEMPERATURE;
-    Random rand = new Random();
     protected final Space.Vector work;
     protected final Space space;
     
@@ -22,36 +20,22 @@ public abstract class Configuration implements java.io.Serializable {
     public final void setTemperature(double t) {temperature = t;}
     public final double getTemperature() {return temperature;}
     public final Dimension getTemperatureDimension() {return Dimension.TEMPERATURE;}
+
  /**   
   * All atom velocities are set such that all have the same total momentum (corresponding to
   * the current value of temperature), with the direction at random
   */
     public void initializeMomenta(Atom atom) {
-        
         atom.coord.randomizeMomentum(temperature);
-        
-        /**   zero com momentum here or in coordinate?*/
-  /*      work.E(0.0);
-        int sum = 0;
-        AtomIterator iterator = ((AtomGroup)atom).childIterator;
-        iterator.reset();
-        while(iterator.hasNext()) {
-            Atom a = iterator.next();
-            a.coord.randomizeMomentum(temperature);
-            sum++;
-            work.PE(a.coord.momentum());
-	    }
-	    if(sum < 2) return;  //don't zero COM momentum if only one atom
-    //    Zero center-of-mass momentum
-        work.DE((double)sum);
-        iterator.reset();
-        while(iterator.hasNext()) {
-            iterator.next().coord.momentum().ME(work);
-        }*/
     }//end of initializeMomenta
         
     
-    public abstract void initializeCoordinates(Atom group);
+    public void initializeCoordinates(Atom group) {
+        iterator.setBasis(group);
+        initializeCoordinates(iterator);
+    }
+    
+    public abstract void initializeCoordinates(AtomIterator iterator);
     
     public final static boolean HORIZONTAL = false;
     public final static boolean VERTICAL = true;
@@ -121,20 +105,4 @@ public abstract class Configuration implements java.io.Serializable {
 	    }
 	    return r;
     }
-    
-    public static final Space3D.Vector[] fccLattice(int n) { 
-      Space3D.Vector[] r = new Space3D.Vector[n];
-      for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
-      LatticeFCC fcc = new LatticeFCC(n, Default.BOX_SIZE);
-      SiteIterator iteratorsites = fcc.iterator();
-      iteratorsites.reset();
-      int i = 0;
-      while (iteratorsites.hasNext()&& i < n){
-          Site site = iteratorsites.next();
-          r[i].E(((AbstractLattice.PositionCoordinate)site.coordinate()).position());
-          i++ ;
-      }
-      return r;
-   }//end of fccLattice
-
-}
+}//end of Configuration

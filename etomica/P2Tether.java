@@ -87,6 +87,7 @@ public class P2Tether extends Potential2Hard implements EtomicaElement {
    * Returns infinity if separation is greater than tether distance, zero otherwise
    */
     public double energy(AtomPair pair) {
+//        System.out.println(pair.atom1.toString()+"  "+pair.atom2.toString()+"   "+pair.r2()+"   "+tetherLengthSquared);
         return (pair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
     

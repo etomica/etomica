@@ -22,7 +22,7 @@ public abstract class Potential1 extends Potential {
     public Potential set(Atom a1, Atom a2) {return null;} //throw an exception? redesign?
     
     public Potential set(SpeciesMaster s) {
-        if(species != null) iterator.setBasis(species.getAgent(s.parentPhase()));
+        if(species != null) iterator.setBasis(species.getAgent(s));
         else iterator.setBasis(s);
         return this;
       //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);

@@ -25,10 +25,10 @@ public abstract class Potential2 extends Potential {
     public Potential set(Atom a1, Atom a2) {iterator.setBasis(a1, a2); return this;}
              
     public Potential set(SpeciesMaster s) {
-        if(species1 != null) {
-            iterator.setBasis(species1.getAgent(s.parentPhase()), species2.getAgent(s.parentPhase()));
+        if(species1 != null) {//if species were previously set, use them as basis
+            iterator.setBasis(species1.getAgent(s), species2.getAgent(s));
         }
-        else iterator.setBasis(s,s);
+        else iterator.setBasis(s,s); //otherwise use speciesMaster as basis
         return this;
       //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);
     }

@@ -32,6 +32,9 @@ public class AtomIteratorSinglet implements AtomIterator {
     public Atom getAtom() {return atom;}
     
     public void setBasis(Atom a) {setAtom(a);}
+    public Atom getBasis() {return atom;}
+    
+    public int size() {return (atom != null) ? 1 : 0;}
     
     /**
      * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).

@@ -32,6 +32,16 @@ public final class AtomIteratorGrandchildren implements AtomIterator {
     public void setBasis(Atom a) {
         parentIterator.setBasis(a);
     }
+    public Atom getBasis() {return parentIterator.getBasis();}
+    
+    public int size() {
+        parentIterator.reset();
+        int count = 0;
+        while(parentIterator.hasNext()) {
+            count += ((AtomGroup)parentIterator.next()).childAtomCount();
+        }
+        return count;
+    }
     
     public boolean contains(Atom atom) {
         parentIterator.reset();

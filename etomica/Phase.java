@@ -75,9 +75,9 @@ public final class Phase extends SimulationElement {
         setBoundary(parentSimulation().space().makeBoundary());
 
         if(parentSimulation().space().D() < 3) 
-            add(new ConfigurationSequential(parentSimulation().space()));  //default configuration
+            setConfiguration(new ConfigurationSequential(parentSimulation().space()));  //default configuration
         else
-            add(new ConfigurationFcc(parentSimulation().space()));
+            setConfiguration(new ConfigurationFcc(parentSimulation().space()));
     }//end of constructor
     
     public void addSpecies(Species s) {speciesMaster.addSpecies(s);}

@@ -117,8 +117,8 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 		 
         P2LennardJones1.setIterator(
             new AtomPairIterator(Simulation.instance.space,
-                                 new AtomIteratorSequential(null, true),
-                                 new AtomIteratorSequential(null, true)));
+                                 new AtomIteratorSequential(true),
+                                 new AtomIteratorSequential(true)));
  /*       potential.set(species.getAgent(phase));
 		
         Potential2.Agent potentialAgent = (Potential2.Agent)P2LennardJones1.getAgent(phase1);

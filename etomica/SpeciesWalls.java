@@ -165,6 +165,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         public final double getPlacement() {return placement;}
         public final void setPlacement(double p) {placement = p;}
 
+        public void initializeCoordinates(AtomIterator iter) {/*no implementation*/}
         /**
         * Sets wall coordinates 
         */

@@ -26,6 +26,15 @@ public class AtomIteratorBonds implements AtomIterator {
         }
         return false;
     }
+    
+    //loops through all iterates and counts them
+    public int size() {
+        if(basis == null) return 0;
+        int count = 0;
+        for(BondLinker link=basis.firstUpBond; link!=null; link=link.next) count++;
+        for(BondLinker link=basis.firstDownBond; link!=null; link=link.next) count++;
+        return count;
+    }        
         
     
     /**
@@ -105,5 +114,6 @@ public class AtomIteratorBonds implements AtomIterator {
         basis = atom;
         hasNext = false;
     }
+    public Atom getBasis() {return basis;}
 
 }//end of AtomIteratorBonds

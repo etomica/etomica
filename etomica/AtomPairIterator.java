@@ -101,7 +101,14 @@ public class AtomPairIterator implements java.io.Serializable {
      */
     public void reset() {
         if(direction == IteratorDirective.BOTH) direction = IteratorDirective.UP;
-        setOuterInner(ai1, ai2);
+        if(ai2.getBasis().preceeds(ai1.getBasis())) {
+            if(direction.doUp()) setOuterInner(ai2, ai1);
+            else setOuterInner(ai1, ai2);
+        } else {
+            if(direction.doUp()) setOuterInner(ai1, ai2);
+            else setOuterInner(ai2, ai1);
+        }
+    //    setOuterInner(ai1, ai2);
         aiOuter.reset(localDirective.set().set(direction));
         aiInner.reset(localDirective);
         setFirst();

@@ -24,18 +24,9 @@ public class ConfigurationSequential extends Configuration {
     public void setFillVertical(boolean b) {fill = b;}
     public boolean getFillVertical() {return fill;}
     
-    //need to revise to use given argument instead of parentphase
-    public void initializeCoordinates(Atom atom) {
-        AtomGroup atoms;
+    public void initializeCoordinates(AtomIterator iterator) {
         
-        if(!(atom instanceof AtomGroup)) {
-            atom.coord.position().E(0.0);
-            return;
-        }
-        else atoms = (AtomGroup)atom;
-            
-        Phase phase = atoms.parentPhase();
-        
+        Phase phase = iterator.getBasis().parentPhase();
         
         if(phase == null) return;
         double Lx = phase.dimensions().component(0);
@@ -44,17 +35,12 @@ public class ConfigurationSequential extends Configuration {
         if(phase.parentSimulation().space().D()>1)  Ly = phase.dimensions().component(1);
         if(phase.parentSimulation().space().D()>2)  Lz = phase.dimensions().component(2);
 
-    // Count number of molecules
-        int sumOfMolecules = 0;
-        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            sumOfMolecules += s.moleculeCount();
-        }
+        int sumOfMolecules = iterator.size();
         
-        if(sumOfMolecules == 0) {return;}
+        if(sumOfMolecules == 0) return;
         
         Space.Vector[] rLat;
-        switch(phase.parentSimulation().space().D()) {
+        switch(space.D()) {
             case 1:
                 rLat = lineLattice(sumOfMolecules, Lx);
                 break;
@@ -63,22 +49,20 @@ public class ConfigurationSequential extends Configuration {
                 rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
                 break;
             case 3:
-                rLat = fccLattice(sumOfMolecules);
+                rLat = ConfigurationFcc.lattice(sumOfMolecules);
                 break;
         }
         
    // Place molecules     
         int i = 0;
-        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            iterator.setBasis(s);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                iterator.next().coord.translateTo(rLat[i]);
-                i++;
-            }
+        iterator.reset();
+        while(iterator.hasNext()) {
+            Atom a = iterator.next();
+            if(a.parentSpecies() instanceof SpeciesWalls) continue;
+            a.coord.translateTo(rLat[i]);
+            i++;
         }
    //     initializeMomenta(phase.speciesMaster());
-        initializeMomenta(atom);
+        initializeMomenta(iterator.getBasis());
     }
 }
