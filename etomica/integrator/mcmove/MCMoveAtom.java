@@ -26,7 +26,7 @@ public class MCMoveAtom extends MCMove {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final MeterPotentialEnergy energyMeter;
-    private final Vector translationVector;
+    protected final Vector translationVector;
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
