@@ -1,5 +1,5 @@
 package etomica;
-
+import etomica.units.Dimension;
 //Java2 imports
 //import java.util.HashMap;
 //import java.util.Iterator;
@@ -97,6 +97,7 @@ public class Species extends SimulationElement {
      * @see Species.Agent#getNMolecules
      */
     public int getNMolecules() {return nMolecules;}
+    public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
     
     /**
      * Sets the number of molecules of this species for each phase.

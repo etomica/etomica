@@ -40,7 +40,9 @@ public class ConfigurationSequential extends Configuration {
         if(phase == null) return;
         double Lx = phase.dimensions().component(0);
         double Ly = 0.0;
+        double Lz = 0.0;
         if(phase.parentSimulation().space().D()>1)  Ly = phase.dimensions().component(1);
+        if(phase.parentSimulation().space().D()>2)  Lz = phase.dimensions().component(2);
 
     // Count number of molecules
         int sumOfMolecules = 0;
@@ -52,12 +54,17 @@ public class ConfigurationSequential extends Configuration {
         if(sumOfMolecules == 0) {return;}
         
         Space.Vector[] rLat;
-        if(phase.parentSimulation().space().D() == 1) {
-            rLat = null; //for redesign
-// commented for redesign            rLat = lineLattice(sumOfMolecules, Lx);
-        }
-        else {
-            rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        switch(phase.parentSimulation().space().D()) {
+            case 1:
+                rLat = lineLattice(sumOfMolecules, Lx);
+                break;
+            default:
+            case 2:
+                rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+                break;
+            case 3:
+                rLat = fccLattice(sumOfMolecules);
+                break;
         }
         
    // Place molecules     

@@ -15,7 +15,7 @@ import java.awt.event.MouseEvent;
  * @author David Kofke
  */
 
-public class ActionPointVolume extends PhaseAction implements Action.Undoable, DisplayPhase.Drawable {
+public class ActionPointVolume extends PhaseAction implements Action.Undoable, Drawable {
     
     public static String getVersion() {return "ActionPointVolume:01.02.19"+PhaseAction.getVersion();}
 

@@ -85,8 +85,8 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     public static void main(String[] args) {
         Simulation.setUnitSystem(new etomica.units.UnitSystem.LJ());
 	    IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
-//	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
-        Species speciesDisks1 = new SpeciesSpheresMono();
+//	    SpeciesSpheres speciesSphere1 = new SpeciesSphere();
+        Species speciesSpheres1 = new SpeciesSpheresMono();
 	    Phase phase1 = new Phase();
 	    Phase phase2 = new Phase();
 //	    P2SquareWell P2SquareWell1 = new P2SquareWell();
@@ -110,7 +110,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 	    temperatureSlider.setUnit(new etomica.units.Unit(Kelvin.UNIT));
 	    temperatureSlider.setMinimum(50);
 	    temperatureSlider.setMaximum(500);
-	    speciesDisks1.setNMolecules(60);
+	    speciesSpheres1.setNMolecules(60);
 	    DisplayBox boxT = new DisplayBox(modT);
 	    	    
 		Simulation.instance.elementCoordinator.go(); 

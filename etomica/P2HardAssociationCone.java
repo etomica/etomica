@@ -169,7 +169,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
 	    IntegratorMC integrator1 = new IntegratorMC();
-	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(20);
+	    SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(20);
 	    Phase phase1 = new Phase();
 	    PotentialAssociationCone potential = new PotentialAssociationCone();
 	//    potential.setEpsilon(0.0);

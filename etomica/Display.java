@@ -71,6 +71,8 @@ public abstract class Display extends SimulationElement implements Simulation.Gr
      */
     public final Component graphic() {return graphic(null);}
     
+    public void initialize() {}
+    
     /**
      * Method called to update the display.  
      * This method is called after the display receives 

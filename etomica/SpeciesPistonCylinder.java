@@ -20,7 +20,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public String getVersion() {return "SpeciesPistonCylinder:01.06.05/"+super.getVersion();}
  
     //making static as a hack until direction can be associated with each molecule
-    public static Constants.Direction direction = Constants.NORTH;
+    public static Constants.Direction direction = Constants.TOP;
     Space2D.Vector dimensions = new Space2D.Vector();
     private Atom piston;
     
@@ -104,10 +104,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Sets a vector giving the unit normal to the piston, toward the inside of the cylinder.
    */
   private final void setUnitNormal() {
-    if(direction == Constants.NORTH)      {unitNormal.x =  0.0; unitNormal.y = +1.0;}//N
-    else if(direction == Constants.EAST)  {unitNormal.x = -1.0; unitNormal.y =  0.0;}//E
-    else if(direction == Constants.SOUTH) {unitNormal.x =  0.0; unitNormal.y = -1.0;}//S
-    else /*WEST*/                         {unitNormal.x = +1.0; unitNormal.y =  0.0;}//W
+    if(direction == Constants.TOP)      {unitNormal.x =  0.0; unitNormal.y = +1.0;}//N
+    else if(direction == Constants.RIGHT)  {unitNormal.x = -1.0; unitNormal.y =  0.0;}//E
+    else if(direction == Constants.BOTTOM) {unitNormal.x =  0.0; unitNormal.y = -1.0;}//S
+    else /*LEFT*/                         {unitNormal.x = +1.0; unitNormal.y =  0.0;}//W
   }
   
   /**
@@ -255,7 +255,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         atoms[1].coord.setStationary(true);
         atoms[2].coord.setStationary(true);
         atoms[3].coord.setStationary(true);
-        if(SpeciesPistonCylinder.direction == Constants.NORTH) {
+        if(SpeciesPistonCylinder.direction == Constants.TOP) {
             protoType[0].setAlignment(Constants.HORIZONTAL);
             protoType[1].setAlignment(Constants.VERTICAL);
             protoType[2].setAlignment(Constants.HORIZONTAL);
@@ -268,7 +268,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             atoms[2].coord.position().setComponent(1,length-wallThickness);
             atoms[3].coord.position().E(0.0); //left wall
         }
-        else if(SpeciesPistonCylinder.direction == Constants.EAST) {
+        else if(SpeciesPistonCylinder.direction == Constants.RIGHT) {
             protoType[3].setAlignment(Constants.HORIZONTAL);
             protoType[0].setAlignment(Constants.VERTICAL);
             protoType[1].setAlignment(Constants.HORIZONTAL);
@@ -280,7 +280,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             atoms[1].coord.position().setComponent(1,diameter-wallThickness);
             atoms[2].coord.position().E(0.0);
         }
-        else if(SpeciesPistonCylinder.direction == Constants.SOUTH) {
+        else if(SpeciesPistonCylinder.direction == Constants.BOTTOM) {
             protoType[2].setAlignment(Constants.HORIZONTAL);
             protoType[3].setAlignment(Constants.VERTICAL);
             protoType[0].setAlignment(Constants.HORIZONTAL);
@@ -316,8 +316,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public void computeDimensions() {
             double d = diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS;
             double l = length - thickness / BaseUnit.Length.Sim.TO_PIXELS;
-            dimensions.x = (direction == Constants.NORTH || direction == Constants.SOUTH) ? d : l;
-            dimensions.y = (direction == Constants.NORTH || direction == Constants.SOUTH) ? l : d;
+            dimensions.x = (direction == Constants.TOP || direction == Constants.BOTTOM) ? d : l;
+            dimensions.y = (direction == Constants.TOP || direction == Constants.BOTTOM) ? l : d;
         }//end of computeDimensions
       
     /**
@@ -332,7 +332,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public Space.Vector dimensions() {return SpeciesPistonCylinder.this.dimensions;}
         public double volume() {
             AtomGroup m = (AtomGroup)getAgent(this.phase()).firstMolecule();
-            int index20 = (direction==Constants.NORTH || direction==Constants.SOUTH) ? 1 : 0;
+            int index20 = (direction==Constants.TOP || direction==Constants.BOTTOM) ? 1 : 0;
             int index31 = 1-index20;//0 or 1, opposite of index20
               //volume is diameter of cylinder times distance between piston (first atom) and base (atom 2) of cylinder
  //           return (diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS)
@@ -369,9 +369,9 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         
-	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres(20);
+	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(20);
 	    Phase phase1 = new Phase();
-	    P2HardSphere P2HardDisk1 = new P2HardSphere();
+	    P2HardSphere P2HardSphere1 = new P2HardSphere();
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 		Simulation.instance.setBackground(java.awt.Color.yellow);
@@ -382,7 +382,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         SpeciesPistonCylinder pistonCylinder = new SpeciesPistonCylinder();
         pistonCylinder.setLength(20.);
         ((DisplayPhase)Simulation.instance.display(0)).setColorScheme(new ColorSchemeByType());
-        P2HardDiskWall wallPotential = new P2HardDiskWall();
+        P2HardSphereWall wallPotential = new P2HardSphereWall();
         
         PistonPressureField pressureField = pistonCylinder.new PistonPressureField();
 
@@ -408,18 +408,18 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 
   //    wall-sphere potential
     //order of specification of atom iterators does matter!
-        wallPotential.setSpecies(speciesDisks1, pistonCylinder);
-        P2HardDisk1.setSpecies(speciesDisks1, speciesDisks1);
+        wallPotential.setSpecies(speciesSpheres1, pistonCylinder);
+        P2HardSphere1.setSpecies(speciesSpheres1, speciesSpheres1);
         //need to add pressure field iterator
         
     /*    Potential2.Agent potentialAgent = (Potential2.Agent)wallPotential.getAgent(phase1);
         potentialAgent.setIterator(new AtomPairIterator(phase1,
-                speciesDisks1.makeAtomIterator(phase1), pistonCylinder.makeAtomIterator(phase1)));
+                speciesSpheres1.makeAtomIterator(phase1), pistonCylinder.makeAtomIterator(phase1)));
 
         //sphere-sphere potential
-        potentialAgent = (Potential2.Agent)P2HardDisk1.getAgent(phase1);
+        potentialAgent = (Potential2.Agent)P2HardSphere1.getAgent(phase1);
         potentialAgent.setIterator(new AtomPairIterator(phase1,
-                speciesDisks1.makeAtomIterator(phase1), speciesDisks1.makeAtomIterator(phase1)));
+                speciesSpheres1.makeAtomIterator(phase1), speciesSpheres1.makeAtomIterator(phase1)));
 
         //pressure field on piston
         Potential1.Agent potential1Agent = (Potential1.Agent)pressureField.getAgent(phase1);

@@ -95,7 +95,7 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
      */
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
-	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating();
+	    SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating();
 	    Phase phase = new Phase();
 	    P2RoughSphere potential = new P2RoughSphere();
 	    Controller controller1 = new Controller();

@@ -22,7 +22,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
             f[i] = new AtomFactoryMono(sim);
-            AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Default.ATOM_COLOR, Double.MAX_VALUE, 0);// arguments are mass, color, length, angle(degrees)  
+            AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Default.ATOM_COLOR, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
             f[i].setType(type);
         }
         AtomFactoryHetero fm = new AtomFactoryHetero(sim,f);
@@ -49,10 +49,10 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     }
 
     public SpeciesWalls(Simulation sim, int nM, int nA) {
-        this(sim, nM, nA, Double.MAX_VALUE, 0);
+        this(sim, nM, nA, Double.MAX_VALUE, 0, 0, 0);
     }
     
-    public SpeciesWalls(Simulation sim, int nM, int nA, double length, int angle) {  //angle is in radians
+    public SpeciesWalls(Simulation sim, int nM, int nA, double length, int xAngle, int yAngle, int zAngle) {  //angle is in radians
         super(sim, makeFactory(sim, nA));
         //get a handle to the factories used to make the walls and create an array (protoType)
         //of handles to the types attached to each
@@ -63,7 +63,9 @@ public class SpeciesWalls extends Species implements EtomicaElement {
            AtomType.Wall type = (AtomType.Wall)subfactory[i].type();
 //           type.setStationary(true);
            type.setLength(length);
-           type.setAngle(angle);
+           type.setXAngle(xAngle);
+           type.setYAngle(yAngle);
+           type.setZAngle(zAngle);
            protoType[i] = type;
         }
         factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(sim.space()));
@@ -107,6 +109,28 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         for(int i=0; i<protoType.length; i++) protoType[i].setColor(c);
     }
     
+    public double getXAngle() {return(protoType[0].getXAngle());}
+    public void setXAngle(double t) { protoType[0].setXAngle(t);}
+    public Dimension getXAngleDimension() {return Dimension.ANGLE;}
+    
+    public double getYAngle() {return(protoType[0].getYAngle());}
+    public void setYAngle(double t) { protoType[0].setYAngle(t);}
+    public Dimension getYAngleDimension() {return Dimension.ANGLE;}
+    
+    public double getZAngle() {return(protoType[0].getZAngle());}
+    public void setZAngle(double t) { protoType[0].setZAngle(t);}
+    public Dimension getZAngleDimension() {return Dimension.ANGLE;}
+                
+    public boolean getLongWall() {return(protoType[0].isLongWall());}
+    public void setLongWall(boolean b) { protoType[0].setLongWall(b);}
+            
+    public double getTemperature() {return(protoType[0].getTemperature());}
+    public void setTemperature(double t) {protoType[0].setTemperature(t);}
+    public Dimension getTemperatureDimension() {return Dimension.TEMPERATURE;}
+            
+    public boolean getAdiabatic() { return(protoType[0].isAdiabatic());}
+    public void setAdiabatic(boolean a) { protoType[0].setAdiabatic(a);}
+
     //Class for arranging walls in parallel
     public class ConfigurationParallel extends Configuration {
     
@@ -189,7 +213,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
                 r.setComponent(i,xyNext);
                 xyNext += delta;
                 ((AtomType.Wall)a.type).setLength(wh);   //length of wall
-                ((AtomType.Wall)a.type).setAngle(angle);
+                ((AtomType.Wall)a.type).setXAngle(angle);
                 ((AtomType.Wall)a.type).setTemperature(temperature);
             }
         }//end of initializeCoordinates
@@ -198,7 +222,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
 
   /**
    * Method to demonstrate the use of this class.
-   * Simulates a system of hard disks and a wall.
+   * Simulates a system of hard spheres and a wall.
    */
     public static void main(String[] args) {
 
@@ -212,7 +236,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
 	    Phase phase = new Phase();
 	    IntegratorHard integrator = new IntegratorHard();
 	    P2HardSphere potential = new P2HardSphere();
-        P2HardDiskWall wallPotential = new P2HardDiskWall(); //hard wall-disk interaction
+        P2HardSphereWall wallPotential = new P2HardSphereWall(); //hard wall-sphere interaction
 	    Controller controller = new Controller();
 	    DisplayPhase display = new DisplayPhase();
 	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
@@ -223,7 +247,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         
         //make the wall vertical
         ((ConfigurationParallel)walls.factory.getConfiguration()).setAngle((int)Degree.UNIT.toSim(90.));
-        //wall (2nd species added) is set to species 1 automatically, disks are species 0; 
+        //wall (2nd species added) is set to species 1 automatically, spheres are species 0; 
         //set new potential to be for 0-1 interaction       
  
         Simulation.instance.elementCoordinator.go();

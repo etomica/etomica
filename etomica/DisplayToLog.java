@@ -158,8 +158,8 @@ public class DisplayToLog extends Display {
         Simulation.instance = sim;
         sim.setUnitSystem(new UnitSystem.LJ());
         
-        Species species = new SpeciesDisks(32);
-        Potential potential = new PotentialHardDisk();
+        Species species = new SpeciesSpheres(32);
+        Potential potential = new PotentialHardSphere();
         Potential2 p2 = new P2SimpleWrapper(potential);
         Integrator integrator = new IntegratorHard();
         Controller controller = new Controller();

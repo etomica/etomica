@@ -414,7 +414,6 @@ public class Space1D extends Space implements EtomicaElement {
      */
     protected static final class BoundaryNone extends Boundary{
         private final Vector temp = new Vector();
-        private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public BoundaryNone() {super();}
@@ -427,7 +426,7 @@ public class Space1D extends Space implements EtomicaElement {
         public double volume() {return Double.MAX_VALUE;}
         public void inflate(double s) {}
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
-        public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
         public Space.Vector randomPosition() {  //arbitrary choice for this method in this boundary
             temp.x = Simulation.random.nextDouble(); 
             return temp;
@@ -441,9 +440,6 @@ public class Space1D extends Space implements EtomicaElement {
      */
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic{
         private final Vector temp = new Vector();
-       //Explicit dimension to 2 because drawing to 1D image
-        private final double[][] shift0 = new double[0][2];
-        private final double[][] shift1 = new double[1][2]; //used by getOverflowShifts
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx;}
@@ -486,18 +482,20 @@ public class Space1D extends Space implements EtomicaElement {
         /** Returns coordinate shifts needed to draw all images that overflow into central image
          * 0, or 1 shifts may be returned
          */
-        public double[][] getOverflowShifts(Space.Vector rr, double distance) {
-            Vector r = (Vector)rr;
-            int shiftX = 0;
+        int shiftX;
+        Vector r;
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {
+            r = (Vector)rr;
+            shiftX = 0;
             if(r.x-distance < 0.0) {shiftX = +1;}
             else if(r.x+distance > dimensions.x) {shiftX = -1;}
             
             if(shiftX == 0) {
                 return shift0;
-            }
-            else { //shiftX != 0
-                shift1[0][0] = shiftX*dimensions.x;
-                return shift1;
+            } else {
+                shift = new float[1][2];
+                shift[0][0] = (float)(shiftX*dimensions.x);
+                return shift;
             }
         } //end of getOverflowShifts
     }  //end of BoundaryPeriodic

@@ -301,8 +301,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public static void main(String[] args) {
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheres speciesDisks = new SpeciesSpheres();
-	    speciesDisks.setNMolecules(300);
+	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
+	    speciesSpheres.setNMolecules(300);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();

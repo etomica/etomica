@@ -1,6 +1,7 @@
 package etomica;
 import java.util.*;
 import etomica.units.*;
+import etomica.lattice.*;
 
 /**
  * General class for assignment of coordinates to a group of atoms.
@@ -55,7 +56,6 @@ public abstract class Configuration implements java.io.Serializable {
     public final static boolean HORIZONTAL = false;
     public final static boolean VERTICAL = true;
 
-    /* commented for redesign
     public static Space1D.Vector[] lineLattice(int n, double Lx) {
         Space1D.Vector[] r = new Space1D.Vector[n];
         double delta = Lx/(double)n;
@@ -64,7 +64,7 @@ public abstract class Configuration implements java.io.Serializable {
             r[i].x = (i+0.5)*delta;
         }
         return r;
-    }*/
+    }
         
     /**
      * Returns a set of n coordinates filling a square lattice of sides Lx and Ly
@@ -73,7 +73,7 @@ public abstract class Configuration implements java.io.Serializable {
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public static Space2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+    public final static Space2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
         Space2D.Vector[] r = new Space2D.Vector[n];
         for(int i=0; i<n; i++) {r[i] = new Space2D.Vector();}
 
@@ -121,4 +121,20 @@ public abstract class Configuration implements java.io.Serializable {
 	    }
 	    return r;
     }
+    
+    public static final Space3D.Vector[] fccLattice(int n) { 
+      Space3D.Vector[] r = new Space3D.Vector[n];
+      for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
+      LatticeFCC fcc = new LatticeFCC(n, Default.BOX_SIZE);
+      SiteIterator iteratorsites = fcc.iterator();
+      iteratorsites.reset();
+      int i = 0;
+      while (iteratorsites.hasNext()&& i < n){
+          Site site = iteratorsites.next();
+          r[i].E(((AbstractLattice.PositionCoordinate)site.coordinate()).position());
+          i++ ;
+      }
+      return r;
+   }//end of fccLattice
+
 }

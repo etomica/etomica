@@ -2,8 +2,8 @@ package etomica;
 
 /**
  * Basic hard-(rod/disk/sphere) potential.
- * Energy is infinite if disks overlap, and is zero otherwise.  Collision diameter describes
- * size of disks.
+ * Energy is infinite if spheres overlap, and is zero otherwise.  Collision diameter describes
+ * size of spheres.
  * Suitable for use in space of any dimension.
  *
  * @author David Kofke
@@ -13,7 +13,7 @@ public class P2HardSphere extends Potential2Hard implements EtomicaElement {
     public String getVersion() {return "P2HardSphere:01.07.03/"+Potential2.VERSION;}
 
    /**
-    * Separation at which disks first overlap
+    * Separation at which spheres first overlap
     */
    protected double collisionDiameter;
    

@@ -538,7 +538,6 @@ public class Space2D extends Space implements EtomicaElement {
      */
     protected static class BoundaryNone extends Boundary {
         private final Vector temp = new Vector();
-        private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
         public Space.Vector dimensions() {return dimensions;}
         public BoundaryNone() {super();}
@@ -552,7 +551,7 @@ public class Space2D extends Space implements EtomicaElement {
         public double volume() {return Double.MAX_VALUE;}
         public void inflate(double s) {}
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
-        public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
         public Space.Vector randomPosition() {  //arbitrary choice for this method in this boundary
             temp.x = Simulation.random.nextDouble(); 
             temp.y = Simulation.random.nextDouble(); 
@@ -566,9 +565,6 @@ public class Space2D extends Space implements EtomicaElement {
      */
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic {
         private final Vector temp = new Vector();
-        private final double[][] shift0 = new double[0][D];
-        private final double[][] shift1 = new double[1][D]; //used by getOverflowShifts
-        private final double[][] shift3 = new double[3][D];
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p, double lx, double ly) {super(p); dimensions.x = lx; dimensions.y = ly;}
@@ -619,42 +615,34 @@ public class Space2D extends Space implements EtomicaElement {
         /** Returns coordinate shifts needed to draw all images that overflow into central image
          * 0, 1, or 3 shifts may be returned
          */
-        public double[][] getOverflowShifts(Space.Vector rr, double distance) {
-            Vector r = (Vector)rr;
-            int shiftX = 0;
-            int shiftY = 0;
+        int shiftX, shiftY;
+        Vector r;
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {
+            shiftX = 0; shiftY = 0;
+            r = (Vector)rr;
+            
             if(r.x-distance < 0.0) {shiftX = +1;}
             else if(r.x+distance > dimensions.x) {shiftX = -1;}
             
             if(r.y-distance < 0.0) {shiftY = +1;}
             else if(r.y+distance > dimensions.y) {shiftY = -1;}
             
-            if(shiftX == 0) {
-                if(shiftY == 0) {
-                    return shift0;
-                }
-                else {
-                    shift1[0][0] = 0.0;
-                    shift1[0][1] = shiftY*dimensions.y;
-                    return shift1;
-                }
+            if((shiftX == 0) && (shiftY == 0)) {
+              shift = shift0;
+            } else if((shiftX != 0) && (shiftY == 0)) {
+              shift = new float[1][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+            } else if((shiftX == 0) && (shiftY != 0)) {
+              shift = new float[1][D];
+              shift[0][1] = (float)(shiftY*dimensions.y);
+            } else if((shiftX != 0) && (shiftY != 0)) {
+              shift = new float[3][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][1] = (float)(shiftY*dimensions.y);
+              shift[2][0] = shift[0][0];
+              shift[2][1] = shift[1][1];
             }
-            else { //shiftX != 0
-                if(shiftY == 0) {
-                    shift1[0][0] = shiftX*dimensions.x;
-                    shift1[0][1] = 0.0;
-                    return shift1;
-                }
-                else {
-                    shift3[0][0] = shiftX*dimensions.x;
-                    shift3[0][1] = 0.0;
-                    shift3[1][0] = 0.0;
-                    shift3[1][1] = shiftY*dimensions.y;
-                    shift3[2][0] = shift3[0][0];
-                    shift3[2][1] = shift3[1][1];
-                    return shift3;
-                }
-            }
+            return(shift);
         } //end of getOverflowShifts
     }  //end of BoundaryPeriodicSquare
     

@@ -39,7 +39,7 @@ public class ConfigurationFcc extends Configuration {
         initializeMomenta(parentPhase.speciesMaster());
     }
     
-    public Space3D.Vector[] fccLattice(int n) { 
+ /*   public Space3D.Vector[] fccLattice(int n) { 
         Space3D.Vector[] r = new Space3D.Vector[n];
         for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
         LatticeFCC fcc = new LatticeFCC(n, Default.BOX_SIZE);
@@ -53,4 +53,5 @@ public class ConfigurationFcc extends Configuration {
         }
         return r;
     }
+    */
 }

@@ -260,6 +260,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }
 
     public static abstract class Boundary implements java.io.Serializable {
+        protected static final float[][] shift0 = new float[0][0];
+        protected static float[][] shift;
         private Phase phase;
         public Boundary() {}
         public Boundary(Phase p) {phase = p;}
@@ -274,7 +276,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
  //       public double getVolume() {return volume();}
         public abstract Vector dimensions();
         public abstract Vector randomPosition();
-        public abstract double[][] getOverflowShifts(Vector r, double distance);
+        public abstract float[][] getOverflowShifts(Vector r, double distance);
         public abstract void inflate(double s);
         public abstract void draw(Graphics g, int[] origin, double scale);
        /** Set of vectors describing the displacements needed to translate the central image

@@ -17,6 +17,8 @@ public final class Default {
         
     public static String JAVADOC_FILE = "http://www.ccr.buffalo.edu/etomica/JavaDoc/index.html";
 
+    public static boolean DISPLAY_USE_OPENGL = true;
+    
     public static double ATOM_SIZE = 3.0;  //Angstroms
     
     public static double ATOM_MASS = 40.0; //Daltons

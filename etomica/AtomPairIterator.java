@@ -202,7 +202,7 @@ public class AtomPairIterator implements java.io.Serializable {
         Simulation.instance = new Simulation();
         Phase phase = new Phase();
         Phase phase2 = new Phase();
-        Species species = new SpeciesDisks();
+        Species species = new SpeciesSpheres();
         species.setNMolecules(8);
         Simulation.instance.elementCoordinator.go();
 
@@ -251,7 +251,7 @@ public class AtomPairIterator implements java.io.Serializable {
         System.out.println("reset(lastatom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
         while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
 
-        Species species2 = new SpeciesDisks();
+        Species species2 = new SpeciesSpheres();
         species.setNMolecules(4);
         species2.setNMolecules(5);
         Simulation.instance.elementCoordinator.go();

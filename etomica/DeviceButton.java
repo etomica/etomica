@@ -67,7 +67,7 @@ public class DeviceButton extends Device implements EtomicaElement {
     
     /**
      * Method to demonstrate and test the use of this class.  
-     * Slider is used to control the temperature of a hard-disk MD simulation
+     * Slider is used to control the temperature of a hard-sphere MD simulation
      */
     public static void main(String[] args) {
         

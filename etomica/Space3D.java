@@ -20,11 +20,11 @@ public class Space3D extends Space implements EtomicaElement {
     public double sphereVolume(double r) {return (Math.PI*4.0*r*r*r/3.0);}
     public double sphereArea(double r)  {return (Math.PI*4*r*r);}
     public Space.Vector makeVector() {return new Vector();}
-    public Space.Orientation makeOrientation() {System.out.println("Orientation class not yet developed in 3D"); return null;}
+    public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Atom a) {
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
-   //     else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
+        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
@@ -63,7 +63,7 @@ public class Space3D extends Space implements EtomicaElement {
         public Vector (double[] a) {x = a[0]; y = a[1]; z = a[2];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
         public String toString() {return "("+x+", "+y+", "+z+")";}
-        public double component(int i) {if (i==0) return x; else if (i==1) return y; else return z;}
+        public double component(int i) {return((i==0) ? x : (i==1) ? y : z);}
         public double[] toArray() {return new double[] {x, y, z};}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y + z*z);
@@ -461,44 +461,132 @@ public class Space3D extends Space implements EtomicaElement {
         }
     }//end of CoordinateGroup
     
-    //***NOTE**** this class needs to be developed; this is only a duplicate of Space2D.Orientation
-    public static class Orientation extends Space.Orientation {
-        //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
-        //components in the body-fixed frame
-        private final double[][] A = new double[D][D];
-        private final Vector[] bodyFrame = new Vector[3];//= new Vector[] {new Vector(1.0,0.0), new Vector(0.0,1.0)};
-        private final double[] angle = new double[1];
-        private boolean needToUpdateA = true;
-        public void E(Space.Orientation o) {E((Orientation)o);}
-        public void E(Orientation o) {angle[0] = o.angle[0]; needToUpdateA = true;}
-        public Space.Vector[] bodyFrame() {return bodyFrame;}
-        public double[] angle() {return angle;}
-        public void rotateBy(int i, double dt) {angle[0] += dt; needToUpdateA = true;}
-        public void rotateBy(double[] dt) {angle[0] += dt[0]; needToUpdateA = true;}
-        public void randomRotation(double t) {System.out.println("Space3D.Orientation.randomRotation not yet implemented");}
+    public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
+        private double L = 0.0; //magnitude of angular momentum
+        private final Space3D.Vector vector = new Space3D.Vector();//used to return vector quantities (be sure to keep x and y components zero)
+        private final double[] I;
+        private final Orientation orientation = new Orientation();
+        public OrientedCoordinate(Atom a) {
+            super(a);
+            I = ((AtomType.SphericalTop)a.type).momentOfInertia();
+        }
+        public Space3D.Vector angularMomentum() {vector.z = L; return vector;}
+        public Space3D.Vector angularVelocity() {vector.z = L/I[0]; return vector;}
+        public void angularAccelerateBy(Space3D.Vector t) {L += t.z;}
+        public Space.Orientation orientation() {return orientation;}
+        public double kineticEnergy() {return super.kineticEnergy() + 0.5*L*L/I[0];}
+        public void freeFlight(double t) {
+            super.freeFlight(t);
+            orientation.rotateBy(t*L/I[0]);//all elements of I equal for spherical top
+        }
+    }
+     
+     public static class Orientation extends Space.Orientation {
+         //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
+         //components in the body-fixed frame
+         private final double[][] A = new double[D][D];
+        private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0, 0.0), new Vector(0.0,1.0,0.0), new Vector(0.0,0.0,1.0)};
+        private final double[] angle = new double[3];
+         private boolean needToUpdateA = true;
+         public void E(Space.Orientation o) {E((Orientation)o);}
+        public void E(Orientation o) {
+          angle[0] = o.angle[0];
+          angle[1] = o.angle[1];
+          angle[2] = o.angle[2];
+          needToUpdateA = true;
+        }
+         public Space.Vector[] bodyFrame() {return bodyFrame;}
+         public double[] angle() {return angle;}
+        public final void rotateBy(double dt[]) {
+            rotateBy(0, dt[0]);
+            rotateBy(1, dt[1]);
+            rotateBy(2, dt[2]);
+        }
+        public final void rotateBy(double dt) {
+          rotateBy(0, dt);
+          rotateBy(1, dt);
+          rotateBy(2, dt);
+        }
+        public void rotateBy(int i, double dt) {
+            angle[i] += dt;
+            if(angle[i] > Constants.TWO_PI) angle[i] -= Constants.TWO_PI;
+            else if(angle[i] < 0.0) angle[i] += Constants.TWO_PI;
+            needToUpdateA = true;
+        }
+        public void randomRotation(double t) {
+          rotateBy(0, (2.*Simulation.random.nextDouble()-1.0)*t);
+          rotateBy(1, (2.*Simulation.random.nextDouble()-1.0)*t);
+          rotateBy(2, (2.*Simulation.random.nextDouble()-1.0)*t);
+        }
         private final void updateRotationMatrix() {
-            A[0][0] = A[1][1] = Math.cos(angle[0]);
-            A[0][1] = Math.sin(angle[0]);
-            A[1][0] = -A[0][1];
-            bodyFrame[0].E(A[0]);
-            bodyFrame[1].E(A[1]);
-            needToUpdateA = false;
-        }
-     //   public double[][] rotationMatrix() {return A;}
-        public void convertToBodyFrame(Vector v) {
-            if(needToUpdateA) updateRotationMatrix();
-            double x = A[0][0]*v.x + A[0][1]*v.y;
-            v.y = A[1][0]*v.x + A[1][1]*v.y;
-            v.x = x;
-        }
-        public void convertToSpaceFrame(Vector v) {
-            if(needToUpdateA) updateRotationMatrix();
-            double x = A[0][0]*v.x + A[1][0]*v.y;
-            v.y = A[0][1]*v.x + A[1][1]*v.y;
-            v.x = x;
-        }
-        public void convertToBodyFrame(Space.Vector v) {convertToBodyFrame((Vector)v);}
-        public void convertToSpaceFrame(Space.Vector v) {convertToSpaceFrame((Vector)v);}
+          //x-rot
+          double theta = angle[0]*(Math.PI / 180);
+          double ct = Math.cos(theta);
+          double st = Math.sin(theta);
+          double Nyx = (double) (A[1][0] * ct + A[2][0] * st);
+          double Nyy = (double) (A[1][1] * ct + A[2][1] * st);
+          double Nyz = (double) (A[1][2] * ct + A[2][2] * st);
+          double Nzx = (double) (A[2][0] * ct - A[1][0] * st);
+          double Nzy = (double) (A[2][1] * ct - A[1][1] * st);
+          double Nzz = (double) (A[2][2] * ct - A[1][2] * st);
+          A[1][0] = Nyx;
+          A[1][1] = Nyy;
+          A[1][2] = Nyz;
+          A[2][0] = Nzx;
+          A[2][1] = Nzy;
+          A[2][2] = Nzz;
+          //y-rot
+          theta = angle[1]*(Math.PI / 180);
+          ct = Math.cos(theta);
+          st = Math.sin(theta);
+          double Nxx = (double) (A[0][0] * ct + A[2][0] * st);
+          double Nxy = (double) (A[0][1] * ct + A[2][1] * st);
+          double Nxz = (double) (A[0][2] * ct + A[2][2] * st);
+          Nzx = (double) (A[2][0] * ct - A[0][0] * st);
+          Nzy = (double) (A[2][1] * ct - A[0][1] * st);
+          Nzz = (double) (A[2][2] * ct - A[0][2] * st);
+          A[0][0] = Nxx;
+          A[0][1] = Nxy;
+          A[0][2] = Nxz;
+          A[2][0] = Nzx;
+          A[2][1] = Nzy;
+          A[2][2] = Nzz;
+          //z-rot
+          theta = angle[2]*(Math.PI / 180);
+          ct = Math.cos(theta);
+          st = Math.sin(theta);
+          Nyx = (double) (A[1][0] * ct + A[0][0] * st);
+          Nyy = (double) (A[1][1] * ct + A[0][1] * st);
+          Nyz = (double) (A[1][2] * ct + A[0][2] * st);
+          Nxx = (double) (A[0][0] * ct - A[1][0] * st);
+          Nxy = (double) (A[0][1] * ct - A[1][1] * st);
+          Nxz = (double) (A[0][2] * ct - A[1][2] * st);
+          A[1][0] = Nyx;
+          A[1][1] = Nyy;
+          A[1][2] = Nyz;
+          A[0][0] = Nxx;
+          A[0][1] = Nxy;
+          A[0][2] = Nxz;
+          bodyFrame[0].E(A[0]);
+          bodyFrame[1].E(A[1]);
+          bodyFrame[2].E(A[2]);
+          needToUpdateA = false;
+         }
+      //   public double[][] rotationMatrix() {return A;}
+         public void convertToBodyFrame(Vector v) {
+             if(needToUpdateA) updateRotationMatrix();
+            v.x = A[0][0]*v.x + A[0][1]*v.y + A[0][2]*v.z;
+            v.y = A[1][0]*v.x + A[1][1]*v.y + A[1][2]*v.z;
+            v.z = A[2][0]*v.x + A[2][1]*v.y + A[2][2]*v.z;
+         }
+         public void convertToSpaceFrame(Vector v) {
+             if(needToUpdateA) updateRotationMatrix();
+            v.x = A[0][0]*v.x + A[1][0]*v.y + A[2][0]*v.z;
+            v.y = A[0][1]*v.x + A[1][1]*v.y + A[2][1]*v.z;
+            v.z = A[0][2]*v.x + A[1][2]*v.y + A[2][2]*v.z;
+         }
+         public void convertToBodyFrame(Space.Vector v) {convertToBodyFrame((Vector)v);}
+         public void convertToSpaceFrame(Space.Vector v) {convertToSpaceFrame((Vector)v);}
     }
 
     /*public static class Orientation extends Space.Orientation {
@@ -538,7 +626,6 @@ public class Space3D extends Space implements EtomicaElement {
     
     public static final class BoundaryNone extends Boundary {
         private final Vector temp = new Vector();
-        private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public BoundaryNone() {super();}
@@ -552,7 +639,7 @@ public class Space3D extends Space implements EtomicaElement {
         public double volume() {return Double.MAX_VALUE;}
         public void inflate(double s) {}
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
-        public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
         public Space.Vector randomPosition() {
             temp.x = Simulation.random.nextDouble();
             temp.y = Simulation.random.nextDouble();
@@ -565,9 +652,6 @@ public class Space3D extends Space implements EtomicaElement {
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
         private final Vector temp = new Vector();
         private static Space.Tensor zilch = new Tensor();
-        private double[][] shift0 = new double[0][D];
-        private double[][] shift1 = new double[1][D];
-        private double[][] shift3 = new double[3][D];
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p, double lx, double ly, double lz) {super(p);dimensions.x=lx; dimensions.y=ly; dimensions.z=lz;}
@@ -608,13 +692,15 @@ public class Space3D extends Space implements EtomicaElement {
          * even completed.  They should definitely be checked before being implemented.
          */
         
+        int shellFormula, nImages, i, j, k, m;
+        double[][] origins;
         public double[][] imageOrigins(int nShells) {
-            int nImages = (2*nShells+1)*(2*nShells+1)-1;
-            double[][] origins = new double[nImages][D];
-            int k = 0;
-            for (int i=-nShells; i<=nShells; i++) {
-                for (int j=-nShells; j<=nShells; j++) {
-                    for (int m=-nShells; m<=nShells; m++) {
+            shellFormula = (2 * nShells) + 1;
+            nImages = shellFormula*shellFormula*shellFormula-1;
+            origins = new double[nImages][D];
+            for (k=0,i=-nShells; i<=nShells; i++) {
+                for (j=-nShells; j<=nShells; j++) {
+                    for (m=-nShells; m<=nShells; m++) {
                         if ((i==0 && j==0) && m==0 ) {continue;}
                         origins[k][0] = i*dimensions.x;
                         origins[k][1] = j*dimensions.y;
@@ -627,43 +713,69 @@ public class Space3D extends Space implements EtomicaElement {
         }
         
         
-        //this was copied directly from space2d just to have something here.  needs to be changed to work in 3d.
-        public double[][] getOverflowShifts(Space.Vector rr, double distance) {
-            Vector r = (Vector)rr;
-            int shiftX = 0;
-            int shiftY = 0;
+        //getOverflowShifts ends up being called by the display routines quite often
+        //so, in the interest of speed, i moved these outside of the function;
+        int shiftX, shiftY, shiftZ;
+        Vector r;
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {
+            shiftX = 0; shiftY = 0; shiftZ = 0;
+            r = (Vector)rr;
+            
             if(r.x-distance < 0.0) {shiftX = +1;}
             else if(r.x+distance > dimensions.x) {shiftX = -1;}
             
             if(r.y-distance < 0.0) {shiftY = +1;}
             else if(r.y+distance > dimensions.y) {shiftY = -1;}
             
-            if(shiftX == 0) {
-                if(shiftY == 0) {
-                    return shift0;
-                }
-                else {
-                    shift1[0][0] = 0.0;
-                    shift1[0][1] = shiftY*dimensions.y;
-                    return shift1;
-                }
+            if(r.z-distance < 0.0) {shiftZ = +1;}
+            else if(r.z+distance > dimensions.z) {shiftZ = -1;}
+              
+            if((shiftX == 0) && (shiftY == 0) && (shiftZ == 0)) {
+              shift = shift0;
+            } else if((shiftX != 0) && (shiftY == 0) && (shiftZ == 0)) {
+              shift = new float[1][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+            } else if((shiftX == 0) && (shiftY != 0) && (shiftZ == 0)) {
+              shift = new float[1][D];
+              shift[0][1] = (float)(shiftY*dimensions.y);
+            } else if((shiftX == 0) && (shiftY == 0) && (shiftZ != 0)) {
+              shift = new float[1][D];
+              shift[0][2] = (float)(shiftZ*dimensions.z);
+            } else if((shiftX != 0) && (shiftY != 0) && (shiftZ == 0)) {
+              shift = new float[3][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][1] = (float)(shiftY*dimensions.y);
+              shift[2][0] = shift[0][0];
+              shift[2][1] = shift[1][1];
+            } else if((shiftX != 0) && (shiftY == 0) && (shiftZ != 0)) {
+              shift = new float[3][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][2] = (float)(shiftZ*dimensions.z);
+              shift[2][0] = shift[0][0];
+              shift[2][2] = shift[1][2];
+            } else if((shiftX == 0) && (shiftY != 0) && (shiftZ != 0)) {
+              shift = new float[3][D];
+              shift[0][1] = (float)(shiftY*dimensions.y);
+              shift[1][2] = (float)(shiftZ*dimensions.z);
+              shift[2][1] = shift[0][1];
+              shift[2][2] = shift[1][2];
+            } else if((shiftX != 0) && (shiftY != 0) && (shiftZ != 0)) {
+              shift = new float[7][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][1] = (float)(shiftY*dimensions.y);
+              shift[2][2] = (float)(shiftZ*dimensions.z);
+              shift[3][0] = shift[0][0];
+              shift[3][1] = shift[1][1];
+              shift[4][1] = shift[1][1];
+              shift[4][2] = shift[2][2];
+              shift[5][0] = shift[0][0];
+              shift[5][2] = shift[2][2];
+              shift[6][0] = shift[0][0];
+              shift[6][1] = shift[1][1];
+              shift[6][2] = shift[2][2];
             }
-            else { //shiftX != 0
-                if(shiftY == 0) {
-                    shift1[0][0] = shiftX*dimensions.x;
-                    shift1[0][1] = 0.0;
-                    return shift1;
-                }
-                else {
-                    shift3[0][0] = shiftX*dimensions.x;
-                    shift3[0][1] = 0.0;
-                    shift3[1][0] = 0.0;
-                    shift3[1][1] = shiftY*dimensions.y;
-                    shift3[2][0] = shift3[0][0];
-                    shift3[2][1] = shift3[1][1];
-                    return shift3;
-                }
-            }
+            
+            return(shift);
         }
     }
     

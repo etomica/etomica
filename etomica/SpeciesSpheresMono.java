@@ -15,11 +15,11 @@ import etomica.units.Dimension;
 public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     private double mass;
-    public AtomType.Disk protoType;
+    public AtomType.Sphere protoType;
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Simulation sim) {
         AtomFactoryMono f = new AtomFactoryMono(sim);
-        AtomType type = new AtomType.Disk(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
         return f;
     }
@@ -35,7 +35,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     }
     public SpeciesSpheresMono(Simulation sim, int nM) {
         super(sim, makeFactory(sim));
-        protoType = (AtomType.Disk)((AtomFactoryMono)factory).type();
+        protoType = (AtomType.Sphere)((AtomFactoryMono)factory).type();
         nMolecules = nM;
     }
     
@@ -65,9 +65,9 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
 /*    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,3);
-	    SpeciesSpheresMono speciesDisks2 = new SpeciesSpheresMono(3);
-	    speciesDisks2.setColor(java.awt.Color.red);
+	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(10,3);
+	    SpeciesSpheresMono speciesSpheres2 = new SpeciesSpheresMono(3);
+	    speciesSpheres2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    P2HardSphere potential2 = new P2HardSphere();
@@ -87,18 +87,18 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
     //    potentialAgent.setIterator(new AtomPairIterator(phase));
         potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
+                speciesSpheres1.getAgent(phase).makeLeafAtomIterator(),
+                speciesSpheres2.getAgent(phase).makeLeafAtomIterator()));
                 
         potentialAgent = (Potential2.Agent)potential2.getAgent(phase);
         potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
+                speciesSpheres2.getAgent(phase).makeLeafAtomIterator(),
+                speciesSpheres2.getAgent(phase).makeLeafAtomIterator()));
                 
         potentialAgent = (Potential2.Agent)potential0.getAgent(phase);
         potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator()));
+                speciesSpheres1.getAgent(phase).makeLeafAtomIterator(),
+                speciesSpheres1.getAgent(phase).makeLeafAtomIterator()));
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
 	}//end of main

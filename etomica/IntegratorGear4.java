@@ -206,8 +206,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     public static void main(String[] args) {
         
 	    IntegratorGear4 integratorGear4 = new IntegratorGear4();
-	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres();
-//	    speciesDisks1.setMass(1.0);
+	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres();
+//	    speciesSpheres1.setMass(1.0);
 	    Phase phase1 = new Phase();
 	    P2LennardJones P2LennardJones1 = new P2LennardJones();
 	    Controller controller1 = new Controller();
@@ -241,7 +241,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 		Simulation.instance.elementCoordinator.go();
 
    //     P2LennardJones1.setIterator(new AtomPairIterator(phase));
-   //     P2LennardJones1.set(speciesDisks1.getAgent(phase));
+   //     P2LennardJones1.set(speciesSpheres1.getAgent(phase));
 				
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main

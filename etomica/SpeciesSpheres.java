@@ -4,19 +4,19 @@ import etomica.units.Dimension;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
- * with each disk having the same mass and size (same type).
+ * with each sphere having the same mass and size (same type).
  * 
  * @author David Kofke
  */
 public class SpeciesSpheres extends Species implements EtomicaElement {
 
     private double mass;
-    public AtomType.Disk protoType;
+    public AtomType.Sphere protoType;
     
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryHomo makeFactory(Simulation sim, int na, BondInitializer bondInit, Configuration config) {
         AtomFactoryMono f = new AtomFactoryMono(sim);
-        AtomType type = new AtomType.Disk(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
         AtomFactoryHomo fm = new AtomFactoryHomo(sim,f, na, bondInit, config);
         return fm;
@@ -43,7 +43,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     }
     public SpeciesSpheres(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
         super(sim, makeFactory(sim, nA, bondInitializer, config));
-        protoType = (AtomType.Disk)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
+        protoType = (AtomType.Sphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
     }
     
@@ -73,9 +73,9 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
-	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres(10,6);//10 molecules, 3 atoms per molecule
-	    SpeciesSpheres speciesDisks2 = new SpeciesSpheres(3);
-	    speciesDisks2.setColor(java.awt.Color.red);
+	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(10,6);//10 molecules, 3 atoms per molecule
+	    SpeciesSpheres speciesSpheres2 = new SpeciesSpheres(3);
+	    speciesSpheres2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    P2HardSphere potential2 = new P2HardSphere();
@@ -103,10 +103,10 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-		potential.setSpecies(speciesDisks1, speciesDisks2);
-        potential2.setSpecies(speciesDisks2, speciesDisks2);
-        potential0.setSpecies(speciesDisks1, speciesDisks1); 
-        potential3.setSpecies(speciesDisks1);
+		potential.setSpecies(speciesSpheres1, speciesSpheres2);
+        potential2.setSpecies(speciesSpheres2, speciesSpheres2);
+        potential0.setSpecies(speciesSpheres1, speciesSpheres1); 
+        potential3.setSpecies(speciesSpheres1);
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
 	}//end of main

@@ -1,4 +1,5 @@
 package etomica;
+import etomica.units.Dimension;
 
 /**
  * The SpeciesAgent is a representative of the species in each phase.
@@ -118,6 +119,9 @@ public final class SpeciesAgent extends AtomGroup {
         unpauseIntegrator(wasPaused);
     }
     
+    public int getNMolecules() {return moleculeCount();}
+    public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
+
     private boolean pauseIntegrator() {
         Phase phase = parentPhase();
         integrator = (phase != null) ? phase.integrator() : null;

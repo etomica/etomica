@@ -75,12 +75,12 @@ public class MCMoveRotate extends MCMove {
 	    plot1.setWhichValue(MeterAbstract.AVERAGE);
         integratorMC1.setTemperature(Default.TEMPERATURE);  
 
-	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(80);
-	  //  SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(200);
-	    speciesDisks1.setDiameter(1.2);
+	    SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(80);
+	  //  SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(200);
+	    speciesSpheres1.setDiameter(1.2);
 	    
 	    P2HardAssociationCone potential = new P2HardAssociationCone();
-	    potential.setWellCutoff(1.5*speciesDisks1.getDiameter());
+	    potential.setWellCutoff(1.5*speciesSpheres1.getDiameter());
 	    
 	    Controller controller1 = new Controller();
 	  

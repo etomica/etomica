@@ -52,36 +52,61 @@ public class Constants extends Object {
     }
     
     /**
-     * Typed constant for the compass directions NORTH, SOUTH, EAST, WEST.
+     * Typed constant for the compass directions TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK.
      * Used to express the orientation of an object.
      */
     public static class Direction extends TypedConstant {
         private Direction(String label) {super(label);}
         public static final Direction[] CHOICES = new Direction[] {
-            new Direction("North"),
-            new Direction("East"),
-            new Direction("South"),
-            new Direction("West")
+            new Direction("Top"),
+            new Direction("Bottom"),
+            new Direction("Left"),
+            new Direction("Right"),
+            new Direction("Front"),
+            new Direction("Back")
         };
         public final TypedConstant[] choices() {return CHOICES;}
     }//end of Direction
-    public static final Direction NORTH = Direction.CHOICES[0];
-    public static final Direction EAST = Direction.CHOICES[1];
-    public static final Direction SOUTH = Direction.CHOICES[2];
-    public static final Direction WEST = Direction.CHOICES[3];
+    public static final Direction TOP = Direction.CHOICES[0];
+    public static final Direction BOTTOM = Direction.CHOICES[1];
+    public static final Direction LEFT = Direction.CHOICES[2];
+    public static final Direction RIGHT = Direction.CHOICES[3];
+    public static final Direction FRONT = Direction.CHOICES[4];
+    public static final Direction BACK = Direction.CHOICES[5];
     
+    /**
+     * Typed constant for the compass directions NORTH, SOUTH, EAST, WEST.
+     * Used to express the orientation of an object.
+     */
+    public static class CompassDirection extends TypedConstant {
+        private CompassDirection(String label) {super(label);}
+        public static final CompassDirection[] CHOICES = new CompassDirection[] {
+            new CompassDirection("North"),
+            new CompassDirection("South"),
+            new CompassDirection("West"),
+            new CompassDirection("East"),
+        };
+        public final TypedConstant[] choices() {return CHOICES;}
+    }//end of CompassDirection
+    public static final CompassDirection NORTH = CompassDirection.CHOICES[0];
+    public static final CompassDirection SOUTH = CompassDirection.CHOICES[1];
+    public static final CompassDirection WEST = CompassDirection.CHOICES[2];
+    public static final CompassDirection EAST = CompassDirection.CHOICES[3];
     /**
      * Typed constant for specifying HORIZONTAL/VERTICAL alignment.
      */
     public static class Alignment extends TypedConstant {
         private Alignment(String label) {super(label);}
         public static final Alignment[] CHOICES = new Alignment[] {
-            new Alignment("Horizontal"),
-            new Alignment("Vertical")};
+            new Alignment("Horizontal (X Plane)"),
+            new Alignment("Vertical (Y Plane)"),
+            new Alignment("Width (Z Plane)")
+        };
         public final TypedConstant[] choices() {return CHOICES;}
     }
     public static final Alignment HORIZONTAL = Alignment.CHOICES[0];
     public static final Alignment VERTICAL = Alignment.CHOICES[1];
+    public static final Alignment WIDTH = Alignment.CHOICES[2];
 }
     
     

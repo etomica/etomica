@@ -2,15 +2,16 @@
 package etomica;
 
 import etomica.units.*;
-import javax.swing.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.InputEvent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
  * Value is obtained from an associated DatumSource.
  * A label and unit is associated with the value.
+ *
+ * @author David Kofke
  */
  
 public class DisplayBox extends Display implements Dimensioned, DatumSource.User, EtomicaElement {
@@ -20,7 +21,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      * Descriptive text label to be displayed with the value
      */
     protected JLabel label;
-    private Constants.Direction labelPosition = Constants.NORTH;
+    private Constants.CompassDirection labelPosition = Constants.NORTH;
     /**
      * Object for displaying the value as a text field
      */
@@ -182,7 +183,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         return labelType;
     }
 
-    public void setLabelPosition(Constants.Direction position) {
+    public void setLabelPosition(Constants.CompassDirection position) {
         labelPosition = position;
         if(labelType != STRING) return;
         panel.remove(label);
@@ -192,7 +193,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         panel.repaint();
     }
     
-    public Constants.Direction getLabelPosition() {return labelPosition;}
+    public Constants.CompassDirection getLabelPosition() {return labelPosition;}
     /**
      * Sets the display text to reflect the desired value from the meter.
      */
@@ -233,7 +234,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
 
         Simulation sim = Simulation.instance;
 	    IntegratorHard integrator = new IntegratorHard();
-	    Species species = new SpeciesDisks();
+	    Species species = new SpeciesSpheres();
 	    species.setNMolecules(25);
 	    Phase phase = new Phase();
 	    Controller controller = new Controller();

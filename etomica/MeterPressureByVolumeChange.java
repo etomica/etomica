@@ -139,8 +139,8 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
 	    meterp.setActive(true);
         plot1.setDataSources(meterp);
 	    plot1.setWhichValue(MeterAbstract.AVERAGE);
-	    SpeciesDisks speciesDisk1 = new SpeciesDisks();
-	    speciesDisk1.setNMolecules(200);
+	    SpeciesSpheres speciesSphere1 = new SpeciesSpheres();
+	    speciesSphere1.setNMolecules(200);
 	    PotentialLJ potentialLJ = new PotentialLJ();
 	    P2SimpleWrapper potential = new P2SimpleWrapper(potentialLJ);
 	    

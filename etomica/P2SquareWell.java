@@ -3,7 +3,7 @@ import etomica.units.Dimension;
 
 /**
  * Basic square-well potential.
- * Energy is infinite if disks overlap, is -epsilon if less than lambda*sigma and not overlapping,
+ * Energy is infinite if spheres overlap, is -epsilon if less than lambda*sigma and not overlapping,
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
  */
