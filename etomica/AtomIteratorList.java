@@ -133,7 +133,7 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
     /**
      * @return the current setting for the iteration direction.
      */
-    public IteratorDirective.Direction getIterationDirection() {
+    public IteratorDirective.Direction getDirection() {
     	return upList ? IteratorDirective.UP : IteratorDirective.DOWN;
     }
     
