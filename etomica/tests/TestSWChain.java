@@ -129,7 +129,8 @@ public class TestSWChain extends Simulation {
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
         double temp = sim.integrator.temperature();
-        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/(temp*temp*numMolecules);
+        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/temp;
+        Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(Z-4.5) > 1.5) {
@@ -138,7 +139,8 @@ public class TestSWChain extends Simulation {
         if (Math.abs(PE+19.32) > 0.12) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.05) > 0.05) {
+        // actual value ~2
+        if (Cv < 0.5 || Cv > 4.5) {
             System.exit(1);
         }
     }
