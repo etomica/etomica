@@ -108,13 +108,13 @@ public final class Default {
      */
     public static int BLOCK_SIZE = 1000;
  
-    private static String getWorkingDirectory(){
+/*    private static String getWorkingDirectory(){
         String dir = System.getProperty("user.dir");
         System.out.println("working directory, in Default: "+dir);
         if(dir.indexOf("VisualCafe") != -1) return "D:\\etomica";
         dir = dir.replace('\\', '/');
         return dir+"/";
-    }
+    }*/
     
     public static final Parameter.Size SIZE_PARAMETER = new Parameter.Size() {
         double sigma = Default.ATOM_SIZE;
