@@ -319,6 +319,10 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     public void start() {
         if(running) return;
         running = true;
+        if (!Debug.ON)
+        	Debug.DEBUG_NOW = false;
+        else
+        	Debug.setAtoms(firstPhase);
         fireIntervalEvent(new IntervalEvent(this, IntervalEvent.START));
         haltRequested = false;
 //        isPaused = false;
@@ -340,6 +344,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
         running = true;
         stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
+        long startTime = System.currentTimeMillis();
         while(stepCount < maxSteps) {
         	if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
         	if (Debug.ON && stepCount == Debug.STOP) halt();
@@ -358,6 +363,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
             }
             stepCount++;
         }//end of while loop
+        System.out.println("total time "+(System.currentTimeMillis()-startTime)/1000);
         initialized = false;
         running = false;
         fireIntervalEvent(new IntervalEvent(this, IntervalEvent.DONE));

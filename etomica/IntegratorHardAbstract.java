@@ -78,25 +78,11 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         		System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+(timeStep-interval+collisionTimeStep));
         	}
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
-        	if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1_INDEX > -1 && Debug.ATOM2_INDEX > -1) {
-        		Atom atom1 = firstPhase.molecule(Debug.ATOM1_INDEX);
-        		Atom atom2 = firstPhase.molecule(Debug.ATOM2_INDEX);
-        		cPairDebug = space.makeCoordinatePair();
-        		cPairDebug.setBoundary(firstPhase.getBoundary());
-        		cPairDebug.reset(atom1.coord, atom2.coord);
-        		double r2 = cPairDebug.r2();
-        		//XXX What's the pair hard-core diameter?  Elephino!  Could check energy instead.  fun.
-        		if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-        			System.out.println("squared distance between "+atom1+" and "+atom2+" is "+Math.sqrt(r2));
-            		if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-            			System.out.println(atom1+" coordinates "+atom1.coord.position());
-            			System.out.println(atom2+" coordinates "+atom2.coord.position());
-            		}
-        			if (Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-        				throw new RuntimeException("overlap");
-        			}
-        		}
-        	}
+    		if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null && Debug.ATOM2 != null) {
+    			cPairDebug = space.makeCoordinatePair();
+    			cPairDebug.setBoundary(firstPhase.getBoundary());
+    			Debug.checkAtoms(cPairDebug);
+    		}
 			if (colliderAgent.collisionPotential != null) {
 				((PotentialHard)colliderAgent.collisionPotential).bump(atoms);
 			}

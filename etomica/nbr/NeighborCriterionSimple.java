@@ -1,6 +1,7 @@
 package etomica.nbr;
 
 import etomica.Atom;
+import etomica.Debug;
 import etomica.Phase;
 import etomica.Space;
 
@@ -45,6 +46,11 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	
 	public boolean needUpdate(Atom atom) {
 		r2 = atom.coord.position().Mv1Squared((Space.Vector)atom.allatomAgents[agentIndex]);
+		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
+			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
+			System.out.println("old position "+(Space.Vector)atom.allatomAgents[agentIndex]);
+			System.out.println("new position "+atom.coord.position());
+		}
 		return r2 > displacementLimit2;
 	}
 
@@ -53,11 +59,18 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean unsafe() {
+		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
+			System.out.println("some atom exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
+		}
 		return r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
 
 	public boolean accept(Atom[] a) {
 		cPair.reset(a[0].coord,a[1].coord);
+		if (Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
+			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) 
+				System.out.println("Atom "+a[0]+" and "+a[1]+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
+		}
 		return cPair.r2() < neighborRadius2;
 	}
 	
