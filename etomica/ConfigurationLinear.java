@@ -20,8 +20,7 @@ public class ConfigurationLinear extends Configuration {
     	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
     public ConfigurationLinear(Space space, double bondLength, double[] initAngles) {
-        super();
-        this.space = space;
+        super(space);
         this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];

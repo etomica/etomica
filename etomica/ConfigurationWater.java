@@ -7,7 +7,7 @@ public class ConfigurationWater extends Configuration {
     private double angleHOH = 109.5*Math.PI/180.;
 
     public ConfigurationWater(Space space) {
-        super();
+        super(space);
     }
     
     public void initializePositions(AtomIterator[] iterators){
