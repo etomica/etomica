@@ -141,7 +141,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
     public void setMoleculePositionDefintion(AtomPositionDefinition positionDefinition) {
         moleculePosition = positionDefinition;
     }
-    public void getMoleculePositionDefintion() {
+    public AtomPositionDefinition getMoleculePositionDefintion() {
         return moleculePosition;
     }
     
