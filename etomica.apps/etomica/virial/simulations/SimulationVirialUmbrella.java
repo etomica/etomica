@@ -5,16 +5,12 @@ import etomica.Space;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
-import etomica.virial.Cluster;
-import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWeightUmbrella;
+import etomica.virial.MayerE;
+import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.cluster.D4;
-import etomica.virial.cluster.D5;
-import etomica.virial.cluster.D6;
-import etomica.virial.cluster.Full;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -23,12 +19,12 @@ import etomica.virial.cluster.Standard;
  */
 public class SimulationVirialUmbrella extends SimulationVirial {
 
-	public SimulationVirialUmbrella(Space aSpace, double temperature, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+	public SimulationVirialUmbrella(Space aSpace, double temperature, ClusterSum refCluster, ClusterSum[] targetClusters) {
 		super(aSpace,temperature, makeUmbrellaCluster(refCluster,targetClusters),refCluster,targetClusters);
 	}
 	
-    private static ClusterWeightUmbrella makeUmbrellaCluster(ClusterAbstract refSampleCluster, ClusterAbstract[] targetSampleClusters) {
-        ClusterAbstract[] allSampleClusters = new ClusterAbstract[targetSampleClusters.length+1];
+    private static ClusterWeightUmbrella makeUmbrellaCluster(ClusterSum refSampleCluster, ClusterSum[] targetSampleClusters) {
+        ClusterSum[] allSampleClusters = new ClusterSum[targetSampleClusters.length+1];
         allSampleClusters[0] = refSampleCluster;
         System.arraycopy(targetSampleClusters,0,allSampleClusters,1,targetSampleClusters.length);
         return new ClusterWeightUmbrella(allSampleClusters);
@@ -38,7 +34,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 		Default.makeLJDefaults();
 		Default.TRUNCATE_POTENTIALS = false;
 
-		final int nPoints = 3;
+		final int nPoints = 5;
         double temperature = 1.3;
         double sigmaHSRef = 1.0;
         double b0 = Standard.B2HS(sigmaHSRef);
@@ -52,19 +48,15 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 		
 		Space3D space = new Space3D();
 		
-		final MayerHardSphere fRef = new MayerHardSphere(1.0);
-		final MayerGeneral fTarget = new MayerGeneral(new P2LennardJones(space,1.0,1.0,null));
-		
-		final ClusterAbstract refCluster, targetCluster;
-		if (nPoints < 4) {
-			refCluster = new Full(nPoints, fRef);
-            targetCluster = new Full(nPoints, fTarget);
-		}
-		else if (nPoints == 4) {
-			refCluster = new ClusterSum(new Cluster[] {new D4(fRef), new D5(fRef), new D6(fRef)}, new double[]{-3./8.,-3./4.,-1./8.});
-            targetCluster = new ClusterSum(new Cluster[] {new D4(fTarget), new D5(fTarget), new D6(fTarget)}, new double[]{-3./8.,-3./4.,-1./8.});
-		}
-		else throw new RuntimeException("I don't know how to do clusters with more than 4 points!");
+        MayerHardSphere fRef = new MayerHardSphere(1.0);
+        MayerEHardSphere eRef = new MayerEHardSphere(1.0);
+        P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0,null);
+        System.out.println("LJ sampling");
+        MayerGeneral fTarget = new MayerGeneral(p2LJ);
+        MayerE eTarget = new MayerE(p2LJ);
+        
+        ClusterSum refCluster = Standard.virialCluster(nPoints, fRef, true, eRef);
+        ClusterSum targetCluster = Standard.virialCluster(nPoints, fTarget, true, eTarget);
 		System.out.println("B"+nPoints);
 
         double weightRatio = 2;
@@ -73,7 +65,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 
 		while (true) {
 			SimulationVirialUmbrella sim = new SimulationVirialUmbrella(space, temperature, refCluster, 
-					new ClusterAbstract[]{targetCluster});
+					new ClusterSum[]{targetCluster});
 			((ClusterWeightUmbrella)sim.sampleCluster).setWeightRatio(new double[] {1.0,weightRatio});
 			sim.ai.setMaxSteps(steps);
 			sim.ai.run();
