@@ -62,7 +62,7 @@ public static final class IntragroupIterator implements AtomIterator {
         return reset(id.atom1());
     }
     
-    //we assume that the only Index links in the list are those demarking
+    //we assume that the only Tab links in the list are those demarking
     //the beginning of each cell's sequence; thus we reset the list iterator
     //using null as the terminator
     
@@ -279,7 +279,7 @@ private static final class AtomCellFactory implements SiteFactory {
 private static final class AtomCell extends AbstractCell {
     public Space.Vector position;
     AbstractCell cell;
-    private AtomLinker.Index[] firstIndex, lastIndex;
+    private AtomLinker.Tab[] firstTab, lastTab;
     public AtomCell(Lattice parent, AbstractCell cell) {
         super(parent, (AbstractLattice.PositionCoordinate)cell.coordinate());
         this.cell = cell;
@@ -290,8 +290,8 @@ private static final class AtomCell extends AbstractCell {
     public int D() {return cell.D();}
     public Space.Vector[] vertex() {return cell.vertex();}
     public double volume() {return cell.volume();}
-    public AtomLinker.Index first(int speciesIndex) {return firstIndex[speciesIndex];}
-    public AtomLinker.Index last(int speciesIndex) {return lastIndex[speciesIndex];}
+    public AtomLinker.Tab first(int speciesIndex) {return firstTab[speciesIndex];}
+    public AtomLinker.Tab last(int speciesIndex) {return lastTab[speciesIndex];}
 }//end of AtomCell
 
    

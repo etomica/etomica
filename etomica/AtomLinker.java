@@ -22,8 +22,8 @@ public class AtomLinker implements java.io.Serializable {
         return new AtomLinker(a);
     }
     
-    public static class Index extends AtomLinker {
-        public Index() {
+    public static class Tab extends AtomLinker {
+        public Tab() {
             super(null);
         }
     }

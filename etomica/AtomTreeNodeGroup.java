@@ -186,14 +186,15 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         //set up links within this group
         aNew.node.setParentGroup((AtomGroup)atom);
         aNew.node.setDepth(depth+1);
-        childList.add(aNew.seq);
         
         if(childAtomCount() > 0) { //siblings
             aNew.node.setIndex(lastChildAtom().node.index()+1);
         }
         else {  //only child
             aNew.node.setIndex(0);
-        }   
+        }  
+        
+        childList.add(aNew.seq);
         
         //set up leaf links
 /*        if(aNew instanceof AtomGroup) {

@@ -49,6 +49,7 @@ public final class Phase extends SimulationElement {
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
     
+    
     public Phase() {
         this(Simulation.instance);
     }

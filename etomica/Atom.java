@@ -18,7 +18,7 @@ public class Atom implements java.io.Serializable {
     public static String getVersion() {return "Atom:01.08.08";}
     
     public Atom(Space space, AtomType type) {
-        this(space, type, AtomTreeNodeGroup.FACTORY, null);
+        this(space, type, AtomTreeNodeGroup.FACTORY);
     }
     public Atom(Space space, AtomType type, 
                     AtomTreeNode.Factory nodeFactory) {
@@ -64,7 +64,7 @@ public class Atom implements java.io.Serializable {
      */
     public final Space.Coordinate coord;
             
-    public String signature() {return node.index() + " " + node.parentGroup().signature();}
+    public String signature() {return node.parentGroup().signature() + " " + node.index();}
     public final String toString() {return "Atom(" + signature() + ")";}
         
 

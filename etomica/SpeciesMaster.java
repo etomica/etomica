@@ -14,6 +14,15 @@ public final class SpeciesMaster extends AtomGroup {
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
     public int index;
     
+    /**
+     * List of leaf atoms in phase, suitable for iteration via an AtomIteratorList.
+     */
+    public final AtomList atomList = new AtomList();
+    /**
+     * List of molecules in phase, suitable for iteration via an AtomIteratorList..
+     */
+    public final AtomList moleculeList = new AtomList();
+
     public SpeciesMaster(Phase p) {
         super(p.parentSimulation().space(), AtomType.NULL, new NodeFactory(p));
         index = p.index;
@@ -58,13 +67,20 @@ public final class SpeciesMaster extends AtomGroup {
             depth = 0;
         }
         public Phase parentPhase() {return parentPhase;}
-        public Species parentSpecies() {return null;} //never called
-        public SpeciesAgent parentSpeciesAgent() {return null;}//never called
+        
+        public Species parentSpecies() {
+            throw new RuntimeException("Error:  Unexpected call to parentSpecies in SpeciesMaster");
+        }
+        public SpeciesAgent parentSpeciesAgent() {
+            throw new RuntimeException("Error:  Unexpected call to parentSpeciesAgent in SpeciesMaster");
+        }
         public Simulation parentSimulation() {return parentPhase.parentSimulation();}
         /**
-        * Returns null, since a species master is not contained within a molecule.
+        * Returns null, because a species master is not contained within a molecule.
         */
-        public final Atom parentMolecule() {return null;}
+        public final Atom parentMolecule() {
+            throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesMaster");
+        }
         
         public void addAtomNotify(Atom atom) {
             if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount++;}

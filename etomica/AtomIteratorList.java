@@ -11,10 +11,10 @@ package etomica;
 public final class AtomIteratorList implements AtomIterator {
     
 	private AtomLinker next, start;
-	private AtomLinker.Index header, terminator;
+	private AtomLinker.Tab header, terminator;
     private AtomList list;
     protected boolean upListNow, doGoDown;
-    private final AtomLinker.Index nullLinker = new AtomLinker.Index();
+    private final AtomLinker.Tab nullLinker = new AtomLinker.Tab();
         
 	public AtomIteratorList() {
 	    this(AtomList.NULL);
@@ -41,7 +41,7 @@ public final class AtomIteratorList implements AtomIterator {
         this.list = list;
         if(list == null) {next = header = nullLinker; return;}
         header = list.header;
-        reset();
+        terminator = header;
     }
     public Atom getBasis(){return null;}//no implementation
 
@@ -86,12 +86,12 @@ public final class AtomIteratorList implements AtomIterator {
      * If first is an index, iterator is advanced to begin with the
      * next atom entry.
      */
-    public Atom reset(AtomLinker first, AtomLinker.Index last) {
+    public Atom reset(AtomLinker first, AtomLinker.Tab last) {
         return reset(first, last, IteratorDirective.UP);
     }
     
-    //if last == null, iterate until first Index is encountered
-    public Atom reset(AtomLinker first, AtomLinker.Index last, IteratorDirective.Direction direction) {
+    //if last == null, iterate until first Tab is encountered
+    public Atom reset(AtomLinker first, AtomLinker.Tab last, IteratorDirective.Direction direction) {
         if(first == header || first == null) {
             next = header;
             return null;
@@ -163,8 +163,8 @@ public final class AtomIteratorList implements AtomIterator {
         AtomLinker nextLinker = next;
         next = upListNow ? next.next : next.previous;
         while(next.atom == null) {
-            //if terminator is null we stop at the first encounter of an Index linker
-            //otherwise stop only if Index linker is the specified terminator
+            //if terminator is null we stop at the first encounter of a Tab linker
+            //otherwise stop only if Tab linker is the specified terminator
             if(terminator == null || next == terminator) break;
             else next = upListNow ? next.next : next.previous;
         }

@@ -52,7 +52,7 @@ import java.util.*;
 
 public class AtomList implements java.io.Serializable
 {
-    public final AtomLinker.Index header = new AtomLinker.Index();//modification for index entry
+    public final AtomLinker.Tab header = new AtomLinker.Tab();//modification for tab entry
     private int size = 0;
     
     /**
@@ -346,12 +346,12 @@ public class AtomList implements java.io.Serializable
         if (index < size/2) {
             for (int i = 0; i <= index; i++) {
                 e = e.next;
-                if(e.atom == null) i--;//modification for index entry
+                if(e.atom == null) i--;//modification for tab entry
             }
         } else {
             for (int i = size; i > index; i--) {
                 e = e.previous;
-                if(e.atom == null) i++;//modification for index entry
+                if(e.atom == null) i++;//modification for tab entry
             }
         }
         return e;
@@ -365,7 +365,7 @@ public class AtomList implements java.io.Serializable
     public AtomLinker firstEntry() {
 	    if (size==0) return null;
 	    AtomLinker entry = header.next;
-	    while(entry.atom == null) entry = entry.next;//modification for index entry
+	    while(entry.atom == null) entry = entry.next;//modification for tab entry
 	    return entry;
     }
 
@@ -413,7 +413,7 @@ public class AtomList implements java.io.Serializable
         int index = 0;
         for (AtomLinker e = header.next; e != header; e = e.next) {
             if (o.equals(e.atom)) return index;
-            if(e.atom != null) index++;//modification for index entry
+            if(e.atom != null) index++;//modification for tab entry
         }
         return -1;
     }
@@ -434,7 +434,7 @@ public class AtomList implements java.io.Serializable
         if(atom == null) return -1;
         int index = size;
         for (AtomLinker e = header.previous; e != header; e = e.previous) {
-            if(e.atom != null) index--;//modification for index entry
+            if(e.atom != null) index--;//modification for tab entry
             if (atom.equals(e.atom))
                 return index;
         }
@@ -450,7 +450,7 @@ public class AtomList implements java.io.Serializable
 	    newAtomLinker.previous = e.previous;
 	    newAtomLinker.previous.next = newAtomLinker;
 	    e.previous = newAtomLinker;
-	    if(newAtomLinker.atom != null) size++;//modification for index entry
+	    if(newAtomLinker.atom != null) size++;//modification for tab entry
 	    return newAtomLinker;
     }
     
@@ -477,7 +477,7 @@ public class AtomList implements java.io.Serializable
     private void remove(AtomLinker e) {
 	    if (e.atom == null) {
 	        if(e == header) throw new NoSuchElementException();
-        } else {//modification for index entry
+        } else {//modification for tab entry
             size--;
         }
 	    e.previous.next = e.next;
@@ -495,7 +495,7 @@ public class AtomList implements java.io.Serializable
 	    Atom[] result = new Atom[size];
         int i = 0;
         for (AtomLinker e = header.next; e != header; e = e.next) 
-            if(e.atom != null) result[i++] = e.atom;//modification for index entry
+            if(e.atom != null) result[i++] = e.atom;//modification for tab entry
 	    return result;
     }
 
