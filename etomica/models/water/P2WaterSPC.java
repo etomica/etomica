@@ -2,18 +2,19 @@
 package etomica.models.water;
 
 import etomica.units.Electron;
+import etomica.units.Kelvin;
 import etomica.*;
 
-public class P2WaterVersion3 extends Potential2 implements Potential2.Soft {
+public class P2WaterSPC extends Potential2 implements Potential2.Soft {
 
-	public P2WaterVersion3(Simulation sim, double sigma, double epsilon, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
-		this(sim, sigma, epsilon, potentialTruncation);
+	public P2WaterSPC(Simulation sim, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+		this(sim, potentialTruncation);
 		this.boundary = boundary;
 	}
-	public P2WaterVersion3(Simulation sim, double sigma, double epsilon, PotentialTruncation potentialTruncation) {
+	public P2WaterSPC(Simulation sim, PotentialTruncation potentialTruncation) {
 		super(Simulation.instance.hamiltonian.potential);
-		setSigma(sigma);
-		setEpsilon(epsilon);
+		setSigma(3.1670);
+		setEpsilon(Kelvin.UNIT.toSim(78.23));
 		this.potentialTruncation = potentialTruncation;
 		this.space = (Space3D)sim.space();
 		work = (Space3D.Vector)space.makeVector();
@@ -23,20 +24,30 @@ public class P2WaterVersion3 extends Potential2 implements Potential2.Soft {
 		double distance  = pair.r2();
 		if(potentialTruncation.isZero(distance)) return 0.0;
 		else{
-			O1 = pair.atom1().node.firstLeafAtom();
-			H11 = O1.seq.next.atom;
-			H12 = pair.atom1().node.lastLeafAtom();
-            
-			O2 = pair.atom2().node.firstLeafAtom();
-			H21 = O2.seq.next.atom;
-			H22 = pair.atom2().node.lastLeafAtom();
+			AtomTreeNodeWater node1 = (AtomTreeNodeWater)pair.atom1().node;
+			AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair.atom2().node;
 			
-			Space3D.Vector O1r = (Space3D.Vector)O1.coord.position();
-			Space3D.Vector O2r = (Space3D.Vector)O2.coord.position();
-			Space3D.Vector H11r = (Space3D.Vector)H11.coord.position();
-			Space3D.Vector H12r = (Space3D.Vector)H12.coord.position();
-			Space3D.Vector H21r = (Space3D.Vector)H21.coord.position();
-			Space3D.Vector H22r = (Space3D.Vector)H22.coord.position();
+//			O = node1.O;
+//			H11 = node1.H1;
+//			H12 = node1.H2;
+//			
+//			O2 = node2.O;
+//			H21 = node2.H1;
+//			H22 = node2.H2;
+//			O1 = pair.atom1().node.firstLeafAtom();
+//			H11 = O1.seq.next.atom;
+//			H12 = pair.atom1().node.lastLeafAtom();
+//            
+//			O2 = pair.atom2().node.firstLeafAtom();
+//			H21 = O2.seq.next.atom;
+//			H22 = pair.atom2().node.lastLeafAtom();
+			
+			Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
+			Space3D.Vector O2r = (Space3D.Vector)node2.O.coord.position();
+			Space3D.Vector H11r = (Space3D.Vector)node1.H1.coord.position();
+			Space3D.Vector H12r = (Space3D.Vector)node1.H2.coord.position();
+			Space3D.Vector H21r = (Space3D.Vector)node2.H1.coord.position();
+			Space3D.Vector H22r = (Space3D.Vector)node2.H2.coord.position();
 
             
 			double sum = 0.0;
@@ -111,14 +122,14 @@ public class P2WaterVersion3 extends Potential2 implements Potential2.Soft {
     
 	public double getSigma() {return sigma;}
     
-	public final void setSigma(double s) {
+	private final void setSigma(double s) {
 		sigma = s;
 		sigma2 = s*s;
 	}
     
 	public double getEpsilon() {return epsilon;}
     
-	public final void setEpsilon(double eps) {
+	private final void setEpsilon(double eps) {
 		epsilon = eps;
 		epsilon4 = 4*epsilon;
 	}

@@ -28,8 +28,12 @@ public class AtomFactoryHomo extends AtomFactory {
 		this(sim, sequencerFactory, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim.space));
 	}
 	public AtomFactoryHomo(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory factory, 
-							int atoms, BondInitializer bondInit, Configuration config) {    
-		super(sim, sequencerFactory);
+							int atoms, BondInitializer bondInit, Configuration config) {
+		this(sim, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, bondInit, config);
+	}   
+	public AtomFactoryHomo(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory,
+							AtomFactory factory, int atoms, BondInitializer bondInit, Configuration config) {	
+		super(sim, sequencerFactory, nodeFactory);
 		init(factory, atoms, bondInit, config);
 	}
     /**
@@ -51,8 +55,12 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param config the configuration applied to each group that is built (default is Linear).
      */
     public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory, 
-                            int atoms, BondInitializer bondInit, Configuration config) {    
-        super(space, sequencerFactory);
+                            int atoms, BondInitializer bondInit, Configuration config) {  
+        this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, bondInit, config);
+    }
+    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory, 
+    						AtomFactory factory, int atoms, BondInitializer bondInit, Configuration config) {
+        super(space, sequencerFactory, nodeFactory);
         init(factory, atoms, bondInit, config);
     }
     

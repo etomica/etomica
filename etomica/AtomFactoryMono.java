@@ -5,9 +5,15 @@ package etomica;
  *
  * @author David Kofke
  */
+
+/* History
+ * 08/26/03 (DAK) removed override of build method, instead specifying
+ * AtomTreeNodeLeaf.FACTORY to superclass in constructor
+ * 
+ */
 public class AtomFactoryMono extends AtomFactory {
     
-    AtomType atomType;
+ //   AtomType atomType;
 //    private AtomSequencer.Factory seqFactory;
     
 	//each constructor has a version that takes a Simulation, and one that takes a Space.
@@ -21,11 +27,11 @@ public class AtomFactoryMono extends AtomFactory {
         this(sim, sim.iteratorFactory.neighborSequencerFactory());
     }
 	public AtomFactoryMono(Simulation sim, AtomSequencer.Factory seqFactory) {
-		super(sim, seqFactory);
+		super(sim, seqFactory, AtomTreeNodeLeaf.FACTORY);
 		init();
 	}
     public AtomFactoryMono(Space space, AtomSequencer.Factory seqFactory) {
-        super(space, seqFactory);
+        super(space, seqFactory, AtomTreeNodeLeaf.FACTORY);
         init();
     }
     
@@ -37,21 +43,24 @@ public class AtomFactoryMono extends AtomFactory {
 /*    public AtomFactoryMono(AtomType type) {
         atomType = type;
     }
-*/    
+*/ 
+
+///**
+// * Overrides parent class method and builds a single atom.
+// */
+//	protected Atom build(AtomTreeNodeGroup parent) {
+//		return new Atom(space, atomType, 
+//						AtomTreeNodeLeaf.FACTORY, 
+//						sequencerFactory, 
+//						parent);
+//	}
+    
+   
     public boolean isGroupFactory() {return false;}
     
     public void setType(AtomType t) {atomType = t;}
     public AtomType type() {return atomType;}
     
-    /**
-     * Overrides parent class method and builds a single atom.
-     */
-    protected Atom build(AtomTreeNodeGroup parent) {
-        return new Atom(space, atomType, 
-                        AtomTreeNodeLeaf.FACTORY, 
-                        sequencerFactory, 
-                        parent);
-    }
     
     /**
      * Simply returns the given atom.

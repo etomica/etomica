@@ -1149,6 +1149,11 @@ public static class CoordinateGroup extends Coordinate {
         //    dr.z = ((dr.z + dimensions.z) % dimensions.z) - dimensionsHalf.z;
         }
         public boolean centralImage(Coordinate c) {return centralImage(c.r);}
+ /*		public boolean centralImage(Coordinate c) {
+ 			Vector displace = centralImage(c.position());
+ 			c.translateBy(displace);
+ 		}
+ */
         public boolean centralImage(Space.Vector r) {return centralImage((Vector) r);}
         public boolean centralImage(Vector r) {
             temp.E(r);

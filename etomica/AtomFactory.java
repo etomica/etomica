@@ -14,6 +14,7 @@ package etomica;
   * 08/12/03 (DAK) Re-introduced simulation field, allowing it to be null.  Used
   * by AtomType to determine simulation instance, which in turn is referenced by
   * AtomTreeNode.
+  * 08/26/03 (DAK) Added constructors that take nodeFactory argument.  
   */
 public abstract class AtomFactory {
     
@@ -23,20 +24,35 @@ public abstract class AtomFactory {
     private Species species;
     protected Configuration configuration;
     protected AtomSequencer.Factory sequencerFactory;
+    protected AtomTreeNodeGroup.Factory nodeFactory;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomType.Group groupType = new AtomType.Group(this);
+    protected AtomType atomType;
     
     public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory) {
+    	this(sim, sequencerFactory, AtomTreeNodeGroup.FACTORY);
+    }
+
+	public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory) {    
     	this.simulation = sim;
     	this.space = sim.space;
     	this.sequencerFactory = sequencerFactory;
+    	this.nodeFactory = nodeFactory;
+    	this.atomType = groupType;
     	reservoir = new AtomReservoir(this);
     }
+    
     public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {
+    	this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY);
+    }
+    
+    public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory) {
     	simulation = null;
         this.space = space;
         this.sequencerFactory = sequencerFactory;
+        this.nodeFactory = nodeFactory;
+        this.atomType = groupType;
         reservoir = new AtomReservoir(this);
     }
     
@@ -73,8 +89,7 @@ public abstract class AtomFactory {
      * not use the group AtomTreeNode, or that is a subclass of Atom.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
-        Atom group = new Atom(space, groupType, AtomTreeNodeGroup.FACTORY, 
-                sequencerFactory, parent);
+        Atom group = new Atom(space, atomType, nodeFactory, sequencerFactory, parent);
         return build(group);
     }
     

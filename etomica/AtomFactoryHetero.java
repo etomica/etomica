@@ -10,6 +10,8 @@ package etomica;
  
  /* History
   * 10/22/02 (DAK) Deleted groupType field which shadowed superclass field, causing errors.
+  * 08/26/03 (DAK) Added constructors that permit specification of
+  * AtomTreeNode.Factory
   */
   
 public class AtomFactoryHetero extends AtomFactory {
@@ -27,7 +29,12 @@ public class AtomFactoryHetero extends AtomFactory {
 	}
 	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
 							Configuration config) {
-		super(sim, sequencerFactory);
+		this(sim, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
+	}
+	
+	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomTreeNodeGroup.Factory nodeFactory,
+							AtomFactory[] factory, Configuration config) {
+		super(sim, sequencerFactory, nodeFactory);
 		init(factory, config);
 	}
     /**
@@ -44,9 +51,14 @@ public class AtomFactoryHetero extends AtomFactory {
      */
     public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
                             Configuration config) {
-        super(space, sequencerFactory);
-        init(factory, config);
+        this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
     }
+    
+	public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNodeGroup.Factory nodeFactory,
+							AtomFactory[] factory, Configuration config) {
+		super(space, sequencerFactory, nodeFactory);
+		init(factory, config);
+	}
     
     private void init(AtomFactory[] factory, Configuration config) {
         childFactory = factory;
