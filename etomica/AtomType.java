@@ -1,5 +1,6 @@
 package etomica;
 import etomica.units.*;
+import etomica.nbr.NeighborManagerAgent;
 //import etomica.electrostatics.*;
 
 /**
@@ -32,12 +33,12 @@ public class AtomType implements java.io.Serializable {
     private Parameter.Size sizeParameter = Default.SIZE_PARAMETER;
     private Parameter.Energy energyParameter = Default.ENERGY_PARAMETER;
     private Parameter.Mass massParameter = Default.MASS_PARAMETER;
-    private Potential[] potentials = new Potential[0];
-    private int mostRecentIndex = 0;
     
     //fields for linked list of all instances of AtomType
     public final AtomType previousInstance;
     private static AtomType lastInstance;
+    
+    private final NeighborManagerAgent neighborManagerAgent;
     
     public double mass;
     
@@ -60,31 +61,7 @@ public class AtomType implements java.io.Serializable {
             parameter[i] = parameterSource[i].makeParameter();
         }
 //        System.out.println("AtomType constructor:"+mass);
-    }
-    
-    public int getPotentialIndex(Potential potential) {
-    	if(potentials[mostRecentIndex]==potential) return mostRecentIndex;
-    	else {
-    		mostRecentIndex = -1;
-    		while(true) {//potential not in list will lead to ArrayIndexOutOfBoundsException 
-    			if(potentials[++mostRecentIndex]==potential) {
-    				return mostRecentIndex; 
-    			}
-    		}
-    	}
-    }
-    
-    public int addPotential(Potential newPotential) {
-    	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
-    		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
-    	}
-    	Potential[] newArray = new Potential[potentials.length+1];
-    	for(int i=0; i<potentials.length; i++) {
-    		newArray[i] = potentials[i];
-    	}
-    	newArray[potentials.length] = newPotential;
-    	potentials = newArray;
-    	return potentials.length-1;
+        neighborManagerAgent = new NeighborManagerAgent();
     }
     
     protected void addGlobalParameter(Parameter.Source source) {
@@ -140,6 +117,10 @@ public class AtomType implements java.io.Serializable {
     public final double getMass() {return massParameter.getMass();}
     public final Dimension getMassDimension() {return Dimension.MASS;}
 
+    public NeighborManagerAgent getNbrManagerAgent() {
+    	return neighborManagerAgent;
+    }
+    
     // Sphere-shaped atom.
     public static class Sphere extends AtomType {
         

@@ -5,7 +5,7 @@ package etomica;
   * sequence).
   */
 
-public class AtomArrayIterator implements AtomIterator {
+public class AtomIteratorArrayList implements AtomIterator {
 	/**
  	 * Index of element to be returned by subsequent call to next.
  	 */
@@ -13,7 +13,10 @@ public class AtomArrayIterator implements AtomIterator {
  	private Atom atoms[] = new Atom[1];
  	private AtomArrayList list;
 
- 	public AtomArrayIterator(AtomArrayList atomList) {
+ 	public AtomIteratorArrayList() {
+ 		list = new AtomArrayList();
+ 	}
+ 	public AtomIteratorArrayList(AtomArrayList atomList) {
  		list = atomList;
  	}
  	public void setList(AtomArrayList atomList) {

@@ -51,7 +51,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	
 	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
 		AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
-		Potential[] potentials = atom.type.getPotentials();
+		Potential[] potentials = atom.type.getNbrManagerAgent().getPotentials();
 		int length = potentials.length;
 		if (length > 0) {
 			IteratorDirective.Direction direction = id.direction();
@@ -73,6 +73,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 		}
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
+			//TODO if instantiation is expensive, try doing iteration explicitly
 			AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
 			listIterator.setList(((AtomTreeNodeGroup)atom.node).childList);
 			listIterator.reset();

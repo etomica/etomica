@@ -60,6 +60,8 @@ public abstract class Potential extends SimulationElement {
     
     public abstract void setPhase(Phase phase);
     
+    public abstract double getRange();
+    
     public final int nBody() {return nBody;}
     
  	/**

@@ -444,6 +444,10 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
         } catch(InterruptedException e) {}
     }
     
+    public Phase[] getPhases() {
+    	return phase;
+    }
+    
     /**
      * Integrator agent that holds a force vector.  Used to indicate that an atom could be
      * under the influence of a force.

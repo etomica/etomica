@@ -24,11 +24,21 @@ public class AtomSequencerNbr extends AtomSequencer {
 	}
 	
 	public void addUpNbr(Atom a, Potential potential) {
-		int index = atom.type.getPotentialIndex(potential);
+		int index = 0;
+		try {
+			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+		} catch(ArrayIndexOutOfBoundsException e) {
+			index = addPotential(potential);
+		}
 		upList[index].add(a);
 	}
 	public void addDownNbr(Atom a, Potential potential) {
-		int index = atom.type.getPotentialIndex(potential);
+		int index = 0;
+		try {
+			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+		} catch(ArrayIndexOutOfBoundsException e) {
+			index = addPotential(potential);
+		}
 		downList[index].add(a);
 	}
 	
@@ -40,21 +50,24 @@ public class AtomSequencerNbr extends AtomSequencer {
 		return downList;
 	}
 	
-	public void addPotential(Potential p) {
-		int index = atom.type.addPotential(p);
-		if (index > upList.length+1) {
-			upList = new AtomArrayList[upList.length+1];
-			downList = new AtomArrayList[downList.length+1];
-			for (int i=0; i<upList.length; i++) {
-				upList[i] = new AtomArrayList();
-				downList[i] = new AtomArrayList();
-			}
+	public int addPotential(Potential p) {
+		int index = atom.type.getNbrManagerAgent().addPotential(p);
+		if (index > upList.length-1) {
+			AtomArrayList[] newList = new AtomArrayList[upList.length+1];
+			System.arraycopy(upList, 0, newList, 0, upList.length);
+			newList[upList.length] = new AtomArrayList();
+			upList = newList;
+			newList = new AtomArrayList[downList.length+1];
+			System.arraycopy(downList, 0, newList, 0, downList.length);
+			newList[downList.length] = new AtomArrayList();
+			downList = newList;
 		}
+		return index;
 	}
 	
-	public void removePotential() {
+	public void removePotential(Potential p) {
+		atom.type.getNbrManagerAgent().removePotential(p);
 		if (upList.length == 0) throw new RuntimeException("potential list empty in removePotential");
-		//XXX this doesn't work if the same potential has been added twice previously
 		upList = new AtomArrayList[upList.length-1];
 		downList = new AtomArrayList[downList.length-1];
 		for (int i=0; i<upList.length; i++) {
@@ -77,4 +90,16 @@ public class AtomSequencerNbr extends AtomSequencer {
         }
         public Class sequencerClass() {return AtomSequencerNbr.class;}
     };
+	public void moveNotify() {
+		// TODO Auto-generated method stub
+
+	}
+	public boolean preceeds(Atom a) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	public void setParentNotify(AtomTreeNodeGroup newParent) {
+		// TODO Auto-generated method stub
+
+	}
 }

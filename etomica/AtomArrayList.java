@@ -473,7 +473,7 @@ package etomica;
 	      * @see #modCount
 	      */
 	     public AtomIterator iterator() {
-	     	return new AtomArrayIterator(this);
+	     	return new AtomIteratorArrayList(this);
 	     }
 	 
 	}
