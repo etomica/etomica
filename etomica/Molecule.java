@@ -70,7 +70,10 @@ public class Molecule implements Serializable {
   * @param n           number of atoms in this molecule
   */
   
-  public final PhaseSpace.MoleculeCoordinate coordinate;
+ /**
+  * Center-of-mass (COM) coordinate
+  */
+  private final PhaseSpace.MoleculeCoordinate coordinate;   //private becuase coordinate must be evaluated from atom coordinate
   
   public Molecule(Species parent, int n) {
     parentSpecies = parent;
@@ -85,7 +88,7 @@ public class Molecule implements Serializable {
   * Previously existing atoms are discarded
   */
   private final void makeAtoms() {
-    firstAtom = new Atom(this,i);
+    firstAtom = new Atom(this,0);
     lastAtom = firstAtom;
     for(int i=1; i<nAtoms; i++) {
         lastAtom.setNextAtom(new Atom(this,i));
@@ -152,7 +155,7 @@ public class Molecule implements Serializable {
    * @return  single-molecule potential for this molecule's atoms
    * @see Potential1
    */
-  public final Potential1 getP1() {return parentSpecies.parentPhase.potential1[getSpeciesIndex()];}
+  public final Potential1 getP1() {return parentSpecies.parentPhaseSpace.potential1[getSpeciesIndex()];}
  
  /**
   * Returns a vector of intermolecular potentials between this molecule's
@@ -161,7 +164,7 @@ public class Molecule implements Serializable {
   * @return  vector of intermolecular potentials between this molecule and all other molecules in the system.
   * @see Potential2
   */
-  public final Potential2[] getP2() {return parentSpecies.parentPhase.potential2[getSpeciesIndex()];}
+  public final Potential2[] getP2() {return parentSpecies.parentPhaseSpace.potential2[getSpeciesIndex()];}
    
  /**
   * Each species has a unique integer index that is used to identify the correct
@@ -179,7 +182,7 @@ public class Molecule implements Serializable {
  /**
   * @return the phase in which this molecule resides
   */
-  public final PhaseSpace getPhase() {return parentSpecies.parentPhase;}
+  public final PhaseSpace getPhaseSpace() {return parentSpecies.parentPhaseSpace;}
    
 /* /**
   * Computes the total mass of this molecule by summing the masses
@@ -188,6 +191,7 @@ public class Molecule implements Serializable {
   *
   * @see Atom#updateCOMFraction
   */
+  /*
   public final void updateMass() {
     this.mass = 0.0;
     for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
@@ -227,7 +231,7 @@ public class Molecule implements Serializable {
       *
       * @see #displace
       */
-   public final void replace() {coordinate.replace();}    //need to revise this
+   public final void replace() {coordinate.replace();}
 
   /**
    * Rescales this particle's center of mass to new position corresponding to a 
@@ -249,8 +253,11 @@ public class Molecule implements Serializable {
    *
    * @return center-of-mass coordinate vector of this molecule, in Angstroms
    */
-/*  public final double[] COM() {
-    if(nAtoms == 1) {return firstAtom.r;}
+   public final PhaseSpace.Vector COM() {
+     coordinate.update();
+     return coordinate.position();
+   }
+/*    if(nAtoms == 1) {return firstAtom.r;}
     Space.uEa1(r,0.0);
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
     for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {
@@ -258,19 +265,7 @@ public class Molecule implements Serializable {
     }
     return r;
   }
-  
-  public final void setCOM(double[] newCOM) {
-    zeroCOM();  //zero center-of-mass
-    translate(newCOM);  //move to new COM
-  }
-  
-  // Zero the center-of-mass of the molecules
-  public final void zeroCOM() {
-    Space.uEv1(dr,COM());
-    Space.uTEa1(dr,-1.0);
-    translate(dr);  //zero center-of-mass
-  }*/
-  
+    
  /* public final void accelerate(int i, double dp) {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
     for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.accelerate(i,dp);}
@@ -311,7 +306,7 @@ public class Molecule implements Serializable {
    */
   public void draw(Graphics g, int[] origin, double scale) {
     Atom terminator = terminationAtom();
-    for(Atom a=firstAtom; a!=terminator; a=a.getNextAtom()) {a.draw(g, origin, scale);}
+    for(Atom a=firstAtom; a!=terminator; a=a.nextAtom()) {a.draw(g, origin, scale);}
   }
   
   public final Atom firstAtom() {return firstAtom;}

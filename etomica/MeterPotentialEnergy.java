@@ -2,7 +2,7 @@ package simulate;
 
 public class MeterPotentialEnergy extends simulate.Meter
 {
-  SpaceAtomPairIterator iterator;
+  AtomPairIterator iterator;
   
   public MeterPotentialEnergy() {
     super();
@@ -13,8 +13,8 @@ public class MeterPotentialEnergy extends simulate.Meter
   * Computes total potential energy for all atom pairs in phase
   */
     public final double currentValue() {
-      AtomPairIterator.S allIntra = phase.new AllSpeciesIntraPairs();
-      SpaceAtomPairIterator.SS allInter = phase.new AllSpeciesInterPairs();
+      AtomPairIterator.S allIntra = new AtomPairIterator.AllSpeciesIntraPairs(phase);
+      AtomPairIterator.SS allInter = new AtomPairIterator.AllSpeciesInterPairs(phase);
       
                         //could make special case for single species, monatomic
       
@@ -23,14 +23,14 @@ public class MeterPotentialEnergy extends simulate.Meter
         Potential1 p1 = phase.potential1[s1.speciesIndex];
         allIntra.reset(s1);
         while(allIntra.hasNext()) {
-            SpaceAtomPair pair = allIntra.next();
+            AtomPair pair = allIntra.next();
             pe += p1.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
         for(Species s2=s1; s2!=null; s2=s2.getNextSpecies()) {
             Potential2 p2 = phase.potential2[s1.speciesIndex][s2.speciesIndex];
             allInter.reset(s1,s2);
             while(allInter.hasNext()) {
-                SpaceAtomPair pair = allInter.next();
+                AtomPair pair = allInter.next();
                 pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
             }
         }

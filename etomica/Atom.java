@@ -10,7 +10,7 @@ import java.awt.*;
  *  @author C. Daniel Barnes
  *  @see Molecule
  */
-public abstract class Atom {
+public class Atom {
 
     /**
      * Constructs an atom with default values for mass, diameter, and color.

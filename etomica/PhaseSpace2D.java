@@ -2,7 +2,13 @@ package simulate;
 
 public class PhaseSpace2D extends PhaseSpace {
     
-    public PhaseSpace2D() {}
+    public PhaseSpace2D() {
+        dimensions = new PhaseSpace2D.Vector();
+        dimensions.x = 1.0;
+        dimensions.y = 1.0;
+        computeVolume();
+        periodic = false;
+    }
  
     public PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
@@ -13,10 +19,19 @@ public class PhaseSpace2D extends PhaseSpace {
     public final AtomPairIterator.A makePairIteratorFull() {return new PairIteratorFull();}
     public final AtomPairIterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
  
-    public class Vector implements PhaseSpace.Vector {
-        double x = 0.0;
-        double y = 0.0; 
+    public static final class Vector implements PhaseSpace.Vector {
+        double x, y;
+        public Vector () {x = 0.0; y = 0.0;}
+        public Vector (double a1, double a2) {x = a1; y = a2;}
+        public void E(Vector u) {x = u.x; y = u.y;}
+        public void E(double a) {x = a; y = a;}
+        public void PE(Vector u) {x += u.x; y += u.y;}
+        public void TE(double a) {x *= a; y *= a;}
+        public void DE(double a) {x /= a; y /= a;}
+        public double square() {return x*x + y*y;}
+        public double dot(Vector u) {return x*u.x + y*u.y;}
     }
+    
     abstract class Coordinate implements PhaseSpace.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
@@ -29,6 +44,20 @@ public class PhaseSpace2D extends PhaseSpace {
         AtomCoordinate nextCoordinate, previousCoordinate;
         AtomCoordinate(Atom a) {atom = a;}  //constructor
         public final Atom atom;
+        
+        protected final Vector rLast = new Vector();
+        protected final Vector temp = new Vector();
+        public void translateTo(Vector u) {r.E(u);}      //if using PBC, apply here
+        public void translateBy(Vector u) {r.PE(u);}
+        public void displaceTo(Vector u) {rLast.E(r); r.E(u);}
+        public void displaceBy(Vector u) {rLast.E(r); r.PE(u);}
+        public void replace() {r.E(rLast);}
+        public void inflate(double s) {r.TE(s);}
+        public void accelerate(Vector u) {p.PE(u);}
+        public double kineticEnergy() {return 0.5*p.square()/mass;}
+        public Vector position() {return r;}
+        public Vector momentum() {return p;}
+        public Vector velocity() {temp.E(p); temp.DE(mass); return temp;}  //returned vector is not thread-safe
         
         //following methods are same in all PhaseSpace classes
         public final void setNextCoordinate(PhaseSpace.Coordinate c) {
@@ -147,5 +176,13 @@ public class PhaseSpace2D extends PhaseSpace {
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
-    }
+    }    
+
+ /**
+  * Size of Phase (width, height) in Angstroms
+  * Default value is 1.0 for each dimension.
+  */
+    private final Vector dimensions = new Vector(1.0,1.0);
+
+
 }

@@ -32,11 +32,10 @@ import java.util.Random;
  
 public abstract class Species extends Container {
 
-    public Species(int n, int na, Atom a)
+    public Species(int n, int na)
     {
         setSpeciesIndex(0);
 //        setFillVolume(true);
-        atomGenerator = a;
         nAtomsPerMolecule = na;
         setNMolecules(n);
         this.add(colorScheme);
@@ -117,36 +116,22 @@ public abstract class Species extends Container {
   */
   public ConfigurationMolecule configurationMolecule;
   
- /**
-  * Atom used to generate atoms when constructing molecule
-  */
-  Atom atomGenerator;
-  
-  protected double mass;
-  
   private final Random rand = new Random();  //for choosing molecule at random
   
  /**
   * Default constructor.  Creates species containing 20 molecules, each with 1 hard-disk atom.
   */
   public Species() {
-    this(20,1, new AtomHardDisk(null));
+    this(20,1);
   }
   
- /**
-  * Creates species with default number of molecules, 1 atom of given type per molecule
-  */
-  public Species(Atom a) {
-    this(20,1,a);
-  }
-
  /**
   * Sets species defaults and creates molecules.
   *
   * @param n number of molecules in species
   */
   public Species(int n) {
-    this(n,1, new AtomHardDisk(null));
+    this(n,1);
   }
   
   public void add(ColorScheme cs) {
@@ -358,17 +343,6 @@ public abstract class Species extends Container {
   }
         
  /**
-  * Link-list orders the molecules (and atoms) in this species.  Sets values
-  * for first and last molecules.
-  */ 
-/*  protected final void orderMolecules() {
-    firstMolecule = molecule[0];
-    lastMolecule = molecule[nMolecules-1];
-    for(int i=1; i<nMolecules; i++) {molecule[i-1].setNextMolecule(molecule[i]);}
-  }
-*/  
-  
- /**
   * @return the next species in the linked list of species.  Returns null if this is the last species.
   */
   public final Species getNextSpecies() {return nextSpecies;}
@@ -382,8 +356,13 @@ public abstract class Species extends Container {
   */
   public final void setNextSpecies(Species s) {
     this.nextSpecies = s;
+    Molecule last = lastMolecule();
+    if(s==null) {
+        if(last!=null) last.setNextMolecule(null); 
+        return;
+    }
     s.previousSpecies = this;
-    this.lastMolecule().setNextMolecule(s.firstMolecule);
+    if(last != null) {last.setNextMolecule(s.firstMolecule);}
   }
  /**
   * @return the species preceding this one in the linked list of species.  Returns null if this is the first species.
@@ -403,22 +382,6 @@ public abstract class Species extends Container {
 
   public final int getSpeciesIndex() {return speciesIndex;}
   public final void setSpeciesIndex(int index) {speciesIndex = index;}
-  
- /**
-  * Computes and returns the kinetic energy summed over all molecules in this
-  * species
-  *
-  * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
-  * @see Molecule#kineticEnergy
-  */
-  public double kineticEnergy() {
-    double KE = 0;
-    Molecule endMolecule = lastMolecule.getNextMolecule();
-    for(Molecule m=firstMolecule; m!=endMolecule; m=m.getNextMolecule()) {
-        KE += m.kineticEnergy();
-    }
-    return KE;
-  }
   
  /**
   * Method used to draw molecules of species to screen at design time.
@@ -445,26 +408,7 @@ public abstract class Species extends Container {
         }
     }
   }
-      
-  /**
-   * Design-time variable
-   *
-   * @see #paint
-   */
-  protected double designTimeXDim = 1.0;
-  
-  /**
-   * Design-time variable
-   *
-   * @see #paint
-   */
-  protected double designTimeYDim = 1.0;
-
-    public void setDesignTimeXDim(double x) {designTimeXDim = x;}
-    public double getDesignTimeXDim() {return designTimeXDim;}
-    public void setDesignTimeYDim(double y) {designTimeYDim = y;}
-    public double getDesignTimeYDim() {return designTimeYDim;}
-  
+   
   /**
    * Draws all molecules of the species using current values of their positions.
    *
@@ -484,9 +428,9 @@ public abstract class Species extends Container {
     int diameterP = (int)(toPixels*diameter);
     g.setColor(color);
     */
-    Atom nextSpeciesAtom = lastAtom().getNextAtom();
-    Molecule last = lastMolecule.getNextMolecule();
-    for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
+    Atom nextSpeciesAtom = lastAtom().nextAtom();
+    Molecule last = lastMolecule.nextMolecule();
+    for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
         colorScheme.setAtomColor(a);
         a.draw(g,origin,scale);
         /*
@@ -496,7 +440,7 @@ public abstract class Species extends Container {
         */
     }
     if(DisplayConfiguration.DRAW_OVERFLOW && (atomGenerator instanceof AtomDisk)) {
-        for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
+        for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
             double[][] shifts = parentPhaseSpace.space.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
@@ -553,17 +497,17 @@ public abstract class Species extends Container {
   public final Molecule terminationMolecule() {
     return (lastMolecule == null) ? null : lastMolecule.getNextMolecule();
   }  
-  public final SpaceAtom firstAtom() { //return firstAtom;
+  public final Atom firstAtom() { //return firstAtom;
     return (firstMolecule == null) ? null : firstMolecule.firstAtom();
   }
-  public final SpaceAtom lastAtom() { //return lastAtom;
+  public final Atom lastAtom() { //return lastAtom;
     return (lastMolecule == null) ? null : lastMolecule.lastAtom();
   }
   
   /**
    * Used to terminate loops over atoms in species
    */
-  public final SpaceAtom terminationAtom() {
+  public final Atom terminationAtom() {
     Atom last = lastAtom();
     return (last == null) ? null : last.getNextAtom();
   }
