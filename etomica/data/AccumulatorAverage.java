@@ -22,6 +22,7 @@ public class AccumulatorAverage extends DataAccumulator {
 		setNData(0);
 		setBlockSize(Default.BLOCK_SIZE);
         setDimension(Dimension.UNDEFINED);
+        setPushInterval(100);
         reset();
 	}
 	
