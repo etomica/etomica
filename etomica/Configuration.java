@@ -263,7 +263,7 @@ public abstract class Configuration implements java.io.Serializable {
         for (int j = 0; j < n; j++) {
             com.PE(r[j]);
         }
-        com.DE((double) n);
+        com.TE(1.0/(double) n);
         dcom.E(ocom);
         dcom.ME(com);
 

@@ -59,7 +59,7 @@ public class ConfigurationLinear extends Configuration {
     public void setOffset(Vector v) {
         orientation.E(v);
         bondLength = Math.sqrt(v.squared());
-        orientation.DE(bondLength);
+        orientation.TE(1.0/bondLength);
     }
               
     /**

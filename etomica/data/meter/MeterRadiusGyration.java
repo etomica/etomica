@@ -89,7 +89,7 @@ public class MeterRadiusGyration extends MeterScalar implements EtomicaElement {
                 cm.PE(realPos);
                 prevAtom = a;
             }
-            cm.DE(nLeafAtoms);
+            cm.TE(1.0/(double)nLeafAtoms);
             // calculate Rg^2 for this chain
             double r2 = 0.0;
             leafIterator.reset();
