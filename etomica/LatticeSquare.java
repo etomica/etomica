@@ -36,9 +36,9 @@ public class LatticeSquare extends Lattice {
         for(Site s=origin; s!=null; s=s.nextSite()) {s.firstAtom = null;}
     }
     
-    public final Space.Atom firstAtom() {
+    public final Atom firstAtom() {
         Site s = origin;
-        Space.Atom a = s.firstAtom();
+        Atom a = s.firstAtom();
         while(a == null) {
             s = s.nextSite();
             if(s == null) return null;

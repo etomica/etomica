@@ -7,9 +7,10 @@ public class Space2D extends Space {
     public static final int D = 2;
     public final int D() {return D;}
     
-    public Space.Coordinate makeCoordinate() {return new Coordinate();}
+    public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
     public Space.Vector makeVector() {return new Vector();}
-    public simulate.CoordinatePair makeCoordinatePair(Space.Boundary boundary, Coordinate c1, Coordinate c2) {return new CoordinatePair((Boundary)boundary, c1, c2);}
+    public Space.CoordinatePair makeCoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Space.Boundary boundary) {return new CoordinatePair(c1, c2, (Boundary)boundary);}
+    public Space.CoordinatePair makeCoordinatePair(Space.Boundary boundary) {return new CoordinatePair((Boundary)boundary);}
     public Space.Boundary makeBoundary(int b) {
         switch(b) {
             case(Boundary.NONE):            return new BoundaryNone();
@@ -46,6 +47,8 @@ public class Space2D extends Space {
         public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = random.nextDouble()*dx; y = random.nextDouble()*dy;}
         public void setRandom(Vector u) {setRandom(u.x,u.y);}
+        public void setRandomCube() {x = random.nextDouble(); y = random.nextDouble();}
+        public void setRandomSphere() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
         public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y;}
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
@@ -58,17 +61,13 @@ public class Space2D extends Space {
         private double drx, dry, dvx, dvy;
         public CoordinatePair() {boundary = new BoundaryNone();}
         public CoordinatePair(Boundary b) {boundary = b;}
-        public CoordinatePair(Boundary b, Atom a1, Atom a2) {
+        public CoordinatePair(Space.Coordinate c1, Space.Coordinate c2, Boundary b) {
             boundary = b;
-            if(a1 != null && a2 != null) {
-                c1 = (Coordinate)a1.coordinate;  //cast from Space.Coordinate
-                c2 = (Coordinate)a2.coordinate;
-                reset();
-            }
+            if(c1 != null && c2 != null) {reset(c1,c2);}
         }
-        public void reset(Atom a1, Atom a2) {
-            c1 = (Coordinate)a1.coordinate;
-            c2 = (Coordinate)a2.coordinate;
+        public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
+            c1 = (Coordinate)coord1;
+            c2 = (Coordinate)coord2;
             reset();
         }
         public void reset() {
@@ -79,10 +78,8 @@ public class Space2D extends Space {
             boundary.apply(dr);
             drx = dr.x; dry = dr.y;
             r2 = drx*drx + dry*dry;
-            atom1 = c1.atom;
-            atom2 = c2.atom;
-            double rm1 = atom1.type.rm();
-            double rm2 = atom2.type.rm();
+            double rm1 = c1.parent().rm();
+            double rm2 = c2.parent().rm();
             dvx = rm2*c2.p.x - rm1*c1.p.x;
             dvy = rm2*c2.p.y - rm1*c1.p.y;  
         }
@@ -91,13 +88,13 @@ public class Space2D extends Space {
 //            return drx*drx + dry*dry;
 //        }
         public double v2() {
-            double rm1 = c1.atom.type.rm();
-            double rm2 = c2.atom.type.rm();
+            double rm1 = c1.parent().rm();
+            double rm2 = c2.parent().rm();
             return dvx*dvx + dvy*dvy;
         }
         public double vDotr() {
-            double rm1 = c1.atom.type.rm();
-            double rm2 = c2.atom.type.rm();
+            double rm1 = c1.parent().rm();
+            double rm2 = c2.parent().rm();
             return drx*dvx + dry*dvy;
         }
         public void push(double impulse) {  //changes momentum in the direction joining the atoms
@@ -107,7 +104,7 @@ public class Space2D extends Space {
             c2.p.y -= impulse*dry;
         }
         public void setSeparation(double r2New) {
-            double ratio = c2.atom.type.mass()*c1.atom.type.rm();  // (mass2/mass1)
+            double ratio = c2.parent().mass()*c1.parent().rm();  // (mass2/mass1)
             double delta = (Math.sqrt(r2New/r2()) - 1.0)/(1+ratio);
             c1.r.x -= ratio*delta*drx;
             c1.r.y -= ratio*delta*dry;
@@ -122,11 +119,12 @@ public class Space2D extends Space {
     static class Coordinate extends Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
+        public Coordinate(Space.Occupant o) {super(o);}
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
-        public Vector makeVector() {return new Vector();}
+        public Space.Vector makeVector() {return new Vector();}
         
         Coordinate nextNeighbor, previousNeighbor;
         public final void setNextNeighbor(Space.Coordinate c) {
@@ -137,6 +135,7 @@ public class Space2D extends Space {
         public final Space.Coordinate nextNeighbor() {return nextNeighbor;}
         public final Space.Coordinate previousNeighbor() {return previousNeighbor;}
         public final void assignCell() {}
+        public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
     } 
     
     static class Link {
@@ -144,25 +143,24 @@ public class Space2D extends Space {
         public Coordinate coordinate;
     }
     
-    public static abstract class Boundary implements Space.Boundary {
+    public interface Boundary extends Space.Boundary {
         public static final int NONE = 0;
         public static final int PERIODIC_SQUARE = 1;
-        public final Vector dimensions = new Vector();
-        public void centralImage(Space.Vector r) {centralImage((Vector)r);}
-        public final Space.Vector dimensions() {return dimensions;}
-        public abstract void centralImage(Vector r);
-        public abstract void apply(Vector r);
-        public abstract double volume();
-        public abstract void inflate(double s);
+        public void apply(Vector dr);
+        public void centralImage(Vector r);
     }
 
     /**
      * Class for implementing no periodic boundary conditions
      */
-    private static final class BoundaryNone extends Boundary {
+    private static final class BoundaryNone implements Boundary {
         private final Vector temp = new Vector();
         private final double[][] shift0 = new double[0][D];
+        public final Vector dimensions = new Vector();
+        public final Space.Vector dimensions() {return dimensions;}
         public static final Random random = new Random();
+        public void apply(Space.Vector dr) {}
+        public void centralImage(Space.Vector r) {}
         public void apply(Vector dr) {}
         public void centralImage(Vector r) {}
         public double volume() {return Double.MAX_VALUE;}
@@ -175,7 +173,7 @@ public class Space2D extends Space {
     /**
      * Class for implementing rectangular periodic boundary conditions
      */
-    private static final class BoundaryPeriodicSquare extends Boundary {
+    private static final class BoundaryPeriodicSquare implements Boundary {
         private final Vector temp = new Vector();
         public static final Random random = new Random();
         private final double[][] shift0 = new double[0][D];
@@ -183,7 +181,10 @@ public class Space2D extends Space {
         private final double[][] shift3 = new double[3][D];
         public BoundaryPeriodicSquare() {this(1.0,1.0);}
         public BoundaryPeriodicSquare(double lx, double ly) {dimensions.x = lx; dimensions.y = ly;}
+        public final Vector dimensions = new Vector();
+        public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {temp.x = random.nextDouble()-0.5; temp.y = random.nextDouble()-0.5; return temp;}
+        public void apply(Space.Vector dr) {apply((Vector)dr);}
         public void apply(Vector dr) {
             dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
             dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);

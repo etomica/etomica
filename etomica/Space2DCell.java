@@ -221,7 +221,7 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
    //     public final Atom atom2() {return c2.atom();}
     }
 
-    public static final class Vector implements Space.Vector {  //declared final for efficient method calls
+    public static final class Vector extends Space.Vector {  //declared final for efficient method calls
         public static final Random random = new Random();
         public static final Vector ORIGIN = new Vector(0.0,0.0);
         double x, y;
@@ -593,8 +593,8 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
         //"Full" --> Each iteration of inner loop begins with same first atom
         private static final class PairIteratorFull implements simulate.AtomPair.Iterator.A {
             final AtomPair pair;
-            AtomCoordinate outer, inner;
-            private AtomCoordinate iFirst, iLast, oFirst, oLast;
+            Atom outer, inner;
+            private Atom iFirst, iLast, oFirst, oLast;
             private boolean hasNext;
             public PairIteratorFull(Space.Boundary b) {  //null constructor
                 pair = new AtomPair((Boundary)b);
@@ -633,7 +633,7 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
         }
             
         //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
-        private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
+/*        private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
             final AtomPair pair;
             AtomCoordinate outer, inner;
             private AtomCoordinate iFirst, iLast, oFirst, oLast;
@@ -649,11 +649,11 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
             public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
             public void reset(Atom iL, Atom oF, Atom oL) {
                 if(oF == null) {hasNext = false; return;}
-                iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
-                oFirst =  (AtomCoordinate)oF.coordinate; 
-                oLast =  (iL==null) ? null : (AtomCoordinate)oL.coordinate;
+                iLast =  iL; 
+                oFirst =  oF; 
+                oLast =  oL;
                 outer = oFirst;
-                inner = outer.nextCoordinate;
+                inner = outer.nextAtom();
                 hasNext = (inner != null);
             }
             public simulate.AtomPair next() {
@@ -672,6 +672,8 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
             public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
         }
     }    
+*/
+    }
     public static class CellPotential extends Potential implements PotentialHard {
         
         public void bump(simulate.AtomPair pair) {

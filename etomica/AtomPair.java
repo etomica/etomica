@@ -6,7 +6,7 @@ public class AtomPair {
     public Potential potential;
     public AtomPair() {cPair = null;}
     public AtomPair(Phase phase) {
-        cPair = phase.space().makeCoordinatePair(this,phase.boundary());
+        cPair = phase.space().makeCoordinatePair(phase.boundary());
     }
     public void reset(Atom a1, Atom a2) {
         atom1 = a1; 
@@ -14,7 +14,7 @@ public class AtomPair {
         reset();
     }
     public void reset() {
-        cPair.reset(atom1, atom2);
+        cPair.reset(atom1.coordinate(), atom2.coordinate());
     }
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}

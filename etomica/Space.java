@@ -6,11 +6,14 @@ public abstract class Space {
     
     public abstract Vector makeVector();      //Space.Vector
     public abstract Coordinate makeCoordinate(Occupant o);
-    public abstract CoordinatePair makeCoordinatePair(AtomPair p, Boundary b);
+    public abstract CoordinatePair makeCoordinatePair(Coordinate c1, Coordinate c2, Boundary b);
+    public abstract CoordinatePair makeCoordinatePair(Boundary b);
     public abstract Boundary makeBoundary(int iBoundary);
 
     interface Occupant {
         public Coordinate coordinate();
+        public double mass();
+        public double rm();
     }
     
 //  Vector contains what is needed to describe a point in the space
@@ -35,11 +38,11 @@ public abstract class Space {
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
-    abstract class Coordinate {
+    public static abstract class Coordinate {
         protected final Space.Occupant parent;        
         Coordinate(Occupant p) {parent = p;}          //constructor
         public final Space.Occupant parent() {return parent;}
-        public Vector makeVector();
+        public abstract Vector makeVector();
         public abstract Vector position();
         public abstract Vector momentum();
         public abstract double position(int i);
@@ -101,14 +104,15 @@ atomCoordinate methods
         */
     }
     
-    public abstract class CoordinatePair {
+    public static abstract class CoordinatePair {
         public Coordinate coordinate1, coordinate2;
-        public final AtomPair atomPair;
         public double r2;
         public Potential potential;
-        public CoordinatePair(AtomPair pair) {atomPair = pair;}  //constructor
+        public CoordinatePair() {}  //null constructor
+//        public CoordinatePair(Boundary b) {boundary = b;}
+//        public CoordinatePair(Space.Occupant o1, Space.Occupant o2, Boundary b)
         public abstract void reset();
-        public abstract void reset(Atom a1, Atom a2);
+        public abstract void reset(Space.Coordinate c1, Space.Coordinate c2);
         public abstract double v2();
         public abstract double vDotr();
         public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
