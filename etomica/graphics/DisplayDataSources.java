@@ -5,11 +5,17 @@ import etomica.units.Unit;
 /**
  * Parent class for displays that show information from one or more DataSource objects.
  * Examples are DisplayPlot and DisplayTableFunction.  This class implements the methods
- * of the DataSource.MultiUser interface, which enable setting and changing the 
+ * of the DataSource.MultiUser interface, which enables setting and changing the
  * data source objects.
  *
  * @author David Kofke
  */
+
+/* History
+ * 01/03/03 (DAK) changed doUpdate to call setupX(); needed to ensure x is
+ * properly dimensioned if y arrays change.
+ */
+ 
 public abstract class DisplayDataSources extends Display implements DataSource.MultiUser
 {
     public String getVersion() {return "DisplayDataSources:01.05.29/"+Display.VERSION;}
@@ -153,7 +159,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     /**
      * Sets up array of x values.
      */
-    private void setupX() {
+	private void setupX() {
         if(xSource != null) {
             if(ySource[0] instanceof DataSource.X && xSource == ySource[0]) {
                 x = ((DataSource.X)ySource[0]).xValues();
@@ -167,9 +173,11 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
             }
         }
         else { //no xSource specified; take sequentially
-            x = new double[maxYPoints()];
+        	int nPoints = maxYPoints();
+        	if(x.length == nPoints) return;
+            x = new double[nPoints];
             for(int i=0; i<x.length; i++) {x[i] = i;}
-            setXUnit(Unit.NULL);
+      //      setXUnit(Unit.NULL);
         }
     }
     
@@ -247,6 +255,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
         for(int i=0; i<ySource.length; i++) {
            y[i] = ySource[i].values(whichValue);
         }
+        setupX();//added 01/03/03 (DAK)
     }
     
     /**

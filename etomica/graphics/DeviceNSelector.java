@@ -10,6 +10,7 @@ import etomica.*;
  
  /* History of changes
   * 08/29/02 (DAK) new
+  * 01/03/03 (DAK) changed snapToTicks to false
   */
   
   //could improve by allowing to set phase/agent before elementcoordinator call
@@ -30,7 +31,7 @@ public class DeviceNSelector extends DeviceSlider {
 //        setNMajor(6);
 	    setMinimum(0);
 	    setMaximum(60);
-	    getSlider().setSnapToTicks(true);
+	    getSlider().setSnapToTicks(false);
 	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
 	    
