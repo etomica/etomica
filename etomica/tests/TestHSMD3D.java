@@ -85,7 +85,7 @@ public class TestHSMD3D extends Simulation {
         
         phase = new Phase(this);
         integrator.addPhase(phase);
-        phase.setConfiguration(new ConfigurationFile(space,Integer.toString(numAtoms)));
+        phase.setConfiguration(new ConfigurationFile(space,"HSMD3D"+Integer.toString(numAtoms)));
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
 //        integrator.addIntervalListener(writeConfig);
