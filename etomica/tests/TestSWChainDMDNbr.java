@@ -12,8 +12,6 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheres;
-import etomica.WriteConfiguration;
-import etomica.WritePDB;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.iterator.ApiIntergroup;
@@ -86,11 +84,6 @@ public class TestSWChainDMDNbr extends Simulation {
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
         phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)));
-        
-        WriteConfiguration writeConfig = new WriteConfiguration("chain"+numMolecules,phase,1);
-        integrator.addIntervalListener(writeConfig);
-        WritePDB writePDB = new WritePDB("chain"+Integer.toString(numMolecules),phase,1);
-        integrator.addIntervalListener(writePDB);
     }
     
     public static void main(String[] args) {
