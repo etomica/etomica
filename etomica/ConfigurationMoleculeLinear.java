@@ -48,7 +48,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
 
   public void setParentSpecies(Species s) {
     parentSpecies = s;
-    orientation = (Space2D.Vector)s.parentSimulation.space.makeVector();   //temporary
+    orientation = (Space2DCell.Vector)s.parentSimulation.space.makeVector();   //temporary
     orientation.setComponent(1,1.0);   //fix orientation to x-axis of 2-D space
   }
 

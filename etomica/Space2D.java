@@ -15,6 +15,8 @@ public class Space2D extends Space {
     public final simulate.AtomPair.Iterator.A makePairIteratorFull(Space.Boundary boundary) {return new PairIteratorFull((Boundary)boundary);}
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary) {return new PairIteratorHalf((Boundary)boundary);}
     public simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
+    public AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary) {return null;}
+    public AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary) {return null;}
     public Space.Boundary makeBoundary(int b) {
         switch(b) {
             case(Boundary.NONE):            return new BoundaryNone();
@@ -357,7 +359,7 @@ public class Space2D extends Space {
         public final void clearPreviousNeighbor() {previousNeighbor = null;}
         public final Space.AtomCoordinate nextNeighbor() {return nextNeighbor;}
         public final Space.AtomCoordinate previousNeighbor() {return previousNeighbor;}
-
+        public final void assignCell() {}
     } 
 
     //These iterators are identical in every Space class; they are repeated in each

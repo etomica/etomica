@@ -2,8 +2,13 @@ package simulate;
 
 public abstract class Space {
     
+    private double neighborRadius = 1.0;
+    
     public abstract int D();
     
+    public void setNeighborRadius(double radius) {neighborRadius = radius;}
+    public double getNeighborRadius() {return neighborRadius;}
+        
     public abstract Space.AtomCoordinate makeAtomCoordinate(Atom a);      //Space prefix is redundant
     public abstract Space.Coordinate makeCoordinate();
     public abstract Space.Vector makeVector();
@@ -13,6 +18,8 @@ public abstract class Space {
     public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b, Atom iL, Atom oF, Atom oL);
     public abstract AtomPair.Iterator.A makePairIteratorFull(Space.Boundary b);
     public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b);
+    public abstract AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary);
+    public abstract AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary);
     public abstract simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2);
 //  Vector contains what is needed to describe a point in the space
     interface Vector {
@@ -92,6 +99,7 @@ public abstract class Space {
         public void clearPreviousNeighbor();
         public Space.AtomCoordinate nextNeighbor();
         public Space.AtomCoordinate previousNeighbor();
+        public void assignCell();
     }
     interface Boundary {
         public static final int NONE = 0;

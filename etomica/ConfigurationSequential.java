@@ -35,7 +35,7 @@ public class ConfigurationSequential extends Configuration {
         
         if(sumOfMolecules == 0) {return;}
         
-        Space2D.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        Space2DCell.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
         
         int i = 0;
         for(int j=0; j<species.size(); j++) {
@@ -45,6 +45,7 @@ public class ConfigurationSequential extends Configuration {
                 i++;
             }
         }
+        for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {a.coordinate.assignCell();}
         initializeMomenta();
     }
 }

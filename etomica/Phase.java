@@ -24,8 +24,8 @@ public class Phase extends Container {
         potentialEnergy.setUpdateInterval(Integer.MAX_VALUE);  //these meters are placed to permit phase to report its potential and kinetic energies
         kineticEnergy = new MeterKineticEnergy();
         kineticEnergy.setUpdateInterval(Integer.MAX_VALUE);    //change updateInterval if desired to use for averaging also
-        add(potentialEnergy);
-        add(kineticEnergy);
+//        add(potentialEnergy);
+//        add(kineticEnergy);
     }
         
 
@@ -42,6 +42,8 @@ public class Phase extends Container {
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorHalf(boundary,iL,oF,oL);}
     public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return parentSimulation.space.makePairIteratorFull(boundary);}
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return parentSimulation.space.makePairIteratorHalf(boundary);}
+    public final simulate.AtomPair.Iterator.A makeUpIterator() {return parentSimulation.space.makeUpNeighborIterator(boundary);}
+    public final simulate.AtomPair.Iterator.A makeDownIterator() {return parentSimulation.space.makeDownNeighborIterator(boundary);}
         
     public void paint(Graphics g, int[] origin, double scale) {} 
                     

@@ -15,11 +15,9 @@ public class LatticeSquare extends Lattice {
         sites = new Site[dimensions[0]][dimensions[1]];
         for(int j=0; j<dimensions[1]; j++) {
             for(int i=0; i<dimensions[0]; i++) {
-                try {
-                    sites[i][j] = (Site)siteType.newInstance();
-                } 
-                catch (InstantiationException e) {}
-                catch (IllegalAccessException e) {}
+                try {sites[i][j] = (Site)siteType.newInstance();} 
+                    catch (InstantiationException e) {}
+                    catch (IllegalAccessException e) {}
                 sites[i][j].setCoordinate(new int[] {i,j}, basis);
 //                sites[i][j] = (Site)site.makeSite(new int[] {i,j});
                 if(last != null) last.setNextSite(sites[i][j]);
@@ -86,7 +84,7 @@ public class LatticeSquare extends Lattice {
     }
     
     public static class Point extends Site implements Lattice.Point {
-        private double[] position;
+        private final double[] position = new double[2];
         public void setCoordinate(int[] i, double[][] basis) {
             super.setCoordinate(i,basis);
             position[0] = coordinate()[0]*basis[0][0] + coordinate()[1]*basis[1][0];

@@ -90,7 +90,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             wh = h;
         }                    //2D explicit
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {  //equally space all "wall atoms"
-            Space2D.Vector r = (Space2D.Vector)a.coordinate.position();
+            Space2DCell.Vector r = (Space2DCell.Vector)a.coordinate.position();
             if(i==0) {r.x = xyNext;}
             else {r.y = xyNext;}
             xyNext += delta;

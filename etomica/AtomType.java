@@ -80,7 +80,7 @@ public abstract class AtomType {
         *                  nominal drawing size
         */
         public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
-            Space2D.AtomCoordinate c2 = (Space2D.AtomCoordinate)c;
+            Space2DCell.AtomCoordinate c2 = (Space2DCell.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
@@ -122,7 +122,7 @@ public abstract class AtomType {
         *                  nominal drawing size
         */
         public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
-            Space2D.AtomCoordinate c2 = (Space2D.AtomCoordinate)c;
+            Space2DCell.AtomCoordinate c2 = (Space2DCell.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
 
             //Draw core
@@ -190,7 +190,7 @@ public abstract class AtomType {
         public final void setAdiabatic(boolean a) {adiabatic = a;}
      
         public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
-            Space2D.AtomCoordinate c2D = (Space2D.AtomCoordinate)c;
+            Space2DCell.AtomCoordinate c2D = (Space2DCell.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
             int xP = origin[0] + (int)(toPixels*c2D.r.x);
             int yP = origin[1] + (int)(toPixels*c2D.r.y);
