@@ -78,7 +78,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     }
 
     /**
-     * Setter method for the bond extension factor
+     * Sets the bond extension factor (max = length * (1+delta))
      */
     public final void setBondDelta(double d) {
         bondDelta = d;
@@ -103,7 +103,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        if (Debug.ON) {
+        if (Debug.ON && !Default.FIX_OVERLAP) {
             if (bij<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+minBondLengthSquared);
             }
