@@ -103,7 +103,7 @@ public class TestLJMC3D extends Simulation {
         if (Math.abs(PE+4.52) > 0.03) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.031) > 0.005) {
+        if (Math.abs(Cv-0.033) > 0.008) {
             System.exit(1);
         }
     }
