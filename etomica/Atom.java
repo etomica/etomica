@@ -31,7 +31,7 @@ public class Atom implements AtomSet, java.io.Serializable {
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this);
         coord = space.makeCoordinate(this);//must follow setting of type field
-        node.setOrdinal(0,1); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
+        node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
         
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
         for(int i=0; i<agentSource.length; i++) {
@@ -45,7 +45,8 @@ public class Atom implements AtomSet, java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(new AtomIndexManager(Default.BIT_LENGTH,0)), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+    	this(space, new AtomTypeSphere(new AtomIndexManager(Default.BIT_LENGTH,3)), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+        node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
     public final int count() {return 1;}
@@ -59,19 +60,35 @@ public class Atom implements AtomSet, java.io.Serializable {
         return this == atoms;
     }
     
+    public boolean inSameSpecies(Atom atom) {
+        return type.getIndexManager().sameSpecies(node.index(), atom.node.index());
+    }
+    public boolean inSameMolecule(Atom atom) {
+        return type.getIndexManager().sameMolecule(node.index(), atom.node.index());
+    }
+    public boolean inSamePhase(Atom atom) {
+        return type.getIndexManager().samePhase(node.index(), atom.node.index());
+    }
+    
     /**
      * Returns a string of digits that uniquely identifies this atom.  String is
      * formed by concatenating the index of this atom to the signature
      * given by the parent of this atom.
      */
-    public String signature() {return node.parentGroup().signature() + " " + node.getOrdinal();}
-
+    public String signature() {
+        if(node.parentGroup() != null) {
+            return node.parentGroup().signature() + " " + node.getOrdinal();
+        } else {
+            return Integer.toString(node.getOrdinal());
+        }
+    }
     /**
      * Returns a string formed by concatenating the signature of this atom
      * to a string that identifies it as a species master, species agent, 
      * molecule, group, or (leaf) atom.
      */
     public final String toString() {
+//        return Integer.toBinaryString(node.index());
     	if(this instanceof SpeciesMaster) return "Master(" + signature() + ")";
     	else if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
     	if(node.parentGroup() instanceof SpeciesAgent) return "Molecule(" + signature() + ")";

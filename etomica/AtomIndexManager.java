@@ -1,6 +1,7 @@
 package etomica;
 
 
+
 /**
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
@@ -23,10 +24,19 @@ public class AtomIndexManager {
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
         this.depth = depth;
-        phaseMask = (power2(bitLength[1]) - 1) << (32-cumulativeBitLength[1]);
-        speciesMask = (power2(bitLength[2]) - 1) << (32-cumulativeBitLength[2]);
-        moleculeMask = (power2(bitLength[3]) - 1) << (32-cumulativeBitLength[3]);
-        ordinalMask = (power2(bitLength[depth]) - 1) << (32-cumulativeBitLength[depth]);
+        int rootMask = 1 << 31;
+        phaseIndexMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
+        speciesIndexMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
+        moleculeIndexMask = ((power2(bitLength[3]) - 1) << bitShift[3]); 
+        ordinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
+        samePhaseMask = phaseIndexMask | rootMask;
+        sameSpeciesMask = speciesIndexMask | rootMask;
+        sameMoleculeMask = moleculeIndexMask | rootMask | samePhaseMask | sameSpeciesMask;
+//        System.out.println("depth, bitLength: "+depth+Arrays.toString(bitLength));
+//        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
+//        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
+//        System.out.println("sameMoleculeMask: "+Integer.toBinaryString(sameMoleculeMask));
+//        System.out.println("ordinalMask: "+Integer.toBinaryString(ordinalMask|rootMask));
     }
     
     private int power2(int n) {
@@ -60,27 +70,27 @@ public class AtomIndexManager {
     }
     
     public int getPhaseIndex(int unshiftedIndex) {
-        return unshiftedIndex << bitShift[0];
+        return (unshiftedIndex & phaseIndexMask) >>> bitShift[1];
     }
     
     public int getSpeciesIndex(int unshiftedIndex) {
-        return unshiftedIndex << bitShift[1];
+        return (unshiftedIndex & speciesIndexMask) >>> bitShift[2];
     }
     
     public int getMoleculeIndex(int unshiftedIndex) {
-        return unshiftedIndex << bitShift[2];
+        return (unshiftedIndex & moleculeIndexMask) >>> bitShift[3];
     }
     
     public boolean samePhase(int index0, int index1) {
-        return ((index0 ^ index1) & phaseMask) == 0;
+        return ((index0 ^ index1) & samePhaseMask) == 0;
     }
 
     public boolean sameSpecies(int index0, int index1) {
-        return ((index0 ^ index1) & speciesMask) == 0;
+        return ((index0 ^ index1) & sameSpeciesMask) == 0;
     }
 
     public boolean sameMolecule(int index0, int index1) {
-        return ((index0 ^ index1) & moleculeMask) == 0;
+        return ((index0 ^ index1) & sameMoleculeMask) == 0;
     }
     
     private static int[] calculateCumulativeBitLength(int[] array) {
@@ -88,8 +98,8 @@ public class AtomIndexManager {
         for(int i=1; i<newArray.length; i++) {
             newArray[i] += newArray[i-1];
         }
-        if(newArray[newArray.length-1] != 31) {
-            throw new RuntimeException("Improper setup of AtomTreeNode.MAX_ATOMS");
+        if(newArray[newArray.length-1] != 32) {
+            throw new RuntimeException("Improper setup of Bitlength");
         }
         return newArray;
     }
@@ -106,9 +116,12 @@ public class AtomIndexManager {
     private final int[] cumulativeBitLength;
     private final int[] bitShift;
     private final int depth;
-    private final int phaseMask;
-    private final int speciesMask;
-    private final int moleculeMask;
+    private final int samePhaseMask;
+    private final int sameSpeciesMask;
+    private final int sameMoleculeMask;
+    private final int phaseIndexMask;
+    private final int speciesIndexMask;
+    private final int moleculeIndexMask;
     private final int ordinalMask;
     
 }

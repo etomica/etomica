@@ -123,7 +123,22 @@ public abstract class AtomTreeNode {
         return atom.type.getIndexManager().getOrdinal(atomIndex);
     }
     
+    public int getMoleculeIndex() {
+        return atom.type.getIndexManager().getMoleculeIndex(atomIndex);
+    }
 
+    public int getPhaseIndex() {
+        return atom.type.getIndexManager().getPhaseIndex(atomIndex);
+    }
+
+    public int getSpeciesIndex() {
+        return atom.type.getIndexManager().getSpeciesIndex(atomIndex);
+    }
+
+    public boolean inSimulation() {
+        return atomIndex < 0;
+    }
+    
     /**
      * Returns true if the given atom is in the hierarchy of parents of this atom,
      * or if the given atom is this atom.  Returns true, for example, if the given
