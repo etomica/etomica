@@ -4,8 +4,6 @@
  */
 package etomica.nbr;
 
-import java.util.ArrayList;
-
 import etomica.Atom;
 import etomica.Potential;
 import etomica.atom.AtomArrayList;
@@ -14,6 +12,7 @@ import etomica.atom.AtomSequencerFactory;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.space.Vector;
 import etomica.utility.Arrays;
+import etomica.utility.ObjectArrayList;
 
 /**
  * Sequencer used to maintain neighbor lists.  Holds lists of atoms
@@ -24,7 +23,7 @@ import etomica.utility.Arrays;
 public class AtomSequencerNbr extends AtomSequencerCell {
 
 	protected AtomArrayList[] upList, downList;
-    protected ArrayList[] upListNearestImageVector, downListNearestImageVector;
+    protected ObjectArrayList[] upListNearestImageVector, downListNearestImageVector;
 	
 	/**
 	 * Constructs sequencer for the given atom.
@@ -33,8 +32,8 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 		super(a);
 		upList = new AtomArrayList[0];
 		downList = new AtomArrayList[0];
-        upListNearestImageVector = new ArrayList[0];
-        downListNearestImageVector = new ArrayList[0];
+        upListNearestImageVector = new ObjectArrayList[0];
+        downListNearestImageVector = new ObjectArrayList[0];
 	}
 	
     /**
@@ -95,13 +94,13 @@ public class AtomSequencerNbr extends AtomSequencerCell {
     /**
      * @return Returns the downListNearestImageVector.
      */
-    public ArrayList[] getDownListNearestImageVector() {
+    public ObjectArrayList[] getDownListNearestImageVector() {
         return downListNearestImageVector;
     }
     /**
      * @return Returns the upListNearestImageVector.
      */
-    public ArrayList[] getUpListNearestImageVector() {
+    public ObjectArrayList[] getUpListNearestImageVector() {
         return upListNearestImageVector;
     }
     /**
@@ -117,8 +116,8 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 		if (index > upList.length-1) {
             upList = (AtomArrayList[])Arrays.addObject(upList, new AtomArrayList());
             downList = (AtomArrayList[])Arrays.addObject(downList, new AtomArrayList());
-            upListNearestImageVector = (ArrayList[])Arrays.addObject(upListNearestImageVector, new ArrayList());
-            downListNearestImageVector = (ArrayList[])Arrays.addObject(downListNearestImageVector, new ArrayList());
+            upListNearestImageVector = (ObjectArrayList[])Arrays.addObject(upListNearestImageVector, new ObjectArrayList());
+            downListNearestImageVector = (ObjectArrayList[])Arrays.addObject(downListNearestImageVector, new ObjectArrayList());
         }
 		return index;
 	}
@@ -133,13 +132,13 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 		if (upList.length == 0) throw new RuntimeException("potential list empty in removePotential");
 		upList = new AtomArrayList[upList.length-1];
 		downList = new AtomArrayList[downList.length-1];
-        upListNearestImageVector = new ArrayList[upListNearestImageVector.length-1];
-        downListNearestImageVector = new ArrayList[downListNearestImageVector.length-1];
+        upListNearestImageVector = new ObjectArrayList[upListNearestImageVector.length-1];
+        downListNearestImageVector = new ObjectArrayList[downListNearestImageVector.length-1];
         for (int i=0; i<upList.length; i++) {
 			upList[i] = new AtomArrayList();
 			downList[i] = new AtomArrayList();
-            upListNearestImageVector[i] = new ArrayList();
-            downListNearestImageVector[i] = new ArrayList();
+            upListNearestImageVector[i] = new ObjectArrayList();
+            downListNearestImageVector[i] = new ObjectArrayList();
 		}
 	}
 	

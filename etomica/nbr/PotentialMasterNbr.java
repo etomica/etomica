@@ -4,8 +4,6 @@
  */
 package etomica.nbr;
 
-import java.util.ArrayList;
-
 import etomica.Atom;
 import etomica.Default;
 import etomica.IteratorDirective;
@@ -32,6 +30,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Vector;
 import etomica.utility.Arrays;
+import etomica.utility.ObjectArrayList;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -219,7 +218,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     private int nCells;
     private double maxNeighborRange;
     private final IteratorDirective idUp = new IteratorDirective();
-    private ArrayList[] vectors;
+    private ObjectArrayList[] vectors;
     
     public static class MyIterator extends AtomIteratorArrayList {
         
@@ -231,11 +230,11 @@ public class PotentialMasterNbr extends PotentialMaster {
         
         //TODO allAtoms
         
-        public void setVectors(ArrayList vector) {
+        public void setVectors(ObjectArrayList vector) {
             this.vector = vector;
         }
         
-        ArrayList vector;
+        ObjectArrayList vector;
         NearestImageTransformerVector nearestImageTransformer = new NearestImageTransformerVector();
     }
 }
