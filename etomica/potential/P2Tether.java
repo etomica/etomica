@@ -1,5 +1,6 @@
 package etomica.potential;
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
@@ -56,21 +57,21 @@ public class P2Tether extends Potential2HardSpherical {
   /**
    * Implements collision dynamics for pair attempting to separate beyond tether distance
    */
-  public final void bump(Atom[] pair, double falseTime) {
-      cPair.reset(pair[0].coord,pair[1].coord);
+  public final void bump(AtomSet pair, double falseTime) {
+      cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
       ((CoordinatePairKinetic)cPair).resetV();
       dr.E(cPair.dr());
       Vector dv = ((CoordinatePairKinetic)cPair).dv();
       dr.PEa1Tv1(falseTime,dv);
       double r2 = dr.squared();
       double bij = dr.dot(dv);
-        lastCollisionVirial = 2.0/(pair[0].type.rm() + pair[1].type.rm())*bij;
+        lastCollisionVirial = 2.0/(((AtomPair)pair).atom0.type.rm() + ((AtomPair)pair).atom1.type.rm())*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
-        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
-        pair[1].coord.position().Ea1Tv1(falseTime,dv);
+        ((ICoordinateKinetic)((AtomPair)pair).atom0.coord).velocity().PE(dv);
+        ((ICoordinateKinetic)((AtomPair)pair).atom1.coord).velocity().ME(dv);
+        ((AtomPair)pair).atom0.coord.position().Ea1Tv1(-falseTime,dv);
+        ((AtomPair)pair).atom1.coord.position().Ea1Tv1(falseTime,dv);
   }
 
 
@@ -88,8 +89,8 @@ public class P2Tether extends Potential2HardSpherical {
   /**
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
    */
-  public final double collisionTime(Atom[] pair, double falseTime) {
-      cPairNbr.reset(pair[0].coord,pair[1].coord);
+  public final double collisionTime(AtomSet pair, double falseTime) {
+      cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
       ((CoordinatePairKinetic)cPairNbr).resetV();
       dr.E(cPairNbr.dr());
       Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
