@@ -343,7 +343,6 @@ public class PistonCylinderGraphic {
         panel.add(displayPanel, java.awt.BorderLayout.EAST);
 
         setSimulation(new PistonCylinder(2));
-        System.out.println(pc.phase.atomCount());
     }
     
     public void setSimulation(PistonCylinder sim) {
@@ -369,7 +368,6 @@ public class PistonCylinderGraphic {
         pc.wallPotential.setPhase(pc.phase);  // so it has a boundary
         
         if (displayPhase.graphic() != null) {
-            System.out.println("removing displayPhase");
             displayPhasePanel.remove(displayPhase.graphic());
             displayPanel.remove(displayPhasePanel);
         }
