@@ -1,7 +1,7 @@
 package etomica;
 import etomica.units.*;
 
-public class MeterPressureByVolumeChange extends MeterFunction implements EtomicaElement {
+public class MeterPressureByVolumeChange extends MeterFunction {
     
     PhaseAction.Inflate inflater;
     double[] scale;
@@ -21,11 +21,6 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         setX(-0.001, 0.001, 10);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pressure measured by trial volume perturbations");
-        return info;
-    }
-
     public void setIsotropic(boolean b) {
         isotropic = b;
         setX(xMin, xMax, nPoints);

@@ -37,7 +37,6 @@ public final class Default {
  
     public static String getWorkingDirectory(){
         String dir = System.getProperty("user.dir");
-        if(dir.indexOf("VisualCafe") != -1) return "D:\\etomica";
         dir = dir.replace('\\', '/');
         return dir+"/";
     }

@@ -120,11 +120,10 @@ public class SimulationEditorPane extends EditorPane {
          * its properties are displayed in the property sheet. 
          */
 		rightPaneList.getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-		rightPaneList.addListSelectionListener(new MyListSelectionListener() {
+		rightPaneList.addListSelectionListener(new MyListSelectionListener(){
 		    public void valueChanged(javax.swing.event.ListSelectionEvent lse){
 		        Object obj = rightPaneList.getSelectedValue();
 		        EditActions.setObject(obj);
-		        if(obj == null) return;
 		        
 		        // See if customizer exists for the selected object.  If one does, enable customize
 		        // selection on EditMenu, otherwise disable it.
@@ -138,18 +137,18 @@ public class SimulationEditorPane extends EditorPane {
 		        setCurrentSelection(rightPaneList.getLeadSelectionIndex());
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
-
-                propertySheet.setTarget((Simulation.Element)obj);
-                try {
-                    propertySheet.setSelected(true);
+	            if (rightPaneList.getSelectedValue() != null){
+                    propertySheet.setTarget((Simulation.Element)rightPaneList.getSelectedValue());
+                    try {
+                        propertySheet.setSelected(true);
+                    }
+                    catch(java.beans.PropertyVetoException pve){}
                 }
-                catch(java.beans.PropertyVetoException pve){}
-    	    }});// end of addListSelectionListener statement
-
-	    propertySheet.addInternalFrameListener(new MyInternalFrameAdapter(){
-	        public void internalFrameClosed( InternalFrameEvent ife ){
-	            rightPaneList.clearSelection();
-	        }});
+	            propertySheet.addInternalFrameListener(new MyInternalFrameAdapter(){
+	                public void internalFrameClosed( InternalFrameEvent ife ){
+	                    rightPaneList.clearSelection();
+	                }});
+    	    }});// end JList instantiation and setup
 
 
         leftPanePanel.setLayout(gbl);

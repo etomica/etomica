@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPotentialEnergy extends Meter implements EtomicaElement
+public class MeterPotentialEnergy extends Meter
 {
     /**
     * Iterator for a molecule with all other molecules in phase
@@ -40,11 +40,6 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement
         setLabel("Potential Energy");
     }
       
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total intermolecular potential energy in a phase");
-        return info;
-    }
-
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */

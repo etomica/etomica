@@ -32,11 +32,6 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
         velocityTensor = sim.space().makeTensor();
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Velocity tensor, formed from averaging dyad of velocity vector for each atom");
-        return info;
-    }
-
     /**
      * Indicates that this meter does not reference the phase boundary.
      * @return false

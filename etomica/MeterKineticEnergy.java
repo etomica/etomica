@@ -21,11 +21,6 @@ public class MeterKineticEnergy extends Meter
         setLabel("Kinetic Energy");
     }
 
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total kinetic energy of molecular motion in a phase");
-        return info;
-    }
-
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */

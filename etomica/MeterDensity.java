@@ -8,7 +8,7 @@ import etomica.units.*;
  *
  * MIGHT WANT TO CHANGE THIS TO A METER.RATIO
  */
-public class MeterDensity extends Meter implements Meter.Atomic, EtomicaElement
+public class MeterDensity extends Meter implements Meter.Atomic
 {
     public MeterDensity() {
         this(Simulation.instance);
@@ -17,11 +17,6 @@ public class MeterDensity extends Meter implements Meter.Atomic, EtomicaElement
     {
         super(sim);
         setLabel("Number density");
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Number density (molecules/volume) in a phase");
-        return info;
     }
 
     /**

@@ -18,7 +18,7 @@ import javax.swing.JScrollPane;
  */
  
  //setPhase method needs repairing
-public class DisplayTable extends Display implements Meter.MultiUser, MeterFunction.User, EtomicaElement
+public class DisplayTable extends Display implements Meter.MultiUser, MeterFunction.User
 {
     public JTable table;
     MyTableData dataSource;
@@ -50,11 +50,6 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         setupTable();
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Tabular display of data from several meters or from a single meter function");
-        return info;
-    }
-
     private void setupTable() {
         if(panel != null) remove(panel);
         panel = Box.createVerticalBox();

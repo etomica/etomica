@@ -6,7 +6,7 @@ import etomica.units.Dimension;
  * Spherically symmetric potential of the form u(r) = 4*epsilon*[(sigma/r)^12 - (sigma/r)^6]
  * where epsilon describes the strength of the pair interaction, and sigma is the atom size parameter
  */
-public class PotentialLJ extends Potential implements Potential.Soft, EtomicaElement {
+public class PotentialLJ extends Potential implements Potential.Soft {
 
     private double sigma, sigmaSquared;
     private double cutoffRadius, cutoffRadiusSquared;
@@ -29,12 +29,7 @@ public class PotentialLJ extends Potential implements Potential.Soft, EtomicaEle
         force = sim.space().makeVector();
         calculateLRC();
     }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple Lennard-Jones potential");
-        return info;
-    }
-
+   
    /**
     * Always returns false
     */

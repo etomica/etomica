@@ -7,7 +7,7 @@ import etomica.units.*;
  *
  * @author Rob Riggleman
  */
-public class MeterProfileHard extends MeterProfile implements IntegratorHard.CollisionListener, EtomicaElement {
+public class MeterProfileHard extends MeterProfile implements IntegratorHard.CollisionListener {
     
     private Meter.Collisional cMeter;
     private int nCollisions;
@@ -38,11 +38,6 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
         setX(0, 1, 100);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Breaks a hard meter's measurements into a profile along some direction in the phase");
-        return info;
-    }
-
     /**
      * Sets the meter used to tabulate the property.  
      * May be called with either a Meter.Collisional or a Meter.Abstract.  If both types of meter

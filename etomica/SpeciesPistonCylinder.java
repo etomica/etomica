@@ -12,7 +12,7 @@ import java.awt.Graphics;
  *  (see main method for an example).
  */
  
-public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement {
+public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker {
 
     private Constants.Direction direction = Constants.NORTH;
     private Space2D.Vector dimensions = new Space2D.Vector();
@@ -48,11 +48,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         moleculeConfiguration = new PistonCylinderConfiguration(this);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Three fixed and one movable wall in a piston-cylinder configuration");
-        return info;
-    }
-
     /**
      * Overrides superclass so that only 1 "molecule" can be constructed.
      */

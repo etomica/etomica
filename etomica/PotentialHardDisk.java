@@ -6,7 +6,7 @@ package etomica;
  * size of disks.
  * Suitable for use in space of any dimension.
  */
-public class PotentialHardDisk extends Potential implements Potential.Hard, EtomicaElement
+public class PotentialHardDisk extends Potential implements Potential.Hard
 {
    /**
     * Separation at which disks first overlap
@@ -38,11 +38,6 @@ public class PotentialHardDisk extends Potential implements Potential.Hard, Etom
         setCollisionDiameter(d);
         lastCollisionVirialTensor = sim.space().makeTensor();
         dr = sim.space().makeVector();
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple hard-sphere potential");
-        return info;
     }
 
     /**

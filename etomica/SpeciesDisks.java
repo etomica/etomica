@@ -6,7 +6,7 @@ import etomica.units.Dimension;
  * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
  * with each disk having the same mass and size (same type).
  */
-public class SpeciesDisks extends Species implements EtomicaElement {
+public class SpeciesDisks extends Species {
 
 //  The atomType is not declared final here becuase it makes setting up the constructors easier,
 //  but effectively it cannot be changed once initialized; the instance is passed to the atoms, where
@@ -31,11 +31,6 @@ public class SpeciesDisks extends Species implements EtomicaElement {
         moleculeConfiguration = new Molecule.Configuration.Linear(this);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Species with molecules composed of one or more spherical atoms");
-        return info;
-    }
-
     public SpeciesDisks(int nM, int nA) {
         this(Simulation.instance, nM, nA);
     }

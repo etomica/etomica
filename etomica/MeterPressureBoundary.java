@@ -6,7 +6,7 @@ import etomica.units.Dimension;
  * Intended for use with BoundaryHard
  */
  
-public class MeterPressureBoundary extends Meter implements EtomicaElement
+public class MeterPressureBoundary extends Meter
 {
     private double momentumSum = 0.0;
     private double timeSum = 0.0;
@@ -20,11 +20,6 @@ public class MeterPressureBoundary extends Meter implements EtomicaElement
         setLabel("Pressure");
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pressure as measured via collisions with a hard boundary");
-        return info;
-    }
-
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */

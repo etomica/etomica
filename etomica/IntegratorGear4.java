@@ -9,7 +9,7 @@ import etomica.units.*;
  * @author Ed Maginn
  * @author David Kofke
  */
-public final class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
+public final class IntegratorGear4 extends IntegratorMD {
 
     AtomPair.Iterator pairIterator;
     Atom.Iterator atomIterator;
@@ -45,11 +45,6 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         work2 = sim.space().makeVector();
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using Gear 4th-order predictor/corrector algorithm");
-        return info;
-    }
-
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         p1 = dt;

@@ -1,7 +1,7 @@
 package etomica;
 import etomica.units.Dimension;
 
-public class P1TetherHardDisk extends Potential1 implements EtomicaElement {
+public class P1TetherHardDisk extends Potential1 {
 
   public PotentialTether potentialTether;
   public PotentialHardDisk potentialHD;
@@ -24,11 +24,6 @@ public class P1TetherHardDisk extends Potential1 implements EtomicaElement {
     }
   }
   
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard string between adjacent atoms, hard sphere between non-adjacents");
-        return info;
-    }
   public final double getTetherLength() {return potentialTether.getTetherLength();}
   public final void setTetherLength(double t) {potentialTether.setTetherLength(t);}
   public final Dimension getTetherLengthDimension() {return Dimension.LENGTH;}

@@ -169,13 +169,12 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * @param na The new number of atoms per molecule
      */
     public void setAtomsPerMolecule(int na) {
-        if(na == atomsPerMolecule) return;  //do nothing is value isn't changings
         atomsPerMolecule = na;
 //        if(parentSimulation == null) {return;}
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             Agent a = (Agent)e.next();
-            a.setNMolecules(a.nMolecules, true);//2nd argument indicates to make new molecules even though number of them is not changing
+            a.setNMolecules(a.nMolecules);
         }
     }
             
@@ -396,7 +395,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         * of new molecules, linked-list orders and initializes them.
         * Any previously existing molecules for this species in this phase are abandoned
         * Any links to molecules of next or previous species are maintained.
-        * Takes no action at all if the new number of molecules equals the existing number
         *
         * @param n  the new number of molecules for this species
         * @see #makeMolecule
@@ -404,22 +402,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         * @see #addMolecule
         */
         public void setNMolecules(int n) {
-            setNMolecules(n, false);
-        }
-        
-        /**
-         * Same as setNMolecules, but takes a boolean argument that can indicate that all
-         * new molecules should be made even if the number of molecules is not changing.
-         * @param forceRebuild if true will cause making of new molecules even if number is not changing.
-         */
-        public void setNMolecules(int n, boolean forceRebuild) {
-            if(n == nMolecules && !forceRebuild) return; //do nothing if number is not changing
-            Integrator integrator = parentPhase.integrator();
-            boolean wasPaused = false;
-            if(integrator != null) {
-                wasPaused = integrator.isPaused();//record pause state of integrator
-                integrator.pause();
-            }
             Molecule previous = null;
             Molecule next = null;
             if(firstMolecule != null) previous = firstMolecule.previousMolecule();
@@ -443,10 +425,6 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
             parentPhase.updateCounts();
             parentPhase.configuration.initializeCoordinates(parentPhase);
             parentPhase.iteratorFactory().reset();
-            if(integrator != null) {
-                integrator.initialize();
-                if(!wasPaused) integrator.unPause();//resume if was not paused originally
-            }
         }
               
         /**

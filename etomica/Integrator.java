@@ -6,13 +6,12 @@ import etomica.units.*;
 public abstract class Integrator implements Simulation.Element, Runnable, java.io.Serializable {
 
   transient public Thread runner = new Thread(this);
+  public boolean running = false;
   private boolean haltRequested = false;
   private boolean resetRequested = false;
   protected int maxSteps = Integer.MAX_VALUE;
   protected int stepCount = 0;
   private String name;
-  private boolean isPaused = true;
-  protected boolean pauseRequested = false;
  
   protected Phase firstPhase;
   protected Phase[] phase;
@@ -23,6 +22,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
   int interval = 10;  // number of steps between IntervalEvent firing
   int integrationCount = 0;
   boolean doSleep = true;
+  boolean paused = false;
   protected double temperature = Default.TEMPERATURE;
   protected boolean isothermal = false;
   private boolean initialized = false;
@@ -183,7 +183,6 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     
     public void start() {
         haltRequested = false;
-        isPaused = false;
         this.initialize();
         runner = new Thread(this);
         runner.start();
@@ -193,7 +192,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
         stepCount = 0;
         int iieCount = interval+1;
         while(stepCount < maxSteps) {
-            while(pauseRequested) doWait();//keep this before resetRequest, since need for reset might naturally follow completion of pause
+            while(paused) doWait();//keep this before resetRequest, since need for reset might naturally follow completion of pause
             if(resetRequested) {doReset(); resetRequested = false;}
             if(haltRequested) break;
             this.doStep();
@@ -207,49 +206,24 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
             }
             stepCount++;
         }//end of while loop
-        initialized = false;
     }//end of run method
     
     public void reset() {resetRequested = true;}
     
     protected synchronized void doWait() {
-        isPaused = true;
-        notifyAll(); //release any threads waiting for pause to take effect
         try {
-            wait(); //put in paused state
+            wait();
         } catch(InterruptedException e) {}
-        isPaused = false;
     }
     
     //suspend and resume functions
-    /**
-     * Requests that the integrator pause its execution.  The actual suspension
-     * of execution occurs only after completion of the current integration step.
-     * If it is important that the pause be in place before the requesting thread
-     * continues, query whether the integrator is actually in the paused state
-     * through the isPaused method.
-     */
-    public synchronized void pause() {
-        if(initialized && !isPaused) {
-            pauseRequested = true;
-            try {
-                wait();  //make thread requesting pause wait until pause is in effect
-            } catch(InterruptedException e) {}
-        }
-    }
-    /**
-     * Removes the integrator from the paused state, resuming execution where it left off.
-     */
-    public synchronized void unPause() {pauseRequested = false; notifyAll();}
-    /**
-     * Queries whether the integrator has actually reached the state of being paused.
-     */
-    public boolean isPaused() {return isPaused;}
+    public void pause() {paused = true;}
+    public synchronized void unPause() {paused = false; notify();}
     
     //stop function
     public void halt() {
         haltRequested = true;
-        if(pauseRequested) unPause();
+        if(paused) unPause();
     }
     
     /**

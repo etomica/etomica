@@ -9,7 +9,7 @@ import java.util.Random;
  * @author David Kofke
  */
 //need to update to include setPhaseIteratorFactory
-public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
+public class IntegratorGEMC extends IntegratorMC {
     
     private final Random rand = new Random();
     public Phase secondPhase;
@@ -34,11 +34,6 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         this.add(moleculeExchange);
     }
   
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Gibbs-ensemble Monte Carlo simulation of phase coexistence");
-        return info;
-    }
-
   public boolean addPhase(Phase p) {
     for(int i=0; i<phaseCount; i++) {if(phase[i]==p) return false;}  //check that phase is not already registered
     if(!this.wantsPhase()) {return false;}  //if another phase not wanted, return false

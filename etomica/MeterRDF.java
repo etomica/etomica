@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  * Should work ok in ensembles with fluctuating volume and particle numbers
  * Not suited for tabulation of RDFs of mixtures or heteroatomic molecules
  */
-public class MeterRDF extends MeterFunction implements EtomicaElement {
+public class MeterRDF extends MeterFunction {
     
     private AtomPair.Iterator iterator;
     private double[] vShell;
@@ -24,11 +24,6 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    setActive(true);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Tabulates radial distribution function");
-        return info;
-    }
-
     public Dimension getDimension() {return Dimension.NULL;}
     public Dimension getXDimension() {return Dimension.LENGTH;}
     

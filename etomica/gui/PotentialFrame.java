@@ -29,6 +29,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 public class PotentialFrame extends javax.swing.JInternalFrame {
     /**

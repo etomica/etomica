@@ -17,7 +17,7 @@ import javax.swing.JDialog;
  * @see DisplayPhaseEvent
  * @author David Kofke
  */
-public class DisplayPhase extends Display implements EtomicaElement {
+public class DisplayPhase extends Display {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
@@ -82,8 +82,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
     private transient final int[] shiftOrigin = new int[D];     //work vector for drawing overflow images
 
-    private int toPixels;
-    
  /**
   * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
   * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
@@ -137,21 +135,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
         setLayout(null);
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
-        return info;
-    }
-    
-    public int[] getOrigin() {
-        computeImageParameters();
-        return centralOrigin;
-    }
-    
-    public int[] getDrawSize() {
-        computeImageParameters();
-        return drawSize;
-    }
-
     public void setBounds(int x, int y, int width, int height) {
         super.setBounds(x,y,width,height);
         canvas.setBounds(x,y,width,height);
@@ -227,19 +210,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
             imageShells = n;
         }
     }
-    
-    protected void computeImageParameters() {
-        int w = canvas.getSize().width;
-        int h = canvas.getSize().height;
-        //Compute factor converting simulation units to pixels for this display
-        toPixels = (int)(getScale()*BaseUnit.Length.Sim.TO_PIXELS);
-        //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*phase().boundary().dimensions().component(0));
-        drawSize[1] = (parentSimulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().component(1));
-        //Find origin for drawing action
-        centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
-        centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
-    }    
       
     protected int computeOrigin(int align, int drawSize, int size) {
         switch(align) {
@@ -413,7 +383,14 @@ public class DisplayPhase extends Display implements EtomicaElement {
             int h = getSize().height;
             g.setColor(getBackground());
             g.fillRect(0,0,w,h);
-            computeImageParameters();
+            //Compute factor converting simulation units to pixels for this display
+            double toPixels = getScale()*BaseUnit.Length.Sim.TO_PIXELS;
+            //Determine length and width of drawn image, in pixels
+            drawSize[0] = (int)(toPixels*phase().boundary().dimensions().component(0));
+            drawSize[1] = (parentSimulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().component(1));
+            //Find origin for drawing action
+            centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
+            centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
             //Draw other features if indicated
             if(drawBoundary) {phase().boundary().draw(g, centralOrigin, scale);}
             if(drawSpace) {parentSimulation().space().draw(g, centralOrigin, scale);}
@@ -422,14 +399,12 @@ public class DisplayPhase extends Display implements EtomicaElement {
 //                    ((MeterAbstract)iter.next()).draw(g, centralOrigin, scale);
 //                }
 //            }
-
-            //do drawing of all drawing objects that have been added to the display
+            //Color all atoms according to colorScheme in DisplayPhase
             for(java.util.Iterator iter=drawingObjects.iterator(); iter.hasNext(); ) {
                 DrawingObject obj = (DrawingObject)iter.next();
                 obj.draw(g, centralOrigin, scale);
             }
             
-            //Color all atoms according to colorScheme in DisplayPhase
             colorScheme.colorAllAtoms();
             
             //Draw all atoms
@@ -515,7 +490,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             double y = (evt.getY() - centralOrigin[1])/toPixels;
             point.setComponent(0, x);
             point.setComponent(1, y);
-   //         phase().boundary().centralImage(point);
+            phase().boundary().centralImage(point);
             dpe.setPhase(phase());
             dpe.setPoint(point);
             dpe.setKeyEvent(null);

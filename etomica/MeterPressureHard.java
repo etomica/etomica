@@ -10,7 +10,7 @@ import java.awt.Frame;
  * Performs sum of collision virial over all collisions, dividing by 
  * appropriate terms to obtain the pressure.
  */
-public final class MeterPressureHard extends Meter implements IntegratorHard.CollisionListener, EtomicaElement {
+public final class MeterPressureHard extends Meter implements IntegratorHard.CollisionListener {
         
     private double virialSum = 0.0;
     private double t0 = 0.0; //initialized in setPhaseIntegrator method
@@ -27,11 +27,6 @@ public final class MeterPressureHard extends Meter implements IntegratorHard.Col
         setLabel("PV/Nk");
     }
         
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pressure measured via impulsive virial averaged over interatomic hard collisions");
-        return info;
-    }
-
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */

@@ -2,7 +2,7 @@ package etomica;
 
 import java.util.Random;
 
-public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
+public final class IntegratorVelocityVerlet extends IntegratorMD {
 
     AtomPair.Iterator pairIterator;
     Atom.Iterator atomIterator;
@@ -29,11 +29,6 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         };
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using velocity Verlet integration algorithm");
-        return info;
-    }
-
     
 	/**
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.

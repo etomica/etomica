@@ -1,6 +1,6 @@
 package etomica;
 
-public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement {
+public final class IntegratorVerlet extends IntegratorMD {
 
     AtomPair.Iterator pairIterator;
     Atom.Iterator atomIterator;
@@ -24,11 +24,6 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             }
         };
         work = sim.space().makeVector();
-    }
-
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using basic Verlet algorithm");
-        return info;
     }
 
 	/**

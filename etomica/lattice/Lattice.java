@@ -70,7 +70,7 @@ public class Lattice implements AbstractLattice, Observer {
    }
    
   //Lattice interface methods
-    public SiteIterator iterator() {iterator.reset(); return iterator;}
+    public SiteIterator iterator() {return iterator;}
     public int D() {return lattice.D();}           
     public int siteCount() {return lattice.siteCount() * basis.siteCount();} 
 //    public int coordinationNumber() {return lattice.coordinationNumber();}   

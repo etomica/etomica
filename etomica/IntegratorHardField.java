@@ -8,18 +8,13 @@ package etomica;
  *
  */
  
-public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
+public final class IntegratorHardField extends IntegratorHard {
 
     public IntegratorHardField() {
         this(Simulation.instance);
     }
     public IntegratorHardField(Simulation sim) {
         super(sim);
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Collision-based MD simulation in the presence of a hard external field");
-        return info;
     }
 
     /**

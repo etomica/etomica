@@ -93,7 +93,7 @@ public abstract class PotentialEditorPane extends EditorPane {
             public void valueChanged(javax.swing.event.ListSelectionEvent lse){
 		        Object obj = rightPaneList.getSelectedValue();
 		        EditActions.setObject(obj);
-		        if(obj == null) return;
+		        
 		        // See if customizer exists for the selected object.  If one does, enable customize
 		        // selection on EditMenu, otherwise disable it.
 		        try {
@@ -137,12 +137,12 @@ public abstract class PotentialEditorPane extends EditorPane {
                         }
                         catch(java.beans.PropertyVetoException pve){}
                     }
+	                propertySheet.addInternalFrameListener(new MyInternalFrameAdapter(){
+	                    public void internalFrameClosed( InternalFrameEvent ife ){
+	                        rightPaneList.clearSelection();
+	                    }});
                 }
 		    }});// end JList instantiation and setup
-	    propertySheet.addInternalFrameListener(new MyInternalFrameAdapter(){
-	        public void internalFrameClosed( InternalFrameEvent ife ){
-	            rightPaneList.clearSelection();
-	        }});
 		rightPaneList.getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 	    leftPanePanel.setMinimumSize(new java.awt.Dimension(300, 200));
     }

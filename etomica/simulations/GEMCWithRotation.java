@@ -17,7 +17,7 @@ public class GEMCWithRotation extends Simulation {
         IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 	    integratorGEMC1.setDoSleep(false);
 	    integratorGEMC1.setInterval(400);
-	 //   integratorGEMC1.getMCMoveVolumeExchange().setFrequency(0);
+	//    integratorGEMC1.getMCMoveVolumeExchange().setFrequency(0);
 	    
 	    SpeciesSpheresRotating speciesDisk1 = new SpeciesSpheresRotating(200);
 
@@ -67,7 +67,6 @@ public class GEMCWithRotation extends Simulation {
 	    displayPhase1.setColorScheme(color1);
 	    displayPhase2.setColorScheme(color2);
 	    */
-	    phase2.setDensity(0.1);
 	    setBackground(java.awt.Color.blue);		
 		((Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
         ((Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(10,10);
@@ -79,6 +78,7 @@ public class GEMCWithRotation extends Simulation {
         
         Simulation sim = new GEMCWithRotation();
 		sim.elementCoordinator.go(); 
+		
         f.add(sim.panel());
         
         f.pack();
@@ -86,6 +86,5 @@ public class GEMCWithRotation extends Simulation {
         f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
-		((Controller)sim.controller(0)).start();
     }//end of main
 }
