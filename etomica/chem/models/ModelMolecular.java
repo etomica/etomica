@@ -2,9 +2,15 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem.models;
-import etomica.*;
+import etomica.AtomFactory;
+import etomica.AtomFactoryHetero;
+import etomica.AtomFactoryHomo;
+import etomica.AtomSequencerFactory;
+import etomica.AtomTreeNode;
+import etomica.AtomTreeNodeGroupArray;
+import etomica.Configuration;
+import etomica.Space;
 import etomica.chem.Model;
-import etomica.chem.models.*;
 /**
  * Model for a molecule, which is formed from one or more sub-models, which
  * typically would describe the atoms in the molecule, or groups of atoms.
@@ -49,8 +55,8 @@ public abstract class ModelMolecular extends Model {
 		}
 	}
 	
-	public AtomFactory makeAtomFactory(Simulation sim) {
-		AtomSequencer.Factory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
+	public AtomFactory makeAtomFactory(Space space) {
+		AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
 																 : sim.iteratorFactory.simpleSequencerFactory();
 		int childCount = 0;
 		for(int i=0; i<count.length; i++) childCount += count[i];//total number of child atoms in group
@@ -61,19 +67,18 @@ public abstract class ModelMolecular extends Model {
 //		}
 
 		if(models.length == 1) {
-			AtomFactory childFactory = models[0].makeAtomFactory(sim);
-			return new AtomFactoryHomo(sim, seqFactory, nodeFactory, 
-										childFactory, count[0], BondInitializer.NULL, configuration);
+			AtomFactory childFactory = models[0].makeAtomFactory(space);
+			return new AtomFactoryHomo(space, seqFactory, nodeFactory, 
+										childFactory, count[0], configuration);
 		}
-		else {//makes array of child factories from models and counts
-			AtomFactory[] childFactories = new AtomFactory[childCount];
-			int k = 0;
-			for(int i=0; i<models.length; i++) {
-				AtomFactory childFactory = models[i].makeAtomFactory(sim);
-				for(int j=0; j<count[i]; j++) childFactories[k++] = childFactory;
-			}
-			return new AtomFactoryHetero(sim, seqFactory, nodeFactory, childFactories, configuration);
+		//makes array of child factories from models and counts
+		AtomFactory[] childFactories = new AtomFactory[childCount];
+		int k = 0;
+		for(int i=0; i<models.length; i++) {
+			AtomFactory childFactory = models[i].makeAtomFactory(space);
+			for(int j=0; j<count[i]; j++) childFactories[k++] = childFactory;
 		}
+		return new AtomFactoryHetero(space, seqFactory, nodeFactory, childFactories, configuration);
 	}
 
 }
