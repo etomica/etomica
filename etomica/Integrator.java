@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
 
-public abstract class Integrator extends Container implements Observer, PhaseIntegratorListener, Serializable, MouseListener, Runnable {
+public abstract class Integrator extends Container implements Observer, Serializable, MouseListener, Runnable {
 
     //VARIABLES used to make runnable    
   Thread runner;
@@ -57,15 +57,7 @@ public abstract class Integrator extends Container implements Observer, PhaseInt
   
   public final int getNeighborListUpdateInterval() {return neighborListUpdateInterval;}
   public final void setNeighborListUpdateInterval(int interval) {neighborListUpdateInterval = interval;}
-  
-  // Event-related methods
-  public void phaseIntegratorNotify(PhaseIntegratorEvent pie) {
-    if(nPhases == nPhasesMax) {return;}
-    phase[nPhases] = (Phase)pie.getSource();
-    nPhases++;
-    firstPhase = phase[0];
-  }
-  
+    
   public void registerPhase(Phase p) {
     if(nPhases == nPhasesMax) {return;}
     phase[nPhases] = p;

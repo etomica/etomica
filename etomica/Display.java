@@ -2,7 +2,7 @@ package simulate;
 import java.awt.*;
 import java.beans.Beans;
     
-    public class Display extends Container implements simulate.IntegrationIntervalListener{
+    public class Display extends Panel implements simulate.IntegrationIntervalListener{
 
 	View view;
 	Phase phase;
@@ -16,9 +16,9 @@ import java.beans.Beans;
     }
 
 	public void add(View v) {
-//	    super.add(v);
+	    super.add(v);
 	    view = v;
-	    view.parentDisplay = this;
+	    view.setParentDisplay(this);
 	}
 	
     public void createOffScreen () {
@@ -27,6 +27,8 @@ import java.beans.Beans;
             osg = offScreen.getGraphics();
         }
     }
+    
+    public void update(Graphics g) {paint(g);}
     
     public void paint(Graphics g) {
       if(Beans.isDesignTime()) {

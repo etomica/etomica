@@ -9,6 +9,7 @@ public class ViewJTable extends simulate.View
 {
     Table table;
     MyTableData dataSource;
+    Meter meter;
     
     public ViewJTable()
     {
@@ -17,10 +18,20 @@ public class ViewJTable extends simulate.View
         table.setDataSource(dataSource);
     }
     
-    public void doUpdate() {;}
+        public void setMeter(Meter m) {
+            meter = m;
+        }
+        
+    public void doUpdate() {
+        TableDataEvent event = new TableDataEvent(dataSource,0,0,0,0,TableDataEvent.CHANGE_VALUE);
+        dataSource.fireTableDataEvent(event);
+    }
     
-    public void paint(Graphics g) {table.paint(g);}
-
+	public void setParentDisplay(Display p) {
+	    super.setParentDisplay(p);
+	    p.add(table);
+	}
+	 
     class MyTableData extends jclass.table3.TableDataSupport {
         
         MyTableData() {
@@ -28,16 +39,15 @@ public class ViewJTable extends simulate.View
         
         public Object getTableDataItem(int row, int column) {
             if(column==0) {
- //               double value = parentDisplay.getMeter(row).currentValue(parentDisplay.phase);
-//                return new Double(value);
-                    return null;
+                double value = meter.currentValue();
+                return new Double(value);
             }
             else {
                 return null;
             }
         }
         
-        public int getNumRows() {return 1;}
+        public int getNumRows() {return 3;}
         
         public int getNumColumns() {return 1;}
         
@@ -48,7 +58,5 @@ public class ViewJTable extends simulate.View
         public Object getTableColumnLabel(int column) {
             return "Some Data";
         }
-        
-        public void update(Graphics g) {;}
     }
 }

@@ -24,7 +24,6 @@ public class Simulation extends Container {
   public void registerPhases(Integrator i) {
     Enumeration e = phases.elements();
     while(e.hasMoreElements()) {
-        
 //      ((Phase)e.nextElement()).addPhaseIntegratorListener(pil);
     }
   }
@@ -35,7 +34,6 @@ public class Simulation extends Container {
     p.parentSimulation = this;
     if(haveIntegrator()) {
         controller.integrator.registerPhase(p);
-//        p.addPhaseIntegratorListener(controller.integrator);
         p.gravity.addObserver(controller.integrator);
     }
   }

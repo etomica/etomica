@@ -21,7 +21,9 @@ public abstract class View extends java.awt.Component
 	        iieCount = updateInterval;
 	        doUpdate();
 	    }
-	}   
+	} 
+	
+	public void setParentDisplay(Display p) {parentDisplay = p;}
 
     public final int getUpdateInterval() {return updateInterval;}
     public final void setUpdateInterval(int i) {
@@ -30,5 +32,4 @@ public abstract class View extends java.awt.Component
             iieCount = updateInterval;
         }
     }
-    
 }

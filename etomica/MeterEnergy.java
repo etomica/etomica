@@ -8,6 +8,7 @@ public class MeterEnergy extends simulate.Meter
     public MeterEnergy()
     {
         super();
+        setLabel("Energy");
     }
 
     public double currentValue()

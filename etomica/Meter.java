@@ -13,9 +13,18 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     int count = 0;
     private Meter nextMeter, previousMeter;
     public Phase phase;
+    String label;
 
 	public Meter() {
 	    setUpdateInterval(1);
+	    label = "Property";
+	}
+	
+	public String getLabel() {
+	    return label;
+	}
+	public void setLabel(String s) {
+	    label = s;
 	}
 
     public final int getUpdateInterval() {return updateInterval;}

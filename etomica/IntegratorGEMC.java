@@ -116,15 +116,7 @@ public class IntegratorGEMC extends Integrator {
             iSpecies.addMolecule(iM);
         }                   
     }
-        
-  public void phaseIntegratorNotify(PhaseIntegratorEvent pie) {
-    if(nPhases == nPhasesMax) {return;}
-    phase[nPhases] = (Phase)pie.getSource();
-    nPhases++;
-    firstPhase = phase[0];
-    secondPhase = phase[1];
-  }
-    
+            
     public final int getFreqVolume() {return freqVolume;}
     public final void setFreqVolume(int f) {freqVolume = f;}
     public final int getFreqMolecule() {return freqMolecule;}

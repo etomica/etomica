@@ -75,8 +75,8 @@ import java.awt.*;
                     stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
                 }
             }
-        }         
-        
+        }
+                
         public void paint(Graphics osg) {
             osg.setColor(bgColor);
             int pixels = parentDisplay.pixels;
