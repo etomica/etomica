@@ -9,6 +9,7 @@ import etomica.Simulation;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.AbstractLattice;
+import etomica.lattice.FiniteLattice;
 import etomica.math.geometry.Polyhedron;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.space.Vector;
@@ -26,9 +27,9 @@ import etomica.space.Vector;
  //currently does only 2D cells
 public class LatticeRenderer implements Drawable {
     
-    public LatticeRenderer(AbstractLattice lattice) {
+    public LatticeRenderer(FiniteLattice lattice) {
         this.lattice = lattice; 
-        iterator.setList(lattice.siteList());
+        iterator.setList(new AtomList((Atom[])lattice.sites()));
         
     }
     
