@@ -1,5 +1,6 @@
 package etomica.potential;
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
@@ -53,20 +54,13 @@ public class P2SquareWell extends Potential2HardSpherical {
     }
 
     /**
-     * Returns true if separation of pair is less than core diameter, false otherwise
-     */
-    public boolean overlap(Atom[] pair) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
-        return cPairNbr.dr().squared() < coreDiameterSquared;
-    }
-
-    /**
      * Implements collision dynamics between two square-well atoms.
      * Includes all possibilities involving collision of hard cores, and collision of wells
      * both approaching and diverging
      */
-    public void bump(Atom[] pair, double falseTime) {
-        cPair.reset(pair[0].coord,pair[1].coord);
+    public void bump(AtomSet atoms, double falseTime) {
+        AtomPair pair = (AtomPair)atoms;
+        cPair.reset(pair.atom0.coord,pair.atom1.coord);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -74,11 +68,11 @@ public class P2SquareWell extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double reduced_m = 1.0/(pair[0].type.rm() + pair[1].type.rm());
+        double reduced_m = 1.0/(pair.atom0.type.rm() + pair.atom1.type.rm());
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
             if (Debug.ON && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
-                throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+coreDiameterSquared);
+                throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
             lastCollisionVirial = 2.0*reduced_m*bij;
             lastEnergyChange = 0.0;
@@ -89,7 +83,7 @@ public class P2SquareWell extends Potential2HardSpherical {
             if(bij > 0.0) {         // Separating
                 if(ke < epsilon) {     // Not enough kinetic energy to escape
                     if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
-                        throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
+                        throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
                     }
                     lastCollisionVirial = 2.0*reduced_m*bij;
                     nudge = -eps;
@@ -97,7 +91,7 @@ public class P2SquareWell extends Potential2HardSpherical {
                 }
                 else {                 // Escape
                     if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
-                        throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
+                        throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
                     }
                     lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
                     nudge = eps;
@@ -106,7 +100,7 @@ public class P2SquareWell extends Potential2HardSpherical {
             }
             else {                  // Approaching
                 if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
-                    throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
+                    throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+wellDiameterSquared);
                 }
                 lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
                 nudge = -eps;
@@ -115,13 +109,13 @@ public class P2SquareWell extends Potential2HardSpherical {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PEa1Tv1(pair[0].type.rm(),dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().PEa1Tv1(-pair[1].type.rm(),dv);
-        pair[0].coord.position().PEa1Tv1(-falseTime*pair[0].type.rm(),dv);
-        pair[1].coord.position().PEa1Tv1(falseTime*pair[1].type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1( pair.atom0.type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-pair.atom1.type.rm(),dv);
+        pair.atom0.coord.position().PEa1Tv1(-falseTime*pair.atom0.type.rm(),dv);
+        pair.atom1.coord.position().PEa1Tv1( falseTime*pair.atom1.type.rm(),dv);
         if(nudge != 0) {
-            pair[0].coord.position().PEa1Tv1(-nudge,dr);
-            pair[1].coord.position().PEa1Tv1(nudge,dr);
+            pair.atom0.coord.position().PEa1Tv1(-nudge,dr);
+            pair.atom1.coord.position().PEa1Tv1(nudge,dr);
         }
     }//end of bump method
 
@@ -140,8 +134,8 @@ public class P2SquareWell extends Potential2HardSpherical {
      * Collision may occur when cores collides, or when wells first encounter each other on
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
-    public double collisionTime(Atom[] pair, double falseTime) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
+    public double collisionTime(AtomSet pair, double falseTime) {
+        cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
@@ -181,7 +175,7 @@ public class P2SquareWell extends Potential2HardSpherical {
             }
         }
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(pair)) {
-            System.out.println(pair[0]+" and "+pair[1]+" r2 "+r2+" bij "+bij+" time "+(time+falseTime));
+            System.out.println(pair+" r2 "+r2+" bij "+bij+" time "+(time+falseTime));
         }
         return time + falseTime;
     }
