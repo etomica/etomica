@@ -41,35 +41,49 @@ import etomica.utility.Iterator;
  * @see Space.Boundary
  * @see MeterAbstract
  */
-public final class Phase extends SimulationElement {
+public class Phase extends SimulationElement {
         
     private Space.Boundary boundary;
     private transient final LinkedList meterList = new LinkedList();
     private PhaseAction.Inflate inflater;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
+    private static int nonSimCount = 0;//number of times instantiated without a parent simulation
     
     
+    /**
+     * Constructs phase and registers as part of the current Simulation.instance.
+     */
     public Phase() {
         this(Simulation.instance);
     }
     
+    /**
+     * Constructor for situtions when Phase is not to be used
+     * directly as part of a simulation.
+     */
+    public Phase(Space space) {
+        super(space, Phase.class, nonSimCount++);
+        speciesMaster = new SpeciesMaster(this);
+    }
+    
+    /**
+     * Constructs phase and registers it as part of the given simulation.
+     */
     public Phase(Simulation sim) {
         super(sim, Phase.class);
         
         speciesMaster = new SpeciesMaster(this);
-        
-        moleculeIterator = makeMoleculeIterator();//must come after speciesMaster assignment
-        
+                
         inflater = new PhaseAction.Inflate(this);
 
 //        setBoundary(Space.Boundary.DEFAULT);
-        setBoundary(parentSimulation().space().makeBoundary());
+        setBoundary(space.makeBoundary());
 
-        if(parentSimulation().space().D() < 3) 
-            setConfiguration(new ConfigurationSequential(parentSimulation().space()));  //default configuration
+        if(space.D() < 3) 
+            setConfiguration(new ConfigurationSequential(space));  //default configuration
         else
-            setConfiguration(new ConfigurationFcc(parentSimulation().space()));
+            setConfiguration(new ConfigurationFcc(space));
     }//end of constructor
    
     /**
@@ -83,10 +97,6 @@ public final class Phase extends SimulationElement {
      */
     public boolean isLrcEnabled() {return lrcEnabled;}
     
-    public void addSpecies(Species s) {
-        speciesMaster.addSpecies(s);
-//        moleculeIterator.setBasis(speciesMaster); this is not needed because molecule iterator is a listener to species master
-    }
     
     public Space.Vector randomPosition() {return boundary.randomPosition();}
         
@@ -173,6 +183,10 @@ public final class Phase extends SimulationElement {
     public final Space.Boundary boundary() {return boundary;}
     
     /**
+     * Returns the agent of the given species in this phase.
+     */
+    public final SpeciesAgent getAgent(Species s) {return s.getAgent(this);}
+    /**
      * Accessor of the integrator governing the movement of the atoms in the phase.
      * 
      * @return The phase's integrator.
@@ -200,7 +214,7 @@ public final class Phase extends SimulationElement {
     
     public void setDensity(double rho) {
         double vNew = moleculeCount()/rho;
-        double scale = Math.pow(vNew/boundary.volume(), 1.0/parentSimulation().space().D());
+        double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
         inflater.actionPerformed(scale);
     }
     public double getDensity() {return moleculeCount()/boundary.volume();}
@@ -368,8 +382,7 @@ public final class Phase extends SimulationElement {
      * Makes an iterator that loops through all the (leaf) atoms present in this phase.
      */
     public AtomIterator makeAtomIterator() {
-        return new AtomIteratorSequential(speciesMaster, true); //instead make an enumerated type to key for leaf iterator
-    //        public boolean contains(Atom a) {return a != null && a.parentPhase() == Phase.this;}
+        return new AtomIteratorList(speciesMaster.atomList);
     }
     
     /**
@@ -377,7 +390,7 @@ public final class Phase extends SimulationElement {
      * (children of the species agents) in this phase.
      */
     public AtomIterator makeMoleculeIterator() {
-        return new AtomIteratorCompound(speciesMaster);
+        return new AtomIteratorMolecule(this);
     }//end of makeMoleculeIterator
     
     /**
@@ -385,8 +398,7 @@ public final class Phase extends SimulationElement {
      * derived from the given species in this phase.
      */
     public AtomIterator makeAtomIterator(Species s) {
-        return new AtomIteratorSequential((SpeciesAgent)s.getAgent(this), true); //instead make an enumerated type to key for leaf iterator
-//        return ((SpeciesAgent)s.getAgent(this)).new LeafAtomIterator();
+        return new AtomIteratorTree(getAgent(s));
     }
 
     /**
@@ -398,7 +410,7 @@ public final class Phase extends SimulationElement {
  //       return ((SpeciesAgent)s.getAgent(this)).new ChildAtomIterator();
     }
 //    public final AtomIterator atomIterator;
-    public final AtomIterator moleculeIterator;
+//    public final AtomIterator moleculeIterator;
     
 /*    public static void main(String[] args) {
         

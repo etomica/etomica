@@ -53,10 +53,10 @@ public class AtomFactoryHetero extends AtomFactory {
     
     public boolean vetoAddition(Atom a) {return true;} 
         
-    public void renew(Atom a) {//need an exception in the case a is unrenewable
+/*    public void renew(Atom a) {//need an exception in the case a is unrenewable
         if(a.type != groupType) return;  //throw exception
         configuration.initializeCoordinates((AtomGroup)a);
     }       
-        
+*/        
 }//end of AtomFactoryHomo
     

@@ -9,6 +9,7 @@ package etomica;
 public abstract class PhaseAction extends etomica.Action implements PhaseListener {
 
     public static String getVersion() {return "PhaseAction:01.03.28/"+Action.VERSION;}
+    public static AtomIteratorMolecule iterator = new AtomIteratorMolecule();
 
     protected Phase phase;
     public PhaseAction() {this(null);}
@@ -184,7 +185,7 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         public static void doAction(Phase phase, Space.Vector scale, Space.Vector work) {
             phase.boundary().inflate(scale);
             scale.PE(-1.0);
-            AtomIterator iterator = phase.moleculeIterator;
+            iterator.setBasis(phase);
             iterator.reset();
             while(iterator.hasNext()) {
                 Atom m = iterator.next();
@@ -201,7 +202,7 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         }
         public void undo() {
             phase.boundary().setDimensions(oldDimensions);
-            AtomIterator iterator = phase.moleculeIterator;
+            iterator.setBasis(phase);
             iterator.reset();
             while(iterator.hasNext()) {
                 Atom m = iterator.next();

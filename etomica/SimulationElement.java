@@ -11,6 +11,7 @@ package etomica;
 public class SimulationElement implements java.io.Serializable {
     
     private final Simulation parentSimulation;
+    public final Space space;
     public final int index;
     private boolean added = false;
     private final Class baseClass;
@@ -18,9 +19,21 @@ public class SimulationElement implements java.io.Serializable {
     
     public SimulationElement(Simulation sim, Class baseClass) {
         parentSimulation = sim;
+        space = sim.space;
         this.baseClass = baseClass;
         index = sim.register(this);
         name = baseClass.getName().substring(8) + Integer.toString(index);
+    }
+    
+    /**
+     * Constructor for situtions when element is not to be used
+     * directly as part of a simulation.
+     */
+    public SimulationElement(Space space, Class baseClass, int index) {
+        parentSimulation = null;
+        this.space = space;
+        this.baseClass = baseClass;
+        this.index = index;
     }
     
     public final Simulation parentSimulation() {return parentSimulation;}

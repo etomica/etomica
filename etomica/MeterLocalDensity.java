@@ -20,8 +20,8 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
      */
     private SpeciesAgent speciesAgent;
     private Species species;
+    private AtomIteratorMolecule iterator = new AtomIteratorMolecule();
     protected double volume;
-    private AtomIterator iterator = new AtomIteratorSequential();
     /**
      * If <code>true</code> average mole fraction (n<sub>i</sub>/n<sub>total</sub>), if <code>false</code>, average total number density (n<sub>i</sub>/V)
      * Default is <code>false</code>
@@ -103,7 +103,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
         if(moleFractionMode) {  //compute local mole fraction
             if(speciesAgent == null) return 1.0;
             int totalSum = 0, speciesSum = 0;
-            AtomIterator iterator = phase.moleculeIterator;
+            iterator.setBasis(phase);
             iterator.reset();
             while(iterator.hasNext()) {
                 Atom m = iterator.next();
@@ -118,18 +118,16 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
         else {                 //compute local molar density
             int nSum = 0;
             if(species == null) {   //total density
-                AtomIterator iterator = phase.moleculeIterator;
+                iterator.setBasis(phase);
                 iterator.reset();
                 while(iterator.hasNext()) {
-                    Atom m = iterator.next();
-                    if(this.contains(m)) nSum++;
+                    if(this.contains(iterator.next())) nSum++;
                 }
             }
             else {                              //species density
-                iterator.setBasis(species.getAgent(phase));
+                iterator.setBasis(phase, species);
                 while(iterator.hasNext()) {
-                    Atom m = iterator.next();
-                    if(this.contains(m)) nSum++;
+                    if(this.contains(iterator.next())) nSum++;
                }
             }       
             return nSum/volume;

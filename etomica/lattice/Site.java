@@ -1,6 +1,8 @@
 package etomica.lattice;
 
-public class Site implements java.io.Serializable {
+import etomica.*;
+
+public class Site extends Atom {
     
     private final AbstractLattice lattice;
     private AbstractLattice.Coordinate coordinate;
@@ -10,6 +12,9 @@ public class Site implements java.io.Serializable {
     /**
      * Creates a site having the given parent lattice and coordinate.
      */
+    public Site(Space space, AtomType type, AtomTreeNode.Factory nodeFactory) {
+        super(space, type, nodeFactory, IteratorSimple.INSTANCE.atomSequencerFactory());
+        
     public Site(AbstractLattice parent, AbstractLattice.Coordinate coord) {
         lattice = parent;
         this.coordinate = coord;

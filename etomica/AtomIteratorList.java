@@ -2,7 +2,7 @@ package etomica;
 
 /**
  * Atom iterator that traverses the elements of an AtomList.
- * IteratorDirective direction can set whether iterator goes up or down list.
+ * IteratorDirective direction can set to cause iterator to go up or down list.
  * Can be set or as a neighbor iterator, in which case the first indicated atom
  * is skipped.
  *
@@ -10,11 +10,12 @@ package etomica;
  */
 public final class AtomIteratorList implements AtomIterator {
     
-	private AtomLinker next, start;
 	private AtomLinker.Tab header, terminator;
     private AtomList list;
     protected boolean upListNow, doGoDown;
     private final AtomLinker.Tab nullLinker = new AtomLinker.Tab();
+	private AtomLinker next = nullLinker;
+	private AtomLinker start;
         
 	public AtomIteratorList() {
 	    this(AtomList.NULL);
@@ -39,9 +40,9 @@ public final class AtomIteratorList implements AtomIterator {
     public void setBasis(Atom dummyAtom){ /* no implementation */}
     public void setBasis(AtomList list) {
         this.list = list;
-        if(list == null) {next = header = nullLinker; return;}
-        header = list.header;
-        terminator = header;
+        if(list == null) header = nullLinker;
+        else header = list.header;
+        next = terminator = header;
     }
     public Atom getBasis(){return null;}//no implementation
 

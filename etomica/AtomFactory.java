@@ -34,9 +34,9 @@ public abstract class AtomFactory {
     
     protected abstract Atom build();
     
-    protected abstract void renew(Atom a);
+//    protected abstract void renew(Atom a);
     
-    public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
+//    public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
     
     public AtomReservoir reservoir() {return reservoir;}
     

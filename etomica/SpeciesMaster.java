@@ -18,15 +18,11 @@ public final class SpeciesMaster extends AtomGroup {
      * List of leaf atoms in phase, suitable for iteration via an AtomIteratorList.
      */
     public final AtomList atomList = new AtomList();
-    /**
-     * List of molecules in phase, suitable for iteration via an AtomIteratorList..
-     */
-    public final AtomList moleculeList = new AtomList();
 
     public SpeciesMaster(Phase p) {
         super(p.parentSimulation().space(), AtomType.NULL, new NodeFactory(p));
         index = p.index;
-        ((MasterAtomTreeNode)node).speciesMaster = this;
+  //      ((MasterAtomTreeNode)node).speciesMaster = this;
     }
         
     public void addSpecies(Species species) {
@@ -42,7 +38,7 @@ public final class SpeciesMaster extends AtomGroup {
     public SpeciesAgent lastSpecies() {return (SpeciesAgent)node.lastChildAtom();}
         
     
-    public int atomCount() {return node.leafAtomCount();}
+    public int atomCount() {return atomList.size();}//or could use node.leafAtomCount()
     public int moleculeCount() {return moleculeCount;}
     
     public String signature() {return node.parentPhase().getName();}
@@ -57,13 +53,14 @@ public final class SpeciesMaster extends AtomGroup {
         eventManager.removeListener(listener);
     }
     
+    //why not make inner class?
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
         
-        private final Phase parentPhase;
-        SpeciesMaster speciesMaster;
         MasterAtomTreeNode(Phase parentPhase, Atom atom) {
             super(atom);
+            speciesMaster = (SpeciesMaster)atom;
             this.parentPhase = parentPhase;
+            leafIterator.setLeafIterator();
             depth = 0;
         }
         public Phase parentPhase() {return parentPhase;}
@@ -86,16 +83,31 @@ public final class SpeciesMaster extends AtomGroup {
             if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount++;}
             else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();}
             leafAtomCount += atom.node.leafAtomCount();
+            leafIterator.setBasis(atom);
+            leafIterator.reset();
+            while(leafIterator.hasNext()) {
+                speciesMaster.atomList.add(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker);
+            }
             speciesMaster.eventManager.fireEvent(speciesMaster.additionEvent.setAtom(atom));
         }
 
+        //updating of leaf atomList may not be efficient enough for repeated use, but is probably ok
         public void removeAtomNotify(Atom atom) {
             if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount--;}
             else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount -= ((SpeciesAgent)atom).moleculeCount();}
             leafAtomCount -= atom.node.leafAtomCount();
+            leafIterator.setBasis(atom);
+            leafIterator.reset();
+            while(leafIterator.hasNext()) {
+                speciesMaster.atomList.remove(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker);
+            }
             speciesMaster.eventManager.fireEvent(speciesMaster.removalEvent.setAtom(atom));
         }
-    }            
+        
+        private final Phase parentPhase;
+        private final SpeciesMaster speciesMaster;
+        private final AtomIteratorTree leafIterator = new AtomIteratorTree();
+    } //end of MasterAtomTreeNode           
     
     private static final class NodeFactory implements AtomTreeNode.Factory {
         Phase phase;
@@ -106,5 +118,29 @@ public final class SpeciesMaster extends AtomGroup {
             return new MasterAtomTreeNode(phase, atom);
         }
     }
+
+
+    /**
+     * non-graphic main method to test handling of leaf atom list.
+     */
+    public static void main(String args[]) {
+        
+        Simulation sim = new Simulation();
+        Simulation.instance = sim;
+        Species species2 = new SpeciesSpheresMono();
+        Species species1 = new SpeciesSpheres(3,3);
+        Species species0 = new SpeciesSpheres(3,2);
+        species0.setNMolecules(4);
+        species1.setNMolecules(2);
+        species2.setNMolecules(2);
+        Phase phase = new Phase();
+        sim.elementCoordinator.go();
+        
+        AtomIteratorList listIterator = new AtomIteratorList();
+        listIterator.setBasis(phase.speciesMaster.atomList);
+        listIterator.reset();
+        while(listIterator.hasNext()) System.out.println(listIterator.next().toString());
+        System.out.println();
+    }//end of main
 
 }//end of SpeciesMaster

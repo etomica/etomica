@@ -61,9 +61,23 @@ public class Species extends SimulationElement {
     public static final String VERSION = "Species:01.07.25";
     
     protected final AtomFactory factory;
+    private static int nonSimCount = 0;
     
+    /**
+     * Constructs species and registers it as part of the given simulation, with
+     * molecules built by the given atom factory.
+     */
     public Species(Simulation sim, AtomFactory factory) {
         super(sim, Species.class);
+        this.factory = factory;
+    }
+    
+    /**
+     * Constructor for situtions when Species is not to be used
+     * directly as part of a simulation.
+     */
+    public Species(Space space, AtomFactory factory) {
+        super(space, Species.class, nonSimCount++);
         this.factory = factory;
     }
               

@@ -129,13 +129,13 @@ public class Mediator implements java.io.Serializable {
             public void add(Phase phase) {
                 for(Iterator is=mediator.parentSimulation().speciesList().iterator(); is.hasNext(); ) {
                     Species species = (Species)is.next();
-                    if(species.wasAdded()) phase.addSpecies(species);
+                    if(species.wasAdded()) phase.speciesMaster.addSpecies(species);
                 }
             }
             public void add(Species species) {
                 for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
-                    if(phase.wasAdded()) phase.addSpecies(species);
+                    if(phase.wasAdded()) phase.speciesMaster.addSpecies(species);
                 }
             }
         }//end of Default

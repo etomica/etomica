@@ -32,7 +32,7 @@ public class AtomReservoir extends AtomGroup {
         //safety check
         if(count >= maximumCapacity || atom == null) return;
         //restore atom to condition when built
-        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
+//        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
         //add to reservoir
         atoms[count++] = atom;
         //check reservoir size and expand to accommodate next addition if now full

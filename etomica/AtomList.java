@@ -474,7 +474,7 @@ public class AtomList implements java.io.Serializable
         newNext.previous = moving;
     }        
 
-    private void remove(AtomLinker e) {
+    public void remove(AtomLinker e) {
 	    if (e.atom == null) {
 	        if(e == header) throw new NoSuchElementException();
         } else {//modification for tab entry
