@@ -151,7 +151,10 @@ public class Species {
      * @return The agent of this species in the phase
      */
     public final SpeciesAgent getAgent(Phase p) {return agents.get(p);}
-        
+
+    public final AtomFactory getFactory() {
+        return factory;
+    }
 
     final AgentList agents = new AgentList();
     protected final AtomFactory factory;
