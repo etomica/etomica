@@ -1,7 +1,15 @@
 //includes main method
 package etomica;
 
+/**
+ * Potential that places hard repulsive walls coinciding with the
+ * boundary of the phase, which is assumed to be rectangular in shape.
+ *
+ * @author David Kofke
+ */
 public class P1HardBoundary extends PotentialAbstract {
+    
+    public String getVersion() {return "P1HardBoundary:01.06.29/"+PotentialAbstract.VERSION;}
 
     private double collisionRadius = 0.0;
     
@@ -12,9 +20,18 @@ public class P1HardBoundary extends PotentialAbstract {
     public PotentialAgent makeAgent(Phase p) {
         return new Agent(this, p);
     }
-        
+     
+    /**
+     * Distance from the center of the sphere to the boundary at collision.
+     */
     public void setCollisionRadius(double d) {collisionRadius = d;}
+    /**
+     * Distance from the center of the sphere to the boundary at collision.
+     */
     public double getCollisionRadius() {return collisionRadius;}
+    /**
+     * Indicates collision radius has dimensions of Length.
+     */
     public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
 
     //P1HardBoundary.Agent
@@ -36,11 +53,11 @@ public class P1HardBoundary extends PotentialAbstract {
             });
         }
         
-        protected void makeIterator() {
-            //use default iterator only if potential was not previously turned off
-            //in the phase by setting its iterator to NULL
-           // if(!(iterator == AtomIterator.NULL)) 
-                iterator = parentPhase.iteratorFactory().makeAtomIteratorUp();
+        /**
+         * Sets iterator to one that gives all atoms in the phase.
+         */
+        protected void makeDefaultIterator() {
+           iterator = parentPhase.iteratorFactory().makeAtomIteratorUp();
         }
             
         public void setIterator(AtomIterator iterator) {

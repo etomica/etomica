@@ -4,30 +4,44 @@ package etomica;
  * Set of AtomIterators that are selected according to the direction indicated
  * by the iteratorDirective.
  */
-public final class AtomIteratorBundle extends AtomIterator {
+public final class AtomIteratorBundle implements AtomIterator {
         
-    AtomIterator current, up, down, singlet;
+    AtomIterator current, up, down, singlet, both;
     Phase phase;
+    private AtomIterator.Initiation initiation;
     private boolean neighborIterator;
         
     public AtomIteratorBundle(Phase p) {
+        this(p, AtomIterator.INCLUDE_FIRST);
+    }
+    public AtomIteratorBundle(Phase p, AtomIterator.Initiation init) {
         phase = p;
-        makeAtomIterators();
+        initiation = init;
+        makeDefaultIterators();
         
         //register to be informed if iterator factory in phase is changed
         phase.iteratorFactoryMonitor.addObserver(new java.util.Observer() {
 	        public void update(java.util.Observable o, Object arg) {
-	            makeAtomIterators();
+	            makeDefaultIterators();
 	        }
 	    });
 	}//end of constructor
 	    
-    private void makeAtomIterators() {
-        up = phase.iteratorFactory().makeAtomIteratorUp();
-        down = phase.iteratorFactory().makeAtomIteratorDown();
-        singlet = new AtomIteratorSinglet();
+    private void makeDefaultIterators() {
+        up = phase.iteratorFactory().makeAtomIteratorUp(initiation);
+        down = phase.iteratorFactory().makeAtomIteratorDown(initiation);
+        both = phase.iteratorFactory().makeAtomIteratorUpDown(initiation);
+        singlet = new AtomIteratorSinglet(initiation);
         current = singlet;
     }//end of makeAtomIterators
+    
+    public void setIterators(AtomIterator up, AtomIterator down,
+                             AtomIterator singlet, AtomIterator both) {
+        if(up != null) this.up = up;
+        if(down != null) this.down = down;
+        if(singlet != null) this.singlet = singlet;
+        if(both != null) this.both = both;
+    }
     
     public boolean hasNext() {return current.hasNext();}
         
@@ -35,8 +49,9 @@ public final class AtomIteratorBundle extends AtomIterator {
         IteratorDirective.Direction direction = id.direction();
             
         if(direction == IteratorDirective.UP) current = up;
-        else if(direction == IteratorDirective.SINGLET) current = singlet;
-        else current = down;
+        else if(direction == IteratorDirective.NEITHER) current = singlet;
+        else if(direction == IteratorDirective.DOWN) current = down;
+        else current = both;
             
         current.reset(id);
     }
@@ -45,17 +60,6 @@ public final class AtomIteratorBundle extends AtomIterator {
     
     public Atom next() {return current.next();}
         
-    public Atom reset(Atom a) {return current.reset(a);}
-
-    /**
-    * Resets the iterator, so that it is ready to go through its list again.
-    */
-    public Atom reset() {return current.reset();}
-
-    /**
-    * Resets iterator so that it loops through the given atoms, inclusive.
-    */
-    public Atom reset(Atom first, Atom last) {return current.reset(first, last);}
     /**
     * Performs the given Action on each atom in the list in sequence.
     * 

@@ -13,14 +13,14 @@ public abstract class PotentialAgent implements java.io.Serializable {
         parentPotential = potential;
         parentPhase = phase;
         parentPotential.agents().put(phase, this);
-        makeIterator();
+        makeDefaultIterator();
     }
     public final Phase parentPhase() {return parentPhase;}
         
     public PotentialAgent nextAgent() {return next;}
     public void setNextAgent(PotentialAgent potl) {next = potl;}
 
-    protected abstract void makeIterator();
+    protected abstract void makeDefaultIterator();
     
     public abstract double energy(IteratorDirective id);
 

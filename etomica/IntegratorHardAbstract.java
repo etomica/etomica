@@ -7,12 +7,14 @@ package etomica;
  * Determination of time of collision and implementation of collision
  * dynamics is handled by the potential between the atoms, which therefore must
  * have an Agent that implements PotentialAgent.Hard.
+ * <br>
+ * This class is not thread safe.
  *
  * @author David Kofke
  *
  */
  
- //note that thread safety of this class is compromised by the
+ //thread safety of this class is compromised by the
  //Space.Vector methods used in the periodCollisionTime method of Agent
  
 public abstract class IntegratorHardAbstract extends IntegratorMD {

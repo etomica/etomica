@@ -33,7 +33,10 @@ public abstract class Potential1 extends PotentialAbstract {
             super(potential, phase);
         }
         
-        protected void makeIterator() {
+        /**
+         * Default iterator gives no atoms.
+         */
+        protected void makeDefaultIterator() {
             iterator = AtomIterator.NULL;
         }
             

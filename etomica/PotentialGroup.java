@@ -33,7 +33,10 @@ public class PotentialGroup extends PotentialAbstract {
             return sum;
         }
         
-        public void makeIterator() {}
+        /**
+         * No iterator is associated with this agent.  This method has no action.
+         */
+        public void makeDefaultIterator() {}
         
         public void addPotential(PotentialAgent potential) {
             if(first == null) first = potential;

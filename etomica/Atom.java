@@ -235,11 +235,14 @@ public class Atom implements Space.Occupant, java.io.Serializable {
     public final Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
 
     public final boolean preceeds(Atom atom) {
+        return true;
+        /* //work this out later when atomGroup is in place
+        //want to return true if atoms are the same atoms
         if(atom == null) return true;
-        if(this.parentGroup == atom.parentGroup()) return this.index < atom.index;//works also if both parentGroups are null
+        if(this.parentGroup == atom.parentGroup()) return this.index <= atom.index;//works also if both parentGroups are null
         else if(this.depth == atom.depth) return this.parentGroup.preceeds(atom.parentGroup());
         else if(this.depth < atom.depth) return this.preceeds(atom.parentGroup());
-        else /*if(this.depth > atom.depth)*/ return this.parentGroup.preceeds(atom);
+        else /*if(this.depth > atom.depth)* / return this.parentGroup.preceeds(atom);*/
     }
     public Integrator.Agent ia;
         
