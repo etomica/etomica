@@ -3,6 +3,7 @@ package etomica.lattice;
 import etomica.Space;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
+import etomica.math.geometry.Square;
 
 /**
  * Primitive group for a cubic system.  All primitive
@@ -117,12 +118,20 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
         return idx;
     }
     
+    /**
+     * Returns a new Square (if primitive is 2D) or Cube (if 3D) with edges
+     * given by the size of the primitive vectors.
+     */
     public Polytope wignerSeitzCell() {
-        return new Cube(size);
-    }
+        return (D == 2) ? (Polytope)new Square(size) :  (Polytope)new Cube(size);
+            }
     
+    /**
+     * Returns a new Square (if primitive is 2D) or Cube (if 3D) with edges
+     * given by the size of the primitive vectors.
+     */
     public Polytope unitCell() {
-        return new Cube(size);
+        return (D == 2) ? (Polytope)new Square(size) :  (Polytope)new Cube(size);
     }
     
     public String toString() {return "Cubic";}
