@@ -20,7 +20,7 @@ public abstract class Accumulator implements DataSource {
     protected int nData;
     
     private String label = "Accumulator";
-    private Dimension dimension;
+    private Dimension dataSourceDimension;
     
 	/**
 	 * No-argument constructor
@@ -29,8 +29,8 @@ public abstract class Accumulator implements DataSource {
 		this(Dimension.UNDEFINED);
 	}
 	
-	public Accumulator(Dimension dimension) {
-		this.dimension = dimension;
+	public Accumulator(Dimension dataSourceDimension) {
+		this.dataSourceDimension = dataSourceDimension;
 	}
 	/**
 	 * Accessor method for the meter's label
@@ -46,5 +46,9 @@ public abstract class Accumulator implements DataSource {
 	
 	public abstract double[] getData();
 	
-	public Dimension getDimension() {return dimension;}
+	public Dimension getDimension() {return dataSourceDimension;}
+	
+	public void setDataSourceDimension(Dimension dataSourceDimension) {
+		this.dataSourceDimension = dataSourceDimension;
+	}
 }

@@ -12,6 +12,7 @@ package etomica.units;
 public abstract class UnitSystem implements java.io.Serializable {
     
     public abstract Unit quantity();
+    public abstract Unit fraction();
     public abstract Unit mass();
     public abstract Unit length();
     public abstract Unit time();
@@ -33,6 +34,7 @@ public abstract class UnitSystem implements java.io.Serializable {
     public static class Sim extends UnitSystem {
         
         public Unit quantity() {return Count.UNIT;}
+        public Unit fraction() {return Decimal.UNIT;}
         public Unit mass() {return Dalton.UNIT;}
         public Unit length() {return Angstrom.UNIT;}
         public Unit time() {return Picosecond.UNIT;}

@@ -13,18 +13,12 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private double[] vShell;
     protected double delr;
-    private DataSourceUniform xSource;
     
-    public MeterRDF() {
-        this(Simulation.instance);
-    }
-    public MeterRDF(Simulation sim) {
-	    super(sim);
-	    xSource = new DataSourceUniform();
-	    xSource.setLabel("r");
-	    setXLabel("r");
+    public MeterRDF(SimulationElement parent) {
+	    super(parent, new DataSourceUniform());
+	    ((DataSourceUniform)xDataSource).setDimension(Dimension.LENGTH);
+	    ((DataSourceUniform)xDataSource).setLabel("r");
 	    setLabel("rdf");
-	    setActive(true);
 	    iterator = AtomPairIterator.NULL;
     }
     
@@ -39,73 +33,46 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
     public IteratorDirective getDirective() {return iteratorDirective;}
 
     public Dimension getDimension() {return Dimension.NULL;}
-    public Dimension getXDimension() {return Dimension.LENGTH;}
-    
-	protected void setPhaseBoundary(Space.Boundary b) {
-//	    if(phase == null || phase.boundary() == null) return;
-	    setX(0.0, 0.5*b.dimensions().x(0),nPoints);
-	}
-	/**
-	 * Returns true to flag that this meter uses the phase boundary.
-	 */
-	protected boolean usesPhaseBoundary() {return true;}
 
-    /**
-     * Sets phase, evaluates abscissa values to maximum 
-     * of half system edge-length, and constructs pair iterator.
-     */
-	public void setPhase(Phase p) {
-	    super.setPhase(p);
-	    setX(xMin, xMax, nPoints);
- //       iterator = new ApiGeneral(phase);
-	}
-	
 	/**
 	 * Computes RDF for the current configuration
 	 *    For future development: It may be possible to extend to particular atom pairs by changing iterator and using a different normalization
 	 */
-	public double[] getData() {
-	    iterator.reset(iteratorDirective);          //prepare iterator of atom pairs
-	    for(int i=0; i<nPoints; i++) {y[i] = 0.0;}  //zero histogram
+	public double[] getDataAsArray(Phase phase) {
+		//TODO set up the iterator and phase
+		iterator.reset(iteratorDirective);          //prepare iterator of atom pairs
+	    for(int i=0; i<nDataPerPhase; i++) {phaseData[i] = 0.0;}  //zero histogram
+	    double xMax = ((DataSourceUniform)xDataSource).getXMax();
+	    double xMaxSquared = xMax*xMax;
 	    while(iterator.hasNext()) {                 //iterate over all pairs
-	        double r = Math.sqrt(iterator.next().r2()); //compute pair separation
-	        if(r < xMax) {
-	            int index = (int)(r/delr);          //determine histogram index
-	            y[index]+=2;                        //add once for each atom
+	        double r2 = iterator.next().r2();       //compute pair separation
+	        if(r2 < xMaxSquared) {
+	            int index = ((DataSourceUniform)xDataSource).getIndex(Math.sqrt(r2));  //(int)(Math.sqrt(r2)/delr);          //determine histogram index
+	            phaseData[index]++;                        //add once for each atom
 	        }
 	    }
 	    int n = phase.atomCount();                  //compute normalization: divide by
-	    double norm = n*n/phase.volume();           //n, and density*(volume of shell)
-	    for(int i=0; i<nPoints; i++) {y[i] /= (norm*vShell[i]);}
-	    return y;
-	}
-	
-	/**
-	 * Sets the radial values at which RDF is tabulated
-	 */
-    public void setX(double min, double max, int n) {
-	    super.setX(min, max, n);
-	    if(phase == null) return;
-	    //Compute normalization constants for RDF, including shell volumes for ideal-gas particle numbers
-	    vShell = new double[n];         
+	    double norm = (n*(n-1)/2)/phase.volume();           //n, and density*(volume of shell)
+	    double[] x = xDataSource.getData();
 	    Space space = phase.simulation().space();
-	    double dx2 = 0.5*(xMax - xMin)/(double)nPoints;
-	    for(int i=0; i<nPoints-1; i++) {
-	        vShell[i] = space.sphereVolume(x[i]+dx2)-space.sphereVolume(x[i]-dx2);
+	    double xMin = ((DataSourceUniform)xDataSource).getXMin();
+	    double dx2 = 0.5*(xMax - xMin)/(double)nDataPerPhase;
+	    for(int i=0; i<nDataPerPhase; i++) {
+	        double vShell = space.sphereVolume(x[i]+dx2)-space.sphereVolume(x[i]-dx2);
+	    	phaseData[i] /= (norm*vShell);
 	    }
-	    delr = xMax/(double)(nPoints-1);
+	    return phaseData;
 	}
 	
 	/**
 	 * main method to demonstrate and test use of class.
 	 */
-	 public static void main(String[] args) {
+/*	 public static void main(String[] args) {
 	    
 	    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 	    Simulation.instance = sim;
 	    
 	    MeterRDF meter = new MeterRDF(sim);
-	    meter.setActive(true);
 	    etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot(sim);
 	    etomica.graphics.DisplayTableFunction table = new etomica.graphics.DisplayTableFunction(sim);
 	    ApiIntragroupAA iterator = new ApiIntragroupAA(sim);
@@ -116,6 +83,6 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    
 	    etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
 	 }//end of main
-	   
+	*/   
 }
     

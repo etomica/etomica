@@ -16,10 +16,10 @@ public abstract class MeterScalar extends MeterAbstract {
 	    super(parent, 1);
 	}
 	
-	public abstract double getScalarData(Phase phase);
+	public abstract double getDataAsScalar(Phase phase);
 	
 	public final double[] getData(Phase phase) {
-		phaseData[0] = getScalarData(phase);
+		phaseData[0] = getDataAsScalar(phase);
 		return phaseData;
 	}
 	

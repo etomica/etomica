@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPotentialEnergy extends MeterAbstract implements EtomicaElement {
+public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement {
     
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy;
@@ -19,7 +19,7 @@ public class MeterPotentialEnergy extends MeterAbstract implements EtomicaElemen
         this(Simulation.instance);
     }
     public MeterPotentialEnergy(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         setLabel("Potential Energy");
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
@@ -49,7 +49,7 @@ public class MeterPotentialEnergy extends MeterAbstract implements EtomicaElemen
   * Computes total potential energy for all atom pairs in phase.
   * Currently, does not include long-range correction to truncation of energy
   */
-    public void doMeasurement() {
+    public double getDataAsScalar(Phase phase) {
   //      int nPairs = (int)potential.set(phase).calculate(iteratorDirective, pairSum.reset()).sum();
   //      System.out.println("pair count: "+nPairs);
   //    return nPairs;
@@ -65,7 +65,7 @@ public class MeterPotentialEnergy extends MeterAbstract implements EtomicaElemen
         //System.out.println();
         //System.out.println("  begin in MeterPotentialEnergy");
     //    iteratorDirective.set(IteratorDirective.UP);
-        data[0] = potential.calculate(phase, iteratorDirective.set(), energy.reset()).sum();
+        return potential.calculate(phase, iteratorDirective.set(), energy.reset()).sum();
     //    System.out.println("energies: "+0.5*sum+"  "+dbv);
         //System.out.println("  end in MeterPotentialEnergy");
         //System.out.println();

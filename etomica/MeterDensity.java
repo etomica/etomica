@@ -8,7 +8,7 @@ import etomica.units.*;
  *
  * MIGHT WANT TO CHANGE THIS TO A METER.RATIO
  */
-public class MeterDensity extends MeterScalar implements MeterAtomic, EtomicaElement
+public class MeterDensity extends MeterScalar implements EtomicaElement
 {
     public MeterDensity() {
         this(Simulation.instance);
@@ -23,13 +23,9 @@ public class MeterDensity extends MeterScalar implements MeterAtomic, EtomicaEle
         return info;
     }
 
-    public double getScalarData(Phase phase) {
+    public double getDataAsScalar(Phase phase) {
         return phase.moleculeCount()/phase.volume();
    }
     
-    public double currentValue(Atom a) {
-        return 1/phase.volume();
-    }
-
     public Dimension getDimension() {return new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME);}
 }

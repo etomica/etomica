@@ -25,6 +25,7 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 	 * Accumulators.
 	 */
 	public AccumulatorManager(DataSource dataSource, Accumulator[] accumulators) {
+		if(dataSource == null) throw new NullPointerException("Error: cannot construct accumulator manager without a data source");
 		this.dataSource = dataSource;
 		accumulatorList = new LinkedList(); 
 		iterator = accumulatorList.iterator();
@@ -82,11 +83,13 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 		accumulatorList.clear();
 		for(int i=0; i<accumulators.length; i++) {
 			accumulatorList.add(accumulators[i]);
+			accumulators[i].setDataSourceDimension(dataSource.getDimension());
 		}
 	}
 	
 	public void addAccumulator(Accumulator accumulator) {
 		accumulatorList.add(accumulator);
+		accumulator.setDataSourceDimension(dataSource.getDimension());
 	}
 	
 	/**

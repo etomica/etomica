@@ -145,7 +145,7 @@ public abstract class BaseUnit implements Unit {
     
     /**
      * Simulation unit for the quantity of discrete things (e.g. molecules) is Count.
-     * An examplle of another unit of this type is the mole.
+     * An example of another unit of this type is the mole.
      */
     public static abstract class Quantity extends BaseUnit {
 		public Quantity(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.QUANTITY, prefixAllowed);}
@@ -158,7 +158,24 @@ public abstract class BaseUnit implements Unit {
 			public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
         }
     }
-    
+ 
+    /**
+     * Simulation unit for a quantity representing a fractional amount
+     *  (e.g. molecules) is Count.
+     * An examplle of another unit of this type is the mole.
+     */
+    public static abstract class Fraction extends BaseUnit {
+		public Fraction(double to, String name, String symbol, boolean prefixAllowed) {super(to, name, symbol, Dimension.FRACTION, prefixAllowed);}
+		public Fraction(double to, String name, String symbol) {super(to, name, symbol, Dimension.FRACTION);}
+        public double to(Quantity u, double x) {return u.fromSim(this.toSim(x));}
+        public double from(Quantity u, double x) {return u.toSim(this.fromSim(x));}
+        
+        public static final class Sim extends Fraction {
+            public static final Fraction UNIT = Decimal.UNIT;
+			public Sim() {super(1.0, UNIT.toString(), UNIT.symbol(), UNIT.prefixAllowed());}
+        }
+    }
+
     /**
      * Simulation unit of mass is the Dalton (1/AVOGADRO grams)
      */

@@ -81,6 +81,18 @@ public abstract class Dimension implements java.io.Serializable {
         public Class baseUnit() {return BaseUnit.Quantity.class;}
     }
     
+    /**
+     * Dimension for a fraction quantity, such as mole fraction.
+     */
+    public static class Fraction extends Dimension {
+        private Fraction() {}
+        static double[] signature = {0., 0., 0., 0.};
+        public double[] signature() {return signature;}
+        public String toString() {return "Decimal";}
+        public Unit defaultIOUnit() {return Simulation.unitSystem().fraction();}
+        public Class baseUnit() {return BaseUnit.Fraction.class;}
+   	
+    }
     //remaining dimensions have obvious interpretations
     public static class Mass extends Dimension {
         private Mass() {}
@@ -180,6 +192,7 @@ public abstract class Dimension implements java.io.Serializable {
     //Singleton instances of each dimension
 	public static final Dimension NULL = new Null();
     public static final Dimension QUANTITY = new Quantity();
+	public static final Dimension FRACTION = new Fraction();
     public static final Dimension MASS = new Mass();
     public static final Dimension LENGTH = new Length();
     public static final Dimension TIME = new Time();

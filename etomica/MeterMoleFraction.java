@@ -19,7 +19,6 @@ public class MeterMoleFraction extends MeterScalar implements EtomicaElement {
     
     public void setSpecies(Species s) {
         species = s;
-//        speciesAgent = species.getAgent(getPhase());
     }
     public Species getSpecies() {return species;}
 
@@ -28,18 +27,11 @@ public class MeterMoleFraction extends MeterScalar implements EtomicaElement {
         return info;
     }
 
-    public void getData(Phase phase) {
-        if(species == null) phaseData[0] = Double.NaN;
-        else {
-        	SpeciesAgent agent = phase.getAgent(species);
-        	phaseData[0] = (double)agent.moleculeCount()/(double)phase.moleculeCount();
-        }
+    public double getDataAsScalar(Phase phase) {
+    	return (species == null) ? Double.NaN :
+         	(double)phase.getAgent(species).moleculeCount()/(double)phase.moleculeCount();
      }
-    
-    public double currentValue(Atom a) {
-        return (a.node.parentSpecies()==species) ? 1.0/(double)phase.moleculeCount() : 0.0;
-    }
-    
-    public etomica.units.Dimension getDimension() {return etomica.units.Dimension.NULL;}
+        
+    public etomica.units.Dimension getDimension() {return etomica.units.Dimension.FRACTION;}
 
 }//end of MeterMoleFraction

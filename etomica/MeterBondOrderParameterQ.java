@@ -10,12 +10,12 @@ import etomica.utility.*;
    * @author Jhumpa Adhikari
    */
 
-public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaElement 
+public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElement 
 {
     private SphericalHarmonics sh;
     private double[] Qreal, Qimag;
     private int L;
-    private AtomPairIterator pairIterator;
+    private ApiList pairIterator = new ApiList();
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
@@ -23,7 +23,7 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
     public MeterBondOrderParameterQ() {this(Simulation.instance);}
     
     public MeterBondOrderParameterQ(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
         setLabel("Bond Q Order Parameter");
@@ -34,13 +34,14 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
         return info;
     }
 
-    public void doMeasurement() {
+    public double getDataAsScalar(Phase phase) {
         int nbSum = 0;
         for(int m=-L; m<=L; m++) {
             int idx = m+L;
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
+        pairIterator.setBasis(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {
             AtomPair pair = pairIterator.next();
@@ -68,7 +69,7 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
             QL += Qreal[idx]*Qreal[idx] - Qimag[idx]*Qimag[idx];
         }
         QL = Math.sqrt(coeff*QL)/(double)nbSum;
-        data[0] = QL;
+        return QL;
         
     }//end of currentValue
     
@@ -85,11 +86,6 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
         coeff = 4*Math.PI/(2*L + 1);
     }
         
-    public Phase getPhase() {return super.getPhase();}
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-//        if(pairIterator == null) pairIterator = new ApiGeneral(p);
-    }
     public Dimension getDimension() {return Dimension.NULL;}
 
     public void setIterator(AtomPairIterator iter) {pairIterator = iter;}
