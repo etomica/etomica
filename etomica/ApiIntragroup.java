@@ -39,7 +39,10 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 * Puts iterator in a state to begin iteration.
 	 */
 	public void reset() {
+        //iterate in the prescribed direction from the target
         if(oneTarget) aiInner.setDirection(direction);
+        
+        //no target given -- iterate over all pairs
         else aiInner.setDirection(IteratorDirective.UP);
         iterator.reset();
 	}

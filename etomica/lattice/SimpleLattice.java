@@ -69,7 +69,7 @@ public class SimpleLattice implements AbstractLattice {
      * Returns the index in the 1-d array for the site corresponding
      * to the given lattice index.
      */
-    private final int arrayIndex(int[] index) {
+    public final int arrayIndex(int[] index) {
         int idx = 0;
         for(int i=0; i<D; i++) {
             idx += index[i]*jumpCount[i];
@@ -81,7 +81,7 @@ public class SimpleLattice implements AbstractLattice {
      * Returns the lattice index given the 1-d array index; reverses
      * the effect of arrayIndex method.
      */
-    private int[] latticeIndex(int index) {
+    public int[] latticeIndex(int index) {
         int[] latticeIndex = new int[D];
         for(int i=0; i<D; i++) {
             latticeIndex[i] = index/jumpCount[i];

@@ -43,11 +43,15 @@ public class CellLattice extends SimpleLattice {
      * r.D() == this.D()) but this is not checked.
      */
     public Object site(Space.Vector r) {
-        for(int i=0; i<idx.length; i++) {
-            idx[i] = (int)(size[i]*r.x(i)/dimensions.x(i));
-        }
+        assignIndex(r, idx);
         return site(idx);
 
+    }
+    
+    public void assignIndex(Space.Vector r, int[] idx) {
+        for(int i=0; i<idx.length; i++) {
+            idx[i] = (int)(size[i]*r.x(i)/dimensions.x(i));
+        }        
     }
     
     /**

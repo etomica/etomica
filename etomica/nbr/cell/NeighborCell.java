@@ -6,8 +6,9 @@ package etomica.nbr.cell;
 
 import etomica.AtomList;
 import etomica.lattice.AbstractLattice;
-import etomica.utility.Arrays;
+import etomica.lattice.SimpleLattice;
 import etomica.lattice.SiteFactory;
+import etomica.utility.Arrays;
 
 /**
  * Site used to form array of cells for cell-based neighbor listing.  Each
@@ -15,6 +16,9 @@ import etomica.lattice.SiteFactory;
  */
 public class NeighborCell {
 
+    public NeighborCell(int latticeArrayIndex) {
+        this.latticeArrayIndex = latticeArrayIndex;
+    }
     /**
      * Adds a new AtomList at the end of the array of occupant lists.
      */
@@ -32,10 +36,11 @@ public class NeighborCell {
     public AtomList[] occupants() {return occupants;}
     
     private AtomList[] occupants = new AtomList[0];
+    final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new SiteFactory() {
         public Object makeSite(AbstractLattice lattice, int[] coord) {
-            return new NeighborCell();
+            return new NeighborCell(((SimpleLattice)lattice).arrayIndex(coord));
         }
     };
 }
