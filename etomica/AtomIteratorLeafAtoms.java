@@ -49,7 +49,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements 
 			listIterator.setList(phase.speciesMaster.atomList);
 			if (species != null) {
 				listIterator.setFirst(phase.getAgent(species).firstLeafAtomTab);
-				listIterator.setTerminator(null);
+				listIterator.setTerminatorType(SpeciesMaster.SPECIES_TAB);
 			}
 		}
 		unset();

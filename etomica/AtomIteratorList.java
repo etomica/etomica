@@ -19,7 +19,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     private AtomList list;
     
 	private AtomLinker first;//first atom or tab for iteration
-	private AtomLinker.Tab terminator;//tab indicating end of iteration
+	private int terminatorType;//bitmask to match against for terminators
 	private AtomLinker next;//holds next atom to return on call to next()
     private boolean upList;
     private final Atom[] atoms = new Atom[1];
@@ -77,7 +77,8 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      */
     public void setList(AtomList newList) {
         list = (newList != null) ? newList : new AtomList();
-        next = terminator = list.header;
+        next = list.header;
+        terminatorType = AtomLinker.Tab.HEADER_TAB;
         first = list.header;
     }
     
@@ -95,8 +96,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     public void reset() {
     	next = first;
     	if(next.atom == null) next = upList ? next.next : next.previous;
-        if(terminator == null) return;
-        while(next.atom == null && next != terminator && next != list.header) {
+        while(next.atom == null && (((AtomLinker.Tab)next).type & terminatorType) == 0) {
             next = upList ? next.next : next.previous;
         }
     }
@@ -107,14 +107,13 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      * before use.
      */
     public void allAtoms(AtomsetActive action){
-    	AtomLinker.Tab header = list.header;
-    	for(AtomLinker link = (first.atom==null) ? (upList ? first.next : first.previous) : first; 
-    			link!=terminator && link!=header; link=(upList ? link.next : link.previous)) {
+    	for(AtomLinker link = (first.atom==null) ? (upList ? first.next : first.previous) : first; ; 
+    			link=(upList ? link.next : link.previous)) {
     		if(link.atom != null) {
     			atoms[0] = link.atom;
     			action.actionPerformed(atoms);
     		}
-    		else if(terminator == null) break;
+    		else if((((AtomLinker.Tab)link).type & terminatorType) > 0) break;
     	}       
     }//end of allAtoms
     
@@ -163,30 +162,20 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     public AtomLinker getFirst() {return first;}
     
     /**
-     * Specifies a tab that will end iteration when it is encountered by iterator
-     * as it loops through the list.  Throws IllegalArgumentException if
-     * given tab is not in current list. If given terminator is null, iteration
-     * will be set to halt when any tab is encountered in list.
+     * Sets the tab type of the terminator.  Iteration stops when the header
+     * or a tab of this type is encountered.  
      */
-    //TODO how to set terminator to be header
-    public void setTerminator(AtomLinker.Tab terminator) {
-    	if((terminator != null) && (terminator.list != this.list)) throw new IllegalArgumentException("Error in setting terminator as an element not in the list set for iteration");
-        this.terminator = terminator;
-        unset();
+    public void setTerminatorType(int terminatorType) {
+    	this.terminatorType = terminatorType | AtomLinker.Tab.HEADER_TAB;
     }
-    
-    //TODO consider terminators set as any type, using bit masking to detect
-//    public void setTerminatorAsAnyTab(boolean b) {
-//    	anyTabIsTerminator = b;
-//    }
     
     /**
-     * @return the current tab that indicates termination of iteration
+     * @return the current tab type that indicates termination of iteration
      */
-    public AtomLinker.Tab getTerminator() {
-    	return terminator;
+    public int getTerminatorType() {
+    	return terminatorType;
     }
-        
+    
     /**
      * Sets iterator such that hasNext() will return false.
      */
@@ -202,7 +191,8 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
      */
 	public boolean contains(Atom[] atom){
 		if(atom == null || atom.length == 0) return false;
-        if(first == list.header && terminator == list.header) return list.contains(atom[0]);//returns false also if atom[0] is null
+		// use AtomList's contains() if first is the header and the terminator type is header (only).
+        if(first == list.header && terminatorType == AtomLinker.Tab.HEADER_TAB)	return list.contains(atom[0]);//returns false also if atom[0] is null
 		AtomsetActiveDetect detector = new AtomsetActiveDetect(atom[0]);
 		allAtoms(detector);
 		return detector.detectedAtom();
@@ -211,10 +201,11 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
 	/**
 	 * Returns the total number of iterates that can be returned by this iterator, for
 	 * its current list basis, and as it is currently conditioned (as given by most recently
-	 * specified first and terminator). Does not require the iterator be reset.
+	 * specified first and terminatorType). Does not require the iterator be reset.
 	 */
 	public int size() {
-		if(first == list.header && terminator == list.header) return list.size();
+		// use AtomList's size() if first is the header and the terminator type is header (only).
+		if(first == list.header && terminatorType == AtomLinker.Tab.HEADER_TAB) return list.size();
 		AtomsetActiveCount counter = new AtomsetActiveCount();
 		allAtoms(counter);
 		return counter.callCount();
@@ -258,10 +249,8 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     	if(next.atom == null) return next;//prevent call to nextLinker from advancing past terminator
         AtomLinker nextLinker = next;
         next = upList ? next.next : next.previous;
-        while(next.atom == null) {
-            //if terminator is null we stop at the first encounter of a Tab linker
-            //otherwise stop only if Tab linker is the specified terminator or the header (which could be encountered before terminator, if different
-            if(terminator == null || next == terminator || ((AtomLinker.Tab)next).isHeader()) break;//check against header also, in case it is not the terminator but it is reached first
+        // loop through any tabs that do not match the terminatorType bitmask
+        while(next.atom == null && (((AtomLinker.Tab)next).type & terminatorType) == 0) {
             next = upList ? next.next : next.previous;
         }
         return nextLinker;
