@@ -2,6 +2,9 @@ package etomica.graphics;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import etomica.Default;
 import etomica.Integrator;
 import etomica.Phase;
@@ -9,12 +12,7 @@ import etomica.Simulation;
 import etomica.SimulationContainer;
 
 /**
- * The main class that organizes the elements of a molecular simulation.
- * Holds a single space object that is referenced in
- * many places to obtain spatial elements such as vectors and boundaries.  Also
- * holds an object that specifies the unit system used to default all I/O.  A single
- * instance of Simulation is held as a static field, and which forms the default
- * Simulation class needed in the constructor of all simulation elements.
+ * General class for graphical presentation of the elements of a molecular simulation.
  *
  * @author David Kofke
  */
@@ -54,7 +52,7 @@ public class SimulationGraphic implements SimulationContainer {
      * A visual display of the simulation via a JPanel.
      */
      public SimulationPanel panel() {
-        if(simulationPanel == null) simulationPanel = new SimulationPanel(this);
+        if(simulationPanel == null) simulationPanel = new SimulationPanel();
         return simulationPanel;
      }
      
@@ -116,10 +114,14 @@ public class SimulationGraphic implements SimulationContainer {
          deviceList.add(device);
      }
      
-    public final javax.swing.JFrame makeAndDisplayFrame() {
-        javax.swing.JFrame f = new javax.swing.JFrame();
+    public final JFrame makeAndDisplayFrame() {
+        return makeAndDisplayFrame(panel());
+    }
+    
+    public static JFrame makeAndDisplayFrame(JPanel panel) {
+        JFrame f = new JFrame();
         f.setSize(700,500);
-        f.getContentPane().add(panel());
+        f.getContentPane().add(panel);
         f.pack();
         f.show();
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
