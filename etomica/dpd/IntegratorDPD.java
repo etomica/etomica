@@ -121,7 +121,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
     
 //--------------------------------------------------------------
 
-	protected void reset() {
+	public void reset() {
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
@@ -129,6 +129,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 			agent.force.E(0.0);
 		}
 		potential.calculate(firstPhase, allAtoms, forceSum);//assumes only one phase
+        super.reset();
 	}
              
 //	  --------------------------------------------------------------
