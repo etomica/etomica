@@ -1,16 +1,13 @@
 package etomica.space2d;
 
-import etomica.Space2D;
-
-
 
 
 /*
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Tensor implements Tensor {
-    public int length() {return Space2D.D;}
+public class Tensor implements etomica.space.Tensor {
+    public int length() {return 2;}
     double xx, xy, yx, yy;
     public static final Tensor ZERO = new Tensor();
     public static final Tensor WORK = new Tensor();  //anything using WORK is not thread-safe
@@ -36,10 +33,10 @@ public class Tensor implements Tensor {
     public void PE(Vector u1, Vector u2) {xx+=u1.x*u2.x; xy+=u1.x*u2.y; yx+=u1.y*u2.x; yy+=u1.y*u2.y;}
     public double trace() {return xx + yy;}
     
-    public void E(Tensor t) {E((Tensor)t);}
-    public void E(Vector u1, Vector u2) {E((Vector)u1, (Vector)u2);}
-    public void PE(Tensor t) {PE((Tensor)t);}
-    public void PE(Vector u1, Vector u2) {PE((Vector)u1, (Vector)u2);}
+    public void E(etomica.space.Tensor t) {E((Tensor)t);}
+    public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector)u1, (Vector)u2);}
+    public void PE(etomica.space.Tensor t) {PE((Tensor)t);}
+    public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE((Vector)u1, (Vector)u2);}
     public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
     public void E(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrector for tensor");

@@ -1,15 +1,12 @@
 package etomica.space3d;
 
-import etomica.Space3D;
-
-
 
 
 /*
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Tensor implements Tensor {
+public class Tensor implements etomica.space.Tensor {
     double xx, xy, xz, yx, yy, yz, zx, zy, zz;
     public static final Tensor ORIGIN = new Tensor();
     public Tensor () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
@@ -19,7 +16,7 @@ public class Tensor implements Tensor {
     public double component(int i, int j) {
         return ( i==0 ) ? ( (j==0) ? xx : ( j==1 ? xy : xz ) ) : ( (i==1) ? ( (j==0) ? yx : ( (j==1) ? yy : yz ) ) : ( (j==0) ? zx : ((j==1) ? zy : zz)));
     }
-    public int length() {return Space3D.D;}
+    public int length() {return 3;}
     public void setComponent(int i, int j, double d) {
         if (i==0) {if (j==0) {xx = d;} else if (j==1) {xy = d;} else xz = d;}
         else if (i==1) {if (j==0) {yx = d;} else if (j==1) {yy=d;} else yz = d;}
@@ -35,10 +32,10 @@ public class Tensor implements Tensor {
         else {if (j==0) {zx += d;} else if (j==1) {zy += d;} else zz += d;}
     }
     public double trace() {return xx+yy+zz;}
-    public void E(Tensor t) {E((Tensor)t);}
-    public void E(Vector u1, Vector u2) {E((Vector)u1, (Vector)u2);}
-    public void PE(Tensor t) {PE((Tensor) t);}
-    public void PE(Vector u1, Vector u2) {PE(u1,u2);}
+    public void E(etomica.space.Tensor t) {E((Tensor)t);}
+    public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector)u1, (Vector)u2);}
+    public void PE(etomica.space.Tensor t) {PE((Tensor) t);}
+    public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE(u1,u2);}
     public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
     public void E(double[] d) {
         if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");

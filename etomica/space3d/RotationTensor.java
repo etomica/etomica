@@ -9,7 +9,7 @@ import etomica.Simulation;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class RotationTensor extends Tensor implements RotationTensor {
+public class RotationTensor extends Tensor implements etomica.space.RotationTensor {
     public RotationTensor() {super(); reset();}
     public void reset() {
         xx = 1.0; xy = 0.0; xz = 0.0;

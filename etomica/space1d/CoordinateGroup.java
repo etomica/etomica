@@ -3,8 +3,6 @@ package etomica.space1d;
 import etomica.Atom;
 import etomica.Phase;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.space.Boundary;
-import etomica.space.Coordinate;
 
 
 
@@ -98,7 +96,7 @@ public class CoordinateGroup extends Coordinate {
         displaceBy(work);
         scale.PE(1.0);
     }
-    public void translateBy(Vector u) {translateBy((Vector)u);}
+    public void translateBy(etomica.space.Vector u) {translateBy((Vector)u);}
     public void translateBy(Vector u0) {
         for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
             coord.translateBy(u0);

@@ -101,9 +101,9 @@ public abstract class Space implements java.io.Serializable {
     public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
         switch(u1.D()) {
-            case 1: return Space1D.r2((Vector)u1, (Vector)u2, (Boundary)b);
-            case 2: return Space2D.r2((Vector)u1, (Vector)u2, (Boundary)b);
-            case 3: return Space3D.r2((Vector)u1, (Vector)u2, (Boundary)b);
+            case 1: return Space1D.r2((etomica.space1d.Vector)u1, (etomica.space1d.Vector)u2, (Boundary)b);
+            case 2: return Space2D.r2((etomica.space2d.Vector)u1, (etomica.space2d.Vector)u2, (Boundary)b);
+            case 3: return Space3D.r2((etomica.space3d.Vector)u1, (etomica.space3d.Vector)u2, (Boundary)b);
             default: throw new IllegalArgumentException("Space.r2: Unknown vector dimension");
         }
     }
@@ -112,9 +112,9 @@ public abstract class Space implements java.io.Serializable {
      */
     public static Vector makeVector(int D) {
         switch(D) {
-            case 1:  return new Vector();
-            case 2:  return new Vector();
-            case 3:  return new Vector();
+            case 1:  return new etomica.space1d.Vector();
+            case 2:  return new etomica.space2d.Vector();
+            case 3:  return new etomica.space3d.Vector();
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
@@ -124,9 +124,9 @@ public abstract class Space implements java.io.Serializable {
      */
     public static Vector makeVector(double[] a) {
         switch(a.length) {
-            case 1:  return new Vector(a);
-            case 2:  return new Vector(a);
-            case 3:  return new Vector(a);
+            case 1:  return new etomica.space1d.Vector(a);
+            case 2:  return new etomica.space2d.Vector(a);
+            case 3:  return new etomica.space3d.Vector(a);
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }

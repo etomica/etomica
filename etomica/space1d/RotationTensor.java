@@ -7,7 +7,7 @@ package etomica.space1d;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class RotationTensor extends Tensor implements RotationTensor {
+public class RotationTensor extends Tensor implements etomica.space.RotationTensor {
     public RotationTensor() {super(); reset();}
     public void reset() {
         xx = 1.0;

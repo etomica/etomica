@@ -2,8 +2,6 @@ package etomica.space2d;
 
 import etomica.Constants;
 import etomica.Simulation;
-import etomica.Space2D;
-
 
 
 
@@ -11,16 +9,16 @@ import etomica.Space2D;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Orientation extends Orientation {
+public class Orientation extends etomica.space.Orientation {
     //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
     //components in the body-fixed frame
-    private final double[][] A = new double[Space2D.D][Space2D.D];
+    private final double[][] A = new double[2][2];
     private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0), new Vector(0.0,1.0)};
     private final double[] angle = new double[1];
     private boolean needToUpdateA = true;
-    public void E(Orientation o) {E((Orientation)o);}
+    public void E(etomica.space.Orientation o) {E((Orientation)o);}
     public void E(Orientation o) {angle[0] = o.angle[0]; needToUpdateA = true;}
-    public Vector[] bodyFrame() {
+    public etomica.space.Vector[] bodyFrame() {
         if(needToUpdateA) updateRotationMatrix();
         return bodyFrame;
     }
@@ -61,6 +59,6 @@ public class Orientation extends Orientation {
         v.y = A[0][1]*v.x + A[1][1]*v.y;
         v.x = x;
     }
-    public void convertToBodyFrame(Vector v) {convertToBodyFrame((Vector)v);}
-    public void convertToSpaceFrame(Vector v) {convertToSpaceFrame((Vector)v);}
+    public void convertToBodyFrame(etomica.space.Vector v) {convertToBodyFrame((Vector)v);}
+    public void convertToSpaceFrame(etomica.space.Vector v) {convertToSpaceFrame((Vector)v);}
 }

@@ -2,7 +2,6 @@ package etomica.space2d;
 
 import etomica.Atom;
 import etomica.Phase;
-import etomica.space.Boundary;
 import etomica.statmech.MaxwellBoltzmann;
 
 
@@ -11,7 +10,7 @@ import etomica.statmech.MaxwellBoltzmann;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Coordinate extends Coordinate {
+public class Coordinate extends etomica.space.Coordinate {
     public Coordinate nextCoordinate, previousCoordinate;
     public final Vector r = new Vector();  //Cartesian coordinates
     public final Vector p = new Vector();  //Momentum vector
@@ -30,13 +29,13 @@ public class Coordinate extends Coordinate {
     public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
     public void clearPreviousAtom() {previousCoordinate = null;}
             
-    public Vector position() {return r;}
-    public Vector truePosition(double falseTime) {
+    public etomica.space.Vector position() {return r;}
+    public etomica.space.Vector truePosition(double falseTime) {
         work.E(r);
         work.PEa1Tv1(falseTime*rm(),p);
         return work;
     }
-    public Vector momentum() {return p;}
+    public etomica.space.Vector momentum() {return p;}
     public double position(int i) {return r.x(i);}
     public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*rm()*p.x(i);}
     public double momentum(int i) {return p.x(i);}
@@ -48,9 +47,9 @@ public class Coordinate extends Coordinate {
     }
     
     public void inflate(double s) {r.x *= s; r.y *= s;}
-    public void inflate(Vector s) {Vector u = (Vector)s; r.x *= u.x; r.y *= u.y;}
+    public void inflate(etomica.space.Vector s) {Vector u = (Vector)s; r.x *= u.x; r.y *= u.y;}
     
-    public void transform(Vector r0, Tensor A) {
+    public void transform(etomica.space.Vector r0, etomica.space.Tensor A) {
         r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);
     }
     /**
@@ -58,7 +57,7 @@ public class Coordinate extends Coordinate {
     * 
     * @param u
     */
-    public void translateBy(Vector u) {
+    public void translateBy(etomica.space.Vector u) {
         r.PE((Vector)u);
     }
     /**
@@ -66,7 +65,7 @@ public class Coordinate extends Coordinate {
     * 
     * @param u
     */
-    public void translateBy(double d, Vector u) {
+    public void translateBy(double d, etomica.space.Vector u) {
         r.PEa1Tv1(d,(Vector)u);
     }
     /**
@@ -74,12 +73,12 @@ public class Coordinate extends Coordinate {
     * 
     * @param u
     */
-    public void translateTo(Vector u) {
+    public void translateTo(etomica.space.Vector u) {
         r.E((Vector)u);
     }      
-    public void displaceBy(Vector u) {rLast.E(r); translateBy((Vector)u);}
-    public void displaceBy(double d, Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
-    public void displaceTo(Vector u) {rLast.E(r); translateTo((Vector)u);}  
+    public void displaceBy(etomica.space.Vector u) {rLast.E(r); translateBy((Vector)u);}
+    public void displaceBy(double d, etomica.space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
+    public void displaceTo(etomica.space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
     public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
     public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
     public void replace() {
@@ -87,10 +86,10 @@ public class Coordinate extends Coordinate {
     }
 //    public final void inflate(double s) {r.TE(s);}
 
-    public void accelerateBy(Vector u) {p.PE(u);}
-    public void accelerateBy(double d, Vector u) {p.PEa1Tv1(d,u);}
-    public void accelerateTo(Vector u) {p.E(u);}
-    public void trueAccelerateTo(Vector u, double falseTime) {
+    public void accelerateBy(etomica.space.Vector u) {p.PE(u);}
+    public void accelerateBy(double d, etomica.space.Vector u) {p.PEa1Tv1(d,u);}
+    public void accelerateTo(etomica.space.Vector u) {p.E(u);}
+    public void trueAccelerateTo(etomica.space.Vector u, double falseTime) {
         double tm = falseTime*rm();
         r.x -= tm * (((Vector)u).x - p.x);
         r.y -= tm * (((Vector)u).y - p.y);

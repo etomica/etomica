@@ -1,7 +1,6 @@
 package etomica.space1d;
 
 import etomica.NearestImageTransformer;
-import etomica.space.Coordinate;
 
 
 
@@ -9,7 +8,7 @@ import etomica.space.Coordinate;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-final class CoordinatePair extends CoordinatePair {
+public final class CoordinatePair extends etomica.space.CoordinatePair {
     Coordinate c1;
     Coordinate c2;
     private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- this should be changed if cloned vectors use dr; also this makes cloned coordinatePairs not thread-safe
@@ -61,8 +60,8 @@ final class CoordinatePair extends CoordinatePair {
     public double v2() {
         return dvx*dvx;
     }
-    public double vDot(Vector u) {return vDot((Vector)u);}
-    public double vDot(Space1D.Vector u) {return dvx*u.x;}
+    public double vDot(etomica.space.Vector u) {return vDot((Vector)u);}
+    public double vDot(Vector u) {return dvx*u.x;}
     public double vDotr() {
         return drx*dvx;
     }

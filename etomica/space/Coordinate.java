@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import etomica.Atom;
 import etomica.Phase;
-import etomica.Space3D;
-import etomica.space3d.Vector;
 
 
 

@@ -3,9 +3,6 @@ package etomica.space3d;
 import etomica.Atom;
 import etomica.atom.AtomType;
 import etomica.atom.AtomType.SphericalTop;
-import etomica.space.Coordinate;
-import etomica.space.Orientation;
-import etomica.space.Coordinate.Angular;
 
 
 

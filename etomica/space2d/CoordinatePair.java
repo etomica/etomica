@@ -1,7 +1,6 @@
 package etomica.space2d;
 
 import etomica.NearestImageTransformer;
-import etomica.space.Coordinate;
 
 
 
@@ -9,21 +8,21 @@ import etomica.space.Coordinate;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public final class CoordinatePair extends CoordinatePair {
+public final class CoordinatePair extends etomica.space.CoordinatePair {
     Coordinate c1;
     Coordinate c2;
     private final Vector dr = new Vector();  //note that dr is not cloned if this is cloned -- should change this if using dr in clones; also this makes cloned coordinatePairs not thread-safe
     private double drx, dry, dvx, dvy;
-	private NearestImageTransformer nearestImageTransformer = Boundary;
+	private NearestImageTransformer nearestImageTransformer = etomica.space.Boundary.NULL;
     public double r2() {return drx*drx + dry*dry;}
 	public void setNearestImageTransformer(NearestImageTransformer b) {this.nearestImageTransformer = b;}
 	public NearestImageTransformer getNearestImageTransformer() {return nearestImageTransformer;}		
-    public void reset(Coordinate coord1, Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
+    public void reset(etomica.space.Coordinate coord1, etomica.space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
         reset();
     }
-    public void trueReset(Coordinate coord1, Coordinate coord2, double falseTime) {
+    public void trueReset(etomica.space.Coordinate coord1, etomica.space.Coordinate coord2, double falseTime) {
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
         trueReset(falseTime);
@@ -61,14 +60,14 @@ public final class CoordinatePair extends CoordinatePair {
         drx = dr.x;
         dry = dr.y;
     }
-    public Vector dr() {return dr;}
+    public etomica.space.Vector dr() {return dr;}
     public double dr(int i) {return (i==0) ? drx : dry;}
     public double dv(int i) {return (i==0) ? dvx : dvy;}
     public double v2() {
         return dvx*dvx + dvy*dvy;
     }
-    public double vDot(Vector u) {return vDot((Vector)u);}
-    public double vDot(Space2D.Vector u) {return dvx*u.x + dvy*u.y;}
+    public double vDot(etomica.space.Vector u) {return vDot((Vector)u);}
+    public double vDot(Vector u) {return dvx*u.x + dvy*u.y;}
     public double vDotr() {
         return drx*dvx + dry*dvy;
     }
@@ -78,7 +77,7 @@ public final class CoordinatePair extends CoordinatePair {
         c2.p.x -= impulse*drx;
         c2.p.y -= impulse*dry;
     }
-    public void truePush(Vector u, double falseTime) {
+    public void truePush(etomica.space.Vector u, double falseTime) {
         c1.p.PE(u);
         c2.p.ME(u);
         

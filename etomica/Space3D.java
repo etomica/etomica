@@ -3,17 +3,7 @@ package etomica;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.space.Boundary;
-import etomica.space.Coordinate;
-import etomica.space.CoordinatePair;
-import etomica.space.Orientation;
-import etomica.space.RotationTensor;
-import etomica.space.Tensor;
-import etomica.space.Vector;
-import etomica.space1d.CoordinateGroup;
-import etomica.space3d.BoundaryNone;
-import etomica.space3d.BoundaryPeriodicSquare;
-import etomica.space3d.OrientedCoordinate;
+import etomica.space3d.*;
 import etomica.statmech.MaxwellBoltzmann;
 
 /**
@@ -60,27 +50,27 @@ public class Space3D extends Space implements EtomicaElement {
     public double[] makeArrayD(double d) {return new double[] {d, d, d};}
     
     public static final Vector ORIGIN = new Vector();
-    public final Vector origin() {return ORIGIN;}
+    public final etomica.space.Vector origin() {return ORIGIN;}
     public static final Space3D INSTANCE = new Space3D();
     
     public Space3D() {super(3);}
     
     public double sphereVolume(double r) {return (Math.PI*4.0*r*r*r/3.0);}
     public double sphereArea(double r)  {return (Math.PI*4*r*r);}
-    public Vector makeVector() {return new Vector();}
-    public Orientation makeOrientation() {return new Orientation();}
-    public Tensor makeTensor() {return new Tensor();}
-    public Tensor makeRotationTensor() {return new RotationTensor();}
-    public Coordinate makeCoordinate(Atom a) {
+    public etomica.space.Vector makeVector() {return new Vector();}
+    public etomica.space.Orientation makeOrientation() {return new Orientation();}
+    public etomica.space.Tensor makeTensor() {return new Tensor();}
+    public etomica.space.Tensor makeRotationTensor() {return new RotationTensor();}
+    public etomica.space.Coordinate makeCoordinate(Atom a) {
         if(a.node instanceof AtomTreeNodeGroup) return new CoordinateGroup(a);
         else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
-    public CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
+    public etomica.space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
 
-    public Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
-    public Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
-    public Boundary makeBoundary(Boundary.Type t) {
+    public etomica.space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
+    public etomica.space.Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
+    public etomica.space.Boundary makeBoundary(etomica.space.Boundary.Type t) {
         if(t == Boundary.NONE) {return new BoundaryNone();}
         else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
    //     else if(t == Boundary.SLIDING_BRICK) return new BoundarySlidingBrick();

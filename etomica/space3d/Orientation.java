@@ -2,7 +2,6 @@ package etomica.space3d;
 
 import etomica.Constants;
 import etomica.Simulation;
-import etomica.Space3D;
 
 
 
@@ -11,7 +10,7 @@ import etomica.Space3D;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Orientation extends Orientation {
+public class Orientation extends etomica.space.Orientation {
     public Orientation() {
         throw new RuntimeException("Space3D.Orientation should be checked for correctness before using");
     }
@@ -24,7 +23,7 @@ public class Orientation extends Orientation {
     private boolean needToUpdateA = true;
     private transient double x1,y1,z1;//temp variable
     private transient Vector v1 = new Vector();
-    public void E(Orientation o) {E((Orientation)o);}
+    public void E(etomica.space.Orientation o) {E((Orientation)o);}
     public Vector getOrientation(){return orientVector;}
     public void setOrientation(Vector vect){orientVector.E(vect);}
     public void E(Orientation o) {
@@ -130,6 +129,6 @@ public class Orientation extends Orientation {
         
         v.E(v1);
      }
-    public void convertToBodyFrame(Vector v) {convertToBodyFrame((Vector)v);}
-    public void convertToSpaceFrame(Vector v) {convertToSpaceFrame((Vector)v);}
+    public void convertToBodyFrame(etomica.space.Vector v) {convertToBodyFrame((Vector)v);}
+    public void convertToSpaceFrame(etomica.space.Vector v) {convertToSpaceFrame((Vector)v);}
 }

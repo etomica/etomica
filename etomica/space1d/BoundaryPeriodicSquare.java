@@ -3,8 +3,6 @@ package etomica.space1d;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space1D;
-import etomica.space.Boundary;
 import etomica.space.Boundary.Periodic;
 import etomica.space.Boundary.Type;
 
@@ -17,7 +15,7 @@ import etomica.space.Boundary.Type;
 /**
  * Class for implementing rectangular periodic boundary conditions
  */
-class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodic{
+public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodic{
     public BoundaryPeriodicSquare() {this(Default.BOX_SIZE);}
     public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE);}
     public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx; updateDimensions();}
@@ -36,13 +34,13 @@ class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodic{
         temp.x = dimensions.x*Simulation.random.nextDouble(); 
         return temp;
     }
-    public void nearestImage(Vector dr) {nearestImage((Vector)dr);}
+    public void nearestImage(etomica.space.Vector dr) {nearestImage((Vector)dr);}
     public void nearestImage(Vector dr) {
         while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
         while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
     }
     public boolean centralImage(Coordinate c) {return centralImage(c.position());}
-    public boolean centralImage(Vector r) {return centralImage((Vector)r);}
+    public boolean centralImage(etomica.space.Vector r) {return centralImage((Vector)r);}
     public boolean centralImage(Vector r) {
         boolean changed = false;
         while(r.x > dimensions.x) {r.x -= dimensions.x; changed = true;}

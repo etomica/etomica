@@ -8,7 +8,6 @@ import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.Space;
 import etomica.Constants.TypedConstant;
-import etomica.Space.Boundary.Type;
 
 
 

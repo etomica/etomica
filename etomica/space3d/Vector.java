@@ -1,9 +1,6 @@
 package etomica.space3d;
 
 import etomica.Simulation;
-import etomica.Space3D;
-import etomica.space.Boundary;
-import etomica.space.Tensor;
 
 
 
@@ -11,11 +8,11 @@ import etomica.space.Tensor;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public final class Vector extends Vector{
+public final class Vector extends etomica.space.Vector {
         public static final Vector ORIGIN = new Vector(0.0, 0.0, 0.0);
-        private double x, y, z;
-        public int length() {return Space3D.D;}
-        public int D() {return Space3D.D;}
+        double x, y, z;
+        public int length() {return 3;}
+        public int D() {return 3;}
         public Vector () {x = 0.0; y = 0.0; z = 0.0;}
         public Vector (double a1, double a2, double a3) {x = a1; y = a2; z = a3;}
         public Vector (double[] a) {x = a[0]; y = a[1]; z = a[2];}//should check length of a for exception
@@ -23,7 +20,7 @@ public final class Vector extends Vector{
         public String toString() {return "("+x+", "+y+", "+z+")";}
         public double x(int i) {return((i==0) ? x : (i==1) ? y : z);}
         public double[] toArray() {return new double[] {x, y, z};}
-        public boolean equals(Vector v) {return equals((Vector)v);}
+        public boolean equals(etomica.space.Vector v) {return equals((Vector)v);}
         public boolean equals(Vector v) {return (x == v.x) && (y == v.y) && (z == v.z);}
 		public boolean isZero() {return (x == 0.0) && (y == 0.0) && (z == 0);}
         public void sphericalCoordinates(double[] result) {
@@ -36,8 +33,8 @@ public final class Vector extends Vector{
         public void E(double a, double b, double c) {x = a; y = b; z = c;}
         public void E(int i, double a) {if (i==0) x=a; else if (i==1) y=a; else z=a;}
         public void E(double[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
-        public void Ea1Tv1(double a1, Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y; z = a1*u1.z;}
-        public void PEa1Tv1(double a1, Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y; z += a1*u1.z;}
+        public void Ea1Tv1(double a1, etomica.space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y; z = a1*u1.z;}
+        public void PEa1Tv1(double a1, etomica.space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y; z += a1*u1.z;}
         public void PE(Vector u) {x += u.x; y += u.y; z += u.z;}
         public void PE(double a) {x += a; y += a; z += a;}
         public void ME(Vector u) {x -= u.x; y -= u.y; z -= u.z;}
@@ -47,19 +44,19 @@ public final class Vector extends Vector{
         public void TE(Vector u) {x *= u.x; y *= u.y; z *= u.z;}
         public void DE(double a) {x /= a; y /= a; z /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y ; z /= u.z;}
-        public void Ev1Pv2(Vector u1, Vector u2) {
+        public void Ev1Pv2(etomica.space.Vector u1, etomica.space.Vector u2) {
             Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
             x = v1.x + v2.x;
             y = v1.y + v2.y;
             z = v1.z + v2.z;
         }
-        public void Ev1Mv2(Vector u1, Vector u2) {
+        public void Ev1Mv2(etomica.space.Vector u1, etomica.space.Vector u2) {
             Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
             x = v1.x - v2.x;
             y = v1.y - v2.y;
             z = v1.z - v2.z;
         }
-        public void mod(Vector u) {
+        public void mod(etomica.space.Vector u) {
             mod((Vector)u);
         }
         public void mod(Vector u) {
@@ -129,10 +126,10 @@ public final class Vector extends Vector{
 			z -= r.z;
 		}
         
-		public Vector P(Vector u) {Vector work = new Vector(); work.Ev1Pv2(this,u); return work;}
-		public Vector M(Vector u) {Vector work = new Vector(); work.Ev1Mv2(this,u); return work;}
-		public Vector T(Vector u) {Vector work = new Vector(); work.E(this); work.TE(u); return work;}
-		public Vector D(Vector u) {Vector work = new Vector(); work.E(this); work.DE(u); return work;}
+		public etomica.space.Vector P(etomica.space.Vector u) {etomica.space.Vector work = new Vector(); work.Ev1Pv2(this,u); return work;}
+		public etomica.space.Vector M(etomica.space.Vector u) {etomica.space.Vector work = new Vector(); work.Ev1Mv2(this,u); return work;}
+		public etomica.space.Vector T(etomica.space.Vector u) {etomica.space.Vector work = new Vector(); work.E(this); work.TE(u); return work;}
+		public etomica.space.Vector D(etomica.space.Vector u) {etomica.space.Vector work = new Vector(); work.E(this); work.DE(u); return work;}
 		public void abs() {x=(x<0)?-x:x; y=(y<0)?-y:y; z=(z<0)?-z:z;}
         public double min() {return (x < y) ? (x<z)?x:z : (y<z)?y:z;}
         public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
@@ -143,7 +140,7 @@ public final class Vector extends Vector{
         	double dz = z-u1.z+u2.z;
         	return dx*dx + dy*dy + dz*dz;
         }
-		public double Mv1Squared(Vector u) {
+		public double Mv1Squared(etomica.space.Vector u) {
 			Vector u1 = (Vector)u;
 			double dx = x-u1.x;
 			double dy = y-u1.y;
@@ -151,7 +148,7 @@ public final class Vector extends Vector{
 			return dx*dx + dy*dy + dz*dz;
 		}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
-        public void transform(Tensor A) {transform((Tensor)A);}
+        public void transform(etomica.space.Tensor A) {transform((Tensor)A);}
         public void transform(Tensor A) {
             double x1 = A.xx*x + A.xy*y + A.xz*z; 
             double y1 = A.yx*x + A.yy*y + A.yz*z;
@@ -159,7 +156,7 @@ public final class Vector extends Vector{
                     x=x1; 
                     y=y1;
         }
-        public void transform(Boundary b, Vector r0, Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
+        public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
         public void transform(Boundary b, Vector r0, Tensor A) {
         	this.ME(r0);
         	b.nearestImage(this);
@@ -249,13 +246,13 @@ public final class Vector extends Vector{
         
         public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y; z = ORIGIN.z;}
 
-        public void E(Vector u) {E((Vector) u);}
-        public void PE(Vector u) {PE((Vector) u);}
-        public void TE(Vector u) {TE((Vector) u);}
-        public void ME(Vector u) {ME((Vector) u);}
-        public void DE(Vector u) {DE((Vector) u);}
-        public double dot(Vector u) {return dot((Vector)u);}
-        public Space3D.Vector cross(Vector u) {//does 3d cross-product taking u.z = 0
+        public void E(etomica.space.Vector u) {E((Vector) u);}
+        public void PE(etomica.space.Vector u) {PE((Vector) u);}
+        public void TE(etomica.space.Vector u) {TE((Vector) u);}
+        public void ME(etomica.space.Vector u) {ME((Vector) u);}
+        public void DE(etomica.space.Vector u) {DE((Vector) u);}
+        public double dot(etomica.space.Vector u) {return dot((Vector)u);}
+        public Vector cross(etomica.space2d.Vector u) {//does 3d cross-product taking u.z = 0
         	Vector work = new Vector(this);
         	work.x = -z*u.x(1);
             work.y = z*u.x(0);
@@ -267,7 +264,7 @@ public final class Vector extends Vector{
          * given vector.  This vector is unchanged.
          * @see etomica.space.Vector#cross(Vector)
          */
-        public Space3D.Vector cross(Space3D.Vector u) {//not thread safe
+        public Vector cross(Vector u) {//not thread safe
         	Vector work = new Vector(this);
         	work.XE(u);
         	return work;

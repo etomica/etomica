@@ -2,11 +2,6 @@ package etomica.space;
 
 import java.io.Serializable;
 
-import etomica.Space2D;
-import etomica.Space3D;
-
-
-
 /*
  * History
  * Created on Jan 24, 2005 by kofke
@@ -74,9 +69,9 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
         public abstract void normalize();                     //scales the vector to unit length
         public abstract boolean isZero();					  //returns true if all elements of vector are zero
         public abstract double dot(Vector u);                 //dot product of this vector with the vector u
-        public abstract Space3D.Vector cross(Vector u);       //cross product of this vector with u
-        public abstract Vector cross(Vector u);       //cross product of this vector with u
-        public abstract void XE(Vector u);            //replaces this vector with its cross product (project result into plane if appropriate)
+        public abstract etomica.space3d.Vector cross(etomica.space2d.Vector u);       //cross product of this vector with u
+        public abstract etomica.space3d.Vector cross(etomica.space3d.Vector u);       //cross product of this vector with u
+        public abstract void XE(etomica.space3d.Vector u);            //replaces this vector with its cross product (project result into plane if appropriate)
         public abstract void transform(Tensor A);             //applies the given tensor transformation to this vector
         public abstract void transform(Boundary b, Vector r0, Tensor A);  //applies the transformation to (this - r0)
         public abstract void setRandom(double d);             //
@@ -87,7 +82,7 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
         public final void PEa1Tv1(double[] a, Vector[] u) {   //adds several terms of form a*u to this vector
             for(int i=a.length-1; i>=0; i--) {PEa1Tv1(a[i],u[i]);}
         }
-        public Space3D.Vector cross(Vector u) {
+        public etomica.space3d.Vector cross(Vector u) {
             if(u instanceof Vector) {return cross((Vector)u);}
             else if(u instanceof Vector) {return cross((Vector)u);}
             else return null;

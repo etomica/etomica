@@ -1,16 +1,7 @@
 package etomica;
 
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.space.Boundary;
-import etomica.space.Coordinate;
-import etomica.space.CoordinatePair;
-import etomica.space.Orientation;
-import etomica.space.RotationTensor;
-import etomica.space.Tensor;
-import etomica.space.Vector;
-import etomica.space1d.BoundaryNone;
-import etomica.space1d.BoundaryPeriodicSquare;
-import etomica.space1d.CoordinateGroup;
+import etomica.space1d.*;
 import etomica.statmech.MaxwellBoltzmann;
 
 //CoordinateGroup is not updated to the same structure as used in Space2D and Space3D
@@ -38,27 +29,27 @@ public class Space1D extends Space implements EtomicaElement {
     public final int powerD(int n) {return n;}
     public final double powerD(double a) {return a;}
     public static final Vector ORIGIN = new Vector();
-    public final Vector origin() {return ORIGIN;}
+    public final etomica.space.Vector origin() {return ORIGIN;}
     public static final Space1D INSTANCE = new Space1D();
     
     public Space1D() {super(1);}
     
     public double sphereVolume(double r) {return 2.0*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0;}      //surface area of sphere of radius r (used for differential shell volume)
-    public Vector makeVector() {return new Vector();}
-    public Orientation makeOrientation() {System.out.println("Orientation class not implemented in 1D"); return null;}
-    public Tensor makeTensor() {return new Tensor();}
-    public Tensor makeRotationTensor() {return new RotationTensor();}
-    public Coordinate makeCoordinate(Atom a) {
+    public etomica.space.Vector makeVector() {return new Vector();}
+    public etomica.space.Orientation makeOrientation() {System.out.println("Orientation class not implemented in 1D"); return null;}
+    public etomica.space.Tensor makeTensor() {return new Tensor();}
+    public etomica.space.Tensor makeRotationTensor() {return new RotationTensor();}
+    public etomica.space.Coordinate makeCoordinate(Atom a) {
         if(a.node instanceof AtomTreeNodeGroup) return new CoordinateGroup(a);
 //        else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         return new Coordinate(a);
     }
-    public CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
+    public etomica.space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
 
-    public Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
-    public Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
-    public Boundary makeBoundary(Boundary.Type t) {
+    public etomica.space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
+    public etomica.space.Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
+    public etomica.space.Boundary makeBoundary(etomica.space.Boundary.Type t) {
         if(t == Boundary.NONE) {return new BoundaryNone();}
         else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
         else return null;

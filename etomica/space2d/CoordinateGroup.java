@@ -4,7 +4,6 @@ import etomica.Atom;
 import etomica.Phase;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.space.Coordinate;
 
 
 
@@ -26,18 +25,18 @@ public class CoordinateGroup extends Coordinate {
          * Applies transformation to COM of group, keeping all internal atoms at same relative
          * positions.
          */
-        public void transform(Vector r0, Tensor A) {
+        public void transform(etomica.space.Vector r0, etomica.space.Tensor A) {
             work.E(position()); //work = r
             work.transform(atom.node.parentPhase().boundary(), r0, A);
             work.ME(r);//now work vector contains translation vector for COM
             translateBy(work);
         }
-        public Vector position() {
+        public etomica.space.Vector position() {
 			if(firstAtom == null) firstAtom = ((AtomTreeNodeGroup)atom.node).childList.getFirst(); //DAK 
 			if(firstAtom == null) {r.E(0.0); return r;}
 			return firstAtom.coord.position();
 		}
-		public Vector positionCOM() {
+		public etomica.space.Vector positionCOM() {
             r.E(0.0); double massSum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
@@ -48,7 +47,7 @@ public class CoordinateGroup extends Coordinate {
             r.DE(massSum);
             return r;
         }
-        public Vector momentum() {
+        public etomica.space.Vector momentum() {
             p.E(0.0);
             childIterator.reset();
             while(childIterator.hasNext()) {

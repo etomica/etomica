@@ -3,9 +3,6 @@ package etomica.space1d;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space1D;
-import etomica.space.Boundary;
-import etomica.space.Boundary.Type;
 
 
 
@@ -16,7 +13,7 @@ import etomica.space.Boundary.Type;
 /**
  * Class for implementing no periodic boundary conditions
  */
-final class BoundaryNone extends Boundary{
+public final class BoundaryNone extends Boundary{
     private final Vector temp = new Vector();
     private final Vector dimensions = new Vector(Default.BOX_SIZE);
     private final Vector dimensionsCopy = new Vector();
@@ -25,10 +22,8 @@ final class BoundaryNone extends Boundary{
     public BoundaryNone(Phase p) {super(p);}
     public Boundary.Type type() {return Boundary.NONE;}
     public void nearestImage(Vector dr) {}
-	public boolean centralImage(Vector r) {return false;}
-	public boolean centralImage(Coordinate c) {return false;}
-    public void nearestImage(Vector dr) {}
     public boolean centralImage(Vector r) {return false;}
+    public boolean centralImage(Coordinate c) {return false;}
     public double volume() {return dimensions.x;}
     public void inflate(double s) {dimensions.TE(s);}
     public void inflate(Vector s) {dimensions.TE(s);}

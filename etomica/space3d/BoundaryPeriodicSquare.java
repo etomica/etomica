@@ -3,10 +3,6 @@ package etomica.space3d;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space3D;
-import etomica.space.Boundary;
-import etomica.space.Boundary.Periodic;
-import etomica.space.Boundary.Type;
 
 
 
@@ -36,7 +32,7 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
             dimensionsHalf.Ea1Tv1(0.5,dimensions);
             dimensionsCopy.E(dimensions);
         }
-        public void nearestImage(Vector dr) {nearestImage((Vector) dr);}
+        public void nearestImage(etomica.space.Vector dr) {nearestImage((Vector) dr);}
         public void nearestImage(Vector dr) {
       //      dr.x -= dimensions.x*((dr.x > 0.0) ? Math.floor(dr.x/dimensions.x + 0.5) : Math.ceil(dr.x/dimensions.x - 0.5));
       //      dr.y -= dimensions.y*((dr.y > 0.0) ? Math.floor(dr.y/dimensions.y + 0.5) : Math.ceil(dr.y/dimensions.y - 0.5));
@@ -82,7 +78,7 @@ public class BoundaryPeriodicSquare extends Boundary implements Boundary.Periodi
  			c.translateBy(displace);
  		}
  */
-        public boolean centralImage(Vector v) {return centralImage((Vector) v);}
+        public boolean centralImage(etomica.space.Vector v) {return centralImage((Vector) v);}
         public boolean centralImage(Vector v) {
             temp.E(v);
             v.mod(dimensions);

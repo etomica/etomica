@@ -4,7 +4,6 @@ import etomica.Atom;
 import etomica.Phase;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.space.Coordinate;
 
 
 

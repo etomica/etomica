@@ -3,16 +3,14 @@ package etomica.space3d;
 import etomica.Constants;
 import etomica.Phase;
 import etomica.Constants.TypedConstant;
-import etomica.Space3D.Boundary.Type;
-
 
 
 /*
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public abstract class Boundary extends Boundary {
-        public static class Type extends Boundary.Type {
+public abstract class Boundary extends etomica.space.Boundary {
+        public static class Type extends etomica.space.Boundary.Type {
             private Type(String label) {super(label);}
             public Constants.TypedConstant[] choices() {return TYPES;}
         }
@@ -26,6 +24,6 @@ public abstract class Boundary extends Boundary {
         public abstract void nearestImage(Vector dr);
         public abstract void nearestImage(Vector dr, Vector shift);
         public abstract boolean centralImage(Vector r);
-        public boolean centralImage(Coordinate c) {return centralImage((Coordinate)c);}
+        public boolean centralImage(etomica.space.Coordinate c) {return centralImage((Coordinate)c);}
         public abstract boolean centralImage(Coordinate c);
     }

@@ -3,9 +3,6 @@ package etomica.space3d;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space3D;
-import etomica.space.Boundary;
-import etomica.space.Boundary.Type;
 
 
 
@@ -22,9 +19,7 @@ public final class BoundaryNone extends Boundary {
     public Boundary.Type type() {return Boundary.NONE;}
     public void nearestImage(Vector dr) {}
     public boolean centralImage(Vector r) {return false;}
-    public void nearestImage(Vector dr) {}
     public void nearestImage(Vector dr, Vector shift) {shift.E(0.0);}
-    public boolean centralImage(Vector r) {return false;}
     public boolean centralImage(Coordinate c) {return false;}
     public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
     public void inflate(double s) {dimensions.TE(s);}

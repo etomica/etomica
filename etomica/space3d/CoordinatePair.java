@@ -1,7 +1,6 @@
 package etomica.space3d;
 
 import etomica.NearestImageTransformer;
-import etomica.space.Coordinate;
 
 
 
@@ -9,7 +8,7 @@ import etomica.space.Coordinate;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public final class CoordinatePair extends CoordinatePair {
+public final class CoordinatePair extends etomica.space.CoordinatePair {
         Coordinate c1;
         Coordinate c2;
         private final Vector dr = new Vector();
@@ -77,8 +76,8 @@ public final class CoordinatePair extends CoordinatePair {
         public double dr(int i) {return (i==0) ? dr.x : ((i==1) ? dr.y : dr.z);}
         public double dv(int i) {return (i==0) ? dvx : ((i==1) ? dvy : dvz);}
         public double v2() {return dvx*dvx + dvy*dvy + dvz*dvz;}
-        public double vDot(Vector u) {return vDot((Vector)u);}
-        public double vDot(Space3D.Vector u) {return dvx*u.x + dvy*u.y + dvz*u.z;}
+        public double vDot(etomica.space.Vector u) {return vDot((Vector)u);}
+        public double vDot(Vector u) {return dvx*u.x + dvy*u.y + dvz*u.z;}
         public double vDotr() {return dr.x*dvx + dr.y*dvy + dr.z*dvz;}
         public void push(double impulse) {
             c1.p.x += impulse*dr.x;
