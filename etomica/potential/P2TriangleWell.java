@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -43,14 +44,9 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         return info;
     }
 
-    public boolean overlap(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
-    	return cPair.r2() < coreDiameterSquared;
-   	}
+    public double energy(AtomSet pair) {
 
-    public double energy(Atom[] pair) {
-
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         double r2 = cPair.r2();
        
         if(r2 < coreDiameterSquared)
@@ -65,9 +61,9 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     }
  
 
-    public Vector force(Atom[] pair){
+    public Vector force(AtomSet pair){
         
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         double r2 = cPair.r2();
         if(r2 > wellDiameterSquared){
             force.E(0.0);
