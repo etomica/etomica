@@ -9,6 +9,7 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import etomica.Debug;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Space;
@@ -121,15 +122,14 @@ public class RectangularLattice implements FiniteLattice {
         int[] idx = new int[D];
         idx[D-1] = -1;
         for(int i=0; i<sites.length; i++) {
-            increment(idx, D-1);
+            increment(idx);
             sites[i] = siteFactory.makeSite(this, idx);
         }
     }
 
     //method used by setDimensions method to cycle the index array through its values
-    //used recursively to advance each element as needed.
-    //also used by Iterator
-    private void increment(int[] idx, int d) {
+    private void increment(int[] idx) {
+        int d = D-1;
         idx[d]++;
         while(idx[d] == size[d] && d > 0) {//replaces recursive call
             idx[d] = 0;
@@ -163,7 +163,7 @@ public class RectangularLattice implements FiniteLattice {
         }
         public Object next() {
             if(hasNext()) {
-                lattice.increment(idx,lattice.D-1);
+                lattice.increment(idx);
                 return lattice.sites[cursor++];
             } else {
                 return null;
@@ -171,7 +171,7 @@ public class RectangularLattice implements FiniteLattice {
         }
         public int[] nextIndex() {
             if(hasNext()) {
-                lattice.increment(idx,lattice.D-1);
+                lattice.increment(idx);
                 cursor++;
                 return idx;
             } else {
@@ -245,7 +245,6 @@ public class RectangularLattice implements FiniteLattice {
         public void setSite(int[] index) {
             if(index.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setSite");
             for(int i=D-1; i>=0; i--) centralSite[i] = index[i];
-//            System.arraycopy(index, 0, centralSite, 0, D);
             needNeighborUpdate = true;
             unset();
         }
@@ -280,22 +279,24 @@ public class RectangularLattice implements FiniteLattice {
          * calling this method.
          */
         public void setRange(int[] newRange) {
-            if(newRange.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setRange");
-            for(int i=0; i<D; i++) {
-                if(newRange[i] < 0) 
-                    throw new IllegalArgumentException("Neighbor range cannot be negative");
-                if(2*newRange[i]+1 > lattice.size[i]) 
-                    throw new IllegalArgumentException("Neighbor range exceeds lattice site");
+            if(Debug.ON) {
+                if(newRange.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setRange");
+                for(int i=0; i<D; i++) {
+                    if(newRange[i] < 0) 
+                        throw new IllegalArgumentException("Neighbor range cannot be negative");
+                    if(2*newRange[i]+1 > lattice.size[i]) 
+                        throw new IllegalArgumentException("Neighbor range exceeds lattice site");
+                }
             }
-            System.arraycopy(newRange, 0, range, 0, D);
-            furthestNeighborDelta = lattice.arrayIndex(range);
             halfNeighborCount = 1;
             for(int i=0; i<D; i++) {
+                range[i] = newRange[i];
                 halfNeighborCount *= (2*range[i]+1);
             }
             halfNeighborCount = (halfNeighborCount-1)/2;
             neighbors = new int[2*halfNeighborCount];
             pbc = new Vector[2*halfNeighborCount+1];
+            furthestNeighborDelta = lattice.arrayIndex(range);
             needNeighborUpdate = true;
             unset();
         }

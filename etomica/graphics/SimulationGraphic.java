@@ -153,7 +153,8 @@ public class SimulationGraphic implements SimulationContainer {
 //          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
 //      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
 //      etomica.simulations.ChainHSMD3D sim = new etomica.simulations.ChainHSMD3D();
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+//        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulations.HSMD2D_atomNbr sim = new etomica.simulations.HSMD2D_atomNbr();
 //        etomica.simulations.HSMD2D_noNbr sim = new etomica.simulations.HSMD2D_noNbr();
 //        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
