@@ -1,5 +1,6 @@
 package etomica.lattice;
-import etomica.*;
+import etomica.Space;
+import etomica.math.geometry.Polytope;
 
 /**
  * Primitive group for a body-centered-cubic system.
@@ -119,12 +120,12 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
         return idx;
  */   }
     
-    public AtomFactory wignerSeitzCellFactory() {
+    public Polytope wignerSeitzCell() {
         throw new RuntimeException("method PrimitiveFcc.wignerSeitzCell not yet implemented");
     }
     
-    public AtomFactory unitCellFactory() {
-        throw new RuntimeException("method unitCellFactory not yet implemented");
+    public Polytope unitCell() {
+        throw new RuntimeException("method unitCell not yet implemented");
 //        return new UnitCellFactory(simulation);
     }
     

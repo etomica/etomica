@@ -7,6 +7,7 @@ import etomica.math.geometry.Polytope;
  * Collection of primitive elements that specify or are determined
  * by the structure of a Bravais lattice.
  */
+//TODO add propertyChangeListeners to be notified if primitive changes
 public abstract class Primitive {
     
     protected final Space.Vector[] latticeVectors;
@@ -17,7 +18,6 @@ public abstract class Primitive {
     protected final double[] angle;
 //    private final double[] sizeCopy;
     public final Space space;
-    protected BravaisLattice lattice;
     protected boolean immutable = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
     private final Primitive reciprocal;
@@ -139,7 +139,7 @@ public abstract class Primitive {
 
     protected void update() {
         if(immutable) return;
-        if(lattice != null) lattice.update();
+//        if(lattice != null) lattice.update();
         immutable = true; 
         updateReciprocal();
         immutable = false;
@@ -149,21 +149,7 @@ public abstract class Primitive {
      * Scales (multiplies) the size of each primitive vector by the given value.
      */
     public abstract void scaleSize(double scale);
-    
-    /**
-     * Lattice associated with this may be defined to enable
-     * automatic updates of it with changes in the basis.
-     * This method is called by the setPrimitive method of
-     * BravaisLattice when the primitive is assigned to the lattice.
-     */
-    public void setLattice(BravaisLattice lattice) {
-        this.lattice = lattice;
-    }
-    /**
-     * Lattice associated with this primitive.
-     */
-    public BravaisLattice getLattice() {return lattice;}
-    
+        
     /**
      * Returns the primitive vectors.  Does not return the original
      * vectors used by the class, but instead returns copies.  Thus
