@@ -122,6 +122,7 @@ public class Simulation extends SimulationElement {
     public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
     public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
+    public final LinkedList getAccumulatorManagerList() {return accumulatorManagerList;}
     
     public static Simulation getDefault() {
     	if(instance == null) instance = new Simulation(new Space2D());
@@ -147,12 +148,20 @@ public class Simulation extends SimulationElement {
         list.add(element);
         return list.size() - 1;
     }//end of register method
-                
+
+    public void register(AccumulatorManager accumulatorManager) {
+     	accumulatorManagerList.add(accumulatorManager);
+     }
+     
     public void unregister(SimulationElement element) {
     	super.unregister(element);
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(!list.contains(element)) return;
         list.remove(element);
+    }
+    
+    public void unregister(AccumulatorManager accumulatorManager) {
+    	accumulatorManagerList.remove(accumulatorManager);
     }
      
     public void resetIntegrators() {
@@ -188,6 +197,8 @@ public class Simulation extends SimulationElement {
      public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
  
      private Controller controller;
+     
+     private final LinkedList accumulatorManagerList = new LinkedList();
      
      /**
      * Demonstrates how this class is implemented.

@@ -106,4 +106,8 @@ public class AccumulatorHistory extends Accumulator {
     	dataTranslator = (DataTranslatorArray)getTranslator();
 		for(int i=0; i<nData; i++) history[i].setHistoryLength(historyLength);
 	}
+	
+	public void reset() {
+    	for(int i=0; i<nData; i++) history[i].reset();
+	}
 }

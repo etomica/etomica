@@ -119,6 +119,13 @@ public class AccumulatorManager implements Integrator.IntervalListener {
         else throw new IllegalArgumentException("Illegal value of update interval");
     }
 	
+    public void resetAccumulators() {
+        iterator.reset();
+        while(iterator.hasNext()) {
+        	((Accumulator)iterator.next()).reset();
+        }
+    }
+    
 	/**
 	 * Counter that keeps track of the number of interval events received since last call to updateSums
 	 */

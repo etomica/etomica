@@ -132,6 +132,13 @@ public class ActivityIntegrate extends Activity {
 		this.maxSteps = maxSteps;
 	}
 
+	/**
+	 * @return Returns the integrator.
+	 */
+	public Integrator getIntegrator() {
+		return integrator;
+	}
+	
 	private final Integrator integrator;
 	protected int interval;
 	private boolean doSleep;

@@ -106,4 +106,8 @@ public class AccumulatorHistogram extends Accumulator {
     	dataTranslator = (DataTranslatorArray)getTranslator();
 		for(int i=0; i<nData; i++) histogram[i].setNBins(nBins);
 	}
+	
+	public void reset() {
+		for (int i=0; i<nData; i++) histogram[i].reset();
+	}
 }

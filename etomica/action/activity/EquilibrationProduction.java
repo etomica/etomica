@@ -7,6 +7,8 @@ package etomica.action.activity;
 import etomica.Action;
 import etomica.ActivityIntegrate;
 import etomica.Integrator;
+import etomica.action.ResetAccumulators;
+import etomica.utility.java2.LinkedList;
 
 
 /**
@@ -18,22 +20,22 @@ import etomica.Integrator;
 public class EquilibrationProduction extends ActivityGroupSeries {
 
 	public EquilibrationProduction(Integrator equilibrationIntegrator,
-			Integrator productionIntegrator) {
+			Integrator productionIntegrator, LinkedList accumulatorManagerList) {
 		equilibrationActivity = new ActivityIntegrate(equilibrationIntegrator);
 		productionActivity = new ActivityIntegrate(productionIntegrator);
 		equilibrationActivity.getIntegrator().setEquilibrating(true);
 		addAction(equilibrationActivity);
 		
 		productionPreparationActivity = new ActivityGroupSeries();
+		productionPreparationActivity.addAction(new ResetAccumulators(accumulatorManagerList));
 		productionPreparationActivity.addAction(setIntegratorForProduction);
 		addAction(productionPreparationActivity);
 		
-		//reset accumulators
 		addAction(productionActivity);
 	}
 	
-	public EquilibrationProduction(Integrator commonIntegrator) {
-		this(commonIntegrator,commonIntegrator);
+	public EquilibrationProduction(Integrator commonIntegrator, LinkedList accumulatorManagerList) {
+		this(commonIntegrator,commonIntegrator,accumulatorManagerList);
 	}
 
 	public ActivityIntegrate getEquilibrationActivity() {

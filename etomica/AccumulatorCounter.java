@@ -36,14 +36,13 @@ public class AccumulatorCounter extends Accumulator {
 		data[0] = count;
 		return data;
 	}
-
-	public void setNData(int nData) {
-		// TODO Auto-generated method stub
-
+	
+	public void reset() {
+		count = 0;
 	}
 
 	int count;
-	double[] data = new double[1];
+	final double[] data = new double[1];
 	
 	public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
 }

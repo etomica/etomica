@@ -46,6 +46,8 @@ public abstract class Accumulator implements DataSource {
 	
 	public abstract double[] getData();
 	
+	public abstract void reset();
+	
 	public Dimension getDimension() {return dataSourceDimension;}
 	
 	public void setDataSourceDimension(Dimension dataSourceDimension) {
