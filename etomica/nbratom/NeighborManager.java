@@ -52,7 +52,7 @@ public class NeighborManager implements IntervalListener {
 		neighborReset = new NeighborReset();
         setPriority(200);
         pbcEnforcer = new PhaseImposePbc();
-        pbcEnforcer.setApplyToMolecules(true);
+        pbcEnforcer.setApplyToMolecules(false);
         this.potentialMaster = potentialMaster;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D());
         atomIterator = new AtomIteratorCell(potentialMaster.getSpace().D());
