@@ -5,6 +5,10 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History
+  * 12/06/02 (DAK) added childWhereDescendedFrom method to MasterNode subclass.
+  */
 public final class SpeciesMaster extends Atom {
     
     private int moleculeCount;
@@ -83,6 +87,13 @@ public final class SpeciesMaster extends Atom {
             throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesMaster");
         }
         
+        /**
+         * Ends recursive chain to determine child of given node from which this
+         * node is descended.  Always returns null.
+         */
+        public AtomTreeNode childWhereDescendedFrom(AtomTreeNode node) {
+            return null;
+        }
         /**
          * Returns true, because children are SpeciesAgent instances.
          */

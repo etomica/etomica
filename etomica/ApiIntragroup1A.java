@@ -7,6 +7,12 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 8/4/02 Changed reset(atom) to use isDescendedFrom rather than just checking parent.
+  *        Changes performed to correct problem uncovered in "surfactant" module simulation
+  */
+ 
 public final class ApiIntragroup1A implements AtomPairIterator {
     
     public ApiIntragroup1A(Simulation sim) {
@@ -53,12 +59,12 @@ public final class ApiIntragroup1A implements AtomPairIterator {
             atomIterator.unset();
             return;
         }
-        referenceAtom = atom;
-        if(referenceAtom.node.parentGroup() != group) {
-            referenceAtom = null;
-            atomIterator.unset();
+        AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(group.node);
+        if(referenceNode == null) atomIterator.unset();
+        else {
+            referenceAtom = referenceNode.atom;
+            atomIterator.reset(localDirective.set(referenceAtom));
         }
-        else atomIterator.reset(localDirective.set(referenceAtom));
         pair.atom1 = referenceAtom;
     }
     

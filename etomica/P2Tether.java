@@ -78,6 +78,7 @@ public class P2Tether extends Potential2Hard implements EtomicaElement {
     double bij = pair.vDotr();
  //       if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
     if(r2 > tetherLengthSquared && bij >= 0) {return 0.0;}  //outside tether, moving apart; collide now
+ //   //this doesn't keep them together if(r2 > tetherLengthSquared) {return (bij > 0) ? 0.0 : Double.MAX_VALUE;}
     double v2 = pair.v2();
     double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
     return (-bij + Math.sqrt(discr))/v2;

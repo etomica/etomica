@@ -11,7 +11,7 @@ public class P1TetheredHardSpheres extends Potential1Group implements EtomicaEle
     
     public String getVersion() {return "P1TetheredHardSpheres:01.11.05/"+Potential1Group.VERSION;}
     
-//    public final P2HardSphere p2HardSphere;
+    public final P2HardSphere p2HardSphere;
     public final P2Tether p2Tether;
     
     public P1TetheredHardSpheres() {
@@ -20,14 +20,14 @@ public class P1TetheredHardSpheres extends Potential1Group implements EtomicaEle
     
     public P1TetheredHardSpheres(PotentialGroup parent) {
         super(parent);
-//        p2HardSphere = new P2HardSphere(this);
+        p2HardSphere = new P2HardSphere(this);
         p2Tether = new P2Tether(this);
 	    p2Tether.setIterator(new ApiGeneral(parentSimulation().space,
 	            new AtomIteratorList(),
 	            new AtomIteratorBonds()));
-//	    p2HardSphere.setIterator(new ApiGeneral(parentSimulation().space,
-//	            new AtomIteratorList(),
-//	            new AtomIteratorNonbonded(parent.parentSimulation())));
+	    p2HardSphere.setIterator(new ApiGeneral(parentSimulation().space,
+	            new AtomIteratorList(),
+	            new AtomIteratorNonbonded(parent.parentSimulation())));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

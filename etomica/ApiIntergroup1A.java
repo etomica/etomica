@@ -9,20 +9,21 @@ package etomica;
  */
  
  /* History of changes
-  * 8/4/02 Changed reset(atom) to use isDescendedFrom rather than just checking parent; also changed to check against iteratorDirective.direction
-  *        Changes conducted as part of effort to resolve problems with speciesPistonCylinder; iterating over groups in which one has a molecule layer and the other doesn't
+  * 08/04/02 Changed reset(atom) to use isDescendedFrom rather than just checking parent; also changed to check against iteratorDirective.direction
+  *          Changes conducted as part of effort to resolve problems with speciesPistonCylinder; iterating over groups in which one has a molecule layer and the other doesn't
+  * 12/06/02 (DAK) made class not final so could subclass in sufactant module
   */
  
-public final class ApiIntergroup1A implements AtomPairIterator {
+public class ApiIntergroup1A implements AtomPairIterator {
     
-    private Atom group1; 
-    private Atom group2;
+    protected Atom group1; 
+    protected Atom group2;
     
-    private final AtomIterator atomIterator;
+    protected /*final*/ AtomIterator atomIterator;
     
-    private Atom referenceAtom;
-    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final AtomPair pair;
+    protected Atom referenceAtom;
+    protected final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);
+    protected final AtomPair pair;
     
     public ApiIntergroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
@@ -33,6 +34,7 @@ public final class ApiIntergroup1A implements AtomPairIterator {
     /**
      * Identifies the groups that are the parents of the atoms
      * to be given by the iterator.  The arguments must be different instances.
+     * It is expected, but not verified, that a1.preceeds(a2).
      */
     public void setBasis(Atom a1, Atom a2) {
         if(a1 == a2)

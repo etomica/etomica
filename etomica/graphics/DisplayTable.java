@@ -122,6 +122,8 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     public void repaint() {table.repaint();}
 
     public Component graphic(Object obj) {return panel;}
+    
+    public AbstractTableModel tableModel() {return tableSource;}
 
     private class MyTableData extends AbstractTableModel {
         

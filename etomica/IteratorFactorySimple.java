@@ -1,9 +1,11 @@
 package etomica;
 
 /* History of changes
- * 7/29/02 (DAK) In SequentialIterator, changed reset(IteratorDirective) to handle null atom1()
- * 8/13/02 (DAK) In SequentialIterator, changed to allow basis to be leaf atom.  This introduces
+ * 07/29/02 (DAK) In SequentialIterator, changed reset(IteratorDirective) to handle null atom1()
+ * 08/13/02 (DAK) In SequentialIterator, changed to allow basis to be leaf atom.  This introduces
  *               a singlet iterator and currentIterator to handle the general case.
+ * 12/05/02 (DAK) Revised reset(IteratorDirective) so that it properly handles a reference atom
+ *                this is descended from the basis, but not is a direct child of the basis.
  */
 
 public class IteratorFactorySimple implements IteratorFactory {
@@ -89,10 +91,27 @@ private static final class SequentialIterator implements AtomIterator {
             //cast used as temporary fix
             return ((AtomIteratorList)currentIterator).reset(id.direction());
         }
+        //before adding descendedFrom tests, did only this and reset using seq
+//        if(refAtom.node.parentNode() == basis) {
+
+        //this does same as current implementation, but is perhaps less efficient
+  /*      if(refAtom.node.isDescendedFrom(basis)) {
+            return (refAtom.node.parentNode() == basis) ? 
+                ((AtomIteratorList)currentIterator).reset(id.atom1().seq, id.direction())
+               : ((AtomIteratorList)currentIterator).reset(id.direction());*/
+               
+        //If reference atom is child of basis, start iteration with it
         if(refAtom.node.parentNode() == basis) {//cast used as temporary fix
-            return ((AtomIteratorList)currentIterator).reset(id.atom1().seq, id.direction());
+            ((AtomIteratorList)currentIterator).reset(id.atom1().seq, id.direction());
+        //If descended from basis, but not a child, set for full iteration of children of basis
+        } else if(refAtom.node.parentNode().isDescendedFrom(basis)) {
+            // *** should modify so that reset is done from child of basis leading to refatom
+            ((AtomIteratorList)currentIterator).reset(id.direction());
+        //Reference is not descended from basis, but iteration proceeds over all children regardless
         } else if(id.direction()==IteratorDirective.BOTH) {
             return currentIterator.reset();
+        //None of the above holds, need to look carefully at direction from reference atom to
+        //basis, and compare to iteration direction
         } else {
             boolean refFirst = refAtom.seq.preceeds(basis.atom());
             if(refFirst && id.direction()==IteratorDirective.UP 

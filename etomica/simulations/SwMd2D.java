@@ -25,7 +25,7 @@ public class SwMd2D extends SimulationGraphic {
 	    integrator.setInterval(5);
 	    integrator.setSleepPeriod(1);
 	    integrator.setTimeStep(0.02);
-	    integrator.setTemperature(450.);
+	    integrator.setTemperature(300.);
 	//    integrator.setIsothermal(true);
 	    species = new SpeciesSpheresMono(this);
 	    species.setNMolecules(80);

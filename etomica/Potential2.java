@@ -10,8 +10,9 @@ package etomica;
  */
 
  /* History of changes
-  * 7/13/02 (DAK) Restructured instantiation of LRC potential
-  * 7/15/02 (DAK) Constructor makes P0LRC only if instance of Potential2SoftSpherical
+  * 07/13/02 (DAK) Restructured instantiation of LRC potential
+  * 07/15/02 (DAK) Constructor makes P0LRC only if instance of Potential2SoftSpherical
+  * 12/06/02 (DAK) Added setIterators1A method
   */
 
 public abstract class Potential2 extends Potential {
@@ -114,6 +115,10 @@ public abstract class Potential2 extends Potential {
         this.iterator = iterator;
         iterator1 = iterator;
         iteratorA = iterator;
+    }
+    public void setIterators1A(AtomPairIterator iter1, AtomPairIterator iterA) {
+        iterator1 = iter1;
+        iteratorA = iterA;
     }
     public AtomPairIterator iterator() {return iterator;}
     

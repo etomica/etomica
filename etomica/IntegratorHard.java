@@ -50,10 +50,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 AtomPair pair = iterator.next();
                 if(pair.atom1() != atom1) setAtom(pair.atom1()); //need this if doing minimum collision time calculation for more than one atom
                 double collisionTime = potentialHard.collisionTime(pair);
-      /*debug          System.out.println("      UP "+pair.atom1.debugIndex+","
-                                        +pair.atom2.debugIndex+","
+      /*debug* /   System.out.println("      UP "+pair.atom1.toString()+","
+                                        +pair.atom2.toString()+","
                                         +(float)collisionTime+","
-                                        +(float)minCollisionTime);*/
+                                        +(float)minCollisionTime); /* */
                 if(collisionTime < minCollisionTime) {
                     minCollisionTime = collisionTime;
                     aia.setCollision(collisionTime, pair.atom2(), potentialHard);
@@ -89,10 +89,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
  //info               count++;
                 AtomPair pair = iterator.next();
                 double collisionTime = potentialHard.collisionTime(pair);
-     /*debug           System.out.println("      DN "+pair.atom1.debugIndex+","
-                                        +pair.atom2.debugIndex+","
+     /*debug * /   System.out.println("      DN "+pair.atom1.toString()+","
+                                        +pair.atom2.toString()+","
                                         +(float)collisionTime+","
-                                        +(float)((IntegratorHardAbstract.Agent)pair.atom2().ia).collisionTime());*/
+                                        +(float)((IntegratorHardAbstract.Agent)pair.atom2().ia).collisionTime());  /* */
                 if(collisionTime < Double.MAX_VALUE) {
                     IntegratorHardAbstract.Agent aia = (IntegratorHardAbstract.Agent)pair.atom2().ia;
                     if(collisionTime < aia.collisionTime()) {
@@ -143,6 +143,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         Atom collider = colliderAgent.atom();
         Atom partner = colliderAgent.collisionPartner();
         potential.set(firstPhase);
+//        if (partner != null) System.out.println(collider.toString()+"\t"+partner.toString());
+//        else System.out.println(collider.toString());
             
     //   Do upList for any atoms that were scheduled to collide with atoms colliding now
     //   Assumes collider and partner haven't moved in list

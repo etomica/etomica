@@ -25,6 +25,8 @@ public class MCMoveVolume extends MCMove {
         setStepSize(0.10);
         setPressure(Default.PRESSURE);
         iteratorDirective.includeLrc = true;
+        setName("MCMoveVolume");
+        
     }
     
     public void setPhase(Phase p) {

@@ -30,6 +30,8 @@ public class MCMoveMolecule extends MCMove {
         iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
         });
+        setName("MCMoveMolecule");
+        
     }
     
     public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}

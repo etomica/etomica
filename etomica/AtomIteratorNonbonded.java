@@ -4,6 +4,10 @@ package etomica;
  * Loops over all the atoms in a basis which are not bonded to 
  * an atom specified in the iterator directive.
  */
+ 
+ /* History
+  * 12/06/02 (DAK) deleted line in reset(IteratorDirective) that resets basis using reference atom
+  */
 
 public class AtomIteratorNonbonded implements AtomIterator {
     
@@ -31,7 +35,7 @@ public class AtomIteratorNonbonded implements AtomIterator {
     
     public Atom reset(IteratorDirective id) {
         nonbondAtom = id.atom1();
-        if(nonbondAtom != null) setBasis(nonbondAtom.node.parentGroup());
+// commented 12-06-02        if(nonbondAtom != null) setBasis(nonbondAtom.node.parentGroup());
         iterator.reset(id);
         next();
         return nextAtom;

@@ -7,10 +7,14 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History
+  * 10/22/02 (DAK) Deleted groupType field which shadowed superclass field, causing errors.
+  */
+  
 public class AtomFactoryHetero extends AtomFactory {
     
     private AtomFactory[] childFactory;
-    private final AtomType.Group groupType = new AtomType.Group(this);
     
     public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
         this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), factory);

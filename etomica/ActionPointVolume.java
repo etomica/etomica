@@ -292,7 +292,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, e
             this.size = size;
             size1 = size-1;
             LatticeFactoryCubic latticeFactory = 
-                new LatticeFactoryCubic(sim, new MySiteFactory(sim), sim.space.D(), size, 1.0/(double)(size-1));
+                new LatticeFactoryCubic(sim.space, new MySiteFactory(sim), sim.space.D(), size, 1.0/(double)(size-1));
             squareLattice = (BravaisLattice)latticeFactory.makeAtom();
             squareLattice.shiftFirstToOrigin();
 

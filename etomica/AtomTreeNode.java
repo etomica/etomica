@@ -18,6 +18,14 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History
+  * 11/15/02 (DAK/DW) modified parentPhase method
+  * 12/04/02 (DAK) added isDescendedFrom(AtomTreeNodeGroup) method, and modified
+  *           isDescendedFrom(Atom) method to work through it.
+  * 12/06/02 (DAK) added childWhereDescendedFrom method.
+  */
+ 
 
 public abstract class AtomTreeNode {
     
@@ -122,7 +130,10 @@ public abstract class AtomTreeNode {
     /**
      * Phase in which this atom resides
      */
-    public Phase parentPhase() {return parentPhase;}//parentNode.parentPhase();}
+    public Phase parentPhase() {//return parentPhase;}//parentNode.parentPhase();}
+        return (parentPhase != null) ? parentPhase : 
+                    (parentNode != null) ? parentNode.parentPhase() : null;
+    }
 
     public Species parentSpecies() {return parentNode.parentSpecies();}
     
@@ -147,7 +158,22 @@ public abstract class AtomTreeNode {
      * atom is this atom's parent, or its parent's parent, etc.
      */ 
     public boolean isDescendedFrom(Atom group) {
-        return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
+        return this.isDescendedFrom(group.node);
+     //   return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
+    }
+    
+    public boolean isDescendedFrom(AtomTreeNode node) {
+        return (this == node) || (parentNode != null && parentNode.isDescendedFrom(node));
+    }
+    
+    /**
+     * Returns the child of the given node through which this node is derived.
+     * If given node is parent node of this, returns this.
+     * If this node is not descended from the given node, returns null.
+     */
+    public AtomTreeNode childWhereDescendedFrom(AtomTreeNode node) {
+        if(parentNode == node) return this;
+        else return parentNode.childWhereDescendedFrom(node);
     }
         
     protected final Atom atom;
