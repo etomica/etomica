@@ -1,10 +1,7 @@
-package etomica.potential;
+package etomica;
 
-import etomica.AtomSet;
-import etomica.IteratorDirective;
-import etomica.Phase;
-import etomica.PotentialMaster;
-import etomica.Space;
+import etomica.potential.Potential0Lrc;
+import etomica.potential.PotentialCalculation;
 
 /**
  * Group that contains potentials used for long-range correction.
@@ -16,9 +13,9 @@ import etomica.Space;
  * @author David Kofke
  */
  
-public class PotentialGroupLrc extends PotentialMaster {
+public class PotentialMasterLrc extends PotentialMaster {
 
-    public PotentialGroupLrc(Space space) {
+    public PotentialMasterLrc(Space space) {
         super(space);
     }
     
@@ -45,4 +42,4 @@ public class PotentialGroupLrc extends PotentialMaster {
         }//end for
     }//end calculate
     
-}//end of PotentialGroupLrc
+}//end of PotentialMasterLrc

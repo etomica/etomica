@@ -6,7 +6,6 @@ import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.potential.Potential0;
 import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialGroupLrc;
 import etomica.potential.PotentialTruncated;
 
 
@@ -42,8 +41,8 @@ public class PotentialMaster {
 	 * Returns the potential group that oversees the long-range
 	 * correction zero-body potentials.
 	 */
-	 public PotentialGroupLrc lrcMaster() {
-		if(lrcMaster == null) lrcMaster = new PotentialGroupLrc(space);
+	 public PotentialMasterLrc lrcMaster() {
+		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(space);
 		return lrcMaster;
 	 }
 
@@ -213,7 +212,7 @@ public class PotentialMaster {
         return space;
     }
     
-	protected PotentialGroupLrc lrcMaster;
+	protected PotentialMasterLrc lrcMaster;
 	protected Phase mostRecentPhase = null;
 	protected IteratorFactory iteratorFactory;
 
