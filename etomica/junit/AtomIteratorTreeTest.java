@@ -1,6 +1,7 @@
 package etomica.junit;
 
 import etomica.*;
+import etomica.action.AtomAction;
 import junit.framework.*;
 import java.util.*;
 
@@ -24,7 +25,7 @@ public class AtomIteratorTreeTest extends TestCase {
 	private final int nLists=8;
 	private Phase phase;
 	private LinkedList[] list;
-	private AtomActive[] lister;
+	private AtomAction[] lister;
 	private Atom basis0,basis1,basis2;
 	private AtomList atomList0,atomList1,atomList2;
 
@@ -51,7 +52,7 @@ public class AtomIteratorTreeTest extends TestCase {
 		for (int i=0;i<nLists;i++) {
 			list[i]=new LinkedList();
 		}
-		lister=new AtomActive[nLists];
+		lister=new AtomAction[nLists];
 		for (int i=0;i<list.length;i++) {
 			lister[i]=new Lister(i);
 			}
@@ -192,7 +193,7 @@ public class AtomIteratorTreeTest extends TestCase {
 	
 
 
-	class Lister implements AtomActive {
+	class Lister implements AtomAction {
 
 		private final int i;
 

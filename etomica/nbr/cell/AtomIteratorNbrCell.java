@@ -13,6 +13,7 @@ import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.lattice.CellLattice;
 import etomica.lattice.NeighborManager;
 
 /**
@@ -31,6 +32,7 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     public AtomIteratorNbrCell(Species species, boolean upOnly) {
         nbrListIndex = species.getIndex();
         this.upOnly = upOnly;
+        cellIterator = new CellLattice.NeighborIterator();
     }
 
     /**
@@ -157,7 +159,7 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     private final int nbrListIndex;
     private final Atom[] atoms = new Atom[1];
     private final AtomIteratorList atomIterator = new AtomIteratorList();
-    private final AtomIteratorList cellIterator = new AtomIteratorList();
+    private final CellLattice.NeighborIterator;
     private final boolean upOnly;
     private AtomLinker cellLinker;
     

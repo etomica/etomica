@@ -31,11 +31,11 @@ public interface AbstractLattice {
      * Return the size of the lattice, specified by the number of sites in
      * each dimension.
      */
-    public int[] getDimensions();
+    public int[] getSize();
 
     /**
      * Sets the size of the lattice, specified by the number of sites in each dimension.
      * @param dim
      */
-    public void setDimensions(int[] dim);
+    public void setSize(int[] dim);
 }

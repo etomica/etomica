@@ -77,7 +77,7 @@ public class VirialPT extends SimulationGraphic {
 		phase = new PhaseCluster[nPhase];
 
 		integrator = new IntegratorMC[nPhase];
-		MeterAcceptanceRatio[] meterAccept = new MeterAcceptanceRatio[nPhase-1];
+		DataSourceAcceptanceRatio[] meterAccept = new DataSourceAcceptanceRatio[nPhase-1];
 		MeterVirial[] meterVirial = new MeterVirial[nPhase];
 		double tLast = 0.0;
 		for(int i=0; i<nPhase; i++) {
@@ -125,7 +125,7 @@ public class VirialPT extends SimulationGraphic {
 			display.setLabel("Config "+Double.toString(integrator[i].temperature()));
             
 			if(i>0) {
-				meterAccept[i-1] = new MeterAcceptanceRatio(this, integratorPT.swapMoves()[i-1]);
+				meterAccept[i-1] = new DataSourceAcceptanceRatio(this, integratorPT.swapMoves()[i-1]);
 				meterAccept[i-1].setLabel(Double.toString(tLast)+"<-->"+Double.toString(temperature));
 			}
 			tLast = temperature;
@@ -155,7 +155,7 @@ public class VirialPT extends SimulationGraphic {
                                
 		controller = new Controller();
         
-		DisplayBox cyclesBox = new DisplayBox(this, new MeterCycles());
+		DisplayBox cyclesBox = new DisplayBox(this, new DataSourceCountSteps());
 		cyclesBox.setPrecision(6);
         
 		ColorSchemeByType.setColor(species,java.awt.Color.green);

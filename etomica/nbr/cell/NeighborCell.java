@@ -34,10 +34,8 @@ public class NeighborCell {
     private AtomList[] occupants = new AtomList[0];
 
     private static class NeighborCellFactory implements SiteFactory {
-        public void makeSites(AbstractLattice lattice, Object[] sites) {
-            for(int i=0; i<sites.length; i++) {
-                sites[i] = new NeighborCell();
-            }
+        public Object makeSite(AbstractLattice lattice, int[] coord) {
+            return new NeighborCell();
         }
     }
 }

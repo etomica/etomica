@@ -502,7 +502,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         
         //AbstractLattice methods
         public int D() {return 2;}
-        public int[] getDimensions() {return squareLattice.getDimensions();} //not used
+        public int[] getSize() {return squareLattice.getSize();} //not used
 //        public int siteCount() {return 2*squareLattice.siteCount();}
         public Atom site(int[] index) {return squareLattice.site(index);} //not used
         
@@ -510,7 +510,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         public AtomIterator iterator() {iterator.reset(); return iterator;}     //iterator for all sites in lattice
 
         public AtomList siteList() {return squareLattice.siteList();}//not used?
-        public void setDimensions(int[] dim) {} //not used
+        public void setSize(int[] dim) {} //not used
         public SimulationEventManager eventManager() {return null;}//not used
     }
     

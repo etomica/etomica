@@ -109,8 +109,8 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
      */
     public SimulationEventManager eventManager() {return eventManager;}
 
-    public int[] getDimensions() {return dimensions;}
-    public void setDimensions(int[] dim) {
+    public int[] getSize() {return dimensions;}
+    public void setSize(int[] dim) {
         if(dim.length != 3) throw new IllegalArgumentException("Incorrect length of dimensions array given to LatticeCubicFcc.setDimensions");
         for(int i=0; i<dim.length; i++) {
             dimensions[i] = dim[i];
@@ -272,7 +272,7 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
      * considering periodicity as set previously.
      */
     public boolean areNeighbors(Site s1, Site s2) {
-        int[] dim = lattice.getDimensions();
+        int[] dim = lattice.getSize();
         int[] idx1 = s1.latticeCoordinate();
         int[] idx2 = s2.latticeCoordinate();
 
@@ -338,7 +338,7 @@ public static class Factory extends AtomFactory {
         LatticeCubicFcc group = (LatticeCubicFcc)atom;
         ((AtomTreeNodeGroup)group.node).removeAllChildren();
         LatticeFactoryCubic subFactory = 
-            new LatticeFactoryCubic(space, siteFactory, group.getDimensions(), group.getLatticeConstant());
+            new LatticeFactoryCubic(space, siteFactory, group.getSize(), group.getLatticeConstant());
         for(int i=0; i<4; i++) subFactory.makeAtom((AtomTreeNodeGroup)group.node);
         //set up siteList
         AtomIteratorTree leafIterator = new AtomIteratorTree();
@@ -455,7 +455,7 @@ public static class Factory extends AtomFactory {
         
         System.out.println();
         System.out.println("Changing dimensions");
-        lattice.setDimensions(new int[] {nx, ny+1, nz});
+        lattice.setSize(new int[] {nx, ny+1, nz});
 //        iterator.allAtoms(printSites);
         System.out.println();
         

@@ -225,7 +225,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 			new DataSource.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
 		meterClusterTable.setUpdateInterval(1000);
 		meterClusterTable.setPrecision(8);
-		MeterCycles meterCycles = new MeterCycles(sim);
+		DataSourceCountSteps meterCycles = new DataSourceCountSteps(sim);
 		DisplayBox displayCycles = new DisplayBox(sim);
 		displayCycles.setPrecision(10);
 		displayCycles.setUpdateInterval(100000);

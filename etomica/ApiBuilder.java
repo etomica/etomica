@@ -43,4 +43,16 @@ public final class ApiBuilder {
                                         new AtomIteratorBasis(),aiInner));
     }
     
+    /**
+     * Makes a pair iterator that forms pairs from the atoms of two different lists.
+     * To set the list, access the inner and outer iterators, thus:<br>
+     * <code>
+     * ApiInnerFixed pairIterator = makeInterlistIterator();
+     * ((AtomIteratorListSimple)pairIterator.getInnerIterator).setList(innerList);
+     * ((AtomIteratorListSimple)pairIterator.getOuterIterator).setList(outerList);
+     * </code>
+     */
+    public static ApiInnerFixed makeInterlistIterator() {
+        return new ApiInnerFixed(new AtomIteratorListSimple(), new AtomIteratorListSimple());
+    }
 }

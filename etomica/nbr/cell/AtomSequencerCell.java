@@ -15,7 +15,7 @@ import etomica.AtomSequencerFactory;
 public class AtomSequencerCell extends AtomLinker implements Cellular {
     
     NeighborCell cell;         //cell currently occupied by this atom
-    final AtomLinker nbrLink;  //linker used to arrange atom in sequence according to cells
+    final AtomLinker nbrLink;  //linker used to arrange atom in sequence within the cells
     
     public AtomSequencerCell(Atom a) {
         super(a);

@@ -1,6 +1,8 @@
 package etomica.junit;
 
 import etomica.*;
+import etomica.action.AtomActionAdapter;
+
 import java.util.LinkedList;
 
 /**
@@ -70,7 +72,7 @@ public class AtomIteratorListSimpleTest extends IteratorTest {
 		iterator.reset();
 		IteratorDirective dummy = new IteratorDirective();
 		list3 = new LinkedList();
-		AtomAction lister3 = new AtomAction() {
+		AtomActionAdapter lister3 = new AtomActionAdapter() {
 			public void actionPerformed(Atom a) {
 				list3.add(a.toString());
 			}

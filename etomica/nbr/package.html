@@ -63,7 +63,7 @@ in three places.
 </ul>
 <br>
 There is also a calculate method in PotentialMasterNbr that takes specifically a 
-PotentialCalculationNbrSetup instance.  If this is invoked, they fully potential
+PotentialCalculationNbrSetup instance.  If this is invoked, the full potential
 hierarchy is traversed, and any pair of atoms given to the potential calculation will
 have each put on the other's neighbor list -- any pairs given to it are by definition
 "neighbors".  Pairs are weeded out before reaching the neighbor-setup potential calculation
@@ -80,7 +80,7 @@ For those atoms identified as neighbors, the calculate method of PotentialMaster
 to perform neighbor-list iteration
 directly -- the iterator for forming pairs of neighboring atoms is defined inside of
 PotentialMasterNbr.  It performs neighbor iteration for any (leaf or group) atom that has
-a non-zero list of potentials applying it.  This will happen if the atom has
+a non-zero list of potentials applying to it.  This will happen if the atom has
 any concrete (non-group) potential acting on it (concrete potentials are sometimes defined
 for atom groups, not just leaf atoms).
 

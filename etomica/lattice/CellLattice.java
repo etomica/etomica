@@ -14,8 +14,8 @@ import etomica.Space;
 public class CellLattice extends SimpleLattice {
 
     /**
-     * @param D
-     * @param siteFactory
+     * @param D the dimension of the lattice
+     * @param siteFactory makes the sites of the lattice 
      */
     public CellLattice(int D, SiteFactory siteFactory) {
         super(D, siteFactory);
@@ -54,5 +54,44 @@ public class CellLattice extends SimpleLattice {
     }
     
     private final double[] cellSize;
-    private final int[] idx;
+    private final int[] idx;//a work array
+
+    /**
+     * Extends the SimpleLattice neighbor iterator to provide methods that
+     * specify the neighbor range in terms of a distance, rather than an index range. 
+     */
+    public static class NeighborIterator extends SimpleLattice.NeighborIterator {
+        public NeighborIterator(int D) {
+            super(D);
+            idx = new int[D];
+        }
+        
+        /**
+         * Defines neighbors to be all cells that are within the given distance
+         * from a central cell.  Specifically, the integer range in direction
+         * j is 1 + (int)(neighborDistance/cellSize[j]). 
+         */
+        public void setRange(double neighborDistance) {
+            for(int i=0; i<D; i++) {
+                idx[i] = 1+(int)(neighborDistance/((CellLattice)lattice).cellSize[i]);
+            }
+            super.setRange(idx);
+        }
+
+        /**
+         * Defines neighbors to be all cells that are within the given distance
+         * from a central cell, possible with a different distance specified in 
+         * each direction.  Specifically, the integer range in direction
+         * j is 1 + (int)(neighborDistance/cellSize[j]). 
+         */
+        public void setRange(double[] neighborDistance) {
+            if(neighborDistance.length != D) throw new IllegalArgumentException("Dimension of neighborDistance array inconsistent with dimension of lattice");
+            for(int i=0; i<D; i++) {
+                idx[i] = 1+(int)(neighborDistance[i]/((CellLattice)lattice).cellSize[i]);
+            }
+            super.setRange(idx);
+        }
+        
+        private final int[] idx;//a work array
+    }//end of NeighborIterator
 }

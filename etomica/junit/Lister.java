@@ -1,13 +1,16 @@
 package etomica.junit;
 
 import etomica.*;
+import etomica.action.AtomAction;
+import etomica.action.AtomsetAction;
+
 import java.util.LinkedList;
 
 /**
  * @author aawalker
  *
  */
-class Lister implements AtomsetActive, AtomActive {
+class Lister implements AtomsetAction, AtomAction {
 	
 	public final LinkedList list;
 	
@@ -16,14 +19,14 @@ class Lister implements AtomsetActive, AtomActive {
 	}
 
 	/**
-	 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
+	 * @see etomica.action.AtomAction#actionPerformed(etomica.Atom)
 	 */
 	public void actionPerformed(Atom atom) {
 		list.add(atom.toString());
 	}
 
 	/**
-	 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
+	 * @see etomica.action.AtomAction#actionPerformed(etomica.Atom)
 	 */
 	public void actionPerformed(Atom[] atom) {
 //		for(int i=0; i<atom.length; i++) actionPerformed(atom[i]);

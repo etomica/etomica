@@ -88,8 +88,8 @@ public class BravaisLattice implements AbstractLattice {
         return makeLattice(space, new Crystal(primitive, new Basis(space, 1, siteFactory)), dimensions);
     }
                
-    public int[] getDimensions() {return factory.dimensions;}
-    public void setDimensions(int[] dim) {
+    public int[] getSize() {return factory.dimensions;}
+    public void setSize(int[] dim) {
         factory.setDimensions(dim);
         rebuild();
     }
@@ -112,7 +112,7 @@ public class BravaisLattice implements AbstractLattice {
 		int i = 0;
 		//set lattice dimensions to value that gives at least n sites  
     	for(i=1; i<=n; i++) if(factory.crystal.getBasis().size() * factory.space.powerD(i) >= n) break;
-    	setDimensions(factory.space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
+    	setSize(factory.space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
 		((Factory)creator()).setDimensions(factory.space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
 		delayUpdate = false;
 		rebuild();//also does update()
@@ -129,7 +129,7 @@ public class BravaisLattice implements AbstractLattice {
 		int i = 0;
 		//set lattice dimensions to value that gives at least n sites  
 		for(i=1; i<=n; i++) if(factory.crystal.getBasis().size() * factory.space.powerD(i) >= n) break;
-		setDimensions(factory.space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
+		setSize(factory.space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
 		((Factory)creator()).setDimensions(factory.space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
     	//size primitive vectors to given dimensions
     	double[] size = new double[dimensions.length];
@@ -426,7 +426,7 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
      * considering periodicity as set previously.
      */
     public boolean areNeighbors(Site s1, Site s2) {
-        int[] dim = lattice.getDimensions();
+        int[] dim = lattice.getSize();
         int[] idx1 = s1.latticeCoordinate();
         int[] idx2 = s2.latticeCoordinate();
 
