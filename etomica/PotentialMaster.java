@@ -59,6 +59,7 @@ public class PotentialMaster {
     	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
     	for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(!link.enabled) continue;
 			if(phaseChanged) {
 				link.iterator.setPhase(phase);
 				link.potential.setPhase(phase);
@@ -142,6 +143,33 @@ public class PotentialMaster {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+    /**
+     * Indicates that the specified potential should not contribute to potential
+     * calculations. If potential is not in this group, no action is taken.
+     */
+    public void setEnabled(Potential potential, boolean enabled) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {
+                link.enabled = enabled;
+                return;
+            }
+        }
+    }
+    
+    /**
+     * Returns true if the potential is in this group and has not been disabled
+     * via a previous call to setEnabled; returns false otherwise.
+     */
+    public boolean isEnabled(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {
+                return link.enabled;
+            }
+        }
+        return false;
+    }
+    
     /**
      * Performs no action.
      */
@@ -169,6 +197,7 @@ public class PotentialMaster {
         protected final Potential potential;
         protected final AtomsetIteratorMolecule iterator;
         protected PotentialLinker next;
+        protected boolean enabled = true;
         //Constructors
         public PotentialLinker(Potential a, AtomsetIteratorMolecule i, PotentialLinker l) {
             potential = a;

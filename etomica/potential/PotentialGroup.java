@@ -86,7 +86,8 @@ public class PotentialGroup extends Potential {
 			throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
 		}
 		double sum = 0.0;
-		for (PotentialLinker link=first; link!= null; link=link.next) {		
+		for (PotentialLinker link=first; link!= null; link=link.next) {	
+            if(!link.enabled) continue;
 			//if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
 			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);
 			link.iterator.reset();
@@ -123,7 +124,6 @@ public class PotentialGroup extends Potential {
      */
 	//TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-    	if(!enabled) return;
     	Atom[] targetAtoms = id.getTargetAtoms();
     	IteratorDirective.Direction direction = id.direction();
 		//loop over sub-potentials
@@ -136,6 +136,7 @@ public class PotentialGroup extends Potential {
 		while (iterator.hasNext()) {
     		Atom[] basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
+                if(!link.enabled) continue;
     			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			
     			pc.doCalculation(link.iterator, id, link.potential);
     		}
@@ -149,32 +150,40 @@ public class PotentialGroup extends Potential {
 		}
     }
     
-	/**
-	 * Returns the enabled flag, which if false will cause potential to not
-	 * contribute to any potential calculations.
-	 * @return boolean The current value of the enabled flag
-	 */
-	public boolean isEnabled() {
-		return enabled;
-	}
+    /**
+     * Indicates that the specified potential should not contribute to potential
+     * calculations. If potential is not in this group, no action is taken.
+     */
+    public void setEnabled(Potential potential, boolean enabled) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {
+                link.enabled = enabled;
+                return;
+            }
+        }
+    }
+    
+    /**
+     * Returns true if the potential is in this group and has not been disabled
+     * via a previous call to setEnabled; returns false otherwise.
+     */
+    public boolean isEnabled(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {
+                return link.enabled;
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * Sets the enabled flag, which if false will cause potential to not
-	 * contribute to any potential calculations.
-	 * @param enabled The enabled value to set
-	 */
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-	
 	protected PotentialLinker first;
-	protected boolean enabled = true;
 	protected Phase phase;
 
 	protected static class PotentialLinker implements java.io.Serializable {
 	    protected final Potential potential;
 	    protected final AtomsetIterator iterator;
 	    protected PotentialLinker next;
+        protected boolean enabled = true;
 	    //Constructors
 	    public PotentialLinker(Potential a, AtomsetIterator i, PotentialLinker l) {
 	    	potential = a;
