@@ -8,8 +8,8 @@ public class ConfigurationTIP5PWater extends Configuration {
 	private double angleChargeOCharge = 109.47*Math.PI/180;
 	private double bondLengthOcharge = 0.70;
     
-	public ConfigurationTIP5PWater() {
-		super();
+	public ConfigurationTIP5PWater(Space space) {
+		super(space);
 	}
     
 	public void initializePositions(AtomIterator[] iterators){

@@ -5,9 +5,9 @@ import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
+import etomica.space.Boundary;
 import etomica.space.Vector;
-import etomica.space3d.Boundary;
-import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -21,8 +21,8 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 		super(space, potentialTruncation);
 		setSigma(3.12);
 		setEpsilon(Kelvin.UNIT.toSim(80.51));
-		work = (Vector)space.makeVector();
-		shift = (Vector)space.makeVector();
+		work = (Vector3D)space.makeVector();
+		shift = (Vector3D)space.makeVector();
 		setCharges();
 	}   
 	public double energy(Atom[] pair){
@@ -33,12 +33,13 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 		AtomTreeNodeTIP5PWater node2 = (AtomTreeNodeTIP5PWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
-		Vector O1r = (Vector)node1.O.coord.position();
-		Vector O2r = (Vector)node2.O.coord.position();
+		Vector3D O1r = (Vector3D)node1.O.coord.position();
+		Vector3D O2r = (Vector3D)node2.O.coord.position();
 
-		work.Ev1Mv2(O1r, O2r);
-		boundary.nearestImage(work, shift);
-		r2 = work.squared();
+        shift.Ev1Mv2(O1r, O2r);
+        work.E(shift);
+        boundary.nearestImage(shift);
+        r2 = shift.squared();
 
 		if(potentialTruncation.isZero(r2)) return 0.0;
 
@@ -52,14 +53,14 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 			
 		
 		
-		Vector Charge11r = (Vector)node1.Charge1.coord.position();
-		Vector Charge12r = (Vector)node1.Charge2.coord.position();
-		Vector Charge21r = (Vector)node2.Charge1.coord.position();
-		Vector Charge22r = (Vector)node2.Charge2.coord.position();
-		Vector H11r = (Vector)node1.H1.coord.position();
-		Vector H12r = (Vector)node1.H2.coord.position();
-		Vector H21r = (Vector)node2.H1.coord.position();
-		Vector H22r = (Vector)node2.H2.coord.position();
+		Vector3D Charge11r = (Vector3D)node1.Charge1.coord.position();
+		Vector3D Charge12r = (Vector3D)node1.Charge2.coord.position();
+		Vector3D Charge21r = (Vector3D)node2.Charge1.coord.position();
+		Vector3D Charge22r = (Vector3D)node2.Charge2.coord.position();
+		Vector3D H11r = (Vector3D)node1.H1.coord.position();
+		Vector3D H12r = (Vector3D)node1.H2.coord.position();
+		Vector3D H21r = (Vector3D)node2.H1.coord.position();
+		Vector3D H22r = (Vector3D)node2.H2.coord.position();
         		
 		
 					
@@ -183,7 +184,7 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 	private double chargeH = Electron.UNIT.toSim(0.241);
 	private double chargeCharge = Electron.UNIT.toSim(-0.241);
 	private double chargeChargeCharge, chargeChargeH, chargeHH;
-	private Vector work, shift;
+	private Vector3D work, shift;
 	/**
 	 * Returns the boundary.
 	 * @return Space3D.Boundary

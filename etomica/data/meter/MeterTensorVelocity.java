@@ -5,8 +5,9 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * A meter to compute the velocity component of the pressure tensor. 
@@ -64,7 +65,7 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
         int count = 0;
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
-            velocity.E(a.coord.momentum(), a.coord.momentum());
+            velocity.E(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
             velocity.TE(a.type.rm());
             velocityTensor.PE(velocity);
             count++;
