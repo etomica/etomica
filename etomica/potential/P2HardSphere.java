@@ -93,14 +93,13 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Implements collision dynamics and updates lastCollisionVirial
      */
     public void bump(Atom[] pair, double falseTime) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
-        ((CoordinatePairKinetic)cPairNbr).resetV();
-        dr.E(cPairNbr.dr());
-        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        cPair.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPair).resetV();
+        dr.E(cPair.dr());
+        Vector dv = ((CoordinatePairKinetic)cPair).dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-//        dr.E(cPairNbr.dr());  //used by lastCollisionVirialTensor
         lastCollisionVirial = 2.0/(pair[0].type.rm() + pair[1].type.rm())*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         //dv is now change in velocity due to collision
