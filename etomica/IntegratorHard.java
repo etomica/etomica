@@ -236,8 +236,12 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10);
+	    SpeciesDisks speciesDisks2 = new SpeciesDisks(3);
+	    speciesDisks2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
+	    P2HardSphere potential2 = new P2HardSphere();
+	    P2HardSphere potential0 = new P2HardSphere();
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
@@ -253,8 +257,21 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		                                    //calling it a second time has no effect
 		                                    
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
-	    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
+    //    potentialAgent.setIterator(new AtomPairIterator(phase));
+        potentialAgent.setIterator(new AtomPairIterator(phase,
+                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
+                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
+                
+        potentialAgent = (Potential2.Agent)potential2.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase,
+                speciesDisks2.getAgent(phase).makeLeafAtomIterator(),
+                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
+                
+        potentialAgent = (Potential2.Agent)potential0.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase,
+                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
+                speciesDisks1.getAgent(phase).makeLeafAtomIterator()));
+	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    
 	    displayPhase1.addDrawable(new DisplayPhase.Drawable() {
 	        public void draw(java.awt.Graphics g, int[] origin, double s) {

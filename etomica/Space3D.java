@@ -60,6 +60,7 @@ public class Space3D extends Space implements EtomicaElement {
         public Vector (double a1,double a2,double a3) {x = a1; y = a2; z = a3;}
         public Vector (double[] a) {x = a[0]; y = a[1]; z = a[2];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
+        public String toString() {return "("+x+", "+y+", "+z+")";}
         public double component(int i) {if (i==0) return x; else if (i==1) return y; else return z;}
         public double[] toArray() {return new double[] {x, y, z};}
         public void sphericalCoordinates(double[] result) {

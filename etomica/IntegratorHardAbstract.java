@@ -92,6 +92,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
             atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
             
+    //        System.out.println(colliderAgent.toString());
             colliderAgent.collisionPotential.bump(atomPair);
             
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
@@ -207,6 +208,9 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         public Agent(Atom a) {atom = a;}
         
+        public String toString() {
+            return "Collider: "+atom.toString()+"; Partner: "+collisionPartner.toString()+"; Potential: "+collisionPotential.toString();
+        }
         public final Atom atom() {return atom;}
         public final Atom collisionPartner() {return collisionPartner;}
         

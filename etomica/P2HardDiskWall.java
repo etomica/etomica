@@ -8,6 +8,8 @@ import etomica.statmech.MaxwellBoltzmann;
  * Wall is taken to be of infinite length.
  *
  * Designed for 2-D, but may work in other dimensional spaces.
+ *
+ * @author David Kofke
  */
  
 public class P2HardDiskWall extends Potential2 implements Potential2Hard, EtomicaElement {
@@ -41,10 +43,6 @@ public class P2HardDiskWall extends Potential2 implements Potential2Hard, Etomic
   * Returns infinity if overlap is true, zero otherwise
   */
   public double energy(AtomPair pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
-  /**
-   * Long-range correction to potential.  Always returns zero for this model.
-   */
-  public double energyLRC(int n1, int n2, double V) {return 0.0;}
 
   /**
    * True if perpendicular distance between wall and disk is less than collision radius (diameter/2), false otherwise

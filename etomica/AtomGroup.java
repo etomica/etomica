@@ -212,6 +212,8 @@ public class AtomGroup extends Atom {
     public boolean isResizable() {return resizable;}
 //    public void setResizable(boolean b) {resizable = b;}
     
+    public AtomIterator makeChildAtomIterator() {return new ChildAtomIterator();}
+    public AtomIterator makeLeafAtomIterator() {return new LeafAtomIterator();}
     /**
      * Iterator of the children of this group.
      */

@@ -46,12 +46,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         protoType[1].setLength(longLength);
         protoType[2].setLength(shortLength);
         protoType[3].setLength(longLength);
-        protoType[0].setColor(color);
-        protoType[1].setColor(color);
-        protoType[2].setColor(color);
-        protoType[3].setColor(color);        
+        for(int i=0; i<4; i++) {
+            protoType[i].setThickness(thickness);
+            protoType[i].setColor(color);
+        }
         protoType[0].setThickness(pistonThickness);
-        for(int i=1; i<4; i++) protoType[i].setThickness(thickness);
         protoType[0].setLongWall(false);
         protoType[1].setLongWall(true);
         protoType[2].setLongWall(false);
@@ -172,7 +171,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    */
   public final class PistonPressureField extends Potential1 implements Potential1Soft, Potential1Hard {
     private double pressure = 0.0;
-    private Space.Vector forceVector = parentSimulation().space().makeVector();
+    private Space.Vector gradientVector = parentSimulation().space().makeVector();
     private double force = 0.0;
     public PistonPressureField(Simulation sim) {
         super(sim); 
@@ -196,11 +195,13 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      */
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
     /**
-     * Force as computed from current pressure and piston diameter, and direction of piston-cylinder system.
+     * Potential gradient as computed from current pressure and piston diameter, 
+     * and direction of piston-cylinder system.
      */
     public Space.Vector gradient(Atom a) {
-        forceVector.Ea1Tv1(-force,unitNormal);
-        return forceVector;
+        gradientVector.Ea1Tv1(-force,unitNormal);
+//        System.out.println(gradientVector.toString());
+        return gradientVector;
     }
     /**
      * Always returns zero
@@ -353,7 +354,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(2);
 	    Phase phase1 = new Phase();
 	    P2HardSphere P2HardDisk1 = new P2HardSphere();
 	    Controller controller1 = new Controller();
@@ -362,6 +363,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         
         //part unique to this class
 	    IntegratorHard integratorHard1 = new IntegratorHardField();
+	    integratorHard1.setTimeStep(0.01);
         SpeciesPistonCylinder pistonCylinder = new SpeciesPistonCylinder();
         pistonCylinder.setLength(20.);
         ((DisplayPhase)Simulation.instance.display(0)).setColorScheme(new ColorSchemeByType());
@@ -387,21 +389,48 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 	    timer.setUpdateInterval(10);
 		Simulation.instance.elementCoordinator.go();
 
+        DeviceButton fixPiston = new DeviceButton(pistonCylinder.new ActionFixPiston(phase1));
 
-        pistonCylinder.setStationary(true);
+  //    wall-sphere potential
+    //order of specification of atom iterators does matter!
         Potential2.Agent potentialAgent = (Potential2.Agent)wallPotential.getAgent(phase1);
         potentialAgent.setIterator(new AtomPairIterator(phase1,
-                pistonCylinder.makeAtomIterator(phase1), speciesDisks1.makeAtomIterator(phase1)));
+                speciesDisks1.makeAtomIterator(phase1), pistonCylinder.makeAtomIterator(phase1)));
+
+        //sphere-sphere potential
         potentialAgent = (Potential2.Agent)P2HardDisk1.getAgent(phase1);
         potentialAgent.setIterator(new AtomPairIterator(phase1,
                 speciesDisks1.makeAtomIterator(phase1), speciesDisks1.makeAtomIterator(phase1)));
 
+        //pressure field on piston
         Potential1.Agent potential1Agent = (Potential1.Agent)pressureField.getAgent(phase1);
         potential1Agent.setIterator(new AtomIteratorSinglet(((SpeciesAgent)pistonCylinder.getAgent(phase1)).firstLeafAtom()));
         
+		Simulation.instance.elementCoordinator.go();
+		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.momentum().E(0.0);
+		pistonCylinder.setStationary(true);
+		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.setStationary(false);
         Simulation.makeAndDisplayFrame(Simulation.instance);
-
     
+        final Phase phase = phase1;
+	    displayPhase1.addDrawable(new DisplayPhase.Drawable() {
+	        public void draw(java.awt.Graphics g, int[] origin, double s) {
+                double toPixels = etomica.units.BaseUnit.Length.Sim.TO_PIXELS*s;
+                int i=0;
+	            for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
+	                IntegratorHardAbstract.Agent agent = (IntegratorHardAbstract.Agent)a.ia;
+	                if(agent == null) return;
+	                String text = Float.toString((float)agent.collisionTime);
+                    Space.Vector r = a.coord.position();
+                    int xP = origin[0] + (int)(toPixels*(r.component(0)));
+                    int yP = origin[1] + (int)(toPixels*(r.component(1)));
+                    g.setColor(java.awt.Color.gray);
+	                g.drawString(text, xP, yP-20);
+	                g.setColor(java.awt.Color.red);
+	                g.drawString(Integer.toString(a.index()), xP-20, yP-20);
+	            }
+	        }
+	    });
     }//end of main
   
 }

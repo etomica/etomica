@@ -10,7 +10,7 @@ package etomica;
 public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
 
     public String getVersion() {return "IntegratorHardField:01.03.17/"+super.getVersion();}
-    public final PotentialCalculation.ForceSum forceSum;
+    public final IntegratorHardField.ForceSum forceSum;
     private final IteratorDirective fieldsOnly = new IteratorDirective();
 
     public IntegratorHardField() {
@@ -18,7 +18,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     }
     public IntegratorHardField(Simulation sim) {
         super(sim);
-        forceSum = new PotentialCalculation.ForceSum(sim.space());
+        forceSum = new IntegratorHardField.ForceSum(sim.space());
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(PotentialAgent potential) {
                 return !(potential.parentPotential() instanceof Potential1);
@@ -112,7 +112,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
                 Atom atom = iterator.next();
                 f.E(potentialSoft.gradient(atom));
                 Agent iagent = ((Agent)atom.ia);
-                iagent.force().PE(f);
+                iagent.force().ME(f);
                 iagent.forceFree = false;
             }//end while
         }//end of calculate

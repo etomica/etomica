@@ -52,7 +52,7 @@ public interface PotentialCalculation {
             while(iterator.hasNext()) {
                 Atom atom = iterator.next();
                 f.E(potentialSoft.gradient(atom));
-                ((Integrator.Agent.Forcible)atom.ia).force().PE(f);
+                ((Integrator.Agent.Forcible)atom.ia).force().ME(f);
             }//end while
         }//end of calculate
 

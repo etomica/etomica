@@ -50,6 +50,7 @@ public class Space2D extends Space implements EtomicaElement {
         public Vector (double x, double y) {this.x = x; this.y = y;}
         public Vector (double[] a) {x = a[0]; y = a[1];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
+        public String toString() {return "("+x+", "+y+")";}
         public double[] toArray() {return new double[] {x, y};}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y);
