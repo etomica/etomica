@@ -223,13 +223,14 @@ public class RectangularLattice implements FiniteLattice {
             range = new int[D];
             cursor = Integer.MAX_VALUE;
             period = Space.makeVector(D);
-            period.E(1.0);
             nearestImageVectors = new Vector[Math.round((float)Math.pow(3,D))];
             for (int i=0; i<nearestImageVectors.length; i++) {
                 nearestImageVectors[i] = Space.makeVector(D);
             }
             cursorJump = new int[D];
-            setPeriod(period);
+            Vector newPeriod = Space.makeVector(D);
+            newPeriod.E(1.0);
+            setPeriod(newPeriod);
         }
         
         public final int D() {
@@ -633,7 +634,7 @@ public class RectangularLattice implements FiniteLattice {
 
         final RectangularLattice.NeighborIterator iterator = new NeighborIterator(dimension);
         iterator.setLattice(lattice);
-        iterator.setSite(new int[] {1,5,14});
+        iterator.setSite(new int[] {1,1,14});
         iterator.setRange(new int[] {2,3,5});
         //define panel for display, so that it draws lattice with appropriately colored sites
         JPanel canvas = new JPanel() {
@@ -650,11 +651,14 @@ public class RectangularLattice implements FiniteLattice {
                 while(iterator.hasNext()) {
                     MySite site = (MySite)iterator.next();
 //                    System.out.println(site.index);
-                    site.color = java.awt.Color.GREEN.darker().darker();
-                    for(int i=0; i<3; i++) {
-                        double pbci = iterator.getNearestImageVector().x(i);
-                        if(pbci < 0) site.color = site.color.darker().darker();
-                        if(pbci > 0) site.color = site.color.brighter().brighter();
+                    site.color = java.awt.Color.GREEN.darker();
+                    Vector niv = iterator.getNearestImageVector();
+                    if(niv != null) {
+                        for(int i=0; i<3; i++) {
+                            double pbci = niv.x(i);
+                            if(pbci < 0) site.color = site.color.darker().darker();
+                            if(pbci > 0) site.color = site.color.brighter().brighter();
+                        }
                     }
                 }
                 //generate up neighbors and color them blue
@@ -664,11 +668,14 @@ public class RectangularLattice implements FiniteLattice {
                 while(iterator.hasNext()) {
                     MySite site = (MySite)iterator.next();
 //                    System.out.println(site.index);
-                    site.color = java.awt.Color.BLUE.darker().darker();
-                    for(int i=0; i<3; i++) {
-                        double pbci = iterator.getNearestImageVector().x(i);
-                        if(pbci < 0) site.color = site.color.darker().darker();
-                        if(pbci > 0) site.color = site.color.brighter().brighter();
+                    site.color = java.awt.Color.BLUE.darker();
+                    Vector niv = iterator.getNearestImageVector();
+                    if(niv != null) {
+                        for(int i=0; i<3; i++) {
+                            double pbci = niv.x(i);
+                            if(pbci < 0) site.color = site.color.darker().darker();
+                            if(pbci > 0) site.color = site.color.brighter().brighter();
+                        }
                     }
                 }
 //                siteIterator.reset();
