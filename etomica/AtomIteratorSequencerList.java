@@ -10,7 +10,8 @@ import etomica.action.AtomsetAction;
  * Iterator for looping through the sequence list relative to a
  * specified atom.
  */
-public final class AtomIteratorSequencerList extends AtomIteratorAdapter implements AtomIteratorAtomDependent {
+public class AtomIteratorSequencerList extends AtomIteratorAdapter
+        implements AtomIteratorAtomDependent, AtomsetIteratorDirectable {
 
 	/**
 	 * Constructs new class with hasNext as false.  Must
@@ -25,8 +26,7 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 	/**
 	 * Overrides superclass reset to ensure no reset is performed
 	 * if a firstAtom has not been identified.  Otherwise readies
-	 * for iteration beginning with firstAtom, or the one following
-	 * it if skippingFirst is true.
+	 * for iteration beginning with the numToSkip atom after firstAtom.
 	 */
 	public void reset() {
 		if(firstAtom == null) return;
@@ -35,9 +35,6 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 		while (n-- != 0 && listIterator.hasNext()) listIterator.next();
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#allAtoms(etomica.AtomActive)
-	 */
 	public void allAtoms(AtomsetAction action) {
 		reset();
         while (listIterator.hasNext()) {
@@ -74,14 +71,14 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 		this.numToSkip = numToSkip;
 	}
 	
-	public void setIterationDirection(IteratorDirective.Direction direction) {
+	public void setDirection(IteratorDirective.Direction direction) {
 		listIterator.setDirection(direction);
 	}
-	public IteratorDirective.Direction getIterationDirection() {
+	public IteratorDirective.Direction getDirection() {
 		return listIterator.getIterationDirection();
 	}
 	
-	private final AtomIteratorList listIterator;
+	protected final AtomIteratorList listIterator;
 	private int numToSkip = 0;
 	private Atom firstAtom = null;
 

@@ -31,9 +31,6 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		aiInner.setNumToSkip(1);
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.AtomsetIteratorBasisDependent#setDirective(etomica.IteratorDirective)
-	 */
 	public void setTarget(Atom[] targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
         oneTarget = targetAtoms[0] != null && (targetAtoms.length == 1 || targetAtoms[1] == null);
@@ -47,15 +44,15 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
         upListNow = (direction == null) || (direction == IteratorDirective.UP); 
         
 		if(upListNow || doBoth) {
-			aiInner.setIterationDirection(IteratorDirective.UP);
+			aiInner.setDirection(IteratorDirective.UP);
 			upListNow = true;
 		}
 		else {
-			aiInner.setIterationDirection(IteratorDirective.DOWN);
+			aiInner.setDirection(IteratorDirective.DOWN);
 		}
 		pairIterator.reset();
 		if(doBoth && !pairIterator.hasNext()) {
-			aiInner.setIterationDirection(IteratorDirective.DOWN);
+			aiInner.setDirection(IteratorDirective.DOWN);
 			upListNow = false;
 			pairIterator.reset();
 		}		
@@ -85,7 +82,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	public Atom[] next() {
 		Atom[] next = pairIterator.next();
 		if(upListNow && doBoth && !pairIterator.hasNext()) {
-			aiInner.setIterationDirection(IteratorDirective.DOWN);
+			aiInner.setDirection(IteratorDirective.DOWN);
 			upListNow = false;
 			pairIterator.reset();
 		}
