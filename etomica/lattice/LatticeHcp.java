@@ -1,26 +1,26 @@
-package etomica.lattice.crystal;
+package etomica.lattice;
 import etomica.Default;
 import etomica.Space3D;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.Crystal;
+import etomica.lattice.crystal.BasisHcp;
+import etomica.lattice.crystal.PrimitiveHexagonal;
 
 /**
  * Hexagonal primitive with a 2-site hcp basis.
  */
 
-public class CrystalHcp extends Crystal {
+public class LatticeHcp extends LatticeCrystal {
     
     /**
      * Cubic hcp crystal with a lattice constant that gives a
      * maximum-density structure for spheres of size Default.ATOM_SIZE. 
      */
-    public CrystalHcp() {
+    public LatticeHcp() {
         this(Default.ATOM_SIZE);
     }
     
-    public CrystalHcp(double latticeConstant) {
+    public LatticeHcp(double latticeConstant) {
         this(new PrimitiveHexagonal(Space3D.INSTANCE));
-        primitive = (PrimitiveHexagonal)((BravaisLattice)lattice).getPrimitive();
+        primitive = (PrimitiveHexagonal)((BravaisLattice)crystal.getLattice()).getPrimitive();
         primitive.setA(latticeConstant);
         primitive.setC(Math.sqrt(8.0/3.0)*latticeConstant);
     }
@@ -29,8 +29,8 @@ public class CrystalHcp extends Crystal {
      * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
      * new BasisCubicBcc (which needs the new primitive) to super.
      */ 
-    private CrystalHcp(PrimitiveHexagonal primitive) {
-        super(new BravaisLattice(primitive), new BasisHcp(primitive));
+    private LatticeHcp(PrimitiveHexagonal primitive) {
+        super(new Crystal(new BravaisLattice(primitive), new BasisHcp(primitive)));
     }
     
     /**

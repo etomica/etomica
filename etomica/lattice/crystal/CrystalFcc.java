@@ -1,7 +1,10 @@
 package etomica.lattice.crystal;
-import etomica.*;
+import etomica.Default;
+import etomica.Space3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.Crystal;
+import etomica.lattice.LatticeCrystal;
+import etomica.lattice.LatticeCubic;
 
 /**
  * Cubic primitive with a 4-site fcc basis.
@@ -15,7 +18,7 @@ import etomica.lattice.Crystal;
   * sites under basis from BravisLattice)
   * 01/20/04 (DAK) restructured constructors
   */
-public class CrystalFcc extends Crystal {
+public class CrystalFcc extends LatticeCrystal implements LatticeCubic {
 
     /**
      * Cubic bcc crystal with a lattice constant that gives a
@@ -27,7 +30,7 @@ public class CrystalFcc extends Crystal {
     
     public CrystalFcc(double latticeConstant) {
         this(new PrimitiveCubic(Space3D.INSTANCE));
-        primitive = (PrimitiveCubic)((BravaisLattice)lattice).getPrimitive();
+        primitive = (PrimitiveCubic)((BravaisLattice)crystal.getLattice()).getPrimitive();
         primitive.setSize(latticeConstant);
     }
 
@@ -36,7 +39,7 @@ public class CrystalFcc extends Crystal {
      * new BasisCubicBcc (which needs the new primitive) to super.
      */ 
     private CrystalFcc(PrimitiveCubic primitive) {
-        super(new BravaisLattice(primitive), new BasisCubicFcc(primitive));
+        super(new Crystal(new BravaisLattice(primitive), new BasisCubicFcc(primitive)));
     }
     
     /**
@@ -46,6 +49,19 @@ public class CrystalFcc extends Crystal {
     public PrimitiveCubic primitive() {
         return primitive;
     }
+    
+    /**
+     * The lattice constant is the size of the cubic primitive vectors
+     * of the lattice underlying this crystal.
+     */
+    public void setLatticeConstant(double latticeConstant) {
+        primitive.setSize(latticeConstant);
+    }
+    
+    public double getLatticeConstant() {
+        return primitive.getSize();
+    }
+
 
     /**
      * Returns "Fcc".

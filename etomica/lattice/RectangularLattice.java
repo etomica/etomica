@@ -26,7 +26,7 @@ import etomica.graphics.SimulationGraphic;
 
 // Example showing internal ordering of elements
 //  0     1     2     3     4     5     6     7     8     9    10    11   arrayIndex
-//(000) (001) (002) (010) (011) (012) (100) (101) (102) (110) (111) (112) index
+//(000) (001) (002) (010) (011) (012) (100) (101) (102) (110) (111) (112) latticeIndex
 //  for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //  note that number of sites = size[0]*jumpCount[0]
 
@@ -557,7 +557,7 @@ public class RectangularLattice implements FiniteLattice {
 
         final RectangularLattice.NeighborIterator iterator = new NeighborIterator(dimension);
         iterator.setLattice(lattice);
-        iterator.setSite(new int[] {0,5,8});
+        iterator.setSite(new int[] {0,5,14});
         iterator.setRange(new int[] {2,3,5});
         //define panel for display, so that it draws lattice with appropriately colored sites
         JPanel canvas = new JPanel() {

@@ -12,14 +12,11 @@ package etomica.lattice;
  * History
  * Created on Jan 3, 2005 by kofke
  */
-public class IndexIterator {
+public interface IndexIterator {
 
-    /**
-     * 
-     */
-    public IndexIterator() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
+    public void reset();
+    
+    public boolean hasNext();
+    
+    public int[] next();
 }

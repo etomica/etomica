@@ -3,14 +3,18 @@ package etomica.lattice;
 import etomica.Space;
 
 /**
- * A class packaging together a Primitive and a Basis.
+ * A class packaging together a Primitive and a Basis to define a crystal lattice.
+ * Physically this would represent a molecular crystal, in which the basis describes
+ * placement of the atoms of a molecule, with the molecule repeated on the regular site
+ * of a lattice. The sites of this class are an array of vectors indicating the placement 
+ * the "atoms" for the "molecule" at the Bravais lattice site for the given primitive.
  */
 public class Crystal implements AbstractLattice {
     
     public Crystal(SpaceLattice lattice, Basis basis) {
         this.basis = basis;
         this.lattice = lattice;
-        this.space = lattice.space();
+        this.space = lattice.getSpace();
         latticeIndex = new int[lattice.D()];
     }
     
@@ -18,7 +22,7 @@ public class Crystal implements AbstractLattice {
         return lattice.D();
     }
     
-    public Space space() {
+    public Space getSpace() {
         return space;
     }
     

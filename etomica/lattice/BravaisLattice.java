@@ -16,10 +16,10 @@ public class BravaisLattice implements SpaceLattice {
     }
 
     public int D() {
-        return space().D();
+        return getSpace().D();
     }
     
-    public Space space() {
+    public Space getSpace() {
         return primitive.space;
     }
     /**
@@ -28,8 +28,8 @@ public class BravaisLattice implements SpaceLattice {
      * integer index given by the array argument.
      */
     public Object site(int[] index) {
-        if(index.length != space().D()) throw new IllegalArgumentException("index given to position method of Primitive must have length equal to the dimension of hte primitive");
-        Space.Vector vector = space().makeVector();
+        if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
+        Space.Vector vector = getSpace().makeVector();
         for(int i=0; i<index.length; i++) {
             vector.PEa1Tv1(index[i], primitive.latticeVectors[i]);
         }
@@ -37,57 +37,6 @@ public class BravaisLattice implements SpaceLattice {
     }
 
     
-//    /**
-//     * Sets the size of the lattice (number of atoms in each direction) so that
-//     * it has a number of sites equal or greater than the given value n. Sets
-//     * lattice to be square (same number in all directions), and finds smallest
-//     * size that gives number of sites equal or exceeding the given value.
-//     */
-//    public void setSize(int n) {
-//        if (n < 0 || n >= Integer.MAX_VALUE)
-//            throw new IllegalArgumentException(
-//                    "Inappropriate size specified for lattice: " + n);
-//        int i = (int)Math.pow(n,1/D());
-//        while(i <= n) {
-//            if ((int)Math.pow(i,D()) >= n) break;
-//            i++;
-//        }
-//        setSize(primitive.space.makeArrayD(i));
-//    }
-//
-//    /**
-//     * Performs same actions as setSize(int), then size of primitive vectors are
-//     * adjusted such that lattice will fit in the given dimensions. Assumes all
-//     * dimension values are equal (future development will address case of non-
-//     * square dimensions).
-//     */
-//    public void setSize(int n, double[] dimensions) {
-//        if (n < 0 || n >= Integer.MAX_VALUE)
-//            throw new IllegalArgumentException(
-//                    "Inappropriate size specified for lattice: " + n);
-//        int i = (int)Math.pow(n,1/D());
-//        while(i <= n) {
-//            if ((int)Math.pow(i,D()) >= n) break;
-//            i++;
-//        }
-//        //size primitive vectors to given dimensions
-//        double[] newLength = new double[D()];
-//        for (int j = 0; j < D(); j++)
-//            newLength[j] = dimensions[j] / (double) i;
-//        primitive.setSize(newLength);
-//        setSize(primitive.space.makeArrayD(i));
-//    }
-
-//    /**
-//     * Translates the lattice so that the first site is positioned at the
-//     * given point.
-//     */
-//    public void shiftFirstTo(Space.Vector r) {
-//        Space.Vector[] coords = (Space.Vector[])sites();
-//        for(int i=coords.length-1; i>=0; i--) {
-//            coords[i].ME(r);
-//        }
-//    }
 
     /**
      * Sets the primitive for this lattice to the one given, and

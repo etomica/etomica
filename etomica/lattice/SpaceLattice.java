@@ -14,5 +14,5 @@ import etomica.Space;
  */
 public interface SpaceLattice extends AbstractLattice {
 
-    public Space space();
+    public Space getSpace();
 }

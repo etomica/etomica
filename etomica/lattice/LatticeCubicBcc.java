@@ -1,26 +1,26 @@
-package etomica.lattice.crystal;
+package etomica.lattice;
 import etomica.Default;
 import etomica.Space3D;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.Crystal;
+import etomica.lattice.crystal.BasisCubicBcc;
+import etomica.lattice.crystal.PrimitiveCubic;
 
 /**
  * Cubic primitive with a 2-site bcc basis.
  */
 
-public class CrystalBcc extends Crystal {
+public class LatticeCubicBcc extends LatticeCrystal implements LatticeCubic {
     
 	/**
 	 * Cubic bcc crystal with a lattice constant that gives a
      * maximum-density structure for spheres of size Default.ATOM_SIZE. 
 	 */
-    public CrystalBcc() {
+    public LatticeCubicBcc() {
         this(2.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
     }
     
-	public CrystalBcc(double latticeConstant) {
+	public LatticeCubicBcc(double latticeConstant) {
 		this(new PrimitiveCubic(Space3D.INSTANCE));
-        primitive = (PrimitiveCubic)((BravaisLattice)lattice).getPrimitive();
+        primitive = (PrimitiveCubic)((BravaisLattice)crystal.getLattice()).getPrimitive();
         primitive.setSize(latticeConstant);
 	}
 
@@ -28,8 +28,8 @@ public class CrystalBcc extends Crystal {
 	 * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
 	 * new BasisCubicBcc (which needs the new primitive) to super.
 	 */	
-	private CrystalBcc(PrimitiveCubic primitive) {
-		super(new BravaisLattice(primitive), new BasisCubicBcc(primitive));
+	private LatticeCubicBcc(PrimitiveCubic primitive) {
+		super(new Crystal(new BravaisLattice(primitive), new BasisCubicBcc(primitive)));
 	}
     
     /**
@@ -38,6 +38,18 @@ public class CrystalBcc extends Crystal {
      */
     public PrimitiveCubic primitive() {
         return primitive;
+    }
+    
+    /**
+     * The lattice constant is the size of the cubic primitive vectors
+     * of the lattice underlying this crystal.
+     */
+    public void setLatticeConstant(double latticeConstant) {
+        primitive.setSize(latticeConstant);
+    }
+    
+    public double getLatticeConstant() {
+        return primitive.getSize();
     }
 
     /**
