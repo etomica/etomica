@@ -94,7 +94,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     public Atom reset(IteratorDirective id) {
         direction = id.direction();//save for reset()
         switch(id.atomCount()) {
-            case 0:  return reset(); 
+            case 0:  applyDirection(); return reset(upListNow ? defaultFirstAtom() : defaultLastAtom()); 
             case 1:  applyDirection(); return reset(id.atom1()); 
             case 2:  applyDirection(); return reset(id.atom1(), id.atom2()); 
             default: hasNext = false; 
@@ -118,9 +118,12 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      //of atom for different values of direction
      //remember that this is called by reset(IteratorDirective) when id.atomcount = 0
     public Atom reset() {
+        isNeighborIterator = false;
+        direction = IteratorDirective.UP;
         applyDirection(); //need to reapply because upListNow may have been changed during previous iteration
 ///        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
-        setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
+//        setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
+        setAtom = defaultFirstAtom();
         return reset(setAtom);
 /*        if(isNeighborIterator) atom = null;
         else if(upListNow) atom = reset(defaultFirstAtom());

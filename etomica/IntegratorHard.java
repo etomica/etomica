@@ -235,7 +235,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(3);
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    Controller controller1 = new Controller();

@@ -23,7 +23,7 @@ public class AtomFactoryMulti extends AtomFactory {
     }
     
     public Atom build(AtomGroup parent) {
-        AtomGroup group = new AtomGroup(parent, groupType);
+        AtomGroup group = new AtomGroup(parentSimulation.space(), parent, groupType);
         for(int i=0; i<atomsPerGroup; i++) {
             group.addAtom(childFactory.build(group));
         }
@@ -33,7 +33,7 @@ public class AtomFactoryMulti extends AtomFactory {
     
     public boolean producesAtomGroups() {return true;}
     
-    public boolean vetoAddition(Atom a) {return (a.type != groupType);} 
+    public boolean vetoAddition(Atom a) {return (a.creator() != childFactory);} 
         
     public void renew(Atom a) {//need an exception in the case a is unrenewable
         if(a.type != groupType) return;  //throw exception

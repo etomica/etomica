@@ -60,6 +60,9 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         potential = (PotentialMaster.Agent)sim.potentialMaster().makeAgent(this);
         speciesMaster = new SpeciesMaster(this);
         
+        atomIterator = makeAtomIterator();
+        moleculeIterator = makeMoleculeIterator();//must come after speciesMaster assignment
+        
         inflater = new PhaseAction.Inflate(this);
         //don't use setIteratorFactory here to remove any possibility of complications with Observers
         if(sim.space() instanceof IteratorFactory.Maker) {
@@ -209,9 +212,9 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         //notify observers before updating iteratorFactory in case observers want to close business with old iteratorFactory
         iteratorFactoryMonitor.notifyObservers(it);
         iteratorFactory = it;
-        if(it instanceof PotentialField.Maker) {
+//        if(it instanceof PotentialField.Maker) {
 //            addField(((PotentialField.Maker)it).makePotentialField(this));
-        }
+//        }
     }
     
     /**
@@ -494,8 +497,8 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         return new AtomIteratorChildren(speciesMaster.new ChildAtomIterator());
     }//end of makeMoleculeIterator
     
-    public final AtomIterator atomIterator = makeAtomIterator();
-    public final AtomIterator moleculeIterator = makeMoleculeIterator();
+    public final AtomIterator atomIterator;
+    public final AtomIterator moleculeIterator;
     
 } //end of Phase
         

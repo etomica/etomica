@@ -45,7 +45,7 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
     
     public boolean isOrdered(Atom atom1, Atom atom2) {
         if(atom1 == null || atom2 == null || !contains(atom1) || !contains(atom2)) return false;
-        else return atom1.preceeds(atom2);
+        else return atom1 == atom2 || atom1.preceeds(atom2);
     }
 
     public Atom next() {

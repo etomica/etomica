@@ -248,7 +248,7 @@ public class Space2D extends Space implements EtomicaElement {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
         public final Vector rLast = new Vector();  //vector for saving position
-        public final Vector work = new Vector();
+        protected final Vector work = new Vector();
         public Coordinate(Atom a) {super(a);}
         
         public void setNextAtom(Atom a) {
@@ -309,34 +309,36 @@ public class Space2D extends Space implements EtomicaElement {
     }
     
     public static class CoordinateGroup extends Coordinate implements Space.CoordinateGroup {
-        private final Vector work = new Vector();
         public Coordinate firstChild, lastChild;
         public CoordinateGroup(AtomGroup a) {super(a);}
 
-        public final Atom firstChild() {return firstChild.atom;}
-        public final void setFirstChild(Atom atom) {firstChild = (Coordinate)atom.coord;}
-        public final Atom lastChild() {return lastChild.atom;}
-        public final void setLastChild(Atom atom) {lastChild = (Coordinate)atom.coord;}
+        public final Atom firstChild() {return (firstChild != null) ? firstChild.atom : null;}
+        public final void setFirstChild(Atom a) {firstChild = (Coordinate)a.coord;}
+        public final Atom lastChild() {return (lastChild != null) ? lastChild.atom : null;}
+        public final void setLastChild(Atom a) {lastChild = (Coordinate)a.coord;}
         
         public Space.Vector position() {
-            work.E(0.0); double massSum = 0.0;
+            r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                work.PEa1Tv1(coord.mass(), coord.position()); massSum += coord.mass();
+                r.PEa1Tv1(coord.mass(), coord.position()); massSum += coord.mass();
+                if(coord == lastChild) break;
             }
-            work.DE(massSum);
-            return work;
+            r.DE(massSum);
+            return r;
         }
         public Space.Vector momentum() {
-            work.E(0.0);
+            p.E(0.0);
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                work.PE(coord.momentum());
+                p.PE(coord.momentum());
+                if(coord == lastChild) break;
             }
-            return work;
+            return p;
         }
         public double position(int i) {
             double sum = 0.0; double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 sum += coord.mass()*coord.position(i); massSum += coord.mass();
+                if(coord == lastChild) break;
             }
             sum /= massSum;
             return sum;
@@ -345,6 +347,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 sum += coord.mass()*coord.momentum(i);
+                if(coord == lastChild) break;
             }
             return sum;
         }
@@ -352,6 +355,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 sum += coord.kineticEnergy();
+                if(coord == lastChild) break;
             }
             return sum;
         }
@@ -359,35 +363,40 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.freeFlight(t);
+                if(coord == lastChild) break;
             }
         }
         public void translateBy(Space.Vector u) {
             Vector u0 = (Vector)u;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.translateBy(u0);
+                if(coord == lastChild) break;
             }
         }
         public void translateBy(double d, Space.Vector u) {
             Vector u0 = (Vector)u;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.translateBy(d, u0);
+                if(coord == lastChild) break;
             }
         }
         public void translateTo(Space.Vector u) {
-            work.E((Vector)u);
-            work.ME(position());
+            work.Ea1Tv1(-1,position()); //position() uses work, so need this first
+            work.PE((Vector)u);
             translateBy(work);
         }
         public void displaceBy(Space.Vector u) {
             Vector u0 = (Vector)u;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.displaceBy(u0);
+                if(coord == lastChild) break;
             }
         }
         public void displaceBy(double d, Space.Vector u) {
             Vector u0 = (Vector)u;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.displaceBy(d, u0);
+                if(coord == lastChild) break;
             }
         }
         public void displaceTo(Space.Vector u) {
@@ -401,24 +410,28 @@ public class Space2D extends Space implements EtomicaElement {
         public void replace() {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.replace();
+                if(coord == lastChild) break;
             }
         }
         public void accelerateBy(Space.Vector u) {
             Vector u0 = (Vector)u;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.accelerateBy(u0);
+                if(coord == lastChild) break;
             }
         }
         public void accelerateBy(double d, Space.Vector u) {
             Vector u0 = (Vector)u;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.accelerateBy(d, u0);
+                if(coord == lastChild) break;
             }
         }
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         public void randomizeMomentum(double temperature) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.randomizeMomentum(temperature);
+                if(coord == lastChild) break;
             }
         }
     }//end of CoordinateGroup

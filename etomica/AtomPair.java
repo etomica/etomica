@@ -21,7 +21,7 @@ public final class AtomPair implements java.io.Serializable {
      * The method atom1() will return the first atom in the argument list here, and atom2() the second.
      */
     public AtomPair(Atom a1, Atom a2) {  //Assumes a1 and a2 are in same phase
-        cPair = a1.parentPhase().parentSimulation().space().makeCoordinatePair(a1.parentPhase());
+        cPair = a1.parentSimulation().space().makeCoordinatePair(a1.parentPhase());
         reset(a1, a2);
     }
     /**

@@ -406,7 +406,11 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 	    DisplayPhase displayPhase = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
 	    timer.setUpdateInterval(10);
-//        integratorHard.setTimeStep(0.01);
+        integratorHard.setTimeStep(0.01);
+        displayPhase.setColorScheme(new ColorSchemeNull());
+        for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
+            atom.setColor(Constants.randomColor());
+        }
         
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect

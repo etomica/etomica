@@ -136,6 +136,9 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public final Atom atom() {return atom;}
         
         public abstract void setNextAtom(Atom a);
+        public abstract Atom nextAtom();
+        public abstract void clearPreviousAtom();
+        public abstract Atom previousAtom();
         public abstract Vector position();
         public abstract Vector momentum();
         public abstract double position(int i);

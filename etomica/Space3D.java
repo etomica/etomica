@@ -349,11 +349,11 @@ public class Space3D extends Space implements EtomicaElement {
         public Coordinate firstChild, lastChild;
         public CoordinateGroup(AtomGroup a) {super(a);}
 
-        public final Atom firstChild() {return firstChild.atom;}
+        public final Atom firstChild() {return (firstChild != null) ? firstChild.atom : null;}
         public final void setFirstChild(Atom atom) {firstChild = (Coordinate)atom.coord;}
-        public final Atom lastChild() {return lastChild.atom;}
+        public final Atom lastChild() {return (lastChild != null) ? lastChild.atom : null;}
         public final void setLastChild(Atom atom) {lastChild = (Coordinate)atom.coord;}
-        
+                
         public double mass() {
             double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {

@@ -19,10 +19,11 @@ public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "Atom:01.07.12";}
     
-    public Atom(AtomGroup parent, AtomType t) {
+    public Atom(Space space, AtomGroup parent, AtomType t) {
         parentGroup = parent;
         type = t;
-        coord = parentSimulation().space().makeCoordinate(this);//must follow setting of type field
+        coord = space.makeCoordinate(this);//must follow setting of type field
+        coord.setMass(type.getMass());
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
     }
                     
@@ -88,26 +89,26 @@ public class Atom implements java.io.Serializable {
      * 
      * @see setNextAtom
      */
-    public final void clearPreviousAtom() {previousAtom = null;}
+    public final void clearPreviousAtom() {coord.clearPreviousAtom();}
 
     /**
      * @return the next atom in the linked list of atoms
      * @see setNextAtom
      */
-    public final Atom nextAtom() {return nextAtom;}
+    public final Atom nextAtom() {return coord.nextAtom();}
 
     /**
      * @return the previous atom in the linked list of atoms
      * @see setNextAtom
      */
-    public final Atom previousAtom() {return previousAtom;} 
+    public final Atom previousAtom() {return coord.previousAtom();} 
     
     public int depth() {return parentGroup.depth()+1;}
     
     public final boolean preceeds(Atom atom) {
-        //want to return true if atoms are the same atoms
+        //want to return false if atoms are the same atoms
         if(atom == null) return true;
-        if(this.parentGroup == atom.parentGroup()) return this.index() <= atom.index();//works also if both parentGroups are null
+        if(this.parentGroup == atom.parentGroup()) return this.index() < atom.index();//works also if both parentGroups are null
         int thisDepth = depth();
         int atomDepth = atom.depth();
         if(thisDepth == atomDepth) return this.parentGroup.preceeds(atom.parentGroup());
@@ -158,7 +159,7 @@ public class Atom implements java.io.Serializable {
     */
      int atomIndex;
     
-    private Atom nextAtom, previousAtom;
+//    private Atom nextAtom, previousAtom;
         
     public final AtomType type;
     private AtomGroup parentGroup;

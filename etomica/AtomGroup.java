@@ -14,14 +14,14 @@ public class AtomGroup extends Atom {
      * Constructs an empty atom group with no associated factory.  Normally
      * the new group will be filled with atoms following its construction.
      */
-    public AtomGroup(AtomGroup parent, AtomType.Group type) {
-        super(parent, type);
+    public AtomGroup(Space space, AtomGroup parent, AtomType.Group type) {
+        super(space, parent, type);
         childCount = 0;
         resizable = true;
     }
     
     //to be completed
-    public int atomCount() {return -1;}
+//    public int atomCount() {return -1;}
     public int childCount() {return childCount;}
     
     public Atom getAtom(int i) {
@@ -69,7 +69,9 @@ public class AtomGroup extends Atom {
     public void addAtom(Atom aNew) {
         if(!resizable) return; //should define an exception
         //ensure that the given atom is compatible
-        if(aNew == null || creator().vetoAddition(aNew)) { //should ensure group/atom consistency with other children
+        //creator() is not defined for speciesAgent, so this creates a problem when adding
+        //new molecule; commented out vetoAddition call until this is fixed or abandoned.
+        if(aNew == null /* || creator().vetoAddition(aNew)*/) { //should ensure group/atom consistency with other children
             System.out.println("Error in AtomGroup.addAtom:  See source code");  //should throw an exception
             return;
         }

@@ -484,7 +484,6 @@ public abstract class AtomType implements java.io.Serializable {
      * Type for an AtomGroup atom.
      */
     public static class Group extends AtomType {
-        private AtomFactory creator;
         public Group(AtomFactory creator) {
             super(creator);
         }

@@ -10,7 +10,7 @@ public class SpeciesMaster extends AtomGroup {
     private final Phase parentPhase;
     
     public SpeciesMaster(Phase p) {
-        super(null, AtomType.NULL); //parent, atomtype
+        super(p.parentSimulation().space(), null, AtomType.NULL); //space, parent, atomtype
         parentPhase = p;
     }
         
