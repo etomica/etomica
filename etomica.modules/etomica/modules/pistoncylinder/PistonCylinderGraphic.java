@@ -478,6 +478,7 @@ public class PistonCylinderGraphic {
         temperatureManager = new DataManager(thermometer,temperatureHistory);
         temperatureManager.setUpdateInterval(10);
         DataManager temperaturePlotManager = new DataManager(temperatureHistory, plotT.makeDataSink());
+        temperaturePlotManager.setUpdateInterval(10);
         tBox.setDataSource(thermometer);
         tBox.setUnit(tUnit);
         
@@ -494,6 +495,7 @@ public class PistonCylinderGraphic {
         DataSink targetPressureDataSink = plotP.makeDataSink();
         DataManager targetPressurePlotManager = new DataManager(targetPressureHistory, targetPressureDataSink);
         targetPressureDataManager.setUpdateInterval(10);
+        targetPressurePlotManager.setUpdateInterval(10);
         
         DataSource targetTemperatureDataSource = new DataSourceAdapter(Dimension.TEMPERATURE) {
             double[] value = new double[1];
@@ -508,6 +510,7 @@ public class PistonCylinderGraphic {
         DataSink targetTemperatureDataSink = plotT.makeDataSink();
         DataManager targetTemperaturePlotManager = new DataManager(targetTemperatureHistory, targetTemperatureDataSink);
         targetTemperatureDataManager.setUpdateInterval(10);
+        targetTemperaturePlotManager.setUpdateInterval(10);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
         AccumulatorAverage densityAvg = new AccumulatorAverage();
@@ -530,6 +533,7 @@ public class PistonCylinderGraphic {
         densityManager = new DataManager(densityMeter,new DataSink[]{densityAvg, densityHistory});
         DataManager densityPlotManager = new DataManager(densityHistory, plotD.makeDataSink());
         densityManager.setUpdateInterval(10);
+        densityPlotManager.setUpdateInterval(10);
         
         Unit dUnit, dadUnit;
         if (D == 3) {
