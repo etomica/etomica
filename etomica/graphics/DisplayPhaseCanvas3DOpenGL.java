@@ -616,7 +616,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glLoadIdentity();
     //PhaseTranslate & Zoom to the desired position
 //    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
-	gl.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.phase.boundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
+	gl.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.getPhase().boundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
     //Rotate accordingly
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);

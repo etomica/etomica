@@ -48,7 +48,11 @@ public class SimulationGraphic implements SimulationContainer {
     
     public final LinkedList displayList() { return displayList;}
     public final LinkedList deviceList() { return deviceList; }
-                  
+        
+    public void repaint() {
+        
+        
+    }
     /**
      * A visual display of the simulation via a JPanel.
      */
@@ -68,7 +72,7 @@ public class SimulationGraphic implements SimulationContainer {
          Iterator iterator = phaseList.iterator();
          while (iterator.hasNext()) {
              Phase phase = (Phase)iterator.next();
-             Display display = new DisplayPhase(phase);
+             DisplayPhase display = new DisplayPhase(phase);
              add(display);
              if(integrator != null) integrator.addIntervalListener(new IntervalActionAdapter(display));
          }
@@ -147,9 +151,9 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
 //          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
-      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+//      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
 //      etomica.simulations.ChainHSMD3D sim = new etomica.simulations.ChainHSMD3D();
-//        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 //        etomica.simulations.HSMD2D_noNbr sim = new etomica.simulations.HSMD2D_noNbr();
 //        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
