@@ -19,6 +19,7 @@ public class PotentialHardDisk extends simulate.Potential
 
         if(bij < 0.0) {
           double r2 = Space.v1S(r12);
+          if(r2 < sig2) {return time;} //ignore collision if already overlapping
           double velocitySquared = Space.v1S(v12);
           double discriminant = bij*bij - velocitySquared * ( r2 - sig2 );
           if(discriminant > 0) {

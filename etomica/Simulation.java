@@ -50,17 +50,6 @@ public class Simulation extends Container {
     g.setColor(getBackground());
     paintComponents(g);
   }
-  
-  public void update(Observable o, Object arg) {
-    if(o instanceof Gravity) {
-        double deltaG = (Gravity)o.deltaG;
-        Enumeration e = phases.elements();
-        while(e.hasMoreElements()) {
-            ((Phase)e.nextElement()).updateGravity(deltaG);
-        }
-        if(haveIntegrator()) {controller.integrator.updateGravity(deltaG);}
-    }
-  }
 }
 
 

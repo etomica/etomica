@@ -1,4 +1,5 @@
 package simulate;
+import java.util.Observable;
 
 public class IntegratorHard extends Integrator {
 
@@ -79,6 +80,7 @@ public class IntegratorHard extends Integrator {
         }
     }
     else {
+        double t2 = tStep*tStep;
         for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
             a.decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary

@@ -403,12 +403,14 @@ public final class Phase extends Container {
     
     public void add(Potential1 p1) {
         super.add(p1);
+        p1.setPhase(this);
         p1.setSpace(this.space);
         this.potential1[p1.speciesIndex] = p1;
     }
     
     public void add(Potential2 p2) {
         super.add(p2);
+        p2.setPhase(this);
         p2.setSpace(this.space);
         this.potential2[p2.species1Index][p2.species2Index] = p2;
         this.potential2[p2.species2Index][p2.species1Index] = p2;

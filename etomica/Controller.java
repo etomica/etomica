@@ -3,6 +3,7 @@ package simulate;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.Beans;
+import java.util.*;
 
 public class Controller extends Container implements Runnable {
 

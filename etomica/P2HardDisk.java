@@ -5,14 +5,16 @@ import java.awt.*;
 public class P2HardDisk extends Potential2 {
 
   private double collisionDiameter = 0.1;
+  private PotentialHardDisk onlyPotential;
 
   public P2HardDisk() {
     super();
     setSize(30,30);
     nAtoms1 = 1;
     nAtoms2 = 1;
+    onlyPotential = new PotentialHardDisk(collisionDiameter);
     potential = new Potential[nAtoms1][nAtoms2];
-    potential[0][0] = new PotentialHardDisk(collisionDiameter);
+    potential[0][0] = onlyPotential;
     setCollisionDiameter(collisionDiameter);  //sets up neighbor distances 
   }
   
@@ -20,12 +22,14 @@ public class P2HardDisk extends Potential2 {
     return (space.r1Mr2_S(m1.COM(), m2.COM()) < squareNeighborRadius);
   }
   
-  public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
-  
+//  public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
+  public final Potential getPotential(Atom a1, Atom a2) {return onlyPotential;}
+
   public final double getCollisionDiameter() {return collisionDiameter;}
   public final void setCollisionDiameter(double d) {
     collisionDiameter = d;
-    ((PotentialHardDisk)potential[0][0]).setCollisionDiameter(d);
+//    ((PotentialHardDisk)potential[0][0]).setCollisionDiameter(d);
+    onlyPotential.setCollisionDiameter(d);
     setPotentialCutoff(d);
   }
   

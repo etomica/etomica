@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class PotentialHardDiskWall extends simulate.Potential
 {
-    double collisionDiameter, sig2;
+    double collisionDiameter, collisionRadius, sig2;
 
     public PotentialHardDiskWall(double d) {
         setCollisionDiameter(d);
@@ -25,23 +25,42 @@ public class PotentialHardDiskWall extends simulate.Potential
         }
         
         double time = Double.MAX_VALUE;
-        double dr, t;
-        double dtdr;
         int i;
         
         if(wall.isVertical()) {i = 0;}
         else if(wall.isHorizontal()) {i = 1;}
         else {i = 0;}
         
-        dr = wall.r[i] - disk.r[i];
-        dtdr = 1.0/(disk.p[i]*disk.rm);
-        t = dr*dtdr;
+        if(parentPhase.noGravity || i==0 || !(wall.isStationary() || disk.isStationary())) {
+            double dr, t, dtdr;
+            dr = wall.r[i] - disk.r[i];
+            dtdr = 1.0/(disk.p[i]*disk.rm);
+            t = dr*dtdr;
 
-        if(t > 0.0) {time = Math.max(0.0,t-collisionDiameter/2.0*Math.abs(dtdr));}
-        return time;
+            if(t > 0.0) {time = Math.max(0.0,t-collisionDiameter/2.0*Math.abs(dtdr));}
+            return time;
+        }
+        else {
+            double dr, dv;
+            dr = wall.r[i] - disk.r[i];
+            if(Math.abs(dr) < collisionRadius) {return Double.MAX_VALUE;}  //inside wall; no collision
+            dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
+            dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
+            double a = (wall.isStationary() ? -parentPhase.getG() : +parentPhase.getG());
+            double discrim = dv*dv - 2*a*dr;
+            if(discrim > 0) {
+                boolean adr = (a*dr > 0);
+                boolean adv = (a*dv > 0);
+                if(adr && adv) {time = Double.MAX_VALUE;}
+                else if(adr) {time = (-dv - Math.sqrt(discrim))/a;}
+                else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration
+                else {time = (-dv + Math.sqrt(discrim))/a;}
+            }
+            return time;
+        }
     }
     
-    public void bump(Atom atom1, Atom atom2)
+    public void bump(Atom atom1, Atom atom2)  //this needs updating to check for isStationary
     {
         Atom disk;
         AtomWall wall;
@@ -66,6 +85,7 @@ public class PotentialHardDiskWall extends simulate.Potential
     public double getCollisionDiameter() {return collisionDiameter;}
     public void setCollisionDiameter(double c) {
         collisionDiameter = c;
+        collisionRadius = 0.5*c;
         sig2 = c*c;
     }
 }

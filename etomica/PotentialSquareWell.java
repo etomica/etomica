@@ -11,7 +11,7 @@ public class PotentialSquareWell extends Potential {
   private double epsilon;
   private transient final double[] r12 = new double[Space.D];
   private transient final double[] v12 = new double[Space.D];
-  private transient PairInteraction pair = new PairInteraction();
+//  private transient PairInteraction pair = new PairInteraction();
 
   public PotentialSquareWell(double coreDiameter, double lambda, double epsilon) {
     setCoreDiameter(coreDiameter);

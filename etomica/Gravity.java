@@ -1,6 +1,7 @@
 package simulate;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.*;
 
  /**
   * Container of information about the gravitational force acting on system.
@@ -11,12 +12,12 @@ import java.util.Observer;
   * Default value of gravitational acceleration is zero.
   */
 
-public class Gravity extends Observable {
+public class Gravity extends java.util.Observable  {
     
     public static final double G_EARTH = 9.8*1e10/1e24;  //acceleration of gravity (on Earth), in A/ps^2
     private double g = 0.0;                  //acceleration of gravity for simulated system
     public double deltaG = 0.0;
-    public double[] gVector = new Double[Space.D];
+    public final double[] gVector = new double[Space.D];
 
     public Gravity() {
         this(0.0);

@@ -3,7 +3,7 @@ import java.util.*;
 import java.awt.*;
 import java.beans.*;
 
-public class SpeciesDiskWell extends SpeciesDisk {
+public class SpeciesDiskWell extends SpeciesDisks {
   double lambda;
   Color wellColor;
 
