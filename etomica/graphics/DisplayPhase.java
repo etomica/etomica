@@ -97,11 +97,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
   private boolean drawOverflow = false;
   
   /**
-   * Used to watch for changes in iteratorFactory of displayed phase.
-   */
-  private java.util.Observer iteratorFactoryObserver;
-  
-  /**
    * Vector used to maintain list of DisplayPhase Listeners
    */
   private java.util.Vector displayPhaseListeners = new java.util.Vector();
@@ -122,16 +117,20 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         System.out.println("Serenity now");
         setLabel("Configuration");
 
-        int box = (int)(Default.BOX_SIZE * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                box *=1.4;
-                    canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
+                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxX *=1.4;
+                boxY *=1.4;
+                    canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
  /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
  */               break;
             case 2:
+                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
                 canvas = new DisplayPhaseCanvas2D(this);
 /*comment this line for applet*/                DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 break;
@@ -142,15 +141,15 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 break;
         }
         
-        setSize(box, box);
+        setSize(boxX, boxY);
         align[0] = align[1] = CENTER;
 
         setPhase(phase);
 
         InputEventHandler listener = new InputEventHandler();
-        canvas.addMouseListener((MouseListener)listener);
-        canvas.addMouseMotionListener((MouseMotionListener)listener);
-        canvas.addKeyListener((KeyListener)listener);
+        canvas.addMouseListener(listener);
+        canvas.addMouseMotionListener(listener);
+        canvas.addKeyListener(listener);
         
         canvas.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -245,7 +244,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         canvas.setPhase(p);
         atomIterator = new AtomIteratorLeafAtoms(p);
         initialize();
-    }//need to add an iterator observer (in superclass)
+    }
     
     /**
      * Accessor method for the color scheme used for this display
@@ -324,7 +323,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     }
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
-        toPixels = /*(int)*/(getScale()*BaseUnit.Length.Sim.TO_PIXELS);
+        toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*phase().boundary().dimensions().x(0));
         drawSize[1] = (phase.space().D==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().x(1));
@@ -333,24 +332,15 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
     }    
       
-    public int computeOrigin(int align, int drawSize, int size) {
-        switch(align) {
+    public int computeOrigin(int alignX, int drawSizeX, int size) {
+        switch(alignX) {
             case   LEFT: return 0;    //same as TOP
-            case CENTER: return (size-drawSize)/2;
-            case  RIGHT: return size-drawSize; //same as BOTTOM
+            case CENTER: return (size-drawSizeX)/2;
+            case  RIGHT: return size-drawSizeX; //same as BOTTOM
             default: return 0;
         }
     }
-            
-//    public void setDrawBoundary(boolean b) {drawBoundary = b;}
-//    public boolean getDrawBoundary() {return drawBoundary;}
 
-    /**
-    * Flag specifying whether a line tracing the boundary of the display should be drawn
-    * Default value is <code>true</code>
-    */
-    private boolean drawBoundary = true;
-        
     /**
     * Number of periodic-image shells to be drawn when drawing this phase to the
     * screen.  Default value is 0.
@@ -498,7 +488,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         public void mouseMoved(MouseEvent evt) {}
         
         private void mouseAction(MouseEvent evt) {
-            double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
             double x = (evt.getX() - centralOrigin[0])/toPixels;
             double y = (evt.getY() - centralOrigin[1])/toPixels;
             point.setX(0, x);
@@ -650,7 +639,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                         break;
                     case 'b':
                         canvas.setDrawBoundary(canvas.getDrawBoundary()+1);
-//                        setDrawBoundary(!getDrawBoundary());
                         break;
                     case 'q':
                         canvas.setQuality(canvas.getQuality()+1);
