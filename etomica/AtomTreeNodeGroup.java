@@ -118,12 +118,12 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      */
     public void addAtomNotify(Atom atom) {
         leafAtomCount += atom.node.leafAtomCount();
-        parentNode.addAtomNotify(atom);
+        parentNode().addAtomNotify(atom);
     }
     
     public void removeAtomNotify(Atom atom) {
         leafAtomCount -= atom.node.leafAtomCount();
-        parentNode.removeAtomNotify(atom);
+        parentNode().removeAtomNotify(atom);
     }
       
     protected int leafAtomCount;

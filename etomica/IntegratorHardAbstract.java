@@ -30,6 +30,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
     private AtomPair atomPair;
+    protected final MeterTemperature meterTemperature = new MeterTemperature((Space)null);
     Space.Vector c3;
                 
     public IntegratorHardAbstract(Simulation sim) {
@@ -84,7 +85,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             advanceAcrossTimeStep(tStep);
             timeIncrement = 0.0;
             if(isothermal) {
-                scaleMomenta(Math.sqrt(this.temperature/(firstPhase.kineticTemperature())));
+                scaleMomenta(Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster)));
             }
         }
         else {

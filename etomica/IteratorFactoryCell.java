@@ -54,7 +54,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     
     public AtomIterator makeGroupIteratorSimple() {return new FixedSequenceIterator();}
 
-    public AtomIterator makeAtomIterator() {return new AtomIteratorChildren();}
+    public AtomIterator makeGroupIteratorSequential() {return new AtomIteratorChildren();}
         
     public AtomIterator makeIntragroupIterator() {return new IntragroupIterator(this);}
     public AtomIterator makeIntergroupIterator() {return new AtomIteratorChildren();}
@@ -266,11 +266,6 @@ public final class FixedSequenceIterator implements AtomIterator {
 	    reset();
 	}
 	
-	
-	public void setAsNeighbor(boolean b) {
-	    throw new RuntimeException("method IteratorFactoryCell.FixedSequenceIterator.setAsNeighbor not implemented");
-	}
-
     //when iterator expires next will be set to null
 	public boolean hasNext() {return next != null;}
 	
@@ -434,9 +429,14 @@ public static final class Sequencer extends AtomSequencer implements AbstractLat
     /**
      * Method called when the parent of the atom is changed.
      * By the time this method is called, the atom has been placed
-     * in the childList of the given parent.
+     * in the childList of the given parent (if it is not null).
      */
     public void setParentNotify(AtomTreeNodeGroup newParent) {
+        if(newParent == null) {
+            cell = null;
+            lattice = null;
+            return;
+        }
         //get cell lattice for the phase containing the parent
         lattice = ((IteratorFactoryCell)newParent.parentSimulation().iteratorFactory).getLattice(newParent.parentPhase());
         //determine the index used by the cells for their tabs in the parent's childList

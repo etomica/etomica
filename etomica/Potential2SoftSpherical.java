@@ -62,7 +62,7 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
      //   return u(pair.r2());
         double r2 = pair.r2();
         if(truncation.isZero(r2)) return 0.0;
-        else return truncation.uTransform(r2, u(r2));
+        else return potentialTruncation.uTransform(r2, u(r2));
     }
     
     /**
@@ -72,7 +72,7 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
     public double virial(AtomPair pair) {
         double r2 = pair.r2();
         if(truncation.isZero(r2)) return 0.0;
-        else return truncation.duTransform(r2, du(r2));
+        else return potentialTruncation.duTransform(r2, du(r2));
     }
     
     /**
@@ -81,8 +81,8 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
      */
     public double hyperVirial(AtomPair pair) {
         double r2 = pair.r2();
-        if(truncation.isZero(r2)) return 0.0;
-        else return truncation.d2uTransform(r2, d2u(r2)) + truncation.duTransform(r2, du(r2));
+        if(potentialTruncation.isZero(r2)) return 0.0;
+        else return potentialTruncation.d2uTransform(r2, d2u(r2)) + potentialTruncation.duTransform(r2, du(r2));
     }
     
     /**
@@ -91,9 +91,9 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
      */
     public Space.Vector gradient(AtomPair pair) {
         double r2 = pair.r2();
-        if(truncation.isZero(r2)) work1.E(0.0);
+        if(potentialTruncation.isZero(r2)) work1.E(0.0);
         else {
-            double v = truncation.duTransform(r2, du(r2));
+            double v = potentialTruncation.duTransform(r2, du(r2));
             work1.E(pair.dr());
             work1.TE(v/r2);
         }

@@ -13,8 +13,6 @@ public class Potential1Group extends Potential1 implements PotentialGroup {
     }
     public Potential1Group(PotentialGroup parent) {
         super(parent);
-        //overwrite iterator with one that doesn't force looping over leaf atoms
-        iterator = new AtomIteratorSequential(false);
     }
     
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
@@ -35,10 +33,9 @@ public class Potential1Group extends Potential1 implements PotentialGroup {
     }
 
     public double energy(Atom atom) {
-        System.out.println("energy method not implemented in Potential1Group");
-        System.exit(1);
+        throw new RuntimeException("energy method not implemented in Potential1Group");
   //      calculate(localDirective.set(atom).set(IteratorDirective.BOTH), energy);
-        return energy.sum();
+  //      return energy.sum();
     }
 
 }//end Potential1Group

@@ -5,7 +5,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     
     private double[][] virialSum;
     private double t0, t, velocity2;
-    private AtomIterator ai1;
+    private final AtomIteratorList ai1 = new AtomIteratorList();
     private Space.Tensor velocityTensor, v, pressureTensor;
     private IntegratorHard integratorHard;
     private int D;
@@ -27,19 +27,14 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
         EtomicaInfo info = new EtomicaInfo("Pressure tensor measured via components of virial averaged over hard collisions");
         return info;
     }
+    
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        ai1.setBasis(p.speciesMaster.atomList);
+    }
 
     public final boolean usesPhaseBoundary() {return false;}
-    
-    public final boolean usesPhaseIteratorFactory() {return true;}
-    
-    /**
-     * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
-     * It obtains the necessary iterators from the phase.
-     */
-	protected void setPhaseIteratorFactory(IteratorFactory factory) {
-        ai1 = factory.makeAtomIterator();
-	}
- 
+     
     public Dimension getDimension() {return Dimension.TEMPERATURE;}
     
     public Space.Tensor currentValue() {

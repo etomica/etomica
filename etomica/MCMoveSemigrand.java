@@ -18,15 +18,17 @@ public class MCMoveSemigrand extends MCMove {
     private double[] fugacityFraction;
     private int nSpecies;
     private transient Atom deleteMolecule, insertMolecule;
-    private final AtomIteratorSequential deleteAtomIterator = new AtomIteratorSequential(true);
-    private final AtomIteratorSequential insertAtomIterator = new AtomIteratorSequential(true);
-    private final AtomIteratorCompound affectedAtomIterator 
-        = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
+    private final AtomIterator deleteAtomIterator;
+    private final AtomIterator insertAtomIterator;
+    private final AtomIteratorCompound affectedAtomIterator; 
 
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     
     public MCMoveSemigrand(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
+        deleteAtomIterator = parentIntegrator.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
+        insertAtomIterator = parentIntegrator.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
+        affectedAtomIterator = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
         setTunable(false);
         setPerParticleFrequency(true);
     }
@@ -140,7 +142,7 @@ public class MCMoveSemigrand extends MCMove {
   
         deleteMolecule = deleteAgent.randomMolecule();
         uOld = potential.set(phase).calculate(iteratorDirective.set(deleteMolecule), energy.reset()).sum();
-        deleteAgent.node.removeAtom(deleteMolecule);
+        deleteMolecule.sendToReservoir();
         
         insertMolecule = insertAgent.addNewAtom();
         insertMolecule.coord.translateTo(deleteMolecule.coord.position());
@@ -150,7 +152,7 @@ public class MCMoveSemigrand extends MCMove {
 //        if(iInsert==0) System.out.println(iDelete + "   "+ iInsert + "   "+uOld+"   "+uNew);
 
         if(uNew == Double.MAX_VALUE) {//reject
-            deleteAgent.node.addAtom(deleteMolecule);
+            deleteMolecule.node.setParent(deleteAgent);
             insertMolecule.sendToReservoir();
             return false;
         }
@@ -159,12 +161,11 @@ public class MCMoveSemigrand extends MCMove {
                 * Math.exp(-(uNew-uOld)/parentIntegrator.temperature);
         
         if(w > 1.0 || Simulation.random.nextDouble() < w) {//accept
-            deleteMolecule.sendToReservoir();
             return true;
         }
         
         //reject
-        deleteAgent.node.addAtom(deleteMolecule);
+        deleteMolecule.node.setParent(deleteAgent);
         insertMolecule.sendToReservoir();
         return false;
         

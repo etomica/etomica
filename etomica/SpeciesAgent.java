@@ -12,14 +12,14 @@ import etomica.units.Dimension;
 public final class SpeciesAgent extends AtomGroup {
 
     protected final AtomFactory factory;
-    public final AgentAtomTreeNode node;//shadow superclass field of same name to avoid casts
+    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     
     protected Integrator integrator;
     
-    public SpeciesAgent(Species s, int nMolecules, SpeciesMaster parent) {
+    public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
         super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s), parent);
         factory = s.moleculeFactory();
-        node = (AgentAtomTreeNode)super.node;
+        node = (AtomTreeNodeGroup)super.node;
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
@@ -84,14 +84,14 @@ public final class SpeciesAgent extends AtomGroup {
     public void setNMolecules(int n, boolean forceRebuild) {
         if(!resizable) return;
         boolean wasPaused = pauseIntegrator();
-        if(forceRebuild) node.removeAll();
+        if(forceRebuild) while(node.childList.size() > 0) node.lastChildAtom().sendToReservoir();
         
-        if(n <= 0) node.removeAll();
         else if(n > node.childAtomCount()) {
             for(int i=node.childAtomCount(); i<n; i++) addNewAtom();
         }
         else if(n < node.childAtomCount()) {
-            for(int i=node.childAtomCount(); i>n; i--) node.removeAtom(node.lastChildAtom().node.destroy());
+            if(n < 0) n = 0;
+            for(int i=node.childAtomCount(); i>n; i--) node.lastChildAtom().sendToReservoir();
         }
         
         //reconsider this
@@ -127,8 +127,8 @@ public final class SpeciesAgent extends AtomGroup {
     private static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
         
         private final Species parentSpecies;
-        AgentAtomTreeNode(Species parentSpecies, Atom atom) {
-            super(atom);
+        AgentAtomTreeNode(Species parentSpecies, Atom atom, AtomTreeNodeGroup speciesMasterNode) {
+            super(atom, speciesMasterNode);
             this.parentSpecies = parentSpecies;
             depth = 1;
         }
@@ -160,8 +160,8 @@ public final class SpeciesAgent extends AtomGroup {
         NodeFactory(Species s) {
             species = s;
         }
-        public AtomTreeNode makeNode(Atom atom) {
-            return new AgentAtomTreeNode(species, atom);
+        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup speciesMasterNode) {
+            return new AgentAtomTreeNode(species, atom, speciesMasterNode);
         }
     }
 

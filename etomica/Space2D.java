@@ -389,7 +389,7 @@ public class Space2D extends Space implements EtomicaElement {
         
         public CoordinateGroup(Atom a) {
             super(a);
-            childIterator = a.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
+            childIterator = a.node.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
         }
 
         /**
@@ -466,7 +466,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void translateBy(double d, Space.Vector u) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a = childIterator.next().coord.translateBy(d, u);
+                childIterator.next().coord.translateBy(d, u);
             }
             atom.seq.moveNotify();
         }

@@ -6,85 +6,70 @@ package etomica;
  *
  * @author David Kofke
  */
-public class AtomReservoir extends AtomGroup {
+public class AtomReservoir {
     
-    private Atom[] atoms;
-    private int count = 0;  //index of where next atom is to be placed in atoms array
     private int maximumCapacity;
-    private Simulation parentSimulation;
-    private Space space;
+    private final AtomList atomList = new AtomList();
     
-    public AtomReservoir(Space space) {
-        this(space, 10,80);
-        
+    /**
+     * Constructs with default maximum capacity of 80.
+     */
+    public AtomReservoir() {
+        this(80);
     }
-    public AtomReservoir(Space s, int initialCapacity, int maximumCapacity) {
-        super(s, AtomType.NULL);
-        space = s;
-        if(initialCapacity < 1) initialCapacity = 1;
-        if(maximumCapacity < 1) maximumCapacity = 1;
+    /**
+     * Construct reservoir that will accept up to the given number of atoms.
+     */
+    public AtomReservoir(int maximumCapacity) {
+        if(maximumCapacity < 0) maximumCapacity = 0;
         this.maximumCapacity = maximumCapacity;
-        if(initialCapacity > maximumCapacity) initialCapacity = maximumCapacity;
-        atoms = new Atom[initialCapacity];
     }
     
+    /**
+     * Sets parent of given atom to null and adds it to reservoir.
+     */
     public void addAtom(Atom atom) {
-        //safety check
-        if(count >= maximumCapacity || atom == null) return;
+        if(atom == null) return;
+        atom.node.setParent((AtomTreeNodeGroup)null);
+        if(atomList.size() >= maximumCapacity) return;
         //restore atom to condition when built
 //        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
         //add to reservoir
-        atoms[count++] = atom;
-        //check reservoir size and expand to accommodate next addition if now full
-        if(count == atoms.length) {
-            int newCapacity = 2*atoms.length;
-            if(newCapacity > maximumCapacity) newCapacity = maximumCapacity;
-            Atom[] newAtoms = new Atom[newCapacity];
-            for(int i=0; i<atoms.length; i++) {
-                newAtoms[i] = atoms[i];
-            }
-            atoms = newAtoms;
-        }
+        atomList.add(atom.seq);
     }
     
     /**
-     * Override superclass method to terminate chain of notification to parent groups.
-     * Otherwise performs no action.
+     * Returns the most recently added atom.
      */
-    public void addAtomNotify(Atom atom) {
-        //perhaps throw an exception, since this shouldn't be called
-    }
-    
-    /**
-     * Override superclass method to terminate chain of notification to parent groups.
-     * Otherwise performs no action.
-     */
-    public void removeAtomNotify(Atom atom) {
-        //perhaps throw an exception, since this shouldn't be called
-    }
-    
-    
     public Atom removeAtom() {
         Atom atom = null;
-        while(atom == null && count > 0) {
-            atom = atoms[--count];
+        while(atom == null && atomList.size() > 0) {
+            atom = atomList.removeLast();
             //check that atom wasn't placed in another group without taking it from reservoir
-            if(atom.node.parentGroup() != this) atom = null; 
+            if(atom.node.parentGroup() == null) return atom;
+            else atom = null;
         }
-        return atom;
+        return null;//if reach here, list is empty
     }
     
-    public boolean isEmpty() {return count == 0;}
+    /**
+     * Indicates whether reservoir contains any atoms.
+     */
+    public boolean isEmpty() {return atomList.size() == 0;}
     
-    public Phase parentPhase() {return null;}
-    public Species parentSpecies() {return null;}
-    public SpeciesAgent parentSpeciesAgent() {return null;}
-    public Simulation parentSimulation() {return null;}
-    
+    /**
+     * Sets the maximum number of atoms that the reservoir will hold.
+     * If current number is greater, it removes atoms (least recently added
+     * removed first) until maximum is reached.
+     */
     public void setMaximumCapacity(int i) {
         maximumCapacity = i; 
-        if(maximumCapacity < 1) maximumCapacity = 1;
+        if(maximumCapacity < 0) maximumCapacity = 0;
+        while(atomList.size() > maximumCapacity) atomList.removeFirst();
     }
+    /**
+     * Returns the maximum number of atoms the reservoir will hold.
+     */
     public int getMaximumCapacity() {return maximumCapacity;}
     
 }//end of AtomReservoir

@@ -237,8 +237,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
       }
       public void initializePositions(AtomIterator[] iter) {/*no implementation*/}
       public void initializeCoordinates(Atom atom) {
-        AtomGroup m = (AtomGroup)atom;
-        AtomIterator iterator = new AtomIteratorSequential(m);
+        AtomIterator iterator = new AtomIteratorTree(atom);
         Atom[] atoms = new Atom[4];
         double wallThickness = thickness/BaseUnit.Length.Sim.TO_PIXELS;
         double pistonWallThickness = pistonThickness/BaseUnit.Length.Sim.TO_PIXELS;
@@ -324,13 +323,13 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public Boundary(Phase p) {super(p);}
         public Space.Vector dimensions() {return SpeciesPistonCylinder.this.dimensions;}
         public double volume() {
-            AtomGroup m = (AtomGroup)getAgent(this.phase()).firstMolecule();
+            AtomTreeNodeGroup node = (AtomTreeNodeGroup)getAgent(this.phase()).firstMolecule().node;
             int index20 = (direction==TOP || direction==BOTTOM) ? 1 : 0;
             int index31 = 1-index20;//0 or 1, opposite of index20
               //volume is diameter of cylinder times distance between piston (first atom) and base (atom 2) of cylinder
  //           return (diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS)
-            double dx = m.node.getAtom(3).coord.position().component(index31) - m.node.getAtom(1).coord.position().component(index31);
-            double dy = m.node.getAtom(0).coord.position().component(index20) - m.node.getAtom(2).coord.position().component(index20);
+            double dx = node.getAtom(3).coord.position().component(index31) - node.getAtom(1).coord.position().component(index31);
+            double dy = node.getAtom(0).coord.position().component(index20) - node.getAtom(2).coord.position().component(index20);
 //            System.out.println(dx + " " + dy);
             return Math.abs(dx*dy);
         }

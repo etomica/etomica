@@ -251,9 +251,9 @@ public class Phase extends SimulationElement {
     * Returns the temperature (in simulation units) of this phase as computed via the equipartition
     * theorem from the kinetic energy summed over all (atomic) degrees of freedom
     */  
-    public double kineticTemperature() {
-        return MeterTemperature.currentValue(this);
-    }
+//    public double kineticTemperature() {
+//        return MeterTemperature.currentValue(this);
+//    }
     
     public void setConfiguration(Configuration c) {
         configuration = c;
@@ -307,7 +307,7 @@ public class Phase extends SimulationElement {
      */
     public void addMolecule(Atom a, SpeciesAgent s) {
         if(a == null || s == null) return;
-        s.node.addAtom(a);
+        a.node.setParent(s.node);
     }
     
     /**
@@ -315,11 +315,7 @@ public class Phase extends SimulationElement {
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
-        removeMolecule(a, a.node.parentSpeciesAgent());
-    }
-    public void removeMolecule(Atom a, SpeciesAgent s) {
-        if(a == null || s == null) return;
-        s.node.removeAtom(a);
+        a.sendToReservoir();
     }
 
 //need a better way
@@ -400,17 +396,6 @@ public class Phase extends SimulationElement {
     public AtomIterator makeAtomIterator(Species s) {
         return new AtomIteratorTree(getAgent(s));
     }
-
-    /**
-     * Makes an iterator that loops through all the child atoms (molecules) 
-     * of the given species in this phase.
-     */
-    public AtomIterator makeMoleculeIterator(Species s) {
-        return new AtomIteratorSequential((SpeciesAgent)s.getAgent(this));
- //       return ((SpeciesAgent)s.getAgent(this)).new ChildAtomIterator();
-    }
-//    public final AtomIterator atomIterator;
-//    public final AtomIterator moleculeIterator;
     
 /*    public static void main(String[] args) {
         

@@ -15,7 +15,7 @@ public class MCMoveInsertDelete extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private Species species;
     private SpeciesAgent speciesAgent;
-    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom testMolecule;
 
     public MCMoveInsertDelete(IntegratorMC parent) {
@@ -49,8 +49,7 @@ public class MCMoveInsertDelete extends MCMove {
     }
                                                                                                                                                                                                                                                                                                                                                                        
     private final boolean trialInsert() {
-        testMolecule = species.moleculeFactory().makeAtom();
-        speciesAgent.node.addAtom(testMolecule);
+        testMolecule = species.moleculeFactory().makeAtom(speciesAgent.node);
         testMolecule.coord.translateTo(phase.randomPosition());
         double uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap

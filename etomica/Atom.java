@@ -52,8 +52,9 @@ public class Atom implements java.io.Serializable {
     public BondLinker firstDownBond;
     
     public void sendToReservoir() {
-        if(node.parentGroup() != null) node.parentGroup().node.removeAtom(this);
-        creator().reservoir().addAtom(this);
+        node.setParent(creator().reservoir());
+   //     if(node.parentGroup() != null) node.parentGroup().node.removeAtom(this);
+   //     creator().reservoir().addAtom(this);
     }
     public AtomFactory creator() {return type.creator();}
     

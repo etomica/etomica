@@ -6,7 +6,7 @@ public class IteratorFactorySimple implements IteratorFactory {
     
     public AtomIterator makeGroupIteratorSimple() {return new AtomIteratorListSimple();}
     
-    public AtomIterator makeAtomIterator() {return new Iterator();}
+    public AtomIterator makeGroupIteratorSequential() {return new Iterator();}
 //    public AtomIterator makeAtomIterator() {return new AtomIteratorSequential();}
 
     public AtomSequencer makeAtomSequencer(Atom atom) {return new AtomSequencerSimple(atom);}
@@ -45,7 +45,7 @@ public class IteratorFactorySimple implements IteratorFactory {
         * False otherwise, or if atom or basis is null.
         */
         public boolean contains(Atom atom) {
-            return atom != null && atom.node.isDescendedFrom(basis);
+            return atom != null && atom.node.isDescendedFrom(basisNode.atom);
         }
         
         /**
@@ -69,16 +69,16 @@ public class IteratorFactorySimple implements IteratorFactory {
                 return null;
             }
             
-            if(atom == basis) return reset();
+            if(atom == basisNode.atom) return reset();
             
             if(!this.contains(atom)) {
-                boolean before = atom.seq.preceeds(basis);
+                boolean before = atom.seq.preceeds(basisNode.atom);
                 if(before && upListNow) return reset();
                 else if(!before && doGoDown) {
                     upListNow = false;
                     doGoDown = false;
-                    next = basis.node.lastChildAtom();
-                    last = basis.node.firstChildAtom();
+                    next = basisNode.lastChildAtom();
+                    last = basisNode.firstChildAtom();
                     return next;
                 }
                 else {
@@ -89,7 +89,7 @@ public class IteratorFactorySimple implements IteratorFactory {
             
             ref = atom;
             next = atom;
-            last = upListNow ? basis.node.lastChildAtom() : basis.node.firstChildAtom();
+            last = upListNow ? basisNode.lastChildAtom() : basisNode.firstChildAtom();
             next();
             return next;
         }
@@ -103,11 +103,11 @@ public class IteratorFactorySimple implements IteratorFactory {
         * Resets iterator to loop from first child to last child of basis.
         */
         public Atom reset() {
-            if(basis == null) {next = null; return null;}
+            if(basisNode == null) {next = null; return null;}
             upListNow = true;
             doGoDown = false;
-            next = basis.node.firstChildAtom();
-            last = basis.node.lastChildAtom();
+            next = basisNode.firstChildAtom();
+            last = basisNode.lastChildAtom();
             return next;
         }
         
@@ -121,7 +121,7 @@ public class IteratorFactorySimple implements IteratorFactory {
                 upListNow = false;
                 doGoDown = false;
                 next = ref.seq.previousAtom();
-                last = basis.node.firstChildAtom();
+                last = basisNode.firstChildAtom();
             }
             else next = null;
             return atom;
@@ -139,7 +139,7 @@ public class IteratorFactorySimple implements IteratorFactory {
                 }
                 if(ref == null) {next = null; return;}
                 next = ref.seq.previousAtom();
-                last = basis.node.firstChildAtom();
+                last = basisNode.firstChildAtom();
             }
             if(doGoDown && next != null) {
                 for(Atom atom = next; atom != null; atom=atom.seq.previousAtom()) {
@@ -156,20 +156,20 @@ public class IteratorFactorySimple implements IteratorFactory {
         * a leaf atom, no iterates are given.
         */
         public void setBasis(Atom atom) {
-            basis = /*(atom == null || atom.node.isLeaf()) ? null :*/ atom;
+            basisNode = (atom == null || atom.node.isLeaf()) ? null : (AtomTreeNodeGroup)atom.node;
         }
         
         /**
         * Returns the current iteration basis.
         */
-        public Atom getBasis() {return basis;}
+        public Atom getBasis() {return basisNode.atom;}
         
         /**
         * The number of atoms returned on a full iteration, using the current basis.
         */
-        public int size() {return (basis != null) ? basis.node.childAtomCount() : 0;}   
+        public int size() {return (basisNode != null) ? basisNode.childAtomCount() : 0;}   
 
-        private Atom basis;
+        private AtomTreeNodeGroup basisNode;
         private Atom next;
         private Atom last;
         private Atom ref;

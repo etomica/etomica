@@ -134,7 +134,7 @@ public class CoordinateGroup extends Coordinate {
     public void randomizeMomentum(double temperature) {
         switch(((AtomGroup)atom).node.childAtomCount()) {
             case 0: return;
-            case 1: atom.node.firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
+            case 1: ((AtomTreeNodeGroup)atom.node).firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                     return;
             default://multi-atom group
                 work.E(0.0); double sum=0.0;

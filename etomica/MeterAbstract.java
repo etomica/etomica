@@ -63,7 +63,7 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
     /**
      * A string describing the property measured by the meter
      */
-    protected String label;
+    protected String label = "Property";
     /**
      * Flag specifying whether the meter responds to integrator events
      * If false, the meter does not perform regular measurements or keep averages
@@ -89,11 +89,20 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
     
     boolean histogramming = false;
     boolean historying = false;
+    
+    private static int nonSimCount = 0;//number of times instantiated without a parent simulation
 
 	public MeterAbstract(Simulation sim) {
 	    super(sim, MeterAbstract.class);
 	    setUpdateInterval(1);
-	    label = "Property";
+	}
+	
+    /**
+     * Constructor for situtions when Meter is not to be used
+     * directly as part of a simulation.
+     */
+	public MeterAbstract(Space space) {
+	    super(space, MeterAbstract.class, nonSimCount++);
 	}
     	
 	/**

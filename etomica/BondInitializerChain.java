@@ -9,7 +9,7 @@ package etomica;
 
 public class BondInitializerChain extends BondInitializer {
     
-    private AtomIteratorSequential iterator = new AtomIteratorSequential();
+    private final AtomIteratorList iterator = new AtomIteratorList();
     private Bond bondType;
     
     public BondInitializerChain() {
@@ -20,7 +20,7 @@ public class BondInitializerChain extends BondInitializer {
     }
     
     public void makeBonds(Atom a) {
-        if(!(a instanceof AtomGroup)) return;
+        if(a.node.isLeaf()) return;
         Atom a1 = null;
         Atom a2 = null;
         iterator.setBasis(a);

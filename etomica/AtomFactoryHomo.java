@@ -41,8 +41,8 @@ public class AtomFactoryHomo extends AtomFactory {
     /**
      * Constructs a new group.
      */
-    protected Atom build() {
-        AtomGroup group = new AtomGroup(space, groupType);
+    protected Atom build(AtomTreeNodeGroup parent) {
+        AtomGroup group = new AtomGroup(space, groupType, parent);
         return build(group);
     }
     
@@ -53,7 +53,7 @@ public class AtomFactoryHomo extends AtomFactory {
         if(!group.creator().equals(this)) 
             throw new IllegalArgumentException("Error:  Cannot build atom from one created by a different factory");
         for(int i=0; i<atomsPerGroup; i++) {
-            group.node.addAtom(childFactory.build());
+            childFactory.build((AtomTreeNodeGroup)group.node);
         }
         bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);

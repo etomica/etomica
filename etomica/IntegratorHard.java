@@ -104,6 +104,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     }
     public IntegratorHard(Simulation sim) {
         super(sim);
+        upAtomIterator = sim.iteratorFactory.makeGroupIteratorSimple();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -111,22 +112,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         return info;
     }
     
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactoryObserver.
-	 */
-	protected void makeIterators(IteratorFactory factory) {
-	    super.makeIterators(factory);
-        upAtomIterator = factory.makeAtomIterator();
-    }
-    
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        upAtomIterator = p.makeAtomIterator();
-        return true;
-    }
-
-    /**
+   /**
     * Loops through all atoms to identify the one with the smallest value of collisionTime
     * Collision time is obtained from the value stored in the Integrator.Agent from each atom.
     */
@@ -226,7 +212,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     * Do an upList call for each atom and find the next collider
     */
     protected void doReset() {
-        if(isothermal) scaleMomenta(Math.sqrt(this.temperature/(firstPhase.kineticTemperature())));
+        if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster)));
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             ((IntegratorHardAbstract.Agent)atomIterator.next().ia).resetCollision();

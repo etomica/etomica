@@ -11,7 +11,12 @@ import etomica.action.AtomActionTransform;
 public class MCMoveRotateMolecule extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    
+    //not sure that tree iterator will give all leaf atoms of a molecule
+    //because it assumes all subgroups have same structure
+    private final AtomIterator leafAtomIterator = new AtomIteratorTree();
+    
     private Atom molecule;
     private Space.Vector r0;
     private Space.RotationTensor rotationTensor;
@@ -33,7 +38,7 @@ public class MCMoveRotateMolecule extends MCMove {
     public boolean thisTrial(){   
         if(phase.moleculeCount()==0) {molecule = null; return false;}
         molecule = phase.randomMolecule();
-        affectedAtomIterator.setBasis(molecule);
+        leafAtomIterator.setBasis(molecule);
 
         /*if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
@@ -45,15 +50,15 @@ public class MCMoveRotateMolecule extends MCMove {
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(2,dTheta);
        // molecule.coord.transform(molecule.coord.position(), rotationTensor);
-        affectedAtomIterator.reset();
+        leafAtomIterator.reset();
         r0.E(molecule.node.firstLeafAtom().coord.position());
-//        AtomActionTransform.doAction(affectedAtomIterator, molecule.coord.position(), rotationTensor);
-        AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
+//        AtomActionTransform.doAction(leafAtomIterator, molecule.coord.position(), rotationTensor);
+        AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
         double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
         if(uNew >= Double.MAX_VALUE) {//reject
             rotationTensor.invert();
-            affectedAtomIterator.reset();
-            AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
+            leafAtomIterator.reset();
+            AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
             return false;
         }       
         if(uNew <= uOld) {   //accept
@@ -63,8 +68,8 @@ public class MCMoveRotateMolecule extends MCMove {
             Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
                 // restore the old values of orientation.
             rotationTensor.invert();
-            affectedAtomIterator.reset();
-            AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
+            leafAtomIterator.reset();
+            AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
             return false;
         }
         return true;//accept

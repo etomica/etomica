@@ -38,14 +38,14 @@ public interface AtomIterator {
      * on specific iterator.  A call to setBasis does not leave the iterator prepared
      * for iteration; a subsequent call to one of the reset methods is required to do that.
      */
+     
+     //try to eliminate this from interface; use only in iterators that define it appropriately
     public void setBasis(Atom atom);
     
     public Atom getBasis();
     
     public int size(); 
     
-    public void setAsNeighbor(boolean b);
-
     /**
      * A placeholder iterator that contains no atoms and always returns false for hasNext.
      */

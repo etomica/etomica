@@ -15,10 +15,12 @@ public interface IteratorFactory {
 
     /**
      * Returns iterator that loops over all atoms in a group without
-     * reference to another atom and any convenient order.  Does not
+     * reference to another atom and using any convenient order.  Does not
      * necessarily adhere to up/down ordering.  This iterator is required
      * if looping over atoms while performing operations on them that might
-     * cause the sequencing to be shuffled during iteration.
+     * cause the sequencing to be shuffled during iteration.  In general
+     * it is also more simply implemented and presumably faster than the
+     * analogous sequential iterator (given by makeGroupIteratorSequential).
      */
     public AtomIterator makeGroupIteratorSimple();
     
@@ -28,15 +30,18 @@ public interface IteratorFactory {
      * instructions for up or down iteration are followed using ordering
      * consistent with that followed by neighbor iterators (e.g., IntergroupIterator).
      */
-     //change name to makeGroupIteratorSequential
-    public AtomIterator makeAtomIterator();
+    public AtomIterator makeGroupIteratorSequential();
     
     /**
      * Returns iterator that loops over all atoms in a group, with reference
      * to an atom in another group.  The atoms returned by the iterator
      * would then be "neighbors" of the given atom.  Definition of "neighbor"
-     * depends on iteration scheme defined by the IteratorFactory.
+     * depends on iteration scheme defined by the IteratorFactory.  Atoms
+     * are returned in an order that is consistent with that given by
+     * the iterator from makeGroupIteratorSequential (except that this
+     * neighbor iterator may return fewer atoms).
      */
+     //perhaps rename to makeIntergroupNbrIterator
     public AtomIterator makeIntergroupIterator();
 
     /**
@@ -45,6 +50,7 @@ public interface IteratorFactory {
      * would then be "neighbors" of the given atom.  Definition of "neighbor"
      * depends on iteration scheme defined by the IteratorFactory.
      */
+     //perhaps rename to makeIntragroupNbrIterator
     public AtomIterator makeIntragroupIterator();
 
     /**

@@ -17,23 +17,23 @@ public abstract class Potential2 extends Potential {
     protected AtomPairIterator iteratorA;
     private Species species1, species2;
     
-    public final PotentialTruncation truncation;
+    public final PotentialTruncation potentialTruncation;
 
     public Potential2(PotentialGroup parent) {
         super(parent);
-        iterator = new ApiGeneral(parentSimulation().space());
         iterator1 = new ApiIntergroup1A(parentSimulation());
         iteratorA = new ApiIntergroupAA(parentSimulation());
         if(Default.TRUNCATE_POTENTIALS) {//can't use other constructor because of "this" in constructor of PotentialTruncationSimple
-            truncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
+            potentialTruncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
         } else {
-            truncation = PotentialTruncation.NULL;
+            potentialTruncation = PotentialTruncation.NULL;
         }
     }
     public Potential2(PotentialGroup parent, PotentialTruncation trunc) {
         super(parent);
-        iterator = new ApiGeneral(parentSimulation().space());
-        truncation = trunc;
+        iterator1 = new ApiIntergroup1A(parentSimulation());
+        iteratorA = new ApiIntergroupAA(parentSimulation());
+        potentialTruncation = trunc;
     }
     
     public final void calculate(IteratorDirective id, PotentialCalculation pc) {
@@ -121,7 +121,7 @@ public abstract class Potential2 extends Potential {
     /**
      * Accessor method for potential cutoff implementation.
      */
-    public PotentialTruncation getTruncation() {return truncation;}
+    public PotentialTruncation getTruncation() {return potentialTruncation;}
     
 }//end of Potential2
 

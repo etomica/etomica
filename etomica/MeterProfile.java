@@ -22,7 +22,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     MeterScalar.Atomic meter;
     
     private double profileNorm = 1.0;
-    private AtomIterator ai1;
+    private final AtomIteratorList ai1 = new AtomIteratorList();
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
@@ -41,17 +41,17 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("Breaks a meter's measurements into a profile taken along some direction in phase");
         return info;
     }
+    
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        ai1.setBasis(p.speciesMaster.atomList);
+    }
 
     /**
      * Declares that this meter uses the boundary of the phase, as it sizes the profile length 
      * according to the dimensions of the simulation cell.
      */
     public boolean usesPhaseBoundary() {return true;}
-    
-    /**
-     * Declares that this meter uses an iterator in the phase. 
-     */
-    public boolean usesPhaseIteratorFactory() {return true;}
     
     /**
      * Updates the profile vector when informed that the phase boundary has changed.
@@ -75,15 +75,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * Returns the dimensions of the ordinate, obtained from the associated meter.
      */
     public Dimension getDimension() {return (meter==null) ? null : ((MeterScalar)meter).getDimension();}
-    
-    /**
-     * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
-     * It obtains the necessary iterators from the phase.
-     */
-	protected void setPhaseIteratorFactory(IteratorFactory factory) {
-        ai1 = factory.makeAtomIterator();
-	}
-    
+        
     /**
      * The meter that defines the profiled quantity
      */

@@ -14,9 +14,8 @@ public abstract class Potential1 extends Potential {
     
     public Potential1(PotentialGroup parent) {
         super(parent);
-        iterator = new AtomIteratorSequential(true);
+        iterator = parentSimulation().iteratorFactory.makeGroupIteratorSequential();
     }
-    
     
     public Potential set(Atom a) {iterator.setBasis(a); return this;}
 

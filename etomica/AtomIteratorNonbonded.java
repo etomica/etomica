@@ -7,15 +7,15 @@ package etomica;
 
 public class AtomIteratorNonbonded implements AtomIterator {
     
-    private final AtomIteratorSequential iterator = new AtomIteratorSequential(false);
+    private final AtomIterator iterator;
     
     private boolean hasNext;
     protected IteratorDirective.Direction direction;
     private Atom nonbondAtom;
     private Atom nextAtom;
     
-    public AtomIteratorNonbonded() {
-        iterator.setAsNeighbor(true);
+    public AtomIteratorNonbonded(Simulation sim) {
+        iterator = sim.iteratorFactory.makeIntragroupIterator();
     }
     
     public boolean hasNext() {return hasNext;}
@@ -31,9 +31,6 @@ public class AtomIteratorNonbonded implements AtomIterator {
         next();
         return nextAtom;
     }
-    
-    
-    public void setAsNeighbor(boolean b) {}
     
     public Atom reset() {
         iterator.reset();
@@ -66,5 +63,7 @@ public class AtomIteratorNonbonded implements AtomIterator {
     /**
      * Do not use: not correctly implemented.
      */
-    public int size() {return iterator.size();}   
+    public int size() {
+        throw new RuntimeException("AtomIteratorNonbonded.size() not implemented");
+    }   
 }//end of AtomIteratorNonbonded

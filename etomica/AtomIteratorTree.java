@@ -7,7 +7,7 @@ package etomica;
  * is reached before the specified depth, the leaf atoms encountered
  * there are the iterates.  Assumes that all molecules (i.e., atoms
  * below the SpeciesAgent level) of a given species have the same structure.
- * For example, there is not a species in which one molecule has two levels of
+ * For example, assume there is not a species in which one molecule has two levels of
  * atoms below it, while another molecule of the same species has one level
  * of atoms below it.  However, does not assume that molecules in different species 
  * have the same structure.
@@ -15,6 +15,10 @@ package etomica;
  * @author David Kofke
  * 02.02.16
  */
+ 
+ //need to reconsider if iteration will work with an arbitrary basis
+ //in particular if it will treat correctly a molecule basis in which
+ //the molecule's subgroups are not structured identically.
  
 public class AtomIteratorTree implements AtomIterator {
     

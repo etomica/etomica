@@ -27,10 +27,11 @@ public class AtomFactoryMono extends AtomFactory {
     /**
      * Builds a single atom.
      */
-    protected Atom build() {
+    protected Atom build(AtomTreeNodeGroup parent) {
         return new Atom(space, atomType, 
                         AtomTreeNodeLeaf.FACTORY, 
-                        simulation.getIteratorFactory().neighborSequencerFactory());
+                        simulation.getIteratorFactory().neighborSequencerFactory(), 
+                        parent);
     }
     
     public boolean vetoAddition(Atom a) {return (a.type != atomType);}

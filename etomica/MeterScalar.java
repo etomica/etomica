@@ -24,6 +24,10 @@ public abstract class MeterScalar extends MeterAbstract implements DataSource.Wr
 	    super(sim);
 	    setActive(true);  //default is to have meter do averages after some number of integrationIntervalEvents
 	}
+	public MeterScalar(Space space) {
+	    super(space);
+	    setActive(false);
+	}
 	
 	/**
 	 * Sets a function that is applied to the meter's average.

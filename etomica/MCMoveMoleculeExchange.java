@@ -57,13 +57,15 @@ public final class MCMoveMoleculeExchange extends MCMove {
         double uOld = potential.set(dPhase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
 
         molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
-        dPhase.removeMolecule(molecule,dSpecies);
-        iPhase.addMolecule(molecule,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
+        molecule.node.setParent(iSpecies);
+ //       dPhase.removeMolecule(molecule,dSpecies);
+ //       iPhase.addMolecule(molecule,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
         double uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap; reject
             molecule.coord.replace();                //put it back 
-            iPhase.removeMolecule(molecule,iSpecies);
-            dPhase.addMolecule(molecule,dSpecies);
+            molecule.node.setParent(dSpecies);
+        //    iPhase.removeMolecule(molecule,iSpecies);
+        //    dPhase.addMolecule(molecule,dSpecies);
             return false;        
         }
         
@@ -75,8 +77,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
         }
         else {              //reject
             molecule.coord.replace();    //put it back
-            iPhase.removeMolecule(molecule,iSpecies);
-            dPhase.addMolecule(molecule,dSpecies); //place molecule in phase
+            molecule.node.setParent(dSpecies);
+        //    iPhase.removeMolecule(molecule,iSpecies);
+        //    dPhase.addMolecule(molecule,dSpecies); //place molecule in phase
             return false;
         }
     }//end of thisTrial

@@ -1,15 +1,16 @@
 package etomica;
 
 /**
- * Loops through all molecule pairs given within a single species.
+ * Loops through all molecule pairs given between two species.
  *
  * @author David Kofke
  */
 public final class ApiInterspeciesAA implements AtomPairIterator {
     
     public ApiInterspeciesAA(Simulation sim) {
-        aiInner.setAsNeighbor(true);
         pair = new AtomPair(sim.space);
+        aiOuter = sim.iteratorFactory.makeGroupIteratorSequential();
+        aiInner = sim.iteratorFactory.makeIntergroupIterator();
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         outerWrapper.aiInner = aiInner;
     }
@@ -71,7 +72,7 @@ public final class ApiInterspeciesAA implements AtomPairIterator {
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
                 atom1 = aiOuter.next();           //...get it
-                aiInner.reset(localDirective.set(atom1)); //...reset Inner
+                aiInner.reset(localDirective.set(atom1)); //...reset Inner (don't advance because it is inter-group)
                 needUpdate1 = true;           //...flag update of pair.atom1 for next time
             }
             else {hasNext = false; break;} //Outer has no more; all done with pairs
@@ -117,9 +118,9 @@ public final class ApiInterspeciesAA implements AtomPairIterator {
     private boolean hasNext;
     private boolean needUpdate1;
     
-    private final AtomIterator aiOuter = new AtomIteratorChildren();
+    private final AtomIterator aiOuter;
     //this should be a neighbor iterator
-    private final AtomIterator aiInner = new AtomIteratorChildren();
+    private final AtomIterator aiInner;
     
     private final IteratorDirective localDirective = new IteratorDirective();
     private final AtomPair pair;

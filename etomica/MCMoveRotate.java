@@ -9,7 +9,7 @@ public class MCMoveRotate extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final Space.Orientation oldOrientation;
-    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
 
     public MCMoveRotate(IntegratorMC parentIntegrator) {

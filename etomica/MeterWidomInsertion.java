@@ -102,9 +102,11 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
      */
     public void setSpecies(Species s) {
         species = s;
-        testMolecule = s.moleculeFactory().makeAtom();
-        iteratorDirective.set(testMolecule);
         if(phase != null) speciesAgent = species.getAgent(phase);
+        
+        //need a local reservoir
+        testMolecule = s.moleculeFactory().makeAtom(speciesAgent.node);
+        iteratorDirective.set(testMolecule);
     }
     /**
      * Accessor for the species for which chemical potential is evaluated
@@ -126,8 +128,11 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
      * @return the sum of exp(-uTest/kT)/nInsert, multiplied by n<sub>i</sub>/V if <code>residual</code> is false
      */
     public double currentValue() {
-        double sum = 0.0;                         //sum for local insertion average
-        phase.addMolecule(testMolecule,speciesAgent); //place molecule in phase (removing it from this meter, thus setting molecule to null)
+        throw new RuntimeException("MeterWidomInsertion needs some fine tuning before use");
+        
+/*        double sum = 0.0;                         //sum for local insertion average
+        testMolecule.node.setParent(speciesAgent);
+ //       phase.addMolecule(testMolecule,speciesAgent); //place molecule in phase (removing it from this meter, thus setting molecule to null)
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
             testMolecule.coord.translateTo(phase.randomPosition());  //select random position
 //            if(display != null && i % 10 ==0) display.repaint();
@@ -135,10 +140,15 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
             if(u < Double.MAX_VALUE)              //add to test-particle average
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }
-        phase.removeMolecule(testMolecule, speciesAgent);
+        
+        
+        testMolecule.sendToReservoir();//should send to a local reservoir instead
+        
+        
+ //       phase.removeMolecule(testMolecule, speciesAgent);
         if(!residual) sum *= phase.volume()/speciesAgent.moleculeCount(); //multiply by V/N
         return sum/(double)nInsert;               //return average
-    }
+ */   }
     
 /*    public static void main(String[] args) {
         

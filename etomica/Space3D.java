@@ -434,7 +434,7 @@ public static class CoordinateGroup extends Coordinate {
     
     public CoordinateGroup(Atom a) {
         super(a);
-        a.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
+        childIterator = a.node.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
     }
 
     /**

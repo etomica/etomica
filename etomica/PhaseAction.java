@@ -74,14 +74,17 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         
         public static void doAction(Phase p) {
             Space.Boundary boundary = p.boundary();
-            for(Atom a = p.firstAtom(); a!=null; a=a.nextAtom()) {
-                boundary.centralImage(a.coord);
-            }
+            iterator.setBasis(p.speciesMaster.atomList);
+            iterator.reset();
+            while(iterator.hasNext()) boundary.centralImage(iterator.next().coord);
         }
         
         public void intervalAction(Integrator.IntervalEvent evt) {
             doAction(phase);
         }
+        
+        //revise this to make nonstatic
+        private static final AtomIteratorList iterator = new AtomIteratorList();
         
         
     }//end of ImposePBC

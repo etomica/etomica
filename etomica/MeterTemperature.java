@@ -10,9 +10,12 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
     public MeterTemperature() {
         this(Simulation.instance);
     }
-    public MeterTemperature(Simulation sim)
-    {
+    public MeterTemperature(Simulation sim) {
         super(sim);
+        setLabel("Temperature");
+    }
+    public MeterTemperature(Space space) {
+        super(space);
         setLabel("Temperature");
     }
 
@@ -32,7 +35,8 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
         
     public double currentValue()
     {
-        return currentValue(phase);
+          throw new RuntimeException("MeterTemperature not implemented");
+//        return currentValue(phase);
     }
     
     public double currentValue(Atom a) {
@@ -44,7 +48,7 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
 /**
  * Class method to compute the temperature of a phase from its total kinetic energy using equipartition
  */
-    public static double currentValue(Phase phase) {
-        return (2./(double)(phase.atomCount()*phase.parentSimulation().space().D()))*MeterKineticEnergy.currentValue(phase);
-    }    
+//    public static double currentValue(Phase phase) {
+//        return (2./(double)(phase.atomCount()*phase.parentSimulation().space().D()))*MeterKineticEnergy.currentValue(phase);
+//    }    
 }

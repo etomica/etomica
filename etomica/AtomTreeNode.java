@@ -49,7 +49,7 @@ public abstract class AtomTreeNode {
     public abstract int childAtomCount();
     
     public void destroy() {
-        if(parent != null && !parent.isResizable()) return;  //throw an exception?
+        if(parentNode != null && !parentNode.isResizable()) return;  //throw an exception?
         //remove from current parent
         if(parentNode != null) {
             if(!parentNode.isResizable()) return;//exception
@@ -71,13 +71,18 @@ public abstract class AtomTreeNode {
             parentNode.childList.remove(atom.seq);        
             parentNode.removeAtomNotify(atom);
         }
-        
         parentNode = parent;
-        parentGroup = (parent != null) ? parent.atom : null;
-        if(parent == null) return;
 
-        depth = parentNode.depth() + 1;
+        if(parentNode == null) {
+            parentGroup = null;
+            parentPhase = null;
+            return;
+        }
+
+        //parent is not null
+        parentGroup = parentNode.atom
         parentPhase = parentNode.parentPhase();
+        depth = parentNode.depth() + 1;
 
         setIndex(parentNode.newChildIndex());
         
@@ -85,7 +90,7 @@ public abstract class AtomTreeNode {
         
         //should notify this node's children of change
                 
-        atom.seq.setParentNotify(parent);
+        atom.seq.setParentNotify(parentNode);//this must follow addition to parentNode.childList
         parentNode.addAtomNotify(atom);
     }//end of addAtom
 

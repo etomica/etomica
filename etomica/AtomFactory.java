@@ -16,12 +16,13 @@ public abstract class AtomFactory {
     
     public AtomFactory(Space s) {
         space = s;
-        reservoir = new AtomReservoir(space);
+        reservoir = new AtomReservoir();
     }
     
-    public Atom makeAtom() {
+    public Atom makeAtom(AtomTreeNodeGroup parent) {
         Atom atom = reservoir.removeAtom();
-        if(atom == null) atom = build();
+        if(atom == null) atom = build(parent);
+        else atom.node.setParent(parent);
         
         //add agents from any registered sources
         if(agentSource.length > 0) atom.agents = new Object[agentSource.length];
@@ -32,7 +33,7 @@ public abstract class AtomFactory {
         return atom;
     }
     
-    protected abstract Atom build();
+    protected abstract Atom build(AtomTreeNodeGroup parent);
     
 //    protected abstract void renew(Atom a);
     

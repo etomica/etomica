@@ -15,7 +15,6 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
     private final IteratorDirective localDirective = new IteratorDirective();
 //    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     private PotentialLinker first;
-    private final PotentialTruncation potentialTruncation;
     private final Atom[] atoms = new Atom[2];
     
     public Potential2Group() {
@@ -25,11 +24,7 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
         this(parent, null);
     }
     public Potential2Group(PotentialGroup parent, PotentialTruncation truncation) {
-        super(parent);
-        potentialTruncation = truncation;
-        //overwrite iterator with one that doesn't force looping over leaf atoms
-        iterator = new ApiGeneral(parentSimulation().space(),
-                new AtomIteratorSequential(false), new AtomIteratorSequential(false));
+        super(parent, truncation);
     }
     /**
      * Performs the specified calculation over the iterates of this potential
