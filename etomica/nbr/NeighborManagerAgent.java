@@ -83,6 +83,9 @@ public class NeighborManagerAgent {
     	return (criteria.length<1 ? null : criteria[0]);
     }
     public void addCriterion(NeighborCriterion criterion) {
+    	for(int i=0; i<criteria.length; i++) {
+    		if(criteria[i] == criterion) return;
+    	}
     	NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length+1];
     	System.arraycopy(criteria,0,newCriteria,0,criteria.length);
     	newCriteria[criteria.length] = criterion;

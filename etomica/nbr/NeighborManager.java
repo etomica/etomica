@@ -9,9 +9,11 @@ import etomica.AtomIteratorTree;
 import etomica.AtomsetActive;
 import etomica.Integrator;
 import etomica.IteratorDirective;
+import etomica.Phase;
+import etomica.PotentialMaster;
+import etomica.Simulation;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
-import etomica.Phase;
 
 /**
  * @author kofke
@@ -24,28 +26,45 @@ public class NeighborManager implements IntervalListener {
 	/**
 	 * 
 	 */
-	public NeighborManager() {
+	public NeighborManager(PotentialMasterNbr potentialMaster) {
 		super();
+		this.potentialMaster = potentialMaster;
 		setUpdateInterval(1);
 		iieCount = updateInterval;
 		iterator = new AtomIteratorTree();
 		iterator.setDoAllNodes(true);
 		neighborCheck = new NeighborCheck();
+		neighborReset = new NeighborReset();
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
 	public void intervalAction(IntervalEvent evt) {
-		if (--iieCount == 0) {
-			updateNbrsIfNeeded(((Integrator)evt.getSource()).getPhases());
+		if(evt.type() == IntervalEvent.START) {
+			reset(((Integrator)evt.getSource()).getPhases());
+		} else if(evt.type() == IntervalEvent.INTERVAL) {
+			if (--iieCount == 0) {
+				updateNbrsIfNeeded(((Integrator)evt.getSource()).getPhases());
+				iieCount = updateInterval;
+			}
+		}
+	}
+
+	/**
+	 * @param 
+	 */
+	public void reset(Phase[] phase) {
+		for (int i=0; i<phase.length; i++) {
+			iterator.setRoot(phase[i].speciesMaster());
+			iterator.allAtoms(neighborReset);
 		}
 	}
 
 	public void updateNbrsIfNeeded(Phase[] phase) {
 		for (int i=0; i<phase.length; i++) {
 			neighborCheck.reset();
-			for (int j=0; j<criteria.length; i++) {
+			for (int j=0; j<criteria.length; j++) {
 				criteria[j].setPhase(phase[i]);
 			}
 			iterator.setRoot(phase[i].speciesMaster());
@@ -54,8 +73,8 @@ public class NeighborManager implements IntervalListener {
 				if (neighborCheck.unsafe) {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
-				phase[i].simulation().potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
-				
+				iterator.allAtoms(neighborReset);
+				potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
 			}
 		}
 	}
@@ -88,11 +107,13 @@ public class NeighborManager implements IntervalListener {
     	return false;
     }
 
-	private NeighborCriterion[] criteria;
+	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
 	private int iieCount;
+	private final PotentialMasterNbr potentialMaster;
 	private final AtomIteratorTree iterator;
 	private final NeighborCheck neighborCheck;
+	private final NeighborReset neighborReset;
 	private final IteratorDirective id = new IteratorDirective();
 	private final PotentialCalculationNbrSetup potentialCalculationNbrSetup = new PotentialCalculationNbrSetup();
 
@@ -118,6 +139,7 @@ public class NeighborManager implements IntervalListener {
 	private static class NeighborReset implements AtomsetActive {
 		public void actionPerformed(Atom[] atom) {
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
+			((AtomSequencerNbr)atom[0].seq).clearNbrs();
 			if (criterion != null) {
 				criterion.reset(atom[0]);
 			}

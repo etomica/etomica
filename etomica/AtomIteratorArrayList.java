@@ -31,12 +31,11 @@ public class AtomIteratorArrayList implements AtomIterator {
  	}
  
  	public Atom nextAtom() {
-	    	Atom next = list.get(cursor);
-	    	return next;
+ 		return list.get(cursor++);
  	}
  	
  	public Atom[] next() {
- 		atoms[0] = list.get(cursor);
+ 		atoms[0] = list.get(cursor++);
  		return atoms;
  	}
  
@@ -51,7 +50,7 @@ public class AtomIteratorArrayList implements AtomIterator {
  	public void allAtoms(AtomsetActive act) {
  		int arraySize = size();
  		for (int i=0; i<arraySize; i++) {
- 			atoms[0] = list.get(cursor);
+ 			atoms[0] = list.get(i);
  			act.actionPerformed(atoms);
  		}
  	}

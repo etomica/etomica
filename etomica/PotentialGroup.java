@@ -57,7 +57,7 @@ public class PotentialGroup extends Potential {
     
     //this method needs given iterator to implement AtomsetDirectable, but PotentialMaster doesn't.
     //need to reconcile differences
-	synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
+	protected synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
 		if(potential == null || iterator == null) {
 			throw new NullPointerException(); 
 		}

@@ -15,12 +15,7 @@ import etomica.Phase;
  */
 public abstract class NeighborCriterion implements AtomsetFilter {
 
-	public NeighborCriterion(NeighborManager neighborManager, NeighborManagerAgent[] nbrAgents) {
-		neighborManager.addCriterion(this);
-		for(int i=0; i<nbrAgents.length; i++) {
-			nbrAgents[i].addCriterion(this);
-		}
-	}
+	public NeighborCriterion() {}
 	
 	public abstract boolean needUpdate(Atom atom);
 	

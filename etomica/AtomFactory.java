@@ -59,6 +59,10 @@ public abstract class AtomFactory {
         reservoir = new AtomReservoir(this);
     }
     
+	public AtomType getType() {
+		return atomType;
+	}
+	
     /**
      * Makes an atom with the reservoir as its parent.
      */
@@ -115,11 +119,7 @@ public abstract class AtomFactory {
      * a node of type (or derived from) AtomTreeNodeGroup.
      */
     public abstract boolean isGroupFactory();
-    
-//    protected abstract void renew(Atom a);
-    
-//    public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
-    
+        
     public AtomReservoir reservoir() {return reservoir;}
     
     public Space space() {return space;}

@@ -1,11 +1,11 @@
 package etomica.simulations;
 import etomica.Controller;
+import etomica.Default;
 import etomica.IntegratorHard;
 import etomica.IteratorDirective;
 import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Potential2;
-import etomica.Simulation;
 import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
@@ -38,11 +38,14 @@ public class HSMD2D extends SimulationGraphic {
     public HSMD2D(Space2D space) {
         super(space, new PotentialMasterNbr(space));
   //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
-        Simulation.instance = this;
-	    integrator = new IntegratorHard(this);
-	    species = new SpeciesSpheresMono(this);
+        Default.ATOM_SIZE = 1.0;
+        integrator = new IntegratorHard(this);
+        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+        integrator.setInterval(1);
+        integrator.setTimeStep(0.02);
+        species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-	    species.setNMolecules(26);
+	    species.setNMolecules(560);
 	    species2.setNMolecules(5);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();

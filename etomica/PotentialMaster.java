@@ -44,11 +44,11 @@ public class PotentialMaster extends PotentialGroup {
     	mostRecentPhase = phase;
     	for(PotentialLinker link=first; link!=null; link=link.next) {
 			if(phaseChanged) {
-				((AtomsetIteratorMolecule)link.iterator).setPhase(phase);
+				((AtomsetIteratorPhaseDependent)link.iterator).setPhase(phase);
 				link.potential.setPhase(phase);
 			}
-			((AtomsetIteratorMolecule)link.iterator).setTarget(targetAtoms);
-			((AtomsetIteratorMolecule)link.iterator).setDirection(id.direction());
+			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorDirectable)link.iterator).setDirection(id.direction());
         	pc.doCalculation(link.iterator, id, link.potential);
         }//end for
     }//end calculate

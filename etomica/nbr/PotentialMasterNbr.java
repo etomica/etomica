@@ -19,6 +19,10 @@ public class PotentialMasterNbr extends PotentialMaster {
 	 */
 	public PotentialMasterNbr(Space space) {
 		super(space);
+		neighborManager = new NeighborManager(this);
+		atomIterator = new AtomIteratorArrayList();
+		singletIterator = new AtomIteratorSinglet();
+		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
 	}
 
 	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
@@ -54,20 +58,23 @@ public class PotentialMasterNbr extends PotentialMaster {
 		Potential[] potentials = atom.type.getNbrManagerAgent().getPotentials();
 		int length = potentials.length;
 		if (length > 0) {
+			singletIterator.setAtom(atom);
 			IteratorDirective.Direction direction = id.direction();
 			AtomArrayList[] list;
 			if (direction == IteratorDirective.UP || direction == null) {
 				list = seq.getUpList();
 				for (int i=0; i<length; i++) {
 					atomIterator.setList(list[i]);
-					pc.doCalculation(atomIterator, id, potentials[i]);
+					//System.out.println("Up :"+atomIterator.size());
+					pc.doCalculation(pairIterator, id, potentials[i]);
 				}
 			}
 			if (direction == IteratorDirective.DOWN || direction == null) {
 				list = seq.getDownList();
 				for (int i=0; i<length; i++) {
 					atomIterator.setList(list[i]);
-					pc.doCalculation(atomIterator, id, potentials[i]);
+					//System.out.println("Dn :"+atomIterator.size());
+					pc.doCalculation(pairIterator, id, potentials[i]);
 				}
 			}
 		}
@@ -96,7 +103,29 @@ public class PotentialMasterNbr extends PotentialMaster {
 		}
 	}
 
+	//TODO update nbr radius for all criteria as more are added
+    public void setSpecies(Potential potential, Species[] species) {
+    	if (species.length == 0 || potential.nBody() != species.length) {
+    		throw new IllegalArgumentException("Illegal species length");
+    	}
+    	AtomsetIterator iterator = new AtomsetIteratorMolecule(species);
+    	if(species.length == 2) {
+ 	    	NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),2.0*potential.getRange());
+	    	iterator = new AtomsetIteratorFiltered(iterator, criterion);
+    		neighborManager.addCriterion(criterion);
+	    	for(int i=0; i<species.length; i++) {
+	    		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
+	    	}
+    	}
+    	addPotential(potential, iterator);
+    }
+
+    public NeighborManager getNeighborManager() {return neighborManager;}
+
     public AtomSequencer.Factory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
 
-	private final AtomIteratorArrayList atomIterator = new AtomIteratorArrayList();
+	private final AtomIteratorArrayList atomIterator;
+	private final AtomIteratorSinglet singletIterator;
+	private final ApiInnerFixed pairIterator;
+	private final NeighborManager neighborManager;
 }

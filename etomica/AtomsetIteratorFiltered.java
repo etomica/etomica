@@ -4,13 +4,16 @@
  */
 package etomica;
 
+import etomica.IteratorDirective.Direction;
+
 /**
  * @author kofke
  *
  * Wraps an AtomIterator and filters its iterates so that
  * only those meeting specified criteria are returned.
  */
-public class AtomsetIteratorFiltered implements AtomsetIterator {
+public class AtomsetIteratorFiltered implements AtomsetIterator, 
+				AtomsetIteratorPhaseDependent, AtomsetIteratorDirectable, AtomsetIteratorTargetable {
 
 	/**
 	 * Default constructor that causes no atoms to be filtered.
@@ -29,6 +32,7 @@ public class AtomsetIteratorFiltered implements AtomsetIterator {
 	 */
 	public AtomsetIteratorFiltered(AtomsetIterator iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
+		this.filter = filter;
 		nextAtoms = new Atom[iterator.nBody()];
 	}
 
@@ -53,7 +57,11 @@ public class AtomsetIteratorFiltered implements AtomsetIterator {
 	 */
 	public void reset() {
 		iterator.reset();
-		next();
+		next = null;
+		while(iterator.hasNext() && next == null) {
+			next = iterator.next();
+			if(!filter.accept(next)) next = null;
+		}
 	}
 
 	/**
@@ -104,7 +112,11 @@ public class AtomsetIteratorFiltered implements AtomsetIterator {
 		return counter.callCount();
 	}
 	
-	public final int nBody() {return 1;}
+	public final int nBody() {
+		return iterator.nBody();
+	}
+	
+	
 	
 	/**
 	 * @return Returns the filter.
@@ -119,6 +131,23 @@ public class AtomsetIteratorFiltered implements AtomsetIterator {
 		this.filter = filter;
 	}
 	
+	/**
+	 * @return the iterator wrapped by this filter.
+	 */
+	public AtomsetIterator getIterator() {
+		return iterator;
+	}
+	
+	public void setPhase(Phase phase) {
+		((AtomsetIteratorPhaseDependent)iterator).setPhase(phase);
+	}
+	public void setDirection(Direction direction) {
+		((AtomsetIteratorDirectable)iterator).setDirection(direction);
+	}
+	public void setTarget(Atom[] targetAtoms) {
+		((AtomsetIteratorTargetable)iterator).setTarget(targetAtoms);
+	}
+
 	private final AtomsetIterator iterator;
 	private AtomsetFilter filter;
 	private Atom[] next;

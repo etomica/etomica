@@ -12,9 +12,8 @@ import etomica.Space;
  */
 public class NeighborCriterionSimple extends NeighborCriterion  {
 
-	public NeighborCriterionSimple(NeighborManager neighborManager, NeighborManagerAgent[] nbrAgents, Space space, 
-			double interactionRange, double neighborRadius) {
-		super(neighborManager, nbrAgents);
+	public NeighborCriterionSimple(Space space, double interactionRange, double neighborRadius) {
+		super();
 		this.interactionRange = interactionRange;
 		double displacementLimit = (neighborRadius - interactionRange) * safetyFactor;
 		displacementLimit2 = displacementLimit * displacementLimit;
@@ -54,7 +53,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean unsafe() {
-		return r2 > displacementLimit2 * 4.0 / (safetyFactor*safetyFactor);
+		return r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
 
 	public boolean accept(Atom[] a) {
