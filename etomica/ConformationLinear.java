@@ -9,6 +9,7 @@ import etomica.units.Dimension;
 
 /**
  * Places atoms in a straight line.  Does not zero total momentum.
+ * Can be used to implement a 1D linear conformation.
  *
  * @author David Kofke
  */
