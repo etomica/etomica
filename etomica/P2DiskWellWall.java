@@ -44,6 +44,7 @@ public class P2DiskWellWall extends Potential2 {
   public double getElasticity() {return elasticity;}
   public void setElasticity(double e) {
       elasticity = e;
+      ((PotentialWellWall)potential[0][0]).setElasticity(e);
   }
 
   // Paint a red disk at design time to show size of collision diameter

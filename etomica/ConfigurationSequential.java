@@ -15,6 +15,7 @@ public class ConfigurationSequential extends Configuration {
     
     public ConfigurationSequential() {
         super();
+        setFillVertical(true);
     }
     
     public void setFillVertical(boolean b) {fill = b;}

@@ -66,6 +66,7 @@ import java.beans.Beans;
     public DisplayConfiguration () {
         super();
 	    Space.uEa1(align,CENTER);   //default alignment is centered in x and y directions
+        
     }
     
     public void setAlign(int i, int value) {
@@ -129,6 +130,10 @@ import java.beans.Beans;
   public boolean getDrawSpaceFrame() {return drawSpaceFrame;}
 
   public void doUpdate() {;}
+  
+  public void digitTyped(int i) {
+    setImageShells(i);
+  }
     
  /** 
   * paint is the method that handles the drawing of the phase to the screen.
