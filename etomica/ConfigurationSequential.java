@@ -20,18 +20,13 @@ import etomica.space.Vector;
 public class ConfigurationSequential extends Configuration {
 
 	private boolean fill;
-	private Vector dimensions;
 	private boolean squareConfig;
     
 	public ConfigurationSequential(Space space) {
 		super(space);
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
-		dimensions = space.makeVector();
-		dimensions.E(Default.BOX_SIZE);
 	}
-    
-	public void setDimensions(Vector dimensions) {this.dimensions.E(dimensions);}
     
 	public void setFillVertical(boolean b) {fill = b;}
 	public boolean getFillVertical() {return fill;}
@@ -43,11 +38,11 @@ public class ConfigurationSequential extends Configuration {
 
 		AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);//lump 'em all together
 
-		double Lx = dimensions.x(0);
+		double Lx = dimensions[0];
 		double Ly = 0.0;
 		double Lz = 0.0;
-		if(dimensions.D()>1)  Ly = dimensions.x(1);
-		if(dimensions.D()>2)  Lz = dimensions.x(2);
+		if(dimensions.length>1)  Ly = dimensions[1];
+		if(dimensions.length>2)  Lz = dimensions[2];
 
 		int sumOfMolecules = iterator.size();
          
@@ -79,10 +74,10 @@ public class ConfigurationSequential extends Configuration {
 		while(iterator.hasNext()) {
 			Atom a = iterator.nextAtom();
 			//initialize coordinates of child atoms
-			try {//may get null pointer exception when beginning simulation
-				a.creator().getConfiguration().initializeCoordinates(a);
-			} catch(NullPointerException e) {}
-//            a.coord.translateTo(rLat[i]);
+			Configuration config = a.creator().getConfiguration();
+			if (config != null) {
+				config.initializeCoordinates(a);
+			}
             a.coord.position().E(rLat[i]);
  //           System.out.println("configurationsequential: "+rLat[i].toString());
 			i++;
