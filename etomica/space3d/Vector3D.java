@@ -32,7 +32,6 @@ public final class Vector3D extends Vector {
         public void E(Vector3D u) {x = u.x; y = u.y; z = u.z;}
         public void E(double a) {x = a; y = a; z = a;}
         public void E(double a, double b, double c) {x = a; y = b; z = c;}
-        public void E(int i, double a) {if (i==0) x=a; else if (i==1) y=a; else z=a;}
         public void E(double[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
         public void E(int[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
         public void Ea1Tv1(double a1, Vector u) {x = a1*((Vector3D)u).x; y = a1*((Vector3D)u).y; z = a1*((Vector3D)u).z;}
@@ -106,15 +105,15 @@ public final class Vector3D extends Vector {
             Vector3D r3d = (Vector3D)r;
             Vector3D u3d = (Vector3D)u;
             x = r3d.x;
-			while(x > u3d.x) x -= u3d.x;
+			while(x >= u3d.x) x -= u3d.x;
 			while(x < 0.0) x += u3d.x;
 			x -= r3d.x;
 			y = r3d.y;
-			while(y > u3d.y) y -= u3d.y;
+			while(y >= u3d.y) y -= u3d.y;
 			while(y < 0.0) y += u3d.y;
 			y -= r3d.y;
 			z = r3d.z;
-			while(z > u3d.z) z -= u3d.z;
+			while(z >= u3d.z) z -= u3d.z;
 			while(z < 0.0) z += u3d.z;
 			z -= r3d.z;
 		}

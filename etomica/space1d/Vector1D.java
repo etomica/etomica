@@ -32,7 +32,6 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public void E(double a) {x = a;}
         public void E(double[] a) {x = a[0];}
         public void E(int[] a) {x = a[0];}
-        public void E(int i, double a) {x = a;}  //assumes i = 0
         public void Ea1Tv1(double a1, etomica.space.Vector u) {Vector1D u1=(Vector1D)u; x = a1*u1.x;}
         public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
             x = ((Vector1D)v1).x + a1*((Vector1D)v2).x; 
@@ -78,7 +77,7 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
             double rx = ((Vector1D)r).x;
             double ux = ((Vector1D)u).x;
             x = rx;
-			while(x > ux) x -= ux;
+			while(x >= ux) x -= ux;
 			while(x < 0.) x += ux;
 			x -= rx;
 		}
@@ -105,13 +104,12 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public double dot(Vector1D u) {return x*u.x;}
         public void transform(etomica.space.Tensor A) {transform((Tensor1D)A);}
         public void transform(Tensor1D A) {x = A.xx * x;}
-        public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform((Boundary)b, (Vector1D)r0, (Tensor1D)A);}
+        public void transform(etomica.space.Boundary b, etomica.space.Vector r0, etomica.space.Tensor A) {transform(b, (Vector1D)r0, (Tensor1D)A);}
         public void transform(Boundary b, Vector1D r0, Tensor1D A) {
             WORK.x = x-r0.x; b.nearestImage(WORK); x = r0.x + A.xx*WORK.x;
         }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d;}
-        public void setRandom(double dx, double dy) {x = Simulation.random.nextDouble()*dx;}
         public void setRandom(Vector1D u) {setRandom(u.x);}
         public void setRandomCube() {x = Simulation.random.nextDouble() - 0.5;}
         public void setRandomInSphere() {setRandomCube();}
