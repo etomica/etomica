@@ -5,6 +5,7 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
 
@@ -87,8 +88,7 @@ public abstract class Configuration implements java.io.Serializable {
     public void initializeCoordinates(Atom group) {
         if(group.node.isLeaf()) throw new IllegalArgumentException("Error in Configuration.initializeCoordinates:  Attempt to initialize child coordinates of leaf atom");
 
-        AtomIteratorList iterator = 
-                AtomIteratorList.makeCopylistIterator(((AtomTreeNodeGroup)group.node).childList);
+        AtomIteratorListSimple iterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)group.node).childList);
         initializePositions(iterator);
         if (space.isKinetic()) {
             initializeMomenta(group);
@@ -106,9 +106,9 @@ public abstract class Configuration implements java.io.Serializable {
      * Initializes positions and momenta of the atoms in the given atom groups.
      */
     public void initializeCoordinates(Atom[] group) {
-        AtomIterator[] iterators = new AtomIterator[group.length];
+        AtomIteratorListSimple[] iterators = new AtomIteratorListSimple[group.length];
         for(int i=0; i<group.length; i++) {
-            iterators[i] = AtomIteratorList.makeCopylistIterator(((AtomTreeNodeGroup)group[i].node).childList);
+            iterators[i] = new AtomIteratorListSimple(((AtomTreeNodeGroup)group[i].node).childList);
             if (space.isKinetic()) {
                 initializeMomenta(group[i]);
             }
