@@ -172,7 +172,7 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
             }
             else {
                 disk.momentum().TE(i,-1.0);
-                wallType.pAccumulator += 2*disk.momentum().component(i);
+    //            wallType.pAccumulator += 2*disk.momentum().component(i);
             }
         }
         else {
@@ -192,12 +192,23 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
      */
     private void moveToContact(int i, AtomPair pair) {
         double dr = pair.dr(i);  //dr = atom2 - atom1
+        double mult = (dr > 0.0) ? -1 : +1;
         double delta = Math.abs(dr) - collisionRadius;
         if(delta < 0.0) {   //inside wall; set apart to contact point
-            double mult = (dr > 0.0) ? -2.0 : +2.0;
-            pair.atom2.r.PE(i,mult*delta);
-            pair.atom1.r.PE(i,-mult*delta);
-            double diff = pair.atom2.r.component(i)-pair.atom1.r.component(i);
+ //           double mult = (dr > 0.0) ? -2.0 : +2.0;
+            if(pair.atom2.isStationary()) 
+                pair.atom1.r.setComponent(i,pair.atom2.r.component(i)+mult*(collisionRadius+1e-6));
+            else if(pair.atom1.isStationary())
+                pair.atom2.r.setComponent(i,pair.atom1.r.component(i)-mult*(collisionRadius+1e-6));
+            else {
+                double mid = (pair.atom1.r.component(i)+pair.atom2.r.component(i))*0.5;
+                pair.atom1.r.setComponent(i,mid+0.5*mult*(collisionRadius+1e-6));
+                pair.atom2.r.setComponent(i,mid-0.5*mult*(collisionRadius+1e-6));
+     //           pair.atom2.r.PE(i,delta);
+     //           pair.atom1.r.PE(i,-delta);
+            }
+     //       delta = Math.abs(pair.atom2.r.component(i)-pair.atom1.r.component(i)) - collisionRadius;
+     //       System.out.println(delta);
         }
     }    
     

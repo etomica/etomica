@@ -8,7 +8,7 @@ public class PhaseBeanInfo extends SimpleBeanInfo implements java.io.Serializabl
     static {
         PropertyEditorManager.registerEditor(Space.Boundary.class, BoundaryEditor.class);
         PropertyEditorManager.registerEditor(Space.Coordinate[].class, MoleculePositionEditor.class);
-        PropertyEditorManager.registerEditor(Configuration.class, ConfigurationEditor.class);
+//        PropertyEditorManager.registerEditor(Configuration.class, ConfigurationEditor.class);
     }
     
     public PropertyDescriptor[] getPropertyDescriptors() {

@@ -1,4 +1,5 @@
 package etomica.gui;
+import etomica.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
