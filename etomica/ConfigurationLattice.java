@@ -1,10 +1,11 @@
 package etomica;
 
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.iterator.AtomIteratorCompound;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
@@ -26,6 +27,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	    super(lattice.getSpace());
         this.lattice = lattice;
         this.indexIterator = indexIterator;
+        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
 	}
 	
 	/**
@@ -41,8 +43,8 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 		if(sumOfMolecules == 1) {
 			iterator.reset();
             work.E(0.0);
-            //XXX broken
-			iterator.nextAtom().coord.position().E(work);
+            atomActionTranslateTo.setDestination(work);
+			atomActionTranslateTo.actionPerformed(iterator.nextAtom());
 			return;
 		}
         int nCells = (int)Math.ceil((double)sumOfMolecules/(double)lattice.getBasisSize());
@@ -107,7 +109,8 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 			} catch(NullPointerException e) {}
             Vector site = (Vector)lattice.site(indexIterator.next());
             site.PE(offsetVector);
-			a.coord.translateTo(site);//use translateTo instead of E because atom might be a group
+            atomActionTranslateTo.setDestination(site);
+			atomActionTranslateTo.actionPerformed(a);
 			if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
 		}
 	}
@@ -132,6 +135,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	private boolean rescalingToFitVolume = true;
 	private boolean assigningSitesToAtoms = false;
 	private int siteIndex = -1;
+    private final AtomActionTranslateTo atomActionTranslateTo;
 
 //  /**
 //  * Sets the size of the lattice (number of atoms in each direction) so that
