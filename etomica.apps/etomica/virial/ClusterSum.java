@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import etomica.Atom;
+
 /**
  * @author kofke
  *
@@ -35,10 +37,10 @@ public class ClusterSum implements ClusterAbstract {
 	/**
 	 * @see etomica.virial.ClusterValuable#value(etomica.virial.PairSet, double)
 	 */
-	public double value(PairSet pairs, double beta) {
+	public double value(CoordinatePairSet cPairs, double beta) {
 		double sum = 0.0;
 		for(int i=0; i<nCluster; i++) {
-			sum += clusters[i].weight() * clusters[i].value(pairs, beta);
+			sum += clusters[i].weight() * clusters[i].value(cPairs, beta);
 		}
 		return sum;
 	}

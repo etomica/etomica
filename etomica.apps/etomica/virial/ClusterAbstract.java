@@ -1,13 +1,7 @@
 package etomica.virial;
 
-/**
- * @author kofke
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
- */
+import etomica.Atom;
+
 public interface ClusterAbstract {
 
 	/**
@@ -19,15 +13,13 @@ public interface ClusterAbstract {
 	/**
 	 * Value of this cluster for the given pairset at the specified reciprocal
 	 * temperature.
-	 * @param pairs
-	 * @param beta Reciprocal temperature
-	 * @return double
 	 */
-	public double value(PairSet pairs, double beta);
-
-	/**
-	 * Weight associated with this cluster.
-	 * @return double
-	 */
+	public double value(CoordinatePairSet cPairs, double beta);
+	
+    /**
+     * Weight coefficient of the given cluster.
+     * TODO: move this into ClusterSum, which is the only thing that uses it
+     */
 	public double weight();
+	
 }
