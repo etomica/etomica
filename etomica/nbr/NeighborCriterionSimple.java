@@ -1,6 +1,8 @@
 package etomica.nbr;
 
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Debug;
 import etomica.NearestImageTransformerVector;
 import etomica.NearestImageVectorSource;
@@ -86,12 +88,12 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 		return r2 > r2MaxSafe;
 	}
 
-	public boolean accept(Atom[] a) {
+	public boolean accept(AtomSet pair) {
         nearestImageTransformer.setNearestImageVector(nearestImageVectorSource.getNearestImageVector());
-		cPair.reset(a[0].coord,a[1].coord);
-		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
-			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) {
-				System.out.println("Atom "+a[0]+" and "+a[1]+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
+		cPair.reset((AtomPair)pair);
+		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
+			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
+				System.out.println("Atom "+((AtomPair)pair).atom0+" and "+((AtomPair)pair).atom1+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
             }
 		}
 		return cPair.r2() < neighborRadius2;

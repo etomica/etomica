@@ -5,6 +5,7 @@
 package etomica.nbr;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Integrator;
 import etomica.IteratorDirective;
@@ -176,13 +177,13 @@ public class NeighborManager implements IntervalListener {
     
 	private static class NeighborCheck extends AtomsetActionAdapter {
 		private boolean needUpdate = false, unsafe = false;
-		public void actionPerformed(Atom[] atom) {
-			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
-			if (criterion != null && criterion.needUpdate(atom[0])) {
+		public void actionPerformed(AtomSet atom) {
+			NeighborCriterion criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
+			if (criterion != null && criterion.needUpdate((Atom)atom)) {
 				needUpdate = true;
 				if (criterion.unsafe()) {
 					if (Debug.DEBUG_NOW) {
-						System.out.println("atom "+atom[0]+" exceeded safe limit");
+						System.out.println("atom "+(Atom)atom+" exceeded safe limit");
 					}
 					unsafe = true;
 				}
@@ -197,12 +198,12 @@ public class NeighborManager implements IntervalListener {
 	}
 	
 	private class NeighborReset extends AtomsetActionAdapter {
-		public void actionPerformed(Atom[] atom) {
-            if(atom[0].node.depth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
-			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
-			((AtomSequencerNbr)atom[0].seq).clearNbrs();
+		public void actionPerformed(AtomSet atom) {
+            if(((Atom)atom).node.depth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
+			NeighborCriterion criterion = ((Atom)atom).type.getNbrManagerAgent().getCriterion();
+			((AtomSequencerNbr)((Atom)atom).seq).clearNbrs();
 			if (criterion != null) {
-				criterion.reset(atom[0]);
+				criterion.reset((Atom)atom);
 			}
 		}
 	}

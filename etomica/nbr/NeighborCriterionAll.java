@@ -5,6 +5,7 @@
 package etomica.nbr;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.nbr.cell.AtomsetIteratorCellular;
@@ -52,7 +53,7 @@ public class NeighborCriterionAll extends NeighborCriterion {
     /**
      * Always returns true, indicating that all atoms pairs are neighbors.
      */
-    public boolean accept(Atom[] a) {
+    public boolean accept(AtomSet a) {
         return true;
     }
     

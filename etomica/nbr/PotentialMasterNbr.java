@@ -5,7 +5,7 @@
 package etomica.nbr;
 
 import etomica.Atom;
-import etomica.Default;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.NearestImageTransformerVector;
 import etomica.Phase;
@@ -80,14 +80,14 @@ public class PotentialMasterNbr extends PotentialMaster {
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
-    	Atom[] targetAtoms = id.getTargetAtoms();
-    	if (targetAtoms.length == 0 || targetAtoms[0] == null) {
+    	AtomSet targetAtoms = id.getTargetAtoms();
+    	if (targetAtoms == null) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
     		calculate(phase.speciesMaster, idUp, pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
     	}
-    	else if (targetAtoms.length == 1 || targetAtoms[1] == null) {
+    	else if (targetAtoms instanceof Atom) {
     		// one target atom
-			calculate(targetAtoms[0], id, pc, targetAtoms[0].type.getNbrManagerAgent().getPotentials());
+			calculate((Atom)targetAtoms, id, pc, ((Atom)targetAtoms).type.getNbrManagerAgent().getPotentials());
     	}
     	else {
     		//more than one target atom
@@ -143,7 +143,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 			listIterator.setList(((AtomTreeNodeGroup)atom.node).childList);
 			listIterator.reset();
             if (listIterator.hasNext()) {
-                Potential[] childPotentials = listIterator.peek()[0].type.getNbrManagerAgent().getPotentials();
+                Potential[] childPotentials = ((Atom)listIterator.peek()).type.getNbrManagerAgent().getPotentials();
                 while(listIterator.hasNext()) {
                     calculate(listIterator.nextAtom(), id, pc, childPotentials);//recursive call
                 }
@@ -254,8 +254,7 @@ public class PotentialMasterNbr extends PotentialMaster {
             int arraySize = size();
             for (int i=0; i<arraySize; i++) {
                 nearestImageTransformer.setNearestImageVector((Vector)vector.get(i));
-                atoms[0] = list.get(i);
-                act.actionPerformed(atoms);
+                act.actionPerformed(list.get(i));
             }
         }
         

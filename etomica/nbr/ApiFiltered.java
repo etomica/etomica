@@ -5,6 +5,8 @@
 package etomica.nbr;
 
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
@@ -44,7 +46,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
       if(iterator.nBody() != 2) throw new IllegalArgumentException("Illegal attempt to construct pair iterator by wrapping a non-pair iterator");
       this.iterator = iterator;
       this.filter = filter;
-      nextAtoms = new Atom[2];
+      nextAtoms = new AtomPair();
    }
 
 
@@ -52,7 +54,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
     * Returns true if the iterator contains the given atom and
     * atom meets the filter's criteria.
     */
-   public boolean contains(Atom[] atom) {
+   public boolean contains(AtomSet atom) {
       return filter.accept(atom) && iterator.contains(atom);
    }
 
@@ -73,7 +75,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
       iterator.reset();
       next = null;
       while(iterator.hasNext() && next == null) {
-         next = iterator.next();
+         next = (AtomPair)iterator.next();
          if(!filter.accept(next)) next = null;
       }
       nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
@@ -95,25 +97,22 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
      * Returns the next atom from the iterator that meets the 
      * filter's criteria.
      */
-    public Atom[] next() {
+    public AtomSet next() {
        if(next == null) return null;
-       nextAtoms[0] = next[0];
-       nextAtoms[1] = next[1];
+       next.copyTo(nextAtoms);
        next = null;
-       nearestImageVector = nextNearestImageVector;
        while(iterator.hasNext() && next == null) {
-          next = iterator.next();
-          //            System.out.println("in ApiFiltered.next, "+next[0].coord.position()+" "+next[1].coord.position()+" "+cellIterator.getNearestImageVector());
+          next = (AtomPair)iterator.next();
           if(!filter.accept(next)) next = null;
        }
-       nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
+//       nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
        return nextAtoms;
     }
 
     /**
      * Returns next atom without advancing the iterator.
      */
-    public Atom[] peek() {
+    public AtomSet peek() {
        return next;
     }
 
@@ -162,14 +161,14 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
     public void setDirection(Direction direction) {
        iterator.setDirection(direction);
     }
-    public void setTarget(Atom[] targetAtoms) {
+    public void setTarget(AtomSet targetAtoms) {
        iterator.setTarget(targetAtoms);
     }
 
     private final ApiMolecule iterator;
     private final NeighborCriterion filter;
-    private Atom[] next;
-    private final Atom[] nextAtoms;
+    private AtomPair next;
+    private final AtomPair nextAtoms;
     private NearestImageVectorSource nearestImageVectorSource;
     private Vector nearestImageVector, nextNearestImageVector;
 
@@ -179,7 +178,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
      */
     private static AtomsetAction actionWrapper(final AtomsetFilter filter, final AtomsetAction action) {
        return new AtomsetActionAdapter() {
-          public void actionPerformed(Atom[] atom) {
+          public void actionPerformed(AtomSet atom) {
              if(filter.accept(atom)) action.actionPerformed(atom);
           }
        };
