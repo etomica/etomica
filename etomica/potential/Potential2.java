@@ -1,7 +1,6 @@
 package etomica.potential; 
 
 import etomica.Default;
-import etomica.NearestImageTransformer;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
