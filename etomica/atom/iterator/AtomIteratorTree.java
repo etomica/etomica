@@ -172,6 +172,10 @@ public class AtomIteratorTree implements AtomIterator {
         	doTreeIteration = false;
         	iterator = AtomIterator.NULL;
         } else if(iterationDepth == 0 || rootAtom.node.isLeaf()) {//singlet iteration of basis atom
+            if (!wealreadyknowyourstupid) {
+                System.err.println("don't use AtomIteratorTree as a singlet iterator.  It blows chunks.");
+                wealreadyknowyourstupid = true;
+            }
 	        rootNode = null;
             doTreeIteration = false;
             iterator = new AtomIteratorSinglet(rootAtom);
@@ -263,6 +267,7 @@ public class AtomIteratorTree implements AtomIterator {
     private int iterationDepth = Integer.MAX_VALUE;
     private Atom next;
     private boolean doAllNodes = false;
+    private boolean wealreadyknowyourstupid = false;
     
     /**
      * main method to test and demonstrate use of this class.
