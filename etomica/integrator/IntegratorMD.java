@@ -62,11 +62,23 @@ public abstract class IntegratorMD extends Integrator {
         return currentKineticEnergy;
     }
 
+    public void setIsothermal(boolean b) {
+        super.setIsothermal(b);
+        if (initialized) {
+            // trigger immediate thermostat
+            thermostatCount = 1;
+            doThermostat();
+        }
+    }
+    
     public void setTemperature(double temperature) {
         super.setTemperature(temperature);
-        // trigger immediate thermostat action        
-        thermostatCount = 1;
         atomActionRandomizeVelocity.setTemperature(temperature);
+        if (initialized) {
+            // trigger immediate thermostat
+            thermostatCount = 1;
+            doThermostat();
+        }
     }
     
     public static class ThermostatType extends etomica.DataType {
@@ -108,7 +120,6 @@ public abstract class IntegratorMD extends Integrator {
     public void doThermostat() {
         if (--thermostatCount == 0) {
             thermostatCount = thermostatInterval;
-            // if 
             if (thermostat == VELOCITY_SCALING || !isothermal) {
                 for (int i=0; i<phase.length; i++) {
                     scaleMomenta(phase[i]);
