@@ -13,6 +13,7 @@ import etomica.units.*;
     	private MKS() {}
     	
         public Unit quantity() {return Mole.UNIT;}
+        public Unit fraction() {return Decimal.UNIT;}
         public Unit mass() {return new PrefixedUnit(Prefix.KILO, Gram.UNIT);}
         public Unit length() {return Meter.UNIT;}
         public Unit time() {return Second.UNIT;}

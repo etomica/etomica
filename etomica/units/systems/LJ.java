@@ -46,6 +46,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
     public void setMass(double m) {mass = m; update();}
     
 	public Unit quantity() {return Count.UNIT;}
+    public Unit fraction() {return Decimal.UNIT;}
 	public Unit mass() {return massUnit;}
 	public Unit length() {return lengthUnit;}
 	public Unit time() {return timeUnit;}
