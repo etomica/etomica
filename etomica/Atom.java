@@ -10,7 +10,7 @@ import java.awt.*;
 *  @author C. Daniel Barnes
 *  @see Molecule
 */
-public class Atom implements Space.Occupant {
+public final class Atom implements Space.Occupant {
 
     /**
     * Constructs an atom with default values for mass, diameter, and color.
@@ -74,34 +74,34 @@ public class Atom implements Space.Occupant {
 
     public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, this);}
 
-    public void translateBy(Space.Vector u) {r.PE(u);}
-    public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
-    public void translateTo(Space.Vector u) {r.E(u);}      
-    public void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
-    public void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
-    public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
-    public void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
-    public void displaceWithin(double d) {workVector.setRandomCube(); r.PEa1Tv1(d,workVector);}
-    public void displaceToRandom(simulate.Phase p) {rLast.E(r); translateToRandom(p);}
-    public void replace() {r.E(rLast);}
-    public void inflate(double s) {r.TE(s);}
+    public final void translateBy(Space.Vector u) {r.PE(u);}
+    public final void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
+    public final void translateTo(Space.Vector u) {r.E(u);}      
+    public final void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
+    public final void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
+    public final void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
+    public final void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
+    public final void displaceWithin(double d) {workVector.setRandomCube(); displaceBy(d,workVector);}
+    public final void displaceToRandom(simulate.Phase p) {rLast.E(r); translateToRandom(p);}
+    public final void replace() {r.E(rLast);}
+    public final void inflate(double s) {r.TE(s);}
 
-    public void accelerateBy(Space.Vector u) {p.PE(u);}
-    public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
+    public final void accelerateBy(Space.Vector u) {p.PE(u);}
+    public final void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
 
-    public double kineticEnergy() {return coordinate.kineticEnergy(type.mass());}
-    public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+    public final double kineticEnergy() {return coordinate.kineticEnergy(type.mass());}
+    public final void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
         double magnitude = Math.sqrt(type.mass()*temperature*(double)Simulation.D/Constants.KE2T);  //need to divide by sqrt(m) to get velocity
         p.setRandomSphere();
         p.TE(magnitude);
     }
-    public void scaleMomentum(double scale) {p.TE(scale);}
+    public final void scaleMomentum(double scale) {p.TE(scale);}
 
-    public Space.Vector position() {return r;}
-    public Space.Vector momentum() {return p;}
-    public double position(int i) {return r.component(i);}
-    public double momentum(int i) {return p.component(i);}
-    public Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
+    public final Space.Vector position() {return r;}
+    public final Space.Vector momentum() {return p;}
+    public final double position(int i) {return r.component(i);}
+    public final double momentum(int i) {return p.component(i);}
+    public final Space.Vector velocity() {velocity.E(p); velocity.TE(type.rm()); return velocity;}  //returned vector is not thread-safe
 
     public Integrator.Agent ia;
         

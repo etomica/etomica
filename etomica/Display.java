@@ -3,7 +3,7 @@ import java.awt.*;
 import java.beans.Beans;
 import java.awt.event.*;
 
-    public abstract class Display extends Canvas implements simulate.IntegrationIntervalListener, MouseListener, MouseMotionListener, KeyListener {
+    public abstract class Display extends Panel implements simulate.IntegrationIntervalListener, MouseListener, MouseMotionListener, KeyListener {
 
 	Simulation parentSimulation;
 	Phase phase;
@@ -40,6 +40,21 @@ import java.awt.event.*;
 	
     boolean resizable = false;  //flag to indicate if display can be resized
     boolean movable = false;     //flag to indicate if display can be moved
+    
+    public void addNotify() {
+        super.addNotify();
+        Container p = getParent();
+        if(p instanceof Simulation) {return;}
+        while(p != null) {
+            p = p.getParent();
+            if(p instanceof Simulation) {
+                ((Simulation)p).addDisplay(this);
+                System.out.println("OK in display");
+                return;
+            }
+        }
+        System.out.println("Warning:  Display has no parent Simulation");
+    }            
     
     public Display () {
         setSize(pixels, pixels);

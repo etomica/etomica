@@ -25,6 +25,7 @@ public class MeterPotentialEnergy extends simulate.Meter
 
  /**
   * Computes total potential energy for all atom pairs in phase
+  * Returns infinity (MAX_VALUE) as soon as overlap is detected
   */
     public final double currentValue() {
                         //could make special case for single species, monatomic
@@ -32,14 +33,18 @@ public class MeterPotentialEnergy extends simulate.Meter
         iteratorAll.reset();
         while(iteratorAll.hasNext()) {
             AtomPair pair = iteratorAll.next();
-            pe += phase.parentSimulation.getPotential(pair).energy(pair);
+            double energy = phase.parentSimulation.getPotential(pair).energy(pair);
+            if(energy == Double.MAX_VALUE) return Double.MAX_VALUE;
+            pe += energy;
         }
         return pe;
     }
 
+
   /**
    * Computes intermolecular contribution to potential energy for atom.  Returns zero if atom is not in phase.
    * Does not include intramolecular contribution
+   * Returns infinity as soon as overlap is encountered
 
    //  May want to change this so it handles atoms not in phase
 
@@ -50,14 +55,16 @@ public class MeterPotentialEnergy extends simulate.Meter
         apiUp.reset(a,Iterator.INTER);
         while(apiUp.hasNext()) {
             AtomPair pair = apiUp.next();
-            pe += phase.parentSimulation.getPotential(pair).energy(pair);
-//            pe += pair.potential.energy(pair);
+            double energy = phase.parentSimulation.getPotential(pair).energy(pair);
+            if(energy == Double.MAX_VALUE) return Double.MAX_VALUE;
+            pe += energy;
         }
         apiDown.reset(a,Iterator.INTER);
         while(apiDown.hasNext()) {
             AtomPair pair = apiDown.next();
-            pe += phase.parentSimulation.getPotential(pair).energy(pair);
-//            pe += pair.potential.energy(pair);
+            double energy = phase.parentSimulation.getPotential(pair).energy(pair);
+            if(energy == Double.MAX_VALUE) return Double.MAX_VALUE;
+            pe += energy;
         }
         return pe;
     }
@@ -91,10 +98,24 @@ public class MeterPotentialEnergy extends simulate.Meter
         double pe = 0.0;
         while(iteratorMP.hasNext()) {
             AtomPair pair = iteratorMP.next();
-            pe += phase.parentSimulation.getPotential(pair).energy(pair);
-//            pe += pair.potential.energy(pair);
+            double energy = phase.parentSimulation.getPotential(pair).energy(pair);
+            if(energy == Double.MAX_VALUE) return Double.MAX_VALUE;
+            pe += energy;
         }    
       return pe;
+/*      AtomPair p = new AtomPair(phase);
+      int count = 0;
+      for(Atom a=phase.lastAtom(); a!=null; a=a.previousAtom()) {
+            count++;
+            p.reset(m.firstAtom,a);
+            double energy = phase.parentSimulation.getPotential(p).energy(p);
+            if(energy == Double.MAX_VALUE) {
+                System.out.println(count+" "+phase.atomCount);
+                return Double.MAX_VALUE;
+            }
+            pe += energy;
+      }
+      return pe; */  //debugging --- delete
     }
 
     

@@ -91,7 +91,7 @@ public class AtomPair {
          * The molecule may or may not be in the phase
          * Intramolecular pairs are not generated
          */
-         // Probably needs to be fixed to handle multi-atom molecules
+         // Needs to be fixed to handle multi-atom molecules
         public static class MP implements M {
             private final Iterator.A apiUp, apiDown;
             private Iterator.A apiCurrent;
@@ -111,8 +111,8 @@ public class AtomPair {
                 System.out.println("reset in AtomPair.Iterator.MP is not implemented");}  
             public boolean hasNext() {return hasNext;}
             public AtomPair next() {
-                thisPair = nextPair;
-                if(apiCurrent.hasNext()) {nextPair = apiCurrent.next();}
+//                thisPair = nextPair;
+/*                if(apiCurrent.hasNext()) {nextPair = apiCurrent.next();}
                 else {
                     if(upDone) {hasNext = false;}  //all done
                     else {                         //switch to down iterator
@@ -120,6 +120,15 @@ public class AtomPair {
                         upDone = true;
                         hasNext = apiCurrent.hasNext();
                         if(hasNext) nextPair = apiCurrent.next();
+                    }
+                }*/
+                thisPair = apiCurrent.next();
+                if(!apiCurrent.hasNext()) {
+                    if(upDone) {hasNext = false;}  //all done
+                    else {                         //switch to down iterator
+                        apiCurrent = apiDown;
+                        upDone = true;
+                        hasNext = apiCurrent.hasNext();
                     }
                 }
                 return thisPair;
@@ -135,7 +144,7 @@ public class AtomPair {
                     upDone = true;
                 }
                 hasNext = apiCurrent.hasNext();
-                if(hasNext) nextPair = apiCurrent.next();
+//                if(hasNext) nextPair = apiCurrent.next();
             }
         }
                     
@@ -149,8 +158,6 @@ public class AtomPair {
             public Up(Phase p) {phase = p; pair = new AtomPair(p); hasNext = false;}
             public Up(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a,true);}
             public void reset() {System.out.println("error in APIup");}
-            public void reset(Atom a1, Atom a2, Atom a3, Atom a4) {}
-            public void reset(Atom a1, Atom a2, Atom a3) {}
             public void allDone() {hasNext = false;}
             public boolean hasNext() {return hasNext;}
             public void reset(Atom a, boolean intra) {

@@ -64,7 +64,7 @@ public abstract class MCMove extends Component {
     public final double getStepSizeMin() {return stepSizeMin;}
     
     public final void setNextMove(MCMove move) {nextMove = move;}
-    public final MCMove getNextMove() {return nextMove;}
+    public final MCMove nextMove() {return nextMove;}
     
     public final void setAdjustInterval(int i) {adjustInterval = i;}
     public final int getAdjustInterval() {return adjustInterval;}

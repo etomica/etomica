@@ -47,10 +47,19 @@ public class Space2D extends Space {
         public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = random.nextDouble()*dx; y = random.nextDouble()*dy;}
         public void setRandom(Vector u) {setRandom(u.x,u.y);}
-        public void setRandomCube() {x = random.nextDouble(); y = random.nextDouble();}
-        public void setRandomSphere() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
+        public void setRandomCube() {
+            x = random.nextDouble() - 0.5; 
+            y = random.nextDouble() - 0.5;
+        }
+        public void setRandomSphere() {
+            x = Math.cos(2*Math.PI*random.nextDouble()); 
+            y = Math.sqrt(1.0 - x*x);
+        }
         public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y;}
-        public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
+        public void randomDirection() {
+            x = Math.cos(2*Math.PI*random.nextDouble()); 
+            y = Math.sqrt(1.0 - x*x);
+        }
     }
     
     protected static final class CoordinatePair extends Space.CoordinatePair {  

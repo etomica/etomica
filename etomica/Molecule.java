@@ -31,7 +31,7 @@ public class Molecule implements Space.Occupant, Serializable {
     coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
     r = coordinate.position();
     p = coordinate.momentum();
-    temp = parentPhase.parentSimulation.space.makeVector();
+    temp = parentSpecies.parentSimulation.space.makeVector();
     nAtoms = n;
 //    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
     if(nAtoms > 1) atomIterator = new AtomIterator();
@@ -61,7 +61,7 @@ public class Molecule implements Space.Occupant, Serializable {
     nAtoms = type.length;
     if(nAtoms > 1) atomIterator = new AtomIterator();
     else atomIterator = new MonoAtomIterator();
-    temp = parentPhase.parentSimulation.space.makeVector();
+    temp = parentSpecies.parentSimulation.space.makeVector();
     
     firstAtom = new Atom(this,type[0],0);
     lastAtom = firstAtom;
@@ -292,7 +292,7 @@ public class Molecule implements Space.Occupant, Serializable {
         }
             
         public void displaceToRandom(Phase phase) {displaceTo(phase.boundary().randomPosition());}
-        public void translateToRandom(Phase phase) {translateTo(phase.boundary().randomPosition());}
+//        public void translateToRandom(Phase phase) {translateTo(phase.boundary().randomPosition());}
 
         public void replace() {
             atomIterator.reset();

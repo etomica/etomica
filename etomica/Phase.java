@@ -1,13 +1,14 @@
 package simulate;
 import java.awt.Container;
 import java.awt.Graphics;
+import java.awt.Color;
 
 public class Phase extends Container {
         
     protected Space.Boundary boundary;
     private int iBoundary;
         
-    public Phase() {
+    public Phase() {super();
     }
     
     public void initialize(Simulation ps) {
@@ -39,6 +40,8 @@ public class Phase extends Container {
     public void setPotential() {
         if(parentSimulation != null) potential = parentSimulation.space.makePotential();
     }
+    
+    public final Space.Vector randomPosition() {return boundary.randomPosition();}
 
     public final void setBoundary(int b) {
         iBoundary = b;

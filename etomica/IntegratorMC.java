@@ -24,7 +24,7 @@ public class IntegratorMC extends Integrator {
         int i = (int)(rand.nextDouble()*frequencyTotal);
         trialMove = firstMove;
         while((i-=trialMove.getFrequency()) >= 0) {
-            trialMove = trialMove.getNextMove();
+            trialMove = trialMove.nextMove();
         }
         trialMove.doTrial(firstPhase);
     }
@@ -32,7 +32,7 @@ public class IntegratorMC extends Integrator {
     public void initialize() {
         deployAgents();
         frequencyTotal = 0;
-        for(MCMove m=firstMove; m!=null; m=m.getNextMove()) {
+        for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
             m.resetFrequency(firstPhase);
             frequencyTotal += m.getFrequency();
         }

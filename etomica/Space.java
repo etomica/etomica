@@ -9,7 +9,7 @@ public abstract class Space {
     public abstract CoordinatePair makeCoordinatePair(Coordinate c1, Coordinate c2, Boundary b);
     public abstract CoordinatePair makeCoordinatePair(Boundary b);
     public abstract Boundary makeBoundary(int iBoundary);
-
+    
     /**
      * Something that occupies a Space, and therefore has a coordinate
      * Usually an Atom or a Molecule

@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.beans.Beans;
 import java.util.*;
 
-public class Simulation extends Container {
+public class Simulation extends Panel {
 
     public static int D;  //dimension (2-D, 3-D, etc;)
     protected final Space space;
@@ -34,6 +34,10 @@ public class Simulation extends Container {
                 
     public void add(Display d) {
         super.add(d);
+        addDisplay(d);
+    }
+    
+    public void addDisplay(Display d) {
         d.parentSimulation = this;
         if(lastDisplay != null) {lastDisplay.setNextDisplay(d);}
         else {firstDisplay = d;}
@@ -46,7 +50,7 @@ public class Simulation extends Container {
             d.setPhase(p);
         }
         d.repaint();
-    }
+    }    
               
     public void add(Phase p) {
         super.add(p);

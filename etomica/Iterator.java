@@ -25,5 +25,6 @@ package simulate;
         public AtomPair.Iterator makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}
+        public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved
         public void reset() {}
     }

@@ -26,9 +26,6 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
    //Determines appropriate cell and assigns it
         public void assignCell() {             //assumes coordinates ranges [0,1)
             LatticeSquare cells = ((NeighborIterator)parentPhase().iterator()).cells;
-//            int ix = (int)Math.floor(r.x * cells.dimensions()[0]);
-//            int iy = (int)Math.floor(r.y * cells.dimensions()[1]);
-//            LatticeSquare.Site newCell = cells.sites()[ix][iy];
             LatticeSquare.Site newCell = cells.nearestSite(this.r);
             if(newCell != cell) {assignCell(newCell);}
         }
@@ -41,7 +38,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             setNextNeighbor((Space2DCell.Coordinate)cell.first());
             cell.setFirst(this);
             clearPreviousNeighbor();
-            ((Atom)parent).setColor(cell.color);  //move this to a colorscheme
+//            ((Atom)parent).setColor(cell.color);  //move this to a colorscheme
         }
     } 
     
@@ -52,8 +49,12 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 15;
+            xCells = yCells = 10;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
+        }
+        
+        public void moveNotify(Atom a) {
+            ((Coordinate)a.coordinate).assignCell();
         }
         
         public void addMolecule(Molecule m) {
