@@ -44,7 +44,7 @@ public class HSMD2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-	    species.setNMolecules(500);
+	    species.setNMolecules(50);
 	    species2.setNMolecules(5);
 	    phase = new Phase(space);
 	    potential = new P2HardSphere(space);

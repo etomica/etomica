@@ -351,7 +351,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         int[] iN;
         while(nbrIterator.hasNext()) {            
             Site nbr = (Site)nbrIterator.nextAtom();
-            if(nbr == first) {nbrCount--; continue;} //in case nbrIterator returns central atom itself
+//            if(nbr == first) {nbrCount--; continue;} //in case nbrIterator returns central atom itself
             iN = nbr.latticeCoordinate();
             for(int i=0; i<D; i++) delta[n][i] = iN[i] - i0[i];
             n++;
@@ -361,20 +361,22 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         //in index coordinates
         AtomIteratorList iterator = new AtomIteratorList(siteList);
         iterator.reset();
-        iterator.next(); //skip first
+        iterator.next(); //skip first -- its neighbors are already set up
         iN = new int[D];
         NbrCriterion nbrCriterion = new NbrCriterion();
         while(iterator.hasNext()) {
-            nbrCriterion.root = (Site)iterator.nextAtom();
+            nbrCriterion.root = (Site)iterator.nextAtom();//next central site
             i0 = nbrCriterion.root.latticeCoordinate();
             nbrCriterion.nbrList.clear();
-            for(n=0; n<nbrCount; n++) {
+            for(n=0; n<nbrCount; n++) {//grab neighbors of central site
                 for(int i=0; i<D; i++) iN[i] = i0[i] + delta[n][i];
                 nbrCriterion.nbrList.add(site(iN));
                 //site.neighborManager().add to neighbor list
             }
             //could be made faster if we could add neighbors to neighborManager's list
             //in the appropriate order (pbc complicates doing this)
+            //set up neighbor manager nbrlist with up/down in proper arrangement
+            //nbrCriterion will indicate neighbors if in the nbrList set up above
             nbrCriterion.root.neighborManager().setupNeighbors(siteList, nbrCriterion);
         }
         eventManager.fireEvent(resetNbrEvent);

@@ -112,7 +112,8 @@ public class PotentialMasterNbr extends PotentialMaster {
 			AtomArrayList[] list;
 			if (direction == IteratorDirective.UP || direction == null) {
 				list = seq.getUpList();
-				for (int i=0; i<length; i++) {
+//              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
+				for (int i=0; i<list.length; i++) {
 					atomIterator.setList(list[i]);
 					//System.out.println("Up :"+atomIterator.size());
 					pc.doCalculation(pairIterator, id, potentials[i]);
@@ -120,7 +121,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 			}
 			if (direction == IteratorDirective.DOWN || direction == null) {
 				list = seq.getDownList();
-				for (int i=0; i<length; i++) {
+				for (int i=0; i<list.length; i++) {
 					atomIterator.setList(list[i]);
 					//System.out.println("Dn :"+atomIterator.size());
 					pc.doCalculation(pairIterator, id, potentials[i]);
@@ -145,7 +146,8 @@ public class PotentialMasterNbr extends PotentialMaster {
 			//TODO add to list of concrete potentials
 		}
 	}
-	public void removePotentialNotify(Potential potential) {
+
+    public void removePotentialNotify(Potential potential) {
 		if(potential instanceof PotentialGroup) return;
 		else {
 			//TODO remove from list of concrete potentials
