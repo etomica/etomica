@@ -190,6 +190,10 @@ public abstract class IntegratorMD extends Integrator {
         atomIterator.reset();
         // calculate current kinetic temperature
         double t = 2.0*meterKE.getDataAsScalar(aPhase) / (aPhase.atomCount() * aPhase.space().D());
+        if (t == 0) {
+            randomizeMomenta(aPhase);
+            return Double.POSITIVE_INFINITY;
+        }
         double s = Math.sqrt(temperature / t);
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
