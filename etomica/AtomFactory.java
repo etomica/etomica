@@ -9,20 +9,30 @@ package etomica;
 public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
-    protected Space space;
+    public final Simulation parentSimulation;
+    public final Species parentSpecies;
     protected Configuration configuration;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     
-    public AtomFactory(Space s) {
-        space = s;
-        reservoir = new AtomReservoir();
+    /**
+     * @param sim the parent simulation using this factory
+     * @param species the parent species using this factory (may be null)
+     */
+    public AtomFactory(Simulation sim, Species species) {
+        parentSimulation = sim;
+        parentSpecies = species;
+        reservoir = new AtomReservoir(this);
+    }
+    
+    public Atom makeAtom() {
+        return makeAtom(reservoir.node);
     }
     
     public Atom makeAtom(AtomTreeNodeGroup parent) {
-        Atom atom = reservoir.removeAtom();
+        Atom atom = reservoir.getAtom();
         if(atom == null) atom = build(parent);
-        else atom.node.setParent(parent);
+        atom.node.setParent(parent);
         
         //add agents from any registered sources
         if(agentSource.length > 0) atom.agents = new Object[agentSource.length];
@@ -40,6 +50,10 @@ public abstract class AtomFactory {
 //    public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
     
     public AtomReservoir reservoir() {return reservoir;}
+    
+    public Simulation parentSimulation() {return parentSimulation;}
+    
+    public Species parentSpecies() {return parentSpecies;}
     
     public void setConfiguration(Configuration config) {configuration = config;}
     public Configuration getConfiguration() {return configuration;}

@@ -8,11 +8,9 @@ package etomica;
 public class AtomFactoryMono extends AtomFactory {
     
     AtomType atomType;
-    private final Simulation simulation;
     
-    public AtomFactoryMono(Space space) {
-        super(space);
-        simulation = Simulation.instance;//needs work
+    public AtomFactoryMono(Simulation sim, Species species) {
+        super(sim, species);
         setType(new AtomType.Sphere(this));//default
     }
     
@@ -30,7 +28,7 @@ public class AtomFactoryMono extends AtomFactory {
     protected Atom build(AtomTreeNodeGroup parent) {
         return new Atom(space, atomType, 
                         AtomTreeNodeLeaf.FACTORY, 
-                        simulation.getIteratorFactory().neighborSequencerFactory(), 
+                        parentSimulation.getIteratorFactory().neighborSequencerFactory(), 
                         parent);
     }
     

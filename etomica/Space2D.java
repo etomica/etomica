@@ -385,11 +385,10 @@ public class Space2D extends Space implements EtomicaElement {
     
     public static class CoordinateGroup extends Coordinate {
         
-        private final AtomIterator childIterator;
+        private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple();
         
         public CoordinateGroup(Atom a) {
             super(a);
-            childIterator = a.node.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
         }
 
         /**

@@ -61,7 +61,7 @@ public class AtomIteratorTree implements AtomIterator {
      * Not implemented.
      */
     public Atom reset(IteratorDirective id) {
-        throw new RuntimeException("allAtoms method not implemented in AtomIteratorTree");
+        throw new RuntimeException("reset(IteratorDirective) method not implemented in AtomIteratorTree");
     }
     
     /**

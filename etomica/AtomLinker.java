@@ -23,6 +23,7 @@ public class AtomLinker implements java.io.Serializable {
     public void remove() {
 	    previous.next = next;
 	    next.previous = previous;
+	    next = previous = this;
     }
         
     public void addBefore(AtomLinker newNext) {
@@ -52,6 +53,7 @@ public class AtomLinker implements java.io.Serializable {
             super.remove();
 	        previousTab.nextTab = nextTab;
 	        nextTab.previousTab = previousTab;
+	        nextTab = previousTab = this;
         }
         
         public void addBefore(AtomLinker newNext) {

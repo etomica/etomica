@@ -3,11 +3,10 @@ import etomica.*;
 
 public class CoordinateGroup extends Coordinate {
 
-    private final AtomIterator childIterator;
+    private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple();
     
     public CoordinateGroup(Space space, Atom a) {
         super(space,a);
-        childIterator = a.node.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
     }
 
     /**

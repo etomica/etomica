@@ -14,24 +14,24 @@ public class AtomFactoryHomo extends AtomFactory {
     /**
      * @param factory the factory that makes each of the identical children.
      */
-    public AtomFactoryHomo(Space space, AtomFactory factory) {
-        this(space, factory, 1);
+    public AtomFactoryHomo(Simulation sim, Species species, AtomFactory factory) {
+        this(sim, species, factory, 1);
     }
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Space space, AtomFactory factory, int atoms) {
-        this(space, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(space));
+    public AtomFactoryHomo(Simulation sim, Species species, AtomFactory factory, int atoms) {
+        this(sim, species, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(sim.space));
     }
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomFactory factory, int atoms, BondInitializer bondInit,
+    public AtomFactoryHomo(Simulation sim, Species species, AtomFactory factory, int atoms, BondInitializer bondInit,
                             Configuration config) {    
-        super(space);
+        super(sim, species);
         childFactory = factory;
         atomsPerGroup = atoms;
         bondInitializer = bondInit;
@@ -42,7 +42,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * Constructs a new group.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
-        AtomGroup group = new AtomGroup(space, groupType, parent);
+        AtomGroup group = new AtomGroup(parentSimulation.space, groupType, parent);
         return build(group);
     }
     
