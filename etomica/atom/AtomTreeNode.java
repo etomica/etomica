@@ -38,16 +38,11 @@ public abstract class AtomTreeNode {
     
     public AtomTreeNode(Atom atom, AtomTreeNodeGroup parent) {
         this.atom = atom;
-//        if(parent == null && !(atom instanceof SpeciesMaster || atom instanceof AtomReservoir)) {//only SpeciesMaster and AtomReservoir can have null parent
-//            throw new NullPointerException("Illegal specification of null parent in AtomTreeNode constructor");
-//        } else if(parent != null) {
-        	if(parent != null) {
-            //(add check that parent is resizable)
+       	if(parent != null) {
             parentNode = parent;
             depth = parent.depth() + 1;
             setIndex(parent.newChildIndex());
             parent.childList.add(atom.seq);
- //           parent.addAtomNotify(atom); //invoked instead in constructor of atom in which this node is being placed
         }
     }
     
@@ -73,16 +68,13 @@ public abstract class AtomTreeNode {
     public void setParent(AtomTreeNodeGroup parent) {
     	
     	//parent isn't changing, but may need to update fields (added this 'if' block 08/12/03 (DAK))
-    	if(parent == parentNode) {
+    	if(parent != null && parent == parentNode) {
 			depth = parentNode.depth() + 1;
 			return;
         }
     	
-        if(parent != null && !parent.isResizable()) return;  //throw an exception?
-        
         //old parent is not null; remove from it
         if(parentNode != null) {
-            if(!parentNode.isResizable()) return;//exception
             parentNode.childList.remove(atom.seq);        
             parentNode.removeAtomNotify(atom);
         }
@@ -99,17 +91,15 @@ public abstract class AtomTreeNode {
         setIndex(parentNode.newChildIndex());
         
         parentNode.childList.add(atom.seq);
-        
-        //should notify this node's children of change
-
         parentNode.addAtomNotify(atom);
     }//end of addAtom
 
     public Atom atom() {return atom;}
         
     public Atom parentGroup() {
-        return parentNode.atom;
+        return (parentNode != null) ? parentNode.atom : null;
     }
+    
     public AtomTreeNodeGroup parentNode() {
         return parentNode;
     }
@@ -119,19 +109,27 @@ public abstract class AtomTreeNode {
      * that is one step below a species agent in the hierarchy of atomgroups.
      */
     public Atom parentMolecule() {
+        if(parentNode == null) return null;
         return (parentNode instanceof SpeciesAgent.AgentAtomTreeNode) ? this.atom : parentNode.parentMolecule();
     }
                 
     /**
      * Phase in which this atom resides
      */
-    public Phase parentPhase() {//return parentPhase;}//parentNode.parentPhase();}
+    public Phase parentPhase() {
         return (parentNode != null) ? parentNode.parentPhase() : null;
     }
 
-    public Species parentSpecies() {return parentNode.parentSpecies();}
+    /**
+     * @deprecated  want to put this information in AtomType
+     */
+    public Species parentSpecies() {
+        return parentNode.parentSpecies();
+    }
     
-    public SpeciesAgent parentSpeciesAgent() {return parentNode.parentSpeciesAgent();}
+    public SpeciesAgent parentSpeciesAgent() {
+        return (parentNode != null) ? parentNode.parentSpeciesAgent() : null;
+    }
 
     /**
      * Returns the depth of this atom in the atom hierarchy.  That is, returns
@@ -168,6 +166,7 @@ public abstract class AtomTreeNode {
      * If this node is not descended from the given node, returns null.
      */
     public AtomTreeNode childWhereDescendedFrom(AtomTreeNode node) {
+        if(parentNode == null) return null;
         return (parentNode == node) ? this : parentNode.childWhereDescendedFrom(node);
     }
     
@@ -179,6 +178,7 @@ public abstract class AtomTreeNode {
      */
     public boolean preceeds(AtomTreeNode node) {
         //want to return false if atoms are the same atoms
+        if(parentNode == null) return false;
         if(node == null) return true;
         if(this.parentNode == node.parentNode) return atomIndex < node.atomIndex;//works also if both parentGroups are null
         if(depth == node.depth) return parentNode.preceeds(node.parentNode);
