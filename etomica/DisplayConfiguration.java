@@ -75,7 +75,7 @@ public class DisplayConfiguration extends Display {
   private Font font = new Font("sansserif", Font.PLAIN, 10);
 //  private int annotationHeight = font.getFontMetrics().getHeight();
   private int annotationHeight = 12;
-  private Space2D.Phase phase2D;
+  private Phase phase2D;
 
     public DisplayConfiguration () {
         super();
@@ -100,7 +100,7 @@ public class DisplayConfiguration extends Display {
       }
   }
     
-  public void setPhase(Phase p) {super.setPhase(p); phase2D = (Space2D.Phase)p;}  //2D needed to manipulate dimensions array directly
+  public void setPhase(Phase p) {super.setPhase(p); phase2D = p;}  //2D needed to manipulate dimensions array directly
  
   //Override superclass methods for changing size so that scale is reset with any size change  
   // this setBounds is ultimately called by all other setSize, setBounds methods

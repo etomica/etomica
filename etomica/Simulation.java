@@ -8,7 +8,7 @@ import java.util.*;
 public class Simulation extends Container {
 
     public static int D;  //dimension (2-D, 3-D, etc;)
-    public final Space space;
+    protected final Space space;
 
     public Controller controller;
     Phase firstPhase;
@@ -23,6 +23,7 @@ public class Simulation extends Container {
     }
               
     public int getD() {return space.D();}
+    public Space space() {return space;}
 
     public void add(Controller c) {
         if(controller != null) {return;}  //already added a controller
@@ -49,7 +50,7 @@ public class Simulation extends Container {
               
     public void add(Phase p) {
         super.add(p);
-        p.parentSimulation = this;
+        p.initialize(this);
         if(lastPhase != null) {lastPhase.setNextPhase(p);}
         else {firstPhase = p;}
         lastPhase = p;
@@ -61,14 +62,26 @@ public class Simulation extends Container {
         for(Display d=firstDisplay; d!=null; d=d.getNextDisplay()) {d.setPhase(p);}
         for(Species s=firstSpecies; s!=null; s=s.nextSpecies()) {p.add(s.makeAgent(p));}
     }
+    
+    //Make a real phase and copy properties from virtual phase
+    //Temporary method to permit manipulation of phase at design time (without customizer)
+//    public void add(VirtualPhase p) {
+//        Phase phase = space.makePhase(Space2D.Boundary.PERIODIC);             //specific to 2D
+//        for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {phase.add(m);}
+//        phase.add(p.configuration);
+//        phase.setG(p.getG());
+//        add(phase);
+//    }
               
     public void add(Species species) {
-//        super.add(species);
         species.parentSimulation = this;
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
         if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
+        species.setNMolecules(species.getNMolecules());
+        species.add(species.colorScheme);
+        species.add(species.configurationMolecule);
         for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {p.add(species.makeAgent(p));}
     }
                 

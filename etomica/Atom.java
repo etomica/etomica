@@ -71,16 +71,10 @@ public class Atom {
     
     /**
      * Color of the atom when drawn on the screen
+     * This color is set by the colorScheme object in the atom's species
      */
     Color color = Color.black;
     
-    /**
-     * Ratio of atom mass to mass of parent molecule.
-     * Used to locate the center-of-mass of the molecule
-     * @see Molecule#COM
-     */
-    double COMFraction = 1.0;
-
     /**
      * Flag indicating whether atom is stationary or mobile.
      * Default is false (atom is mobile)

@@ -3,7 +3,7 @@ import java.awt.*;
 
 /**
  * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
- * with each disk having the same mass and size.
+ * with each disk having the same mass and size (same type).
  */
 public class SpeciesDisks extends Species {
 
@@ -14,46 +14,36 @@ public class SpeciesDisks extends Species {
 //    (this is the same behavior as declaring it final)
     public AtomType.Disk protoType;
               
-    /**
-    * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
-    */
-//    public SpeciesDisks(Simulation ps) {
-//    public SpeciesDisks() {
-//        this(20,1);
-//    }
+    public SpeciesDisks() {
+        setSpeciesIndex(0);
+        setNAtomsPerMolecule(1);
+        protoType = new AtomType.Disk(1.0,Color.black,0.1);  //mass, color, diameter
+        colorScheme = new ColorSchemeByType();
+        configurationMolecule = new ConfigurationMoleculeLinear();
+        setNMolecules(20);
+//        this.add(new ConfigurationMoleculeLinear());
+    }
               
     public SpeciesDisks(Simulation ps) {
         this(ps,20,1);
     }
- //   public SpeciesDisks(int nM, int nA) {
- //       this(nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
- //   }
+
     public SpeciesDisks(Simulation ps, int nM, int nA) {
         this(ps, nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
     }
               
-/*    public SpeciesDisks(int nM, int nA, AtomType.Disk type) {
-        super();
-        parentSimulation = ps0;
-        setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
-        protoType = type;
-        atomsPerMolecule = nA;
-//        setNMolecules(nM);
-            
-        colorScheme = new ColorSchemeByType();
-        this.add(new ConfigurationMoleculeLinear());
-    }*/
     public SpeciesDisks(Simulation ps, int nM, int nA, AtomType.Disk type) {
         parentSimulation = ps;
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
         protoType = type;
         atomsPerMolecule = nA;
-//        setNMolecules(nM);
+        setNMolecules(nM);
             
         colorScheme = new ColorSchemeByType();
         this.add(new ConfigurationMoleculeLinear());
     }
-
+    
+            
     public Molecule makeMolecule(Phase phase) {
         return new Molecule(this, phase, protoType, atomsPerMolecule);
     } 

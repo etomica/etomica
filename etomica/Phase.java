@@ -2,17 +2,23 @@ package simulate;
 import java.awt.Container;
 import java.awt.Graphics;
 
-public abstract class Phase extends Container {
+public class Phase extends Container {
         
-    protected final Space.Boundary boundary;
+    protected Space.Boundary boundary;
+    private int iBoundary;
         
-    public Phase(Space.Boundary b) {
-        boundary = b;
+    public Phase() {
+        iBoundary = 1;
         setLayout(null);
         setSize(300,300);
         atomCount = moleculeCount = 0;
         gravity = new Gravity(0.0);
         noGravity = true;
+    }
+    
+    public void initialize(Simulation ps) {
+        parentSimulation = ps;
+        setBoundary(iBoundary);
         add(new ConfigurationSequential());  //default configuration
         potentialEnergy = new MeterPotentialEnergy();
         potentialEnergy.setUpdateInterval(Integer.MAX_VALUE);  //these meters are placed to permit phase to report its potential and kinetic energies
@@ -21,21 +27,43 @@ public abstract class Phase extends Container {
         add(potentialEnergy);
         add(kineticEnergy);
     }
-
-    public final Space.Boundary boundary() {return boundary;}
-    public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
-    public abstract simulate.AtomPair makeAtomPair(Atom a1, Atom a2);
-    public abstract AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
-    public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
-    public abstract AtomPair.Iterator.A makePairIteratorFull();
-    public abstract AtomPair.Iterator.A makePairIteratorHalf();
         
-    public abstract double volume();
-    public abstract Space.Vector dimensions();
-    public abstract void inflate(double scale);
-    public abstract void reflate(double scale);
-    public abstract void paint(Graphics g, int[] origin, double scale); 
+
+    public final void setBoundary(int b) {
+        iBoundary = b;
+        if(parentSimulation != null) boundary = parentSimulation.space.makeBoundary(iBoundary);
+    }
+    public final int getBoundary() {return iBoundary;}
+    public final Space.Boundary boundary() {return boundary;}
+    
+    public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
+    public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
+//    public abstract AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
+//    public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
+//    public abstract AtomPair.Iterator.A makePairIteratorFull();
+//    public abstract AtomPair.Iterator.A makePairIteratorHalf();
+        public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorFull(boundary,iF,iL,oF,oL);}
+        public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorHalf(boundary,iL,oF,oL);}
+        public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return parentSimulation.space.makePairIteratorFull(boundary);}
+        public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return parentSimulation.space.makePairIteratorHalf(boundary);}
+        
+    public void paint(Graphics g, int[] origin, double scale) {} 
                     
+    public final Space.Vector dimensions() {return boundary.dimensions();}
+    public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
+    public void inflate(double scale) {
+        boundary.inflate(scale);
+        for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
+            m.coordinate.inflate(scale);
+        }
+    }
+    public void reflate(double scale) {
+        boundary.inflate(1.0/scale);
+        for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
+            m.coordinate.replace();
+        }
+    }
+    
     public final Atom firstAtom() {
         Molecule m = firstMolecule();
         return (m != null) ? m.firstAtom() : null;
@@ -109,12 +137,12 @@ public abstract class Phase extends Container {
         	
     public void add(Species.Agent species) {
 //        species.configurationMolecule.initializeCoordinates();
-        configuration.add(species);
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
         for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
+        configuration.add(species);
     }
             
     public void add(Species s) {  //add species to phase if it doesn't appear in another phase
@@ -181,6 +209,6 @@ public abstract class Phase extends Container {
           
     public MeterPotentialEnergy potentialEnergy;
     public MeterKineticEnergy kineticEnergy;
-        
+ 
 }
         

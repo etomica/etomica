@@ -7,8 +7,13 @@ public abstract class Space {
     public abstract Space.AtomCoordinate makeAtomCoordinate(Atom a);      //Space prefix is redundant
     public abstract Space.MoleculeCoordinate makeMoleculeCoordinate(Molecule m);
     public abstract Space.Vector makeVector();
-    public abstract Phase makePhase(int boundary);
+    public abstract Boundary makeBoundary(int iBoundary);
 
+    public abstract AtomPair.Iterator.A makePairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL);
+    public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b, Atom iL, Atom oF, Atom oL);
+    public abstract AtomPair.Iterator.A makePairIteratorFull(Space.Boundary b);
+    public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b);
+    public abstract simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2);
 //  Vector contains what is needed to describe a point in the space
     interface Vector {
         public double component(int i);
@@ -67,6 +72,9 @@ public abstract class Space {
         public MoleculeCoordinate previousCoordinate();
     }
     interface Boundary {
+        public static final int NONE = 0;
+        public static final int PERIODIC = 1;
+        public static final int DEFAULT = PERIODIC; //default PBC is periodic
         public void centralImage(Vector r);
         public double volume();
         public Vector dimensions();
@@ -83,4 +91,16 @@ public abstract class Space {
         */
         public abstract double[][] imageOrigins(int nShells);
     }
+    
+    // No-op version of boundary for manipulation at design time
+    // Used by Phase.Virtual
+//    public static class VirtualBoundary implements Boundary {
+//        public void centralImage(Vector r) {}
+//        public double volume() {return 0.0;}
+//        public Vector dimensions() {return null;}
+//        public Vector randomPosition() {return null;}
+//       public double[][] getOverflowShifts(Vector r, double distance) {return null;}
+//        public void inflate(double s) {}
+//        public  double[][] imageOrigins(int nShells) {return null;}
+//    }
 }    

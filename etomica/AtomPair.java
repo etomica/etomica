@@ -21,6 +21,7 @@ public abstract class AtomPair {
         
         public boolean hasNext();
         public AtomPair next();
+        public void reset();
         
         public interface SS extends Iterator {public void reset(Species.Agent s1, Species.Agent s2);}
         public interface S extends Iterator {public void reset(Species.Agent s);}
@@ -33,9 +34,77 @@ public abstract class AtomPair {
             public void allDone();
         }
         
+        /**
+         * Iterator for all intermolecular atom pairs in a phase
+         */
+        public static class P implements Iterator {
+            private final Iterator.AMAM iteratorAMAM;
+            private final Phase phase;
+            private boolean hasNext;
+            private int index1;
+            private Potential2 p2;
+            private Species.Agent s1, s2;
+            private AtomPair nextPair, thisPair;
+            public P(Phase ps) {iteratorAMAM = new AMAM(ps); phase = ps; hasNext = false;} //constructor
+            public boolean hasNext() {return hasNext;}
+            public AtomPair next() {
+                thisPair = nextPair;
+                if(iteratorAMAM.hasNext()) {               //another atom pair for this pair of species
+                    nextPair = iteratorAMAM.next();
+                    nextPair.potential = p2.getPotential(nextPair.atom1, nextPair.atom2);
+                }
+                else {                                     //no more atom pairs for these two species
+                    s2 = s2.nextSpecies();                 //increment inner loop over species
+                    if(s2 == null) {                       //inner loop at end
+                        s1 = s1.nextSpecies();             //increment outer loop over species
+                        if(s1 == null) {hasNext = false;}  // outer loop at end --- all done
+                        else {                             // restart inner loop                           
+                            s2 = s1;                       // inner loop begins at current outer loop value (don't double-count species interactions)
+                            index1 = s1.parentSpecies().speciesIndex;
+                            p2 = phase.parentSimulation.potential2[index1][s2.parentSpecies().speciesIndex];
+                            hasNext = iteratorAMAM.hasNext();
+                            if(hasNext) {
+                                nextPair = iteratorAMAM.next();   //assumes next species has a pair (this needs work)
+                                nextPair.potential = p2.getPotential(nextPair.atom1, nextPair.atom2);  
+                            }
+                        }
+                    }
+                    else {                                 // inner loop not done
+                        p2 = phase.parentSimulation.potential2[index1][s2.parentSpecies().speciesIndex];
+                        iteratorAMAM.reset(s1,s2);
+                        hasNext = iteratorAMAM.hasNext();
+                        if(hasNext) {
+                            nextPair = iteratorAMAM.next();   //assumes next species has a pair (this needs work)
+                            nextPair.potential = p2.getPotential(nextPair.atom1, nextPair.atom2);  
+                        }
+                    }
+                }
+                return thisPair;
+            } //end of next()
+            public void reset() {
+                s1 = phase.firstSpecies();
+                s2 = s1;
+                index1 = s1.parentSpecies().speciesIndex;
+                p2 = phase.parentSimulation.potential2[index1][s2.parentSpecies().speciesIndex];
+                iteratorAMAM.reset(s1,s2);
+                hasNext = iteratorAMAM.hasNext();
+                if(hasNext) {
+                    nextPair = iteratorAMAM.next();   //assumes next species has a pair (this needs work)
+                    nextPair.potential = p2.getPotential(nextPair.atom1, nextPair.atom2);  
+                }
+            }
+        }
+            
+        
+        /**
+         * Iterator for all atoms in a molecule with all atoms in a phase
+         * The molecule may or may not be in the phase
+         * Intramolecular pairs are not generated
+         */
         public static class MP implements M {
             private final Iterator.FMAM iteratorFMAM;
             private final Phase phase;
+            private Molecule molecule;
             private boolean hasNext;
             private int index;       
             private Potential2 p2;
@@ -63,6 +132,7 @@ public abstract class AtomPair {
                 return thisPair;
             }
             public void reset(Molecule m) {
+                molecule = m;
                 s1 = phase.firstSpecies();
                 iteratorFMAM.reset(m,s1);
                 index = m.parentSpecies.speciesIndex;
@@ -70,6 +140,7 @@ public abstract class AtomPair {
                 hasNext = iteratorFMAM.hasNext();
                 nextPair = iteratorFMAM.next();    //assumes has a next
             }
+            public void reset() {reset(molecule);}
         }
             
         
@@ -87,6 +158,7 @@ public abstract class AtomPair {
             private boolean mLast;
             private Molecule m, lastM;
             private FM mPairs;
+            private Species.Agent species;
             public AM(Phase ps) {  //constructor
                 mPairs = new FM(ps);
                 mLast = true;
@@ -106,12 +178,14 @@ public abstract class AtomPair {
                 return mPairs.next();                
             }
             public void reset(Species.Agent s) {
+                species = s;
                 if(s.parentSpecies().getAtomsPerMolecule() == 1) {m = null;} //no intramolecular atoms pairs, so jump to last molecule
                 else {m = s.firstMolecule;}
                 mPairs.reset(m);
                 lastM = s.lastMolecule;
                 mLast = (m==null);  //m null if only 1 atom/molecule, or no molecules in species;
             } 
+            public void reset() {reset(species);}
         }
         
         /**
@@ -119,6 +193,7 @@ public abstract class AtomPair {
          */
         public static class FM implements M {  //AllMoleculeIntraPairs
             private final Iterator.A iterator;
+            private Molecule molecule;
             public FM(Phase ps) {iterator = ps.makePairIteratorHalf();} //constructor
             public FM(Phase ps, Molecule m) {  //constructor
                 iterator = ps.makePairIteratorHalf(); 
@@ -127,16 +202,19 @@ public abstract class AtomPair {
             public boolean hasNext() {return iterator.hasNext();}
             public AtomPair next() {return iterator.next();}
             public final void reset(Molecule m) {
+                molecule = m;
                 if(m == null || m.nAtoms < 2) {iterator.allDone(); return;}
                 Atom oF = m.firstAtom();
                 Atom iF = oF.nextAtom();
                 Atom oL = m.terminationAtom();
                 iterator.reset(iF,oF,oL);
-            }  
+            } 
+            public final void reset() {reset(molecule);}
         }
 
         /**
          * Iterates over all intermolecular atom pairs between a fixed molecule and all molecules in a species
+         * Handles both cases in which molecule is or is not a member of the species
          */
         public static class FMAM implements MS, M, S {
             private final Iterator.A iterator;
@@ -201,6 +279,7 @@ public abstract class AtomPair {
             }
             public void reset(Molecule m) {reset(m,species);}
             public void reset(Species.Agent s) {reset(molecule,s);}
+            public void reset() {reset(molecule,species);}
         }
         
         /**
@@ -209,6 +288,7 @@ public abstract class AtomPair {
         public static class AMAM implements S, SS {  //AllSpeciesInterPairs
             private final Iterator.A fullIterator;  //make iterators in constructor and re-use them
             private final Iterator.A halfIterator;
+            private Species.Agent species1, species2;
             private Iterator.A currentIterator;
             private AtomPair thisPair, nextPair;
             private boolean hasNext, checkIntra;
@@ -243,6 +323,7 @@ public abstract class AtomPair {
             public void reset(Species.Agent s) {reset(s,s);}
             public void reset(Species.Agent s1, Species.Agent s2) {
                 Atom oF, oL, iF, iL;
+                species1 = s1; species2 = s2;
                 if(s1==null || s2==null) {hasNext=false; return;}
                 oF = s1.firstAtom();                  
                 if(oF==null) {hasNext=false; return;}    //no atoms in species 1
@@ -266,6 +347,7 @@ public abstract class AtomPair {
                 nextPair = currentIterator.next();
                 hasNext = true;
             } //end of reset(s1,s2)
+            public void reset() {reset(species1, species2);}
         }  //end of class AMAM
     }  //end of interface Iterator
-}  //end of interface AtomPair
+}  //end of  AtomPair

@@ -10,43 +10,19 @@ public class Space2D extends Space {
     public Space.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public Space.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
     public Space.Vector makeVector() {return new Vector();}
-    public simulate.Phase makePhase(int b) {
+    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Space.Boundary boundary, Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull((Boundary)boundary,iF,iL,oF,oL);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary, Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf((Boundary)boundary,iL,oF,oL);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Space.Boundary boundary) {return new PairIteratorFull((Boundary)boundary);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary) {return new PairIteratorHalf((Boundary)boundary);}
+    public simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
+    public Space.Boundary makeBoundary(int b) {
         switch(b) {
-            case(Boundary.NONE):            return new Phase(new BoundaryNone());
-            case(Boundary.PERIODIC_SQUARE): return new Phase(new BoundaryPeriodicSquare());
+            case(Boundary.NONE):            return new BoundaryNone();
+            case(Boundary.PERIODIC_SQUARE): return new BoundaryPeriodicSquare();
             default:                        return null;
         }
     }
-    
-    public static final class Phase extends simulate.Phase {
-//        private final Boundary boundary;  //shadow variable
-        public Phase(Boundary b) {
-            super(b);
-//            boundary = b;
-        }
-        public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
-        public void inflate(double scale) {
-            boundary.inflate(scale);
-            for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.coordinate.inflate(scale);
-            }
-        }
-        public void reflate(double scale) {
-            boundary.inflate(1.0/scale);
-            for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.coordinate.replace();
-            }
-        }
-        public final Space.Vector dimensions() {return boundary.dimensions();}
-        public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull((Boundary)boundary,iF,iL,oF,oL);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf((Boundary)boundary,iL,oF,oL);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return new PairIteratorFull((Boundary)boundary);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf((Boundary)boundary);}
-
-        public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
-        public void paint(Graphics g, int[] origin, double scale) {}
-    }
-    
+        
     public static abstract class Boundary implements Space.Boundary {
         public static final int NONE = 0;
         public static final int PERIODIC_SQUARE = 1;
@@ -441,8 +417,8 @@ public class Space2D extends Space {
         public Space.Vector position() {updateR(); return r;}
         public Space.Vector momentum() {updateP(); return p;}
         public double position(int i) {updateR(); return r.component(i);}
-        public double momentum(int i) {updateR(); return r.component(i);}
-        public double kineticEnergy() {return 0.5*p.squared()*molecule.rm();}
+        public double momentum(int i) {updateP(); return p.component(i);}
+        public double kineticEnergy() {updateP(); return 0.5*p.squared()*molecule.rm();}
         public void randomizeMomentum(double temperature) {
             AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
             c.randomizeMomentum(temperature);
@@ -475,14 +451,14 @@ public class Space2D extends Space {
     private static final class PairIteratorFull implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
         AtomCoordinate outer, inner;
-        private AtomCoordinate iFirst, iLast, oLast;
+        private AtomCoordinate iFirst, iLast, oFirst, oLast;
         private boolean hasNext;
-        public PairIteratorFull(Boundary b) {  //null constructor
-            pair = new AtomPair(b);
+        public PairIteratorFull(Space.Boundary b) {  //null constructor
+            pair = new AtomPair((Boundary)b);
             hasNext = false;
         }  
-        public PairIteratorFull(Boundary b, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
-            pair = new AtomPair(b);
+        public PairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
+            pair = new AtomPair((Boundary)b);
             reset(iF,iL,oF,oL);
         }
         public void reset(Atom iL, Atom oF, Atom oL) {reset(oF,iL,oF,oL);}  //take inner and outer first atoms as same
@@ -490,9 +466,10 @@ public class Space2D extends Space {
             if(iF == null || oF == null) {hasNext = false; return;}
             iFirst = (AtomCoordinate)iF.coordinate; 
             iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
-            outer = (AtomCoordinate)oF.coordinate; 
+            oFirst = (AtomCoordinate)oF.coordinate; 
             oLast =  (oL==null) ? null : (AtomCoordinate)oL.coordinate;
             inner = iFirst;
+            outer = oFirst;
             hasNext = true;
         }
         public simulate.AtomPair next() {
@@ -509,28 +486,30 @@ public class Space2D extends Space {
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
+        public void reset() {reset(iFirst.atom(), iLast.atom(), oFirst.atom(), oLast.atom());}
     }
         
     //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
     private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
         AtomCoordinate outer, inner;
-        private AtomCoordinate iFirst, iLast, oLast;
+        private AtomCoordinate iFirst, iLast, oFirst, oLast;
         private boolean hasNext;
-        public PairIteratorHalf(Boundary b) {
-            pair = new AtomPair(b);
+        public PairIteratorHalf(Space.Boundary b) {
+            pair = new AtomPair((Boundary)b);
             hasNext = false;
         }
-        public PairIteratorHalf(Boundary b, Atom iL, Atom oF, Atom oL) {  //constructor
-            pair = new AtomPair(b);
+        public PairIteratorHalf(Space.Boundary b, Atom iL, Atom oF, Atom oL) {  //constructor
+            pair = new AtomPair((Boundary)b);
             reset(iL,oF,oL);
         }
         public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
         public void reset(Atom iL, Atom oF, Atom oL) {
             if(oF == null) {hasNext = false; return;}
             iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
-            outer =  (AtomCoordinate)oF.coordinate; 
+            oFirst =  (AtomCoordinate)oF.coordinate; 
             oLast =  (iL==null) ? null : (AtomCoordinate)oL.coordinate;
+            outer = oFirst;
             inner = outer.nextCoordinate;
             hasNext = (inner != null);
         }
@@ -547,5 +526,6 @@ public class Space2D extends Space {
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
+        public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
     }    
 }

@@ -33,6 +33,8 @@ public class ConfigurationSequential extends Configuration {
             sumOfMolecules += s.getNMolecules();
         }
         
+        if(sumOfMolecules == 0) {return;}
+        
         Space2D.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
         
         int i = 0;

@@ -41,6 +41,7 @@ public abstract class Species extends Container {
           
     public void add(ColorScheme cs) {
         this.colorScheme = cs;
+        if(parentSimulation == null) {return;}
         Enumeration e = agents.elements();
         while(e.hasMoreElements()) {
             Agent a = (Agent)e.nextElement();
@@ -51,6 +52,7 @@ public abstract class Species extends Container {
     public void add(ConfigurationMolecule cm) {
         cm.setParentSpecies(this);
         this.configurationMolecule = cm;
+        if(parentSimulation == null) return;
         Enumeration e = agents.keys();
         while(e.hasMoreElements()) {
             Phase p = (Phase)e.nextElement();
@@ -58,6 +60,19 @@ public abstract class Species extends Container {
         }
     }
            
+           //Temporary method to handle setting of nMolecules for all phases
+           //Allows only one value for all phases
+    private int nMolecules;
+    public void setNMolecules(int n) {
+        nMolecules = n;
+        if(parentSimulation == null) {return;}
+        Enumeration e = agents.elements();
+        while(e.hasMoreElements()) {
+            Agent a = (Agent)e.nextElement();
+            a.setNMolecules(n);
+        }
+    }
+    public int getNMolecules() {return nMolecules;}
     /**
     * Creates new molecule of this species.  
     */
@@ -66,6 +81,7 @@ public abstract class Species extends Container {
 
     public void setNAtomsPerMolecule(int na) {
         atomsPerMolecule = na;
+        if(parentSimulation == null) {return;}
         Enumeration e = agents.elements();
         while(e.hasMoreElements()) {
             Agent a = (Agent)e.nextElement();
@@ -94,6 +110,7 @@ public abstract class Species extends Container {
                     
     public Agent makeAgent(Phase p) {
         Agent a = new Agent(p);
+        a.setNMolecules(nMolecules);
         a.add(colorScheme);
         agents.put(p,a);   //associate agent with phase; retreive agent for a given phase using agents.get(p)
         return a;
