@@ -48,19 +48,20 @@ public class TestSWMC3D extends Simulation {
         integrator.addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(100000000/numAtoms);
+        activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
 	    phase = new Phase(this);
-        phase.setDensity(0.1);
+        phase.setDensity(0.7);
         integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         potential = new P2SquareWell(space);
         ((PotentialMasterCell)potentialMaster).setNCells((int)(phase.boundary().dimensions().x(0)/potential.getRange()));
+        ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());
         potential.setCriterion(etomica.nbr.NeighborCriterion.ALL);
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         
-        ConfigurationFile config = new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms));
+        ConfigurationFile config = new ConfigurationFile(space,"SWMC3D"+Integer.toString(numAtoms));
 //        phase.setConfiguration(config);
         integrator.addPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
@@ -78,10 +79,6 @@ public class TestSWMC3D extends Simulation {
         Default.BLOCK_SIZE = 10;
         TestSWMC3D sim = new TestSWMC3D(new Space3D(), numAtoms);
 
-        SimulationGraphic graphic = new SimulationGraphic(sim);
-        graphic.makeAndDisplayFrame();
-        ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
-        
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage();
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
@@ -104,5 +101,4 @@ public class TestSWMC3D extends Simulation {
             System.exit(1);
         }
     }
-
 }

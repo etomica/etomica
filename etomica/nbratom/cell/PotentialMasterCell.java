@@ -95,10 +95,7 @@ public class PotentialMasterCell extends PotentialMaster {
 	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials) {
         int length = potentials.length;
 		if (length > 0) {
-            AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
-            
             neighborIterator.setTarget(atom);
-//            neighborIterator.setDirection(id.direction());
             neighborIterator.reset();
             while (neighborIterator.hasNext()) {
                 AtomPair pair = neighborIterator.nextPair();
@@ -155,6 +152,10 @@ public class PotentialMasterCell extends PotentialMaster {
         return positionDefinition;
     }
 
+    public void setRange(double d) {
+        neighborIterator.getNbrCellIterator().setRange(d);
+    }
+    
 	private final AtomsetIteratorSinglet singletIterator;
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
