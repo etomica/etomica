@@ -92,8 +92,9 @@ public abstract class Integrator implements java.io.Serializable {
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized. This also recalculates the 
      * potential energy.
-	 */
-	public void reset() {
+     */
+    public void reset() {
+        meterPE.setPhase(phase);
         currentPotentialEnergy = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
             if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {

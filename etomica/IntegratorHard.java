@@ -108,7 +108,6 @@ public class IntegratorHard extends IntegratorMD {
         advanceAcrossTimeStep(timeInterval);
 
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) {
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potential);
             meterPE.setPhase(phase);
             double[] PE = meterPE.getData();
             for (int i=0; i<phase.length; i++) {
