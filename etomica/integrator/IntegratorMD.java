@@ -42,8 +42,8 @@ public abstract class IntegratorMD extends Integrator {
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Dimension.TIME;}
 
-    public void initialize() {
-        super.initialize();
+    protected void setup() {
+        super.setup();
         thermostatCount = 1;
         currentKineticEnergy = new double[phase.length];
         doThermostat();

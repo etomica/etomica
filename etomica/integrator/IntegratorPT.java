@@ -98,11 +98,11 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
         }
     }
     
-    public void initialize() {
+    protected void setup() {
         for(int i=0; i<nIntegrators; i++) {
             integrators[i].initialize();
         }
-        super.initialize();
+        super.setup();
     }        
     
     /**

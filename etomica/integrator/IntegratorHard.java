@@ -323,18 +323,13 @@ public class IntegratorHard extends IntegratorMD {
 		}
 	}
 
-    public void initialize() {
-        super.initialize();
-        // call reset for real
-        reset();
+    public void setup() {
+        super.setup();
     }
     
     public void reset() {
-        // block call from Integrator.initialize() since IntegratorMD hasn't thermostatted yet
-        if (initialized) {
-            super.reset();
-            neighborsUpdated();
-        }
+        super.reset();
+        neighborsUpdated();
     }
 
     /**
