@@ -23,7 +23,7 @@ import java.awt.geom.*;
 import etomica.utility.Iterator;
 
     /* History of changes
-     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
      * 09/07/02 (DAK) added atomFilter
      */
 
@@ -41,6 +41,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private final float LightSpecular[] = { 1f, 1f, 1f, 1f };
   private final float LightDiffuse[] = { 0.93f, 0.93f, 0.93f, 1f };
   private final float LightPosition[] = { 1f, 1f, 3f, 0f };
+  private final float LightPosition2[] = { -1f, -1f, -3f, 0f };
   private int sphereList[]; // Storage number for our sphere
   private int wellList[]; // Storage number for our wells
   private int displayList; // Storage number for displaying image shells
@@ -59,6 +60,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private float prevx, prevy, xRot = 0f, yRot = 0f;
   //Centers the phase in the canvas
   private float xCenter, yCenter, zCenter;
+  private Space3D.Vector center = new Space3D.Vector();
 
   //The groups of atoms
   private Atom sphereCores[];
@@ -166,6 +168,16 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
     //Enable light
     gl.glEnable(GL_LIGHT0);
+    
+    //new 09/21/02 (DAK)
+    //Set the light properties for the system
+    gl.glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
+    gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+    gl.glLightfv(GL_LIGHT1, GL_POSITION, LightPosition2);
+    //Enable light
+    gl.glEnable(GL_LIGHT1);
+    //end new
+    
     gl.glEnable(GL_LIGHTING);
     
     //Set the material properties for the spheres
@@ -346,8 +358,11 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
     private Space3D.Vector[] points;
     private Space3D.Vector normal;
+    private Space3D.Vector nearest;
     
   private void drawDisplay() {
+    
+    colorScheme = displayPhase.getColorScheme();
 
     //(DAK) added this section 09/21/02
     /* do drawing of all drawing objects that have been added to the display */
@@ -355,13 +370,20 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       Object obj = iter.next();
       if(obj instanceof etomica.lattice.LatticePlane) {
         plane = ((etomica.lattice.LatticePlane)obj).planeCopy(plane);
-        points = plane.inPlaneSquare(10., points);
+        points = plane.inPlaneSquare(plane.nearestPoint(center,nearest),40., points);
         normal = plane.getNormalVector(normal);
-        for(int i=0; i<4; i++) System.out.println(points[i].toString());
-        System.out.println();
+        normal.TE(-1);
+        for(int i=0; i<4; i++) points[i].ME(center);
           gl.glBegin(GL_QUADS);
            gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
-  		   gl.glColor3f(0.5f, 0.5f, 1.0f);		//Set The Color To Blue One Time Only
+//  		   gl.glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
+           gl.glColor4ub(wR, wG, wB, (byte)200);
+           gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
+           gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
+           gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
+           gl.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
+           normal.TE(-1.0);
+           gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
            gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
            gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
            gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
@@ -566,6 +588,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     xCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(0)*.5);
     yCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(1)*.5);
     zCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(2)*.5);
+    center.E(xCenter, yCenter, zCenter);
     rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
     topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
     backClipPlane[3] = frontClipPlane[3] = zCenter + ((2*zCenter)*displayPhase.getImageShells());

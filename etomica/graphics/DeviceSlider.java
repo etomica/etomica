@@ -59,6 +59,15 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     public DeviceSlider(Simulation sim) {
         super(sim);
+        initialize();
+    }
+    public DeviceSlider(Space s, ModulatorAbstract modulator) {
+        super(s);
+        initialize();
+        setModulator(modulator);
+    }
+    
+    private void initialize() {
         slider = new JSlider();
         nMajor = 4;
         slider.setSize(200,40);

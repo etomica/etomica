@@ -108,17 +108,14 @@ public class Plane {
         if(a == 0 && b == 0) {//parallel to xy plane
             p1.E(1, 0, 0);
             p2.E(0, 1, 0);
-        } else if(a == 0 && c == 0) {//parallel to xz plane
-            p1.E(1, 0, 0);
-            p2.E(0, 0, 1);
-        } else if(b == 0 && c == 0) {//parallel to yz plane
-            p1.E(0, 1, 0);
-            p2.E(0, 0, 1);
         } else {
             p1.E(b, -a, 0);
-            p2.E(a/b, 1, -(a*a+b*b)/(b*c));
             p1.normalize();
-            p2.normalize();
+            if(c == 0) p2.E(0, 0, 1);
+            else {
+                p2.E(a, b, -(a*a+b*b)/c);
+                p2.normalize();
+            }
         }
         return p;
     }
@@ -181,6 +178,18 @@ public class Plane {
             v.E(-d*a, -d*b, -d*c);
             return v;
         }
+    }
+    
+    /**
+     * Determines the point in the plane closest to the point x0 (first argument).
+     * Uses second vector to hold result that is returned; if second vector is 
+     * null, creates a new Vector instance.
+     */
+    public Space3D.Vector nearestPoint(Space3D.Vector x0, Space3D.Vector point) {
+        if(point == null) point = new Space3D.Vector();
+        double factor = distanceTo(x0);
+        point.E(x0.x(0)-factor*a, x0.x(1)-factor*b, x0.x(2)-factor*c);
+        return point;
     }
 
     /**
@@ -254,6 +263,9 @@ public class Plane {
         inPlane = inPlaneVectors(inPlane);
         Space3D.Vector p1 = inPlane[0];
         Space3D.Vector p2 = inPlane[1];
+      //  System.out.println("ctr: "+x0.toString());
+      //  System.out.println("p1 : "+p1.toString());
+      //  System.out.println("p2 : "+p2.toString());
         double t = d/Math.sqrt(2.0);
         s[0].E(x0); s[0].PEa1Tv1(+t, p1);
         s[1].E(x0); s[1].PEa1Tv1(-t, p1);
@@ -280,8 +292,8 @@ public class Plane {
     }
     
     public static void main(String[] args) {
-    //    Plane plane = new Plane(2.8, 7.5, -2.1, 293.8);
-        Plane plane = new Plane(5.0, 0.0, 0.0, 293.8);
+        Plane plane = new Plane(2.8, 7.5, -2.1, 293.8);
+    //    Plane plane = new Plane(5.0, 0.0, 0.0, 293.8);
         Space3D.Vector[] p = plane.inPlaneVectors(null);
         Space3D.Vector n = plane.getNormalVector(null);
         System.out.println("Normal: "+n.toString());

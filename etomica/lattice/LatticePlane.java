@@ -22,20 +22,20 @@ public class LatticePlane implements AtomFilter {
     private Space.Vector normal, delta;
     private Space space;
     private int[] millerIndices;
-    private int position;
-    private Space.Vector origin;
+    private double spacePosition;
+    private Space3D.Vector origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
         reciprocal = primitive.reciprocal();
         space = primitive.space;
-        origin = space.makeVector();
+        origin = (Space3D.Vector)space.makeVector();
         millerIndices = new int[space.D()];
         switch(space.D()) {
             case 3: plane = new Plane(); break;
             default: throw new IllegalArgumentException("LatticePlane not defined for other than 3D space");
         }
-        plane.epsilon = 1.0e-2;
+        plane.epsilon = 1.0e-2;//tolerance for defining a point to be in the plane
         normal = space.makeVector();
         delta = space.makeVector();
         setMillerIndices(h);
@@ -58,6 +58,7 @@ public class LatticePlane implements AtomFilter {
      */
     public void setMillerIndices(int[] h) {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
+        int currentPosition = getPosition();
         normal.E(0.0);
         Space.Vector[] b = reciprocal.vectors();
         for(int i=0; i<h.length; i++) {
@@ -65,7 +66,7 @@ public class LatticePlane implements AtomFilter {
             millerIndices[i] = h[i];
         }
         plane.setNormalVector(normal);
-        setPosition(position);
+        setPosition(currentPosition);
     }
     
     /**
@@ -82,22 +83,42 @@ public class LatticePlane implements AtomFilter {
     }
     
     /**
+     * Sets the position of the plane to be the given distance from the
+     * origin in the direction of the normal.
+     */
+    public void setSpacePosition(double d) {
+        spacePosition = d;
+        delta.E(origin);
+        delta.PEa1Tv1(d/Math.sqrt(normal.squared()), normal);
+        plane.moveTo((Space3D.Vector)delta);
+    }
+    /**
+     * Gets the position of the plane as the distance from the
+     * origin in the direction of the normal.
+     */
+    public double getSpacePosition() {
+        return -plane.distanceTo(origin);
+    }
+    
+    /**
      * Sets to the position of the i-th plane from the one through the origin.
      */
     public void setPosition(int i) {
-        position = i;
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
         Space.Vector[] b = reciprocal.vectors();
         delta.E(origin);
-        delta.PEa1Tv1(-(i-0.001)*2.0*Math.PI/normal.squared(),normal);
+        delta.PEa1Tv1((i-0.000001)*2.0*Math.PI/normal.squared(),normal);
         plane.moveTo((Space3D.Vector)delta);
     }
     
     /**
      * Returns the position i, such the the plane is located at the i-th from the origin.
      */
-    public int getPosition() {return position;}
+    public int getPosition() {
+        double d = plane.distanceTo(origin);
+        return -Math.round((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
+    }
 
     /**
      * Returns true if the given point is on the side of the 
