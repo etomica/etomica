@@ -43,6 +43,7 @@ public class DeviceToggleButton extends DeviceButton {
     public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
         toggleAction = new ActionToggle(modifier, trueText, falseText);
         setAction(new ActionGroup(new Action[] { toggleAction, relabelButton }));
+        getButton().setText(modifier.getBoolean() ? trueText : falseText);
     }
 
     /**
@@ -97,7 +98,7 @@ public class DeviceToggleButton extends DeviceButton {
     private final Action relabelButton = new Action() {
 
         public void actionPerformed() {
-            DeviceToggleButton.this.getButton().setLabel(
+            DeviceToggleButton.this.getButton().setText(
                     toggleAction.getLabel());
         }
 
