@@ -345,7 +345,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
          * Integrator agent that holds a force vector.  Used to indicate that an atom could be
          * under the influence of a force.
          */
-        interface Forcible {
+        interface Forcible extends Agent {
             public Space.Vector force();
         }
     }

@@ -4,9 +4,11 @@ import java.util.Random;
 
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
 
-    AtomPair.Iterator pairIterator;
-    Atom.Iterator atomIterator;
-    AtomPair.Action forceSum;
+    AtomIterator atomIterator;
+    
+    public final PotentialCalculation.ForceSum forceSum;
+    private final IteratorDirective allAtoms = new IteratorDirective();
+    protected PotentialAgent phasePotential;
     
     //Fields for Andersen thermostat
     Random random = new Random();
@@ -17,16 +19,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     }
     public IntegratorVelocityVerlet(Simulation sim) {
         super(sim);
+        forceSum = new PotentialCalculation.ForceSum(sim.space());
         
-    //anonymous class to sum forces
-        forceSum = new AtomPair.Action() {
-            private final Space.Vector f = parentSimulation().space().makeVector();
-            public void action(AtomPair pair) {
-                f.E(((Potential.Soft)parentSimulation().getPotential(pair)).force(pair));
-                ((Agent)pair.atom1().ia).force.PE(f);
-                ((Agent)pair.atom2().ia).force.ME(f);
-            }
-        };
         setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }
     
@@ -35,14 +29,19 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return info;
     }
 
+          //need to modify to handle multiple-phase issues
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        phasePotential = p.potential();
+        return true;
+    }
     
 	/**
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
 	protected void makeIterators(IteratorFactory factory) {
-        pairIterator = factory.makeAtomPairIteratorAll();
-        atomIterator = factory.makeAtomIteratorUp();
+        atomIterator = factory.makeAtomIterator();
     }
      
   private double t2;
@@ -68,21 +67,9 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             r.PEa1Tv1(timeStep*a.rm(),p);         // r += p*dt/m
             agent.force.E(0.0);
         }
-        
-        //Add in forces on each atom due to interaction with fields acting in the phase
-        for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
-            if(!(f instanceof PotentialField.Soft)) continue;
-            PotentialField.Soft field = (PotentialField.Soft)f;
-            Atom.Iterator iterator = f.getAffectedAtoms();  //iterator for atoms under the influence of this field
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom a = iterator.next();
-                ((Agent)a.ia).force.PE(field.force(a));
-            }
-        }
-        
+                
         //Add in forces on each atom due to interaction with other atoms in phase
-        pairIterator.allPairs(forceSum);    //compute forces on each atom
+        phasePotential.calculate(allAtoms, forceSum);
         
         //Finish integration step
         atomIterator.reset();
@@ -113,7 +100,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             Agent agent = (Agent)a.ia;
             agent.force.E(0.0);
         }
-        pairIterator.allPairs(forceSum);
+        phasePotential.calculate(allAtoms, forceSum);
     }
               
 //--------------------------------------------------------------
@@ -122,7 +109,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return new Agent(parentSimulation(),a);
     }
             
-    public final static class Agent implements Integrator.Agent {  //need public so to use with instanceof
+    public final static class Agent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Space.Vector force;
 
@@ -130,6 +117,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             atom = a;
             force = sim.space().makeVector();
         }
+        
+        public Space.Vector force() {return force;}
     }
 }
 

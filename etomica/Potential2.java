@@ -9,8 +9,11 @@ public abstract class Potential2 extends Potential {
   
     public static String VERSION = "Potential2:01.07.03/"+Potential.VERSION;
     
+    protected Space.Vector work1;
+    
     public Potential2(Simulation sim) {
         super(sim);
+        work1 = sim.space().makeVector();
     }
     
     /**

@@ -45,24 +45,4 @@ public interface AtomIterator {
         public void allAtoms(AtomAction act) {}
     }//end of Null    
 
-    /**
-     * An enumerated type used to specify if an atom iterator is to skip
-     * the first atom of its natural sequence, or to include it.  Skipping
-     * it would be appropriate if, for example, the iterator is providing the inner
-     * loop of an atom pair iterator.  The Initiation field of an iterator derived
-     * from AtomIteratorAbstract is final and cannot be changed after construction.
-     */
-/*    public static final class Initiation extends Constants.TypedConstant {
-            
-        private Initiation(String label) {super(label);}
-        public static final Initiation[] CHOICES = new Initiation[] {
-            new Initiation("Skip first"),
-            new Initiation("Include first"),
-        };
-        
-        public final Constants.TypedConstant[] choices() {return CHOICES;}
-    }//end of Initiation
-    public static final Initiation SKIP_FIRST = Initiation.CHOICES[0];
-    public static final Initiation INCLUDE_FIRST = Initiation.CHOICES[1];
-*/
 }//end of AtomIterator

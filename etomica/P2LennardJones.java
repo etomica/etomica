@@ -6,16 +6,11 @@ import etomica.units.Dimension;
  * Spherically symmetric potential of the form u(r) = 4*epsilon*[(sigma/r)^12 - (sigma/r)^6]
  * where epsilon describes the strength of the pair interaction, and sigma is the atom size parameter
  */
-public class P2LennardJones extends Potential2SoftAbstract implements EtomicaElement {
+public class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
 
-  public String getVersion() {return "PotentialLJ:01.05.25/"+Potential.VERSION;}
-
-    private double sigma, sigmaSquared;
-    private double cutoffRadius, cutoffRadiusSquared;
-    private double epsilon, cutoff;
-    private double epsilon4, epsilon48, epsilon144;
-    private double eLRC, pLRC;  //multipliers for long-range correction to energy and pressure, resp.
-    private final Space.Vector force;
+    public PotentialTruncation truncation;
+    
+  public String getVersion() {return "PotentialLJ:01.07.03/"+Potential.VERSION;}
 
     public P2LennardJones() {
         this(Simulation.instance, Default.ATOM_SIZE, Default.POTENTIAL_WELL, Default.POTENTIAL_CUTOFF);
@@ -26,10 +21,8 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
     public P2LennardJones(Simulation sim, double sigma, double epsilon, double cutoff) {
         super(sim);
         setSigma(sigma);
-        setCutoff(cutoff);
         setEpsilon(epsilon);
-        force = sim.space().makeVector();
-        calculateLRC();
+        setCutoff(cutoff);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -37,17 +30,8 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
         return info;
     }
 
-   /**
-    * Always returns false
-    */
-    public boolean overlap(AtomPair pair) {return false;}  //might want to change this
-
-   /**
-    * Energy of the given pair.
-    * Returns zero if greater than the cutoff separation
-    */
-    public double energy(AtomPair pair) {
-        double r2 = pair.r2();
+    public double u(double r2) {
+        if(truncation(r2).isZero) {return 0.0;}
         if(r2 > cutoffRadiusSquared) {return 0.0;}
         else {
             double s2 = sigmaSquared/r2;
@@ -55,27 +39,11 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
             return epsilon4*s6*(s6 - 1.0);
         }
     }
-   /**
-    * Force that atom2 exerts on atom1
-    */
-    public Space.Vector force(AtomPair pair) {
-        double r2 = pair.r2();
-        if(r2 > cutoffRadiusSquared) {force.E(0.0);}
-        else {
-            double s2 = sigmaSquared/r2;
-            double s6 = s2*s2*s2;
-            force.E(pair.dr());
-            force.TE(-epsilon48*s6*(s6-0.5)/r2);
-        }
-        return force;
-    }            
-   
+
     /**
-     * Virial, defined r*du/dr.
-     * Used to compute the pressure
+     * The derivative r*du/dr.
      */
-    public double virial(AtomPair pair) {  //not carefully checked for correctness
-        double r2 = pair.r2();
+    public double du(double r2) {  //not carefully checked for correctness
         if(r2 > cutoffRadiusSquared) {return 0.0;}
         else {
             double s2 = sigmaSquared/r2;
@@ -83,25 +51,12 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
             return -epsilon48*s6*(s6 - 0.5);
         }
     }
-    
-    public final PairProperty energy = new PairProperty() {
-        public double value(double r2) {
-            if(r2 > cutoffRadiusSquared) {return 0.0;}
-            else {
-                double s2 = sigmaSquared/r2;
-                double s6 = s2*s2*s2; 
-                return -epsilon48*s6*(s6 - 0.5);  //wrong!
-            }
-        }
-    };  
-            
-    
-    /**
-     * Hypervirial, defined r*du/dr + r^2*d2u/dr2.
-     * Used to compute the pressure
-     */
-    public double hyperVirial(AtomPair pair) {  //not carefully checked for correctness
-        double r2 = pair.r2();
+
+   /**
+    * The second derivative of the pair energy, times the square of the
+    * separation:  r^2 d^2u/dr^2.
+    */
+    public double d2u(double r2) {
         if(r2 > cutoffRadiusSquared) {return 0.0;}
         else {
             double s2 = sigmaSquared/r2;
@@ -109,29 +64,39 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
             return epsilon144*s6*(4.*s6 - 1.0);
         }
     }
+            
+   
     /**
      * Returns the total (extensive) long-range correction to the energy
      * Input are the number of atoms of each type (i.e., x1*N and x2*N, where x1 and x2
      * are the mole fractions of each species interacting according to this potential), and the volume
      */
-    public double energyLRC(int n1, int n2, double V) {
-        return n1*n2*eLRC/V;
-    }
+    public double uLRC() {return uLRC;}
+
+ /*   public double uLRC(int n1, int n2, double V) {
+        return n1*n2*uLRC/V;
+    }*/
     /**
      * Returns the total long-range correction to the pressure
      * Input are the number of atoms of each type (i.e., x1*N and x2*N, where x1 and x2
      * are the mole fractions of each species interacting according to this potential), and the volume
      */
-    public double pressureLRC(int n1, int n2, double V) {
+    public double duLRC() {return duLRC;}
+/*    public double pressureLRC(int n1, int n2, double V) {
         return n1*n2*pLRC/(V*V);
-    }
+    }*/
+
+    //not implemented
+    public double d2uLRC() {return 0.0;}
+    
+    
     
     /**
-     * Accessor method for Lennard-Jones size parameter
+     * Accessor method for Lennard-Jones size parameter.
      */
     public double getSigma() {return sigma;}
     /**
-     * Accessor method for Lennard-Jones size parameter
+     * Mutator method for Lennard-Jones size parameter.
      */
     public final void setSigma(double s) {
         sigma = s;
@@ -141,10 +106,9 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
     public Dimension getSigmaDimension() {return Dimension.LENGTH;}
 
     /**
-     * Accessor method for Lennard-Jones cutoff distance; divided by sigma
-     * @return cutoff distance, divided by size parameter (sigma)
+     * Accessor method for potential cutoff class.
      */
-    public double getCutoff() {return cutoff;}
+    public PotentialTruncation getTruncation() {return truncation;}
     /**
      * Accessor method for Lennard-Jones cutoff distance; divided by sigma
      * @param rc cutoff distance, divided by size parameter (sigma)
@@ -187,9 +151,15 @@ public class P2LennardJones extends Potential2SoftAbstract implements EtomicaEle
         double rc3 = rc*rc*rc;
         double rc6 = rc3*rc3;
         double rc12 = rc6*rc6;
-        eLRC = 2.0*epsilon*sigmaD*A*(rc12/(12.-D) - rc6/(6.-D))/rcD;  //complete LRC is obtained by multiplying by N1*N2/rho
-        pLRC = 2.0*epsilon*sigmaD*A*(12.*rc12/(12.-D) - 6.*rc6/(6.-D))/(D*rcD);  //complete LRC is obtained by multiplying by N1*N2/rho
+        uLRC = 2.0*epsilon*sigmaD*A*(rc12/(12.-D) - rc6/(6.-D))/rcD;  //complete LRC is obtained by multiplying by N1*N2/rho
+        duLRC = 2.0*epsilon*sigmaD*A*(12.*rc12/(12.-D) - 6.*rc6/(6.-D))/(D*rcD);  //complete LRC is obtained by multiplying by N1*N2/rho
+        d2uLRC = 0.0;  //complete LRC is obtained by multiplying by N1*N2/rho
     }
     
+    private double sigma, sigmaSquared;
+    private double cutoffRadius, cutoffRadiusSquared;
+    private double epsilon, cutoff;
+    private double epsilon4, epsilon48, epsilon144;
+    private double uLRC, duLRC, d2uLRC;  //multipliers for long-range corrections
 }
   

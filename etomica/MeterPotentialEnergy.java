@@ -9,17 +9,18 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPotentialEnergy extends Meter implements EtomicaElement
-{
-    private IteratorDirective all;  
+public class MeterPotentialEnergy extends Meter implements EtomicaElement {
+    
+    private IteratorDirective iteratorDirective;
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    
     public MeterPotentialEnergy() {
         this(Simulation.instance);
     }
     public MeterPotentialEnergy(Simulation sim) {
         super(sim);
         setLabel("Potential Energy");
-        all = new IteratorDirective();
-        all.set();
+        iteratorDirective = new IteratorDirective();
     }
       
     public static EtomicaInfo getEtomicaInfo() {
@@ -35,32 +36,9 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        phase.potential().calculate(all, energy);
-        return energy.sum;
+        energy.reset();
+        phase.potential().calculate(iteratorDirective, energy);
+        return energy.sum();
     }
-    
-    private final CalculationEnergy energy = new CalculationEnergy();
-    
-    private static final class CalculationEnergy implements Potential1Calculation, Potential2Calculation {
-        
-        double sum = 0.0;
-        
-        public void reset() {sum = 0.0;}
-        
-        //atom pair
-        public void calculate(AtomPairIterator iterator, Potential2 potential) {
-            while(iterator.hasNext()) {
-                sum += potential.energy(iterator.next());
-            }//end while
-        }//end of calculate(AtomPair...
-        
-        //single atom
-        public void calculate(AtomIterator iterator, Potential1 potential) {
-            while(iterator.hasNext()) {
-                sum += potential.energy(iterator.next());
-            }//end while
-        }//end of calculate(Atom...
-    } //end of collisionHandlerUp
-
     
 }
