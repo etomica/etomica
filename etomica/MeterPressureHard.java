@@ -2,9 +2,9 @@ package etomica;
 import etomica.units.*;
 
 /**
- * Meter for the pressure of a hard potential.
- * Performs sum of collision virial over all collisions, dividing by 
- * appropriate terms to obtain the pressure.
+ * Meter for the pressure (given as the compressibility factor) of a hard potential.
+ * Performs sum of collision virial over all collisions, and manipulates value
+ * to obtain the compressibility factor, PV/NkT.
  *
  * @author David Kofke
  */
@@ -14,40 +14,40 @@ public final class MeterPressureHard extends MeterScalar implements
                                                 EtomicaElement {
         
     private double virialSum = 0.0;
-    private double t0 = 0.0; //initialized in setPhaseIntegrator method
     private IntegratorHard integratorHard;
-    private double value = 0.0; //holds meter value from one call to the next
-    private final int D;
+    private final DataSourceCountTime timer;
     
-    public MeterPressureHard(Space space) {
+    public MeterPressureHard() {
         super();
-        D = space.D();
-        setLabel("PV/Nk");
+        setLabel("PV/NkT");
+        timer = new DataSourceCountTime();
     }
         
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Pressure measured via impulsive virial averaged over interatomic hard collisions");
+        EtomicaInfo info = new EtomicaInfo("Compressibility factor measured via impulsive virial averaged over interatomic hard collisions");
         return info;
     }
         
     /**
-     * Indicator that this meter returns quantity of dimension TEMPERATURE (note: returns PV/Nk, not P)
+     * Indicator that this meter returns dimensionless quantity 
+     * (note: returns PV/NkT, not P)
      */
-    public Dimension getDimension() {return Dimension.TEMPERATURE;}
+    public Dimension getDimension() {return Dimension.NULL;}
 
     /**
-     * Returns P*V/N*kB = T - (virial sum)/(elapsed time)/(space dimension)/(number of atoms)
+     * Returns P*V/N*kB*T = 1 - (virial sum)/(elapsed time)/T/(space dimension)/(number of atoms)
      * Virial sum and elapsed time apply to period since last call to this method.
      */
     //XXX phase parameter is not used appropriately here
+    //TODO consider how to ensure timer is advanced before this method is invoked
     public double getDataAsScalar(Phase phase) {
-        double t = integratorHard.elapsedTime();
-        if(t > t0) { // could have t==t0 if called twice before advancing integator
-            double flux = -virialSum/((t-t0)*(double)(D*phase.atomCount()));   //divide by time interval
-            value = integratorHard.temperature() + flux;
-            t0 = t;
-            virialSum = 0.0;
-        }
+        double elapsedTime = timer.getData()[0];
+        if(elapsedTime == 0.0) return Double.NaN;
+        int D = phase.boundary().dimensions().D();
+        double value = 1.0 - virialSum/(integratorHard.temperature()*elapsedTime*(double)(D*phase.atomCount()));
+ 
+        virialSum = 0.0;
+        timer.reset();
         return value;
     }
     /**
@@ -59,28 +59,23 @@ public final class MeterPressureHard extends MeterScalar implements
     }
     
     /**
-     * Implementation of Meter.MeterCollisional interface.  Returns -(collision virial)/D.
+     * Implementation of Meter.MeterCollisional interface.  Returns -(collision virial).
      * Suitable for tabulation of PV
      */
 	public double collisionValue(IntegratorHard.Agent agent) {
-	    return -agent.collisionPotential.lastCollisionVirial()/(double)D;
+	    return -agent.collisionPotential.lastCollisionVirial();
 	}
 
     /**
-     * Invokes superclass method and registers meter as a collisionListener to integrator.
-     * Performs only superclass method if integrator is not an instance of IntegratorHard.
+     * Registers meter as a collisionListener to the integrator, and sets up
+     * a DataSourceTimer to keep track of elapsed time of integrator.
      */
-	protected void setPhaseIntegrator(Integrator newIntegrator) {
-	    if(newIntegrator == null) return;
-	    if(newIntegrator instanceof IntegratorHard) {
-	        integratorHard = (IntegratorHard)newIntegrator;
-	        integratorHard.addCollisionListener(this);
-    	    t0 = integratorHard.elapsedTime();
-	    }
-	    else {  //should have an exception for this
-	        System.out.println("Error in integrator type in MeterPressureHard");
-	        System.exit(1);
-	    }
+	protected void setIntegrator(IntegratorHard newIntegrator) {
+		if(newIntegrator == integratorHard) return;
+		integratorHard.removeCollisionListener(this);
+		integratorHard = newIntegrator;
+	    timer.setIntegrator(new IntegratorMD[] {(IntegratorMD)newIntegrator});
+	    if(newIntegrator != null) integratorHard.addCollisionListener(this);
 	}
 	
     /**
