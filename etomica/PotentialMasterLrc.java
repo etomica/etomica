@@ -4,10 +4,10 @@ import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialCalculation;
 
 /**
- * Group that contains potentials used for long-range correction.
- * One instance of this class is added to the PotentialManager of
+ * Collects potentials used for long-range correction.
+ * One instance of this class is added to the PotentialMaster of
  * a Simulation when the first Potential0Lrc class is instantiated.
- * All subsequently created Potential0Lrc classes are added to this group.
+ * All subsequently created Potential0Lrc classes are added to this instance.
  *
  * @see Potential0Lrc
  * @author David Kofke
@@ -15,7 +15,7 @@ import etomica.potential.PotentialCalculation;
  
 public class PotentialMasterLrc extends PotentialMaster {
 
-    public PotentialMasterLrc(Space space) {
+    protected PotentialMasterLrc(Space space) {
         super(space);
     }
     
