@@ -135,6 +135,6 @@ public class BoundaryPeriodicSquare extends Boundary {
     protected final Vector dimensionsCopy;
     protected final Vector dimensionsHalf;
     private final IndexIteratorSequential indexIterator;
-    boolean[] needShift;
+    private final boolean[] needShift;
 
 }
