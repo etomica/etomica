@@ -46,6 +46,8 @@ import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 
