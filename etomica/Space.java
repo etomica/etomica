@@ -5,10 +5,14 @@ public abstract class Space {
     public abstract int D();
     
     public abstract Vector makeVector();      //Space.Vector
-    public abstract Coordinate makeCoordinate();
+    public abstract Coordinate makeCoordinate(Occupant o);
     public abstract CoordinatePair makeCoordinatePair(AtomPair p, Boundary b);
     public abstract Boundary makeBoundary(int iBoundary);
 
+    interface Occupant {
+        public Coordinate coordinate();
+    }
+    
 //  Vector contains what is needed to describe a point in the space
     interface Vector {    //probably want this to be an abstract class
         public double component(int i);
@@ -26,14 +30,22 @@ public abstract class Space {
         public double dot(Vector u);
         public void setRandom(double d);
         public void PEa1Tv1(double a, Vector u);
+        public void setRandomSphere();  //random point in unit sphere
+        public void setRandomCube(); //random point in a unit cube
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
-    interface Coordinate {
-        public Vector position();
-        public Vector momentum();
-        public double position(int i);
-        public double momentum(int i);
+    abstract class Coordinate {
+        protected final Space.Occupant parent;        
+        Coordinate(Occupant p) {parent = p;}          //constructor
+        public final Space.Occupant parent() {return parent;}
+        public Vector makeVector();
+        public abstract Vector position();
+        public abstract Vector momentum();
+        public abstract double position(int i);
+        public abstract double momentum(int i);
+        public abstract double kineticEnergy(double mass);
+        public void scaleMomentum(double scale) {momentum().TE(scale);}
 /*        public void setNextCoordinate(Coordinate c);
         public void clearPreviousCoordinate();
         

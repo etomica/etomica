@@ -253,9 +253,10 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
-    private class Coordinate implements Space.Coordinate {
+    private class Coordinate extends Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
+        public final Vector makeVector() {return new Vector();}
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
@@ -267,13 +268,13 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
         public Link next;
         public Coordinate coordinate;
     }
-    
+ /*   
     //much of AtomCoordinate is identical in every Space class
     //It is duplicated because it extends Coordinate, which is unique to each Space
-    final class AtomCoordinate extends Coordinate implements Space.AtomCoordinate {
-        AtomCoordinate nextCoordinate, previousCoordinate;
-        AtomCoordinate nextNeighbor, previousNeighbor;
-        AtomCoordinate(Atom a) {atom = a;}  //constructor
+    final class Coordinate extends Space.Coordinate {
+        Coordinate nextCoordinate, previousCoordinate;
+        Coordinate nextNeighbor, previousNeighbor;
+        Coordinate(Atom a) {atom = a;}  //constructor
         public final Atom atom;        
         private final Vector rLast = new Vector();
         private final Vector temp = new Vector();
@@ -342,7 +343,7 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
         public Space.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
       */  
         //following methods are same in all Space classes
-        public Space.AtomCoordinate nextCoordinate() {return nextCoordinate;}
+ /*       public Space.AtomCoordinate nextCoordinate() {return nextCoordinate;}
         public Space.AtomCoordinate previousCoordinate() {return previousCoordinate;}
         public final void setNextCoordinate(Space.AtomCoordinate c) {
            nextCoordinate = (AtomCoordinate)c;
@@ -392,7 +393,7 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
             
         public final Atom atom() {return atom;}
     }
-    
+ */   
     private static final class NeighborIterator extends Iterator {
         public NeighborIterator(Phase p) {super(p);}
         public final simulate.AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase);}
@@ -543,7 +544,7 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
                 if(atom == null) {advanceCell();}
                 return nextAtom;
             }
-        } //end of UpAtomIterator
+        } //end of AtomIteratorUp
         
         
         private static final class AtomIteratorDown implements Atom.Iterator {
@@ -582,7 +583,7 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
                 if(atom == null) {advanceCell();}
                 return nextAtom;
             }
-        } //end of DownAtomIterator
+        } //end of AtomIteratorDown
 
         
         //These iterators are identical in every Space class; they are repeated in each
@@ -674,28 +675,29 @@ public class Space2DCell extends Space implements Space.NeighborIterator {
     public static class CellPotential extends Potential implements PotentialHard {
         
         public void bump(simulate.AtomPair pair) {
-            AtomCoordinate atomC = (AtomCoordinate)pair.atom1().coordinate;
-            LatticeSquare.Point cell = (LatticeSquare.Point)atomC.cell;
-            double dx = atomC.r.x - cell.position()[0];
-            double dy = atomC.r.y - cell.position()[1];
+            Atom atom = pair.atom1();
+            Coordinate atomCoordinate = (Coordinate)atom.coordinate();
+            LatticeSquare.Point cell = (LatticeSquare.Point)atomCoordinate.cell;
+            double dx = atomCoordinate.r.x - cell.position()[0];
+            double dy = atomCoordinate.r.y - cell.position()[1];
             if(Math.abs(dx) > Math.abs(dy)) { //collision with left or right wall
-                if(dx > 0) {atomC.r.x = ((LatticeSquare.Cell)cell.E()).vertices()[2][0]; atomC.assignCell(cell.E());}
-                else {atomC.r.x = ((LatticeSquare.Cell)cell.W()).vertices()[0][0]; atomC.assignCell(cell.W());}
+                if(dx > 0) {atomCoordinate.r.x = ((LatticeSquare.Cell)cell.E()).vertices()[2][0]; atomCoordinate.assignCell(cell.E());}
+                else {atomCoordinate.r.x = ((LatticeSquare.Cell)cell.W()).vertices()[0][0]; atomCoordinate.assignCell(cell.W());}
             }
             else {
-                if(dy > 0) {atomC.r.y = ((LatticeSquare.Cell)cell.S()).vertices()[2][1]; atomC.assignCell(cell.S());}
-                else {atomC.r.y = ((LatticeSquare.Cell)cell.N()).vertices()[0][1]; atomC.assignCell(cell.N());}
+                if(dy > 0) {atomCoordinate.r.y = ((LatticeSquare.Cell)cell.S()).vertices()[2][1]; atomCoordinate.assignCell(cell.S());}
+                else {atomCoordinate.r.y = ((LatticeSquare.Cell)cell.N()).vertices()[0][1]; atomCoordinate.assignCell(cell.N());}
             }
         }
         
         public double collisionTime(simulate.AtomPair pair) {
-            AtomCoordinate atomC = (AtomCoordinate)pair.atom1().coordinate;
-            LatticeSquare.Cell cell = (LatticeSquare.Cell)atomC.cell;
-            double dx = (atomC.p.x > 0) ? cell.vertices()[0][0] - atomC.r.x : cell.vertices()[2][0] - atomC.r.x; 
-            double tx = Math.abs(dx/atomC.p.x);
-            double dy = (atomC.p.y > 0) ? cell.vertices()[0][1] - atomC.r.y : cell.vertices()[2][1] - atomC.r.y;
-            double ty = Math.abs(dy/atomC.p.y);
-            return (tx > ty) ? ty*atomC.atom().mass() : tx*atomC.atom().mass();
+            Coordinate atomCoordinate = (Coordinate)pair.atom1().coordinate;
+            LatticeSquare.Cell cell = (LatticeSquare.Cell)atomCoordinate.cell;
+            double dx = (atomCoordinate.p.x > 0) ? cell.vertices()[0][0] - atomCoordinate.r.x : cell.vertices()[2][0] - atomCoordinate.r.x; 
+            double tx = Math.abs(dx/atomCoordinate.p.x);
+            double dy = (atomCoordinate.p.y > 0) ? cell.vertices()[0][1] - atomCoordinate.r.y : cell.vertices()[2][1] - atomCoordinate.r.y;
+            double ty = Math.abs(dy/atomCoordinate.p.y);
+            return (tx > ty) ? ty*atomCoordinate.atom().mass() : tx*atomCoordinate.atom().mass();
 //        double tnew = Math.abs((0.5*atom.phase().parentSimulation.space.getNeighborRadius()-0.5*1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
         }
     }

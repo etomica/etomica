@@ -10,7 +10,7 @@ import java.awt.*;
 *  @author C. Daniel Barnes
 *  @see Molecule
 */
-public class Atom {
+public class Atom implements Space.Occupant {
 
     /**
     * Constructs an atom with default values for mass, diameter, and color.
@@ -29,14 +29,17 @@ public class Atom {
         p = coordinate.momentum();
         workVector = coordinate.makeVector();
         rLast = coordinate.makeVector();
+        velocity = coordinate.makeVector();
         setStationary(false);
         useTypeColor();
     }
                     
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
         
-    public final Molecule getMolecule() {return parentMolecule;}
+    public final Molecule parentMolecule() {return parentMolecule;}
         
+    public final Space.Coordinate coordinate() {return coordinate;}
+            
     public final int getSpeciesIndex() {return parentMolecule.getSpeciesIndex();}
     public final int getAtomIndex() {return atomIndex;}
         
@@ -59,32 +62,32 @@ public class Atom {
     }
     public final void clearPreviousAtom() {previousAtom = null;}
     public final Atom nextAtom() {return nextAtom;}
-    public final Atom previousAtom() {return previousAtom;}    
-            
+    public final Atom previousAtom() {return previousAtom;} 
+    
     public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom();}  //first atom on next molecule
     public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom();}  //first atom on next molecule
 
     public final double mass() {return type.mass();}
     public final double rm() {return type.rm();}
-              
-    public final Phase phase() {return parentMolecule.parentPhase;}
 
-    public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, color, coordinate);}
+    public final Phase parentPhase() {return parentMolecule.parentPhase;}
+
+    public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, this);}
 
     public void translateBy(Space.Vector u) {r.PE(u);}
-    public void translateBy(double d, Space.Vector u) {r.PE(d,u);}
+    public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
     public void translateTo(Space.Vector u) {r.E(u);}      
     public void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
     public void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
     public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
     public void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
-    public void displaceWithin(double d) {workVector.setRandomCube(); r.displaceBy(d,workVector);}
+    public void displaceWithin(double d) {workVector.setRandomCube(); r.PEa1Tv1(d,workVector);}
     public void displaceToRandom(simulate.Phase p) {rLast.E(r); translateToRandom(p);}
     public void replace() {r.E(rLast);}
     public void inflate(double s) {r.TE(s);}
 
     public void accelerateBy(Space.Vector u) {p.PE(u);}
-    public void accelerateBy(double d, Space.Vector u) {p.PE(d,u);}
+    public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
 
     public double kineticEnergy() {return coordinate.kineticEnergy(type.mass());}
     public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
@@ -127,6 +130,8 @@ public class Atom {
     * @see Molecule#makeAtoms
     */
     final int atomIndex;
+    
+    private Atom nextAtom, previousAtom;
         
     public final Space.Coordinate coordinate;
     public final Space.Vector r, p;  //position, momentum
@@ -139,18 +144,21 @@ public class Atom {
         public boolean hasNext();
         public Atom next();
         public void reset(Atom a);
+        public void reset();
     
         public static final class Up implements Iterator {
-            private Atom atom, nextAtom;
+            private Atom atom, nextAtom, firstAtom;
             private boolean hasNext;
             public Up() {hasNext = false;}
             public Up(Atom a) {reset(a);}
             public boolean hasNext() {return hasNext;}
             public void reset(Atom a) {
+                firstAtom = a;
                 if(a == null) {hasNext = false; return;}
                 atom = a;
                 hasNext = true;
             }
+            public void reset() {reset(firstAtom);}
             public Atom next() {
                 nextAtom = atom;
                 atom = atom.nextAtom();
@@ -160,7 +168,7 @@ public class Atom {
         } //end of Atom.Iterator.Up
         
         public static final class Down implements Iterator {
-            private Atom atom, nextAtom;
+            private Atom atom, nextAtom, firstAtom;
             private boolean hasNext;
             public Down() {hasNext = false;}
             public Down(Atom a) {reset(a);}
@@ -170,6 +178,7 @@ public class Atom {
                 atom = a;
                 hasNext = true;
             }
+            public void reset() {reset(firstAtom);}
             public Atom next() {
                 nextAtom = atom;
                 atom = atom.previousAtom();

@@ -4,8 +4,9 @@ public class AtomPair {
     public Atom atom1, atom2;
     public final Space.CoordinatePair cPair;
     public Potential potential;
+    public AtomPair() {cPair = null;}
     public AtomPair(Phase phase) {
-        cPair = phase.space.makeCoordinatePair(this,phase.boundary());
+        cPair = phase.space().makeCoordinatePair(this,phase.boundary());
     }
     public void reset(Atom a1, Atom a2) {
         atom1 = a1; 
@@ -13,7 +14,7 @@ public class AtomPair {
         reset();
     }
     public void reset() {
-        cPair.reset(a1.coordinate, a2.coordinate);
+        cPair.reset(atom1, atom2);
     }
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
@@ -25,7 +26,7 @@ public class AtomPair {
         
         public boolean hasNext();
         public AtomPair next();
-        public void reset();
+//        public void reset();
         
         public interface SS extends Iterator {public void reset(Species.Agent s1, Species.Agent s2);}
         public interface S extends Iterator {public void reset(Species.Agent s);}
@@ -36,12 +37,56 @@ public class AtomPair {
             public void reset(Atom a1, Atom a2, Atom a3); 
             public void reset(Atom a1, Atom a2, Atom a3, Atom a4);
             public void allDone();
+            public void reset(Atom a, boolean intra);
         }
+        
+        /**
+         * Iterator for all atom pairs in a phase
+         * Default is to do inter and intra pairs; this may be overridden using reset method to do
+         * only intermolecular pairs
+         */
+         public static class P implements Iterator {
+            private final Iterator.A apiUp;
+            private final Atom.Iterator atomUp;
+            private boolean intra;
+            private boolean hasNext;
+            private AtomPair thisPair, nextPair;
+            public P(Phase p) {
+                apiUp = p.iterator.makeAtomPairIteratorUp();
+                atomUp = p.iterator.makeAtomIteratorUp();
+                reset(true);
+            }
+            public boolean hasNext() {return hasNext;}
+            public AtomPair next() {
+                thisPair = nextPair;
+                if(apiUp.hasNext()) {nextPair = apiUp.next();}
+                else {
+                    do {  //advance up list of atoms until one with a pair is found
+                        if(atomUp.hasNext()) {apiUp.reset(atomUp.next(),intra);}
+                        else {hasNext = false; return thisPair;}}   //end of list of atoms
+                    while(!apiUp.hasNext());
+                    nextPair = apiUp.next();
+                }
+                return thisPair;
+            }
+            public void reset() {reset(intra);}
+            public void reset(boolean i) {
+                intra = i;
+                atomUp.reset();
+                do {  //advance up list of atoms until one with a pair is found
+                    if(atomUp.hasNext()) {apiUp.reset(atomUp.next(),intra);}
+                    else {hasNext = false; return;}}   //end of list of atoms
+                while(!apiUp.hasNext());
+                nextPair = apiUp.next();
+                hasNext = true;
+            }
+         }
+                
         
         /**
          * Iterator for all intermolecular atom pairs in a phase
          */
-        public static class P implements Iterator {
+  /*      public static class P implements Iterator {
             private final Iterator.AMAM iteratorAMAM;
             private final Phase phase;
             private boolean hasNext;
@@ -98,13 +143,58 @@ public class AtomPair {
                 }
             }
         }
-            
+  */          
         
         /**
          * Iterator for all atoms in a molecule with all atoms in a phase
          * The molecule may or may not be in the phase
          * Intramolecular pairs are not generated
          */
+        public static class MP implements M {
+            private final Iterator.A apiUp, apiDown;
+            private Iterator.A apiCurrent;
+            private boolean hasNext, upDone;
+            private AtomPair nextPair, thisPair;
+            public MP(Phase p) {
+                apiUp = p.iterator.makeAtomPairIteratorUp();
+                apiDown = p.iterator.makeAtomPairIteratorDown();
+                hasNext = false;
+            }
+            public MP(Phase p, Molecule m) {
+                apiUp = p.iterator.makeAtomPairIteratorUp();
+                apiDown = p.iterator.makeAtomPairIteratorDown();
+                reset(m);
+            }
+            public boolean hasNext() {return hasNext;}
+            public AtomPair next() {
+                thisPair = nextPair;
+                if(apiCurrent.hasNext()) {nextPair = apiCurrent.next();}
+                else {
+                    if(upDone) {hasNext = false;}  //all done
+                    else {                         //switch to down iterator
+                        apiCurrent = apiDown;
+                        upDone = true;
+                        hasNext = apiCurrent.hasNext();
+                        if(hasNext) nextPair = apiCurrent.next();
+                    }
+                }
+                return thisPair;
+            }
+            public void reset(Molecule m) {
+                apiUp.reset(m.lastAtom(),false);
+                apiDown.reset(m.firstAtom(),false);
+                if(apiUp.hasNext()) {
+                    apiCurrent = apiUp;
+                    upDone = false;}
+                else {
+                    apiCurrent = apiDown;
+                    upDone = true;
+                }
+                hasNext = apiCurrent.hasNext();
+            }
+        }
+                    
+ /*           
         public static class MP implements M {
             private final Iterator.FMAM iteratorFMAM;
             private final Phase phase;
@@ -146,8 +236,7 @@ public class AtomPair {
             }
             public void reset() {reset(molecule);}
         }
-            
-        
+ */       
         /** Naming scheme for iterators:
          *    AM --> Pairs involve All Molecules in a species, which is passed to constructor and/or reset method
          *    FM --> Pairs involve a Fixed Molecule, which is passed to constructor and/or reset method
@@ -158,7 +247,7 @@ public class AtomPair {
         /**
          * Iterator for all intramolecular atom pairs within species
          */
-        public static class AM implements S {   //AllSpeciesIntraPairs
+  /*      public static class AM implements S {   //AllSpeciesIntraPairs
             private boolean mLast;
             private Molecule m, lastM;
             private FM mPairs;
@@ -195,7 +284,7 @@ public class AtomPair {
         /**
          * Iterator for all (intramolecular) atom pairs in a single molecule
          */
-        public static class FM implements M {  //AllMoleculeIntraPairs
+ /*       public static class FM implements M {  //AllMoleculeIntraPairs
             private final Iterator.A iterator;
             private Molecule molecule;
             public FM(Phase ps) {iterator = ps.makePairIteratorHalf();} //constructor
@@ -220,7 +309,7 @@ public class AtomPair {
          * Iterates over all intermolecular atom pairs between a fixed molecule and all molecules in a species
          * Handles both cases in which molecule is or is not a member of the species
          */
-        public static class FMAM implements MS, M, S {
+  /*      public static class FMAM implements MS, M, S {
             private final Iterator.A iterator;
             private Molecule molecule;
             private Species.Agent species;
@@ -289,7 +378,7 @@ public class AtomPair {
         /**
          *  Iterates over all intermolecular atom pairs between or within species
          */
-        public static class AMAM implements S, SS {  //AllSpeciesInterPairs
+ /*       public static class AMAM implements S, SS {  //AllSpeciesInterPairs
             private final Iterator.A fullIterator;  //make iterators in constructor and re-use them
             private final Iterator.A halfIterator;
             private Species.Agent species1, species2;
@@ -297,17 +386,17 @@ public class AtomPair {
             private AtomPair thisPair, nextPair;
             private boolean hasNext, checkIntra;
             public AMAM(Phase ps) {  //constructor
-                halfIterator = ps.makePairIteratorHalf();
-                fullIterator = ps.makePairIteratorFull();
+                halfIterator = ps.iterator.makePairIteratorHalf();
+                fullIterator = ps.iterator.makePairIteratorFull();
                 hasNext = false;
             }  
             public AMAM(Phase ps, Species.Agent s) {  //constructor
-                halfIterator = ps.makePairIteratorHalf();
-                fullIterator = ps.makePairIteratorFull();
+                halfIterator = ps.iterator.makePairIteratorHalf();
+                fullIterator = ps.iterator.makePairIteratorFull();
                 reset(s);}  
             public AMAM(Phase ps, Species.Agent s1, Species.Agent s2) { //constructor
-                halfIterator = ps.makePairIteratorHalf();
-                fullIterator = ps.makePairIteratorFull();
+                halfIterator = ps.iterator.makePairIteratorHalf();
+                fullIterator = ps.iterator.makePairIteratorFull();
                 reset(s1, s2);}  
             public final boolean hasNext() {return hasNext;}
             public final AtomPair next() {
@@ -353,21 +442,24 @@ public class AtomPair {
             } //end of reset(s1,s2)
             public void reset() {reset(species1, species2);}
         }  //end of class AMAM
-        
+  */      
  // Iterates over pairs formed by given atom and all atoms from other molecules above it in list
  // If given atom is not in phase, it is considered the last atom, and no iterations are performed
-        public static final class Up implements Iterator {
+        public static final class Up implements Iterator.A {
             private final AtomPair pair;
             private final Phase phase;
             private boolean hasNext;
             private Atom nextAtom;
             public Up(Phase p) {phase = p; pair = new AtomPair(p); hasNext = false;}
-            public Up(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a);}
+            public Up(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a,true);}
+            public void reset(Atom a1, Atom a2, Atom a3, Atom a4) {}
+            public void reset(Atom a1, Atom a2, Atom a3) {}
+            public void allDone() {hasNext = false;}
             public boolean hasNext() {return hasNext;}
-            public void reset(Atom a) {
+            public void reset(Atom a, boolean intra) {
                 if(a == null || a.parentPhase() != phase) {hasNext = false; return;}
                 pair.atom1 = a;
-                nextAtom = a.nextMoleculeFirstAtom();
+                nextAtom = intra ? a.nextAtom() : a.nextMoleculeFirstAtom();
                 hasNext = (nextAtom != null);
             }
             public AtomPair next() {
@@ -385,19 +477,25 @@ public class AtomPair {
      * all atoms in phase
      */
     
-        public static final class Down implements Iterator {
+        public static final class Down implements Iterator.A {
             private final AtomPair pair;
             private final Phase phase;
             private boolean hasNext;
             private Atom nextAtom;
-            public Down(Phase p) {pair = new AtomPair(p); hasNext = false;}
-            public Down(Phase p, Atom a) {pair = new AtomPair(p); reset(a);}
+            public Down(Phase p) {phase = p; pair = new AtomPair(p); hasNext = false;}
+            public Down(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a,true);}
             public boolean hasNext() {return hasNext;}
-            public void reset(Atom a) {
+            public void reset(Atom a1, Atom a2, Atom a3, Atom a4) {}
+            public void reset(Atom a1, Atom a2, Atom a3) {}
+            public void allDone() {hasNext = false;}
+            public void reset(Atom a, boolean intra) {
                 if(a == null) {hasNext = false; return;}
                 pair.atom1 = a;
-                if(a.parentPhase() == phase) {nextAtom = a.previousMoleculeLastAtom();}
-                else {nextAtom = phase.lastAtom();}
+                if(a.parentPhase() == phase) {
+                    nextAtom = intra ? a.previousAtom() : a.previousMoleculeLastAtom();}
+                else {
+                    nextAtom = phase.lastAtom();
+                }
                 hasNext = (nextAtom != null);
             }
             public AtomPair next() {
@@ -436,6 +534,7 @@ public class AtomPair {
             outer = oFirst;
             hasNext = true;
         }
+        public void reset(Atom a, boolean intra) {}  
         public AtomPair next() {
             if(!hasNext) {return null;}
             pair.atom1 = outer;   //atom1 should always be outer
@@ -443,16 +542,16 @@ public class AtomPair {
             pair.reset();
             if(inner == iLast) {                                     //end of inner loop
                 if(outer == oLast) {hasNext = false;}                //all done
-                else {outer = outer.nextAtom; inner = iFirst;} //advance outer, reset inner
+                else {outer = outer.nextAtom(); inner = iFirst;} //advance outer, reset inner
             }
-            else {inner = inner.nextAtom;}
+            else {inner = inner.nextAtom();}
             return pair;
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
         public void reset() {reset(iFirst, iLast, oFirst, oLast);}
     }
-        
+ /*       
     //"Half" --> Each iteration of inner loop begins with atom after (HalfUp) or before (HalfDown) outer loop atom
     static final class HalfUp implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
@@ -507,6 +606,7 @@ public class AtomPair {
             pair = new AtomPair(p);
             reset(iL,oF,oL);
         }
+        public void reset(Atom a, boolean intra) {
         public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
         public void reset(Atom iL, Atom oF, Atom oL) {
             if(oF == null) {hasNext = false; return;}
@@ -514,7 +614,7 @@ public class AtomPair {
             oFirst =  oF; 
             oLast =  oL;
             outer = oFirst;
-            inner = outer.previousAtom;
+            inner = outer.previousAtom();
             hasNext = (inner != null);
         }
         public AtomPair next() {
@@ -523,15 +623,15 @@ public class AtomPair {
             pair.reset();
             if(inner == iLast) {                                     //end of inner loop
                 if(outer == oLast) {hasNext = false;}                //all done
-                else {outer = outer.previousAtom; inner = outer.previousAtom; hasNext = (inner != null);} //advance outer, reset inner
+                else {outer = outer.previousAtom(); inner = outer.previousAtom(); hasNext = (inner != null);} //advance outer, reset inner
             }
-            else {inner = inner.nextAtom;}
+            else {inner = inner.nextAtom();}
             return pair;
         }
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
         public void reset() {reset(iLast, oFirst, oLast);}
     }
-        
+ */       
     }  //end of interface Iterator
 }  //end of  AtomPair

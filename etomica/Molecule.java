@@ -19,7 +19,7 @@ import java.awt.Graphics;
  * @see Species
  */
 
-public class Molecule implements Serializable {
+public class Molecule implements Space.Occupant, Serializable {
 
   /**
    *  Makes molecule with specified number of atoms, all of the same type.
@@ -33,6 +33,7 @@ public class Molecule implements Serializable {
     p = coordinate.momentum();
     temp = parentPhase.parentSimulation.space.makeVector();
     nAtoms = n;
+    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
     
     firstAtom = new Atom(this,type,0);
     lastAtom = firstAtom;
@@ -55,6 +56,7 @@ public class Molecule implements Serializable {
     r = coordinate.position();
     p = coordinate.momentum();
     nAtoms = type.length;
+    atomIterator = (nAtoms > 1) ? new AtomIterator() : new MonoAtomIterator();
     temp = parentPhase.parentSimulation.space.makeVector();
     
     firstAtom = new Atom(this,type[0],0);
@@ -64,6 +66,8 @@ public class Molecule implements Serializable {
         lastAtom = lastAtom.nextAtom();
     }
   }
+  
+  public final Space.Coordinate coordinate() {return coordinate;}
 
  /**
   * @return the number of atoms in this molecule
@@ -224,30 +228,35 @@ public class Molecule implements Serializable {
   public final Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
   public final Space.Vector r;
   public final Space.Vector p;
+  
+  public final Atom.Iterator atomIterator;
+  
 //-------------------------------------------------------------------------
 
         protected final Space.Vector temp;
         public void updateR() {  //recomputes COM position from atom positions
-            Space.AtomCoordinate c = firstAtom.coordinate;
-            if(nAtoms==1) {r.E(c.position());}  //one atom in molecule
+            if(nAtoms==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
             else {  //multiatomic
-                r.Ea1Tv1(c.atom().mass(),c.position());
-                do {c=c.nextCoordinate(); r.PEa1Tv1(c.atom().mass(),c.position());} while (c.atom()!=lastAtom);
+                r.E(0.0);
+                atomIterator.reset();
+                while(atomIterator.hasNext()) {
+                    Atom a = atomIterator.next();
+                    r.PEa1Tv1(a.mass(),a.coordinate().position());
+                }
                 r.DE(mass());
             }
         }
         public void updateP() {  //recomputes total momentum from atom momenta
-            Space.AtomCoordinate c = firstAtom.coordinate;
-            p.E(c.momentum());
-            if(nAtoms==1) {return;}  //one atom in molecule
-            do {c=c.nextCoordinate(); p.PE(c.momentum());} while (c.atom()!=lastAtom);
+            p.E(0.0);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {
+                p.PE(atomIterator.next().momentum());
+            }
         }
         public void translateToward(Space.Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
         public void translateBy(Space.Vector u) {
-            Space.AtomCoordinate c = firstAtom.coordinate;
-            c.translateBy(u);
-            if(nAtoms == 1) {return;}
-            do {c=c.nextCoordinate(); c.translateBy(u);} while (c.atom()!=lastAtom);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {atomIterator.next().translateBy(u);}
         }
         public void translateTo(Space.Vector u) {
             updateR();  //update COM vector
@@ -256,10 +265,8 @@ public class Molecule implements Serializable {
             translateBy(temp);
         }
         public void displaceBy(Space.Vector u) {
-            Space.AtomCoordinate c = firstAtom.coordinate;
-            c.displaceBy(u);
-            if(nAtoms == 1) {return;}
-            do {c=c.nextCoordinate(); c.displaceBy(u);} while (c.atom()!=lastAtom);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {atomIterator.next().displaceBy(u);}
         }
         public void displaceTo(Space.Vector u) {
             updateR();  //update COM vector
@@ -276,10 +283,8 @@ public class Molecule implements Serializable {
         public void translateToRandom(Phase phase) {translateTo(phase.boundary().randomPosition());}
 
         public void replace() {
-            Space.AtomCoordinate c = firstAtom.coordinate;
-            c.replace();
-            if(nAtoms == 1) {return;}
-            do {c=c.nextCoordinate(); c.replace();} while (c.atom()!=lastAtom);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {atomIterator.next().replace();}
         }
   /**
   
@@ -309,10 +314,14 @@ public class Molecule implements Serializable {
         public double kineticEnergy() {updateP(); return 0.5*p.squared()*rm();}
         
         public void randomizeMomentum(double temperature) {
-            Space.AtomCoordinate c = firstAtom.coordinate;
-            c.randomizeMomentum(temperature);
-            if(nAtoms == 1) {return;}
-            do {c=c.nextCoordinate(); c.randomizeMomentum(temperature);} while (c.atom()!=lastAtom);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {
+                atomIterator.next().randomizeMomentum(temperature);
+            }
+         //   Space.Atom a = firstAtom.coordinate;
+         //   c.randomizeMomentum(temperature);
+         //   if(nAtoms == 1) {return;}
+         //   do {c=c.nextCoordinate(); c.randomizeMomentum(temperature);} while (c.atom()!=lastAtom);
         }
 
  /**
@@ -348,5 +357,31 @@ public class Molecule implements Serializable {
     firstAtom.clearPreviousAtom();
   }
   
-
+  public final class AtomIterator implements Atom.Iterator {
+        private Atom atom, nextAtom;
+        private boolean hasNext;
+        public AtomIterator() {reset();}
+        public boolean hasNext() {return hasNext;}
+        public void reset() {
+            atom = firstAtom;
+            hasNext = true;
+        }
+        public Atom next() {
+            nextAtom = atom;
+            if(atom == lastAtom) {hasNext = false;}
+            else {atom = atom.nextAtom();}
+            return nextAtom;
+        }
+    } //end of Atom.Iterator
+  public final class MonoAtomIterator implements Atom.Iterator {
+        private boolean hasNext;
+        public MonoAtomIterator() {reset();}
+        public boolean hasNext() {return hasNext;}
+        public void reset() {hasNext = true;}
+        public Atom next() {
+            hasNext = false;
+            return firstAtom;
+        }
+    } //end of MonoAtomIterator
+    
 }

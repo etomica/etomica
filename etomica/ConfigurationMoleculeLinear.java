@@ -29,8 +29,8 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
         OldCOM.E(m.COM());
         double xNext = 0.0;
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
-            a.coordinate.translateTo(OldCOM);  //put all atoms at same point
-            a.coordinate.translateToward(orientation,xNext);  //move xNext distance in direction orientation
+            a.translateTo(OldCOM);  //put all atoms at same point
+            a.translateBy(xNext,orientation);  //move xNext distance in direction orientation
             xNext += bondLength;
         }
         m.translateTo(OldCOM);  //shift molecule to original COM

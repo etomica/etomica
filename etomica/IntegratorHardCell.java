@@ -17,10 +17,10 @@ public IntegratorHardCell() {
 
 public void registerPhase(Phase p) {
     super.registerPhase(p);
-    upPairIterator = p.makeUpIterator();
-    downPairIterator = p.makeDownIterator();
-    upAtomIterator = parentController.parentSimulation.space().makeUpAtomIterator();
-    downAtomIterator = parentController.parentSimulation.space().makeDownAtomIterator();
+    upPairIterator = p.iterator.makeAtomPairIteratorUp();
+    downPairIterator = p.iterator.makeAtomPairIteratorDown();
+    upAtomIterator = p.iterator.makeAtomIteratorUp();
+    downAtomIterator = p.iterator.makeAtomIteratorDown();
     atomPair = p.makeAtomPair();
 }
 
@@ -51,15 +51,16 @@ public void doStep(double tStep) {
 }
 
 //debugging tool
-private Atom checkInCells() {
+/*private Atom checkInCells() {
     for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-        a.phase().boundary().centralImage(a.coordinate.position());
-        if(!((LatticeSquare.Cell)((Space2DCell.AtomCoordinate)a.coordinate).cell).inCell(a)) {
+        a.parentPhase().boundary().centralImage(a.coordinate.position());
+        if(!((LatticeSquare.Cell)((Space2DCell.Coordinate)a.coordinate).cell).inCell(a)) {
             return a;
         }
     }
     return null;
 }
+*/
 //--------------------------------------------------------------
          
 protected void findNextCollider() {
@@ -113,9 +114,9 @@ protected void advanceToCollision() {
         boolean upListedP = false;
 //        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
 //        upAtomIterator.reset(firstPhase.firstAtom());
-        upAtomIterator.reset(((Space2DCell)parentController.parentSimulation.space()).cells.firstAtom().atom());  //first atom in first cell
+        upAtomIterator.reset(((Space2DCell)parentController.parentSimulation.space()).cells.firstAtom());  //first atom in first cell
         while(upAtomIterator.hasNext()) {
-            Atom a = upAtomIterator.next().atom();
+            Atom a = upAtomIterator.next();
             if(a == partnerNextAtom) break;
             Atom aPartner = ((Agent)a.ia).getCollisionPartner();
             if(aPartner==nextCollider.atom || aPartner==partner) {
@@ -144,7 +145,7 @@ protected void advanceAcrossTimeStep(double tStep) {
             if(a.isStationary()) {continue;}  //skip if atom is stationary
 //            Space.uEa1Tv1(dr,tStep*a.rm,a.p);
 //            a.translate(dr);         //needs modification for nonspherical atom
-            a.coordinate.translateToward(a.coordinate.momentum(),tStep*a.rm());
+            a.translateBy(tStep*a.rm(),a.coordinate.momentum());
         }
     }
     else {
@@ -153,10 +154,10 @@ protected void advanceAcrossTimeStep(double tStep) {
             ((Agent)a.ia).decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
 //            Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2,firstPhase.gravity.gVector);
-            a.coordinate.translateToward(a.coordinate.momentum(),tStep*a.rm());
-            a.coordinate.translateToward(firstPhase.gravity.gVector,t2);
+            a.translateBy(tStep*a.rm(),a.coordinate.momentum());
+            a.translateBy(t2,firstPhase.gravity.gVector);
 //            Space.uEa1Tv1(dr,tStep*a.mass,firstPhase.gravity.gVector);
-            a.coordinate.accelerateToward(firstPhase.gravity.gVector,tStep*a.mass());
+            a.accelerateBy(tStep*a.mass(),firstPhase.gravity.gVector);
         }
     }
 }
@@ -219,7 +220,7 @@ protected void upList(Atom atom) {  //specific to 2D
         upPairIterator.reset(atom,null,null);
         while(upPairIterator.hasNext()) {
             AtomPair pair = upPairIterator.next();
-            if(((Agent)pair.atom2().ia).getCollisionPartner() == atom.coordinate) upList(pair.atom2());  //upList atom could have atom as collision partner if atom was just moved down list
+            if(((Agent)pair.atom2().ia).getCollisionPartner() == atom) upList(pair.atom2());  //upList atom could have atom as collision partner if atom was just moved down list
             PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
 //            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
             double time = potential.collisionTime(pair);
@@ -245,7 +246,7 @@ protected void upList(Atom atom) {  //specific to 2D
 
 protected void downList(Atom atom) {
             
-    Atom previousMoleculeAtom = atom.getMolecule().firstAtom().previousAtom();
+    Atom previousMoleculeAtom = atom.parentMolecule().firstAtom().previousAtom();
             
     int atomSpeciesIndex = atom.getSpeciesIndex();
             

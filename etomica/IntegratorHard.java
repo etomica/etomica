@@ -7,6 +7,10 @@ public final class IntegratorHard extends Integrator {
 private Agent nextCollider;
 private AtomPair.Iterator.A iterator;
 private AtomPair atomPair;
+private AtomPair.Iterator.A apiUp;
+private AtomPair.Iterator.A apiDown;
+private Atom.Iterator atomUp;
+private Atom.Iterator atomDown;
 
 boolean bb = true;
             
@@ -16,8 +20,12 @@ public IntegratorHard() {
 
 public void registerPhase(Phase p) {
     super.registerPhase(p);
-    iterator = p.makePairIteratorFull();
-    atomPair = p.makeAtomPair();
+    apiUp = p.iterator.makeAtomPairIteratorUp();
+    apiDown = p.iterator.makeAtomPairIteratorDown();
+    atomUp = p.iterator.makeAtomIteratorUp();
+    atomDown = p.iterator.makeAtomIteratorDown();
+//    iterator = p.makePairIteratorFull();
+//    atomPair = p.makeAtomPair();
 }
 
           
@@ -81,7 +89,11 @@ protected void advanceToCollision() {
                 
         boolean upListedN = false;
         boolean upListedP = false;
-        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
+        atomUp.reset(firstPhase.firstAtom());
+        while(atomUp.hasNext()) {
+            Atom a = atomUp.next();
+            if(a == partnerNextAtom) break;
+ //       for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
             Atom aPartner = ((Agent)a.ia).getCollisionPartner();
             if(aPartner==nextCollider.atom || aPartner==partner) {
                 upList(a);
@@ -109,7 +121,7 @@ protected void advanceAcrossTimeStep(double tStep) {
             if(a.isStationary()) {continue;}  //skip if atom is stationary
 //            Space.uEa1Tv1(dr,tStep*a.rm,a.p);
 //            a.translate(dr);         //needs modification for nonspherical atom
-            a.coordinate.translateToward(a.coordinate.momentum(),tStep*a.rm());
+            a.translateBy(tStep*a.rm(),a.coordinate.momentum());
         }
     }
     else {
@@ -118,10 +130,10 @@ protected void advanceAcrossTimeStep(double tStep) {
             ((Agent)a.ia).decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
 //            Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2,firstPhase.gravity.gVector);
-            a.coordinate.translateToward(a.coordinate.momentum(),tStep*a.rm());
-            a.coordinate.translateToward(firstPhase.gravity.gVector,t2);
+            a.translateBy(tStep*a.rm(),a.coordinate.momentum());
+            a.translateBy(t2,firstPhase.gravity.gVector);
 //            Space.uEa1Tv1(dr,tStep*a.mass,firstPhase.gravity.gVector);
-            a.coordinate.accelerateToward(firstPhase.gravity.gVector,tStep*a.mass());
+            a.accelerateBy(tStep*a.mass(),firstPhase.gravity.gVector);
         }
     }
 }
@@ -148,7 +160,7 @@ protected void upList(Atom atom) {  //specific to 2D
     double minCollisionTime = Double.MAX_VALUE;
     Agent aia = (Agent)atom.ia;
     if(!atom.isStationary() && atom.type instanceof AtomType.Disk) {  //if mobile, set collision time to time atom takes to move half a box edge
-        double tnew = Math.abs((atom.phase().dimensions().component(0)-1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
+        double tnew = Math.abs((atom.parentPhase().dimensions().component(0)-1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
         minCollisionTime = tnew;
 //        for(int i=Simulation.D-1; i>=0; i--) {
 //            double tnew = Math.abs((atom.phase().dimensions().component(i)-1.0001*((AtomType.Disk)atom.type).diameter())/atom.coordinate.momentum(i));  //assumes range of potential is .le. diameter
@@ -178,19 +190,24 @@ protected void upList(Atom atom) {  //specific to 2D
             }
         }
     }
-            
+    apiUp.reset(atom,Iterator.INTRA);
+    while(apiUp.hasNext()) {
+        AtomPair pair = apiUp.next();
+//        PotentialHard potential = (PotentialHard)pair.potential;
+        PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
+        
     //Loop through remaining uplist atoms in firstPhase
-    if(atom.parentMolecule != atom.phase().lastMolecule()) {
-        iterator.reset(atom.nextMoleculeFirstAtom(),atom.phase().lastAtom(),atom,atom);
-        while(iterator.hasNext()) {
-            AtomPair pair = iterator.next();
-            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
+//    if(atom.parentMolecule != atom.phase().lastMolecule()) {
+//        iterator.reset(atom.nextMoleculeFirstAtom(),atom.phase().lastAtom(),atom,atom);
+//        while(iterator.hasNext()) {
+//            AtomPair pair = iterator.next();
+//            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
             double time = potential.collisionTime(pair);
             if(time < minCollisionTime) {
                 minCollisionTime = time;
                 aia.setCollision(time,pair.atom2(),potential);  //atom2 is inner loop
             }
-        }
+//        }
     }
 //    Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
 //    for(Atom a=nextMoleculeAtom; a!=null; a=a.nextAtom()) {
@@ -208,23 +225,29 @@ protected void upList(Atom atom) {  //specific to 2D
 
 protected void downList(Atom atom) {
             
-    Atom previousMoleculeAtom = atom.getMolecule().firstAtom().previousAtom();
+    Atom previousMoleculeAtom = atom.parentMolecule().firstAtom().previousAtom();
             
     int atomSpeciesIndex = atom.getSpeciesIndex();
             
+    apiDown.reset(atom,Iterator.INTRA);
+    while(apiDown.hasNext()) {
+        AtomPair pair = apiDown.next();
+//        PotentialHard potential = (PotentialHard)pair.potential;
+        
     //Loop through remaining downlist atoms in this atom's molecule
-    if(atom != atom.parentMolecule.firstAtom) {
-        iterator.reset(atom.parentMolecule.firstAtom,atom.previousAtom(),atom,atom);
-        Potential1 p1 = simulation().potential1[atomSpeciesIndex];
-        while(iterator.hasNext()) {
-            AtomPair pair = iterator.next();
+//    if(atom != atom.parentMolecule.firstAtom) {
+//        iterator.reset(atom.parentMolecule.firstAtom,atom.previousAtom(),atom,atom);
+//        Potential1 p1 = simulation().potential1[atomSpeciesIndex];
+//        while(iterator.hasNext()) {
+//            AtomPair pair = iterator.next();
             Agent aia = (Agent)pair.atom2().ia;  //atom2 is inner loop
-            PotentialHard potential = (PotentialHard)p1.getPotential(pair.atom2(),atom);
+        PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
+//            PotentialHard potential = (PotentialHard)p1.getPotential(pair.atom2(),atom);
             double time = potential.collisionTime(pair);
             if(time < aia.getCollisionTime()) {
                 aia.setCollision(time,atom,potential);
             }
-        }
+//        }
     }
 /*        Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
         for(Atom a=atom.previousAtom(); a!=previousMoleculeAtom; a=a.previousAtom()) {
@@ -238,7 +261,7 @@ protected void downList(Atom atom) {
             
     //Loop through remaining downlist atoms in firstPhase
 //   Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
-    if(atom.parentMolecule != atom.phase().firstMolecule()) {
+/*    if(atom.parentMolecule != atom.phase().firstMolecule()) {
         iterator.reset(atom.phase().firstAtom(),atom.previousMoleculeLastAtom(),atom,atom);
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
@@ -250,7 +273,7 @@ protected void downList(Atom atom) {
                 aia.setCollision(time,atom,potential);
             }
         }
-    }
+    }*/
  /*   for(Atom a=previousMoleculeAtom; a!=null; a=a.previousAtom()) {
         Agent aia = (Agent)a.ia;
         PotentialHard potential = (PotentialHard)firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
@@ -278,7 +301,7 @@ public void initialize() {
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
         for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-            a.coordinate.scaleMomentum(s);
+            a.scaleMomentum(s);
             ((Agent)a.ia).collisionTime *= rs;
         }
     }

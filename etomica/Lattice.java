@@ -19,7 +19,7 @@ public abstract class Lattice {
     public abstract void setBasis(double[][] b);
         
     public interface Site {
-        public Space.AtomCoordinate firstAtom();
+        public Atom firstAtom();
         public void setFirstAtom(Space.AtomCoordinate c);
 //        public Linker firstUpNeighbor();
 //        public Linker firstDownNeighbor();

@@ -119,9 +119,7 @@ public class Space2D extends Space {
    //     public final Atom atom2() {return c2.atom();}
     }
 
-    static class Coordinate implements Space.Coordinate {
-        public final Atom atom;        
-        Coordinate(Atom a) {atom = a;}          //constructor
+    static class Coordinate extends Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
         public Space.Vector position() {return r;}
@@ -129,7 +127,6 @@ public class Space2D extends Space {
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
         public Vector makeVector() {return new Vector();}
-        public final Atom atom() {return atom;}
         
         Coordinate nextNeighbor, previousNeighbor;
         public final void setNextNeighbor(Space.Coordinate c) {

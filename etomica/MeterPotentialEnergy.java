@@ -64,23 +64,23 @@ public class MeterPotentialEnergy extends simulate.Meter
       } 
       return pe; */
     }
-  
+
   /**
    * Computes intermolecular contribution to potential energy for atom.  Returns zero if atom is not in phase.
    * Does not include intramolecular contribution
-   
+
    //  May want to change this so it handles atoms not in phase
-   
+
    */
     public final double currentValue(Atom a) {
         if(phase != a.phase()) {return 0.0;}  //also handles condition that phase contains no atoms
         double pe = 0.0;
-        apiUp.reset(a);
+        apiUp.reset(a,apiUp.INTER);
         while(apiUp.hasNext()) {
             AtomPair pair = apiUp.next();
             pe += pair.potential.energy(pair);
         }
-        apiDown.reset(a);
+        apiDown.reset(a,apiDown.INTER);
         while(apiDown.hasNext()) {
             AtomPair pair = apiDown.next();
             pe += pair.potential.energy(pair);

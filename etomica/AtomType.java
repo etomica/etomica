@@ -44,7 +44,7 @@ public abstract class AtomType {
     public final Color color() {return color;}
     public final void setColor(Color c) {color = c;}
     
-    public abstract void draw(Graphics g, int origin[], double s, Color color, Space.AtomCoordinate c);
+    public abstract void draw(Graphics g, int origin[], double s, Atom atom);
 
     
     // Disk-shaped atom.  Assumed to be in 2D
@@ -79,13 +79,13 @@ public abstract class AtomType {
         * @param scale     factor determining size of drawn image relative to
         *                  nominal drawing size
         */
-        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
-            Space2DCell.AtomCoordinate c2 = (Space2DCell.AtomCoordinate)c;
+        public void draw(Graphics g, int[] origin, double scale, Atom atom) {
+            Space.Vector r = atom.coordinate().position();
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
             int sigmaP = (int)(toPixels*diameter);
-            int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
-            int yP = origin[1] + (int)(toPixels*(c2.r.y-radius));
-            g.setColor(c.atom().color);
+            int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
+            int yP = origin[1] + (int)(toPixels*(r.component(1)-radius));
+            g.setColor(atom.color);
             g.fillOval(xP,yP,sigmaP,sigmaP);
         }
     }
@@ -121,22 +121,22 @@ public abstract class AtomType {
         * @param scale     factor determining size of drawn image relative to
         *                  nominal drawing size
         */
-        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
-            Space2DCell.AtomCoordinate c2 = (Space2DCell.AtomCoordinate)c;
+        public void draw(Graphics g, int[] origin, double scale, Atom atom) {
+            Space.Vector r = atom.coordinate().position();
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
 
             //Draw core
             int sigmaP = (int)(toPixels*diameter);
-            int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
-            int yP = origin[1] + (int)(toPixels*(c2.r.y-radius));
-            g.setColor(color);
+            int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
+            int yP = origin[1] + (int)(toPixels*(r.component(1)-radius));
+            g.setColor(atom.color);
             g.fillOval(xP,yP,sigmaP,sigmaP);
             
             //Draw well
             sigmaP = (int)(toPixels*wellDiameter);
-            xP = origin[0] + (int)(toPixels*(c2.r.x-wellRadius));
-            yP = origin[1] + (int)(toPixels*(c2.r.y-wellRadius));
-            g.setColor(color);
+            xP = origin[0] + (int)(toPixels*(r.component(0)-wellRadius));
+            yP = origin[1] + (int)(toPixels*(r.component(1)-wellRadius));
+            g.setColor(atom.color);
             g.drawOval(xP,yP,sigmaP,sigmaP);
         }
     }
@@ -189,12 +189,12 @@ public abstract class AtomType {
         public final boolean isAdiabatic() {return adiabatic;}
         public final void setAdiabatic(boolean a) {adiabatic = a;}
      
-        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
-            Space2DCell.AtomCoordinate c2D = (Space2DCell.AtomCoordinate)c;
+        public void draw(Graphics g, int[] origin, double scale, Atom atom) {
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
-            int xP = origin[0] + (int)(toPixels*c2D.r.x);
-            int yP = origin[1] + (int)(toPixels*c2D.r.y);
-            g.setColor(color);
+            Space.Vector r = atom.coordinate().position();
+            int xP = origin[0] + (int)(toPixels*r.component(0));
+            int yP = origin[1] + (int)(toPixels*r.component(1));
+            g.setColor(atom.color);
             if(!(horizontal || vertical)) {  //not horizontal or vertical; draw line
                 int x1 = xP + (int)(toPixels*length*cosA);
                 int y1 = yP + (int)(toPixels*length*sinA);
@@ -224,7 +224,7 @@ public abstract class AtomType {
         public final void setRadius(double r) {this.setDiameter(2.0*r);}
         
         //Need to complete this
-        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {}
+        public void draw(Graphics g, int[] origin, double scale, Atom atom) {}
     }
     
     //prototype of a real atom type

@@ -46,6 +46,8 @@ public class Phase extends Container {
     public final int getBoundary() {return iBoundary;}
     public final Space.Boundary boundary() {return boundary;}
     
+    public final Space space() {return parentSimulation.space();}
+    
     public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
     public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
         
