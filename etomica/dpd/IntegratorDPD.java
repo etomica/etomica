@@ -121,7 +121,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
     
 //--------------------------------------------------------------
 
-	protected void doReset() {
+	protected void reset() {
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();

@@ -58,7 +58,7 @@ public class DPDSim extends SimulationGraphic{
 //		display.setColorScheme(new etomica.graphics.ColorSchemeRandom());
 		ColorSchemeByType.setColor(species, java.awt.Color.red);
 
-		MeterTime time = new MeterTime(this);
+		DataSourceCountTime time = new DataSourceCountTime(integrator);
 		DisplayBox boxTime = new DisplayBox(this);
 		boxTime.setMeter(time);
 		boxTime.setPrecision(10);
