@@ -80,8 +80,9 @@ public abstract class Activity implements Action {
 		try {
 			wait(); //put in paused state
 		} catch (InterruptedException e) {}
-        System.out.println(this+"in doWait, setting isPaused to false");
+//        System.out.println(this+"in doWait, setting isPaused to false");
 		isPaused = false;
+        notifyAll();  // release any threads waiting for unpause to take effect
 	}
 
 	/**
@@ -108,10 +109,13 @@ public abstract class Activity implements Action {
      * Removes activity from the paused state, resuming execution where it left off.
      */
     public synchronized void unPause() {
-//        System.out.println(this+" in unPause "+isPaused+" "+isActive());
+  //      System.out.println(this.getClass()+" in unPause "+isPaused+" "+isActive());
     	if (!isPaused || !isActive()) return;// not currently paused or not active
     	pauseRequested = false;
     	notifyAll();
+        try {
+            wait();
+        } catch(InterruptedException e) {}
     }
 
 	/**
