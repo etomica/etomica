@@ -289,7 +289,7 @@ public class Space1D extends Space implements EtomicaElement {
             c2.p.ME(u);
             
             c1.r.PEa1Tv1(-falseTime,u);
-            c2.r.PEa1Tv1(-falseTime,u);
+            c2.r.PEa1Tv1(falseTime,u);
         }
         public void nudge(double rDelta) {
             double ratio = c2.mass()*c1.rm()*rDelta;
