@@ -1,12 +1,10 @@
 package etomica.modules.clustergenerator;
-//package etomica.virial.cluster.graphics;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Point;
 import java.util.Hashtable;
 
@@ -59,12 +57,11 @@ public abstract class Plot extends Component {
      * @param ymin the bottom edge of the physical window
      * @param ymax the top edge of the physical window
      */
-    public void setWindow (double xmin, double xmax,
-			   double ymin, double ymax) {
-	this.xmin_ = xmin;
-	this.xmax_ = xmax;
-	this.ymin_ = ymin;
-	this.ymax_ = ymax;
+    public void setWindow(double xmin, double xmax, double ymin, double ymax) {
+        this.xmin_ = xmin;
+        this.xmax_ = xmax;
+        this.ymin_ = ymin;
+        this.ymax_ = ymax;
     }
 
     protected int umin = 0;
@@ -79,21 +76,21 @@ public abstract class Plot extends Component {
      * @param y the y coordinate of the point in the world window
      * @return the x pixel value of this point on the plot
      */
-    public int xPixel (double x, double y) {
-	double u = umin + (x - xmin_) / (xmax_ - xmin_) * (umax - umin);
-	return (int) Math.round(u);
+    public int xPixel(double x) {
+        double u = umin + (x - xmin_) / (xmax_ - xmin_) * (umax - umin);
+        return (int) Math.round(u);
     }
 
-    public double xWorld (int x) {
-	double wx = x - umin;
-	wx /= umax - umin;
-	return xmin_ + wx * (xmax_ - xmin_);
+    public double xWorld(int x) {
+        double wx = x - umin;
+        wx /= umax - umin;
+        return xmin_ + wx * (xmax_ - xmin_);
     }
 
-    public double yWorld (int y) {
-	double wy = y - vmin;
-	wy /= vmax - vmin;
-	return ymax_ - wy * (ymax_ - ymin_);
+    public double yWorld(int y) {
+        double wy = y - vmin;
+        wy /= vmax - vmin;
+        return ymax_ - wy * (ymax_ - ymin_);
     }
 
     /**
@@ -103,9 +100,9 @@ public abstract class Plot extends Component {
      * @param y the y coordinate of the point in the world window
      * @return the y pixel value of this point on the plot
      */
-    public int yPixel (double x, double y) {
-	double v = vmin + (ymax_ - y) / (ymax_ - ymin_) * (vmax - vmin);
-	return (int) Math.round(v);
+    public int yPixel(double y) {
+        double v = vmin + (ymax_ - y) / (ymax_ - ymin_) * (vmax - vmin);
+        return (int) Math.round(v);
     }
 
     /**
@@ -115,8 +112,8 @@ public abstract class Plot extends Component {
      * @param y the y coordinate of the point in the world window
      * @return the (x, y) pixel value of this point on the plot
      */
-    public Point getPoint (double x, double y) {
-	return new Point(xPixel(x, y), yPixel(x, y));
+    public Point getPoint(double x, double y) {
+        return new Point(xPixel(x), yPixel(y));
     }
 
     /**
@@ -126,30 +123,12 @@ public abstract class Plot extends Component {
      * @param dy the y coordinate difference of the two points in the world
      * @return the separation in pixels
      */
-    public Dimension getDimension (double dx, double dy) {
-	return new Dimension(xPixel(dx, dy) - xPixel(0, 0),
-			     yPixel(0, 0) - yPixel(dx, dy));
+    public Dimension getDimension(double dx, double dy) {
+        return new Dimension(xPixel(dx) - xPixel(0), yPixel(0) - yPixel(dy));
     }
 
-    protected Image offScreen, offScreen2;
-    protected Graphics osg, osg2;
-    protected boolean doOverlay;
+    protected Graphics osg;
     
-    public void plotOverlay () {
-	doOverlay = true;
-	if (offScreen2 == null) {
-	    offScreen2 = createImage(getSize().width,
-				    getSize().height);
-	    osg2 = offScreen2.getGraphics();
-	}
-	osg2.setPaintMode();
-	osg2.drawImage(offScreen, 0, 0, null);
-	osg2.setXORMode(getBackground());
-	Graphics swap = osg;
-	osg = osg2;
-	osg2 = swap;
-    }
-
     /**
      * Classes which inherit from Plot must define this method.
      * This method is called when the plot is repainted.
@@ -160,68 +139,68 @@ public abstract class Plot extends Component {
     /**
      * Clears the plot.
      */
-    public void clear () {
-	osg.clearRect(0, 0, getSize().width, getSize().height);
+    public void clear() {
+        osg.clearRect(0, 0, getSize().width, getSize().height);
     }
 
-    public void plotPoint (double x, double y) {
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	osg.drawLine(ix, iy, ix, iy);
+    public void plotPoint(double x, double y) {
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        osg.drawLine(ix, iy, ix, iy);
     }
 
-    public void plotLine (double x1, double y1, double x2, double y2) {
-	int ix1 = xPixel(x1, y1);
-	int iy1 = yPixel(x1, y1);
-	int ix2 = xPixel(x2, y2);
-	int iy2 = yPixel(x2, y2);
-	osg.drawLine(ix1, iy1, ix2, iy2);
+    public void plotLine(double x1, double y1, double x2, double y2) {
+        int ix1 = xPixel(x1);
+        int iy1 = yPixel(y1);
+        int ix2 = xPixel(x2);
+        int iy2 = yPixel(y2);
+        osg.drawLine(ix1, iy1, ix2, iy2);
     }
 
-    public void plotString (String s, double x, double y) {
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	osg.drawString(s, ix, iy);
+    public void plotString(String s, double x, double y) {
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        osg.drawString(s, ix, iy);
     }
 
-    public void plotStringCenter (String s, double x, double y) {
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	FontMetrics fm = osg.getFontMetrics();
-	int sw = fm.stringWidth(s);
-	ix -= sw / 2;
-	osg.drawString(s, ix, iy);
+    public void plotStringCenter(String s, double x, double y) {
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        FontMetrics fm = osg.getFontMetrics();
+        int sw = fm.stringWidth(s);
+        ix -= sw / 2;
+        osg.drawString(s, ix, iy);
     }
 
-    public void plotStringLeft (String s, double x, double y) {
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	FontMetrics fm = osg.getFontMetrics();
-	int sw = fm.stringWidth(s);
-	ix -= sw;
-	osg.drawString(s, ix, iy);
+    public void plotStringLeft(String s, double x, double y) {
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        FontMetrics fm = osg.getFontMetrics();
+        int sw = fm.stringWidth(s);
+        ix -= sw;
+        osg.drawString(s, ix, iy);
     }
 
-    public void boxArea (double x1, double x2, double y1, double y2) {
-	double x = Math.min(x1, x2);
-	double y = Math.max(y1, y2);
-	double dx = Math.abs(x1 - x2);
-	double dy = Math.abs(y1 - y2);
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	Dimension d = getDimension(dx, dy);
-	osg.fillRect(ix, iy, d.width, d.height);
+    public void boxArea(double x1, double x2, double y1, double y2) {
+        double x = Math.min(x1, x2);
+        double y = Math.max(y1, y2);
+        double dx = Math.abs(x1 - x2);
+        double dy = Math.abs(y1 - y2);
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        Dimension d = getDimension(dx, dy);
+        osg.fillRect(ix, iy, d.width, d.height);
     }
 
-    public void plotBox (double x1, double x2, double y1, double y2) {
-	double x = Math.min(x1, x2);
-	double y = Math.max(y1, y2);
-	double dx = Math.abs(x1 - x2);
-	double dy = Math.abs(y1 - y2);
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	Dimension d = getDimension(dx, dy);
-	osg.drawRect(ix, iy, d.width, d.height);
+    public void plotBox(double x1, double x2, double y1, double y2) {
+        double x = Math.min(x1, x2);
+        double y = Math.max(y1, y2);
+        double dx = Math.abs(x1 - x2);
+        double dy = Math.abs(y1 - y2);
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        Dimension d = getDimension(dx, dy);
+        osg.drawRect(ix, iy, d.width, d.height);
     }
 
     public void floodInside (double x1, double x2, double y1, double y2) {
@@ -229,67 +208,52 @@ public abstract class Plot extends Component {
     	double y = Math.max(y1, y2);
     	double dx = Math.abs(x1 - x2)-0.1;
     	double dy = Math.abs(y1 - y2)-0.1;
-    	int ix = xPixel(x, y);
-    	int iy = yPixel(x, y);
+    	int ix = xPixel(x);
+    	int iy = yPixel(y);
     	Dimension d = getDimension(dx, dy);
-//    	System.out.println(ix+" "+iy+" "+d.width+" "+d.height);
     	osg.fillOval(ix, iy, d.width, d.height);
         }
 
-    public void floodCircle (double x1, double x2, double y1, double y2) {
-	double x = Math.min(x1, x2);
-	double y = Math.max(y1, y2);
-	double dx = Math.abs(x1 - x2);
-	double dy = Math.abs(y1 - y2);
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	Dimension d = getDimension(dx, dy);
-	osg.fillOval(ix, iy, d.width, d.height);
+    public void floodCircle(double x1, double x2, double y1, double y2) {
+        double x = Math.min(x1, x2);
+        double y = Math.max(y1, y2);
+        double dx = Math.abs(x1 - x2);
+        double dy = Math.abs(y1 - y2);
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        Dimension d = getDimension(dx, dy);
+        osg.fillOval(ix, iy, d.width, d.height);
     }
     
-    public void circle (double x1, double x2, double y1, double y2) {
-	double x = Math.min(x1, x2);
-	double y = Math.max(y1, y2);
-	double dx = Math.abs(x1 - x2);
-	double dy = Math.abs(y1 - y2);
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	Dimension d = getDimension(dx, dy);
-	osg.drawOval(ix, iy, d.width, d.height);
+    public void circle(double x1, double x2, double y1, double y2) {
+        double x = Math.min(x1, x2);
+        double y = Math.max(y1, y2);
+        double dx = Math.abs(x1 - x2);
+        double dy = Math.abs(y1 - y2);
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        Dimension d = getDimension(dx, dy);
+        osg.drawOval(ix, iy, d.width, d.height);
     }
 
-    public void boxClear (double x1, double x2, double y1, double y2) {
-	double x = Math.min(x1, x2);
-	double y = Math.max(y1, y2);
-	double dx = Math.abs(x1 - x2);
-	double dy = Math.abs(y1 - y2);
-	int ix = xPixel(x, y);
-	int iy = yPixel(x, y);
-	Dimension d = getDimension(dx, dy);
-	osg.clearRect(ix, iy, d.width, d.height);
+    public void boxClear(double x1, double x2, double y1, double y2) {
+        double x = Math.min(x1, x2);
+        double y = Math.max(y1, y2);
+        double dx = Math.abs(x1 - x2);
+        double dy = Math.abs(y1 - y2);
+        int ix = xPixel(x);
+        int iy = yPixel(y);
+        Dimension d = getDimension(dx, dy);
+        osg.clearRect(ix, iy, d.width, d.height);
     }
 
-    public void update (Graphics g) {
-	paint(g);
+    public void update(Graphics g) {
+        paint(g);
     }
 
     public void paint (Graphics g) {
-        if (offScreen == null) {
-            offScreen = createImage(getSize().width,
-                        getSize().height);
-            osg = offScreen.getGraphics();
-        }
         osg = g;
         paint();
-/*        if (!doOverlay) {
-            g.drawImage(offScreen, 0, 0, null);
-        } else {
-            g.drawImage(offScreen2, 0, 0, null);
-            Graphics swap = osg2;
-            osg2 = osg;
-            osg = swap;
-            doOverlay = false;
-        }*/
     }
 
     public void setAxes (double xmin, double xmax,
@@ -311,7 +275,6 @@ public abstract class Plot extends Component {
         double xmax = xmax_ - dx;
         double ymin = ymin_ + dy;
         double ymax = ymax_ - dy;
-//      setWindow(xmin - dx, xmax + dx, ymin - dy, ymax + dy);
         this.xmin_ = xmin - dx;
         this.xmax_ = xmax + dx;
         this.ymin_ = ymin - dy;
@@ -335,54 +298,52 @@ public abstract class Plot extends Component {
         }
     }
 
-    public void setColor (Color c) {
-	osg.setColor(c);
+    public void setColor(Color c) {
+        osg.setColor(c);
     }
 
     Hashtable colorTable;
-    String[] awtColorString
-	= {"black", "blue", "cyan", "darkGray", "gray", "green", "lightGray",
-	   "magenta", "orange", "pink", "red", "white", "yellow"};
-    Color[] awtColor
-	= {Color.black, Color.blue, Color.cyan, Color.darkGray, Color.gray,
-	   Color.green, Color.lightGray, Color.magenta, Color.orange,
-	   Color.pink, Color.red, Color.white, Color.yellow};
+    String[] awtColorString = { "black", "blue", "cyan", "darkGray", "gray",
+            "green", "lightGray", "magenta", "orange", "pink", "red", "white", "yellow"};
+    Color[] awtColor = { Color.black, Color.blue, Color.cyan, Color.darkGray,
+            Color.gray, Color.green, Color.lightGray, Color.magenta,
+            Color.orange, Color.pink, Color.red, Color.white, Color.yellow};
 
-    private void populateColorTable () {
-	for (int i = 0; i < awtColor.length; i++)
-	    colorTable.put(awtColorString[i], awtColor[i]);
+    private void populateColorTable() {
+        for (int i = 0; i < awtColor.length; i++)
+            colorTable.put(awtColorString[i], awtColor[i]);
     }
 
-    public void setColor (String s) {
-	if (colorTable == null) {
-	    colorTable = new Hashtable();
-	    populateColorTable();
-	}
-	Color c = (Color) colorTable.get(s);
-	if (c != null)
-	    osg.setColor(c);
-	else
-	    System.err.println("Plot: no such color " + s);
+    public void setColor(String s) {
+        if (colorTable == null) {
+            colorTable = new Hashtable();
+            populateColorTable();
+        }
+        Color c = (Color) colorTable.get(s);
+        if (c != null)
+            osg.setColor(c);
+        else
+            System.err.println("Plot: no such color " + s);
     }
 
-    public void setBackground (String s) {
-	if (colorTable == null) {
-	    colorTable = new Hashtable();
-	    populateColorTable();
-	}
-	Color c = (Color) colorTable.get(s);
-	if (c != null)
-	    setBackground(c);
-	else
-	    System.err.println("Plot: no such color " + s);
+    public void setBackground(String s) {
+        if (colorTable == null) {
+            colorTable = new Hashtable();
+            populateColorTable();
+        }
+        Color c = (Color) colorTable.get(s);
+        if (c != null)
+            setBackground(c);
+        else
+            System.err.println("Plot: no such color " + s);
     }
 
-    public void setXORMode () {
-	osg.setXORMode(getBackground());
+    public void setXORMode() {
+        osg.setXORMode(getBackground());
     }
 
-    public void setPaintMode () {
-	osg.setPaintMode();
+    public void setPaintMode() {
+        osg.setPaintMode();
     }
 
 }
