@@ -132,7 +132,9 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      */
     public void setDataSource(DataSource m) {
         source = m;
-        setUnit(m.getDimension().defaultIOUnit());
+        if (unit==null) {
+            setUnit(m.getDimension().defaultIOUnit());
+        }
         setLabel();
     }
     
