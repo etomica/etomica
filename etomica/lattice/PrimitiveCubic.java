@@ -57,6 +57,13 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     public void setGamma(double t) {}
     public double getGamma() {return rightAngle;}
     
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return false;}
+    public boolean isEditableC() {return false;}
+    public boolean isEditableAlpha() {return false;}
+    public boolean isEditableBeta() {return false;}
+    public boolean isEditableGamma() {return false;}
+
     /**
      * Returns a new PrimitiveCubic with the same size as this one.
      */
@@ -76,6 +83,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
+        if(immutable) return;
         this.size = size;
         update();
     }

@@ -65,6 +65,13 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
     public void setGamma(double t) {}
     public double getGamma() {return BCC_ANGLE;}
     
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return false;}
+    public boolean isEditableC() {return false;}
+    public boolean isEditableAlpha() {return false;}
+    public boolean isEditableBeta() {return false;}
+    public boolean isEditableGamma() {return false;}
+
     /**
      * Returns a new PrimitiveCubic with the same size as this one.
      */

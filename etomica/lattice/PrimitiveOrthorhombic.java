@@ -26,13 +26,13 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      */
     private PrimitiveOrthorhombic(Simulation sim, Primitive direct) {
         super(sim, direct);
-        if(size == null) size = new double[] {1.0, 1.0, 1.0};
+        for(int i=0; i<D; i++) if(size[i] == 0.0) size[i] = 1.0;
         sizeCopy = new double[space.D()];
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        if(size == null) size = new double[] {1.0, 1.0, 1.0};
+        for(int i=0; i<D; i++) if(size[i] == 0.0) size[i] = 1.0;
         return new PrimitiveOrthorhombic(simulation, this);
     }
     
@@ -44,6 +44,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     }
     
     public void setA(double a) {
+        if(immutable) return;
         size[0] = a;
         latticeVectors[0].setX(0,a);
         update();
@@ -51,6 +52,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     public double getA() {return size[0];}
     
     public void setB(double b) {
+        if(immutable) return;
         size[1] = b;
         latticeVectors[1].setX(1,b);
         update();
@@ -58,6 +60,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     public double getB() {return size[1];}
         
     public void setC(double c) {
+        if(immutable) return;
         size[2] = c;
         latticeVectors[2].setX(2,c);
         update();
@@ -74,6 +77,12 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     public double getGamma() {return rightAngle;}
     
 
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return true;}
+    public boolean isEditableC() {return true;}
+    public boolean isEditableAlpha() {return false;}
+    public boolean isEditableBeta() {return false;}
+    public boolean isEditableGamma() {return false;}
     /**
      * Returns a new, identical instance of this primitive.
      */
@@ -86,6 +95,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
+        if(immutable) return;
         for(int i=0; i<D; i++) {
             this.size[i] = size;
             latticeVectors[i].setX(i,size);
@@ -103,6 +113,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     }
     
     public void scaleSize(double scale) {
+        if(immutable) return;
         for(int i=0; i<D; i++) {
             size[i] *= scale;
             latticeVectors[i].setX(i,size[i]);

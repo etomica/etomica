@@ -12,6 +12,13 @@ public interface Primitive3D {
     public void setC(double c);
     public double getC();
     
+    //flags indicating which fields can be edited independently
+    public boolean isEditableA();
+    public boolean isEditableB();
+    public boolean isEditableC();
+    public boolean isEditableAlpha();
+    public boolean isEditableBeta();
+    public boolean isEditableGamma();
     //angles
     /**
      * alpha is the angle between vectors 1 and 2 (b and c)

@@ -42,14 +42,18 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     public double getB() {return ab;}
     
     public void setAB(double ab) {
+        if(immutable) return;
         this.ab = ab;
+        size[0] = size[1] = ab;
         latticeVectors[0].setX(0,ab);
         latticeVectors[1].setX(1,ab);
         update();
     }
     
     public void setC(double c) {
+        if(immutable) return;
         this.c = c;
+        size[2] = ab;
         latticeVectors[2].setX(2, c);
         update();
     }
@@ -65,6 +69,13 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     public double getGamma() {return rightAngle;}
     
     
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return false;}
+    public boolean isEditableC() {return true;}
+    public boolean isEditableAlpha() {return false;}
+    public boolean isEditableBeta() {return false;}
+    public boolean isEditableGamma() {return false;}
+
     /**
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */

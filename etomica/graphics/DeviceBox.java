@@ -19,6 +19,8 @@ import java.awt.event.KeyEvent;
   * 09/05/02 (DAK) new from DisplayBox
   * 09/22/02 (DAK) added integer flag to indicate display as decimal or integer
   * 09/24/02 (DAK) added key listener that increments/decrements with arrow keys, if integer
+  * 09/27/02 (DAK) modified BoxListener so that it handles NumberFormatException appropriately
+  *                added set/is Editable fields
   */
  
 public class DeviceBox extends Device implements EtomicaElement {
@@ -105,6 +107,9 @@ public class DeviceBox extends Device implements EtomicaElement {
         if(integer) value.setText(Integer.toString((int)unit.fromSim(modulator.getValue())));
         else value.setText(format(unit.fromSim(modulator.getValue()),precision));
     }
+    
+    public void setEditable(boolean b) {value.setEditable(b);}
+    public boolean isEditable() {return value.isEditable();}
     
     /**
      * Accessor method to set the physical units of the displayed value.
@@ -221,7 +226,15 @@ public class DeviceBox extends Device implements EtomicaElement {
         
     private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            double x = Double.parseDouble(value.getText());
+            if(modulator == null) return;
+            double x = unit.fromSim(modulator.getValue());
+            try { 
+                x = Double.parseDouble(value.getText());
+            } catch(NumberFormatException ex) {//if bad format, just restore original value
+                value.setText(Double.toString(x));
+                doUpdate();
+                return;
+                }
             if(modulator!=null) modulator.setValue(unit.toSim(x));
        }
        public void keyReleased(java.awt.event.KeyEvent evt) {

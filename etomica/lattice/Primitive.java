@@ -17,7 +17,7 @@ public abstract class Primitive {
     public final Space space;
     protected Simulation simulation;
     protected BravaisLattice lattice;
-    private boolean ignoreUpdate = false;//flag used when sync-ing with the reciprocal
+    protected boolean immutable = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
     private final Primitive reciprocal;
     
@@ -74,6 +74,7 @@ public abstract class Primitive {
      * for any lengths that are not equal to current values.
      */
     public void setSize(double[] newSize) {
+        if(immutable) return;
         double size0, size1, size2;
         switch(D) {
             case 2:
@@ -95,7 +96,7 @@ public abstract class Primitive {
             default:
                 throw new RuntimeException("Didn't expect to get here in Primitive.setSize");
         }
-        if(lattice != null) lattice.update();
+        update();
     }
     
     /**
@@ -104,6 +105,7 @@ public abstract class Primitive {
      * for any angles that are not equal to current values.
      */
     public void setAngles(double[] newAngle) {
+        if(immutable) return;
         double t0, t1, t2;
         switch(D) {
             case 2:
@@ -122,7 +124,7 @@ public abstract class Primitive {
             default:
                 throw new RuntimeException("Didn't expect to get here in Primitive.setSize");
         }
-        if(lattice != null) lattice.update();
+        update();
     }
 
     /**
@@ -135,11 +137,11 @@ public abstract class Primitive {
 */    
 
     protected void update() {
-        if(ignoreUpdate) return;
+        if(immutable) return;
         if(lattice != null) lattice.update();
-        ignoreUpdate = true; 
+        immutable = true; 
         updateReciprocal();
-        ignoreUpdate = false;
+        immutable = false;
     }
     
     /**

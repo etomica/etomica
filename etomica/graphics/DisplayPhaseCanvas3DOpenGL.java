@@ -25,6 +25,8 @@ import etomica.utility.Iterator;
     /* History of changes
      * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
      * 09/07/02 (DAK) added atomFilter
+     * 09/xx/02 (DAK) added display of plane
+     * 09/27/02 (DAK) set zoom based on size of phase boundary (in init method)
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -98,7 +100,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   public void setPrevY(float y) {prevy = y;}
   public void setXRot(float x) {xRot = x;}
   public void setYRot(float y) {yRot = y;}
-  public void setZoom(float z) {shiftZ = z;}
+  public void setZoom(float z) {shiftZ = z;/*System.out.println(z);*/}
   public float getShiftX() {return(shiftX);}
   public float getShiftY() {return(shiftY);}
   public float getPrevX() {return(prevx);}
@@ -130,6 +132,17 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 
   public void init() {
     if(glInitialized) return;
+    
+    // DAK - 09/27/02 rescale display to adjust to size of phase
+    if(displayPhase != null) {
+        Phase phase = displayPhase.getPhase();
+        if(phase != null) {
+            float b = (float)phase.boundary().dimensions().x(0);
+            float z = -70f + (30f/b - 1f)*22f;
+            setZoom(z);
+        }
+    }//end DAK
+    
     //Set the background clear color
     c = getBackground();
     gl.glClearColor((float)c.getRed()/255f, (float)c.getGreen()/255f, (float)c.getBlue()/255f, (float)c.getAlpha()/255f);
