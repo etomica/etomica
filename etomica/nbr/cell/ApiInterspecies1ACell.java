@@ -5,6 +5,8 @@
 package etomica.nbr.cell;
 
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
@@ -15,6 +17,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPairVector;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
@@ -93,8 +96,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
      * Performs action on all iterates.
      */
     public void allAtoms(AtomsetAction action) {
-        if(pair[0] == null) return;
-        aiOuter.setAtom(pair[0]);
+        if(pair.atom0 == null) return;
+        aiOuter.setAtom(pair.atom0);
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)targetMolecule.seq).cell;
         int[] index = lattice.latticeIndex(cell.latticeArrayIndex);
@@ -130,8 +133,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
 	 * if an iterated pair would match the atoms as ordered in the given
 	 * array.
 	 */
-	public boolean contains(Atom[] atoms) {
-        if(atoms==null || atoms[0]==null || atoms[1]==null || atoms[0]==atoms[1]) return false;
+	public boolean contains(AtomSet atoms) {
+        if(!(atoms instanceof AtomPair) || ((AtomPair)atoms).atom0 == ((AtomPair)atoms).atom1) return false;
         AtomsetDetect detector = new AtomsetDetect(atoms);
         allAtoms(detector);
         return detector.detectedAtom();
@@ -141,18 +144,18 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         return aiInner.hasNext();
     }
     
-    public Atom[] next() {
+    public AtomSet next() {
         if(!hasNext()) return null;
-        pair[1] = aiInner.nextAtom();
-        nearestImageVector = neighborIterator.getNearestImageVector();
+        pair.atom1 = aiInner.nextAtom();
+        pair.nearestImageVector = neighborIterator.getNearestImageVector();
         if(!aiInner.hasNext()) {
             advanceLists();
         }
         return pair;
     }
     
-    public Atom[] peek() {
-        pair[1] = aiInner.peek()[0];
+    public AtomSet peek() {
+        pair.atom1 = (Atom)aiInner.peek();
         return pair;
     }
     
@@ -168,7 +171,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     }
     
     public void reset() {
-        if(pair[0] == null) {
+        if(pair.atom0 == null) {
             unset();
             return;
         }
@@ -208,17 +211,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(Atom[] targetAtoms) {
-        switch(targetAtoms.length) {
-            case 0: 
-                targetAtom = null;
-                break;
-            case 1: 
-                targetAtom = targetAtoms[0];
-                break;
-            default:
-                if(targetAtoms[1] != null) throw new IllegalArgumentException("Specification of more than two target atoms is not supported");
-        }
+    public void setTarget(AtomSet targetAtoms) {
+        targetAtom = (Atom)targetAtoms;
         identifyTargetMolecule();
     }
 
@@ -276,10 +270,10 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
      */
     private void setupIterators() {
         if(direction == null || direction == allowedDirection) {
-            pair[0] = targetMolecule;
+            pair.atom0 = targetMolecule;
             aiOuter.setAtom(targetMolecule);//targetMolecule may be null here
         } else {
-            pair[0] = null;
+            pair.atom0 = null;
             aiOuter.setAtom(null);
         }
         unset();
@@ -299,7 +293,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private final AtomIteratorListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
     
-    private final Atom[] pair = new Atom[2];
+    private final AtomPairVector pair = new AtomPairVector();
     private int innerIndex;
     
     private final Species species0, species1;
