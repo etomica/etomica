@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Default;
 import etomica.Simulation;
 import etomica.Space;
@@ -42,9 +43,9 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * Implements the collision dynamics.  Does not deal with the hard cores, only the wells.  This
     * section is essentially the same as PotentialSquareWell without the hard core section.
     */
-    public void bump(Atom[] pair, double falseTime) {
+    public void bump(AtomSet pair, double falseTime) {
         double eps = 1e-6;
-        cPair.reset(pair[0].coord,pair[1].coord);
+        cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -52,7 +53,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(pair[0].type.rm() + pair[1].type.rm());
+        double reduced_m = 1/(((AtomPair)pair).atom0.type.rm() + ((AtomPair)pair).atom1.type.rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);
@@ -74,10 +75,10 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
-        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
-        pair[1].coord.position().Ea1Tv1(falseTime,dv);
+        ((ICoordinateKinetic)((AtomPair)pair).atom0.coord).velocity().PE(dv);
+        ((ICoordinateKinetic)((AtomPair)pair).atom1.coord).velocity().ME(dv);
+        ((AtomPair)pair).atom0.coord.position().Ea1Tv1(-falseTime,dv);
+        ((AtomPair)pair).atom1.coord.position().Ea1Tv1(falseTime,dv);
         cPair.nudge(nudge);
     }
     
@@ -96,8 +97,8 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * Computes the next time of collision of the given atomPair assuming free flight.  Only computes the next
     * collision of the wells.  Takes into account both separation and convergence.
     */
-    public double collisionTime(Atom[] pair, double falseTime) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
+    public double collisionTime(AtomSet pair, double falseTime) {
+        cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
@@ -125,8 +126,8 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
   /**
    * Returns -epsilon if less than well diameter, or zero otherwise.
    */
-    public double energy(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    public double energy(AtomSet pair) {
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         return (cPair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
     }
     
