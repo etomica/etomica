@@ -46,7 +46,6 @@ public abstract class Activity implements Action {
 		isActive = false;
 		if (haltRequested) {
 			synchronized(this) {notifyAll();}//release thread waiting for halt to take effect
-			throw new etomica.exception.AbnormalCompletionException();
 		}
 	}
 
