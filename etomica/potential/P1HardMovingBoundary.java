@@ -206,7 +206,6 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             }
         }
         double dp = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
-        lastVirial = -Math.abs(dp)*collisionRadius;
         v.setX(wallD,v.x(wallD)+dp*atom.type.rm());
         atom.coord.position().setX(wallD,r-dp*atom.type.rm()*falseTime);
         wallVelocity -= dp/wallMass;
@@ -278,7 +277,6 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private double setWallMass;
     private double force;
     private double pressure;
-    private double lastVirial;
     private final Boundary pistonBoundary;
     private Atom atom;
     private double thickness = 0.0;

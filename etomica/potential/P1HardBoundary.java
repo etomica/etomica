@@ -34,7 +34,6 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private boolean isothermal = false;
     private double temperature;
     private Atom atom;
-    private double lastVirial;
     private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
@@ -138,7 +137,6 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
             System.out.println(atom+" "+work+" "+dimensions);
             System.out.println("stop that");
         }
-        lastVirial = atom.type.getMass()*2.0*v.x(imin)*collisionRadius;
         v.setX(imin,-v.x(imin));
         // dv = 2*NewVelocity
         double newP = atom.coord.position().x(imin) - falseTime*v.x(imin)*2.0;
@@ -155,7 +153,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     /**
      * not yet implemented
      */
-    public double lastCollisionVirial() {return lastVirial;}
+    public double lastCollisionVirial() {return 0;}
     
     /**
      * not yet implemented.
