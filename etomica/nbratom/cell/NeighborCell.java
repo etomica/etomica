@@ -23,7 +23,7 @@ public class NeighborCell {
     
     public AtomList occupants() {return occupants;}
     
-    private AtomList occupants = new AtomList();
+    private final AtomList occupants = new AtomList();
     final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new SiteFactory() {

@@ -20,12 +20,13 @@ import etomica.atom.iterator.ApiListSimple;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**
  * Returns iterates formed from all molecule pairs of a single species.
  */
 
-public class ApiAACell implements AtomPairIterator {
+public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
 
 	/**
      * Constructor makes iterator that must have phase specified and then be
