@@ -21,9 +21,7 @@ public class Controller extends Container implements Runnable {
 //    super.add(i);
     this.integrator = i;
 
-    Enumeration e = parentSimulation.phases.elements();
-    while(e.hasMoreElements()) {
-        Phase p = (Phase)e.nextElement();
+    for(Phase p=parentSimulation.firstPhase(); p!=null; p=p.getNextPhase()) {
         i.registerPhase(p);
         p.gravity.addObserver(i);
     }

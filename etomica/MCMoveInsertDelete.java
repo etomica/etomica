@@ -26,7 +26,7 @@ public class MCMoveInsertDelete extends MCMove {
     }
     
     private final void trialInsert(Phase phase) {
-        Species s = phase.firstSpecies;
+        Species s = phase.firstSpecies();
         double uNew;
         phase.space.randomVector(dr, rand);  //random point in volume
         Molecule m = new Molecule(s,s.nAtomsPerMolecule);
@@ -40,7 +40,7 @@ public class MCMoveInsertDelete extends MCMove {
     }
     
     private final void trialDelete(Phase phase) {
-        Species s = phase.firstSpecies;
+        Species s = phase.firstSpecies();
         if(s.nMolecules == 0) {return;}
         double bOld, bNew;
         int i = (int)(rand.nextDouble()*s.nMolecules);

@@ -5,12 +5,15 @@ import java.beans.Beans;
     public abstract class Display extends Canvas implements simulate.IntegrationIntervalListener {
 
 	Simulation parentSimulation;
+	Phase phase;
     int pixels = 200;
     Image offScreen;
     Graphics osg;
     int updateInterval;
     int iieCount;
-    Component displayTool = null;
+    Component displayTool = null;  //displayTool is some component inside a Display object that is doing all the painting (not often used)
+    private Display nextDisplay;
+    private Display previousDisplay;
 
     public Display () {
         setSize(pixels, pixels);
@@ -18,14 +21,26 @@ import java.beans.Beans;
 	    setUpdateInterval(1);
     }
 
+    public final Display getNextDisplay() {return nextDisplay;}
+    public final Display getPreviousDisplay() {return previousDisplay;}
+   /**
+    * Sets the display following this one in the linked list of displays.
+    *
+    * @param d the display to be designated as this display's nextDisplay
+    */
+    public final void setNextDisplay(Display d) {
+      this.nextDisplay = d;
+      d.previousDisplay = this;
+    }
+    
+    public void setPhase(Phase p) {phase = p;}
+    
     public void createOffScreen () {
         if (offScreen == null) {
             offScreen = createImage(pixels, pixels);
             osg = offScreen.getGraphics();
         }
     }
-    
-    public void setMeter(Meter m) {;}
     
     public void update(Graphics g) {paint(g);}
     

@@ -21,14 +21,9 @@ import java.awt.*;
         double vAvg;
         double v2Avg;
         double stdDev;
-        Meter meter;
         
         public DisplayScrollingGraph() {
             useMeterStatistics = false;
-        }
-
-        public void setMeter(Meter m) {
-            meter = m;
             clear();
         }
         
@@ -54,13 +49,13 @@ import java.awt.*;
         }
         
         public void doUpdate() {
-            addValue(meter.currentValue());
+            addValue(phase.firstMeter.currentValue());
         }
         
         private void updateStatistics() {
             if(useMeterStatistics) {
-                vAvg = meter.average();
-                stdDev = meter.error();
+                vAvg = phase.firstMeter.average();
+                stdDev = phase.firstMeter.error();
             }
             else {
                 vAvg = v2Avg = 0;

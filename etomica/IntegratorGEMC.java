@@ -32,8 +32,8 @@ public class IntegratorGEMC extends Integrator {
             trialVolume();
         }
         else {
-            if(rand.nextDouble() < 0.5) {trialExchange(firstPhase.firstSpecies,secondPhase.firstSpecies);}
-            else {trialExchange(secondPhase.firstSpecies,firstPhase.firstSpecies);}
+            if(rand.nextDouble() < 0.5) {trialExchange(firstPhase.firstSpecies(),secondPhase.firstSpecies());}
+            else {trialExchange(secondPhase.firstSpecies(),firstPhase.firstSpecies());}
         }
     }
         

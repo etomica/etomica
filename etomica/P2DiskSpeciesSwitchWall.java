@@ -35,7 +35,7 @@ public class P2DiskSpeciesSwitchWall extends Potential2 {
     changeSpeciesIndex = i;
     Phase phase = potential[0][0].parentPhase;
     if (phase == null) {return;}
-    for (Species s=phase.firstSpecies; s!=null; s=s.getNextSpecies()) {
+    for (Species s=phase.firstSpecies(); s!=null; s=s.getNextSpecies()) {
         if (s.getSpeciesIndex() == i) {
             ((PotentialHardDiskSpeciesSwitchWall)potential[0][0]).setChangeSpecies(s);
             return;

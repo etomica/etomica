@@ -31,7 +31,7 @@ public class DisplayJTable extends simulate.Display
             table.setBounds(this.getBounds());
         }
     }
-        public void setMeter(Meter m) {
+        public void addMeter(Meter m) {
             nMeters++;
             Meter[] temp = new Meter[nMeters];
             for(int i=0; i<meter.length; i++) {temp[i] = meter[i];}
@@ -39,6 +39,10 @@ public class DisplayJTable extends simulate.Display
             meter = temp;
         }
         
+        public void setPhase(Phase p) {
+            for(Meter m=p.firstMeter; m!=null; m=m.getNextMeter()) {this.addMeter(m);}
+        }
+
     public void doUpdate() {
         TableDataEvent event = new TableDataEvent(dataSource,0,0,0,0,TableDataEvent.RESET);
         dataSource.fireTableDataEvent(event);

@@ -39,7 +39,7 @@ public class MeterPressure extends simulate.Meter
     public double currentValue()
     {
         double fluxCalc=0.0;
-        for(Species s=phase.firstSpecies; s!=null; s=s.getNextSpecies()) {
+        for(Species s=phase.firstSpecies(); s!=null; s=s.getNextSpecies()) {
            if(s.speciesIndex == meterIndex) {
  //               s = (SpeciesWalls)s;
               double flux = 0.5*((AtomWall)s.firstAtom()).pAccumulator*Constants.SCALE/(timeSum * Constants.SCALE * Constants.DEPTH);

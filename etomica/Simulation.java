@@ -8,7 +8,10 @@ import java.util.*;
 public class Simulation extends Container {
 
   public Controller controller;
-  public Vector phases = new Vector();
+  Phase firstPhase;
+  Phase lastPhase;
+  Display firstDisplay;
+  Display lastDisplay;
   
   public Simulation() {
     setSize(400,300);
@@ -20,40 +23,46 @@ public class Simulation extends Container {
     controller = c;
     c.parentSimulation = this;
   }
-  
-  public void registerPhases(Integrator i) {
-    Enumeration e = phases.elements();
-    while(e.hasMoreElements()) {
-//      ((Phase)e.nextElement()).addPhaseIntegratorListener(pil);
-    }
-  }
-  
+    
   public void add(Display d) {
     super.add(d);
+    d.parentSimulation = this;
+    if(lastDisplay != null) {lastDisplay.setNextDisplay(d);}
+    else {firstDisplay = d;}
+    lastDisplay = d;
     if(haveIntegrator()) {
         controller.integrator.addIntegrationIntervalListener(d);
     }
     if(d.displayTool != null) {super.add(d.displayTool);}
-    Phase p = (Phase)phases.firstElement();
-    for(Meter m=p.firstMeter; m!=null; m=m.getNextMeter()) {d.setMeter(m);}
+    for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {
+        d.setPhase(p);
+    }
     d.repaint();
   }
   
   public void add(Phase p) {
     super.add(p);
-    phases.addElement(p);
     p.parentSimulation = this;
+    if(lastPhase != null) {lastPhase.setNextPhase(p);}
+    else {firstPhase = p;}
+    lastPhase = p;
     if(haveIntegrator()) {
         controller.integrator.registerPhase(p);
         p.gravity.addObserver(controller.integrator);
     }
+    for(Display d=firstDisplay; d!=null; d=d.getNextDisplay()) {
+        d.setPhase(p);
+    }
   }
+  
+  public Phase firstPhase() {return firstPhase;}
+  public Phase lastPhase() {return lastPhase;}
   
   public boolean haveIntegrator() {
     return (controller != null && controller.integrator != null);
   }
   
-  public void paint(Graphics g) {
+/*  public void paint(Graphics g) {
     if(Beans.isDesignTime()) {
       g.setColor(Color.red);
       g.drawRect(0,0,getSize().width-1,getSize().height-1);
@@ -62,6 +71,7 @@ public class Simulation extends Container {
     g.setColor(getBackground());
     paintComponents(g);
   }
+  */
 }
 
 
