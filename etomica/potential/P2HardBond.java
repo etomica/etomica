@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
@@ -92,8 +93,9 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * Implements collision dynamics for pair attempting to separate beyond
      * tether distance
      */
-    public final void bump(Atom[] pair, double falseTime) {
-        cPair.reset(pair[0].coord,pair[1].coord);
+    public final void bump(AtomSet atoms, double falseTime) {
+        AtomPair pair = (AtomPair)atoms;
+        cPair.reset(pair.atom0.coord,pair.atom1.coord);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -103,20 +105,20 @@ public class P2HardBond extends Potential2 implements PotentialHard {
 
         if (Debug.ON) {
             if (bij<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
-                throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+minBondLengthSquared);
+                throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+minBondLengthSquared);
             }
             else if (bij>0.0 && Math.abs(r2 - maxBondLengthSquared)/maxBondLengthSquared > 1.e-9) {
-                throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+maxBondLengthSquared);
+                throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+maxBondLengthSquared);
             }
         }
         
-        lastCollisionVirial = 2.0 / (pair[0].type.rm() + pair[1].type.rm()) * bij;
+        lastCollisionVirial = 2.0 / (((AtomPair)pair).atom0.type.rm() + ((AtomPair)pair).atom1.type.rm()) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PEa1Tv1(pair[0].type.rm(),dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().PEa1Tv1(-pair[1].type.rm(),dv);
-        pair[0].coord.position().PEa1Tv1(-falseTime*pair[0].type.rm(),dv);
-        pair[1].coord.position().PEa1Tv1(falseTime*pair[0].type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1(pair.atom1.type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-pair.atom1.type.rm(),dv);
+        pair.atom0.coord.position().PEa1Tv1(-falseTime*pair.atom0.type.rm(),dv);
+        pair.atom1.coord.position().PEa1Tv1( falseTime*pair.atom1.type.rm(),dv);
     }
 
     public final double lastCollisionVirial() {
@@ -133,8 +135,8 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * Time at which two atoms will reach the end of their tether, assuming
      * free-flight kinematics
      */
-    public final double collisionTime(Atom[] pair, double falseTime) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
+    public final double collisionTime(AtomSet pair, double falseTime) {
+        cPairNbr.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
@@ -150,9 +152,9 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         }
         if (Debug.ON && Debug.DEBUG_NOW && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
-            System.out.println("in P2HardBond.collisionTime, "+pair[0]+" "+pair[1]+" "+r2+" "+bij+" "+maxBondLengthSquared);
-            System.out.println(pair[0].coord.position());
-            System.out.println(pair[1].coord.position());
+            System.out.println("in P2HardBond.collisionTime, "+pair+" "+r2+" "+bij+" "+maxBondLengthSquared);
+            System.out.println(((AtomPair)pair).atom0.coord.position());
+            System.out.println(((AtomPair)pair).atom1.coord.position());
         }
         double discr;
         if (bij < 0.0) {
@@ -173,8 +175,8 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     /**
      * Returns 0 if the bond is within the required distance, infinity if not.
      */
-    public double energy(Atom[] pair) {
-        cPair.reset(pair[0].coord, pair[1].coord);
+    public double energy(AtomSet pair) {
+        cPair.reset(((AtomPair)pair).atom0.coord, ((AtomPair)pair).atom1.coord);
         double r2 = cPair.r2();
         if (r2 > minBondLengthSquared && r2 < maxBondLengthSquared) return 0.0;
         return Double.POSITIVE_INFINITY;
