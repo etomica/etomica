@@ -14,12 +14,12 @@ import etomica.units.Dimension;
 public class SpeciesSpheres extends Species implements EtomicaElement {
 
     private double mass;
-    public AtomType.Sphere protoType;
+    public AtomTypeSphere protoType;
     
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryHomo makeFactory(Space space, AtomSequencer.Factory seqFactory, int na, BondInitializer bondInit, Configuration config) {
         AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);//would like to pass this species
-        AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
+        AtomType type = new AtomTypeSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         AtomFactoryHomo fm = new AtomFactoryHomo(space, seqFactory, 
                                 f, na, bondInit, config);
@@ -37,7 +37,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
                 int nM, int nA, BondInitializer bondInitializer, Configuration config) {
         super(makeFactory(space, seqFactory, nA, bondInitializer, config));
         factory.setSpecies(this);
-        protoType = (AtomType.Sphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
+        protoType = (AtomTypeSphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
         mass = protoType.getMass();
     }

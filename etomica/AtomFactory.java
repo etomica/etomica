@@ -26,8 +26,8 @@ public abstract class AtomFactory {
     protected AtomTreeNodeGroup.Factory nodeFactory;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
-    protected final AtomType.Group groupType = new AtomType.Group(this);
-    protected final AtomType.Sphere spheretype = new AtomType.Sphere(this);
+    protected final AtomTypeGroup groupType = new AtomTypeGroup(this);
+    protected final AtomTypeSphere spheretype = new AtomTypeSphere(this);
     protected AtomType atomType;
         
     public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {

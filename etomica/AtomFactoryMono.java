@@ -22,7 +22,7 @@ public class AtomFactoryMono extends AtomFactory {
     }
     
     private void init() {
-        setType(new AtomType.Sphere(this));//default
+        setType(new AtomTypeSphere(this));//default
     }
     
     //can't pass atomtype to constructor because atomtype needs this in its constructor

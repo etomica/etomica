@@ -267,10 +267,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
       vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
       vertAll[i+2] = (float)a.coord.position().x(2);// + drawExpansionShiftZ;
-      if(a.type instanceof AtomType.OrientedSphere) countSphereRotators++;
-      if(a.type instanceof AtomType.Well) countSphereWells++;
-      if(a.type instanceof AtomType.Sphere) countSphereCores++;
-      if(a.type instanceof AtomType.Wall) countWalls++;
+      if(a.type instanceof AtomTypeOrientedSphere) countSphereRotators++;
+      if(a.type instanceof AtomTypeWell) countSphereWells++;
+      if(a.type instanceof AtomTypeSphere) countSphereCores++;
+      if(a.type instanceof AtomTypeWall) countWalls++;
       i += 3;
     }
     
@@ -283,24 +283,24 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     vertSphereRotatorBase = new int[countSphereRotators];
     vertWalls = new float[countWalls*3];
     for(int j=0,k=0,l=0,m=0,n=0; (j/3) < atoms.length; j+=3) {
-      if(atoms[j/3].type instanceof AtomType.Sphere) {
+      if(atoms[j/3].type instanceof AtomTypeSphere) {
         sphereCores[m/3] = atoms[j/3];
         vertSphereCores[m] = vertAll[j];
         vertSphereCores[m+1] = vertAll[j+1];
         vertSphereCores[m+2] = vertAll[j+2];
         m+=3;
       }
-      if(atoms[j/3].type instanceof AtomType.OrientedSphere) {
+      if(atoms[j/3].type instanceof AtomTypeOrientedSphere) {
         sphereRotators[k] = atoms[j/3];
         vertSphereRotatorBase[k] = m-3;
         k++;
       }
-      if(atoms[j/3].type instanceof AtomType.Well) {
+      if(atoms[j/3].type instanceof AtomTypeWell) {
         sphereWells[l] = atoms[j/3];
         vertSphereWellBase[l] = m-3;
         l++;
       }
-      if(atoms[j/3].type instanceof AtomType.Wall) {
+      if(atoms[j/3].type instanceof AtomTypeWall) {
         walls[n/3] = atoms[j/3];
         vertWalls[n] = vertAll[j];
         vertWalls[n+1] = vertAll[j+1];
@@ -456,8 +456,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
           gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
           lastColor = c;
         }
-        if(sphereListRadius != ((AtomType.Sphere)a.type).radius(a))
-          initSphereList(((AtomType.Sphere)a.type).radius(a));
+        if(sphereListRadius != ((AtomTypeSphere)a.type).radius(a))
+          initSphereList(((AtomTypeSphere)a.type).radius(a));
         gl.glPushMatrix();
         gl.glTranslatef(vertSphereCores[i], vertSphereCores[i+1], vertSphereCores[i+2]);
         gl.glCallList(sphereList[getQuality()]);
@@ -485,8 +485,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       while((--i) >= 0) {
         a = sphereWells[i];
         if(!atomFilter.accept(a)) {continue;}
-        if(wellListRadius != ((AtomType.Well)a.type).wellRadius())
-          initWellList(((AtomType.Well)a.type).wellRadius());
+        if(wellListRadius != ((AtomTypeWell)a.type).wellRadius())
+          initWellList(((AtomTypeWell)a.type).wellRadius());
         gl.glPushMatrix();
         gl.glTranslatef(vertSphereCores[vertSphereWellBase[i]], vertSphereCores[vertSphereWellBase[i]+1], vertSphereCores[vertSphereWellBase[i]+2]);
         gl.glCallList(wellList[getQuality()]);
@@ -582,10 +582,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   }
               
   protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
-    if(a.type instanceof AtomType.Sphere)
-      originShifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));
-    else if(a.type instanceof AtomType.Wall)
-      originShifts = b.getOverflowShifts(a.coord.position(),((AtomType.Wall)a.type).getLength());
+    if(a.type instanceof AtomTypeSphere)
+      originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));
+    else if(a.type instanceof AtomTypeWall)
+      originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeWall)a.type).getLength());
     else
       originShifts = new float[0][0];
     if(originShifts.length == 0) return(false);

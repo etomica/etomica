@@ -52,7 +52,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
   		cPair.reset(pair[0].coord,pair[1].coord);
         Atom sphere;
         Atom wall;
-        if(pair[1].type instanceof AtomType.Wall) {
+        if(pair[1].type instanceof AtomTypeWall) {
            sphere = pair[0];
            wall = pair[1];
         }
@@ -65,7 +65,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         double dr, dv;
         int i;
         
-        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        AtomTypeWall wallType = (AtomTypeWall)wall.type;
         if(wallType.isVertical()) {i = 0;}
         else {i = 1;}
         
@@ -81,7 +81,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
 //    	System.out.println("p2hardspherewall "+pair.toString());
         Atom sphere;
         Atom wall;
-        if(pair[1].type instanceof AtomType.Wall) {
+        if(pair[1].type instanceof AtomTypeWall) {
            sphere = pair[0];
            wall = pair[1];
         }
@@ -89,9 +89,9 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
            sphere = pair[1];
            wall = pair[0];
         }
-        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        AtomTypeWall wallType = (AtomTypeWall)wall.type;
                 
-        int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+        int i = (((AtomTypeWall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
         double dr = cPair.dr(i);  //dr = atom2 - atom1
 		cPair.resetV();
         double dv = cPair.dv(i);
@@ -146,7 +146,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
     	cPair.reset(pair[0].coord,pair[1].coord);
         Atom sphere;
         Atom wall;
-        if(pair[1].type instanceof AtomType.Wall) {
+        if(pair[1].type instanceof AtomTypeWall) {
            sphere = pair[0];
            wall = pair[1];
         }
@@ -154,9 +154,9 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
            sphere = pair[1];
            wall = pair[0];
         }
-        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        AtomTypeWall wallType = (AtomTypeWall)wall.type;
     
-        int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+        int i = (((AtomTypeWall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
 		cPair.resetV();
         double pOld = sphere.coord.momentum(i);
         

@@ -15,13 +15,13 @@ public class SpeciesWalls extends Species implements EtomicaElement {
  *  Use one molecule, with atoms of different type to set up box, cylinder, etc.
  *  Use several molecules each with one atom to set up parallel walls.
  */
-    public AtomType.Wall[] protoType;
+    public AtomTypeWall[] protoType;
 
     private static AtomFactoryHetero makeFactory(Simulation sim, int nA) {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
             f[i] = new AtomFactoryMono(sim, sim.iteratorFactory.neighborSequencerFactory());
-            AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
+            AtomType type = new AtomTypeWall(f[i], Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
             f[i].setType(type);
         }
         AtomFactoryHetero fm = new AtomFactoryHetero(sim, f);
@@ -57,10 +57,10 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         //get a handle to the factories used to make the walls and create an array (protoType)
         //of handles to the types attached to each
         AtomFactoryMono[] subfactory = ((AtomFactoryMono[])((AtomFactoryHetero)factory).childFactory());
-        protoType = new AtomType.Wall[nA];
+        protoType = new AtomTypeWall[nA];
         nMolecules = nM;
         for(int i=0; i<nA; i++) {
-           AtomType.Wall type = (AtomType.Wall)subfactory[i].type();
+           AtomTypeWall type = (AtomTypeWall)subfactory[i].type();
 //           type.setStationary(true);
            type.setLength(length);
            type.setXAngle(xAngle);
@@ -208,9 +208,9 @@ public class SpeciesWalls extends Species implements EtomicaElement {
                 a.coord.setStationary(stationary);
                 r.setX(i,xyNext);
                 xyNext += delta;
-                ((AtomType.Wall)a.type).setLength(wh);   //length of wall
-                ((AtomType.Wall)a.type).setXAngle(angle);
-                ((AtomType.Wall)a.type).setTemperature(temperature);
+                ((AtomTypeWall)a.type).setLength(wh);   //length of wall
+                ((AtomTypeWall)a.type).setXAngle(angle);
+                ((AtomTypeWall)a.type).setTemperature(temperature);
             }
         }//end of initializeCoordinates
                 

@@ -49,7 +49,7 @@ public class Atom implements java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomType.Sphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerSimple.FACTORY, null);                        
+    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerSimple.FACTORY, null);                        
     }
     
     /**

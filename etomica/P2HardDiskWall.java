@@ -56,7 +56,7 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
   public boolean overlap(Atom[] pair) {
         Atom disk;
         Atom wall;
-        if(pair[1].type instanceof AtomType.Wall) {
+        if(pair[1].type instanceof AtomTypeWall) {
            disk = pair[0];
            wall = pair[1];
         }
@@ -69,7 +69,7 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
         double dr, dv;
         int i;
         
-        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        AtomTypeWall wallType = (AtomTypeWall)wall.type;
         if(wallType.isVertical()) {i = 0;}
         else {i = 1;}
         
@@ -84,7 +84,7 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
     	cPair.reset(pair[0].coord,pair[1].coord);
         Atom disk;
         Atom wall;
-        if(pair[1].type instanceof AtomType.Wall) {
+        if(pair[1].type instanceof AtomTypeWall) {
            disk = pair[0];
            wall = pair[1];
         }
@@ -92,9 +92,9 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
            disk = pair[1];
            wall = pair[0];
         }
-        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        AtomTypeWall wallType = (AtomTypeWall)wall.type;
                 
-        int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+        int i = (((AtomTypeWall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
         double dr = cPair.dr(i);  //dr = atom2 - atom1
         double dv = cPair.dv(i);
         if(pair[0] == wall) {  //make sure dr = wall - disk
@@ -147,7 +147,7 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
     {
         Atom disk;
         Atom wall;
-        if(pair[1].type instanceof AtomType.Wall) {
+        if(pair[1].type instanceof AtomTypeWall) {
            disk = pair[0];
            wall = pair[0];
         }
@@ -155,9 +155,9 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
            disk = pair[1];
            wall = pair[0];
         }
-        AtomType.Wall wallType = (AtomType.Wall)wall.type;
+        AtomTypeWall wallType = (AtomTypeWall)wall.type;
     
-        int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+        int i = (((AtomTypeWall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
 
         if(wall.coord.isStationary()) {
             if(isothermal) {//specific to 2D

@@ -1,5 +1,6 @@
 package etomica.graphics;
 import etomica.*;
+
 import java.awt.Color;
 /**
  * Sets color of a wall based on the value of its temperature field.
@@ -15,7 +16,7 @@ public class ColorSchemeWallTemperature extends ColorSchemeTemperature {
       
     public final Color atomColor(Atom a) {
         float red, blue;
-        double ke =((AtomType.Wall)a.type).getTemperature();
+        double ke =((AtomTypeWall)a.type).getTemperature();
         if(ke > KEMax) {red = 1.0f;}
         else if(ke < KEMin) {red = 0.0f;}
         else {red = (float)((ke-KEMin)*range);}

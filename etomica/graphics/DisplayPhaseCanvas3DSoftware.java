@@ -248,20 +248,20 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         int sigmaP, xP, yP, baseXP, baseYP;
         Image shadedImage;
 
-        if(a.type instanceof AtomType.OrientedSphere) {
+        if(a.type instanceof AtomTypeOrientedSphere) {
             drawOrientation = true;
-        } else if(a.type instanceof AtomType.Well) {
+        } else if(a.type instanceof AtomTypeWell) {
             drawWell = true;
         }
 
         Color atomColor = colorScheme.atomColor(a);
         g.setColor(atomColor);
             
-        if(a.type instanceof AtomType.Sphere) {
+        if(a.type instanceof AtomTypeSphere) {
             baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().boundary().dimensions().x(0)/2)));
             baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().boundary().dimensions().x(1)/2)));
             /* Draw the core of the atom */
-            sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomType.Sphere)a.type).radius(a)));
+            sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomTypeSphere)a.type).radius(a)));
             //sigmaP = (int)(displayPhase.getToPixels()*2.0f*((AtomType.Sphere)a.type).radius());
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
@@ -275,7 +275,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             /* Draw the surrounding well, if any */
             if(drawWell) {
                 g.setColor(wellColor);
-                sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomType.Well)a.type).wellRadius()));
+                sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomTypeWell)a.type).wellRadius()));
                 xP = baseXP - (sigmaP>>1);
                 yP = baseYP - (sigmaP>>1);
                 if (ballImages.containsKey(wellColor)) {
@@ -298,30 +298,30 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
             }*/
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
-        } else if(a.type instanceof AtomType.Wall) {
+        } else if(a.type instanceof AtomTypeWall) {
             xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
             yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
-            int t = Math.max(1,(int)((double)((AtomType.Wall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
-            if(!(((AtomType.Wall)a.type).isHorizontal() || ((AtomType.Wall)a.type).isVertical())) {  //not horizontal or vertical; draw line
-                int x1 = xP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getCosX());
-                int y1 = yP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getSinX());
+            int t = Math.max(1,(int)((double)((AtomTypeWall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
+            if(!(((AtomTypeWall)a.type).isHorizontal() || ((AtomTypeWall)a.type).isVertical())) {  //not horizontal or vertical; draw line
+                int x1 = xP + (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength()*((AtomTypeWall)a.type).getCosX());
+                int y1 = yP + (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength()*((AtomTypeWall)a.type).getSinX());
                 g.drawLine(xP, yP, x1, y1);
             }
-            else if(((AtomType.Wall)a.type).isLongWall()) {
+            else if(((AtomTypeWall)a.type).isLongWall()) {
                 java.awt.Rectangle rect = g.getClipBounds();
                 //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(1));
                 //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(0));
-                int wP = ((AtomType.Wall)a.type).isVertical() ? t : Integer.MAX_VALUE;
-                int hP = ((AtomType.Wall)a.type).isHorizontal() ? t : Integer.MAX_VALUE;
+                int wP = ((AtomTypeWall)a.type).isVertical() ? t : Integer.MAX_VALUE;
+                int hP = ((AtomTypeWall)a.type).isHorizontal() ? t : Integer.MAX_VALUE;
                 //int X = vertical ? xP : origin[0];
                 //int Y = horizontal ? yP : origin[1];
-                int X = ((AtomType.Wall)a.type).isVertical() ? xP : 0;
-                int Y = ((AtomType.Wall)a.type).isHorizontal() ? yP : 0;
+                int X = ((AtomTypeWall)a.type).isVertical() ? xP : 0;
+                int Y = ((AtomTypeWall)a.type).isHorizontal() ? yP : 0;
                 g.fillRect(X,Y,wP,hP);
             }   
             else {                           //horizontal or vertical; draw box
-                int wP = ((AtomType.Wall)a.type).isVertical() ? t : (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength());
-                int hP = ((AtomType.Wall)a.type).isHorizontal() ? t : (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength());
+                int wP = ((AtomTypeWall)a.type).isVertical() ? t : (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength());
+                int hP = ((AtomTypeWall)a.type).isHorizontal() ? t : (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength());
                 g.fillRect(xP,yP,wP,hP);
             }
         } else { // Not a sphere, wall, or one of their derivatives...
@@ -330,8 +330,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     }
             
     protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
-        if(a.type instanceof AtomType.Sphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
+        if(a.type instanceof AtomTypeSphere) {
+            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

@@ -415,11 +415,11 @@ public class IntegratorHard extends IntegratorMD {
         protected double periodCollisionTime() {
             Space.Boundary boundary = atom.node.parentPhase().boundary();
             if(boundary instanceof Space.Boundary.Periodic) {
-                if(!(atom.type instanceof AtomType.Sphere)) {return Double.MAX_VALUE;}
+                if(!(atom.type instanceof AtomTypeSphere)) {return Double.MAX_VALUE;}
                 Space.Vector p = atom.coord.momentum();
                 Space.Vector dim = boundary.dimensions();
                 double tmin = Double.MAX_VALUE;
-                double d2 = 2.0*((AtomType.Sphere)atom.type).diameter(atom);
+                double d2 = 2.0*((AtomTypeSphere)atom.type).diameter(atom);
                 int D = dim.D();
                 for(int i=0; i<D; i++) {
                     double t = (dim.x(i)-d2)/p.x(i);

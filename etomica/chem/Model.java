@@ -18,7 +18,7 @@ public abstract class Model {
 		this.truncation = truncation;
 	}
 	
-	public abstract AtomFactory makeAtomFactory(Simulation sim);
+	public abstract AtomFactory makeAtomFactory(Space space);
 	
 	public abstract Potential makePotential(SimulationElement parent);
 	

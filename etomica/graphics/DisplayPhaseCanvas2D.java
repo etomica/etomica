@@ -62,23 +62,23 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         Space.Vector r = a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;
 
-        boolean drawOrientation = (a.type instanceof AtomType.OrientedSphere);
-        boolean drawWell = (a.type instanceof AtomType.Well);
+        boolean drawOrientation = (a.type instanceof AtomTypeOrientedSphere);
+        boolean drawWell = (a.type instanceof AtomTypeWell);
 
         g.setColor(displayPhase.getColorScheme().atomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
-        if(a.type instanceof AtomType.Sphere) {
+        if(a.type instanceof AtomTypeSphere) {
             /* Draw the core of the atom, specific to the dimension */
-            sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter(a));
+            sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.type).diameter(a));
             sigmaP = (sigmaP == 0) ? 1 : sigmaP;
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
             g.fillOval(xP, yP, sigmaP, sigmaP);
             /* Draw the surrounding well, if any, and specific to the dimension */
             if(drawWell) {
-                sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Well)a.type).wellDiameter());
+                sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeWell)a.type).wellDiameter());
                 xP = baseXP - (sigmaP>>1);
                 yP = baseYP - (sigmaP>>1);
                 g.setColor(wellColor);
@@ -87,7 +87,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             /* Draw the orientation line, if any */
             if(drawOrientation) {
                 double theta = ((Space.Coordinate.Angular)a.coord).orientation().angle()[0];
-                int dxy = (int)(displayPhase.getToPixels()*((AtomType.OrientedSphere)a.type).radius(a));
+                int dxy = (int)(displayPhase.getToPixels()*((AtomTypeOrientedSphere)a.type).radius(a));
                 int dx = (int)(dxy*Math.cos(theta));
                 int dy = (int)(dxy*Math.sin(theta));
                 g.setColor(Color.red);
@@ -95,8 +95,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
-        } else if(a.type instanceof AtomType.Wall) {
-            AtomType.Wall wType = (AtomType.Wall)a.type;
+        } else if(a.type instanceof AtomTypeWall) {
+            AtomTypeWall wType = (AtomTypeWall)a.type;
             xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
             yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
             int t = Math.max(1,(int)((double)wType.getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
@@ -212,8 +212,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.nextAtom();
-                if(!(a.type instanceof AtomType.Sphere)) continue;
-                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
+                if(!(a.type instanceof AtomTypeSphere)) continue;
+                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                     shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

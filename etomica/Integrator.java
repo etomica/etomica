@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Vector;
 
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
@@ -269,8 +268,7 @@ public abstract class Integrator implements java.io.Serializable {
             ListenerWrapper wrapper = (ListenerWrapper)iterator.next();
             if(wrapper.listener == iil) return wrapper;//found it
         }
-        return null;//didn't find it in list
-       
+        return null;//didn't find it in list      
     }
 
     /**

@@ -59,7 +59,7 @@ public class MeterKineticEnergy extends MeterScalar
         iterator.reset();
         while(iterator.hasNext()) {    //consider doing this with an allAtoms call
             Atom atom = iterator.nextAtom();
-            if(atom.type instanceof AtomType.Wall) continue;
+            if(atom.type instanceof AtomTypeWall) continue;
             ke += atom.coord.kineticEnergy();
 //            ke += atomIterator.next().coord.kineticEnergy();
         }

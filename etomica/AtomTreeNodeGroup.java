@@ -37,7 +37,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
 	}            
 	
     public Class childSequencerClass() {
-        return ((AtomType.Group)atom.type).childSequencerClass;
+        return ((AtomTypeGroup)atom.type).childSequencerClass;
 //        try { return firstChildAtom().seq.getClass();}
 //        catch(NullPointerException e) {return null;}//in case firstChild is null
     }
@@ -53,7 +53,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * not imply that all child atoms are groups.
      */
     public boolean childrenAreGroups() {
-        return ((AtomType.Group)atom.type).childrenAreGroups;
+        return ((AtomTypeGroup)atom.type).childrenAreGroups;
    //     return !firstChildAtom().node.isLeaf();
     }
 

@@ -90,7 +90,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if(a.type instanceof AtomType.Wall &&
+            if(a.type instanceof AtomTypeWall &&
                 !((Agent)a.ia).forceFree) continue;
             a.coord.momentum().TE(s); //scale momentum
             ((Agent)a.ia).collisionTime *= rs;

@@ -6,7 +6,7 @@ import etomica.units.Dimension;
  * Species in which molecules are made of a single atom of type OrientedSphere
  *
  * @author David Kofke
- * @see AtomType.OrientedSphere
+ * @see AtomTypeOrientedSphere
  * 
  */
 
@@ -14,11 +14,11 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public double mass;
     
-    public AtomType.OrientedSphere protoType;
+    public AtomTypeOrientedSphere protoType;
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Space space, AtomSequencer.Factory seqFactory) {
         AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
-        AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
+        AtomType type = new AtomTypeOrientedSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         return f;
     }
@@ -42,7 +42,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public SpeciesSpheresRotating(Space space, AtomSequencer.Factory seqFactory, int nM) {
         super(makeFactory(space, seqFactory));
         factory.setSpecies(this);
-        protoType = (AtomType.OrientedSphere)((AtomFactoryMono)factory).type();
+        protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).type();
         mass = protoType.getMass();
         nMolecules = nM;
     }
