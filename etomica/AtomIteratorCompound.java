@@ -46,12 +46,6 @@ public final class AtomIteratorCompound implements AtomIterator {
     
     public void unset() {hasNext = false;}
     
-    //try to eliminate this method
-    public void setBasis(Atom a) {
-        throw new RuntimeException("AtomIteratorCompound.setBasis not defined");
-    }
-    public Atom getBasis() {return null;}
-    
     public int nBody() {return 1;}
     
     public int size() {
