@@ -1,18 +1,12 @@
 package etomica.integrator;
 
 import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.IteratorDirective;
-import etomica.Phase;
 import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.Space;
-import etomica.action.AtomActionRandomizeVelocity;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.meter.MeterTemperature;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
@@ -25,23 +19,14 @@ import etomica.space.Vector;
 
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
 
-    AtomIterator atomIterator;
-    
     public final PotentialCalculationForceSum forceSum;
     private final Space space;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    private final MeterTemperature meterTemperature = new MeterTemperature();
-    private final AtomActionRandomizeVelocity velocityRandomizer;
     
-    //Fields for Andersen thermostat
-    double nu = 0.001;  //heat bath "collision" frequency
-    private boolean andersenThermostat = false;
-                
     public IntegratorVelocityVerlet(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
-        velocityRandomizer = new AtomActionRandomizeVelocity();
         setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
     
@@ -50,44 +35,20 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return info;
     }
     
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        atomIterator = new AtomIteratorLeafAtoms(p);
-        meterTemperature.setPhase(phase);
-        return true;
+    private double t2;
+    public final void setTimeStep(double t) {
+        super.setTimeStep(t);
+        t2 = timeStep*timeStep;
     }
-    /**
-     * Sets flag indicating which thermostat to use.  If true, Andersen
-     * collision thermostat is used; if false (default) velocity rescaling is
-     * used.  Whether to use thermostat or not is set independently; thermostat
-     * is imposed only if a call to set(isothermal) is made with a "true"
-     * argument.
-     * @param b flag indicating type of thermostat to use.
-     */
-    public void setAndersenThermostat(boolean b) {
-    	andersenThermostat = b;
-    }
-    /** 
-     * @return boolean current value of andersenThermostat flag.  See mutator
-     * method for more detail.
-     */
-    public boolean isAndersenThermostat() {
-    	return andersenThermostat;
-    }
-     
-  private double t2;
-  public final void setTimeStep(double t) {
-    super.setTimeStep(t);
-    t2 = timeStep*timeStep;
-  }
   
 
           
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
+    // assumes one phase
     public void doStep() {
-
+        atomIterator.setPhase(phase[0]);
         atomIterator.reset();              //reset iterator of atoms
         while(atomIterator.hasNext()) {    //loop over all atoms
             Atom a = atomIterator.nextAtom();  //  advancing positions full step
@@ -109,43 +70,16 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*a.type.rm(),((MyAgent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
-        	if(!andersenThermostat) {
-	            //velocity-rescaling thermostat
-	            double s = Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase));
-	            atomIterator.reset();
-	            while(atomIterator.hasNext()) {
-	                Atom a = atomIterator.nextAtom();
-	                ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
-	            }
-	        } else {
-            //Andersen thermostat
-            atomIterator.reset();
-            double nut = nu*timeStep;
-            while(atomIterator.hasNext()) {
-                Atom a = atomIterator.nextAtom();
-                if(Simulation.random.nextDouble() < nut) velocityRandomizer.actionPerformed(a);
-        	}
-            }
+            doThermostat();
         }
         return;
     }
     
     
-    
-    /* (non-Javadoc)
-     * @see etomica.Integrator#setTemperature(double)
-     */
-    public void setTemperature(double temperature) {
-        super.setTemperature(temperature);
-        velocityRandomizer.setTemperature(temperature);
-    }
-    
-    public void setAndersenNu(double n) {nu = n;}
-    public double getAndersenNu() {return nu;}
-            
 //--------------------------------------------------------------
 
     public void reset() {
+        atomIterator.setPhase(phase[0]);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
