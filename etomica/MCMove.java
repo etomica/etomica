@@ -132,6 +132,7 @@ public abstract class MCMove implements java.io.Serializable {
         stepSize = Math.max(stepSize,stepSizeMin);
         nTrials = 0;
         nAccept = 0;
+ //       System.out.println("in MCMove, stepsize = "+stepSize);
     }
     
     /**

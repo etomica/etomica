@@ -28,7 +28,8 @@ public class PhaseCluster extends Phase {
 	
 	public PairSet getPairSet() {
 		if(pairSet == null && speciesMaster.atomList.size() > 0) {
-			pairSet = new PairSet(speciesMaster.atomList);
+//			pairSet = new PairSet(speciesMaster.atomList);
+			pairSet = new PairSet(new AtomList(makeMoleculeIterator()));
 		}
 		return pairSet;
 	}

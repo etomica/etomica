@@ -10,23 +10,34 @@ import etomica.*;
  
  /* History
   * 09/22/02 (DAK) new
+  * 01/19/04 (DAK) modified with introduction of Basis class
   */
  
-public class BasisCubicBcc extends AtomFactoryHomo {
+public class BasisCubicBcc extends Basis {
     
     /**
-     * Makes a basis using a default that uses AtomFactoryMono
-     * for making atom occupying each site.
+     * Makes a basis with a default that uses AtomFactoryMono for making atom
+     * occupying each site.
+     * @param space instance of governing space class
+     * @param primitive Primitive of the cubic lattice housing this basis.
+     * Needed to ensure that separation of basis atoms is consistent with
+     * spacing of atoms on lattice.
      */
     public BasisCubicBcc(Space space, PrimitiveCubic primitive) {
-        this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY), primitive);
+        super(space, 2, new Configuration(space,primitive));
     }
     /**
-     * Makes a bcc 2-atom basis using the given factory to make the atoms.
+     * Makes a bcc 2-atom basis using the given factory to make the site
+     * occupants.
+     * @param space instance of governing space class
+     * @param factory AtomFactory used to make the atoms (molecules) the form
+     * the basis
+     * @param primitive Primitive of the cubic lattice housing this basis.
+     * Needed to ensure that separation of basis atoms is consistent with
+     * spacing of atoms on lattice.
      */
     public BasisCubicBcc(Space space, AtomFactory factory, PrimitiveCubic primitive) {
-        super(space, AtomSequencerSimple.FACTORY, factory, 2, 
-                BondInitializer.NULL, new Configuration(space,primitive));
+        super(space, 2, new Configuration(space,primitive), factory);
     }
     
     

@@ -15,10 +15,13 @@ import etomica.SimulationElement;
  * 08/20/03 (DAK) small changes to energy method (check for g = 0; abs(g)->g in
  * log argument
  * 08/21/03 (DAK) invoke resetPairs for pairSet in pi method
+ * 12/16/03 (DAK) added field to hold indication of whether cluster giving value
+ * of potential is positive or negative
  */
 public class P0Cluster extends Potential0 {
 
 	protected ClusterAbstract cluster;
+	private boolean isPositive;
 //	protected double g = 0;
 	/**
 	 * Constructor for P0Cluster.
@@ -35,10 +38,18 @@ public class P0Cluster extends Potential0 {
 	public void setCluster(ClusterAbstract cluster) {
 		this.cluster = cluster;
 	}
+	/**
+	 * Returns the cluster.
+	 * @return ClusterAbstract
+	 */
+	public ClusterAbstract getCluster() {
+		return cluster;
+	}
 	
 	public double pi(PhaseCluster phase) {
 		double pi = cluster.value(phase.getPairSet().resetPairs(), 1.0/phase.integrator().temperature());
-		return (pi>0) ? pi : -pi;
+		isPositive = (pi > 0);
+		return isPositive ? pi : -pi;
 	}
 //	public double pi(PairSet pairSet, double beta) {
 //		double pi = cluster.value(pairSet, beta);
@@ -61,5 +72,12 @@ public class P0Cluster extends Potential0 {
 		double g = pi((PhaseCluster)phase);
 		return (g==1.0) ? 0.0 : ( (g==0) ? Double.POSITIVE_INFINITY : -phase.integrator().temperature()*Math.log(g) );
 	}
+
+	/**
+	 * Returns true if the cluster value calculated during most recent call to
+	 * the pi method was positive; returns false otherwise.
+	 * @return boolean
+	 */
+	public boolean mostRecentIsPositive() {return isPositive;}
 
 }

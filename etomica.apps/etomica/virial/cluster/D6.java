@@ -10,6 +10,13 @@ import etomica.virial.MayerFunction;
  */
 public final class D6 extends Cluster {
 	public D6(MayerFunction f) {
-		super(4, -1./8., new BondGroup(f, Standard.D6));
+		this(f, false);
+	}
+	/**
+	 * Ignores usePermutations argument, as this cluster has only one unique
+	 * permutation.
+	 */
+	public D6(MayerFunction f, boolean usePermutations) {
+		super(4, -1./8., new BondGroup[] {new BondGroup(f, Standard.D6)}, false);
 	}
 }

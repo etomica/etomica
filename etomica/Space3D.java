@@ -30,6 +30,8 @@ package etomica;
   * 08/29/03 (DAK) translateBy(Space.Vector) invokes translateBy(Vector)
   * instead of repeating the code it it, then in CoordinateGroup translateBy
   * (Vector) overrides Coordinate.translateBy(Vector) method.
+  * 12/09/03 (DAK) added setRandomInSphere method in Vector
+  * 01/22/04 (DAK) added positionCOM and translateCOMTo to CoordinateGroup
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -247,6 +249,7 @@ public class Space3D extends Space implements EtomicaElement {
             z = Simulation.random.nextDouble() - 0.5;
         }
         public void setX(int a, double d) { if(a==0) x=d; else if(a==1) y=d; else z=d;}
+        //random point on a unit sphere
         public void setRandomSphere() {//check before using
             double z1 = 0.0;
             double z2 = 0.0;
@@ -266,6 +269,25 @@ public class Space3D extends Space implements EtomicaElement {
             z = z3/r;
         }
         
+        // random point in a unit-radius sphere
+		public void setRandomInSphere() {//check before using
+			double z1 = 0.0;
+			double z2 = 0.0;
+			double z3 = 0.0;
+			double rsq = Double.MAX_VALUE;
+			while(rsq > 1.0) {
+                
+				z1 = 1.0 - 2.0*Simulation.random.nextDouble();
+				z2 = 1.0 - 2.0*Simulation.random.nextDouble();
+				z3 = 1.0 - 2.0*Simulation.random.nextDouble();
+        
+				rsq = z1*z1 + z2*z2 + z3*z3;
+			}
+			x = z1;
+			y = z2;
+			z = z3;
+		}
+
         /**
         * Creating a random unit vector on unit sphere
         * Uses only two random number generator at a time
@@ -482,7 +504,7 @@ public class Space3D extends Space implements EtomicaElement {
          //   dr.x = c2.r.x - c1.r.x;
          //   dr.y = c2.r.y - c1.r.y;
          //   dr.z = c2.r.z - c1.r.z;
-          //  c1.atom.node.parentPhase().boundary().nearestImage(dr);
+         //   c1.atom.node.parentPhase().boundary().nearestImage(dr);
             boundary.nearestImage(dr);
    //         drx = dr.x;
    //         dry = dr.y;
@@ -646,31 +668,41 @@ public static class CoordinateGroup extends Coordinate {
     }
 
     /**
-        * Applies transformation to COM of group, keeping all internal atoms at same relative
-        * positions.
-        */
+     * Applies transformation to position of group, keeping all internal atoms
+     * at same relative positions.
+     */
     public void transform(Space.Vector r0, Space.Tensor A) {
         work.E(position()); //work = r
         work.transform(atom.node.parentPhase().boundary(), r0, A);
         work.ME(r);//now work vector contains translation vector for COM
         translateBy(work);
     }
+    /**
+     * Returns position of group as the position of the first atom in the group.
+     * @see etomica.Space.Coordinate#position()
+     */
     public Space.Vector position() {
 		if(firstAtom == null) firstAtom = ((AtomTreeNodeGroup)atom.node).childList.getFirst(); //DAK 
-        
+        if(firstAtom == null) {r.E(0.0); return r;}
 		return firstAtom.coord.position();
-
-//        r.E(0.0); double massSum = 0.0;
-//        childIterator.reset();
-//        while(childIterator.hasNext()) {
-//            Atom a = childIterator.next();
-//            r.PEa1Tv1(a.coord.mass(), a.coord.position()); 
-//            massSum += a.coord.mass();
-//        }
-//        if(massSum == 0) r.E(0.0);//added this 08/13/03 (DAK)
-//        else r.DE(massSum);
-//        return r;
     }
+    /**
+     * Returns center-of-mass positions of group.  Somewhat computationally
+     * expensive, so not appropriate for repeated use.
+     * @see etomica.Space.CoordinateGroup#positionCOM()
+     */
+	public Space.Vector positionCOM() {
+        r.E(0.0); double massSum = 0.0;
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            Atom a = childIterator.next();
+            r.PEa1Tv1(a.coord.mass(), a.coord.positionCOM()); 
+            massSum += a.coord.mass();
+        }
+        if(massSum == 0) r.E(0.0);//added this 08/13/03 (DAK)
+        else r.DE(massSum);
+        return r;
+	}
     public Space.Vector momentum() {
         p.E(0.0);
         childIterator.reset();
@@ -743,11 +775,23 @@ public static class CoordinateGroup extends Coordinate {
         }
         atom.seq.moveNotify();
     }
+    /**
+ 	 * Translates group so that first atom is at the given position.
+     */
     public void translateTo(Space.Vector u) {
         work.Ea1Tv1(-1,position()); //position() uses work, so need this first
         work.PE(u);
         translateBy(work);
     }
+    /**
+     * Translates center of mass of group to the given position.
+     * @param u new position for the COM
+     */
+	public void translateCOMTo(Space.Vector u) {
+		work.Ea1Tv1(-1,positionCOM()); //position() uses work, so need this first
+		work.PE(u);
+		translateBy(work);
+	}
     public void displaceBy(Space.Vector u) {
         childIterator.reset();
         while(childIterator.hasNext()) {

@@ -13,14 +13,21 @@ import etomica.*;
   * 09/18/02 (DAK) modified site method to return Atom instead of Site.
   * 01/12/03 (DAK) commented/uncommented parts of setupNeighbors(Criterion), as
   * indicated there
+  * 01/19/04 (DAK) added leafList method; modified in accord with change
+  * involving Basis class
+  * 01/20/04 (DAK) revised makeLattice methods and Factory class constructors to
+  * take a Crystal as an argument.
   */
 public class BravaisLattice extends Atom implements AbstractLattice {
 
    private Primitive primitive;
+   private Basis basis;
    private double[] primitiveVectorLength;
    private int[] idx;
    private final AtomList siteList = new AtomList();
    private int[] dimensions;
+   private Space space;
+   private boolean delayUpdate = false;//used to signal update and rebuild methods to not perform update, because another call will be forthcoming
    int D;
    private NeighborManager.Criterion neighborCriterion;
    public final SimulationEventManager eventManager = new SimulationEventManager();
@@ -37,6 +44,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         super(space, type, AtomTreeNodeGroup.FACTORY, 
                 IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
         D = space.D();
+        this.space = space;
         idx = new int[D];
         primitiveVectorLength = new double[D];
         this.dimensions = new int[dimensions.length];
@@ -44,18 +52,36 @@ public class BravaisLattice extends Atom implements AbstractLattice {
    }
    
    /**
-    * Constructs a unique BravaisLattice factory and returns a new lattice from it.
+    * Constructs and returns a BravaisLattice.
     */
-    public static BravaisLattice makeLattice(
-                Space space, Crystal crystal, int[] dimensions) {
-        return makeLattice(space, crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
+    public static BravaisLattice makeLattice(Space space, Crystal crystal, int[] dimensions) {
+		return (BravaisLattice)new Factory(space, AtomSequencerSimple.FACTORY, crystal, dimensions).makeAtom();
     }
+    /**
+     * Constructs and returns BravaisLattice instance of default size as square
+     * of 3 units in each direction.
+     * @param space
+     * @param dimensions
+     * @param primitive
+     * @return BravaisLattice
+     */
+    public static BravaisLattice makeLattice(Space space, Crystal crystal) {
+    	return makeLattice(space, crystal, space.makeArrayD(3));
+    }
+	/**
+	 * Constructs and returns a BravaisLattice with a single-atom basis.
+	 */
+	 public static BravaisLattice makeLattice(Space space, int[] dimensions, Primitive primitive) {
+		 return makeLattice(space, new Crystal(primitive, new Basis(space)), dimensions);
+	 }
    /**
-    * Constructs a unique BravaisLattice factory and returns a new lattice from it.
+    * Constructs and returns a BravaisLattice with each site made by the given
+    * AtomFactory.
     */
     public static BravaisLattice makeLattice(
                 Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        return (BravaisLattice)new Factory(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, primitive).makeAtom();
+        return makeLattice(space, new Crystal(primitive, new Basis(space, 1, siteFactory)), dimensions);
+//        return (BravaisLattice)new Factory(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, primitive).makeAtom();
     }
     
     /**
@@ -77,6 +103,37 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         rebuild();
     }
     
+    public Atom centerSite() {
+    	int[] halfDim = new int[D];
+    	for(int i=0; i<D; i++) halfDim[i] = (int)dimensions[i]/2;
+		return site(halfDim);
+    }
+    
+    /**
+     * Sets the size of the lattice (number of atoms in each direction) so that
+     * it has a number of sites equal or greater than the given value n.  Sets
+     * lattice to be square  (same number in all directions), and finds smallest
+     * size that gives number of sites equal or exceeding the given value.
+     * Size of primitive vectors are adjusted such that lattice will fit
+     * in the given dimensions.  Assumes all dimension values are equal (future
+     * development will address case of non-square dimensions).
+     */
+    public void setSize(int n, double[] dimensions) {
+    	if(n < 0 || n >= Integer.MAX_VALUE) throw new IllegalArgumentException("Inappropriate size specified for lattice: "+n);
+		delayUpdate = true;
+		int i = 0;
+		//set lattice dimensions to value that gives at least n sites  
+    	for(i=1; i<=n; i++) if(basis.size() * space.powerD(i) >= n) break;
+    	setDimensions(space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
+		((Factory)creator()).setDimensions(space.makeArrayD(i));//does a rebuild() call, but is blocked by delayUpdate
+    	//size primitive vectors to given dimensions
+    	double[] size = new double[dimensions.length];
+    	for(int j=0; j<dimensions.length; j++) size[j] = dimensions[j]/(double)i;
+    	primitive.setSize(size); //does an update() call, but is blocked by delayUpdate
+    	delayUpdate = false;
+    	rebuild();//also does update()
+    }
+    
     /**
      * Translates the lattice so that the first site is positioned at the origin,
      */
@@ -94,7 +151,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         ((AtomTreeNodeGroup)node).removeAllChildren();//need to do this before setting new leaf factory, in case new factory has different groupFactory() field
         this.primitive = crystal.getPrimitive();
         primitive.setLattice(this);
-        ((Factory)creator()).setLeafFactory(crystal.getSiteFactory());
+        ((Factory)creator()).setLeafFactory(crystal.getBasis().atomFactory());
         rebuild();
     }
     /**
@@ -160,6 +217,27 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     public AtomList siteList() {return siteList;}
     
     /**
+     * Returns a list of all the leaf lattice sites for this lattice.  For a
+     * one-atom basis, this is the same as the siteList; otherwise, returns
+     * a list of all atoms at the lowest hierarchy in the basis, for all basis
+     * sites.  Creates list on-the-fly from siteList, so will be expensive if
+     * used repeatedly.
+     * @return AtomList list of all leaf atoms
+     */
+    //developed for use by ConfigurationLattice
+//    public AtomList leafList() {
+//    	AtomIteratorTree leafIterator = new AtomIteratorTree();
+//    	leafIterator.setLeafIterator();
+//    	AtomList leafList = new AtomList();
+//    	AtomIteratorList siteIterator = new AtomIteratorList(siteList);
+//    	siteIterator.reset();
+//    	while(siteIterator.hasNext()) {
+//    		leafIterator.setBasis(siteIterator.next());
+//    		while(leafIterator.hasNext()) leafList.add(leafIterator.next());
+//    	}    	
+//    	return leafList;
+//    }
+    /**
      * Returns the spatial dimension of this lattice.
      */
     public int D() {return D;}
@@ -176,7 +254,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      * lattice are changed.
      */
     public void rebuild() {
-   //     throw new RuntimeException("BravaisLattice.rebuild() not yet working correctly");
+    	if(delayUpdate) return;
         ((AtomTreeNodeGroup)node).removeAllChildren();
         creator().build(this);
         eventManager.fireEvent(rebuildEvent);
@@ -197,6 +275,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      * in the lattice coordinates.
      */
     public void update() {
+    	if(delayUpdate) return;
         Space.Vector[] pVectors = primitive.vectors();
         Atom a = this;
         for(int i=0; i<D; i++) {
@@ -357,18 +436,28 @@ public static class Factory extends AtomFactoryTree {
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
     public Factory(Simulation sim, Crystal crystal, int[] dimensions) {
-        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), 
-                crystal.getSiteFactory(), dimensions, crystal.getPrimitive());
+//        this(sim.space, sim.iteratorFactory.simpleSequencerFactory(), 
+//                crystal.getBasis().atomFactory(), dimensions, crystal.getPrimitive());
+		this(sim.space, sim.iteratorFactory.simpleSequencerFactory(),crystal, dimensions);
     }
-    public Factory(Space space, AtomSequencer.Factory seqFactory, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        super(space, seqFactory, siteFactory, dimensions, configArray(space, primitive.vectors()));
-        this.primitive = primitive;
-        this.dimensions = new int[dimensions.length];
-        System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
-    }
+	public Factory(Space space, AtomSequencer.Factory seqFactory, Crystal crystal, int[] dimensions) {
+		super(space, seqFactory, crystal.getBasis().atomFactory(), dimensions, configArray(space, crystal.getPrimitive().vectors()));
+		this.primitive = crystal.getPrimitive();
+		basis = crystal.basis;
+		this.dimensions = new int[dimensions.length];
+		System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
+	}
+	//01/20/04 (DAK) deleted this constructor and replaced with the one above
+	public Factory(Space space, AtomSequencer.Factory seqFactory, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
+		this(space, seqFactory, new Crystal(primitive, new Basis(space, 1, siteFactory)), dimensions);
+//		super(space, seqFactory, siteFactory, dimensions, configArray(space, primitive.vectors()));
+//		this.primitive = primitive;
+//		this.dimensions = new int[dimensions.length];
+//		System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
+	}
     
     public Atom build(AtomTreeNodeGroup parent) {
-        BravaisLattice group = new BravaisLattice(space, groupType, dimensions, parent);
+        BravaisLattice group = new BravaisLattice(this.space, groupType, dimensions, parent);
         return build(group);
     }
     
@@ -382,7 +471,9 @@ public static class Factory extends AtomFactoryTree {
         group.siteList.clear();
         group.siteList.addAll(leafIterator);
         //assign primitive if not already set for group (would be set if this is a rebuild call)
-        if(group.getPrimitive() == null) group.setPrimitive(primitive.copy());
+		group.basis = basis;
+//		if(group.getPrimitive() == null) group.setPrimitive(primitive.copy());
+		if(group.getPrimitive() == null) group.setPrimitive(primitive);
         else group.update();
         return group;
     }
@@ -405,6 +496,7 @@ public static class Factory extends AtomFactoryTree {
     public int[] getDimensions() {return dimensions;}
     
     protected Primitive primitive;
+    protected Basis basis;
     protected final int[] dimensions;
 }//end of Factory
 

@@ -117,7 +117,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * in a situation where all children of this node are leaf atoms.
      */
      //need to find way to update childrenAreGroups to give false 
-     //after this method is invokes
+     //after this method is invoked
      
      //commented because this is just a detailed sketch of the method; not tested at all
     /*

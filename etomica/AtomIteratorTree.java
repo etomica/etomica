@@ -231,9 +231,9 @@ public class AtomIteratorTree extends AtomIterator {
      * returning just the basis atom. A value of 1 returns all children of the basis
      * atom, a value of 2 returns all children of all children of the basis, etc.
      * Iterator returns only atoms at the specified level, and not those above it.
-     * Returns atoms at bottom of hierarchy (i.e., leaves) if specified depth exceeds 
-     * depth of hierarchy.  Defaults is Integer.MAX_VALUE, which causes all leaf atoms 
-     * to be iterated.
+     * Returns atoms at bottom of hierarchy (i.e., leafs) if specified depth
+     * exceeds depth of hierarchy.  Default is Integer.MAX_VALUE, which causes
+     * all leaf atoms to be iterated.
      */
     public void setIterationDepth(int depth) {
         if (iterationDepth == depth) return;

@@ -1,6 +1,5 @@
 package etomica.lattice;
-import etomica.Space;
-import etomica.Default;
+import etomica.*;
 
 /**
  * Cubic primitive with a 4-site fcc basis, on which each site 
@@ -9,22 +8,38 @@ import etomica.Default;
 
  /* History
   * 09/26/02 (DAK) new
+  * 01/20/04 (DAK) revised constructors; added one taking atomFactory argument
   */
 public class CrystalDiamond extends Crystal {
     
-    public CrystalDiamond(Space space) {
-        super(new PrimitiveCubic(space));
+	/**
+	 * Cubic diamond crystal in which each diamond site is populated by an atom
+	 * made by the given factory
+	 * @param space
+	 */
+	public CrystalDiamond(Space space) {
+		this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+	}
 
-        //set primitive to size for densest packing if atoms are default size
-        ((PrimitiveCubic)primitive).setSize(4.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
-        
-        //factory that makes the 2-atom sub-basis
-        etomica.AtomFactory subsiteFactory = new BasisCubicFccDiamond(space, (PrimitiveCubic)primitive);
+	/**
+	 * Cubic diamond crystal in which each diamond site is populated by an atom
+	 * made by the given factory
+	 * @param space
+	 * @param factory
+	 */
+	public CrystalDiamond(Space space, AtomFactory factory) {
+		this(new PrimitiveCubic(space), factory);
+	}
 
-        //factory that makes the 4-atom fcc-on-cubic basis
-        siteFactory = new BasisCubicFcc(space, subsiteFactory, (PrimitiveCubic)primitive);
-    }
-    
+	/**
+	 * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
+	 * new BasisCubicDiamond (which needs the new primitive) to super.
+	 */	
+	private CrystalDiamond(PrimitiveCubic primitive, AtomFactory factory) {
+		super(primitive, new BasisCubicDiamond(primitive.space, factory, primitive));
+		((PrimitiveCubic)primitive).setSize(4.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
+	}
+   
     public String toString() {return "Diamond";}
     
-}//end of CrystalFcc
+}//end of CrystalDiamond

@@ -10,22 +10,33 @@ import etomica.*;
  
  /* History
   * 09/22/02 (DAK) new
+  * 01/19/04 (DAK) revised to extend Basis instead of AtomFactory
   */
  
-public class BasisHcp extends AtomFactoryHomo {
+public class BasisHcp extends Basis {
     
     /**
      * Makes a basis using a default that uses AtomFactoryMono
      * for making atom occupying each site.
+     * @param space instance of governing space class
+     * @param primitive Primitive of the cubic lattice housing this basis.
+     * Needed to ensure that separation of basis atoms is consistent with
+     * spacing of atoms on lattice.
      */
     public BasisHcp(Space space, PrimitiveHexagonal primitive) {
-        this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY), primitive);
+		super(space, 2, new Configuration(space,primitive));
     }
     /**
      * Makes a hcp 2-atom basis using the given factory to make the atoms.
-     */
+     * @param space instance of governing space class
+     * @param factory AtomFactory used to make the atoms (molecules) the form
+     * the basis
+     * @param primitive Primitive of the cubic lattice housing this basis.
+     * Needed to ensure that separation of basis atoms is consistent with
+     * spacing of atoms on lattice.
+      */
     public BasisHcp(Space space, AtomFactory factory, PrimitiveHexagonal primitive) {
-        super(space, AtomSequencerSimple.FACTORY, factory, 2, BondInitializer.NULL, new Configuration(space,primitive));
+		super(space, 2, new Configuration(space,primitive), factory);
     }
     
     

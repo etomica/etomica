@@ -11,6 +11,11 @@ package etomica;
   * 07/10/03 (DAK) added resetV method to CoordinatePair
   * 08/27/03 (DAK) added isZero method to Vector
   * 08/29/03 (DAK) implemented centralImage(Space.Coordinate) in Boundary
+  * 12/09/03 (DAK) changed setRandomSphere to give point on surface of sphere
+  * (just at +/- 1 instead of between +/- 1); added setRandomInSphere method
+  * 01/22/04 (DAK) added positionCOM and translateCOMTo to CoordinateGroup;
+  * redefined position() in CoordinateGroup to be first-atom position (as it has
+  * been for Space3D for some time now).
   */
 public class Space1D extends Space implements EtomicaElement {
     
@@ -146,7 +151,8 @@ public class Space1D extends Space implements EtomicaElement {
         public void setRandom(double dx, double dy) {x = Simulation.random.nextDouble()*dx;}
         public void setRandom(Vector u) {setRandom(u.x);}
         public void setRandomCube() {x = Simulation.random.nextDouble() - 0.5;}
-        public void setRandomSphere() {setRandomCube();}
+        public void setRandomInSphere() {setRandomCube();}
+        public void setRandomSphere() {randomDirection();}
         public void randomDirection() {x = (Simulation.random.nextDouble() < 0.5) ? -1.0 : +1.0;}
         public void E(Space.Vector u) {E((Vector)u);}
         public void PE(Space.Vector u) {PE((Vector)u);}
@@ -350,9 +356,11 @@ public class Space1D extends Space implements EtomicaElement {
     }
     
     public static class CoordinateGroup extends Coordinate {
-        public Coordinate firstChild, lastChild;
+        public Coordinate firstChild, lastChild;//to be removed
+        public Atom firstAtom;
         public CoordinateGroup(Atom a) {super(a);}
 
+		//these may be removed at some point, to use childIterator instead (as in other space classes)
         public final Atom firstAtom() {return (firstChild != null) ? firstChild.atom : null;}
         public final void setFirstAtom(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
         public final Atom lastAtom() {return (lastChild != null) ? lastChild.atom : null;}
@@ -369,9 +377,14 @@ public class Space1D extends Space implements EtomicaElement {
             translateBy(work);
         }
         public Space.Vector position() {
+			if(firstAtom == null) firstAtom = ((AtomTreeNodeGroup)atom.node).childList.getFirst(); //DAK 
+			if(firstAtom == null) {r.E(0.0); return r;}
+			return firstAtom.coord.position();
+		}
+		public Space.Vector positionCOM() {
             r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                r.PEa1Tv1(coord.mass(), coord.position()); massSum += coord.mass();
+                r.PEa1Tv1(coord.mass(), coord.positionCOM()); massSum += coord.mass();
                 if(coord == lastChild) break;
             }
             r.DE(massSum);
@@ -445,6 +458,18 @@ public class Space1D extends Space implements EtomicaElement {
             }
             atom.seq.moveNotify();
         }
+		/**
+		 * Translates center of mass of group to the given position.
+		 * @param u new position for the COM
+		 */
+		public void translateCOMTo(Space.Vector u) {
+			work.Ea1Tv1(-1,positionCOM()); //position() uses work, so need this first
+			work.PE(u);
+			translateBy(work);
+		}
+		/**
+		 * Translates group so that first atom is at the given position.
+		 */
         public void translateTo(Space.Vector u) {
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
             work.PE((Vector)u);

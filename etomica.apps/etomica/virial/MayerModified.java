@@ -33,7 +33,7 @@ public class MayerModified extends MayerFunction {
 		if(r2 < sigma2 && bu > UF1) return 1.0;
 //		if(r2 < sigma2 ) return 1.0;
 //		double bu = beta*potential.energy(pair);
-		
+		if(bu > -1e-6) return -bu*(1-0.5*bu); //repulsive region already eliminated, so bu close to zero if this is true
 		double f = Math.exp(-bu) - 1.0;		
 		return (f>0) ? f : -f;  
 	}

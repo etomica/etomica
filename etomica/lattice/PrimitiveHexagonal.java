@@ -264,11 +264,11 @@ public class UnitCellFactory extends AtomFactory {
         Simulation sim = new Simulation(space);
         int D = space.D();
         PrimitiveCubic primitive = new PrimitiveCubic(sim);
-        AtomFactory siteFactory = primitive.unitCellFactory();
+        AtomFactory basis = primitive.unitCellFactory();
         final int nx = 4;
         final int ny = 5;
         BravaisLattice lattice = BravaisLattice.makeLattice(sim, 
-                                siteFactory, 
+                                basis, 
                                 new int[] {nx,ny},
                                 primitive);
         lattice.shiftFirstToOrigin();

@@ -14,6 +14,9 @@ import java.util.Observer;
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
  *                when used.  Change made while modify behavior of momentum initiation
  *                in Configuration and randomizeMomentum methods in Space.Coord...
+ * 01/21/04 (DAK) changed initializeCoordinate calls to take this phase as
+ * argument.  As a result, Configuration will set its dimensions equal to that
+ * of this phase before assigning coordinates.
  */
 
 /**
@@ -163,7 +166,7 @@ public class Phase extends SimulationElement {
       * Fires PhaseEvent of type RESET after completing action.
       */
      public void reset() {
-        getConfiguration().initializeCoordinates(((AtomTreeNodeGroup)speciesMaster().node).childAtomArray());
+        getConfiguration().initializeCoordinates(this);
         fireEvent(new PhaseEvent(this, PhaseEvent.RESET));
      }
 
@@ -246,7 +249,7 @@ public class Phase extends SimulationElement {
     public void setConfiguration(Configuration c) {
         configuration = c;
         c.setZeroTotalMomentum(true);
-        configuration.initializeCoordinates(speciesMaster.node.childAtomArray());
+        configuration.initializeCoordinates(this);
     }
     
     public Configuration getConfiguration() {return configuration;}

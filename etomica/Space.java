@@ -4,6 +4,8 @@ package etomica;
  * 09/01/02 (DAK) added accelerateTo method to Coordinate
  * 07/10/03 (DAK) added resetV method to CoordinatePair
  * 08/27/03 (DAK) added isZero method to Vector
+ * 12/09/03 (DAK) added setRandomInSphere method in Vector
+ * 01/22/04 (DAK) added (then removed) CoordinateGroup interface
  */
 
 public abstract class Space implements java.io.Serializable {
@@ -180,8 +182,9 @@ public abstract class Space implements java.io.Serializable {
         public abstract void transform(Tensor A);             //applies the given tensor transformation to this vector
         public abstract void transform(Boundary b, Vector r0, Tensor A);  //applies the transformation to (this - r0)
         public abstract void setRandom(double d);             //
-        public abstract void setRandomSphere();               //random point in unit sphere
+        public abstract void setRandomSphere();               //random point on sphere
         public abstract void setRandomCube();                 //random point in a unit cube
+        public abstract void setRandomInSphere();			  //random point in unit sphere
         public abstract void randomStep(double d);            //random step of selected uniformly in cube of edge 2d (adds up to +/- d to present value)
         public final void PEa1Tv1(double[] a, Vector[] u) {   //adds several terms of form a*u to this vector
             for(int i=a.length-1; i>=0; i--) {PEa1Tv1(a[i],u[i]);}
@@ -231,13 +234,15 @@ public abstract class Space implements java.io.Serializable {
         public abstract Vector momentum();
         public abstract double position(int i);
         public abstract double momentum(int i);
+        public Vector positionCOM() {return position();} //override in CoordinateGroup
         public abstract double kineticEnergy();
         public abstract void freeFlight(double t);
         public abstract void inflate(double scale);
         public abstract void inflate(Space.Vector scale);
         public abstract void translateBy(Space.Vector u);
         public abstract void translateBy(double d, Space.Vector u);
-        public abstract void translateTo(Space.Vector u);   
+        public abstract void translateTo(Space.Vector u);
+        public void translateCOMTo(Space.Vector u) {translateTo(u);}//override in CoordinateGroup
         public abstract void displaceBy(Space.Vector u);
         public abstract void displaceBy(double d, Space.Vector u);
         public abstract void displaceTo(Space.Vector u);
@@ -307,6 +312,11 @@ public abstract class Space implements java.io.Serializable {
             public void freeFlight(double t);
         }
     }//end of Space.Coordinate
+    
+//    public interface CoordinateGroup {
+//    	public Space.Vector positionCOM();
+//    	public void translateCOMTo(Space.Vector u);
+//    }
     
     public static abstract class Orientation {
         public abstract void E(Orientation o); //copies the given orientation to this

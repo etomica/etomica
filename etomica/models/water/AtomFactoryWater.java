@@ -20,8 +20,8 @@ public class AtomFactoryWater extends AtomFactory {
 
 		hFactory = new AtomFactoryMono(simulation, simulation.getIteratorFactory().simpleSequencerFactory());
 		oFactory = new AtomFactoryMono(simulation, simulation.getIteratorFactory().simpleSequencerFactory());
-		AtomType hType = new AtomType.Sphere(hFactory, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0/2);
-		AtomType oType = new AtomType.Sphere(oFactory, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167/2);
+		AtomType hType = new AtomType.Sphere(hFactory, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
+		AtomType oType = new AtomType.Sphere(oFactory, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
         
 		hFactory.setType(hType);
 		oFactory.setType(oType);
@@ -49,5 +49,5 @@ public class AtomFactoryWater extends AtomFactory {
 		return true;
 	}
 
-	private AtomFactoryMono hFactory, oFactory;
+	public final AtomFactoryMono hFactory, oFactory;
 }

@@ -7,10 +7,12 @@ package etomica;
  */
  
  /* History of changes
-  * 09/01/02 (DAK) added field to flag if total momentum should be set to zero when initalizing
-  *                (made in conjunction with change to Space.CoordinateGroup classes, 
-  *                 which no longer do randomizeMomentum to zero total momentum).
+  * 09/01/02 (DAK) added field to flag whether total momentum should be set to
+  * zero when initalizing (made in conjunction with change to Space.
+  * CoordinateGroup classes, which no longer do randomizeMomentum to zero total
+  * momentum). 
   * 09/04/02 (DAK) added Null inner class and NULL field
+  * 01/21/04 (DAK) added initializeCoordinate(Phase) method
   */
 public abstract class Configuration implements java.io.Serializable {
 
@@ -44,6 +46,10 @@ public abstract class Configuration implements java.io.Serializable {
         
     public abstract void initializePositions(AtomIterator[] iterator);
     
+    public void initializeCoordinates(Phase phase) {
+    	setDimensions(phase.boundary().dimensions().toArray());
+		initializeCoordinates(phase.speciesMaster.node.childAtomArray());
+    }
     public void initializePositions(AtomIterator iterator) {
         initializePositions(new AtomIterator[] {iterator});
     }
@@ -77,7 +83,7 @@ public abstract class Configuration implements java.io.Serializable {
     }//end of initializeMomenta
     
     /**
-     * Initializes positions and momenta of the given atom group.
+     * Initializes positions and momenta of the atoms in the given atom group.
      */
     public void initializeCoordinates(Atom group) {
         if(group.node.isLeaf()) throw new IllegalArgumentException("Error in Configuration.initializeCoordinates:  Attempt to initialize child coordinates of leaf atom");
@@ -89,14 +95,14 @@ public abstract class Configuration implements java.io.Serializable {
     }
     
     /**
-     * Initializes positions of the given atom group.
+     * Initializes positions of the atoms in the given atom group.
      */
     public void initializePositions(Atom group) {
         if(group.node.isLeaf()) throw new IllegalArgumentException("Error in Configuration.initializeCoordinates:  Attempt to initialize child coordinates of leaf atom");
         initializePositions(new AtomIteratorList(((AtomTreeNodeGroup)group.node).childList));
     }
     /**
-     * Initializes positions and momenta of the given atom groups.
+     * Initializes positions and momenta of the atoms in the given atom groups.
      */
     public void initializeCoordinates(Atom[] group) {
         AtomIterator[] iterators = new AtomIterator[group.length];

@@ -1,7 +1,5 @@
 package etomica.lattice;
-import etomica.Space;
-import etomica.Default;
-import etomica.AtomFactory;
+import etomica.*;
 
 /**
  * Cubic primitive with a 4-site fcc basis.
@@ -9,29 +7,41 @@ import etomica.AtomFactory;
  */
 
  /* History
-  * 12/09/02 (skkwak) built another contructor to pass an instance of AtomFactory class into BasisCubicFcc 
-  *                   to change atoms to sites (concrete sites under basis from BravisLattice) 
   * 09/23/02 (DAK) new
+  * 12/09/02 (skkwak) built another contructor to pass an instance of
+  * AtomFactory class into BasisCubicFcc to change atoms to sites (concrete
+  * sites under basis from BravisLattice)
+  * 01/20/04 (DAK) restructured constructors
   */
 public class CrystalFcc extends Crystal {
 
-    public CrystalFcc(Space space) {
-        super(new PrimitiveCubic(space));
+	/**
+	 * Cubic fcc crystal in which each fcc site is populated by a mono atom
+	 * @param space
+	 */
+	public CrystalFcc(Space space) {
+		this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+	}
 
-        //set primitive to size for close packing if atoms are default size
-        ((PrimitiveCubic)primitive).setSize(Math.sqrt(2.0)*Default.ATOM_SIZE);
-        
-        siteFactory = new BasisCubicFcc(space, (PrimitiveCubic)primitive);
-    }
+	/**
+	 * Cubic fcc crystal in which each bcc site is populated by an atom made by
+	 * the given factory
+	 * @param space
+	 * @param factory
+	 */
+	public CrystalFcc(Space space, AtomFactory factory) {
+		this(new PrimitiveCubic(space), factory);
+	}
 
-    public CrystalFcc(Space space, AtomFactory factory) {
-        super(new PrimitiveCubic(space), factory);
-        //set primitive to size for close packing if atoms are default size
-        ((PrimitiveCubic)primitive).setSize(Math.sqrt(2.0)*Default.ATOM_SIZE);
-        
-        siteFactory = new BasisCubicFcc(space, factory, (PrimitiveCubic)primitive);
-    }    
-    
+	/**
+	 * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
+	 * new BasisCubicFcc (which needs the new primitive) to super.
+	 */	
+	private CrystalFcc(PrimitiveCubic primitive, AtomFactory factory) {
+		super(primitive, new BasisCubicFcc(primitive.space, factory, primitive));
+		primitive.setSize(Math.sqrt(2.0)*Default.ATOM_SIZE);
+	}
+   
     public String toString() {return "Fcc";}
     
 }//end of CrystalFcc

@@ -12,7 +12,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
     private AtomPairIterator iterator;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private double[] vShell;
-    private double delr;
+    protected double delr;
     private DataSourceUniform xSource;
     
     public MeterRDF() {
@@ -108,8 +108,11 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    meter.setActive(true);
 	    etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot(sim);
 	    etomica.graphics.DisplayTableFunction table = new etomica.graphics.DisplayTableFunction(sim);
-	    
+	    ApiIntragroupAA iterator = new ApiIntragroupAA(sim);
 	    sim.elementCoordinator.go();
+	    SpeciesAgent agent = sim.phase.getAgent(sim.species);
+	    meter.setIterator(iterator);
+		iterator.setBasis(agent, agent);
 	    
 	    etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
 	 }//end of main

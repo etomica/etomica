@@ -13,11 +13,11 @@ import etomica.units.Dimension;
   */
 public class MCMoveMolecule extends MCMove {
     
-    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    protected final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
-    private double uOld;
-    private double uNew = Double.NaN;
+    protected double uOld;
+    protected double uNew = Double.NaN;
 
     public MCMoveMolecule(IntegratorMC parentIntegrator) {
         super(parentIntegrator);

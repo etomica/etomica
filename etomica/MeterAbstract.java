@@ -434,7 +434,8 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	    public double average() {
 	        int blockCount = blockSize - blockCountDown;
 	        return (count+blockCount > 0) ? 
-	            (sum + blockSum/blockSize)/(double)(count + (double)blockCount/(double)blockSize) 
+	        	sum/(double)count
+//	            (sum + blockSum/blockSize)/(double)(count + (double)blockCount/(double)blockSize) 
 	            : Double.NaN;
 	    }
     	

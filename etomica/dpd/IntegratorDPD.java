@@ -28,6 +28,11 @@ import etomica.Space;
  * 
  */
 
+/*
+ * History
+ * 11/17/03 (DAK) added moveNotify call in doStep method
+ */
+
 public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 	
 	public String getVersion() {return "IntegratorDPD:03.04.22/"+IntegratorMD.VERSION;}
@@ -55,7 +60,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 		super(parent);
 		forceSum = new PotentialCalculationForceSum(space);
 		setTimeStep(0.04);  
-		lambdaV = 0.5;
+		lambdaV = 0.65;
 	}
 		
 		
@@ -95,6 +100,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 			p.PEa1Tv1(lambdaV*timeStep, agent.force);  // p += f(old)*dt*lambdaV
 			agent.fOld.E(agent.force);
 			agent.force.E(0.0);				//sets all components of the force vector to 0
+			a.seq.moveNotify();//11-17-03 (DAK) added this
 		}
                 
 		//Compute forces on each atom

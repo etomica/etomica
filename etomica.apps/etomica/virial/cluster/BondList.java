@@ -1,6 +1,7 @@
 package etomica.virial.cluster;
 
 import etomica.virial.*;
+import etomica.virial.cluster.graphics.*;
 
 /**
  * Data structure that holds list of atom pairs that are joined by bonds.
@@ -47,10 +48,10 @@ public class BondList {
 			if(!isConnected(n, bonds)) continue;//eliminate unconnected diagrams
 			java.util.Iterator listIterator = list.iterator();
 			boolean unique = true;
-			while(listIterator.hasNext()) {//loop over stored permutation sets
+//			while(listIterator.hasNext()) {//loop over stored permutation sets
 //				PermutationSet perm = (PermutationSet)listIterator.next();
 //				if(perm.contains(bonds)) {unique = false; break;} 
-			}
+//			}
 //			if(unique) list.add(new PermutationSet(bonds));
 		}
 		//linked list has all unique clusters at this point
@@ -152,16 +153,86 @@ public class BondList {
 		return (count == (n-1));//true if 0 is connected to all others by some path		
 	}
 	
-	public static void main(String[] args) {
-		DeletionIterator iterator = new DeletionIterator();
-		BondList bonds = new BondList(Standard.full(4));
-		iterator.reset(bonds, 6);
-		while(iterator.hasNext()) {
-			int[][] a = iterator.next();
-			System.out.print(isConnected(4,a)+", {");
-			for(int i=0; i<a.length-1; i++)  System.out.print("{"+a[i][0]+","+a[i][1]+"}, ");
-			if(a.length > 0) System.out.print("{"+a[a.length-1][0]+","+a[a.length-1][1]+"}");
-			System.out.println("}");
+	public static class PermutationSet {
+		final int[][][] signatures;
+		final int[][] prototype;
+		final int[][] nbrCount; //nbrCount[i][0] is no of root point i is bonded to, [i][1] is no of field points
+		final int nBonds, n;
+//		java.util.LinkedList permutations = new java.util.LinkedList();
+		PermutationSet(int n, int[][] bonds) {
+			this.n = n;
+			nBonds = bonds.length;
+			prototype = new int[nBonds][];
+			for(int i=0; i<nBonds; i++) {
+				prototype[i][0] = bonds[i][0];
+				prototype[i][1] = bonds[i][1];
+			}
+			int[][] nbrCount = new int[n][2];
+			for(int i=0; i<nBonds; i++) {//loop over bonds
+				int p1 = bonds[i][0];//label of each point in bond
+				int p2 = bonds[i][1];
+				//increment count of points for bonds to root (=0,1) points or field points
+				if(p2 == 0 || p2 == 1) nbrCount[p1][0]++; else nbrCount[p1][1]++;
+				if(p1 == 0 || p1 == 1) nbrCount[p2][0]++; else nbrCount[p2][1]++;
+			}
+			int[][][] signatures = new int[n][][];
+			for(int j=0; j<n; j++) {
+				
+			}
+			//make all permutations
+		}
+		
+		public boolean contains(int[][] test) {
+			java.util.Iterator iterator = permutations.iterator();
+			while(iterator.hasNext()) {
+				int[][] next = (int[][])iterator.next();
+				if(equal(test,next)) return true;
+			}
+			return false;
 		}
 	}
+	
+//	public static void main(String[] args) {
+//		DeletionIterator iterator = new DeletionIterator();
+//		BondList bonds = new BondList(Standard.full(4));
+//		iterator.reset(bonds, 6);
+//		while(iterator.hasNext()) {
+//			int[][] a = iterator.next();
+//			System.out.print(isConnected(4,a)+", {");
+//			for(int i=0; i<a.length-1; i++)  System.out.print("{"+a[i][0]+","+a[i][1]+"}, ");
+//			if(a.length > 0) System.out.print("{"+a[a.length-1][0]+","+a[a.length-1][1]+"}");
+//			System.out.println("}");
+//		}
+//	}
+		public static void main(String[] args) {
+			int nPoints = 4;
+			int maxDelete = 6;
+			java.util.LinkedList testList = new java.util.LinkedList();
+
+			BondList bonds = new BondList(Standard.full(4));
+			DeletionIterator iterator = new DeletionIterator();
+			iterator.reset(bonds, maxDelete);
+			while(iterator.hasNext()) {
+				int[][] a = iterator.next();
+
+//				System.out.print(isConnected(4,a)+ ", {");
+//				for(int i=0; i<a.length-1; i++)  System.out.print("{"+a[i][0]+","+a[i][1]+"}, ");
+//				if(a.length > 0) System.out.print("{"+a[a.length-1][0]+","+a[a.length-1][1]+"}");
+//				System.out.println("}");
+
+				int[][] b = new int[a.length][2];
+				for(int i=0;i<a.length;i++){
+					b[i][0]=a[i][0];				
+					b[i][1]=a[i][1];
+				}
+				testList.add(b);
+			}			
+	
+			ShowCluster showCluster = new ShowCluster(nPoints, testList);		
+				showCluster.addWindowListener(new java.awt.event.WindowAdapter(){
+				public void windowClosing( java.awt.event.WindowEvent e){
+					System.exit(0);
+				}});
+		}// end of main
+
 }

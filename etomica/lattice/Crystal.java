@@ -1,28 +1,34 @@
 package etomica.lattice;
 
-import etomica.*;
-
 /**
- * A class packaging together a Primitive and a Basis (an 
- * AtomFactory that constructs the sites occupying the lattice).
+ * A class packaging together a Primitive and a Basis.
  */
  
 public class Crystal {
     
+    /**
+     * Constructs instance using a simple single-site basis.
+     * @param primitive
+     */
     public Crystal(Primitive primitive) {
-        this(primitive, new AtomFactoryMono(primitive.space, AtomSequencerSimple.FACTORY));
+        this(primitive, new Basis(primitive.space));
     }
-    public Crystal(Primitive primitive, AtomFactory factory) {
+    /**
+     * Constructs instance using the given primitive and basis.
+     * @param primitive
+     * @param basis
+     */
+    public Crystal(Primitive primitive, Basis basis) {
         this.primitive = primitive;
-        this.siteFactory = factory;
+        this.basis = basis;
     }
     
     public Primitive getPrimitive() {return primitive;}
     
-    public AtomFactory getSiteFactory() {return siteFactory;}
+    public Basis getBasis() {return basis;}
     
     public String toString() {return primitive.toString();}
     
     protected Primitive primitive;
-    protected AtomFactory siteFactory;
+    protected Basis basis;
 }//end of Crystal

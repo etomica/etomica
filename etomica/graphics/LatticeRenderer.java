@@ -8,6 +8,10 @@ import java.awt.*;
  * Defines color schemes useful to examination of cell neighbor list behavior.
  */
  
+ /* History
+  * 11/16/03 (DAK) Added line in ColorSchemeNeighbor to eliminate exception with
+  * using iterator without setting basis
+  */
  //plan to develop to configure for different types of drawing.
  //currently does only 2D cells
 public class LatticeRenderer implements Drawable {
@@ -80,16 +84,21 @@ public class LatticeRenderer implements Drawable {
         public void colorAllAtoms(Phase phase) {
             allIterator.setBasis(phase.speciesMaster.atomList);
             allIterator.reset();
+			//color all atoms according to their type
             while(allIterator.hasNext()) {
                 Atom atom = allIterator.next();
                 atom.allatomAgents[agentIndex] = typeColorScheme.atomColor(atom);//Color.green;
             }
+            //color blue the neighbor atoms in same group
+            nbrIterator.setBasis(referenceAtom.node.parentGroup());//(DAK) added this line 11/16/03
             nbrIterator.reset(directive);
             while(nbrIterator.hasNext()) nbrIterator.next().allatomAgents[agentIndex] = Color.blue;
+            //color yellow the neighbor atoms in other groups
             for(int i=0; i<nbrIteratorInter.length; i++) {
                 nbrIteratorInter[i].reset(directive);
                 while(nbrIteratorInter[i].hasNext()) nbrIteratorInter[i].next().allatomAgents[agentIndex] = Color.yellow;
-            }    
+            }   
+            //color red the target atom 
             referenceAtom.allatomAgents[agentIndex] = Color.red;
         }
         
