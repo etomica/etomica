@@ -9,7 +9,7 @@ import etomica.AtomIterator;
 import etomica.AtomIteratorList;
 import etomica.AtomIteratorMolecule;
 import etomica.AtomList;
-import etomica.AtomSequencerSimple;
+import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomType;
 import etomica.Phase;
@@ -303,7 +303,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             this.size = size;
             size1 = size-1;
             LatticeFactoryCubic latticeFactory = 
-                new LatticeFactoryCubic(sim.space, new MySiteFactory(sim.space), sim.space.D(), size, 1.0/(double)(size-1));
+                new LatticeFactoryCubic(sim.space, new MySiteFactory(sim.space), sim.space.D(), size, 1.0/(size-1));
             squareLattice = (BravaisLattice)latticeFactory.makeAtom();
             squareLattice.shiftFirstToOrigin();
 
@@ -497,9 +497,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             if(dy < dx) {//TR
                 return (dy < 1-dx) ? site.cellN : site.cellE;
             }
-            else {//BL
-                return (dy < 1-dx) ? site.cellW : site.cellS;
-            }
+            return (dy < 1-dx) ? site.cellW : site.cellS;
         }
         
         //AbstractLattice methods
@@ -530,7 +528,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         }
     }
     private class MySiteFactory extends AtomFactoryMono {
-        MySiteFactory(Space space) {super(space, AtomSequencerSimple.FACTORY);}
+        MySiteFactory(Space space) {super(space, AtomSequencerFactory.SIMPLE);}
         protected Atom build(AtomTreeNodeGroup parent) {
             return new MySite(space, parent);
         }
