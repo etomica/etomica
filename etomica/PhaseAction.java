@@ -10,12 +10,12 @@ package etomica;
  /* History
   * 08/27/03 (DAK) modifications to ImposePBC to handle molecules versus atoms
   */
-public abstract class PhaseAction extends etomica.Action implements PhaseListener {
+public abstract class PhaseAction implements PhaseListener, Action {
 
-    public static String getVersion() {return "PhaseAction:01.03.28/"+Action.VERSION;}
     private static final AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule();
 
     protected Phase phase;
+    private String label = "Phase Action";
     public PhaseAction() {this(null);}
     public PhaseAction(Phase p) {
         super();
@@ -39,6 +39,12 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
     
     public abstract void actionPerformed(Phase p);
 
+    public String getLabel() {
+    	return label;
+    }
+    public void setLabel(String label) {
+    	this.label = label;
+    }
         
     //************* End of fields and methods for PhaseAction ************//
     

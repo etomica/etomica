@@ -8,7 +8,6 @@ import etomica.units.*;
  */
 public abstract class IntegratorMD extends Integrator {
     
-    public static String VERSION = "IntegratorMD:01.03.01.0/"+Integrator.VERSION;
     /**
      * Elementary time step for the MD simulation
      */
@@ -42,7 +41,7 @@ public abstract class IntegratorMD extends Integrator {
      * The simulation time elapsed since the start of the integration.
      * Cannot be reset to zero.
      */
-    public double elapsedTime() {return t0 + (stepCount-stepCount0)*timeStep;}
+//    public double elapsedTime() {return t0 + (stepCount-stepCount0)*timeStep;}
     
     /**
      * Zeros step counter and reference time (such that elapsed time becomes zero).
@@ -50,8 +49,8 @@ public abstract class IntegratorMD extends Integrator {
      * with iterator reset.
      */
     protected void doReset() {
-        stepCount = 0;
-        stepCount0 = 0;
+//        stepCount = 0;
+//        stepCount0 = 0;
         t0 = 0;
     }
         
@@ -61,8 +60,8 @@ public abstract class IntegratorMD extends Integrator {
      */
     public void setTimeStep(double t) {
         timeStep = t;
-        t0 = elapsedTime();
-        stepCount0 = stepCount;
+//        t0 = elapsedTime();
+//        stepCount0 = stepCount;
     }
     public final double getTimeStep() {return timeStep;}
     public final double timeStep() {return timeStep;}

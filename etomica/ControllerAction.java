@@ -3,17 +3,22 @@ package etomica;
  /**
   * Elementary action performed on a controller.
   */
-public abstract class ControllerAction extends etomica.Action implements ControllerListener {
+public abstract class ControllerAction implements etomica.Action, ControllerListener {
 
-    public static String getVersion() {return "ControllerAction:01.11.20/"+Action.VERSION;}
-
-    protected Controller controller;
+	private String label = "ControllerAction";
+	protected Controller controller;
     public ControllerAction() {this(null);}
     public ControllerAction(Controller c) {
         super();
         controller = c;
     }
         
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
     public void setController(Controller c) {controller = c;}
     public Controller getController() {return controller;}
     

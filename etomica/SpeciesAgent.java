@@ -67,7 +67,7 @@ public final class SpeciesAgent extends Atom {
      */
     public void setNMolecules(int n, boolean forceRebuild) {
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-        boolean wasPaused = pauseIntegrator();
+//        boolean wasPaused = pauseIntegrator();
         if(forceRebuild) while(treeNode.childList.size() > 0) treeNode.lastChildAtom().node.dispose();
         node.parentSpecies().moleculeFactory().reservoir().removeAll();
         if(n > treeNode.childAtomCount()) {
@@ -82,7 +82,7 @@ public final class SpeciesAgent extends Atom {
         //node.parentPhase().configuration.initializeCoordinates(this);
         node.parentPhase().reset();
         
-        unpauseIntegrator(wasPaused);
+//        unpauseIntegrator(wasPaused);
     }
     
     public int getNMolecules() {return moleculeCount();}

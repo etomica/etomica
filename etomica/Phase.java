@@ -179,13 +179,13 @@ public class Phase extends SimulationElement {
      */
      public void setBoundary(Space.Boundary b) {
         boolean hasIntegrator = integrator != null;
-        if(hasIntegrator) integrator.pause();
+//        if(hasIntegrator) integrator.pause();
         boundaryMonitor.notifyObservers(b);
         boundary = b;
         boundary.setPhase(this);
         if(hasIntegrator) {
             integrator.reset();
-            integrator.unPause();
+//            integrator.unPause();
         }
      }
      

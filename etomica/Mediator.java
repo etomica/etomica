@@ -429,7 +429,7 @@ public class Mediator implements java.io.Serializable {
              * Adds given integrator to the simulation's controller
              */
             public void add(Integrator integrator) {
-            	mediator.parentSimulation().getController().add(integrator);
+//            	mediator.parentSimulation().getController().add(integrator);
             }
         }//end of Default
 

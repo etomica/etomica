@@ -11,11 +11,10 @@ import etomica.SimulationListener;
   * Inherits from javax.swing.AbstractAction, so may be registered as a listener to GUI components
   * 
   */
-public abstract class SimulationAction extends etomica.Action implements SimulationListener {
-
-    public static String getVersion() {return "SimulationAction:01.11.20/"+Action.VERSION;}
+public abstract class SimulationAction implements etomica.Action, SimulationListener {
 
     protected Simulation simulation;
+    private String label = "Simulation Action";
     public SimulationAction() {this(Simulation.instance);}
     public SimulationAction(Simulation sim) {
         simulation = sim;
@@ -31,4 +30,11 @@ public abstract class SimulationAction extends etomica.Action implements Simulat
     public void actionPerformed() {actionPerformed(simulation);}
     
     public abstract void actionPerformed(Simulation sim);
+    
+    public String getLabel() {
+    	return label;
+    }
+    public void setLabel(String label) {
+    	this.label = label;
+    }
 }    

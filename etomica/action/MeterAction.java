@@ -21,12 +21,11 @@ import etomica.utility.java2.Iterator;
  /* History
  *  12/31/02  (DAK) changed package to etomica.action
  */
-public abstract class MeterAction extends etomica.Action {
-
-    public static String getVersion() {return "MeterAction:01.06.04/"+Action.VERSION;}
+public abstract class MeterAction implements etomica.Action {
 
     protected MeterAbstract[] meters;
     protected LinkedList meterList;
+    protected String label = "Meter Action";
     
     /**
      * Constructor giving array defining the meters subject to this action.
@@ -48,6 +47,12 @@ public abstract class MeterAction extends etomica.Action {
      */
     public MeterAbstract[] getMeters() {return meters;}
     
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
     /**
      * Sets the ith meter in the array of meters.  Takes
      * no action if i is greater than the current number of meters (minus 1).

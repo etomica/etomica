@@ -22,16 +22,7 @@ import etomica.units.*;
  */
 public abstract class Integrator extends SimulationElement implements Runnable, java.io.Serializable {
 
-  public static String VERSION = "Integrator:01.12.04";
-  
-  transient public Thread runner;
-  private boolean haltRequested = false;
   private boolean resetRequested = false;
-  protected int maxSteps = Integer.MAX_VALUE;
-  protected int stepCount = 0;
-  //looking to eliminate isPaused field and used just pauseRequested
-//  private boolean isPaused = true;
-  protected boolean pauseRequested = false;
   protected final PotentialMaster potential;
  
   protected Phase firstPhase;
@@ -44,16 +35,9 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   private Vector intervalListenersBeforePbc = new Vector();
   private Vector intervalListenersImposePbc = new Vector();
   private Vector intervalListenersAfterPbc = new Vector();
-  int interval = 10;  // number of steps between IntervalEvent firing
   int integrationCount = 0;
-  boolean doSleep = Default.DO_SLEEP;//default is <false> unless a SimulationGraphic has been instantiated
   protected double temperature = Default.TEMPERATURE;
   protected boolean isothermal = false;
-  private boolean initialized = false;
-  private boolean running = false;
-  
-  IntervalEvent intervalEvent = new IntervalEvent(this, IntervalEvent.INTERVAL);
-  public Controller parentController;
 
   public Integrator(SimulationElement parent) {
     super(parent, Integrator.class);
@@ -91,17 +75,8 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
    */
   public void initialize() {
     deployAgents();
-    initialized = true;
     doReset();
-    fireIntervalEvent(new IntervalEvent(this, IntervalEvent.INITIALIZE));
   }
-  /**
-   * Returns true if the initialize method has been called, and the 
-   * run method has not completed.
-   */
-  public boolean isInitialized() {return initialized;}
-  
-  public void setController(Controller c) {parentController = c;}
   
   //how do agents get placed in atoms made during the simulation?
   protected void deployAgents() {  //puts an Agent of this integrator in each atom of all phases
@@ -126,44 +101,11 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   public void setIsothermal(boolean b) {isothermal = b;}
   public boolean isIsothermal() {return isothermal;}
     
-  public final int getInterval() {return interval;}
-  /**
-   * Sets the value of the interval (number of doStep calls) between firing of
-   * interval events. If zero or negative value is given, interval will be set
-   * to 1.
-   * @param interval new value (>0) for integrator interval
-   */
-  public final void setInterval(int interval) {
-      if(interval <=0) interval = 1;
-	  this.interval = interval;
-  }
-  
-  public final int getSleepPeriod() {return sleepPeriod;}
-  public final void setSleepPeriod(int s) {sleepPeriod = s;}
-
-  public void setDoSleep(boolean b) {doSleep = b;}
-  public boolean isDoSleep() {return doSleep;}
-
   /**
    * @return true if integrator can perform integration of another phase, 
    *         false if the integrator has all the phases it was built to handle
    */
   public boolean wantsPhase() {return phaseCount < phaseCountMax;}
-  
-  /**
-   * Calls the setPhase method with the given phase.
-   * @deprecated  instead use setIntegrator method in phase.
-   */
-  public void registerPhase(Phase p) {
-    setPhase(p);
-  }
-  
-  /**
-   * @deprecated  instead use setIntegrator method in phase.
-   */
-  public void setPhase(Phase p) {
-    addPhase(p);
-  }
   
   public Phase getPhase(int i) {return phase[i];}
   
@@ -297,83 +239,6 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   }
     
     /**
-     * Accessor method for the number of integration steps to be
-     * performed by this integrator after it is started.
-     */
-    public int getMaxSteps() {return maxSteps;}
-    /**
-     * Mutator method for the number of integration steps to be
-     * performed by this integrator after it is started.  Can
-     * be changed while integrator is running; if set to a value
-     * less than number of steps already executed, integration will end.
-     */
-    public void setMaxSteps(int m) {maxSteps = m;}
-    
-    /**
-     * Sets integrator to begin running on its own thread.  This is the normal
-     * way to begin the integrator's activity.  Fires an event to listeners indicating
-     * that integrator has started, calls the initialize method, and starts a new
-     * thread that then enters the integrators run() method.  If integrator is already
-     * running, method call return immediately and has no effect.
-     */
-    public void start() {
-        if(running) return;
-        running = true;
-        if (!Debug.ON)
-        	Debug.DEBUG_NOW = false;
-        else
-        	Debug.setAtoms(firstPhase);
-        fireIntervalEvent(new IntervalEvent(this, IntervalEvent.START));
-        haltRequested = false;
-//        isPaused = false;
-        this.initialize();
-        runner = new Thread(this);
-        runner.start();
-    }
-
-    /**
-     * Main loop for conduct of integration.  Repeatedly calls doStep() method,
-     * while checking for halt/pause/reset requests, firing regular interval events,
-     * and entering a brief sleep state if so indicated by doSleep flag.  Integration
-     * loop continues until number of steps equals maxSteps field.  This method
-     * is not the normal way to run the integrator, as it runs on the calling thread.
-     * Instead, start should be used to set the integrator to run on its own new thread.
-     */
-    public void run() {
-//        if(running) return; //do not allow two threads
-        running = true;
-        stepCount = 0;
-        int iieCount = interval;//changed from "interval + 1"
-        long startTime = System.currentTimeMillis();
-        while(stepCount < maxSteps) {
-        	if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
-        	if (Debug.ON && stepCount == Debug.STOP) halt();
-        	if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
-            while(pauseRequested) doWait();//keep this before resetRequest, since need for reset might naturally follow completion of pause
-            if(resetRequested) {doReset(); resetRequested = false;}
-            if(haltRequested) break;
-            this.doStep();
-            if(--iieCount == 0) {
-                fireIntervalEvent(intervalEvent);
-                iieCount = interval;
-            }
-            if(doSleep) {
-                try { Thread.sleep(sleepPeriod); }
-                catch (InterruptedException e) { }
-            }
-            stepCount++;
-        }//end of while loop
-        System.out.println("total time "+(System.currentTimeMillis()-startTime)/1000);
-        initialized = false;
-        running = false;
-        fireIntervalEvent(new IntervalEvent(this, IntervalEvent.DONE));
-        notifyHalt(); //release any threads waiting for halt to take effect
-    }//end of run method
-    
-    private synchronized void notifyHalt() {
-    	notifyAll();
-    }
-    /**
      * Requests that the integrator reset itself; if integrator is not running,
      * then reset will be performed immediately. The actual action an integrator
      * takes to do this differs with the type of integrator. The reset is not
@@ -381,80 +246,11 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
      * the integrator is unpaused if currently in a paused state.
      */
     public void reset() {
-    	if(!initialized) return;
-    	if(running) resetRequested = true;
-    	else doReset();
+    	resetRequested = true;
     }
     
-    /**
-     * Method to put integrator in a condition of being paused.
-     */
-    private synchronized void doWait() {
-//        isPaused = true;
-		//System.out.println("pausing");
-        notifyAll(); //release any threads waiting for pause to take effect
-        try {
-            wait(); //put in paused state
-        } catch(InterruptedException e) {}
-//        isPaused = false;
-		//System.out.println("done pausing");
-    }
-    
-    //suspend and resume functions
-    /**
-     * Requests that the integrator pause its execution.  The actual suspension
-     * of execution occurs only after completion of the current integration step.
-     * The calling thread is put in a wait state until the pause takes effect.
-     */
-    public synchronized void pause() {
-        if(running && !pauseRequested/*!isPaused*/) {
-            pauseRequested = true;
-            try {
-                wait();  //make thread requesting pause wait until pause is in effect
-            } catch(InterruptedException e) {}
-        }
-    }
-    /**
-     * Removes the integrator from the paused state, resuming execution where it left off.
-     */
-    public synchronized void unPause() {pauseRequested = false; notifyAll();}
-    /**
-     * Queries whether the integrator is in a state of being paused.  This may
-     * occur independent of whether the integrator is running or not.  If paused
-     * but not running, then pause will take effect upon start.
-     */
-    public boolean isPaused() {return pauseRequested;}//isPaused;}
-    
-    /**
-     * Indicates if the integrator has been started and has not yet completed.
-     * If so, returns true, even if integrator is presently paused (but not halted).
-     */
-    public boolean isActive() {return running;}
-    
-    //stop function
-    //consider having calling thread here join() or wait() for halt to take effect
-    /**
-     * Request that the integrator terminate its thread on the next integration step.
-     * Does not cause calling thread to wait until this is completed, so it would
-     * be prudent to have the calling thread join() to suspend it until the halt
-     * is in effect.
-     */
-    public synchronized void halt() {
-        if(running) haltRequested = true;
-        if(pauseRequested) unPause();
-        try {
-            wait();  //make thread requesting pause wait until halt is in effect
-        } catch(InterruptedException e) {}
-    }
-    
-    /**
-     * Method to make the calling thread wait until this integrator thread has finished.
-     */
-    public void join() {
-        if(!running) return;
-        try {
-            runner.join();
-        } catch(InterruptedException e) {}
+    public boolean resetRequested() {
+    	return resetRequested;
     }
     
     public Phase[] getPhases() {

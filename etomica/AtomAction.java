@@ -20,11 +20,10 @@ package etomica;
   * 7/31/02 (DAK) Added Null subclass and NULL static instance of it.
   */
 
-public abstract class AtomAction extends etomica.Action {
+public abstract class AtomAction implements etomica.Action {
     
-    public static String getVersion() {return "01.01.17.0/"+Action.VERSION;}
-
     protected Atom atom;
+    String label;
 
     public void setAtom(Atom a) {atom = a;}
     public Atom getAtom() {return atom;}
@@ -41,6 +40,13 @@ public abstract class AtomAction extends etomica.Action {
      */
     public abstract void actionPerformed(Atom a);
         
+    public String getLabel() {
+    	return label;
+    }
+    public void setLabel(String label) {
+    	this.label = label;
+    }
+    
     //***** end of Action methods; begin definition of subclasses *****//
 
     /**

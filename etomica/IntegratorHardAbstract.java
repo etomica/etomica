@@ -19,8 +19,6 @@ package etomica;
  
 public abstract class IntegratorHardAbstract extends IntegratorMD {
 
-    public static String VERSION = "IntegratorHardAbstract:01.07.03/"+IntegratorMD.VERSION;
-
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHardAbstract.Agent colliderAgent;
     //iterators for looping through atoms

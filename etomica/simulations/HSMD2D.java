@@ -1,9 +1,8 @@
 package etomica.simulations;
-import etomica.Controller;
+import etomica.ActivityIntegrate;
 import etomica.Default;
 import etomica.IntegratorHard;
 import etomica.IteratorDirective;
-import etomica.Mediator;
 import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Potential2;
@@ -44,8 +43,9 @@ public class HSMD2D extends SimulationGraphic {
         Default.ATOM_SIZE = 0.4;
         integrator = new IntegratorHard(this);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
-        integrator.setInterval(1);
         integrator.setTimeStep(0.01);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().add(activityIntegrate);
         species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
 	    species.setNMolecules(500);
