@@ -38,6 +38,11 @@ public class LatticeSquare extends Lattice {
         int iy = (int)Math.floor(r.y * dimensions[1]);
         return sites[ix][iy];
     }
+    public final Site nearestSite(Space2D.Vector r, Space2D.Vector d) {
+        int ix = (int)Math.floor(r.x/d.x * dimensions[0]);
+        int iy = (int)Math.floor(r.y/d.y * dimensions[1]);
+        return sites[ix][iy];
+    }
     
     public final void clearOccupants() {
         for(Site s=origin; s!=null; s=s.nextSite()) {s.setFirst(null);}

@@ -24,9 +24,9 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         public final Coordinate previousNeighbor() {return previousNeighbor;}
 
    //Determines appropriate cell and assigns it
-        public void assignCell() {             //assumes coordinates ranges [0,1)
+        public void assignCell() {             
             LatticeSquare cells = ((NeighborIterator)parentPhase().iterator()).cells;
-            LatticeSquare.Site newCell = cells.nearestSite(this.r);
+            LatticeSquare.Site newCell = cells.nearestSite(this.r, (Space2D.Vector)parentPhase().dimensions());
             if(newCell != cell) {assignCell(newCell);}
         }
    //Assigns atom to given cell; if removed from another cell, repairs tear in list
@@ -134,7 +134,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
                 else {  //this atom is not currently in this phase
                     Coordinate c = (Coordinate)a.coordinate;        
                     cPair.c1 = c;
-                    LatticeSquare.Site cell = cells.nearestSite(c.r);  //find cell containing atom
+                    LatticeSquare.Site cell = cells.nearestSite(c.r,(Space2D.Vector)phase.dimensions());  //find cell containing atom
                     nextLinker = cell.firstUpNeighbor();               //next cell up list
                     neighborCoordinate = (Coordinate)cell.first();     //"inserted" atom at beginning of list; all atoms in cell are uplist from it
                 }    
@@ -197,7 +197,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
                 else {  //this atom is not currently in this phase
                     Coordinate c = (Coordinate)a.coordinate;        
                     cPair.c1 = c;
-                    LatticeSquare.Site cell = cells.nearestSite(c.r);  //find cell containing atom
+                    LatticeSquare.Site cell = cells.nearestSite(c.r, (Space2D.Vector)phase.dimensions());  //find cell containing atom
                     nextLinker = cell.firstDownNeighbor();             //next cell up list
                     neighborCoordinate = null;     //"inserted" atom at beginning of cell list; none in cell are downlist from it
                 }    

@@ -87,8 +87,8 @@ public class Space2D extends Space {
 //                dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
 //                dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
             boundary.apply(dr);
-            drx = dr.x * dimensions.x; 
-            dry = dr.y * dimensions.y;
+            drx = dr.x; 
+            dry = dr.y;
             r2 = drx*drx + dry*dry;
             double rm1 = c1.parent().rm();
             double rm2 = c2.parent().rm();
@@ -124,8 +124,6 @@ public class Space2D extends Space {
             c2.r.y += delta*dry;
             //need call reset?
         }
-   //     public final Atom atom1() {return c1.atom();}
-   //     public final Atom atom2() {return c2.atom();}
     }
 
     static class Coordinate extends Space.Coordinate {
@@ -133,14 +131,10 @@ public class Space2D extends Space {
         public final Vector p = new Vector();  //Momentum vector
         public final Vector posn = new Vector();  //Unscaled coordinates
         public Coordinate(Space.Occupant o) {super(o);}
-        public Space.Vector position() {
-            posn.x = position(0);
-            posn.y = position(1);
-            return posn;}
+        public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
-        public double position(int i) {return r.component(i) * parentPhase().dimensions().component(i);}
+        public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
-        public Space.Vector r() {return r;}
         public Space.Vector makeVector() {return new Vector();}
         public final double kineticEnergy(double mass) {return 0.5*p.squared()/mass;}
     } 
@@ -169,7 +163,11 @@ public class Space2D extends Space {
         public void inflate(double s) {}
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
         public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
-        public Space.Vector randomPosition() {temp.x = random.nextDouble(); temp.y = random.nextDouble(); return temp;}
+        public Space.Vector randomPosition() {  //arbitrary choice for this method in this boundary
+            temp.x = random.nextDouble(); 
+            temp.y = random.nextDouble(); 
+            return temp;
+        }
     }
 
     /**
@@ -185,26 +183,19 @@ public class Space2D extends Space {
         public BoundaryPeriodicSquare(double lx, double ly) {dimensions.x = lx; dimensions.y = ly;}
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
-        public Space.Vector randomPosition() {temp.x = random.nextDouble(); temp.y = random.nextDouble(); return temp;}
+        public Space.Vector randomPosition() {
+            temp.x = dimensions.x*random.nextDouble(); 
+            temp.y = dimensions.y*random.nextDouble(); 
+            return temp;}
         public void apply(Space.Vector dr) {apply((Vector)dr);}
         public void apply(Vector dr) {
-            dr.x -= (dr.x > 0.0) ? Math.floor(dr.x+0.5) : Math.ceil(dr.x-0.5);
-            dr.y -= (dr.y > 0.0) ? Math.floor(dr.y+0.5) : Math.ceil(dr.y-0.5);
-//            if(dr.x > 0) {dr.x -= Math.floor(dr.x+0.5);}
-//            else         {dr.x -= Math.ceil(dr.x-0.5);}
-//            if(dr.y > 0) {dr.y -= Math.floor(dr.y+0.5);}
-//            else         {dr.y -= Math.ceil(dr.y-0.5);}
-            dr.x *= dimensions.x;
-            dr.y *= dimensions.y;
+            dr.x -= dimensions.x * ((dr.x > 0.0) ? Math.floor(dr.x/dimensions.x+0.5) : Math.ceil(dr.x/dimensions.x-0.5));
+            dr.y -= dimensions.y * ((dr.y > 0.0) ? Math.floor(dr.y/dimensions.y+0.5) : Math.ceil(dr.y/dimensions.y-0.5));
         }
         public void centralImage(Space.Vector r) {centralImage((Vector)r);}
         public void centralImage(Vector r) {
-            r.x -= (r.x > 0.0) ? Math.floor(r.x) : Math.ceil(r.x-1.0);
-            r.y -= (r.y > 0.0) ? Math.floor(r.y) : Math.ceil(r.y-1.0);
- //           if(r.x > 0) {r.x -= Math.floor(r.x);}
- //           else         {r.x -= Math.ceil(r.x-1.0);}
- //           if(r.y > 0) {r.y -= Math.floor(r.y);}
- //           else         {r.y -= Math.ceil(r.y-1.0);}
+            r.x -= dimensions.x * ((r.x > 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
+            r.y -= dimensions.y * ((r.y > 0.0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y-1.0));
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}

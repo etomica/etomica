@@ -49,7 +49,6 @@ public abstract class Space {
         public final Space.Occupant parent() {return parent;}
         public final Phase parentPhase() {return parent.parentPhase();}
         public abstract Vector makeVector();
-        public abstract Vector r();
         public abstract Vector position();
         public abstract Vector momentum();
         public abstract double position(int i);
