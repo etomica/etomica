@@ -25,7 +25,7 @@ public class HSMD2D extends Simulation {
     public Potential2 potential;
 
     public HSMD2D() {
-    	this(new Space2D());
+    	this(Space2D.INSTANCE);
     }
     
     public HSMD2D(Space2D space) {

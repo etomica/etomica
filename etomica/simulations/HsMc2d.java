@@ -1,6 +1,16 @@
 package etomica.simulations;
-import etomica.*;
-import etomica.graphics.*;
+import etomica.Controller;
+import etomica.DataSourceCountSteps;
+import etomica.IntegratorMC;
+import etomica.MCMoveAtom;
+import etomica.P2HardSphere;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space2D;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
+import etomica.action.PhaseImposePbc;
+import etomica.action.activity.ActivityIntegrate;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.
@@ -8,7 +18,7 @@ import etomica.graphics.*;
  * @author David Kofke
  */
  
-public class HsMc2d extends SimulationGraphic {
+public class HsMc2d extends Simulation {
     
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -16,42 +26,31 @@ public class HsMc2d extends SimulationGraphic {
     public Phase phase;
     public P2HardSphere potential;
     public Controller controller;
-    public DisplayPhase display;
     public DataSourceCountSteps meterCycles;
-    public DisplayBox displayCycles;
 
     public HsMc2d() {
         super(new Space2D());
- //       super(new etomica.space.continuum.Space(2));
- //       setIteratorFactory(new IteratorFactoryCell(this));
-	    integrator = new IntegratorMC(this);
-	    mcMoveAtom = new MCMoveAtom(integrator);
-	    species = new SpeciesSpheresMono(this);
-	    phase = new Phase(this);
+	    integrator = new IntegratorMC(potentialMaster);
+	    mcMoveAtom = new MCMoveAtom(potentialMaster);
+        integrator.addMCMove(mcMoveAtom);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+ 	    species = new SpeciesSpheresMono(this);
+	    phase = new Phase(space);
 	    potential = new P2HardSphere();
-	    potential.setSpecies(new Species[] {species});
-	    controller = new Controller(this);
-	    display = new DisplayPhase(this);
-	    meterCycles = new DataSourceCountSteps(this);
-	    displayCycles = new DisplayBox(this,meterCycles);
-		panel().setBackground(java.awt.Color.yellow);
-	    
+	    potentialMaster.setSpecies(potential, new Species[] {species, species});
+	    meterCycles = new DataSourceCountSteps();
+
+        phase.speciesMaster.addSpecies(species);
+        integrator.addPhase(phase);
+        integrator.addIntervalListener(new PhaseImposePbc(phase));
+
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);
 	    
-		elementCoordinator.go();
+//		elementCoordinator.go();
 //	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(phase);
 //        colorSchemeCell.setLattice(lattice);
     }
-    
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-        HsMc2d sim = new HsMc2d();
-		sim.elementCoordinator.go(); 
-		SimulationGraphic.makeAndDisplayFrame(sim);
-	//	sim.controller.start();
-    }//end of main
     
 }

@@ -62,18 +62,7 @@ public class ChainNEW extends SimulationGraphic {
 		
 	}
     
-	/**
-	 * Demonstrates how this class is implemented.
-	 */
-	public static void main(String[] args) {
-		ChainNEW sim = new ChainNEW();
-		SimulationGraphic.makeAndDisplayFrame(sim);
-	//	sim.controller.start();
-	}//end of main
-	
-	
-
-	public static class DeviceKicker extends Device implements Drawable{
+	public static class DeviceKicker extends Device implements Drawable {
     
 		private DisplayPhase display;
 		private boolean visible=false;

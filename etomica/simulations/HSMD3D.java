@@ -2,8 +2,8 @@
 
 package etomica.simulations;
 
-import etomica.AccumulatorManager;
 import etomica.ConfigurationLattice;
+import etomica.DataManager;
 import etomica.Default;
 import etomica.IntegratorHard;
 import etomica.MeterPressureHard;
@@ -56,7 +56,7 @@ public class HSMD3D extends Simulation {
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 
         MeterPressureHard meterPressure = new MeterPressureHard();
-        AccumulatorManager accumulatorManager = new AccumulatorManager(meterPressure);
+        DataManager accumulatorManager = new DataManager(meterPressure);
         // 	DisplayBox box = new DisplayBox();
         // 	box.setDatumSource(meterPressure);
  //       phase.setDensity(0.5);

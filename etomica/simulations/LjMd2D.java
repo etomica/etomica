@@ -1,12 +1,23 @@
 package etomica.simulations;
-import etomica.*;
-import etomica.graphics.*;
+import etomica.Controller;
+import etomica.Default;
+import etomica.IntegratorVelocityVerlet;
+import etomica.MeterEnergy;
+import etomica.P2LennardJones;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space2D;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPlot;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D
  */
  
-public class LjMd2D extends SimulationGraphic {
+public class LjMd2D extends Simulation {
     
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
@@ -18,44 +29,33 @@ public class LjMd2D extends SimulationGraphic {
     public MeterEnergy energy;
 
     public LjMd2D() {
-        super(new Space2D());
-   //     super(new etomica.space.continuum.Space(2));
-   //     setIteratorFactory(new IteratorFactoryCell(this));
-        Simulation.instance = this;
-	    phase = new Phase(this);
-	    species = new SpeciesSpheresMono(this);
-	    potential = new P2LennardJones();
-	    potential.setSpecies(species, species);
-	    controller = new Controller(this);
-	    integrator = new IntegratorVelocityVerlet(this);
-	    display = new DisplayPhase(this);
-	    DisplayTimer timer = new DisplayTimer(integrator);
-	    timer.setUpdateInterval(10);
-		panel().setBackground(java.awt.Color.yellow);
+        super(Space2D.INSTANCE);
+        Default.makeLJDefaults();
+        integrator = new IntegratorVelocityVerlet(potentialMaster, space);
+        integrator.setTimeStep(0.01);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(2);
+        getController().addAction(activityIntegrate);
+        species = new SpeciesSpheresMono(this);
+        species.setNMolecules(50);
+        phase = new Phase(space);
+        potential = new P2LennardJones(space);
+        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+        
+//      elementCoordinator.go();
+        //explicit implementation of elementCoordinator activities
+        phase.speciesMaster.addSpecies(species);
+        integrator.addPhase(phase);
 		
-		new DeviceTrioControllerButton(this, controller);
-		
-		energy = new MeterEnergy(this);
-		energy.setHistorying(true);
-		energy.setActive(true);
-		
-		energy.getHistory().setHistoryLength(500);
-		
-		plot = new DisplayPlot(this);
-		plot.setLabel("Energy");
-		plot.setDataSources(energy.getHistory());
-		
-		integrator.setSleepPeriod(2);
+		energy = new MeterEnergy(potentialMaster);
+//		energy.setHistorying(true);
+//		
+//		energy.getHistory().setHistoryLength(500);
+//		
+//		plot = new DisplayPlot(this);
+//		plot.setLabel("Energy");
+//		plot.setDataSources(energy.getHistory());
 		
     }
-    
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-        SimulationGraphic sim = new LjMd2D();
-		sim.elementCoordinator.go(); 
-		sim.makeAndDisplayFrame();
-    }//end of main
     
 }

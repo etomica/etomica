@@ -1,12 +1,22 @@
 package etomica.simulations;
-import etomica.*;
-import etomica.graphics.*;
+import etomica.Controller;
+import etomica.Default;
+import etomica.IntegratorHard;
+import etomica.P2SquareWell;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space;
+import etomica.Space2D;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.graphics.DisplayPhase;
 
 /**
  * Simple square-well molecular dynamics simulation in 2D
  */
  
-public class SwMd2D extends SimulationGraphic {
+public class SwMd2D extends Simulation {
     
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
@@ -16,36 +26,29 @@ public class SwMd2D extends SimulationGraphic {
     public DisplayPhase display;
 
     public SwMd2D() {
-        super(new Space2D());
-  //      super(new etomica.space.continuum.Space(2));
-        setIteratorFactory(new IteratorFactoryCell(this));
-        Simulation.instance = this;
-        Default.ATOM_SIZE = 2.0;
-	    integrator = new IntegratorHard(this);
-	    integrator.setInterval(5);
-	    integrator.setSleepPeriod(1);
-	    integrator.setTimeStep(0.02);
-	    integrator.setTemperature(300.);
-	//    integrator.setIsothermal(true);
-	    species = new SpeciesSpheresMono(this);
-	    species.setNMolecules(80);
-	    phase = new Phase(this);
-	    potential = new P2SquareWell();
-	    potential.setSpecies(species, species);
-	    controller = new Controller(this);
-	    display = new DisplayPhase(this);
-	    DisplayTimer timer = new DisplayTimer(integrator);
-	    timer.setUpdateInterval(10);
-		panel().setBackground(java.awt.Color.yellow);
+        this(Space2D.INSTANCE);
     }
-    
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-        SwMd2D sim = new SwMd2D();
-		sim.elementCoordinator.go();
-		sim.makeAndDisplayFrame();
-    }//end of main
-    
+    public SwMd2D(Space space) {
+        super(space);
+        Default.makeLJDefaults();
+        Default.ATOM_SIZE = 0.4;
+        integrator = new IntegratorHard(potentialMaster);
+        integrator.setTimeStep(0.01);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setInterval(5);
+        activityIntegrate.setSleepPeriod(1);
+        integrator.setTimeStep(0.02);
+        integrator.setTemperature(300.);
+        getController().addAction(activityIntegrate);
+        species = new SpeciesSpheresMono(this);
+        species.setNMolecules(50);
+        phase = new Phase(space);
+        potential = new P2SquareWell(space);
+        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+        
+//      elementCoordinator.go();
+        //explicit implementation of elementCoordinator activities
+        phase.speciesMaster.addSpecies(species);
+        integrator.addPhase(phase);
+    } 
 }

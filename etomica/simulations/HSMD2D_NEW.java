@@ -47,6 +47,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		double ke0, ke1;
 		int waitCount;
 		PhaseQuench quencher = new PhaseQuench(phase);
+        public int getPriority() {return 300;}
 		public void actionPerformed() {
 			if(!moving) {//start motion
 				first.coord.momentum().E((movingDown?+1:-1)*speed*mass);
