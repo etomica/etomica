@@ -7,15 +7,8 @@ package etomica.space;
  * Created on Jan 24, 2005 by kofke
  */
 public abstract class Vector implements java.io.Serializable, Cloneable { 
-    /* construct planned to replace the displaceBy methods in coordinte
-        private Vector saveVector;
-        public void save() {
-            if(saveVector == null) saveVector = makeVector(D());
-            saveVector.E(this);
-        }
-        public void restore() {this.E(saveVector);}
-        */
-    	public Object clone() {
+
+        public Object clone() {
     		try {
     			return super.clone();
     		}
@@ -23,7 +16,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     			throw new InternalError(ex.toString());
     		}
     	}
-        public abstract int length();                         //number of components to vector; equal to the dimension of the space
         public abstract int D();                              //dimension of the space occupied by vector
         public abstract void assignTo(double[] array);        //converts components to elements of the given array
         public abstract double[] toArray();                   //converts components to array of double

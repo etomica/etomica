@@ -28,7 +28,6 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
             result[0] = Math.sqrt(x*x + y*y);
             result[1] = Math.atan2(y,x);  //theta
         }
-        public int length() {return 2;}//bad name for this
         public int D() {return 2;}
         public double x(int i) {return (i==0) ? x : y;}
         public void setX(int i, double d) {if(i==0) x=d; else y=d;}

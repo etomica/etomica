@@ -12,7 +12,6 @@ import etomica.space.Vector;
 public final class Vector3D extends Vector {
 
     double x, y, z;
-        public int length() {return 3;}
         public int D() {return 3;}
         public Vector3D () {x = 0.0; y = 0.0; z = 0.0;}
         public Vector3D (double a1, double a2, double a3) {x = a1; y = a2; z = a3;}

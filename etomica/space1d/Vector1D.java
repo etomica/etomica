@@ -22,7 +22,6 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public boolean equals(Vector1D v) {return (x == v.x);}
         public boolean isZero() {return x==0;}
         public String toString() {return "("+x+")";}
-        public int length() {return 1;}
         public int D() {return 1;}
         public double x(int i) {return x;}
         public void setX(int i, double d) {x=d;}

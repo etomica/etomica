@@ -76,7 +76,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.dimensions();
         double tmin = Double.POSITIVE_INFINITY;
-        for(int i=work.length()-1; i>=0; i--) {
+        for(int i=work.D()-1; i>=0; i--) {
             double vx = v.x(i);
             if(vx == 0.0) continue;
             double rx = work.x(i);
@@ -103,7 +103,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
-        for(int i=work.length()-1; i>=0; i--) {
+        for(int i=work.D()-1; i>=0; i--) {
             double rx = work.x(i);
             double vx = v.x(i);
             double dx = dimensions.x(i);

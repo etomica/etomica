@@ -46,8 +46,8 @@ public class ConfigurationSequential extends Configuration {
 		double Lx = dimensions.x(0);
 		double Ly = 0.0;
 		double Lz = 0.0;
-		if(dimensions.length()>1)  Ly = dimensions.x(1);
-		if(dimensions.length()>2)  Lz = dimensions.x(2);
+		if(dimensions.D()>1)  Ly = dimensions.x(1);
+		if(dimensions.D()>2)  Lz = dimensions.x(2);
 
 		int sumOfMolecules = iterator.size();
          
