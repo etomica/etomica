@@ -139,7 +139,7 @@ public class BoundaryPeriodicSquare extends Boundary {
     }
     
     private final Vector temp;
-    private final Vector modShift;
+    protected final Vector modShift;
     protected final Vector dimensions;
     protected final Vector dimensionsCopy;
     protected final Vector dimensionsHalf;
