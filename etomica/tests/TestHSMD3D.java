@@ -18,7 +18,7 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.simulations.HSMD2D;
 
 /**
- * Simple hard-sphere molecular dynamics simulation in 2D.
+ * Simple hard-sphere molecular dynamics simulation in 3D.
  *
  * @author David Kofke
  */
