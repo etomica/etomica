@@ -7,6 +7,7 @@ package etomica.nbr;
 import etomica.Atom;
 import etomica.AtomIteratorTree;
 import etomica.AtomsetActive;
+import etomica.Debug;
 import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Phase;
@@ -58,6 +59,7 @@ public class NeighborManager implements IntervalListener {
 			boundary = phase[i].boundary();
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborReset);
+			potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
 		}
 	}
 
@@ -70,6 +72,9 @@ public class NeighborManager implements IntervalListener {
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborCheck);
 			if (neighborCheck.needUpdate) {
+				if (Debug.DEBUG_NOW) {
+					System.out.println("Updating neighbors");
+				}
 				if (neighborCheck.unsafe) {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
@@ -143,12 +148,9 @@ public class NeighborManager implements IntervalListener {
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)atom[0].seq).clearNbrs();
 			if (criterion != null) {
+				boundary.centralImage(atom[0].coord);
 				criterion.reset(atom[0]);
-				boundary.centralImage(atom[0].coord); //08/27/03 - don't need to notify sequencer because coord.translateBy does this
 			}
 		}
-
-		
-		
 	}
 }
