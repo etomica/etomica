@@ -1,0 +1,319 @@
+package etomica.nbr.cell;
+import etomica.*;
+import etomica.IteratorFactoryCell.CellSequencer;
+import etomica.IteratorFactoryCell.NeighborSequencer;
+import etomica.action.AtomsetAction;
+import etomica.lattice.AbstractCell;
+import etomica.lattice.BravaisLattice;
+import etomica.utility.java2.HashMap;
+
+/**
+ * Pair iterator synthesized from two atom iterators, such that the inner-loop
+ * iteration is independent of the outer-loop atom.  Pairs are formed from
+ * the atoms yielded by the two atom iterators.  It is expected that the inner-loop
+ * iterator will yield the same set of atoms with each pass of the outer loop.
+ * All pairs returned by iterator are the same AtomPair instance, and
+ * differ only in the Atom instances held by it.
+*/
+ 
+ /* History of changes
+  * 08/25/04 (DAK et al) new
+  */
+  
+public final class ApiInnerFixed implements AtomsetIterator {
+    
+    /**
+     * Construct a pair iterator using the given atom iterators.  Requires
+     * call to reset() before beginning iteration.
+     */
+    public ApiInnerFixed(AtomIterator aiOuter, AtomIterator aiInner) {
+        this.aiOuter = aiOuter;
+        this.aiInner = aiInner;
+        unset();
+    }
+    
+    /**
+     * Accessor method for the outer-loop atom iterator.
+     * @return the current outer-loop iterator
+     */
+    public AtomIterator getOuterIterator() {return aiOuter;}
+    
+    /**
+     * Accessor method for the inner-loop atom iterator.
+     * @return the current inner-loop iterator
+     */
+    public AtomIterator getInnerIterator() {return aiInner;}
+
+    /**
+     * Defines the atom iterator that performs the inner-loop iteration to
+     * generate the pairs.
+     * @param inner The new inner-loop iterator.
+     */
+    public void setInnerIterator(AtomIterator inner) {
+    	this.aiInner = inner;
+    	unset();
+    }
+    
+    /**
+     * Defines the iterator the performs the outer-loop iteration to
+     * generate the pairs.
+     * @param outer The new outer-loop iterator.
+     */
+    public void setOuterIterator(AtomIterator outer) {
+    	this.aiOuter = outer;
+    	unset();
+    }
+    
+    /**
+     * Sets the iterator such that hasNext is false.
+     */
+    public void unset() {
+    	hasNext = false;
+    }
+    
+    /**
+     * Indicates whether the given atom pair will be returned by the
+     * iterator during its iteration. The order of the atoms in the pair
+     * is significant (this means that a value of true is returned only if
+     * one of the pairs returned by the iterator will have the same two 
+     * atoms in the same atom1/atom2 position as the given pair). Not
+     * dependent on state of hasNext.
+     */
+    public boolean contains(Atom[] pair) {
+    	return aiOuter.contains(new Atom[] {pair[0]}) 
+				&& aiInner.contains(new Atom[] {pair[1]});
+    }
+    
+    
+    /**
+     * Returns the number of pairs given by this iterator.  Not dependent
+     * on state of hasNext.
+     */
+    public int size() {
+    	return aiOuter.size() * aiInner.size();
+    }        
+    
+    /**
+     * Indicates whether the iterator has completed its iteration.
+     */
+    public boolean hasNext() {return hasNext;}
+
+    /**
+     * Resets the iterator, so that it is ready to go through all of its pairs.
+     */
+    public void reset() {
+        aiOuter.reset();
+        aiInner.reset();
+        hasNext = aiOuter.hasNext() && aiInner.hasNext();
+        if(hasNext) pair[0] = aiOuter.nextAtom();
+    }
+    
+    /**
+     * Returns the next pair without advancing the iterator.
+     * If the iterator has reached the end of its iteration,
+     * returns null.
+     */
+    public Atom[] peek() {
+    	if(!hasNext) {return null;}
+    	
+    	if(aiInner.hasNext()) {
+    		pair[1] = aiInner.peek()[0];
+    	}
+    	else {
+    		// Althouth we advance aiOuter, we 
+    		// are not advancing the pair iterator.
+    		// Outcome of next() is not changed
+    		aiInner.reset();
+    		pair[0] = aiOuter.nextAtom();
+    		pair[1] = aiInner.peek()[0];
+    	}
+    	return pair;
+    }
+    
+    /**
+     * Returns the next pair of atoms. The same AtomPair instance
+     * is returned every time, but the Atoms it holds are (of course)
+     * different for each iterate. 
+     */
+    public Atom[] next() {
+    	if(!hasNext) {return null;}
+    	//Advance the inner loop, if it is not at its end.
+    	if(aiInner.hasNext()) {
+    		pair[1] = aiInner.nextAtom();
+    	}
+    	//Advance the outer loop, if the inner loop has reached its end.
+    	else {
+    		aiInner.reset();
+			pair[0] = aiOuter.nextAtom();
+			pair[1] = aiInner.nextAtom();
+    	}   	
+    	hasNext = aiInner.hasNext() || aiOuter.hasNext();
+        return pair;
+    }
+
+	/**
+	 * Performs the given action on all pairs returned by this iterator.
+	 */
+    public void allAtoms(AtomsetAction action) {  
+       aiOuter.reset();
+       while(aiOuter.hasNext()) {
+	       pair[0] = aiOuter.nextAtom();
+	       // aiInner.setCell(cell);
+	       aiInner.reset();
+	       while(aiInner.hasNext()){
+		       pair[1] = aiInner.nextAtom();
+		       action.actionPerformed(pair);
+	       }
+       }
+    }
+
+	public void allAtoms(AtomsetAction action) {
+		if(basisAtom == null || basisAtom.node.isLeaf() || action == null) return;
+		Atom atom = id.atom1();
+		if(atom == null) return;
+		AtomTreeNodeGroup basis = (AtomTreeNodeGroup)basisAtom.node;
+		if(basis.childAtomCount() == 0) return;
+		boolean basisIterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
+		BravaisLattice lattice = iteratorFactory.getLattice(basis.parentPhase());
+		AbstractCell referenceCell = ((CellSequencer)atom.seq).cell();//cell in which reference atom resides
+		if(basisIterateCells && referenceCell != null) {
+			HashMap hash = (HashMap)lattice.agents[0];
+			int tabIndex = ((Integer)hash.get(basis)).intValue();//index of tabs in each cell for the basis
+			AtomLinker.Tab header = referenceCell.neighborManager().neighbors().header;
+			for(AtomLinker e=header.next; e!=header; e=e.next) {//loop over cells
+				if(e.atom == null) continue;
+				AtomLinker.Tab[] tabs = (AtomLinker.Tab[])e.atom.agents[0];
+				AtomLinker next = tabs[tabIndex].next;
+				while(next.atom != null) {//loop over atoms in cell
+					action.actionPerformed(next.atom);
+					next = next.next;
+				}//end while
+			}
+		} else {
+			simpleIterator.all(basis.childList, null, action);
+		}
+	}
+
+    
+    public final int nBody() {return 2;}
+    
+    private final Atom[] pair = new Atom[2];
+    private boolean hasNext;
+
+    /**
+     * The iterators used to generate the sets of atoms.
+     * The inner one is not necessarily atom dependent.
+     */
+    private AtomIterator aiInner, aiOuter;
+    
+/*    public static void main(String[] args) throws java.io.IOException {
+        
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+        Simulation.instance = new Simulation();
+        Phase phase = new Phase();
+        Phase phase2 = new Phase();
+        Species species = new SpeciesSpheres();
+        species.setNMolecules(8);
+        Simulation.instance.elementCoordinator.go();
+
+        //Phase phase = TestAll.setupTestPhase(4);
+        Atom  atom = ((AtomGroup)phase.firstSpecies().getAtom(2)).firstChild();
+     //   Atom  atom = phase.firstSpecies().getAtom(2);
+        AtomPairIterator iterator = new AtomPairIterator(phase);
+        IteratorDirective id = new IteratorDirective();
+        String line;
+        
+        System.out.println("reset()"); iterator.reset();
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        System.out.println("reset(DOWN)"); iterator.reset(id.set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        System.out.println("reset(NEITHER)"); iterator.reset(id.set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(BOTH)"); iterator.reset(id.set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,UP)"); iterator.reset(id.set(atom).set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,DOWN)"); iterator.reset(id.set(atom).set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,NEITHER)"); iterator.reset(id.set(atom).set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        atom = phase.lastAtom();
+        
+        System.out.println("reset(lastatom,UP)"); iterator.reset(id.set(atom).set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(lastatom,DOWN)"); iterator.reset(id.set(atom).set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(lastatom,NEITHER)"); iterator.reset(id.set(atom).set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(lastatom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        Species species2 = new SpeciesSpheres();
+        species.setNMolecules(4);
+        species2.setNMolecules(5);
+        Simulation.instance.elementCoordinator.go();
+        
+        System.out.println("second species added");
+        iterator = new AtomPairIterator(phase,
+            species.getAgent(phase).makeLeafAtomIterator(), 
+            species2.getAgent(phase).makeLeafAtomIterator());
+ 
+        atom = ((AtomGroup)species2.getAgent(phase).getAtom(3)).firstChild();
+        
+        System.out.println("reset(atom,UP)"); iterator.reset(id.set(atom).set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,DOWN)"); iterator.reset(id.set(atom).set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,NEITHER)"); iterator.reset(id.set(atom).set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        atom = ((AtomGroup)species.getAgent(phase).getAtom(3)).firstChild();
+        
+        System.out.println("reset(atom,UP)"); iterator.reset(id.set(atom).set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,DOWN)"); iterator.reset(id.set(atom).set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,NEITHER)"); iterator.reset(id.set(atom).set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(UP)"); iterator.reset(id.set().set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(DOWN)"); iterator.reset(id.set().set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(NEITHER)"); iterator.reset(id.set().set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(BOTH)"); iterator.reset(id.set().set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+        System.out.println("Done");
+        line = in.readLine();
+        System.exit(0);
+    }//end of main
+ */   
+}  //end of class AtomPairIterator
+    
