@@ -3,7 +3,7 @@ package etomica.virial.simulations;
 import etomica.*;
 import etomica.graphics.*;
 import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
 import etomica.virial.overlap.*;
 
 /**
@@ -81,7 +81,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 	  configuration.setSignPositive(simulatingTarget ? targetPositive : refPositive);
 	  phase.setConfiguration(configuration);						
 			
-	  MeterOverlapReference meter = new MeterOverlapReference(refSimulation, simCluster, nonSimCluster);
+	  meter = new MeterOverlapReference(refSimulation, simCluster, nonSimCluster);
 	  meter.setTemperature(simTemperature);
 	  meter.setActive(true);
 		
@@ -114,7 +114,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 		if(beta <= log2) return Math.pow(2.0, 1./6.);
 		else return Math.pow( 2.0*(beta + Math.sqrt(beta*(beta-log2)) )/log2, 1./6.);
 	}
-	private MeterOverlap meter;
+	private MeterOverlapReference meter;
 	private double simTemperature;
 	private double refTemperature;
 	private PairSet pairs;
@@ -131,7 +131,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 	 * Returns the meterVirial.
 	 * @return MeterVirial
 	 */
-	public MeterOverlap getMeter() {
+	public MeterOverlapReference getMeter() {
 		return meter;
 	}
 
@@ -188,24 +188,65 @@ public class SimulationVirialOS extends SimulationGraphic {
 		Default.TRUNCATE_POTENTIALS = false;
 
 		double temperature = 1.3; //temperature governing sampling of configurations
-		double sigmaHSRef = 1.0*sigmaLJ1B(1.0/temperature);  //diameter of reference HS system
+		double sigmaHSRef = 1.2*sigmaLJ1B(1.0/temperature);  //diameter of reference HS system
 		double b0 = 2*Math.PI/3. * Math.pow(sigmaHSRef,3);
 		System.out.println("sigmaHSRef: "+sigmaHSRef);
 		System.out.println("b0: "+b0);
 		System.out.println("B3HS: "+(-5./8.*b0*b0));
 //		sigmaHSRef = 1.0;
-		int nMolecules = 6;
+		int nMolecules = 5;
+		boolean doSleep = true;
 		
 		P2LennardJones p2LJ = new P2LennardJones(Simulation.instance.hamiltonian.potential);//parent of this potential will not be connected to the simulation
 		MayerGeneral f = new MayerGeneral(p2LJ);
-		Cluster targetCluster = new etomica.virial.cluster.Ring(nMolecules, 1.0, f);
+		
+		//take care to define other clusters (below) appropriately if using ReeHoover
+		Cluster targetCluster = new Full(nMolecules, 1.0, f);
 //		Cluster targetCluster = new etomica.virial.cluster.ReeHoover(4, 1.0, new Cluster.BondGroup(f, Standard.D4));
 
 		SimulationVirialOS sim = new SimulationVirialOS(temperature, targetCluster, sigmaHSRef);
-		sim.integrator.setDoSleep(false);
+		sim.integrator.setDoSleep(doSleep);
 		
 		
 		sim.refSimulation.makeAndDisplayFrame();
+		
+		Cluster targetPCluster = new Cluster(new MayerGeneral(p2LJ), targetCluster);
+		Cluster refPCluster = new Cluster(new MayerHardSphere(sigmaHSRef), targetCluster);
+		SimulationOSTarget positive = new SimulationOSTarget(sim.space, temperature, true, 
+										refPCluster, targetPCluster);
+		positive.integrator().setDoSleep(doSleep);
+		positive.makeAndDisplayFrame();
+
+		Cluster targetNCluster = new Ring(nMolecules, 1.0, new MayerGeneral(p2LJ));
+		Cluster refNCluster = new Cluster(new MayerHardSphere(sigmaHSRef), targetCluster);
+		SimulationOSTarget negative = new SimulationOSTarget(sim.space, temperature, false, 
+										refNCluster, targetNCluster);
+		negative.integrator().setDoSleep(doSleep);
+		negative.makeAndDisplayFrame();
+		
+		SimulationGraphic plotSimulation = new SimulationGraphic();
+		MeterClusterOverlap meterCluster = new MeterClusterOverlap(plotSimulation,
+					sim.getMeter(), positive.getMeter(), negative.getMeter());
+		meterCluster.setHistorying(true);
+		meterCluster.getHistory().setNValues(1000);
+		DisplayPlot bHistory = new DisplayPlot(plotSimulation);
+		bHistory.setDataSources(meterCluster.getHistory());
+		DisplayPlot plots = new DisplayPlot(plotSimulation);
+		plots.setDataSources(sim.getMeter().allMeters());
+		plots.addDataSources(new DataSource[] {positive.getMeter(), 
+												negative.getMeter()});
+		sim.integrator().addIntervalListener(plots);
+		sim.integrator().addIntervalListener(meterCluster);
+		sim.integrator().addIntervalListener(bHistory);
+		plotSimulation.elementCoordinator.go();
+		plotSimulation.makeAndDisplayFrame();
+//		javax.swing.JFrame frame = new javax.swing.JFrame();
+//		frame.setSize(700,500);
+//		frame.getContentPane().add(plots.graphic());
+//		frame.pack();
+//		frame.show();
+//		frame.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
+
 //		sim.elementCoordinator.go();
 	}//end of main
 }

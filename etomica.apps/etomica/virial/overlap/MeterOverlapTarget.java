@@ -8,20 +8,33 @@ import etomica.virial.Cluster;
 /**
  * @author kofke
  *
- * Overlap-sampling evaluation of ratio of clusters.
+ * Overlap-sampling evaluation of ratio of clusters, simulating the target.
  */
-public class MeterOverlap extends MeterFunction implements etomica.DatumSource {
+public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSource {
 
 	/**
 	 * Constructor for MeterOverlap.
 	 * @param sim
+	 * @param signPositive flag indicating whether positive or negative part of
+	 * cluster1 is sampled
+	 * @param cluster0 the cluster governing sampling
+	 * @param cluster1 the other cluster
 	 */
-	public MeterOverlap(Simulation sim, Cluster cluster0, Cluster cluster1) {
+	public MeterOverlapTarget(Simulation sim, boolean signPositive, 
+			Cluster targetCluster, Cluster refCluster) {
 		super(sim);
 		setX(-5, 5, 100);
-		this.cluster0 = cluster0;
-		this.cluster1 = cluster1;
-		System.out.println("MeterOverlap constructor: "+x[nPoints/2]);
+		this.cluster0 = targetCluster;
+		this.cluster1 = refCluster;
+		setSignPositive(signPositive);
+		setActive(true);
+	}
+	
+	/**
+	 * Constructor using signPositive=false as default.
+	 */
+	public MeterOverlapTarget(Simulation sim, Cluster cluster0, Cluster cluster1) {
+		this(sim, false, cluster0, cluster1);
 	}
 
 	/**
@@ -42,7 +55,7 @@ public class MeterOverlap extends MeterFunction implements etomica.DatumSource {
 //		System.out.println(v1);
 		for(int i=0; i<nPoints; i++) {
 //			y[i] = 1.0/v0/(1.0/v0 + Math.exp(x[i])/v1);
-			y[i] = 1.0/(1.0 + Math.exp(x[i])*v0/v1);
+			y[i] = 1.0/(1.0 + Math.exp(-x[i])*v0/v1);
 		}
 		return y;
 	}

@@ -1,31 +1,28 @@
 package etomica.virial.overlap;
 
 import etomica.*;
-import etomica.graphics.*;
 import etomica.virial.*;
+import etomica.graphics.*;
 
 /**
  * @author kofke
  *
- * Simulation implementing the overlap-sampling approach to evaluating a cluster
- * diagram.
+ * Overlap-sampling simulation of the target system.
  */
-public class SimulationOverlap extends SimulationGraphic {
+public class SimulationOSTarget extends SimulationGraphic {
 
-	
-	public SimulationOverlap(Space space, double temperature, 
-								Cluster targetCluster, Cluster refCluster) {
+	/**
+	 * Constructor for SimulationOverlap.
+	 */
+	public SimulationOSTarget(Space space, double temperature, boolean targetPositive,
+			Cluster refCluster, Cluster targetCluster) {
 		super(space);
 
-		Default.TRUNCATE_POTENTIALS = false;		
-		
 		int nMolecules = targetCluster.pointCount();
 		simTemperature = temperature;
 		double sigmaHSRef = 1.0*((MayerHardSphere)refCluster.bondGroup()[0].f).getSigma();
 		boolean refPositive = !refCluster.hasOddBondCount();
 
-///////// reference-system simulation				
-		this = this;
 		phase = new Phase(this);
 		phase.setBoundary(space.makeBoundary(Space3D.Boundary.NONE));	
 		species = new SpeciesSpheresMono(this);
@@ -43,48 +40,42 @@ public class SimulationOverlap extends SimulationGraphic {
 		integrator.setSleepPeriod(1);
 		integrator.setTemperature(simTemperature);
 		MCMoveAtom mcMoveAtom1 = new MeterVirial.MyMCMoveAtom(integrator);
-		MCMoveAtomMulti mcMoveAtom2 = new MCMoveAtomMulti(integrator,2);
-		for(int n=3; n<nMolecules; n++) {
+		for(int n=2; n<nMolecules; n++) {
 			new MCMoveAtomMulti(integrator, n);
 		}
 		
 		//set up simulation potential for reference cluster
 		P2ClusterSigned p2 = new P2ClusterSigned(this.hamiltonian.potential, pairs);
-		p2.setCluster(refCluster);
-		p2.setSignPositive(refPositive);
+		p2.setCluster(targetCluster);
+		p2.setSignPositive(targetPositive);
 		p2.setTemperature(simTemperature);			
-
-	  boolean simulatingTarget = false;
-	  boolean targetPositive = false;
-	  Cluster simCluster = simulatingTarget ? targetCluster : refCluster;
-	  Cluster nonSimCluster = simulatingTarget ? refCluster : targetCluster;
 	
-	  ConfigurationCluster configuration = new ConfigurationCluster(this);
-	  configuration.setPhase(phase);
-	  configuration.setCluster(simCluster);
-	  configuration.setSignPositive(simulatingTarget ? targetPositive : refPositive);
-	  phase.setConfiguration(configuration);						
+	    ConfigurationCluster configuration = new ConfigurationCluster(this);
+	    configuration.setPhase(phase);
+	    configuration.setCluster(targetCluster);
+	    configuration.setSignPositive(targetPositive);
+	    phase.setConfiguration(configuration);						
 			
-	  MeterOverlapReference meter = new MeterOverlapReference(this, simCluster, nonSimCluster);
-	  meter.setTemperature(simTemperature);
-	  meter.setActive(true);
+	    meter = new MeterOverlapTarget(this, refPositive, 
+	    										targetCluster, refCluster);
+	    meter.setTemperature(simTemperature);
+		meter.setLabel("Target "+(targetPositive?"Positive":"Negative"));
 		
-	  DisplayPlot clusterPlot = new DisplayPlot(this);
-	  clusterPlot.setDataSources(meter.allMeters());
-	  clusterPlot.setWhichValue(MeterAbstract.AVERAGE);
+	    DisplayPlot clusterPlot = new DisplayPlot(this);
+	    clusterPlot.setDataSources(meter);
+	    clusterPlot.setWhichValue(MeterAbstract.AVERAGE);
 		
-	  this.elementCoordinator.go();
-	  clusterPlot.setDataSources(meter.allMeters());
-	  clusterPlot.setLabel("Reference");
+	    this.elementCoordinator.go();
+	    clusterPlot.setDataSources(meter);
+	    clusterPlot.setLabel("Target "+ (targetPositive?"Positive":"Negative"));
 
 		DisplayPhase display = new DisplayPhase();
 		ColorSchemeByType.setColor(species, java.awt.Color.green);
 		
 		this.elementCoordinator.go();
-		
-	}
+	}//end of constructor
 	
-	private MeterOverlap meter;
+	private MeterOverlapTarget meter;
 	private double simTemperature;
 	private double refTemperature;
 	private PairSet pairs;
@@ -92,7 +83,7 @@ public class SimulationOverlap extends SimulationGraphic {
 	private SpeciesSpheresMono species;
 	protected IntegratorMC integrator;
 	private Phase phase;
-	
+
 	public Phase phase() {return phase;}
 	
 	public IntegratorMC integrator() {return integrator;}
@@ -100,7 +91,7 @@ public class SimulationOverlap extends SimulationGraphic {
 	 * Returns the meterVirial.
 	 * @return MeterVirial
 	 */
-	public MeterOverlap getMeter() {
+	public MeterOverlapTarget getMeter() {
 		return meter;
 	}
 
@@ -151,5 +142,5 @@ public class SimulationOverlap extends SimulationGraphic {
 	public SpeciesSpheresMono species() {
 		return species;
 	}
-		
+
 }
