@@ -1,6 +1,7 @@
 package etomica.virial.cluster;
 
 import etomica.virial.Cluster;
+import etomica.virial.MayerFunction;
 
 /**
  * @author kofke
@@ -9,7 +10,7 @@ import etomica.virial.Cluster;
  * joining an opposite pair.
  */
 public final class D5 extends Cluster {
-	public D5() {
-		super(-3./4., new int[][] {{0,1},{0,2},{0,3},{1,2},{2,3}});
+	public D5(MayerFunction f) {
+		super(4, -3./4., new BondGroup(f, Standard.D5));
 	}
 }

@@ -1,6 +1,7 @@
 package etomica.virial.cluster;
 
 import etomica.virial.Cluster;
+import etomica.virial.MayerFunction;
 
 /**
  * @author kofke
@@ -8,7 +9,7 @@ import etomica.virial.Cluster;
  * The virial cluster of 4 points joined as a simple ring.
  */
 public final class D4 extends Cluster {
-	public D4() {
-		super(-3./8., new int[][] {{0,1},{0,3},{1,2},{2,3}});
+	public D4(MayerFunction f) {
+		super(4, -3./8., new BondGroup(f, Standard.D4));
 	}
 }

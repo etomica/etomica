@@ -13,6 +13,8 @@ package etomica;
   * 07/15/02 (DAK) Constructor makes P0LRC only if instance of Potential2SoftSpherical
   * 12/06/02 (DAK) Added setIterators1A method
   * 01/27/03 (DAK) Numerous changes with redesign of Potential.
+  * 07/17/03 (DAK) Made calculate method not final (so etomica.virial.P2Cluster
+  * could override it)
   */
 
 public abstract class Potential2 extends Potential {
@@ -50,7 +52,7 @@ public abstract class Potential2 extends Potential {
     
     public abstract double energy(AtomPair pair);
 
-	public final void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
 	   if(!enabled) return;
 	   if(Default.EXPLICIT_LOOP) {
 		switch(basis.nBody()) {

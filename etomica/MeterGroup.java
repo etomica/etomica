@@ -26,7 +26,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
     protected double[] currentValues;
     private double[] values;
     private Function function;
-    private int nMeters;
+    protected int nMeters;
     protected String[] labels;
     
     private static final String[] sourcesAsText = new String[] {"History", "Histogram"};

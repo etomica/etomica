@@ -9,6 +9,8 @@ import etomica.SimulationElement;
  * @author David Kofke
  *
  * Mayer "potential", modified to add a core hard sphere.
+ * 
+ * @deprecated
  */
 public class P2MayerModified extends Potential2 {
 
@@ -44,6 +46,15 @@ public class P2MayerModified extends Potential2 {
 		
 		double f = Math.exp(-bu) - 1.0;		
 		return -temperature*Math.log((f>0)?f:-f);  //argument to log is abs(f)
+	}
+	
+	public double pi(AtomPair pair) {
+		double r2 = pair.r2();
+		bu = beta*potential.energy(pair);
+		if(r2 < sigma2 && bu > UF1) return 1.0;
+		
+		double f = Math.exp(-bu) - 1.0;		
+		return (f>0) ? f : -f;  
 	}
 	
 	public double mostRecentBetaU() {

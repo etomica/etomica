@@ -1,6 +1,7 @@
 package etomica.virial.cluster;
 
 import etomica.virial.Cluster;
+import etomica.virial.MayerFunction;
 
 /**
  * @author kofke
@@ -14,7 +15,7 @@ public final class C3 extends Cluster {
 	 * @param weight
 	 * @param pairs
 	 */
-	public C3() {
-		super(-1./3.,new int[][] {{0,1},{0,2},{1,2}});
+	public C3(MayerFunction f) {
+		super(3, -1./3.,new BondGroup(f, Standard.C3));
 	}
 }

@@ -95,7 +95,8 @@ public final class PotentialMaster extends PotentialGroup {
 		}
 		
 		public AtomSet basis(SpeciesMaster m) {
-			if(potential instanceof PotentialGroupLrc) return m;
+			if(potential.nBody == 0) return m;
+//			if(potential instanceof PotentialGroupLrc) return m;
 			try{
 				AtomSet basis = basisArray[m.index];
 				return (basis == null) ? makeBasis(m) : basis;

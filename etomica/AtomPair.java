@@ -3,6 +3,11 @@ package etomica;
  * An association of two atoms.  Each AtomPair holds one CoordinatePair (obtained from a Space class),
  * which has all the methods needed to compute atom distance and momentum-difference vectors, dot products, etc.
  */
+
+/* History
+ * 07/17/03 (DAK) modified reset() methods to return this AtomPair
+ */
+ 
 public final class AtomPair implements AtomSet, java.io.Serializable {
     public static String getVersion() {return "AtomPair:01.06.25";}
     public Atom atom1, atom2;
@@ -58,16 +63,18 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
    /**
     * Redefines the atom pair to correspond to the given atoms
     */
-    public void reset(Atom a1, Atom a2) {
+    public AtomPair reset(Atom a1, Atom a2) {
         atom1 = a1; 
         atom2 = a2;
         if(a2 != null) reset();
+        return this;
     }
     /**
      * Resets the coordinate pair for the current values of the atoms
      */
-    public void reset() {
+    public AtomPair reset() {
         cPair.reset(atom1.coord, atom2.coord);
+        return this;
     }
     /**
      * @return the square of the distance between the atoms, |r1 - r2|^2
