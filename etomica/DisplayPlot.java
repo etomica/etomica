@@ -12,6 +12,8 @@ import java.awt.event.*;
  */
 public class DisplayPlot extends Display implements MeterFunction.User, EtomicaElement {
     
+    public String getVersion() {return "DisplayPlot:01.03.11.0/"+Display.VERSION;}
+
     Plot plot;
     MeterFunction meter;
     Unit xUnit, yUnit;
@@ -29,7 +31,7 @@ public class DisplayPlot extends Display implements MeterFunction.User, EtomicaE
         setXUnit(new Unit(BaseUnit.Null.UNIT));
         setYUnit(new Unit(BaseUnit.Null.UNIT));
         setUseCurrentValue(false);
-        setLabel("Plot");
+        setName("Plot");
     }
     
     public static EtomicaInfo getEtomicaInfo() {

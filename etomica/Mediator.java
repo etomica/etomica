@@ -3,26 +3,27 @@ import etomica.utility.HashMap2;
 import java.util.Iterator;
     
 /** Class to perform actions that tie together the elements of a simulation.
-* Such actions include placement of species agents in phases, and registering meters and displays with
-* the integrator.  
-* Implemented by calling the go() method of the class before starting the simulation. Only the first call of
-* this method performs any action; subsequent calls are ignored, so the method should be invoked only
-* after all components are in place.<br>
-* This facility is provided mainly as a convenience to visual programming environments.
-* All of the actions performed by the ElementCoordinator may instead be done directly in the applet
-* or application.  If multiple phases or integrators are present in a simulation, it may be necessary
-* to coordinate them directly rather than invoking an element coordinator.<br>
-* A default element coordinator is held in the Simulation class.  It is invoked automatically by the
-* start() and run() methods of the Controller class.  If a DisplayPhase object is being used, the
-* element coordinator should be invoked directly by the applet or application to ensure that the initial
-* configuration is displayed (i.e., so that the configuration shows up before the controller is started).
-* To override the choice of the default element coordinator, be sure to change the handle assigned
-* to the Default.elementCoordinator field.  To have the ElementCoordinator take no action
-* when its go method is called, set its <code>completed</code> field to <code>true</code>.
-*/
+ * Such actions include placement of species agents in phases, and registering meters and displays with
+ * the integrator.  
+ * Implemented by calling the go() method of the class before starting the simulation. Only the first call of
+ * this method performs any action; subsequent calls are ignored, so the method should be invoked only
+ * after all components are in place.<br>
+ * This facility is provided mainly as a convenience to visual programming environments.
+ * All of the actions performed by the ElementCoordinator may instead be done directly in the applet
+ * or application.  If multiple phases or integrators are present in a simulation, it may be necessary
+ * to coordinate them directly rather than invoking an element coordinator.<br>
+ * A default element coordinator is held in the Simulation class.  It is invoked automatically by the
+ * start() and run() methods of the Controller class.  If a DisplayPhase object is being used, the
+ * element coordinator should be invoked directly by the applet or application to ensure that the initial
+ * configuration is displayed (i.e., so that the configuration shows up before the controller is started).
+ * To override the choice of the default element coordinator, be sure to change the handle assigned
+ * to the Default.elementCoordinator field.  To have the ElementCoordinator take no action
+ * when its go method is called, set its <code>completed</code> field to <code>true</code>.
+ */
     
 public class Mediator implements java.io.Serializable {
 
+    public static String getVersion() {return "01.03.11.0";}
     private Simulation parentSimulation;
     private final HashMap2 mediatorTable = new HashMap2();
     
@@ -46,6 +47,8 @@ public class Mediator implements java.io.Serializable {
     public void addMediatorPair(Subset mPair) {
         Class[] classes = mPair.elementClasses();
         if(classes.length != 2) return;  //should throw exception
+        //registers a pair mediator in the pair hashtable.  If another entry was there,
+        //it is returned and held in the "prior" field of the new one.
         mPair.setPrior((Subset)mediatorTable.put(classes[0], classes[1], mPair));
     }
         
@@ -68,6 +71,13 @@ public class Mediator implements java.io.Serializable {
         }
     }
     
+    /**
+     * Processes the given element, tying it in with other appropraiate elements that were added previously.
+     * Loops through all submediators that are set to take a class of the given element (as identified by
+     * its <code>baseClass</code> method, and allows each to do its processing of it.
+     * Upon completion, the <code>setAdded</code> flag is set to <code>true</code>, so if the element
+     * is added again, no action is taken.
+     */
     public void add(Simulation.Element element) {
         if(element.wasAdded()) return;
         java.util.HashMap table = mediatorTable.get(element.baseClass());
@@ -78,7 +88,11 @@ public class Mediator implements java.io.Serializable {
         }
         element.setAdded(true);
     }
-            
+    
+    /**
+     * A Mediator specifically designed to process a subset of all possible classes (usually two of them).
+     * The classes processed are returned by the <code>elementClasses</code> method.
+     */
     public abstract static class Subset implements java.io.Serializable {
         protected Subset priorSubset;
         protected boolean superceding = false;
@@ -431,13 +445,22 @@ public class Mediator implements java.io.Serializable {
              * Adds displays graphic to the simulation display pane
              */
             public void add(Display display) {
-                java.awt.Component component = display.graphic(null);
+                final java.awt.Component component = display.graphic(null);
                 if(component == null) return; //display is not graphic
                 if(display instanceof DisplayBox) {
                     mediator.parentSimulation().displayBoxPanel.add(component);
                 }
                 else {
                     mediator.parentSimulation().displayPanel.add(display.getLabel(),component);
+                    //add a listener to update the tab label if the name of the display changes
+                    display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+                        public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                            if(evt.getPropertyName().equals("label")) {
+                                int idx = mediator.parentSimulation.displayPanel.indexOfComponent(component);
+                                mediator.parentSimulation().displayPanel.setTitleAt(idx,evt.getNewValue().toString());
+                            }
+                        }
+                    });
                 }
             }
         }//end of Default

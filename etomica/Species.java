@@ -57,6 +57,7 @@ import java.beans.Beans;
      
 public abstract class Species implements Simulation.Element, java.io.Serializable {
 
+    public static String getVersion() {return "01.02.14.0";}
     private boolean stationary;
     private Simulation parentSimulation;
     private boolean added = false;

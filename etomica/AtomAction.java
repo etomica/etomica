@@ -23,6 +23,8 @@ import java.awt.Frame;
 
 public abstract class AtomAction extends etomica.Action {
     
+    public static String getVersion() {return "01.01.17.0/"+Action.getVersion();}
+
     protected Atom atom;
     public void setAtom(Atom a) {atom = a;}
     public Atom getAtom() {return atom;}

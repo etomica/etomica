@@ -260,7 +260,7 @@ public abstract class BaseUnit implements java.io.Serializable {
         public static final class Sim extends Temperature {
             public static final Temperature UNIT = new Sim();
             public static double TO_PIXELS = 1.0;
-            public Sim() {prefixAllowed = false; name = "times kB, sim units";  symbol = "kB amu-A^2/ps^2";}
+            public Sim() {prefixAllowed = false; name = "sim temperature units";  symbol = "kB amu-A^2/ps^2";}
         }
     }
     

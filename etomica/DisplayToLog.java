@@ -13,7 +13,7 @@ import java.beans.*;
 
 public class DisplayToLog extends Display {
     
-    public String getVersion() {return "01.03.02.0";}
+    public String getVersion() {return "DisplayToLog:01.03.02.0/"+Display.VERSION;}
     
     private PrintWriter logFile;
     

@@ -19,6 +19,7 @@ import java.beans.Beans;
  */
 public class Simulation extends javax.swing.JPanel implements java.io.Serializable {
     
+    public String getVersion() {return "Simulation:01.03.11.0/";}
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -131,8 +132,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
                     displayPanel.validate();
                 }
         });
-        
-    }
+    }//end of constructor
     
     /**
      * Accessor method for the default I/O unit system.

@@ -12,6 +12,8 @@ import java.awt.*;
  
 public abstract class ColorScheme implements java.io.Serializable {
 
+    public static String getVersion() {return "01.01.17.0";}
+ 
     private Phase phase;
     protected Color baseColor;
     protected Atom.Iterator atomIterator;

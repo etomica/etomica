@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Constants extends Object {
     
-    public static String version() {return "01.03.05.0";}
+    public String getVersion() {return "01.03.10.0";}    
     private static final Random random = new Random();
     
     private Constants() {}   // can't instantiate class

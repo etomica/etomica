@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
   */
 public final class Atom implements Space.Occupant, java.io.Serializable {
 
+    public static String getVersion() {return "01.01.17.0";}
+
     /**
      * Constructs an atom with default values for mass, diameter, and color.
      * Defaults for all coordinates and momenta are zero.

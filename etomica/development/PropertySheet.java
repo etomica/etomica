@@ -6,6 +6,7 @@ import java.beans.*;
 import java.lang.reflect.*;
 import java.net.URL;
 import java.util.EventObject;
+import java.util.Vector;
 import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.table.*;
@@ -15,25 +16,13 @@ import etomica.DimensionedDoubleEditor;
 import etomica.TypedConstantEditor;
 import etomica.Meter;
 import etomica.Simulation;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.event.TreeExpansionEvent;
 
 public class PropertySheet extends JInternalFrame {
-    
-    public String getVersion() {return "01.03.11.0";}
-
     static final javax.swing.border.EmptyBorder EMPTY_BORDER = new javax.swing.border.EmptyBorder(2,4,2,2);
-    static ImageIcon LEAF_ICON;
-    static ImageIcon OPEN_ICON;
-    static ImageIcon CLOSED_ICON;
-    static {
-        try {
-    	    LEAF_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"clearpixel.gif"));
-		    CLOSED_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeCollapsed.gif"));
-		    OPEN_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeExpanded.gif"));
-		}
-		catch (java.net.MalformedURLException error) { }
-    }
+    static ImageIcon LEAF_ICON = new ImageIcon();
+    static ImageIcon OPEN_ICON = new ImageIcon();
+    static ImageIcon CLOSED_ICON = new ImageIcon();
+    
     private PropertySheetPanel panel;
     private boolean started;
     private Panel debugPanel;
@@ -89,14 +78,9 @@ public class PropertySheet extends JInternalFrame {
     }
 }//end of PropertySheet
 
-
-/**
- * This is the panel forming the property sheet, and which is placed inside the property-sheet frame.
- * It displays a ScrollPane which houses a JTreeTable.
- */
 class PropertySheetPanel extends JPanel {
     JScrollPane sp,sp2;
-    JTreeTable treeTable;
+    JTree labelTree,componentTree;
     /**
      * Instance of (inner) thread class that is used to perform updates of displayed properties that might
      * change while the simulation is running (e.g., meter averages).
@@ -148,6 +132,8 @@ class PropertySheetPanel extends JPanel {
         public Component getTableCellRendererComponent(JTable table,
             Object value, boolean selected, boolean hasFocus,
             int row, int column) {
+       //     super.getTableCellRendererComponent(table, value, selected, hasFocus, row, column);
+            
                 c = (Component)value;
                 if (c instanceof JComboBox) {
                     comboRenderer = (JComboBox)c;
@@ -157,12 +143,6 @@ class PropertySheetPanel extends JPanel {
                         System.out.println("Null pointer exception caught");
                     }
                     return new StaticTextField("Error here!");
-                }
-                else if(row == 0 && column == 0) {
-                    return new StaticTextField("Root");
-                }
-                else if(c == null) {
-                    return new EmptyPanel();
                 }
                 else return c;
         }
@@ -176,7 +156,7 @@ class PropertySheetPanel extends JPanel {
         updateThread = new UpdateThread(this);
 	    removeAll();
 	    depth = 0;
-///        groups = new java.util.Vector();
+        groups = new java.util.Vector();
 	    // We make the panel invisivle during the reconfiguration
 	    // to try to reduce screen flicker.
 
@@ -187,36 +167,32 @@ class PropertySheetPanel extends JPanel {
 
 	    target = e;
 
-        //set up the table
-        PropertyNode rootNode = new PropertyNode(target);
+        //set up the treetable
+        PropertyNode rootNode = makeNode(target, null, null, null);
         if(rootNode == null) return;
-        addChildren(rootNode);
         PropertyModel model = new PropertyModel(rootNode);
-        treeTable = new JTreeTable(model);
+        JTreeTable treeTable = new JTreeTable(model);
+        treeTable.getTree().setRootVisible(false);
         treeTable.getTree().putClientProperty("JTree.lineStyle","Angled");
+        try {
+    	    PropertySheet.LEAF_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"clearpixel.gif"));
+		    PropertySheet.CLOSED_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeCollapsed.gif"));
+		    PropertySheet.OPEN_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeExpanded.gif"));
+		}
+		catch (java.net.MalformedURLException error) { }
 
-        //set icons so that tree doesn't display standard folder/file icons
         ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setLeafIcon(PropertySheet.LEAF_ICON);
         ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setClosedIcon(PropertySheet.CLOSED_ICON);
         ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setOpenIcon(PropertySheet.OPEN_ICON);
-
         treeTable.setDefaultRenderer(Object.class, new CellRenderer());
         treeTable.setDefaultEditor(Object.class, new CellEditor());
-        
-        //listener that fills in the properties of an object if it is expanded by the user
-        treeTable.getTree().addTreeExpansionListener(new TreeExpansionListener() {
-            public void treeExpanded(TreeExpansionEvent evt) {
-                PropertyNode node = (PropertyNode)evt.getPath().getLastPathComponent();
-                node.removeAllChildren();
-                addChildren(node);
-            }
-            public void treeCollapsed(TreeExpansionEvent evt) {}
-        });
     
         sp = new JScrollPane(treeTable); // Put tree in a scrollable pane
         
-         //Creates JComboBox that holds all currently added simulation elements.  If a different element is
-         //selected from the box, the properties of the newly selected element are displayed in the prop. sheet
+        /*
+         * Creates JComboBox that holds all currently added simulation elements.  If a different element is
+         * selected from the box, the properties of the newly selected element are displayed in the prop. sheet
+	     */
 	    JComboBox elementCombo = new JComboBox(Simulation.instance.allElements().toArray());
 	    elementCombo.setSelectedItem(target);
 	    elementCombo.addItemListener(new java.awt.event.ItemListener() {
@@ -276,17 +252,21 @@ class PropertySheetPanel extends JPanel {
         setVisible(true);
     }//end of setTarget
     
-    /**
-     * Fills in the properties of the given node object so they are displayed when the 
-     * node is expanded.
-     */
-    private void addChildren(PropertyNode parentNode) {
+    private PropertyNode makeNode(Object object, JLabel objectLabel, Component objectView, Component objectUnitView) {
+
+        PropertyNode root = new PropertyNode(objectLabel, objectView, objectUnitView);
         
-        Object object = parentNode.object();
-        if(object == null) return;
+        //See if object can have child objects in tree (cannot if it is primitive)
+        if(object == null || 
+            object instanceof Number || 
+            object instanceof Boolean ||
+            object instanceof Character) return root;
+        
+        //Examine all properties of object and attach child nodes to permit properties to be edited
+        
+        PropertyDescriptor[] properties = null;
         
         //Introspection to get array of all properties
-        PropertyDescriptor[] properties = null;
         BeanInfo bi = null;
         try {
 	        bi = Introspector.getBeanInfo(object.getClass());
@@ -294,12 +274,12 @@ class PropertySheetPanel extends JPanel {
 	    } 
 	    catch (IntrospectionException ex) {
 	        error("PropertySheet: Couldn't introspect", ex);
-	        return;
+	        return null;
 	    }
 
         //Collect object and its properties in a PropertyGroup and add to list of all groups
-///        PropertyGroup group = new PropertyGroup(object, properties);
-///        groups.add(group);
+        PropertyGroup group = new PropertyGroup(object, properties);
+        groups.add(group);
         
         //used to store editors of values of a meter
         DimensionedDoubleEditor averageEditor = null;
@@ -319,7 +299,6 @@ class PropertySheetPanel extends JPanel {
 	        Component view = null;
 	        Component unitView = null;
 	        JLabel label = null;
-	        PropertyEditor editor = null;
 
 	        String name = properties[i].getDisplayName();  //Localized display name 
 	        Class type = properties[i].getPropertyType();  //Type (class) of this property
@@ -334,13 +313,15 @@ class PropertySheetPanel extends JPanel {
 		        Object args[] = { };
 		        try {value = getter.invoke(object, args);}
 		        catch(NullPointerException ex) {value = null;}
-///	            group.values[i] = value;
+	            group.values[i] = value;
 
                 //find and instantiate the editor used to modify value of the property
+	            PropertyEditor editor = null;
 	            if(properties[i].isConstrained())
 	                editor = new ConstrainedPropertyEditor();
 	            //if property is a TypedConstant
 	            else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
+	       //         editor = new TypedConstantEditor(((etomica.Constants.TypedConstant)value).choices());
 	                editor = new TypedConstantEditor();
 	            }
 	            else {
@@ -370,7 +351,7 @@ class PropertySheetPanel extends JPanel {
 		                editor = PropertyEditorManager.findEditor(type);
 		        }//done with trying to get an editor for the property
 		        
-///	            group.editors[i] = editor;
+	            group.editors[i] = editor;
 
 	            // If we can't edit this component, skip it.
 	            if (editor == null) {
@@ -436,82 +417,35 @@ class PropertySheetPanel extends JPanel {
 		        continue;
 	        }
 
-            MyLabel newLabel = new MyLabel(name, Label.LEFT);
-///	        group.labels[i] = new MyLabel(name, Label.LEFT);
-///	        group.views[i] = view;
-///	        group.unitViews[i] = unitView;
+	        group.labels[i] = new MyLabel(name, Label.LEFT);
+	        group.views[i] = view;
+	        group.unitViews[i] = unitView;
 	        
-            PropertyNode child = new PropertyNode(value, newLabel, view, unitView, editor, properties[i]);
-            
-//See if object can have child objects in tree (cannot if it is primitive)
-            if(!(value == null || 
-                value instanceof Number || 
-                value instanceof Boolean ||
-                value instanceof Character ||
-                value instanceof String ||
-                value instanceof Color ||
-                value instanceof java.awt.Font)) {/*add dummy child*/
-                child.add(new PropertyNode(null,new JLabel(),new EmptyPanel(), new EmptyPanel(), null, null));
-            }
-            
-            parentNode.add(child);
+	        if(group.labels[i] != null && view != null && depth < MAX_DEPTH) {
+	            depth++;
+	            PropertyNode child = makeNode(group.values[i],group.labels[i],view,unitView);
+	            depth--;
+	            if(child != null) root.add(child);
+          //      root.add(new PropertyNode(labels[i],view));
+            }//end if
+	        
 	    }//end of loop over properties
 	    
 	    if(object instanceof Meter) {
 	        updateThread.add((Meter)object,currentEditor,averageEditor,errorEditor,
 	                                       currentView,  averageView,  errorView  );
 	    }
-    }//end of addChildren method
-        
+	    if(root.isLeaf() && objectView instanceof EmptyPanel) {root = null;}
+	    return root;
+    }//end of makeNode method
+
     private void doLayout(boolean doSetSize) {
-        JTree tree = treeTable.getTree();
-        PropertyNode root = (PropertyNode)tree.getModel().getRoot();
-        if(root==null || root.getChildCount()==0) return;
-      //  if(groups.isEmpty())  return;
-
-	    // First figure out the size of the columns.
-	    int labelWidth = 92;
-	    int viewWidth = 120;
-
-        for(java.util.Enumeration enum = root.breadthFirstEnumeration(); enum.hasMoreElements();) {
-            PropertyNode node = (PropertyNode)enum.nextElement();
-            if(node == root || node.label() == null || node.view() == null) continue;
-
-	        int w = node.label().getPreferredSize().width;
-	        if (w > labelWidth) {
-		        labelWidth = w;
-	        }
-	        w = node.view().getPreferredSize().width;
-	        if (w > viewWidth) {
-		        viewWidth = w;
-	        }
-	    }//end for
-	    int width = 3*hPad + labelWidth + viewWidth;
-
-	    // Now position all the components.
-	    int y = 10;
-        for(java.util.Enumeration enum = root.breadthFirstEnumeration(); enum.hasMoreElements();) {
-            PropertyNode node = (PropertyNode)enum.nextElement();
-            if(node == root || node.label() == null || node.view() == null) continue;
-
-	        node.label().setBounds(hPad, y, labelWidth, 20);
-	        int h = 20;
-	        node.view().setBounds(labelWidth + 2*hPad, y, viewWidth, h);
-	        y += (h + vPad);
-	    }
-	    y += vPad;
-
-	    if(doSetSize) setSize(width, y);
-    }
-    
-/*    private void doLayout(boolean doSetSize) {
         if(groups.isEmpty())  return;
 
 	    // First figure out the size of the columns.
 	    int labelWidth = 92;
 	    int viewWidth = 120;
 
-        
 	    for (java.util.Iterator iter=groups.iterator(); iter.hasNext(); ) {
 	        PropertyGroup g = (PropertyGroup)iter.next();
 	        for (int i = 0; i < g.labels.length; i++) {
@@ -547,117 +481,19 @@ class PropertySheetPanel extends JPanel {
 	    if (doSetSize)
 	        setSize(width, y);
     }
-*/
+
     /**
      * When property event is fired, this method transmits the change to the actual
      * instance of the object being edited.  Also checks for change in value of any
      * other properties and repaints the sheet accordingly.
      */
     synchronized void wasModified(PropertyChangeEvent evt) {
-        
-        if (!processEvents) return;
-
-        JTree tree = treeTable.getTree();
-        PropertyNode root = (PropertyNode)tree.getModel().getRoot();
-	    if (evt.getSource() instanceof PropertyEditor) {
-	        PropertyEditor editor = (PropertyEditor) evt.getSource();
-            //loop over all objects and properties to find the editor that made the change 
-            for(java.util.Enumeration enum = root.breadthFirstEnumeration(); enum.hasMoreElements();) {
-                PropertyNode node = (PropertyNode)enum.nextElement();
-                
-                if(node==root || node.editor()!=editor) continue;
-                
-                //found editor
-		        PropertyDescriptor property = node.descriptor();
-		        Object value = editor.getValue();
-		        node.setObject(value);
-		        Method setter = property.getWriteMethod();
-		        if(setter == null) continue;
-		        try {
-		            Object args[] = { value };
-		            args[0] = value;
-		            setter.invoke(((PropertyNode)node.getParent()).object(), args);
-		        } 
-		        catch (InvocationTargetException ex) {
-		            if (ex.getTargetException() instanceof PropertyVetoException) {
-			            //warning("Vetoed; reason is: " 
-			            //        + ex.getTargetException().getMessage());
-			            // temp dealock fix...I need to remove the deadlock.
-			            System.err.println("WARNING: Vetoed; reason is: " 
-					            + ex.getTargetException().getMessage());
-		            }
-		            else error("InvocationTargetException while updating " + property.getName(), ex.getTargetException());
-		        } 
-		        catch (Exception ex) {
-		            error("Unexpected exception while updating " 
-		                    + property.getName(), ex);
-	            }
-	            if(evt.getSource() instanceof DimensionedDoubleEditor) {
-	   //             node.view().repaint();
-	            }
-	        /*    if(node.getChildCount() > 0) {
-	                System.out.println("reconfiguring children");
-                    node.removeAllChildren();
-	                addChildren(node);
-	            }*/
-		        break;//found editor; stop looking
-	        }//end of for(Enumeration loop
-	    }
-
-	    // Now re-read all the properties and update the editors
-	    // for any other properties that have changed.
-	    Object args[] = { };
-        for(java.util.Enumeration enum = root.breadthFirstEnumeration(); enum.hasMoreElements();) {
-            PropertyNode node = (PropertyNode)enum.nextElement();
-            if(node == root) continue;
-            Object target = ((PropertyNode)node.getParent()).object();
-	        Object o;
-	        Method setter = null;
-	        try {
-	            Method getter = node.descriptor().getReadMethod();
-	            setter = node.descriptor().getWriteMethod();
-	            o = getter.invoke(target, args);
-	        } 
-	        catch (Exception ex) { o = null; }
-	        if (o == node.object() || (o != null && o.equals(node.object())) ||  setter == null) {
-	            // The property is equal to its old value.
-    		    continue;
-	        }
-	        node.setObject(o);
-	        // Make sure we have an editor for this property...
-	        if (node.editor() == null)
-		        continue;
-    	        
-	        // The property has changed!  Update the editor.
-	        node.editor().setValue(o);
-	        if (node.view() != null)
-		        node.view().repaint();
-
-	        // Make sure the target bean gets repainted.
-	        if (Beans.isInstanceOf(target, Component.class)) {
-	            ((Component)(Beans.getInstanceOf(target, Component.class))).repaint();
-	        }
-	    }//end of for(java.util.Enumeration) loop
-	        
-	        //this ensures display is updated if editor changes units
-	        if(evt.getSource() instanceof DimensionedDoubleEditor) {
-	            repaint();
-	        }
-    }//end of wasModified method
-
-    /**
-     * When property event is fired, this method transmits the change to the actual
-     * instance of the object being edited.  Also checks for change in value of any
-     * other properties and repaints the sheet accordingly.
-     */
- /*   synchronized void wasModified(PropertyChangeEvent evt) {
-        
-        if (!processEvents) return;
+        if (!processEvents)
+	        return;
 
 	    if (evt.getSource() instanceof PropertyEditor) {
 	        PropertyEditor editor = (PropertyEditor) evt.getSource();
-            //loop over all objects and properties to find the editor that made the change 
-	        groupLoop: for (java.util.Iterator iter=groups.iterator(); iter.hasNext(); ) {
+	        for (java.util.Iterator iter=groups.iterator(); iter.hasNext(); ) {
 	            PropertyGroup g = (PropertyGroup)iter.next();
 	            
 	            for (int i = 0 ; i < g.editors.length; i++) {
@@ -689,10 +525,10 @@ class PropertySheetPanel extends JPanel {
 	                    if(evt.getSource() instanceof DimensionedDoubleEditor) {
 	            //            g.views[i].repaint();
 	                    }
-		                break groupLoop;//found editor; stop looking
-		            }//end if
-		        }//end of for(int loop
-	        }//end of for(Iterator loop
+		                break;  //should rewrite this to break out of Iterator loop
+		            }//end of for(int loop
+		        }//end of for(Iterator loop
+	        }
 	    }
 
 	    // Now re-read all the properties and update the editors
@@ -733,8 +569,7 @@ class PropertySheetPanel extends JPanel {
 	        if(evt.getSource() instanceof DimensionedDoubleEditor) repaint();
 	    }//end of for(java.util.Iterator) loop
     }//end of wasModified method
- 
-*/    
+
     //----------------------------------------------------------------------
     // Log an error.
     private void error(String message, Throwable th) {
@@ -761,7 +596,7 @@ class PropertySheetPanel extends JPanel {
         }
     }
     
-/*    private static class PropertyGroup {
+    private static class PropertyGroup {
         Object target;
         PropertyDescriptor[] properties;
         PropertyEditor[] editors;
@@ -780,7 +615,7 @@ class PropertySheetPanel extends JPanel {
 	        unitViews = new Component[properties.length];
 	    }
     }
-*/    
+    
     private static class EmptyPanel extends JTextField {
         EmptyPanel() {
             super("");

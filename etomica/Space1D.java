@@ -379,6 +379,7 @@ public class Space1D extends Space implements EtomicaElement {
         public void centralImage(Coordinate c) {}
         public void setCollisionRadius(double d) {collisionRadius = d;}
         public double getCollisionRadius() {return collisionRadius;}
+        public Dimension getCollisionRadiusDimension() {return Dimension.LENGTH;}
         public PotentialField makePotentialField(Phase p) {return new Field(p);}
         class Field extends PotentialField implements PotentialField.Hard {
             Field(Phase p) {

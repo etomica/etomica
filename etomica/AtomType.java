@@ -18,6 +18,7 @@ import etomica.electrostatics.*;
  */
 
 public abstract class AtomType implements java.io.Serializable {
+    public static String getVersion() {return "01.03.05.0";}
     private double mass, rm;
     private Color color;
     private ElectroType electroType;

@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
  //setPhase method needs repairing
 public class DisplayTable extends Display implements Meter.MultiUser, MeterFunction.User, EtomicaElement
 {
+    public String getVersion() {return "DisplayTable:01.03.11.0/"+Display.VERSION;}
     public JTable table;
     MyTableData dataSource;
     Meter[] meter;
@@ -48,6 +49,7 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         showAverages = showAvgs;
         showingFunction = false;
         setupTable();
+        setLabel("Table");
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -55,12 +57,12 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         return info;
     }
     
-    public String getLabel() {
+/*    public String getLabel() {
         return "Table";
       /*  if(showingFunction) return meterFunction.getLabel();
         if(nMeters == 1) return meter[0].getLabel();
         else return "Data";*/
-    }
+ //   }
 
     private void setupTable() {
         if(panel == null) panel = Box.createVerticalBox();

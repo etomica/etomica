@@ -16,7 +16,7 @@ import javax.swing.JPanel;
  */
 public abstract class Display extends Panel implements Simulation.GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
 
-    public String getVersion() {return "01.03.01.0";}
+    public static final String VERSION = "Display:01.03.11.0";
     private String name;
     
   /**
@@ -109,9 +109,23 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
         }
     }
     
-    public void setLabel(String l) {label = l;}
+    /**
+     * Accessor method of the label describing the display.
+     * 
+     * @return The given label
+     */
     public String getLabel() {return label;}
-    
+
+    /**
+     * Accessor method of the label describing the display.
+     * 
+     * @param label The label string describing the display
+     */
+    public void setLabel(String label) {
+        String oldLabel = this.label;
+        this.label = label;
+        support.firePropertyChange("label", oldLabel, label);
+    }
     /**
      * Accessor method of the name of this object
      * 
@@ -124,7 +138,11 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
      * 
      * @param name The name string to be associated with this object
      */
-    public final void setName(String name) {this.name = name;}
+    public final void setName(String name) {
+        String oldName = this.name;
+        this.name = name;
+        support.firePropertyChange("name", oldName, name);
+    }
 
     /**
      * Overrides the Object class toString method to have it return the output of getName

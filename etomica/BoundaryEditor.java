@@ -9,6 +9,8 @@ import java.util.Iterator;
 
 public class BoundaryEditor extends PropertyEditorSupport {
     
+    public static String getVersion() {return "01.01.17.0";}
+
     LinkedList boundaryMakers = new LinkedList();
     
     public BoundaryEditor() {super();}

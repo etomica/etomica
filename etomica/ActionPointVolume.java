@@ -18,6 +18,8 @@ import java.awt.event.MouseEvent;
 
 public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawable {
     
+    public static String getVersion() {return "01.02.19.0"+PhaseAction.getVersion();}
+
     private boolean drawPoints = true;
     private boolean drawCells = false;
     private boolean fillCells = false;

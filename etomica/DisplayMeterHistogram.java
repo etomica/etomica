@@ -12,6 +12,8 @@ import java.awt.event.*;
  */
 public class DisplayMeterHistogram extends Display implements Meter.User, MeterFunction.User, EtomicaElement {
     
+    public String getVersion() {return "DisplayMeterHistogram:01.03.11.0/"+Display.VERSION;}
+
     Plot plot;  //inner class defined below
     
     Meter meter;  //one or the other of these is used depending on meter type
@@ -59,7 +61,7 @@ public class DisplayMeterHistogram extends Display implements Meter.User, MeterF
         setXUnit(m.defaultIOUnit());
         plot.setXLabel(meter.getLabel()+" ("+xUnit.symbol()+")");
         plot.setYLabel("Frequency");
-        setLabel(meter.getLabel()); //tabbed-pane text
+        setName(meter.getName()); //tabbed-pane text
 //        resetButton.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent evt) {meter.reset();}
 //        });

@@ -11,6 +11,7 @@ import java.awt.Frame;
 */
 public class ColorSchemeBySpecies extends ColorScheme {
     
+    public static String getVersion() {return "01.01.17.0/"+ColorScheme.getVersion();}
     private SpeciesColor[] speciesColor = new SpeciesColor[0];
     
     public ColorSchemeBySpecies() {super();}

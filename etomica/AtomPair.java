@@ -6,6 +6,7 @@ package etomica;
  * for its complete definition
  */
 public final class AtomPair implements java.io.Serializable {
+    public static String getVersion() {return "01.01.17.0";}
     public Atom atom1, atom2;
     public final Space.CoordinatePair cPair;
 //    public Potential potential;

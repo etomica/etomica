@@ -406,6 +406,7 @@ public class Space3D extends Space implements EtomicaElement {
         public void centralImage(Coordinate c) {}
         public void setCollisionRadius(double d) {collisionRadius = d;}
         public double getCollisionRadius() {return collisionRadius;}
+        public Dimension getCollisionRadiusDimension() {return Dimension.LENGTH;}
         
         public double collisionTime(AtomPair pair) {
             Atom a = pair.atom1();

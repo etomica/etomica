@@ -19,6 +19,8 @@ import javax.swing.JDialog;
  */
 public class DisplayPhase extends Display implements EtomicaElement {
         
+    public String getVersion() {return "DisplayPhase:01.03.11.0/"+Display.VERSION;}
+    
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
     public static final int RIGHT = +1;

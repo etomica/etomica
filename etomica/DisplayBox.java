@@ -15,6 +15,7 @@ import java.awt.event.InputEvent;
  
 public class DisplayBox extends Display implements Dimensioned, Meter.User, EtomicaElement {
     
+    public String getVersion() {return "DisplayBox:01.03.11.0/"+Display.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
