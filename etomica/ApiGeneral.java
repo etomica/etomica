@@ -21,16 +21,13 @@ public final class ApiGeneral implements AtomPairIterator {
     private final IteratorDirective localDirective = new IteratorDirective();
 
     /**
-     * The iterators used to generate the sets of atoms
+     * The iterators used to generate the sets of atoms.
+     * The inner one is not necessarily atom dependent.
      */
-    private final AtomIterator aiInner, aiOuter;
+    private AtomIterator aiInner, aiOuter;
     
     protected boolean hasNext;
-    /**
-     * Flag indicating whether atom1 of pair needs to be updated to point to the same atom that "atom1" in this class points to
-     */
-    private boolean needUpdate1; 
-    private Atom atom1;
+
     
     /**
      * Construct a pair iterator using the given atom iterators
@@ -40,152 +37,108 @@ public final class ApiGeneral implements AtomPairIterator {
         hasNext = false;
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;
-        direction = IteratorDirective.UP;
-    }
- 
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
-		if(basis == null || !(action instanceof AtomPairActive)) return;
-		switch(basis.nBody()) {
-			case 1: all((Atom)basis, id, (AtomPairActive)action); break;
-			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
-		}
-	}
-	public void all(Atom basis, IteratorDirective dummy, AtomPairActive action) {
-		throw new RuntimeException("Method all not implemented in AtomIteratorCompound");
-		//in progress
-	}
-	public void all(AtomPair basis, IteratorDirective dummy, AtomPairActive action) {
-		if(basis == null || action == null) return;
-		Atom group1 = basis.atom1();//assume group1 preceeds group2
-		Atom group2 = basis.atom2();
-		//ugly workaround for PistonCylinder
-		if(group1.node.isLeaf() && aiInner instanceof AtomIteratorSinglet) {
-			group1 = basis.atom2();
-			group2 = basis.atom1();
-		}
-		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
-		outerWrapper.setBoundary(group1.node.parentPhase().boundary());
-		outerWrapper.aiInner = aiInner;
-		outerWrapper.innerBasis = group2;
-		aiOuter.all(group1, dummy, outerWrapper);
-	}
-
-   
-    public void setBasis(Atom a1, Atom a2) {
-		//ugly workaround for PistonCylinder
-		if(a1.node.isLeaf() && aiInner instanceof AtomIteratorSinglet) {
-			aiOuter.setBasis(a2);
-			aiInner.setBasis(a1);
-		} else {
-			//originally was just this, without if/else block
-			aiOuter.setBasis(a1);
-			aiInner.setBasis(a2);
-		}
-		pair.cPair.setBoundary(a1.node.parentPhase().boundary());
     }
     
     public AtomIterator aiOuter() {return aiOuter;}
     public AtomIterator aiInner() {return aiInner;}
+
+    public void setInnerIterator(AtomIterator inner) {
+    	this.aiInner = inner;
+    	unset();
+    }
+    
+    public void setOuterIterator(AtomIterator outer) {
+    	this.aiOuter = outer;
+    	unset();
+    }
+    
+    public void unset() {
+    	hasNext = false;
+    }
     
     /**
-     * Returns the number of pairs capable of being given by this iterator
-     * (that is, if no restrictions are specified in an iteratorDirective).
+     * Returns whether or not an AtomPair is contained by the
+     * iterator. The first atom of the pair must be contained in
+     * the outer loop.  The second atom of the pair must be contained
+     * in the inner loop.
+     */
+    public boolean contains(AtomPair pair) {
+    	return aiOuter.contains(pair.atom1) && aiInner.contains(pair.atom2());
+    }
+    
+    
+    /**
+     * Returns the number of pairs given by this iterator.
      */
     public int size() {
-        throw new RuntimeException("ApiGeneral.size should be checked before using");
-      /*  int n1 = aiOuter.size();
-        int n2 = aiInner.size();
-        return (aiOuter.getBasis() == aiInner.getBasis()) ?
-            n1*(n2-1)/2 : n1*n2;*/
+    	return aiOuter.size() * aiInner.size();
     }        
     
     public final boolean hasNext() {return hasNext;}
-        
-    public void reset(IteratorDirective id) {
-        direction = id.direction();
-        switch(id.atomCount()) {
-            case 0:  reset(); 
-                     break;
-            case 1:  reset(id.atom1()); 
-                     break;
-            default: hasNext = false; 
-                     break;
-        }
-    }
 
     /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
      */
     public void reset() {
         aiOuter.reset();
-        setFirst();
-    }
-        
-    /**
-     * Resets the iterator so that it iterates over all pairs formed with the 
-     * given atom in the most recently specified iterator directive (default UP is
-     * if none previously specified).
-     */
-    public void reset(Atom atom) {
-        aiOuter.reset(localDirective.set(atom).set(IteratorDirective.NEITHER));
-        localDirective.set(direction);
-//        aiInner.reset(localDirective.set().set(direction));//reset inner last to leave localDirective in proper state for inner-loop resets
-        setFirst();
+        aiInner.reset();
+        hasNext = aiOuter.hasNext() && aiInner.hasNext();
     }
     
     /**
-     * This is called after aiOuter and aiInner are are reset, 
-     * and it readies iterators to give first pair (or puts hasNext = false if no pairs
-     * are forthcoming).
+     * Returns the next pair without advancing the iterator.
+     * If the iterator has reached the end of its iteration,
+     * returns null.
      */
-    protected final void setFirst() {
-        hasNext = false;
-        while(aiOuter.hasNext()) { //loop over iterator 1...
-            pair.atom1 = aiOuter.next();
-            Atom nextInner = aiInner.reset(localDirective.set(pair.atom1));
-            if(nextInner == pair.atom1) aiInner.next();//move to atom after atom1
-            if(aiInner.hasNext()) {
-                hasNext = true;
-                needUpdate1 = false;
-                break;        //...until iterator 2 hasNext
-            }
-        }//end while
-    }//end setFirst
-        
+    public AtomPair peek() {
+    	if(!hasNext) {return null;}
+    	
+    	if(aiInner.hasNext()) {
+    		pair.reset2(aiInner.peek());
+    	}
+    	else {
+    		// We can reset the inner loop, because it has
+    		// reached its end, and the next() method
+    		// will see the inner loop at its
+    		// start, and advance from there.
+    		aiInner.reset();
+    		pair.reset(aiOuter.next(), aiInner.peek());
+    	}
+    	return pair;
+    }
+    
+    /**
+     * Returns the next pair of atoms.  Advances the outer loop to 
+     * the next atom when the inner loop has reached its last atom.
+     */
     public final AtomPair next() {
-        //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
-        //it is not done directly in the while-loop because pair must first return with the old atom1 intact
-        if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
-//        pair.atom2 = aiInner.next();
-        pair.reset2(aiInner.next());//08/29/03 deleted above line and added this
-        while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
-            if(aiOuter.hasNext()) {     //Outer has another atom1...
-                atom1 = aiOuter.next();           //...get it
-                Atom nextInner = aiInner.reset(localDirective.set(atom1)); //...reset Inner
-                if(nextInner == atom1) aiInner.next();
-                needUpdate1 = true;           //...flag update of pair.atom1 for next time
-            }
-            else {hasNext = false; break;} //Outer has no more; all done with pairs
-        }//end while
+    	if(!hasNext) {return null;}
+    	//Advance the inner loop, if it is not at its end.
+    	if(aiInner.hasNext()) {
+    		pair.reset2(aiInner.next());
+    	}
+    	//Advance the outer loop, if the inner loop has reached its end.
+    	else {
+    		aiInner.reset();
+			pair.reset(aiOuter.next() , aiInner.next());
+    	} 
+    	
+    	hasNext = aiInner.hasNext() || aiOuter.hasNext();
         return pair;
     }
 
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
-     //not carefully checked
-    public void allPairs(AtomPairAction act) {  
-        throw new RuntimeException("ApiGeneral.allPairs should be checked before using");
-        /*outerWrapper.innerWrapper.pairAction = act;
-        outerWrapper.aiInner = aiInner;
-        aiOuter.allAtoms(outerWrapper);
-        hasNext = false;
-        */
-    /*    while(ai1.hasNext()) {
-            pair.atom1 = ai1.next();
-            ai2.reset(localDirective.set(pair.atom1));
-            ai2.allAtoms(actionWrapper);
-        }*/
+    public void allPairs(AtomPairActive act) {  
+       reset();
+       while(aiOuter.hasNext()) {
+       		pair.setAtom1(aiOuter.next());
+       		aiInner.reset();
+       		while(aiInner.hasNext()){
+       			act.actionPerformed(pair.reset2(aiInner.next()));
+       		}
+       }
     }
     
 /*    public static void main(String[] args) throws java.io.IOException {

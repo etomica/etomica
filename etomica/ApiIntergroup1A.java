@@ -2,7 +2,8 @@ package etomica;
 
 /**
  * Loops through molecule pairs given between two groups, formed
- * from 1 molecule and All its neighbors.  Molecule is specified itself
+ * from 1 molecule and All other atoms which meet a specified criterion.
+ * Molecule is specified itself
  * or in terms of one of its descendant atoms, via an iterator directive.
  *
  * @author David Kofke
@@ -18,6 +19,7 @@ package etomica;
   * Previously had pair.atom2 = iterator.next(); pair.reset().  Change made
   * because AtomPair's blank reset method does not call cPair.reset with atom
   * coordinate arguments.
+  * 08/25/04 (DAK et al.) Revamped (?)
   */
  
 public class ApiIntergroup1A implements AtomPairIterator {
