@@ -34,12 +34,12 @@ import etomica.space3d.Space3D;
  * Simple square-well chain simulation.
  */
  
-public class TestSWChainDMDNbr extends Simulation {
+public class TestSWChain extends Simulation {
     
     public IntegratorHard integrator;
     public Phase phase;
 
-    public TestSWChainDMDNbr(Space space, int numMolecules) {
+    public TestSWChain(Space space, int numMolecules) {
         super(space, new PotentialMasterNbr(space));
         int chainLength = 4;
         double sqwLambda = 1.5;
@@ -92,14 +92,14 @@ public class TestSWChainDMDNbr extends Simulation {
         if (args.length > 0) {
             numMolecules = Integer.valueOf(args[0]).intValue();
         }
-        TestSWChainDMDNbr sim = new TestSWChainDMDNbr(new Space3D(), numMolecules);
+        TestSWChain sim = new TestSWChain(new Space3D(), numMolecules);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator); 
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage();
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);
-        IntervalActionAdapter actionAdapter = new IntervalActionAdapter(energyManager, sim.integrator);
+        new IntervalActionAdapter(energyManager, sim.integrator);
         
         sim.getController().actionPerformed();
         
