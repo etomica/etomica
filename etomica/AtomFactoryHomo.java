@@ -79,7 +79,6 @@ public class AtomFactoryHomo extends AtomFactory {
         for(int i=0; i<atomsPerGroup; i++) {
             childFactory.build((AtomTreeNodeGroup)group.node);
         }
-//        bondInitializer.makeBonds(group);
         configuration.initializeCoordinates(group);
         return group;
      }
