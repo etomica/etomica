@@ -8,6 +8,7 @@ private Agent nextCollider;
 private AtomPair.Iterator.A upPairIterator, downPairIterator;
 private Atom.Iterator upAtomIterator, downAtomIterator;
 private AtomPair atomPair;
+private PotentialHard spacePotential;
 
 boolean bb = true;
             
@@ -22,6 +23,7 @@ public void registerPhase(Phase p) {
     upAtomIterator = p.iterator.makeAtomIteratorUp();
     downAtomIterator = p.iterator.makeAtomIteratorDown();
     atomPair = new AtomPair(p);
+    spacePotential = (PotentialHard)p.space().makePotential();
 }
 
           
@@ -98,8 +100,8 @@ protected void advanceToCollision() {
 //        a.coordinate.assignCell();
         atomPair.reset(a,a);
         nextCollider.getCollisionPotential().bump(atomPair);
-        upList(nextCollider.atom);
-        downList(nextCollider.atom);
+        upList(a);
+        downList(a);
     }
     else {
 //        System.out.println("atom collision");
@@ -217,7 +219,7 @@ protected void upList(Atom atom) {  //specific to 2D
 */            
     //Loop through remaining uplist atoms in firstPhase
 //    if(atom.parentMolecule != atom.phase().lastMolecule()) {
-        upPairIterator.reset(atom,null,null);
+        upPairIterator.reset(atom,Iterator.INTRA);
         while(upPairIterator.hasNext()) {
             AtomPair pair = upPairIterator.next();
             if(((Agent)pair.atom2().ia).getCollisionPartner() == atom) upList(pair.atom2());  //upList atom could have atom as collision partner if atom was just moved down list
@@ -229,6 +231,16 @@ protected void upList(Atom atom) {  //specific to 2D
                 aia.setCollision(time,pair.atom2(),potential);  //atom2 is inner loop
             }
         }
+        
+        //Examine interaction with space
+        atomPair.reset(atom,atom);
+        double time = spacePotential.collisionTime(atomPair);
+        if(time < minCollisionTime) {
+            minCollisionTime = time;
+            aia.setCollision(time,atom,spacePotential);  
+        }
+        
+        
 //    }
 //    Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
 //    for(Atom a=nextMoleculeAtom; a!=null; a=a.nextAtom()) {

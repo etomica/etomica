@@ -51,7 +51,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
 //            System.out.println(cellCell.vertices()[2][1] + "  " + r.y + "  " + cellCell.vertices()[0][1]);
 //            System.out.println();
         }
-   //Assigns atom to given cell
+   //Assigns atom to given cell; if removed from another cell, repairs tear in list
         public void assignCell(LatticeSquare.Site newCell) {
             if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
             else {if(cell != null) cell.setFirst(nextNeighbor); if(nextNeighbor != null) nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
@@ -80,7 +80,12 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         }
         
         public void reset() {
+            cells.clearOccupants();
             for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
+                Coordinate c = (Coordinate)a.coordinate();
+                c.cell = null;
+                c.clearPreviousNeighbor();
+                c.setNextNeighbor(null);
                 ((Coordinate)a.coordinate()).assignCell();
             }
         }

@@ -216,6 +216,7 @@ public abstract class Species extends Container {
             lastMolecule.setNextMolecule(next);
             parentPhase.updateCounts();
             parentPhase.configuration.initializeCoordinates();
+            parentPhase.iterator.reset();
         }
               
               

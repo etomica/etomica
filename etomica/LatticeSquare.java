@@ -32,7 +32,7 @@ public class LatticeSquare extends Lattice {
         origin = sites[0][0];
     }
     
-    public final void clearCells() {
+    public final void clearOccupants() {
         for(Site s=origin; s!=null; s=s.nextSite()) {s.setFirst(null);}
     }
     
