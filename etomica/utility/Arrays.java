@@ -55,10 +55,11 @@ public final class Arrays {
     /**
      * Returns an array formed by removing the given object from the given array.  
      * New array is one element smaller than given array,
-     * and is of same type as given array.
-     * @param array array with objects to be put in new array
-     * @param newObject object placed at end of new array
-     * @return new array 
+     * and is of same type as given array.  If object is not in the given array,
+     * method returns quietly without performing any action.
+     * @param array array with the objects
+     * @param newObject object being removed
+     * @return new array with the object removed
      */
 	public static Object[] removeObject(Object[] array, Object object) {
 		int length = array.length;
