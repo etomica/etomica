@@ -98,14 +98,14 @@ public abstract class Space implements java.io.Serializable {
     /**
      * Returns the square distance between the two vectors, using the given boundary condition.
      */
-    public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
+    public static double r2(Vector u1, Vector u2, Boundary b) {
+        return r2(u1, u2, b, makeVector(u1.D()));
+    }
+    public static final double r2(Vector u1, Vector u2, Boundary b, Vector work) {
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
-        switch(u1.D()) {
-            case 1: return Space1D.r2((etomica.space1d.Vector)u1, (etomica.space1d.Vector)u2, (Boundary)b);
-            case 2: return Space2D.r2((etomica.space2d.Vector)u1, (etomica.space2d.Vector)u2, (Boundary)b);
-            case 3: return Space3D.r2((etomica.space3d.Vector)u1, (etomica.space3d.Vector)u2, (Boundary)b);
-            default: throw new IllegalArgumentException("Space.r2: Unknown vector dimension");
-        }
+        work.Ev1Mv2(u1, u2);
+        b.nearestImage(work);
+        return work.squared();
     }
     /**
      * Returns a Vector from the space of the given dimension.

@@ -65,13 +65,6 @@ public class Space2D extends Space implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("Two-dimensional space");
         return info;
     }
-
-    public static final double r2(Vector u1, Vector u2, Boundary b) {
-        Vector.WORK.x = u1.x - u2.x;
-        Vector.WORK.y = u1.y - u2.y;
-        b.nearestImage(Vector.WORK);
-        return Vector.WORK.x*Vector.WORK.x + Vector.WORK.y*Vector.WORK.y;
-    }
   
   /*  public static final class BoundarySlidingBrick extends BoundaryPeriodicSquare {
         private double gamma = 0.0;

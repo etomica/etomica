@@ -63,13 +63,6 @@ public class Space1D extends Space implements EtomicaElement {
         return info;
     }
 
-    public static final double r2(Vector u1, Vector u2, Boundary b) {
-        Vector.WORK.x = u1.x - u2.x;
-        b.nearestImage(Vector.WORK);
-        return Vector.WORK.x*Vector.WORK.x;
-    }
-    
-    
 //    public static void main(String[] args) {
 //        Default.ATOM_SIZE = 1.0;
 //        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space1D());

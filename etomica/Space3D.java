@@ -81,15 +81,6 @@ public class Space3D extends Space implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("Three-dimensional space");
         return info;
     }
-
-    public static final double r2(Vector u1, Vector u2, Boundary b) {
-    	return r2(u1, u2, b, new Vector());
-    }
-    public static final double r2(Vector u1, Vector u2, Boundary b, Vector work) {
-    	work.Ev1Mv2(u1, u2);
-        b.nearestImage(work);
-        return work.squared();
-    }  
     
     public static void main (String[] args) {
         Vector r1 = new Vector(2,2,3);
@@ -98,20 +89,20 @@ public class Space3D extends Space implements EtomicaElement {
         RotationTensor tensor2 = new RotationTensor();
         //r1.transform(tensor2);
         tensor2.E(tensor);
-        System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        System.out.println("tensor2_before " + tensor2.component(1,1) + "  " +tensor2.component(1,2) +"  "+tensor2.component(1,3) +"  "+tensor2.component(2,1) +"  "+tensor2.component(2,2) +"  "+tensor2.component(2,3) +"  "+tensor2.component(3,1) +"  "+tensor2.component(3,2) +"  "+tensor2.component(3,3)); 
         System.out.println();
         
         r1.transform(tensor2);
         System.out.println("r1_transform(tensor2)" + r1.toString());
         tensor2.invert();
-        System.out.println("tensor2_invert " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        System.out.println("tensor2_invert " + tensor2.component(1,1) + "  " +tensor2.component(1,2) +"  "+tensor2.component(1,3) +"  "+tensor2.component(2,1) +"  "+tensor2.component(2,2) +"  "+tensor2.component(2,3) +"  "+tensor2.component(3,1) +"  "+tensor2.component(3,2) +"  "+tensor2.component(3,3)); 
         tensor2.setAxial(1, 2*Math.PI);
-        System.out.println("tensor2_rotate_360 " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        System.out.println("tensor2_rotate_360 " + tensor2.component(1,1) + "  " +tensor2.component(1,2) +"  "+tensor2.component(1,3) +"  "+tensor2.component(2,1) +"  "+tensor2.component(2,2) +"  "+tensor2.component(2,3) +"  "+tensor2.component(3,1) +"  "+tensor2.component(3,2) +"  "+tensor2.component(3,3)); 
         System.out.println();
         
         r1.transform(tensor2);
         System.out.println("r1_afterInvert_andRotate360 " + r1.toString());
-        //System.out.println("tensor2 " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        //System.out.println("tensor2 " + tensor2.component(1,1) + "  " +tensor2.component(1,2) +"  "+tensor2.component(1,3) +"  "+tensor2.component(2,1) +"  "+tensor2.component(2,2) +"  "+tensor2.component(2,3) +"  "+tensor2.component(3,1) +"  "+tensor2.component(3,2) +"  "+tensor2.component(3,3)); 
     }
     
 }//end of Space3D
