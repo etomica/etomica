@@ -17,7 +17,6 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
     
     protected Unit unit;
     protected Controller controller;
-    protected Action targetAction;
     
     public Device() {
         this(null);
@@ -28,12 +27,22 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
         setName(NameMaker.makeName(this.getClass()));
     }
     
-    protected void doAction() {
-        if (targetAction == null) return;
+    /**
+     * Method called by subclasses to execute the action of the device.
+     * Action is specified by the subclass as the targetAction field; if
+     * this field is null, not action is performed.
+     * The action is normally performed by calling the doActionNow method
+     * of the controller, which causes the controller's thread to perform
+     * the action as soon as possible after suspending all simulation activities.
+     * If a controller has not been defined (is null), then the action is performed
+     * on the thread calling this method.
+     */
+    protected void doAction(Action action) {
+        if (action == null) return;
         if(controller != null) {
-            controller.doActionNow(targetAction);
+            controller.doActionNow(action);
         } else {
-            targetAction.actionPerformed();
+            action.actionPerformed();
         }
     }
       

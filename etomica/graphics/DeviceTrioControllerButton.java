@@ -34,11 +34,6 @@ public class DeviceTrioControllerButton extends Device {
 	private boolean firstResized = true;
 	private String shape;
 
-    
-    public DeviceTrioControllerButton(){
-        this(Simulation.instance);
-    }
-    
     /**
      * Constructor if instance of controller is not added.
      */

@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.Action;
 import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -46,7 +47,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     /**
      * Modifier connecting the slider to the property
      */
-    protected ModifyAction modifier;
+    protected ModifyAction modifyAction;
     /**
      * Subclass of Swing slider displayed to screen
      * located in utility package 
@@ -91,6 +92,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private GridBagConstraints gbConst; 
     private boolean showBorder = false;
     private int nMajor = 3;
+    protected Action targetAction;
     
     protected final ChangeEventManager changeEventManager = new ChangeEventManager(this);
     
@@ -163,18 +165,18 @@ public class DeviceSlider extends Device implements EtomicaElement {
     
     public final void setModifier(Modifier m) {
         if(m == null) throw new NullPointerException();
-        modifier = null;
-        if (unit == null) {
+        modifyAction = null;
+        if(unit == null) {
             setUnit(m.getDimension().defaultIOUnit());
         }
-        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));  
-        modifier = new ModifyAction(m);
-        targetAction = modifier;
+        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));        
+        modifyAction = new ModifyAction(m);
+        targetAction = modifyAction;//need to keep this distinct from modifyAction, in case subclasses want to do more than modifyAction when slider is moved
         setLabelDefault();
         setMinimum(getMinimum());
         setMaximum(getMaximum());
     }
-    public final Modifier getModifier() {return modifier.getWrappedModifier();}
+    public final Modifier getModifier() {return modifyAction.getWrappedModifier();}
     
     public String getProperty() {return property;}
     public void setProperty(String s) {
@@ -195,12 +197,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     public void setMinimum(double min) {
         minimum = min;
-        ModifyAction tmpModifier = modifier;
-        modifier = null;
+        ModifyAction tmpModifier = modifyAction;
+        modifyAction = null;
         slider.setDecimalSliderMinimum(min);
         slider.setInverted(maximum < minimum);
         setTicks();
-        modifier = tmpModifier;
+        modifyAction = tmpModifier;
     }
         
     public double getMaximum() {return maximum;}
@@ -210,12 +212,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     public void setMaximum(double max) {
         maximum = max;
-        ModifyAction tmpModifier = modifier;
-        modifier = null;
+        ModifyAction tmpModifier = modifyAction;
+        modifyAction = null;
         slider.setDecimalSliderMaximum(max);
         slider.setInverted(maximum < minimum);
         setTicks();
-        modifier = tmpModifier;
+        modifyAction = tmpModifier;
     }
     
     private boolean showMinorValues = false;
@@ -308,8 +310,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     private void setLabelDefault() {
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        if(modifier != null) 
-            setLabel(StringUtility.capitalize(modifier.getLabel())+suffix);
+        if(modifyAction != null) 
+            setLabel(StringUtility.capitalize(modifyAction.getLabel())+suffix);
     }
 
     /**
@@ -361,10 +363,10 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     private class SliderListener implements ChangeListener {
         public void stateChanged(ChangeEvent evt) {
-            if(modifier!=null) {
-                modifier.setValue(unit.toSim(slider.getDecimalSliderValue()));            
+            if(modifyAction!=null) {
+                modifyAction.setValue(unit.toSim(slider.getDecimalSliderValue()));            
                 textField.setText(String.valueOf(slider.getDecimalSliderValue()));
-                doAction();
+                doAction(targetAction);
                 changeEventManager.fireChangeEvent(evt);
             }
        }

@@ -36,7 +36,7 @@ public class DeviceNSelector extends DeviceSlider {
 	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(agent));
-        targetAction = new ActionGroup(new Action[]{modifier,restartAction});
+        targetAction = new ActionGroup(new Action[]{modifyAction,restartAction});
 	    
 	    if(agent.node.parentSpecies().getName() == "") {
 	        setLabel("Number of molecules");

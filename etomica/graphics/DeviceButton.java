@@ -29,7 +29,8 @@ public class DeviceButton extends Device implements EtomicaElement {
     }
     
     /**
-     * Constructs a button connected to the given action.
+     * Constructs a button connected to the given action.  Controller
+     * and action may be changed independently after construction.
      */
     public DeviceButton(Controller controller, Action action) {
         this(controller);
@@ -51,13 +52,13 @@ public class DeviceButton extends Device implements EtomicaElement {
     /**
      * Defines the action to be performed when the button is pressed.
      */
-    public void setAction(Action newAction) {
+    public void setAction(final Action newAction) {
         if(buttonAction != null) button.removeActionListener(buttonAction);
-        if(newAction == null) return;
         targetAction = newAction;
+        if(newAction == null) return;
         buttonAction = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                doAction();
+                doAction(targetAction);
             }
         };
         button.addActionListener(buttonAction);
@@ -86,6 +87,7 @@ public class DeviceButton extends Device implements EtomicaElement {
     
     private ActionListener buttonAction;
     private JButton button;
+    private Action targetAction;
     
     /**
      * Method to demonstrate and test the use of this class.  

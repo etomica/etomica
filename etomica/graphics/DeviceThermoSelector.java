@@ -46,7 +46,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                     isothermal = true;
                     temperature = unit.toSim(((Double)item).doubleValue());
                 }
-                doAction();
+                doAction(targetAction);
             }
         });
        
@@ -136,6 +136,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     private Integrator integrator;
     private boolean isothermal = false;
     private double temperature;
+    private Action targetAction;
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
