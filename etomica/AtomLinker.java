@@ -8,7 +8,6 @@ package etomica;
 public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
     public AtomLinker next, previous;
-    public static int HEADER_TAB = Tab.requestTabType();
     
     /**
      * Constructor throws exception if given atom is null.  Only
@@ -67,7 +66,7 @@ public class AtomLinker implements java.io.Serializable {
 	 * @return Tab
 	 */
 	public static Tab newHeader(AtomList list) {
-		return new Tab(list, HEADER_TAB);
+		return new Tab(list, Tab.HEADER_TAB);
 	}
 
     /**
@@ -82,6 +81,7 @@ public class AtomLinker implements java.io.Serializable {
         public AtomList list;
         private static int lastType = 0;
         public final int type;
+        public final static int HEADER_TAB = Tab.requestTabType();
         public final static int ANY_TAB = 0xFFFFFFFF;
         /**
          * Private constructor.  Use AtomLinker methods newTab or newHeader, as
@@ -102,7 +102,7 @@ public class AtomLinker implements java.io.Serializable {
         	}
         	// would java allow 32?
         	if (lastType == 1<<31) {
-        		throw new RuntimeException("too many tab types.  You can only have 31");
+        		throw new RuntimeException("Too many tab types.  You can only have 31");
         	}
         	lastType = lastType << 1;
         	return lastType;
@@ -114,7 +114,7 @@ public class AtomLinker implements java.io.Serializable {
          * Removes references to previous/next tabs while removing linker from list.
          */
         public void remove() {
-        	if(type == HEADER_TAB) throw new RuntimeException("Illegal attempt to remove header from list");
+        	if(isHeader()) throw new RuntimeException("Illegal attempt to remove header from list");
             super.remove();
 	        previousTab.nextTab = nextTab;
 	        nextTab.previousTab = previousTab;

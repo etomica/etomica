@@ -1,6 +1,5 @@
 package etomica;
 
-import etomica.units.UnitSystem;
 import etomica.log.LoggerAbstract;
 
 //Java2 imports
@@ -135,7 +134,7 @@ public class Simulation extends SimulationElement {
     int register(SimulationElement element) {
     	super.register(element);
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
-        if(list.contains(element)) return -1;
+        if(list == null || list.contains(element)) return -1;
         list.add(element);
         return list.size() - 1;
     }//end of register method
