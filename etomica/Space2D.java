@@ -492,7 +492,7 @@ public class Space2D extends Space implements EtomicaElement {
             r.x -= falseTime * (((Vector)u).x - p.x);
             r.y -= falseTime * (((Vector)u).y - p.y);
             p.x = ((Vector)u).x;
-            p.y = ((Vector)u).x;
+            p.y = ((Vector)u).y;
         }
 
         public void randomizeMomentum(double temperature) {
