@@ -132,12 +132,16 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
     	return pair;
     }
     
+    public AtomSet next() {
+        return nextPair();
+    }
+    
     /**
      * Returns the next pair of atoms. The same AtomPair instance
      * is returned every time, but the Atoms it holds are (of course)
      * different for each iterate. 
      */
-    public AtomSet next() {
+    public AtomPair nextPair() {
     	if(!hasNext) {return null;}
     	//Advance the inner loop, if it is not at its end.
     	if(aiInner.hasNext()) {

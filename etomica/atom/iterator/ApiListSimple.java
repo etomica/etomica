@@ -5,8 +5,8 @@
 package etomica.atom.iterator;
 
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
-import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
@@ -14,7 +14,7 @@ import etomica.atom.AtomList;
 /**
  * Returns all pairs formed from a single list of atoms.
  */
-public class ApiListSimple implements AtomsetIterator {
+public class ApiListSimple implements AtomPairIterator {
 
 	/**
 	 * Construct iterator with an empty list.  No iterates will
@@ -68,10 +68,14 @@ public class ApiListSimple implements AtomsetIterator {
 		nextOuter = list.header;
 	}
 
+    public AtomSet next() {
+        return nextPair();
+    }
+    
 	/**
 	 * Returns the next iterate pair.  Returns null if hasNext() is false.
 	 */
-	public AtomSet next() {
+	public AtomPair nextPair() {
 		if(!hasNext()) return null;
 		atoms.atom0 = nextOuter.atom;
 		atoms.atom1 = nextInner.atom;

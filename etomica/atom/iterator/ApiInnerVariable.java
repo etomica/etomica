@@ -3,8 +3,8 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
-import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 
 /**
@@ -21,7 +21,7 @@ import etomica.action.AtomsetAction;
   * 08/25/04 (DAK et al) new
   */
   
-public class ApiInnerVariable implements AtomsetIterator, ApiComposite {
+public class ApiInnerVariable implements AtomPairIterator, ApiComposite {
     
     /**
      * Construct a pair iterator using the given atom iterators.  Requires
@@ -141,12 +141,16 @@ public class ApiInnerVariable implements AtomsetIterator, ApiComposite {
     	return pair;
     }
     
+    public AtomSet next() {
+        return nextPair();
+    }
+    
     /**
      * Returns the next pair of atoms. The same Atom[] instance
      * is returned every time, but the Atoms it holds are (of course)
      * different for each iterate. 
      */
-    public AtomSet next() {
+    public AtomPair nextPair() {
     	if(!hasNext) return null;
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
