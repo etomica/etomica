@@ -29,12 +29,13 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
-    protected PotentialAgent phasePotential;
+    protected PotentialMaster phasePotential;
     private AtomPair atomPair;
     Space.Vector c3;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
+        phasePotential = sim.hamiltonian.potential;
         
     }//end of constructor
 
@@ -50,7 +51,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
           //need to modify to handle multiple-phase issues
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
-        phasePotential = p.potential();
         atomPair = new AtomPair(p);
         return true;
     }

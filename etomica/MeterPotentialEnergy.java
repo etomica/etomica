@@ -13,6 +13,7 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
     
     private IteratorDirective iteratorDirective;
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialMaster potential;
     
     public MeterPotentialEnergy() {
         this(Simulation.instance);
@@ -21,6 +22,7 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
         super(sim);
         setLabel("Potential Energy");
         iteratorDirective = new IteratorDirective();
+        potential = sim.hamiltonian.potential;
     }
       
     public static EtomicaInfo getEtomicaInfo() {
@@ -46,7 +48,9 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        return phase.potential().calculate(iteratorDirective, energy.reset()).sum();
+        potential.set(phase).calculate(iteratorDirective, energy.reset());
+        return energy.sum();
+//        return potential.set(phase).calculate(iteratorDirective, (PotentialCalculation.Sum)energy.reset()).sum();
     }
     
 }//end of MeterPotentialEnergy

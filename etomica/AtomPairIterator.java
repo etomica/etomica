@@ -46,10 +46,10 @@ public class AtomPairIterator implements java.io.Serializable {
     /**
      * Constructs an iterator of all pairs formed from the given species in the given phase.
      */
-     public AtomPairIterator(Phase p, Species species1, Species species2) {
+/*     public AtomPairIterator(Phase p, Species species1, Species species2) {
         this(p, species1.getAgent(p).new LeafAtomIterator(),
                 species2.getAgent(p).new LeafAtomIterator());
-     }
+     }*/
     /**
      * Construct a pair iterator for the given phase, using the given atom iterators
      */
@@ -60,6 +60,11 @@ public class AtomPairIterator implements java.io.Serializable {
         ai1 = iter1;
         ai2 = iter2;
         direction = IteratorDirective.UP;
+    }
+    
+    public void setBasis(Atom a1, Atom a2) {
+        ai1.setBasis(a1);
+        ai2.setBasis(a2);
     }
     
     public final boolean hasNext() {return hasNext;}
@@ -186,7 +191,7 @@ public class AtomPairIterator implements java.io.Serializable {
         public void reset(IteratorDirective id) {}
     }
     
-    public static void main(String[] args) throws java.io.IOException {
+/*    public static void main(String[] args) throws java.io.IOException {
         
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
         Simulation.instance = new Simulation();
@@ -294,6 +299,6 @@ public class AtomPairIterator implements java.io.Serializable {
         line = in.readLine();
         System.exit(0);
     }//end of main
-    
+ */   
 }  //end of class AtomPairIterator
     

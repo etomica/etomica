@@ -226,7 +226,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
 
    //     etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
    //     Simulation.instance = sim;
@@ -267,7 +267,8 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
                                             
 		Simulation.instance.elementCoordinator.go(); 		                                    
         Simulation.makeAndDisplayFrame(Simulation.instance);
-    }
+    }//end of main  
+    */
 
     
     

@@ -15,7 +15,7 @@ package etomica;
  //of the phase by the parent potential, since this is probably a common situation for
  //one-body potentials
  
-public class P1HardBoundary extends Potential1 implements Potential1Hard {
+public class P1HardBoundary extends Potential1Hard {
     
     public String getVersion() {return "P1HardBoundary:01.06.29/"+Potential1.VERSION;}
 

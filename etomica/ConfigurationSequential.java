@@ -14,6 +14,7 @@ import java.awt.*;
 public class ConfigurationSequential extends Configuration {
 
     private boolean fill;
+    private final AtomIteratorSequential iterator = new AtomIteratorSequential();
     
     public ConfigurationSequential(Space space) {
         super(space);
@@ -63,7 +64,7 @@ public class ConfigurationSequential extends Configuration {
         int i = 0;
         for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            AtomIterator iterator = s.childIterator;
+            iterator.setBasis(s);
             iterator.reset();
             while(iterator.hasNext()) {
                 iterator.next().coord.translateTo(rLat[i]);

@@ -5,7 +5,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class AtomGroup extends Atom {
+public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
     
     protected int childCount;
     protected int atomCount;
@@ -212,12 +212,12 @@ public class AtomGroup extends Atom {
     public boolean isResizable() {return resizable;}
 //    public void setResizable(boolean b) {resizable = b;}
     
-    public AtomIterator makeChildAtomIterator() {return new ChildAtomIterator();}
-    public AtomIterator makeLeafAtomIterator() {return new LeafAtomIterator();}
+//    public AtomIterator makeChildAtomIterator() {return new ChildAtomIterator();}
+//    public AtomIterator makeLeafAtomIterator() {return new LeafAtomIterator();}
     /**
      * Iterator of the children of this group.
      */
-    public final AtomIteratorSequential childIterator = new ChildAtomIterator();
+/*    public final AtomIteratorSequential childIterator = new ChildAtomIterator();
     
     public final class ChildAtomIterator extends AtomIteratorSequential {
         public Atom defaultFirstAtom() {return firstChild();}
@@ -229,6 +229,7 @@ public class AtomGroup extends Atom {
         public Atom defaultLastAtom() {return lastLeafAtom();}
         public boolean contains(Atom a) {return a.isDescendedFrom(AtomGroup.this);}
     }
+    */
     /**
      * Indicates whether the children of this group are themselves atom groups,
      * or are leaf atoms.
@@ -254,6 +255,8 @@ public class AtomGroup extends Atom {
     protected final void setFirstChild(Atom atom) {((Space.CoordinateGroup)coord).setFirstChild(atom);}
     public final Atom lastChild() {return ((Space.CoordinateGroup)coord).lastChild();}
     protected final void setLastChild(Atom atom) {((Space.CoordinateGroup)coord).setLastChild(atom);}
+    public final Atom firstAtom() {return firstChild();}
+    public final Atom lastAtom() {return lastChild();}
 /*
     //alternative approach that doesn't delegate link structure to coordinates
     private Atom firstChild;

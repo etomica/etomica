@@ -39,7 +39,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public Mediator elementCoordinator;
     private HashMap elementLists = new HashMap(16);
-    private final PotentialMaster potentialMaster = new PotentialMaster(this);
+    
+    public final Hamiltonian hamiltonian = new Hamiltonian(this);
     
    /**
     * Object describing the nature of the physical space in which the simulation is performed
@@ -197,10 +198,10 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public final LinkedList deviceList() {return deviceList;}
   
     public void register(Simulation.Element element) {
-        if(element == potentialMaster || potentialMaster == null) return;
+        if(hamiltonian == null || element == hamiltonian.potential) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(list.contains(element)) return;
-        if(element instanceof P2IdealGas) return;
+        if(element instanceof Potential) hamiltonian.potential.addPotential((Potential)element);
         element.setName(element.getClass().getName().substring(8) + Integer.toString(list.size()));
         list.add(element);
         allElements.add(element);
@@ -279,8 +280,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         return list;
     }
     
-    public final PotentialGroup potentialMaster() {return potentialMaster;}
-            
     /**
      * Accessor of the first species in the linked list of species
      */
@@ -392,7 +391,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesDisks speciesDisks = new SpeciesDisks();
@@ -419,6 +418,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         
      //   controller.start();
     }//end of main
+    */
 }
 
 

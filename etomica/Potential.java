@@ -1,29 +1,18 @@
 package etomica;
 
-//Java2 imports
-//import java.util.HashMap;
-//import java.util.Iterator;
-
-import etomica.utility.HashMap;
-import etomica.utility.Iterator;
-
 /**
  * Superclass for all Potential classes
+ *
+ * @author David Kofke
  */
 public abstract class Potential implements Simulation.Element, java.io.Serializable {
     
-    public static String VERSION = "Potential:01.06.28";
+    public static String VERSION = "Potential:01.07.22";
     
     private final Simulation parentSimulation;
     private boolean added = false;
     private String name, label;
     
-    /**
-     * Hashtable to associate agents with phases
-     * Agent is placed in hashmap of potential in the constructor of PotentialAgent.
-     */
-    final HashMap agents = new HashMap();
-
     public Potential(Simulation sim) {
         parentSimulation = sim;
         parentSimulation.register(this);
@@ -40,30 +29,10 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
     public final void setLabel(String text) {label = text;}
     public String toString() {return label;}
         
-    public abstract PotentialAgent makeAgent(Phase p);
-
-    /**
-     * Returns the agent of this species in the given phase.
-     * Hashmap is used to connect phase(key)-agent(value) pairs.
-     * Agent is placed in hashmap of potential in the agent's constructor.
-     * 
-     * @param p The phase for which this species' agent is requested
-     * @return The agent of this species in the phase
-     */
-    public final PotentialAgent getAgent(Phase p) {return (PotentialAgent)agents.get(p);}
+    public abstract void calculate(IteratorDirective id, PotentialCalculation pc);
     
-    /**
-     * Resets integrators in all phases in which the potential has an agent.
-     */
-    public void resetIntegrators() {
-        Iterator e = agents.values().iterator();
-        while(e.hasNext()) {
-            PotentialAgent agent = (PotentialAgent)e.next();
-            if(agent.parentPhase().integrator() != null)
-                agent.parentPhase().integrator().reset();
-        }
-    }
+    //Sets the basis for iteration
+    public abstract Potential set(Atom a);
+    public abstract Potential set(Atom a1, Atom a2);
     
-    public final HashMap agents() {return agents;}
- 
 }//end of Potential

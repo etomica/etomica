@@ -6,11 +6,12 @@ package etomica;
  *
  * @author David Kofke
  */
-public class IteratorDirective implements java.io.Serializable {
+public final class IteratorDirective implements java.io.Serializable {
     
     private Atom atom1, atom2;
     private Direction direction;
     private int atomCount;
+    private Phase phase;
     PotentialCriterion potentialCriteriaHead;
     
     public IteratorDirective() {
@@ -26,6 +27,7 @@ public class IteratorDirective implements java.io.Serializable {
      */
     public void copy(IteratorDirective id) {
         direction = id.direction();
+        phase = id.phase();
         atom1 = id.atom1();
         atom2 = id.atom2();
         if(atom1 == null) atomCount = 0;
@@ -59,14 +61,19 @@ public class IteratorDirective implements java.io.Serializable {
         this.direction = direction;
         return this;
     }
+    public final IteratorDirective set(Phase phase) {
+        this.phase = phase;
+        return this;
+    }
 
     public final int atomCount() {return atomCount;}
     public final Direction direction() {return direction;}
+    public final Phase phase() {return phase;}
     
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
     
-    public final boolean excludes(PotentialAgent p) {
+    public final boolean excludes(Potential p) {
         for(PotentialCriterion crit=potentialCriteriaHead; crit!=null; crit=crit.nextCriterion()) {
             if(crit.excludes(p)) return true;
         }
@@ -124,7 +131,7 @@ public class IteratorDirective implements java.io.Serializable {
          * Note that any subclasses should be sure to override clone method if more than
          * a shallow copy is appropriate.
          */
-        public abstract boolean excludes(PotentialAgent pot);
+        public abstract boolean excludes(Potential pot);
         
         //Linked-list constructs
         private PotentialCriterion nextCriterion;

@@ -232,7 +232,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10);
@@ -307,9 +307,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 }
                 System.out.println();
 	        }
-	    });*/
+	    });* /
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-
+*/
 }//end of IntegratorHard
 

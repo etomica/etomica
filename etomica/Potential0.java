@@ -17,36 +17,17 @@ public abstract class Potential0 extends Potential {
         super(sim);
     }
               
-    public PotentialAgent makeAgent(Phase p) {return new Agent(this, p);}
-    
-   
-    //***************** end of methods for Potential0 class *****************//
-    
-    //Potential0.Agent
-    public class Agent extends PotentialAgent {
-
-        protected Potential0 parentPotential0;
-        
-        /**
-         * @param potential The parent potential making this agent
-         * @param phase The phase in which this agent will be placed
-         */
-        public Agent(Potential potential, Phase phase) {
-            super(potential, phase);
-            parentPotential0 = (Potential0)potential;
-        }
         
         /**
          * No iterator is needed; this method has no action.
          */
-        protected void makeDefaultIterator() { }
+ //       protected void makeDefaultIterator() { }
             
-        public void calculate(IteratorDirective id, PotentialCalculation pc) {
-   //         if( !(pc instanceof Potential0Calculation) ) return;
-            ((Potential0Calculation)pc).calculate(parentPotential0); 
-        }
+    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+//         if( !(pc instanceof Potential0Calculation) ) return;
+        ((Potential0Calculation)pc).calculate(parentPotential0); 
+    }
         
-    }//end of Agent    
 }//end of Potential0
 
 

@@ -8,7 +8,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class P2HardSphere extends Potential2 implements Potential2Hard, EtomicaElement {
+public class P2HardSphere extends Potential2Hard implements EtomicaElement {
     
     public String getVersion() {return "P2HardSphere:01.07.03/"+Potential2.VERSION;}
 

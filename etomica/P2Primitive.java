@@ -60,7 +60,13 @@ public class P2Primitive extends Potential2 implements EtomicaElement {
             force.TE(-c/r2);
         }
         return force;
-    }            
+    }   
+    
+    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+        if( !(pc instanceof Potential2Calculation) ) return;
+        iterator.reset(id);
+        ((Potential2Calculation)pc).calculate(iterator, this); 
+    }//end of calculate
      
     /**
      * Accessor method for the size of the repulsive core of the primitive model

@@ -5,7 +5,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
+public abstract class Potential2SoftSpherical extends Potential2Soft {
    
    public static String VERSION = "Potential2SoftSpherical:01.07.05/"+Potential2.VERSION;
    
@@ -64,5 +64,4 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     public double integral(double rC) {
         return uInt(rC);
     }
-    
 }//end of Potential2SoftSpherical

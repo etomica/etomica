@@ -9,7 +9,7 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1Harmonic extends Potential1 implements Potential1Soft {
+public class P1Harmonic extends Potential1Soft {
     
     public String getVersion() {return "P1Harmonic:01.07.07/"+Potential1.VERSION;}
 

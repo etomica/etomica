@@ -12,7 +12,7 @@ import etomica.statmech.MaxwellBoltzmann;
  * @author David Kofke
  */
  
-public class P2HardDiskWall extends Potential2 implements Potential2Hard, EtomicaElement {
+public class P2HardDiskWall extends Potential2Hard implements EtomicaElement {
     
     public final String getVersion() {return "PotentialHardDiskWall:01.02.15/"+Potential.VERSION;}
 

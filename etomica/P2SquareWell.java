@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
  */
-public class P2SquareWell extends Potential2 implements Potential2Hard, EtomicaElement {
+public class P2SquareWell extends Potential2Hard implements EtomicaElement {
 
   public String getVersion() {return "PotentialSquareWell:01.07.07/"+Potential.VERSION;}
 

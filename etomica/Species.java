@@ -88,16 +88,16 @@ public class Species implements Simulation.Element, java.io.Serializable {
     /**
      * Returns an iterator of this species (leaf) atoms in the given phase.
      */
-    public AtomIterator makeAtomIterator(Phase p) {
+/*    public AtomIterator makeAtomIterator(Phase p) {
         return getAgent(p).new LeafAtomIterator();
     }
     /**
      * Returns an iterator of this species agent's children (molecules) in the given phase.
-     */
+     * /
     public AtomIterator makeMoleculeIterator(Phase p) {
         return getAgent(p).new ChildAtomIterator();
     }
-        
+*/        
     /**
      * Nominal number of molecules of this species in each phase.
      * Actual number may differ if molecules have been added or removed to/from the phase

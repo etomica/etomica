@@ -60,7 +60,7 @@ public class AtomFactoryHomo extends AtomFactory {
     public boolean vetoAddition(Atom a) {return (a.creator() != childFactory);} 
         
     public void renew(Atom a) {//need an exception in the case a is unrenewable
-        if(a.type != groupType) return;  //throw exception
+/*        if(a.type != groupType) return;  //throw exception
         AtomGroup group = (AtomGroup)a;
         int childCount = group.childCount();
         if(atomsPerGroup > childCount) {
@@ -73,7 +73,7 @@ public class AtomFactoryHomo extends AtomFactory {
         while(group.childIterator.hasNext()) {
             childFactory.renew(group.childIterator.next());
         }
-        configuration.initializeCoordinates(group);
+        configuration.initializeCoordinates(group);*/
     }       
         
     /**

@@ -8,7 +8,7 @@ package etomica;
  * @author David Kofke
  */
 
-public class SpeciesAgent extends AtomGroup {
+public final class SpeciesAgent extends AtomGroup {
 
     private final Species parentSpecies;
     protected final AtomFactory factory;

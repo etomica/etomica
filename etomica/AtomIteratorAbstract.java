@@ -14,36 +14,55 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
     protected transient Atom atom, terminator;
     protected transient Atom setAtom, terminator2;
     protected IteratorDirective.Direction direction;
+    protected Atom basis;
+    private boolean isLeafIterator;
 
     /**
      * Construct iterator with default configuration of direction == UP
      * Not set to iterate until a reset method is invoked.
      */
     public AtomIteratorAbstract() {
+        this(false);
+    }
+    public AtomIteratorAbstract(boolean isLeaf) {
         hasNext = false;
         direction = IteratorDirective.UP;
+        isLeafIterator = isLeaf;
  //       reset(new IteratorDirective().set().set(IteratorDirective.UP));
     }
+    
+    public void setBasis(Atom basis) {this.basis = basis;}
+    public Atom getBasis() {return basis;}
     
     /**
      * Natural first atom returned by this iterator.  First atom actually returned
      * may differ due to call to reset(Atom) or reset(Atom, Atom), or becuase 
-     * initiation flag indicates skipping first atom.
+     * isAsNeighbor flag indicates skipping first atom.
      */
-    public abstract Atom defaultFirstAtom();
+    public final Atom defaultFirstAtom() {
+        return isLeafIterator ? basis.firstLeafAtom() : basis.firstAtom();
+    }
     
     /**
      * Natural last atom returned by this iterator.  Last atom returned may differ
      * due to call to reset(Atom, Atom).
      */
-    public abstract Atom defaultLastAtom();
+    public final Atom defaultLastAtom() {
+        return isLeafIterator ? basis.lastLeafAtom() : basis.lastAtom();
+    }
     
     /**
      * Indicates if the given atom is among the iterates returned by this iterator.
      *
      * @return <code>true</code> if atom is one of the iterates.
      */
-    public abstract boolean contains(Atom atom);
+    public boolean contains(Atom atom) {
+        if(!(basis instanceof AtomGroup)) return atom == basis;
+        else if(isLeafIterator) return (atom != null) && 
+                                  !(atom instanceof AtomGroup) &&
+                                  atom.isDescendedFrom((AtomGroup)basis);
+        else return atom.parentGroup() == basis;
+    }
 
     /**
      * Returns true if atom1 preceeds atom2 in the up-direction sequence of iterates
@@ -123,8 +142,8 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
         applyDirection(); //need to reapply because upListNow may have been changed during previous iteration
 ///        if(setAtom == null) setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
 //        setAtom = (upListNow ? defaultFirstAtom() : defaultLastAtom());
-        setAtom = defaultFirstAtom();
-        return reset(setAtom);
+//        setAtom = defaultFirstAtom();
+        return reset(defaultFirstAtom());
 /*        if(isNeighborIterator) atom = null;
         else if(upListNow) atom = reset(defaultFirstAtom());
         else if(doGoDown) atom = reset(defaultLastAtom());

@@ -11,7 +11,7 @@
  *
  * @author David Kofke
  */
-public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
+public class AtomIteratorSequential extends AtomIteratorAbstract  {
 
     /**
      * Initial state is hasNext = false.
@@ -19,6 +19,14 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
     public AtomIteratorSequential() {
         super();
     }
+    public AtomIteratorSequential(Atom a) {
+        this(a, false);
+    }
+    public AtomIteratorSequential(Atom a, boolean isLeafIterator) {
+        super(isLeafIterator);
+        setBasis(a);
+    }
+    
     
     public Atom firstUpNeighbor(Atom a) {
         Atom first = defaultFirstAtom();

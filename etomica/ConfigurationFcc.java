@@ -3,6 +3,7 @@ import etomica.lattice.*;
 
 public class ConfigurationFcc extends Configuration {
     
+    private AtomIteratorSequential iterator = new AtomIteratorSequential();
     public ConfigurationFcc(Space space) {
         super(space);
     }
@@ -28,7 +29,7 @@ public class ConfigurationFcc extends Configuration {
         int i = 0;
         for(SpeciesAgent s=parentPhase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            AtomIterator iterator = s.childIterator;
+            iterator.setBasis(s);
             iterator.reset();
             while(iterator.hasNext()) {
                 iterator.next().coord.translateTo(rLat[i]);

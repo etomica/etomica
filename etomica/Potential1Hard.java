@@ -5,9 +5,12 @@ package etomica;
  * A hard potential describes impulsive interactions, in which the energy undergoes a step
  * change at some point in the space.
  */
-public interface Potential1Hard extends PotentialHard {
+public abstract class Potential1Hard extends Potential1 implements PotentialHard {
 
-   public double energy(Atom atom);
+    public Potential1Hard(Simulation sim) {
+        super(sim);
+    }
+   public void bump(AtomPair pair) {bump(pair.atom1());}
    
  /**
   * Implements the collision dynamics.
@@ -15,13 +18,13 @@ public interface Potential1Hard extends PotentialHard {
   * to change its momentum according to the action of the collision.  Extensions can be defined to
   * instead implement other, perhaps unphysical changes.
   */
-    public void bump(Atom atom);
+    public abstract void bump(Atom atom);
 
  /**
   * Computes the time of collision of the given atom with the hard potential, assuming no intervening collisions.
   * Usually assumes free-flight between collisions
   */ 
-    public double collisionTime(Atom atom);
+    public abstract double collisionTime(Atom atom);
             
-}  //end of Potential1.Hard
+}  //end of Potential1Hard
 

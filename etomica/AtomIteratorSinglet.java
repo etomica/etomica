@@ -31,6 +31,8 @@ public class AtomIteratorSinglet implements AtomIterator {
      */
     public Atom getAtom() {return atom;}
     
+    public void setBasis(Atom a) {setAtom(a);}
+    
     /**
      * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).
      */
@@ -61,7 +63,7 @@ public class AtomIteratorSinglet implements AtomIterator {
     }
     
     /**
-     * Sets the given atom as the one returned by the iterator if INCLUDE_FIRST.
+     * Sets the given atom as the one returned by the iterator.
      */
     public Atom reset(Atom a) {
         if(atom == null) hasNext = false;

@@ -2,40 +2,46 @@ package etomica;
 
 /**
  * Master potential that sits that the top of the hierarchy of
- * potentials in a simulation.  Agents from master potential form
- * the base of all potential agents in each phase.
+ * potentials in a simulation.  
  *
  * @author David Kofke
  */
-public class PotentialMaster extends PotentialGroup {
+public final class PotentialMaster extends Potential1Group /*implements java.io.Serializable */{
     
+    private PotentialLinker first;
+    private SpeciesMaster speciesMaster;
+
     public PotentialMaster(Simulation sim) {
         super(sim);
     }
     
-    public PotentialAgent makeAgent(Phase p) {
-        return new Agent(this, p);
+    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
+            link.potential.calculate(id, pc);
+        }//end for
+    }//end calculate
+        
+/*    public final PotentialCalculation.Sum calculate(IteratorDirective id, PotentialCalculation.Sum pa) {
+        this.calculate(id, (PotentialCalculation)pa);
+        return pa;
     }
-    
-    //---------------------------------------//
-    
-    public class Agent extends PotentialGroup.Agent {
-        
-        public Agent(Potential potential, Phase phase) {
-            super(potential, phase);
-        }
-        
-        /**
-         * Convenience extension of calculate method in PotentialAgent.  This method 
-         * is applied if the PotentialCalculation argument implements PotentialCalculation.Sum.
-         * The method returns this argument so that the sum can be accessed in-line with the call
-         * to the calculate method.
-         */
-        public final PotentialCalculation.Sum calculate(IteratorDirective id, PotentialCalculation.Sum pa) {
-            super.calculate(id, pa);
-            return pa;
-        }
-        
-    }//end of Agent
-}//end of PotentialGroup
+                
+    public void addPotential(Potential potential) {
+        first = new PotentialLinker(potential, first);
+        potential.set(speciesMaster);
+    }
+*/
+    //Sets the basis for iteration
+    public Potential set(Atom a) {
+        speciesMaster = (SpeciesMaster)a;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            link.potential.set(speciesMaster);
+        }//end for
+        return this;
+    }
+//    public Potential set(Atom a1, Atom a2) {return null;} //exception?
+    public Potential set(Phase p) {return set(p.speciesMaster);}
+
+}//end of PotentialMaster
     

@@ -35,6 +35,11 @@ public class Atom implements java.io.Serializable {
     public void setParentGroup(AtomGroup parent) {parentGroup = parent;}
     
     public int atomCount() {return (type instanceof AtomType.Wall) ? 0 : 1;}
+    
+    public Atom firstAtom() {return this;}
+    public Atom lastAtom() {return this;}
+    public Atom firstLeafAtom() {return this;}
+    public Atom lastLeafAtom() {return this;}
 
     /**
      * Simulation in which this atom resides

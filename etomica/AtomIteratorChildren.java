@@ -21,16 +21,20 @@ public final class AtomIteratorChildren implements AtomIterator {
     /**
      * @param iterator the iterator of the parent atoms.
      */      
-    public AtomIteratorChildren(AtomIterator iterator) {
-        parentIterator = iterator;
+    public AtomIteratorChildren(AtomGroup group) {
+        parentIterator = new AtomIteratorSequential(group);
     }
     
     public boolean hasNext() {return hasNext;}
     
+    public void setBasis(Atom a) {
+        parentIterator.setBasis(a);
+    }
+    
     public boolean contains(Atom atom) {
         parentIterator.reset();
         while(parentIterator.hasNext()) {
-            if(((AtomGroup)parentIterator.next()).childIterator.contains(atom)) return true;
+            if(atom.parentGroup() == parentIterator.next()) return true;
         }
         return false;
     }
@@ -51,7 +55,7 @@ public final class AtomIteratorChildren implements AtomIterator {
         parentIterator.setAsNeighbor(setAsNeighbor);
         parentIterator.reset();
         while(parentIterator.hasNext()) {
-            currentIterator = ((AtomGroup)parentIterator.next()).childIterator;
+            currentIterator.setBasis(parentIterator.next());
             currentIterator.setAsNeighbor(setAsNeighbor);
             atom = currentIterator.reset(directive);
             if(currentIterator.hasNext()) {hasNext = true; break;}
@@ -63,8 +67,7 @@ public final class AtomIteratorChildren implements AtomIterator {
         Atom next = currentIterator.next();
         while(!currentIterator.hasNext()) {
             if(parentIterator.hasNext()) {
-                currentIterator = ((AtomGroup)parentIterator.next()).childIterator;
-                currentIterator.setAsNeighbor(setAsNeighbor);
+                currentIterator.setBasis(parentIterator.next());
                 currentIterator.reset(directive);
             }
             else {

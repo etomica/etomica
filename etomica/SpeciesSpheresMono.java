@@ -62,7 +62,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,3);
@@ -102,7 +102,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
 	}//end of main
-
+*/
 }
 
 

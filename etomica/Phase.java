@@ -46,7 +46,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     private PhaseAction.Inflate inflater;
     private String name;
     private final Simulation parentSimulation;
-    public final PotentialMaster.Agent potential;
     public final SpeciesMaster speciesMaster;
     private boolean added = false;
     
@@ -57,10 +56,8 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     public Phase(Simulation sim) {
         parentSimulation = sim;
         
-        potential = (PotentialMaster.Agent)sim.potentialMaster().makeAgent(this);
         speciesMaster = new SpeciesMaster(this);
         
-        atomIterator = makeAtomIterator();
         moleculeIterator = makeMoleculeIterator();//must come after speciesMaster assignment
         
         inflater = new PhaseAction.Inflate(this);
@@ -151,11 +148,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         int i = (int)(moleculeCount() * Simulation.random.nextDouble());
         return molecule(i);
     }
-
-     /**
-      * Accessor method for the potential governing all interactions in this phase.
-      */
-      public PotentialMaster.Agent potential() {return potential;}
       
       public SpeciesMaster speciesMaster() {return speciesMaster;}
      
@@ -318,10 +310,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
    //     iteratorFactory.reset();  
     }
     
-    public void addPotential(Potential pot) {
-        potential.addPotential(pot);
-    }
-    
     /**
      * Adds the given molecule to this phase, placing it in the molecule/atom linked lists
      * and removing it from the container it previously resided.
@@ -437,11 +425,8 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * Makes an iterator that loops through all the (leaf) atoms present in this phase.
      */
     public AtomIterator makeAtomIterator() {
-        return new AtomIteratorSequential() {
-            public Atom defaultFirstAtom() {return Phase.this.firstAtom();}
-            public Atom defaultLastAtom() {return Phase.this.lastAtom();}
-            public boolean contains(Atom a) {return a != null && a.parentPhase() == Phase.this;}
-        };
+        return new AtomIteratorSequential(speciesMaster, true); //instead make an enumerated type to key for leaf iterator
+    //        public boolean contains(Atom a) {return a != null && a.parentPhase() == Phase.this;}
     }
     
     /**
@@ -449,7 +434,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * (children of the species agents) in this phase.
      */
     public AtomIterator makeMoleculeIterator() {
-        return new AtomIteratorChildren(speciesMaster.new ChildAtomIterator());
+        return new AtomIteratorChildren(speciesMaster);
     }//end of makeMoleculeIterator
     
     /**
@@ -457,7 +442,8 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * derived from the given species in this phase.
      */
     public AtomIterator makeAtomIterator(Species s) {
-        return ((SpeciesAgent)s.getAgent(this)).new LeafAtomIterator();
+        return new AtomIteratorSequential((SpeciesAgent)s.getAgent(this), true); //instead make an enumerated type to key for leaf iterator
+//        return ((SpeciesAgent)s.getAgent(this)).new LeafAtomIterator();
     }
 
     /**
@@ -465,9 +451,10 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * of the given species in this phase.
      */
     public AtomIterator makeMoleculeIterator(Species s) {
-        return ((SpeciesAgent)s.getAgent(this)).new ChildAtomIterator();
+        return new AtomIteratorSequential((SpeciesAgent)s.getAgent(this));
+ //       return ((SpeciesAgent)s.getAgent(this)).new ChildAtomIterator();
     }
-    public final AtomIterator atomIterator;
+//    public final AtomIterator atomIterator;
     public final AtomIterator moleculeIterator;
     
 } //end of Phase
