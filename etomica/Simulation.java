@@ -31,13 +31,14 @@ public class Simulation extends Container {
   public void add(Phase p) {
     super.add(p);
     phases.addElement(p);
+    p.parentSimulation = this;
     if(haveIntegrator()) {
         p.addPhaseIntegratorListener(controller.integrator);
         p.gravity.addObserver(controller.integrator);
     }
   }
   
-  private boolean haveIntegrator() {
+  public boolean haveIntegrator() {
     return (controller != null && controller.integrator != null);
   }
   

@@ -10,7 +10,7 @@ public class MeterTemperature extends simulate.Meter
         super();
     }
 
-    public double currentValue(Phase phase)
+    public double currentValue()
     {
         // This method is derived from class simulate.Meter
         // to do: code goes here

@@ -194,6 +194,12 @@ public final class Phase extends Container {
   */
   public double initialTemperature = 300.;
   
+  Simulation parentSimulation;
+  Meter firstMeter, lastMeter;
+  private int nMeters = 0;
+  
+  private Potential1 p1Null = new P1Null();
+  private Potential2 p2IdealGas = new P2IdealGas();
   /********************Eliza's Code**********************/
   /*//Frame for choosing Initial Configuration
   Frame choice = new Frame();
@@ -419,17 +425,18 @@ public final class Phase extends Container {
  
     public void add(Species species) {
         super.add(species);
-        species.initializeSpecies(this);
+        if(space != null) species.initializeSpecies(this);
         configuration.add(species);
         speciesVector.addElement(species);
-        if(speciesCount > 0) {lastSpecies.setNextSpecies(species);}
+        if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
         setFirstMolecule();
         setLastMolecule();
-        speciesCount++;
         for(Molecule m=species.firstMolecule; m!=null; m=m.getNextMolecule()) {nMoleculeTotal++;}
         for(Atom a=species.firstAtom; a!=null; a=a.getNextAtom()) {nAtomTotal++;}
+        if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
+/*        speciesCount++;
         potential1 = new Potential1[speciesCount];
         potential2 = new Potential2[speciesCount][speciesCount];
         potential1[0] = new P1Null();
@@ -441,7 +448,34 @@ public final class Phase extends Container {
                 potential2[i][j] = potential2[0][0];
                 potential2[j][i] = potential2[i][j];
             }
-        }   
+        }
+        */
+    }
+    
+    /* Resizes potential arrays, keeping all elements already filled in, and
+       setting to p1Null or p2IdealGas the newly formed elements
+       */
+    private void setSpeciesCount(int n) {
+        Potential1 p1[] = new Potential1[n];
+        Potential2 p2[][] = new Potential2[n][n];
+        for(int i=0; i<speciesCount; i++) {
+            p1[i] = potential1[i];
+            p2[i][i] = potential2[i][i];
+            for(int j=i+1; j<speciesCount; j++) {
+                p2[i][j] = p2[j][i] = potential2[i][j];
+                
+            }
+        }
+        for(int i=speciesCount; i<n; i++) {
+            p1[i] = p1Null;
+            p2[i][i] = p2IdealGas;
+            for(int j=0; j<n; j++) {
+                p2[i][j] = p2[j][i] = p2IdealGas;
+            }
+        }
+        potential1 = p1;
+        potential2 = p2;
+        speciesCount = n;
     }
     
     public final void setFirstMolecule() {
@@ -473,7 +507,13 @@ public final class Phase extends Container {
         space.setBounds(0,0,w,h);
         space.setScale(nominalScale, imageShells);
         resetTO_PIXELS();
-        
+        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {s.initializeSpecies(this);}
+        for(int i = 0; i < speciesCount; i++) {
+            if(potential1[i] != null) potential1[i].setSpace(space);
+            for(int j = i; j < speciesCount; j++) {
+                if(potential2[i][j] != null) potential2[i][j].setSpace(space);
+            }
+        }   
         // Instantiate some things for double-buffering here because cannot be done in Phase's constructor
         if(offScreenImage==null) {
             offScreenImage = this.createImage(getSize().width,getSize().height);
@@ -484,24 +524,28 @@ public final class Phase extends Container {
     public void add(Potential1 p1) {
         super.add(p1);
         p1.setPhase(this);
-        p1.setSpace(this.space);
+        if(space != null) p1.setSpace(space);
+        if(p1.speciesIndex+1 > speciesCount) {setSpeciesCount(p1.speciesIndex+1);}
         this.potential1[p1.speciesIndex] = p1;
     }
     
     public void add(Potential2 p2) {
         super.add(p2);
         p2.setPhase(this);
-        p2.setSpace(this.space);
+        if(space != null) p2.setSpace(space);
+        int idx = Math.max(p2.species1Index,p2.species2Index);
+        if(idx+1 > speciesCount) {setSpeciesCount(idx+1);}
         this.potential2[p2.species1Index][p2.species2Index] = p2;
         this.potential2[p2.species2Index][p2.species1Index] = p2;
-        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
+/*        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
             if(p2.species1Index == s.getSpeciesIndex() || p2.species2Index == s.getSpeciesIndex()) {
                 double d = 0.25*p2.skinThickness*p2.skinThickness;
                 if(d < s.getNeighborUpdateSquareDisplacement()) {
                     s.setNeighborUpdateSquareDisplacement(d);
                 }
             }
-        }
+          }
+        */
     }
     
     public void add(Configuration c){
@@ -511,6 +555,25 @@ public final class Phase extends Container {
         }
     }
     
+	public void add(Meter m) {
+	    if(firstMeter == null) {firstMeter = m;}
+	    if(lastMeter != null) {lastMeter.setNextMeter(m);}
+	    lastMeter = m;
+	    nMeters++;
+	    m.phase = this;
+	    if(parentSimulation.haveIntegrator()) {
+	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
+	    }
+	}
+	
+	// Returns ith meter in linked list of meters, with i=0 being the first meter
+	public Meter getMeter(int i) {
+	    if(i >= nMeters) {return null;}
+	    Meter m = firstMeter;
+        for(int j=i; --j>=0; ) {m = m.getNextMeter();}  //get ith meter in list
+        return m;
+    }
+
     // Updates neighbor list for all molecules
     // Only preceding molecules are included in a given molecule's neighbor list
     public void updateNeighbors() {

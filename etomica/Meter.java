@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.Vector;
 import java.util.*;
 
-public abstract class Meter extends Component
+public abstract class Meter extends Component implements IntegrationIntervalListener
 {
     int updateInterval;
     int iieCount;
@@ -13,6 +13,7 @@ public abstract class Meter extends Component
     int count = 0;
     private Meter nextMeter, previousMeter;
     public DataDisplay parentDisplay;
+    public Phase phase;
 
 	public Meter() {
 	    setUpdateInterval(1);
@@ -54,7 +55,7 @@ public abstract class Meter extends Component
 	    sumSquare = 0;
 	}
 	
-	public abstract double currentValue(Phase phase);
+	public abstract double currentValue();
 
     public final void setNextMeter(Meter meter) {
       this.nextMeter = meter;
@@ -63,5 +64,7 @@ public abstract class Meter extends Component
     
     public final Meter getNextMeter() {return nextMeter;}
     public final Meter getPreviousMeter() {return previousMeter;}
+    
+    public void updateData(IntegrationIntervalEvent evt) {updateStatistics(phase);}
 
 }	 

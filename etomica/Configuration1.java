@@ -77,10 +77,10 @@ public class Configuration1 extends Configuration{
 
     //    Zero center-of-mass momentum
         momentumSumX /= sumOfMolecules; momentumSumY /= sumOfMolecules;
-        for(i=0; i<sumOfMolecules; i++) {
-//            m.atom[0].p[0] -= momentumSumX;
-//            m.atom[0].p[1] -= momentumSumY;
-            }
+        for(Atom a=((Species)species.firstElement()).firstAtom; a!=null; a=a.getNextAtom()) {;
+            a.p[0] -= momentumSumX;
+            a.p[1] -= momentumSumY;
+        }
       }
 
     public double getTemperature(){

@@ -21,11 +21,17 @@ import java.awt.*;
         double vAvg;
         double v2Avg;
         double stdDev;
+        Meter meter;
         
         public DataViewScrollingGraph() {
             useMeterStatistics = false;
         }
 
+        public void setMeter(Meter m) {
+            meter = m;
+            clear();
+        }
+        
         void clear () {
             current = number = 0;
             for (int v = 1; v < values.length; v++)
@@ -48,13 +54,13 @@ import java.awt.*;
         }
         
         public void updateView() {
-            add(((DataDisplay)parentDisplay).firstMeter.currentValue(parentDisplay.phase));
+            add(meter.currentValue(parentDisplay.phase));
         }
         
         private void updateStatistics() {
             if(useMeterStatistics) {
-                vAvg = ((DataDisplay)parentDisplay).firstMeter.average();
-                stdDev = ((DataDisplay)parentDisplay).firstMeter.error();
+                vAvg = meter.average();
+                stdDev = meter.error();
             }
             else {
                 vAvg = v2Avg = 0;
