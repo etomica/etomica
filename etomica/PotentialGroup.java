@@ -94,17 +94,29 @@ public class PotentialGroup extends Potential {
 	 * this method is invoked by the setParentPotential method (or more likely, 
 	 * in the constructor) of the given potential.  
 	 */
-	synchronized void addPotential(Potential potential) {
+	synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
 		if(potential == null || potential.parentPotential() != this) 
 			throw new IllegalArgumentException("Improper call to addPotential; should use setParentPotential method in child instead of addPotential method in parent group"); 
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
 		//to be configured for calculation (i.e., iterators set up) first
 		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
-			last.next = makeLinker(potential, null);
-			last = last.next;
+			if (potential instanceof PotentialGroup) {
+				lastGroup.next = makeLinker(potential, iterator, null);
+				lastGroup = lastGroup.next;
+			}
+			else {
+				last.next = makeLinker(potential, null);
+				last = last.next;
+			}
 		} else {//put other potentials at beginning of list
-			first = makeLinker(potential, first);
-			if(last == null) last = first;
+			if (potential instanceof PotentialGroup) {
+				firstGroup = makeLinker(potential, iterator, firstGroup);
+				if (lastGroup == null) lastGroup = firstGroup;
+			}
+			else {
+				first = makeLinker(potential, iterator, first);
+				if(last == null) last = first;
+			}
 		}
 	}
 	
@@ -116,8 +128,8 @@ public class PotentialGroup extends Potential {
 	 * @param next the linker that is to follow the new one
 	 * @return PotentialLinker the new potential linker
 	 */
-	protected PotentialLinker makeLinker(Potential p, PotentialLinker next) {
-		return new PotentialLinker(p, next);
+	protected PotentialLinker makeLinker(Potential p, AtomsetIterator i, PotentialLinker next) {
+		return new PotentialLinker(p, i, next);
 	}
 
 	
@@ -147,33 +159,60 @@ public class PotentialGroup extends Potential {
     //which assumes that it would be exclusive to a given thread.  Wrapper is
     //a PotentialCalculation subclass with an actionPerformed method that loops
     //over the sub-potentials of this PotentialGroup.
-    public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
 		//loop over sub-potentials
-		for(PotentialLinker link=first; link!=null; link=link.next) {
-			pc.set(link.potential).doCalculation(link.iterator, link.potential);
-		}//end for	    	
+    	iterator.reset();
+    	while (iterator.hasNext()) {
+    		Atom[] basisAtoms = iterator.next();
+    		for (PotentialLinker link=first; link!= null; link=link.next) {
+    			link.iterator.setBasis(basisAtoms);
+    			link.iterator.setDirective(id);
+    			pc.doCalculation(link.iterator,link.potential);
+    		}
+    		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
+    			link.iterator.setBasis(basisAtoms);
+    			link.iterator.setDirective(id);
+    			link.potential.calculate(basisAtoms, id, pc);
+    		}
+    	}
     }//end calculate
     
     
 	/**
-	 * Returns the iterator.
-	 * @return AtomSetIterator
+	 * Returns the enabled flag, which if false will cause potential to not
+	 * contribute to any potential calculations.
+	 * @return boolean The current value of the enabled flag
 	 */
-	public AtomSetIterator getIterator() {
-		return iterator;
+	public boolean isEnabled() {
+		return enabled;
 	}
 
 	/**
-	 * Sets the iterator.
-	 * @param iterator The iterator to set
+	 * Sets the enabled flag, which if false will cause potential to not
+	 * contribute to any potential calculations.
+	 * @param enabled The enabled value to set
 	 */
-	public void setIterator(AtomSetIterator iterator) {
-		this.iterator = iterator;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
-   
-	private AtomSetIterator iterator;	   
+	
 	protected PotentialLinker first, last;
+	protected PotentialLinker firstGroup, lastGroup;
+	protected boolean enabled = true;
+
+	protected static class PotentialLinker implements java.io.Serializable {
+	    protected final Potential potential;
+	    protected final AtomsetIterator iterator;
+	    protected PotentialLinker next;
+	    //Constructors
+//	    public PotentialLinker(Potential a) {potential = a;}
+	    public PotentialLinker(Potential a, AtomsetIterator i, PotentialLinker l) {
+	    	potential = a;
+	    	iterator = i;
+	    	next = l;
+	    }
+	}
 
 }//end PotentialGroup
     

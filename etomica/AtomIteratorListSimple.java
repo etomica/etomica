@@ -13,7 +13,7 @@ package etomica;
  * 08/23/04 (DAK, AS, KB) updated with overhaul of iterators
  * 
  */
-public final class AtomIteratorListSimple implements AIAtomListDependent {
+public final class AtomIteratorListSimple implements AtomIterator {
     
 	/**
 	 * Constructs iterator with an empty list for iteration.
@@ -31,16 +31,7 @@ public final class AtomIteratorListSimple implements AIAtomListDependent {
 	}
     
 	public boolean hasNext() {return next.atom != null;}
-	
-	/**
-	 * Sets the childList of the given atom as the basis for iteration.
-	 * If atom is a leaf, hasNext is false.
-	 */
-   /* public void setBasis(Atom atom){
-        if(atom.node.isLeaf()) unset();
-        else setBasis(((AtomTreeNodeGroup)atom.node).childList);
-    }*/
-	
+		
 	/**
 	 * Sets the list containing the atoms that will be returned by this iterator.
 	 * Call to reset() is needed before beginning iteration.

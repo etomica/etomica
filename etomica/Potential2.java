@@ -19,9 +19,7 @@ package etomica;
 
 public abstract class Potential2 extends Potential {
   
-    public static String VERSION = "Potential2:03.01.27/"+Potential.VERSION;
-    
-    protected AtomPairIterator iterator;
+    protected Space.CoordinatePair cPair;
     
     public Potential2(SimulationElement parent) {
         this(parent, Default.TRUNCATE_POTENTIALS ? 
@@ -48,6 +46,11 @@ public abstract class Potential2 extends Potential {
             PotentialMaster potentialMaster = simulation().hamiltonian.potential;
             potentialTruncation.makeLrcPotential(potentialMaster, this); //constructor of lrcPotential adds it to lrcMaster of potentialMaster
         }
+        cPair = space.makeCoordinatePair();
+    }
+
+    public void setPhase(Phase phase) {
+    	cPair.setBoundary(phase.boundary());
     }
     
     public abstract double energy(AtomPair pair);

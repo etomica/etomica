@@ -10,12 +10,22 @@ package etomica;
  */
 public class AtomIteratorSequencerList extends AtomIteratorAdapter implements AtomIteratorAtomDependent {
 
+	/**
+	 * Constructs new class with hasNext as false.  Must
+	 * invoke setAtom and reset before beginning iteration.
+	 */
 	public AtomIteratorSequencerList() {
 		super(new AtomIteratorList());
 		listIterator = (AtomIteratorList)iterator;
 		listIterator.unset();
 	}
 	
+	/**
+	 * Overrides superclass reset to ensure no reset is performed
+	 * if a firstAtom has not been identified.  Otherwise readies
+	 * for iteration beginning with firstAtom, or the one following
+	 * it if skippingFirst is true.
+	 */
 	public void reset() {
 		if(firstAtom == null) return;
 		listIterator.reset();
@@ -26,14 +36,14 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 	 * @see etomica.AtomIterator#allAtoms(etomica.AtomActive)
 	 */
 	public void allAtoms(AtomActive action) {
-		//TODO this method
-		super.allAtoms(action);
+		if(skippingFirst) listIterator.allAtoms(skipFirstWrapper(action));
+		else listIterator.allAtoms(action);
 	}
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
 	public boolean contains(Atom atom) {
-		return skippingFirst ? (iterator.contains(atom) && (atom == firstAtom)) 
+		return skippingFirst ? (atom != firstAtom && iterator.contains(atom)) 
 							 : iterator.contains(atom);
 	}
 	/* (non-Javadoc)
@@ -75,4 +85,16 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 	private boolean skippingFirst = false;
 	private Atom firstAtom = null;
 
+	/**
+	 * Constructs an AtomActive class that wraps another, with the
+	 * effect of preventing it from performing its action on firstAtom.
+	 * Used by the allAtoms method if skippingFirst.
+	 */
+	private AtomActive skipFirstWrapper(final AtomActive action) {
+		return new AtomActive() {
+			public void actionPerformed(Atom atom) {
+				if(atom != firstAtom) action.actionPerformed(atom);
+			}
+		};
+	}
 }

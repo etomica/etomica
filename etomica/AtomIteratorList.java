@@ -8,8 +8,7 @@ package etomica;
  * @author David Kofke
  */
  
-//TODO fix count() and contains() to consider direction, first, terminator
-//TODO 
+//TODO try to enable handling of possibility of setting first as an atom linker that is not in the list
 
  /* History of changes
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
@@ -63,31 +62,7 @@ public final class AtomIteratorList implements AtomIterator {
 	 * Returns true if this iterator has another iterate, false otherwise.
 	 */
 	public boolean hasNext() {return next.atom != null;}
-	
-	/**
-	 * Sets the childList of the given atom as the basis for iteration.
-	 * If atom is a leaf, sets empty list as basis.  Sets given atom to be
-	 * that returned by the getBasis method.
-	 */
-//    public void setBasis(Atom atom){
-//        if(atom == null || atom.node.isLeaf()) {
-//            setList(AtomList.NULL);
-//            return;
-//        }
-//        setBasis((AtomTreeNodeGroup)atom.node);
-//    }
-    
-	/**
-	 * Sets the childList of the given node as the basis for iteration.
-	 * Sets node's atom to be that returned by the getBasis method.
-	 */
-//    public void setBasis(AtomTreeNodeGroup node) {
-//        basis = node;
-//        this.list = basis.childList;
-//        header = list.header;
-//        next = terminator = header;
-//    }   
-    
+	    
     /**
      * Sets the given list of atoms as the basis for iteration.  The atoms
      * returned by this iterator will be those from the given list.  A subsequent
@@ -143,17 +118,17 @@ public final class AtomIteratorList implements AtomIterator {
     /**
      * Resets to begin with the given atom linker.  
      * Does not check that the linker is an iterate of this iterator.
+     * If given linker is null, sets first to header of list.
      */
     public void setFirst(AtomLinker first) {
-    	if(first == null) throw new IllegalArgumentException("Illegal attempt to set null first iterate");
-        this.first = first;
+    	this.first = (first == null) ? list.header : first;
         unset();
     }
     
     /**
      * Resets in reference to the given atom.  Finds the atom in the list and
      * calls reset(AtomLinker) in reference to its linker.  If atom is not in list,
-     * hasNext will be false.  Iteration proceeds upList to the end.
+     * or is null, hasNext will be false.
      */
     public void setFirst(Atom atom) {
         setFirst(list.entry(atom));
@@ -207,15 +182,24 @@ public final class AtomIteratorList implements AtomIterator {
      * Returns true if the given atom is in the list of iterates, false otherwise.
      */
 	public boolean contains(Atom atom){
-        return list.contains(atom);
+        if(first == list.header && terminator == list.header) return list.contains(atom);
+		AtomActiveDetect detector = new AtomActiveDetect(atom);
+		allAtoms(detector);
+		return detector.detectedAtom();
 	}
 	
 	/**
 	 * Returns the total number of iterates that can be returned by this iterator, for
 	 * its current list basis.
 	 */
-	public int size() {return list.size();}
+	public int size() {
+		if(first == list.header && terminator == list.header) return list.size();
+		AtomActiveCount counter = new AtomActiveCount();
+		allAtoms(counter);
+		return counter.callCount();
 
+	}
+		
 	/**
 	 * Returns the next iterate.
 	 */

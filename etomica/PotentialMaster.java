@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.PotentialGroup.PotentialLinker;
+
 /**
  * Master potential that oversees all other potentials in the Hamiltonian.
  * Most calls to compute the energy or other potential calculations begin
@@ -36,40 +38,47 @@ public final class PotentialMaster extends PotentialGroup {
 		return lrcMaster;
 	 }
 
-	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-		this.calculate(phase.speciesMaster, id, pc);
-	}
-    public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
-    	this.calculate((SpeciesMaster)basis, id, pc);
-    }    
-    
+	 public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
+	 	throw new RuntimeException("Method inappriopriate for PotentialMaster class");
+	 }
+	 
 	//should build on this to do more filtering of potentials based on directive
-    public void calculate(SpeciesMaster speciesMaster, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
-        for(PotentialWrapper link=(PotentialWrapper)first; link!=null; link=(PotentialWrapper)link.next) {
-            if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-            link.potential.calculate(link.basis(speciesMaster), id, pc);
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+        	((AtomIteratorPhaseDependent)link.iterator).setPhase(phase);
+        	pc.doCalculation(link.iterator, link.potential);
         }//end for
+        for(PotentialLinker link=firstGroup; link!=null; link=link.next) {
+        	((AtomIteratorPhaseDependent)link.iterator).setPhase(phase);
+            link.potential.calculate(link.iterator, id, pc);
+        }
     }//end calculate
     
     public void setSpecies(Potential potential, Species[] species) {
-    	for(PotentialLinker link=first; link!=null; link=link.next) {
-    		if(link.potential == potential) {
-    			((PotentialWrapper)link).setSpecies(species);
-    			return;
-    		}
+    	if (species.length == 0 || potential.nBody < species.length) {
+    		throw new IllegalArgumentException("Illegal species length");
     	}
+    	AtomsetIterator iterator;
+    	switch (potential.nBody) {
+    	    case 0: break;
+    	    case 1:
+    	    	iterator = new AtomIteratorMolecule();
+    	    	iterator.setSpecies(species[0]);
+    	    	break;
+    	    case 2:
+    	    	AtomIteratorMolecule aiOuter = new AtomIteratorMolecule();
+    	    	aiOuter.setSpecies(species[0]);
+    	    	AtomIteratorNeighbor aiInner = new AtomIteratorNeighbor();
+    	    	aiInner.setSpecies(species[species.length-1]);
+    	    	iterator = new ApiInnerVariable(aiOuter, aiInner);
+    	    	break;
+    	    default:
+    	    	throw new IllegalArgumentException("Handling potentials with more than 2-body interactions not implemented");
+    	}
+    	addPotential(potential, iterator);
     }
  
- 	/**
- 	 * Overrides to return a potential linker that holds information about the
- 	 * potential's bases for iteration in each phase.
- 	 * @see etomica.PotentialGroup#makeLinker(Potential, PotentialLinker)
- 	 */
-	protected PotentialLinker makeLinker(Potential p, PotentialLinker next) {
-		return new PotentialWrapper(p, next);
-	}
-       
 	/**
 	 * Convenient reformulation of the calculate method, applicable if the
 	 * potential calculation performs a sum.  The method returns the
@@ -80,62 +89,6 @@ public final class PotentialMaster extends PotentialGroup {
 	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
 	   return pa;
    }	    
-
-	private static class PotentialWrapper extends PotentialLinker {
-		private Species[] species;
-		private AtomSet[] basisArray = new AtomSet[0];
-		
-		PotentialWrapper(Potential p, PotentialLinker next) {
-			super(p, next);
-		}
-		
-		void setSpecies(Species[] species) {
-			this.species = new Species[species.length];
-			System.arraycopy(species, 0, this.species, 0, species.length);
-			basisArray = new AtomSet[0]; //(DAK) added 07/22/04 needed to ensure basis is updated if species are changed from values set first
-		}
-		
-		public AtomSet basis(SpeciesMaster m) {
-			if(potential.nBody == 0) return m;
-//			if(potential instanceof PotentialGroupLrc) return m;
-			try{
-				AtomSet basis = basisArray[m.index];
-				return (basis == null) ? makeBasis(m) : basis;
-			} catch(ArrayIndexOutOfBoundsException ex) {
-				return makeBasis(m);
-			}
-		}
-		
-		/**
-		 * Makes a basis out of the SpeciesAgents of the species to which the wrapped potential applies,
-		 * for the phase of the given SpeciesMaster.
-		 * @param m SpeciesMaster in the phase for which the basis is being identified.
-		 * @return an AtomSet that has one or more SpeciesAgents that are the basis for the potential
-		 * in the given phase.
-		 */
-		private AtomSet makeBasis(SpeciesMaster m) {
-			int index = m.index;
-			if(index >= basisArray.length) {
-				AtomSet[] newArray = new AtomSet[index+1];
-				System.arraycopy(basisArray, 0, newArray, 0, basisArray.length);
-				basisArray = newArray;
-			}
-			AtomSet newBasis = null;
-			switch(species.length) {//if getting null pointer error here, make sure setSpecies is called by potential in main
-				case 1: newBasis = species[0].getAgent(m); break; 
-				case 2: 
-					SpeciesAgent speciesA = species[0].getAgent(m);
-					SpeciesAgent speciesB = species[1].getAgent(m);
-					if(speciesA.equals(speciesB)) {newBasis = speciesA;}  //06/14/03 added
-					else if(speciesA.seq.preceeds(speciesB)) newBasis = new AtomPair(speciesA, speciesB); 
-					else newBasis = new AtomPair(speciesB, speciesA);
-					break;
-				default: throw new RuntimeException("problem in PotentialMaster.makeBasis");
-			}
-			basisArray[m.index] = newBasis;
-			return newBasis;
-		}//end of makeBasis
-	}//end of PotentialWrapper
 	
 }//end of PotentialMaster
     
