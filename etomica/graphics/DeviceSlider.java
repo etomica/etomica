@@ -241,7 +241,9 @@ public class DeviceSlider extends Device implements EtomicaElement {
              setSliderValueShape("VERTICAL");
              textField.addActionListener(new ActionListener(){
                   public void actionPerformed( ActionEvent e){
-                       setValue(unit.toSim(Double.parseDouble(e.getActionCommand())));
+                    //sets value of slider, which then fires event to modulator, taking care of units
+                       setValue((Double.parseDouble(e.getActionCommand())));
+//                       setValue(unit.toSim(Double.parseDouble(e.getActionCommand())));
              }});}     
     }
 

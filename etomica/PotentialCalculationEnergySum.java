@@ -8,7 +8,8 @@ package etomica;
 public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, 
                                                         Potential0Calculation,
                                                         Potential1Calculation, 
-                                                        Potential2Calculation {
+                                                        Potential2Calculation,
+                                                        Potential3Calculation {
     protected double sum = 0.0;
         
     public PotentialCalculationEnergySum() {}
@@ -31,6 +32,14 @@ public class PotentialCalculationEnergySum implements PotentialCalculation.Sum,
 
     //pair
     public void calculate(AtomPairIterator iterator, Potential2 potential) {
+        while(iterator.hasNext()) {
+            sum += potential.energy(iterator.next());
+            if(sum >= Double.MAX_VALUE) return;
+        }//end while
+    }//end of calculate
+    
+    //triplet
+    public void calculate(Atom3Iterator iterator, Potential3 potential) {
         while(iterator.hasNext()) {
             sum += potential.energy(iterator.next());
             if(sum >= Double.MAX_VALUE) return;

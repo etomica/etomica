@@ -24,11 +24,20 @@ import etomica.utility.Iterator;
  /* History of changes
   * 08/26/02 (DAK) modified makeAndDisplayFrame method to return the frame
   * 09/13/02 (DAK) added blockDefaultLayout method.
+  * 10/21/02 (DAK) added static method to set EtomicaTheme
   */
 public class SimulationGraphic extends Simulation {
     
     public String getVersion() {return "SimulationGraphic:01.11.20;"+Simulation.VERSION;}
     
+    static {
+        try {
+            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new EtomicaTheme());
+//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new BlueRoseTheme());
+            javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+//            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+        } catch(Exception e) {}
+    }
     
     private SimulationPanel simulationPanel;
     
