@@ -200,80 +200,71 @@ public abstract class Configuration implements java.io.Serializable {
 		int i = 0;
 		int ix = 0;
 		int iy = 0;
-		boolean on = true;
 		double half = 0.0;
 
 		if(fillVertical){
-			moleculeRows = (int)Math.sqrt(Ly/Lx*n*Math.sqrt(3.0)*0.5);
-			if(moleculeRows == 0) moleculeRows = 1;
-			moleculeColumns = n/moleculeRows;
-			if(moleculeColumns == 0) moleculeColumns = 1;
-			if(moleculeRows*moleculeColumns < n) moleculeColumns++;
-			int rowsDrawn = (int)((double)n/(double)moleculeColumns - 1.0E-10) + 1;
-			moleculeInitialSpacingX = Lx/moleculeColumns;
-			moleculeInitialSpacingY = Ly / rowsDrawn;
+            double ratio = Ly/Lx*Math.sqrt(3.0)*0.5; // moleculeRows/moleculeColumns
+            // round off lower of the two and round up the other
+            if (ratio>1.0) {
+                moleculeColumns = 2*Math.max(1,(int)Math.round(Math.sqrt(n/ratio)/2.0)); // round off
+                moleculeRows = ((n + 2*moleculeColumns - 1) / (2*moleculeColumns)) * 2;  // round up
+            }
+            else {
+                moleculeRows = 2*Math.max(1,(int)Math.round(Math.sqrt(n*ratio)/2.0)); // round off
+                moleculeColumns = ((n + 2*moleculeRows - 1) / (2*moleculeRows)) * 2;  // round up
+            }
+			moleculeInitialSpacingX = Lx / moleculeColumns;
+			moleculeInitialSpacingY = Ly / moleculeRows;
             while (i < n) {
-                r[i].setX(0, ix * moleculeInitialSpacingX);
-                r[i].setX(1, (iy + half) * moleculeInitialSpacingY);
+                r[i].setX(0, (0.5 + ix) * moleculeInitialSpacingX);
+                r[i].setX(1, (0.25 + iy + half) * moleculeInitialSpacingY);
                 i++;
                 iy++;
                 if (iy >= moleculeRows) {
                     iy = 0;
-                    if (on) {
+                    if (half == 0.0) {
                         half = 0.5;
-                        on = false;
                     }
                     else {
                         half = 0.0;
-                        on = true;
                     }
                     ix++;
                 }
             } //end of while
         }
         else {
-            moleculeColumns = (int)Math.sqrt(Lx/Ly*n*Math.sqrt(3.0)*0.5);
-            if (moleculeColumns == 0) moleculeColumns = 1;
-            moleculeRows = n / moleculeColumns;
-            if (moleculeRows == 0) moleculeRows = 1;
-            if (moleculeRows * moleculeColumns < n) moleculeRows++;
-            int columnsDrawn = (int)((double)n/(double)moleculeRows - 1.0E-10) + 1;
-            moleculeInitialSpacingX = Lx/columnsDrawn;
+            double ratio = Lx/Ly*Math.sqrt(3.0)*0.5; // moleculeColumns/moleculeRows
+            // round off lower of the two and round up the other
+            if (ratio<1.0) {
+                moleculeColumns = 2*Math.max(1,(int)Math.round(Math.sqrt(n*ratio)/2.0)); // round off
+                moleculeRows = ((n + 2*moleculeColumns - 1) / (2*moleculeColumns)) * 2;  // round up
+            }
+            else {
+                moleculeRows = 2*Math.max(1,(int)Math.round(Math.sqrt(n/ratio)/2.0)); // round off
+                moleculeColumns = ((n + 2*moleculeRows - 1) / (2*moleculeRows)) * 2;  // round up
+            }
+            moleculeInitialSpacingX = Lx/moleculeColumns;
             moleculeInitialSpacingY = Ly/moleculeRows;
             while (i < n) {
-                r[i].setX(0, (half + ix) * moleculeInitialSpacingX);
-                r[i].setX(1, iy * moleculeInitialSpacingY);
+                r[i].setX(0, (0.25 + half + ix) * moleculeInitialSpacingX);
+                r[i].setX(1, (0.5 + iy) * moleculeInitialSpacingY);
                 i++;
                 ix++;
-                if (ix >= columnsDrawn) {
+                if (ix >= moleculeColumns) {
                     ix = 0;
-                    if (on) {
+                    if (half == 0.0) {
                         half = 0.5;
-                        on = false;
                     }
                     else {
                         half = 0.0;
-                        on = true;
                     }
                     iy++;
                 }
-            } //end of while
+            }
         }
-
-        for (int j = 0; j < n; j++) {
-            com.PE(r[j]);
-        }
-        com.TE(1.0/(double) n);
-        dcom.E(ocom);
-        dcom.ME(com);
-
-		for(int j=0;j<n;j++){
-			r[j].PE(dcom);
-		}
             
 		return r;
-                
-	}//end of HexagonalLattice   
+    }   
     
        
     /**
