@@ -1,5 +1,8 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.action.PhaseInflate;
+import etomica.action.PhaseActionAdapter;
+
 import java.awt.*;
 
 /**
@@ -16,7 +19,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
     protected Graphics osg;
             
     protected DisplayPhase displayPhase;
-    protected PhaseAction.Inflate inflate;
+    protected PhaseInflate inflate;
 
     /**
     * Variable specifying whether a line tracing the boundary of the display should be drawn
@@ -81,7 +84,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
     }
 
     public void setPhase(Phase p) {
-        inflate = new PhaseAction.Inflate(displayPhase.getPhase());
+        inflate = new PhaseInflate(displayPhase.getPhase());
         p.speciesMaster.addListener(this);
     }
     

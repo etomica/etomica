@@ -1,5 +1,8 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.action.PhaseInflate;
+import etomica.action.PhaseActionAdapter;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 //import gl4java.swing.GLAnimJPanel;
@@ -18,7 +21,7 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     //protected Graphics osg;
         
     protected DisplayPhase displayPhase;
-    protected PhaseAction.Inflate inflate;
+    protected PhaseInflate inflate;
 
     /**
      * Flag to indicate if display can be resized
@@ -76,7 +79,7 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
         
       
     public void setPhase(Phase p) {
-        inflate = new PhaseAction.Inflate(displayPhase.getPhase());
+        inflate = new PhaseInflate(displayPhase.getPhase());
         p.speciesMaster.addListener(this);
     }
               

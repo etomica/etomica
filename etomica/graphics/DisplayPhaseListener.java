@@ -1,5 +1,7 @@
 package etomica.graphics;
 import etomica.*;
+import etomica.action.Undoable;
+
 import java.util.EventListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
@@ -38,7 +40,7 @@ public interface DisplayPhaseListener extends EventListener {
          * Accessor method for flag that causes retractAction method to be called on release of the mouse button
          */
         public void setUndoOnRelease(boolean b) {
-            if(atomAction instanceof Action.Undoable) retractOnRelease = b;
+            if(atomAction instanceof Undoable) retractOnRelease = b;
         }
         /**
          * Accessor method for flag that causes retractAction method to be called on release of the mouse button
@@ -48,7 +50,7 @@ public interface DisplayPhaseListener extends EventListener {
          * Accessor method for flag that causes retractAction method to be called with a right-button press.
          */
         public void setUndoOnRightClick(boolean b) {
-            if(atomAction instanceof Action.Undoable) retractOnRightClick = b;
+            if(atomAction instanceof Undoable) retractOnRightClick = b;
         }
         /**
          * Accessor method for flag that causes retractAction method to be called with a right-button press.
@@ -66,11 +68,11 @@ public interface DisplayPhaseListener extends EventListener {
             switch(mouseEvent.getID()) {
                 case MouseEvent.MOUSE_PRESSED:
                     if(retractOnRightClick && ((mouseEvent.getModifiers() & InputEvent.BUTTON3_MASK) != 0)) 
-                            ((Action.Undoable)atomAction).undo();
+                            ((Undoable)atomAction).undo();
                     else atomAction.actionPerformed(atom);
                     break;
                 case MouseEvent.MOUSE_RELEASED:
-                    if(retractOnRelease) ((Action.Undoable)atomAction).undo();
+                    if(retractOnRelease) ((Undoable)atomAction).undo();
                     break;
                 default:
                     break;
