@@ -1,4 +1,6 @@
 package etomica.graphics;
+import etomica.DataSource;
+import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorMD;
 import etomica.units.Picosecond;
 import etomica.units.PrefixedUnit;
@@ -10,11 +12,10 @@ import etomica.units.PrefixedUnit;
 public class DisplayTimer extends DisplayBox {
 
     public DisplayTimer(IntegratorMD integrator) {
-        this(integrator.chronoMeter());
+        this(new DataSourceCountTime(integrator));
     }
-    public DisplayTimer(IntegratorMD.ChronoMeter meter) {
-        super(meter.integrator().simulation());
-        this.setMeter(meter);
+    public DisplayTimer(DataSource dataSource) {
+        super(dataSource);
         this.setUnit(new PrefixedUnit(Picosecond.UNIT));
         this.setPrecision(7);
         graphic().setSize(100,60);
