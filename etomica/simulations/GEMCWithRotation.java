@@ -1,81 +1,76 @@
 package etomica.simulations;
-import etomica.*;
-import etomica.units.*;
-import etomica.graphics.*;
+import etomica.Default;
+import etomica.IntegratorGEMC;
+import etomica.MCMoveRotate;
+import etomica.MeterDensity;
+import etomica.P2LennardJones;
+import etomica.Phase;
+import etomica.PotentialMaster;
+import etomica.Simulation;
+import etomica.Space;
+import etomica.Space2D;
+import etomica.Species;
+import etomica.SpeciesSpheresRotating;
+import etomica.action.PhaseImposePbc;
+import etomica.action.activity.ActivityIntegrate;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.
  */
-//need to update to include setPhaseIteratorFactory
-public class GEMCWithRotation extends SimulationGraphic {
+
+//in present form uses just a LJ potential, so orientation is irrelevant
+
+public class GEMCWithRotation extends Simulation {
     
     public GEMCWithRotation() {
-        super(new Space2D()/*new Space2DCell()*/);
-//        setIteratorFactory(new IteratorFactoryCell(this));
+        this(Space2D.INSTANCE);
+    }
+    
+    public GEMCWithRotation(Space space) {
+        super(space, new PotentialMaster(space));
         Default.ATOM_SIZE = 1.2;
         Default.UNIT_SYSTEM = new etomica.units.systems.LJ();
         Default.TEMPERATURE = Default.UNIT_SYSTEM.temperature().toSim(0.420);
-        IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
-	    integratorGEMC1.setDoSleep(false);
-	    integratorGEMC1.setInterval(400);
-	 //   integratorGEMC1.getMCMoveVolumeExchange().setFrequency(0);
+        IntegratorGEMC integrator = new IntegratorGEMC(potentialMaster, space);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+	    activityIntegrate.setDoSleep(true);
+        activityIntegrate.setSleepPeriod(1);
+	    activityIntegrate.setInterval(400);
 	    
-	    SpeciesSpheresRotating speciesDisk1 = new SpeciesSpheresRotating(200);
+	    species = new SpeciesSpheresRotating(this);
+        species.setNMolecules(200);
 
-	    Phase phase1 = new Phase();	    
-	    MeterDensity meter1 = new MeterDensity();
-	    DisplayBox box1 = new DisplayBox();
-	    box1.setMeter(meter1);
-	    box1.setUseCurrentValue(false);
-	    MCMoveRotate mcRotate1 = new MCMoveRotate(integratorGEMC1);
-	    mcRotate1.setPhase(phase1);
+	    phase1 = new Phase(space);	    
+	    MCMoveRotate mcRotate1 = new MCMoveRotate(potentialMaster, space);
+	    mcRotate1.setPhase(new Phase[] {phase1});
+        integrator.addMCMove(mcRotate1);
 
-	    Phase phase2 = new Phase();
+	    phase2 = new Phase(space);
 	    MeterDensity meter2 = new MeterDensity();	    
-	    DisplayBox box2 = new DisplayBox();
-	    box2.setMeter(meter2);
-	    box2.setUseCurrentValue(false);
-	    MCMoveRotate mcRotate2 = new MCMoveRotate(integratorGEMC1);
-	    mcRotate2.setPhase(phase2);
-	    
-///	    P2HardAssociationCone potential = new P2HardAssociationCone();
-	    P2LennardJones potential = new P2LennardJones();
-	    potential.setSigma(speciesDisk1.getDiameter());
-///	    potential.setWellCutoffFactor(1.5);
-	    Controller controller1 = new Controller();
-	    //Configuration displays for each phase
-	    DisplayTable table1 = new DisplayTable();
-	      
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    DisplayPhase displayPhase2 = new DisplayPhase();
-	    
-	    //Meters and displays for density in each phase
-	    
-	    //Slider to adjust temperature
-	    DeviceSlider temperatureSlider = new DeviceSlider(integratorGEMC1, "temperature");
-	    temperatureSlider.setUnit(new PrefixedUnit(Kelvin.UNIT));
-	    temperatureSlider.setMinimum(50);
-	    temperatureSlider.setMaximum(500);
+	    MCMoveRotate mcRotate2 = new MCMoveRotate(potentialMaster, space);
+	    mcRotate2.setPhase(new Phase[] {phase2});
+        integrator.addMCMove(mcRotate2);
 
-	    integratorGEMC1.setTemperature(Default.TEMPERATURE);
-		Simulation.instance.elementCoordinator.go(); 
-		
-	    /*
-	    ColorScheme color1 = new ColorScheme.Simple(java.awt.Color.blue);
-	    ColorScheme color2 = new ColorScheme.Simple(java.awt.Color.darkGray);
-	    displayPhase1.setColorScheme(color1);
-	    displayPhase2.setColorScheme(color2);
-	    */
-	    phase2.setDensity(0.1);
-	    panel().setBackground(java.awt.Color.blue);		
-//		((Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
-//        ((Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(10,10);
-    }//end of constructor        
+        integrator.setPhase(new Phase[] {phase1, phase2});
         
-    public static void main(String[] args) {
-        Simulation sim = new GEMCWithRotation();
-		sim.elementCoordinator.go(); 
-        SimulationGraphic.makeAndDisplayFrame(sim);
-		((Controller)sim.controller(0)).start();
-    }//end of main
+        MeterDensity meterDensity = new MeterDensity();
+
+	    potential = new P2LennardJones();
+	    potential.setSigma(species.getDiameter());
+
+        this.potentialMaster.setSpecies(potential,new Species[] {species, species});
+
+        phase1.speciesMaster.addSpecies(species);
+        phase2.speciesMaster.addSpecies(species);
+        integrator.addIntervalListener(new PhaseImposePbc(phase1));
+        integrator.addIntervalListener(new PhaseImposePbc(phase2));
+
+	    phase2.setDensity(0.1);
+    }//end of constructor        
+    
+    public Phase phase1, phase2;
+    public IntegratorGEMC integrator;
+    public SpeciesSpheresRotating species;
+    public P2LennardJones potential;
 }
