@@ -18,7 +18,7 @@ public class AtomIteratorListTest extends TestCase {
 	private final int nLists=8; //minimum 8
 	private Phase phase;
 	private LinkedList[] list;
-	private AtomsetActive[] lister;
+	private Lister[] lister;
 	private Atom basis1;
 	private AtomList atomList;
 	private AtomLinker.Tab header;
@@ -39,13 +39,16 @@ public class AtomIteratorListTest extends TestCase {
  * etomica simulation and testing elements.
  */
 	protected void setUp() {
+		Space space = new Space3D();
 		Simulation sim = new Simulation();
 		phase = new Phase();
 		species = new SpeciesSpheresMono();
 		species.setNMolecules(nMolecules);;
 		sim.elementCoordinator.go();
 		basis1 = species.getAgent(phase);
-		atomList = phase.speciesMaster.atomList;
+//		atomList = phase.speciesMaster.atomList;
+		atomList = new AtomList();
+		for(int i=0; i<nMolecules; i++) atomList.add(new Atom(space));
 		first = atomList.getFirst();
 		last = atomList.getLast();
 		mid=atomList.size()/2;
@@ -55,14 +58,11 @@ public class AtomIteratorListTest extends TestCase {
 		firstLinker = atomList.firstEntry();
 		lastLinker = atomList.lastEntry();
 		midLinker = atomList.entry(mid);
-		list = new LinkedList[nLists];
-		for (int i=0;i<nLists;i++) {
-			list[i] = new LinkedList();
+		lister=new Lister[nLists];
+		for (int i=0;i<lister.length;i++) {
+			lister[i] = new Lister();
 		}
-		lister=new AtomsetActive[nLists];
-		for (int i=0;i<list.length;i++) {
-			lister[i] = new Lister(i);
-		}
+		list = new LinkedList[6];
 	}
 	
 /**
@@ -70,7 +70,7 @@ public class AtomIteratorListTest extends TestCase {
  */
 	private void clearLists() {
 		for (int i=0;i<nLists;i++) {
-			list[i].clear();
+			lister[i].list.clear();
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class AtomIteratorListTest extends TestCase {
  */
 	private void printLists() {
 		for (int i=0;i<nLists;i++) {
-			System.out.println(list[i]);
+			System.out.println(lister[i].list);
 		}
 		System.out.println();
 	}
@@ -109,17 +109,17 @@ public class AtomIteratorListTest extends TestCase {
 //		printLists();
 		
 		//test whether lists contain same elements
-		assertTrue(list[0].containsAll(list[2]));
+		assertTrue(lister[0].list.containsAll(lister[2].list));
 
 		//test whether iterator does same thing twice
-		assertEquals(list[0],list[1]);
-		assertEquals(list[2],list[3]);
+		assertEquals(lister[0].list,lister[1].list);
+		assertEquals(lister[2].list,lister[3].list);
 		
-		Collections.reverse(list[2]);
-		assertEquals(list[0],list[2]);
+		Collections.reverse(lister[2].list);
+		assertEquals(lister[0].list,lister[2].list);
 		
-		Collections.reverse(list[1]);
-		assertEquals(list[1],list[3]);
+		Collections.reverse(lister[1].list);
+		assertEquals(lister[1].list,lister[3].list);
 		clearLists();
 	}
 	
@@ -136,19 +136,19 @@ public class AtomIteratorListTest extends TestCase {
 		iterator.setFirst(first);
 		iterator.allAtoms(lister[1]);
 //		printLists();
-		assertEquals(list[1],list[0]);
+		assertEquals(lister[1].list,lister[0].list);
 		
 
 		iterator.setFirst(middle);
 		iterator.allAtoms(lister[2]);
-		list[0].subList(0,mid).clear();
-		assertEquals(list[2],list[0]);
+		lister[0].list.subList(0,mid).clear();
+		assertEquals(lister[2].list,lister[0].list);
 
 		iterator.setFirst(last);
 		iterator.allAtoms(lister[3]);
 		LinkedList list3 = new LinkedList();
 		list3.add(last.toString());
-		assertEquals(list[3],list3);
+		assertEquals(lister[3].list,list3);
 
 		clearLists();
 	}	
@@ -168,21 +168,21 @@ public class AtomIteratorListTest extends TestCase {
 		iterator.allAtoms(lister[2]);
 		LinkedList list2 = new LinkedList();
 		list2.add(first.toString());
-		assertEquals(list[2],list2);
+		assertEquals(lister[2].list,list2);
 
 		iterator.setFirst(middle);
 		iterator.allAtoms(lister[3]);
-		if(list[0].size()%2==0) {
-			list[0].subList(0,mid-1).clear();
+		if(lister[0].list.size()%2==0) {
+			lister[0].list.subList(0,mid-1).clear();
 		}
 		else {
-			list[0].subList(0,mid).clear();
+			lister[0].list.subList(0,mid).clear();
 		}
-		assertEquals(list[3],list[0]);
+		assertEquals(lister[3].list,lister[0].list);
 
 		iterator.setFirst(last);
 		iterator.allAtoms(lister[4]);
-		assertEquals(list[4],list[1]);
+		assertEquals(lister[4].list,lister[1].list);
 		
 //		printLists();
 		
@@ -206,7 +206,7 @@ public class AtomIteratorListTest extends TestCase {
 			lister[1].actionPerformed(iterator.next());
 		}
 
-		assertEquals(list[0],list[1]);
+		assertEquals(lister[0].list,lister[1].list);
 		
 		//Tests while loop iteration with atom set to first.
 		iterator.setFirst(first);
@@ -214,7 +214,7 @@ public class AtomIteratorListTest extends TestCase {
 		while (iterator.hasNext()) {
 			lister[2].actionPerformed(iterator.next());
 		}
-		assertEquals(list[0],list[2]);
+		assertEquals(lister[0].list,lister[2].list);
 		
 		//Tests while loop iteration with atom set to middle
 		iterator.setFirst(middle);
@@ -222,7 +222,7 @@ public class AtomIteratorListTest extends TestCase {
 		while (iterator.hasNext()) {
 			lister[3].actionPerformed(iterator.next());
 		}
-		assertEquals(list[0].subList(mid,nMolecules),list[3]);
+		assertEquals(lister[0].list.subList(mid,nMolecules),lister[3].list);
 
 		//Tests while loop iteration with atom set to last
 		iterator.setFirst(last);
@@ -230,7 +230,7 @@ public class AtomIteratorListTest extends TestCase {
 		while (iterator.hasNext()) {
 			lister[4].actionPerformed(iterator.next());
 		}
-		assertEquals(list[0].subList(nMolecules-1,nMolecules),list[4]);
+		assertEquals(lister[0].list.subList(nMolecules-1,nMolecules),lister[4].list);
 
 		//SkipFirstAtom does not have any affect on the iterator
 		
@@ -242,7 +242,7 @@ public class AtomIteratorListTest extends TestCase {
 //			lister[5].actionPerformed(iterator.next());
 //		}
 //		System.out.println(list[5]);
-//		assertEquals(list[0].subList(1,nMolecules),list[5]);
+//		assertEquals(lister[0].list.subList(1,nMolecules),list[5]);
 
 		clearLists();
 	}
@@ -262,7 +262,7 @@ public class AtomIteratorListTest extends TestCase {
 		while (iterator.hasNext()) {
 			lister[1].actionPerformed(iterator.next());
 		}
-		assertEquals(list[0],list[1]);
+		assertEquals(lister[0].list,lister[1].list);
 		
 		//Test while loop iteration with atom set to last
 		iterator.setFirst(last);
@@ -270,7 +270,7 @@ public class AtomIteratorListTest extends TestCase {
 		while (iterator.hasNext()) {
 			lister[2].actionPerformed(iterator.next());
 		}
-		assertEquals(list[0],list[2]);
+		assertEquals(lister[0].list,lister[2].list);
 		
 		//Test while loop iteration with atom set to middle
 		iterator.setFirst(middle);
@@ -279,10 +279,10 @@ public class AtomIteratorListTest extends TestCase {
 			lister[3].actionPerformed(iterator.next());
 		}
 		if (nMolecules%2==0) {
-			assertEquals(list[0].subList(mid-1,nMolecules),list[3]);
+			assertEquals(lister[0].list.subList(mid-1,nMolecules),lister[3].list);
 		}
 		else {
-			assertEquals(list[0].subList(mid,nMolecules),list[3]);
+			assertEquals(lister[0].list.subList(mid,nMolecules),lister[3].list);
 		}
 		
 		//Tests while loop iteration with atom set to first
@@ -291,7 +291,7 @@ public class AtomIteratorListTest extends TestCase {
 		while (iterator.hasNext()) {
 			lister[4].actionPerformed(iterator.next());
 		}
-		assertEquals(list[0].subList(nMolecules-1,nMolecules),list[4]);
+		assertEquals(lister[0].list.subList(nMolecules-1,nMolecules),lister[4].list);
 		
 		clearLists();
 	}
@@ -319,37 +319,11 @@ public class AtomIteratorListTest extends TestCase {
 		
 		//tests the reset(AtomLinker) method
 		iterator.setFirst(midLinker);
-		list[6] = IteratorTest.generalIteratorTest(iterator);
+		list[3] = IteratorTest.generalIteratorTest(iterator);
 		
 		printLists();
 		
 		clearLists();		
-	}
-	
-	public void testUnset() {
-		iterator.unset();
-		assertEquals(false,iterator.hasNext());
-		iterator.next();
-		assertEquals(false,iterator.hasNext());		
-	}
-
-/**
- * 
- * @author Andrew Walker
- *
- * This class creates an AtomActive which puts the result of an Atom's toString
- * method into a list in the array of lists in the Testing Class
- */
-	class Lister implements AtomsetActive {
-
-		private final int i;
-
-		public Lister(int i) {
-			this.i=i;
-		}
-		public void actionPerformed(Atom[] a) {
-			list[i].add(a[0].toString());
-		}
 	}
 
 }
