@@ -2,9 +2,9 @@ package etomica;
 
 import etomica.log.LoggerAbstract;
 import etomica.utility.NameMaker;
-import etomica.utility.java2.HashMap;
-import etomica.utility.java2.Iterator;
-import etomica.utility.java2.LinkedList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * The main class that organizes the elements of a molecular simulation.

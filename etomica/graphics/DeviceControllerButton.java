@@ -38,10 +38,9 @@ public class DeviceControllerButton extends DeviceButton {
     private class Toggle extends etomica.action.ControllerToggle {
          public void actionPerformed() {
          	if(controller == null) return;
+            String text = " Pause ";
+            if(controller.isActive() && !controller.isPaused()) text = "Continue";
             super.actionPerformed();
-            String text;
-            if(controller.isPaused()) text = "Continue";
-            else text = "  Pause ";
             DeviceControllerButton.this.setLabel(text);
         }
     }//end Toggle

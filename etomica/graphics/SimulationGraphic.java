@@ -1,13 +1,14 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import etomica.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 
-//Java2 imports
-//import java.util.HashMap;
-//import java.util.LinkedList;
-//import java.util.Iterator;
-
-import etomica.utility.java2.LinkedList;
+import etomica.Default;
+import etomica.Integrator;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SimulationContainer;
+import etomica.simulations.HSMD2D;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -26,7 +27,7 @@ import etomica.utility.java2.LinkedList;
   * 10/21/02 (DAK) added static method to set EtomicaTheme
   * 09/02/03 (DAK) setting Default.DO_SLEEP in constructor
   */
-public class SimulationGraphic extends Simulation {
+public class SimulationGraphic implements SimulationContainer {
     
     static {
         try {
@@ -39,76 +40,18 @@ public class SimulationGraphic extends Simulation {
     
     private SimulationPanel simulationPanel;
     
-    public SimulationGraphic() {
-        this(new Space2D());
+    public SimulationGraphic(Simulation simulation) {
+        this.simulation = simulation;
+        DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(simulation);
+        add(controlPanel);
+        setupDisplayPhase();
     }
     
-    /**
-     * Constructor requires specification of the space used by the simulation
-     */
-    public SimulationGraphic(Space s) {
-    	this(s,new PotentialMaster(s));
-    }
+    public Simulation getSimulation() {return simulation;}
     
-    public SimulationGraphic(Space s, PotentialMaster potentialMaster) {
-    	super(s,potentialMaster);
-        Default.DO_SLEEP = true;
-        elementLists.put(Display.class, new LinkedList());
-        elementLists.put(Device.class, new LinkedList());
-        elementCoordinator = new MediatorGraphic(this);
-        potentialMaster.setSimulation(this);
-    }//end of constructor
-    
-    /**
-     * @return the <code>nth</code> instantiated display (indexing from zero)
-     */
-    public final Display display(int n) {return (Display)displayList().get(n);}
-    /**
-     * @return the <code>nth</code> instantiated device (indexing from zero)
-     */
-    public final Device device(int n) {return (Device)deviceList().get(n);}
-    
-    public final LinkedList displayList() {return (LinkedList)elementLists.get(Display.class);}
-    public final LinkedList deviceList() {return (LinkedList)elementLists.get(Device.class);}
+    public final LinkedList displayList() { return displayList;}
+    public final LinkedList deviceList() { return deviceList; }
                   
-     
-    /**
-     * Method invoked in the constructor of a Display object to list it with the simulation
-     */
- /*   public void unregister(Display d) {
-        if(!displayList.contains(d)) return;
-        displayList.remove(d);
-        allElements.remove(d);
-        integrator(0).removeIntervalListener(d);
-        for (int i = 0; i < getComponentCount(); i++) {
-	        if (getComponent(i).getName() == "displayPanel"){
-	            javax.swing.JTabbedPane tp = ((javax.swing.JTabbedPane)getComponent(i));
-	            tp.remove(tp.getSelectedComponent());
-	            tp.repaint();
-	            elementCoordinator.completed = false;
-	            
-	        }
-	    }
-    }
-    
-    /**
-     * Method invoked in the constructor of a Device object to list it with the simulation
-     */
-/*    public void unregister(Device d) {
-        if(!deviceList.contains(d)) return;
-        deviceList.remove(d);
-        allElements.remove(d);
-        for (int i = 0; i < getComponentCount(); i++) {
-	        if (Simulation.instance.getComponent(i).getName() == "devicePanel"){
-                javax.swing.JPanel dp = ((javax.swing.JPanel)getComponent(i));
-                dp.remove(dp.getComponent(1));
-                dp.repaint();
-                elementCoordinator.completed = false;
-            }
-        }
-    }
- */             
-                
     /**
      * A visual display of the simulation via a JPanel.
      */
@@ -117,24 +60,63 @@ public class SimulationGraphic extends Simulation {
         return simulationPanel;
      }
      
+     private void setupDisplayPhase() {
+         LinkedList integratorList = simulation.getIntegratorList();
+         Iterator iterator = integratorList.iterator();
+         while (iterator.hasNext()) {
+             Integrator integrator = (Integrator)iterator.next();
+             Phase[] phases = integrator.getPhase();
+             for (int i=0; i<phases.length; i++) {
+                 Display display = new DisplayPhase(phases[i]);
+                 add(display);
+                 integrator.addIntervalListener(display);
+             }
+         }
+     }
+
+     public void add(Display display) {
+         final java.awt.Component component = display.graphic(null);
+         if(component == null) return; //display is not graphic
+         if(display instanceof DisplayBox) {
+             final java.awt.GridBagConstraints gbcBox = new java.awt.GridBagConstraints();
+             gbcBox.gridx = 0;
+             panel().displayBoxPanel.add(component, gbcBox);
+         }
+         else {
+             panel().displayPanel.add(display.getLabel(),component);
+             //add a listener to update the tab label if the name of the display changes
+             display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+                 public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                     if(evt.getPropertyName().equals("label")) {
+                         int idx = panel().displayPanel.indexOfComponent(component);
+                         panel().displayPanel.setTitleAt(idx,evt.getNewValue().toString());
+                     }
+                 }
+             });
+         }
+         displayList.add(display);
+     }
+
      /**
-      * Overrides the default mediators that place Displays and Devices in the simulation panel.
-      * Graphics must be added individually if this is done.
+      * Adds displays graphic to the simulation display pane
       */
-     public void blockDefaultLayout() {
-        this.mediator().addMediatorPair(new MediatorGraphic.DisplayNull.NoAction(this.mediator()));
-        this.mediator().addMediatorPair(new MediatorGraphic.DeviceNull.NoAction(this.mediator()));
+     public void add(Device device) {
+         java.awt.Component component = device.graphic(null);
+         if(device instanceof DeviceTable) {
+             panel().displayPanel.add(component);
+         }
+         else {
+             final java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+             gbc.gridx = 0;
+             panel().devicePanel.add(component,gbc);
+         }
+         deviceList.add(device);
      }
      
-    public javax.swing.JFrame makeAndDisplayFrame() {return SimulationGraphic.makeAndDisplayFrame(this);}
-    
-    public static final javax.swing.JFrame makeAndDisplayFrame(Simulation sim) {
-        return makeAndDisplayFrame((SimulationGraphic)sim);
-    }
-    public static final javax.swing.JFrame makeAndDisplayFrame(SimulationGraphic sim) {
+    public final javax.swing.JFrame makeAndDisplayFrame() {
         javax.swing.JFrame f = new javax.swing.JFrame();
         f.setSize(700,500);
-        f.getContentPane().add(sim.panel());
+        f.getContentPane().add(panel());
         f.pack();
         f.show();
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
@@ -146,44 +128,23 @@ public class SimulationGraphic extends Simulation {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
         
+        
+    private final Simulation simulation;
+    private final LinkedList displayList = new LinkedList();
+    private final LinkedList deviceList = new LinkedList();
+
     /**
      * Demonstrates how this class is implemented.
      */
-//    public static void main(String[] args) {
-//        Simulation.instance = new SimulationGraphic(new Space2D());
-//        DefaultGraphic.ATOM_COLOR = java.awt.Color.green;
-//   //     Default.ATOM_SIZE = 1.0;                   
-//	    IntegratorHard integratorHard = new IntegratorHard();
-//	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
-//	    speciesSpheres.setNMolecules(16);
-//	    Phase phase = new Phase();
-//	    Potential2 potential = new P2HardSphere();
-//	    potential.setSpecies(speciesSpheres, speciesSpheres);
-//	    Controller controller = new Controller();
-//	    DisplayPhase displayPhase = new DisplayPhase();
-//	    DisplayTimer timer = new DisplayTimer(integratorHard);
-//	    timer.setUpdateInterval(10);
-////        integratorHard.setTimeStep(0.01);
-//        displayPhase.setColorScheme(new ColorSchemeColliders(integratorHard));
-///*        displayPhase.setColorScheme(new ColorSchemeNull());
-//        for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
-//            atom.setColor(ConstantsGraphic.randomColor());
-//        }*/
-//        
-//     //   p1HardBoundary.setSpecies(speciesSpheres);
-//    //    PotentialGroup p1Group = new PotentialGroup(1);
-//        P1HardBoundary p1HardBoundary = new P1HardBoundary();
-//	    p1HardBoundary.setSpecies(speciesSpheres);
-//        //p1Group.setSpecies(new Species[] {speciesSpheres});
-//        
-//        //this method call invokes the mediator to tie together all the assembled components.
-//		Simulation.instance.elementCoordinator.go();
-//		                                    
-//		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
-//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-//                
-//     //   controller.start();
-//    }//end of main
+    public static void main(String[] args) {
+        Default.DO_SLEEP = true;
+        HSMD2D sim = new HSMD2D();
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        simGraphic.makeAndDisplayFrame();
+        ColorSchemeByType.setColor(sim.species, java.awt.Color.red);
+        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
+        simGraphic.panel().setBackground(java.awt.Color.yellow);
+    }//end of main
     
 }
 

@@ -128,7 +128,7 @@ public class DeviceTrioControllerButton extends Device {
         shape = s;
         if(s=="HORIZONTAL"){jp.setLayout(new java.awt.GridLayout(1,3));jp.updateUI();}
         if(s=="VERTICAL"){jp.setLayout(new java.awt.GridLayout(3,1));jp.updateUI();}
-        if(s=="AUTOMATIC"){((SimulationGraphic)simulation).panel().addComponentListener(new ComponentEventControllerButton());}
+        if(s=="AUTOMATIC"){jp.getParent().addComponentListener(new ComponentEventControllerButton());}
     }
     public String getShape() {return shape;}
     
@@ -141,8 +141,8 @@ public class DeviceTrioControllerButton extends Device {
         public void componentMoved(ComponentEvent e){}
         public void componentShown(ComponentEvent e){}
         public void componentResized(ComponentEvent e){
-            if(firstResized) { width = ((SimulationGraphic)simulation).panel().getWidth();firstResized =false;}
-            if((double)((SimulationGraphic)simulation).panel().getWidth()<width){
+            if(firstResized) { width = jp.getParent().getWidth();firstResized =false;}
+            if((double)jp.getParent().getWidth()<width){
                 jp.setLayout(new java.awt.GridLayout(3,1));
                 jp.updateUI();
             } else { 
