@@ -13,9 +13,9 @@ package etomica;
  * prepare it for iteration.  Subclasses may also override individual
  * methods as appropriate to their implementation.
  */
-public abstract class AtomIteratorAdapter implements AtomIterator {
+public abstract class AtomIteratorAdapter extends AtomsetIteratorAdapter implements AtomIterator {
 
-	protected final AtomIterator iterator;
+	protected final AtomIterator atomIterator;
 	
 	/**
 	 * Constructor takes the wrapped iterator as an argument. The
@@ -23,65 +23,11 @@ public abstract class AtomIteratorAdapter implements AtomIterator {
 	 * another iterator.
 	 */
 	public AtomIteratorAdapter(AtomIterator iterator) {
-		this.iterator = iterator;
-	}
-
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#contains(etomica.Atom)
-	 */
-	public boolean contains(Atom[] atom) {
-		return iterator.contains(atom);
-	}
-
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#hasNext()
-	 */
-	public boolean hasNext() {
-		return iterator.hasNext();
-	}
-
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#reset()
-	 */
-	public void reset() {
-		iterator.reset();
-	}
-
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#unset()
-	 */
-	public void unset() {
-		iterator.unset();
-	}
-
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#next()
-	 */
-	public Atom[] next() {
-		return iterator.next();
+		super(iterator);
+		atomIterator = iterator;
 	}
 	
 	public Atom nextAtom() {
-		return iterator.nextAtom();
+		return atomIterator.nextAtom();
 	}
-	
-	public Atom[] peek() {
-		return iterator.peek();
-	}
-	
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
-	 */
-	public void allAtoms(AtomsetActive action) {
-		iterator.allAtoms(action);
-	}
-
-	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#size()
-	 */
-	public int size() {
-		return iterator.size();
-	}
-	
-	public final int nBody() {return 1;}
 }

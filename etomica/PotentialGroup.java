@@ -154,22 +154,24 @@ public class PotentialGroup extends Potential {
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
 		//loop over sub-potentials
+ 		for (PotentialLinker link=first; link!= null; link=link.next) {
+			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+		}
+		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
+			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+		}
     	iterator.reset();
-    	boolean firstIterate = true;
-    	while (iterator.hasNext()) {
+		while (iterator.hasNext()) {
     		Atom[] basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
-    			if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
     			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);   			
     			pc.doCalculation(link.iterator,link.potential);
     		}
     		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-    			if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
     			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);   			
      			((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
     		}
-    		firstIterate = false;
-    	}
+     	}
     }//end calculate
     
     public void setPhase(Phase phase) {

@@ -42,6 +42,12 @@ public final class PotentialMaster extends PotentialGroup {
 	//should build on this to do more filtering of potentials based on directive
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
+ 		for (PotentialLinker link=first; link!= null; link=link.next) {
+			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+		}
+		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
+			((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+		}
         for(PotentialLinker link=first; link!=null; link=link.next) {
         	((AtomIteratorPhaseDependent)link.iterator).setPhase(phase);
         	pc.doCalculation(link.iterator, link.potential);
@@ -64,6 +70,11 @@ public final class PotentialMaster extends PotentialGroup {
     	    	iterator.setSpecies(species[0]);
     	    	break;
     	    case 2:
+    	    	if(species.length == 1 || species[0] == species[1]) {
+    	    		iterator = new ApiIntragroup();
+    	    	} else {
+    	    		iterator = new ApiIntergroup();
+    	    	}
     	    	AtomIteratorMolecule aiOuter = new AtomIteratorMolecule();
     	    	aiOuter.setSpecies(species[0]);
     	    	AtomIteratorNeighbor aiInner = new AtomIteratorNeighbor();

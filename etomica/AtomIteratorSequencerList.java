@@ -90,11 +90,16 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 	 * effect of preventing it from performing its action on firstAtom.
 	 * Used by the allAtoms method if skippingFirst.
 	 */
-	private AtomsetActive skipFirstWrapper(final AtomsetActive action) {
-		return new AtomsetActive() {
-			public void actionPerformed(Atom[] atom) {
-				if(atom[0] != firstAtom) action.actionPerformed(atom);
-			}
-		};
-	}
+	private AtomsetActive skipFirstWrapper(final AtomsetActive realAction) {
+        return new AtomsetActive() {
+                //fake action for first iterate
+                private AtomsetActive action = new AtomsetActive() {
+                        public void actionPerformed(Atom[] atom) {action = realAction;}
+                };
+                public void actionPerformed(Atom[] atom) {
+                        action.actionPerformed(atom);
+                }
+        };
+}
+
 }
