@@ -11,7 +11,8 @@ package etomica;
  /* History of changes
   * 08/04/02 Changed reset(atom) to use isDescendedFrom rather than just checking parent; also changed to check against iteratorDirective.direction
   *          Changes conducted as part of effort to resolve problems with speciesPistonCylinder; iterating over groups in which one has a molecule layer and the other doesn't
-  * 12/06/02 (DAK) made class not final so could subclass in sufactant module
+  * 12/06/02 (DAK) made class not final so could subclass in sufactant module 
+  * 01/02/03 (DAK) reset checks if basis is null
   */
  
 public class ApiIntergroup1A implements AtomPairIterator {
@@ -61,7 +62,7 @@ public class ApiIntergroup1A implements AtomPairIterator {
      * atom was previously given.
      */
     public void reset() {
-        if(referenceAtom == null) atomIterator.unset();
+        if(referenceAtom == null || group1 == null || group2 == null) atomIterator.unset();
         else atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
     }
         
@@ -70,7 +71,7 @@ public class ApiIntergroup1A implements AtomPairIterator {
      * given atom.
      */
     public void reset(Atom atom) {
-        if(atom == null) return;
+        if(atom == null || group1 == null || group2 == null) return;
         referenceAtom = atom;
         if(referenceAtom.node.isDescendedFrom(group1) && localDirective.direction().doUp()) {
             atomIterator.setBasis(group2);

@@ -61,9 +61,11 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
 		        Object item = event.getItem();
 		        if(item==adiabaticString) integrator.setIsothermal(false);
 		        else {
+		        	integrator.pause();
 		            integrator.setIsothermal(true);
 		            integrator.setTemperature(unit.toSim(((Double)item).doubleValue()));
 		            integrator.reset();
+		            integrator.unPause();
 		        }
 		    }
 		});//end of addItemListener

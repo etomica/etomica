@@ -9,8 +9,11 @@ package etomica;
  */
  
  /* History of changes
-  * 8/4/02 Changed reset(atom) to use isDescendedFrom rather than just checking parent.
-  *        Changes performed to correct problem uncovered in "surfactant" module simulation
+  * 08/04/02 Changed reset(atom) to use isDescendedFrom rather than just
+  * checking parent. Changes performed to correct problem uncovered in "surfactant" module
+  * simulation
+  * 
+  * 01/02/03 (DAK) reset checks if basis is null
   */
  
 public final class ApiIntragroup1A implements AtomPairIterator {
@@ -45,7 +48,7 @@ public final class ApiIntragroup1A implements AtomPairIterator {
      * atom was previously given.
      */
     public void reset() {
-        if(referenceAtom == null) atomIterator.unset();
+        if(referenceAtom == null || group == null) atomIterator.unset();
         else atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
     }
         
@@ -55,7 +58,7 @@ public final class ApiIntragroup1A implements AtomPairIterator {
      * if none previously specified).
      */
     public void reset(Atom atom) {
-        if(atom == null) {
+        if(atom == null || group == null) {//group could be null if potential is "turned off"
             atomIterator.unset();
             return;
         }

@@ -369,11 +369,13 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
      */
     private synchronized void doWait() {
 //        isPaused = true;
+		//System.out.println("pausing");
         notifyAll(); //release any threads waiting for pause to take effect
         try {
             wait(); //put in paused state
         } catch(InterruptedException e) {}
 //        isPaused = false;
+		//System.out.println("done pausing");
     }
     
     //suspend and resume functions
