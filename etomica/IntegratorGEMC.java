@@ -9,7 +9,6 @@ package etomica;
 //need to update to include setPhaseIteratorFactory
 public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     
-    public String version() {return "IntegratorGEMC:01.04.17"+super.version();}
     public Phase secondPhase;
     private final MCMoveAtom atomDisplace1 = new MCMoveAtom(this);
     private final MCMoveAtom atomDisplace2 = new MCMoveAtom(this);

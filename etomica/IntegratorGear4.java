@@ -11,8 +11,6 @@ package etomica;
  */
 public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorGear4:01.07.05/"+IntegratorMD.VERSION;}
-
     protected final AtomIteratorList atomIterator = new AtomIteratorList();
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();

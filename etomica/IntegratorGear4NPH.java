@@ -13,8 +13,6 @@ import etomica.units.*;
  */
 public final class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorGear4NPH:01.10.19/"+IntegratorGear4.VERSION;}
-
     double vol1, vol2, vol3, vol4;
     private /*final*/ ForceSumNPH forceSumNPH;//MeterTPH won't permit this to be final (?)
     private final IteratorDirective allAtoms = new IteratorDirective();

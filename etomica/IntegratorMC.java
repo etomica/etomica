@@ -15,8 +15,6 @@ package etomica;
   */
 public class IntegratorMC extends Integrator implements EtomicaElement {
     
-    public String version() {return "IntegratorMC:02.03.19"+Integrator.VERSION;}
-    
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
     private int moveCount;

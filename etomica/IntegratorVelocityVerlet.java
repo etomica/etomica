@@ -8,8 +8,6 @@ package etomica;
 
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorVelocityVerlet:01.07.05/"+IntegratorMD.VERSION;}
-
     AtomIterator atomIterator;
     
     public final PotentialCalculationForceSum forceSum;

@@ -273,13 +273,21 @@ public abstract class Integrator extends SimulationElement implements java.io.Se
         public static final Type DONE = new Type("Done");         //simulation is finished
         public static final Type INITIALIZE = new Type("Initialize"); //integrator is initializing
         
-      //  private final Type type;//sometimes compiles, sometimes doesn't when declared final
-        private Type type;
+        private final Type type;
         private boolean beforePbc;
-        
+        private int interval;
+
         public IntervalEvent(Integrator source, Type t) {
             super(source);
             type = t;
+        }
+        public IntervalEvent(Integrator source, int interval) {
+            this(source, INTERVAL);
+            this.interval = interval;
+        }
+        
+        public int getInterval() {
+        	return interval;
         }
         
         /**

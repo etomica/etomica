@@ -14,8 +14,6 @@ package etomica;
  */
 public final class IntegratorConNVT extends IntegratorMD implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorConNVT:03.06.15/"+IntegratorMD.VERSION;}
-
     private final AtomIteratorList atomIterator = new AtomIteratorList();
     
     public final PotentialCalculationForceSum forceSum;
