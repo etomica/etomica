@@ -10,7 +10,6 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
-import etomica.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
