@@ -13,20 +13,18 @@ import java.awt.event.WindowEvent;
 
 /**
  * Device the changes a property using a graphical slider, via a Modulator.
- * Entire visible device consists of slider and a label.  The slider is an instance
- * of a JSlider class, and the label is a JLabel instance; the properties of either object
- * may be set directly by accessing the objects with the getSlider() or getLabel() methods.
  *
  * @see Modulator
  */
 public class DeviceSlider extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceSlider:01.04.10/"+Device.VERSION;}
+    public String getVersion() {return "DeviceSlider:01.05.29/"+Device.VERSION;}
 
     /**
      * Descriptive text label to be displayed with the value
+     * No longer used -- instead apply label via a title border on the slider itself
      */
-    protected JLabel label;
+    private String label;
     /**
      * Modulator connecting the slider to the property
      */
@@ -35,10 +33,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * Swing slider displayed to screen
      */
     protected JSlider slider;
-    /**
-     * Panel to hold slider and label, and returned by the graphic method
-     */
-    protected JPanel panel;
     /**
      * Object with property being modulated
      */
@@ -65,14 +59,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
         slider.setMajorTickSpacing(100);
 //        slider.setMinorTickSpacing(50);
         slider.addChangeListener(new SliderListener());  //SliderListener is an inner class defined below
-        label = new JLabel("");
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout(0,0));
-        panel.add(slider, BorderLayout.SOUTH);        
-        panel.add(label, BorderLayout.CENTER);
         
-        label.addMouseListener(new MouseAdapter() {
+/*        label.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {//right-click
                     Device editor = new DeviceUnitEditor(DeviceSlider.this);
@@ -83,7 +71,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
                     parentSimulation().repaint();
                 }
             }
-        });
+        });*/
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -167,10 +155,9 @@ public class DeviceSlider extends Device implements EtomicaElement {
     
     /**
      * Returns the GUI element for display in the simulation.
-     * Consists of a panel containing the swing slider and label.
      */
     public java.awt.Component graphic(Object obj) {
-        return panel;
+        return slider;
     }
     
     
@@ -180,17 +167,20 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private void setLabelDefault() {
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
         if(modulator != null) 
-            label.setText(StringUtility.capitalize(modulator.getLabel())+suffix);
+            setLabel(StringUtility.capitalize(modulator.getLabel())+suffix);
     }
 
     /**
      * Sets the value of a descriptive label using the given string.
      */
-    public void setLabel(String text) {label.setText(text);}
+    public void setLabel(String text) {
+        label = text;
+        slider.setBorder(new javax.swing.border.TitledBorder(text));
+    }
     /**
      * @return the current instance of the descriptive label.
      */
-    public String getLabel() {return label.getText();}
+    public String getLabel() {return label;}
     
     /**
      * @return a handle to the JSlider instance used by this slider device
@@ -227,6 +217,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         //here's the part unique to this class
         Integrator integrator = sim.integrator;
         DeviceSlider mySlider = new DeviceSlider(integrator,"temperature");
+        mySlider.setUnit(new etomica.units.Unit(etomica.units.Kelvin.UNIT));
         integrator.setIsothermal(true);
         //end of unique part
  

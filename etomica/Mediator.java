@@ -23,7 +23,7 @@ import java.util.Iterator;
     
 public class Mediator implements java.io.Serializable {
 
-    public static String getVersion() {return "01.03.11.0";}
+    public static String getVersion() {return "01.03.11";}
     private Simulation parentSimulation;
     private final HashMap2 mediatorTable = new HashMap2();
     
@@ -514,6 +514,21 @@ public class Mediator implements java.io.Serializable {
                 }
             }
         }//end of Default
+        
+        /**
+         * Adding an instance of this pair mediator will cause the simulation to not
+         * act on the addition of display objects.  This is useful if it is desired to
+         * place the display elements in the simulation frame "by hand", instead of using
+         * the simple default behavior.
+         */
+        public static class NoAction extends DisplayNull {
+            public NoAction(Mediator m) {
+                super(m);
+                setSuperceding(true);//causes all previously added mediators to be ignored
+            }
+            
+            public void add(Display display) {}
+        }//end of NoAction
     }//end of DisplayNull
     public abstract static class DeviceNull extends Subset {
         public DeviceNull(Mediator m) {
@@ -548,6 +563,21 @@ public class Mediator implements java.io.Serializable {
                 }
             }
         }//end of Default
+
+        /**
+         * Adding an instance of this pair mediator will cause the simulation to not
+         * act on the addition of device objects.  This is useful if it is desired to
+         * place the device elements in the simulation frame "by hand", instead of using
+         * the simple default behavior.
+         */
+        public static class NoAction extends DeviceNull {
+            public NoAction(Mediator m) {
+                super(m);
+                setSuperceding(true);//causes all previously added mediators to be ignored
+            }
+            
+            public void add(Device device) {}
+        }//end of NoAction
     }//end of DeviceNull
     
     public abstract static class IntegratorNull extends Subset {

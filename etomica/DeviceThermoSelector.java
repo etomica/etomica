@@ -14,6 +14,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
      * Descriptive text label to be displayed with the value
      */
     private javax.swing.JComboBox selector;
+    private javax.swing.JLabel label;
     private final String adiabaticString = "Adiabatic";
     private Integrator integrator;
     
@@ -27,6 +28,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         selector = new javax.swing.JComboBox();
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
+        label = new javax.swing.JLabel("");
         setUnit(new Unit(Kelvin.UNIT));
         
         
@@ -77,6 +79,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     }
     
     public javax.swing.JComboBox getSelector() {return selector;}
+    public javax.swing.JLabel getLabel() {return label;}
     
     public final void setIncludeAdiabatic(boolean b) {
         if(selector.getItemCount() == 0) includeAdiabatic = false;
@@ -110,6 +113,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
      */
     public void setUnit(Unit u) {
         super.setUnit(u);
+        label.setText("Temperature ("+unit.symbol()+")");
     }
     
     
@@ -119,7 +123,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
      */
     public java.awt.Component graphic(Object obj) {
         javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
-        panel.add(new javax.swing.JLabel("Temperature ("+unit.symbol()+")"),java.awt.BorderLayout.NORTH);
+        panel.add(label, java.awt.BorderLayout.NORTH);
         panel.add(selector, java.awt.BorderLayout.SOUTH);
         panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
         return panel;

@@ -20,6 +20,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      * Descriptive text label to be displayed with the value
      */
     protected JLabel label;
+    private String labelPosition;
     /**
      * Object for displaying the value as a text field
      */
@@ -28,7 +29,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      * Displayed panel that holds the label and value
      * (not yet used; meant to implement to make lightweight display)
      */
-    protected JPanel panel = new JPanel();
+    protected JPanel panel = new JPanel(new java.awt.BorderLayout());
     /**
      * Datum source that generates the displayed value
      */
@@ -62,8 +63,8 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         value = new JTextField("");
         value.setEditable(false);
         setPrecision(4);
-        panel.add(label);
-        panel.add(value);
+        panel.add(label, java.awt.BorderLayout.NORTH);
+        panel.add(value, java.awt.BorderLayout.CENTER);
         unit = new Unit(BaseUnit.Null.UNIT);
         setUpdateInterval(5);
         panel.setSize(100,60);
@@ -156,17 +157,23 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      * Sets the value of a descriptive label using the given string.
      */
     public void setLabel(String s) {
-        JLabel oldLabel = label;
+        label.setText(s);
+/*        JLabel oldLabel = label;
         label = new JLabel(s);
         panel.remove(oldLabel);
         panel.add(label, 0);
-        support.firePropertyChange("label",oldLabel,label);
+        support.firePropertyChange("label",oldLabel,label);*/
     }
     /**
      * @return the current value of the descriptive label.
      */
     public String getLabel() {return label.getText();}
     
+    public void setLabelPosition(Constants.Direction position) {
+        panel.remove(label);
+        panel.add(label,position.toString());//toString() returns the corresponding BorderLayout constant
+//        support.firePropertyChange("label",oldLabel,label);
+    }
     /**
      * Sets the display text to reflect the desired value from the meter.
      */
