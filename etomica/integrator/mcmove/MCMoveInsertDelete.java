@@ -32,7 +32,7 @@ public class MCMoveInsertDelete extends MCMove {
     protected double mu;
     
     //directive must specify "BOTH" to get energy with all atom pairs
-    private final MeterPotentialEnergy energyMeter;
+    protected final MeterPotentialEnergy energyMeter;
 	protected Species species;
 	protected AtomTreeNodeGroup speciesAgentNode;
     protected SpeciesAgent speciesAgent;
@@ -42,8 +42,8 @@ public class MCMoveInsertDelete extends MCMove {
 	protected double uNew = Double.NaN;
 	protected boolean insert;
 	protected final AtomList reservoir;
-    private final AtomActionTranslateTo atomTranslator;
-    private AtomFactory moleculeFactory;
+    protected final AtomActionTranslateTo atomTranslator;
+    protected AtomFactory moleculeFactory;
 
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
