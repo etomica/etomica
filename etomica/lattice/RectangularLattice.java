@@ -401,6 +401,7 @@ public class RectangularLattice implements FiniteLattice {
             neighborCount = (direction == null) ? 2*halfNeighborCount : halfNeighborCount;
             int centralSiteIndex = lattice.arrayIndex(centralSite);
             cursor = 0;
+            pbc[0] = null;
             nearestImageVectorCursor = (nearestImageVectors.length-1)/2;
             if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
             if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
