@@ -6,6 +6,7 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.Phase;
+import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should
@@ -49,5 +50,11 @@ public class NeighborCriterionAll extends NeighborCriterion {
     public boolean accept(Atom[] a) {
         return true;
     }
-
+    
+    /**
+     * Performs no action
+     */
+    public void setCellIterator(AtomsetIteratorCellular api) {
+        //do nothing
+    }
 }

@@ -74,9 +74,6 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean accept(Atom[] a) {
-//        dr.Ev1Mv2(a[0].coord.position(), a[1].coord.position());
-//        return dr.squared() < neighborRadius2;
-
 		cPair.reset(a[0].coord,a[1].coord);
 		if (Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
 			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) { 

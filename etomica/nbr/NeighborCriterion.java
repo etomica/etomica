@@ -6,6 +6,7 @@ package etomica.nbr;
 import etomica.Atom;
 import etomica.AtomsetFilter;
 import etomica.Phase;
+import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,
@@ -44,6 +45,14 @@ public abstract class NeighborCriterion implements AtomsetFilter {
      * used by needUpdate and unsafe() methods should be reset.  
      */
 	public abstract void reset(Atom atom);
+    
+    /**
+     * Neighbor list is to be used with cell lists, and this identifies
+     * the cell iterator to the neighbor criterion, so it can use the
+     * iterator for minimum-image calculations.
+     * @param api
+     */
+    public abstract void setCellIterator(AtomsetIteratorCellular api);
 	
 	//TODO consider ways to ensure this is removed from nbrmanager if no longer used
 }

@@ -14,7 +14,6 @@ import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
-import etomica.lattice.RectangularLattice;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**
@@ -30,10 +29,9 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
 	 * Iterator will give all iterates of the given iterator
 	 * until another filter is specified.
 	 */
-    //specific to AtomsetIteratorMolecule because used by PotentialMasterCell
-//	public ApiFiltered(AtomsetIteratorMolecule iterator) {
-//		this(iterator, AtomsetFilter.ACCEPT_ALL);
-//	}
+	public ApiFiltered(ApiMolecule iterator) {
+		this(iterator, new NeighborCriterionAll());
+	}
 	
 	/**
 	 * Returns the iterates of the given iterator that meet
@@ -41,7 +39,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
 	 * @param iterator
 	 * @param filter
 	 */
-	public ApiFiltered(ApiMolecule iterator, NeighborCriterionSimple filter) {
+	public ApiFiltered(ApiMolecule iterator, NeighborCriterion filter) {
         if(iterator.nBody() != 2) throw new IllegalArgumentException("Illegal attempt to construct pair iterator by wrapping a non-pair iterator");
 		this.iterator = iterator;
 		this.filter = filter;
@@ -158,7 +156,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule {
 	}
 
 	private final ApiMolecule iterator;
-	private final NeighborCriterionSimple filter;
+	private final NeighborCriterion filter;
 	private Atom[] next;
 	private final Atom[] nextAtoms;
 
