@@ -115,11 +115,14 @@ public class P2SquareWell extends Potential2HardSpherical {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
-        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
-        pair[1].coord.position().Ea1Tv1(falseTime,dv);
-        if(nudge != 0) cPair.nudge(nudge);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PEa1Tv1(pair[0].type.rm(),dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().PEa1Tv1(-pair[1].type.rm(),dv);
+        pair[0].coord.position().PEa1Tv1(-falseTime*pair[0].type.rm(),dv);
+        pair[1].coord.position().PEa1Tv1(falseTime*pair[1].type.rm(),dv);
+        if(nudge != 0) {
+            pair[0].coord.position().PEa1Tv1(-nudge,dr);
+            pair[1].coord.position().PEa1Tv1(nudge,dr);
+        }
     }//end of bump method
 
     public double lastCollisionVirial() {
