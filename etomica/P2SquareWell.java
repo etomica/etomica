@@ -167,7 +167,7 @@ public class P2SquareWell extends Potential2HardSpherical {
    */
     public double u(double r2) {
         return ( r2 < wellDiameterSquared) ? 
-            ((r2 < coreDiameterSquared) ? Double.POSITIVE_INFITY : -epsilon) : 0.0;
+            ((r2 < coreDiameterSquared) ? Double.POSITIVE_INFINITY : -epsilon) : 0.0;
     }
 
     public double energyChange() {return lastEnergyChange;}
