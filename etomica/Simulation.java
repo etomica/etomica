@@ -331,11 +331,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     */
     public Species lastSpecies;
     
-    //Instances used as default molecular potentials, for molecules and pairs that don't have 
-    //Potential1 and Potential2 set explicitly.
-    private Potential1 p1Null;
-    private P2IdealGas p2IdealGas;
-    
+    public static final java.util.Random random = new java.util.Random();
+        
     /**
      * A visual display of the simulation via a JPanel.
      * This may become more important if Simulation itself is revised to not extend JPanel.

@@ -98,7 +98,8 @@ public class AtomPairIterator implements java.io.Serializable {
         
     /**
      * Resets the iterator so that it iterates over all pairs formed with the 
-     * given atom.
+     * given atom in the most recently specified iterator directive (default UP is
+     * if none previously specified.
      */
     public void reset(Atom atom) {
         if(ai1.contains(atom)) setOuterInner(ai1, ai2);

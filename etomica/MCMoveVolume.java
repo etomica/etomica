@@ -82,7 +82,7 @@ public class MCMoveVolume extends MCMove {
 		energy.getHistory().setNValues(500);		
 		DisplayPlot plot = new DisplayPlot();
 		plot.setLabel("Energy");
-		plot.setDataSource(energy.getHistory());
+		plot.setDataSources(energy.getHistory());
 
 	    Simulation.instance.elementCoordinator.go();
         

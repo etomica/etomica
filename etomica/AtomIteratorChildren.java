@@ -11,7 +11,7 @@ public final class AtomIteratorChildren implements AtomIterator {
     
     private AtomIterator parentIterator;
     private boolean hasNext;
-    private IteratorDirective directive;
+    private final IteratorDirective directive = new IteratorDirective();
     private boolean setAsNeighbor = false;
     private AtomIterator currentIterator;
     
@@ -30,7 +30,7 @@ public final class AtomIteratorChildren implements AtomIterator {
     }
     
     public Atom reset(IteratorDirective id) {
-        directive = id;
+        directive.copy(id);
         parentIterator.reset(id);
         return reset();
     }

@@ -11,7 +11,7 @@ public class IteratorDirective implements java.io.Serializable {
     private Atom atom1, atom2;
     private Direction direction;
     private int atomCount;
-    private PotentialCriterion potentialCriteriaHead;
+    PotentialCriterion potentialCriteriaHead;
     
     public IteratorDirective() {
         this(UP);
@@ -19,6 +19,21 @@ public class IteratorDirective implements java.io.Serializable {
     public IteratorDirective(Direction direction) {
         set(direction);
         set();
+    }
+    
+    /**
+     * Puts all settings of this directive to equal those of the given directive.
+     */
+    public void copy(IteratorDirective id) {
+        direction = id.direction();
+        atom1 = id.atom1();
+        atom2 = id.atom2();
+        if(atom1 == null) atomCount = 0;
+        else if(atom2 == null) atomCount = 1;
+        else atomCount = 2;
+        for(PotentialCriterion crit=id.potentialCriteriaHead; crit!=null; crit=crit.nextCriterion()) {
+            addCriterion((PotentialCriterion)crit.clone());
+        }
     }
     
     //returns itself as a convenience, so that it may be set while being passed as an
@@ -100,11 +115,14 @@ public class IteratorDirective implements java.io.Serializable {
      * Class used to define a criterion that must be satisfied by a potential
      * in order for its atoms to be approved for iteration by an iterator directive.
      * Multiple criteria are ordered into a linked list by the iterator directive.
+     * This is made cloneable to support IteratorDirective.copy functionality.
      */
-    public static abstract class PotentialCriterion {
+    public static abstract class PotentialCriterion implements Cloneable {
         /**
          * Definition of criterion.  If this method returns true, the potential's atoms
          * are excluded from iteration.
+         * Note that any subclasses should be sure to override clone method if more than
+         * a shallow copy is appropriate.
          */
         public abstract boolean excludes(PotentialAgent pot);
         
@@ -112,6 +130,14 @@ public class IteratorDirective implements java.io.Serializable {
         private PotentialCriterion nextCriterion;
         public void setNextCriterion(PotentialCriterion next) {nextCriterion = next;}
         public PotentialCriterion nextCriterion() {return nextCriterion;}
+        
+        public Object clone() {
+            Object obj = null;
+            try {
+                obj = super.clone();
+            } catch(CloneNotSupportedException e) {e.printStackTrace();}
+            return obj;
+        }
     }//end of PotentialCriterion
     
 }//end of IteratorDirective    

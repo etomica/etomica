@@ -70,6 +70,7 @@ public class ConfigurationSequential extends Configuration {
                 i++;
             }
         }
-        initializeMomenta(phase.speciesMaster());
+   //     initializeMomenta(phase.speciesMaster());
+        initializeMomenta(atom);
     }
 }

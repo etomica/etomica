@@ -1,6 +1,5 @@
 package etomica;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.Color;
 
  /**
   * Object corresponding to one physical atom or (in subclasses) group of atoms.

@@ -1,7 +1,6 @@
 package etomica;
 import java.awt.Graphics;
 import java.awt.Color;
-import java.util.Random;
 import etomica.units.*;
 
 public class Space2D extends Space implements EtomicaElement {
@@ -44,7 +43,6 @@ public class Space2D extends Space implements EtomicaElement {
     }
         
     public final static class Vector extends Space.Vector {  //declared final for efficient method calls
-        public static final Random random = new Random();
         public static final Vector ORIGIN = new Vector(0.0,0.0);  //anything using WORK is not thread-safe
         public static final Vector WORK = new Vector();
         public double x, y;
@@ -112,23 +110,23 @@ public class Space2D extends Space implements EtomicaElement {
             x *= norm;
             y *= norm;
         }
-        public void randomStep(double d) {x += (2.*random.nextDouble()-1.0)*d; y+= (2.*random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
-        public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d;}
-        public void setRandom(double dx, double dy) {x = random.nextDouble()*dx; y = random.nextDouble()*dy;}
+        public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d; y+= (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
+        public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d;}
+        public void setRandom(double dx, double dy) {x = Simulation.random.nextDouble()*dx; y = Simulation.random.nextDouble()*dy;}
         public void setRandom(Vector u) {setRandom(u.x,u.y);}
         public void setRandomCube() {
-            x = random.nextDouble() - 0.5; 
-            y = random.nextDouble() - 0.5;
+            x = Simulation.random.nextDouble() - 0.5; 
+            y = Simulation.random.nextDouble() - 0.5;
         }
         public void setRandomSphere() {
-            x = Math.cos(2*Math.PI*random.nextDouble()); 
+            x = Math.cos(2*Math.PI*Simulation.random.nextDouble()); 
             y = Math.sqrt(1.0 - x*x);
-            if(random.nextDouble() < 0.5) y = -y;
+            if(Simulation.random.nextDouble() < 0.5) y = -y;
         }
         public void randomDirection() {
-            x = Math.cos(Math.PI*random.nextDouble()); 
+            x = Math.cos(Math.PI*Simulation.random.nextDouble()); 
             y = Math.sqrt(1.0 - x*x);
-            if(random.nextDouble() < 0.5) y = -y;
+            if(Simulation.random.nextDouble() < 0.5) y = -y;
         }
         public void E(Space.Vector u) {E((Vector)u);}
         public void PE(Space.Vector u) {PE((Vector)u);}
@@ -303,11 +301,11 @@ public class Space2D extends Space implements EtomicaElement {
 
         public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
             double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
-      //      momentum().setRandomSphere();
-      //      momentum().TE(magnitude);
+            momentum().setRandomSphere();
+            momentum().TE(magnitude);
             //for debugging
-            momentum().E(position());
-            momentum().TE(magnitude/30.);
+      //      momentum().E(position());
+      //      momentum().TE(magnitude/30.);
         }
     }
     
@@ -431,20 +429,27 @@ public class Space2D extends Space implements EtomicaElement {
             }
         }
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        
         public void randomizeMomentum(double temperature) {
-            work.E(0.0); double sum=0.0;
-            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                coord.randomizeMomentum(temperature);
-                work.PE(coord.momentum());
-                sum++;
-                if(coord == lastChild) break;
-            }
-            work.DE(sum);
-            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                coord.momentum().ME(work);
-                if(coord == lastChild) break;
-            }
-        }
+            switch(((AtomGroup)atom).childCount()) {
+                case 0: return;
+                case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
+                        return;
+                default://multi-atom group
+                    work.E(0.0); double sum=0.0;
+                    for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                        coord.randomizeMomentum(temperature);
+                        work.PE(coord.momentum());
+                        sum++;
+                        if(coord == lastChild) break;
+                    }
+                    work.DE(-sum);
+                    for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                        coord.accelerateBy(work);
+                        if(coord == lastChild) break;
+                    }
+            }//end switch
+        }//end randomizeMomentum
     }//end of CoordinateGroup
 
     public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
@@ -469,7 +474,6 @@ public class Space2D extends Space implements EtomicaElement {
     public static class Orientation extends Space.Orientation {
         //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
         //components in the body-fixed frame
-        public static final Random random = new Random();
         private final double[][] A = new double[D][D];
         private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0), new Vector(0.0,1.0)};
         private final double[] angle = new double[1];
@@ -494,7 +498,7 @@ public class Space2D extends Space implements EtomicaElement {
             needToUpdateA = true;
         }
         public final void randomRotation(double t) {
-            rotateBy((2.*random.nextDouble()-1.0)*t);
+            rotateBy((2.*Simulation.random.nextDouble()-1.0)*t);
         }
         private final void updateRotationMatrix() {
             A[0][0] = A[1][1] = Math.cos(angle[0]);
@@ -545,7 +549,6 @@ public class Space2D extends Space implements EtomicaElement {
         private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
         public Space.Vector dimensions() {return dimensions;}
-        public static final Random random = new Random();
         public BoundaryNone() {super();}
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
@@ -559,8 +562,8 @@ public class Space2D extends Space implements EtomicaElement {
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
         public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
         public Space.Vector randomPosition() {  //arbitrary choice for this method in this boundary
-            temp.x = random.nextDouble(); 
-            temp.y = random.nextDouble(); 
+            temp.x = Simulation.random.nextDouble(); 
+            temp.y = Simulation.random.nextDouble(); 
             return temp;
         }
         public void draw(Graphics g, int[] origin, double scale) {}
@@ -571,7 +574,6 @@ public class Space2D extends Space implements EtomicaElement {
      */
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic {
         private final Vector temp = new Vector();
-        public static final Random random = new Random();
         private final double[][] shift0 = new double[0][D];
         private final double[][] shift1 = new double[1][D]; //used by getOverflowShifts
         private final double[][] shift3 = new double[3][D];
@@ -583,8 +585,8 @@ public class Space2D extends Space implements EtomicaElement {
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {
-            temp.x = dimensions.x*random.nextDouble(); 
-            temp.y = dimensions.y*random.nextDouble(); 
+            temp.x = dimensions.x*Simulation.random.nextDouble(); 
+            temp.y = dimensions.y*Simulation.random.nextDouble(); 
             return temp;}
         public void nearestImage(Space.Vector dr) {nearestImage((Vector)dr);}
         public void nearestImage(Vector dr) {

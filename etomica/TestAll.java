@@ -12,14 +12,15 @@ import javax.swing.*;
 public class TestAll {
     
     static final String classes[] = {
-        "ActionPointVolume", "AtomAction", "ColorSchemeBySpecies",
+        "ActionPointVolume", "AtomAction", "AtomIteratorSequential", "AtomPairIterator",
+        "ColorSchemeBySpecies",
         "ColorSchemeHeteroAtoms", "ColorSchemeTemperature", "DeviceButton",
         "DeviceSlider", "DeviceTable", "DisplayBox", 
         "DisplayMeterHistogram", "DisplayTable", "DisplayToLog",
         "IntegratorGEMC", "IntegratorGear4", "MCMovePointVolume",
         "MCMoveRotate", "MCMoveVolume", "MeterBondOrderParameterQ",
         "MeterPressureByVolumeChange", "MeterPressureHard", "MeterRDF",
-        "Modulator", "ModulatorAbstract", "PotentialAssociationCone",
+        "Modulator", "PotentialAssociationCone",
         "PotentialFieldGravity", "PotentialRoughSphere", "Simulation",
         "SpeciesPistonCylinder", "SpeciesWalls"
     };

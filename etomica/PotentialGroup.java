@@ -42,7 +42,7 @@ public class PotentialGroup extends Potential {
             if(last != null) last.setNextAgent(potential);
             last = potential;
         }
-    }
+    }//end of Agent
         
 }//end of PotentialGroup
     

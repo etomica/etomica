@@ -37,7 +37,7 @@ public abstract class PotentialAgent implements java.io.Serializable {
 
     protected abstract void makeDefaultIterator();
     
-    public abstract void calculate(IteratorDirective id, PotentialCalculation pa);
+    public abstract void calculate(IteratorDirective id, PotentialCalculation pc);
     
     //PotentialAgent.Hard
  /*   public interface Hard {

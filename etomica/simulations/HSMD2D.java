@@ -10,7 +10,7 @@ public class HSMD2D extends Simulation {
     public IntegratorHard integrator;
     public SpeciesDisks species;
     public Phase phase;
-    public P2HardSphere potential;
+    public Potential2 potential;
     public Controller controller;
     public DisplayPhase display;
 
@@ -37,17 +37,9 @@ public class HSMD2D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-        
         Simulation sim = new HSMD2D();
 		sim.elementCoordinator.go(); 
-		
-        f.getContentPane().add(sim.panel());
-        
-        f.pack();
-        f.show();
-        f.addWindowListener(Simulation.WINDOW_CLOSER);
+		Simulation.makeAndDisplayFrame(sim);
     }//end of main
     
 }

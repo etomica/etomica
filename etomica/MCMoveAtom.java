@@ -32,7 +32,7 @@ public class MCMoveAtom extends MCMove {
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
 //        phasePotential.calculate(iteratorDirective.set(a), energy.reset());
 //        uOld = energy.sum();
-        uOld = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
+        uOld = phase.potential.calculate(iteratorDirective.set(a), energy.reset()).sum();
         a.coord.displaceWithin(stepSize);
         phase.boundary().centralImage(a.coord.position());  //maybe a better way than this
         phase.iteratorFactory().moveNotify(a);

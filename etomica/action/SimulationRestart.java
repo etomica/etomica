@@ -18,13 +18,9 @@ public final class SimulationRestart extends SimulationAction {
     
     public static void doAction(Simulation sim) {
         
-        for(Iterator iter=sim.speciesList.iterator(); iter.hasNext(); ) {
-            Species species = (Species)iter.next();
-            species.initializeMoleculeCoordinates();
-        }
         for(Iterator iter=sim.phaseList.iterator(); iter.hasNext(); ) {
             Phase phase = (Phase)iter.next();
-            phase.getConfiguration().initializeCoordinates(phase);
+            phase.getConfiguration().initializeCoordinates(phase.speciesMaster());
         }
         for(Iterator iter=sim.integratorList.iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();

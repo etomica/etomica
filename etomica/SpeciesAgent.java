@@ -24,7 +24,7 @@ public class SpeciesAgent extends AtomGroup {
         }
     }
         
-    public AtomFactory atomFactory() {return factory;}
+    public final AtomFactory moleculeFactory() {return factory;}
     
     /**
      * Overrides super class method and terminates recursive call to identify
@@ -51,7 +51,7 @@ public class SpeciesAgent extends AtomGroup {
         
     public Atom addNewAtom() {
         if(!resizable) return null; //should define an exeception 
-        Atom aNew = atomFactory().makeAtom();
+        Atom aNew = moleculeFactory().makeAtom();
         addAtom(aNew);
         return aNew;
     }

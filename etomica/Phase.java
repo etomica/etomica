@@ -46,8 +46,8 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     private PhaseAction.Inflate inflater;
     private String name;
     private final Simulation parentSimulation;
-    private final PotentialMaster.Agent potential;
-    private final SpeciesMaster speciesMaster;
+    public final PotentialMaster.Agent potential;
+    public final SpeciesMaster speciesMaster;
     private boolean added = false;
     
     public Phase() {
@@ -455,6 +455,21 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         return new AtomIteratorChildren(speciesMaster.new ChildAtomIterator());
     }//end of makeMoleculeIterator
     
+    /**
+     * Makes an iterator that loops through all the (leaf) atoms 
+     * derived from the given species in this phase.
+     */
+    public AtomIterator makeAtomIterator(Species s) {
+        return ((SpeciesAgent)s.getAgent(this)).new LeafAtomIterator();
+    }
+
+    /**
+     * Makes an iterator that loops through all the child atoms (molecules) 
+     * of the given species in this phase.
+     */
+    public AtomIterator makeMoleculeIterator(Species s) {
+        return ((SpeciesAgent)s.getAgent(this)).new ChildAtomIterator();
+    }
     public final AtomIterator atomIterator;
     public final AtomIterator moleculeIterator;
     

@@ -41,13 +41,20 @@ public class AtomGroup extends Atom {
      */
     public Atom firstLeafAtom() {
         if(childrenAreGroups()) {
+            for(Atom a0=firstChild(); a0!=null; a0=a0.nextAtom()) {
+                Atom a1 = ((AtomGroup)a0).firstLeafAtom();
+                if(a1 != null) return a1;
+            }
+            return null;
+        }
+          /* using iterator for loop seems to cause problem with return of null in AtomPairIterator inner loop even though it reports hasNext=true  
             childIterator.reset(UP);
             while(childIterator.hasNext()) {
                 Atom atom = ((AtomGroup)childIterator.next()).firstLeafAtom();
                 if(atom != null) return atom;
             }
             return null;
-        }
+        }*/
         else return firstChild();
     }
     
@@ -56,13 +63,20 @@ public class AtomGroup extends Atom {
      */
     public Atom lastLeafAtom() {
         if(childrenAreGroups()) {
+            for(Atom a0=lastChild(); a0!=null; a0=a0.previousAtom()) {
+                Atom a1 = ((AtomGroup)a0).lastLeafAtom();
+                if(a1 != null) return a1;
+            }
+            return null;
+        }
+          /* using iterator for loop seems to cause problem with return of null in AtomPairIterator inner loop even though it reports hasNext=true  
             childIterator.reset(DOWN);
             while(childIterator.hasNext()) {
                 Atom atom = ((AtomGroup)childIterator.next()).lastLeafAtom();
                 if(atom != null) return atom;
             }
             return null;
-        }
+        } */
         else return lastChild();
     }
 

@@ -44,7 +44,7 @@ public class SimulationEventManager implements java.io.Serializable {
     }
 
 //probably ok to make not synchronized.  Addition and removal of listeners
-//while firing event not disturb complete event firing, since the the link keeps its next/previous
+//while firing event does not disturb complete event firing, since the the link keeps its next/previous
 //handles when removed, and additions are made only to the end of the list
     public void fireEvent(SimulationEvent event) {
         for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {

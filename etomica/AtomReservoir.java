@@ -46,6 +46,23 @@ public class AtomReservoir extends AtomGroup {
         }
     }
     
+    /**
+     * Override superclass method to terminate chain of notification to parent groups.
+     * Otherwise performs no action.
+     */
+    public void addAtomNotify(Atom atom) {
+        //perhaps throw an exception, since this shouldn't be called
+    }
+    
+    /**
+     * Override superclass method to terminate chain of notification to parent groups.
+     * Otherwise performs no action.
+     */
+    public void removeAtomNotify(Atom atom) {
+        //perhaps throw an exception, since this shouldn't be called
+    }
+    
+    
     public Atom removeAtom() {
         Atom atom = null;
         while(atom == null && count > 0) {

@@ -1,13 +1,14 @@
 package etomica;
 
-import java.util.Random;
-
 public class MCMoveInsertDelete extends MCMove {
     
-    private final Random rand = new Random();
     double mu;
-    private final IteratorDirective iteratorDirective = new IteratorDirective();
+    //directive should specify "BOTH" to get energy with all atom pairs
+    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private Atom testMolecule;
+    private Species species;
+    private SpeciesAgent speciesAgent;
 
     public MCMoveInsertDelete() {
         super();
@@ -18,57 +19,55 @@ public class MCMoveInsertDelete extends MCMove {
         setTunable(false);
     }
     
+//perhaps should have a way to ensure that two instances of this class aren't assigned the same species
+    public void setSpecies(Species s) {
+        species = s;
+        testMolecule = species.moleculeFactory().makeAtom();
+        if(phase != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
+    }
+    public Species getSpecies() {return species;}
+    
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        if(species != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
+    }
+    
     public final void thisTrial() {
-        if(rand.nextDouble() < 0.5) {
-            trialInsert();  //update for more species
+        if(Simulation.random.nextDouble() < 0.5) {
+            trialInsert();
         }
         else {
             trialDelete();
         }
     }
                                                                                                                                                                                                                                                                                                                                                                        
-    //Not suited to mixtures
     private final void trialInsert() {
-        Species.Agent s = phase.firstSpecies();
         double uNew;
-        Molecule m = s.parentSpecies().getMolecule();  //makes molecule without adding to species
-        phase.addMolecule(m,s);
-        m.translateTo(phase.randomPosition());
-        energy.reset();
-        m.atomIterator.reset();
-        while(m.atomIterator.hasNext()) {
-            phase.potential().calculate(iteratorDirective, energy);
-        }
-        uNew = energy.sum();
+        testMolecule = species.moleculeFactory().makeAtom();
+        speciesAgent.addAtom(testMolecule);
+        testMolecule.coord.translateTo(phase.randomPosition());
+        uNew = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap
-            phase.deleteMolecule(m);
+            testMolecule.sendToReservoir();
             return;
         }      
-        double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.volume()/(s.moleculeCount()+1);
-        if(bNew < 1.0 && bNew < rand.nextDouble()) {  //reject
-            phase.deleteMolecule(m);
+        double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.volume()/(speciesAgent.moleculeCount()+1);
+        if(bNew < 1.0 && bNew < Simulation.random.nextDouble()) {  //reject
+            testMolecule.sendToReservoir();
         }
         else nAccept++;
     }
     
-    //Not suited to mixtures
     private final void trialDelete() {
-        Species.Agent s = phase.firstSpecies();
-        if(s.moleculeCount() == 0) {return;}
-        double bOld, bNew;
-        int i = (int)(rand.nextDouble()*s.moleculeCount());
-        Molecule m = s.firstMolecule;
-        for(int j=i; --j>=0; ) {m = m.nextMolecule();}
-        energy.reset();
-        m.atomIterator.reset();
-        while(m.atomIterator.hasNext()) {
-            phase.potential().calculate(iteratorDirective, energy);
-        }
-        double uOld = energy.sum();
-        bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
-        bNew = s.nMolecules/(phase.volume());
-        if(bNew > bOld || bNew > rand.nextDouble()*bOld) {  //accept
-            phase.deleteMolecule(m);
+        if(speciesAgent.moleculeCount() == 0) {return;}
+        int i = (int)(Simulation.random.nextDouble()*speciesAgent.moleculeCount());
+        Atom m = speciesAgent.firstMolecule();
+        for(int j=i; --j>=0; ) {m = m.nextAtom();}
+        double uOld = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+        double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
+        double bNew = speciesAgent.moleculeCount()/(phase.volume());
+        if(bNew > bOld || bNew > Simulation.random.nextDouble()*bOld) {  //accept
+            m.sendToReservoir();
             nAccept++;
         }           
     }

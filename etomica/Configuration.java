@@ -30,23 +30,24 @@ public abstract class Configuration implements java.io.Serializable {
         atom.coord.randomizeMomentum(temperature);
         
         /**   zero com momentum here or in coordinate?*/
-        work.E(0.0);
+  /*      work.E(0.0);
         int sum = 0;
-            AtomIterator iterator = ((AtomGroup)atom).childIterator;
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom a = iterator.next();
-                a.coord.randomizeMomentum(temperature);
-                sum++;
-                work.PE(a.coord.momentum());
-	        }
+        AtomIterator iterator = ((AtomGroup)atom).childIterator;
+        iterator.reset();
+        while(iterator.hasNext()) {
+            Atom a = iterator.next();
+            a.coord.randomizeMomentum(temperature);
+            sum++;
+            work.PE(a.coord.momentum());
+	    }
+	    if(sum < 2) return;  //don't zero COM momentum if only one atom
     //    Zero center-of-mass momentum
         work.DE((double)sum);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                iterator.next().coord.momentum().ME(work);
-            }
-    }
+        iterator.reset();
+        while(iterator.hasNext()) {
+            iterator.next().coord.momentum().ME(work);
+        }*/
+    }//end of initializeMomenta
         
     
     public abstract void initializeCoordinates(Atom group);

@@ -15,7 +15,7 @@ import java.awt.event.InputEvent;
  
 public class DisplayBox extends Display implements Dimensioned, DatumSource.User, EtomicaElement {
     
-    public String getVersion() {return "DisplayBox:01.06.02/"+Display.VERSION;}
+    public String getVersion() {return "DisplayBox:01.07.16/"+Display.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
@@ -226,24 +226,37 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
+    public static void main(String[] args) {
 
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
+   //     etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+   //     Simulation.instance = sim;
+
+        Simulation sim = Simulation.instance;
+	    IntegratorHard integrator = new IntegratorHard();
+	    Species species = new SpeciesDisks();
+	    species.setNMolecules(25);
+	    Phase phase = new Phase();
+	    Controller controller = new Controller();
+	    Display display = new DisplayPhase();
+	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+	    timer.setUpdateInterval(10);
+		
+        Potential2 potential = new P2SquareWell(sim);
+ //       Potential2 potential = new P2HardSphere(sim);
+		sim.elementCoordinator.go();
+        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase));
 
         //part that is unique to this demonstration
-        PotentialSquareWell potential = new PotentialSquareWell(sim);
-        sim.p2 = new P2SimpleWrapper(sim,sim.potential);
-        Modulator mod1 = new Modulator(sim.integrator, "timeStep");
+        Modulator mod1 = new Modulator(integrator, "timeStep");
         Meter ke = new MeterKineticEnergy();
-        ke.setPhase(sim.phase);
+        Meter energy = new MeterEnergy();
+        ke.setPhase(phase);
         DisplayBox box = new DisplayBox();
         box.setDatumSource(ke);
         box.setUpdateInterval(10);
         //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
-        DisplayBox box0 = new DisplayBox.Energy(sim.phase);
+        DisplayBox box0 = new DisplayBox(energy);
         box0.setWhichValue(MeterAbstract.CURRENT);
         box0.setLabelType(DisplayBox.STRING);
         box0.setLabelPosition(Constants.SOUTH);
@@ -252,19 +265,11 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
 		box1.setDatumSource(mod1);
         //end of unique part
                                             
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		                                    
-        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+		Simulation.instance.elementCoordinator.go(); 		                                    
+        Simulation.makeAndDisplayFrame(Simulation.instance);
     }
 
- */   
+    
     
     /********** Utility method for formatting a double to a string **************/
     

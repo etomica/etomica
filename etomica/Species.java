@@ -63,16 +63,18 @@ import etomica.utility.LinkedList;
 public abstract class Species implements Simulation.Element, java.io.Serializable {
 
     public static final String VERSION = "Species:01.07.09";
+    private static int instanceCount = 0;
+    
     private Simulation parentSimulation;
     private boolean added = false;
     protected AtomFactory factory;
-    private int index;
+    public final int index;
     
     public Species(Simulation sim, AtomFactory factory) {
         parentSimulation = sim;
         this.factory = factory;
         parentSimulation.register(this);
-        index = ((LinkedList)sim.speciesList()).size();
+        index = instanceCount++;
         name = "Species "+Integer.toString(index);
     }
           
@@ -83,9 +85,15 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     
     public AtomFactory moleculeFactory() {return factory;}
     
+    /**
+     * Returns an iterator of this species (leaf) atoms in the given phase.
+     */
     public AtomIterator makeAtomIterator(Phase p) {
         return getAgent(p).new LeafAtomIterator();
     }
+    /**
+     * Returns an iterator of this species agent's children (molecules) in the given phase.
+     */
     public AtomIterator makeMoleculeIterator(Phase p) {
         return getAgent(p).new ChildAtomIterator();
     }
@@ -130,7 +138,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      */
     public String getName() {return name;}
     
-    public int index() {return index;}
+ //   public int index() {return index;}
 
     /**
      * Method to set the name of this species

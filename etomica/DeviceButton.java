@@ -70,9 +70,6 @@ public class DeviceButton extends Device implements EtomicaElement {
      * Slider is used to control the temperature of a hard-disk MD simulation
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-                
         
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
@@ -82,13 +79,7 @@ public class DeviceButton extends Device implements EtomicaElement {
         DeviceButton button = new DeviceButton(action);
         //end of unique part
  
-        Simulation.instance.elementCoordinator.go();
-        f.getContentPane().add(sim.panel());         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        sim.elementCoordinator.go();
+        Simulation.makeAndDisplayFrame(sim);
     }
 }
