@@ -29,22 +29,22 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
         f.setType(type);
         return f;
     }
-    
-//    public SpeciesSpheresMono() {
-//        this(Simulation.getDefault());
-//    }
-    
+
+    /**
+     * Constructs instance with space and AtomSequencer.Factory taken from
+     * given simulation, and using default number of molecules given by
+     * Default.MOLECULE_COUNT.
+     */
     public SpeciesSpheresMono(Simulation sim) {
         this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT);
     }
         
     /**
-     * Constructs instance with simple sequencer factory and default
-     * number of molecules given by Default.MOLECULE_COUNT. 
-     * @param space
+     * Constructs instance with default number of molecules given by
+     * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresMono(Space space) {
-        this(space, AtomSequencerSimple.FACTORY, Default.MOLECULE_COUNT);
+    public SpeciesSpheresMono(Space space, AtomSequencer.Factory seqFactory) {
+        this(space, seqFactory, Default.MOLECULE_COUNT);
     }
     
     public SpeciesSpheresMono(Space space, AtomSequencer.Factory seqFactory, int nM) {

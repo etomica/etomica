@@ -161,7 +161,7 @@ public final class SpeciesMaster extends Atom {
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         AtomSequencer.Factory seqFactory = sim.potentialMaster.sequencerFactory();
-        Species species2 = new SpeciesSpheresMono(sim.space);
+        Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim.space,seqFactory,3,3);
         Species species0 = new SpeciesSpheres(sim.space,seqFactory,3,2);
         species0.setNMolecules(4);

@@ -93,7 +93,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 		Crystal crystal = new CrystalFcc(space);
 		ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
 		phase.setConfiguration(configuration);
-		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(sim);
+		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
 		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();
 	}

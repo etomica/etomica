@@ -73,10 +73,10 @@ public class ConfigurationFcc extends Configuration {
 //    Default.DISPLAY_USE_OPENGL = false;
     etomica.Phase phase0  = new etomica.Phase(sim.space);
     phase0.setConfiguration(new ConfigurationFcc(sim.space));
-    etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
+    etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono(sim);
 //    etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
       speciesSpheres0.setNMolecules(32);
-    etomica.graphics.DisplayPhase displayPhase0  = new etomica.graphics.DisplayPhase();
+    etomica.graphics.DisplayPhase displayPhase0  = new etomica.graphics.DisplayPhase(phase0);
     displayPhase0.setColorScheme(new etomica.graphics.ColorSchemeByType());
     etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0, new java.awt.Color(0,255,0));
     sim.mediator().go(); 
