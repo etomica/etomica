@@ -300,6 +300,13 @@ public abstract class Integrator implements java.io.Serializable {
 	}
     
     /**
+     * Removes all interval listeners.
+     */
+    public synchronized void clearIntervalListeners() {
+        intervalListeners.clear();
+    }
+    
+    /**
      * Finds and returns the ListenerWrapper used to put the given listener in the list.
      * Returns null if listener is not in list.
      */
