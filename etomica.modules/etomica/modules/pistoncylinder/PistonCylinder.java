@@ -46,7 +46,7 @@ public class PistonCylinder extends Simulation {
         Default.ATOM_MASS = 16;
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(112);
-        phase = new Phase(space);
+        phase = new Phase(this);
         phase.setBoundary(new BoundaryNone(space));
         Vector newDim;
         if (space.D() == 2) {
@@ -56,8 +56,6 @@ public class PistonCylinder extends Simulation {
             newDim = new Vector3D(80,80,80);
         }
         phase.boundary().setDimensions(newDim);
-        
-        phase.speciesMaster.addSpecies(species);
         
         P2SquareWell potentialSW = new P2SquareWell(space,Default.ATOM_SIZE,lambda,31.875);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
