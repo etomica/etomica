@@ -108,7 +108,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         }
         lastVirial[1-imin] = 0.0;
         lastVirial[imin] = atom.type.getMass()*2.0*v.x(imin)*collisionRadius;
-        ((ICoordinateKinetic)atom.coord).velocity().setX(imin,-v.x(imin));
+        v.setX(imin,-v.x(imin));
         // dv = 2*NewVelocity
         double newP = atom.coord.position().x(imin) - falseTime*v.x(imin)*2.0;
         atom.coord.position().setX(imin,newP);
