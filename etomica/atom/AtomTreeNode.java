@@ -119,7 +119,7 @@ public abstract class AtomTreeNode {
      * that is one step below a species agent in the hierarchy of atomgroups.
      */
     public Atom parentMolecule() {
-        return (parentNode.atom() instanceof SpeciesAgent) ? this.atom : parentNode.parentMolecule();
+        return (parentNode instanceof SpeciesAgent.AgentAtomTreeNode) ? this.atom : parentNode.parentMolecule();
     }
                 
     /**

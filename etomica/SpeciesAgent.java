@@ -115,10 +115,10 @@ public final class SpeciesAgent extends Atom {
     /**
      * Special AtomTreeNode class for SpeciesAgent.
      */
-    private static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
+    public static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
         
         private final Species parentSpecies;
-        AgentAtomTreeNode(Species parentSpecies, Atom atom, AtomTreeNodeGroup speciesMasterNode) {
+        private AgentAtomTreeNode(Species parentSpecies, Atom atom, AtomTreeNodeGroup speciesMasterNode) {
             super(atom, speciesMasterNode);
             this.parentSpecies = parentSpecies;
             depth = 1;
