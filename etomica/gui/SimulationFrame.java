@@ -1,9 +1,5 @@
 /**
- * SimulationFrame
- *
- * The SimulationFrame class is responsible for creating a new JInternalFrame that contains an instance
- * of the Simulation class (ie. Simulation.instance).  One problem is that once instantiated, the
- * Simulation.instance object cannot be reset
+ * An internal frame that displays the graphical elements of a simulation.
  *
  * @author Bryan C. Mihalick
  * 8/14/00
@@ -24,7 +20,7 @@ public class SimulationFrame extends javax.swing.JInternalFrame {
         super("JApplet1",true,true,true,true);
         simulation = sim;
         setBounds(230, 200, 775, 400);
-		
+		setTitle(simulation.getName());
         ((javax.swing.JInternalFrame)this).getContentPane().add(simulation.panel());
         Simulation.instance = simulation;
     }// end of AppletFrame constructor

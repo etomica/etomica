@@ -2,10 +2,12 @@ package etomica;
 
 import java.util.Random;
 import etomica.units.Dimension;
+import etomica.lattice.*;
+import etomica.utility.OdeSolver;
 import java.awt.*;
 
 /** 
- * Monte Carlo move that changes the system volume by distorting the space, causing
+ * Action that changes the system volume by distorting the space, causing
  * more volume to be placed at one point selected at random.  Space is distorted from
  * this point until reaching the boundaries, where it becomes a uniform translation.
  *
@@ -13,105 +15,152 @@ import java.awt.*;
  * @author David Kofke
  */
 
-public class MCMovePointVolume extends MCMove {
+public class ActionPointVolume extends PhaseAction implements DisplayPhase.DrawingObject {
     
-    private final Random rand = new Random();
-    protected double pressure;
-    protected PhaseAction.Inflate inflate;
+    private boolean drawPoints = true;
+    private boolean drawCells = false;
+    private boolean fillCells = false;
+    MyLattice lattice;
+    Space2D.Vector s = new Space2D.Vector();  //temporary
 
-    public MCMovePointVolume() {
+    public ActionPointVolume() {
         super();
-        setStepSizeMax(1.0);
-        setStepSizeMin(0.0);
-        setStepSize(0.10);
-        setPressure(Default.PRESSURE);
-//        lattice = new MyLattice(6,new VelocityField(2,20), 0.015);
+        lattice = new MyLattice(6,new VelocityField(2,20), 0.015);
     }
         
-    public void thisTrial() {
-        double hOld, hNew, vOld, vNew;
-        vOld = phase.volume();
-        hOld = phase.energy.potential() + pressure*vOld;
-        
-        if(Math.random() < 0.5) { //transform square to distorted
+    public void actionPerformed() {
+        for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
+            s.E(a.position());
+            s.DE(phase.dimensions());
+            MyCell cell = lattice.getOriginalCell(s);
+            cell.transform(s,1.0);
+            s.TE(phase.dimensions());
+            a.displaceTo(s);
         }
-        else { //transform distorted back to square
-        }
+    }
         
-        double vScale = (2.*Math.random()-1.)*stepSize;
-        vNew = vOld * Math.exp(vScale); //Step in ln(V)
-        double rScale = Math.exp(vScale/(double)phase.parentSimulation().space().D());
-        inflate.actionPerformed(phase,rScale);
-        hNew = phase.energy.potential() + pressure*vNew;
-        if(hNew >= Double.MAX_VALUE ||
-             Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount+1)*vScale)
-                < Math.random()) 
-            {  //reject
-              inflate.retractAction();
-            }
-        nAccept++;   //accept
+    public boolean getDrawPoints() {return drawPoints;}
+    public void setDrawPoints(boolean b) {drawPoints = b;}
+    public boolean getFillCells() {return fillCells;}
+    public void setFillCells(boolean b) {fillCells = b;}
+    public boolean getDrawCells() {return drawCells;}
+    public void setDrawCells(boolean b) {drawCells = b;}
+    
+    /**
+     * Method to draw the grid of original/deformation points.
+     * To use, add the instance of this class to the displayPhase via addDrawingObject.
+     */
+    public void draw(Graphics g, int[] origin, double scale) {
+        int toPixels = (int)(scale * etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
+        if(drawPoints) drawPoints(g, origin, toPixels);
+        if(drawCells) drawCells(g, origin, toPixels);
     }
     
-    public void setPressure(double p) {pressure = p;}
-    public final double getPressure() {return pressure;}
-    public final double pressure() {return pressure;}
-    public Dimension getPressureDimension() {return Dimension.PRESSURE;}
-    public final void setLogPressure(int lp) {setPressure(Math.pow(10.,(double)lp));}
-        
+    private void drawPoints(Graphics g, int[] origin, int toPixels) {
+        double diameter = 1.0;
+        int sigmaP = (int)(toPixels*diameter);
+        double xL = phase.boundary().dimensions().component(0);
+        double yL = phase.boundary().dimensions().component(1);
+        SiteIterator iter = lattice.iterator();
+        while(iter.hasNext()) {
+                MySite site = (MySite)iter.next();
+                Space.Vector r = site.originalPosition;
+                int xP = origin[0] + (int)(toPixels*(xL*r.component(0)-0.5*diameter));
+                int yP = origin[1] + (int)(toPixels*(yL*r.component(1)-0.5*diameter));
+                g.setColor(java.awt.Color.red);
+                g.fillOval(xP,yP,sigmaP,sigmaP);
+                
+                r = site.deformedPosition;
+                xP = origin[0] + (int)(toPixels*(xL*r.component(0)-0.5*diameter));
+                yP = origin[1] + (int)(toPixels*(yL*r.component(1)-0.5*diameter));
+                g.setColor(java.awt.Color.black);
+                g.fillOval(xP,yP,sigmaP,sigmaP);
+        }//end of while
+    }//end of drawPoints
+    
+    private void drawCells(Graphics g, int[] origin, int toPixels) {
+        SiteIterator iter = lattice.iterator();
+        double toPixelsX = toPixels*phase.boundary().dimensions().component(0);
+        double toPixelsY = toPixels*phase.boundary().dimensions().component(1);
+        while(iter.hasNext()) {
+            MySite site = (MySite)iter.next();
+            MyCell cell = site.c1;
+            if(cell == null) continue;
+            java.awt.Polygon triangle = cell.getDeformedPolygon(origin,toPixelsX, toPixelsY);               
+            if(fillCells) {g.setColor(Constants.randomColor()); g.fillPolygon(triangle);}
+            else g.drawPolygon(triangle);
+        }//end while
+    }//end of drawCells
+    
     public static void main(String args[]) {
         
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
-        
-        Default.ATOM_SIZE = 1.0;
-        
+                
         Simulation sim = new Simulation(new Space2D());
         Simulation.instance = sim;
-        Species species = new SpeciesDisks(sim);
-        Potential2 potential = new P2SimpleWrapper(sim,new PotentialHardDisk(sim));
-        IntegratorMC integrator = new IntegratorMC(sim);
-        MCMove mcMoveAtom = new MCMoveAtom();
-        MCMovePointVolume mcMovePointVolume = new MCMovePointVolume();
-        Controller controller = new Controller(sim);
+        final ActionPointVolume actionPointVolume = new ActionPointVolume();
+        SpeciesDisks species = new SpeciesDisks();
         final Phase phase = new Phase(sim);
         final DisplayPhase displayPhase = new DisplayPhase(sim);
         displayPhase.setScale(0.7);
-        DeviceSlider slider = new DeviceSlider(mcMovePointVolume, "pressure");
-        slider.setMinimum(0);
-        slider.setMaximum(100);
         
-        mcMovePointVolume.setPhase(phase);
-        integrator.add(mcMoveAtom);
-        integrator.add(mcMovePointVolume);
+        actionPointVolume.setPhase(phase);
 
-        species.setNMolecules(0);
-                
+		final MyLattice lattice = actionPointVolume.lattice;
+        
+    //    displayPhase.addDrawingObject(actionPointVolume);
+    //    actionPointVolume.setDrawCells(true);
+    //    actionPointVolume.setFillCells(true);
+        
 		Simulation.instance.elementCoordinator.go();
 		
-//		phase.boundary().dimensions().TE(0,lattice.scale);
+	//	This listener allows interactive testing of lattice getCell methods
+		displayPhase.addDisplayPhaseListener(new DisplayPhaseListener() {
+		    public void displayPhaseAction(DisplayPhaseEvent evt) {
+		        actionPointVolume.actionPerformed();
+		        displayPhase.repaint();
+	/*	        Space2D.Vector r = (Space2D.Vector)evt.getPoint();
+		        Space2D.Vector dimensions = (Space2D.Vector)phase.boundary().dimensions();
+		        r.DE(dimensions);
+//		        MyCell cell = lattice.getOriginalCell((Space2D.Vector)r);
+		        MyCell cell = lattice.getDeformedCell((Space2D.Vector)r);
+		        java.awt.Graphics g = displayPhase.graphic(null).getGraphics();
+//		        g.fillPolygon(cell.getOriginalPolygon(
+		        g.fillPolygon(cell.getDeformedPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
+
+                //fill in neighboring cells on original lattice
+		 /*       g.fillPolygon(cell.nbr[0].getOriginalPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
+		        g.fillPolygon(cell.nbr[1].getOriginalPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
+		        g.fillPolygon(cell.nbr[2].getOriginalPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));*/
+		        //fill in neighboring cells on deformed lattice
+	/*	        g.fillPolygon(cell.nbr[0].getDeformedPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
+		        g.fillPolygon(cell.nbr[1].getDeformedPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
+		        g.fillPolygon(cell.nbr[2].getDeformedPolygon(
+		            displayPhase.getOrigin(), 
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.x,
+		            displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS*dimensions.y));
+	*/	    }
+		});
 		
-		
-/*		ColorSchemeBySpecies colorScheme = new ColorSchemeBySpecies();
-		colorScheme.addSpecies(species, new ColorScheme.Simple(java.awt.Color.red));
-		colorScheme.addSpecies(deformed, new ColorScheme.Simple(java.awt.Color.black));
-		displayPhase.setColorScheme(colorScheme);
-		
-		Atom atom = phase.firstAtom();
-		for(int i=0; i<lattice.size; i++) {
-		    for(int j=0; j<lattice.size; j++) {
-		        atom.coordinate.position().E(lattice.sites[i][j].originalPosition);
-		        atom.coordinate.position().TE(phase.boundary().dimensions());
-		        atom = atom.nextAtom();
-		    }
-		}
-		for(int i=0; i<lattice.size; i++) {
-		    for(int j=0; j<lattice.size; j++) {
-		        atom.coordinate.position().E(lattice.sites[i][j].deformedPosition);
-		        atom.coordinate.position().TE(phase.boundary().dimensions());
-		        atom = atom.nextAtom();
-		    }
-		}
-*/		        
         f.add(Simulation.instance.panel()); //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
@@ -119,12 +168,12 @@ public class MCMovePointVolume extends MCMove {
         f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
-    }
+    }//end of main
     
     /**
      * Array of 2D triangular cells formed by bisecting the cells of a square lattice.
      */
- /*   private class MyLattice implements AbstractLattice {
+    private class MyLattice implements AbstractLattice {
         
         SquareLattice squareLattice;
         SiteIterator.List iterator = new SiteIterator.List();
@@ -134,7 +183,7 @@ public class MCMovePointVolume extends MCMove {
         /**
          * Size is the number of sites in each dimension; considered non-periodically
          */
-  /*      MyLattice(int size, final VelocityField vField, double deltaT) {
+        MyLattice(int size, final VelocityField vField, double deltaT) {
             this.size = size;
             size1 = size-1;
             squareLattice = new SquareLattice(size, new MySiteFactory(), 1.0/(double)(size-1));
@@ -379,5 +428,43 @@ public class MCMovePointVolume extends MCMove {
             return triangle;
         }//end of getDeformedPolygon
         
-    }*/
+    }
 }
+
+class VelocityField {
+    
+    double[][] source;
+    double[] velocity;
+    int D;
+    int nSource;
+    double m = 1;
+    VelocityField(int dim, int nSourceHalf) {
+        D = dim;
+        velocity = new double[D];
+        nSource = 2*nSourceHalf + 1;
+        source = new double[nSource][D];
+        int k=0;
+        for(int i=-nSourceHalf; i<=nSourceHalf; i++) {
+            for(int j=0; j<D-1; j++) {
+                source[k][j] = 0.5;
+            }
+            source[k][D-1] = 0.5+(double)i;
+            k++;
+        }
+    }
+        //written for 2D
+    public double[] v(double[] r) {
+        velocity[0] = 0.0;
+        velocity[1] = 0.0;
+        for(int k=0; k<nSource; k++) {
+            double dx = r[0] - source[k][0];
+            double dy = r[1] - source[k][1];
+            double r2 = dx*dx + dy*dy;
+            velocity[0] += dx/r2;
+            velocity[1] += dy/r2;
+        }
+        velocity[0] *= m;
+        velocity[1] *= m;
+        return velocity;
+    }
+}//end of VelocityField

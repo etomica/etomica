@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.Random;
 import etomica.units.*;
 
-public class Space1D extends Space {
+public class Space1D extends Space implements EtomicaElement {
     
     
     public static final int D = 1;
@@ -27,6 +27,11 @@ public class Space1D extends Space {
         else return null;
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("One-dimensional space");
+        return info;
+    }
+
     public static final double r2(Vector u1, Vector u2, Boundary b) {
         Vector.WORK.x = u1.x - u2.x;
         b.nearestImage(Vector.WORK);

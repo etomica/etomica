@@ -12,11 +12,11 @@ public class JAboutDialog extends javax.swing.JDialog {
 
 	//{{DECLARE_CONTROLS
 	javax.swing.JButton okButton = new javax.swing.JButton();
-	javax.swing.JLabel aboutLabel1 = new javax.swing.JLabel();
-	javax.swing.JLabel aboutLabel2 = new javax.swing.JLabel();
-	javax.swing.JLabel aboutLabel3 = new javax.swing.JLabel();
-	javax.swing.JLabel aboutLabel4 = new javax.swing.JLabel();
-	javax.swing.JLabel aboutLabel5 = new javax.swing.JLabel();
+//	javax.swing.JLabel aboutLabel1 = new javax.swing.JLabel();
+//	javax.swing.JLabel aboutLabel2 = new javax.swing.JLabel();
+//	javax.swing.JLabel aboutLabel3 = new javax.swing.JLabel();
+//	javax.swing.JLabel aboutLabel4 = new javax.swing.JLabel();
+//	javax.swing.JLabel aboutLabel5 = new javax.swing.JLabel();
 	java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
 	java.awt.GridBagLayout gbl = new java.awt.GridBagLayout();
 	//}}
@@ -32,32 +32,68 @@ public class JAboutDialog extends javax.swing.JDialog {
 		setTitle("Etomica Molecular Simulation Environment");
 		setModal(true);
 		getContentPane().setLayout(gbl);
-		setSize(350,200);
+		setSize(500,200);
 		setVisible(false);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbl.setConstraints(aboutLabel1, gbc);
-		aboutLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		aboutLabel1.setFont(new Font("Bold", Font.BOLD, 14));
-		aboutLabel1.setText("The Etomica Molecular Simulation Environment");
-		getContentPane().add(aboutLabel1);
+		javax.swing.JLabel aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setFont(new Font("Bold", Font.BOLD, 14));
+		aboutLabel.setText("The Etomica Molecular Simulation Environment");
+		getContentPane().add(aboutLabel);
+		
     	gbc.gridy = 1;
-		gbl.setConstraints(aboutLabel2, gbc);
-		aboutLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		aboutLabel2.setText("Written by Bryan C. Mihalick");
-		getContentPane().add(aboutLabel2);
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("Written by David A. Kofke and Bryan C. Mihalick");
+		getContentPane().add(aboutLabel);
+		
 		gbc.gridy = 2;
-		gbl.setConstraints(aboutLabel4, gbc);
-		aboutLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		aboutLabel4.setText("University at Buffalo");
-		getContentPane().add(aboutLabel4);
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("Department of Chemical Engineering");
+		getContentPane().add(aboutLabel);
+		
 		gbc.gridy = 3;
-		gbl.setConstraints(aboutLabel5, gbc);
-		aboutLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		aboutLabel5.setText("Buffalo, NY 14226");
-		getContentPane().add(aboutLabel5);
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("University at Buffalo, The State University of New York");
+		getContentPane().add(aboutLabel);
+		
 		gbc.gridy = 4;
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("Buffalo, NY 14260-4200");
+		getContentPane().add(aboutLabel);
+		
+		gbc.gridy = 5;
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("with funding provided by the U.S. National Science Foundation");
+		getContentPane().add(aboutLabel);
+		
+		gbc.gridy = 6;
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("and Educational Technology Funds from UB");
+		getContentPane().add(aboutLabel);
+		
+		gbc.gridy = 7;
+		aboutLabel = new javax.swing.JLabel();
+		gbl.setConstraints(aboutLabel, gbc);
+		aboutLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		aboutLabel.setText("Plotting features are based on the Berkeley Ptolemy Plot package");
+		getContentPane().add(aboutLabel);
+		
+		gbc.gridy = 8;
 		gbl.setConstraints(okButton, gbc);
 		okButton.setText("OK");
 		okButton.setActionCommand("OK");

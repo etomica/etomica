@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.Random;
 import etomica.units.*;
 
-public class Space2D extends Space {
+public class Space2D extends Space implements EtomicaElement {
     
     public static final int D = 2;
     public final int D() {return D;}
@@ -30,6 +30,11 @@ public class Space2D extends Space {
         else return null;
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Two-dimensional space");
+        return info;
+    }
+
     public static final double r2(Vector u1, Vector u2, Boundary b) {
         Vector.WORK.x = u1.x - u2.x;
         Vector.WORK.y = u1.y - u2.y;
@@ -256,7 +261,7 @@ public class Space2D extends Space {
         public double kineticEnergy() {return super.kineticEnergy() + 0.5*L*L/I[0];}
         public void freeFlight(double t) {
             super.freeFlight(t);
-            orientation.rotateBy(2, t*L/I[0]);//all elements of I equal for spherical top
+            orientation.rotateBy(t*L/I[0]);//all elements of I equal for spherical top
         }
     }
     

@@ -31,6 +31,7 @@ public class Constants extends Object {
     public static final Color BLUSH = new Color(153,102,102);
     public static final Color TAN = new Color(204,204,153);
     public static final Color RandomColor() {return new Color(random.nextFloat(),random.nextFloat(),random.nextFloat());}
+    public static final Color randomColor() {return new Color(random.nextFloat(),random.nextFloat(),random.nextFloat());}
   
   /* Convenience variables for indicating directions */
   //  public static final int NORTH = 0;

@@ -40,7 +40,7 @@ public class PropertySheet extends JInternalFrame {
 	    getContentPane().setLayout(new GridLayout());
 	    
 	    setBackground(Color.lightGray);	
-        setBounds(x,y, 600, 300);
+        setBounds(x,y, 400, 300);
 	    setMaximizable(true);
 	    setClosable(true);
 	    setIconifiable(true);
@@ -49,10 +49,8 @@ public class PropertySheet extends JInternalFrame {
 	    panel = new PropertySheetPanel(this);
 	    getContentPane().add(panel);
         
-	    panel.setTarget(element);
-        if (element != null)
-	        setTitle("Properties - " + element.getName());
-        else setTitle("Properties - " + "null");
+        setTarget(element);
+        
         //turn off updateThread when closing window.
         addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
             public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {panel.updateThread.clear();}
@@ -60,13 +58,13 @@ public class PropertySheet extends JInternalFrame {
 	    started = true;
     }
 
-    public void setTarget(Simulation.Element e) {
-        String displayName;
-        if (e != null)
-	        displayName = e.getName();
-	    else displayName = null;
-	    panel.setTarget(e);
-	    setTitle("Properties - " + displayName);
+    public void setTarget(Simulation.Element element) {
+        setSize(250,300);///
+	    panel.setTarget(element);
+        if (element != null && element.parentSimulation() != null)
+	        setTitle("Properties - " + element.parentSimulation().getName());
+        else if(Simulation.instance != null) setTitle("Properties - " + Simulation.instance.getName());
+        else setTitle("Properties - " + "null");
     }
 
     void wasModified(PropertyChangeEvent evt) {
@@ -134,7 +132,7 @@ class PropertySheetPanel extends JPanel {
     PropertySheetPanel(PropertySheet frame) {  //constructor
 	    this.frame = frame;
 	    setLayout(null);
-	    setSize(600,300);
+	    setSize(250,300);
 
 	    // Create an event adaptor.
 	    adaptor = new EditedAdaptor(frame);
@@ -176,7 +174,6 @@ class PropertySheetPanel extends JPanel {
         treeTable.setDefaultRenderer(Object.class, new CellRenderer());
         treeTable.setDefaultEditor(Object.class, new CellEditor());
     
-        
         sp = new JScrollPane(treeTable); // Put tree in a scrollable pane
         
         /*
@@ -226,13 +223,13 @@ class PropertySheetPanel extends JPanel {
         add(sp);
         // end of scrollpane, sp, addition.
 	    
+	    frame.getContentPane().removeAll();
 	    frame.getContentPane().add(this);
 	    doLayout(true);
 
 	    processEvents = true;
 
 	    Insets ins = frame.getInsets();
-    	
 	    int frameWidth = getSize().width + ins.left + ins.right + 20;
 	    int frameHeight = getSize().height + ins.top + ins.bottom + 20;
         
@@ -240,7 +237,7 @@ class PropertySheetPanel extends JPanel {
         frameWidth += 200;
 	    frame.setSize(frameWidth,frameHeight);
         setVisible(true);
-    }
+    }//end of setTarget
     
     private PropertyNode makeNode(Object object, JLabel objectLabel, Component objectView, Component objectUnitView) {
 

@@ -52,20 +52,20 @@ public class Etomica {
      * Add simulation to list, adds reference to it to Simulate menu, and makes it the current simulation.
      */
     public static void addSimulation(Simulation sim) {
+        
         simulationList.add(sim);
+        
         //Give name to simulation if it doesn't have one, or if its present name begins with Simulation
         if(sim.getName()==null || sim.getName().startsWith("Simulation")) 
                     sim.setName("Simulation" + Integer.toString(instanceCount));
         instanceCount++;
-        sim.elementCoordinator.go();
         
+        //add to Simulation menu
         JRadioButtonMenuItem item = new JRadioButtonMenuItem(sim.toString());
         java.awt.event.ActionListener listener = new SimulateActions.SelectSimulationAction(sim);
         item.addActionListener(listener);
-        listener.actionPerformed(null); //make new simulation the current one
         bg.add(item);
         item.setSelected(true);
-        
         EtomicaMenuBar.simulationMenu.add(item);
         EtomicaMenuBar.editSimulationItem.setEnabled(true);
         
@@ -74,18 +74,17 @@ public class Etomica {
         simulationFrames.put(sim, simulationFrame);
         simulationFrame.reshape(520, 60, 470, 600);
         simulationFrame.setVisible(false);
-        Etomica.DesktopFrame.desktop.add(simulationFrame);
+//        Etomica.DesktopFrame.desktop.add(simulationFrame);
     // End creation of SimulationFrame   
     
-        SimulationEditor simulationEditor = new SimulationEditor(sim);
-        simulationEditorFrame.setSimulationEditor(simulationEditor);
-        simulationEditorFrame.setVisible(true);
-        simulationEditor.speciesEditor.accountForNewSpecies();
-
+        //make the new simulation the active one for editing
+        selectSimulation(sim);
+        
+        //activate the simulation editor frame if not already open
         if (simulationEditorFrame.isClosed()){
             try {
                 simulationEditorFrame.setClosed(false);
-                Etomica.DesktopFrame.desktop.add(Etomica.simulationEditorFrame);
+                Etomica.DesktopFrame.desktop.add(simulationEditorFrame);
                 simulationEditorFrame.setSelected(true);
             }
             catch(java.beans.PropertyVetoException pve){}
@@ -96,8 +95,32 @@ public class Etomica {
         EtomicaMenuBar.serEditItem.setEnabled(true);
         EtomicaMenuBar.serAppletItem.setEnabled(true);
         //end of new stuff
+
+        sim.elementCoordinator.go();
     }//end of addSimulation
     
+    /**
+     * Makes the given simulation the current target for building, editing, running, etc.
+     * Also sets the static Simulation.instance field to the given simulation.
+     */
+    public static void selectSimulation(Simulation sim) {
+        Simulation.instance = sim;
+        
+        //return if given simulation is already selected
+        SimulationEditor simulationEditor = simulationEditorFrame.getSimulationEditor();
+        if(simulationEditor != null && simulationEditor.getSimulation() == sim) return;
+        
+        simulationEditor = new SimulationEditor(sim);
+        simulationEditorFrame.setSimulationEditor(simulationEditor);
+        simulationEditorFrame.setVisible(true);
+        simulationEditor.speciesEditor.accountForNewSpecies();
+        simulationEditorFrame.setTitle("Editor - " + sim.getName());
+        if(propertySheet != null) propertySheet.setTarget(null);
+    }
+    
+    /**
+     * Returns the internal frame holding the display of the given simulation.
+     */
     public static SimulationFrame getSimulationFrame(Simulation sim) {
         return (SimulationFrame)simulationFrames.get(sim);
     } 

@@ -19,8 +19,6 @@ import javax.swing.JRadioButton;
 import javax.swing.event.InternalFrameEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.beans.*;
@@ -120,10 +118,11 @@ public class SimulationEditorPane extends EditorPane {
          * its properties are displayed in the property sheet. 
          */
 		rightPaneList.getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-		rightPaneList.addListSelectionListener(new MyListSelectionListener(){
+		rightPaneList.addListSelectionListener(new MyListSelectionListener() {
 		    public void valueChanged(javax.swing.event.ListSelectionEvent lse){
 		        Object obj = rightPaneList.getSelectedValue();
 		        EditActions.setObject(obj);
+		        if(obj == null) return;
 		        
 		        // See if customizer exists for the selected object.  If one does, enable customize
 		        // selection on EditMenu, otherwise disable it.
@@ -137,18 +136,18 @@ public class SimulationEditorPane extends EditorPane {
 		        setCurrentSelection(rightPaneList.getLeadSelectionIndex());
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
-	            if (rightPaneList.getSelectedValue() != null){
-                    propertySheet.setTarget((Simulation.Element)rightPaneList.getSelectedValue());
-                    try {
-                        propertySheet.setSelected(true);
-                    }
-                    catch(java.beans.PropertyVetoException pve){}
+
+                propertySheet.setTarget((Simulation.Element)obj);
+                try {
+                    propertySheet.setSelected(true);
                 }
-	            propertySheet.addInternalFrameListener(new MyInternalFrameAdapter(){
-	                public void internalFrameClosed( InternalFrameEvent ife ){
-	                    rightPaneList.clearSelection();
-	                }});
-    	    }});// end JList instantiation and setup
+                catch(java.beans.PropertyVetoException pve){}
+    	    }});// end of addListSelectionListener statement
+
+	    propertySheet.addInternalFrameListener(new MyInternalFrameAdapter(){
+	        public void internalFrameClosed( InternalFrameEvent ife ){
+	            rightPaneList.clearSelection();
+	        }});
 
 
         leftPanePanel.setLayout(gbl);
@@ -346,14 +345,14 @@ public class SimulationEditorPane extends EditorPane {
     public final void addStartButton(){
         gbc.gridx++;
 	    start.setEnabled(false);
-	    start.addActionListener(new MyActionListener(){
+	    start.addActionListener(ViewActions.SIMULATION);/*new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
 	            SimulationFrame frame = (SimulationFrame)Etomica.simulationFrames.get(simulationEditor.getSimulation());
 	            frame.setVisible(true);
                 try { frame.setSelected(true); }
                 catch (java.beans.PropertyVetoException exc){} // attempt was vetoed
  //               frame.getContentPane().repaint();
-            }});
+            }});*/
         gbl.setConstraints(start, gbc);
 	    leftPanePanel.add(start);
     }// end of start button

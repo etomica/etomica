@@ -19,7 +19,7 @@ import etomica.units.*;
  
  // needs revision to recognize PotentialField classes
  
-public class IntegratorHard extends IntegratorMD {
+public class IntegratorHard extends IntegratorMD implements EtomicaElement {
 
 //convenience handle to the agent holding information about the next collision
 private Agent nextCollider;
@@ -42,6 +42,11 @@ public IntegratorHard() {
 public IntegratorHard(Simulation sim) {
     super(sim);
 }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Collision-based molecular dynamics simulation of hard potentials");
+        return info;
+    }
 
 /**
  * @deprecated; use addPhase instead

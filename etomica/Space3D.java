@@ -11,7 +11,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class Space3D extends Space {
+public class Space3D extends Space implements EtomicaElement {
 
     public static final int D = 3;
     public final int D() {return D;}
@@ -33,6 +33,12 @@ public class Space3D extends Space {
         else if(t == Boundary.SLIDING_BRICK) return new BoundarySlidingBrick();
         else return null;
     }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Three-dimensional space");
+        return info;
+    }
+
     public static final double r2(Vector u1, Vector u2, Boundary b) {
         Vector.WORK.x = u1.x - u2.x;
         Vector.WORK.y = u1.y - u2.y;

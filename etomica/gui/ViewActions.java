@@ -45,6 +45,11 @@ public class ViewActions {
      * Static action listener for the messages event which opens the messages window
      */
     public static final ActionListener MESSAGES = new MessagesAction();
+    
+    /**
+     * Static action listener for events that open the simulation window.
+     */
+    public static final ActionListener SIMULATION = new SimulationAction();
         
     /**
      * Static class that handles the workbook event
@@ -126,5 +131,21 @@ public class ViewActions {
             
         }// end of actionPerformed
     }// end of MessagesAction class
+    
+    /**
+     * Static class that handles the simulation event, which adds the simulation pane to the desktop.
+     */
+    private static class SimulationAction implements ActionListener {
+        
+        public void actionPerformed(ActionEvent event) {
+	        SimulationFrame frame = (SimulationFrame)Etomica.simulationFrames.get(Simulation.instance/*simulationEditor.getSimulation()*/);
+            if(frame.getParent() == null) Etomica.DesktopFrame.desktop.add(frame);
+	        frame.setVisible(true);
+	        
+            try {frame.setClosed(false); frame.setSelected(true);}
+            catch (java.beans.PropertyVetoException exc){} // attempt was vetoed
+        }// end of actionPerformed
+    }// end of SimulationAction class
+    
 }// end of ViewActions class
     

@@ -12,7 +12,7 @@ import etomica.statmech.MaxwellBoltzmann;
  
  //not sure of the difference between this and PotentialHardDiskPiston
 
-public class PotentialHardDiskWall extends Potential implements Potential.Hard {
+public class PotentialHardDiskWall extends Potential implements Potential.Hard, EtomicaElement {
     
     protected double collisionDiameter, collisionRadius;
     
@@ -29,6 +29,11 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard {
         super(sim);
         setCollisionDiameter(d);
         ZERO = sim.space.makeTensor();//temporary
+    }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Hard repulsive potential between a sphere and a wall");
+        return info;
     }
 
  /**

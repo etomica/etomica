@@ -49,8 +49,7 @@ public class DeviceTable extends Device implements EtomicaElement {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Editable table of property values");
+        EtomicaInfo info = new EtomicaInfo("Editable table of property values");
         return info;
     }
 

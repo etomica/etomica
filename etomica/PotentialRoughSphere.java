@@ -4,7 +4,7 @@ package etomica;
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.
  * Suitable for use in space of any dimension.
  */
-public class PotentialRoughSphere extends PotentialHardDisk
+public class PotentialRoughSphere extends PotentialHardDisk implements EtomicaElement
 {
 
     private final Space3D.Vector omegaSum = new Space3D.Vector();
@@ -25,6 +25,11 @@ public class PotentialRoughSphere extends PotentialHardDisk
         v12Par = sim.space.makeVector();
         v12Perp = sim.space.makeVector();
         impulse = sim.space.makeVector();
+    }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Hard spheres with a roughness that allows collisions to transfer momentum to/from rotational motion");
+        return info;
     }
 
     /**
@@ -89,7 +94,7 @@ public class PotentialRoughSphere extends PotentialHardDisk
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
 	    IntegratorHard integratorHard1 = new IntegratorHard();
-	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(20);
+	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(3);
 	    Phase phase1 = new Phase();
 	    P2RoughSphere p2RoughSphere1 = new P2RoughSphere();
 	    Controller controller1 = new Controller();

@@ -38,9 +38,9 @@ public abstract class PhaseAction extends etomica.Action {
         private double scale = 1.0;
         private transient Space.Vector temp;
         
-          public Inflate() {
-          this(null);
-        }
+   //     public Inflate() {
+   //       this(null);
+   //     }
         public Inflate(Phase p) {
             super(p);
             temp = p.parentSimulation().space().makeVector();

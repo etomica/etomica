@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * and is zero otherwise.  Core diameter describes size of hard core; lambda is multiplier to get range of well.
  * Suitable for use in space of any dimension.
  */
-public class PotentialSquareWell extends Potential implements Potential.Hard {
+public class PotentialSquareWell extends Potential implements Potential.Hard, EtomicaElement {
 
   protected double coreDiameter, coreDiameterSquared;
   protected double wellDiameter, wellDiameterSquared;
@@ -35,6 +35,11 @@ public class PotentialSquareWell extends Potential implements Potential.Hard {
     dr = sim.space().makeVector();
     lastCollisionVirialTensor = sim.space().makeTensor();
   }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Simple hard repulsive core with a square-well region of attraction");
+        return info;
+    }
 
 /**
  * Returns true if separation of pair is less than core diameter, false otherwise

@@ -1,12 +1,12 @@
 package etomica;
-
+import etomica.units.Dimension;
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.
  * Meant for use as an intra-molecular interaction.
  * Interaction of atoms is zero if separated by less than the tether length.  Atoms
  * undergo an impulsive attractive collision when attempting to separate by more than the tether distance.
  */
-public class PotentialTether extends Potential implements Potential.Hard {
+public class PotentialTether extends Potential implements Potential.Hard, EtomicaElement {
 
   private double tetherLength, tetherLengthSquared;
   private double lastCollisionVirial = 0.0;
@@ -24,6 +24,12 @@ public class PotentialTether extends Potential implements Potential.Hard {
     dr = sim.space().makeVector();
   }
 
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Hard string between adjacent atoms, hard sphere for non-adjacents");
+        return info;
+    }
+
   /**
    * Always returns false
    */
@@ -40,6 +46,7 @@ public class PotentialTether extends Potential implements Potential.Hard {
       tetherLength = t;
       tetherLengthSquared = t*t;
   }
+  public final Dimension getTetherLengthDimension() {return Dimension.LENGTH;}
 
   /**
    * Implements collision dynamics for pair attempting to separate beyond tether distance

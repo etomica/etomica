@@ -5,7 +5,7 @@ import etomica.units.Dimension;
  * Meter for measurement of the temperature based on kinetic-energy equipartition
  */
 
-public final class MeterTemperature extends Meter
+public final class MeterTemperature extends Meter implements EtomicaElement
 {
     public MeterTemperature() {
         this(Simulation.instance);
@@ -14,6 +14,11 @@ public final class MeterTemperature extends Meter
     {
         super(sim);
         setLabel("Temperature");
+    }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Records temperature as given via kinetic energy");
+        return info;
     }
 
     /**

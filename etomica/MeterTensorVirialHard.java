@@ -8,7 +8,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Collisional {
+public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Collisional, EtomicaElement {
     
     /**
      * Sums contributions to the virial from collisions, between calls to currentValue
@@ -41,6 +41,11 @@ public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Co
         virialSum = new double[sim.space().D()][sim.space().D()];
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Virial tensor for a hard potential");
+        return info;
+    }
+
     /**
      * Indicates that this meter does not use any iterators.
      * @return false

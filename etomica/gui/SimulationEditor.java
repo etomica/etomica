@@ -77,7 +77,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
     private java.util.HashMap editorPanes = new java.util.HashMap(16);
 
     /**
-     * Constructor that add all the splitpane to the tabmenu of the SimulationEditorFrame
+     * Constructor that adds all the splitpanes to the tabmenu of the SimulationEditorFrame
      */
     public SimulationEditor(Simulation sim){
         simulation = sim;

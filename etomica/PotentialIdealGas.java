@@ -4,7 +4,7 @@ package etomica;
  * Ideal-gas potential, which defines all atoms to have no interaction
  * Returns a zero energy and force, and an infinite collision time
  */
-public class PotentialIdealGas extends Potential implements Potential.Hard, Potential.Soft {
+public class PotentialIdealGas extends Potential implements Potential.Hard, Potential.Soft, EtomicaElement {
     
     private final Space.Vector zero;
     private final Space.Tensor zilch;
@@ -21,6 +21,11 @@ public class PotentialIdealGas extends Potential implements Potential.Hard, Pote
         zilch.E(0.0);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Potential corresponding to no intermolecular interactions");
+        return info;
+    }
+
    /**
     * Always returns zero
     */

@@ -13,7 +13,7 @@ import java.awt.event.InputEvent;
  * A label and unit is associated with the value.
  */
  
-public class DisplayBox extends Display implements Dimensioned, Meter.User {
+public class DisplayBox extends Display implements Dimensioned, Meter.User, EtomicaElement {
     
     /**
      * Descriptive text label to be displayed with the value
@@ -73,6 +73,13 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
         });
         
     }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Simple display of one meter's value with a label");
+        return info;
+    }
+
+    
     
     /**
      * Accessor method to set the physical units of the displayed value.

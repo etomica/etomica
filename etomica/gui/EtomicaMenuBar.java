@@ -67,6 +67,7 @@ public class EtomicaMenuBar extends JMenuBar {
 	 */
 	static final JMenuItem workBookItem = new JMenuItem("Workbook");
 	static final JMenuItem propertyListItem = new JMenuItem("Property List");
+	static final JMenuItem simulationItem = new JMenuItem("Simulation");
 	static final JMenuItem componentLibraryItem = new JMenuItem("Component Library");
 	static final JMenuItem classBrowserItem = new JMenuItem("Class Browser");
 	static final JMenuItem messagesItem = new JMenuItem("Messages");
@@ -210,6 +211,10 @@ public class EtomicaMenuBar extends JMenuBar {
 		propertyListItem.setAccelerator(KeyStroke.getKeyStroke("F4"));
 		propertyListItem.setMnemonic((int)'P');
         viewMenu.add(propertyListItem);
+        
+        simulationItem.addActionListener(ViewActions.SIMULATION);
+        viewMenu.add(simulationItem);
+        
         componentLibraryItem.addActionListener(ViewActions.COMPONENTLIBRARY);
         componentLibraryItem.setActionCommand("Component Library");
 		componentLibraryItem.setMnemonic((int)'L');

@@ -10,7 +10,7 @@ import java.awt.event.*;
  * Data are obtained from a MeterFunction class that is identified via the
  * setMeter method.
  */
-public class DisplayPlot extends Display implements MeterFunction.User {
+public class DisplayPlot extends Display implements MeterFunction.User, EtomicaElement {
     
     Plot plot;
     MeterFunction meter;
@@ -30,6 +30,11 @@ public class DisplayPlot extends Display implements MeterFunction.User {
         setYUnit(new Unit(BaseUnit.Null.UNIT));
         setUseCurrentValue(false);
         setLabel("Plot");
+    }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Plot of data given by a meter function");
+        return info;
     }
     
     public boolean isMakeResetButton() {return makeResetButton;}

@@ -6,7 +6,7 @@ package etomica;
  * @author Jhumpa Adhikari
  */
 
-public class PotentialTriangleWell extends Potential {
+public class PotentialTriangleWell extends Potential implements EtomicaElement {
 
   private double coreDiameter, coreDiameterSquared;
   private double wellDiameter, wellDiameterSquared;
@@ -29,6 +29,13 @@ public class PotentialTriangleWell extends Potential {
     setEpsilon(epsilon);
     force = sim.space.makeVector();
   }
+  
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Hard core with a surrounding region of constant-force attraction");
+        return info;
+    }
+
+  
 
   public boolean overlap(AtomPair pair) {return pair.r2() < coreDiameterSquared;}
 

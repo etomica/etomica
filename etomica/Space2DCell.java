@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.Observer;
 import java.util.Observable;
 
-public class Space2DCell extends Space2D implements IteratorFactory.Maker {
+public class Space2DCell extends Space2D implements IteratorFactory.Maker, EtomicaElement {
     
     public IteratorFactory makeIteratorFactory(Phase p) {return new CellListIteratorFactory(p);}
 
@@ -40,6 +40,11 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
             super.freeFlight(t);
             orientation.rotateBy(2, t*L/I[0]);//all elements of I equal for spherical top
         }
+    }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Two-dimensional space with cell-based neighbor lists");
+        return info;
     }
 
     public static class Coordinate extends Space2D.Coordinate implements AbstractLattice.Occupant {
@@ -98,6 +103,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
     public static final class CellListIteratorFactory extends IteratorFactory implements PotentialField.Maker {
         private SquareLattice lattice; 
         private SiteIterator.List latticeIterator;
+        private java.util.ArrayList iterators = new java.util.ArrayList(10);
         private int xCells, yCells;
         private double neighborDistance, absoluteNeighborDistance;  //look at this more carefully if boundary size fluctuates
         
@@ -109,6 +115,10 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
         
         public PotentialField makePotentialField(Phase p) {
             return new CellPotential(p);
+        }
+        
+        void registerIterator(CellListIterator iterator) {
+            iterators.add(iterator);
         }
         
         public SquareLattice lattice() {return lattice;}
@@ -146,6 +156,10 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
             }
             //Construct a List iterator that can make Cursors
             latticeIterator = new SiteIterator.List(lattice.iterator());
+            //notify any iterators already produced that the lattice has been replaced
+            for(java.util.Iterator iter=iterators.iterator(); iter.hasNext(); ) {
+                ((CellListIterator)iter.next()).update();
+            }
             //Set up neighbors of each site
             setupNeighbors();
             reset();
@@ -326,15 +340,27 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
                 while(hasNext) {action.actionPerformed(next());}
             }
         } //end of AtomIteratorDownNeighbor
-
-
+        
+        //base class for AtomIteratorUp and AtomIteratorDown
+        //contains facility for updating in the event that the iterator factory replaces its lattice
+        private class CellListIterator {
+            protected SiteIterator.List.Cursor cellIterator;
+            public CellListIterator() {
+                update();
+                Space2DCell.CellListIteratorFactory.this.registerIterator(this);
+            }
+            //update is called if the lattice iterator factory replacess its lattice
+            public final void update() {
+                cellIterator = latticeIterator.makeCursor(); //latticeIterator is field in CellListIteratorFactory outer class
+            }
+        }
+           
         //member class of Space2DCell
-        private final class AtomIteratorUp implements Atom.Iterator {
+        private final class AtomIteratorUp extends CellListIterator implements Atom.Iterator {
             private Coordinate nextCoordinate;
             private boolean hasNext;
-            private SiteIterator.List.Cursor cellIterator;
             public AtomIteratorUp() {
-                cellIterator = latticeIterator.makeCursor(); //latticeIterator is field in CellListIteratorFactory outer class
+                super();
                 reset();
             }
             public boolean hasNext() {return hasNext;}
@@ -388,12 +414,11 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
         //member class of Space2DCell
         
         //under development; presently this code is identical to AtomIteratorUp
-        private final class AtomIteratorDown implements Atom.Iterator {
+        private final class AtomIteratorDown extends CellListIterator implements Atom.Iterator {
             private Coordinate nextCoordinate;
             private boolean hasNext;
-            private SiteIterator.List.Cursor cellIterator;
             public AtomIteratorDown() {
-                cellIterator = latticeIterator.makeCursor(); //latticeIterator is field in CellListIteratorFactory outer class
+                super();
                 reset();
             }
             public boolean hasNext() {return hasNext;}
@@ -573,32 +598,40 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
     public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
-
+        Default.ATOM_SIZE = 1.2;
+        
         Simulation.instance = new Simulation(new Space2DCell());
         
-	    IntegratorHard integratorHard1 = new IntegratorHard();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
-	    speciesDisks1.setAtomsPerMolecule(3);
-	    speciesDisks1.setNMolecules(20);
+	    speciesDisks1.setAtomsPerMolecule(1);
+	    speciesDisks1.setNMolecules(200);
 	    Phase phase1 = new Phase();
-	    P2HardDisk P2HardDisk1 = new P2HardDisk();  //P2 must follow species until setSpeciesCount is fixed
+	    P2HardDisk P2HardDisk1 = new P2HardDisk();
 	    P1TetherHardDisk P1TetherHardDisk1 = new P1TetherHardDisk();
 	    Controller controller1 = new Controller();
 	    controller1.setMakeButton(true);
 	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
-	    timer.setUpdateInterval(10);
 		Simulation.instance.setBackground(Color.yellow);
 		
 		displayPhase1.setColorScheme(new Space2DCell.ColorByCell());
+/*
+	    IntegratorHard integratorHard1 = new IntegratorHard();
+	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+	    timer.setUpdateInterval(10);
 		integratorHard1.setIsothermal(true);
 		integratorHard1.setTemperature(50.0);
+*/		
+		IntegratorMC integrator = new IntegratorMC();
 		
 		((CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.1*Default.ATOM_SIZE);
-	//	((CellListIteratorFactory)phase1.iteratorFactory()).setNCells(10,10);
+		((CellListIteratorFactory)phase1.iteratorFactory()).setNCells(10,10);
                                             
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
+		integrator.add(new MCMoveAtom());
+		MCMoveVolume mcv = new MCMoveVolume();
+		mcv.setPressure(1000.);
+		integrator.add(mcv);
 		                                    
         f.add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components

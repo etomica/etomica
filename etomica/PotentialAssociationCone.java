@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * @author Jayant K. Singh
  */
 
-public class PotentialAssociationCone extends Potential {
+public class PotentialAssociationCone extends Potential implements EtomicaElement {
     private double wellCutoff, wellCutoffSquared;
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
@@ -30,7 +30,12 @@ public class PotentialAssociationCone extends Potential {
         setWellEpsilon(8.0*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
     }
-  
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Lennard-Jones core with an anisotropic, cone-shaped region of square-well attraction");
+        return info;
+    }
+
  /**
   * Returns the pair potential energy.
   */

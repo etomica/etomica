@@ -1,6 +1,6 @@
 package etomica;
 
-public final class IntegratorVerlet extends IntegratorMD {
+public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement {
 
     AtomPair.Iterator pairIterator;
     Atom.Iterator atomIterator;
@@ -24,6 +24,12 @@ public final class IntegratorVerlet extends IntegratorMD {
             }
         };
         work = sim.space().makeVector();
+        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
+    }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Molecular dynamics using basic Verlet algorithm");
+        return info;
     }
 
 	/**
@@ -53,6 +59,7 @@ public final class IntegratorVerlet extends IntegratorMD {
         }
         //Add in forces on each atom due to interaction with fields acting in the phase
         for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
+            if(!(f instanceof PotentialField.Soft)) continue;
             PotentialField.Soft field = (PotentialField.Soft)f;
             Atom.Iterator iterator = f.getAffectedAtoms();  //iterator for atoms under the influence of this field
             iterator.reset();

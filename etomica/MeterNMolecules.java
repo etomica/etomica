@@ -5,7 +5,7 @@ import etomica.units.Dimension;
 /**
  * Meter for recording the total number of molecules in the phase
  */
-public class MeterNMolecules extends Meter
+public class MeterNMolecules extends Meter implements EtomicaElement
 {
     public MeterNMolecules() {
         this(Simulation.instance);
@@ -16,6 +16,11 @@ public class MeterNMolecules extends Meter
         setLabel("Molecules");
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Number of molecules in a phase");
+        return info;
+    }
+
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */

@@ -9,7 +9,7 @@ import etomica.units.*;
  * 
  * @author Rob Riggleman
  */
-public class MeterProfile extends MeterFunction {
+public class MeterProfile extends MeterFunction implements EtomicaElement {
     
     /**
      * Vector describing the orientation of the profile.
@@ -37,6 +37,11 @@ public class MeterProfile extends MeterFunction {
         profileVector.setComponent(0, 1.0);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Breaks a meter's measurements into a profile taken along some direction in phase");
+        return info;
+    }
+
     /**
      * Declares that this meter uses the boundary of the phase, as it sizes the profile length 
      * according to the dimensions of the simulation cell.

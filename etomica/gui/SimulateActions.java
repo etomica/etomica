@@ -69,8 +69,7 @@ public class SimulateActions {
             simulation = sim;
         }
         public void actionPerformed(ActionEvent event) {
-            Simulation.instance = simulation;
-            Etomica.simulationEditorFrame.setSimulationEditor(new SimulationEditor(Simulation.instance));
+            Etomica.selectSimulation(simulation);
         }
     }
 }// end of SimulateActions class

@@ -5,7 +5,7 @@ import etomica.units.Dimension;
 /**
  * Meter to measure the chemical potential of a species via the Widom insertion method
  */
-public class MeterWidomInsertion extends Meter implements Molecule.Container {
+public class MeterWidomInsertion extends Meter implements Molecule.Container, EtomicaElement {
 
     /**
      * Number of insertions attempted in each call to currentValue
@@ -30,6 +30,12 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container {
         nInsert = 100;
         setResidual(true);
     }
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Chemical potential via Widom's ghost-particle insertion method");
+        return info;
+    }
+
     /**
      * Declaration that this meter does not use the boundary object of phase when making its measurements
      */
@@ -46,6 +52,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container {
         this();
         display = d;
         setSpecies(s);
+        setActive(false);
     }
     
     public Dimension getDimension() {return Dimension.NULL;}  //need to modify to check for isResidual
@@ -66,6 +73,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container {
     public void setPhase(Phase p) {
         super.setPhase(p);
         if(species != null) speciesAgent = species.getAgent(phase);
+        setActive(true);
     }
     /**
      * Sets the species, takes a prototype molecule, and gets handle to appropriate species agent in phase
