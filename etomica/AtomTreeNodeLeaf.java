@@ -28,7 +28,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     
     public void setParentGroup(AtomGroup parent) {
         parentGroup = parent;
-        parentNode = parent.node;
+        parentNode = (parent != null) ? parent.node : null;
         if(parentNode != null) depth = parentNode.depth() + 1;
     }
 
@@ -43,8 +43,8 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     public final int index() {return atomIndex;}
     public final void setIndex(int i) {atomIndex = i;}
 
-    public final Atom firstChildAtom() {return null;}
-    public final Atom lastChildAtom() {return null;}
+    public final Atom firstChildAtom() {return atom;}//null;}
+    public final Atom lastChildAtom() {return atom;}//null;}
 
     public Atom randomAtom() {return null;}
     

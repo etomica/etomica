@@ -1,15 +1,15 @@
 package etomica.simulations;
 import etomica.*;
+import etomica.graphics.*;
 import etomica.units.*;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
  */
- 
-public class PistonCylinder extends Simulation {
+public class PistonCylinder extends SimulationGraphic {
     
     public IntegratorHardField integrator;
-    public SpeciesSpheres species;
+    public SpeciesSpheresMono species;
     public SpeciesPistonCylinder speciesPC;
     public Phase phase;
     public P2HardSphere potential;
@@ -23,15 +23,21 @@ public class PistonCylinder extends Simulation {
         super(new Space2D());
         Simulation.instance = this;
         
-	    species = new SpeciesSpheres(this);
+	    species = new SpeciesSpheresMono(this);
 	    speciesPC = new SpeciesPistonCylinder(this);
         speciesPC.setLength(20.);
 	    
 	    phase = new Phase(this);
 	    
 	    potential = new P2HardSphere();
+	    potential.setSpecies(species, species);
 	    
-	    potentialHardDiskWall = new P2HardSphereWall();
+	    Potential2Group potentialDiskPC = new Potential2Group();
+	    potentialDiskPC.setSpecies(species, speciesPC);
+	    
+	    potentialHardDiskWall = new P2HardSphereWall(potentialDiskPC, Default.ATOM_SIZE);
+	    potentialHardDiskWall.setIterator(new AtomPairIteratorGeneral(Simulation.instance.space,
+	                new AtomIteratorSinglet(), new AtomIteratorSequential()));
 	    
 	    integrator = new IntegratorHardField(this);
 	    controller = new Controller(this);
@@ -52,7 +58,7 @@ public class PistonCylinder extends Simulation {
         tBox.setUnit(new Unit(Kelvin.UNIT));
         display.setAlign(1,DisplayPhase.BOTTOM);
         
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+	    DisplayTimer timer = new DisplayTimer(integrator);
 	    timer.setUpdateInterval(10);
 		Simulation.instance.elementCoordinator.go();
 
@@ -68,19 +74,9 @@ public class PistonCylinder extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-        
-        Simulation sim = new PistonCylinder();
-		sim.elementCoordinator.go(); 
-		
-        f.getContentPane().add(sim.panel());
-        
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }//end of main
+        SimulationGraphic sim = new PistonCylinder();
+		sim.elementCoordinator.go();
+		sim.makeAndDisplayFrame();
+   }//end of main
     
 }

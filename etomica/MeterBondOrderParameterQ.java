@@ -88,7 +88,7 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
     public Phase getPhase() {return super.getPhase();}
     public void setPhase(Phase p) {
         super.setPhase(p);
-        if(pairIterator == null) pairIterator = new AtomPairIteratorSynthetic(p);
+        if(pairIterator == null) pairIterator = new ApiGeneral(p);
     }
     public Dimension getDimension() {return Dimension.NULL;}
 

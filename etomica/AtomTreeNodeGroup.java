@@ -31,7 +31,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     
     public void setParentGroup(AtomGroup parent) {
         parentGroup = parent;
-        parentNode = parent.node;
+        parentNode = (parent != null) ? parent.node : null;
         if(parentNode != null) depth = parentNode.depth() + 1;
     }
 
@@ -123,7 +123,8 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     }*/
         
     public Atom firstLeafAtom() {
-        return firstLeafAtom;
+        return findFirstLeafAtom();//firstLeafAtom;  //firstLeafAtom is not updated correctly
+                                                     //fix this if using stored value
     }
     private Atom findFirstLeafAtom() {
         if(childrenAreGroups()) {
@@ -184,10 +185,6 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     }
     
             
-    /**
-     * Returns the first leaf atom descended from this group.
-     */
-    
     public void addAtom(Atom aNew) {
         if(!resizable) return; //should define an exception
         //ensure that the given atom is compatible
@@ -316,9 +313,9 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
 
     private final void setFirstAtom(Atom a) {
         firstAtom = a;
-        childrenAreGroups = !firstAtom.node.isLeaf();
+        childrenAreGroups = (firstAtom != null) ? !firstAtom.node.isLeaf() : false;
         ((Space.CoordinateGroup)atom.coord).setFirstAtom(a);
-        firstLeafAtom = findFirstLeafAtom();
+ //       firstLeafAtom = findFirstLeafAtom();
     }
     private final void setLastAtom(Atom a) {
         lastAtom = a;
@@ -372,7 +369,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     private AtomGroup parentGroup;
     private Atom firstAtom, lastAtom;
     private boolean childrenAreGroups;
-    private Atom firstLeafAtom;
+//    private Atom firstLeafAtom;
     
     private boolean resizable = true;
     

@@ -38,6 +38,25 @@ public abstract class Potential3 extends Potential {
         species3 = s3;
     }
 
+    public void setSpecies(Species[] species) {
+        switch (species.length) {
+            case 1: setSpecies(species[0], species[0], species[0]);
+                    break;
+            case 3: setSpecies(species[0], species[1], species[2]);
+                    break;
+            default: throw new IllegalArgumentException("Wrong number of species given in Potential2");
+        }
+    }
+    /**
+     * Returns an array of length 2 with the species to which this potential applies.
+     * Returns null if no species has been set, which is the case if the potential
+     * is not describing interactions between molecule-level Atoms.
+     */
+    public Species[] getSpecies() {
+        if(species1 == null) return null;
+        else return new Species[] {species1, species2, species3};
+    }
+
     public void setIterator(Atom3Iterator iterator) {
         this.iterator = iterator;
     }

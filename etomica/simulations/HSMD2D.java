@@ -22,19 +22,16 @@ public class HSMD2D extends SimulationGraphic {
         Simulation.instance = this;
 	    integrator = new IntegratorHard(this);
 	    species = new SpeciesSpheresMono(this);
-	    species.setNMolecules(25);
+	    species.setNMolecules(26);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();
+	    potential.setSpecies(species,species);
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 	    DisplayTimer timer = new DisplayTimer(integrator);
 	    timer.setUpdateInterval(10);
 		panel().setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
-		
-  //      potential.setIterator(new AtomPairIterator(phase));
-  //      potential.set(species.getAgent(phase));
-		
     }
     
     /**

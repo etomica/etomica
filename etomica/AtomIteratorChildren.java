@@ -2,7 +2,6 @@ package etomica;
 
 /**
 * Iterates over all the children of a given atom group.
-* Ignores iterator directive.
 *
 * @author David Kofke
 */
@@ -23,9 +22,22 @@ public final class AtomIteratorChildren implements AtomIterator {
     }
     
     /**
-     * Same as reset().
+     * Does reset if relation (preceeds) of atom in iterator directive and basis of this
+     * iterator are compatible with the direction in iterator directive.  Otherwise
+     * resets to hasNext false.
      */
-    public Atom reset(IteratorDirective id) {return reset();}
+    public Atom reset(IteratorDirective id) {
+        if(id.direction() == IteratorDirective.BOTH 
+            || id.atomCount() == 0 
+            || id.atom1() == basis) return reset();
+        else {
+            boolean before = id.atom1().preceeds(basis);
+            if( (before && id.direction() == IteratorDirective.UP)
+                || (!before && id.direction() == IteratorDirective.DOWN) ) return reset();
+        }
+        next = null;
+        return null;
+    }
     
     /**
      * Ignored.
@@ -69,7 +81,7 @@ public final class AtomIteratorChildren implements AtomIterator {
      * a leaf atom, no iterates are given.
      */
     public void setBasis(Atom atom) {
-        basis = atom.node.isLeaf() ? null : atom;
+        basis = (atom == null /*|| atom.node.isLeaf()*/) ? null : atom;
     }
     
     /**

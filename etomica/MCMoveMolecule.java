@@ -20,6 +20,10 @@ public class MCMoveMolecule extends MCMove {
         setStepSize(Default.ATOM_SIZE);
         setPerParticleFrequency(true);
         iteratorDirective.includeLrc = true;
+        //set directive to exclude intramolecular contributions to the energy
+        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
+            public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
+        });
     }
     
     public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}
@@ -34,10 +38,12 @@ public class MCMoveMolecule extends MCMove {
         double uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
         molecule.coord.displaceWithin(stepSize);
         double uNew = potential.calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
-        if(uNew < uOld) {   //accept
+        if(uNew >= Double.MAX_VALUE) {//reject
+            molecule.coord.replace();
+            return false;
+        } else if(uNew <= uOld) {   //accept
             return true;
-        }
-        if(uNew >= Double.MAX_VALUE ||  //reject
+        } else if(  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
              molecule.coord.replace();
              return false;

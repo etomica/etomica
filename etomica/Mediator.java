@@ -43,6 +43,7 @@ public class Mediator implements java.io.Serializable {
         addMediatorPair(new MeterSpecies.Default(this));
         addMediatorPair(new ControllerIntegrator.Default(this));
         addMediatorPair(new PhasePotential.Default(this));
+        addMediatorPair(new PotentialSpecies.Default(this));
     }
     public Simulation parentSimulation() {return parentSimulation;}
     public Class baseClass() {return Mediator.class;}
@@ -172,7 +173,50 @@ public class Mediator implements java.io.Serializable {
         }//end of Default
     }//end of PhasePotential
     
-        public abstract static class IntegratorPhase extends Subset {
+    public abstract static class PotentialSpecies extends Subset {
+        public PotentialSpecies(Mediator m) {super(m);}
+
+        public Class[] elementClasses() {return new Class[] {Potential.class, Species.class};}
+        
+        public void add(SimulationElement element) {
+            if(!superceding && priorSubset != null) priorSubset.add(element);
+            if(element instanceof Species) add((Species)element);
+            if(element instanceof Potential) add((Potential)element);
+        }
+        
+        public abstract void add(Species species);
+        public abstract void add(Potential potential);
+        
+        //very crude mediator -- assigns species to any potentials needing them.
+        //probably works correctly only if there is one species
+        public static class Default extends PotentialSpecies {
+            public Default(Mediator m) {super(m);}
+            //set for all potentials needing a species
+            public void add(Species species) {
+                for(Iterator is=mediator.parentSimulation().potentialList().iterator(); is.hasNext(); ) {
+                    Potential potential = (Potential)is.next();
+                    if(potential.wasAdded() 
+                        && potential.getSpecies() == null 
+                        && potential.parentPotential() instanceof PotentialMaster) 
+                            potential.setSpecies(new Species[] {species});
+                }
+            }
+            public void add(Potential potential) {
+                //do nothing if potential already has species assigned, or if it is not a molecule potential
+                if(!(potential.getSpecies() == null && potential.parentPotential() instanceof PotentialMaster)) return;
+                //set using first species
+                for(Iterator ip=mediator.parentSimulation().speciesList().iterator(); ip.hasNext(); ) {
+                    Species species = (Species)ip.next();
+                    if(species.wasAdded()) {
+                        potential.setSpecies(new Species[] {species});
+                        return;
+                    }
+                }
+            }
+        }//end of Default
+    }//end of PhasePotential
+
+       public abstract static class IntegratorPhase extends Subset {
         public IntegratorPhase(Mediator m) {super(m);}
 
         public Class[] elementClasses() {return new Class[] {Phase.class, Integrator.class};}

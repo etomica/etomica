@@ -7,7 +7,7 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1TetheredHardSpheres extends Potential1Group implements EtomicaElement {
+public class P1TetheredHardSpheres extends Potential1Group implements EtomicaElement, Potential1.Intramolecular {
     
     public String getVersion() {return "P1TetheredHardSpheres:01.11.05/"+Potential1Group.VERSION;}
     
@@ -22,10 +22,10 @@ public class P1TetheredHardSpheres extends Potential1Group implements EtomicaEle
         super(parent);
         p2HardSphere = new P2HardSphere(this);
         p2Tether = new P2Tether(this);
-	    p2Tether.setIterator(new AtomPairIteratorSynthetic(parentSimulation().space,
+	    p2Tether.setIterator(new ApiGeneral(parentSimulation().space,
 	            new AtomIteratorSequential(false),
 	            new AtomIteratorBonds()));
-	    p2HardSphere.setIterator(new AtomPairIteratorSynthetic(parentSimulation().space,
+	    p2HardSphere.setIterator(new ApiGeneral(parentSimulation().space,
 	            new AtomIteratorSequential(false),
 	            new AtomIteratorNonbonded()));
     }

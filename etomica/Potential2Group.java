@@ -28,16 +28,16 @@ public class Potential2Group extends Potential2 implements PotentialGroup {
         super(parent);
         potentialTruncation = truncation;
         //overwrite iterator with one that doesn't force looping over leaf atoms
-        iterator = new AtomPairIteratorSynthetic(parentSimulation().space(),
+        iterator = new ApiGeneral(parentSimulation().space(),
                 new AtomIteratorSequential(false), new AtomIteratorSequential(false));
     }
     /**
      * Performs the specified calculation over the iterates of this potential
      * that comply with the iterator directive.
      */
-    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+    public void calculate2(IteratorDirective id, Potential2Calculation pc) {
         localDirective.copy(id);//copy the iteratordirective to define the directive sent to the subpotentials
-        iterator.reset(id);  //reset for iteration over pairs of atom groups
+ //       iterator.reset(id);  //reset for iteration over pairs of atom groups
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
             
@@ -73,6 +73,8 @@ public class Potential2Group extends Potential2 implements PotentialGroup {
      * Adds the given potential to this group.  Part of the PotentialGroup interface.
      */
     public void addPotential(Potential potential) {
+        if(potential.parentPotential() != this) 
+            throw new IllegalArgumentException("Cannot add potential to group using addPotential method; instead, put group in potential's constructor"); 
         first = new PotentialLinker(potential, first);
     }
 

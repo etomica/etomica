@@ -26,10 +26,20 @@ public interface AtomIterator {
     
     public Atom reset();
     
+    /**
+     * Returns the next atom in the iteration sequence.  Assumes that hasNext is
+     * true; calling when hasNext is false can lead to unpredictable results, and
+     * may or may not cause an error or exception.
+     */
     public Atom next();
     
     public void allAtoms(AtomAction act);
     
+    /**
+     * Defines generally the atoms subject to iteration.  Explicit meaning of basis depends
+     * on specific iterator.  A call to setBasis does not leave the iterator prepared
+     * for iteration; a subsequent call to one of the reset methods is required to do that.
+     */
     public void setBasis(Atom atom);
     
     public Atom getBasis();

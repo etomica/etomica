@@ -48,7 +48,7 @@ public final class SpeciesMaster extends AtomGroup {
         eventManager.removeListener(listener);
     }
     
-    private static final class AtomTreeNode extends AtomTreeNodeRecursive {
+    private static final class AtomTreeNode extends AtomTreeNodeGroup {
         
         private final Phase parentPhase;
         SpeciesMaster speciesMaster;

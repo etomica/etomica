@@ -128,7 +128,7 @@ public final class SpeciesAgent extends AtomGroup {
     /**
      * Special AtomTreeNode class for SpeciesAgent.
      */
-    private static final class AtomTreeNode extends AtomTreeNodeRecursive {
+    private static final class AtomTreeNode extends AtomTreeNodeGroup {
         
         private final Species parentSpecies;
         AtomTreeNode(Species parentSpecies) {

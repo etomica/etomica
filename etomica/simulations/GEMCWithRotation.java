@@ -1,12 +1,13 @@
 package etomica.simulations;
 import etomica.*;
 import etomica.units.*;
+import etomica.graphics.*;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.
  */
 //need to update to include setPhaseIteratorFactory
-public class GEMCWithRotation extends Simulation {
+public class GEMCWithRotation extends SimulationGraphic {
     
     public GEMCWithRotation() {
         super(new Space2D()/*new Space2DCell()*/);
@@ -71,18 +72,9 @@ public class GEMCWithRotation extends Simulation {
     }//end of constructor        
         
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
-        f.setSize(600,350);
-        
         Simulation sim = new GEMCWithRotation();
 		sim.elementCoordinator.go(); 
-        f.add(sim.panel());
-        
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        SimulationGraphic.makeAndDisplayFrame(sim);
 		((Controller)sim.controller(0)).start();
     }//end of main
 }

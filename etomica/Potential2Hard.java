@@ -25,10 +25,8 @@ public abstract class Potential2Hard extends Potential2 implements PotentialHard
      */ 
     public abstract double collisionTime(AtomPair pair);
     
-    public void calculate(IteratorDirective id, PotentialCalculation pc) {
-        if( !(pc instanceof Potential2Calculation) ) return;
-        iterator.reset(id);
-        ((Potential2Calculation)pc).calculate(iterator, this); 
+    public final void calculate2(IteratorDirective id, Potential2Calculation pc) {
+        pc.calculate(iterator, this); 
     }//end of calculate
 
 }//end of Potential2Hard

@@ -259,7 +259,7 @@ public class Space3D extends Space implements EtomicaElement {
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
-   //         reset();
+  //          reset();
         }
         public void reset() {
             dr.x = c2.r.x - c1.r.x;

@@ -1,14 +1,15 @@
 package etomica.simulations;
 import etomica.*;
+import etomica.graphics.*;
 
 /**
  * Simple square-well molecular dynamics simulation in 2D
  */
  
-public class SwMd2D extends Simulation {
+public class SwMd2D extends SimulationGraphic {
     
     public IntegratorHard integrator;
-    public SpeciesSpheres species;
+    public SpeciesSpheresMono species;
     public Phase phase;
     public P2SquareWell potential;
     public Controller controller;
@@ -24,13 +25,13 @@ public class SwMd2D extends Simulation {
 	    integrator.setTimeStep(0.02);
 	    integrator.setTemperature(450.);
 	    integrator.setIsothermal(true);
-	    species = new SpeciesSpheres(this);
+	    species = new SpeciesSpheresMono(this);
 	    species.setNMolecules(80);
 	    phase = new Phase(this);
 	    potential = new P2SquareWell();
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+	    DisplayTimer timer = new DisplayTimer(integrator);
 	    timer.setUpdateInterval(10);
 		panel().setBackground(java.awt.Color.yellow);
     }
@@ -39,19 +40,9 @@ public class SwMd2D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-        
         SwMd2D sim = new SwMd2D();
-		sim.elementCoordinator.go(); 
-		
-        f.getContentPane().add(sim.panel());
-        
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+		sim.elementCoordinator.go();
+		sim.makeAndDisplayFrame();
     }//end of main
     
 }

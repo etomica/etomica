@@ -1,13 +1,14 @@
 package etomica.simulations;
 import etomica.*;
+import etomica.graphics.*;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D
  */
  
-public class Lj2D_NoIntegrator extends Simulation {
+public class Lj2D_NoIntegrator extends SimulationGraphic {
     
-    public SpeciesSpheres species;
+    public SpeciesSpheresMono species;
     public Phase phase;
     public P2LennardJones potential;
     public Controller controller;
@@ -18,7 +19,7 @@ public class Lj2D_NoIntegrator extends Simulation {
     public Lj2D_NoIntegrator() {
         super(new Space2D());
         Simulation.instance = this;
-	    species = new SpeciesSpheres(this);
+	    species = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);
 	    potential = new P2LennardJones();
 	    controller = new Controller(this);
@@ -41,7 +42,7 @@ public class Lj2D_NoIntegrator extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Simulation sim = new Lj2D_NoIntegrator();
+        SimulationGraphic sim = new Lj2D_NoIntegrator();
         new IntegratorGear4(sim);
 		sim.elementCoordinator.go(); 
 		

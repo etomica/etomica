@@ -176,22 +176,24 @@ public class MCMoveSemigrand extends MCMove {
         return affectedAtomIterator;
     }
 
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         
+        Simulation.instance = new etomica.graphics.SimulationGraphic(new Space2D());
+        Default.TRUNCATE_POTENTIALS = false;
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
 	    MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(integrator);
-//	    MCMoveRotateMolecule mcMoveRotate = new MCMoveRotateMolecule(integrator);
-	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
+	    MCMoveRotateMolecule mcMoveRotate = new MCMoveRotateMolecule(integrator);
+///	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
 	    //one species with 3 atoms per molecule
 	    SpeciesSpheres species0 = new SpeciesSpheres(10,3);
 	    //two species with 1 atom per molecule
-	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(0);
-	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(4);
+	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(2);
+	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(2);
 	    
-	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
-	    species0.setColor(java.awt.Color.red);
-	    species2.setColor(java.awt.Color.green);
+///	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
+        etomica.graphics.ColorSchemeByType.setColor(species1, java.awt.Color.red);
+        etomica.graphics.ColorSchemeByType.setColor(species2, java.awt.Color.green);
 	    species0.setDiameter(3.0);
 	    species1.setDiameter(5.0);
 	    species2.setDiameter(1.0);
@@ -201,7 +203,7 @@ public class MCMoveSemigrand extends MCMove {
 	    P2HardSphere potential02 = new P2HardSphere(2.0);
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
-	    P2HardSphere potential22 = new P2HardSphere(1.0);* /
+	    P2HardSphere potential22 = new P2HardSphere(1.0);*/
 	    
 	    //intramolecular potential for 3-atom molecules
 	    P1TetheredHardSpheres potential0 = new P1TetheredHardSpheres();
@@ -210,23 +212,27 @@ public class MCMoveSemigrand extends MCMove {
 	    p2Tether.setIterator(new AtomPairIterator(Simulation.instance.space,
 	            new AtomIteratorSequential(false),
 	            new AtomIteratorBonds()));
-* /	    
+*/	    
 	    //hard-sphere intermolecular potential for 3-atom molecules
 	    Potential2Group potential00 = new Potential2Group();
-	    potential00.addPotential(new P2HardSphere(potential00, 3.0));
+	        Potential2 potential00a = new P2HardSphere(potential00, 3.0);
 	    //0-1 species potential
 	    Potential2Group potential01 = new Potential2Group();
-	    potential01.addPotential(new P2HardSphere(potential01, 4.0));
+	        Potential2 potential01a = new P2HardSphere(potential01, 4.0);
+//	        potential01a.setIterator(new ApiGeneral(Simulation.instance.space,
+//	            new AtomIteratorChildren(), new AtomIteratorSinglet()));
 	    //0-2 species potential
 	    Potential2Group potential02 = new Potential2Group();
-	    potential02.addPotential(new P2HardSphere(potential02, 2.0));
+	        Potential2 potential02a =new P2HardSphere(potential02, 2.0);
+//	        potential02a.setIterator(new ApiGeneral(Simulation.instance.space,
+//	            new AtomIteratorChildren(), new AtomIteratorSinglet()));
 	    //1-1 species potential
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
 	    //1-2 species potential
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
 	    //2-2 species potential
 	    P2HardSphere potential22 = new P2HardSphere(1.0);
-	    potential0.setSpecies(species0);
+	///    potential0.setSpecies(species0);
 	    potential00.setSpecies(species0, species0);
 	    potential01.setSpecies(species0, species1);
 	    potential02.setSpecies(species0, species2);
@@ -234,33 +240,32 @@ public class MCMoveSemigrand extends MCMove {
 	    potential12.setSpecies(species1, species2);
 	    potential22.setSpecies(species2, species2);
 	    Controller controller = new Controller();
-	    DisplayPhase display = new DisplayPhase();
+	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
 
 		MeterMoleFraction density0 = new MeterMoleFraction();
 		density0.setPhase(phase);
 		density0.setHistorying(true);
 		density0.setActive(true);		
 		density0.getHistory().setNValues(500);		
-		DisplayPlot plot = new DisplayPlot();
+		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
 		plot.setLabel("Species0 density");
 		plot.setDataSources(density0.getHistory());
 		
-		DeviceSlider slider = new DeviceSlider(new ModulatorAbstract() {
+/*		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(new ModulatorAbstract() {
 		    public double getValue() {return 100.*mcMoveSemi.getFugacityFraction(0);}
 		    public void setValue(double v) {mcMoveSemi.setFugacityFraction(0,0.01*v);}
 		    public etomica.units.Dimension getDimension() {return etomica.units.Dimension.NULL;}
 		});
 		slider.setMinimum(0);
-		slider.setMaximum(100);
-		
+		slider.setMaximum(100);*/
 		
 		integrator.setSleepPeriod(2);
 		
 		Simulation.instance.elementCoordinator.go();
 		density0.setSpecies(species0);
 	    
-        Simulation.makeAndDisplayFrame(Simulation.instance);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
-    */
+    
 }//end of MCMoveSemigrand

@@ -31,17 +31,28 @@ public class MCMoveAtom extends MCMove {
         if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
         atom = phase.firstAtom();
+ //       System.out.println(phase.atomCount()+ "  "+i); System.exit(0);
         // maybe try while(i-- >= 0) {}
-        for(int j=i; --j>=0; ) {atom = atom.nextAtom();}  //get ith atom in list
-
+        for(int j=i; --j>=0; ) {
+ //           System.out.println(atom.signature());  //get ith atom in list
+            atom = atom.nextAtom();
+        }
+ //       if(atom.node.parentSpeciesAgent().node.index() != 2) {
+ //           System.out.println();
+ //       }   
+ //       System.out.println();
         uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
         atom.coord.displaceWithin(stepSize);
         uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
-        if(uNew < uOld) {   //accept
+ //       if(atom.node.parentSpeciesAgent().node.index() != 2) System.out.println(uOld+"  "+uNew);
+        //System.out.println(uOld+"  "+uNew);
+        if(uNew >= Double.MAX_VALUE) {
+            atom.coord.replace();
+            return false;
+        } else if(uNew <= uOld) {   //accept
             return true;
-        }
-        if(uNew >= Double.MAX_VALUE ||  //reject
-           Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
+        } else if(  //Metropolis test, reject
+            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
              atom.coord.replace();
              return false;
         }
@@ -53,30 +64,31 @@ public class MCMoveAtom extends MCMove {
         affectedAtomIterator.setBasis(atom);
         return affectedAtomIterator;
     }
-
-/*    public static void main(String[] args) {
+/*
+    public static void main(String[] args) {
         
+        Simulation.instance = new etomica.graphics.SimulationGraphic();
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);//comment this line to examine LRC by itself
-	    SpeciesSpheres species = new SpeciesSpheres();
+	    SpeciesSpheresMono species = new SpeciesSpheresMono();
 	    species.setNMolecules(72);
 	    final Phase phase = new Phase();
 	    P2LennardJones potential = new P2LennardJones();
 	    Controller controller = new Controller();
-	    DisplayPhase display = new DisplayPhase();
+	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
 
 		MeterEnergy energy = new MeterEnergy();
 		energy.setPhase(phase);
 		energy.setHistorying(true);
 		energy.setActive(true);		
 		energy.getHistory().setNValues(500);		
-		DisplayPlot plot = new DisplayPlot();
+		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
 		plot.setLabel("Energy");
 		plot.setDataSources(energy.getHistory());
 		
 		integrator.setSleepPeriod(2);
 		
-		DeviceToggleButton lrcToggle = new DeviceToggleButton(Simulation.instance,
+		etomica.graphics.DeviceToggleButton lrcToggle = new etomica.graphics.DeviceToggleButton(Simulation.instance,
 		    new ModulatorBoolean() {
 		        public void setBoolean(boolean b) {phase.setLrcEnabled(b);}
 		        public boolean getBoolean() {return phase.isLrcEnabled();}
@@ -84,10 +96,10 @@ public class MCMoveAtom extends MCMove {
 		
 		Simulation.instance.elementCoordinator.go();
 	    
-        potential.setIterator(new AtomPairIterator(phase));
+        potential.setIterator(new AtomPairIteratorGeneral(phase));
         potential.set(species.getAgent(phase));
         
-        Simulation.makeAndDisplayFrame(Simulation.instance);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-   */ 
+    */
 }

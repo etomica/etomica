@@ -16,6 +16,11 @@ public abstract class Potential extends SimulationElement {
         parentPotential = parent;
         parentPotential.addPotential(this);
     }
+    
+    public final PotentialGroup parentPotential() {return parentPotential;}
+    
+    public abstract void setSpecies(Species[] s);
+    public abstract Species[] getSpecies();
         
     public abstract void calculate(IteratorDirective id, PotentialCalculation pc);
     

@@ -8,7 +8,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class AtomPairIteratorSynthetic implements AtomPairIterator, java.io.Serializable {
+public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
     
     private final AtomPair pair; //want final, but Null inner class won't allow
     private IteratorDirective.Direction direction;
@@ -33,7 +33,7 @@ public class AtomPairIteratorSynthetic implements AtomPairIterator, java.io.Seri
     private Atom atom1;
     
     //Used only for the NULL iterator, defined below.
-    private AtomPairIteratorSynthetic() {
+    private ApiGeneral() {
         hasNext = false;
         pair = null;
         ai1 = ai2 = AtomIterator.NULL;
@@ -41,7 +41,7 @@ public class AtomPairIteratorSynthetic implements AtomPairIterator, java.io.Seri
     /**
      * Constructs an iterator of all atom pairs in the given phase.
      */
-    public AtomPairIteratorSynthetic(Phase p) {
+    public ApiGeneral(Phase p) {
         this(p.parentSimulation().space, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
     }
     /**
@@ -54,13 +54,13 @@ public class AtomPairIteratorSynthetic implements AtomPairIterator, java.io.Seri
      /** 
       * Sets pair iterator so that it traverses all leaf-atom pairs in its basis.
       */
-     public AtomPairIteratorSynthetic(Space s) {
+     public ApiGeneral(Space s) {
         this(s, new AtomIteratorSequential(true), new AtomIteratorSequential(true));
      }
     /**
      * Construct a pair iterator using the given atom iterators
      */
-    public AtomPairIteratorSynthetic(Space s, AtomIterator iter1, AtomIterator iter2) {
+    public ApiGeneral(Space s, AtomIterator iter1, AtomIterator iter2) {
         pair = new AtomPair(s);
         actionWrapper = new AtomPairAction.Wrapper(pair);
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);

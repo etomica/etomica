@@ -38,6 +38,27 @@ public abstract class Potential0 extends Potential {
         return set(speciesMaster.node.parentPhase());
     }
     
+    public void setSpecies(Species s) {
+        species = s;
+    }
+    
+    public void setSpecies(Species[] species) {
+        switch (species.length) {
+            case 1: setSpecies(species[0]);
+                    break;
+            default: throw new IllegalArgumentException("Wrong number of species given in Potential2");
+        }
+    }
+    /**
+     * Returns an array of length 1 with the species to which this potential applies.
+     * Returns null if no species has been set.
+     */
+    public Species[] getSpecies() {
+        if(species == null) return null;
+        else return new Species[] {species};
+    }
+
+    private Species species;
         
 }//end of Potential0
 

@@ -24,6 +24,10 @@ public class MCMoveRotateMolecule extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         setPerParticleFrequency(true);
+        //set directive to exclude intramolecular contributions to the energy
+        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
+            public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
+        });
     }
      
     public boolean thisTrial(){   
@@ -46,14 +50,19 @@ public class MCMoveRotateMolecule extends MCMove {
 //        AtomActionTransform.doAction(affectedAtomIterator, molecule.coord.position(), rotationTensor);
         AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
         double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
+        if(uNew >= Double.MAX_VALUE) {//reject
+            rotationTensor.invert();
+            affectedAtomIterator.reset();
+            AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
+            return false;
+        }       
         if(uNew <= uOld) {   //accept
             return true;
         }
-        if(uNew >= Double.MAX_VALUE ||  //reject
+        if(  //Metropolis test, reject
             Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
                 // restore the old values of orientation.
             rotationTensor.invert();
-//            molecule.coord.transform(molecule.coord.position(), rotationTensor);
             affectedAtomIterator.reset();
             AtomActionTransform.doAction(affectedAtomIterator, r0, rotationTensor);
             return false;

@@ -35,6 +35,23 @@ public abstract class Potential1 extends Potential {
         species = s;
     }
     
+    public void setSpecies(Species[] species) {
+        switch (species.length) {
+            case 1: setSpecies(species[0]);
+                    break;
+            default: throw new IllegalArgumentException("Wrong number of species given in Potential2");
+        }
+    }
+    /**
+     * Returns an array of length 2 with the species to which this potential applies.
+     * Returns null if no species has been set, which is the case if the potential
+     * is not describing interactions between molecule-level Atoms.
+     */
+    public Species[] getSpecies() {
+        if(species == null) return null;
+        else return new Species[] {species};
+    }
+
     /**
      * Returns the energy of the given atom.
      */
@@ -44,6 +61,14 @@ public abstract class Potential1 extends Potential {
         this.iterator = iterator;
     }
     public AtomIterator iterator() {return iterator;}
+    
+    /**
+     * Marker interface indicating that a one-body potential is an intramolecular
+     * potential, and not, e.g., a potential of interaction with an external field.
+     * This is useful when computing energy changes for molecule translations and
+     * rotations, for which intramolecular contributions can be ignored.
+     */
+    public interface Intramolecular {}
         
 }//end of Potential1
 

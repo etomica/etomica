@@ -37,10 +37,11 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     }
 
 
-    public void calculate(IteratorDirective id, PotentialCalculation pc) {
-        if( !(pc instanceof Potential2Calculation) ) return;
-        iterator.reset(id);
-        ((Potential2Calculation)pc).calculate(iterator, this); 
+    public void calculate2(IteratorDirective id, Potential2Calculation pc) {
+   //     if( !(pc instanceof Potential2Calculation) ) return;
+   //     iterator.reset(id);
+   //     ((Potential2Calculation)pc).calculate(iterator, this); 
+        pc.calculate(iterator, this); 
     }//end of calculate
 
  /**

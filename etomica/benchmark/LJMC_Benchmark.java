@@ -54,7 +54,7 @@ public class LJMC_Benchmark {
             case 0:
                P2LennardJones potential = new P2LennardJones();
                potential.setSpecies(species, species);
-               potential.setIterator(new ApiIntraspecies1A());
+        //       potential.setIterator(new ApiIntraspecies1A());
                break;
             case 1:  //performance
                 potential1 = new PotentialLJ(Simulation.instance.hamiltonian.potential,species.getNMolecules());
@@ -67,10 +67,11 @@ public class LJMC_Benchmark {
             case 2:  //molecule layer
                 Potential2Group group = new Potential2Group();
                 P2LennardJones potential2 = new P2LennardJones(group);
-                group.setIterator(new ApiIntraspecies1A());
+      //          group.setIterator(new ApiIntraspecies1A());
                 group.setSpecies(species,species);
-                potential2.setIterator(new AtomPairIteratorSynthetic(Simulation.instance.space,
-                    new AtomIteratorChildren(), new AtomIteratorChildren()));
+      //          potential2.setIterator(new ApiIntergroup1A());
+//                potential2.setIterator(new AtomPairIteratorSynthetic(Simulation.instance.space,
+//                    new AtomIteratorChildren(), new AtomIteratorChildren()));
                 break;
         }       
         
@@ -154,6 +155,8 @@ public class LJMC_Benchmark {
  74   -- store childrenAreGroups
  83   -- index in node
  38   -- (2) AtomIteratorChildren in pair iterator for potential2
+ 26   -- ApiIntraspecies1a, ApiIntergroup1A
+ 29
  
  43.9 -- Home W2K Athlon/64/1000 (2)  (32.6 when run with HotSpot Server)
   2.7 -- Home/64/1000 (1)            (3.0 HotSpot Server, based on 10K cycles) (34.0 HotSpot Classic)

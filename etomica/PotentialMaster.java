@@ -46,7 +46,12 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
      */
     public void addPotential(Potential potential) {
         first = new PotentialLinker(potential, first);
-//        if(speciesMaster != null) potential.set(speciesMaster); can't do this because potential is still executing its constructer
+        if(speciesMaster != null) {
+            System.out.println("Warning: adding potential after phase was set for PotentialMaster");
+            System.out.println("May lead to error");
+            speciesMaster = null;
+        }
+//        if(speciesMaster != null) potential.set(speciesMaster); can't do this because potential is still executing its constructor
     }
 
     /**
