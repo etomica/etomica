@@ -136,10 +136,11 @@ public class SimulationGraphic implements SimulationContainer {
      */
     public static void main(String[] args) {
         Default.DO_SLEEP = true;
-        etomica.simulations.SwMd2D sim = new etomica.simulations.SwMd2D();
+//        etomica.simulations.SwMd2D sim = new etomica.simulations.SwMd2D();
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
-//        etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
+//      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
 //        HSMD2D sim = new HSMD2D();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
