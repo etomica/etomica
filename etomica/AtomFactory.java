@@ -1,6 +1,4 @@
 package etomica;
-import etomica.chem.*;
-import etomica.chem.models.*;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
