@@ -17,6 +17,7 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
     
     protected Unit unit;
     protected Controller controller;
+    private final ActionSet actionSet = new ActionSet();
     
     public Device() {
         this(null);
@@ -39,13 +40,31 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
      */
     protected void doAction(Action action) {
         if (action == null) return;
+        actionSet.action = action;
         if(controller != null) {
-            controller.doActionNow(action);
+            controller.doActionNow(actionSet);
         } else {
-            action.actionPerformed();
+            actionSet.actionPerformed();
         }
     }
-      
+    
+    /**
+     * Sets an action to be performed before the primary action executed
+     * by the device.  This is useful for modifying the behavior of concrete
+     * subclasses of the device without accessing their primary action.
+     */
+    public void setPreAction(Action action) {
+        actionSet.preAction = action;
+    }
+    
+    /**
+     * Sets an action to be performed after the primary action executed
+     * by the device.  This is useful for modifying the behavior of concrete
+     * subclasses of the device without accessing their primary action.
+     */
+    public void setPostAction(Action action) {
+        actionSet.postAction = action;
+    }
     
     /**
      * @return Returns the controller.
@@ -89,4 +108,18 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
     public String toString() {return getName();}
 
     private String name;
+    
+    private class ActionSet implements Action {
+        Action preAction, postAction, action;
+        
+        public void actionPerformed() {
+            if(preAction != null) preAction.actionPerformed();
+            action.actionPerformed();
+            if(postAction != null) postAction.actionPerformed();
+        }
+        
+        public String getLabel() {
+            return action.getLabel();
+        }
+    }
 }
