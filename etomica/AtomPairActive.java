@@ -89,6 +89,9 @@ public interface AtomPairActive extends AtomSetActive {
 				directive.skipFirst = innerSkipFirst;
 				aiInner.all(innerBasis, directive.set(a), wrapper);
 			}
+			public void setBoundary(Space.Boundary b) {
+				wrapper.pair.cPair.setBoundary(b);
+			}
 		}//end of OuterWrapper
             
     

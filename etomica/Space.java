@@ -331,6 +331,8 @@ public abstract class Space implements java.io.Serializable {
         public abstract Space.Vector dr();   //separation vector
         public abstract double dr(int i);    //component of separation vector
         public abstract double dv(int i);    //component of velocity-difference vector
+        public abstract void setBoundary(Space.Boundary b);
+        public abstract Space.Boundary getBoundary();
         /**
         * Clones this coordinatePair without cloning the objects it contains
         * The returned coordinatePair refers to the same pair of coordinates as the original

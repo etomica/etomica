@@ -32,6 +32,7 @@ public final class ApiIntragroup1A extends AtomPairIterator {
 		if(referenceNode == null) return;
 		AtomPairActive.InnerWrapper wrapper = action.innerWrapper();
 		wrapper.pair.atom1 = referenceNode.atom;
+		wrapper.pair.cPair.setBoundary(basis.node.parentPhase().boundary());
 		atomIterator.all(basis, id.set(referenceNode.atom), wrapper);
 	}
 	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {
@@ -43,6 +44,7 @@ public final class ApiIntragroup1A extends AtomPairIterator {
             throw new IllegalArgumentException("Improper basis given to ApiIntragroup1A");
         atomIterator.setBasis(a1);
         group = a1;
+        pair.cPair.setBoundary(group.node.parentPhase().boundary());
     }
     
     /**

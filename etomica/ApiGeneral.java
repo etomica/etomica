@@ -55,6 +55,7 @@ public final class ApiGeneral extends AtomPairIterator {
 			group2 = basis.atom1();
 		}
 		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
+		outerWrapper.setBoundary(group1.node.parentPhase().boundary());
 		outerWrapper.aiInner = aiInner;
 		outerWrapper.innerBasis = group2;
 		aiOuter.all(group1, dummy, outerWrapper);
@@ -71,6 +72,7 @@ public final class ApiGeneral extends AtomPairIterator {
 			aiOuter.setBasis(a1);
 			aiInner.setBasis(a2);
 		}
+		pair.cPair.setBoundary(a1.node.parentPhase().boundary());
     }
     
     public AtomIterator aiOuter() {return aiOuter;}

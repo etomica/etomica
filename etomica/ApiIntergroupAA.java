@@ -22,6 +22,7 @@ public final class ApiIntergroupAA extends AtomPairIterator {
 		Atom group2 = basis.atom2();
 		if(group1 == group2) throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A: Basis atoms must be different");
 		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
+		outerWrapper.setBoundary(group1.node.parentPhase().boundary());
 		outerWrapper.aiInner = aiInner;
 		outerWrapper.innerBasis = group2;
 		outerWrapper.innerSkipFirst = false;
@@ -35,6 +36,7 @@ public final class ApiIntergroupAA extends AtomPairIterator {
         group2 = a2;
         aiOuter.setBasis(a1);
         aiInner.setBasis(a2);
+		pair.cPair.setBoundary(group1.node.parentPhase().boundary());
     }
     
     /**

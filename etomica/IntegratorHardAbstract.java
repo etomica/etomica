@@ -42,6 +42,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         if(!super.addPhase(phase)) return false;
         atomIterator.setBasis(phase.speciesMaster.atomList);
         meterTemperature.setPhase(phase);
+        atomPair.cPair.setBoundary(phase.boundary());
         return true;
     }
     

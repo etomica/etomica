@@ -391,8 +391,12 @@ public class Space3D extends Space implements EtomicaElement {
         Coordinate c2;
         private final Vector dr = new Vector();
         private double dvx, dvy, dvz; //drx, dry, drz;
+        private Space.Boundary boundary = Space.Boundary.NULL;
         public CoordinatePair() {super();}
 
+		public void setBoundary(Space.Boundary b) {this.boundary = b;}
+		public Space.Boundary getBoundary() {return boundary;}
+		
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
@@ -404,7 +408,8 @@ public class Space3D extends Space implements EtomicaElement {
          //   dr.x = c2.r.x - c1.r.x;
          //   dr.y = c2.r.y - c1.r.y;
          //   dr.z = c2.r.z - c1.r.z;
-            c1.atom.node.parentPhase().boundary().nearestImage(dr);
+          //  c1.atom.node.parentPhase().boundary().nearestImage(dr);
+            boundary.nearestImage(dr);
    //         drx = dr.x;
    //         dry = dr.y;
    //         drz = dr.z;

@@ -20,6 +20,7 @@ public final class ApiIntragroupAA extends AtomPairIterator {
 	public void all(Atom basis, IteratorDirective dummy, AtomPairActive action) {
 		if(basis == null || action == null) return;
 		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
+		outerWrapper.setBoundary(basis.node.parentPhase().boundary());
 		outerWrapper.aiInner = aiInner;
 		outerWrapper.innerBasis = basis;
 		outerWrapper.innerSkipFirst = true;

@@ -41,9 +41,9 @@ public class ApiIntergroup1A extends AtomPairIterator {
 		Atom group1 = basis.atom1();//assume group1 preceeds group2
 		Atom group2 = basis.atom2();
 		if(group1 == group2) throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A: Basis atoms must be different");
-
 		AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(group1.node);
 		AtomPairActive.InnerWrapper wrapper = action.innerWrapper();
+		wrapper.pair.cPair.setBoundary(group1.node.parentPhase().boundary());
 		if(referenceNode != null && localDirective.direction().doUp()) {
 			wrapper.pair.atom1 = referenceNode.atom;
 			atomIterator.all(group2, id.set(referenceNode.atom), wrapper);
@@ -66,6 +66,7 @@ public class ApiIntergroup1A extends AtomPairIterator {
             throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A");
         group1 = a1;
         group2 = a2;
+		pair.cPair.setBoundary(group1.node.parentPhase().boundary());
     }
     
     /**
