@@ -52,7 +52,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 10;
+            xCells = yCells = 15;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
         
@@ -110,7 +110,6 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             private final LatticeSquare cells;
             final AtomPair pair;
             final Space2D.CoordinatePair cPair;
-            Atom atom;
             private boolean hasNext;
             private Coordinate neighborCoordinate;
             private LatticeSquare.Site neighborCell;
@@ -124,18 +123,15 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             }
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
-            public void reset() {reset(atom,true);}   //change if INTRA is used
             public void reset(Atom a, boolean intra) {  //presently ignores intra, acting as if it were true
-                atom = a;
+                pair.atom1 = a;
+                Coordinate c = (Coordinate)a.coordinate;        
+                cPair.c1 = c;
                 if(a.parentPhase() == phase) {
-                    Coordinate c = (Coordinate)a.coordinate;
-                    cPair.c1 = c;
                     nextLinker = c.cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
                     neighborCoordinate = c.nextNeighbor();   //this is the next atom to be paired with the fixed atom
                 }
                 else {  //this atom is not currently in this phase
-                    Coordinate c = (Coordinate)a.coordinate;        
-                    cPair.c1 = c;
                     LatticeSquare.Site cell = cells.nearestSite(c.r,(Space2D.Vector)phase.dimensions());  //find cell containing atom
                     nextLinker = cell.firstUpNeighbor();               //next cell up list
                     neighborCoordinate = (Coordinate)cell.first();     //"inserted" atom at beginning of list; all atoms in cell are uplist from it
@@ -155,7 +151,6 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             public AtomPair next() {
                 cPair.c2 = neighborCoordinate;
                 cPair.reset();
-                pair.atom1 = atom;
                 pair.atom2 = (Atom)neighborCoordinate.parent();
 //                pair.reset(atom,(Atom)neighborCoordinate.parent(),cPair);  //maybe put an Atom in Coordinate to avoid cast
                 neighborCoordinate = neighborCoordinate.nextNeighbor;
@@ -174,7 +169,6 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             private final Phase phase;
             private final LatticeSquare cells;
             final Space2D.CoordinatePair cPair;
-            Atom atom;
             private boolean hasNext;
             private Coordinate coordinate, neighborCoordinate;
             private LatticeSquare.Site neighborCell;
@@ -189,9 +183,8 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             }
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
-            public void reset() {reset(atom,true);}  //change if intra is used
             public void reset(Atom a, boolean intra) {  //presently ignores intra, acting as if it were true
-                atom = a;
+                pair.atom1 = a;
                 Coordinate c = (Coordinate)a.coordinate;
                 cPair.c1 = c;
                 if(a.parentPhase() == phase) {  //this atom is currently in this phase
@@ -220,7 +213,6 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             public AtomPair next() {
                 cPair.c2 = neighborCoordinate;
                 cPair.reset();
-                pair.atom1 = atom;
                 pair.atom2 = (Atom)neighborCoordinate.parent();
 //                pair.reset(atom,(Atom)neighborCoordinate.parent(),cPair);  //maybe put an Atom in Coordinate to avoid cast
                 neighborCoordinate = firstCell ? neighborCoordinate.previousNeighbor : neighborCoordinate.nextNeighbor;  //first cell advances backwards, subsequent cells (before the first) can advance forward

@@ -47,6 +47,38 @@ public abstract class AtomType {
     public abstract void draw(Graphics g, int origin[], double s, Atom atom);
 
     
+    // Rod-shaped atom.  Assumed to be in 1D
+    public static class Rod extends Disk {
+        
+        private int dh2;
+        public Rod(double m, Color c, double d) {
+            super(m, c, d);
+            dh2 = Space1D.drawingHeight/2;
+        }
+        
+        /**
+        * Draws this atom using current values of its position, diameter and color.
+        * Drawing position is determined as follows.  The atoms coordinates in
+        * Angstroms are converted to pixels by applying a scaling factor; these
+        * drawing coordinates may be shifted by some amount as given by the array
+        * <code>origin</code> before the atom is drawn.
+        *
+        * @param g         graphics object to which atom is drawn
+        * @param origin    origin of drawing coordinates (pixels)
+        * @param scale     factor determining size of drawn image relative to
+        *                  nominal drawing size
+        */
+        public void draw(Graphics g, int[] origin, double scale, Atom atom) {
+            Space.Vector r = atom.coordinate().position();
+            double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
+            int sigmaP = (int)(toPixels*diameter);
+            int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
+            int yP = origin[1]-dh2;
+            g.setColor(atom.color);
+            g.fillRect(xP,yP,sigmaP,Space1D.drawingHeight);
+        }
+    }
+
     // Disk-shaped atom.  Assumed to be in 2D
     public static class Disk extends AtomType {
         
@@ -131,18 +163,18 @@ public abstract class AtomType {
         public void draw(Graphics g, int[] origin, double scale, Atom atom) {
             Space.Vector r = atom.coordinate().position();
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
-
+ //           int yP = 0;
             //Draw core
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(r.component(0)-radius));
-            int yP = origin[1] + (int)(toPixels*(r.component(1)-radius));
+            int yP = origin[1] + (int)(toPixels*(r.component(1)-radius));  //removed for 1D
             g.setColor(atom.color);
             g.fillOval(xP,yP,sigmaP,sigmaP);
             
             //Draw well
             sigmaP = (int)(toPixels*wellDiameter);
             xP = origin[0] + (int)(toPixels*(r.component(0)-wellRadius));
-            yP = origin[1] + (int)(toPixels*(r.component(1)-wellRadius));
+            yP = origin[1] + (int)(toPixels*(r.component(1)-wellRadius));  //removed for 1D
             g.setColor(Color.lightGray);
             g.drawOval(xP,yP,sigmaP,sigmaP);
         }

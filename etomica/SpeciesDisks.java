@@ -17,7 +17,12 @@ public class SpeciesDisks extends Species {
     public SpeciesDisks() {
         setSpeciesIndex(0);
         setAtomsPerMolecule(1);
-        protoType = new AtomType.Disk(1.0,Color.black,0.1);  //mass, color, diameter
+        if(Simulation.D == 1) {
+            protoType = new AtomType.Rod(1.0,Color.black,0.1);
+        }
+        else {
+            protoType = new AtomType.Disk(1.0,Color.black,0.1);  //mass, color, diameter
+        }
         colorScheme = new ColorSchemeByType();
         configurationMolecule = new ConfigurationMoleculeLinear();
         setNMolecules(20);

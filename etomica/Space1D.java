@@ -6,6 +6,7 @@ import java.util.Random;
 public class Space1D extends Space {
     
     public static final int D = 1;
+    public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}
     
     public Space.Vector makeVector() {return new Vector();}
@@ -61,7 +62,7 @@ public class Space1D extends Space {
         Coordinate c2;
         final Boundary boundary;
         final Vector dimensions;   //assumes this is not transferred between phases
-        private final Vector dr = new Vector();
+        private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- should be used only as work vector in reset; also this makes cloned coordinatePairs not thread-safe
         private double drx, dvx;
         public CoordinatePair() {boundary = new BoundaryNone(); dimensions = (Vector)boundary.dimensions();}
         public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b; dimensions = (Vector)boundary.dimensions();}
@@ -149,8 +150,9 @@ public class Space1D extends Space {
     protected static final class BoundaryPeriodicSquare extends Boundary {
         private final Vector temp = new Vector();
         public static final Random random = new Random();
-        private final double[][] shift0 = new double[0][D];
-        private final double[][] shift1 = new double[1][D]; //used by getOverflowShifts
+       //Explicit dimension to 2 because drawing to 2D image
+        private final double[][] shift0 = new double[0][2];
+        private final double[][] shift1 = new double[1][2]; //used by getOverflowShifts
         public BoundaryPeriodicSquare() {this(1.0);}
         public BoundaryPeriodicSquare(double lx) {dimensions.x = lx;}
         public final Vector dimensions = new Vector();

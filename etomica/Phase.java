@@ -24,10 +24,10 @@ public final class Phase extends Container implements Molecule.Container {   // 
 
         parentSimulation = ps;
         if(ps.space() instanceof Iterator.Maker) {
-            iterator = ((Iterator.Maker)ps.space()).makeIterator(this);
+            setIterator(((Iterator.Maker)ps.space()).makeIterator(this));
         }
         else {
-            iterator = new Iterator(this);
+            if(iterator == null) setIterator(new Iterator(this));
         }
         setBoundary(iBoundary);
         setPotential();
@@ -54,6 +54,7 @@ public final class Phase extends Container implements Molecule.Container {   // 
     public final Space.Boundary boundary() {return boundary;}
     
     public final Iterator iterator() {return iterator;}
+    public final void setIterator(Iterator it) {iterator = it;}
     
     public final Space space() {return parentSimulation.space();}
     
@@ -145,6 +146,8 @@ public final class Phase extends Container implements Molecule.Container {   // 
 	        parentSimulation.controller.integrator().addIntegrationIntervalListener(m);
 	    }
 	}
+	
+	public void add(Iterator it) {setIterator(it);}
         	
     public void add(Species.Agent species) {
         if(species.parentSpecies().configurationMolecule != null) species.parentSpecies().configurationMolecule.initializeCoordinates(this);

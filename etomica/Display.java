@@ -32,7 +32,7 @@ import java.awt.event.*;
 	    setUpdateInterval(1);
     }
     
-    public final Display getNextDisplay() {return nextDisplay;}
+    public final Display nextDisplay() {return nextDisplay;}
     public final Display getPreviousDisplay() {return previousDisplay;}
    /**
     * Sets the display following this one in the linked list of displays.
@@ -57,6 +57,7 @@ import java.awt.event.*;
     }
 
 	public void setParentSimulation(Simulation s) {parentSimulation = s;}
+	public Simulation parentSimulation() {return parentSimulation;}
 
     public final int getUpdateInterval() {return updateInterval;}
     public final void setUpdateInterval(int i) {

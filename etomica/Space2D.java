@@ -70,7 +70,7 @@ public class Space2D extends Space {
         Coordinate c2;
         final Boundary boundary;
         final Vector dimensions;   //assumes this is not transferred between phases
-        private final Vector dr = new Vector();
+        private final Vector dr = new Vector();  //note that dr is not cloned if this is cloned -- should be used only as work vector in reset; also this makes cloned coordinatePairs not thread-safe
         private double drx, dry, dvx, dvy;
         public CoordinatePair() {boundary = new BoundaryNone(); dimensions = (Vector)boundary.dimensions();}
         public CoordinatePair(Space.Boundary b) {boundary = (Boundary)b; dimensions = (Vector)boundary.dimensions();}

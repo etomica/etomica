@@ -7,6 +7,8 @@ import java.awt.*;
  * from the linked list of molecules.  Takes no special action when list moves from
  * one species to the next.
  * Wall "molecules" are ignored becuase the (super) add method will not add them.
+ *
+ * Need to improve this to handle different dimensions more elegantly
  */
  
 public class ConfigurationSequential extends Configuration {
@@ -25,7 +27,8 @@ public class ConfigurationSequential extends Configuration {
         if(parentPhase == null) {return;}
         
         double Lx = parentPhase.dimensions().component(0);
-        double Ly = parentPhase.dimensions().component(1);
+        double Ly = 0.0;
+        if(parentPhase.space().D()>1)  Ly = parentPhase.dimensions().component(1);
 
     // Count number of molecules
         int sumOfMolecules = 0;
@@ -37,7 +40,13 @@ public class ConfigurationSequential extends Configuration {
         
         if(sumOfMolecules == 0) {return;}
         
-        Space2DCell.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        Space.Vector[] rLat;
+        if(Simulation.D == 1) {
+            rLat = lineLattice(sumOfMolecules, Lx);
+        }
+        else {
+            rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        }
         
    // Place molecules     
         int i = 0;

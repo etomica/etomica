@@ -71,6 +71,16 @@ public abstract class Configuration extends Component{
     public final static boolean HORIZONTAL = false;
     public final static boolean VERTICAL = true;
     
+    public static Space1D.Vector[] lineLattice(int n, double Lx) {
+        Space1D.Vector[] r = new Space1D.Vector[n];
+        double delta = Lx/(double)n;
+        for(int i=0; i<n; i++) {
+            r[i] = new Space1D.Vector();
+            r[i].x = (i+0.5)*delta;
+        }
+        return r;
+    }
+        
     /**
      * Returns a set of n coordinates filling a square lattice of sides Lx and Ly
      * If n is not suitable for square lattice, then last sites are left unfilled
@@ -118,7 +128,6 @@ public abstract class Configuration extends Component{
 	            }}
 	        else {
 	            ix++;
-	//            if(ix >= moleculeColumns) {  delete if works ok
 	            if(ix >= columnsDrawn) {
 	                ix = 0;
 	                iy++;

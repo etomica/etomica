@@ -144,12 +144,24 @@ public final class Atom implements Space.Occupant {
         
     public  AtomType type;
     public  Space.Vector workVector, rLast, velocity;
-        
+    
+ /** This is an array of AtomLinkers that enable lists of atoms to be constructed
+  *  and associated with this atom.  Useful for setting up neighbor lists, for example.
+  *  Each element of this array points to the first linker in some linked list of atoms.
+  *  In many situations, this array is not used at all.
+  *  @see Iterator.FixedNeighbors
+  */
+    public Atom.Linker[] atomLink;
+ 
+ /**
+  *  Base interface for atom iterators
+  */
     public interface Iterator {        
         public boolean hasNext();
         public Atom next();
         public void reset(Atom a);
         public void reset();
+//        public Atom first();  //simply returns the first atom, without affecting status of iterator
     
         public static final class Up implements Iterator {
             private Atom atom, nextAtom;
@@ -192,5 +204,17 @@ public final class Atom implements Space.Occupant {
                 return nextAtom;
             }
         } //end of Atom.Iterator.Down
+    }
+    
+    public static class Linker {
+        private Atom atom;
+        private Atom.Linker next;
+        public Linker() {}
+        public Linker(Atom a) {atom = a;}
+        public Linker(Atom a, Linker l) {atom = a; next = l;}
+        public final Atom atom() {return atom;}
+        public final Atom.Linker next() {return next;}
+        public final void setNext(Atom.Linker l) {next = l;}
+        public final void setAtom(Atom a) {atom = a;}
     }
 }

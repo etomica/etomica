@@ -63,20 +63,10 @@ public class Simulation extends Panel {
             p.gravity.addObserver(controller.integrator());
             p.integrator = controller.integrator();
         }
-        for(Display d=firstDisplay; d!=null; d=d.getNextDisplay()) {d.setPhase(p);}
+        for(Display d=firstDisplay; d!=null; d=d.nextDisplay()) {d.setPhase(p);}
         for(Species s=firstSpecies; s!=null; s=s.nextSpecies()) {p.add(s.makeAgent(p));}
     }
-    
-    //Make a real phase and copy properties from virtual phase
-    //Temporary method to permit manipulation of phase at design time (without customizer)
-//    public void add(VirtualPhase p) {
-//        Phase phase = space.makePhase(Space2D.Boundary.PERIODIC);             //specific to 2D
-//        for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {phase.add(m);}
-//        phase.add(p.configuration);
-//        phase.setG(p.getG());
-//        add(phase);
-//    }
-              
+                  
     public void add(Species species) {
         species.parentSimulation = this;
         
@@ -138,6 +128,8 @@ public class Simulation extends Panel {
     public final Phase lastPhase() {return lastPhase;}
     public final Species firstSpecies() {return firstSpecies;}
     public final Species lastSpecies() {return lastSpecies;}
+    public final Display firstDisplay() {return firstDisplay;}
+    public final Display lastDisplay() {return lastDisplay;}
               
     public boolean hasIntegrator() {
         return (controller != null && controller.integrator() != null);

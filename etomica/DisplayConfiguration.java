@@ -17,18 +17,19 @@ public class DisplayConfiguration extends Display {
     public static final int TOP = -1;
     public static final int BOTTOM = +1;
     private final int D = 2;
-    Phase phase2D;
+//    Phase phase;
     
     private final ConfigurationCanvas canvas = new ConfigurationCanvas();
 
-    public final int[] align = new int[D];
+//Explicit to 2D because drawing to 2D image
+    public final int[] align = new int[2];
     
  /**
   * Size of drawing region of central image, in pixels
   *
   * @see #computeDrawSize
   */
-    protected final int[] drawSize = new int[D];
+    protected final int[] drawSize = new int[2];
   
  /**
   * Flag specifying whether a line tracing the boundary of the display should be drawn
@@ -61,8 +62,9 @@ public class DisplayConfiguration extends Display {
       
    /**
     * Coordinate origin for central image
+    * Explicit to 2D because drawing is done to 2D image
     */
-    protected final int[] centralOrigin = new int[D];
+    protected final int[] centralOrigin = new int[2];
 
  /**
   * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
@@ -95,7 +97,7 @@ public class DisplayConfiguration extends Display {
         }
     }
     
-    public void setPhase(Phase p) {super.setPhase(p); phase2D = p;}  //2D needed to manipulate dimensions array directly
+    public void setPhase(Phase p) {super.setPhase(p);}  //2D needed to manipulate dimensions array directly
  
     /**
     * @return the current value of imageShells
@@ -157,20 +159,17 @@ public class DisplayConfiguration extends Display {
                 double rScale;
                 int wh;
                 if(w > h) {
-                wh = w;
-                rScale = (double)w/(double)getSize().width;
+                    wh = w;
+                    rScale = (double)w/(double)getSize().width;
                 }
                 else {
-                wh = h;
-                rScale = (double)h/(double)getSize().height;
+                    wh = h;
+                    rScale = (double)h/(double)getSize().height;
                 }
                 super.setBounds(getLocation().x,getLocation().y,wh,wh);
                 createOffScreen(wh);
-                phase2D.inflate(rScale);
-                for(Molecule m=phase2D.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                m.inflate(rScale);
-                }
-                phase2D.integrator.initialize();
+                phase.inflate(rScale);
+                phase.integrator.initialize();
             }
             else {                    //change scale of image
                 //super.changeSize(w,h,e);  doesn't work well
@@ -191,7 +190,6 @@ public class DisplayConfiguration extends Display {
                 scale *= factor;
             }
             super.setBounds(x,y,width,height);
-        //    if(phase2D != null) phase2D.resetTO_PIXELS();
         }
        
         public void digitTyped(int i) {
@@ -249,24 +247,24 @@ public class DisplayConfiguration extends Display {
         * @see Species
         */
         public void doPaint(Graphics g) {  //specific to 2-D
-            if(!isVisible() || phase2D == null) {return;}
+            if(!isVisible() || phase == null) {return;}
             int w = getSize().width;
             int h = getSize().height;
             g.setColor(getBackground());
             g.fillRect(0,0,w,h);
             double toPixels = scale*SIM2PIXELS;
-            drawSize[0] = (int)(toPixels*phase2D.boundary().dimensions().component(0));
-            drawSize[1] = (int)(toPixels*phase2D.boundary().dimensions().component(1));
+            drawSize[0] = (int)(toPixels*phase.boundary().dimensions().component(0));
+            drawSize[1] = (Simulation.D==1) ? Space1D.drawingHeight: (int)(toPixels*phase.boundary().dimensions().component(1));
             centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
             centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
-            if(drawBoundary) {phase2D.boundary().draw(g, centralOrigin, scale);}
-            if(drawSpace) {phase2D.space().draw(g, centralOrigin, scale);}
-            for(Species.Agent s=phase2D.firstSpecies(); s!=null; s=s.nextSpecies()) {
+            if(drawBoundary) {phase.boundary().draw(g, centralOrigin, scale);}
+            if(drawSpace) {phase.space().draw(g, centralOrigin, scale);}
+            for(Species.Agent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
                 if(s.firstAtom() == null) {continue;}
                 s.draw(g, centralOrigin, scale);
             }
             if(imageShells > 0) {
-                double[][] origins = phase2D.boundary().imageOrigins(imageShells);  //more efficient to save rather than recompute each time
+                double[][] origins = phase.boundary().imageOrigins(imageShells);  //more efficient to save rather than recompute each time
                 for(int i=0; i<origins.length; i++) {
                     g.copyArea(centralOrigin[0],centralOrigin[1],drawSize[0],drawSize[1],(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
                 }

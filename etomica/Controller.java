@@ -29,6 +29,9 @@ public class Controller extends Container implements Runnable {
         p.gravity.addObserver(i);
         p.integrator = i;
     }
+    for(Display d=parentSimulation.firstDisplay; d!=null; d=d.nextDisplay()) {
+        i.addIntegrationIntervalListener(d);
+    }
   }
   
   public Integrator integrator() {return integrator;}

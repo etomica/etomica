@@ -22,7 +22,7 @@ package simulate;
         public Atom.Iterator makeAtomIteratorDown() {return new Atom.Iterator.Down(phase);}
         public AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
         public AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
-        public AtomPair.Iterator makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
+        public AtomPair.Iterator.All makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved

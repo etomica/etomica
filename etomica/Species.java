@@ -168,8 +168,9 @@ public abstract class Species extends Container {
      * Hashtable to associate agents with phases
      */
     Hashtable agents = new Hashtable();
-    
-    private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
+    //Explicit for 2D because drawing is done to 2D image
+//    private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
+    private transient final int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
 
     /**
     * Object responsible for setting default configuration of atoms in molecule
@@ -349,22 +350,6 @@ public abstract class Species extends Container {
             colorScheme.initializeMoleculeColor(m);
         }
               
-        /**
-        * Makes a new molecule, assigns it a random position and velocity, and adds it to the species.  
-        *
-        * @return the added molecule
-        */
- /*       public Molecule addMolecule() {
-            Molecule m;
-            if(reservoir.isEmpty()) {m = makeMolecule();}
-            else {m = reservoir.getMolecule();}
-            configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
-            m.translateTo(m.parentPhase.randomPosition());
-            parentPhase.configuration.initializeMomentum(m);  //initialize momentum
-            addMolecule(m);
-            return m;
-        }
-*/                    
     /**
     * Draws all molecules of the species using current values of their positions.
     *

@@ -61,7 +61,7 @@ public abstract class Space {
         public void scaleMomentum(double scale) {momentum().TE(scale);}
     }
     
-    public static abstract class CoordinatePair {
+    public static abstract class CoordinatePair implements Cloneable {
         public double r2;
 //        public Potential potential;
         public CoordinatePair() {}  //null constructor
@@ -74,6 +74,16 @@ public abstract class Space {
         public final double r2() {return r2;}
         public abstract double dr(int i);    //component of separation vector
         public abstract double dv(int i);    //component of velocity-difference vector
+        /**
+        * Clones this coordinatePair without cloning the objects it contains
+        * The returned coordinatePair refers to the same pair of coordinates as the original
+        * Call it "copy" instead of "clone" because fields are not cloned
+        */
+        public CoordinatePair copy() {
+            try {
+                return (CoordinatePair)super.clone();
+            } catch(CloneNotSupportedException e) {return null;}
+        }
     }
 
     public static abstract class Boundary {

@@ -8,7 +8,8 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     
     private double bondLength = 0.02;
     private Space.Vector orientation;
-    private double theta = 45.;
+    private double[] angle = new double[Simulation.D];
+//    private double theta = 45.;
     
     public ConfigurationMoleculeLinear(){
     }
@@ -19,11 +20,22 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     }
     public double getBondLength() {return bondLength;}
     
-    public void setAngle(double t) {
-        theta = Math.PI*t/180.;
-        setOrientation(new Space2D.Vector(Math.cos(theta),Math.sin(theta)));
+    public void setAngle(int i, double t) {
+        angle[i] = Math.PI*t/180.;
+        switch(Simulation.D) {
+            case 1:
+                return;
+            case 2:
+                setOrientation(new Space2D.Vector(Math.cos(angle[0]),Math.sin(angle[0])));
+                return;
+//            case 3:
+//                setOrientation(new Space3D.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
+//                                                  Math.sin(angle[1])*Math.sin(angle[0]),
+//                                                  Math.cos(angle[1])));
+//                return;
+        }
     }
-    public double getAngle() {return theta;}
+    public double getAngle(int i) {return angle[i];}
     public void setOrientation(Space.Vector e) {orientation.E(e);}
   
   /**
@@ -43,7 +55,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     }
     
     protected void computeDimensions() {
-        if(parentSpecies()==null) return;
+/*        if(parentSpecies()==null) return;
         dim[1] = 0.0;
         Molecule m = parentSpecies().getMolecule();  //a typical molecule
         initializeCoordinates(m);
@@ -51,13 +63,14 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
             dim[1] = Math.max(dim[1], ((AtomType.Disk)a.type).diameter());  //width is that of largest atom
         }
         dim[0] = 0.5*(((AtomType.Disk)m.firstAtom().type).diameter() + ((AtomType.Disk)m.lastAtom().type).diameter()) + (m.atomCount-1) * bondLength;
+*/
     }
 
   public void setParentSpecies(Species s) {
     parentSpecies = s;
     orientation = s.parentSimulation.space.makeVector();   //temporary
-    setAngle(theta);   //fix orientation to x-axis of 2-D space
-    computeDimensions();
+//    setAngle(theta);   //fix orientation to x-axis of 2-D space
+//    computeDimensions();
   }
 
 
