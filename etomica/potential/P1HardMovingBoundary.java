@@ -161,15 +161,6 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 }
             }
         }
-/*        if (dv * dr < 0.0) {
-            if (dv > 0.0) {
-                dr = dr - collisionRadius;
-            }
-            else {
-                dr = -dr + collisionRadius;
-            }
-            t = dr / dv;
-        }*/
         if (Default.FIX_OVERLAP && t<0.0) t = 0.0;
         if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(atoms))) {
             System.out.println(a+" "+dr+" "+dv+" "+discr+" "+t+" "+atom);
@@ -188,7 +179,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 final Vector dimensions = pistonBoundary.dimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
-                        area *= dimensions.x(i);
+                        area *= (dimensions.x(i)-collisionRadius*2.0);
                     }
                 }
             }
@@ -241,7 +232,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 final Vector dimensions = pistonBoundary.dimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
-                        area *= dimensions.x(i);
+                        area *= (dimensions.x(i)-collisionRadius*2.0);
                     }
                 }
             }
@@ -250,7 +241,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double a = force/wallMass;
         wallPosition += wallVelocity * tStep + 0.5*tStep*tStep*a;
         wallVelocity += tStep*a;
-//        System.out.println("pressure => velocity "+(tStep*a)+" "+wallVelocity+" "+wallPosition+" "+tStep);
+//        System.out.println("pressure => velocity "+a+" "+wallVelocity+" "+wallPosition+" "+tStep);
     }
     
     public void setThickness(double t) {
