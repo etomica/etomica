@@ -113,7 +113,7 @@ public class Space1D extends Space implements EtomicaElement {
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; return WORK;}
         public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; return WORK;}
         public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; return WORK;}
-        public Space.Vector abs() {WORK.x = (x>0)?x:-x; return WORK;}
+        public void abs() {x = (x>0)?x:-x;}
         public double min() {return x;}
         public double max() {return x;}
         public double squared() {return x*x;}

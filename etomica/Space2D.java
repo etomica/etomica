@@ -123,22 +123,23 @@ public class Space2D extends Space implements EtomicaElement {
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; return WORK;}
         public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; return WORK;}
         public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; WORK.y = y/u1.y; return WORK;}
-        public Space.Vector abs() {WORK.x = (x>0)?x:-x; WORK.y = (y>0)?y:-y; return WORK;}
+        public void abs() {x = (x>0)?x:-x; y = (y>0)?y:-y;}
         public double min() {return (x < y) ? x : y;}
         public double max() {return (x > y) ? x : y;}
         public double squared() {return x*x + y*y;}
         public double dot(Vector u) {return x*u.x + y*u.y;}
-        public Space3D.Vector cross(Space3D.Vector u) {//not thread safe
-            Space3D.Vector.WORK.setX(0, y*u.x(2));
-            Space3D.Vector.WORK.setX(1,-x*u.x(2));
-            Space3D.Vector.WORK.setX(2, x*u.x(1) - y*u.x(0));
-            return Space3D.Vector.WORK;
+        public Space3D.Vector cross(Space3D.Vector u) {
+        	return new Space3D.Vector(y*u.x(2), -x*u.x(2), x*u.x(1)-y*u.x(0));
+//        	work.setX(0, y*u.x(2));
+//            work.setX(1,-x*u.x(2));
+//            work.setX(2, x*u.x(1) - y*u.x(0));
         }
-        public Space3D.Vector cross(Space2D.Vector u) {//not thread safe
-            Space3D.Vector.WORK.setX(0, 0.0);
-            Space3D.Vector.WORK.setX(1, 0.0);
-            Space3D.Vector.WORK.setX(2, x*u.y - y*u.x);
-            return Space3D.Vector.WORK;
+        public Space3D.Vector cross(Space2D.Vector u) {
+			return new Space3D.Vector(0.0, 0.0, x*u.y - y*u.x);
+//            Space3D.Vector.WORK.setX(0, 0.0);
+//            Space3D.Vector.WORK.setX(1, 0.0);
+//            Space3D.Vector.WORK.setX(2, x*u.y - y*u.x);
+//            return Space3D.Vector.WORK;
         }
         /**
          * Replaces this vector with its cross-product with the given 3D vector, with result projected

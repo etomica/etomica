@@ -8,7 +8,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Collisional { //, EtomicaElement {
+public class MeterTensorVirialHard extends MeterTensor implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
     
     /**
      * Sums contributions to the virial from collisions, between calls to currentValue
