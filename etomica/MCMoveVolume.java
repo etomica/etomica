@@ -1,7 +1,6 @@
 package etomica;
 
 import etomica.action.PhaseInflate;
-import etomica.action.PhaseActionAdapter;
 import etomica.units.Dimension;
 
 /**
@@ -45,7 +44,7 @@ public class MCMoveVolume extends MCMove {
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/(double)phase.simulation().space().D());
         inflate.setScale(rScale);
-        inflate.attempt();
+        inflate.actionPerformed();
         uNew = Double.NaN;
         return true;
     }//end of doTrial

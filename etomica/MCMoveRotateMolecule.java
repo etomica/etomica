@@ -15,7 +15,7 @@ import etomica.action.AtomActionTransform;
   
 public class MCMoveRotateMolecule extends MCMove {
     
-    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
     //not sure that tree iterator will give all leaf atoms of a molecule
@@ -37,19 +37,19 @@ public class MCMoveRotateMolecule extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         setPerParticleFrequency(true);
-        iteratorDirective.includeLrc = false;
+        energyMeter.setIncludeLrc(false);
         //set directive to exclude intramolecular contributions to the energy
-        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
-            public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
-        });
+        //TODO enable this
+//        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
+//            public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
+//        });
     }
      
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {molecule = null; return false;}
         molecule = phase.randomMolecule();
-        leafAtomIterator.setRoot(molecule);
-
-        uOld = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();
+        energyMeter.setTarget(molecule);
+        uOld = energyMeter.getDataAsScalar(phase);
         //update for 3D
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(2,dTheta);
@@ -65,7 +65,8 @@ public class MCMoveRotateMolecule extends MCMove {
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
+        energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar(phase);
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -81,7 +82,7 @@ public class MCMoveRotateMolecule extends MCMove {
     
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setBasis(molecule);
+        affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }

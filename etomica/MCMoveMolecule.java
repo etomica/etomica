@@ -13,7 +13,7 @@ import etomica.units.Dimension;
   */
 public class MCMoveMolecule extends MCMove {
     
-    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
     protected double uOld;

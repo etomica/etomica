@@ -16,7 +16,7 @@ import etomica.units.Dimension;
 public class MCMoveAtom extends MCMove {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
+    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;

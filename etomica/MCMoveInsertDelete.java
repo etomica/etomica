@@ -17,7 +17,7 @@ public class MCMoveInsertDelete extends MCMove {
     protected double mu;
     
     //directive must specify "BOTH" to get energy with all atom pairs
-    protected final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
 	protected Species species;
 	protected SpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -34,7 +34,7 @@ public class MCMoveInsertDelete extends MCMove {
         setStepSize(0.10);
         setMu(0.0);
         setTunable(false);
-        iteratorDirective.includeLrc = true;
+        energyMeter.setIncludeLrc(true);
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
@@ -66,8 +66,9 @@ public class MCMoveInsertDelete extends MCMove {
                 return false;
             }
             testMolecule = speciesAgent.randomMolecule();
-            uOld = potential.calculate(phase, iteratorDirective.set(testMolecule), energy.reset()).sum();
-            reservoir.addAtom(testMolecule);
+            energyMeter.setTarget(testMolecule);
+            uOld = energyMeter.getDataAsScalar(phase);
+           reservoir.addAtom(testMolecule);
         } 
         uNew = Double.NaN;
         return true;
@@ -80,8 +81,9 @@ public class MCMoveInsertDelete extends MCMove {
     
     public double lnProbabilityRatio() {
         if(insert) {
-            uNew = potential.calculate(phase, iteratorDirective.set(testMolecule), energy.reset()).sum();
-            return (+mu - uNew)/parentIntegrator.temperature;
+            energyMeter.setTarget(testMolecule);
+            uNew = energyMeter.getDataAsScalar(phase);
+           return (+mu - uNew)/parentIntegrator.temperature;
         } else {//delete
             uNew = 0.0;
             return (-mu + uOld)/parentIntegrator.temperature;
@@ -105,8 +107,7 @@ public class MCMoveInsertDelete extends MCMove {
      */
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setBasis(testMolecule);
-        affectedAtomIterator.reset();
+        affectedAtomIterator.setAtom(testMolecule);
         return affectedAtomIterator;
     }
 
@@ -123,72 +124,72 @@ public class MCMoveInsertDelete extends MCMove {
      */
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
 ///*    
-    public static void main(String[] args) {
-        Default.TRUNCATE_POTENTIALS = false;
-//        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
-//		MeterNMolecules meterN = new MeterNMolecules();
-//		etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox((DatumSource)meterN);
-//		box.setUpdateInterval(10);
+//    public static void main(String[] args) {
+//        Default.TRUNCATE_POTENTIALS = false;
+////        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
+////		MeterNMolecules meterN = new MeterNMolecules();
+////		etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox((DatumSource)meterN);
+////		box.setUpdateInterval(10);
+////        
+////		MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);
+////		mcMoveInsDel.setSpecies(sim.species);
+////		mcMoveInsDel.setMu(-2000.);
+////        
+////		sim.integrator(0).setTemperature(1.0);
+////		                                    
+////		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel,"mu");
+////		slider.setMinimum(-20);
+////		slider.setMaximum(+20);
+////		Simulation.instance.elementCoordinator.go();
+//		Simulation sim = new etomica.graphics.SimulationGraphic();
+//		Controller controller = new Controller();
+//
+//		SpeciesSpheresMono species = new SpeciesSpheresMono();
+//		
+//		Phase phase1 = new Phase();
+//		Phase phase2 = new Phase();
+//		IntegratorMC integrator1 = new IntegratorMC();
+//		IntegratorMC integrator2 = new IntegratorMC();
+//		phase1.setIntegrator(integrator1);
+//		phase2.setIntegrator(integrator2);
+//		integrator1.setTemperature(1.0);
+//		integrator2.setTemperature(1.0);
+//		
+//		P2HardSphere potential = new P2HardSphere();
+//		potential.setSpecies(species);
+//		
+//		sim.elementCoordinator.go();
+//		
+//		MCMoveAtom moveAtom1 = new MCMoveAtom(integrator1);
+//		MCMoveAtom moveAtom2 = new MCMoveAtom(integrator2);
+//		MCMoveInsertDelete mcMoveInsDel1 = new MCMoveInsertDelete(integrator1);
+//		MCMoveInsertDelete mcMoveInsDel2 = new MCMoveInsertDelete(integrator2);
+//		mcMoveInsDel1.setSpecies(species);
+//		mcMoveInsDel2.setSpecies(species);		
+//		mcMoveInsDel1.setMu(-2000.);
+//		mcMoveInsDel2.setMu(0.);
+//		
+//		//TODO this should be one meter and two phases and one meter for each phase
+//		MeterNMolecules meterN1 = new MeterNMolecules();
+//		meterN1.setPhase(new Phase[] {phase1});
+//		etomica.graphics.DisplayBox box1 = new etomica.graphics.DisplayBox((DatumSource)meterN1);
+//		box1.setUpdateInterval(10);
+//		MeterNMolecules meterN2 = new MeterNMolecules();
+//		meterN2.setPhase(new Phase[] {phase2});
+//		etomica.graphics.DisplayBox box2 = new etomica.graphics.DisplayBox((DatumSource)meterN2);
+//		box1.setUpdateInterval(10);
 //        
-//		MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);
-//		mcMoveInsDel.setSpecies(sim.species);
-//		mcMoveInsDel.setMu(-2000.);
-//        
-//		sim.integrator(0).setTemperature(1.0);
-//		                                    
-//		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel,"mu");
+//		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel1,"mu");
 //		slider.setMinimum(-20);
 //		slider.setMaximum(+20);
+//		
+//		etomica.graphics.DisplayPhase display1 = new etomica.graphics.DisplayPhase();
+//		etomica.graphics.DisplayPhase display2 = new etomica.graphics.DisplayPhase();
+//		display1.setPhase(phase1);
+//		display2.setPhase(phase2);
 //		Simulation.instance.elementCoordinator.go();
-		Simulation sim = new etomica.graphics.SimulationGraphic();
-		Controller controller = new Controller();
-
-		SpeciesSpheresMono species = new SpeciesSpheresMono();
-		
-		Phase phase1 = new Phase();
-		Phase phase2 = new Phase();
-		IntegratorMC integrator1 = new IntegratorMC();
-		IntegratorMC integrator2 = new IntegratorMC();
-		phase1.setIntegrator(integrator1);
-		phase2.setIntegrator(integrator2);
-		integrator1.setTemperature(1.0);
-		integrator2.setTemperature(1.0);
-		
-		P2HardSphere potential = new P2HardSphere();
-		potential.setSpecies(species);
-		
-		sim.elementCoordinator.go();
-		
-		MCMoveAtom moveAtom1 = new MCMoveAtom(integrator1);
-		MCMoveAtom moveAtom2 = new MCMoveAtom(integrator2);
-		MCMoveInsertDelete mcMoveInsDel1 = new MCMoveInsertDelete(integrator1);
-		MCMoveInsertDelete mcMoveInsDel2 = new MCMoveInsertDelete(integrator2);
-		mcMoveInsDel1.setSpecies(species);
-		mcMoveInsDel2.setSpecies(species);		
-		mcMoveInsDel1.setMu(-2000.);
-		mcMoveInsDel2.setMu(0.);
-		
-		//TODO this should be one meter and two phases and one meter for each phase
-		MeterNMolecules meterN1 = new MeterNMolecules();
-		meterN1.setPhase(new Phase[] {phase1});
-		etomica.graphics.DisplayBox box1 = new etomica.graphics.DisplayBox((DatumSource)meterN1);
-		box1.setUpdateInterval(10);
-		MeterNMolecules meterN2 = new MeterNMolecules();
-		meterN2.setPhase(new Phase[] {phase2});
-		etomica.graphics.DisplayBox box2 = new etomica.graphics.DisplayBox((DatumSource)meterN2);
-		box1.setUpdateInterval(10);
-        
-		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel1,"mu");
-		slider.setMinimum(-20);
-		slider.setMaximum(+20);
-		
-		etomica.graphics.DisplayPhase display1 = new etomica.graphics.DisplayPhase();
-		etomica.graphics.DisplayPhase display2 = new etomica.graphics.DisplayPhase();
-		display1.setPhase(phase1);
-		display2.setPhase(phase2);
-		Simulation.instance.elementCoordinator.go();
-
-        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
-    }//end of main
+//
+//        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
+//    }//end of main
 // */   
 }//end of MCMoveInsertDelete

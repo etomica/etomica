@@ -15,7 +15,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase firstPhase;
     private Phase secondPhase;
     private final double ROOT;
-    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 
     private transient Atom molecule;
@@ -29,7 +29,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         ROOT = 1.0/(double)parentIntegrator.simulation().space().D();
         setTunable(false);
         setPerParticleFrequency(true);
-        iteratorDirective.includeLrc = true;
+        energyMeter.setIncludeLrc(true);
     }
     
     /**
@@ -66,7 +66,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
         iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
-        uOld = potential.calculate(dPhase, iteratorDirective.set(molecule), energy.reset()).sum();
+        energyMeter.setTarget(molecule);
+        uOld = energyMeter.getDataAsScalar(dPhase);
 
         molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
         molecule.node.setParent(iSpecies);
@@ -82,7 +83,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(iPhase, iteratorDirective, energy.reset()).sum();
+        energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar(iPhase);
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -95,7 +97,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.firstPhase != phase && this.secondPhase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setBasis(molecule);
+        affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
