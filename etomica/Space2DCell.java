@@ -95,8 +95,8 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
         }
         public double getNeighborRadius() {return neighborRadius;}
 
-        public final AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPairIteratorUp(phase, cells);}
-        public final AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPairIteratorDown(phase, cells);}
+        public final AtomPair.Iterator makeAtomPairIteratorUp() {return new AtomPairIteratorUp(phase, cells);}
+        public final AtomPair.Iterator makeAtomPairIteratorDown() {return new AtomPairIteratorDown(phase, cells);}
         public final Atom.Iterator makeAtomIteratorUp() {return new AtomIteratorUp(cells);}
         public final Atom.Iterator makeAtomIteratorDown() {return new AtomIteratorDown(cells);}
 

@@ -31,22 +31,22 @@ package simulate;
         
         public Atom.Iterator makeAtomIteratorUp() {return baseIterator.makeAtomIteratorUp();}
         public Atom.Iterator makeAtomIteratorDown() {return baseIterator.makeAtomIteratorDown();}
-        public AtomPair.Iterator.A makeAtomPairIteratorUp() {System.out.println("up");return new AtomPairUp(phase);}  //inner class defined below
-        public AtomPair.Iterator.A makeAtomPairIteratorDown() {System.out.println("down");return new AtomPairDown(phase);} //inner class defined below
+        public AtomPair.Iterator makeAtomPairIteratorUp() {System.out.println("up");return new AtomPairUp(phase);}  //inner class defined below
+        public AtomPair.Iterator makeAtomPairIteratorDown() {System.out.println("down");return new AtomPairDown(phase);} //inner class defined below
         public void addMolecule(Molecule m) {reset();}
         public void deleteMolecule(Molecule m) {reset();}
         public void reset() {  //loop through all atoms, setting lists of neighbors for each
             Atom.Iterator atomUp = baseIterator.makeAtomIteratorUp();
-            AtomPair.Iterator.A apiUp = baseIterator.makeAtomPairIteratorUp();
-            AtomPair.Iterator.A apiDown = baseIterator.makeAtomPairIteratorDown();
+            AtomPair.Iterator apiUp = baseIterator.makeAtomPairIteratorUp();
+            AtomPair.Iterator apiDown = baseIterator.makeAtomPairIteratorDown();
             atomUp.reset();
             while(atomUp.hasNext()) {      //atom loop
                 Atom a = atomUp.next();
                 a.atomLink = new Atom.Linker[2];  //set array for first upList and downList linkers
                 Atom.Linker lastUp = null;        //last linker added to uplist
                 Atom.Linker lastDown = null;      //last linker added to downlist
-                apiUp.reset(a,true);              //reset pair iterators
-                apiDown.reset(a,true);
+                apiUp.reset(a);              //reset pair iterators
+                apiDown.reset(a);
                 AtomPair.Linker upPairLink = AtomPair.distanceSort(apiUp);  //created distance-ordered list of pairs up from atom
                 AtomPair.Linker downPairLink = AtomPair.distanceSort(apiDown); //create distance-ordered list down from atom
                 double upR2 = (upPairLink!=null) ? upPairLink.pair().r2() : Double.MAX_VALUE;  //get separation for first pair in uplist
@@ -88,7 +88,7 @@ package simulate;
             } //end of while loop
         } //end of reset method
         
-        protected static class AtomPairUp implements AtomPair.Iterator.A {
+        protected static class AtomPairUp implements AtomPair.Iterator {
             private Atom.Linker nextLink;
             private final AtomPair pair;
             AtomPairUp(Phase p) {pair = new AtomPair(p);}
@@ -102,7 +102,7 @@ package simulate;
             }
         }
         
-        protected static class AtomPairDown implements AtomPair.Iterator.A {
+        protected static class AtomPairDown implements AtomPair.Iterator {
             private Atom.Linker nextLink;
             private final AtomPair pair;
             AtomPairDown(Phase p) {pair = new AtomPair(p);}

@@ -377,6 +377,9 @@ public class Molecule implements Space.Occupant, Serializable {
             else {atom = atom.nextAtom();}
             return nextAtom;
         }
+        public void allAtoms(Atom.Action act) {
+            for(Atom a=firstAtom; a!=terminationAtom(); a=a.nextAtom()) {act.action(a);}
+        }
     } //end of AtomIterator
   public final class MonoAtomIterator implements Atom.Iterator {
         private boolean hasNext;
@@ -388,6 +391,7 @@ public class Molecule implements Space.Occupant, Serializable {
             hasNext = false;
             return firstAtom;
         }
+        public void allAtoms(Atom.Action act) {act.action(firstAtom);}
     } //end of MonoAtomIterator
 
   /**

@@ -20,8 +20,10 @@ package simulate;
         public Iterator(Phase p) {phase = p;}
         public Atom.Iterator makeAtomIteratorUp() {return new Atom.Iterator.Up(phase);}
         public Atom.Iterator makeAtomIteratorDown() {return new Atom.Iterator.Down(phase);}
-        public AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
-        public AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
+        public Atom.Iterator makeAtomIteratorUpNeighbor() {return new Atom.Iterator.UpNeighbor(phase);}
+        public Atom.Iterator makeAtomIteratorDownNeighbor() {return new Atom.Iterator.DownNeighbor(phase);}
+        public AtomPair.Iterator makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
+        public AtomPair.Iterator makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
         public AtomPair.Iterator.All makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}

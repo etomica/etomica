@@ -6,7 +6,7 @@ public class MeterPotentialEnergy extends simulate.Meter
   AtomPair.Iterator.MP iteratorMP;
   AtomPair.Iterator.All iteratorAll;
   
-  AtomPair.Iterator.A apiUp, apiDown;
+  AtomPair.Iterator apiUp, apiDown;
   
   public MeterPotentialEnergy() {
     super();

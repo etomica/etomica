@@ -154,6 +154,12 @@ public final class Atom implements Space.Occupant {
     public Atom.Linker[] atomLink;
  
  /**
+  *
+  */
+    public interface Action {
+        public void action(Atom a);
+    }
+ /**
   *  Base interface for atom iterators
   */
     public interface Iterator {        
@@ -161,18 +167,37 @@ public final class Atom implements Space.Occupant {
         public Atom next();
         public void reset(Atom a);
         public void reset();
+        public void allAtoms(Action act);
+            
+//        public Phase phase();
 //        public Atom first();  //simply returns the first atom, without affecting status of iterator
     
-        public static final class Up implements Iterator {
+    /**
+     * Iterator that expires after returning a single atom
+     */
+        public static final class Singlet implements Iterator {
+            private Atom atom;
+            private boolean hasNext;
+            public Singlet() {hasNext = false;}
+            public Singlet(Atom a) {reset(a);}
+            public boolean hasNext() {return hasNext;}
+            public void reset() {hasNext = (atom != null);}
+            public void reset(Atom a) {atom = a; reset();}
+            public Atom next() {return atom;}
+            public void allAtoms(Atom.Action act) {act.action(atom);}
+        }
+        
+        public static class Up implements Iterator {
             private Atom atom, nextAtom;
             private boolean hasNext;
             private Phase phase;
             public Up(Phase p) {phase = p; hasNext = false;}
             public Up(Phase p, Atom a) {phase = p; reset(a);}
+            public Phase phase() {return phase;}
             public boolean hasNext() {return hasNext;}
             public void reset(Atom a) {
-                if(a == null) {hasNext = false; return;}
                 atom = a;
+                if(a == null) {hasNext = false; return;}
                 hasNext = true;
             }
             public void reset() {reset(phase.firstAtom());}
@@ -182,18 +207,41 @@ public final class Atom implements Space.Occupant {
                 hasNext = (atom != null);
                 return nextAtom;
             }
+            public void allAtoms(Atom.Action act) {
+                for(Atom a=atom; a!=null; a=a.nextAtom()) {act.action(a);}
+            }
         } //end of Atom.Iterator.Up
         
-        public static final class Down implements Iterator {
-            private Atom atom, nextAtom, firstAtom;
+        /**
+         * Iterates over all neighbors uplist from given atom.
+         * This iterator defines all atoms in phase as neighbors, so it
+         * simply extends the Up iterator, modifying the reset method to start with
+         * the atom following the given atom, rather than the given atom itself.
+         */
+        public static final class UpNeighbor extends Up {
+            private Atom first;
+            public UpNeighbor(Phase p) {super(p);}
+            public UpNeighbor(Phase p, Atom a) {super(p,a);}
+            public void reset(Atom a) {
+                atom = a;
+                if(a == null) {hasNext = false; return;}
+                first = a.nextAtom();
+                super.reset(first);
+            }
+            public void reset() {super.reset(first);}
+        }
+        
+        public static class Down implements Iterator {
+            protected Atom atom, nextAtom;
             private boolean hasNext;
             private Phase phase;
             public Down(Phase p) {phase = p; hasNext = false;}
             public Down(Phase p, Atom a) {phase = p; reset(a);}
+            public Phase phase() {return phase;}
             public boolean hasNext() {return hasNext;}
             public void reset(Atom a) {
-                if(a == null) {hasNext = false; return;}
                 atom = a;
+                if(a == null) {hasNext = false; return;}
                 hasNext = true;
             }
             public void reset() {reset(phase.firstAtom());}
@@ -203,7 +251,32 @@ public final class Atom implements Space.Occupant {
                 if(atom == null) {hasNext = false;}
                 return nextAtom;
             }
+            public void allAtoms(Atom.Action act) {
+                for(Atom a=atom; a!=null; a=a.previousAtom()) {act.action(a);}
+            }
         } //end of Atom.Iterator.Down
+        
+        /**
+         * Iterates over all neighbors downlist from given atom.
+         * This iterator defines all atoms in phase as neighbors, so it
+         * simply extends the Down iterator, modifying the reset method to start with
+         * the atom preceding the given atom, rather than the given atom itself.
+         * Also, the no-argument reset performs a reset using the current atom, rather than 
+         * resetting to neighbor of first atom in phase.
+         */
+        public static final class DownNeighbor extends Down {
+            private Atom first;
+            public DownNeighbor(Phase p) {super(p);}
+            public DownNeighbor(Phase p, Atom a) {super(p,a);}
+            public void reset(Atom a) {
+                atom = a;
+                if(a == null) {hasNext = false; return;}
+                first = a.previousAtom();
+                super.reset(first);
+            }
+            public void reset() {super.reset(first);}
+        }
+        
     }
     
     /**

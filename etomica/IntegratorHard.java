@@ -5,7 +5,7 @@ import java.awt.Color;
 public final class IntegratorHard extends Integrator {
 
 private Agent nextCollider;
-private AtomPair.Iterator.A upPairIterator, downPairIterator;
+private AtomPair.Iterator upPairIterator, downPairIterator;
 private Atom.Iterator upAtomIterator, downAtomIterator;
 private AtomPair atomPair;
 private PotentialHard spacePotential;
@@ -55,13 +55,13 @@ public void doStep(double tStep) {
             a.setColor(Color.black);
         }
         Atom central = firstPhase.firstAtom();
-        central.setColor(((Space2DCell.Coordinate)central.coordinate).cell.color);
-        upPairIterator.reset(central,Iterator.INTRA);
+//        central.setColor(((Space2DCell.Coordinate)central.coordinate).cell.color);
+        upPairIterator.reset(central);
         while(upPairIterator.hasNext()) {
             AtomPair pair = upPairIterator.next();
             pair.atom2.setColor(Color.blue);
         }
-        downPairIterator.reset(central,Iterator.INTRA);
+        downPairIterator.reset(central);
         while(downPairIterator.hasNext()) {
             AtomPair pair = downPairIterator.next();
             pair.atom2.setColor(Color.green);
@@ -79,7 +79,7 @@ public void doStep(double tStep) {
             atom.setColor(Color.green);
         }        
         */
-        central.setColor(((Space2DCell.Coordinate)central.coordinate).cell.color);
+//        central.setColor(((Space2DCell.Coordinate)central.coordinate).cell.color);
         central.setColor(Color.red);
     }
 
@@ -124,7 +124,7 @@ protected void advanceToCollision() {
         //reset collision partners of atoms that are now up from this atom but still list it as their
         //collision partner.  Assumes this atom was moved down list, but this won't always be the case
         //This bit could be made more efficient
-        upPairIterator.reset(a,Iterator.INTRA);
+        upPairIterator.reset(a);
         while(upPairIterator.hasNext()) {
             AtomPair pair = upPairIterator.next();
             if(((Agent)pair.atom2().ia).getCollisionPartner() == a) {  //upList atom could have atom as collision partner if atom was just moved down list
@@ -221,7 +221,7 @@ protected void upList(Atom atom) {
     Agent aia = (Agent)atom.ia;
     aia.setCollision(minCollisionTime, null, null);
             
-    upPairIterator.reset(atom,Iterator.INTRA);
+    upPairIterator.reset(atom);
     while(upPairIterator.hasNext()) {
         AtomPair pair = upPairIterator.next();
         PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
@@ -245,7 +245,7 @@ protected void upList(Atom atom) {
 
 protected void downList(Atom atom) {
             
-    downPairIterator.reset(atom,Iterator.INTRA);
+    downPairIterator.reset(atom);
     while(downPairIterator.hasNext()) {
         AtomPair pair = downPairIterator.next();
         Agent aia = (Agent)pair.atom2().ia;  //atom2 is inner loop
