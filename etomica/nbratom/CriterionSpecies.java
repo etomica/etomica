@@ -29,7 +29,7 @@ public class CriterionSpecies extends CriterionAdapter {
     }
     
     public boolean accept(AtomPair pair) {
-        if (isIntraSpecies != (pair.atom0.type.getSpeciesIndex() == pair.atom1.type.getSpeciesIndex())) {
+        if (isIntraSpecies != (pair.atom0.inSameSpecies(pair.atom1))) {
             return false;
         }
         return subCriterion.accept(pair);

@@ -32,7 +32,7 @@ public class CriterionBondedSimple extends CriterionAdapter {
     public boolean accept(AtomPair pair) {
         int diff = pair.atom0.node.getOrdinal() - pair.atom1.node.getOrdinal();
         if (isBonded != (diff == 1 || diff == -1) 
-                || (pair.atom0.node.parentMolecule() != pair.atom1.node.parentMolecule())) {
+                || (!pair.atom0.inSameMolecule(pair.atom1))) {
             return false;
         }
         return subCriterion.accept(pair);

@@ -29,7 +29,7 @@ public class CriterionMolecular extends CriterionAdapter {
     }
     
     public boolean accept(AtomPair pair) {
-        if (isIntraMolecular != (pair.atom0.node.parentMolecule() == pair.atom1.node.parentMolecule())) {
+        if (isIntraMolecular != (pair.atom0.inSameMolecule(pair.atom1))) {
             return false;
         }
         return subCriterion.accept(pair);
