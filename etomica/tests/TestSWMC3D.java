@@ -10,8 +10,6 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
-import etomica.WriteConfiguration;
-import etomica.WritePDB;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -67,10 +65,8 @@ public class TestSWMC3D extends Simulation {
         integrator.addPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
-        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
-        integrator.addIntervalListener(writeConfig);
-        WritePDB writePDB = new WritePDB("SWMC3D"+Integer.toString(numAtoms),phase,1);
-        integrator.addIntervalListener(writePDB);
+//        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
+//        integrator.addIntervalListener(writeConfig);
     }
  
     public static void main(String[] args) {
