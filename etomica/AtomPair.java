@@ -3,9 +3,16 @@ package simulate;
 public interface AtomPair {
     
     public double r2();
+    public double v2();
+    public double vDotr();
+    public void push(double impulse);  //impart equal and opposite impulse to momenta
+    public void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
     public Atom atom1();
     public Atom atom2();
     
+    /**
+     * Interface for classes that generate atom pairs according to various criteria
+     */
     public interface Iterator {
         
         public boolean hasNext();
@@ -23,8 +30,8 @@ public interface AtomPair {
         }
         
         /** Naming scheme for iterators:
-         *    AM --> Pairs involve all molecules in a species, which is passed to constructor and/or reset method
-         *    FM --> Pairs involve a fixed Molecule, which is passed to constructor and/or reset method
+         *    AM --> Pairs involve All Molecules in a species, which is passed to constructor and/or reset method
+         *    FM --> Pairs involve a Fixed Molecule, which is passed to constructor and/or reset method
          *     Single designator (e.g., AM) indicates INTRA-molecule pairs
          *     Double designator (e.g., AMFM) indicates INTER-molecule pairs
          */
@@ -32,7 +39,7 @@ public interface AtomPair {
         /**
          * Iterator for all (intramolecular) atom pairs in a single molecule
          */
-        public static class FM implements Iterator.M {  //AllMoleculeIntraPairs
+        public static class FM implements M {  //AllMoleculeIntraPairs
             private final Iterator.A iterator;
             public FM(PhaseSpace ps) {iterator = ps.makePairIteratorHalf();} //constructor
             public FM(PhaseSpace ps, Molecule m) {  //constructor
@@ -53,7 +60,7 @@ public interface AtomPair {
         /**
          * Iterator for all intramolecular atom pairs within species
          */
-        public static class AM implements Iterator.S {   //AllSpeciesIntraPairs
+        public static class AM implements S {   //AllSpeciesIntraPairs
             private boolean mLast;
             private Molecule m, lastM;
             private final FM mPairs;
@@ -87,7 +94,7 @@ public interface AtomPair {
         /**
          * Iterates over all intermolecular atom pairs between a fixed molecule and all molecules in a species
          */
-        public static class FMAM implements Iterator.MS, Iterator.M, Iterator.S {
+        public static class FMAM implements MS, M, S {
             private final Iterator.A iterator;
             private Molecule molecule;
             private Species species;
@@ -142,7 +149,7 @@ public interface AtomPair {
         /**
          *  Iterates over all intermolecular atom pairs between or within species
          */
-        public static class AMAM implements Iterator.S, Iterator.SS {  //AllSpeciesInterPairs
+        public static class AMAM implements S, SS {  //AllSpeciesInterPairs
             private final Iterator.A fullIterator;  //make iterators in constructor and re-use them
             private final Iterator.A halfIterator;
             private Iterator.A currentIterator;

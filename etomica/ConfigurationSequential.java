@@ -33,7 +33,7 @@ public class ConfigurationSequential extends Configuration {
             sumOfMolecules += s.getNMolecules();
         }
         
-        double[][] rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        PhaseSpace2D.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
         
         int i = 0;
         for(int j=0; j<species.size(); j++) {

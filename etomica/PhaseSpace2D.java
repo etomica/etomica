@@ -102,8 +102,8 @@ public class PhaseSpace2D extends PhaseSpace {
         public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
         
         //following methods are same in all PhaseSpace classes
-        public PhaseSpace.AtomCoordinate nextCoordinate() {return nextCoordinate();}
-        public PhaseSpace.AtomCoordinate previousCoordinate() {return previousCoordinate();}
+        public PhaseSpace.AtomCoordinate nextCoordinate() {return nextCoordinate;}
+        public PhaseSpace.AtomCoordinate previousCoordinate() {return previousCoordinate;}
         public final void setNextCoordinate(PhaseSpace.Coordinate c) {
            nextCoordinate = (AtomCoordinate)c;
            if(c != null) {((AtomCoordinate)c).previousCoordinate = this;}
@@ -237,7 +237,7 @@ public class PhaseSpace2D extends PhaseSpace {
         return new double[0][D()];
     }
     
-    private class AtomPair implements simulate.AtomPair {  //Inner AtomPair class
+    private static final class AtomPair implements simulate.AtomPair {  //Inner AtomPair class
         AtomCoordinate c1;
         AtomCoordinate c2;
         public AtomPair() {}
@@ -247,11 +247,45 @@ public class PhaseSpace2D extends PhaseSpace {
                 c2 = (AtomCoordinate)a2.coordinate;
             }
         }
-       
+             //Room to optimize all this by precomputing and saving components of dr and dv        
         public double r2() {
-            double dx = c1.r.x - c2.r.x;   //change for PBC
-            double dy = c1.r.y - c2.r.y;
-            return dx*dx + dy*dy;
+            double drx = c2.r.x - c1.r.x;   //change for PBC
+            double dry = c2.r.y - c1.r.y;
+            return drx*drx + dry*dry;
+        }
+        public double v2() {
+            double rm1 = c1.atom.type.rm();
+            double rm2 = c2.atom.type.rm();
+            double dvx = rm2*c2.p.x - rm1*c1.p.x;
+            double dvy = rm2*c2.p.y - rm1*c1.p.y;
+            return dvx*dvx + dvy*dvy;
+        }
+        public double vDotr() {
+            double drx = c2.r.x - c1.r.x;   //change for PBC
+            double dry = c2.r.y - c1.r.y;
+            double rm1 = c1.atom.type.rm();
+            double rm2 = c2.atom.type.rm();
+            double dvx = rm2*c2.p.x - rm1*c1.p.x;
+            double dvy = rm2*c2.p.y - rm1*c1.p.y;
+            return drx*dvx + dry*dvy;
+        }
+        public void push(double impulse) {  //changes momentum in the direction joining the atoms
+            double drx = c2.r.x - c1.r.x;   //change for PBC
+            double dry = c2.r.y - c1.r.y;
+            c1.p.x += impulse*drx;
+            c1.p.y += impulse*dry;
+            c2.p.x -= impulse*drx;
+            c2.p.y -= impulse*dry;
+        }
+        public void setSeparation(double r2New) {
+            double ratio = c2.atom.type.mass()*c1.atom.type.rm();  // (mass2/mass1)
+            double delta = (Math.sqrt(r2New/r2()) - 1.0)/(1+ratio);
+            double drx = c2.r.x - c1.r.x;   //change for PBC
+            double dry = c2.r.y - c1.r.y;
+            c1.r.x -= ratio*delta*drx;
+            c1.r.y -= ratio*delta*dry;
+            c2.r.x += delta*drx;
+            c2.r.y += delta*dry;
         }
         public final Atom atom1() {return c1.atom();}
         public final Atom atom2() {return c2.atom();}

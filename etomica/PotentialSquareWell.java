@@ -9,9 +9,6 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
   private double wellDiameter, wellDiameterSquared;
   private double lambda; //wellDiameter = coreDiameter * lambda
   private double epsilon;
-  private transient final double[] r12 = new double[Space.D];
-  private transient final double[] v12 = new double[Space.D];
-//  private transient PairInteraction pair = new PairInteraction();
 
   public PotentialSquareWell(double coreDiameter, double lambda, double epsilon) {
     setCoreDiameter(coreDiameter);
@@ -29,14 +26,12 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
   }
  */
  
-  public void bump(AtomC atom1, AtomC atom2) {
+  public void bump(AtomPair pair) {
     double eps = 1.0e-6;
-    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
-    Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
-    double r2 = Space.v1S(r12);
-    double bij = Space.v1Dv2(v12, r12);
+    double r2 = pair.r2();
+    double bij = pair.vDotr();
     // ke is kinetic energy due to components of velocity
-    double reduced_m = 1.0/((1.0/atom1.rm+ 1.0/atom2.rm)*atom1.rm*atom2.rm);
+    double reduced_m = 1.0/(pair.atom1().rm() + pair.atom2().rm());
     double ke = bij*bij*reduced_m/(2.0*r2);
     double s, r2New;
     if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
@@ -62,26 +57,19 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
       }
     }
 
-    Space.uPEa1Tv1(atom1.p, s, r12);
-    Space.uMEa1Tv1(atom2.p, s, r12);
+    pair.push(s);
     if(r2New == r2) return;
     
-    double ratio = atom1.rm/atom2.rm;  // (mass2/mass1)
-    double delta = (Math.sqrt(r2New/r2) - 1.0)/(1+ratio);
-    Space.uPEa1Tv1(atom1.r, -ratio*delta, r12);
-    Space.uPEa1Tv1(atom2.r, delta, r12);
   }
 
 //----------------------------------------------------------------------
 
-  public double collisionTime(AtomC atom1, AtomC atom2) {
+  public double collisionTime(AtomPair pair) {
     double discr = 0.0;
 
-    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
-    Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
-    double bij = Space.v1Dv2(r12,v12);                           //r12 . v12
-    double r2 = Space.v1Dv2(r12,r12);
-    double v2 = Space.v1Dv2(v12,v12);
+    double bij = pair.vDotr();
+    double r2 = pair.r2();
+    double v2 = pair.v2();
 
     double tij = Double.MAX_VALUE;
 
@@ -117,8 +105,8 @@ public class PotentialSquareWell extends Potential implements PotentialHard {
     return tij;
   }
   
-    public double energy(Atom atom1, Atom atom2) {
-        double r2 = parentPhase.space.r1Mr2_S(((AtomC)atom1).r, ((AtomC)atom2).r);
+    public double energy(AtomPair pair) {
+        double r2 = pair.r2();
         return ( r2 < wellDiameterSquared) ? 
                     ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
     }

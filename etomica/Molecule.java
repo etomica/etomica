@@ -171,7 +171,7 @@ public class Molecule implements Serializable {
      * @param dr  vector specifying change in position
      * @see #displace
      */
-  public final void translateTo(PhaseSpace.Vector v) {coordinate.translateTo(v);}
+  public final void setCOM(PhaseSpace.Vector v) {coordinate.translateTo(v);}
   public final void translateBy(PhaseSpace.Vector v) {coordinate.translateBy(v);}
 
     /**
