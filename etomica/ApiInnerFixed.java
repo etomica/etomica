@@ -106,7 +106,8 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
     /**
      * Returns the next pair without advancing the iterator.
      * If the iterator has reached the end of its iteration,
-     * returns null.
+     * returns null.  A previously-returned pair will be altered
+     * by this method.
      */
     public Atom[] peek() {
     	if(!hasNext) {return null;}
