@@ -50,14 +50,14 @@ public class NeighborManager implements IntervalListener {
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
 	public void intervalAction(IntervalEvent evt) {
-		if(evt.type() == IntervalEvent.START) {
+		if(evt.type() == IntervalEvent.START || evt.type() == IntervalEvent.INITIALIZE) {
 			reset(((Integrator)evt.getSource()).getPhase());
 		} else if(evt.type() == IntervalEvent.INTERVAL) {
 			if (--iieCount == 0) {
 				updateNbrsIfNeeded((Integrator)evt.getSource());
 				iieCount = updateInterval;
 			}
-		}
+        }
 	}
 
 	/**
