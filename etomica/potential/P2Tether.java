@@ -4,6 +4,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -55,13 +57,20 @@ public class P2Tether extends Potential2HardSpherical {
    * Implements collision dynamics for pair attempting to separate beyond tether distance
    */
   public final void bump(Atom[] pair, double falseTime) {
-  		cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double r2 = cPair.r2();
-        dr.E(cPair.dr());
-        lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
+      cPairNbr.reset(pair[0].coord,pair[1].coord);
+      ((CoordinatePairKinetic)cPairNbr).resetV();
+      dr.E(cPairNbr.dr());
+      Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+      dr.Ea1Tv1(falseTime,dv);
+      double r2 = dr.squared();
+      double bij = dr.dot(dv);
+        lastCollisionVirial = 2.0/(pair[0].type.rm() + pair[1].type.rm())*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        dr.TE(lastCollisionVirialr2);
-        cPair.truePush(dr,falseTime);
+        dv.Ea1Tv1(lastCollisionVirialr2,dr);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
+        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
+        pair[1].coord.position().Ea1Tv1(falseTime,dv);
   }
 
 
@@ -80,13 +89,17 @@ public class P2Tether extends Potential2HardSpherical {
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
    */
   public final double collisionTime(Atom[] pair, double falseTime) {
-  	cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-    double r2 = cPair.r2();
-    double bij = cPair.vDotr();
-    if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
-    double v2 = cPair.v2();
-    double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
-    return (-bij + Math.sqrt(discr))/v2 + falseTime;
+      cPairNbr.reset(pair[0].coord,pair[1].coord);
+      ((CoordinatePairKinetic)cPairNbr).resetV();
+      dr.E(cPairNbr.dr());
+      Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+      dr.Ea1Tv1(falseTime,dv);
+      double r2 = dr.squared();
+      double bij = dr.dot(dv);
+      double v2 = dv.squared();
+      if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
+      double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
+      return (-bij + Math.sqrt(discr))/v2 + falseTime;
   }
   
   /**

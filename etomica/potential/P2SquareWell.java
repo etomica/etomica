@@ -5,6 +5,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -53,9 +55,9 @@ public class P2SquareWell extends Potential2HardSpherical {
     /**
      * Returns true if separation of pair is less than core diameter, false otherwise
      */
-    public boolean overlap(Atom[] pair, double falseTime) {
-        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        return cPair.r2() < coreDiameterSquared;
+    public boolean overlap(Atom[] pair) {
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        return cPairNbr.dr().squared() < coreDiameterSquared;
     }
 
     /**
@@ -64,11 +66,15 @@ public class P2SquareWell extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(Atom[] pair, double falseTime) {
-        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double r2 = cPair.r2();
-        double bij = cPair.vDotr();
-        double reduced_m = 1.0/(pair[0].coord.rm() + pair[1].coord.rm());
+        double reduced_m = 1.0/(pair[0].type.rm() + pair[1].type.rm());
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
             if (Debug.ON && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
@@ -108,8 +114,11 @@ public class P2SquareWell extends Potential2HardSpherical {
             }
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        dr.Ea1Tv1(lastCollisionVirialr2,cPair.dr());
-        cPair.truePush(dr,falseTime);
+        dv.Ea1Tv1(lastCollisionVirialr2,dr);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
+        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
+        pair[1].coord.position().Ea1Tv1(falseTime,dv);
         if(nudge != 0) cPair.nudge(nudge);
     }//end of bump method
 
@@ -129,14 +138,15 @@ public class P2SquareWell extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(Atom[] pair, double falseTime) {
-        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double discr = 0.0;
-
-        double bij = cPair.vDotr();
-        double r2 = cPair.r2();
-        double v2 = cPair.v2();
-
-        double tij = Double.MAX_VALUE;
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double v2 = dv.squared();
+        double time = Double.POSITIVE_INFINITY;
 
         if(r2 < wellDiameterSquared) {  // Already inside wells
 
@@ -145,29 +155,29 @@ public class P2SquareWell extends Potential2HardSpherical {
                     return falseTime;
                 }
 
-                discr = bij*bij - v2 * ( r2 - coreDiameterSquared );
+                double discr = bij*bij - v2 * ( r2 - coreDiameterSquared );
                 if(discr > 0) {  // Hard cores collide next
-                    tij = (-bij - Math.sqrt(discr))/v2;
+                    time = (-bij - Math.sqrt(discr))/v2;
                 }
                 else {           // Moving toward each other, but wells collide next
                     discr = bij*bij - v2 * ( r2 - wellDiameterSquared );
-                    tij = (-bij + Math.sqrt(discr))/v2;
+                    time = (-bij + Math.sqrt(discr))/v2;
                 }
             }
             else {           // Moving away from each other, wells collide next
-                discr = bij*bij - v2 * ( r2 - wellDiameterSquared );  // This is always > 0
-                tij = (-bij + Math.sqrt(discr))/v2;
+                double discr = bij*bij - v2 * ( r2 - wellDiameterSquared );  // This is always > 0
+                time = (-bij + Math.sqrt(discr))/v2;
             }
         }
         else {              // Outside wells; look for collision at well
             if(bij < 0.0) {
-                discr = bij*bij - v2 * ( r2 - wellDiameterSquared );
+                double discr = bij*bij - v2 * ( r2 - wellDiameterSquared );
                 if(discr > 0) {
-                    tij = (-bij - Math.sqrt(discr))/v2;
+                    time = (-bij - Math.sqrt(discr))/v2;
                 }
             }
         }
-        return tij + falseTime;
+        return time + falseTime;
     }
 
   /**

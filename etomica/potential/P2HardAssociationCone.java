@@ -6,7 +6,6 @@ import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.space.ICoordinateAngular;
-import etomica.space.ICoordinate;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
