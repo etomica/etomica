@@ -263,9 +263,9 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
     public static void main(String[] args) {
         
         Simulation sim = new Simulation();
-        SpeciesSpheresMono species = new SpeciesSpheresMono();
+        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         species.setNMolecules(10);//tested also for 0 and 1 molecule
-        Phase phase = new Phase();
+        Phase phase = new Phase(sim.space);
         sim.elementCoordinator.go();
 //        AtomList atomList = phase.speciesMaster.atomList;
         AtomList atomList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
