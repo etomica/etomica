@@ -23,7 +23,7 @@ public class Molecule implements Space.Occupant, Serializable {
 
   /**
    *  Makes molecule with specified number of atoms, all of the same type.
-   *  Number of atoms on molecule can be changed.
+   *  Number of atoms on molecule can be changed, but need to modify code to take care of atomIterator if this is done.
    */
   public Molecule(Species ps, Phase pp, AtomType type, int n) {  
     parentSpecies = ps;

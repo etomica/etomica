@@ -28,14 +28,21 @@ public class MCMoveInsertDelete extends MCMove {
     private final void trialInsert(Phase phase) {
         Species.Agent s = phase.firstSpecies();
         double uNew;
-        Molecule m = s.parentSpecies().makeMolecule();  //makes molecule without adding to species
+        Molecule m = s.parentSpecies().getMolecule();  //makes molecule without adding to species
         m.translateTo(phase.randomPosition());
         uNew = phase.potentialEnergy.insertionValue(m);
-        if(uNew == Double.MAX_VALUE) {return;}        //overlap
+        if(uNew == Double.MAX_VALUE) {  //overlap
+            s.parentSpecies().putMolecule();   //put molecule in species reservoir
+            return;
+        }      
         double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.volume()/(s.getNMolecules()+1);
         if(bNew > 1.0 || bNew > rand.nextDouble()) {  //accept
             phase.addMolecule(m);
-        }           
+        }
+        else {
+            s.parentSpecies().putMolecule();   //reject
+            return;
+        }      
     }
     
     //Not suited to mixtures

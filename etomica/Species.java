@@ -81,8 +81,8 @@ public abstract class Species extends Container {
     /**
     * Creates new molecule of this species.  
     */
-    public Molecule makeMolecule() {return makeMolecule(null);}
-    public abstract Molecule makeMolecule(Phase p);
+    private Molecule makeMolecule() {return makeMolecule(null);}
+    private abstract Molecule makeMolecule(Phase p);
 
     public void setAtomsPerMolecule(int na) {
         atomsPerMolecule = na;
@@ -121,6 +121,12 @@ public abstract class Species extends Container {
         return a;
     }
     public final Agent getAgent(Phase p) {return (Agent)agents.get(p);}
+    
+    public final Molecule getMolecule() {
+        if(reservoir.isEmpty()) return makeMolecule();
+        else return reservoir.getMolecule();
+    }
+    public final void putMolecule(Molecule m) {reservoir.putMolecule(m);}
     
     /*
     * A name to be associated with the species.  Use is optional.
@@ -168,6 +174,11 @@ public abstract class Species extends Container {
     public ConfigurationMolecule configurationMolecule;
     
     Species previousSpecies, nextSpecies;
+    
+    /**
+     * Class for storing molecules that are not presently in any phase
+     */
+    private final Reservoir reservoir = new Reservoir();
           
     private final Random rand = new Random();  //for choosing molecule at random
 
@@ -249,12 +260,12 @@ public abstract class Species extends Container {
         *
         * @return the deleted molecule
         */
-        public final Molecule deleteMolecule() {
+ /*       public final Molecule deleteMolecule() {
             Molecule m = this.randomMolecule();
             deleteMolecule(m);
             return m;
         }
-                
+*/                
         /**
         * Removes molecule from species, and updates atom and molecule linked lists.
         * Updates all values of first/last Molecule/Atom for species and
@@ -340,15 +351,17 @@ public abstract class Species extends Container {
         *
         * @return the added molecule
         */
-        public Molecule addMolecule() {
-            Molecule m = makeMolecule();
+ /*       public Molecule addMolecule() {
+            Molecule m;
+            if(reservoir.isEmpty()) {m = makeMolecule();}
+            else {m = reservoir.getMolecule();}
             configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
             m.translateTo(m.parentPhase.randomPosition());
             parentPhase.configuration.initializeMomentum(m);  //initialize momentum
             addMolecule(m);
             return m;
         }
-                    
+*/                    
     /**
     * Draws all molecules of the species using current values of their positions.
     *
@@ -494,4 +507,28 @@ public abstract class Species extends Container {
         public ColorScheme colorScheme;
         
     } //end of Agent
+    
+    /**
+     * Class to store molecules that are not presently in any particular phase
+     * Useful for semigrand and grand canonical simulations
+     * Keeps molecules in a linked list
+     */
+    protected static final class Reservoir {
+        
+        private Molecule next;
+
+        public Molecule getMolecule() {
+            Molecule m = next;
+            if(m != null) next = m.nextMolecule();
+            return m;    
+        }
+        
+        //does not handle m==null
+        public void putMolecule(Molecule m) {
+            m.setNextMolecule(next);
+            next = m;
+        }
+        
+        public boolean isEmpty() {return next==null;}
+    }
 }

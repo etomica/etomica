@@ -180,6 +180,7 @@ public class Phase extends Container {   // container of meters
     }
     
     public void addMolecule(Molecule m, Species.Agent s) {
+        m.parentPhase().deleteMolecule(m);
         m.parentPhase = this;
         moleculeCount++;
         atomCount += m.nAtoms;
