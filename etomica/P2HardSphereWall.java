@@ -11,7 +11,7 @@ package etomica;
  * @author David Kofke
  */
  
-public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
+public class P2HardSphereWall extends Potential2 implements PotentialHard {
     
     protected double collisionDiameter, collisionRadius;
     private double lastCollisionVirial;

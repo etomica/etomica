@@ -9,7 +9,7 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1Harmonic extends Potential1 implements Potential1.Soft {
+public class P1Harmonic extends Potential1 implements PotentialSoft {
     
     private final int D;
     private double w = 100.0;

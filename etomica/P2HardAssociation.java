@@ -6,7 +6,7 @@ package etomica;
  * @author Rob Riggleman
  * @author David Kofke
  */
-public class P2HardAssociation extends Potential2 implements Potential.Hard {
+public class P2HardAssociation extends Potential2 implements PotentialHard {
 
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;

@@ -33,8 +33,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		double minCollisionTime;
 		IntegratorHardAbstract.Agent aia;
 		Atom atom1;
-		private Potential2.Hard p2Hard;
-		private Potential1.Hard p1Hard;
+		private PotentialHard p2Hard;
+		private PotentialHard p1Hard;
         
 		public CollisionHandlerUp setAtom(Atom a) {
 			atom1 = a;
@@ -76,13 +76,13 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		}
 
 		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof Potential1.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p1Hard = (Potential1.Hard)p1;
+			if(!(p1 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
+			p1Hard = (PotentialHard)p1;
 			return super.set(p1);
 		}
 		public PotentialCalculation set(Potential2 p2) {
-			if(!(p2 instanceof Potential2.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p2Hard = (Potential2.Hard)p2;
+			if(!(p2 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
+			p2Hard = (PotentialHard)p2;
 			return super.set(p2);
 		}
 	} //end of collisionHandlerUp
@@ -91,8 +91,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
 	private static final class CollisionHandlerDown extends PotentialCalculation {
-		private Potential2.Hard p2Hard;
-		private Potential1.Hard p1Hard;
+		private PotentialHard p2Hard;
+		private PotentialHard p1Hard;
 		public void actionPerformed(AtomPair pair) {
 			double collisionTime = p2Hard.collisionTime(pair);
  /*debug * /   System.out.println("      DN "+pair.atom1.toString()+","
@@ -117,13 +117,13 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 			throw new etomica.exception.MethodNotImplementedException();
 		}
 		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof Potential1.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p1Hard = (Potential1.Hard)p1;
+			if(!(p1 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
+			p1Hard = (PotentialHard)p1;
 			return super.set(p1);
 		}
 		public PotentialCalculation set(Potential2 p2) {
-			if(!(p2 instanceof Potential2.Hard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p2Hard = (Potential2.Hard)p2;
+			if(!(p2 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
+			p2Hard = (PotentialHard)p2;
 			return super.set(p2);
 		}
 	} //end of collisionHandlerDown

@@ -56,7 +56,7 @@ public abstract class Potential2 extends Potential {
 	 *
 	 * @author David Kofke
 	 */
-    public interface Soft extends Potential.Soft {
+    public interface Soft extends PotentialSoft {
 		public double hyperVirial(Atom[] pair);
 
 		public double virial(Atom[] pair);

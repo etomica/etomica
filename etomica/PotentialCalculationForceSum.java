@@ -4,45 +4,37 @@ package etomica;
  * Sums the force on each iterated atom and adds it to the integrator agent
  * associated with the atom.
  */
-public class PotentialCalculationForceSum extends PotentialCalculation {
+public class PotentialCalculationForceSum implements PotentialCalculation {
         
     private final Space.Vector f;
-    private Potential2.Soft p2Soft;
-    private Potential1.Soft p1Soft;
     
     public PotentialCalculationForceSum(Space space) {
             f = space.makeVector();
     }
         
-	public PotentialCalculation set(Potential1 p1) {
-		if(!(p1 instanceof Potential1.Soft)) throw new RuntimeException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-		p1Soft = (Potential1.Soft)p1;
-		return super.set(p1);
-	}
-	public PotentialCalculation set(Potential2 p2) {
-		if(!(p2 instanceof Potential2.Soft)) throw new RuntimeException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-		p2Soft = (Potential2.Soft)p2;
-		return super.set(p2);
-	}
-    //atom
-    public void actionPerformed(Atom atom) {
-        f.E(p1Soft.gradient(atom));
-        ((Integrator.Forcible)atom.ia).force().ME(f);
-    }//end of calculate
-
-    //pair
-    public void actionPerformed(AtomPair pair) {
-        f.E(p2Soft.gradient(pair));
-        ((Integrator.Forcible)pair.atom1().ia).force().PE(f);
-        ((Integrator.Forcible)pair.atom2().ia).force().ME(f);
-    }//end of calculate
-    
-	public void actionPerformed(Atom3 atom3) {
-		throw new etomica.exception.MethodNotImplementedException();
-	}
-	
-	public void actionPerformed(AtomSet atomN) {
-		throw new etomica.exception.MethodNotImplementedException();
+	/**
+	 * Adds forces due to given potential acting on the atoms produced by the iterator.
+	 * Implemented for only 1- and 2-body potentials.
+	 */
+	public void doCalculation(AtomsetIterator iterator, Potential potential) {
+		PotentialSoft potentialSoft = (PotentialSoft)potential;
+		int nBody = potential.nBody();
+		iterator.reset();
+		while(iterator.hasNext()) {
+			Atom[] atoms = iterator.next();
+			f.E(potentialSoft.gradient(atoms);
+			switch(nBody) {
+				case 1: 
+					((Integrator.Forcible)atoms[0].ia).force().ME(f);
+					break;
+				case 2: 
+			        ((Integrator.Forcible)atoms[0].ia).force().PE(f);
+			        ((Integrator.Forcible)atoms[1].ia).force().ME(f);
+			 		break;
+			 	default:
+			 		throw new RuntimeException("Force calculation not implemented to treat (n>2)-body interactions");	
+			}
+		}
 	}
 }//end ForceSums
     

@@ -233,7 +233,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double rvx; 
         double vf;
 		private Potential2.Soft p2Soft;
-		private Potential1.Soft p1Soft;
+		private PotentialSoft p1Soft;
 
         private final Space.Vector f;
         public ForceSumNPH(Space space) {
@@ -241,8 +241,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         }
             
 		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof Potential1.Soft)) throw new IllegalArgumentException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
-			p1Soft = (Potential1.Soft)p1;
+			if(!(p1 instanceof PotentialSoft)) throw new IllegalArgumentException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
+			p1Soft = (PotentialSoft)p1;
 			return super.set(p1);
 		}
 		public PotentialCalculation set(Potential2 p2) {

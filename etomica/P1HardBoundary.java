@@ -15,7 +15,7 @@ package etomica;
  //of the phase by the parent potential, since this is probably a common situation for
  //one-body potentials
  
-public class P1HardBoundary extends Potential1 implements Potential.Hard {
+public class P1HardBoundary extends Potential1 implements PotentialHard {
     
     private double collisionRadius = 0.0;
     private boolean isothermal = false;

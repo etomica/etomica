@@ -15,6 +15,7 @@ package etomica;
   * 06/15/03 (DAK) in makeBasis, for 2-species case, added check for whether the
   * two species are the same; if so uses one of them as basis, rather than
   * making a pair from them.
+  * 08/31/04 (group) complete overhaul with revamping of potentials, etc.
   */
 public final class PotentialMaster extends PotentialGroup {
     
@@ -53,6 +54,10 @@ public final class PotentialMaster extends PotentialGroup {
         }
     }//end calculate
     
+    /**
+     * Indicates to the PotentialMaster that the given potential should apply to 
+     * the specified species.
+     */
     public void setSpecies(Potential potential, Species[] species) {
     	if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
@@ -67,10 +72,10 @@ public final class PotentialMaster extends PotentialGroup {
 	 * summable potential calculation object, so that the sum can be accessed
 	 * in-line with the method call.
 	 */
-   public final PotentialCalculation.Summable calculate(Phase phase, IteratorDirective id, PotentialCalculation.Summable pa) {
-	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
-	   return pa;
-   }	    
+//   public final PotentialCalculation.Summable calculate(Phase phase, IteratorDirective id, PotentialCalculation.Summable pa) {
+//	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
+//	   return pa;
+//   }	    
    
 	private PotentialGroupLrc lrcMaster;
 	private Phase mostRecentPhase = null;

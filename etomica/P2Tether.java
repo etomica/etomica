@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
-public class P2Tether extends Potential2 implements Potential2.Hard {
+public class P2Tether extends Potential2 implements PotentialHard {
 
   private double tetherLength, tetherLengthSquared;
   private double lastCollisionVirial = 0.0;

@@ -16,7 +16,7 @@ import etomica.statmech.MaxwellBoltzmann;
   * 8/1/02 (DAK) added constructor taking only parent potential
   */
  
-public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
+public class P2HardDiskWall extends Potential2 implements PotentialHard {
     
     protected double collisionDiameter, collisionRadius;
     private double lastCollisionVirial;

@@ -9,7 +9,7 @@ package etomica;
  * @author David Kofke
  * @author Jhumpa Adhikari
  */
-public class P2XOrder extends Potential2 implements Potential2.Hard {
+public class P2XOrder extends Potential2 implements PotentialHard {
     
    protected final Space.Vector dr;
     

@@ -8,7 +8,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class P2HardSphere extends Potential2 implements Potential2.Hard {
+public class P2HardSphere extends Potential2 implements PotentialHard {
     
    /**
     * Separation at which spheres first overlap

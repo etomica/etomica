@@ -5,7 +5,7 @@ package etomica;
  *
  * Inverse-power potential between an atom and all four boundaries of the phase.
  */
-public class P1SoftBoundary extends Potential1 implements Potential.Soft, EtomicaElement {
+public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
 
 	private final int D;
 	private final Space.Vector gradient;
@@ -25,7 +25,7 @@ public class P1SoftBoundary extends Potential1 implements Potential.Soft, Etomic
 	}
     
 	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo("Soft repulsive potential at the phase boundaries");
+		EtomicaInfo info = new EtomicaInfo("PotentialSoft repulsive potential at the phase boundaries");
 		return info;
 	}
     
