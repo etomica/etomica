@@ -1,65 +1,134 @@
 package simulate;
 
-public class LatticeCubic {
-    
+//import java.util.Array;  //java 1.2  need for a (unimplemented) constructor
+import java.util.Random;
+
+/**
+ * Arbitrary-dimension Lattice with cubic coordination.  
+ * Lattice is constructed recursively, so that at top level (dimension D) the lattice is
+ * represented by an array of lattices each of dimension D-1.  This continues on down to
+ * the zero-dimensional lattice, which contains a single Lattice.Site object.
+ * Each dimension of the lattice may be of different length (i.e., the lattice can be rectangular and need not be strictly cubic)
+ */
+public class LatticeCubic implements Lattice {
+
+    /*  ****Compiler (sometimes) won't let me declare these final 
     private final Lattice.Site.Iterator iterator;
-    protected LatticeCubic[] rows;  //not private because of possible problem in sharing with Iterator inner class
-    private final boolean singlet;
     private final int nRows, siteCount;
+    public final int D;                              //dimension of lattice
+    public final static Random random = new Random(); */   //random-number generator for selecting a random site
+    private Lattice.Site.Iterator iterator;
+    private int nRows, siteCount;
+    public int D;                                //dimension of lattice
+    public static Random random = new Random();  //random-number generator for selecting a random site
+    
+    private LatticeCubic[] rows;                       //array of D-1 dimensional lattices
+    private LatticeCubic parentLattice;                //D+1 dimensional lattice in which this lattice is a row (null for highest-level lattice)
+    private int index;                                 //index of row array in parentLattice
     
     //modify to construct lattice from arbitrary site objects
+    /**
+     * Default constructor is a "zero-dimensional" lattice consisting of one site
+     */
+    public LatticeCubic() { 
+        D = 0;
+        iterator = new SingletIterator(new Site(this));
+        siteCount = 1;
+        nRows = 0;
+    }
     public LatticeCubic(int[] dim) {
-        if(dim.length==0) {  //recursion termination; make lattice of a single site
-            singlet = true;
-            iterator = new SingletIterator(new Site());
-            siteCount = 1;
-            nRows = 0;
+        D = dim.length;
+        int d = D-1;
+        int[] newdim = new int[d];
+        if(d > 0) System.arraycopy(dim,0,newdim,0,d);  //create new dim array from all but last element of given dim array
+        nRows = dim[d];
+        rows = new LatticeCubic[nRows];
+        rows[0] = (d>0) ? new LatticeCubic(newdim) : new LatticeCubic();
+        rows[0].setParentLattice(this, 0);
+        for(int i=1; i<nRows; i++) {  //loop to set up neighbors in adjacent rows
+            rows[i] = (d>0) ? new LatticeCubic(newdim) : new LatticeCubic();
+            rows[i].setParentLattice(this, i);
+            rows[i-1].iterator().reset();
+            rows[i].iterator().reset();
+            while (rows[i].iterator().hasNext()) {
+                Lattice.Site pSite = rows[i-1].iterator().next(); 
+                Lattice.Site nSite = rows[i].iterator.next();
+                ((NeighborIterator)pSite.neighborIterator()).addNeighbor(nSite);
+                ((NeighborIterator)nSite.neighborIterator()).addNeighbor(pSite);
+            }
         }
-        else {  //make array of lower-dimensional lattices
-            singlet = false;
-            int n = dim.length-1;
-            int[] newdim = new int[n];
-            System.arraycopy(dim,0,newdim,0,n);  //create new dim array from all but last element of given dim array
-            nRows = dim[n];
-            rows = new LatticeCubic[nRows];
-            rows[0] = new LatticeCubic(newdim);
-            for(int i=1; i<nRows; i++) {
-                rows[i] = new LatticeCubic(newdim);
-                rows[i-1].iterator().reset();
-                rows[i].iterator().reset();
-                while (rows[i].iterator().hasNext()) {
-                    Lattice.Site pSite = rows[i-1].iterator().next(); 
-                    Lattice.Site nSite = rows[i].iterator.next();
-                    ((NeighborIterator)pSite.neighborIterator()).setFirst(nSite);
-                    ((NeighborIterator)nSite.neighborIterator()).setFirst(pSite);
-                }
+        //This does the periodic boundary
+        rows[0].iterator().reset();
+        rows[nRows-1].iterator().reset();
+        while (rows[0].iterator().hasNext()) {
+            Lattice.Site pSite = rows[0].iterator().next(); 
+            Lattice.Site nSite = rows[nRows-1].iterator.next();
+            ((NeighborIterator)pSite.neighborIterator()).addNeighbor(nSite);
+            ((NeighborIterator)nSite.neighborIterator()).addNeighbor(pSite);
+        }
+        iterator = new LatticeIterator(rows);
+        siteCount = nRows*rows[0].siteCount();
+    }
+    /**
+     * Create a square lattice of dimension "d" with "size" elements in each dimension
+     * Need java 1.2 for Array.fill
+     */
+//    public LatticeCubic(int d, int size) {
+//        this(construct array of int with d elements each having value size);
+//          this(Array.fill(new int[d],size));
+//    }
+
+    public int siteCount() {return siteCount;}  
+    public int coordinationNumber() {return 2*D;}
+    public Lattice.Site site(Lattice.Coordinate coord) {return site((Coordinate)coord);}
+    public Lattice.Site site(Coordinate coord) {
+        return (D==0) ? iterator.first() : rows[coord.index[D-1]].site(coord);
+    }
+    /**
+     * Returns a random site in the lattice
+     * Iteratively chooses a row at random and calls randomSite for that row
+     */
+    public Lattice.Site randomSite() {
+        int i = (int)Math.floor(nRows*random.nextDouble());
+        return (D==0) ? iterator.first() : rows[i].randomSite();}
+        
+    public Lattice.Site.Iterator iterator() {return iterator;}     //iterator for all sites in lattice
+    
+    public LatticeCubic parentLattice() {return parentLattice;}
+    public int index() {return index;}
+    public void setParentLattice(LatticeCubic lat, int i) {parentLattice = lat; index = i;}
+    
+    public class Coordinate implements Lattice.Coordinate{
+        //first value (index[0]) indicates the site in the row
+        //second value indicates which row in the plane, third value which plane in the cube, etc.
+        public int[] index;  
+        public Coordinate() {index = new int[D];}
+        public Coordinate(int[] i) {setIndex(i);}
+        public void setIndex(int[] i) {
+            if(i.length == D) {index = i;}
+            else {   //should throw exception
+                index = new int[D];
+                System.out.println("LatticeCubic.Coordinate instantiation error");
             }
-            //This does the periodic boundary
-            rows[0].iterator().reset();
-            rows[nRows-1].iterator().reset();
-            while (rows[0].iterator().hasNext()) {
-                Lattice.Site pSite = rows[0].iterator().next(); 
-                Lattice.Site nSite = rows[nRows-1].iterator.next();
-                ((NeighborIterator)pSite.neighborIterator()).setFirst(nSite);
-                ((NeighborIterator)nSite.neighborIterator()).setFirst(pSite);
-            }
-            iterator = new LatticeIterator();
-            siteCount = nRows*rows[0].siteCount();
+        }
+        public void setIndex(int d, int value) {  //doesn't check for correct range of d and value
+            // require 0 <= d < D; 0 <= value < (size of row at dimension depth d)
+            index[d] = value;
         }
     }
-    public int siteCount() {return siteCount;}              
-    public Site site(Coordinate coord) {return null;}  //not done
-    public Site randomSite() {return null;}           //not done
-    public Lattice.Site.Iterator iterator() {return iterator;}     //iterator for all sites in lattice
-//    public abstract void draw(Graphics g, int[] origin, double scale);
     
-    public class Coordinate {}  //not done
-    
-    public final class LatticeIterator implements Lattice.Site.Iterator {  //might instead do this by creating a big array of all sites and loop through it
+    /**
+     * General iterator of sites on LatticeCubic.
+     * SingletIterator is used for zero-D lattices
+     */
+    private static final class LatticeIterator implements Lattice.Site.Iterator {  //might instead do this by creating a big array of all sites and loop through it
         private boolean hasNext;
         private int iRow;
         private Lattice.Site.Iterator current;
-        public LatticeIterator() {reset();}
+        private final Lattice[] rows;
+        private final int nRows;
+        public LatticeIterator(Lattice[] r) {rows = r; nRows = r.length; reset();}   //constructor
+        public Lattice.Site first() {return rows[0].iterator().first();}
         public boolean hasNext() {return hasNext;}
         public void reset() {
             iRow = 0;
@@ -81,28 +150,63 @@ public class LatticeCubic {
     }
         
     //Iterator for a lattice that contains only one site (zero-D lattice)
-    public final class SingletIterator implements Lattice.Site.Iterator {
-        private final Site site;
+    private static final class SingletIterator implements Lattice.Site.Iterator {
+        public final Site site;
         private boolean hasNext;
         public SingletIterator(Site s) {site = s; hasNext = true;}
         public boolean hasNext() {return hasNext;}
+        public Lattice.Site first() {return site;}
         public void reset() {hasNext = true;}
         public Lattice.Site next() {hasNext = false; return site;}
     }
     
-    public final class NeighborIterator implements Lattice.Site.Iterator {
-        private Site site;
-        private boolean hasNext;
-        public void setFirst(Lattice.Site s) {}  //not done
-        public boolean hasNext() {return hasNext;}
-        public void reset() {hasNext = true;}
-        public Lattice.Site next() {hasNext = false; return site;}  //not done
+    //Iterator to generate neighbors of site on LatticeCubic
+    private static final class NeighborIterator implements Lattice.Site.Iterator {
+        private SiteLinker first, nextLink;
+        public void addNeighbor(Lattice.Site s) {first = new SiteLinker(first, s);}
+        public boolean hasNext() {return nextLink != null;}
+        public void reset() {nextLink = first;}
+        public Lattice.Site first() {return first.site;}
+        public Lattice.Site next() {
+           Lattice.Site nextSite = nextLink.site;
+           nextLink = nextLink.next;
+           return nextSite;
+        }  
+        
+        private static final class SiteLinker {
+            public final Lattice.Site site;
+            public final SiteLinker next;
+            public SiteLinker(SiteLinker sl, Lattice.Site s) {next = sl; site = s;}
+        }
     }
     
-    public class Site implements Lattice.Site {
-        private int neighborCount;
+    public static class Site implements Lattice.Site {
+        private final LatticeCubic parent;      //immediate parent lattice (not top-level) on which this site resides
+        public Site(LatticeCubic p) {parent = p;}
+        public final Lattice parentLattice() {  //returns the top-level lattice on which this site resides
+            LatticeCubic lat = parent;
+            while(lat.parentLattice() != null) {lat = lat.parentLattice();}
+            return lat;
+        }
         private final Lattice.Site.Iterator neighborIterator = new NeighborIterator();
         public final Lattice.Site.Iterator neighborIterator() {return neighborIterator;}
-        public final int neighborCount() {return neighborCount;}
+        
+        /**
+         * Returns the hierarchy of coordinates for this site
+         */
+        public String toString() {
+            String string = "Site: ";
+            for(LatticeCubic lat=parent; lat!=null; lat=lat.parentLattice()) {
+                string += (String.valueOf(lat.index()) + ", ");
+            }
+            return string;
+        }    
+    }
+    
+    /**
+     * Main method to demonstrate use of LatticeCubic and to aid debugging
+     */
+    public static void main(String[] args) {
+        System.out.println("main method for LatticeCubic");
     }
 }

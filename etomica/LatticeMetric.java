@@ -20,6 +20,7 @@ public abstract class LatticeMetric extends Lattice {
     
     public abstract double[][] getBasis();
     public abstract void setBasis(double[][] b);
+//    public abstract void draw(Graphics g, int[] origin, double scale);
         
     public interface Occupant {
         public Site site();
