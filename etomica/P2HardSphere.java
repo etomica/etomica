@@ -68,7 +68,7 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
                 time = (-bij - Math.sqrt(discriminant))/velocitySquared;
             }
         }
-        if (Debug.ON && (Debug.DEBUG_NOW && Debug.allAtoms(pair)) || time < 0.0) {
+        if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || time < 0.0)) {
         	System.out.println("atoms "+pair[0]+" and "+pair[1]+" r2 "+r2+" bij "+bij+" time "+time);
         	if (time < 0.0) throw new RuntimeException("negative collision time for hard spheres");
         }

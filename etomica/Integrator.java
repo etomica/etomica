@@ -117,7 +117,10 @@ public abstract class Integrator implements java.io.Serializable {
 	 */
 	public void initialize() {
 		deployAgents();
-		reset();
+        if (Debug.ON) {
+            Debug.setAtoms(firstPhase);
+        }
+        reset();
 	}
 
 	//how do agents get placed in atoms made during the simulation?
