@@ -226,7 +226,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 		MeterClusterOverlap meterCluster = new MeterClusterOverlap(plotSimulation,
 					sim.getMeter(), positive.getMeter(), negative.getMeter());
 		meterCluster.setHistorying(true);
-		meterCluster.getHistory().setNValues(1000);
+		meterCluster.getHistory().setNBins(1000);
 		DisplayPlot bHistory = new DisplayPlot(plotSimulation);
 		bHistory.setDataSources(meterCluster.getHistory());
 		DisplayPlot plots = new DisplayPlot(plotSimulation);

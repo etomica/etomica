@@ -163,8 +163,8 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     //need way to update name if meter name changes
     public void setHistogramming() {
         if(histogramming && histogram == null) {
-            histogram = new Histogram();
-            histogram.setName(MeterAbstract.this.toString() + ":Histogram");
+            histogram = new HistogramSimple();
+            histogram.setName(MeterAbstract.this.toString() + ":HistogramSimple");
             histogram.setLabel(MeterAbstract.this.getLabel() + " histogram");
             histogram.setXLabel(MeterAbstract.this.getLabel());
             histogram.setXDimension(MeterAbstract.this.getDimension());

@@ -39,7 +39,7 @@ public class LjMd2D extends SimulationGraphic {
 		energy.setHistorying(true);
 		energy.setActive(true);
 		
-		energy.getHistory().setNValues(500);
+		energy.getHistory().setNBins(500);
 		
 		plot = new DisplayPlot(this);
 		plot.setLabel("Energy");

@@ -1,7 +1,7 @@
 package etomica;
 
 import etomica.units.*;
-import etomica.utility.Histogram;
+import etomica.utility.HistogramSimple;
 import etomica.utility.History;
 import etomica.utility.Function;
 
@@ -29,7 +29,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
     protected int nMeters;
     protected String[] labels;
     
-    private static final String[] sourcesAsText = new String[] {"History", "Histogram"};
+    private static final String[] sourcesAsText = new String[] {"History", "HistogramSimple"};
 
 	public MeterGroup(Simulation sim, int nMeters) {
 	    super(sim);
@@ -132,7 +132,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    String[] sources = new String[nSources];
 	    int i=0;
 	    if(historying) sources[i++] = "History";
-	    if(histogramming) sources[i++] = "Histogram";
+	    if(histogramming) sources[i++] = "HistogramSimple";
 	    return sources;
 	}
 	public DataSource[] getDataSources(String text) {
@@ -142,10 +142,10 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	            sources[i] = accumulator[i].history();
 	            ((History)sources[i]).setLabel(labels[i]);
 	        }
-	    else if(text.equals("Histogram")) 
+	    else if(text.equals("HistogramSimple")) 
 	        for(int i=0; i<nMeters; i++) {
 	            sources[i] = accumulator[i].histogram();
-	            ((Histogram)sources[i]).setLabel(labels[i]);
+	            ((HistogramSimple)sources[i]).setLabel(labels[i]);
 	        }
 	    return sources;
 	}
@@ -197,10 +197,10 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	
 	/**
 	 * Returns the current histogram of measured values.
-	 * Histogram is recorded only if histogramming is set to true.  
+	 * HistogramSimple is recorded only if histogramming is set to true.  
 	 * If histogram was never kept for this meter, an all-zero histogram is returned.
 	 */
-	 public Histogram histogram(int i) {return accumulator[i].histogram();}
+	 public HistogramSimple histogram(int i) {return accumulator[i].histogram();}
 	 
 	 
 	/**

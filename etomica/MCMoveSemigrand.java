@@ -239,7 +239,7 @@ public class MCMoveSemigrand extends MCMove {
 		density0.setPhase(phase);
 		density0.setHistorying(true);
 		density0.setActive(true);		
-		density0.getHistory().setNValues(500);		
+		density0.getHistory().setNBins(500);		
 		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
 		plot.setLabel("Species0 density");
 		plot.setDataSources(density0.getHistory());

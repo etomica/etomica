@@ -30,7 +30,7 @@ public class Lj2D_NoIntegrator extends SimulationGraphic {
 		energy.setHistorying(true);
 		energy.setActive(true);
 		
-		energy.getHistory().setNValues(500);
+		energy.getHistory().setNBins(500);
 
 		plot = new DisplayPlot(this);
 		plot.setLabel("Energy");

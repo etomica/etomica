@@ -10,7 +10,7 @@ package etomica;
  * @author nancycribbin
  *
  */
-public class DataTranslatorArray {
+public class DataTranslatorArray implements DataTranslator {
 	
 	/**
 	 * For the 2 dimensional array, the first dimension (number of rows) is dimension1.  
@@ -53,10 +53,16 @@ public class DataTranslatorArray {
 	
 	/**
 	 * Converts a two dimensional array into a one dimensional array.
+	 * If 2D array has only one row, returns that row as the 1D array; 
+	 * otherwise copies each row consecutively into a new (at first call)
+	 * 1D array.
 	 * @param obj
 	 * @return
 	 */
 	public double[] toArray(Object obj){
+		
+		if(dimension1 == 1) return ((double[][])obj)[0];
+		
 		if(array1D == null) {array1D = new double[dimension];}
 		
 		double[][] castObject = (double[][]) obj;

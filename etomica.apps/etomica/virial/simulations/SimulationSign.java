@@ -124,8 +124,8 @@ public class SimulationSign extends SimulationGraphic {
 //		bPlot.setDataSources(new DataSource[] {bMeter.getHistory(), meterSign.getHistory()});
 		bPlot.setDataSources(new DataSource[] {bMeter.getHistory()});
 //		bPlot.setWhichValue(MeterAbstract.AVERAGE);
-		meterSign.getHistory().setNValues(1000);
-		bMeter.getHistory().setNValues(1000);
+		meterSign.getHistory().setNBins(1000);
+		bMeter.getHistory().setNBins(1000);
 		bPlot.setLabel("Sign running average");
 				
 		this.elementCoordinator.go();

@@ -59,7 +59,7 @@ public interface DataSource {
     /**
      * Interface for a class that can provide one or more data source objects, 
      * without necessarily acting as one itself.
-     * Example is a Meter, which can provide History and Histogram data sources.
+     * Example is a Meter, which can provide History and HistogramSimple data sources.
      */
     public interface Wrapper {
         /**

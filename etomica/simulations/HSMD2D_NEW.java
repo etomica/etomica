@@ -137,8 +137,8 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		elementCoordinator.go();
 		first = species.getAgent(phase).firstMolecule();
 		first.coord.setMass(mass);
-		etomica.utility.Histogram eHistogram = eMeter.getHistogram();
-		etomica.utility.Histogram wHistogram = wMeter.getHistogram();
+		etomica.utility.HistogramSimple eHistogram = eMeter.getHistogram();
+		etomica.utility.HistogramSimple wHistogram = wMeter.getHistogram();
 		eHist.setDataSources(eHistogram);
 		wHist.setDataSources(wHistogram);
 		eHistogram.setXLabel("exp(-W/kT)");
@@ -235,7 +235,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		}
 
 		protected void write() throws java.io.IOException {
-			int n = wMeter.getHistogram().getNValues();
+			int n = wMeter.getHistogram().getNBins();
 			double[] wVal = wMeter.getHistogram().getData(null);
 			double[] eVal = eMeter.getHistogram().getData(null);
 			double[] xw = wMeter.getHistogram().getX();
