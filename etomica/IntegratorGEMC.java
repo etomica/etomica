@@ -114,7 +114,7 @@ public class IntegratorGEMC extends Integrator {
         
         Molecule m = dSpecies.randomMolecule();
         uOld = dSpecies.parentPhase.potentialEnergy.currentValue(m);
-        m.coordinate.displaceToRandom(iPhase);
+        m.displaceToRandom(iPhase);
 //        m.parentSpecies = iSpecies;
         uNew = iSpecies.parentPhase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {

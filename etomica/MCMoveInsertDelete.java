@@ -29,7 +29,7 @@ public class MCMoveInsertDelete extends MCMove {
         Species.Agent s = phase.firstSpecies();
         double uNew;
         Molecule m = s.parentSpecies().makeMolecule();  //makes molecule without adding to species
-        m.coordinate.translateToRandom(phase);
+        m.translateToRandom(phase);
         uNew = phase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {return;}        //overlap
         double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.volume()/(s.getNMolecules()+1);

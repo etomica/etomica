@@ -38,14 +38,10 @@ public class Phase extends Container {
     
     public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
     public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
-//    public abstract AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
-//    public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
-//    public abstract AtomPair.Iterator.A makePairIteratorFull();
-//    public abstract AtomPair.Iterator.A makePairIteratorHalf();
-        public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorFull(boundary,iF,iL,oF,oL);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorHalf(boundary,iL,oF,oL);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return parentSimulation.space.makePairIteratorFull(boundary);}
-        public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return parentSimulation.space.makePairIteratorHalf(boundary);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorFull(boundary,iF,iL,oF,oL);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorHalf(boundary,iL,oF,oL);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return parentSimulation.space.makePairIteratorFull(boundary);}
+    public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return parentSimulation.space.makePairIteratorHalf(boundary);}
         
     public void paint(Graphics g, int[] origin, double scale) {} 
                     
@@ -54,13 +50,13 @@ public class Phase extends Container {
     public void inflate(double scale) {
         boundary.inflate(scale);
         for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
-            m.coordinate.inflate(scale);
+            m.inflate(scale);
         }
     }
     public void reflate(double scale) {
         boundary.inflate(1.0/scale);
         for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
-            m.coordinate.replace();
+            m.replace();
         }
     }
     

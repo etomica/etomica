@@ -353,7 +353,7 @@ public abstract class Species extends Container {
         public Molecule addMolecule() {
             Molecule m = makeMolecule();
             configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
-            m.coordinate.translateToRandom(m.parentPhase);
+            m.translateToRandom(m.parentPhase);
             parentPhase.configuration.initializeMomentum(m);  //initialize momentum
             addMolecule(m);
             return m;

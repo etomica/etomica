@@ -8,7 +8,7 @@ public class Space2D extends Space {
     public final int D() {return D;}
 
     public Space.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
-    public Space.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
+    public Space.Coordinate makeCoordinate() {return new Coordinate();}
     public Space.Vector makeVector() {return new Vector();}
     public final simulate.AtomPair.Iterator.A makePairIteratorFull(Space.Boundary boundary, Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull((Boundary)boundary,iF,iL,oF,oL);}
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary, Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf((Boundary)boundary,iL,oF,oL);}
@@ -228,8 +228,8 @@ public class Space2D extends Space {
         public double dot(Space.Vector u) {return dot((Vector)u);}
         public void E(Vector u) {x = u.x; y = u.y;}
         public void E(double a) {x = a; y = a;}
-        public void Ea1Tv1(double a1, Vector u1) {x = a1*u1.x; y = a1*u1.y;}
-        public void PEa1Tv1(double a1, Vector u1) {x += a1*u1.x; y += a1*u1.y;}
+        public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y;}
+        public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y;}
         public void PE(Vector u) {x += u.x; y += u.y;}
         public void ME(Vector u) {x -= u.x; y -= u.y;}
         public void TE(double a) {x *= a; y *= a;}
@@ -244,13 +244,17 @@ public class Space2D extends Space {
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
-    static abstract class Coordinate implements Space.Coordinate {
+    static class Coordinate implements Space.Coordinate {
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
+        public Space.Vector position() {return r;}
+        public Space.Vector momentum() {return p;}
+        public double position(int i) {return r.component(i);}
+        public double momentum(int i) {return p.component(i);}
     }    
     
-    //much of AtomCoordinate and MoleculeCoordinate are identical in every Space class
-    //They are duplicated because they extend Coordinate, which is unique to each Space
+    //much of AtomCoordinate is identical in every Space class
+    //It is duplicated because it extends Coordinate, which is unique to each Space
     final static class AtomCoordinate extends Coordinate implements Space.AtomCoordinate {
         AtomCoordinate nextCoordinate, previousCoordinate;
         AtomCoordinate(Atom a) {atom = a;}  //constructor
@@ -285,10 +289,6 @@ public class Space2D extends Space {
             p.TE(momentum);
         }
         public void scaleMomentum(double scale) {p.x *= scale; p.y *= scale;}
-        public Space.Vector position() {return r;}
-        public Space.Vector momentum() {return p;}
-        public double position(int i) {return r.component(i);}
-        public double momentum(int i) {return p.component(i);}
         public Space.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
 
 /*        public void translateTo(Space.Vector u) {translateTo((Vector)u);}      
@@ -328,7 +328,7 @@ public class Space2D extends Space {
         //following methods are same in all Space classes
         public Space.AtomCoordinate nextCoordinate() {return nextCoordinate;}
         public Space.AtomCoordinate previousCoordinate() {return previousCoordinate;}
-        public final void setNextCoordinate(Space.Coordinate c) {
+        public final void setNextCoordinate(Space.AtomCoordinate c) {
            nextCoordinate = (AtomCoordinate)c;
            if(c != null) {((AtomCoordinate)c).previousCoordinate = this;}
         }
@@ -343,106 +343,7 @@ public class Space2D extends Space {
         }
         public final Atom atom() {return atom;}
     } 
-    
-    final static class MoleculeCoordinate extends Coordinate implements Space.MoleculeCoordinate {
-        MoleculeCoordinate nextCoordinate, previousCoordinate;
-        MoleculeCoordinate(Molecule m) {molecule = m;}  //constructor
-        public final Molecule molecule;
 
-        protected final Vector rLast = new Vector();
-        protected final Vector temp = new Vector();
-        public void updateR() {  //recomputes COM position from atom positions
-            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            if(molecule.nAtoms==1) {r.E(c.r);}  //one atom in molecule
-            else {  //multiatomic
-                r.Ea1Tv1(c.atom.mass(),c.r);
-                do {c=c.nextCoordinate; r.PEa1Tv1(c.atom.mass(),c.r);} while (c.atom!=molecule.lastAtom);
-                r.DE(molecule.mass());
-            }
-        }
-        public void updateP() {  //recomputes total momentum from atom momenta
-            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            p.E(c.p);
-            if(molecule.nAtoms==1) {return;}  //one atom in molecule
-            do {c=c.nextCoordinate; p.PE(c.p);} while (c.atom!=molecule.lastAtom);
-        }
-        public void translateToward(Space.Vector u, double d) {temp.Ea1Tv1(d,(Vector)u); translateBy(temp);}
-        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
-        public void translateBy(Vector u) {
-            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            c.translateBy(u);
-            if(molecule.nAtoms == 1) {return;}
-            do {c=c.nextCoordinate; c.translateBy(u);} while (c.atom!=molecule.lastAtom);
-        }
-//        public void displaceToRandom(Space.Vector dim) {temp.setRandom((Vector)dim); displaceTo(temp);} 
-        public void translateTo(Space.Vector u) {
-            updateR();  //update COM vector
-            temp.E((Vector)u);  //temp = destination vector
-            temp.ME(r);   //temp = destination - original = dr
-            translateBy(temp);
-        }
-        public void displaceBy(Space.Vector u) {displaceBy((Vector)u);}
-        public void displaceBy(Vector u) {
-            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            c.displaceBy(u);
-            if(molecule.nAtoms == 1) {return;}
-            do {c=c.nextCoordinate; c.displaceBy(u);} while (c.atom!=molecule.lastAtom);
-        }
-        public void displaceTo(Space.Vector u) {displaceTo((Vector)u);}
-        public void displaceTo(Vector u) {
-            updateR();  //update COM vector
-            temp.E(u);  //temp = destination vector
-            temp.ME(r);   //temp = destination - original = dr
-            displaceBy(temp);
-        }
-        public void displaceWithin(double d) {
-            temp.setRandom(d);
-            displaceBy(temp);
-        }
-            
-        public void displaceToRandom(simulate.Phase p) {displaceTo(p.boundary().randomPosition());}
-        public void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
-
-        public void replace() {
-            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            c.replace();
-            if(molecule.nAtoms == 1) {return;}
-            do {c=c.nextCoordinate; c.replace();} while (c.atom!=molecule.lastAtom);
-        }
-        public void inflate(double s) {
-            updateR();
-            temp.Ea1Tv1(s-1.0,r);
-            displaceBy(temp);   //displaceBy doesn't use temp
-        }
-        public Space.Vector position() {updateR(); return r;}
-        public Space.Vector momentum() {updateP(); return p;}
-        public double position(int i) {updateR(); return r.component(i);}
-        public double momentum(int i) {updateP(); return p.component(i);}
-        public double kineticEnergy() {updateP(); return 0.5*p.squared()*molecule.rm();}
-        public void randomizeMomentum(double temperature) {
-            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
-            c.randomizeMomentum(temperature);
-            if(molecule.nAtoms == 1) {return;}
-            do {c=c.nextCoordinate; c.randomizeMomentum(temperature);} while (c.atom!=molecule.lastAtom);
-        }
-        public Space.MoleculeCoordinate nextCoordinate() {return nextCoordinate;}
-        public Space.MoleculeCoordinate previousCoordinate() {return previousCoordinate;}
-        public final void setNextCoordinate(Space.Coordinate c) {
-           nextCoordinate = (MoleculeCoordinate)c;
-           if(c != null) {((MoleculeCoordinate)c).previousCoordinate = this;}
-        }
-        public final void clearPreviousCoordinate() {previousCoordinate = null;}
-        public final Molecule previousMolecule() {
-            Space.MoleculeCoordinate c = molecule.coordinate.previousCoordinate();
-            return (c==null) ? null : c.molecule();
-        }
-        public final Molecule nextMolecule() {
-            Space.MoleculeCoordinate c = molecule.coordinate.nextCoordinate();
-            return (c==null) ? null : c.molecule();
-        }
-        public final Molecule molecule() {return molecule;}
-    }    
-    
     //These iterators are identical in every Space class; they are repeated in each
     //because they make direct use of the Coordinate type in the class; otherwise casting would be needed
     // Perhaps interitance would work, but haven't tried it

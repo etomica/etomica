@@ -28,7 +28,10 @@ public class Molecule implements Serializable {
   public Molecule(Species ps, Phase pp, AtomType type, int n) {  
     parentSpecies = ps;
     parentPhase = pp;
-    coordinate = parentSpecies.parentSimulation.space.makeMoleculeCoordinate(this);
+    coordinate = parentSpecies.parentSimulation.space.makeCoordinate();
+    r = coordinate.position();
+    p = coordinate.momentum();
+    temp = parentPhase.parentSimulation.space.makeVector();
     nAtoms = n;
     
     firstAtom = new Atom(this,type,0);
@@ -48,8 +51,11 @@ public class Molecule implements Serializable {
   public Molecule(Species ps, Phase pp, AtomType[] type) {  
     parentSpecies = ps;
     parentPhase = pp;
-    coordinate = parentSpecies.parentSimulation.space.makeMoleculeCoordinate(this);
+    coordinate = parentSpecies.parentSimulation.space.makeCoordinate();
+    r = coordinate.position();
+    p = coordinate.momentum();
     nAtoms = type.length;
+    temp = parentPhase.parentSimulation.space.makeVector();
     
     firstAtom = new Atom(this,type[0],0);
     lastAtom = firstAtom;
@@ -75,41 +81,6 @@ public class Molecule implements Serializable {
     makeAtoms();
   } */
 
- /**
-  * @return the next molecule following this one in the linked list of molecules,
-  *         or null, if this is the lastMolecule in its phase
-  */
-  public final Molecule nextMolecule() {return coordinate.nextMolecule();}
-  
- /**
-  * @return the previous molecule before this one in the linked list of molecules,
-  *         or null, if this is the firstMolecule in its phase
-  */
-  public final Molecule previousMolecule() {return coordinate.previousMolecule();}  
-  
- /**
-  * Sets the argument to be this molecule's nextMolecule.  Also sets
-  * the argument's previousMolecule to be this molecule, and does the
-  * correcting linking of the respective molecules' first and last atoms.
-  *
-  * @param m   The molecule (possibly null) to be identified as this molecule's nextMolecule.
-  */
-  public final void setNextMolecule(Molecule m) {
-    if(m==null) {
-        coordinate.setNextCoordinate(null);
-        lastAtom.setNextAtom(null);
-    }
-    else {
-        coordinate.setNextCoordinate(m.coordinate);
-        lastAtom.setNextAtom(m.firstAtom);
-    }
-  }
-  
-  public final void clearPreviousMolecule() {  //use setNextMolecule to set previousMolecule to non-null
-    coordinate.clearPreviousCoordinate();
-    firstAtom.clearPreviousAtom();
-  }
-  
  /**
    * Returns the intramolecular potential that governs interactions of all 
    * atoms of this molecule.
@@ -158,49 +129,6 @@ public class Molecule implements Serializable {
     else {return 1.0/mass();}
   }
   
- /**
-  * Computes and returns this molecule's total kinetic energy (including
-  * contributions from all internal motions)
-  *
-  * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
-  */
-  public final double kineticEnergy() {return coordinate.kineticEnergy();}
-  
-    /**
-     * Displaces all atoms in this molecule by a vector dr.  Does not store original coordinates.
-     *
-     * @param dr  vector specifying change in position
-     * @see #displace
-     */
-  public final void setCOM(Space.Vector v) {coordinate.translateTo(v);}
-  public final void translateBy(Space.Vector v) {coordinate.translateBy(v);}
-
-    /**
-     * Displaces all atoms in molecule by a vector dr, saving their original positions,
-     * which can be recovered by call to replace.  Useful for moving molecules in 
-     * Monte Carlo trials.
-     *
-     * @param dr   vector specifying change in position
-     * @see #replace
-     * @see #translate
-     */
-   public final void displaceTo(Space.Vector v) {coordinate.displaceTo(v);}
-     /**
-      * Puts molecule's atoms back in position held before last call to displace
-      *
-      * @see #displace
-      */
-   public final void replace() {coordinate.replace();}
-
-  /**
-   * Rescales this particle's center of mass to new position corresponding to a 
-   * scaling up or down of the size of the space it is in.  Used for moving molecules
-   * when doing isobaric-simulation volume changes.  All atoms in this molecule
-   * keep their relative distances and orientations.  Uses displace, so original coordinates may
-   * be recovered by a call to replace
-   *
-   * @see replace
-   */
  //  public void inflate(double scale) {coordinate.inflate(scale);}
 /*      Space.uEa1Tv1(dr,scale-1.0,COM());
       this.displace(dr);
@@ -213,40 +141,13 @@ public class Molecule implements Serializable {
    * @return center-of-mass coordinate vector of this molecule, in Angstroms
    */
    public final Space.Vector COM() {
-     return coordinate.position();
+     updateR();
+     return r;
    }
-   public final void SetCOM(Space.Vector u) {
-     coordinate.translateTo(u);
+   public final void setCOM(Space.Vector u) {
+     translateTo(u);
    }
     
- /* public final void accelerate(int i, double dp) {
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.accelerate(i,dp);}
-  }*/
-
-/**
- * Used for neighbor listing; current structure is being deprecated and should not be used
-  public final boolean needNeighborUpdate() {
-    return (getSquareDisplacement() > parentSpecies.neighborUpdateSquareDisplacement);
-  }
- */
-/*  public final void addNeighbor(Molecule m) {neighbors.addElement(m);}
-  public final void clearNeighborList() {neighbors.removeAllElements();}
-  public final Enumeration getNeighborList() {return neighbors.elements();}
-  public final boolean hasNeighbor(Molecule m) {return neighbors.contains(m);}
-  public final void updateNeighborList() {
-    clearNeighborList();
-    Potential2[] p2 = parentSpecies.parentPhase.potential2[getSpeciesIndex()];
-    for(Molecule m=previousMolecule; m!=null; m=m.getPreviousMolecule()) {
-        if(!m.hasNeighbor(this)) {
-            if(p2[m.getSpeciesIndex()].isNeighbor(this,m)) {m.addNeighbor(this);}
-        }
-    }
-    for(Molecule m=nextMolecule; m!=null; m=m.getNextMolecule()) {
-        if(p2[m.getSpeciesIndex()].isNeighbor(this,m)) {addNeighbor(m);}
-    }
-    Space.uEv1(r0,COM());
-  }*/
   
   /**
    * Draws this molecule by calling its atoms' draw routines. 
@@ -320,5 +221,132 @@ public class Molecule implements Serializable {
  /**
   * Center-of-mass (COM) coordinate
   */
-  public final Space.MoleculeCoordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
+  public final Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
+  public final Space.Vector r;
+  public final Space.Vector p;
+//-------------------------------------------------------------------------
+
+        protected final Space.Vector temp;
+        public void updateR() {  //recomputes COM position from atom positions
+            Space.AtomCoordinate c = firstAtom.coordinate;
+            if(nAtoms==1) {r.E(c.position());}  //one atom in molecule
+            else {  //multiatomic
+                r.Ea1Tv1(c.atom().mass(),c.position());
+                do {c=c.nextCoordinate(); r.PEa1Tv1(c.atom().mass(),c.position());} while (c.atom()!=lastAtom);
+                r.DE(mass());
+            }
+        }
+        public void updateP() {  //recomputes total momentum from atom momenta
+            Space.AtomCoordinate c = firstAtom.coordinate;
+            p.E(c.momentum());
+            if(nAtoms==1) {return;}  //one atom in molecule
+            do {c=c.nextCoordinate(); p.PE(c.momentum());} while (c.atom()!=lastAtom);
+        }
+        public void translateToward(Space.Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
+        public void translateBy(Space.Vector u) {
+            Space.AtomCoordinate c = firstAtom.coordinate;
+            c.translateBy(u);
+            if(nAtoms == 1) {return;}
+            do {c=c.nextCoordinate(); c.translateBy(u);} while (c.atom()!=lastAtom);
+        }
+        public void translateTo(Space.Vector u) {
+            updateR();  //update COM vector
+            temp.E(u);  //temp = destination vector
+            temp.ME(r);   //temp = destination - original = dr
+            translateBy(temp);
+        }
+        public void displaceBy(Space.Vector u) {
+            Space.AtomCoordinate c = firstAtom.coordinate;
+            c.displaceBy(u);
+            if(nAtoms == 1) {return;}
+            do {c=c.nextCoordinate(); c.displaceBy(u);} while (c.atom()!=lastAtom);
+        }
+        public void displaceTo(Space.Vector u) {
+            updateR();  //update COM vector
+            temp.E(u);  //temp = destination vector
+            temp.ME(r);   //temp = destination - original = dr
+            displaceBy(temp);
+        }
+        public void displaceWithin(double d) {
+            temp.setRandom(d);
+            displaceBy(temp);
+        }
+            
+        public void displaceToRandom(Phase phase) {displaceTo(phase.boundary().randomPosition());}
+        public void translateToRandom(Phase phase) {translateTo(phase.boundary().randomPosition());}
+
+        public void replace() {
+            Space.AtomCoordinate c = firstAtom.coordinate;
+            c.replace();
+            if(nAtoms == 1) {return;}
+            do {c=c.nextCoordinate(); c.replace();} while (c.atom()!=lastAtom);
+        }
+  /**
+  
+   * Rescales this particle's center of mass to new position corresponding to a 
+   * scaling up or down of the size of the space it is in.  Used for moving molecules
+   * when doing isobaric-simulation volume changes.  All atoms in this molecule
+   * keep their relative distances and orientations.  Uses displace, so original coordinates may
+   * be recovered by a call to replace
+   *
+   * @see replace
+   */
+        public void inflate(double s) {
+            updateR();
+            temp.Ea1Tv1(s-1.0,r);
+            displaceBy(temp);   //displaceBy doesn't use temp
+        }
+        public Space.Vector position() {updateR(); return r;}
+        public Space.Vector momentum() {updateP(); return p;}
+        public double position(int i) {updateR(); return r.component(i);}
+        public double momentum(int i) {updateP(); return p.component(i);}
+ /**
+  * Computes and returns this molecule's total kinetic energy (including
+  * contributions from all internal motions)
+  *
+  * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
+  */
+        public double kineticEnergy() {updateP(); return 0.5*p.squared()*rm();}
+        
+        public void randomizeMomentum(double temperature) {
+            Space.AtomCoordinate c = firstAtom.coordinate;
+            c.randomizeMomentum(temperature);
+            if(nAtoms == 1) {return;}
+            do {c=c.nextCoordinate(); c.randomizeMomentum(temperature);} while (c.atom()!=lastAtom);
+        }
+
+ /**
+  * @return the previous molecule before this one in the linked list of molecules,
+  *         or null, if this is the firstMolecule in its phase
+  */
+ public final Molecule previousMolecule() {return previousMolecule;}
+ /**
+  * @return the next molecule following this one in the linked list of molecules,
+  *         or null, if this is the lastMolecule in its phase
+  */
+ public final Molecule nextMolecule() {return nextMolecule;}
+  
+  
+ /**
+  * Sets the argument to be this molecule's nextMolecule.  Also sets
+  * the argument's previousMolecule to be this molecule, and does the
+  * correcting linking of the respective molecules' first and last atoms.
+  *
+  * @param m   The molecule (possibly null) to be identified as this molecule's nextMolecule.
+  */
+  public final void setNextMolecule(Molecule m) {
+    nextMolecule = m;
+    if(m==null) {lastAtom.setNextAtom(null);}
+    else {
+        m.previousMolecule = this;
+        lastAtom.setNextAtom(m.firstAtom);
+    }
+  }
+  
+  public final void clearPreviousMolecule() {  //use setNextMolecule to set previousMolecule to non-null
+    previousMolecule = null;
+    firstAtom.clearPreviousAtom();
+  }
+  
+
 }

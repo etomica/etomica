@@ -5,7 +5,7 @@ public abstract class Space {
     public abstract int D();
     
     public abstract Space.AtomCoordinate makeAtomCoordinate(Atom a);      //Space prefix is redundant
-    public abstract Space.MoleculeCoordinate makeMoleculeCoordinate(Molecule m);
+    public abstract Space.Coordinate makeCoordinate();
     public abstract Space.Vector makeVector();
     public abstract Boundary makeBoundary(int iBoundary);
 
@@ -26,13 +26,20 @@ public abstract class Space {
         public void DE(Vector u);
         public void TE(double a);
         public void DE(double a);
+        public void Ea1Tv1(double a, Vector u);
         public double squared();
         public double dot(Vector u);
+        public void setRandom(double d);
+        public void PEa1Tv1(double a1, Vector u1);
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     interface Coordinate {
-        public void setNextCoordinate(Coordinate c);
+        public Vector position();
+        public Vector momentum();
+        public double position(int i);
+        public double momentum(int i);
+/*        public void setNextCoordinate(Coordinate c);
         public void clearPreviousCoordinate();
         
         public void translateTo(Vector r);
@@ -49,11 +56,27 @@ public abstract class Space {
         public double kineticEnergy();
         public Vector position();
         public Vector momentum();
-        public double position(int i);
-        public double momentum(int i);
+*/
     }
     
     interface AtomCoordinate extends Coordinate {      //cannot be a class here because must inherit from Coordinate as it is defined in the PhaseSpace subclass
+        public void translateTo(Vector r);
+        public void translateToward(Vector e, double amount);
+        public void translateBy(Vector dr);
+        public void displaceTo(Vector r);
+        public void displaceBy(Vector dr);
+        public void displaceWithin(double d);
+        public void displaceToRandom(Phase p);
+        public void translateToRandom(Phase p);
+        public void randomizeMomentum(double temperature);
+        public void replace();
+        public void inflate(double s);
+        public double kineticEnergy();
+        public Vector position();
+        public Vector momentum();
+        public double position(int i);
+        public double momentum(int i);
+ 
         public Atom nextAtom();
         public Atom previousAtom();
         public Atom atom();
@@ -63,6 +86,8 @@ public abstract class Space {
         public void accelerate(Vector dv);
         public void accelerateToward(Vector e, double amount);
         public Vector velocity();
+        public void setNextCoordinate(AtomCoordinate c);
+        public void clearPreviousCoordinate();
     }
     interface MoleculeCoordinate extends Coordinate {
         public Molecule nextMolecule();

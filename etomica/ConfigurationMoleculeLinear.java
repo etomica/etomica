@@ -33,7 +33,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
             a.coordinate.translateToward(orientation,xNext);  //move xNext distance in direction orientation
             xNext += bondLength;
         }
-        m.coordinate.translateTo(OldCOM);  //shift molecule to original COM
+        m.translateTo(OldCOM);  //shift molecule to original COM
     }
     
     protected void computeDimensions() {

@@ -60,7 +60,7 @@ public abstract class Configuration extends Component{
     }
     
     public void initializeMomentum(Molecule m) {
-        m.coordinate.randomizeMomentum(temperature);
+        m.randomizeMomentum(temperature);
 	}
         
     
