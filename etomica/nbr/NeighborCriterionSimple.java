@@ -18,18 +18,18 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 		super();
         this.space = space;
 		this.interactionRange = interactionRange;
-		double displacementLimit = (neighborRadius - interactionRange) * safetyFactor;
-		displacementLimit2 = displacementLimit * displacementLimit;
-		neighborRadius2 = neighborRadius * neighborRadius;
+        neighborRadius2 = neighborRadius * neighborRadius;
+        setSafetyFactor(0.4);
         cPair = space.makeCoordinatePair();
         dr = space.makeVector();
 	}
 	
 	public void setSafetyFactor(double f) {
-		if (safetyFactor < 0.0 || safetyFactor>0.5) throw new IllegalArgumentException("safety factor must be positive and less than 0.5");
+		if (safetyFactor < 0.0 || safetyFactor > 0.5) throw new IllegalArgumentException("safety factor must be positive and less than 0.5");
 		safetyFactor = f;
 		double displacementLimit = (Math.sqrt(neighborRadius2) - interactionRange) * f;
 		displacementLimit2 = displacementLimit * displacementLimit;
+        r2MaxSafe = displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
 	
 	public double getSafetyFactor() {
@@ -41,6 +41,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 		neighborRadius2 = r*r;
 		double displacementLimit = (r - interactionRange) * safetyFactor;
 		displacementLimit2 = displacementLimit * displacementLimit;
+        r2MaxSafe = displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
 	
 	public double getNeighborRadius() {
@@ -70,7 +71,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("some atom exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
 		}
-		return r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor);
+		return r2 > r2MaxSafe;
 	}
 
 	public boolean accept(Atom[] a) {
@@ -94,8 +95,9 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 			return atom.coord.position().clone();
 		}
 	});
-	protected double safetyFactor = 0.4;
-	protected double r2;
+	protected double safetyFactor;
+    protected double safetyFactor2;
+	protected double r2, r2MaxSafe;
     private final Space space;
     private final Space.Vector dr;
     private Phase phase;
