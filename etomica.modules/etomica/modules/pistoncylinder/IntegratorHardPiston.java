@@ -35,11 +35,10 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
     
     public void updateAtom(Atom a) {
-        PotentialHard collisionPotential = colliderAgent.collisionPotential;
         // actually updates the atom
         super.updateAtom(a);
         // check if the atom hit the piston.  if so, then update every atom with the piston
-        if (collisionPotential == pistonPotential) {
+        if (colliderAgent != null && colliderAgent.collisionPotential == pistonPotential) {
             updatePiston();
         }
     }
