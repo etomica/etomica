@@ -4,16 +4,19 @@ import etomica.units.Dimension;
 //import etomica.electrostatics.*;
 
 /**
- * AtomType holds atom parameters.  
- * It is used to set the general features of the atom (e.g., whether it is a wall, sphere, etc.).
- * AtomType is responsible for selecting the appropriate type of coordinate needed to describe the
- * position and (perhaps) orientation of the atom.
- * The AtomType of an atom is set by AtomFactory when it builds a molecule.  
- * Each Atom has an instance variable
- * named "type" that holds the AtomType object; this may be different for each atom in a molecule, or
- * it may refer to a common AtomType object, as prescribed by the Factory.
- * AtomType could also be used to define particular elemental atoms (Carbon, Oxygen, etc.).
- * 
+ * AtomType holds fields that are common to many atoms. It serves many
+ * functions:
+ * <ul>
+ * <li>it holds parameters that define the general features of the atom (e.g.,
+ * size).
+ * <li>it holds an index manager that is used to interpret the atoms index held
+ * in its node
+ * <li>it holds a class used to manage neighbors, by indicating which
+ * potentials apply to the atom
+ * </ul>
+ * The AtomType of an atom is set by its AtomFactory when it builds a molecule.
+ * Each Atom has an instance variable named "type" that holds the AtomType
+ * instance.
  */
 
 public class AtomType implements java.io.Serializable {
@@ -62,6 +65,14 @@ public class AtomType implements java.io.Serializable {
     
     public AtomIndexManager getIndexManager() {
         return indexManager;
+    }
+    
+    /**
+     * Returns true if an atom of this type is descended from
+     * an atom (any atom) having the given type.
+     */
+    public boolean isDescendedFrom(AtomType type) {
+        return indexManager.isDescendedFrom(type.indexManager);
     }
     
     protected void addGlobalParameter(Parameter.Source source) {

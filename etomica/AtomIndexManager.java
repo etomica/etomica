@@ -11,7 +11,12 @@ import etomica.utility.Arrays;
  * this class provide a convenient means for obtaining information from this
  * code. Instances of this class are held in the AtomType instance referenced by
  * the type field of each atom. The depth field is the only thing that differs
- * between different instances of AtomIndexManager in a single Simulation.
+ * between different instances of AtomIndexManager in a single Simulation.  In
+ * addition, the AtomIndexManager holds an index that established a parallel
+ * hierarchy to the atom hierarchy.  The index is coded in the same way as that
+ * for the atoms (although the ordinal values will be smaller, as there are
+ * may atom instances with the same AtomIndexManager).
+ * 
  * 
  * @see AtomTreeNode
  */
@@ -75,10 +80,6 @@ public class AtomIndexManager {
     //convenience method; return 2^n
     private int power2(int n) {
         return 1 << n;
-//        int power2 = 1;
-//        for (int i = 0; i < n; i++)
-//            power2 *= 2;
-//        return power2;
     }
 
     // {speciesRoot, phases, species, molecules, groups, atoms}
@@ -212,10 +213,19 @@ public class AtomIndexManager {
         return ((index0 ^ index1) & indexMask) == 0;
     }
     
+    /**
+     * Returns true if an atom of this manager's type is descended from
+     * an atom (any atom) having the type of given manager.
+     */
     public boolean isDescendedFrom(AtomIndexManager anotherManager) {
         return anotherManager.sameAncestry(typeIndex, anotherManager.typeIndex);
     }
 
+    /**
+     * Returns the index associated with this manager, and which is used to
+     * locate this manager's type relative to the other atom types.  This index
+     * is set at construction.
+     */
     public int getTypeIndex() {
         return typeIndex;
     }
