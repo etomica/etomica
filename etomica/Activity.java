@@ -99,10 +99,7 @@ public abstract class Activity implements Action {
 //            System.out.println("in Activity.pause waiting");
 			wait();
 //            System.out.println("in Activity.pause waited");
-		} catch (InterruptedException e) {
-			//interrupted before pause took effect; abort pause request
-			pauseRequested = false;
-		}
+		} catch (InterruptedException e) { }
 	}
 
     /**
