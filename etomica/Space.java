@@ -389,8 +389,8 @@ public abstract class Space implements java.io.Serializable {
         public abstract Space.Vector dr();   //separation vector
         public abstract double dr(int i);    //component of separation vector
         public abstract double dv(int i);    //component of velocity-difference vector
-        public abstract void setBoundary(Space.Boundary b);
-        public abstract Space.Boundary getBoundary();
+        public abstract void setNearestImageTransformer(NearestImageTransformer b);
+        public abstract NearestImageTransformer getNearestImageTransformer();
         /**
         * Clones this coordinatePair without cloning the objects it contains
         * The returned coordinatePair refers to the same pair of coordinates as the original
@@ -413,7 +413,7 @@ public abstract class Space implements java.io.Serializable {
         public abstract double r12Dotr13();
     }
 */
-    public static abstract class Boundary implements java.io.Serializable {
+    public static abstract class Boundary implements NearestImageTransformer, java.io.Serializable {
         protected final float[][] shift0 = new float[0][0];//cannot be static because several phases may be using at once
         protected float[][] shift;
         private Phase phase;

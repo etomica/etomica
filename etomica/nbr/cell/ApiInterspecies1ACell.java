@@ -14,6 +14,7 @@ import etomica.AtomTreeNodeGroup;
 import etomica.AtomsetIteratorMolecule;
 import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.Space;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
@@ -67,6 +68,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         // in contrast, for intraspecies iteration direction is related to the cell ordering
         neighborIterator.setDirection(null);
         setPhase(null);
+        
+        nearestImageVector = Space.makeVector(D);
 	}
 
 	public void setPhase(Phase phase) {
@@ -79,6 +82,10 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         identifyTargetMolecule();
 	}
     
+    public void nearestImage(Space.Vector dr) {
+        dr.ME(nearestImageVector);
+    }
+
     /**
      * Performs action on all iterates.
      */
@@ -134,8 +141,13 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     public Atom[] next() {
         if(!hasNext()) return null;
         pair[1] = aiInner.nextAtom();
+        if (needUpdateImageVector) {
+            nearestImageVector.E(neighborIterator.currentPbc());
+            needUpdateImageVector = false;
+        }
         if(!aiInner.hasNext()) {
             advanceLists();
+            needUpdateImageVector = true;
         }
         return pair;
     }
@@ -174,6 +186,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         if(!aiInner.hasNext()) { 
             advanceLists();
         }
+        needUpdateImageVector = true;
     }
     
     /**
@@ -297,4 +310,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private Phase phase;
     private IteratorDirective.Direction allowedDirection, direction;
     private CellLattice lattice;
+    
+    private Space.Vector nearestImageVector;
+    private boolean needUpdateImageVector;
 }

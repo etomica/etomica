@@ -4,6 +4,7 @@ import etomica.Atom;
 import etomica.Debug;
 import etomica.Phase;
 import etomica.Space;
+import etomica.nbr.cell.AtomsetIteratorCellular;
 
 /**
  * Simple neighbor criterion based on distance moved by a leaf atom since
@@ -15,11 +16,13 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 
 	public NeighborCriterionSimple(Space space, double interactionRange, double neighborRadius) {
 		super();
+        this.space = space;
 		this.interactionRange = interactionRange;
 		double displacementLimit = (neighborRadius - interactionRange) * safetyFactor;
 		displacementLimit2 = displacementLimit * displacementLimit;
 		neighborRadius2 = neighborRadius * neighborRadius;
         cPair = space.makeCoordinatePair();
+        dr = space.makeVector();
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -55,8 +58,13 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public void setPhase(Phase phase) {
-    	cPair.setBoundary(phase.boundary());
+	    this.phase = phase;
 	}
+    
+    public void setCellIterator(AtomsetIteratorCellular api) {
+        cPair.setNearestImageTransformer(api);
+        api.getNbrCellIterator().setPeriod(phase.boundary().dimensions());
+    }
 
 	public boolean unsafe() {
 		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
@@ -66,10 +74,14 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean accept(Atom[] a) {
+//        dr.Ev1Mv2(a[0].coord.position(), a[1].coord.position());
+//        return dr.squared() < neighborRadius2;
+
 		cPair.reset(a[0].coord,a[1].coord);
 		if (Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
-			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) 
+			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) { 
 				System.out.println("Atom "+a[0]+" and "+a[1]+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
+            }
 		}
 		return cPair.r2() < neighborRadius2;
 	}
@@ -79,7 +91,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	private double interactionRange, displacementLimit2, neighborRadius2;
-	private Space.CoordinatePair cPair;
+	Space.CoordinatePair cPair;
 	protected static int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
 		public Object makeAgent(Atom atom) {
 			return atom.coord.position().clone();
@@ -87,5 +99,8 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	});
 	protected double safetyFactor = 0.4;
 	protected double r2;
+    private final Space space;
+    private final Space.Vector dr;
+    private Phase phase;
 	
 }

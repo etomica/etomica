@@ -55,7 +55,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 * Computes RDF for the current configuration of the given phase.
 	 */
 	public double[] getDataAsArray(Phase phase) {
-        cPair.setBoundary(phase.boundary());
+        cPair.setNearestImageTransformer(phase.boundary());
 	    for(int i=0; i<nDataPerPhase; i++) {phaseData[i] = 0.0;}  //zero histogram
 	    double xMax = xDataSourceUniform.getXMax();
 	    double xMaxSquared = xMax*xMax;

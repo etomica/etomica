@@ -112,7 +112,8 @@ public class NeighborManager implements IntervalListener {
 	
     /**
      * Adds the given criterion to the list of those held by this manager.
-     * Does not check whether criterion already was added to list.
+     * This is done so the manager can inform all criteria of the phase in which
+     * they are being applied. Does not check whether criterion already was added to list.
      */
 	public void addCriterion(NeighborCriterion criterion) {
         criteria = (NeighborCriterion[])Arrays.addObject(criteria, criterion);

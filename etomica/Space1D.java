@@ -227,10 +227,10 @@ public class Space1D extends Space implements EtomicaElement {
         Coordinate c2;
         private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- this should be changed if cloned vectors use dr; also this makes cloned coordinatePairs not thread-safe
         private double drx, dvx;
-		private Space.Boundary boundary = Space.Boundary.NULL;
+		private NearestImageTransformer nearestImageTransformer = Space.Boundary.NULL;
 
-		public void setBoundary(Space.Boundary b) {this.boundary = b;}
-		public Space.Boundary getBoundary() {return boundary;}		
+		public void setNearestImageTransformer(NearestImageTransformer b) {this.nearestImageTransformer = b;}
+		public NearestImageTransformer getNearestImageTransformer() {return nearestImageTransformer;}		
         public double r2() {return drx*drx;}
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
             c1 = (Coordinate)coord1;
@@ -252,7 +252,7 @@ public class Space1D extends Space implements EtomicaElement {
             dr.Ev1Mv2(c2.r,c1.r);
 
             dr.x += falseTime * dvx;
-            boundary.nearestImage(dr);
+            nearestImageTransformer.nearestImage(dr);
             drx = dr.x;
         }
         public void resetV() {

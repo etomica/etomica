@@ -79,7 +79,7 @@ public class IntegratorHard extends IntegratorMD {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision between "+atoms[0]+" and "+atoms[1]+" potential "+colliderAgent.collisionPotential.getClass());
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-                cPairDebug.setBoundary(firstPhase.boundary());
+                cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                 cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
                 System.out.println("distance at last collision time was "+cPairDebug.r2());
                 cPairDebug.trueReset(collisionTimeStep);
@@ -92,7 +92,7 @@ public class IntegratorHard extends IntegratorMD {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-                cPairDebug.setBoundary(firstPhase.boundary());
+                cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                 cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
                 double r2 = cPairDebug.r2();
                 if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
@@ -118,7 +118,7 @@ public class IntegratorHard extends IntegratorMD {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
                     && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
                   cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-                  cPairDebug.setBoundary(firstPhase.boundary());
+                  cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                   cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
                   double r2 = cPairDebug.r2();
                   if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {

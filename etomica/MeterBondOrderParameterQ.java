@@ -37,7 +37,7 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        cPair.setBoundary(phase.boundary());
+        cPair.setNearestImageTransformer(phase.boundary());
         pairIterator.setPhase(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {

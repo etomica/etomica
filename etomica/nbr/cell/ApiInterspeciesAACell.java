@@ -12,6 +12,7 @@ import etomica.AtomList;
 import etomica.AtomsetIteratorPhaseDependent;
 import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
@@ -45,6 +46,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         index0 = species[0].getIndex();
         index1 = species[1].getIndex();
         if(index0 == index1) throw new IllegalArgumentException("Intergroup iterator cannot be constructed with a single species");
+        nearestImageVector = Space.makeVector(D);
 	}
 
 	public void setPhase(Phase phase) {
@@ -52,6 +54,10 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
 		neighborIterator.setLattice(phase.getLattice());
         unset();
 	}
+
+    public void nearestImage(Space.Vector dr) {
+        dr.ME(nearestImageVector);
+    }
     
     /**
      * Performs action on all iterates.
@@ -148,8 +154,13 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         Atom[] nextPair = listIterator.next();
         pair[0] = nextPair[0];
         pair[1] = nextPair[1];
+        if (needUpdateImageVector) {
+            nearestImageVector.E(neighborIterator.currentPbc());
+            needUpdateImageVector = false;
+        }
         if(!listIterator.hasNext()) {
             advanceLists();
+            needUpdateImageVector = true;
         }
         return pair;
     }
@@ -286,4 +297,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     private boolean doListSwap;
     private final Atom[] pair = new Atom[2];
     private int innerIndex;
+    
+    private Space.Vector nearestImageVector;
+    private boolean needUpdateImageVector;
 }

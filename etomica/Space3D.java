@@ -503,10 +503,10 @@ public class Space3D extends Space implements EtomicaElement {
         Coordinate c2;
         private final Vector dr = new Vector();
         private double dvx, dvy, dvz; //drx, dry, drz;
-        private Space.Boundary boundary = Space.Boundary.NULL;
+        private NearestImageTransformer nearestImageTransformer = Space.Boundary.NULL;
 
-		public void setBoundary(Space.Boundary b) {this.boundary = b;}
-		public Space.Boundary getBoundary() {return boundary;}
+		public void setNearestImageTransformer(NearestImageTransformer b) {this.nearestImageTransformer = b;}
+		public NearestImageTransformer getNearestImageTransformer() {return nearestImageTransformer;}
         public void trueReset(Space.Coordinate coord1, Space.Coordinate coord2, double falseTime) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
@@ -519,7 +519,7 @@ public class Space3D extends Space implements EtomicaElement {
             dr.x += falseTime * dvx;
             dr.y += falseTime * dvy;
             dr.z += falseTime * dvz;
-            boundary.nearestImage(dr);
+            nearestImageTransformer.nearestImage(dr);
         }
 
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
@@ -534,7 +534,7 @@ public class Space3D extends Space implements EtomicaElement {
          //   dr.y = c2.r.y - c1.r.y;
          //   dr.z = c2.r.z - c1.r.z;
          //   c1.atom.node.parentPhase().boundary().nearestImage(dr);
-            boundary.nearestImage(dr);
+            nearestImageTransformer.nearestImage(dr);
    //         drx = dr.x;
    //         dry = dr.y;
    //         drz = dr.z;

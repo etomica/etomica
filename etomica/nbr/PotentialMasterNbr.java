@@ -13,7 +13,6 @@ import etomica.AtomIteratorListSimple;
 import etomica.AtomIteratorSinglet;
 import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
-import etomica.AtomsetIteratorFiltered;
 import etomica.AtomsetIteratorMolecule;
 import etomica.Default;
 import etomica.IteratorDirective;
@@ -158,15 +157,15 @@ public class PotentialMasterNbr extends PotentialMaster {
     	if (species.length <= 1 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-        AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
+        ApiMolecule iterator = (ApiMolecule)iteratorFactory.makeMoleculeIterator(species);
         ((AtomsetIteratorCellular)((ApiMolecule)iterator).getApiAA()).getNbrCellIterator().setRange(maxNeighborRange);
         ((AtomsetIteratorCellular)((ApiMolecule)iterator).getApi1A()).getNbrCellIterator().setRange(maxNeighborRange);
-        iterator = new AtomsetIteratorFiltered(iterator, criterion);
-		neighborManager.addCriterion(criterion);
+        AtomsetIteratorMolecule iteratorFiltered = new ApiFiltered(iterator, (NeighborCriterionSimple)criterion);
+		neighborManager.addCriterion(criterion);//add criterion to manager so criterion can be informed of the phase
     	for(int i=0; i<species.length; i++) {
     		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
     	}
-    	addPotential(potential, iterator);
+    	addPotential(potential, iteratorFiltered);
     }
     
     public void setSimulation(Simulation sim) {

@@ -14,6 +14,7 @@ import etomica.AtomsetIterator;
 import etomica.AtomsetIteratorPhaseDependent;
 import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
@@ -25,7 +26,8 @@ import etomica.lattice.RectangularLattice;
  * Returns iterates formed from all molecule pairs of a single species.
  */
 
-public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, AtomsetIteratorCellular {
+public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, 
+                        AtomsetIteratorCellular {
 
     /**
      * @param D the dimension of the space of the simulation
@@ -56,6 +58,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         intraListIterator = new ApiListSimple();
         listIterator = intraListIterator;
         index = species[0].getIndex();
+        nearestImageVector = Space.makeVector(D);
 	}
 
 	public void setPhase(Phase phase) {
@@ -63,6 +66,11 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
 		neighborIterator.setLattice(phase.getLattice());
         unset();
 	}
+    
+    public void nearestImage(Space.Vector dr) {
+        dr.ME(nearestImageVector);
+    }
+
     
     /**
      * Performs action on all iterates.
@@ -129,8 +137,13 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         Atom[] nextPair = listIterator.next();
         pair[0] = nextPair[0];
         pair[1] = nextPair[1];
+        if (needUpdateImageVector) {
+            nearestImageVector.E(neighborIterator.currentPbc());
+            needUpdateImageVector = false;
+        }
         if(!listIterator.hasNext()) {
             advanceLists();
+            needUpdateImageVector = true;
         }
         return pair;
     }
@@ -156,6 +169,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         neighborIterator.unset();
         listIterator.unset();
         advanceLists();
+        needUpdateImageVector = true;
 
     }//end of reset
     
@@ -207,6 +221,8 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
     private final int index;
+    private Space.Vector nearestImageVector;
+    private boolean needUpdateImageVector;
     
     private final Atom[] pair = new Atom[2];
 }

@@ -49,7 +49,7 @@ public abstract class Potential2 extends Potential {
     }
 
     public void setPhase(Phase phase) {
-    	cPair.setBoundary(phase.boundary());
+    	cPair.setNearestImageTransformer(phase.boundary());
     }
     
 	/**
