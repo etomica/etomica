@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Space;
 import etomica.space.Vector;
 
@@ -69,8 +70,8 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Energy of the pair as given by the u(double) method, with application
      * of any PotentialTruncation that may be defined for the potential.
      */
-    public double energy(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    public double energy(AtomSet pair) {
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
     	double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.uTransform(r2, u(r2));
@@ -80,8 +81,8 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Virial of the pair as given by the du(double) method, with application
      * of any PotentialTruncation that may be defined for the potential.
      */
-    public double virial(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    public double virial(AtomPair pair) {
+    	cPair.reset(pair.atom0.coord,pair.atom1.coord);
         double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.duTransform(r2, du(r2));
@@ -91,8 +92,8 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods, with application
      * of any PotentialTruncation that may be defined for the potential.
      */
-    public double hyperVirial(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    public double hyperVirial(AtomPair pair) {
+    	cPair.reset(pair.atom0.coord,pair.atom1.coord);
         double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.d2uTransform(r2, d2u(r2)) + potentialTruncation.duTransform(r2, du(r2));
@@ -102,9 +103,9 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Gradient of the pair potential as given by the du(double) method, with application
      * of any PotentialTruncation that may be defined for the potential.
      */
-    public Vector gradient(Atom[] pair) {
+    public Vector gradient(AtomSet pair) {
   //  	System.out.println(((P2LennardJones)this).getSigma()+"  "+((AtomType.Sphere)pair.atom1().type).diameter);
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) work1.E(0.0);
         else {
