@@ -27,7 +27,7 @@ public class Molecule implements Serializable {
    */
   public Molecule(Species parent, AtomType type, int n) {  
     parentSpecies = parent;
-    coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
+    coordinate = parentSpecies.parentSimulation.space.makeMoleculeCoordinate(this);
     nAtoms = n;
     
     firstAtom = new Atom(this,type,0);
@@ -46,7 +46,7 @@ public class Molecule implements Serializable {
    */
   public Molecule(Species parent, AtomType[] type) {  
     parentSpecies = parent;
-    coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
+    coordinate = parentSpecies.parentSimulation.space.makeMoleculeCoordinate(this);
     nAtoms = type.length;
     
     firstAtom = new Atom(this,type[0],0);
@@ -116,7 +116,7 @@ public class Molecule implements Serializable {
    * @return  single-molecule potential for this molecule's atoms
    * @see Potential1
    */
-  public final Potential1 getP1() {return parentSpecies.parentPhaseSpace.potential1[getSpeciesIndex()];}
+  public final Potential1 getP1() {return parentSpecies.parentSimulation.potential1[getSpeciesIndex()];}
  
  /**
   * Returns a vector of intermolecular potentials between this molecule's
@@ -125,7 +125,7 @@ public class Molecule implements Serializable {
   * @return  vector of intermolecular potentials between this molecule and all other molecules in the system.
   * @see Potential2
   */
-  public final Potential2[] getP2() {return parentSpecies.parentPhaseSpace.potential2[getSpeciesIndex()];}
+  public final Potential2[] getP2() {return parentSpecies.parentSimulation.potential2[getSpeciesIndex()];}
    
  /**
   * Each species has a unique integer index that is used to identify the correct
@@ -143,7 +143,7 @@ public class Molecule implements Serializable {
  /**
   * @return the phase in which this molecule resides
   */
-  public final PhaseSpace getPhaseSpace() {return parentSpecies.parentPhaseSpace;}
+  public final Phase getPhase() {return parentPhase;}
   
   public final double mass() {
     if(nAtoms==1) {return firstAtom.type.mass();}
@@ -171,8 +171,8 @@ public class Molecule implements Serializable {
      * @param dr  vector specifying change in position
      * @see #displace
      */
-  public final void setCOM(PhaseSpace.Vector v) {coordinate.translateTo(v);}
-  public final void translateBy(PhaseSpace.Vector v) {coordinate.translateBy(v);}
+  public final void setCOM(Space.Vector v) {coordinate.translateTo(v);}
+  public final void translateBy(Space.Vector v) {coordinate.translateBy(v);}
 
     /**
      * Displaces all atoms in molecule by a vector dr, saving their original positions,
@@ -183,7 +183,7 @@ public class Molecule implements Serializable {
      * @see #replace
      * @see #translate
      */
-   public final void displaceTo(PhaseSpace.Vector v) {coordinate.displaceTo(v);}
+   public final void displaceTo(Space.Vector v) {coordinate.displaceTo(v);}
      /**
       * Puts molecule's atoms back in position held before last call to displace
       *
@@ -211,10 +211,10 @@ public class Molecule implements Serializable {
    *
    * @return center-of-mass coordinate vector of this molecule, in Angstroms
    */
-   public final PhaseSpace.Vector COM() {
+   public final Space.Vector COM() {
      return coordinate.position();
    }
-   public final void SetCOM(PhaseSpace.Vector u) {
+   public final void SetCOM(Space.Vector u) {
      coordinate.translateTo(u);
    }
     
@@ -264,6 +264,8 @@ public class Molecule implements Serializable {
   public final Atom firstAtom() {return firstAtom;}
   public final Atom lastAtom() {return lastAtom;}
   public final Atom terminationAtom() {return lastAtom.nextAtom();}
+  
+  Phase parentPhase;
   
  /**
   * Instance of the species in which this molecule resides
@@ -317,5 +319,5 @@ public class Molecule implements Serializable {
  /**
   * Center-of-mass (COM) coordinate
   */
-  public final PhaseSpace.MoleculeCoordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
+  public final Space.MoleculeCoordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
 }

@@ -11,10 +11,10 @@ public abstract class Integrator extends Container implements Observer, Serializ
   int running = 0;
   protected int maxSteps = Integer.MAX_VALUE;
  
-  PhaseSpace firstPhaseSpace;
-  PhaseSpace[] phaseSpace;
-  int phaseSpaceCount = 0;
-  int phaseSpaceCountMax = 1;
+  Phase firstPhase;
+  Phase[] phase;
+  int phaseCount = 0;
+  int phaseCountMax = 1;
   protected int sleepPeriod = 10;
   protected transient Vector listeners=null;
   private Vector integrationIntervalListeners;
@@ -33,13 +33,13 @@ public abstract class Integrator extends Container implements Observer, Serializ
     integrationCount = 0;
     drawTimeStep = 0.0005;
     neighborListUpdateInterval = Integer.MAX_VALUE;
-    phaseSpace = new PhaseSpace[phaseSpaceCountMax];
+    phase = new Phase[phaseCountMax];
   }
   
   public abstract Agent makeAgent(Atom a);
   
-  protected void deployAgents() {  //puts an Agent of this integrator in each atom of all phaseSpaces
-    for(PhaseSpace p=firstPhaseSpace; p!=null; p=p.nextPhaseSpace()) {
+  protected void deployAgents() {  //puts an Agent of this integrator in each atom of all phases
+    for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {
         for(Atom a=p.firstAtom(); a!=null; a=a.nextAtom()) {
             a.setIntegratorAgent(makeAgent(a));
         }
@@ -70,11 +70,11 @@ public abstract class Integrator extends Container implements Observer, Serializ
 //  public final int getNeighborListUpdateInterval() {return neighborListUpdateInterval;}
 //  public final void setNeighborListUpdateInterval(int interval) {neighborListUpdateInterval = interval;}
     
-  public void registerPhaseSpace(PhaseSpace p) {
-    if(phaseSpaceCount == phaseSpaceCountMax) {return;}
-    phaseSpace[phaseSpaceCount] = p;
-    phaseSpaceCount++;
-    firstPhaseSpace = phaseSpace[0];
+  public void registerPhase(Phase p) {
+    if(phaseCount == phaseCountMax) {return;}
+    phase[phaseCount] = p;
+    phaseCount++;
+    firstPhase = phase[0];
     for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {
         addIntegrationIntervalListener(m);
     }
@@ -125,13 +125,13 @@ public abstract class Integrator extends Container implements Observer, Serializ
             integrationCount++;
             if(integrationCount == Integer.MAX_VALUE) {integrationCount = 1;}
 ///            if(integrationCount % neighborListUpdateInterval == 0) {
-///                firstPhaseSpace.updateNeighbors();
+///                firstPhase.updateNeighbors();
 ///            }
             if(integrationCount % integrationInterval == 0) {
-//                for(PhaseSpace p=firstPhaseSpace; p!=null; p=p.nextPhaseSpace()) {p.space.repositionMolecules();}                
-                fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhaseSpace));
+//                for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {p.space.repositionMolecules();}                
+                fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhase));
             }
-//            for (int i=0; i<phaseSpaceCount; i++) {phaseSpace[i].repaint();}  //not needed now that displayConfiguration does painting
+//            for (int i=0; i<phaseCount; i++) {phase[i].repaint();}  //not needed now that displayConfiguration does painting
             if(doSleep) {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }

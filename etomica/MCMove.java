@@ -21,13 +21,13 @@ public abstract class MCMove extends Component {
         setAdjustInterval(100);
     }
     
-    public void doTrial(PhaseSpace phaseSpace) {
+    public void doTrial(Phase phase) {
         nTrials++;
-        thisTrial(phaseSpace);
+        thisTrial(phase);
         if(nTrials > adjustInterval*frequency) {adjustStepSize();}
     }
     
-    public abstract void thisTrial(PhaseSpace phaseSpace);
+    public abstract void thisTrial(Phase phase);
     
     public void adjustStepSize() {
         if(nTrials == 0) {return;}
@@ -46,8 +46,8 @@ public abstract class MCMove extends Component {
         frequency = f;
     }
     public final int getFrequency() {return frequency;}
-    public void resetFrequency(PhaseSpace phaseSpace) {
-        frequency = perParticleFrequency ? nominalFrequency*phaseSpace.moleculeCount : nominalFrequency;
+    public void resetFrequency(Phase phase) {
+        frequency = perParticleFrequency ? nominalFrequency*phase.moleculeCount : nominalFrequency;
     }
     public final void setPerParticleFrequency(boolean b) {perParticleFrequency = b;}
     public final boolean isPerParticleFrequency() {return perParticleFrequency;}

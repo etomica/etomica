@@ -30,7 +30,7 @@ public class SpeciesDiskWell extends SpeciesDisks {
 
     if(DisplayConfiguration.DRAW_OVERFLOW) {
         for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
-            double[][] shifts = parentPhase.space.getOverflowShifts(a.r,halfWell);
+            double[][] shifts = parentSimulation.space.getOverflowShifts(a.r,halfWell);
             for(int i=0; i<shifts.length; i++) {
                int xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-halfWell));
                int yP = origin[1] + (int)(toPixels*(shifts[i][1]+a.r[1]-halfWell));

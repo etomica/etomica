@@ -24,7 +24,7 @@ public class Atom {
         parentMolecule = parent;
         type = t;
         atomIndex = index;
-        coordinate = parentMolecule.parentSpecies.parentPhaseSpace.makeAtomCoordinate(this);
+        coordinate = parentMolecule.parentSpecies.parentSimulation.space.makeAtomCoordinate(this);
         setStationary(false);
         useTypeColor();
     }
@@ -63,7 +63,7 @@ public class Atom {
   public final double mass() {return type.mass();}
   public final double rm() {return type.rm();}
   
-  public final PhaseSpace phaseSpace() {return parentMolecule.parentSpecies.parentPhaseSpace;}
+  public final Phase phase() {return parentMolecule.parentPhase;}
 
   public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, color, coordinate);}
 
@@ -101,7 +101,7 @@ public class Atom {
      */
     final int atomIndex;
     
-    public final PhaseSpace.AtomCoordinate coordinate;
+    public final Space.AtomCoordinate coordinate;
     
     public final AtomType type;
     

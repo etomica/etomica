@@ -14,16 +14,16 @@ public class MCMoveAtom extends MCMove {
     }
     
     //under revision--- does not work for multiatomics, since intramolecular energy is not considered
-    public void thisTrial(PhaseSpace phaseSpace) {
+    public void thisTrial(Phase phase) {
         double uOld, uNew;
-        if(phaseSpace.atomCount==0) {return;}
-        int i = (int)(rand.nextDouble()*phaseSpace.atomCount);
-        Atom a = phaseSpace.firstAtom();
+        if(phase.atomCount==0) {return;}
+        int i = (int)(rand.nextDouble()*phase.atomCount);
+        Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
-        uOld = phaseSpace.potentialEnergy.currentValue(a);
+        uOld = phase.potentialEnergy.currentValue(a);
         a.coordinate.displaceWithin(stepSize);
-        uNew = phaseSpace.potentialEnergy.currentValue(a);
+        uNew = phase.potentialEnergy.currentValue(a);
         if(uNew < uOld) {   //accept
             nAccept++;
             return;

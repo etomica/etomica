@@ -44,7 +44,7 @@ public abstract class AtomType {
     public final Color color() {return color;}
     public final void setColor(Color c) {color = c;}
     
-    public abstract void draw(Graphics g, int origin[], double s, Color color, PhaseSpace.AtomCoordinate c);
+    public abstract void draw(Graphics g, int origin[], double s, Color color, Space.AtomCoordinate c);
 
     
     // Disk-shaped atom.  Assumed to be in 2D
@@ -79,8 +79,8 @@ public abstract class AtomType {
         * @param scale     factor determining size of drawn image relative to
         *                  nominal drawing size
         */
-        public void draw(Graphics g, int[] origin, double scale, Color color, PhaseSpace.AtomCoordinate c) {
-            PhaseSpace2D.AtomCoordinate c2 = (PhaseSpace2D.AtomCoordinate)c;
+        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
+            Space2D.AtomCoordinate c2 = (Space2D.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
             int sigmaP = (int)(toPixels*diameter);
             int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
@@ -121,8 +121,8 @@ public abstract class AtomType {
         * @param scale     factor determining size of drawn image relative to
         *                  nominal drawing size
         */
-        public void draw(Graphics g, int[] origin, double scale, Color color, PhaseSpace.AtomCoordinate c) {
-            PhaseSpace2D.AtomCoordinate c2 = (PhaseSpace2D.AtomCoordinate)c;
+        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
+            Space2D.AtomCoordinate c2 = (Space2D.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
 
             //Draw core
@@ -141,7 +141,7 @@ public abstract class AtomType {
         }
     }
 
-    // Wall-shaped atom.  Assumed to be in PhaseSpace2D
+    // Wall-shaped atom.  Assumed to be in Space2D
     public final static class Wall extends AtomType {
         
         int thickness = 4;  //thickness when drawn to screen (if horizontal or vertical)
@@ -189,8 +189,8 @@ public abstract class AtomType {
         public final boolean isAdiabatic() {return adiabatic;}
         public final void setAdiabatic(boolean a) {adiabatic = a;}
      
-        public void draw(Graphics g, int[] origin, double scale, Color color, PhaseSpace.AtomCoordinate c) {
-            PhaseSpace2D.AtomCoordinate c2D = (PhaseSpace2D.AtomCoordinate)c;
+        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {
+            Space2D.AtomCoordinate c2D = (Space2D.AtomCoordinate)c;
             double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
             int xP = origin[0] + (int)(toPixels*c2D.r.x);
             int yP = origin[1] + (int)(toPixels*c2D.r.y);
@@ -224,7 +224,7 @@ public abstract class AtomType {
         public final void setRadius(double r) {this.setDiameter(2.0*r);}
         
         //Need to complete this
-        public void draw(Graphics g, int[] origin, double scale, Color color, PhaseSpace.AtomCoordinate c) {}
+        public void draw(Graphics g, int[] origin, double scale, Color color, Space.AtomCoordinate c) {}
     }
     
     //prototype of a real atom type

@@ -14,7 +14,7 @@ public class MeterDensity extends simulate.Meter
 
     public double currentValue()
     {
-        return phaseSpace.moleculeCount/(phaseSpace.volume()*scaleSquared*Constants.DEPTH*Constants.MOL_PER_LITER2SIM);
+        return phase.moleculeCount/(phase.volume()*scaleSquared*Constants.DEPTH*Constants.MOL_PER_LITER2SIM);
     }
 
 }

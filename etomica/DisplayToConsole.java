@@ -27,7 +27,7 @@ public class DisplayToConsole extends simulate.Display
             meter = temp;
         }
         
-        public void setPhase(PhaseSpace p) {
+        public void setPhase(Phase p) {
             for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {this.addMeter(m);}
         }
     

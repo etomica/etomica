@@ -7,13 +7,14 @@ public abstract class PhaseSpace extends Container {
     public PhaseSpace() {
         setLayout(null);
         setSize(300,300);
-        atomCount = moleculeCount = 0;
+        atomCount = moleculeCount = speciesCount = 0;
         gravity = new Gravity(0.0);
         noGravity = true;
         add(new ConfigurationSequential());  //default configuration
         potentialEnergy = new MeterPotentialEnergy();
         kineticEnergy = new MeterKineticEnergy();
         add(potentialEnergy);
+        add(kineticEnergy);
     }
     
     public abstract int D();

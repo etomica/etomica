@@ -49,13 +49,13 @@ import java.awt.*;
         }
         
         public void doUpdate() {
-            addValue(phaseSpace.firstMeter.currentValue());
+            addValue(phase.firstMeter.currentValue());
         }
         
         private void updateStatistics() {
             if(useMeterStatistics) {
-                vAvg = phaseSpace.firstMeter.average();
-                stdDev = phaseSpace.firstMeter.error();
+                vAvg = phase.firstMeter.average();
+                stdDev = phase.firstMeter.error();
             }
             else {
                 vAvg = v2Avg = 0;

@@ -6,7 +6,7 @@ import java.awt.event.*;
     public abstract class Display extends Canvas implements simulate.IntegrationIntervalListener, MouseListener, MouseMotionListener, KeyListener {
 
 	Simulation parentSimulation;
-	PhaseSpace phaseSpace;
+	Phase phase;
     int pixels = 300;
     Image offScreen;
     Graphics osg;
@@ -67,7 +67,7 @@ import java.awt.event.*;
       d.previousDisplay = this;
     }
     
-    public void setPhaseSpace(PhaseSpace p) {phaseSpace = p;}
+    public void setPhase(Phase p) {phase = p;}
     
     public void createOffScreen () {
         if (offScreen == null) { 

@@ -11,7 +11,7 @@ public class MeterKineticEnergy extends simulate.Meter
     public double currentValue()
     {
         double ke = 0.0;
-        for(Atom a=phaseSpace.firstAtom(); a!=null; a=a.nextAtom()) {
+        for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
             ke += a.coordinate.kineticEnergy();
         }
         return ke;

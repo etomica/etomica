@@ -18,14 +18,14 @@ public class DisplayConfiguration extends Display {
     public static final int BOTTOM = +1;
     private final int D = 2;
 
-    public final PhaseSpace2D.VectorInt align = new PhaseSpace2D.VectorInt();
+    public final Space2D.VectorInt align = new Space2D.VectorInt();
     
  /**
   * Size of drawing region of central image, in pixels
   *
   * @see #computeDrawSize
   */
-    protected final PhaseSpace2D.VectorInt drawSize = new PhaseSpace2D.VectorInt();
+    protected final Space2D.VectorInt drawSize = new Space2D.VectorInt();
   
  /**
   * Flag specifying whether a line tracing the boundary of the display should be drawn
@@ -37,10 +37,10 @@ public class DisplayConfiguration extends Display {
   * Flag specifying whether a line tracing the boundary of the space should be drawn
   * Default value is <code>false</code>
   */
-  private boolean drawPhaseSpace = false;
+  private boolean drawPhase = false;
   
  /**
-  * Number of periodic-image shells to be drawn when drawing this phaseSpace to the
+  * Number of periodic-image shells to be drawn when drawing this phase to the
   * screen.  Default value is 0.
   *
   * @see #paint
@@ -49,7 +49,7 @@ public class DisplayConfiguration extends Display {
  
  /**
   * Factor used to scale the size of the image. May be used
-  * to scale up or down the image within one phaseSpace without affecting those
+  * to scale up or down the image within one phase without affecting those
   * in other displays.  Default value is 1.0.
   *
   * @see Phase#paint
@@ -63,7 +63,7 @@ public class DisplayConfiguration extends Display {
 
  /**
   * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
-  * into the central cell.  When the phaseSpace is drawn, these "overflow portions" are not normally
+  * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
   * included in the central image.  Setting this flag to <code>true</code> causes extra drawing
   * to be done so that the overflow portions are properly rendered.  This is particularly helpful
   * to have on when imageShells is non-zero.  Default value is <code>false</code>.
@@ -75,7 +75,7 @@ public class DisplayConfiguration extends Display {
   private Font font = new Font("sansserif", Font.PLAIN, 10);
 //  private int annotationHeight = font.getFontMetrics().getHeight();
   private int annotationHeight = 12;
-  private PhaseSpace2D phaseSpace2D;
+  private Space2D.Phase phase2D;
 
     public DisplayConfiguration () {
         super();
@@ -101,7 +101,7 @@ public class DisplayConfiguration extends Display {
       }
   }
     
-  public void setPhaseSpace(PhaseSpace p) {super.setPhaseSpace(p); phaseSpace2D = (PhaseSpace2D)p;}  //2D needed to manipulate dimensions array directly
+  public void setPhase(Phase p) {super.setPhase(p); phase2D = (Space2D.Phase)p;}  //2D needed to manipulate dimensions array directly
  
   //Override superclass methods for changing size so that scale is reset with any size change  
   // this setBounds is ultimately called by all other setSize, setBounds methods
@@ -114,7 +114,7 @@ public class DisplayConfiguration extends Display {
         scale *= factor;
     }
     super.setBounds(x,y,width,height);
-//    if(phaseSpace2D != null) phaseSpace2D.resetTO_PIXELS();
+//    if(phase2D != null) phase2D.resetTO_PIXELS();
   }
    
  /**
@@ -145,13 +145,13 @@ public class DisplayConfiguration extends Display {
         
   public void setDrawBoundingBox(boolean b) {drawBoundingBox = b;}
   public boolean getDrawBoundingBox() {return drawBoundingBox;}
-  public void setDrawPhaseSpace(boolean b) {drawPhaseSpace = b;}
-  public boolean getDrawPhaseSpace() {return drawPhaseSpace;}
+  public void setDrawPhase(boolean b) {drawPhase = b;}
+  public boolean getDrawPhase() {return drawPhase;}
 
   public void doUpdate() {;}
   
   public void changeSize(int w, int h, MouseEvent e) {
-      if(e.isControlDown()) {  //change volume of simulated phaseSpace
+      if(e.isControlDown()) {  //change volume of simulated phase
         double rScale;
         int wh;
         if(w > h) {
@@ -164,11 +164,11 @@ public class DisplayConfiguration extends Display {
         }
         super.setBounds(getLocation().x,getLocation().y,wh,wh);
         createOffScreen(wh);
-        phaseSpace2D.inflate(rScale);
-        for(Molecule m=phaseSpace2D.firstMolecule(); m!=null; m=m.nextMolecule()) {
+        phase2D.inflate(rScale);
+        for(Molecule m=phase2D.firstMolecule(); m!=null; m=m.nextMolecule()) {
           m.coordinate.inflate(rScale);
         }
-        phaseSpace2D.integrator.initialize();
+        phase2D.integrator.initialize();
       }
       else {                    //change scale of image
         //super.changeSize(w,h,e);  doesn't work well
@@ -196,26 +196,26 @@ public class DisplayConfiguration extends Display {
     
  /**
   * This documentation is out-of-date
-  * doPaint is the method that handles the drawing of the phaseSpace to the screen.
+  * doPaint is the method that handles the drawing of the phase to the screen.
   * Several variables and conditions affect how the image is drawn.  First,
   * the class variable <code>TO_PIXELS</code> performs the conversion between simulation
   * length units (Angstroms) and pixels.  The default value is 300 pixels/Angstrom
-  * reflecting the default size of the phaseSpace (300 pixels by 300 pixels) and the
+  * reflecting the default size of the phase (300 pixels by 300 pixels) and the
   * default length scale (selected so that the simulation volume is of unit 
-  * length).  The size of the phaseSpace (in simulation units) is held in <code>space.dimensions[]</code>.
-  * Two quantities can further affect the size of the drawn image of the phaseSpace. 
+  * length).  The size of the phase (in simulation units) is held in <code>space.dimensions[]</code>.
+  * Two quantities can further affect the size of the drawn image of the phase. 
   * The variable <code>nominalScale</code> is a multiplicative factor that directly
   * scales up or down the size of the image; scaling of the image is also performed
   * whenever shells of periodic images are drawn.  Scaling is performed automatically
   * to permit the central image and all of the specified periodic images to fit in
-  * the drawing of the phaseSpace.  The number of image shells, together with the nominalScale,
+  * the drawing of the phase.  The number of image shells, together with the nominalScale,
   * are taken by <code>space</code> to determine the overall scaling of the drawn image.
   *
   * Painting is done with double buffering.  First a solid rectangle of the background
   * color is drawn to an off-screen graphic.  Then the origin of the drawn image is
-  * determined from the size of the drawn image and the size of the phaseSpace:
-  * origin[i] = 0.5*(phaseSpaceSize[i] - spaceSize[i]).  A gray line is drawn around
-  * the phaseSpace boundary if <code>drawBoundingBox</code> is <code>true</code>.
+  * determined from the size of the drawn image and the size of the phase:
+  * origin[i] = 0.5*(phaseSize[i] - spaceSize[i]).  A gray line is drawn around
+  * the phase boundary if <code>drawBoundingBox</code> is <code>true</code>.
   * A loop is then taken over all species, first passing the species to space.repositionMolecules
   * to enforce (for example) periodic boundaries, then invoking the draw method
   * of the species.  The draw method of <code>space</code> is then invoked.
@@ -229,12 +229,12 @@ public class DisplayConfiguration extends Display {
   * central image, and which must be rendered separately) is performed by the 
   * species draw method.
   *
-  * @param g The graphic object to which the image of the phaseSpace is drawn
+  * @param g The graphic object to which the image of the phase is drawn
   * @see Space
   * @see Species
   */
   public void doPaint(Graphics g) {  //specific to 2-D
-        if(!isVisible() || phaseSpace2D == null) {return;}
+        if(!isVisible() || phase2D == null) {return;}
         int w = getSize().width;
         int h = getSize().height;
         g.setColor(getBackground());
@@ -244,17 +244,17 @@ public class DisplayConfiguration extends Display {
             g.drawRect(0,0,w-1,h-1);
             }
         double toPixels = scale*SIM2PIXELS;
-        drawSize.x = (int)(toPixels*phaseSpace2D.dimensions.x);
-        drawSize.y = (int)(toPixels*phaseSpace2D.dimensions.y);
+        drawSize.x = (int)(toPixels*phase2D.boundary.dimensions().x);
+        drawSize.y = (int)(toPixels*phase2D.boundary.dimensions().y);
         centralOrigin[0] = computeOrigin(align.x,drawSize.x,w);
         centralOrigin[1] = computeOrigin(align.y,drawSize.y,h);
-        for(Species s=phaseSpace2D.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(Species.Agent s=phase2D.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.firstAtom() == null) {continue;}
             s.draw(g, centralOrigin, scale);
         }
-        if(drawPhaseSpace) {phaseSpace2D.paint(g, centralOrigin, scale);}
+        if(drawPhase) {phase2D.paint(g, centralOrigin, scale);}
         if(imageShells > 0) {
-            double[][] origins = phaseSpace2D.imageOrigins(imageShells);  //more efficient to save rather than recompute each time
+            double[][] origins = phase2D.boundary.imageOrigins(imageShells);  //more efficient to save rather than recompute each time
             for(int i=0; i<origins.length; i++) {
                 g.copyArea(centralOrigin[0],centralOrigin[1],drawSize.x,drawSize.y,(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
             }

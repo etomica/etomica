@@ -22,22 +22,22 @@ public class ConfigurationSequential extends Configuration {
     public boolean getFillVertical() {return fill;}
     
     public void initializeCoordinates() {
-        if(parentPhaseSpace == null) {return;}
+        if(parentPhase == null) {return;}
         
-        double Lx = parentPhaseSpace.getBounds().width/DisplayConfiguration.SIM2PIXELS;
-        double Ly = parentPhaseSpace.getBounds().height/DisplayConfiguration.SIM2PIXELS;
+        double Lx = parentPhase.getBounds().width/DisplayConfiguration.SIM2PIXELS;
+        double Ly = parentPhase.getBounds().height/DisplayConfiguration.SIM2PIXELS;
 
         int sumOfMolecules = 0;
         for(int j=0; j<species.size(); j++) {   
-            Species s = (Species)species.elementAt(j);
+            Species.Agent s = (Species.Agent)species.elementAt(j);
             sumOfMolecules += s.getNMolecules();
         }
         
-        PhaseSpace2D.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        Space2D.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
         
         int i = 0;
         for(int j=0; j<species.size(); j++) {
-            Species s = (Species)species.elementAt(j);
+            Species.Agent s = (Species.Agent)species.elementAt(j);
             for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
                 m.setCOM(rLat[i]);
                 i++;

@@ -20,10 +20,10 @@ public abstract class Potential2 extends Component {
   
   public boolean isNeighbor(Molecule m1, Molecule m2) {return true;}
   
-  public void setPhaseSpace(PhaseSpace p) {
+  public void setSimulation(Simulation s) {
     for(int i1=0; i1<nAtoms1; i1++) {
         for(int i2=0; i2<nAtoms2; i2++) {
-            potential[i1][i2].setParentPhase(p);
+            potential[i1][i2].setParentSimulation(s);
         }
     }
   }

@@ -22,13 +22,13 @@ public class MeterPressure extends simulate.Meter
     
     public void integrationIntervalAction(IntegrationIntervalEvent evt) {
         timeSum += evt.integrator.drawTimeStep * evt.integrator.integrationInterval;
-        updateStatistics(phaseSpace);}
+        updateStatistics(phase);}
 
     public double currentValue()
     {
         double flux=0.0;
         int count = 0;
-        for(Species s=phaseSpace.firstSpecies(); s!=null; s=s.nextSpecies()) {
+        for(Species s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
            if(s.speciesIndex == meterIndex) {
               for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 if(a.ia instanceof IntegratorHard.Agent) {

@@ -26,14 +26,14 @@ public class IntegratorMC extends Integrator {
         while((i-=trialMove.getFrequency()) >= 0) {
             trialMove = trialMove.getNextMove();
         }
-        trialMove.doTrial(firstPhaseSpace);
+        trialMove.doTrial(firstPhase);
     }
     
     public void initialize() {
         deployAgents();
         frequencyTotal = 0;
         for(MCMove m=firstMove; m!=null; m=m.getNextMove()) {
-            m.resetFrequency(firstPhaseSpace);
+            m.resetFrequency(firstPhase);
             frequencyTotal += m.getFrequency();
         }
     }

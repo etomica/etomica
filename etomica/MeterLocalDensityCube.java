@@ -32,7 +32,7 @@ public class MeterLocalDensityCube extends simulate.MeterLocalDensity
      Method that specifies if a molecule is inside the local region where the density is measured
      */
     public boolean contains(Molecule m) {
-        PhaseSpace2D.Vector r = (PhaseSpace2D.Vector)m.COM();  //molecule center-of-mass
+        Space2D.Vector r = (Space2D.Vector)m.COM();  //molecule center-of-mass
         if(Math.abs(r.x-xCenter) > halfWidth) {return false;}
         else if(Math.abs(r.y-yCenter) > halfHeight) {return false;}
         else {return true;}

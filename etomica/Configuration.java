@@ -10,19 +10,19 @@ public abstract class Configuration extends Component{
 
     protected Vector species = new Vector();
     public double temperature;
-    PhaseSpace parentPhaseSpace;
+    Phase parentPhase;
     Random rand = new Random();
 
     public Configuration(){
         setTemperature(300.);
     }
     
-    public Configuration(Species s){
+    public Configuration(Species.Agent s){
         species.addElement(s);
         initializeCoordinates();
     }
     
-    public void add(Species s){
+    public void add(Species.Agent s){
         if(s.firstAtom().type instanceof AtomType.Wall) {return;}
         species.addElement(s);
         initializeCoordinates();
@@ -39,10 +39,10 @@ public abstract class Configuration extends Component{
   * the current value of temperature), with the direction at random
   */
     public void initializeMomenta() {
-        PhaseSpace.Vector momentumSum = parentPhaseSpace.makeVector();
+        Space.Vector momentumSum = parentPhase.parentSimulation.space.makeVector();
         int sum = 0;
         for(int j=0; j<species.size(); j++) {
-            Species s = (Species)species.elementAt(j);
+            Species.Agent s = (Species.Agent)species.elementAt(j);
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 a.coordinate.randomizeMomentum(temperature);
                 sum++;
@@ -52,7 +52,7 @@ public abstract class Configuration extends Component{
     //    Zero center-of-mass momentum
         momentumSum.DE((double)sum);
         for(int j=0; j<species.size(); j++) {
-            Species s = (Species)species.elementAt(j);
+            Species.Agent s = (Species.Agent)species.elementAt(j);
             for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
                 a.coordinate.momentum().ME(momentumSum);
             }
@@ -76,9 +76,9 @@ public abstract class Configuration extends Component{
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public static PhaseSpace2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        PhaseSpace2D.Vector[] r = new PhaseSpace2D.Vector[n];
-        for(int i=0; i<n; i++) {r[i] = new PhaseSpace2D.Vector();}
+    public static Space2D.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+        Space2D.Vector[] r = new Space2D.Vector[n];
+        for(int i=0; i<n; i++) {r[i] = new Space2D.Vector();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;

@@ -9,7 +9,7 @@ public class IntegratorGEMC extends Integrator {
     public double pressure, betaMu, eBetaMu;
     private int freqDisplace, freqVolume, freqMolecule;
     private int iDisplace, iVolume, iMolecule, iTotal;
-    public PhaseSpace secondPhaseSpace;
+    public Phase secondPhase;
     private MCMove atomDisplace = new MCMoveAtom();
     
     public IntegratorGEMC() {
@@ -18,18 +18,18 @@ public class IntegratorGEMC extends Integrator {
         freqVolume = freqMolecule = 1;
         maxRStep = 0.1;
         maxVStep = 0.1;
-        phaseSpaceCountMax = 2;
-//        super.phaseSpaceCountMax = 2;
-        phaseSpace = new PhaseSpace[phaseSpaceCountMax];
+        phaseCountMax = 2;
+//        super.phaseCountMax = 2;
+        phase = new Phase[phaseCountMax];
         atomDisplace.setAdjustInterval(10000);
         atomDisplace.parentIntegrator = this;
     }
     
-  public void registerPhaseSpace(PhaseSpace p) {
-    super.registerPhaseSpace(p);
-    if(phaseSpaceCount > phaseSpaceCountMax) {return;}
-    if(phaseSpaceCount == 2) secondPhaseSpace = phaseSpace[1];
-    System.out.println("phaseSpaceCount "+phaseSpaceCount);
+  public void registerPhase(Phase p) {
+    super.registerPhase(p);
+    if(phaseCount > phaseCountMax) {return;}
+    if(phaseCount == 2) secondPhase = phase[1];
+    System.out.println("phaseCount "+phaseCount);
   }
   
     public void doStep(double dummy) {
@@ -37,15 +37,15 @@ public class IntegratorGEMC extends Integrator {
         if(i < iDisplace) {
 //            if(rand.nextDouble() < 0.5) {trialDisplace(firstPhase);}
 //            else {trialDisplace(secondPhase);}
-            if(rand.nextDouble() < 0.5) {atomDisplace.doTrial(firstPhaseSpace);}
-            else {atomDisplace.doTrial(secondPhaseSpace);}
+            if(rand.nextDouble() < 0.5) {atomDisplace.doTrial(firstPhase);}
+            else {atomDisplace.doTrial(secondPhase);}
         }
         else if(i < iVolume) {
             trialVolume();
         }
         else {
-            if(rand.nextDouble() < 0.5) {trialExchange(firstPhaseSpace.firstSpecies(),secondPhaseSpace.firstSpecies());}
-            else {trialExchange(secondPhaseSpace.firstSpecies(),firstPhaseSpace.firstSpecies());}
+            if(rand.nextDouble() < 0.5) {trialExchange(firstPhase.firstSpecies(),secondPhase.firstSpecies());}
+            else {trialExchange(secondPhase.firstSpecies(),firstPhase.firstSpecies());}
         }
     }
         
@@ -68,9 +68,9 @@ public class IntegratorGEMC extends Integrator {
     }
     */
     private void trialVolume() {
-        double v1Old = firstPhaseSpace.volume();
-        double v2Old = secondPhaseSpace.volume();
-        double hOld = firstPhaseSpace.potentialEnergy.currentValue() + secondPhaseSpace.potentialEnergy.currentValue();
+        double v1Old = firstPhase.volume();
+        double v2Old = secondPhase.volume();
+        double hOld = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
         double vStep = (2.*rand.nextDouble()-1.)*maxVStep;
         double v1New = v1Old + vStep;
         double v2New = v2Old - vStep;
@@ -78,27 +78,27 @@ public class IntegratorGEMC extends Integrator {
         double v2Scale = v2New/v2Old;
         double r1Scale = Math.pow(v1Scale,1.0/(double)Simulation.D);
         double r2Scale = Math.pow(v2Scale,1.0/(double)Simulation.D);
-        firstPhaseSpace.inflate(r1Scale);
-        secondPhaseSpace.inflate(r2Scale);
-        for(Molecule m=firstPhaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
+        firstPhase.inflate(r1Scale);
+        secondPhase.inflate(r2Scale);
+        for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
             m.coordinate.inflate(r1Scale);
         }
-        for(Molecule m=secondPhaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
+        for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
             m.coordinate.inflate(r2Scale);
         }
-        double hNew = firstPhaseSpace.potentialEnergy.currentValue() + secondPhaseSpace.potentialEnergy.currentValue();
+        double hNew = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/temperature+
-                       firstPhaseSpace.moleculeCount*Math.log(v1Scale) +
-                       secondPhaseSpace.moleculeCount*Math.log(v2Scale))
+                       firstPhase.moleculeCount*Math.log(v1Scale) +
+                       secondPhase.moleculeCount*Math.log(v2Scale))
                 < rand.nextDouble()) 
             {  //reject
-              firstPhaseSpace.inflate(1.0/r1Scale);
-              for(Molecule m=firstPhaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
+              firstPhase.inflate(1.0/r1Scale);
+              for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 m.coordinate.replace();
               }
-              secondPhaseSpace.inflate(1.0/r2Scale);
-              for(Molecule m=secondPhaseSpace.firstMolecule(); m!=null; m=m.nextMolecule()) {
+              secondPhase.inflate(1.0/r2Scale);
+              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 m.coordinate.replace();
               }
             }
@@ -110,17 +110,17 @@ public class IntegratorGEMC extends Integrator {
         if(dSpecies.nMolecules == 0) {return;}
         
         Molecule m = dSpecies.randomMolecule();
-        uOld = dSpecies.parentPhaseSpace.potentialEnergy.currentValue(m);
-        m.coordinate.displaceToRandom(iSpecies.parentPhaseSpace.dimensions());
+        uOld = dSpecies.parentPhase.potentialEnergy.currentValue(m);
+        m.coordinate.displaceToRandom(iSpecies.parentPhase.dimensions());
 //        m.parentSpecies = iSpecies;
-        uNew = iSpecies.parentPhaseSpace.potentialEnergy.insertionValue(m);
+        uNew = iSpecies.parentPhase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {
             m.replace(); 
 //            m.parentSpecies = dSpecies; 
             return;        //overlap
         }        
-        double bFactor = dSpecies.nMolecules/dSpecies.parentPhaseSpace.volume()
-                         * iSpecies.parentPhaseSpace.volume()/(iSpecies.nMolecules+1)
+        double bFactor = dSpecies.nMolecules/dSpecies.parentPhase.volume()
+                         * iSpecies.parentPhase.volume()/(iSpecies.nMolecules+1)
                          * Math.exp(-(uNew-uOld)/temperature);
         if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
 //            m.parentSpecies = dSpecies; 
@@ -149,9 +149,9 @@ public class IntegratorGEMC extends Integrator {
     
     public void initialize() {
         deployAgents();
-        iDisplace = freqDisplace * firstPhaseSpace.moleculeCount;
+        iDisplace = freqDisplace * firstPhase.moleculeCount;
         iVolume = iDisplace + freqVolume;
-        iMolecule = iVolume + freqMolecule*firstPhaseSpace.moleculeCount;    
+        iMolecule = iVolume + freqMolecule*firstPhase.moleculeCount;    
         iTotal = iMolecule;
     }
     
