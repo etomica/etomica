@@ -25,11 +25,11 @@ public class DeviceTrioControllerButton extends Device {
     
     private JPanel jp;
     private DeviceControllerButton button1;
+    private Simulation simulation;
     private DeviceButton button2;
     private DeviceButton button3; 
     private SimulationRestart simReset;
     private ResetAccumulators resetAccumulators;
-	private Simulation simulation;	
 	private double width;
 	private boolean firstResized = true;
 	private String shape;
@@ -38,10 +38,7 @@ public class DeviceTrioControllerButton extends Device {
      * Constructor if instance of controller is not added.
      */
     public DeviceTrioControllerButton(Simulation simulation) {
-        super();
-        this.simulation = simulation;
-        simReset = new SimulationRestart(simulation);
-        resetAccumulators = new ResetAccumulators(simulation.getDataManagerList());
+        super(simulation.getController());
         
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
@@ -56,11 +53,12 @@ public class DeviceTrioControllerButton extends Device {
                              ,new java.awt.Font(null,java.awt.Font.BOLD,15)
                              ,java.awt.Color.black));
                              */
+
+        this.simulation = simulation;
         Controller controller = simulation.getController();
         button1 = new DeviceControllerButton(controller);
-        button2 = new DeviceButton(controller, simReset);
-        
-        button3 = new DeviceButton(controller, resetAccumulators);
+        button2 = new DeviceButton(controller, new SimulationRestart(simulation));
+        button3 = new DeviceButton(controller, new ResetAccumulators(simulation.getDataManagerList()));
         
         jp.add(button1.graphic()); 
         jp.add(button2.graphic());  
@@ -69,28 +67,26 @@ public class DeviceTrioControllerButton extends Device {
         setShape("VERTICAL");
         setController(simulation.getController());
     }
-    
-    /**
-     * Constructor if instance of controller is added.
-     */        
-    public DeviceTrioControllerButton(Simulation sim, Controller c) {
-        this(sim);
-        setController(c);        
-    }
-    
-    // final due to being called in contructor
+        
     /**
      * Sets the controller that is toggled by this device.
      */
-    public final void setController(Controller c) {
+    public void setSimulation(Simulation sim) {
+        simulation = sim;
+        Controller c = sim.getController();
+        super.setController(c);
         button1.setController(c);
+        button2.setController(c);
+        button3.setController(c);
+        button2.setAction(new SimulationRestart(sim));
+        button3.setAction(new ResetAccumulators(sim.getDataManagerList()));
     }
     
     /**
-     * Returns the controller instance toggled by this device.
+     * Returns the simulation affected by the buttons.
      */
-    public Controller getController() {
-        return button1.getController();
+    public Simulation getSimulation() {
+        return simulation;
     }
 
     /**
