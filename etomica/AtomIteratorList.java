@@ -17,10 +17,8 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
     private AtomList list;
     
 	private AtomLinker first;//first atom or tab for iteration
-	private AtomLinker.Tab header;
 	private AtomLinker.Tab terminator;//tab indicating end of iteration
 	private AtomLinker next;//holds next atom to return on call to next()
-	private IteratorDirective.Direction direction = IteratorDirective.UP;
     private boolean upList;
     
     /**
@@ -95,17 +93,19 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
      */
     public void setList(AtomList newList) {
         list = (newList != null) ? newList : new AtomList();
-        next = terminator = header = list.header;
-        first = header.next;
+        next = terminator = list.header;
+        first = list.header.next;
     }
 
     /**
      * Resets the iterator using the current values of first, terminator, and upList.  
      */
-    public Atom reset() {
+    public void reset() {
     	next = first;
-    	if(next.atom == null) nextLinker();
-        return next.atom;
+    	while(next.atom == null && next != terminator && next != list.header) {
+            next = upList ? next.next : next.previous;
+            if(terminator == null) break;
+        }
     }
 
 	/**
@@ -114,7 +114,8 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
      * by a hasNext/next loop.
      */
     public void allAtoms(AtomActive action){
-    	for(AtomLinker link=first; link!=terminator; link=(upList ? link.next : link.previous)) {
+    	AtomLinker.Tab header = list.header;
+    	for(AtomLinker link=first; link!=terminator && link!=header; link=(upList ? link.next : link.previous)) {
     		if(link.atom != null) action.actionPerformed(link.atom);
     		else if(terminator == null) break;
     	}       
@@ -153,7 +154,7 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
      * next atom entry.
      */
     public void setTerminator(AtomLinker.Tab terminator) {
-    	if(terminator.list != this.list) throw new IllegalArgumentException("Error in setting terminator as an element not in the list set for iteration");
+    	if((terminator != null) && (terminator.list != this.list)) throw new IllegalArgumentException("Error in setting terminator as an element not in the list set for iteration");
         this.terminator = terminator;
         unset();
     }
@@ -182,7 +183,7 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
      * Sets iterator such that hasNext() will return false.
      */
     public void unset() {
-        next = header;
+        next = list.header;
     }
 
     /**
@@ -213,12 +214,13 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
     }
     
     public AtomLinker nextLinker() {
+    	if(next.atom == null) return next;//prevent call to nextLinker from advancing past terminator
         AtomLinker nextLinker = next;
         next = upList ? next.next : next.previous;
         while(next.atom == null) {
             //if terminator is null we stop at the first encounter of a Tab linker
-            //otherwise stop only if Tab linker is the specified terminator
-            if(terminator == null || next == terminator) break;
+            //otherwise stop only if Tab linker is the specified terminator or the header (which could be encountered before terminator, if different
+            if(terminator == null || next == terminator || next == list.header) break;
             next = upList ? next.next : next.previous;
         }
         return nextLinker;

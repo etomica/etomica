@@ -39,8 +39,8 @@ public abstract class AtomIteratorAdapter implements AIPhaseDependent {
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#reset()
 	 */
-	public final Atom reset() {
-		return iterator.reset();
+	public final void reset() {
+		iterator.reset();
 	}
 
 	/* (non-Javadoc)

@@ -4,23 +4,19 @@
 package etomica;
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Interface for classes that loop over a set of atoms. Permits
+ * iteration via a hasNext()-next() while loop (iterator returns
+ * atoms to client) or via a call to allAtoms(AtomActive) (client gives
+ * action to iterator).
  */
 
-//consider using list classes, and making wrappers that use set methods
-//to take phase, species, atom, etc. and select list for list iterators
-//perhaps a setter class held by the iterator?
-//adapter class that holds list iterator and fronts its methods, allowing
-//subclasses to define set methods
 public interface AtomIterator /*extends AtomSetIterator*/ {
     
 	/**
 	 * Indicates whether the atom is among those returned by the iterator.
 	 * @param atom the atom in question
-	 * @return true if the atom is among the iterates.
+	 * @return true if the atom is among the iterates; false if
+	 * otherwise, or if atom is null.
 	 */
     public boolean contains(Atom atom);
     
@@ -31,10 +27,8 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
     
     /**
      * Resets the iterator to loop through its iterates again.
-     * @return the first atom will be when the iterator runs
      */
-    //TODO do we want to change this to return void?
-    public Atom reset();
+    public void reset();
     
 	/**
 	 * Puts iterator in a state in which next() returns null.
@@ -44,7 +38,8 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
 	/**
 	 * Returns the next atom in the iteration sequence.
 	 * No specific behavior is guaranteed if hasNext() == false 
-	 * at the time method is called.
+	 * at the time method is called, except that calling next()
+	 * will not cause hasNext() to become true.
 	 */
     public Atom next();
     
@@ -56,21 +51,16 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
     public Atom peek();
     
     /**
-     * Performs given actions over all the iterates of this iterator.  Iterates
-     * are defined according to most recent call to a reset method, or to
-     * a class-dependent default if reset was not previously called.  A call to reset
-     * followed by this method should cause iteration over the same set of atoms
-     * that would be returned by looping using hasNext/next.  Unlike the
-     * hasNext/next iteration, allAtoms can be called successively without intervening
-     * reset calls to loop over the same set of atoms repeatedly.
+     * Performs given actions over all the iterates of this iterator in its
+     * current state.  The state of hasNext() is not relevant to this method,
+     * and no call to reset() is needed beforehand. The set of atoms encountered 
+     * in the allAtoms call should be the same set that would be returned by 
+     * looping using hasNext/next.
      */
     public void allAtoms(AtomActive action);
 
     /**
-     * The number of iterates returned by this iterator, if iterating after
-     * a call to the no-argument reset().  Some iterators give a value that
-     * differs from this definition.  Neighbor iterators, for example, return
-     * the total number of atoms in the basis, not the number of neighbors.
+     * The number of iterates returned by this iterator in its current state.
      */
     public int size(); 
 
@@ -83,7 +73,7 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
     	public boolean contains(Atom atom) {return false;}
     	public boolean hasNext() {return false;}
     	public Atom next() {return null;}
-    	public Atom reset() {return null;}
+    	public void reset() {}
     	public int size() {return 0;}
     	public Atom peek() {return null;}
     	public void unset() {}

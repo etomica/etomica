@@ -82,9 +82,9 @@ public class AtomIteratorBonds implements AtomIterator {
     /**
      * Resets iterator to UP using current basis.
      */
-    public Atom reset() {
+    public void reset() {
         direction = IteratorDirective.UP;
-        return doReset();
+        doReset();
     }
 
     private Atom doReset() {

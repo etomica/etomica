@@ -24,15 +24,17 @@ public class AtomActiveDetect implements AtomActive {
 	}
 	/**
 	 * Sets detect to true if given atom is same as atom
-	 * given in constructor.
+	 * given in constructor.  Detect will stay true until
+	 * reset(), regardless of outcome of subsequent calls 
+	 * to this method.
 	 */
 	public void actionPerformed(Atom atom) {
-		if(testAtom == null) detected |= (atom == null);
-		else detected |= (testAtom.equals(atom)); //same as detected = (detected || testAtom.equals(atom))
+		if(detected) return;
+		detected = testAtom.equals(atom);
 	}
 	
 	/**
-	 * Sets the callCount to zero.
+	 * Sets detected to false.
 	 */
 	public void reset() {detected = false;}
 	

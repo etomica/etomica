@@ -47,18 +47,16 @@ public class AtomIteratorNonbonded implements AtomIterator {
         return(iterator.contains(atom) && !Bond.areBonded(nonbondAtom, atom));
     }
     
-    public Atom reset(IteratorDirective id) {
+    public void reset(IteratorDirective id) {
         nonbondAtom = id.atom1();
 // commented 12-06-02        if(nonbondAtom != null) setBasis(nonbondAtom.node.parentGroup());
         iterator.reset(id);
         next();
-        return nextAtom;
     }
     
-    public Atom reset() {
+    public void reset() {
         iterator.reset();
         next();
-        return nextAtom;
     }
     
     public Atom next() {

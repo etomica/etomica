@@ -90,8 +90,8 @@ public class AtomIteratorNeighbor implements AtomIterator {
         }
     }
     
-    public Atom reset() {
-        return reset(IteratorDirective.BOTH);
+    public void reset() {
+        reset(IteratorDirective.BOTH);
     }
 
     /**

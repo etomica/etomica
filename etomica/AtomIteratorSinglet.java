@@ -73,9 +73,8 @@ public final class AtomIteratorSinglet implements AtomIterator {
     /**
      * Resets iterator to a state where hasNext is true.
      */
-    public Atom reset() {
+    public void reset() {
         hasNext = (atom != null); 
-        return atom;
     }
     
     /**

@@ -59,13 +59,19 @@ public final class AtomIteratorListSimple implements AIAtomListDependent {
             if(e.atom != null) action.actionPerformed(e.atom);
     }
     
+    public static void allAtoms(AtomActive action, AtomList list) {
+    	final AtomLinker.Tab header = list.header;
+        for (AtomLinker e = header.next; e != header; e = e.next) 
+            if(e.atom != null) action.actionPerformed(e.atom);
+   	
+    }
+    
     /**
      * Sets iterator so that it is ready to go up its entire list of iterates.
      */
-    public Atom reset() {
+    public void reset() {
         next = list.header.next;
         while(next.atom == null && next != list.header) next = next.next;
-        return next.atom;
     }
         
     /**

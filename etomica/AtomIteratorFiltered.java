@@ -50,10 +50,9 @@ public class AtomIteratorFiltered implements AtomIterator {
 	/**
 	 * Puts iterator in state ready for iteration.
 	 */
-	public Atom reset() {
+	public void reset() {
 		iterator.reset();
 		next();
-		return next;
 	}
 
 	/**

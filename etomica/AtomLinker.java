@@ -78,7 +78,7 @@ public class AtomLinker implements java.io.Serializable {
      */
     public static class Tab extends AtomLinker {
         public Tab nextTab, previousTab;
-        public final AtomList list;
+        public AtomList list;
         private final boolean isHeader;
         /**
          * Private constructor.  Use AtomLinker methods newTab or newHeader, as
@@ -98,10 +98,12 @@ public class AtomLinker implements java.io.Serializable {
          * Removes references to previous/next tabs while removing linker from list.
          */
         public void remove() {
+        	if(isHeader) throw new RuntimeException("Illegal attempt to remove header from list");
             super.remove();
 	        previousTab.nextTab = nextTab;
 	        nextTab.previousTab = previousTab;
 	        nextTab = previousTab = this;
+	        list = null;
         }
         
         /**
@@ -110,11 +112,10 @@ public class AtomLinker implements java.io.Serializable {
          * an IllegalArgumentException is thrown and the state of this tab is unchanged.
          */
         public void addBefore(AtomLinker newNext) {
-	        AtomLinker.Tab newNextTab = findNextTab(newNext);
-	        if(newNextTab.list != this.list) throw new IllegalArgumentException("Illegal attempt to add tab to a list other than the one it was constructed for");
+	        nextTab = findNextTab(newNext);
+	        this.list = nextTab.list;
             super.addBefore(newNext);
-            nextTab = newNextTab;
-	        previousTab = nextTab.previousTab;
+ 	        previousTab = nextTab.previousTab;
 	        previousTab.nextTab = this;
 	        nextTab.previousTab = this;
 	    }

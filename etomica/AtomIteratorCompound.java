@@ -67,8 +67,8 @@ public final class AtomIteratorCompound implements AtomIterator {
         return false;
     }
         
-    public Atom reset() {
-        return reset(directive.clear());
+    public void reset() {
+        reset(directive.clear());
     }
 
     public Atom reset(IteratorDirective id) {

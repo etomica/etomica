@@ -122,7 +122,7 @@ public class AtomIteratorTreeTest extends TestCase {
 		iterator.setRoot(basis2);
 		assertEquals((nMolecules/2)*(nAtoms0+nAtoms1),iterator.size());
 
-		iterator.setLeafIterator();
+		iterator.setAsLeafIterator();
 		
 		iterator.setRoot(basis0);
 		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
@@ -170,7 +170,7 @@ public class AtomIteratorTreeTest extends TestCase {
 		AtomIteratorList listIterator0 = new AtomIteratorList(atomList0);
 		AtomIteratorList listIterator1 = new AtomIteratorList(atomList1);
 
-		iterator.setLeafIterator();
+		iterator.setAsLeafIterator();
 
 		iterator.all(basis0,id,lister[0]);
 		while (listIterator0.hasNext()) {

@@ -69,7 +69,7 @@ public final class SpeciesMaster extends Atom {
             super(atom, null);
             speciesMaster = (SpeciesMaster)atom;
             this.parentPhase = parentPhase;
-            leafIterator.setLeafIterator();
+            leafIterator.setAsLeafIterator();
             depth = 0;
             setIndex(parentPhase.index);
         }
