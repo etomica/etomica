@@ -68,6 +68,8 @@ public class NeighborManager implements IntervalListener {
 			for (int j=0; j<criteria.length; j++) {
 				criteria[j].setPhase(phase[i]);
 			}
+            pbcEnforcer.setPhase(phase[i]);
+            pbcEnforcer.actionPerformed();
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborReset);
 			potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
