@@ -182,16 +182,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * @return the <code>nth</code> instantiated device (indexing from zero)
      */
     public final Device device(int n) {return (Device)deviceList.get(n);}
-    
-    public final LinkedList phaseList() {return phaseList;}
-    public final LinkedList meterList() {return meterList;}
-    public final LinkedList speciesList() {return speciesList;}
-    public final LinkedList integratorList() {return integratorList;}
-    public final LinkedList controllerList() {return controllerList;}
-    public final LinkedList potential1List() {return potential1List;}
-    public final LinkedList potential2List() {return potential2List;}
-    public final LinkedList displayList() {return displayList;}
-    public final LinkedList deviceList() {return deviceList;}
   
     public void register(Simulation.Element element) {
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());

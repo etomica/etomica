@@ -1,5 +1,6 @@
 package simulate;
 import simulate.*;
+import simulate.gui.SimEditorTabMenu;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -17,9 +18,36 @@ public class ModulatorEditorPanel extends JPanel {
     public ModulatorEditorPanel(PropertyEditorSupport ed) {
         editor = ed;
         int counter = 0;
-        
-        Object[] objects = Simulation.instance.allElements().toArray();
+        Object[] objects = new Object[
+            SimEditorTabMenu.getSpeciesEditor().getComponentList().size()+
+            SimEditorTabMenu.getPotential1Editor().getComponentList().size()+
+            SimEditorTabMenu.getPotential2Editor().getComponentList().size()+
+            SimEditorTabMenu.getIntegratorEditor().getComponentList().size()+
+            SimEditorTabMenu.getPhaseEditor().getComponentList().size()+
+            SimEditorTabMenu.getControllerEditor().getComponentList().size()+
+            SimEditorTabMenu.getDisplayEditor().getComponentList().size()+
+            SimEditorTabMenu.getMeterEditor().getComponentList().size()+
+            SimEditorTabMenu.getDeviceEditor().getComponentList().size()];
 
+        for (int i = 0; i < SimEditorTabMenu.getSpeciesEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getSpeciesEditor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getPotential1Editor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getPotential1Editor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getPotential2Editor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getPotential2Editor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getIntegratorEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getIntegratorEditor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getPhaseEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getPhaseEditor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getControllerEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getControllerEditor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getDisplayEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getDisplayEditor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getMeterEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getMeterEditor().getComponentList().elementAt(i);
+        for (int i = 0; i < SimEditorTabMenu.getDeviceEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getDeviceEditor().getComponentList().elementAt(i);
+            
         setLayout(new GridLayout(1,2));//this panel is made of two subpanels side-by-side
         
         ButtonGroup buttonGroup = new ButtonGroup();

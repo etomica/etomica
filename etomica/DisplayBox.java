@@ -27,11 +27,6 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
      */
     protected JTextField value;
     /**
-     * Displayed panel that holds the label and value
-     * (not yet used; meant to implement to make lightweight display)
-     */
-//    protected JPanel panel;
-    /**
      * Meter that generates the displayed value
      */
     protected Meter meter;

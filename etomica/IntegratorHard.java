@@ -81,7 +81,6 @@ public void doStep() {
         System.out.println("This occurs when the simulated system becomes jammed, and is unable to clear all collisions and move to the next time step.");
         System.out.println("NextCollider: "+nextCollider.atom);
         System.out.println("Collision partner: "+nextCollider.collisionPartner);
-        System.out.println("Collision potential: "+nextCollider.collisionPotential);
         System.exit(1);
     }
 }

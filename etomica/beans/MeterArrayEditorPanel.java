@@ -1,5 +1,6 @@
 package simulate;
 import simulate.*;
+import simulate.gui.SimEditorTabMenu;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -20,7 +21,10 @@ public class MeterArrayEditorPanel extends JPanel {
         
         //discover meters presently instantiated
         int counter = 0;
-        Object[] objects = Simulation.instance.meterList().toArray();
+        Object[] objects = new Object[
+            SimEditorTabMenu.getMeterEditor().getComponentList().size()];
+        for (int i = 0; i < SimEditorTabMenu.getMeterEditor().getComponentList().size(); i++)
+            objects[counter++] = SimEditorTabMenu.getMeterEditor().getComponentList().elementAt(i);
         
         //construct panel of checkboxes
         Meter[] currentMeters = (Meter[])editor.getValue();

@@ -40,7 +40,7 @@ public class BoundaryEditor extends PropertyEditorSupport {
         boundaryMakers.clear();
         boundaryMakers.add(Simulation.instance.space());
         //Loop through all elements in simulation and get any boundary options they provide
-        LinkedList elements = Simulation.instance.allElements();
+        LinkedList elements = Simulation.allElements();
         for(Iterator iter=elements.iterator(); iter.hasNext();) {
             Object obj = iter.next();
             if(obj instanceof Space.Boundary.Maker) {

@@ -194,7 +194,7 @@ public class FileActions {
     private static class OpenAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            FileDialog fd = new FileDialog(Etomica.DesktopFrame.etomicaFrame, "Open saved Simulation", FileDialog.LOAD);
+/*            FileDialog fd = new FileDialog(Etomica.DesktopFrame.etomicaFrame, "Open saved Simulation", FileDialog.LOAD);
 	        // needed for a bug under Solaris...
 	        fd.setDirectory(System.getProperty("user.dir"));
 	        fd.setFile(defaultStoreFile);
@@ -205,24 +205,9 @@ public class FileActions {
 	        }
 	        String dname = fd.getDirectory();
 	        File file = new File(dname, fname);
-	        Class simulationClass = null;
-	        try {
-            simulationClass = Class.forName(file.toString());
-            }
-            catch(ClassNotFoundException e) {
-                e.printStackTrace();
-                System.out.println(file.toString());
-            }
-	        try{
-	            Simulation sim = (Simulation)simulationClass.newInstance();
-	            Etomica.addSimulation(sim);
-	        }
-            catch(IllegalAccessException e) {System.out.println("Illegal access error");}
-            catch(InstantiationException e) {System.out.println("Instantiation exception");}
+
 	        // OK, loaded all the classes -- now, instantiate them...
-	        
-	        //code for .ser file
-	   /*     try {
+	        try {
 	            // get the one object as a bean...
 	            FileInputStream f = new FileInputStream(file);
 	            ObjectInputStream ois = new ObjectInputStream(f);
@@ -236,7 +221,7 @@ public class FileActions {
 	        } 
 	        catch(java.io.IOException ioe){ ioe.printStackTrace(); }
 	        catch(ClassNotFoundException cnfe){ cnfe.printStackTrace(); }
-      */    
+        */
         }// end of actionPerformed
     }// end of OpenAction
     

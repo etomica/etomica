@@ -9,7 +9,6 @@ public class HSMD2D extends Simulation {
     
     public HSMD2D() {
         super(new Space2D());
-        Simulation.instance = this;
 	    IntegratorHard integratorHard1 = new IntegratorHard(this);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(this);
 	    Phase phase1 = new Phase(this);

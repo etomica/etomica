@@ -37,7 +37,7 @@ public class Etomica {
         simulate.Simulation.inEtomica = true;
         DesktopFrame frame = new DesktopFrame();
         frame.show();
-        addSimulation(Simulation.instance);  //uncomment to run in debugger
+ //       addSimulation(Simulation.instance);  //uncomment to run in debugger
     }
     
     /**
@@ -68,10 +68,8 @@ public class Etomica {
         Etomica.DesktopFrame.desktop.add(simulationFrame);
     // End creation of SimulationFrame   
     
-        SimulationEditor simulationEditor = new SimulationEditor(sim);
-        simulationEditorFrame.setSimulationEditor(simulationEditor);
+        simulationEditorFrame.setSimulationEditor(new SimulationEditor(sim));
         simulationEditorFrame.setVisible(true);
-        simulationEditor.speciesEditor.accountForNewSpecies(sim.speciesList().size());
                                     
                                 
     // Update MenuBars

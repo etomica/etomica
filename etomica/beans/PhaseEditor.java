@@ -1,5 +1,6 @@
 package simulate;
 import simulate.*;
+import simulate.gui.SimEditorTabMenu;
 import java.beans.*;
 import java.util.*;
 
@@ -37,12 +38,11 @@ public class PhaseEditor extends PropertyEditorSupport {
     public String[] getTags() {return phaseNames;}
 
     protected void makePhaseLists() {
-        java.util.LinkedList phaseList = Simulation.instance.phaseList();
-        phaseNames = new String[phaseList.size()];
-        phaseObjects = new Object[phaseList.size()];
-        int i=0;
-        for(java.util.Iterator iter=phaseList.iterator(); iter.hasNext(); i++) {
-            phaseObjects[i] = (Phase)iter.next();
+        int nPhases = SimEditorTabMenu.getPhaseEditor().getComponentList().size();
+        phaseNames = new String[nPhases];
+        phaseObjects = new Object[nPhases];
+        for(int i=0; i<SimEditorTabMenu.getPhaseEditor().getComponentList().size(); i++) {
+            phaseObjects[i] = ((Phase)SimEditorTabMenu.getPhaseEditor().getComponentList().elementAt(i));
             phaseNames[i] = phaseObjects[i].toString();
         }
     }
