@@ -35,11 +35,19 @@ public class DeviceTrioControllerButton extends Device {
 	private String shape;
 
     /**
-     * Constructor if instance of controller is not added.
+     * Contructs device with buttons that affect the given simulation.
      */
     public DeviceTrioControllerButton(Simulation simulation) {
-        super(simulation.getController());
-        
+        this();
+        setSimulation(simulation);
+    }
+    
+    /**
+     * No-argument contructor gives device that performs no action until
+     * setSimulation is used to specify the target simulation.
+     */
+    public DeviceTrioControllerButton() {
+        super();
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
         jp.setOpaque(false);
@@ -54,18 +62,17 @@ public class DeviceTrioControllerButton extends Device {
                              ,java.awt.Color.black));
                              */
 
-        this.simulation = simulation;
-        Controller controller = simulation.getController();
-        button1 = new DeviceControllerButton(controller);
-        button2 = new DeviceButton(controller, new SimulationRestart(simulation));
-        button3 = new DeviceButton(controller, new ResetAccumulators(simulation.getDataManagerList()));
+        button1 = new DeviceControllerButton(null);
+        button2 = new DeviceButton(null);
+        button3 = new DeviceButton(null);
+        button2.setLabel("Restart");
+        button3.setLabel("Reset averages");
         
         jp.add(button1.graphic()); 
         jp.add(button2.graphic());  
         jp.add(button3.graphic());
                        
         setShape("VERTICAL");
-        setController(simulation.getController());
     }
         
     /**
@@ -74,7 +81,7 @@ public class DeviceTrioControllerButton extends Device {
     public void setSimulation(Simulation sim) {
         simulation = sim;
         Controller c = sim.getController();
-        super.setController(c);
+        setController(c);
         button1.setController(c);
         button2.setController(c);
         button3.setController(c);

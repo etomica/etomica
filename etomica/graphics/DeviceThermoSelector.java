@@ -23,7 +23,13 @@ import etomica.units.PrefixedUnit;
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
      public DeviceThermoSelector(Controller controller, final Integrator integrator) {
-        super(controller);
+        this();
+        setController(controller);
+        setIntegrator(integrator);
+     }
+     
+     public DeviceThermoSelector() {
+        super();
         selector = new javax.swing.JComboBox(new Object[] {new Object()});
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
@@ -50,8 +56,6 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
             }
         });
        
-        setIntegrator(integrator);
-
     }//end of constructor
     
     public void setIntegrator(final Integrator integrator) {

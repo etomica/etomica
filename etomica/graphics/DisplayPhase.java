@@ -10,7 +10,6 @@ import java.awt.event.MouseMotionListener;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -117,51 +116,10 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         System.out.println("Serenity now");
         setLabel("Configuration");
 
-        int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
-        int boxY = 1;
-
-        switch(phase.space().D()) {
-            case 3:
-                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
-                boxX *=1.4;
-                boxY *=1.4;
-                    canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
- /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
-                else canvas = new DisplayPhaseCanvas3DSoftware(this);
- */               break;
-            case 2:
-                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
-                canvas = new DisplayPhaseCanvas2D(this);
-/*comment this line for applet*/                DefaultGraphic.DISPLAY_USE_OPENGL = false;
-                break;
-            case 1:
-            default:
-                canvas = new DisplayPhaseCanvas1D(this);
-/*comment this line for applet*/               DefaultGraphic.DISPLAY_USE_OPENGL = false;
-                break;
-        }
-        
-        setSize(boxX, boxY);
         align[0] = align[1] = CENTER;
 
         setPhase(phase);
 
-        InputEventHandler listener = new InputEventHandler();
-        canvas.addMouseListener(listener);
-        canvas.addMouseMotionListener(listener);
-        canvas.addKeyListener(listener);
-        
-        canvas.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-//                    if(DeviceConfigurationEditor.exists) return;
-//                    Device editor = new DeviceConfigurationEditor(DisplayPhase.this);
-//                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
-//                    ((SimulationGraphic)parentSimulation()).panel().validate();
-//                    ((SimulationGraphic)parentSimulation()).panel().repaint();
-                }
-            }
-        });
         
  //        ((javax.swing.JPanel)graphic()).setLayout(null);
     }
@@ -241,6 +199,50 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     public void setPhase(Phase p) {
         if(p == null) return;
         super.setPhase(p);
+        
+        int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxY = 1;
+
+        switch(phase.space().D()) {
+            case 3:
+                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxX *=1.4;
+                boxY *=1.4;
+                    canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
+ /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
+                else canvas = new DisplayPhaseCanvas3DSoftware(this);
+ */               break;
+            case 2:
+                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                canvas = new DisplayPhaseCanvas2D(this);
+/*comment this line for applet*/                DefaultGraphic.DISPLAY_USE_OPENGL = false;
+                break;
+            case 1:
+            default:
+                canvas = new DisplayPhaseCanvas1D(this);
+/*comment this line for applet*/               DefaultGraphic.DISPLAY_USE_OPENGL = false;
+                break;
+        }
+        
+        setSize(boxX, boxY);
+
+        InputEventHandler listener = new InputEventHandler();
+        canvas.addMouseListener(listener);
+        canvas.addMouseMotionListener(listener);
+        canvas.addKeyListener(listener);
+        
+        canvas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+//                    if(DeviceConfigurationEditor.exists) return;
+//                    Device editor = new DeviceConfigurationEditor(DisplayPhase.this);
+//                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
+//                    ((SimulationGraphic)parentSimulation()).panel().validate();
+//                    ((SimulationGraphic)parentSimulation()).panel().repaint();
+                }
+            }
+        });
+
         canvas.setPhase(p);
         atomIterator = new AtomIteratorLeafAtoms(p);
         initialize();
@@ -399,6 +401,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         private boolean rotate = false, zoom = false, translate = false;
         
         InputEventHandler() {
+            if(phase == null) return;
             point = phase.space().makeVector();
             dpe = new DisplayPhaseEvent(DisplayPhase.this);
         }
