@@ -6,7 +6,7 @@ package etomica.nbr.cell;
 
 import etomica.AtomList;
 import etomica.lattice.AbstractLattice;
-import etomica.lattice.SimpleLattice;
+import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
 import etomica.utility.Arrays;
 
@@ -40,7 +40,7 @@ public class NeighborCell {
 
     public static final SiteFactory FACTORY = new SiteFactory() {
         public Object makeSite(AbstractLattice lattice, int[] coord) {
-            return new NeighborCell(((SimpleLattice)lattice).arrayIndex(coord));
+            return new NeighborCell(((RectangularLattice)lattice).arrayIndex(coord));
         }
     };
 }

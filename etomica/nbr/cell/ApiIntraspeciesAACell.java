@@ -19,7 +19,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.lattice.CellLattice;
-import etomica.lattice.SimpleLattice;
+import etomica.lattice.RectangularLattice;
 
 /**
  * Returns iterates formed from all molecule pairs of a single species.
@@ -47,7 +47,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
      *            are interacting.  Only the first element of array is relevant.
      */
 	public ApiIntraspeciesAACell(int D, Species[] species) {
-        cellIterator = new SimpleLattice.Iterator(D);
+        cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);
         interListIterator = ApiBuilder.makeInterlistIterator();
@@ -198,7 +198,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
     private final AtomIteratorListSimple aiInner, aiOuter;
     private final ApiInnerFixed interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
-    private final SimpleLattice.Iterator cellIterator;
+    private final RectangularLattice.Iterator cellIterator;
     private final int index;
     
     private final Atom[] pair = new Atom[2];

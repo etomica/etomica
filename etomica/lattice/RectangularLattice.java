@@ -14,10 +14,14 @@ import etomica.graphics.SimulationGraphic;
 
 /**
  * Basic implementation of the AbstractLattice interface, providing construction
- * and access of sites for a lattice of arbitrary dimension.  Internally, sites are stored
- * in a 1-D array of objects, and are accessed by unrolling the index specification to
- * determine the storage-array index.  Provides a configurable neighbor iterator that
- * returns the sites within a rectangular box centered on a given site.
+ * and access of sites for a lattice of arbitrary dimension. Lattice is
+ * retangular in the sense that the size in one dimension does not depend on the
+ * index in another dimension (e.g., it cannot be triangular). <br>
+ * Internally, sites are stored in a 1-D array of objects, and are accessed by
+ * unrolling the index specification to determine the storage-array index.
+ * Provides a configurable neighbor iterator that returns the sites within a
+ * rectangular box centered on a given site.
+ *  
  */
 
 // Example showing internal ordering of elements
@@ -26,14 +30,14 @@ import etomica.graphics.SimulationGraphic;
 //  for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //  note that number of sites = size[0]*jumpCount[0]
 
-public class SimpleLattice implements AbstractLattice {
+public class RectangularLattice implements FiniteLattice {
 
     /**
      * Constructs a lattice of the given dimension (D) with sites
      * made from the given factory.  Upon construction, lattice contains
      * no sites; these are created when setSize is invoked.
      */
-    public SimpleLattice(int D, SiteFactory siteFactory) {
+    public RectangularLattice(int D, SiteFactory siteFactory) {
         this.D = D;
         jumpCount = new int[D];
         jumpCount[D-1] = 1;
@@ -187,11 +191,11 @@ public class SimpleLattice implements AbstractLattice {
             cursor = Integer.MAX_VALUE;
         }
         public void setLattice(AbstractLattice lattice) {
-            this.lattice = (SimpleLattice)lattice;
+            this.lattice = (RectangularLattice)lattice;
             unset();
         }
         private int cursor = Integer.MAX_VALUE;
-        private SimpleLattice lattice;
+        private RectangularLattice lattice;
         private int size = 0;
         private final int[] idx;//index of the most recently returned iterate
     }//end of SiteIterator
@@ -348,7 +352,7 @@ public class SimpleLattice implements AbstractLattice {
         /**
          * Returns the lattice from which the iterates are given.
          */
-        public SimpleLattice getLattice() {
+        public RectangularLattice getLattice() {
             return lattice;
         }
         
@@ -360,10 +364,10 @@ public class SimpleLattice implements AbstractLattice {
         public void setLattice(AbstractLattice lattice) {
             if(lattice.D() != this.D) throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
             for(int i=0; i<D; i++) {
-               if(2*range[i]+1 > lattice.getSize()[i]) 
+               if(2*range[i]+1 > ((RectangularLattice)lattice).getSize()[i]) 
                     throw new IllegalArgumentException("Neighbor range exceeds lattice size");
             }
-            this.lattice = (SimpleLattice)lattice;
+            this.lattice = (RectangularLattice)lattice;
             needNeighborUpdate = true;
         }
         /**
@@ -503,7 +507,7 @@ public class SimpleLattice implements AbstractLattice {
         private final int[] range;
         private int[] neighbors;
         private final int[] centralSite;
-        protected SimpleLattice lattice;
+        protected RectangularLattice lattice;
         private int cursor;
         private int furthestNeighborDelta;
         private int neighborCount, halfNeighborCount;
@@ -533,7 +537,7 @@ public class SimpleLattice implements AbstractLattice {
         //define a factory making the sites
         SiteFactory factory = new SiteFactory() {
             public Object makeSite(AbstractLattice lattice, int[] coord) {
-                return new MySite(((SimpleLattice)lattice).arrayIndex(coord),coord);
+                return new MySite(((RectangularLattice)lattice).arrayIndex(coord),coord);
             }
 //            public void makeSites(AbstractLattice lattice, Object[] sites) {
 //                for(int i=0; i<sites.length; i++) {
@@ -543,15 +547,15 @@ public class SimpleLattice implements AbstractLattice {
         };
         //construct the lattice and iterator
         int dimension = 3;
-        final SimpleLattice lattice = new SimpleLattice(dimension, factory);
-        final SimpleLattice.Iterator siteIterator = new Iterator(dimension);
+        final RectangularLattice lattice = new RectangularLattice(dimension, factory);
+        final RectangularLattice.Iterator siteIterator = new Iterator(dimension);
         siteIterator.setLattice(lattice);
         //configure lattice
         //******change these values to perform different tests *********//
         //remember to change value of dimension in lattice constructor if using different dimensions here 
         lattice.setSize(new int[] {12,11,15});
 
-        final SimpleLattice.NeighborIterator iterator = new NeighborIterator(dimension);
+        final RectangularLattice.NeighborIterator iterator = new NeighborIterator(dimension);
         iterator.setLattice(lattice);
         iterator.setSite(new int[] {0,5,8});
         iterator.setRange(new int[] {2,3,5});

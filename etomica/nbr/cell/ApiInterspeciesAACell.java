@@ -17,7 +17,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.lattice.CellLattice;
-import etomica.lattice.SimpleLattice;
+import etomica.lattice.RectangularLattice;
 
 /**
  * Returns iterates formed from all molecule pairs of two species. Looping is
@@ -36,7 +36,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent {
      * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
 	public ApiInterspeciesAACell(int D, Species[] species) {
-        cellIterator = new SimpleLattice.Iterator(D);
+        cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);
         listIterator = ApiBuilder.makeInterlistIterator();
@@ -271,7 +271,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent {
     
     private final ApiInnerFixed listIterator;
     private final CellLattice.NeighborIterator neighborIterator;
-    private final SimpleLattice.Iterator cellIterator;
+    private final RectangularLattice.Iterator cellIterator;
     private final int index0, index1;
     private final AtomIteratorListSimple aiInner, aiOuter;
     

@@ -11,7 +11,7 @@ import etomica.Space;
  * A lattice of arbitrarily-sized rectangular cells, such that a point in space can be 
  * associated with one of the cells.
  */
-public class CellLattice extends SimpleLattice {
+public class CellLattice extends RectangularLattice {
 
     /**
      * @param dimensions
@@ -82,7 +82,7 @@ public class CellLattice extends SimpleLattice {
      * Extends the SimpleLattice neighbor iterator to provide methods that
      * specify the neighbor range in terms of a distance, rather than an index range. 
      */
-    public static class NeighborIterator extends SimpleLattice.NeighborIterator {
+    public static class NeighborIterator extends RectangularLattice.NeighborIterator {
         public NeighborIterator(int D) {
             super(D);
             idx = new int[D];

@@ -5,7 +5,7 @@ import java.util.Observer;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.PhaseInflate;
-import etomica.lattice.SimpleLattice;
+import etomica.lattice.RectangularLattice;
 import etomica.utility.NameMaker;
 
 /* History of changes
@@ -347,18 +347,18 @@ public class Phase {
      * Temporary method for cell neighbor listing
      * @return Returns the lattice.
      */
-    public SimpleLattice getLattice() {
+    public RectangularLattice getLattice() {
         return lattice;
     }
     /**
      * Temporary method for cell neighbor listing
      * @param lattice The lattice to set.
      */
-    public void setLattice(SimpleLattice lattice) {
+    public void setLattice(RectangularLattice lattice) {
         this.lattice = lattice;
     }
     //temporary construct for cell neighbor listing
-    private SimpleLattice lattice;
+    private RectangularLattice lattice;
     
     public Configuration configuration;
           
