@@ -317,8 +317,8 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
             if(evt.isTrialNotify || !evt.wasAccepted) return;
             if(!(evt.mcMove instanceof MCMoveSwap)) return;
             Phase[] phases = ((MCMoveSwap)evt.mcMove).swappedPhases();
-            int i0 = phases[0].index;
-            int i1 = phases[1].index;
+            int i0 = phases[0].getIndex()-1;
+            int i1 = phases[1].getIndex()-1;
             int temp = track[i0];
             track[i0] = track[i1];
             track[i1] = temp;

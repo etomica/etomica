@@ -1,6 +1,5 @@
 package etomica.virial.simulations;
 
-import etomica.DataTranslator;
 import etomica.Default;
 import etomica.MeterAbstract;
 import etomica.Phase;
@@ -51,8 +50,9 @@ public class SimulationVirial extends Simulation {
 		Default.TRUNCATE_POTENTIALS = false;
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
-		phase = new PhaseCluster(space,sampleCluster);
-		species = new SpeciesSpheresMono(space,AtomSequencerFactory.SIMPLE,nMolecules);
+		phase = new PhaseCluster(this,sampleCluster);
+		species = new SpeciesSpheresMono(this,AtomSequencerFactory.SIMPLE);
+        species.setNMolecules(nMolecules);
         
 		integrator = new IntegratorClusterMC(potentialMaster);
 		integrator.setTemperature(temperature);
@@ -74,7 +74,6 @@ public class SimulationVirial extends Simulation {
 		P0Cluster p0 = new P0Cluster(space);
         p0.setTemperature(temperature);
 		potentialMaster.setSpecies(p0,new Species[]{});
-        phase.speciesMaster.addSpecies(species);
 		
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.setPhase(phase);

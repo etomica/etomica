@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.Phase;
-import etomica.Space;
+import etomica.Simulation;
 import etomica.space.BoundaryNone;
 import etomica.space3d.Space3D;
 
@@ -17,10 +17,10 @@ public class PhaseCluster extends Phase {
 	 * Constructor for PhaseCluster.
 	 * @param parent
 	 */
-	public PhaseCluster(Space space, ClusterWeight cluster) {
-		super(space);
+	public PhaseCluster(Simulation sim, ClusterWeight cluster) {
+		super(sim);
         sampleCluster = cluster;
-        setBoundary(new BoundaryNone(space));
+        setBoundary(new BoundaryNone(sim.space));
 	}
 	
 	public CoordinatePairSet getCPairSet() {
