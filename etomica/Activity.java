@@ -43,8 +43,8 @@ public abstract class Activity implements Action {
             isActive = true;
         }
 		run();
+        isActive = false;
 		if (haltRequested) {
-            isActive = false;
 			synchronized(this) {notifyAll();}//release thread waiting for halt to take effect
 		}
 	}
