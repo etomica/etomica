@@ -10,10 +10,13 @@ import javax.swing.JRadioButton;
 
 import etomica.Action;
 import etomica.Constants;
+import etomica.DataManager;
+import etomica.DataSink;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Species;
 import etomica.action.IntegratorReset;
+import etomica.data.AccumulatorAverage;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
@@ -30,11 +33,12 @@ import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2SquareWell;
+import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialGroup;
-import etomica.simulations.PistonCylinder;
 import etomica.units.Bar;
 import etomica.units.BaseUnit;
 import etomica.units.BaseUnitPseudo3D;
+import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Mole;
@@ -48,10 +52,12 @@ public class PistonCylinderGraphic {
     
     public JPanel panel, displayPhasePanel;
     public PistonCylinder pc;
+    public Potential2HardSphericalWrapper potentialWrapper;
     public P2HardSphere potentialHS;
     public P2SquareWell potentialSW;
     public PotentialGroup potentialGroupHS, potentialGroupSW;
     public DataSourceCountSteps meterCycles;
+    public DataManager densityManager;
     public DisplayBox displayCycles, tBox, dBoxAvg, dBoxCur;
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
@@ -60,23 +66,24 @@ public class PistonCylinderGraphic {
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
     public DeviceSlider scaleSlider, pressureSlider;
-    public MeterDensity densityMeter;
+    public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
+    public Unit pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
     
     public PistonCylinderGraphic() {
+        Default.BLOCK_SIZE = 100;
         displayPhase = new DisplayPhase(null);
         displayPhase.setColorScheme(new ColorSchemeByType());
 
         displayCycles = new DisplayBox();
 
-        Unit pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
         Unit dUnit = new UnitRatio(Mole.UNIT, 
                                            new BaseUnitPseudo3D.Volume(Liter.UNIT));
         Unit dadUnit = new UnitRatio(new PrefixedUnit(Prefix.DECI, Mole.UNIT), 
                                    new PrefixedUnit(new BaseUnitPseudo3D.Volume(Liter.UNIT)));
         Unit tUnit = Kelvin.UNIT;
         
-        Default.ATOM_SIZE = 0.8;
+        Default.ATOM_SIZE = 3.0;
         
         final int p0 = 500;
         
@@ -129,7 +136,7 @@ public class PistonCylinderGraphic {
 		thermometer = new MeterTemperature();
 //		thermometer.setHistorying(true);
 		tBox = new DisplayBox();
-        tBox.setUpdateInterval(100);
+        tBox.setUpdateInterval(10);
 		tBox.setDataSource(thermometer);
 //		tBox.setWhichValue(MeterAbstract.CURRENT);
 		tBox.setUnit(tUnit);
@@ -137,24 +144,15 @@ public class PistonCylinderGraphic {
 		tBox.setLabelPosition(Constants.NORTH);
 
         //meter and display for density
-        densityMeter = new MeterDensity();
- //       densityMeter.setHistorying(true);
-//        densityMeter.setFunction(new etomica.utility.Function() {
-//            public double f(double x) {return x/((1-(sigma+t)/w) + (sigma+t)*((sigma+t)-w)*x/N);}
-//            public double inverse(double x) {return 0.0;}//not needed
-//            public double dfdx(double x) {return 0.0;}//not needed
-//        });
         dBoxAvg = new DisplayBox();
         dBoxAvg.setUpdateInterval(100);
-        dBoxAvg.setDataSource(densityMeter);
         dBoxAvg.setUnit(dUnit);
 //        dBoxAvg.setWhichValue(MeterAbstract.AVERAGE);
         dBoxAvg.setLabelType(DisplayBox.BORDER);
         dBoxAvg.setLabel("Average");
         dBoxAvg.setPrecision(6);
         dBoxCur = new DisplayBox();
-        dBoxCur.setUpdateInterval(100);
-        dBoxCur.setDataSource(densityMeter);
+        dBoxCur.setUpdateInterval(10);
         dBoxCur.setUnit(dUnit);
 //        dBoxCur.setWhichValue(MeterAbstract.MOST_RECENT);
         dBoxCur.setLabelType(DisplayBox.BORDER);
@@ -186,6 +184,7 @@ public class PistonCylinderGraphic {
 		
 		//pressure device
 //        sliderModulator.setFunction(pressureRescale);
+//        pressureSlider = new DeviceSelectPressure(controller,integrator);
         pressureSlider = new DeviceSlider(null);
         pressureSlider.setShowValues(true);
         pressureSlider.setEditValues(true);
@@ -196,7 +195,7 @@ public class PistonCylinderGraphic {
 	    pressureSlider.getSlider().setMinorTickSpacing(50);
 	    pressureSlider.getSlider().setLabelTable(
 	        pressureSlider.getSlider().createStandardLabels(200,100));
-	    pressureSlider.getSlider().setValue(p0);
+	    pressureSlider.setValue(p0);
         
         //set-pressure history
 //        etomica.MeterScalar pressureSetting = new MeterDatumSourceWrapper(pressureSlider.getModulator());
@@ -295,8 +294,8 @@ public class PistonCylinderGraphic {
         //panel for the density displays
         JPanel densityPanel = new JPanel(new java.awt.FlowLayout());
         densityPanel.setBorder(new javax.swing.border.TitledBorder("Density (mol/l)"));
-        densityPanel.add(dBoxCur.graphic(null));
-        densityPanel.add(dBoxAvg.graphic(null));
+        densityPanel.add(dBoxCur.graphic());
+        densityPanel.add(dBoxAvg.graphic());
         
         //panel for pressure slider
         JPanel sliderPanel = new JPanel(new java.awt.GridLayout(0,1));
@@ -385,11 +384,12 @@ public class PistonCylinderGraphic {
         tSelect.setIntegrator(pc.integrator);
 
         //initialize for ideal gas
-        potentialSW = pc.potential;
+        potentialSW = new P2SquareWell();
         potentialHS = new P2HardSphere();
-        pc.potentialMaster.setSpecies(potentialHS, new Species[] {pc.species, pc.species});
+        pc.potentialWrapper.setPotential(null);
+/*        pc.potentialMaster.setSpecies(potentialHS, new Species[] {pc.species, pc.species});
         pc.potentialMaster.setEnabled(potentialHS, false);
-        pc.potentialMaster.setEnabled(potentialSW, false);
+        pc.potentialMaster.setEnabled(potentialSW, false);*/
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
         
@@ -403,8 +403,18 @@ public class PistonCylinderGraphic {
                 System.out.println("PistonCylinderGraphic, HS, SW "+HS+" "+SW);
                 pc.controller.doActionNow( new Action() {
                     public void actionPerformed() {
-                        pc.potentialMaster.setEnabled(potentialHS, HS);
-                        pc.potentialMaster.setEnabled(potentialSW, SW);
+                        if (HS) {
+                            System.out.println("PistonCylinderGraphic, HS");
+                            pc.potentialWrapper.setPotential(potentialHS);
+                        }
+                        else if (SW) {
+                            System.out.println("PistonCylinderGraphic, SW");
+                            pc.potentialWrapper.setPotential(potentialSW);
+                        }
+                        else {
+                            System.out.println("PistonCylinderGraphic, ideal gas");
+                            pc.potentialWrapper.setPotential(null);
+                        }
                         pc.integrator.reset();
                     }
                     public String getLabel() {return "";}
@@ -413,13 +423,26 @@ public class PistonCylinderGraphic {
         };
         potentialChooser.addItemListener(potentialChooserListener);
         thermometer.setPhase(new Phase[] {pc.phase});
+
+        densityMeter = new MeterPistonDensity(pc.pistonPotential,1);
+        AccumulatorAverage densityAcc = new AccumulatorAverage();
+        densityManager = new DataManager(densityMeter,new DataSink[]{densityAcc});
+        densityManager.setUpdateInterval(10);
+        
+        dBoxAvg.setDataSource(densityAcc);
+        dBoxCur.setDataSource(densityMeter);
         densityMeter.setPhase(new Phase[] {pc.phase});
         pc.integrator.addIntervalListener(tBox);
         scaleSlider.setController(pc.controller);
+        pc.integrator.addIntervalListener(densityManager);
         pc.integrator.addIntervalListener(dBoxAvg);
         pc.integrator.addIntervalListener(dBoxCur);
-        ModifierFunctionWrapper sliderModulator = new ModifierFunctionWrapper(pc.pistonPotential, "pressure");
-        pressureSlider = new DeviceSlider(pc.controller, sliderModulator);
+//        ModifierFunctionWrapper sliderModulator = new ModifierFunctionWrapper(pc.pistonPotential, "pressure");
+        int D = pc.space.D();
+        Dimension pDim = (D==2) ? Dimension.PRESSURE2D : Dimension.PRESSURE;
+        pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
+        pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
+        pressureSlider.setPostAction(new IntegratorPistonUpdate(pc.integrator));
 
         ModifierBoolean fixPistonModulator = new ModifierBoolean() {
             public void setBoolean(boolean b) {
@@ -431,7 +454,7 @@ public class PistonCylinderGraphic {
         };
         fixPistonButton.setController(pc.controller);
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
-        fixPistonButton.setPostAction(new IntegratorReset(pc.integrator));
+        fixPistonButton.setPostAction(new IntegratorPistonUpdate(pc.integrator));
         fixPistonButton.setState(true);
 
     }
