@@ -45,8 +45,8 @@ public abstract class Potential2Soft extends Potential2 {
             //problem:  must have different calculate methods for each Potentialx type
 
         //...or the calculation to the iterator
-        //pc.setPotential(parentPotential);
-        //iterator.allPairs(pc); 
+ //       iterator.allPairs(((PotentialCalculationEnergySum)pc).getAtomPairCalculation(this)); 
+ //       System.out.println();
             //problem:  cannot abort iteration once started (e.g., overlap detected)
             //          but this could be resolved by adding a boolean abort() method to Calculation to end iteration
             //problem: setPotential would have to be defined separately for each Potentialx type,

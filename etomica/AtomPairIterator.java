@@ -24,6 +24,7 @@ public class AtomPairIterator implements java.io.Serializable {
      * A pair action wrapper used to enable the allPairs method
      */
     protected AtomPairAction.Wrapper actionWrapper;   // want final too //wrapper inner class defined below
+    protected AtomPairAction.OuterWrapper outerWrapper;
     protected boolean hasNext;
     /**
      * Flag indicating whether atom1 of pair needs to be updated to point to the same atom that "atom1" in this class points to
@@ -62,6 +63,7 @@ public class AtomPairIterator implements java.io.Serializable {
     public AtomPairIterator(Space s, AtomIterator iter1, AtomIterator iter2) {
         pair = new AtomPair(s);
         actionWrapper = new AtomPairAction.Wrapper(pair);
+        outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         hasNext = false;
         ai1 = iter1;
         ai2 = iter2;
@@ -121,7 +123,7 @@ public class AtomPairIterator implements java.io.Serializable {
         }
     //    setOuterInner(ai1, ai2);
         aiOuter.reset(localDirective.set().set(direction));
-        aiInner.reset(localDirective);
+//        aiInner.reset(localDirective);
         setFirst();
     }
         
@@ -135,7 +137,8 @@ public class AtomPairIterator implements java.io.Serializable {
         else if(ai2.contains(atom)) setOuterInner(ai2, ai1);
         else {hasNext = false; return;}
         aiOuter.reset(localDirective.set(atom).set(IteratorDirective.NEITHER));
-        aiInner.reset(localDirective.set().set(direction));//reset inner last to leave localDirective in proper state for inner-loop resets
+        localDirective.set(direction);
+//        aiInner.reset(localDirective.set().set(direction));//reset inner last to leave localDirective in proper state for inner-loop resets
         setFirst();
     }
     
@@ -198,14 +201,20 @@ public class AtomPairIterator implements java.io.Serializable {
      */
      //not carefully checked
     public void allPairs(AtomPairAction act) {  
-        reset();
+//        reset();
 //        ai1.reset();  //this shouldn't be here, in general; need to consider it more carefully
-        actionWrapper.pairAction = act;
-        while(ai1.hasNext()) {
+//        actionWrapper.pairAction = act;
+//        if(!hasNext) return;
+        outerWrapper.innerWrapper.pairAction = act;
+        outerWrapper.aiInner = aiInner;
+        aiOuter.allAtoms(outerWrapper);
+        hasNext = false;
+        
+    /*    while(ai1.hasNext()) {
             pair.atom1 = ai1.next();
             ai2.reset(localDirective.set(pair.atom1));
             ai2.allAtoms(actionWrapper);
-        }
+        }*/
     }
     
     public static final AtomPairIterator NULL = new Null();

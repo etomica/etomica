@@ -75,7 +75,26 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
      
      //not implemented
     public void allAtoms(final AtomAction act) {
-        for(Atom a=defaultFirstAtom(); a!=null; a=a.nextAtom()) {act.actionPerformed(a);}
+        if(!upListNow && !doGoDown && atom!=null) {
+            act.actionPerformed(atom);
+            return;
+        }
+        if(!hasNext) return;
+        if(upListNow) {
+            for(Atom a=atom; a!=null; a=a.nextAtom()) {
+                act.actionPerformed(a);
+                if(a == terminator) break;
+            }
+        }
+        if(doGoDown) {
+            for(Atom a=(isNeighborIterator?firstDownNeighbor(setAtom):setAtom.previousAtom());
+                     a!=null; a=a.previousAtom()) {
+                act.actionPerformed(a);
+                if(a == terminator2) break;
+            }
+        }
+        hasNext = false;
+        //for(Atom a=defaultFirstAtom(); a!=null; a=a.nextAtom()) {act.actionPerformed(a);}
     }
     
     //main method to demonstrate and test this class

@@ -44,7 +44,11 @@ public class Atom implements java.io.Serializable {
         return (parentGroup instanceof SpeciesAgent) ? this : parentGroup.parentMolecule();
     }
     
-    public void setParentGroup(AtomGroup parent) {parentGroup = parent;}
+    public void setParentGroup(AtomGroup parent) {
+        parentGroup = parent;
+        if(parent != null) depth = parent.depth() + 1;
+    }
+    public void setDepth(int d) {depth = d;}
     
     public int leafAtomCount() {return (type instanceof AtomType.Wall) ? 0 : 1;}
     
@@ -124,8 +128,17 @@ public class Atom implements java.io.Serializable {
      */
     public final Atom previousAtom() {return coord.previousAtom();} 
     
-    public int depth() {return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
+    /**
+     * Returns the depth of this atom in the atom hierarchy.  That is, returns
+     * the number of parent relations between this atom and the species master.
+     */
+    public final int depth() {return depth;}//return (parentGroup != null) ? parentGroup.depth()+1 : 0;}
     
+    /**
+     * Returns true if this atom preceeds the given atom in the atom sequence.
+     * Returns false if the given atom is this atom, or (of course) if the
+     * given atom instead preceeds this one.
+     */
     public final boolean preceeds(Atom atom) {
         //want to return false if atoms are the same atoms
         if(atom == null) return true;
@@ -137,6 +150,11 @@ public class Atom implements java.io.Serializable {
         else /*if(this.depth > atom.depth)*/ return this.parentGroup.preceeds(atom);
     }
 
+    /**
+     * Returns true if the given atom is in the hierarchy of parents of this atom,
+     * or if the given atom is this atom.  Returns true, for example, if the given
+     * atom is this atom's parent, or its parent's parent, etc.
+     */ 
     public final boolean isDescendedFrom(Atom group) {
         return (this == group) || (parentGroup != null && parentGroup.isDescendedFrom(group));
     }
@@ -155,7 +173,7 @@ public class Atom implements java.io.Serializable {
     * Assigned by parent molecule when invoking Atom constructor.
     */
      int atomIndex;
-    
+     protected int depth;
 //    private Atom nextAtom, previousAtom;
         
     public final AtomType type;

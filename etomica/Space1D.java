@@ -159,6 +159,7 @@ public class Space1D extends Space implements EtomicaElement {
         private double drx, dvx;
         public CoordinatePair() {super();}
 
+        public double r2() {return r2;}
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
@@ -447,8 +448,9 @@ public class Space1D extends Space implements EtomicaElement {
      */
     protected static final class BoundaryNone extends Boundary{
         private final Vector temp = new Vector();
-        public final Vector dimensions = new Vector();
-        public final Space.Vector dimensions() {return dimensions;}
+        private final Vector dimensions = new Vector(Default.BOX_SIZE);
+        private final Vector dimensionsCopy = new Vector();
+        public final Space.Vector dimensions() {dimensionsCopy.E(dimensions); return dimensionsCopy;}
         public BoundaryNone() {super();}
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
@@ -456,12 +458,14 @@ public class Space1D extends Space implements EtomicaElement {
         public void centralImage(Space.Vector r) {}
         public void nearestImage(Vector dr) {}
         public void centralImage(Vector r) {}
-        public double volume() {return Double.MAX_VALUE;}
-        public void inflate(double s) {}
+        public double volume() {return dimensions.x;}
+        public void inflate(double s) {dimensions.TE(s);}
+        public void inflate(Space.Vector s) {dimensions.TE(s);}
+        public void setDimensions(Space.Vector v) {dimensions.E(v);}
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
         public float[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
         public Space.Vector randomPosition() {  //arbitrary choice for this method in this boundary
-            temp.x = Simulation.random.nextDouble(); 
+            temp.x = dimensions.x*Simulation.random.nextDouble(); 
             return temp;
         }
     }
@@ -471,26 +475,37 @@ public class Space1D extends Space implements EtomicaElement {
      * Class for implementing rectangular periodic boundary conditions
      */
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic{
-        private final Vector temp = new Vector();
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE);}
-        public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx;}
-        public BoundaryPeriodicSquare(double lx) {dimensions.x = lx;}
+        public BoundaryPeriodicSquare(Phase p, double lx) {super(p); dimensions.x = lx; resetDimensions();}
+        public BoundaryPeriodicSquare(double lx) {dimensions.x = lx; resetDimensions();}
         public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
-        public final Vector dimensions = new Vector();
-        public final Space.Vector dimensions() {return dimensions;}
+        private final Vector temp = new Vector();
+        private final Vector dimensions = new Vector();
+        private final Vector dimensionsHalf = new Vector();
+        private final Vector dimensionsCopy = new Vector();
+        private final void resetDimensions() {
+            dimensionsHalf.Ea1Tv1(0.5,dimensions);
+            dimensionsCopy.E(dimensions);
+        }
+        public final Space.Vector dimensions() {return dimensionsCopy;}
         public Space.Vector randomPosition() {
             temp.x = dimensions.x*Simulation.random.nextDouble(); 
-            return temp;}
+            return temp;
+        }
         public void nearestImage(Space.Vector dr) {nearestImage((Vector)dr);}
         public void nearestImage(Vector dr) {
-            dr.x -= dimensions.x * ((dr.x > 0.0) ? Math.floor(dr.x/dimensions.x+0.5) : Math.ceil(dr.x/dimensions.x-0.5));
+            while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
+            while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
         }
         public void centralImage(Space.Vector r) {centralImage((Vector)r);}
         public void centralImage(Vector r) {
-            r.x -= dimensions.x * ((r.x >= 0.0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x-1.0));
+            while(r.x > dimensions.x) r.x -= dimensions.x;
+            while(r.x < 0.0)          r.x += dimensions.x;
         }
-        public void inflate(double scale) {dimensions.TE(scale);}
+        public void inflate(double scale) {dimensions.TE(scale); resetDimensions();}
+        public void inflate(Space.Vector scale) {dimensions.TE(scale); resetDimensions();}
+        public void setDimensions(Space.Vector v) {dimensions.E(v); resetDimensions();}
         public double volume() {return dimensions.x;}
         /** Computes origins for periodic images
          */

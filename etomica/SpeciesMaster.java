@@ -19,6 +19,7 @@ public final class SpeciesMaster extends AtomGroup {
         super(p.parentSimulation().space(), AtomType.NULL);
         parentPhase = p;
         index = p.index;
+        depth = 0;
     }
         
     public void addSpecies(Species species) {
@@ -30,7 +31,7 @@ public final class SpeciesMaster extends AtomGroup {
 //        parentPhase.getConfiguration().initializePositions(parentPhase.makeMoleculeIterator());
     }
     
-    public int depth() {return 0;}
+//    public int depth() {return 0;}
     
     public SpeciesAgent firstSpecies() {return (SpeciesAgent)firstChildAtom();}
     public SpeciesAgent lastSpecies() {return (SpeciesAgent)lastChildAtom();}

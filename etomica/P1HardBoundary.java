@@ -20,6 +20,9 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     public String getVersion() {return "P1HardBoundary:01.06.29/"+Potential1.VERSION;}
 
     private double collisionRadius = 0.0;
+    private boolean isothermal = false;
+    private double temperature;
+    private final int D;
     
     public P1HardBoundary() {
         this(Simulation.instance.hamiltonian.potential);
@@ -27,6 +30,8 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     
     public P1HardBoundary(PotentialGroup parent) {
         super(parent);
+        temperature = Default.TEMPERATURE;
+        D = parent.parentSimulation().space.D();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -75,7 +80,16 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
         }
 //        pAccumulator += 2*Math.abs(p.component(imin));
         p.setComponent(imin,-p.component(imin)); //multiply momentum component by -1
+        if(isothermal) {p.TE(Math.sqrt(D*temperature*a.coord.mass()/p.squared()));}
     }//end of bump
+    
+    public void setIsothermal(boolean b) {isothermal = b;}
+    public boolean isIsothremal() {return isothermal;}
+    
+    public void setTemperature(double t) {temperature = t;}
+    public double getTemperature() {return temperature;}
+    public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Dimension.TEMPERATURE;}
+        
 
     /**
      * not yet implemented
@@ -100,8 +114,8 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
      */
     public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
 
-    
-/*    public static void main(String[] args) {
+ /*   
+    public static void main(String[] args) {
         
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;

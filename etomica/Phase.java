@@ -432,5 +432,20 @@ public final class Phase extends SimulationElement {
 //    public final AtomIterator atomIterator;
     public final AtomIterator moleculeIterator;
     
+    public static void main(String[] args) {
+        
+        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
+        new Controller();
+        Phase phase = new Phase();
+        Species species = new SpeciesSpheresMono();
+        new IntegratorHard();
+        Potential2 potential = new P2HardSphere();
+        potential.setSpecies(species,species);
+        new etomica.graphics.DisplayPhase();
+//        AtomIterator integrator = phase.makeMoleculeIterator();
+        Simulation.instance.elementCoordinator.go();
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+    }
+    
 } //end of Phase
         

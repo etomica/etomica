@@ -18,11 +18,13 @@ public final class SpeciesAgent extends AtomGroup {
     
     public SpeciesAgent(Species s, int nMolecules) {
         super(s.parentSimulation().space(), AtomType.NULL);
+        depth = 1;
         parentSpecies = s;
         factory = s.moleculeFactory();
         for(int i=0; i<nMolecules; i++) {
             addAtom(factory.makeAtom());
         }
+        setDepth(1);
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
@@ -54,7 +56,7 @@ public final class SpeciesAgent extends AtomGroup {
     public Atom lastMolecule() {return lastChildAtom();}
     public Atom randomMolecule() {return randomAtom();}
     
-    public final int depth() {return 1;}
+//    public final int depth() {return 1;}
         
     public Atom addNewAtom() {
         if(!resizable) return null; //should define an exeception 

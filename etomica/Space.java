@@ -142,8 +142,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     public static abstract class Coordinate implements java.io.Serializable {
         public final Atom atom;  //atom that has this as its coordinate        
-        private double mass, rm;    //mass and its reciprocal
-        Coordinate(Atom a) {atom = a;}          //constructor
+        protected double mass, rm;    //mass and its reciprocal
+        protected Coordinate(Atom a) {atom = a;}          //constructor
         
         public final Atom atom() {return atom;}
         
@@ -258,7 +258,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract double vDot(Space.Vector u);
         public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
         public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
-        public final double r2() {return r2;}
+        public abstract double r2();
+//        public final double r2() {return r2;}
         public abstract Space.Vector dr();   //separation vector
         public abstract double dr(int i);    //component of separation vector
         public abstract double dv(int i);    //component of velocity-difference vector
@@ -299,10 +300,16 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract double volume();
  //       public void setVolume(double newVolume) {inflate(Math.pow(newVolume/volume(),1.0/D()));}
  //       public double getVolume() {return volume();}
+        /**
+         * Returns a copy of the dimensions, as a Vector.  Manipulation of this copy
+         * will not cause any change to the boundary's dimensions.
+         */
         public abstract Vector dimensions();
+        public abstract void setDimensions(Vector v);
         public abstract Vector randomPosition();
         public abstract float[][] getOverflowShifts(Vector r, double distance);
         public abstract void inflate(double s);
+        public abstract void inflate(Vector s);
        /** Set of vectors describing the displacements needed to translate the central image
         *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
         *  first index specifies each perioidic image, while the second index indicates the

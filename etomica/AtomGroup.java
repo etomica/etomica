@@ -61,6 +61,14 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
         }
         return atom;
     }//end of getAtom
+    
+    public void setDepth(int d) {
+        super.setDepth(d);
+        for(Atom atom=firstChildAtom(); atom!=null; atom=atom.nextAtom()) {
+            atom.setDepth(d+1);
+            if(atom == lastChildAtom()) break;
+        }
+    }
             
             
     /**

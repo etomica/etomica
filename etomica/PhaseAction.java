@@ -182,7 +182,7 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
          *              direction.  scale(i) == 1 indicates no change in size in direction i.
          */
         public static void doAction(Phase phase, Space.Vector scale, Space.Vector work) {
-            phase.boundary().dimensions().TE(scale);
+            phase.boundary().inflate(scale);
             scale.PE(-1.0);
             AtomIterator iterator = phase.moleculeIterator;
             iterator.reset();
@@ -200,7 +200,7 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
             doAction(phase, scale, temp);
         }
         public void undo() {
-            phase.boundary().dimensions().E(oldDimensions);
+            phase.boundary().setDimensions(oldDimensions);
             AtomIterator iterator = phase.moleculeIterator;
             iterator.reset();
             while(iterator.hasNext()) {

@@ -359,9 +359,9 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     }//end of run method
     
     /**
-     * Requests that the integrator resets itself.  The actual action an
+     * Requests that the integrator reset itself.  The actual action an
      * integrator takes to do this differs with the type of integrator.
-     * The reset is not completed until the completion of the current 
+     * The reset is not performed until the completion of the current 
      * integration step, or until the integrator is unpaused if currently
      * in a paused state.
      */

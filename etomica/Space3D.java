@@ -35,7 +35,7 @@ public class Space3D extends Space implements EtomicaElement {
     public Space.Boundary makeBoundary(Space.Boundary.Type t) {
         if(t == Boundary.NONE) {return new BoundaryNone();}
         else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
-        else if(t == Boundary.SLIDING_BRICK) return new BoundarySlidingBrick();
+   //     else if(t == Boundary.SLIDING_BRICK) return new BoundarySlidingBrick();
         else return null;
     }
     
@@ -73,6 +73,7 @@ public class Space3D extends Space implements EtomicaElement {
         }
         public void E(Vector u) {x = u.x; y = u.y; z = u.z;}
         public void E(double a) {x = a; y = a; z = a;}
+        public void E(double a, double b, double c) {x = a; y = b; z = c;}
         public void E(int i, double a) {if (i==0) x=a; else if (i==1) y=a; else z=a;}
         public void E(double[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
         public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y; z = a1*u1.z;}
@@ -252,7 +253,7 @@ public class Space3D extends Space implements EtomicaElement {
         Coordinate c1;
         Coordinate c2;
         private final Vector dr = new Vector();
-        private double dvx, dvy, drx, dry, dvz, drz;
+        private double dvx, dvy, dvz; //drx, dry, drz;
         public CoordinatePair() {super();}
 
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
@@ -265,10 +266,10 @@ public class Space3D extends Space implements EtomicaElement {
             dr.y = c2.r.y - c1.r.y;
             dr.z = c2.r.z - c1.r.z;
             c1.atom.parentPhase().boundary().nearestImage(dr);
-            drx = dr.x;
-            dry = dr.y;
-            drz = dr.z;
-            r2 = drx*drx + dry*dry + drz*drz;
+   //         drx = dr.x;
+   //         dry = dr.y;
+   //         drz = dr.z;
+            r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
             double rm1 = c1.rm();
             double rm2 = c2.rm();
             dvx = rm2*c2.p.x - rm1*c1.p.x;
@@ -280,35 +281,44 @@ public class Space3D extends Space implements EtomicaElement {
             dr.x = c2.r.x - c1.r.x + M.x;
             dr.y = c2.r.y - c1.r.y + M.y;
             dr.z = c2.r.z - c1.r.z + M.z;
-            drx = dr.x;
-            dry = dr.y;
-            drz = dr.z;
-            r2 = drx*drx + dry*dry + drz*drz;
+        //    drx = dr.x;
+        //    dry = dr.y;
+        //    drz = dr.z;
+            r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
         }
+        public double r2() {
+            return r2;
+       /*     dr.x = c2.r.x - c1.r.x;
+            dr.y = c2.r.y - c1.r.y;
+            dr.z = c2.r.z - c1.r.z;
+            c1.atom.parentPhase().boundary().nearestImage(dr);
+            return dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;*/
+        }
+            
         public Space.Vector dr() {return dr;}
-        public double dr(int i) {return (i==0) ? drx : ((i==1) ? dry : drz);}
-        public double dv(int i) {return (i==0) ? dvx : ((i==1) ? dry : drz);}
+        public double dr(int i) {return (i==0) ? dr.x : ((i==1) ? dr.y : dr.z);}
+        public double dv(int i) {return (i==0) ? dvx : ((i==1) ? dvy : dvz);}
         public double v2() {return dvx*dvx + dvy*dvy + dvz*dvz;}
         public double vDot(Space.Vector u) {return vDot((Space3D.Vector)u);}
         public double vDot(Space3D.Vector u) {return dvx*u.x + dvy*u.y + dvz*u.z;}
-        public double vDotr() {return drx*dvx + dry*dvy + drz*dvz;}
+        public double vDotr() {return dr.x*dvx + dr.y*dvy + dr.z*dvz;}
         public void push(double impulse) {
-            c1.p.x += impulse*drx;
-            c1.p.y += impulse*dry;
-            c1.p.z += impulse*drz;
-            c2.p.x -= impulse*drx;
-            c2.p.y -= impulse*dry;
-            c2.p.z -= impulse*drz;
+            c1.p.x += impulse*dr.x;
+            c1.p.y += impulse*dr.y;
+            c1.p.z += impulse*dr.z;
+            c2.p.x -= impulse*dr.x;
+            c2.p.y -= impulse*dr.y;
+            c2.p.z -= impulse*dr.z;
         }
         public void setSeparation(double r2New) {
             double ratio = c2.mass()*c1.rm();
             double delta = (Math.sqrt(r2New/this.r2()) - 1.0)/(1 + ratio);
-            c1.r.x -= ratio*delta*drx;
-            c1.r.y -= ratio*delta*dry;
-            c1.r.z -= ratio*delta*drz;
-            c2.r.x += ratio*delta*drx;
-            c2.r.y += ratio*delta*dry;
-            c2.r.z += ratio*delta*drz;
+            c1.r.x -= ratio*delta*dr.x;
+            c1.r.y -= ratio*delta*dr.y;
+            c1.r.z -= ratio*delta*dr.z;
+            c2.r.x += ratio*delta*dr.x;
+            c2.r.y += ratio*delta*dr.y;
+            c2.r.z += ratio*delta*dr.z;
         }
     }
         
@@ -389,14 +399,14 @@ public class Space3D extends Space implements EtomicaElement {
         public final Atom lastAtom() {return (lastChild != null) ? lastChild.atom : null;}
         public final void setLastAtom(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
                 
-        public double mass() {
-            double massSum = 0.0;
+        public void updateMass() {
+            double mass = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                massSum += coord.mass();
+                mass += coord.mass();
             }
-            return massSum;
+            rm = 1.0/mass;
         } 
-        public double rm() {return 1.0/mass();}
+     //   public double rm() {return 1.0/mass();}
         /**
          * Applies transformation to COM of group, keeping all internal atoms at same relative positions.
          */
@@ -690,11 +700,11 @@ public class Space3D extends Space implements EtomicaElement {
             private Type(String label) {super(label);}
             public Constants.TypedConstant[] choices() {return TYPES;}
         }
-        public static final String[] TAGS = {"None", "Periodic Square", "Sliding Brick"};
+        public static final String[] TAGS = {"None", "Periodic Square"/*, "Sliding Brick"*/};
         public static final Type NONE = new Type("None");
         public static final Type PERIODIC_SQUARE = new Type("Periodic Square");
-        public static final Type SLIDING_BRICK = new Type("Sliding Brick");
-        public static final Type[] TYPES = {NONE,PERIODIC_SQUARE,SLIDING_BRICK};
+  //      public static final Type SLIDING_BRICK = new Type("Sliding Brick");
+        public static final Type[] TYPES = {NONE,PERIODIC_SQUARE/*,SLIDING_BRICK*/};
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
@@ -705,7 +715,7 @@ public class Space3D extends Space implements EtomicaElement {
     
     public static final class BoundaryNone extends Boundary {
         private final Vector temp = new Vector();
-        public final Vector dimensions = new Vector();
+        public final Vector dimensions = new Vector(Default.BOX_SIZE, Default.BOX_SIZE, Default.BOX_SIZE);
         public final Space.Vector dimensions() {return dimensions;}
         public BoundaryNone() {super();}
         public BoundaryNone(Phase p) {super(p);}
@@ -715,48 +725,73 @@ public class Space3D extends Space implements EtomicaElement {
         public void nearestImage(Vector dr) {}
         public void centralImage(Vector r) {}
         public void centralImage(Coordinate c) {}
-        public double volume() {return Double.MAX_VALUE;}
-        public void inflate(double s) {}
+        public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
+        public void inflate(double s) {dimensions.TE(s);}
+        public void inflate(Space.Vector s) {dimensions.TE(s);}
+        public void setDimensions(Space.Vector v) {dimensions.E(v);}
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
         public float[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
-        public Space.Vector randomPosition() {
-            temp.x = Simulation.random.nextDouble();
-            temp.y = Simulation.random.nextDouble();
-            temp.z = Simulation.random.nextDouble();
-            return temp;
-        }
-    }//end of BoundaryNone
-        
-    protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
-        private final Vector temp = new Vector();
-        private static Space.Tensor zilch = new Tensor();
-        public BoundaryPeriodicSquare() {this(Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
-        public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
-        public BoundaryPeriodicSquare(Phase p, double lx, double ly, double lz) {super(p);dimensions.x=lx; dimensions.y=ly; dimensions.z=lz;}
-        public BoundaryPeriodicSquare(double lx, double ly, double lz) {super();dimensions.x=lx; dimensions.y=ly; dimensions.z=lz;}
-        public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
-        public final Vector dimensions = new Vector();
-        public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {
             temp.x = dimensions.x*Simulation.random.nextDouble();
             temp.y = dimensions.y*Simulation.random.nextDouble();
             temp.z = dimensions.z*Simulation.random.nextDouble();
             return temp;
         }
+    }//end of BoundaryNone
+        
+    protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
+        public BoundaryPeriodicSquare() {this(Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
+        public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
+        public BoundaryPeriodicSquare(Phase p, double lx, double ly, double lz) {super(p);dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
+        public BoundaryPeriodicSquare(double lx, double ly, double lz) {super();dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
+        public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
+        private static Space.Tensor zilch = new Tensor();
+        private final Vector temp = new Vector();
+        private final Vector dimensions = new Vector();
+        private final Vector dimensionsCopy = new Vector();
+        private final Vector dimensionsHalf = new Vector();
+        public final Space.Vector dimensions() {return dimensionsCopy;}
+        public Space.Vector randomPosition() {
+            temp.x = dimensions.x*Simulation.random.nextDouble();
+            temp.y = dimensions.y*Simulation.random.nextDouble();
+            temp.z = dimensions.z*Simulation.random.nextDouble();
+            return temp;
+        }
+        private final void updateDimensions() {
+            dimensionsHalf.Ea1Tv1(0.5,dimensions);
+            dimensionsCopy.E(dimensions);
+        }
         public void nearestImage(Space.Vector dr) {nearestImage((Vector) dr);}
         public void nearestImage(Vector dr) {
-            dr.x -= dimensions.x*((dr.x > 0.0) ? Math.floor(dr.x/dimensions.x + 0.5) : Math.ceil(dr.x/dimensions.x - 0.5));
-            dr.y -= dimensions.y*((dr.y > 0.0) ? Math.floor(dr.y/dimensions.y + 0.5) : Math.ceil(dr.y/dimensions.y - 0.5));
-            dr.z -= dimensions.z*((dr.z > 0.0) ? Math.floor(dr.z/dimensions.z + 0.5) : Math.ceil(dr.z/dimensions.z - 0.5));
+      //      dr.x -= dimensions.x*((dr.x > 0.0) ? Math.floor(dr.x/dimensions.x + 0.5) : Math.ceil(dr.x/dimensions.x - 0.5));
+      //      dr.y -= dimensions.y*((dr.y > 0.0) ? Math.floor(dr.y/dimensions.y + 0.5) : Math.ceil(dr.y/dimensions.y - 0.5));
+      //      dr.z -= dimensions.z*((dr.z > 0.0) ? Math.floor(dr.z/dimensions.z + 0.5) : Math.ceil(dr.z/dimensions.z - 0.5));
+      //      final double dimxHalf = 0.5*dimensions.x;
+      //      final double dimyHalf = 0.5*dimensions.y;
+      //      final double dimzHalf = 0.5*dimensions.z;
+            while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
+            while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
+            while(dr.y > +dimensionsHalf.y) dr.y -= dimensions.y;
+            while(dr.y < -dimensionsHalf.y) dr.y += dimensions.y;
+            while(dr.z > +dimensionsHalf.z) dr.z -= dimensions.z;
+            while(dr.z < -dimensionsHalf.z) dr.z += dimensions.z;
         }
         public void centralImage(Coordinate c) {centralImage(c.r);}
         public void centralImage(Space.Vector r) {centralImage((Vector) r);}
         public void centralImage(Vector r) {
-            r.x -= dimensions.x* ((r.x>0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x - 1.0));
-            r.y -= dimensions.y *((r.y>0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y - 1.0));
-            r.z -= dimensions.z *((r.z>0) ? Math.floor(r.z/dimensions.z) : Math.ceil(r.z/dimensions.z - 1.0));
+            while(r.x > dimensions.x) r.x -= dimensions.x;
+            while(r.x < 0.0)          r.x += dimensions.x;
+            while(r.y > dimensions.y) r.y -= dimensions.y;
+            while(r.y < 0.0)          r.y += dimensions.y;
+            while(r.z > dimensions.y) r.z -= dimensions.z;
+            while(r.z < 0.0)          r.z += dimensions.z;
+         //   r.x -= dimensions.x* ((r.x>0) ? Math.floor(r.x/dimensions.x) : Math.ceil(r.x/dimensions.x - 1.0));
+         //   r.y -= dimensions.y *((r.y>0) ? Math.floor(r.y/dimensions.y) : Math.ceil(r.y/dimensions.y - 1.0));
+         //   r.z -= dimensions.z *((r.z>0) ? Math.floor(r.z/dimensions.z) : Math.ceil(r.z/dimensions.z - 1.0));
         }
-        public void inflate(double scale) {dimensions.TE(scale);}
+        public void inflate(double scale) {dimensions.TE(scale); updateDimensions();}
+        public void inflate(Space.Vector scale) {dimensions.TE(scale); updateDimensions();}
+        public void setDimensions(Space.Vector v) {dimensions.E(v); updateDimensions();}
         public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
                 
         /**
@@ -851,7 +886,7 @@ public class Space3D extends Space implements EtomicaElement {
         }
     }
     
-    public static final class BoundarySlidingBrick extends BoundaryPeriodicSquare {
+/*    public static final class BoundarySlidingBrick extends BoundaryPeriodicSquare {
         private double gamma = 0.0;
         private double delvx;
         private IntegratorMD.ChronoMeter timer;
@@ -913,5 +948,5 @@ public class Space3D extends Space implements EtomicaElement {
             }
             return origins;
         }
-    }
+    }//end of BoundarySlidingBrick */
 }

@@ -12,20 +12,16 @@ package etomica;
 public class SimulationEventManager implements java.io.Serializable {
     
     //A Linker class is used to construct a linked list of listeners.
-    private SimulationListener.Linker first, last;
+    private SimulationListener.Linker first;
     
     /**
      * Adds a listener.  Synchronized to avoid conflict with removeListener.
      */
     public synchronized void addListener(SimulationListener listener) {
-        if(first == null) { //adding first listener
-            first = new SimulationListener.Linker(listener, null, null);
-            last = first;
-        }
-        else { //add listener to end of list
-            last.next = new SimulationListener.Linker(listener, null, last);
-            last = last.next;
-        }
+        //add listener to beginning of list 
+        //placement at end causes problem if a listener removes and then adds itself to the list as part of its response to the event
+        first = new SimulationListener.Linker(listener, first, null);
+        if(first.next != null) first.next.previous = first;
     }
 
     /**
@@ -35,7 +31,6 @@ public class SimulationEventManager implements java.io.Serializable {
         for(SimulationListener.Linker link=first; link!=null; link=link.next) {
             if(link.listener == listener) {
                 if(link == first) {first = link.next;}
-                if(link == last) {last = link.previous;}
                 if(link.previous != null) link.previous.next = link.next;
                 if(link.next != null) link.next.previous = link.previous;
                 return;
