@@ -3,6 +3,7 @@ import etomica.*;
 
 /**
  * Wrapper of an etomica Action that permits it to be used as a java.awt action listener.
+ * Useful, for example, to connect a button to the action.
  *
  * @author David Kofke
  */

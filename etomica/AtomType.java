@@ -1,6 +1,6 @@
 package etomica;
 import etomica.units.*;
-import etomica.electrostatics.*;
+//import etomica.electrostatics.*;
 
 /**
  * AtomType holds atom parameters.  
@@ -48,6 +48,7 @@ public abstract class AtomType implements java.io.Serializable {
         for(int i=0; i<parameter.length; i++) {
             parameter[i] = parameterSource[i].makeParameter();
         }
+//        System.out.println("AtomType constructor:"+mass);
     }
     
     protected void addGlobalParameter(Parameter.Source source) {

@@ -3,7 +3,7 @@ import etomica.units.Dimension;
 
 /**
  * Parameters are objects associated with an instance of an AtomType class, and
- * are used to hold parameters characteristic of the atoms having the AtomType
+ * are used to hold parameters characteristic of all atoms having the AtomType
  * instance.
  * 
  * @author David Kofke

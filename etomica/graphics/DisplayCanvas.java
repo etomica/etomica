@@ -50,7 +50,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
     boolean highQuality = false;
 
     public DisplayCanvas() {
-        setBackground(Color.white);
+        setBackground(java.awt.Color.white);
     }
     public void createOffScreen () {
         if (offScreen == null) { 

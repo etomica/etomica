@@ -42,6 +42,7 @@ public class ConfigurationSequential extends Configuration {
         if(sumOfMolecules == 0) return;
         
         Space.Vector[] rLat;
+        
         switch(space.D()) {
             case 1:
                 rLat = lineLattice(sumOfMolecules, Lx);

@@ -123,10 +123,11 @@ public class SimulationGraphic extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Simulation.instance = new SimulationGraphic();
+        Simulation.instance = new SimulationGraphic(new Space2D());
+        DefaultGraphic.ATOM_COLOR = java.awt.Color.red;
    //     Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
+	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
 	    speciesSpheres.setNMolecules(30);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
@@ -134,7 +135,7 @@ public class SimulationGraphic extends Simulation {
 	    DisplayPhase displayPhase = new DisplayPhase();
 //	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
 //	    timer.setUpdateInterval(10);
-        integratorHard.setTimeStep(0.01);
+//        integratorHard.setTimeStep(0.01);
 /*        displayPhase.setColorScheme(new ColorSchemeNull());
         for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
             atom.setColor(ConstantsGraphic.randomColor());
@@ -145,11 +146,7 @@ public class SimulationGraphic extends Simulation {
 		                                    
 		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
         SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-        
-        for(Atom a=phase.speciesMaster.firstLeafAtom(); a!=null; a=a.nextAtom()) {
-            System.out.println(a.coord.position().toString());
-        }
-        
+                
      //   controller.start();
     }//end of main
     
