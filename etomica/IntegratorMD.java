@@ -1,6 +1,7 @@
 package etomica;
 
-import etomica.units.*;
+import etomica.exception.MethodNotImplementedException;
+import etomica.units.Dimension;
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 
@@ -31,12 +32,7 @@ public abstract class IntegratorMD extends Integrator {
     public void initialize() {
         super.initialize();
         thermostatCount = 1;
-        // force isothermal=true temporarily so the thermostat will kick in
-        boolean isothermalTmp = isIsothermal();
-        setIsothermal(true);
         doThermostat();
-        // revert isothermal
-        setIsothermal(isothermalTmp);
     }
     
     /**
@@ -94,7 +90,8 @@ public abstract class IntegratorMD extends Integrator {
     public void doThermostat() {
         if (--thermostatCount == 0) {
             thermostatCount = thermostatInterval;
-            if (thermostat == VELOCITY_SCALING || thermostat == NOSE_HOOVER) {
+            // if 
+            if (thermostat == VELOCITY_SCALING || !isothermal) {
                 for (int i=0; i<phase.length; i++) {
                     scaleMomenta(phase[i]);
                     currentKineticEnergy[i] = temperature * (phase[i].atomCount() * phase[i].boundary().dimensions().D()) / 2.0;
@@ -105,6 +102,9 @@ public abstract class IntegratorMD extends Integrator {
                     randomizeMomenta(phase[i]);
                 }
                 currentKineticEnergy = meterKE.getData();
+            }
+            else if (thermostat == NOSE_HOOVER) {
+                throw new MethodNotImplementedException("feel free to write the Nose Hoover thermostat");
             }
             else {
                 throw new RuntimeException("Unknown thermostat: "+thermostat);
