@@ -24,7 +24,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		pairIterator = (ApiInnerVariable)iterator;
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
 		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
-		aiInner.setSkippingFirst(true);
+		aiInner.setNumSkipped(1);
 	}
 
 	/* (non-Javadoc)
@@ -32,13 +32,16 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 */
 	public void setTarget(Atom[] targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
-		doBoth = targetAtoms[0] != null && (targetAtoms.length == 1 || targetAtoms[1] == null);
+        oneTarget = targetAtoms[0] != null && (targetAtoms.length == 1 || targetAtoms[1] == null);
 	}
 	
 	/**
 	 * Puts iterator in a state to begin iteration.
 	 */
 	public void reset() {
+	    doBoth = (direction == null) && oneTarget;
+        upListNow = (direction == null) || (direction == IteratorDirective.UP); 
+        
 		if(upListNow || doBoth) {
 			aiInner.setIterationDirection(IteratorDirective.UP);
 			upListNow = true;
@@ -69,7 +72,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	}
 	
 	public void setDirection(IteratorDirective.Direction direction) {
-		upListNow = (direction == null) || (direction == IteratorDirective.UP); 
+        this.direction = direction;
 	}
 	
 	/**
@@ -104,7 +107,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		if(atoms==null || atoms[0]==null || atoms[1]==null || atoms[0]==atoms[1]) return false;
 		AtomList list = ((AtomTreeNodeGroup)basis.node).childList;
 		if(doBoth) return (atoms[0] == basis) && list.contains(atoms[1]);
-		else return atoms[0].seq.preceeds(atoms[1]) && list.contains(atoms[0]) && list.contains(atoms[1]);
+		return atoms[0].seq.preceeds(atoms[1]) && list.contains(atoms[0]) && list.contains(atoms[1]);
 	}
 
 	/**
@@ -115,10 +118,14 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		return 1;
 	}
 	
-	private final ApiInnerVariable pairIterator;//local, specifically typed copy
+    public AtomIteratorSequencerList getInnerIterator() {return aiInner;}
+    
+	protected final ApiInnerVariable pairIterator;//local, specifically typed copy
 	private final AtomIteratorBasis aiOuter;//local, specifically typed copy
 	private final AtomIteratorSequencerList aiInner;//local, specifically typed copy
 	private boolean doBoth;//indicates if inner iteration should proceed UP and then DOWN from atom
+    private boolean oneTarget;
+    private IteratorDirective.Direction direction;
 	private boolean upListNow;//indicates if inner iteration is currently in the UP direction
 	private Atom basis;//atom most recently specified in setBasis; used by size() and contains(Atom[]) methods
 }
