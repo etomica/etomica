@@ -1,17 +1,11 @@
 package etomica.graphics;
 
-import etomica.Controller;
-import etomica.Integrator;
-import etomica.Modifier;
-import etomica.Phase;
+import etomica.Action;
 import etomica.Simulation;
 import etomica.SpeciesAgent;
-import etomica.SpeciesSpheresMono;
-import etomica.integrator.IntegratorHard;
+import etomica.action.ActionGroup;
 import etomica.modifier.ModifierNMolecule;
-import etomica.potential.P2HardSphere;
 import etomica.simulations.HSMD2D;
-import etomica.units.Dimension;
 
 /**
  * Slider that selects the number of atoms of a given species in a phase.
@@ -28,17 +22,15 @@ import etomica.units.Dimension;
 public class DeviceNSelector extends DeviceSlider {
     
     private SpeciesAgent speciesAgent;
-    private Integrator integrator;
     private etomica.action.SimulationRestart restartAction;
-    private DisplayPhase display;
     
-    public DeviceNSelector(Controller controller, SpeciesAgent agent) {
-        super();
+    public DeviceNSelector(Simulation simulation, SpeciesAgent agent) {
+        super(simulation.getController());
         this.speciesAgent = agent;
-        this.integrator = integrator;
-        restartAction = new etomica.action.SimulationRestart(sim);
+        restartAction = new etomica.action.SimulationRestart(simulation);
         
-        setModifier(new ModifierNMolecule());
+        setModifier(new ModifierNMolecule(agent));
+        targetAction = new ActionGroup(new Action[]{modifier,restartAction});
 //        setNMajor(6);
 	    setMinimum(0);
 	    setMaximum(60);
@@ -53,13 +45,6 @@ public class DeviceNSelector extends DeviceSlider {
 	    }
 //	    setShowBorder(true);
     }
-    
-    public void setDisplayPhase(DisplayPhase display) {
-        this.display = display;
-    }
-    public Display getDisplayPhase() {return display;}
-    
-
        
     //main method to demonstrate and test class
     public static void main(String[] args) {
@@ -69,8 +54,8 @@ public class DeviceNSelector extends DeviceSlider {
         sim.species.setName("Disk");
         
 //        sim.elementCoordinator.go();
-        DeviceNSelector nSelector = new DeviceNSelector(sim.phase.getAgent(sim.species));
-        nSelector.setDisplayPhase(display);
+        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+//        nSelector.setDisplayPhase(graphic.display);
         graphic.makeAndDisplayFrame();
     }//end of main
     

@@ -36,10 +36,12 @@ public abstract class Activity implements Action {
 	 * effect.
 	 */
 	public void actionPerformed() {
-		haltRequested = false;
-		pauseRequested = false;
-		isPaused = false;
-		isActive = true;
+        synchronized(this) {
+            haltRequested = false;
+            pauseRequested = false;
+            isPaused = false;
+            isActive = true;
+        }
 		run();
 		isActive = false;
 		if (haltRequested) {
@@ -48,11 +50,13 @@ public abstract class Activity implements Action {
 		}
 	}
 
-	protected boolean doContinue() {
+	protected synchronized boolean doContinue() {
+//        System.out.println(this+" in doContinue");
 		while (pauseRequested)
 			doWait();//keep this before resetRequest, since need for reset
 		// might naturally follow completion of pause
 		//       if(resetRequested) {doReset(); resetRequested = false;}
+//        System.out.println(this+" got past doWait in doContinue");
 		if (haltRequested)
 			return false;
 		//        this.doStep();
@@ -71,10 +75,12 @@ public abstract class Activity implements Action {
 	 */
 	protected synchronized void doWait() {
 		notifyAll(); //release any threads waiting for pause to take effect
+//        System.out.println(this+"in doWait, setting isPaused to true");
 		isPaused = true;
 		try {
 			wait(); //put in paused state
 		} catch (InterruptedException e) {}
+        System.out.println(this+"in doWait, setting isPaused to false");
 		isPaused = false;
 	}
 
@@ -84,11 +90,14 @@ public abstract class Activity implements Action {
 	 * calling thread is put in a wait state until the pause takes effect.
 	 */
 	public synchronized void pause() {
+//        System.out.println("in Activity.pause "+isPaused+" "+isActive());
 		if (isPaused || !isActive()) return;// already paused or not active
 		pauseRequested = true;
 		try {
 			// make thread requesting pause wait until pause is in effect
+//            System.out.println("in Activity.pause waiting");
 			wait();
+//            System.out.println("in Activity.pause waited");
 		} catch (InterruptedException e) {
 			//interrupted before pause took effect; abort pause request
 			pauseRequested = false;
@@ -99,6 +108,7 @@ public abstract class Activity implements Action {
      * Removes activity from the paused state, resuming execution where it left off.
      */
     public synchronized void unPause() {
+//        System.out.println(this+" in unPause "+isPaused+" "+isActive());
     	if (!isPaused || !isActive()) return;// not currently paused or not active
     	pauseRequested = false;
     	notifyAll();
@@ -122,7 +132,7 @@ public abstract class Activity implements Action {
 	 * occur independent of whether the integrator is isActive or not. If paused
 	 * but not isActive, then pause will take effect upon start.
 	 */
-	public boolean isPaused() {
+	public synchronized boolean isPaused() {
 		return isPaused;
 	}
 
@@ -131,7 +141,7 @@ public abstract class Activity implements Action {
 	 * If so, returns true, even if integrator is presently paused (but not
 	 * halted).
 	 */
-	public boolean isActive() {
+	public synchronized boolean isActive() {
 		return isActive;
 	}
 
@@ -158,11 +168,11 @@ public abstract class Activity implements Action {
     }
 	private boolean isActive = false;
 
-	private boolean haltRequested = false;
+	protected boolean haltRequested = false;
 
 	protected boolean pauseRequested = false;
 
-	private boolean isPaused = false;
+	protected boolean isPaused = false;
 
 	private String label;
     

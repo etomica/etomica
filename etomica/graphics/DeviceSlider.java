@@ -11,11 +11,13 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Modifier;
 import etomica.event.ChangeEventManager;
 import etomica.modifier.ModifierGeneral;
+import etomica.modifier.ModifyAction;
 import etomica.units.Unit;
 import etomica.utility.DecimalSlider;
 import etomica.utility.StringUtility;
@@ -44,7 +46,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     /**
      * Modifier connecting the slider to the property
      */
-    protected Modifier modifier;
+    protected ModifyAction modifier;
     /**
      * Subclass of Swing slider displayed to screen
      * located in utility package 
@@ -92,25 +94,24 @@ public class DeviceSlider extends Device implements EtomicaElement {
     
     protected final ChangeEventManager changeEventManager = new ChangeEventManager(this);
     
-    public DeviceSlider() {
-        super();
+    public DeviceSlider(Controller controller) {
+        super(controller);
         init();
     }
-
     
     /**
      * Constructs a slider connected to the given property of the given object
      */
-    public DeviceSlider(Object object, String property) {
-        this(new ModifierGeneral(object, property));
+    public DeviceSlider(Controller controller, Object object, String property) {
+        this(controller, new ModifierGeneral(object, property));
         component = object;
         this.property = property;
     }
     /**
      * Constructs a slider connected to the get/set Value methods of the given Modifier
      */
-    public DeviceSlider(Modifier m) {
-        this();
+    public DeviceSlider(Controller controller, Modifier m) {
+        this(controller);
         //set component and property in some way
         setModifier(m);
     }
@@ -161,14 +162,16 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     
     public final void setModifier(Modifier m) {
-        modifier = m;
+        if(m == null) throw new NullPointerException();
+        modifier = new ModifyAction(m);
+        targetAction = modifier;
         unit = modifier.getDimension().defaultIOUnit();
         setLabelDefault();
         slider.setDecimalSliderValue(unit.fromSim(modifier.getValue()));        
         setMinimum(getMinimum());
         setMaximum(getMaximum());
     }
-    public final Modifier getModifier() {return modifier;}
+    public final Modifier getModifier() {return modifier.getWrappedModifier();}
     
     public String getProperty() {return property;}
     public void setProperty(String s) {
@@ -351,7 +354,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
         public void stateChanged(ChangeEvent evt) {
             if(modifier!=null) {
                 modifier.setValue(unit.toSim(slider.getDecimalSliderValue()));            
-                textField.setText(String.valueOf(slider.getDecimalSliderValue())); 
+                textField.setText(String.valueOf(slider.getDecimalSliderValue()));
+                doAction();
                 changeEventManager.fireChangeEvent(evt);
             }
        }

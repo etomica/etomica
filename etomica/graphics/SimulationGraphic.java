@@ -149,6 +149,8 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 //        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+        simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType.setColor(sim.species, java.awt.Color.red);
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);

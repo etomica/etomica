@@ -8,8 +8,10 @@ import etomica.units.Dimension;
 /**
  * Wraps a Modifier instance so that it can be passed to the Controller
  * (or other activity group) for execution there.  Permits a modification
- * initiated by a user interface thread to be executed by the controller
- * thread (for example).
+ * initiated by a user-interface thread to be executed by the controller
+ * thread.  Call to setValue of this class causes a target action
+ * to be performed immediately by the controller.  The target action would typically
+ * be this (that's the default), or an action group that contains this among other actions.
  *
  * @author David Kofke
  *
@@ -23,6 +25,7 @@ public class ModifyAction implements Action, Modifier {
 
     /**
      * Constuctor requires the wrapped Modifier, which is final.
+     * Default activity group is null, and default targetAction is this.
      */
     public ModifyAction(Modifier modifier) {
         this.modifier = modifier;
@@ -44,8 +47,12 @@ public class ModifyAction implements Action, Modifier {
         return modifier.getLabel();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.Modifier#setValue(double)
+    /**
+     * Stores the new value to be set by the wrapped modifier, and if
+     * an activity group was previously identified, the target action is given to
+     * its doActionNow method, which normally leads to invocation of the setValue 
+     * on the wrapped modifier. If the activity group is null, the target
+     * action is performed by this method.
      */
     public void setValue(double newValue) {
         value = newValue;
@@ -64,7 +71,11 @@ public class ModifyAction implements Action, Modifier {
     public Dimension getDimension() {
         return modifier.getDimension();
     }
-
+    
+    public Modifier getWrappedModifier() {
+        return modifier;
+    }
+        
     private final Modifier modifier;
     private double value;
 }

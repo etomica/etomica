@@ -28,32 +28,15 @@ public final class SimulationRestart extends SimulationActionAdapter {
      */
     public void actionPerformed() {
         
-        simulation.getController().halt();
-        try {
-            simulation.getController().wait();
-        }
-        catch (InterruptedException e) {}
-        
-        for(Iterator iter=simulation.getPhaseList().iterator(); iter.hasNext(); ) {
-            Phase phase = (Phase)iter.next();
-            phase.getConfiguration().initializeCoordinates((phase.speciesMaster().node).childAtomArray());
-        }
-        
         for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
-            integrator.reset();
+            integrator.initialize();
         }
         
         for(Iterator iter=simulation.getDataManagerList().iterator(); iter.hasNext(); ) {
             DataManager dataManager = (DataManager)iter.next();
             dataManager.resetAccumulators();
         }
-        
-/*        for(Iterator iter=simulation.getDisplayList().iterator(); iter.hasNext(); ) {
-            Display display = (Display)iter.next();
-            display.doUpdate();
-            display.graphic().repaint();
-        }*/
     }
     
 }

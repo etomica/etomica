@@ -47,12 +47,12 @@ public class ActivityGroupSeries extends Activity {
     public synchronized Action[] currentActions() {return new Action[] {currentAction};}
 
     /**
-     * @return a list of the actions completed by this controller.
+     * @return a list of the actions completed by this activity group.
      */
     public synchronized Action[] completedActions() {return completedActions;}
     
     /**
-     * Causes uncompleted actions added to this controller to be run in sequence.  Should not be
+     * Causes uncompleted actions added to this group to be run in sequence.  Should not be
      * executed directly, but instead as part of the Runnable interface it is executed
      * by a thread made upon invoking the start method.
      */
@@ -93,18 +93,22 @@ public class ActivityGroupSeries extends Activity {
      * the pause takes effect.
      */
     public synchronized void pause() {
+//        System.out.println("in AGS.pause "+isPaused()+" "+isActive());
     	if(isPaused() || !isActive()) return;// already paused, or not active
         if(currentAction instanceof Activity) {
+//            System.out.println("pausing "+currentAction);
         	((Activity)currentAction).pause();//activity enforces pause and has calling thread waits till in effect
-        } else {//currentAction is not a pausable activity; put pause in controller loop
+//            System.out.println("paused "+currentAction);
+        } else {//currentAction is not a pausable activity; put pause in activity loop
 	        super.pause();
         }
     }
     
     /**
-     * Removes controller from the paused state, resuming execution where it left off.
+     * Removes activity group from the paused state, resuming execution where it left off.
      */
     public synchronized void unPause() {
+//        System.out.println("in unPause "+isPaused()+" "+isActive());
     	if (!isPaused() || !isActive()) return;// not currently paused or not active
     	pauseRequested = false;
         if(currentAction instanceof Activity) {
@@ -115,10 +119,8 @@ public class ActivityGroupSeries extends Activity {
     }
          
     /**
-     * Request that the integrator terminate its thread on the next integration step.
-     * Does not cause calling thread to wait until this is completed, so it would
-     * be prudent to have the calling thread join() to suspend it until the halt
-     * is in effect.
+     * Request that the activity group terminate its thread as soon as possible.
+     * Calling thread is caused to wait until halt is completed.
      */
     public synchronized void halt() {
         if(!isActive()) return;
@@ -130,7 +132,7 @@ public class ActivityGroupSeries extends Activity {
         } catch(InterruptedException e) {}
     }
     
-    public boolean isPaused() {
+    public synchronized boolean isPaused() {
     	return super.isPaused() || 
     			(currentAction instanceof Activity 
     					&& ((Activity)currentAction).isPaused());
@@ -155,9 +157,7 @@ public class ActivityGroupSeries extends Activity {
 
     protected Action currentAction;
     protected boolean pauseAfterEachAction;
-    protected boolean haltRequested;
     protected int numActions;
-    protected boolean isPaused = false;
     protected Action[] actions = new Action[0];
     protected Action[] completedActions = new Action[0];
 

@@ -1,6 +1,8 @@
 package etomica.graphics;
 import java.awt.Component;
 
+import etomica.Action;
+import etomica.Controller;
 import etomica.units.Dimension;
 import etomica.units.Dimensioned;
 import etomica.units.Unit;
@@ -14,11 +16,41 @@ import etomica.utility.NameMaker;
 public abstract class Device implements GraphicalElement, Dimensioned, java.io.Serializable {
     
     protected Unit unit;
+    protected Controller controller;
+    protected Action targetAction;
     
     public Device() {
+        this(null);
+    }
+    
+    public Device(Controller controller) {
+        this.controller = controller;
         setName(NameMaker.makeName(this.getClass()));
     }
-        
+    
+    protected void doAction() {
+        if (targetAction == null) return;
+        if(controller != null) {
+            controller.doActionNow(targetAction);
+        } else {
+            targetAction.actionPerformed();
+        }
+    }
+      
+    
+    /**
+     * @return Returns the controller.
+     */
+    public Controller getController() {
+        return controller;
+    }
+    /**
+     * @param controller The controller to set.
+     */
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
+    
     public abstract Component graphic(Object obj);
     
     /**
