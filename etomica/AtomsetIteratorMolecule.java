@@ -71,7 +71,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     
     public void setTarget(Atom[] targetAtoms) {
     	//TODO this is probably inefficient.  swatting a fly with a sledgehammer
-    	System.arraycopy(targetAtoms,0,this.targetAtoms,0,targetAtoms.length);
+    	System.arraycopy(targetAtoms,0,this.targetAtoms,0,Math.min(this.targetAtoms.length,targetAtoms.length));
     	for(int i=targetAtoms.length; i<this.targetAtoms.length; i++) {
     		this.targetAtoms[i] = null;
     	}
@@ -152,7 +152,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
 	private final SpeciesAgent[] agents;
 	private final int basisSize;
 	private boolean needBasisUpdate;
-	private Atom[] targetAtoms;
+	private final Atom[] targetAtoms;
 	private IteratorDirective.Direction direction;
 	private final boolean ignoreDirection;
 	
