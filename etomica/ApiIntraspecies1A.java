@@ -71,6 +71,8 @@ public final class ApiIntraspecies1A implements AtomPairIterator {
      
      //needs to change for neighbor iteration
     public void allPairs(AtomPairAction act) {
+        throw new RuntimeException("ApiIntraspecies1a.allPairs not yet implemented");
+        /*
         if(basis == null || molecule == null) return;
         Atom last = basis.node.lastChildAtom();
         for(Atom atom = basis.node.firstChildAtom(); atom != molecule; atom=atom.nextAtom()) {
@@ -85,7 +87,7 @@ public final class ApiIntraspecies1A implements AtomPairIterator {
             act.action(pair);
             if(atom == last) break;
         }
-        
+        */
     }
     
     //this should be a neighbor iterator

@@ -9,8 +9,9 @@ public class Site extends Atom {
     /**
      * Creates a site having the given parent lattice and coordinate.
      */
-    public Site(Space space, AtomType type) {
-        super(space, type, AtomTreeNodeLeaf.FACTORY, IteratorFactorySimple.INSTANCE.atomSequencerFactory());
+    public Site(Space space, AtomType type, AtomTreeNodeGroup parent) {
+        super(space, type, AtomTreeNodeLeaf.FACTORY, 
+            IteratorFactorySimple.INSTANCE.atomSequencerFactory(), parent);
     }
         
     public NeighborManager neighborManager() {return neighborManager;}
@@ -57,8 +58,8 @@ public static class Factory extends AtomFactory {
     
     AtomType atomType;
     
-    public Factory(Space space) {
-        super(space);
+    public Factory(Simulation sim) {
+        super(sim);
         setType(new AtomType(this));//default
     }
     
@@ -68,8 +69,8 @@ public static class Factory extends AtomFactory {
     /**
      * Builds a single site.
      */
-    protected Atom build() {
-        return new Site(space, atomType);
+    protected Atom build(AtomTreeNodeGroup parent) {
+        return new Site(parentSimulation().space, atomType, parent);
     }
     
 }//end of AtomFactorySite

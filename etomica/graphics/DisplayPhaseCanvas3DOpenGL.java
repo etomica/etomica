@@ -206,7 +206,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     atoms = new Atom[countAll];
     
     i = 0;
-    for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom(), i+=3) {
+    
+    //temporary commenting
+    //this must be put back in for component to work
+/*    for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom(), i+=3) {
       atoms[i/3] = a;
       vertAll[i] = (float)a.coord.position().component(0);
       vertAll[i+1] = (float)a.coord.position().component(1);
@@ -216,7 +219,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       if(a.type instanceof AtomType.Sphere) countSphereCores++;
       if(a.type instanceof AtomType.Wall) countWalls++;
     }
-    
+ */   
     sphereCores = new Atom[countSphereCores];
     sphereWells = new Atom[countSphereWells];
     sphereRotators = new Atom[countSphereRotators];

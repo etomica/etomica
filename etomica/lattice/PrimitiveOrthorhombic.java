@@ -7,8 +7,8 @@ import etomica.*;
  */
 public class PrimitiveOrthorhombic extends Primitive {
     
-    public PrimitiveOrthorhombic(Space space) {
-        super(space);
+    public PrimitiveOrthorhombic(Simulation sim) {
+        super(sim);
         //set up orthogonal vectors of unit size
         setSize(1.0);
     }
@@ -39,6 +39,15 @@ public class PrimitiveOrthorhombic extends Primitive {
         for(int i=0; i<D; i++) idx[i] = (int)(q.component(i)/size[i]);
         return idx;
     }
+
+    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+        for(int i=0; i<D; i++) {
+            idx[i] = (int)(q.component(i)/size[i]);
+            while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
+            while(idx[i] < 0)              idx[i] += dimensions[i];
+        }
+        return idx;
+    }
     
     public Primitive reciprocal() {
         throw new RuntimeException("method PrimitiveOrthorhombic.reciprocal not yet implemented");
@@ -60,8 +69,8 @@ public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
     
-    public UnitCellFactory(Space space) {
-        super(space);
+    public UnitCellFactory(Simulation sim) {
+        super(sim);
         setType(new AtomType(this));//default
     }
     
@@ -71,8 +80,8 @@ public class UnitCellFactory extends AtomFactory {
     /**
      * Builds a single unit cell.
      */
-    protected Atom build() {
-        return new UnitCell(space, atomType);
+    protected Atom build(AtomTreeNodeGroup parent) {
+        return new UnitCell(space, atomType, parent);
     }
     
 }//end of UnitCellFactory
@@ -85,8 +94,8 @@ public class UnitCellFactory extends AtomFactory {
  */
 public class UnitCell extends AbstractCell {
     
-    public UnitCell(Space space, AtomType type) {
-        super(space, type);
+    public UnitCell(Space space, AtomType type, AtomTreeNodeGroup parent) {
+        super(space, type, parent);
     }
     /**
      * Dimension of the space occupied by the cell

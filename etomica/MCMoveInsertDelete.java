@@ -49,7 +49,7 @@ public class MCMoveInsertDelete extends MCMove {
     }
                                                                                                                                                                                                                                                                                                                                                                        
     private final boolean trialInsert() {
-        testMolecule = species.moleculeFactory().makeAtom(speciesAgent.node);
+        testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
         testMolecule.coord.translateTo(phase.randomPosition());
         double uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap

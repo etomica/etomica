@@ -363,5 +363,23 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
          */
          public interface Periodic {}
         
+        /**
+         * Placeholder boundary that performs no actions andreturns null or zero 
+         * from every method.
+         */
+        public static final Boundary NULL = new Boundary() {
+            public Space.Vector dimensions() {return null;}
+            public Space.Boundary.Type type() {return null;}
+            public final void nearestImage(Space.Vector dr) {}
+            public final void centralImage(Space.Vector r) {}
+            public double volume() {return 0.0;}
+            public void inflate(double s) {}
+            public void inflate(Space.Vector s) {}
+            public void setDimensions(Space.Vector v) {}
+            public double[][] imageOrigins(int nShells) {return null;}
+            public float[][] getOverflowShifts(Space.Vector r, double distance) {return null;}
+            public Space.Vector randomPosition() {return null;}
+        };//end of NULL
+        
     }//end of Space.Boundary
 }//end of Space    

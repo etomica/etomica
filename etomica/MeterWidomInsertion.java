@@ -105,7 +105,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
         if(phase != null) speciesAgent = species.getAgent(phase);
         
         //need a local reservoir
-        testMolecule = s.moleculeFactory().makeAtom(speciesAgent.node);
+        testMolecule = s.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
         iteratorDirective.set(testMolecule);
     }
     /**

@@ -10,7 +10,7 @@ public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
     public final Simulation parentSimulation;
-    public final Species parentSpecies;
+    private Species species;
     protected Configuration configuration;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
@@ -19,14 +19,13 @@ public abstract class AtomFactory {
      * @param sim the parent simulation using this factory
      * @param species the parent species using this factory (may be null)
      */
-    public AtomFactory(Simulation sim, Species species) {
+    public AtomFactory(Simulation sim) {
         parentSimulation = sim;
-        parentSpecies = species;
         reservoir = new AtomReservoir(this);
     }
     
     public Atom makeAtom() {
-        return makeAtom(reservoir.node);
+        return makeAtom((AtomTreeNodeGroup)reservoir.node);
     }
     
     public Atom makeAtom(AtomTreeNodeGroup parent) {
@@ -53,8 +52,9 @@ public abstract class AtomFactory {
     
     public Simulation parentSimulation() {return parentSimulation;}
     
-    public Species parentSpecies() {return parentSpecies;}
-    
+    public void setSpecies(Species species) {this.species = species;}
+    public Species species() {return species;}
+        
     public void setConfiguration(Configuration config) {configuration = config;}
     public Configuration getConfiguration() {return configuration;}
     

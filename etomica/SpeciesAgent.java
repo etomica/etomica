@@ -12,7 +12,7 @@ import etomica.units.Dimension;
 public final class SpeciesAgent extends AtomGroup {
 
     protected final AtomFactory factory;
-    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
+//    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     private final AtomIteratorTree leafIterator = new AtomIteratorTree(this);
     private final AtomIteratorList moleculeIterator = new AtomIteratorList(((AtomTreeNodeGroup)this.node).childList);
     
@@ -21,21 +21,21 @@ public final class SpeciesAgent extends AtomGroup {
     public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
         super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s), parent);
         factory = s.moleculeFactory();
-        node = (AtomTreeNodeGroup)super.node;
+//        node = (AtomTreeNodeGroup)super.node;
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
     
     
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)seq.next.atom;}
-    public int moleculeCount() {return node.childAtomCount();}
-    public Atom firstMolecule() {return node.firstChildAtom();}
-    public Atom lastMolecule() {return node.lastChildAtom();}
-    public Atom randomMolecule() {return node.randomAtom();}
+    public int moleculeCount() {return ((AtomTreeNodeGroup)node).childAtomCount();}
+    public Atom firstMolecule() {return ((AtomTreeNodeGroup)node).firstChildAtom();}
+    public Atom lastMolecule() {return ((AtomTreeNodeGroup)node).lastChildAtom();}
+    public Atom randomMolecule() {return ((AtomTreeNodeGroup)node).randomAtom();}
             
     public Atom addNewAtom() {
         if(!resizable) return null; //should define an exeception 
-        Atom aNew = moleculeFactory().makeAtom(this.node);
+        Atom aNew = moleculeFactory().makeAtom((AtomTreeNodeGroup)this.node);
         return aNew;
     }
     
@@ -78,16 +78,17 @@ public final class SpeciesAgent extends AtomGroup {
      * new molecules should be made.
      */
     public void setNMolecules(int n, boolean forceRebuild) {
+        AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
         if(!resizable) return;
         boolean wasPaused = pauseIntegrator();
-        if(forceRebuild) while(node.childList.size() > 0) node.lastChildAtom().sendToReservoir();
+        if(forceRebuild) while(treeNode.childList.size() > 0) treeNode.lastChildAtom().sendToReservoir();
         
-        else if(n > node.childAtomCount()) {
-            for(int i=node.childAtomCount(); i<n; i++) addNewAtom();
+        else if(n > treeNode.childAtomCount()) {
+            for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
         }
-        else if(n < node.childAtomCount()) {
+        else if(n < treeNode.childAtomCount()) {
             if(n < 0) n = 0;
-            for(int i=node.childAtomCount(); i>n; i--) node.lastChildAtom().sendToReservoir();
+            for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.lastChildAtom().sendToReservoir();
         }
         
         //reconsider this

@@ -31,6 +31,7 @@ public class Atom implements java.io.Serializable {
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this, parent);//must follow setting of sequencer to permit addition to childlist of parent
         coord = space.makeCoordinate(this);//must follow setting of type field
+        if(parent != null) parent.addAtomNotify(this);
         
 //        coord.setMass(type.getMass());//handled in type.initialize statement
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];//this is to be removed
@@ -52,7 +53,7 @@ public class Atom implements java.io.Serializable {
     public BondLinker firstDownBond;
     
     public void sendToReservoir() {
-        creator().reservoir().addAtom(this);//also sets parent to null
+        creator().reservoir().addAtom(this);
     }
     
     public AtomFactory creator() {return type.creator();}

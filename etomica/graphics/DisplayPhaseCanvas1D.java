@@ -173,18 +173,18 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();
-        for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
-            //boundary.centralImage(a.coordinate);        //move atom to central image
-            drawAtom(g, displayPhase.getOrigin(), a);
-        }
+///        for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
+///            //boundary.centralImage(a.coordinate);        //move atom to central image
+///            drawAtom(g, displayPhase.getOrigin(), a);
+///        }
             
         //Draw overflow images if so indicated
         //This needs some work to make more general
-        for(Atom a=displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
-            if(computeShiftOrigin(a, boundary)) {
-                drawAtom(g, shiftOrigin, a);
-            }
-        }
+///        for(Atom a=displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
+///            if(computeShiftOrigin(a, boundary)) {
+///                drawAtom(g, shiftOrigin, a);
+///            }
+///        }
 
         //Draw periodic images if indicated
         if(displayPhase.getImageShells() > 0) {

@@ -430,10 +430,11 @@ public class Space3D extends Space implements EtomicaElement {
     
 public static class CoordinateGroup extends Coordinate {
 
-        private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple();
+    private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple();
     
     public CoordinateGroup(Atom a) {
         super(a);
+        childIterator.setBasis(((AtomTreeNodeGroup)a.node).childList);
     }
 
     /**

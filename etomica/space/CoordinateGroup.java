@@ -7,6 +7,7 @@ public class CoordinateGroup extends Coordinate {
     
     public CoordinateGroup(Space space, Atom a) {
         super(space,a);
+        childIterator.setBasis(((AtomTreeNodeGroup)a.node).childList);
     }
 
     /**

@@ -1,6 +1,5 @@
 package etomica.lattice;
-import etomica.Space;
-import etomica.AtomFactory;
+import etomica.*;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -13,9 +12,11 @@ public abstract class Primitive {
     protected final int[] idx;//used to return coordinate index
     public final int D;
     protected Space space;
+    protected Simulation simulation;
     
-    public Primitive(Space space) {
-        this.space = space;
+    public Primitive(Simulation sim) {
+        simulation = sim;
+        space = sim.space;
         D = space.D();
         r = new Space.Vector[D];
         rCopy = new Space.Vector[D];
@@ -50,6 +51,14 @@ public abstract class Primitive {
      * large lattice that uses this primitive.
      */
     public abstract int[] latticeIndex(Space.Vector r);
+    
+    /**
+     * Same as latticeIndex(Space.Vector), but gives index for periodic system
+     * with number of unit cells in each direction as given by the dimensions array.
+     * If lattice index corresponds to a cell outside the range of dimensions,
+     * index of image in central cells is returned.
+     */
+    public abstract int[] latticeIndex(Space.Vector r, int[] dimensions);
     
     /**
      * Returns the primitive for the reciprocal lattice vectors.

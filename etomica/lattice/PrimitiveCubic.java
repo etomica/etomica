@@ -9,8 +9,8 @@ public class PrimitiveCubic extends Primitive {
     
     private double size;
     
-    public PrimitiveCubic(Space space) {
-        super(space);
+    public PrimitiveCubic(Simulation sim) {
+        super(sim);
         //set up orthogonal vectors of unit size
         setSize(1.0);
     }
@@ -27,6 +27,15 @@ public class PrimitiveCubic extends Primitive {
         for(int i=0; i<D; i++) idx[i] = (int)(q.component(i)/size);
         return idx;
     }
+    
+    public int[] latticeIndex(Space.Vector q, int[] dimensions) {
+        for(int i=0; i<D; i++) {
+            idx[i] = (int)(q.component(i)/size);
+            while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
+            while(idx[i] < 0)              idx[i] += dimensions[i];
+        }
+        return idx;
+    }
 
     public Primitive reciprocal() {
         throw new RuntimeException("method PrimitiveCubic.reciprocal not yet implemented");
@@ -37,7 +46,7 @@ public class PrimitiveCubic extends Primitive {
     }
     
     public AtomFactory unitCellFactory() {
-        return new UnitCellFactory(space);
+        return new UnitCellFactory(simulation);
     }
     
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +55,8 @@ public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
     
-    public UnitCellFactory(Space space) {
-        super(space);
+    public UnitCellFactory(Simulation sim) {
+        super(sim);
         setType(new AtomType(this));//default
     }
     
@@ -57,8 +66,8 @@ public class UnitCellFactory extends AtomFactory {
     /**
      * Builds a single unit cell.
      */
-    protected Atom build() {
-        return new UnitCell(space, atomType);
+    protected Atom build(AtomTreeNodeGroup parent) {
+        return new UnitCell(space, atomType, parent);
     }
     
 }//end of UnitCellFactory
@@ -73,8 +82,8 @@ public class UnitCell extends AbstractCell {
     
     private final Space.Vector delta;
     
-    public UnitCell(Space space, AtomType type) {
-        super(space, type);
+    public UnitCell(Space space, AtomType type, AtomTreeNodeGroup parent) {
+        super(space, type, parent);
         delta = space.makeVector();
     }
     /**
@@ -139,12 +148,13 @@ public class UnitCell extends AbstractCell {
     public static void main(String[] args) {
         System.out.println("main method for PrimitiveCubic");
         Space space = new Space2D();
+        Simulation sim = new Simulation(space);
         int D = space.D();
-        PrimitiveCubic primitive = new PrimitiveCubic(space);
+        PrimitiveCubic primitive = new PrimitiveCubic(sim);
         AtomFactory siteFactory = primitive.unitCellFactory();
         final int nx = 4;
         final int ny = 5;
-        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
+        BravaisLattice lattice = BravaisLattice.makeLattice(sim, 
                                 siteFactory, 
                                 new int[] {nx,ny},
                                 primitive);

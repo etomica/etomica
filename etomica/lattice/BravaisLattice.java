@@ -20,8 +20,8 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     * Factory class.  The build method handles the construction of the
     * tree structure under this instance, which forms the lattice.
     */
-   private BravaisLattice(Space space, AtomType type, int[] dimensions) {
-        super(space, type);
+   private BravaisLattice(Space space, AtomType type, int[] dimensions, AtomTreeNodeGroup parent) {
+        super(space, type, parent);
         D = space.D();
         idx = new int[D];
         primitiveVectorLength = new double[D];
@@ -33,16 +33,16 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     * Constructs a unique BravaisLattice factory and returns a new lattice from it.
     */
     public static BravaisLattice makeLattice(
-                Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        return (BravaisLattice)new Factory(space, siteFactory, dimensions, primitive).build();
+                Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
+        return (BravaisLattice)new Factory(sim, siteFactory, dimensions, primitive).makeAtom();
     }
     
     /**
      * Returns a new BravaisLattice in which the sites are the unit cells of the given primitive.
      */
      public static BravaisLattice makeUnitCellLattice(
-                Space space, int[] dimensions, Primitive primitive) {
-        return makeLattice(space, primitive.unitCellFactory(), dimensions, primitive);
+                Simulation sim, int[] dimensions, Primitive primitive) {
+        return makeLattice(sim, primitive.unitCellFactory(), dimensions, primitive);
      }
            
     public int[] dimensions() {return dimensions;}
@@ -99,7 +99,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         if(d < 0 || d >= D) throw new IllegalArgumentException("Error in BravaisLattice.getFactory: inappropriate dimension specified");
         Atom a = this;
         int i = d;
-        while(i < d) {a = a.node.firstChildAtom(); i++;}
+        while(i < d) {a = ((AtomTreeNodeGroup)a.node).firstChildAtom(); i++;}
         return a.type;
     }
     
@@ -156,7 +156,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         for(int i=0; i<D; i++) {
            ((ConfigurationLinear)a.creator().getConfiguration()).setOffset(pVectors[i]);
            primitiveVectorLength[i] = Math.sqrt(pVectors[i].squared());
-           a = a.node.firstChildAtom();
+           a = ((AtomTreeNodeGroup)a.node).firstChildAtom();
         }
         type.creator().getConfiguration().initializePositions(this);
         notifyObservers();
@@ -241,15 +241,15 @@ public static class Factory extends AtomFactoryTree {
      //dimension of embedding space equals the length of each primitive vector
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
-    public Factory(Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
-        super(space, siteFactory, dimensions, configArray(space, primitive.vectors()));
+    public Factory(Simulation sim, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
+        super(sim, siteFactory, dimensions, configArray(sim.space, primitive.vectors()));
         this.primitive = primitive;
         this.dimensions = new int[dimensions.length];
         System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
     }
     
-    public Atom build() {
-        BravaisLattice group = new BravaisLattice(space, groupType, dimensions);
+    public Atom build(AtomTreeNodeGroup parent) {
+        BravaisLattice group = new BravaisLattice(parentSimulation().space, groupType, dimensions, parent);
         build(group);
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);
         leafIterator.reset();
@@ -277,13 +277,14 @@ public static class Factory extends AtomFactoryTree {
      */
     public static void main(String[] args) {
         System.out.println("main method for BravaisLattice");
+        Simulation sim = Simulation.instance;
         Space space = new Space2D();
         int D = space.D();
-        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
+        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim);
         final int nx = 4;
         final int ny = 5;
-        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
-                                new Site.Factory(space),
+        BravaisLattice lattice = BravaisLattice.makeLattice(sim, 
+                                new Site.Factory(sim),
                                 new int[] {nx,ny},
                                 primitive);        
         System.out.println("Total number of sites: "+lattice.siteList().size());

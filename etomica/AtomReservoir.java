@@ -11,7 +11,7 @@ public class AtomReservoir extends Atom {
     private int maximumCapacity;
     private final AtomList atomList = new AtomList();
     public final AtomFactory factory;
-    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
+//    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     
     /**
      * Constructs with default maximum capacity of 80.
@@ -27,16 +27,17 @@ public class AtomReservoir extends Atom {
         this.factory = factory;
         if(maximumCapacity < 0) maximumCapacity = 0;
         this.maximumCapacity = maximumCapacity;
-        node = (AtomTreeNodeGroup)super.node;
+ //       node = (AtomTreeNodeGroup)super.node;
     }
     
     /**
-     * Sets parent of given atom to null and adds it to reservoir.
+     * Sets parent of given atom to the reservoir, or disposes
+     * of atom if reservoir is full.
      */
     public void addAtom(Atom atom) {
         if(atom == null) return;
-        if(node.childList.size() >= maximumCapacity) atom.node.destroy();
-        else atom.node.setParent(node);
+        if(((AtomTreeNodeGroup)node).childList.size() >= maximumCapacity) atom.node.destroy();
+        else atom.node.setParent(((AtomTreeNodeGroup)node));
         //restore atom to condition when built
 //        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
         //add to reservoir
@@ -45,12 +46,12 @@ public class AtomReservoir extends Atom {
     /**
      * Returns the most recently added atom.
      */
-    public Atom getAtom() {return node.childList.getLast();}
+    public Atom getAtom() {return ((AtomTreeNodeGroup)node).childList.getLast();}
     
     /**
      * Indicates whether reservoir contains any atoms.
      */
-    public boolean isEmpty() {return node.childList.size() == 0;}
+    public boolean isEmpty() {return ((AtomTreeNodeGroup)node).childList.size() == 0;}
     
     /**
      * Sets the maximum number of atoms that the reservoir will hold.
@@ -88,12 +89,17 @@ public class AtomReservoir extends Atom {
         
         public void removeAtomNotify(Atom atom) {
         }
+        
+        /**
+         * Returns null.
+         */
+         public final Phase parentPhase() {return null;}
 
         /**
         * Overrides super class method and terminates recursive call to identify
         * a constituent atom's species.
         */
-        public final Species parentSpecies() {return reservoir.factory.parentSpecies();}
+        public final Species parentSpecies() {return reservoir.factory.species();}
         /**
         * Overrides super class method and terminates recursive call to identify
         * a constituent atom's simulation.

@@ -24,7 +24,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHardAbstract.Agent colliderAgent;
     //iterators for looping through atoms
-    protected AtomIterator atomIterator;
+    protected AtomIteratorListSimple atomIterator = new AtomIteratorListSimple();
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
@@ -37,19 +37,10 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         super(sim);
         atomPair = new AtomPair(sim.space);
     }//end of constructor
-
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	protected void makeIterators(IteratorFactory factory) {
-//	    super.makeIterators(factory);
-//        atomIterator = factory.makeAtomIterator();
-    }
     
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
-        atomIterator = p.makeAtomIterator();
+        atomIterator.setBasis(p.speciesMaster.atomList);
         return true;
     }
     

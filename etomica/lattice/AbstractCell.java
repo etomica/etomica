@@ -6,8 +6,8 @@ import etomica.*;
  */
 public abstract class AbstractCell extends Site {
     
-    public AbstractCell(Space space, AtomType type) {
-        super(space, type);
+    public AbstractCell(Space space, AtomType type, AtomTreeNodeGroup parent) {
+        super(space, type, parent);
     }
     /**
      * Dimension of the space occupied by the cell

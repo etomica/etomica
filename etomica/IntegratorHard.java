@@ -16,7 +16,6 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 
     public String getVersion() {return "IntegratorHard:01.07.08/"+IntegratorHardAbstract.VERSION;}
     
-    protected AtomIterator upAtomIterator;
     private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
     private static final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
     private final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
@@ -45,7 +44,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         //atom pair
         public void calculate(AtomPairIterator iterator, Potential2 potential) {
             Potential2Hard potentialHard = (Potential2Hard)potential;
+   //info         int count = 0;
             while(iterator.hasNext()) {
+   //info             count++;
                 AtomPair pair = iterator.next();
                 if(pair.atom1() != atom1) setAtom(pair.atom1()); //need this if doing minimum collision time calculation for more than one atom
                 double collisionTime = potentialHard.collisionTime(pair);
@@ -58,6 +59,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                     aia.setCollision(collisionTime, pair.atom2(), potentialHard);
                 }//end if
             }//end while
+   //info         System.out.println(atom1.toString()+" UP: "+count);
         }//end of calculate(AtomPair...
         
         //single atom
@@ -82,7 +84,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     private static final class CollisionHandlerDown implements Potential2Calculation {
         public void calculate(AtomPairIterator iterator, Potential2 potential) {
             Potential2Hard potentialHard = (Potential2Hard)potential;
+ //info           int count = 0;
             while(iterator.hasNext()) {
+ //info               count++;
                 AtomPair pair = iterator.next();
                 double collisionTime = potentialHard.collisionTime(pair);
      /*debug           System.out.println("      DN "+pair.atom1.debugIndex+","
@@ -96,6 +100,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                     }//end if
                 }//end if
             }//end while
+//info            System.out.println(" DN: "+count);
         }//end of calculate
     } //end of collisionHandlerDown
 
@@ -104,7 +109,6 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     }
     public IntegratorHard(Simulation sim) {
         super(sim);
-        upAtomIterator = sim.iteratorFactory.makeGroupIteratorSimple();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -119,9 +123,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     protected void findNextCollider() {
         //find next collision pair by looking for minimum collisionTime
         double minCollisionTime = Double.MAX_VALUE;
-        upAtomIterator.reset();
-        while(upAtomIterator.hasNext()) {
-            Agent ia = (Agent)upAtomIterator.next().ia;
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Agent ia = (Agent)atomIterator.next().ia;
             double ct = ia.collisionTime();
             if( ct < minCollisionTime) {
                 minCollisionTime = ct;
@@ -141,9 +145,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             
     //   Do upList for any atoms that were scheduled to collide with atoms colliding now
     //   Assumes collider and partner haven't moved in list
-        upAtomIterator.reset();  //first atom in first cell
-        while(upAtomIterator.hasNext()) {
-            Atom a = upAtomIterator.next();
+        atomIterator.reset();  //first atom in first cell
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.next();
             if(a == collider) { //finished with atoms before collider...
                 if(partner == null) break;  //and there is no partner, so we're done, or...
                 else continue;              //...else just skip this atom and continue with loop
@@ -161,9 +165,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             //This bit could be made more efficient
             
             //if(a movedInList) {  add a means for bump method to declare it moved atom in the list
-       /*     upAtomIterator.reset(a);
-            while(upAtomIterator.hasNext()) {
-                Atom atom = upAtomIterator.next();
+       /*     atomIterator.reset(a);
+            while(atomIterator.hasNext()) {
+                Atom atom = atomIterator.next();
                 if(((Agent)atom.ia).collisionPartner == a) {  //upList atom could have atom as collision partner if atom was just moved down list
                     potential.findCollisions(atom, UP, collisionHandlerUp);
                 }

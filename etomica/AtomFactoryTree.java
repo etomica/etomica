@@ -20,8 +20,8 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      *               nAtoms[0] gives the number of child atoms for the root, nAtoms[1] the number of
      *               child atoms under each of the root's child atoms, etc.
      */
-    public AtomFactoryTree(Simulation sim, Species species, AtomFactory leafFactory, int[] nAtoms) {
-        super(sim, species, subFactory(sim, leafFactory, nAtoms, null), nAtoms[0]);
+    public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
+        super(sim, subFactory(sim, leafFactory, nAtoms, null), nAtoms[0]);
     }
     
     /**
@@ -32,9 +32,9 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * of all the atoms below it in the tree, and thus prescribes in part the positioning of 
      * all atoms below its level.
      */
-    public AtomFactoryTree(Simulation sim, Species species, AtomFactory leafFactory, int[] nAtoms, 
+    public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms, 
                             Configuration[] config) {
-        super(sim, species, subFactory(sim, leafFactory, nAtoms, config), 
+        super(sim, subFactory(sim, leafFactory, nAtoms, config), 
                 nAtoms[0], BondInitializer.NULL, config[0]);
     }
     
@@ -48,11 +48,11 @@ public class AtomFactoryTree extends AtomFactoryHomo {
             int[] newDim = new int[nAtoms.length-1];//arraycopy
             for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
             if(config == null) {
-                return new AtomFactoryTree(sim, null, leafFactory, newDim);
+                return new AtomFactoryTree(sim, leafFactory, newDim);
             } else {
                 Configuration[] newConfig = new Configuration[config.length-1];//arraycopy
                 for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
-                return new AtomFactoryTree(sim, null, leafFactory, newDim, newConfig);
+                return new AtomFactoryTree(sim, leafFactory, newDim, newConfig);
             }
         }
     }//end of subFactory

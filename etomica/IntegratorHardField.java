@@ -40,9 +40,9 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         calculateForces();
         
         double t2 = 0.5*tStep*tStep;
-        upAtomIterator.reset();
-        while(upAtomIterator.hasNext()) {
-            Atom a = upAtomIterator.next();
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
             agent.decrementCollisionTime(tStep);
             if(a.coord.isStationary()) {continue;}  //skip if atom is stationary

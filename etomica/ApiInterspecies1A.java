@@ -14,7 +14,7 @@ public final class ApiInterspecies1A implements AtomPairIterator {
     private SpeciesAgent speciesAgent2;
     
     //this should be a neighbor iterator
-    private final AtomIterator atomIterator = new AtomIteratorChildren();
+    private final AtomIterator atomIterator;
     
     private Atom molecule;
     private final IteratorDirective localDirective = new IteratorDirective();
@@ -22,6 +22,7 @@ public final class ApiInterspecies1A implements AtomPairIterator {
     
     public ApiInterspecies1A(Simulation sim) {
         pair = new AtomPair(sim.space);
+        atomIterator = sim.iteratorFactory.makeIntragroupIterator();
     }
     
     /**

@@ -65,6 +65,7 @@ public class Phase extends SimulationElement {
     public Phase(Space space) {
         super(space, Phase.class, nonSimCount++);
         speciesMaster = new SpeciesMaster(this);
+        boundary = Space.Boundary.NULL;
     }
     
     /**
@@ -145,7 +146,7 @@ public class Phase extends SimulationElement {
             sum += s.node.childAtomCount();
             if(sum > i) break;
         }
-        return s.node.getAtom(i-(sum-s.node.childAtomCount()));
+        return ((AtomTreeNodeGroup)s.node).getAtom(i-(sum-((AtomTreeNodeGroup)s.node).childAtomCount()));
     }
     
     /**
@@ -307,7 +308,7 @@ public class Phase extends SimulationElement {
      */
     public void addMolecule(Atom a, SpeciesAgent s) {
         if(a == null || s == null) return;
-        a.node.setParent(s.node);
+        a.node.setParent((AtomTreeNodeGroup)s.node);
     }
     
     /**
@@ -317,7 +318,7 @@ public class Phase extends SimulationElement {
         if(a == null) return;
         a.sendToReservoir();
     }
-
+    
 //need a better way
     /**
     * Synchronized version of deleteMolecule.  

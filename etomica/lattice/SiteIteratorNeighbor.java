@@ -39,7 +39,7 @@ public class SiteIteratorNeighbor implements AtomIterator {
     }
     
     public void setBasis(Site site) {
-        setBasis(site.neighborManater());
+        setBasis(site.neighborManager());
     }
     
     public void setBasis(Atom atom) {

@@ -70,6 +70,9 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         double xmin = 0., xmax = 0.;
         double ymin = 0., ymax = 0.;
         double zmin = 0., zmax = 0.;
+        //temporary commenting
+        //this must be put back in for component to work
+        /*
         for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom(), k+=3) {
             atoms[k/3] = a;
             vert[k] = a.coord.position().component(0);
@@ -82,6 +85,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             if (vert[k+2] < zmin) zmin = vert[k+2];
             if (vert[k+2] > zmax) zmax = vert[k+2];
         }
+        */
         double xw = xmax - xmin;
         double yw = ymax - ymin;
         double zw = zmax - zmin;

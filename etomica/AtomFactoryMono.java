@@ -9,8 +9,8 @@ public class AtomFactoryMono extends AtomFactory {
     
     AtomType atomType;
     
-    public AtomFactoryMono(Simulation sim, Species species) {
-        super(sim, species);
+    public AtomFactoryMono(Simulation sim) {
+        super(sim);
         setType(new AtomType.Sphere(this));//default
     }
     
@@ -26,7 +26,7 @@ public class AtomFactoryMono extends AtomFactory {
      * Builds a single atom.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
-        return new Atom(space, atomType, 
+        return new Atom(parentSimulation().space, atomType, 
                         AtomTreeNodeLeaf.FACTORY, 
                         parentSimulation.getIteratorFactory().neighborSequencerFactory(), 
                         parent);

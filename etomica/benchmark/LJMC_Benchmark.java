@@ -27,7 +27,7 @@ public class LJMC_Benchmark {
             case 2:
 //                Simulation.instance = new Simulation(new SpaceP(3));
 
-               Simulation.instance = new Simulation(new Space3D());
+               Simulation.instance = new Simulation(new Space2D());
 //               Simulation.instance = new Simulation(new etomica.space.continuum.Space(3));
                break;
             case 1:
@@ -36,7 +36,10 @@ public class LJMC_Benchmark {
         }
         
         Simulation sim = Simulation.instance;
-        sim.random.setSeed(0);        
+        sim.random.setSeed(0); 
+        
+//        IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
+//        sim.setIteratorFactory(iteratorFactory);
         
         switch(VERSION) {
             default:
@@ -73,6 +76,7 @@ public class LJMC_Benchmark {
         }       
         
         Phase phase = new Phase(sim);
+//	    iteratorFactory.makeCellLattice(phase);
         
         Controller controller = new Controller();
         IntegratorMC integrator = new IntegratorMC();

@@ -11,7 +11,7 @@ public class IteratorFactoryCell implements IteratorFactory {
     private BravaisLattice[] deployedLattices = new BravaisLattice[0];
     
     public IteratorFactoryCell(Simulation sim) {
-        this(sim, new PrimitiveCubic(sim.space), 2);
+        this(sim, new PrimitiveCubic(sim), 8);
     }
     
     public IteratorFactoryCell(Simulation sim, Primitive primitive, int nCells) {
@@ -24,8 +24,8 @@ public class IteratorFactoryCell implements IteratorFactory {
     public BravaisLattice makeCellLattice(final Phase phase) {
         AtomFactory cellFactory = primitive.unitCellFactory();
         ((PrimitiveCubic)primitive).setSize(phase.boundary().dimensions().component(0)/(double)dimensions[0]);//this needs work
-        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation.space, cellFactory, dimensions, primitive);
-        BravaisLattice lattice = (BravaisLattice)latticeFactory.build();
+        AtomFactory latticeFactory = new BravaisLattice.Factory(simulation, cellFactory, dimensions, primitive);
+        BravaisLattice lattice = (BravaisLattice)latticeFactory.makeAtom();
         NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
             public boolean areNeighbors(Site s1, Site s2) {
                 return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < 0.2;
@@ -431,7 +431,8 @@ public static final class Sequencer extends AtomSequencer implements AbstractLat
 
 //Determines appropriate cell and assigns it
     public void assignCell() {
-        AbstractCell newCell = (AbstractCell)lattice.site(lattice.getPrimitive().latticeIndex(atom.coord.position()));
+        int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.dimensions());
+        AbstractCell newCell = (AbstractCell)lattice.site(latticeIndex);
         if(newCell != cell) {assignCell(newCell);}
     }
 //Assigns atom to given cell
@@ -518,9 +519,11 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
         sim.setIteratorFactory(iteratorFactory);
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
-	    speciesSpheres.setNMolecules(200);
+	    speciesSpheres.setNMolecules(300);
+	    
 	    Phase phase = new Phase();
 	    iteratorFactory.makeCellLattice(phase);
+	    
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    etomica.graphics.DisplayPhase displayPhase = new etomica.graphics.DisplayPhase();

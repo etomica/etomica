@@ -52,6 +52,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         protoType[2].setLongWall(false);
         protoType[3].setLongWall(true);
         setUnitNormal();
+        factory.setSpecies(this);
         factory.setConfiguration(new PistonCylinderConfiguration(sim.space));
         computeDimensions();
     }
