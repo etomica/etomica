@@ -36,4 +36,11 @@ public class IntegratorMC extends Integrator {
             frequencyTotal += m.getFrequency();
         }
     }
+    
+    public IntegratorAgent makeAgent() {
+        return new Agent();
+    }
+    
+    private class Agent implements IntegratorAgent {
+    }
 }

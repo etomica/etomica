@@ -21,6 +21,7 @@ public abstract class Integrator extends Container implements Observer, Serializ
   int integrationInterval;  // number of drawTimeSteps between IntegrationIntervalEvent firing
   int integrationCount;
   double drawTimeStep;
+  boolean doSleep = true;
   private int neighborListUpdateInterval;
 
   public double temperature = 300;
@@ -34,6 +35,8 @@ public abstract class Integrator extends Container implements Observer, Serializ
     neighborListUpdateInterval = Integer.MAX_VALUE;
     phase = new Phase[nPhasesMax];
   }
+  
+  public abstract IntegratorAgent makeAgent();
   
   public final int getSleepPeriod() {return sleepPeriod;}
   public final void setSleepPeriod(int s) {sleepPeriod = s;}
@@ -121,15 +124,18 @@ public abstract class Integrator extends Container implements Observer, Serializ
                 fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhase));
             }
 //            for (int i=0; i<nPhases; i++) {phase[i].repaint();}  //not needed now that displayConfiguration does painting
-
-///            try { Thread.sleep(sleepPeriod); }
-///            catch (InterruptedException e) { }
-            
+            if(doSleep) {
+                try { Thread.sleep(sleepPeriod); }
+                catch (InterruptedException e) { }
+            }
             nSteps++;
 //            System.out.println(nSteps);
         }
         System.exit(0);
     }
+    
+    public void setDoSleep(boolean b) {doSleep = b;}
+    public boolean isDoSleep() {return doSleep;}
 
 //methods to implement mouseListener
     public void mouseClicked(MouseEvent evt) {

@@ -210,5 +210,28 @@ public class IntegratorHard extends Integrator {
         a.collisionTime *= rs;
       }
     }
+    
+    public IntegratorAgent makeAgent() {
+        return new Agent();
+    }
+    
+    private class Agent implements IntegratorAgent {
+      public double time0;  //time since last collision
+      public double collisionTime = Double.MAX_VALUE; //time to next collision
+      public Atom collisionPartner;  //next atom scheduled for collision by atom containing this Aid
+      public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Aid
+
+      public final void setCollision(double time, Atom partner, PotentialHard p) {
+        collisionTime = time;
+        collisionPartner = partner;
+        collisionPotential = p;
+      }
+
+      public final void decrementCollisionTime(double interval) {
+        collisionTime -= interval;
+        time0 += interval;
+      }
+  
+    }
 }
 

@@ -12,6 +12,8 @@ import java.awt.*;
  */
 public abstract class Atom {
 
+    public IntegratorAgent ia;
+    
     /**
      * Color of the atom when drawn on the screen
      */

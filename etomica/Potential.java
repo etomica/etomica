@@ -15,9 +15,15 @@ public class Potential {
   }
       
   public double energy(Atom atom1, Atom atom2) {
+    System.out.println("super energy");
     return 0.0;
   }
   
+  public double energy(AtomC atom1, AtomC atom2) {
+    System.out.println("super energy C");
+    return 0.0;
+  }
+
   public boolean overlap(Atom atom1, Atom atom2) {return false;}
 }
 

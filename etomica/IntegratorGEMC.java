@@ -171,5 +171,12 @@ public class IntegratorGEMC extends Integrator {
         iMolecule = iVolume + freqMolecule*firstPhase.nMoleculeTotal;    
         iTotal = iMolecule;
     }
+    
+    public IntegratorAgent makeAgent() {
+        return new Agent();
+    }
+    
+    private class Agent implements IntegratorAgent {
+    }
 
 }
