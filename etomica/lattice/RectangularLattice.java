@@ -295,9 +295,6 @@ public class RectangularLattice implements FiniteLattice {
             halfNeighborCount = (halfNeighborCount-1)/2;
             neighbors = new int[2*halfNeighborCount];
             pbc = new Vector[2*halfNeighborCount+1];
-            for(int i=0; i<pbc.length; i++) {
-                pbc[i] = Space.makeVector(D);
-            }
             needNeighborUpdate = true;
             unset();
         }
@@ -401,7 +398,6 @@ public class RectangularLattice implements FiniteLattice {
             neighborCount = (direction == null) ? 2*halfNeighborCount : halfNeighborCount;
             int centralSiteIndex = lattice.arrayIndex(centralSite);
             cursor = 0;
-            pbc[0] = null;
             nearestImageVectorCursor = (nearestImageVectors.length-1)/2;
             if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
             if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
