@@ -22,22 +22,27 @@ public final class Debug {
 	 * to get debugging to start before Integrator.run, explicitly
 	 * set DEBUG_NOW to true. 
 	 */
-	public static final int START = 0;
+	public static int START = 0;
 	
 	/**
 	 * what step of the integrator should the simulation bail
 	 * set this to prevent Etomica from running for a long time while 
 	 * outputting debugging information (potentially filling up the disk)  
 	 */
-	public static final int STOP = -1;
+	public static int STOP = -1;
 	
 	/**
 	 * debugging level.  A higher level means more debugging
 	 * performance should suffer as the level goes up, and
 	 * finding useful information might get difficult.
 	 */
-	public static final int LEVEL = 1;
+	public static int LEVEL = 1;
 	
+    /**
+     * true if debugging is currently enabled (when the integrator reaches step START) 
+     */
+    public static boolean DEBUG_NOW = true;
+
 	/**
 	 * leaf atom number of first atom of interest.  The atom is the nth leaf atom 
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
@@ -52,16 +57,14 @@ public final class Debug {
 	 */
 	public static final int ATOM2_NUM = -1;
 	
+    public static final int MOLECULE1_INDEX = -1;
+    public static final int MOLECULE2_INDEX = -1;
+    
     /**
      * index of phase of interest.  -1 indicates no particular phase.
      */
     public static final int PHASE_INDEX = 0;
     
-	/**
-	 * true if debugging is currently enabled (when the integrator reaches step START) 
-	 */
-	public static boolean DEBUG_NOW = false;
-
     /**
      * determines whether this atom is set to be debugged
      * (via ATOMx_NUM and setAtoms(phase)).
@@ -82,6 +85,7 @@ public final class Debug {
 	public static boolean anyAtom(AtomSet atoms) {
 		for (int i=0; i<atoms.count(); i++) {
 			if ((ATOM1 != null && atoms.getAtom(i) == ATOM1) || (ATOM2 != null && atoms.getAtom(i) == ATOM2)) return true;
+            if ((MOLECULE1 != null && atoms.getAtom(i) == MOLECULE1) || (MOLECULE2 != null && atoms.getAtom(i) == MOLECULE2)) return true;
 		}
 		return false;
 	}
@@ -94,7 +98,8 @@ public final class Debug {
 	 */
 	public static boolean allAtoms(AtomSet atoms) {
 		for (int i=0; i<atoms.count(); i++) {
-			if (atoms.getAtom(i) != ATOM1 && atoms.getAtom(i) != ATOM2) return false;
+			if (atoms.getAtom(i) != ATOM1 && atoms.getAtom(i) != ATOM2 
+               && atoms.getAtom(i) != MOLECULE1 && atoms.getAtom(i) != MOLECULE2) return false;
 		}
 		return true;
 	}
@@ -112,6 +117,7 @@ public final class Debug {
 	 * Atoms to be debugged.  These are set by setAtoms(phase)
 	 */
 	public static Atom ATOM1, ATOM2;
+    public static Atom MOLECULE1, MOLECULE2;
 
 	/**
 	 * Sets atoms to be debugged.  This sets ATOM1 and ATOM2 to be the
@@ -121,6 +127,8 @@ public final class Debug {
 	public static void setAtoms(Phase phase) {
 		if (ATOM1_NUM > -1) ATOM1 = phase.speciesMaster.atomList.get(ATOM1_NUM);
 		if (ATOM2_NUM > -1) ATOM2 = phase.speciesMaster.atomList.get(ATOM2_NUM);
+        if (MOLECULE1_INDEX > -1) MOLECULE1 = phase.molecule(MOLECULE1_INDEX);
+        if (MOLECULE2_INDEX > -1) MOLECULE2 = phase.molecule(MOLECULE2_INDEX);
 	}
 
 	/**
@@ -146,12 +154,12 @@ public final class Debug {
        				if (dnNbrCount > 0) throw new RuntimeException(Debug.ATOM2+" is a down and up neighbor of "+Debug.ATOM1);
 					upNbrCount++;
 				}
-                else if (ATOM1.ia instanceof IntegratorHard.Agent) {
-                    if (((IntegratorHard.Agent)ATOM1.ia).collisionPartner == ATOM2) {
-                        throw new IllegalStateException(ATOM2+" is collision partner of "+ATOM1+" but isn't in "+ATOM1+"'s uplist of neighbors");
-                    }
-                }
 			}
+            if (ATOM1.ia instanceof IntegratorHard.Agent && upNbrCount == 0) {
+                if (((IntegratorHard.Agent)ATOM1.ia).collisionPartner == ATOM2) {
+                    throw new IllegalStateException(ATOM2+" is collision partner of "+ATOM1+" but isn't in "+ATOM1+"'s uplist of neighbors");
+                }
+            }
 			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getDownList();
 			for (int i=0; i<list.length; i++) {
 				if (list[i].contains(Debug.ATOM1)) {
@@ -162,11 +170,6 @@ public final class Debug {
        				}
 					dnNbrCount++;
 				}
-                else if (ATOM1.ia instanceof IntegratorHard.Agent) {
-                    if (((IntegratorHard.Agent)ATOM1.ia).collisionPartner == ATOM2) {
-                        throw new IllegalStateException(ATOM2+" is collision partner of "+ATOM1+" but "+ATOM1+" isn't in "+ATOM2+"'s downlist of neighbors");
-                    }
-                }
 			}
 			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getUpList();
 			for (int i=0; i<list.length; i++) {
