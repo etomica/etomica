@@ -15,6 +15,10 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         wrappedPotential = potential;
     }
     
+    public double getRange() {
+        return wrappedPotential.getRange();
+    }
+    
     public double collisionTime(AtomSet atoms, double falseTime) {
         if (wrappedPotential==null) return Double.POSITIVE_INFINITY;
         return wrappedPotential.collisionTime(atoms,falseTime);

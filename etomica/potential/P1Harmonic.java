@@ -75,6 +75,6 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         }
         return force;
     }//end of gradient
-    
+        
 }//end of P1Harmonic
    

@@ -9,10 +9,10 @@ import etomica.AtomPair;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Potential;
+import etomica.PotentialGroup;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialGroup;
 
 /**
  * PotentialCalculation that adds concrete potentials to the NeighborManagerAgents of

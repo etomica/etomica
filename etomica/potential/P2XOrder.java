@@ -72,4 +72,11 @@ public class P2XOrder extends Potential2 implements PotentialHard {
         throw new RuntimeException("P2XOrder.energyChange not implemented");
     }
     
+    /**
+     * Returns infinity.
+     */
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
+    }
+    
 }//end of P2XOrder

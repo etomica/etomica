@@ -3,12 +3,8 @@ package etomica.potential;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Potential;
+import etomica.PotentialGroup;
 import etomica.PotentialMaster;
-
-/* History
- * 08/29/03 (DAK) made actionPerformed(AtomSet) abstract; added PotentialN
- * 09/12/04 revised with overhaul in iterators/potentials
- */
 
 /**
  * Class defining a particular action to be performed on a set of atoms using an

@@ -8,6 +8,7 @@ import etomica.Atom;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
+import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesSpheres;
@@ -28,7 +29,6 @@ import etomica.integrator.IntegratorHard;
 import etomica.potential.P1TetheredHardSpheres;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
-import etomica.potential.PotentialGroup;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 
@@ -62,7 +62,7 @@ public class ChainNEW extends SimulationGraphic {
 		potential = new P2HardSphere();
 		this.hamiltonian.potential.setSpecies(potential, new Species[] {species,species});
 		P1TetheredHardSpheres potentialChainIntra = new P1TetheredHardSpheres();
-		PotentialGroup p2Inter = new PotentialGroup(2);
+		PotentialGroup p2Inter = new PotentialGroup(2, space);
 		P2HardSphere chainSphere = new P2HardSphere(p2Inter);
 		potentialChainIntra.p2Tether.setTetherLength(Default.ATOM_SIZE);
 		hamiltonian.potential.setSpecies(potentialChainIntra, new Species[] {speciesChain});

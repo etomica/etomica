@@ -87,6 +87,10 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     public final etomica.units.Dimension getCoreDiameterDimension() {
         return etomica.units.Dimension.LENGTH;
     }
+    
+    public double getRange() {
+        return wellDiameter;
+    }
 
     public double getLambda() {return lambda;}
     public final void setLambda(double lam) {

@@ -1,9 +1,10 @@
 package etomica.potential;
 
+import etomica.AtomSet;
 import etomica.IteratorDirective;
+import etomica.Phase;
+import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.SpeciesMaster;
-import etomica.exception.MethodNotImplementedException;
 
 /**
  * Group that contains potentials used for long-range correction.
@@ -15,10 +16,10 @@ import etomica.exception.MethodNotImplementedException;
  * @author David Kofke
  */
  
-public class PotentialGroupLrc extends PotentialGroup {
+public class PotentialGroupLrc extends PotentialMaster {
 
     public PotentialGroupLrc(Space space) {
-        super(0,space);
+        super(space);
     }
     
     /**
@@ -27,15 +28,21 @@ public class PotentialGroupLrc extends PotentialGroup {
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
-    //XXX method this doesn't work!
-    public void calculate(SpeciesMaster speciesMaster, IteratorDirective id, PotentialCalculation pc) {
-        throw new MethodNotImplementedException();
-/*        Phase phase = speciesMaster.node.parentPhase();
+    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || phase == null || !phase.isLrcEnabled() || !id.includeLrc) return;
-		for(PotentialLinker link=first; link!=null; link=link.next) {
-			if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-            ((Potential0)link.potential).calculate(phase, id, pc);
-		}//end for*/
+        AtomSet targetAtoms = id.getTargetAtoms();
+        boolean phaseChanged = (phase != mostRecentPhase);
+        mostRecentPhase = phase;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(!link.enabled) continue;
+            if(phaseChanged) {
+                link.iterator.setPhase(phase);
+                link.potential.setPhase(phase);
+            }
+            link.iterator.setTarget(targetAtoms);
+            ((Potential0Lrc)link.potential).setTargetAtoms(targetAtoms);
+            pc.doCalculation(link.iterator, id, link.potential);
+        }//end for
     }//end calculate
     
 }//end of PotentialGroupLrc

@@ -4,6 +4,7 @@
  */
 package etomica.atom.iterator;
 
+import etomica.Atom;
 import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
@@ -12,48 +13,44 @@ import etomica.SpeciesAgent;
 import etomica.atom.AtomsetArray;
 
 /**
- * Iterates molecules (children of SpeciesAgent atoms), as specified by phase
- * and species.  Species must be specified at construction, and when a 
- * subsequent call to setPhase is made, the basis for iteration will be 
- * set to the species agents in that phase.  
+ * Singlet iterator that returns an atom set formed from one or more of the
+ * species agents of a phase. Species must be specified at construction, and
+ * when a subsequent call to setPhase is made, the basis for iteration will be
+ * set to the species agents in that phase.  This iterator is used for calculations
+ * involving zero-body potentials.
  */
-//PotentialMaster uses instances of this class for all iterators it assigns
-//to the potentials added to it via setSpecies.
+//implements AtomsetIteratorMolecule so it can be used by PotentialMaster
 public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
 		implements AtomsetIteratorMolecule {
 
 	/**
-	 * Constructor requires specification of species for which molecules
-	 * are subject to iteration.  If a single species is given in the array,
-	 * then iteration is performed over single-molecules of that species.  If
-	 * two species are given in the array, then iteration is performed over pairs
-	 * formed from molecules of the species; in this case the species may be the
-	 * same instance (resulting in intra-species pair iteration) or different
-	 * instances (resulting in inter-species pair iteration).  If null, zero, or more than
-	 * two species are specified, an IllegalArgumentException is thrown.
+	 * Species are specified at construction and cannot be changed afterward.
+     * Size of atomset is equal to the number of species given here.
 	 */
 	public AtomsetIteratorSpeciesAgent(Species[] species) {
 		super(new AtomsetIteratorSinglet(species.length));
 		this.species = (Species[])species.clone();
 		basisSize = species.length;
 		agents = new SpeciesAgent[basisSize];
-        atoms = new AtomsetArray(basisSize);
+        agentUsed = new boolean[basisSize];
+        atoms = new AtomsetArray(agents);
+        ((AtomsetIteratorSinglet)iterator).setAtom(atoms);
 	}
 
 	/**
-	 * Specifies the phase for which the pre-specified species' molecules
-	 * will be subject to iteration.  If given phase is null, no iterates will
-	 * be returned until a phase is given via another call to this method.
-	 */
+     * Specifies the phase for which the pre-specified species agents are given.
+     * If given phase is null, no iterates will be returned until a phase is
+     * given via another call to this method.
+     */
     public void setPhase(Phase phase) {
-    	this.phase = phase;
-    	if (phase != null) {
-    		for (int i=0; i<basisSize; i++) {
-    			agents[i] = phase.getAgent(species[i]);
-    		}
-            atoms.setAtoms(agents);
-    		((AtomsetIteratorSinglet)iterator).setAtom(atoms);
-    	}
+        if(this.phase != phase) {
+            this.phase = phase;
+            if (phase != null) {
+                for (int i=0; i<basisSize; i++) {
+                    agents[i] = phase.getAgent(species[i]);
+                }
+            }
+        }
     	unset();
     }
 
@@ -73,38 +70,52 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
     	return (Species[])species.clone();
     }
 
+    /**
+     * Allows iteration only if each atom in given AtomSet is
+     * derived from one of the species, with each species being
+     * applied to no more than one target atom.
+     */
     public void setTarget(AtomSet targetAtoms) {
         if (targetAtoms == null) {
             canReset = true;
-            return;
         }
-    	if (targetAtoms.count() > basisSize) {
+    	else if (targetAtoms.count() > basisSize) {
     		canReset = false;
     		return;
     	}
-    	boolean[] agentUsed = new boolean[basisSize];
-    	for (int i=0; i<targetAtoms.count(); i++) {
-    		boolean match = false;
-    		for (int j=0; j<agents.length; j++) {
-    			if (!agentUsed[j] && targetAtoms.getAtom(i).node.parentSpeciesAgent() == agents[j]) {
-    				agentUsed[j] = true;
-    				match = true;
-    				break;
-    			}
-    		}
-    		if (!match) {
-    			canReset = false;
-    			return;
-    		}
-    	}
+        else {
+        	for(int j=0; j<basisSize; j++) {
+                agentUsed[j] = false;
+            }
+        	for (int i=0; i<targetAtoms.count(); i++) {
+        		boolean match = false;
+                Atom atom = targetAtoms.getAtom(i);
+        		for (int j=0; j<basisSize; j++) {
+        			if (!agentUsed[j] && atom.node.isDescendedFrom(agents[j])) {
+        				agentUsed[j] = true;
+        				match = true;
+        				break;
+        			}
+        		}
+        		if (!match) {
+        			canReset = false;
+        			break;
+        		}
+        	}
+        }
+        unset();
     }
     
+    /**
+     * Has no effect.
+     */
     public void setDirection(IteratorDirective.Direction direction) { }
 
     private final Species[] species;
 	private final SpeciesAgent[] agents;
 	private final int basisSize;
 	private boolean canReset = true;
+    private final boolean[] agentUsed;
 	private Phase phase;
     private final AtomsetArray atoms;
 	

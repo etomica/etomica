@@ -1,15 +1,16 @@
-package etomica.potential;
+package etomica;
 
-import etomica.AtomSet;
-import etomica.AtomsetIterator;
-import etomica.IteratorDirective;
-import etomica.Phase;
-import etomica.Potential;
-import etomica.Simulation;
-import etomica.Space;
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterTypeInstance;
+import etomica.atom.iterator.ApiBuilder;
+import etomica.atom.iterator.AtomIteratorBasis;
+import etomica.atom.iterator.AtomIteratorFiltered;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.AtomsetIteratorTargetable;
+import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
+import etomica.potential.Potential0Lrc;
+import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialTruncated;
 
 /**
  * Collection of potentials that act between the atoms contained in
@@ -17,34 +18,14 @@ import etomica.atom.iterator.AtomsetIteratorTargetable;
  * assigned to it.  For each group it iterates over the potentials it contains,
  * instructing these sub-potentials to perform their calculations over the atoms
  * relevant to them in the groups.
- *
- * @author David Kofke
  */
-
- /* History of changes
-  * 8/14/02 (DAK) introduced removePotential method and modified addPotential.
-  */
-
 public class PotentialGroup extends Potential {
     
     /**
-     * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
-     * Space is that for current value of Simulation.instance.
-     */
-    public PotentialGroup(int nBody) {
-        this(nBody, Simulation.getDefault().space);
-    }
-    /**
-     * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
+     * Makes a potential group defined on the position of nBody atom or atom groups.
      */
     public PotentialGroup(int nBody, Space space) {
-        this(nBody, space, null);
-    }
-    /**
-     * Makes instance with given truncation scheme.
-     */
-    public PotentialGroup(int nBody, Space space, PotentialTruncation truncation) {
-        super(nBody, space, truncation);
+        super(nBody, space);
     }
 
 	/**
@@ -58,22 +39,55 @@ public class PotentialGroup extends Potential {
         }//end for
         return false;
     }
+    
+    public void addPotential(Potential potential, AtomType[] types, PotentialMaster potentialMaster) {
+        switch(types.length) {
+            case 1:
+                AtomFilter filter = new AtomFilterTypeInstance(types[0]);
+                addPotential(potential, 
+                        (AtomsetIteratorBasisDependent)AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(),filter));
+                break;
+            case 2:
+                if(this.nBody() == 1) {
+                    addPotential(potential,
+                            ApiBuilder.makeIntragroupTypeIterator(types));
+                }
+                else {
+                    addPotential(potential,
+                            ApiBuilder.makeIntergroupTypeIterator(types));
+                }
+                break;
+        }
+        if(potential instanceof PotentialTruncated) {
+            Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);
+            AtomsetIteratorSpeciesAgent iterator = new AtomsetIteratorSpeciesAgent(makeSpeciesArray(types));
+            potentialMaster.lrcMaster().addPotential(lrc, iterator);
+        }
+    }
  
+    /**
+     * Makes an array of species corresponding to the given array of types.
+     */
+    private Species[] makeSpeciesArray(AtomType[] types) {
+        Species[] species = new Species[types.length];
+        for(int i=0; i<types.length; i++) {
+            species[i] = types[i].getSpecies();
+        }
+        return species;
+    }
+    
 	/**
 	 * Adds the given potential to this group, but should not be called directly.  Instead,
 	 * this method is invoked by the setParentPotential method (or more likely, 
 	 * in the constructor) of the given potential.  
 	 */
-    
-    //this method needs given iterator to implement AtomsetDirectable, but PotentialMaster doesn't.
-    //need to reconcile differences
-	public synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
+	public synchronized void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator) {
 		//the order of the given potential should be consistent with the order of the iterator
 		if(potential.nBody() != iterator.nBody()) {
 			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
 		}
 		//the given iterator should expect a basis of atoms equal in number to the order of this potential
-		if(this.nBody() != ((AtomsetIteratorBasisDependent)iterator).basisSize()) {
+		if(this.nBody() != iterator.basisSize()) {
 			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
 		}
 		//put new potentials at beginning of list
@@ -89,7 +103,7 @@ public class PotentialGroup extends Potential {
 		for (PotentialLinker link=first; link!= null; link=link.next) {	
             if(!link.enabled) continue;
 			//if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
-			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);
+			link.iterator.setBasis(basisAtoms);
 			link.iterator.reset();
 			while(link.iterator.hasNext()) {
 				sum += link.potential.energy(link.iterator.next());
@@ -98,6 +112,10 @@ public class PotentialGroup extends Potential {
 		return sum;
 	}
 	
+    /**
+     * Returns the maximum of the range of all potentials in the group.
+     */
+    //TODO something else better than this
 	public double getRange() {
 	    double range = 0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
@@ -135,7 +153,7 @@ public class PotentialGroup extends Potential {
 		//loop over sub-potentials
     	//TODO consider separate loops for targetable and directable
  		for (PotentialLinker link=first; link!= null; link=link.next) {
-			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
+			link.iterator.setTarget(targetAtoms);
             if (link.iterator instanceof AtomsetIteratorDirectable) {
                 ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
             }
@@ -145,7 +163,7 @@ public class PotentialGroup extends Potential {
     		AtomSet basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
                 if(!link.enabled) continue;
-    			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			
+    			link.iterator.setBasis(basisAtoms);   			
     			pc.doCalculation(link.iterator, id, link.potential);
     		}
      	}
@@ -189,11 +207,11 @@ public class PotentialGroup extends Potential {
 
 	protected static class PotentialLinker implements java.io.Serializable {
 	    protected final Potential potential;
-	    protected final AtomsetIterator iterator;
+	    protected final AtomsetIteratorBasisDependent iterator;
 	    protected PotentialLinker next;
         protected boolean enabled = true;
 	    //Constructors
-	    public PotentialLinker(Potential a, AtomsetIterator i, PotentialLinker l) {
+	    public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, PotentialLinker l) {
 	    	potential = a;
 	    	iterator = i;
 	    	next = l;

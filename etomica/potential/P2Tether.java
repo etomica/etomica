@@ -20,12 +20,6 @@ import etomica.units.Dimension;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-  private double tetherLength, tetherLengthSquared;
-  private double lastCollisionVirial = 0.0;
-  private double lastCollisionVirialr2 = 0.0;
-  private final Vector dr;
-  private final Tensor lastCollisionVirialTensor;
-
   public P2Tether() {
     this(Simulation.getDefault().space);
   }
@@ -44,15 +38,15 @@ public class P2Tether extends Potential2HardSpherical {
   /**
    * Accessor method for the tether distance
    */
-  public final double getTetherLength() {return tetherLength;}
+  public double getTetherLength() {return tetherLength;}
   /**
    * Accessor method for the tether distance
    */
-  public final void setTetherLength(double t) {
+  public void setTetherLength(double t) {
       tetherLength = t;
       tetherLengthSquared = t*t;
   }
-  public final Dimension getTetherLengthDimension() {return Dimension.LENGTH;}
+  public Dimension getTetherLengthDimension() {return Dimension.LENGTH;}
 
   /**
    * Implements collision dynamics for pair attempting to separate beyond tether distance
@@ -83,8 +77,15 @@ public class P2Tether extends Potential2HardSpherical {
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        
     }
-    
 
+    /**
+     * Returns the tether length. The potential range is in fact infinite, but if
+     * the integrator is generating configurations correctly, there will be no atoms
+     * interacting beyond the tetherlength distance.  
+     */
+    public double getRange() {
+        return tetherLength;
+    }
   
   /**
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
@@ -107,18 +108,16 @@ public class P2Tether extends Potential2HardSpherical {
    * Returns infinity if separation is greater than tether distance, zero otherwise
    */
     public double u(double r2) {
-        return (r2 > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
+        return (r2 > tetherLengthSquared) ? Double.POSITIVE_INFINITY : 0.0;
     }
     
     public double energyChange() {return 0.0;}
     
-    /**
-     * Method to demonstrate use of this potential is given as the
-     * main method of the SpeciesSpheres class.
-     */
-/*    public static void main(String[] args) {
-        SpeciesSpheres.main(args);
-    }
- */     
+    private double tetherLength, tetherLengthSquared;
+    private double lastCollisionVirial = 0.0;
+    private double lastCollisionVirialr2 = 0.0;
+    private final Vector dr;
+    private final Tensor lastCollisionVirialTensor;
+   
 }//end of P2Tether
   

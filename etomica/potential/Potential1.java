@@ -23,6 +23,13 @@ public abstract class Potential1 extends Potential {
     }
     
     /**
+     * Returns zero.
+     */
+    public double getRange() {
+        return 0.0;
+    }
+    
+    /**
      * Marker interface indicating that a one-body potential is an intramolecular
      * potential, and not, e.g., a potential of interaction with an external field.
      * This is useful when computing energy changes for molecule translations and

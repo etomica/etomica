@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.iterator.ApiBuilder;

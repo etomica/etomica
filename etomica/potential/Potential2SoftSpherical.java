@@ -7,52 +7,34 @@ import etomica.space.Vector;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
- * Truncation (if defined for the instance) is applied in the energy, virial, 
- * hypervirial and gradient methods.  Subclasses must provide concrete definitions
- * for the energy (method u(double)) and its derivatives without applying truncation.
- *
+ * Subclasses must provide concrete definitions for the energy (method
+ * u(double)) and its derivatives.
+ * 
  * @author David Kofke
  */
  
- /* History
-  * (this change was not implemented) 10/12/02 (DAK) modified virial method to reflect change in definition of virial in Potential2Soft
-  * 08/11/03 modified gradient method to colsolidate two vector operations
-  * into one method call
-  */
-public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
-   
-   private final Vector work1;
-   private final double rD;// = 1/D
+ public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
    
    public Potential2SoftSpherical(Space space) {
         super(space);
         rD = 1.0/(double)space.D();
         work1 = space.makeVector();
    }
-   public Potential2SoftSpherical(Space space, PotentialTruncation trunc) {
-     //constructors repeat code rather than call the other because superclass constructors
-     //define truncation differently.  Since truncation field is final it cannot be
-     //subsequently changed
-        super(space, trunc);
-        rD = 1.0/(double)space.D();
-        work1 = space.makeVector();
-   }
         
    /**
-    * The pair energy u(r^2) with no truncation applied.
+    * The pair energy u(r^2).
     * @param the square of the distance between the particles.
     */
     public abstract double u(double r2);
         
    /**
     * The derivative of the pair energy, times the separation r: r du/dr.
-    * No truncation applied.
     */
     public abstract double du(double r2);
         
    /**
     * The second derivative of the pair energy, times the square of the
-    * separation:  r^2 d^2u/dr^2.  No truncation applied.
+    * separation:  r^2 d^2u/dr^2.
     */
     public abstract double d2u(double r2);
         
@@ -67,53 +49,37 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     public abstract double uInt(double rC);
     
     /**
-     * Energy of the pair as given by the u(double) method, with application
-     * of any PotentialTruncation that may be defined for the potential.
+     * Energy of the pair as given by the u(double) method
      */
     public double energy(AtomSet pair) {
     	cPair.reset((AtomPair)pair);
-    	double r2 = cPair.r2();
-        if(potentialTruncation.isZero(r2)) return 0.0;
-        else return potentialTruncation.uTransform(r2, u(r2));
+        return u(cPair.r2());
     }
     
     /**
-     * Virial of the pair as given by the du(double) method, with application
-     * of any PotentialTruncation that may be defined for the potential.
+     * Virial of the pair as given by the du(double) method
      */
     public double virial(AtomPair pair) {
     	cPair.reset(pair);
-        double r2 = cPair.r2();
-        if(potentialTruncation.isZero(r2)) return 0.0;
-        else return potentialTruncation.duTransform(r2, du(r2));
+        return du(cPair.r2());
     }
     
     /**
-     * Hypervirial of the pair as given by the du(double) and d2u(double) methods, with application
-     * of any PotentialTruncation that may be defined for the potential.
+     * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
     public double hyperVirial(AtomPair pair) {
     	cPair.reset(pair);
         double r2 = cPair.r2();
-        if(potentialTruncation.isZero(r2)) return 0.0;
-        else return potentialTruncation.d2uTransform(r2, d2u(r2)) + potentialTruncation.duTransform(r2, du(r2));
+        return d2u(r2) + du(r2);
     }
     
     /**
-     * Gradient of the pair potential as given by the du(double) method, with application
-     * of any PotentialTruncation that may be defined for the potential.
+     * Gradient of the pair potential as given by the du(double) method.
      */
     public Vector gradient(AtomSet pair) {
-  //  	System.out.println(((P2LennardJones)this).getSigma()+"  "+((AtomType.Sphere)pair.atom1().type).diameter);
     	cPair.reset((AtomPair)pair);
         double r2 = cPair.r2();
-        if(potentialTruncation.isZero(r2)) work1.E(0.0);
-        else {
-            double v = potentialTruncation.duTransform(r2, du(r2));
-            work1.Ea1Tv1(v/r2,cPair.dr());
-//            work1.E(pair.dr());
-//            work1.TE(v/r2);
-        }
+        work1.Ea1Tv1(du(r2)/r2,cPair.dr());
         return work1;
     }
     
@@ -123,4 +89,15 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     public double integral(double rC) {
         return uInt(rC);
     }
+    
+    /**
+     * Returns infinity.  May be overridden to define a finite-ranged potential.
+     */
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
+    }
+
+    private final Vector work1;
+    private final double rD;// = 1/D
+    
 }//end of Potential2SoftSpherical

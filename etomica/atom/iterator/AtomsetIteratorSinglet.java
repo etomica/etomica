@@ -6,7 +6,7 @@ import etomica.Debug;
 import etomica.action.AtomsetAction;
 
 /**
- * Iterator that expires after returning a single atom, which is
+ * Iterator that expires after returning a single atom set, which is
  * specified by a call to the setAtom method, or via the constructor.
  * Subsequent calls to reset() and next() will return the specified atom,
  * until another is specified via setAtom.
@@ -14,13 +14,7 @@ import etomica.action.AtomsetAction;
  * @author David Kofke
  */
  
- /* History of changes
-  * 8/4/02 (DAK) Modified reset(Atom) to set basis to given atom while putting iterator ready for iteration
-  *              Change made while attempting to enable operation of PistonCylinder
-  * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
-  * 08/26/04 (DAK) revised with overhaul of iterators
-  */
-public final class AtomsetIteratorSinglet implements AtomsetIterator {
+ public final class AtomsetIteratorSinglet implements AtomsetIterator {
     
     /**
      * Constructs iterator without defining atom.  No atoms will
@@ -52,7 +46,7 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
     }
     
     /**
-     * returns 1.
+     * returns 1 if atom has been specified, zero otherwise.
      */
     public int size() {return atom != null ? 0 : 1;}
 
@@ -108,5 +102,5 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
     private boolean hasNext = false;
     private AtomSet atom;
 
-}//end of AtomIteratorSinglet
+}//end of AtomsetIteratorSinglet
         

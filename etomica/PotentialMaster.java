@@ -4,8 +4,10 @@ import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.potential.Potential0;
+import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroupLrc;
+import etomica.potential.PotentialTruncated;
 
 
 /**
@@ -45,7 +47,6 @@ public class PotentialMaster {
 		return lrcMaster;
 	 }
 
-	//should build on this to do more filtering of potentials based on directive
      /**
       * Performs the given PotentialCalculation on the atoms of the given Phase.
       * Sets the phase for all molecule iterators and potentials, sets target
@@ -68,6 +69,9 @@ public class PotentialMaster {
 			link.iterator.setDirection(id.direction());
         	pc.doCalculation(link.iterator, id, link.potential);
         }//end for
+        if(lrcMaster != null) {
+            lrcMaster.calculate(phase, id, pc);
+        }
     }//end calculate
     
     /**
@@ -82,13 +86,30 @@ public class PotentialMaster {
     public void setSpecies(Potential potential, Species[] species) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomsetIteratorSpeciesAgent(species));
-    		return;
     	}
-    	if (species.length == 0 || potential.nBody() != species.length) {
+    	else if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-    	AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
-    	addPotential(potential, iterator);
+        else {
+            AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
+            addPotential(potential, iterator);
+            if(potential instanceof PotentialTruncated) {
+                Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(moleculeTypes(species)); 
+                if(lrcPotential != null) {
+                    lrcMaster().addPotential(
+                        lrcPotential,
+                        new AtomsetIteratorSpeciesAgent(species));
+                }
+            }
+        }
+    }
+    
+    private AtomType[] moleculeTypes(Species[] species) {
+        AtomType[] types = new AtomType[species.length];
+        for(int i=0; i<species.length; i++) {
+            types[i] = species[i].getFactory().getType();
+        }
+        return types;
     }
     
     /**
@@ -103,9 +124,14 @@ public class PotentialMaster {
         }
         //Set up to evaluate zero-body potentials last, since they may need other potentials
         //to be configured for calculation first
-        if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
-            last.next = new PotentialLinker(potential, iterator, null);
-            last = last.next;
+        if(potential instanceof Potential0) {//put zero-body potential at end of list
+            if(last == null) {
+                last = new PotentialLinker(potential, iterator, null);
+                first = last;
+            } else {
+                last.next = new PotentialLinker(potential, iterator, null);
+                last = last.next;
+            }
         } else {//put other potentials at beginning of list
             first = new PotentialLinker(potential, iterator, first);
             if(last == null) last = first;
@@ -175,7 +201,9 @@ public class PotentialMaster {
      */
     public void setSimulation(Simulation sim) {}
     
-    public AtomSequencerFactory sequencerFactory() {return iteratorFactory.moleculeSequencerFactory();}
+    public AtomSequencerFactory sequencerFactory() {
+        return iteratorFactory.moleculeSequencerFactory();
+    }
 
     
     /**
@@ -193,11 +221,11 @@ public class PotentialMaster {
     protected boolean enabled = true;
     protected final Space space;
 
-    protected static class PotentialLinker implements java.io.Serializable {
-        protected final Potential potential;
-        protected final AtomsetIteratorMolecule iterator;
-        protected PotentialLinker next;
-        protected boolean enabled = true;
+    public static class PotentialLinker implements java.io.Serializable {
+        public final Potential potential;
+        public final AtomsetIteratorMolecule iterator;
+        public PotentialLinker next;
+        public boolean enabled = true;
         //Constructors
         public PotentialLinker(Potential a, AtomsetIteratorMolecule i, PotentialLinker l) {
             potential = a;

@@ -18,10 +18,16 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         super(space);
     }
     
+    /**
+     * Returns zero.
+     */
     public double energy(AtomSet a) {
         return 0.0;
     }
      
+    /**
+     * Returns zero.
+     */
     public double energyChange() {
         return 0.0;
     }
@@ -40,11 +46,20 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         }
         return 0.25*tmin + falseTime;
     }
-                
+    
+    /**
+     * Performs no action.
+     */
     public void bump(AtomSet a, double falseTime) { }
-        
+    
+    /**
+     * Returns zero.
+     */
     public double lastCollisionVirial() {return 0;}
     
+    /**
+     * Returns null.
+     */
     public Tensor lastCollisionVirialTensor() {return null;}
     
 }

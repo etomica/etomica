@@ -7,6 +7,7 @@ import etomica.DataSource;
 import etomica.Default;
 import etomica.IntegratorPotentialEnergy;
 import etomica.Phase;
+import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -30,7 +31,6 @@ import etomica.nbratom.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialGroup;
 import etomica.space3d.Space3D;
 
 /**

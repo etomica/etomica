@@ -1,8 +1,11 @@
 package etomica.potential;
 
+import etomica.AtomSet;
+import etomica.AtomType;
+import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
-import etomica.Species;
+import etomica.SpeciesAgent;
 
 /**
  * Zero-body potential implementing the long-range correction 
@@ -56,27 +59,102 @@ import etomica.Species;
  */
 public abstract class Potential0Lrc extends Potential0 {
     
-    public final Potential potential;
-    protected Species[] species;
+    protected final AtomType[] types;
+    protected final boolean interType;
+    private final Potential truncatedPotential;
+    protected final int[] lrcAtomsPerMolecule = new int[2];
+    protected final SpeciesAgent[] agents = new SpeciesAgent[2];
     
-    /**
-     * Constructor requires PotentialMaster argument, and calls superclass
-     * constructor such that this class is added dirctly to PotentialMaster's
-     * lrcMaster instance, which manages the lrc potentials.
-     * @param parent  Potential master for the simulation.
-     */
-    public Potential0Lrc(Space space, Potential potential) {
+    public Potential0Lrc(Space space, AtomType[] types, Potential truncatedPotential) {
         super(space);
-        this.potential = potential;
-        potential.setLrc(this);
+        this.types = (AtomType[])types.clone();
+        if(types.length != 2) {
+            throw new IllegalArgumentException("LRC developed only for two-body potentials; must give two species to constructor");
+        }
+        interType = (types[0] != types[1]);
+        this.truncatedPotential = truncatedPotential;
+        divisor = 1;
     }  
     
-	public void setSpecies(Species[] species) {
-		this.species = new Species[species.length];
-		System.arraycopy(species, 0, this.species, 0, species.length);
-	}
-  
+    /**
+     * Returns the potential whose truncation this lrcPotential exists to correct. 
+     */
+    public Potential getTruncatedPotential() {
+        return truncatedPotential;
+    }
+
+    public void setPhase(Phase p) {
+        agents[0] = p.getAgent(types[0].getSpecies());
+        agents[1] = p.getAgent(types[1].getSpecies());
+        phase = p;
+    }
     
+    public void setTargetAtoms(AtomSet targetAtoms) {
+        if (targetAtoms == null) {
+            divisor = 1;
+            return;
+        }
+        switch (targetAtoms.count()) {
+            case 0:
+                divisor = 1;
+                break;
+            case 1:
+                int typeIndex = 1;
+                if (types[0].isDescendedFrom(targetAtoms.getAtom(0).type)) {
+                    typeIndex = 0;
+                }
+                else if (!types[1].isDescendedFrom(targetAtoms.getAtom(0).type)) {
+                    divisor = 0;
+                    return;
+                }
+                divisor = agents[typeIndex].getNMolecules() * lrcAtomsPerMolecule[typeIndex];
+                if (!interType) {
+                    divisor = (divisor - 1)/2.0;
+                }
+                break;
+            case 2:
+                if ((!types[0].isDescendedFrom(targetAtoms.getAtom(0).type) &&
+                        !types[0].isDescendedFrom(targetAtoms.getAtom(1).type)) ||
+                        (!types[1].isDescendedFrom(targetAtoms.getAtom(1).type) &&
+                        !types[1].isDescendedFrom(targetAtoms.getAtom(0).type))) {
+                    divisor = 0;
+                    return;
+                }
+                divisor = agents[0].getNMolecules() * lrcAtomsPerMolecule[0];
+                if (interType) {
+                    divisor *= agents[1].getNMolecules() * lrcAtomsPerMolecule[1]; 
+                }
+                else {
+                    divisor *= (divisor - 1)/2.0;
+                }
+                break;
+            default: throw new IllegalArgumentException("LRC not developed to handle three target atoms");
+        }
+    }
+     
+    /**
+     * Returns the number of pairs formed from molecules of the current
+     * species, in the given phase.
+     * @param phase
+     * @return int
+     */
+    protected int nPairs() {
+        if(divisor == 0) return 0;
+        int nPairs = 0;
+        int n0 = agents[0].getNMolecules()*lrcAtomsPerMolecule[0];
+        if(interType) {
+            int n1 = agents[1].getNMolecules();
+            nPairs = n0*n1*lrcAtomsPerMolecule[1];
+        }
+        else {
+            nPairs = n0*(n0-1)/2;
+        }
+        return (int)Math.round(nPairs/divisor);
+    }
+    
+
+    
+ 
     /**
      * Long-range correction to the energy u.
      */
@@ -92,5 +170,7 @@ public abstract class Potential0Lrc extends Potential0 {
     */
     public abstract double d2uCorrection(double pairDensity);
     
+    protected double divisor;
+    protected Phase phase;
 
 }//end of Potential0Lrc

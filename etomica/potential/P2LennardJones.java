@@ -2,7 +2,6 @@ package etomica.potential;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.units.Dimension;
 
@@ -16,22 +15,11 @@ import etomica.units.Dimension;
  */
 public final class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
 
-    public P2LennardJones() {
-        this(Default.ATOM_SIZE, Default.POTENTIAL_WELL);
-    }
     public P2LennardJones(Space space) {
+        this(space, Default.ATOM_SIZE, Default.POTENTIAL_WELL);
+    }
+    public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
-        setSigma(Default.ATOM_SIZE);
-        setEpsilon(Default.POTENTIAL_WELL);
-    }
-    public P2LennardJones(double sigma, double epsilon) {
-        super(Simulation.getDefault().space);//can't "this" with other constructor
-        setSigma(sigma);
-        setEpsilon(epsilon);
-    }
-    public P2LennardJones(Space space, double sigma, double epsilon,
-                            PotentialTruncation trunc) {
-        super(space, trunc);
         setSigma(sigma);
         setEpsilon(epsilon);
     }
@@ -42,8 +30,7 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     }
 
     /**
-     * The energy u.  No truncation is applied here; 
-     * instead it is applied in the energy(AtomPair) method of Potential2SoftSpherical.
+     * The energy u.
      */
     public double u(double r2) {
         if(r2 != r2Last) {

@@ -40,7 +40,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
      * @param iterator
      * @param filter
      */
-    public ApiFiltered(ApiMolecule iterator, NeighborCriterion filter) {
+    public ApiFiltered(ApiMolecule iterator, AtomPairFilter filter) {
         if(iterator.nBody() != 2) throw new IllegalArgumentException("Illegal attempt to construct pair iterator by wrapping a non-pair iterator");
         this.iterator = iterator;
         this.filter = filter;
@@ -157,7 +157,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
     }
 
     private final ApiMolecule iterator;
-    private final NeighborCriterion filter;
+    private final AtomPairFilter filter;
     private AtomPair next;
     private final AtomPairVector nextAtoms;
 

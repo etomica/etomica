@@ -11,20 +11,14 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
- * Purely attractive square-well potential with no repulsive core.
+ * Purely attractive square-well potential with no repulsive core.  Similar
+ * to P2Tether, but permits atoms to separate.
  *
  * @author Rob Riggleman
  * @author David Kofke
  */
 public class P2HardAssociation extends Potential2 implements PotentialHard {
 
-    private double wellDiameter, wellDiameterSquared;
-    private double epsilon;
-    private double lastCollisionVirial, lastCollisionVirialr2;
-    private final Tensor lastCollisionVirialTensor;
-    private double lastEnergyChange;
-    private final Vector dr;
-    
     public P2HardAssociation() {
         this(Simulation.getDefault().space, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
     }
@@ -127,12 +121,12 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
    * Returns -epsilon if less than well diameter, or zero otherwise.
    */
     public double energy(AtomSet pair) {
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
         return (cPair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
     }
     
    /**
-    * Accessor for well-diameter.
+    * Accessor for well diameter.
     * Since the well-diameter is not a multiplier in this potential as in square well, it is necessary
     * to be able to set this manually if so desired.
     */
@@ -149,6 +143,12 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         wellDiameterSquared = w*w;
     }
     
+    /**
+     * Returns the well diameter.
+     */
+    public double getRange() {
+        return wellDiameter;
+    }
    /**
     * Accessor method for depth of well.
     */
@@ -160,4 +160,12 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     public void setEpsilon(double s) {
         epsilon = s;
     }
+    
+    private double wellDiameter, wellDiameterSquared;
+    private double epsilon;
+    private double lastCollisionVirial, lastCollisionVirialr2;
+    private final Tensor lastCollisionVirialTensor;
+    private double lastEnergyChange;
+    private final Vector dr;
+    
 }//end of P2HardAssociation

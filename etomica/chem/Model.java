@@ -12,15 +12,10 @@ import etomica.potential.PotentialTruncationSimple;
 /**
  * Top-level class for a molecular model.
  */
+//TODO provide means to introduce truncation scheme
 public abstract class Model {
 	
 	public Model() {
-		this(Default.TRUNCATE_POTENTIALS ? 
-						new PotentialTruncationSimple()
-					  : PotentialTruncation.NULL);
-	}
-	public Model(PotentialTruncation truncation) {
-		this.truncation = truncation;
 	}
 	
 	public abstract AtomFactory makeAtomFactory(Space space);
@@ -37,22 +32,5 @@ public abstract class Model {
 	public void setDoNeighborIteration(boolean b) {doNeighborIteration = b;}
 	
 	private boolean doNeighborIteration = false;
-	protected PotentialTruncation truncation;
-
-	/**
-	 * Returns the truncation.
-	 * @return PotentialTruncation
-	 */
-	public PotentialTruncation getTruncation() {
-		return truncation;
-	}
-
-	/**
-	 * Sets the truncation.
-	 * @param truncation The truncation to set
-	 */
-	public void setTruncation(PotentialTruncation truncation) {
-		this.truncation = truncation;
-	}
 
 }

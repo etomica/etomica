@@ -9,6 +9,7 @@ import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
+import etomica.PotentialGroup;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
@@ -29,7 +30,6 @@ import etomica.nbr.cell.AtomsetIteratorCellular;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialGroup;
 import etomica.utility.Arrays;
 import etomica.utility.ObjectArrayList;
 

@@ -18,18 +18,10 @@ import etomica.units.Dimension;
  * Meant for use as an intra-molecular interaction. Atoms can fluctuate between
  * a minimum and maximum separation. Atoms undergo an attractive collision when
  * attempting to separate by more than the maximum and an repulsive collision
- * when attempting to come together closer than the min distance.
+ * when attempting to come together closer than the min distance. P2Tether is 
+ * similar to this potential, but does not have the repulsive core.
  */
 public class P2HardBond extends Potential2 implements PotentialHard {
-
-    private double minBondLengthSquared;
-    private double maxBondLengthSquared;
-    private double bondLength;
-    private double bondDelta;
-    private double lastCollisionVirial = 0.0;
-    private double lastCollisionVirialr2 = 0.0;
-    private final Vector dr;
-    private final Tensor lastCollisionVirialTensor;
 
     public P2HardBond() {
         this(Simulation.getDefault().space);
@@ -72,7 +64,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     public final void setBondLength(double l) {
         bondLength = l;
         double minBondLength = bondLength - bondDelta;
-        double maxBondLength = bondLength + bondDelta;
+        maxBondLength = bondLength + bondDelta;
         minBondLengthSquared = minBondLength * minBondLength;
         maxBondLengthSquared = maxBondLength * maxBondLength;
     }
@@ -182,6 +174,25 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         return Double.POSITIVE_INFINITY;
     }
     
+    /**
+     * Returns the maximum bond length. The potential range is in fact infinite, but if
+     * the integrator is generating configurations correctly, there will be no atoms
+     * interacting beyond the bondlength distance.  
+     */
+    public double getRange() {
+        return maxBondLength;
+    }
+    
     public double energyChange() {return 0.0;}
+
+    private double minBondLengthSquared;
+    private double maxBondLength, maxBondLengthSquared;
+    private double bondLength;
+    private double bondDelta;
+    private double lastCollisionVirial = 0.0;
+    private double lastCollisionVirialr2 = 0.0;
+    private final Vector dr;
+    private final Tensor lastCollisionVirialTensor;
+
 
 }

@@ -36,12 +36,10 @@ import etomica.utility.NameMaker;
  
 public class Species {
 
-    protected static AtomType makeAgentType(Simulation sim) {
-        return new AtomType(sim.speciesRoot.childType.getIndexManager().makeChildManager());
-    }
-    
     /**
      * Constructs species with molecules built by the given atom factory.
+     * Species agents made by this species will have the given type for 
+     * their (common) AtomType.
      */
     public Species(Simulation sim, AtomFactory factory, AtomType agentType) {
         this.factory = factory;
@@ -155,7 +153,17 @@ public class Species {
     public final AtomFactory getFactory() {
         return factory;
     }
-
+    
+    /**
+     * Returns an AtomType that is appropriate for passing to the constructor.
+     * Method is used by subclasses to generate the AtomType for the agent.
+     * This is needed for it to make index managers for the AtomTypes needed
+     * to make the factory (which is also passed to the Species constructor).
+     */
+    protected static AtomType makeAgentType(Simulation sim) {
+        return new AtomType(sim.speciesRoot.childType.getIndexManager().makeChildManager());
+    }
+    
     final AgentList agents = new AgentList();
     final AtomType agentType;
     protected final AtomFactory factory;

@@ -4,7 +4,6 @@ import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
@@ -26,8 +25,6 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private Vector e2;
     private double theta, ec2;
     
-    public P2HardAssociationCone() {this(Simulation.getDefault().space);}
-    
     public P2HardAssociationCone(Space space) {
         super(space);
         e1 = space.makeVector();
@@ -45,6 +42,13 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Lennard-Jones core with an anisotropic, cone-shaped region of square-well attraction");
         return info;
+    }
+    
+    /**
+     * Returns infinity.
+     */
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
     }
 
 

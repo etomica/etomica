@@ -165,6 +165,10 @@ public class AtomIteratorFiltered implements AtomIterator {
 	}
 	
 	public final int nBody() {return 1;}
+    
+    public AtomIterator getWrappedIterator() {
+        return iterator;
+    }
 		
 	protected final AtomIterator iterator;
 	private final AtomFilter filter;

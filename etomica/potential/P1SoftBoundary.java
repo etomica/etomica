@@ -91,5 +91,5 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 		this.radius = radius;
 		radius2 = radius*radius;
 	}
-
+    
 }

@@ -43,8 +43,6 @@ public final class Default {
     
     public static int HISTORY_PERIOD = 100;
     
-    public static boolean TRUNCATE_POTENTIALS = true;
-    
     public static boolean IS_GRAPHIC = false;
     
     public static boolean FIX_OVERLAP = false;

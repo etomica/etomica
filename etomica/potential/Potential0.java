@@ -17,6 +17,13 @@ public abstract class Potential0 extends Potential {
     public Potential0(Space space) {
         super(0, space);
     }
+    
+    /**
+     * Returns zero.
+     */
+    public double getRange() {
+        return 0.0;
+    }
                         
 }//end of Potential0
 
