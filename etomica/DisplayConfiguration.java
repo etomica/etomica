@@ -139,7 +139,7 @@ import java.beans.Beans;
 
   public void doUpdate() {;}
   
-  public synchronized void changeSize(int w, int h, MouseEvent e) {
+  public void changeSize(int w, int h, MouseEvent e) {
       if(e.isControlDown()) {  //change volume of simulated phase
         double rScale;
         int wh;
@@ -157,6 +157,7 @@ import java.beans.Beans;
         for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
           m.inflate(rScale);
         }
+        phase.integrator.initialize();
       }
       else {                    //change scale of image
         //super.changeSize(w,h,e);  doesn't work well

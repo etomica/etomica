@@ -47,7 +47,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     public void initializeCoordinates(Molecule m) {  //doesn't handle wall that is not either horizontal or vertical
         Rectangle rect = parentSpecies.getBounds();
         Phase phase = parentSpecies.getParentPhase();
-        int  width = (longWall && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if spanVolume, to species otherwise
+        int  width = (longWall && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if longWall, to species otherwise
         int height = (longWall && phase != null) ? phase.getBounds().height : rect.height;
         double x = (horizontal && longWall) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
         double y = (vertical && longWall)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
@@ -73,7 +73,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             Space.uEa1(a.r,0.0);
             a.r[i] = xyNext;
             xyNext += delta;
-            a.setDiameter(wh);
+            a.setDiameter(wh);   //length of wall
             ((AtomWall)a).setAngle(angle);
             ((AtomWall)a).setTemperature(temperature);
         }

@@ -126,6 +126,8 @@ public final class Phase extends Container {
   
   private Phase nextPhase;
   private Phase previousPhase;
+  
+  public Integrator integrator;
     
   public Phase() {
     setLayout(null);
@@ -402,8 +404,9 @@ public final class Phase extends Container {
       updatedKineticEnergy = true;
     }
  
+ //  This method to be eliminated
  // Works only for one species
-    public boolean overlap(Atom atom, double energy) {
+/*    public boolean overlap(Atom atom, double energy) {
       energy = 0.0;
       for(Atom a=firstAtom(); a!=atom; a=a.getNextAtom()) {
          double u = 0.0;
@@ -414,12 +417,12 @@ public final class Phase extends Container {
       for(Atom a=atom.getNextAtom(); a!=null; a=a.getNextAtom()) {
          double u = 0.0;
          Potential pot = potential2[0][0].getPotential(atom,a);
-         if(pot.overlap(atom,a,u)) {return true;}
+         if(pot.overlap(atom,a)) {return true;}
          else {energy += u;}
       }      
       return false;
     }
-        
+*/        
     public void updatePotentialEnergy() {
 /*      potentialEnergy = 0.0;
       for(Molecule m1=firstMolecule; m1!=null; m1=m1.getNextMolecule()) {

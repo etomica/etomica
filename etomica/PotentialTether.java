@@ -1,8 +1,10 @@
 package simulate;
 
-public class PotentialTether extends Potential {
+public class PotentialTether extends Potential implements PotentialHard {
 
   private double tetherLength, tetherLengthSquared;
+  protected transient final double[] r12 = new double[Space.D];  //work arrays
+  protected transient final double[] v12 = new double[Space.D];
 
   public PotentialTether() {
     setTetherLength(0.1);
@@ -17,7 +19,7 @@ public class PotentialTether extends Potential {
 //----------------------------------------------------------------------
 
   public final void bump(Atom atom1, Atom atom2) {
-    space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
+    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
     double r2 = tetherLengthSquared;
     double bij = Space.v1Dv2(v12, r12);
@@ -31,7 +33,7 @@ public class PotentialTether extends Potential {
 
   public final double collisionTime(Atom atom1, Atom atom2) {
 
-    space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
+    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
     double bij = Space.v1Dv2(r12,v12);                           //r12 . v12
     double r2 = Space.v1S(r12);
@@ -61,7 +63,7 @@ public class PotentialTether extends Potential {
   }
   
     public double energy(Atom atom1, Atom atom2) {
-        return (space.r1Mr2_S(atom1.r, atom2.r) > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
+        return (parentPhase.space.r1Mr2_S(atom1.r, atom2.r) > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
   
 }

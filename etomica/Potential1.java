@@ -23,12 +23,12 @@ public abstract class Potential1 extends Component {
   
   public void setSpace(Space s) {
     this.space = s;
-    for(int i=0; i<nAtoms-1; i++) {
+/*    for(int i=0; i<nAtoms-1; i++) {
         for(int j=0; j<nAtoms-1; j++) {
             potential[i][j].space = s;
         }
     }
-  }
+*/  }
         
   public final int getSpeciesIndex() {return this.speciesIndex;}  
   public final void setSpeciesIndex(int index) {this.speciesIndex = index;}

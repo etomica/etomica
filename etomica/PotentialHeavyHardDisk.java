@@ -12,7 +12,7 @@ public final class PotentialHeavyHardDisk extends PotentialHardDisk
     }
 
     public double collisionTime(Atom atom1, Atom atom2) {
-        space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
+        parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
         Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1 = (p/m)2 - (p/m)1
         double bij = Space.v1Dv2(r12,v12);                           //r12 . v12
         double time = Double.MAX_VALUE;
@@ -30,7 +30,7 @@ public final class PotentialHeavyHardDisk extends PotentialHardDisk
     
     public void bump(Atom atom1, Atom atom2)
     {
-        space.uEr1Mr2(r12, atom2.r, atom1.r);     //instance method      //r2-r1
+        parentPhase.space.uEr1Mr2(r12, atom2.r, atom1.r);     //instance method      //r2-r1
         Space.uEa1Tv1Ma2Tv2(v12, atom2.rm, atom2.p, atom1.rm, atom1.p);  //v2-v1 = (p/m)2 - (p/m)1
         double factor = 2.0/(atom1.rm + atom2.rm)*Space.v1Dv2(r12,v12)/sig2;
         Space.uPEa1Tv1(atom1.p, factor, r12);

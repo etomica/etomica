@@ -3,7 +3,7 @@ package simulate;
 import java.beans.*;
 import java.awt.*;
 
-public class PotentialHardDiskPiston extends simulate.Potential
+public class PotentialHardDiskPiston extends Potential implements PotentialHard
 {
     private double collisionDiameter;
     private double collisionRadius;
@@ -80,7 +80,7 @@ public class PotentialHardDiskPiston extends simulate.Potential
         double dp = -2.0/(atom1.rm + atom2.rm)*dv;
         wall.p[i] += dp;
         disk.p[i] -= dp; 
-        double dr = space.r1iMr2i(i,wall.r,disk.r);
+        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
         disk.r[i] = wall.r[i] - (1.+1.e-5)*collisionRadius*Math.abs(dr)/dr;
     }
     

@@ -16,7 +16,9 @@ public class MoleculeWall extends Molecule {
   
   public void inflate(double scale) {
     super.inflate(scale);
-    parentSpecies.configurationMolecule.initializeCoordinates(this);  //for long wall
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {  //scale length of wall
+        a.setDiameter(scale*a.getDiameter());
+    }
   }
   
 }

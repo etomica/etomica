@@ -323,7 +323,7 @@ public class Molecule implements Serializable {
      * @see #translate
      */
    public final void displace(double[] dr) {
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
+    Atom nextMoleculeAtom = terminationAtom();
     for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.displace(dr);}
    }
    

@@ -141,7 +141,7 @@ public class IntegratorHard extends Integrator {
     //Loop through remaining uplist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
     for(Atom a=atom.getNextAtom(); a!=nextMoleculeAtom; a=a.getNextAtom()) {
-        Potential potential = p1.getPotential(atom,a);
+        PotentialHard potential = (PotentialHard)p1.getPotential(atom,a);
         double time = potential.collisionTime(atom,a);
         if(time < minCollisionTime) {
             minCollisionTime = time;
@@ -153,7 +153,7 @@ public class IntegratorHard extends Integrator {
 //    Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
     for(Atom a=nextMoleculeAtom; a!=null; a=a.getNextAtom()) {
 //        Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
-        Potential potential = firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
+        PotentialHard potential = (PotentialHard)firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
         double time = potential.collisionTime(atom,a);
         if(time < minCollisionTime) {
             minCollisionTime = time;
@@ -173,7 +173,7 @@ public class IntegratorHard extends Integrator {
     //Loop through remaining downlist atoms in this atom's molecule
     Potential1 p1 = firstPhase.potential1[atomSpeciesIndex];
     for(Atom a=atom.getPreviousAtom(); a!=previousMoleculeAtom; a=a.getPreviousAtom()) {
-        Potential potential = p1.getPotential(a,atom);
+        PotentialHard potential = (PotentialHard)p1.getPotential(a,atom);
         double time = potential.collisionTime(a,atom);
         if(time < a.getCollisionTime()) {
             a.setCollision(time,atom,potential);
@@ -183,7 +183,7 @@ public class IntegratorHard extends Integrator {
     //Loop through remaining downlist atoms in firstPhase
  //   Potential2[] p2 = firstPhase.potential2[atomSpeciesIndex];
     for(Atom a=previousMoleculeAtom; a!=null; a=a.getPreviousAtom()) {
-        Potential potential = firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
+        PotentialHard potential = (PotentialHard)firstPhase.potential2[a.getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,a);
  //       Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
         double time = potential.collisionTime(atom,a);
         if(time < a.getCollisionTime()) {

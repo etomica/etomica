@@ -3,7 +3,7 @@ package simulate;
 import java.awt.*;
 import java.beans.Beans;
 
-public class PotentialSquareWell extends Potential {
+public class PotentialSquareWell extends Potential implements PotentialHard {
 
   private double coreDiameter, coreDiameterSquared;
   private double wellDiameter, wellDiameterSquared;
@@ -31,7 +31,7 @@ public class PotentialSquareWell extends Potential {
  
   public void bump(Atom atom1, Atom atom2) {
     double eps = 1.0e-6;
-    space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
+    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
     double r2 = Space.v1S(r12);
     double bij = Space.v1Dv2(v12, r12);
@@ -77,7 +77,7 @@ public class PotentialSquareWell extends Potential {
   public double collisionTime(Atom atom1, Atom atom2) {
     double discr = 0.0;
 
-    space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
+    parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
     double bij = Space.v1Dv2(r12,v12);                           //r12 . v12
     double r2 = Space.v1Dv2(r12,r12);
@@ -118,7 +118,7 @@ public class PotentialSquareWell extends Potential {
   }
   
     public double energy(Atom atom1, Atom atom2) {
-        double r2 = space.r1Mr2_S(atom1.r, atom2.r);
+        double r2 = parentPhase.space.r1Mr2_S(atom1.r, atom2.r);
         return ( r2 < wellDiameterSquared) ? 
                     ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
     }

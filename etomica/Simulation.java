@@ -49,6 +49,7 @@ public class Simulation extends Container {
     if(haveIntegrator()) {
         controller.integrator.registerPhase(p);
         p.gravity.addObserver(controller.integrator);
+        p.integrator = controller.integrator;
     }
     for(Display d=firstDisplay; d!=null; d=d.getNextDisplay()) {
         d.setPhase(p);

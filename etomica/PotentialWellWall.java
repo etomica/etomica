@@ -8,7 +8,7 @@ import java.beans.Beans;
 // Not written to handle moving wall
 // No momentum or energy accumulation in wall is recorded
 
-public class PotentialWellWall extends simulate.Potential
+public class PotentialWellWall extends Potential implements PotentialHard
 {
 
   private double coreDiameter, coreDiameterSquared;
@@ -38,7 +38,7 @@ public class PotentialWellWall extends simulate.Potential
         
         int i = (wall.isHorizontal()) ? 1 : 0;
 
-        double dr = space.r1iMr2i(i,wall.r,disk.r);
+        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
         double dv = 0.0-disk.p[i]*disk.rm;   //stationary wall
        
         double bij = dr*dv;
@@ -78,7 +78,7 @@ public class PotentialWellWall extends simulate.Potential
         }
                
         int i = (wall.isHorizontal()) ? 1 : 0;
-        double dr = space.r1iMr2i(i,wall.r,disk.r);
+        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
         double dv = -disk.p[i]*disk.rm;
        
         double bij = dr*dv;     //r12 . v12

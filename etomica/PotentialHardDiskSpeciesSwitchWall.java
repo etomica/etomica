@@ -3,7 +3,7 @@ package simulate;
 import java.beans.*;
 import java.awt.*;
 
-public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
+public class PotentialHardDiskSpeciesSwitchWall extends Potential implements PotentialHard
 {
     SpeciesDisks changeSpecies;
     
@@ -37,7 +37,7 @@ public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
         else {i = 0;}
         
         if(parentPhase.noGravity || i==0 || !(wall.isStationary() || disk.isStationary())) {
-            double dr = space.r1iMr2i(i,wall.r,disk.r);
+            double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
             double dv = wall.p[i]*wall.rm-disk.p[i]*disk.rm;
             double time = -dr/dv;
             return (time > 0.0) ? time : Double.MAX_VALUE;
@@ -45,7 +45,7 @@ public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
         else {  //This could be greatly simplified given that collisionRadius = 0
             double time = Double.MAX_VALUE;
             double dr, dv;
-            dr = space.r1iMr2i(i,wall.r,disk.r);
+            dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
             dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
             if(Math.abs(dr) < collisionRadius) {   //this may still need some work
                 return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
@@ -95,7 +95,7 @@ public class PotentialHardDiskSpeciesSwitchWall extends simulate.Potential
         if(wall.isVertical()) {i = 0;}
         else if(wall.isHorizontal()) {i = 1;}
         else {i = 0;}
-        double dr = space.r1iMr2i(i,wall.r,disk.r);
+        double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
         double dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
         if(dr*dv > 0.0) { //OK, they are separating
             return;}  

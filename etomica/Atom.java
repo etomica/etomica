@@ -121,7 +121,7 @@ public class Atom {
      * (interatomic) potential governing interations between this atom and
      * its collision partner.
      */
-    Potential collisionPotential;
+    PotentialHard collisionPotential;
     
     /**
      * Flag indicating whether atom is subject to any forces
@@ -351,7 +351,7 @@ public class Atom {
      * @param partner    atom with which next collision will occur
      * @param potential  interatomic potential between these atoms
      */
-    public final void setCollision(double time, Atom partner, Potential p) {
+    public final void setCollision(double time, Atom partner, PotentialHard p) {
         collisionTime = time;
         collisionPartner = partner;
         collisionPotential = p;
@@ -371,7 +371,7 @@ public class Atom {
     this.time0 += interval;
   }
   
-  public final Potential getCollisionPotential() {return collisionPotential;}
+  public final PotentialHard getCollisionPotential() {return collisionPotential;}
   
   public final Atom getCollisionPartner() {return collisionPartner;}
   

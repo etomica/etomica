@@ -220,11 +220,10 @@ import java.awt.event.*;
 
     //keyListener methods
     
-    public void keyPressed(KeyEvent e) {System.out.println("keypressed:");}
-    public void keyReleased(KeyEvent e) {System.out.println("keyreleased: ");}
+    public void keyPressed(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {}
     public void keyTyped(KeyEvent e) {
         char c = e.getKeyChar();
-        System.out.println("keytyped: "+c);
         if(Character.isDigit(c)) {digitTyped(Character.getNumericValue(c));}
         else if(Character.isLetter(c)) {letterTyped(c);}
     }

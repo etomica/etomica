@@ -22,8 +22,8 @@ public class P1TetherHardDisk extends Potential1 {
   
   public final void setSpace(Space s) {
     this.space = s;
-    potentialTether.space = s;
-    potentialHD.space = s;
+//    potentialTether.space = s;
+//    potentialHD.space = s;
   }
 
   public final double getTetherLength() {return potentialTether.getTetherLength();}
