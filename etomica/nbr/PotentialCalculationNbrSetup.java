@@ -26,16 +26,14 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 	public PotentialCalculationNbrSetup() {
 		super();
 	}
-    
-    
 
-    /* (non-Javadoc)
-     * @see etomica.PotentialCalculation#doCalculation(etomica.AtomsetIterator, etomica.IteratorDirective, etomica.Potential)
-     */
     public void doCalculation(AtomsetIterator iterator, IteratorDirective id,
             Potential potential) {
         if(iterator instanceof ApiFiltered) {
             nearestImageVectorSource = (NearestImageVectorSource)iterator;
+        }
+        else if (iterator.nBody() == 1) {
+            nearestImageVectorSource = null;
         }
         super.doCalculation(iterator, id, potential);
     }
@@ -56,7 +54,7 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();
-            Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
+            Vector nearestImageVector = nearestImageVectorSource == null ? null : nearestImageVectorSource.getNearestImageVector();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
 			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential, nearestImageVector);
