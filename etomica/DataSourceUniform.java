@@ -11,9 +11,15 @@ import etomica.units.Dimension;
  * @see DataSourceUniform.LimitType
  *
  * @author David Kofke
+ * 
  */
- 
- public class DataSourceUniform implements DataSource {
+/*
+ * History
+ * ?? 		DAK				Created
+ * 8/4/04	DAK,AJS,NRC	Add Index method
+ */
+
+public class DataSourceUniform implements DataSource {
     
     private Dimension dimension = Dimension.NULL;
     private String label = "";
@@ -21,6 +27,7 @@ import etomica.units.Dimension;
     private LimitType typeMin, typeMax;
     private double xMin, xMax;
     private double[] x = new double[2];
+    private double dx;
     
     /**
      * Default constructor. Chooses 100 points between 0 and 1, inclusive.
@@ -43,7 +50,11 @@ import etomica.units.Dimension;
         
         //determine number of intervals between left and right end points
         double intervalCount = (double)(nValues - 1);
+
         
+        /*
+         * See inner class LimitType (below) for more information.
+         */
         if(typeMin == HALF_STEP) intervalCount += 0.5;
         else if(typeMin == EXCLUSIVE) intervalCount += 1.0;
         
@@ -51,7 +62,7 @@ import etomica.units.Dimension;
         else if(typeMax == EXCLUSIVE) intervalCount += 1.0;
         
         //determine spacing between values
-        double dx = (xMax - xMin)/intervalCount;
+        dx = (xMax - xMin)/intervalCount;
         
         //determine first value
         double x0 = xMin;
@@ -68,6 +79,21 @@ import etomica.units.Dimension;
         this.typeMin = typeMin;
         this.typeMax = typeMax;
     }//end of calculateX
+    
+    /**
+     * Returns the index of the x value closest to the argument.
+     * @throws an IllegalArgumentException if the argument is outside the defined range.
+     * @param the double you are testing
+     */
+    public int getIndex(double y) {
+    	// Test whether or not the desired value is in the defined range.
+    	if(y < xMin || y > xMax) throw new IllegalArgumentException("Value outside of defined range in DataSourceUniform.getIndex");
+    	int i =(int)((y - x[0]) / dx + 0.5);
+    	// Comparing to indices; integers are faster.
+    	if(i < 0) return 0;
+    	if(i > x.length-1) return x.length - 1;
+    	return i;
+    }
     
     /**
      * Sets the number of uniformly spaced values.
@@ -197,7 +223,7 @@ import etomica.units.Dimension;
     public static final LimitType EXCLUSIVE = LimitType.CHOICES[2];
     
     /**
-     * main method to demonstrate and check class.
+     * Main method to demonstrate and check class.
      * Should output the values described in the comments for the LimitType class.
      */
 /*    public static void main(String args[]) {

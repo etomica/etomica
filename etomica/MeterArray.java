@@ -9,6 +9,10 @@ package etomica;
   */
 public abstract class MeterArray extends MeterAbstract {
     
+	/**
+	 * Constructor with default nDataPerPhase = 1
+	 * @param parent
+	 */
 	public MeterArray(SimulationElement parent) {
 	    this(parent, 1);
 	}
@@ -17,6 +21,12 @@ public abstract class MeterArray extends MeterAbstract {
 		super(parent, nDataPerPhase);
 	}
 	
+	/**
+	 * Returns same quantity as getData method. Included for parallel
+	 * structure with other MeterAbstract subclasses.
+	 * @param phase
+	 * @return
+	 */
 	public abstract double[] getDataAsArray(Phase phase);
 	
 	public final double[] getData(Phase phase) {

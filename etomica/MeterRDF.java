@@ -47,7 +47,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    while(iterator.hasNext()) {                 //iterate over all pairs
 	        double r2 = iterator.next().r2();       //compute pair separation
 	        if(r2 < xMaxSquared) {
-	            int index = ((DataSourceUniform)xDataSource).getIndex(Math.sqrt(r2));  //(int)(Math.sqrt(r2)/delr);          //determine histogram index
+	            int index = ((DataSourceUniform)xDataSource).getIndex(Math.sqrt(r2));  //determine histogram index
 	            phaseData[index]++;                        //add once for each atom
 	        }
 	    }

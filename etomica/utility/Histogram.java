@@ -1,14 +1,12 @@
 package etomica.utility;
 
-import etomica.DataSource;
-import etomica.units.Dimension;
-//import ptolemy.plot.Plot;
 
 /* History
  * 09/08/02 (DAK) added set/get methods for xMin, xMax, nValues
+ * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
  */
 
-public class Histogram implements DataSource.X {
+public class Histogram {
 	private double deltaX;
 	private int  sum;
 	private int[] counts;
@@ -21,8 +19,6 @@ public class Histogram implements DataSource.X {
     private double xMax,xMaxOld ;
     private int nValues ;
     private String name, label, xLabel;
-    private Dimension dimension = Dimension.NULL;
-    private Dimension xDimension = Dimension.NULL;
 
     /**
      * Default constructor, making a 100-bin histogram.  Sets autoscale to true.
@@ -56,15 +52,9 @@ public class Histogram implements DataSource.X {
 	
 	public void setLabel(String s) {label = s;}
 	public String getLabel() {return label;}
-	
-    public Dimension getDimension() {return dimension;}
-    public void setDimension(Dimension dim) {dimension = dim;}
-        
+	       
 	public void setXLabel(String s) {xLabel = s;}
 	public String getXLabel() {return xLabel;}
-	
-    public Dimension getXDimension() {return xDimension;}
-    public void setXDimension(Dimension dim) {xDimension = dim;}
         
 	public boolean isAutoScale() {return autoScale;}
 	public void setAutoScale(boolean b) {autoScale = b;}
@@ -177,12 +167,8 @@ public class Histogram implements DataSource.X {
 	    }
 	    return histogram;
     }
-    public double[] data(DataSource.ValueType dummy) {
-        return getHistogram();
-    }
+ 
     public double[] xValues() {return xvalues;}
-    
-    public etomica.DataSource.ValueType[] dataChoices() {return null;}
     
     public double[] getX() {return xvalues;}
     

@@ -5,12 +5,13 @@ import etomica.units.Unit;
 import etomica.utility.IntegerRange;
 
 /**
- * Parent of classes that perform measurements on a phase.  
- * A Phase-dependent DataSource.
+ * Parent of classes that perform measurements on one or more phases.  
+ * A Phase-dependent DataSource.  Subclasses must implement the
+ * getData(Phase) method, and define the nDataPerPhase field.
  *
  * @author David Kofke
  */
-public abstract class MeterAbstract extends SimulationElement implements DataSource, PhaseDependent, java.io.Serializable {
+public abstract class MeterAbstract extends SimulationElement implements DataSource, PhaseDependent {
 
     public static final String VERSION = "MeterAbstract:01.07.25";
     
@@ -62,6 +63,9 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
 	
     /**
      * Sets the phases on which the meter performs its measurements.
+     * A subsequent call to getData() will cause the measurement to be
+     * performed on all these phases, and the arrays return for each
+     * will be concatenated and returned by the getData() call.
      */
 	public void setPhase(Phase[] p) {
 		phaseCount = p.length;
@@ -103,6 +107,15 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
 	 */
     public abstract double[] getData(Phase phase);
 	
+    public int getNDataPerPhase() {return nDataPerPhase;}
+    /**
+     * Performs measurment on all phases previously set with the most
+     * recent call to setPhase.
+     * @return an array that is the concatenation of the arrays returned
+     * by calling getData(Phase) on each phase. Data for phase j (where
+     * first phase is j = 0) will be found in nDataPerPhase elements 
+     * beginning at getData()[j*nDataPerPhase]
+     */
     public double[] getData() {
     	int k = 0;
     	for(int i=0; i<phaseCount; i++) {
@@ -112,6 +125,11 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
     	return data;
     }
     
+    /**
+     * Returns an IntegerRange that specifies the acceptable number of
+     * phases that can be set for this meter.  Part of PhaseDependent
+     * interface.
+     */
     public IntegerRange phaseCountRange() {return phaseCountRange;}
     
 	/**
