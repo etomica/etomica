@@ -70,20 +70,19 @@ public class P2HardSphere extends Potential2HardSpherical {
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
         dr.PEa1Tv1(falseTime,dv);
-        double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double v2 = dv.squared();
-        double time = Double.MAX_VALUE;
+        double time = Double.POSITIVE_INFINITY;
 
         if(bij < 0.0) {
-        	if (Default.FIX_OVERLAP && r2 < sig2) return 0.0;
-            double discriminant = bij*bij - v2 * ( r2 - sig2 );
+        	if (Default.FIX_OVERLAP && dr.squared() < sig2) return 0.0;
+            double v2 = dv.squared();
+            double discriminant = bij*bij - v2 * ( dr.squared() - sig2 );
             if(discriminant > 0) {
                 time = (-bij - Math.sqrt(discriminant))/v2;
             }
         }
         if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || time < 0.0)) {
-        	System.out.println("atoms "+pair[0]+" and "+pair[1]+" r2 "+r2+" bij "+bij+" time "+time);
+        	System.out.println("atoms "+pair[0]+" and "+pair[1]+" r2 "+dr.squared()+" bij "+bij+" time "+time);
         	if (time < 0.0) throw new RuntimeException("negative collision time for hard spheres");
         }
         return time + falseTime;
