@@ -53,8 +53,8 @@ public class LatticeCubic implements Lattice {
             while (rows[i].iterator().hasNext()) {
                 Lattice.Site pSite = rows[i-1].iterator().next(); 
                 Lattice.Site nSite = rows[i].iterator.next();
-                ((NeighborIterator)pSite.neighborIterator()).addNeighbor(nSite);
-                ((NeighborIterator)nSite.neighborIterator()).addNeighbor(pSite);
+                ((AdjacentIterator)pSite.adjacentIterator()).add(nSite);
+                ((AdjacentIterator)nSite.adjacentIterator()).add(pSite);
             }
         }
         //This does the periodic boundary
@@ -63,8 +63,8 @@ public class LatticeCubic implements Lattice {
         while (rows[0].iterator().hasNext()) {
             Lattice.Site pSite = rows[0].iterator().next(); 
             Lattice.Site nSite = rows[nRows-1].iterator.next();
-            ((NeighborIterator)pSite.neighborIterator()).addNeighbor(nSite);
-            ((NeighborIterator)nSite.neighborIterator()).addNeighbor(pSite);
+            ((AdjacentIterator)pSite.adjacentIterator()).add(nSite);
+            ((AdjacentIterator)nSite.adjacentIterator()).add(pSite);
         }
         iterator = new LatticeIterator(rows);
         siteCount = nRows*rows[0].siteCount();
@@ -78,7 +78,8 @@ public class LatticeCubic implements Lattice {
 //          this(Array.fill(new int[d],size));
 //    }
 
-    public int siteCount() {return siteCount;}  
+    public final int D() {return D;}
+    public final int siteCount() {return siteCount;}  
     public int coordinationNumber() {return 2*D;}
     public Lattice.Site site(Lattice.Coordinate coord) {return site((Coordinate)coord);}
     public Lattice.Site site(Coordinate coord) {
@@ -98,11 +99,12 @@ public class LatticeCubic implements Lattice {
     public int index() {return index;}
     public void setParentLattice(LatticeCubic lat, int i) {parentLattice = lat; index = i;}
     
-    public class Coordinate implements Lattice.Coordinate{
+    public static class Coordinate implements Lattice.Coordinate{
         //first value (index[0]) indicates the site in the row
         //second value indicates which row in the plane, third value which plane in the cube, etc.
-        public int[] index;  
-        public Coordinate() {index = new int[D];}
+        public int[] index;
+        public int D;
+        public Coordinate(int D) {this.D = D; index = new int[D];}
         public Coordinate(int[] i) {setIndex(i);}
         public void setIndex(int[] i) {
             if(i.length == D) {index = i;}
@@ -115,6 +117,7 @@ public class LatticeCubic implements Lattice {
             // require 0 <= d < D; 0 <= value < (size of row at dimension depth d)
             index[d] = value;
         }
+        
     }
     
     /**
@@ -147,6 +150,9 @@ public class LatticeCubic implements Lattice {
             }
             return nextSite;
         }
+        public void allSites(Lattice.Site.Action act) {
+            for(int i=0; i<nRows; i++) {rows[i].iterator().allSites(act);}
+        }
     }
         
     //Iterator for a lattice that contains only one site (zero-D lattice)
@@ -158,12 +164,13 @@ public class LatticeCubic implements Lattice {
         public Lattice.Site first() {return site;}
         public void reset() {hasNext = true;}
         public Lattice.Site next() {hasNext = false; return site;}
+        public void allSites(Lattice.Site.Action act) {act.action(site);}
     }
     
     //Iterator to generate neighbors of site on LatticeCubic
-    private static final class NeighborIterator implements Lattice.Site.Iterator {
-        private SiteLinker first, nextLink;
-        public void addNeighbor(Lattice.Site s) {first = new SiteLinker(first, s);}
+    private static final class AdjacentIterator implements Lattice.Site.Iterator {
+        private Lattice.Site.Linker first, nextLink;
+        public void add(Lattice.Site s) {first = new Lattice.Site.Linker(first, s);}
         public boolean hasNext() {return nextLink != null;}
         public void reset() {nextLink = first;}
         public Lattice.Site first() {return first.site;}
@@ -171,26 +178,38 @@ public class LatticeCubic implements Lattice {
            Lattice.Site nextSite = nextLink.site;
            nextLink = nextLink.next;
            return nextSite;
-        }  
-        
-        private static final class SiteLinker {
-            public final Lattice.Site site;
-            public final SiteLinker next;
-            public SiteLinker(SiteLinker sl, Lattice.Site s) {next = sl; site = s;}
+        }
+        public void allSites(Lattice.Site.Action act) {
+            for(Lattice.Site.Linker l=first; l!=null; l=l.next) {act.action(l.site);}
         }
     }
     
-    public static class Site implements Lattice.Site {
+    public static final class Site implements Lattice.Site {
+        private final Lattice.Site.Iterator adjacentIterator = new AdjacentIterator();
         private final LatticeCubic parent;      //immediate parent lattice (not top-level) on which this site resides
         public Site(LatticeCubic p) {parent = p;}
-        public final Lattice parentLattice() {  //returns the top-level lattice on which this site resides
+        public final Lattice lattice() {  //returns the top-level lattice on which this site resides
             LatticeCubic lat = parent;
             while(lat.parentLattice() != null) {lat = lat.parentLattice();}
             return lat;
         }
-        private final Lattice.Site.Iterator neighborIterator = new NeighborIterator();
-        public final Lattice.Site.Iterator neighborIterator() {return neighborIterator;}
-        
+        public LatticeCubic parent() {return parent;}
+        public Lattice.Site.Iterator adjacentIterator() {return adjacentIterator;}
+        public Lattice.Coordinate coordinate() {
+            Coordinate coord = new LatticeCubic.Coordinate(lattice().D());
+            int i=0;
+            for(LatticeCubic p=parent(); p!=null; p=p.parentLattice()) {coord.setIndex(i++,p.index());}
+            return coord;
+        }
+        public boolean isAdjacentTo(Lattice.Site s) {
+            adjacentIterator.reset();
+            while(adjacentIterator.hasNext()) {
+                if(s == adjacentIterator.next()) {return true;}
+            }
+            return false;
+        }
+            
+
         /**
          * Returns the hierarchy of coordinates for this site
          */
