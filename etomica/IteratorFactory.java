@@ -33,9 +33,9 @@ public abstract class IteratorFactory {
             return new AtomIteratorMolecule(species);
         }
         if (species[0] == species[1]) {
-            return makeIntraSpeciesPairIterator(species);
+            return makeIntraspeciesPairIterator(species);
         }
-        return makeInterSpeciesPairIterator(species);
+        return makeInterspeciesPairIterator(species);
     }
     
     /**
@@ -43,14 +43,14 @@ public abstract class IteratorFactory {
      * between two groups
      * @return the pair iterator
      */
-    public abstract AtomsetIteratorMolecule makeInterSpeciesPairIterator(Species[] species);
+    public abstract AtomsetIteratorMolecule makeInterspeciesPairIterator(Species[] species);
     
     /**
      * creates a pair iterator which loops over all pairs in a neighbor list
      * within one group
      * @return the pair iterator
      */
-    public abstract AtomsetIteratorMolecule makeIntraSpeciesPairIterator(Species[] species);
+    public abstract AtomsetIteratorMolecule makeIntraspeciesPairIterator(Species[] species);
     
     /**
      * Sequencer used for molecule-level atoms (those with a SpeciesAgent

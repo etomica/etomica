@@ -6,8 +6,11 @@ package etomica.nbr.cell;
 
 import etomica.ApiInnerFixed;
 import etomica.Atom;
+import etomica.AtomIterator;
 import etomica.AtomIteratorListSimple;
+import etomica.AtomIteratorSequencerList;
 import etomica.AtomIteratorSinglet;
+import etomica.AtomLinker;
 import etomica.AtomList;
 import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeGroup;
@@ -22,17 +25,23 @@ import etomica.action.AtomsetDetect;
 import etomica.lattice.CellLattice;
 
 /**
- * Gives pairs formed from the molecules of two different species in a phase,
- * taking one molecule of one species with all neighboring molecules of the other.
- * Species are specified at construction and cannot be changed afterwards.  The
- * 1-molecule species is identified via the setTarget method, and may be changed
- * from one use of the iterator to the next.  Iteration is performed using cell lists,
- * which defines the neighboring molecules.  Direction is related to ordering of
- * species, and (unlike ApiIntraspecies1ACell) is not connected to cell ordering.
+ * Gives pairs formed from the molecules of a species in a phase, taking one
+ * molecule the species with all of its other neighboring molecules. Species is
+ * specified at construction and cannot be changed afterwards. Iteration is
+ * performed using cell lists, which defines the neighboring molecules.
+ * Direction is related to ordering of cells and, within a cell, ordering of
+ * molecules in cell's occupant list.
  */
 
-public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
+public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule {
 
+    /**
+     * @param species species whose molecules will form the pair iterates
+     */
+    public ApiIntraspecies1ACell(int D, Species species) {
+        this(D, new Species[] {species, species});
+    }
+    
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
 	 * reset() before iteration.
@@ -40,31 +49,26 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
      * @param D the dimension of the space of the simulation (used to construct cell iterators)
      * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
-	public ApiInterspecies1ACell(int D, Species[] species) {
-        if(species[0] == null || species[1] == null) throw new NullPointerException("Constructor of ApiInterspecies1ACell requires two non-null species");
-        if(species[0] == species[1]) throw new IllegalArgumentException("Constructor of ApiInterspecies1ACell requires two different species");
-        //arrange so that species0 preceeds species1
-        if(species[0].getIndex() < species[1].getIndex()) {
-            species0 = species[0];
-            species1 = species[1];
-        } else {
-            species0 = species[1];
-            species1 = species[0];
-        }
-        index0 = species0.getIndex();
-        index1 = species1.getIndex();
+	public ApiIntraspecies1ACell(int D, Species[] species) {
+        if(species == null || species.length < 1 || species[0] == null) throw new NullPointerException("Constructor of ApiIntraspecies1A requires two non-null species references to the same instance");
+        if(species[0] != species[1]) throw new IllegalArgumentException("Constructor of ApiIntraspecies1A requires references to the same species instance");
+        this.species = species[0];
+        innerIndex = this.species.getIndex();
 
         neighborIterator = new CellLattice.NeighborIterator(D);
         aiOuter = new AtomIteratorSinglet();
-        aiInner = new AtomIteratorListSimple();
-        listIterator = new ApiInnerFixed(aiOuter, aiInner);//used only by allAtoms
+        aiInnerList = new AtomIteratorListSimple();
+        
+        //this iterator is used to loop through list of occupants of atoms's cell;
+        //construct with AtomToLinker that gives appropriate linker
+        aiInnerSeq = new AtomIteratorSequencerList(new AtomIteratorSequencerList.AtomToLinker() {
+            public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
+        });
+        nbrCellListIterator = new ApiInnerFixed(aiOuter, aiInnerList);//used only by allAtoms
+        centralCellListIterator = new ApiInnerFixed(aiOuter, aiInnerSeq);//used only by allAtoms
 
-        // cell iterator always iterates both up and down the cells, 
-        // regardless of what happens with this.setDirection, because the
-        // iteration direction for different species is determined by the
-        // species order; setDirection for this iterator is considered
-        // in connection to the target and the species order.
-        // in contrast, for intraspecies iteration direction is related to the cell ordering
+        aiInnerSeq.setDirection(null);
+        aiInnerSeq.setNumToSkip(1);
         neighborIterator.setDirection(null);
         setPhase(null);
 	}
@@ -73,8 +77,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
         this.phase = phase;
         if(phase != null) {
             neighborIterator.setLattice(phase.getLattice());
-            agentNode0 = (AtomTreeNodeGroup)phase.getAgent(species0).node;
-            agentNode1 = (AtomTreeNodeGroup)phase.getAgent(species1).node;
+            agentNode = (AtomTreeNodeGroup)phase.getAgent(species).node;
         }
         identifyTargetMolecule();
 	}
@@ -91,16 +94,16 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
         
         //get pairs in targetMolecule's cell
         AtomList list = cell.occupants()[innerIndex];
-        aiInner.setList(list);
-        listIterator.allAtoms(action);
+        aiInnerSeq.setAtom(pair[0]);
+        nbrCellListIterator.allAtoms(action);
 
         //loop over neighbor cells
         neighborIterator.setSite(index);
         neighborIterator.reset();
         while(neighborIterator.hasNext()) {
             NeighborCell neighborCell = (NeighborCell)neighborIterator.next(); 
-            aiInner.setList(neighborCell.occupants()[innerIndex]);
-            if(aiInner.size() > 0) listIterator.allAtoms(action);
+            aiInnerList.setList(neighborCell.occupants()[innerIndex]);
+            if(aiInnerList.size() > 0) nbrCellListIterator.allAtoms(action);
         }
     }//end of allAtoms
     
@@ -163,32 +166,28 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
         }
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)targetMolecule.seq).cell;
-        int[] index = lattice.latticeIndex(cell.latticeArrayIndex);
-        neighborIterator.setSite(index);
+        neighborIterator.setSite(lattice.latticeIndex(cell.latticeArrayIndex));
         neighborIterator.reset();
         
         //start with targetMolecule's cell
-        aiInner.setList(cell.occupants()[innerIndex]);
-        aiInner.reset();
+        aiInnerSeq.setAtom(pair[0]);
+        aiInnerSeq.reset();
+        aiInner = aiInnerSeq;
 
-        if(!aiInner.hasNext()) { 
+        if(!aiInnerSeq.hasNext()) { 
             advanceLists();
         }
     }
     
     /**
      * Indicates allowed direction for iteration, relative to specified target
-     * atom. If the specified direction is consisent with the direction from the
-     * target species to the non-target species (as given by their species index --
-     * UP is direction from smaller index to larger index) direction, iteration
-     * is performed; if specified direction contradicts species direction, no
-     * iteration is performed.  Specification of a null direction indicates no
-     * limitation, and iteration will be performed if a legitimate target atom 
-     * is specified. 
+     * atom. Specification of a null direction indicates iteration in both directions
+     * relative to the target. Direction is determined by ordering within occupant
+     * list of cell of target atom, and then by the cell ordering of neighboring cells.
      */
     public void setDirection(Direction direction) {
-        this.direction = direction;
-        setupIterators();
+        aiInnerSeq.setDirection(direction);
+        neighborIterator.setDirection(direction);
     }
 
     /**
@@ -215,17 +214,18 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
     // Moves to next neighbor-cell list that can provide an iterate
     // This should be invoked only if aiInner.hasNext is false
     private void advanceLists() {
+        aiInner = aiInnerList;//need to switch from aiInnerSeq on first call
         do {
               //advance neighbor cell 
             if(neighborIterator.hasNext()) {
-                aiInner.setList(((NeighborCell)neighborIterator.next()).occupants()[innerIndex]);
-                aiInner.reset();
+                aiInnerList.setList(((NeighborCell)neighborIterator.next()).occupants()[innerIndex]);
+                aiInnerList.reset();
             } else {//no more cells
                 break;
             }
         } while(!aiInner.hasNext());
     }//end of advanceCell
-    
+
     /**
      * Finds target molecule as indicated by the target atom.  Sets
      * target molecule to null if target atom is null, phase is null, or
@@ -235,59 +235,30 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
         if(targetAtom == null || phase == null) {
             targetMolecule = null;
         } else {
-            AtomTreeNode targetNode = targetAtom.node.childWhereDescendedFrom(agentNode0);
-
-            if(targetNode != null) {    //target is species0, loop over species1
-                allowedDirection = IteratorDirective.UP;
-                targetMolecule = targetNode.atom();
-                innerIndex = index1;
-                
-            } else {                    //target is not species0
-                targetNode = targetAtom.node.childWhereDescendedFrom(agentNode1);
-                
-                if(targetNode != null) {//target is species1, loop over species0
-                    allowedDirection = IteratorDirective.DOWN;
-                    targetMolecule = targetNode.atom();
-                    innerIndex = index0;
-                    
-                } else {                //target not in either species
-                    targetMolecule = null;
-                }
-            }
+            AtomTreeNode targetNode = targetAtom.node.childWhereDescendedFrom(agentNode);
+            targetMolecule = (targetNode != null) ? targetNode.atom() : null;
         }
-        setupIterators();
-    }
-    
-    /**
-     * Completes setup of iterators, checking that specified direction
-     * is consistent with target and species ordering. Leaves this
-     * iterator unset.
-     */
-    private void setupIterators() {
-        if(direction == null || direction == allowedDirection) {
-            pair[0] = targetMolecule;
-            aiOuter.setAtom(targetMolecule);//targetMolecule may be null here
-        } else {
-            pair[0] = null;
-            aiOuter.setAtom(null);
-        }
-        unset();
+        pair[0] = targetMolecule;
+        aiOuter.setAtom(targetMolecule);//targetMolecule may be null here
     }
 
-
-    private final ApiInnerFixed listIterator;//used only by allAtoms
+    private final ApiInnerFixed nbrCellListIterator;//used only by allAtoms
+    private final ApiInnerFixed centralCellListIterator;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;
-    private final int index0, index1;
-    private final AtomIteratorListSimple aiInner;
+    private final AtomIteratorListSimple aiInnerList;
+    private final AtomIteratorSequencerList aiInnerSeq;
     private final AtomIteratorSinglet aiOuter;
-    
-    private final Atom[] pair = new Atom[2];
     private int innerIndex;
+    private final Atom[] pair = new Atom[2];
     
-    private final Species species0, species1;
-    private AtomTreeNodeGroup agentNode0, agentNode1;
+    private final Species species;
+    private AtomTreeNodeGroup agentNode;
     private Atom targetMolecule, targetAtom;
     private Phase phase;
     private IteratorDirective.Direction allowedDirection, direction;
     private CellLattice lattice;
+    
+    private AtomIterator aiInner;
+    private boolean finishedCentralCell;
+
 }

@@ -39,7 +39,6 @@ public class ApiIntraspecies1A extends AtomsetIteratorAdapter implements
         aiInner.setNumToSkip(1);
         setPhase(null);
     }
-
     /** 
      * Configures iterator to return molecules from the set species in the given phase.
      */

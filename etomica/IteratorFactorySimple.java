@@ -10,12 +10,12 @@ public class IteratorFactorySimple extends IteratorFactory {
     public AtomSequencerFactory interactionMoleculeSequencerFactory() {
         return AtomSequencerFactory.SIMPLE;
     }
-    public AtomsetIteratorMolecule makeInterSpeciesPairIterator(Species[] species) {
+    public AtomsetIteratorMolecule makeInterspeciesPairIterator(Species[] species) {
         AtomsetIteratorMolecule api1A = new ApiInterspecies1A(species);
         AtomsetIteratorPhaseDependent apiAA = new ApiInterspeciesAA(species);
         return new ApiMolecule(api1A, apiAA);
     }
-    public AtomsetIteratorMolecule makeIntraSpeciesPairIterator(Species[] species) {
+    public AtomsetIteratorMolecule makeIntraspeciesPairIterator(Species[] species) {
         AtomsetIteratorMolecule api1A = new ApiIntraspecies1A(species);
         AtomsetIteratorPhaseDependent apiAA = new ApiIntraspeciesAA(species);
         return new ApiMolecule(api1A, apiAA);

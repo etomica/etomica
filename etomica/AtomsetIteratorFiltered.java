@@ -13,6 +13,8 @@ import etomica.action.AtomsetCount;
  * Wraps an AtomIterator and filters its iterates so that
  * only those meeting specified criteria are returned.
  */
+//maybe make an AtomsetIteratorMoleculeFiltered that implements AtomsetIteratorMolecule
+//and leave this to implement just AtomsetIterator
 public class AtomsetIteratorFiltered implements AtomsetIteratorMolecule {
 	/**
 	 * Default constructor that causes no atoms to be filtered.
