@@ -11,6 +11,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardBoundary;
+import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2;
 import etomica.space.BoundaryNone;
@@ -26,6 +27,7 @@ public class PistonCylinder extends Simulation {
     public Phase phase;
     public Potential2 potential;
     public P1HardBoundary wallPotential;
+    public P1HardMovingBoundary pistonPotential;
     public ActivityIntegrate ai;
     public double lambda;
 
@@ -33,12 +35,11 @@ public class PistonCylinder extends Simulation {
         super(new Space2D());
         lambda = 1.5;
         
+        Default.ATOM_SIZE=2.0;
 	    species = new SpeciesSpheresMono(this);
-//	    speciesPC = new SpeciesPistonCylinder(this);
-//        speciesPC.setLength(20.);
-        
+	    species.setNMolecules(120);
+        Default.BOX_SIZE=50;
 	    phase = new Phase(space);
-//        phase.setConfiguration(new ConfigurationFile(space,"pc"));
         phase.setBoundary(new BoundaryNone(space));
         phase.speciesMaster.addSpecies(species);
 	    
@@ -50,16 +51,15 @@ public class PistonCylinder extends Simulation {
         wallPotential.setCollisionRadius(Default.ATOM_SIZE*0.5); //potential.getCoreDiameter()*0.5);
         potentialMaster.setSpecies(wallPotential,new Species[]{species});
         
-	    
-//        PotentialGroup potentialDiskPC = new PotentialGroup(2);
-//	    potentialDiskPC.setSpecies(new Species[] {species, speciesPC});
-	    
-//	    potentialHardDiskWall = new P2HardSphereWall(potentialDiskPC, Default.ATOM_SIZE);
-//	    potentialHardDiskWall.setIterator(new ApiGeneral(Simulation.instance.space,
-//	                new AtomIteratorSinglet(), new AtomIteratorSequential()));
+        pistonPotential = new P1HardMovingBoundary(space,1,Default.ATOM_MASS*10);
+        pistonPotential.setCollisionRadius(Default.ATOM_SIZE*0.5);
+        pistonPotential.setWallPosition(-Default.ATOM_SIZE);
+        pistonPotential.setWallVelocity(1.0);
+        potentialMaster.setSpecies(pistonPotential,new Species[]{species});
 	    
 	    integrator = new IntegratorHard(potentialMaster);
         integrator.addPhase(phase);
+        integrator.addIntervalListener(pistonPotential);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 	    
@@ -73,7 +73,9 @@ public class PistonCylinder extends Simulation {
 
         public void init() {
             PistonCylinder pc = new PistonCylinder();
-            Default.DO_SLEEP = true;
+            pc.ai.setDoSleep(true);
+            pc.ai.setSleepPeriod(20);
+
             SimulationGraphic sg = new SimulationGraphic(pc);
             getContentPane().add(sg.panel());
             display = new DisplayPhase(pc.phase);
