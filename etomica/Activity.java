@@ -43,8 +43,8 @@ public abstract class Activity implements Action {
             isActive = true;
         }
 		run();
-		isActive = false;
 		if (haltRequested) {
+            isActive = false;
 			synchronized(this) {notifyAll();}//release thread waiting for halt to take effect
 		}
 	}
@@ -74,12 +74,12 @@ public abstract class Activity implements Action {
 	 */
 	protected synchronized void doWait() {
 		notifyAll(); //release any threads waiting for pause to take effect
-//        System.out.println(this+"in doWait, setting isPaused to true");
+//        System.out.println(this.getClass()+"in doWait, setting isPaused to true");
 		isPaused = true;
 		try {
 			wait(); //put in paused state
 		} catch (InterruptedException e) {}
-//        System.out.println(this+"in doWait, setting isPaused to false");
+//        System.out.println(this.getClass()+"in doWait, setting isPaused to false");
 		isPaused = false;
         notifyAll();  // release any threads waiting for unpause to take effect
 	}
@@ -105,7 +105,7 @@ public abstract class Activity implements Action {
      * Removes activity from the paused state, resuming execution where it left off.
      */
     public synchronized void unPause() {
-  //      System.out.println(this.getClass()+" in unPause "+isPaused+" "+isActive());
+//        System.out.println(this.getClass()+" in unPause "+isPaused+" "+isActive());
     	if (!isPaused || !isActive()) return;// not currently paused or not active
     	pauseRequested = false;
     	notifyAll();
@@ -122,9 +122,11 @@ public abstract class Activity implements Action {
         if(!isActive()) return;
         haltRequested = true;
         unPause();//in case currently paused
-        try {
-            wait();  //make thread requesting pause wait until halt is in effect
-        } catch(InterruptedException e) {}
+        if (isActive()) {
+            try {
+                wait();  //make thread requesting pause wait until halt is in effect
+            } catch(InterruptedException e) {}
+        }
     }
 
 	/**
