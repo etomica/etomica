@@ -52,7 +52,7 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
         pairIterator.reset();
         while(pairIterator.hasNext()) {
             AtomPair pair = (AtomPair)pairIterator.next();
-        	cPair.reset(pair.atom0.coord,pair.atom1.coord);
+        	cPair.reset(pair);
         	double r2 = cPair.r2();
             if(r2 < r2Cut) {
                 nbSum += 2;

@@ -63,7 +63,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
 
     public Vector force(AtomSet pair){
         
-    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+    	cPair.reset((AtomPair)pair);
         double r2 = cPair.r2();
         if(r2 > wellDiameterSquared){
             force.E(0.0);

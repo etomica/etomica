@@ -95,7 +95,7 @@ public class P2HardSphere extends Potential2HardSpherical {
      */
     public void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
-        cPair.reset(pair.atom0.coord,pair.atom1.coord);
+        cPair.reset(pair);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();

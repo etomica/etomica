@@ -2,6 +2,7 @@
 
 package etomica.integrator;
 import etomica.Atom;
+import etomica.AtomPair;
 import etomica.AtomsetIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -18,6 +19,7 @@ import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
 import etomica.space.CoordinatePair;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
@@ -258,18 +260,18 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         public void doCalculation(AtomsetIterator iterator, Potential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             while(iterator.hasNext()) {
-                Atom[] pair = iterator.next();
-                cPair.reset(pair[0].coord,pair[1].coord);
+                AtomPair pair = (AtomPair)iterator.next();
+                cPair.reset(pair);
                 double r2 = cPair.r2();
                 u += potentialSoft.energy(pair);
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;
-                rvx += hv * cPair.vDotr()/r2;
+                rvx += hv * ((ICoordinateKinetic)cPair).vDotr()/r2;
                 f.E(potentialSoft.gradient(pair));
                 vf -= cPair.vDot(f); //maybe should be (-)?
-                ((Integrator.Forcible)pair[0].ia).force().PE(f);
-                ((Integrator.Forcible)pair[1].ia).force().ME(f);
+                ((Integrator.Forcible)pair.atom0.ia).force().PE(f);
+                ((Integrator.Forcible)pair.atom1.ia).force().ME(f);
             }//end while
         }//end of calculate
     }//end ForceSums
