@@ -4,8 +4,9 @@ import java.awt.Color;
 
 public class PhaseSpace2D extends PhaseSpace {
     
-    public PhaseSpace2D() {
-    }
+//    public PhaseSpace2D() {}
+    
+    public final int D() {return 2;}
  
     public PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
@@ -27,8 +28,21 @@ public class PhaseSpace2D extends PhaseSpace {
         public void PE(Vector u) {x += u.x; y += u.y;}
         public void TE(double a) {x *= a; y *= a;}
         public void DE(double a) {x /= a; y /= a;}
-        public double square() {return x*x + y*y;}
+        public double norm() {return x*x + y*y;}
         public double dot(Vector u) {return x*u.x + y*u.y;}
+    }
+    
+    public static final class VectorInt {  //declared final for efficient method calls
+        int x, y;
+        public VectorInt () {x = 0; y = 0;}
+        public VectorInt (int a1, int a2) {x = a1; y = a2;}
+        public void E(VectorInt u) {x = u.x; y = u.y;}
+        public void E(int a) {x = a; y = a;}
+        public void PE(VectorInt u) {x += u.x; y += u.y;}
+        public void TE(int a) {x *= a; y *= a;}
+        public void DE(int a) {x /= a; y /= a;}
+        public int norm() {return (x*x + y*y);}
+        public int dot(VectorInt u) {return x*u.x + y*u.y;}
     }
     
     abstract class Coordinate implements PhaseSpace.Coordinate {
@@ -57,10 +71,10 @@ public class PhaseSpace2D extends PhaseSpace {
         public void accelerate(Vector u) {p.PE(u);}
         public void replace() {r.E(rLast);}
         public void inflate(double s) {r.TE(s);}
-        public double kineticEnergy() {return 0.5*p.square()/mass;}
+        public double kineticEnergy() {return 0.5*p.norm()*atom.type.rm();}
         public PhaseSpace.Vector position() {return r;}
         public PhaseSpace.Vector momentum() {return p;}
-        public PhaseSpace.Vector velocity() {temp.E(p); temp.DE(mass); return temp;}  //returned vector is not thread-safe
+        public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
         
         //following methods are same in all PhaseSpace classes
         public PhaseSpace.AtomCoordinate nextCoordinate() {return nextCoordinate();}
@@ -79,7 +93,8 @@ public class PhaseSpace2D extends PhaseSpace {
             return (c==null) ? null : c.atom();
         }
         public final Atom atom() {return atom;}
-    }    
+    } 
+    
     final class MoleculeCoordinate extends Coordinate implements PhaseSpace.MoleculeCoordinate {
         MoleculeCoordinate nextCoordinate, previousCoordinate;
         MoleculeCoordinate(Molecule m) {molecule = m;}  //constructor
@@ -101,10 +116,10 @@ public class PhaseSpace2D extends PhaseSpace {
         public void replace() {r.E(rLast);}
         public void inflate(double s) {r.TE(s);}
         public void accelerate(PhaseSpace.Vector u) {p.PE((Vector)u);}
-        public double kineticEnergy() {return 0.5*p.square()/mass;}
+        public double kineticEnergy() {return 0.5*p.norm()*molecule.rm();}
         public PhaseSpace.Vector position() {return r;}
         public PhaseSpace.Vector momentum() {return p;}
-        public PhaseSpace.Vector velocity() {temp.E(p); temp.DE(mass); return temp;}  //returned vector is not thread-safe
+        public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(molecule.rm()); return temp;}  //returned vector is not thread-safe
         public void update() {}
         
         public PhaseSpace.MoleculeCoordinate nextCoordinate() {return nextCoordinate();}
@@ -134,6 +149,10 @@ public class PhaseSpace2D extends PhaseSpace {
         dimensions.TE(scale);
     }
            
+    public double[][] imageOrigins(int nShells) {
+        return new double[0][D()];
+    }
+    
     private class AtomPair implements simulate.AtomPair {  //Inner AtomPair class
         AtomCoordinate c1;
         AtomCoordinate c2;
@@ -144,7 +163,7 @@ public class PhaseSpace2D extends PhaseSpace {
                 c2 = (AtomCoordinate)a2.coordinate;
             }
         }
-        
+       
         public double r2() {
             double dx = c1.r.x - c2.r.x;   //change for PBC
             double dy = c1.r.y - c2.r.y;
@@ -159,7 +178,7 @@ public class PhaseSpace2D extends PhaseSpace {
     // Perhaps interitance would work, but haven't tried it
     
     //"Full" --> Each iteration of inner loop begins with same first atom
-    private class PairIteratorFull implements AtomPairIterator.A {
+    private class PairIteratorFull implements simulate.AtomPair.Iterator.A {
         final AtomPair pair = new AtomPair();
         AtomCoordinate outer, inner;
         private AtomCoordinate iFirst, iLast, oLast;
@@ -191,7 +210,7 @@ public class PhaseSpace2D extends PhaseSpace {
     }
     
     //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
-    private class PairIteratorHalf implements AtomPairIterator.A {
+    private class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
         final AtomPair pair = new AtomPair();
         AtomCoordinate outer, inner;
         private AtomCoordinate iFirst, iLast, oLast;
@@ -238,6 +257,6 @@ public class PhaseSpace2D extends PhaseSpace {
   * Size of Phase (width, height) in Angstroms
   * Default value is 1.0 for each dimension.
   */
-    private final Vector dimensions = new Vector(1.0,1.0);
+    public final Vector dimensions = new Vector(1.0,1.0);
     
 }

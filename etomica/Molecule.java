@@ -21,9 +21,9 @@ import java.awt.Graphics;
 
 public class Molecule implements Serializable {
 
-  
   /**
-   *  Makes specified number of atoms, all of the same type
+   *  Makes molecule with specified number of atoms, all of the same type.
+   *  Number of atoms on molecule can be changed.
    */
   public Molecule(Species parent, AtomType type, int n) {  
     parentSpecies = parent;
@@ -36,11 +36,13 @@ public class Molecule implements Serializable {
         lastAtom.setNextAtom(new Atom(this,type,i));
         lastAtom = lastAtom.nextAtom();
     }
-
   }
   
   /**
-   *  Makes atoms of type specified in AtomType array.  Number of atoms is given by length of array
+   *  Makes molecule with atoms of type specified in AtomType array.  Number of atoms is given by length of array. 
+   *  Each atom may be of different type, or of same type but with different parameter values.
+   *  Number of atoms cannot be changed.
+   *  If all atoms are of same type with same parameters, can use the other constructor.
    */
   public Molecule(Species parent, AtomType[] type) {  
     parentSpecies = parent;
@@ -142,21 +144,18 @@ public class Molecule implements Serializable {
   * @return the phase in which this molecule resides
   */
   public final PhaseSpace getPhaseSpace() {return parentSpecies.parentPhaseSpace;}
-   
-/* /**
-  * Computes the total mass of this molecule by summing the masses
-  * of its constituent atoms.  Also updates the center-of-mass fraction
-  * of all its atoms.
-  *
-  * @see Atom#updateCOMFraction
-  */
-  /*
-  public final void updateMass() {
-    this.mass = 0.0;
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
-  }*/
   
+  public final double mass() {
+    if(nAtoms==1) {return firstAtom.type.mass();}
+    double mass = 0.0;
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.nextAtom()) {mass += a.type.mass();}
+    return mass;
+  }
+  
+  public final double rm() {
+    if(nAtoms==1) {return firstAtom.type.rm();}
+    else {return 1.0/mass();}
+  }
   
  /**
   * Computes and returns this molecule's total kinetic energy (including

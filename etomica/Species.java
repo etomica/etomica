@@ -47,15 +47,7 @@ public abstract class Species extends Container {
     this.configurationMolecule = cm;
     cm.initializeCoordinates();
   }
-  
- /**
-  * Copies all values for atoms sizes, masses, colors, etc., to the corresponding
-  * molecule and species parameters.
-  * This method is called by setNMolecules once the molecules have been made 
-  * and linked-list ordered.
-  */
-  abstract void initializeMolecules();
- 
+   
  /**
   * @return the number of molecules for this species
   */
@@ -88,7 +80,6 @@ public abstract class Species extends Container {
         lastMolecule = lastMolecule.nextMolecule();
     }
     spareMolecule = makeMolecule();
-    initializeMolecules();
   }
   
  /**

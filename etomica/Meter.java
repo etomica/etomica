@@ -10,7 +10,7 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     double sum, sumSquare;
     int count = 0;
     private Meter nextMeter, previousMeter;
-    public PhaseSpace phase;
+    public PhaseSpace phaseSpace;
     String label;
 
 	public Meter() {
@@ -33,7 +33,7 @@ public abstract class Meter extends Component implements IntegrationIntervalList
         }
     }
     
-	public void updateStatistics(PhaseSpace phase) {
+	public void updateStatistics(PhaseSpace phaseSpace) {
 	    if(firstCall) {
 	        firstCall = false;
 	    }
@@ -75,6 +75,6 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     public final Meter getNextMeter() {return nextMeter;}
     public final Meter getPreviousMeter() {return previousMeter;}
     
-    public void integrationIntervalAction(IntegrationIntervalEvent evt) {updateStatistics(phase);}
+    public void integrationIntervalAction(IntegrationIntervalEvent evt) {updateStatistics(phaseSpace);}
 
 }	 

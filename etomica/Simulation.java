@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Simulation extends Container {
 
-  public static int D = 2;  //dimension (2-D, 3-D, etc;)
+  public static int D;  //dimension (2-D, 3-D, etc;)
 
   public Controller controller;
   Phase firstPhase;
@@ -16,6 +16,11 @@ public class Simulation extends Container {
   Display lastDisplay;
   
   public Simulation() {
+    this(2);
+  }
+  
+  public Simulation(int D) {
+    setD(D);
     setSize(400,300);
   }
   
@@ -42,7 +47,7 @@ public class Simulation extends Container {
     }
     if(d.displayTool != null) {super.add(d.displayTool);}
     for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {
-        d.setPhase(p);
+        d.setPhaseSpace(p);
     }
     d.repaint();
   }
@@ -54,12 +59,12 @@ public class Simulation extends Container {
     else {firstPhase = p;}
     lastPhase = p;
     if(haveIntegrator()) {
-        controller.integrator.registerPhase(p);
+        controller.integrator.registerPhaseSpace(p);
         p.gravity.addObserver(controller.integrator);
         p.integrator = controller.integrator;
     }
     for(Display d=firstDisplay; d!=null; d=d.getNextDisplay()) {
-        d.setPhase(p);
+        d.setPhaseSpace(p);
     }
   }
   

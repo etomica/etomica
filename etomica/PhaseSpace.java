@@ -15,6 +15,8 @@ public abstract class PhaseSpace extends Container {
         add(potentialEnergy);
     }
     
+    public abstract int D();
+    
     public abstract PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a);      //PhaseSpace prefix is redundant
     public abstract PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m);
     public abstract simulate.AtomPair makeAtomPair(Atom a1, Atom a2);
@@ -26,7 +28,15 @@ public abstract class PhaseSpace extends Container {
     public abstract double volume();
 
 //  Vector contains what is needed to describe a point in the space
-    interface Vector {}
+    interface Vector {
+//        public void E(Vector u);
+        public void E(double a);
+//        public void PE(Vector u);
+        public void TE(double a);
+        public void DE(double a);
+        public double norm();
+//        public double dot(Vector u);
+    }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     interface Coordinate {
@@ -182,7 +192,7 @@ public abstract class PhaseSpace extends Container {
 	    else {firstMeter = m;}
 	    lastMeter = m;
 	    meterCount++;
-	    m.phase = this;
+	    m.phaseSpace = this;
 	    m.initialize();
 	    if(parentSimulation != null && parentSimulation.haveIntegrator()) {
 	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
@@ -195,6 +205,10 @@ public abstract class PhaseSpace extends Container {
 	    Meter m = firstMeter;
         for(int j=i; --j>=0; ) {m = m.getNextMeter();}  //get ith meter in list
         return m;
+    }
+
+    public void inflate(double scale) {
+        dimensions.TE(scale);
     }
 
 //    public final boolean isPeriodic() {return periodic;}  
@@ -212,9 +226,7 @@ public abstract class PhaseSpace extends Container {
     *
     *  @param nShells the number of shells of images to be computed
     */
-//    public double[][] imageOrigins(int nShells) {
-//        return new double[0][D];
-//    }
+    public abstract double[][] imageOrigins(int nShells);
        
    /**
     * @return shift0

@@ -1,9 +1,18 @@
 package simulate;
 import java.awt.*;
 
+/**
+ * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
+ * with each disk having the same mass and size.
+ */
 public class SpeciesDisks extends Species {
 
-    public AtomType.Disk protoType;
+//  The atomType is not declared final here becuase it makes setting up the constructors easier,
+//  but effectively it cannot be changed once initialized; the instance is passed to the atoms, where
+//  it is declared final
+//  Note that the parameters of the type can be changed; only the instance of it is frozen once the atoms are made
+//    (this is the same behavior as declaring it final)
+    public AtomType.Disk protoType;  //not declared bin
               
     /**
     * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
@@ -13,15 +22,19 @@ public class SpeciesDisks extends Species {
     }
               
     public SpeciesDisks(int nM, int nA) {
+        this(nM, nA, new AtomType.Disk(1.0, Color.black, 0.1));
+    }
+              
+    public SpeciesDisks(int nM, int nA, AtomType.Disk type) {
         setSpeciesIndex(0);       //would like to have this set automatically, based on number of species added
-        protoType = new AtomType.Disk(1.0, Color.black, 0.1);  // arguments are mass, color, diameter
+        protoType = type;
         atomsPerMolecule = nA;
         setNMolecules(nM);
             
         colorScheme = new ColorSchemeNull();
         this.add(new ConfigurationMoleculeLinear());
     }
-              
+
     public Molecule makeMolecule() {
         return new Molecule(this, protoType, atomsPerMolecule);
     } 

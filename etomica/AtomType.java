@@ -50,7 +50,7 @@ public abstract class AtomType {
     // Disk-shaped atom.  Assumed to be in 2D
     public final static class Disk extends AtomType {
         
-        private double diameter, radius;
+        double diameter, radius;
         
         public Disk(double m, Color c, double d) {
             super(m, c);
@@ -66,12 +66,6 @@ public abstract class AtomType {
         * @param d   new value for diameter
         */
         public final void setDiameter(double d) {diameter = d; radius = 0.5*d;}
-        /**
-        * Sets radius of this atom and updates diameter accordingly.
-        *
-        * @param r   new value for radius
-        */
-        public final void setRadius(double r) {this.setDiameter(2.0*r);}
                 
         /**
         * Draws this atom using current values of its position, diameter and color.
@@ -96,16 +90,69 @@ public abstract class AtomType {
         }
     }
     
+    // Disk with a concentric well.  Assumed to be in 2D
+    public final static class Well extends AtomType {  //could extend disk, but class is simple enough not to
+        
+        private double diameter, radius;          //size of core
+        private double lambda;                    //diameter of well, in units of core diameter
+        private double wellDiameter, wellRadius;  //size of well, in simulation units
+        
+        public Well(double m, Color c, double d, double l) {
+            super(m, c);
+            setDiameter(d);
+            setLambda(l);
+        }
+                    
+        public final double lambda() {return lambda;}
+        public final double radius() {return radius;}
+        public final double diameter() {return diameter;}
+        public final double wellDiameter() {return wellDiameter;}
+        public final double wellRadius() {return wellRadius;}
+        
+        public final void setDiameter(double d) {diameter = d; radius = 0.5*d; setLambda(lambda);}
+        public final void setLambda(double l) {lambda = l; wellDiameter = lambda*diameter; wellRadius = 0.5*wellDiameter;}
+                
+        /**
+        * Draws this atom using current values of its position, diameter and color.
+        * Drawing position is determined as follows.  The atoms coordinates in
+        * Angstroms are converted to pixels by applying a scaling factor; these
+        * drawing coordinates may be shifted by some amount as given by the array
+        * <code>origin</code> before the atom is drawn.
+        *
+        * @param g         graphics object to which atom is drawn
+        * @param origin    origin of drawing coordinates (pixels)
+        * @param scale     factor determining size of drawn image relative to
+        *                  nominal drawing size
+        */
+        public void draw(Graphics g, int[] origin, double scale, Color color, PhaseSpace.AtomCoordinate c) {
+            PhaseSpace2D.AtomCoordinate c2 = (PhaseSpace2D.AtomCoordinate)c;
+            double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
+
+            int sigmaP = (int)(toPixels*diameter);
+            int xP = origin[0] + (int)(toPixels*(c2.r.x-radius));
+            int yP = origin[1] + (int)(toPixels*(c2.r.y-radius));
+            g.setColor(color);
+            g.fillOval(xP,yP,sigmaP,sigmaP);
+            
+            sigmaP = (int)(toPixels*wellDiameter);
+            xP = origin[0] + (int)(toPixels*(c2.r.x-wellRadius));
+            yP = origin[1] + (int)(toPixels*(c2.r.y-wellRadius));
+            g.setColor(color);
+            g.fillOval(xP,yP,sigmaP,sigmaP);
+        }
+    }
+
     // Wall-shaped atom.  Assumed to be in PhaseSpace2D
     public final static class Wall extends AtomType {
         
-        int thickness;
+        int thickness = 4;  //thickness when drawn to screen (if horizontal or vertical)
         private boolean vertical, horizontal;
         private double cosA, sinA;
 //        double[] f = new double[Space.D];   //force on wall
 //        double[] r1 = new double[Space.D];  //other end of line in simulation units (first end is denoted r)
         protected int angle;   //orientation (degrees) with respect to positive x-axis, taking r at the origin
         protected double length;  //length of line in simulation units
+        protected boolean longWall;  //set to true if wall is infinite in length
         //  these may belong in integratorAgent
         protected double temperature = 300.;
         protected boolean adiabatic = true;
@@ -120,8 +167,8 @@ public abstract class AtomType {
             angle = (t <= 360) ? t : (t % 360);
             horizontal = (angle == 0) || (Math.abs(angle) == 180);
             vertical = (Math.abs(angle) == 90) || (Math.abs(angle) == 270);
-            cosA = Math.cos((double)angle);
-            sinA = Math.sin((double)angle);
+            cosA = Math.cos((double)angle*Math.PI/180.);
+            sinA = Math.sin((double)angle*Math.PI/180.);
         }
         public final int getAngle() {return angle;}
             
@@ -132,8 +179,9 @@ public abstract class AtomType {
         public final void setThickness(int thickness) {this.thickness = thickness;}
         
         public final double getLength() {return length;}
-        public final void setLength(double length) {this.length = length;}
+        public final void setLength(double length) {this.length = length; longWall = (length == Double.MAX_VALUE);}
         
+        public final boolean isLongWall() {return longWall;}
         
         public final double getTemperature() {return temperature;}
         public final void setTemperature(int t) {setTemperature((double)t);}  //for connection to sliders, etc.
@@ -183,7 +231,7 @@ public abstract class AtomType {
     //prototype of a real atom type
     public final static class Carbon extends Sphere {
         public Carbon() {
-            super(12.0, 1.1, Color.black);  //mass, diameter, color  
+            super(12.0, Color.black, 1.1);  //mass, color, diameter  
         }
     }
 }

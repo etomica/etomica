@@ -76,7 +76,7 @@ public interface AtomPair {
                 return mPairs.next();                
             }
             public void reset(Species s) {
-                if(s.getNAtomsPerMolecule() == 1) {m = null;} //no intramolecular atoms pairs, so jump to last molecule
+                if(s.getAtomsPerMolecule() == 1) {m = null;} //no intramolecular atoms pairs, so jump to last molecule
                 else {m = s.firstMolecule;}
                 mPairs.reset(m);
                 lastM = s.lastMolecule;
@@ -187,7 +187,7 @@ public interface AtomPair {
                     if(oF==iL) {hasNext=false; return;}  //only one atom in species
                     iF = oF.nextMoleculeFirstAtom();
                     oL = iL.previousMoleculeLastAtom();
-                    checkIntra = (s1.getNAtomsPerMolecule() > 1);  //don't have to check for intramolecular pair if only one atom/molecule
+                    checkIntra = (s1.getAtomsPerMolecule() > 1);  //don't have to check for intramolecular pair if only one atom/molecule
                     currentIterator = halfIterator;
                     currentIterator.reset(iL,oF,oL);
                 }
