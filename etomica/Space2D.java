@@ -254,7 +254,9 @@ public class Space2D extends Space implements EtomicaElement {
         public static final Tensor ZERO = new Tensor();
         public static final Tensor WORK = new Tensor();  //anything using WORK is not thread-safe
         public Tensor () {xx = xy = yx = yy = 0.0;}
-        public Tensor (double xx, double xy, double yx, double yy) {this.xx = xx; this.xy = xy; this.yx = yx; this.yy = yy;}
+        public Tensor (double[] d) {
+            this.E(d);
+        }
 
         public double component(int i, int j) {
             return (i==0) ? ( (j==0) ? xx : xy ) : ( (j==0) ? yx : yy );}
@@ -278,6 +280,17 @@ public class Space2D extends Space implements EtomicaElement {
         public void PE(Space.Tensor t) {PE((Tensor)t);}
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
+        public void E(double[] d) {
+            if(d.length != 4) throw new IllegalArgumentException("Array size incorrector for tensor");
+            xx = d[0]; xy = d[1]; 
+            yx = d[2]; yy = d[3];
+        }
+        public void assignTo(double[] d) {
+            if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
+            d[0] = xx; d[1] = xy; 
+            d[2] = yx; d[3] = yy;
+        }
+
     }
     
     public static class RotationTensor extends Tensor implements Space.RotationTensor {

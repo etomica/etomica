@@ -221,6 +221,18 @@ public abstract class Space implements java.io.Serializable {
         public abstract void PE(Vector u1, Vector u2);
         public abstract double trace();
         public abstract void TE(double a);
+        /**
+         * Sets the tensor elements using the elements of the array.
+         * Array values 0, 1, 2,... are assigned to xx, xy, xz, yx, etc. respectively.
+         */
+        public abstract void E(double[] d);
+        
+        /**
+         * Fills the given array with the elements of this tensor.
+         * Array values 0, 1, 2,... are assigned from xx, xy, xz, yx, etc. respectively.
+         * @param d
+         */
+        public abstract void assignTo(double[] d);
     }
     
     public interface RotationTensor extends Tensor {

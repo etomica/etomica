@@ -366,8 +366,8 @@ public class Space3D extends Space implements EtomicaElement {
         double xx, xy, xz, yx, yy, yz, zx, zy, zz;
         public static final Tensor ORIGIN = new Tensor();
         public Tensor () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
-        public Tensor (double xx, double xy, double xz, double yx, double yy, double yz, double zx, double zy, double zz) {
-            this.xx=xx; this.xy=xy; this.xz=xz; this.yx=yx; this.yy=yy; this.yz=yz; this.zx=zx; this.zy=zy; this.zz=zz;
+        public Tensor (double[] d) {
+            this.E(d);
         }
         public double component(int i, int j) {
             return ( i==0 ) ? ( (j==0) ? xx : ( j==1 ? xy : xz ) ) : ( (i==1) ? ( (j==0) ? yx : ( (j==1) ? yy : yz ) ) : ( (j==0) ? zx : ((j==1) ? zy : zz)));
@@ -393,6 +393,19 @@ public class Space3D extends Space implements EtomicaElement {
         public void PE(Space.Tensor t) {PE((Tensor) t);}
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
+        public void E(double[] d) {
+            if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
+            xx = d[0]; xy = d[1]; xz = d[2];
+            yx = d[3]; yy = d[4]; yz = d[5];
+            zx = d[6]; zy = d[7]; zz = d[8];
+        }
+        public void assignTo(double[] d) {
+            if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
+            d[0] = xx; d[1] = xy; d[2] = xz; 
+            d[3] = yx; d[4] = yy; d[5] = yz;
+            d[6] = zx; d[7] = zy; d[8] = zz;
+        }
+
     }
     
     public static class RotationTensor extends Tensor implements Space.RotationTensor {
@@ -464,7 +477,7 @@ public class Space3D extends Space implements EtomicaElement {
             
             Vector r1 = new Vector(2,2,3);
             System.out.println("r1_before" + r1.toString());
-            Tensor tensor = new Tensor(1,2,0,1,1,2,0,0,1);
+            Tensor tensor = new Tensor(new double[] {1,2,0,1,1,2,0,0,1});
             RotationTensor tensor2 = new RotationTensor();
             tensor2.E(tensor);
             System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
@@ -1772,7 +1785,7 @@ public static class CoordinateGroup extends Coordinate {
     public static void main (String[] args) {
         Vector r1 = new Vector(2,2,3);
         System.out.println("r1_before" + r1.toString());
-        Tensor tensor = new Tensor(1,2,0,1,1,2,0,0,1);
+        Tensor tensor = new Tensor(new double[] {1,2,0,1,1,2,0,0,1});
         RotationTensor tensor2 = new RotationTensor();
         //r1.transform(tensor2);
         tensor2.E(tensor);
