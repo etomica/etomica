@@ -1,16 +1,18 @@
 
 package etomica.models.water;
 
+import etomica.Atom;
+import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
+import etomica.space.Boundary;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.*;
 
 public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
-	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, etomica.space3d.Boundary boundary) {
+	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, Boundary boundary) {
 		this(space, potentialTruncation);
 		this.boundary = boundary;
 	}
@@ -34,7 +36,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		etomica.space3d.Vector3D O2r = (etomica.space3d.Vector3D)node2.O.coord.position();
 
 		work.Ev1Mv2(O1r, O2r);
-		boundary.nearestImage(work, shift);
+		boundary.nearestImage(work);
 		r2 = work.squared();
 
 		if(potentialTruncation.isZero(r2)) return 0.0;
@@ -122,7 +124,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
     
 	public double sigma , sigma2;
 	public double epsilon, epsilon4;
-	private etomica.space3d.Boundary boundary;
+	private etomica.space.Boundary boundary;
 	private double chargeH = Electron.UNIT.toSim(0.41);
 	private double chargeO = Electron.UNIT.toSim(-0.82);
 	private double chargeOO, chargeOH, chargeHH;
@@ -131,7 +133,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 	 * Returns the boundary.
 	 * @return Space3D.Boundary
 	 */
-	public etomica.space3d.Boundary getBoundary() {
+	public Boundary getBoundary() {
 		return boundary;
 	}
 
@@ -139,7 +141,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 	 * Sets the boundary.
 	 * @param boundary The boundary to set
 	 */
-	public void setBoundary(etomica.space3d.Boundary boundary) {
+	public void setBoundary(Boundary boundary) {
 		this.boundary = boundary;
 	}
 
