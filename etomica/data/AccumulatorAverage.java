@@ -47,18 +47,22 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 			blockSumSq[i] += v*v;
     	}
 		if(--blockCountDown == 0) {//count down to zero to determine completion of block
-	       	for(int i=nDataMinus1; i>=0; i--) {       		
-				blockSum[i] /= blockSize;//compute block average
-			    sum[i] += blockSum[i];
-			    sumSquare[i] += blockSum[i]*blockSum[i];
-                sumSquareBlock[i] += blockSumSq[i];
-	            //reset blocks
-	            mostRecentBlock[i] = blockSum[i];
-	            blockSum[i] = 0.0;
-                blockSumSq[i] = 0.0;
-			}
+		    doBlockSum();
 		    count++;
             blockCountDown = blockSize;
+        }
+    }
+    
+    public void doBlockSum() {
+        for(int i=nDataMinus1; i>=0; i--) {             
+            blockSum[i] /= blockSize;//compute block average
+            sum[i] += blockSum[i];
+            sumSquare[i] += blockSum[i]*blockSum[i];
+            sumSquareBlock[i] += blockSumSq[i];
+            //reset blocks
+            mostRecentBlock[i] = blockSum[i];
+            blockSum[i] = 0.0;
+            blockSumSq[i] = 0.0;
         }
     }
     
@@ -257,6 +261,9 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     public static final Type MOST_RECENT_BLOCK = CHOICES[3];
     public static final Type STANDARD_DEVIATION = CHOICES[4];
 	
+    public int getCount() {
+        return count;
+    }
 
 	/**
 	 * @return Returns the saveOnRedimension.
