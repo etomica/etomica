@@ -16,7 +16,13 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }
     
     public int D() {return D;}
+    /**
+     * Returns the given value raised to the Dth power, where D is the dimension of the space.
+     */
     public abstract int powerD(int a);
+    /*
+     * Returns the given value raised to the Dth power, where D is the dimension of the space.
+     */
     public abstract double powerD(double a);
     
     public abstract Vector origin();
@@ -31,6 +37,14 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public abstract Boundary makeBoundary(Boundary.Type type);
     public abstract Boundary.Type[] boundaryTypes();
     public boolean requiresSpecialBoundary() {return false;}
+    /**
+     * Returns an array of dimension D, with each element equal to the given value.
+     */
+    public abstract int[] makeArrayD(int i);
+    /**
+     * Returns an array of dimension D, with each element equal to the given value.
+     */
+    public abstract double[] makeArrayD(double d);
 
     public double sphereVolume(double r) {
         switch(D) {

@@ -9,12 +9,17 @@ public class PrimitiveCubic extends Primitive {
     
     //primitive vectors are stored internally at unit length.  When requested
     //from the vectors() method, copies are scaled to size and returned.
+    //default size is 1.0
     private double size;
     
     public PrimitiveCubic(Simulation sim) {
+        this(sim, 1.0);
+    }
+    public PrimitiveCubic(Simulation sim, double latticeConstant) {
         super(sim);
         //set up orthogonal vectors of unit size
         for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
+        size = latticeConstant;
     }
     
     /**
@@ -95,6 +100,8 @@ public class PrimitiveCubic extends Primitive {
     public AtomFactory unitCellFactory() {
         return new UnitCellFactory(simulation);
     }
+    
+    public String toString() {return "Cubic";}
     
 ///////////////////////////////////////////////////////////////////////////////////////////
 

@@ -39,6 +39,9 @@ public class Space2D extends Space implements EtomicaElement {
         else return null;
     }
     
+    public int[] makeArrayD(int i) {return new int[] {i, i};}
+    public double[] makeArrayD(double d) {return new double[] {d, d};}
+ 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Two-dimensional space");
         return info;

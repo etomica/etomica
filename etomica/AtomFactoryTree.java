@@ -9,6 +9,11 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 09/04/02 (DAK) added leafFactory method
+  */
+  
 public class AtomFactoryTree extends AtomFactoryHomo {
     
     /**
@@ -67,6 +72,14 @@ public class AtomFactoryTree extends AtomFactoryHomo {
             if(i < n.length -1) factory = (AtomFactoryHomo)factory.childFactory();
         }
     }
+    
+    /**
+     * Returns the factory that produces the leaf atoms of the tree.
+     */
+     public AtomFactory leafFactory() {
+        return (childFactory() instanceof AtomFactoryTree) ?
+                ((AtomFactoryTree)childFactory()).leafFactory() : childFactory();
+     }         
     
     //number of layers of atoms below the root atom
     int depth;

@@ -118,7 +118,7 @@ public class MCMoveInsertDelete extends MCMove {
      * Indicates that chemical potential has dimensions of energy.
      */
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
-/*    
+///*    
     public static void main(String[] args) {
         Default.TRUNCATE_POTENTIALS = false;
         etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();

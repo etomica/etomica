@@ -1,6 +1,10 @@
 package etomica.lattice;
 import etomica.*;
 
+/**
+ * fcc lattice formed to a cubic shape.  Note: does not extend BravaisLattice.
+ */
+
 public class LatticeCubicFcc extends Atom implements AbstractLattice {
     
    private double latticeConstant;

@@ -23,6 +23,9 @@ public class Space3D extends Space implements EtomicaElement {
     public final int D() {return D;}
     public final int powerD(int n) {return n*n*n;}
     public final double powerD(double a) {return a*a*a;}
+    public int[] makeArrayD(int i) {return new int[] {i, i, i};}
+    public double[] makeArrayD(double d) {return new double[] {d, d, d};}
+    
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
     

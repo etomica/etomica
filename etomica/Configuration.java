@@ -10,22 +10,28 @@ package etomica;
   * 09/01/02 (DAK) added field to flag if total momentum should be set to zero when initalizing
   *                (made in conjunction with change to Space.CoordinateGroup classes, 
   *                 which no longer do randomizeMomentum to zero total momentum).
+  * 09/04/02 (DAK) added Null inner class and NULL field
   */
 public abstract class Configuration implements java.io.Serializable {
 
-    protected final Space space;
-    protected final Simulation simulation;
+    protected /*final*/ Space space;
+    protected /*final*/ Simulation simulation;
     protected double[] dimensions;
     protected boolean zeroTotalMomentum = true;
-    private final Space.Vector zero;
+    private /*final*/ Space.Vector zero;
     
+    // used only for Null inner class
+    private Configuration() {
+        space = null;
+        simulation = null;
+        zero = null;
+    }
     public Configuration(Simulation sim) {
         simulation = sim;
         space = sim.space;
         zero = space.makeVector();
         zero.E(0.0);
-        dimensions = new double[space.D()];
-        for(int i=0; i<dimensions.length; i++) {dimensions[i] = Default.BOX_SIZE;}
+        dimensions = space.makeArrayD(Default.BOX_SIZE);
     }
         
     public abstract void initializePositions(AtomIterator[] iterator);
@@ -159,4 +165,13 @@ public abstract class Configuration implements java.io.Serializable {
 	    }
 	    return r;
     }//end of squareLattice
+    
+    /**
+     * Configuration that does nothing to atom positions or momenta.
+     */
+    private static class Null extends Configuration {
+        public void initializePositions(AtomIterator[] iterators) {}
+        public void initializeMomenta(Atom atom, double temperature) {}
+    }
+    public static final Null NULL = new Null();
 }//end of Configuration

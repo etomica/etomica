@@ -93,6 +93,8 @@ public class PrimitiveOrthorhombic extends Primitive {
     }
     
     private double[] size;
+    
+    public String toString() {return "Orthorhombic";}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
