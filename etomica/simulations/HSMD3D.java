@@ -52,7 +52,7 @@ public class HSMD3D extends Simulation {
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 
-        MeterPressureHard meterPressure = new MeterPressureHard();
+        MeterPressureHard meterPressure = new MeterPressureHard(integrator);
         DataManager accumulatorManager = new DataManager(meterPressure);
         // 	DisplayBox box = new DisplayBox();
         // 	box.setDatumSource(meterPressure);
