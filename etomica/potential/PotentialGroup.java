@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Phase;
@@ -81,8 +81,8 @@ public class PotentialGroup extends Potential {
 	}
 	
 	//TODO this needs some work
-	public double energy(Atom[] basisAtoms) {
-		if(basisAtoms.length != this.nBody()) {
+	public double energy(AtomSet basisAtoms) {
+		if(basisAtoms.count() != this.nBody()) {
 			throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
 		}
 		double sum = 0.0;
@@ -130,7 +130,7 @@ public class PotentialGroup extends Potential {
      */
 	//TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-    	Atom[] targetAtoms = id.getTargetAtoms();
+    	AtomSet targetAtoms = id.getTargetAtoms();
     	IteratorDirective.Direction direction = id.direction();
 		//loop over sub-potentials
     	//TODO consider separate loops for targetable and directable
@@ -142,7 +142,7 @@ public class PotentialGroup extends Potential {
 		}
     	iterator.reset();//loop over atom groups affected by this potential group
 		while (iterator.hasNext()) {
-    		Atom[] basisAtoms = iterator.next();
+    		AtomSet basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
                 if(!link.enabled) continue;
     			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			

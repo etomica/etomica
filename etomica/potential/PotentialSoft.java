@@ -4,7 +4,7 @@
  */
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.space.Vector;
 
 
@@ -15,7 +15,7 @@ import etomica.space.Vector;
  */
 public interface PotentialSoft {
 	   
-	public double energy(Atom[] atoms);
+	public double energy(AtomSet atoms);
 
 	/**
 	 * Returns the gradient of the potential, indicating how
@@ -26,6 +26,6 @@ public interface PotentialSoft {
 	 */
 	//TODO consider if implementation for pair describes energy change with movement of first or 2nd atom
 	//TODO consider returning array of vectors, one for each atom
-	public Vector gradient(Atom[] atoms);
+	public Vector gradient(AtomSet atoms);
 
 }
