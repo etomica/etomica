@@ -1,6 +1,8 @@
 package etomica.virial;
 
+import etomica.Atom;
 import etomica.Phase;
+import etomica.Space;
 import etomica.potential.Potential0;
 
 /**
@@ -19,64 +21,34 @@ import etomica.potential.Potential0;
  */
 public class P0Cluster extends Potential0 {
 
-	protected ClusterAbstract cluster;
-	private boolean isPositive;
-//	protected double g = 0;
+    private double temperature;
+    private PhaseCluster phaseCluster;
 	/**
 	 * Constructor for P0Cluster.
-	 * @param parent
 	 */
-	public P0Cluster(SimulationElement parent) {
-		super(parent);
-	}
-	public P0Cluster(SimulationElement parent, ClusterAbstract cluster) {
-		this(parent);
-		setCluster(cluster);
+	public P0Cluster(Space space) {
+		super(space);
 	}
 	
-	public void setCluster(ClusterAbstract cluster) {
-		this.cluster = cluster;
-	}
-	/**
-	 * Returns the cluster.
-	 * @return ClusterAbstract
-	 */
-	public ClusterAbstract getCluster() {
-		return cluster;
-	}
-	
-	public double pi(PhaseCluster phase) {
-		double pi = cluster.value(phase.getPairSet().resetPairs(), 1.0/phase.integrator().temperature());
-		isPositive = (pi > 0);
-		return isPositive ? pi : -pi;
-	}
-//	public double pi(PairSet pairSet, double beta) {
-//		double pi = cluster.value(pairSet, beta);
-//		return (pi>0) ? pi : -pi;
-//	}
-
-//	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-//	   if(!enabled) return;
-//	   double beta = 1.0/phase.integrator().temperature();
-//	   PairSet pairs = ((PhaseCluster)phase).getPairSet();
-//	   switch(id.atomCount()) {
-//	   		case 0: g = cluster.value(pairs, beta); break;
-//	   		case 1: g = cluster.value(id.atom1(), pairs, beta); break;
-//	   		default: throw new RuntimeException();
-//	   }
-//	   ((PotentialCalculationEnergySum)pc).set(this).actionPerformed(phase);
-//	}//end of calculate
-
-	public double energy(Phase phase) {
-		double g = pi((PhaseCluster)phase);
-		return (g==1.0) ? 0.0 : ( (g==0) ? Double.POSITIVE_INFINITY : -phase.integrator().temperature()*Math.log(g) );
+	public double weight() {
+		return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), 1/temperature);
 	}
 
-	/**
-	 * Returns true if the cluster value calculated during most recent call to
-	 * the pi method was positive; returns false otherwise.
-	 * @return boolean
-	 */
-	public boolean mostRecentIsPositive() {return isPositive;}
+    public void setPhase(Phase phase) {
+    	phaseCluster = (PhaseCluster)phase;
+    }
+    
+    public void setTemperature(double aTemperature) {
+        temperature = aTemperature;
+    }
 
+    /**
+     * @deprecated use weight()
+     */
+    public double energy(Atom[] atoms) {
+		double w = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), 1/temperature);
+		if (w == 0) return Double.POSITIVE_INFINITY;
+		return -Math.log(w)*temperature;
+    }
+    
 }
