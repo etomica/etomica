@@ -8,9 +8,11 @@ package etomica;
 public abstract class Potential2SoftSpherical extends Potential2Soft {
    
    public static String VERSION = "Potential2SoftSpherical:01.07.05/"+Potential2.VERSION;
+   private final Space.Vector work1;
    
    public Potential2SoftSpherical(PotentialGroup parent) {
         super(parent);
+        work1 = parentSimulation().space().makeVector();
    }
    
    /**

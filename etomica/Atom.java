@@ -22,7 +22,8 @@ public class Atom implements java.io.Serializable {
         type = t;
         coord = space.makeCoordinate(this);//must follow setting of type field
         coord.setMass(type.getMass());
-        if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
+        if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];//this is to be removed
+        if(atomListCount > 0) atomList = new AtomLinkedList[atomListCount];
     }
                     
     /**
@@ -185,11 +186,13 @@ public class Atom implements java.io.Serializable {
   *  @see Iterator.FixedNeighbors
   */
     public AtomLinker[] atomLink;
+    public AtomLinkedList[] atomList;
     
     /**
      * Counter of the number of atom link index requests that have been fielded so far.
      */
     private static int atomLinkCount = 0;
+    private static int atomListCount = 0;
     
     /**
      * Returns a unique index that can be used by a simulation element to set up a linked
@@ -198,6 +201,7 @@ public class Atom implements java.io.Serializable {
      * with atomLink[idx].
      */
     public static int requestAtomLinkIndex() {return atomLinkCount++;}
+    public static int requestAtomListIndex() {return atomListCount++;}
     
 //    public Meter.Agent[] meterAgents;
     private static int meterAgentCount = 0;

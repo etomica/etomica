@@ -53,7 +53,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         switch(a.length) {
             case 1:  return new Space1D.Vector(a);
             case 2:  return new Space2D.Vector(a);
-//            case 3:  return new Space3D.Vector(a);
+            case 3:  return new Space3D.Vector(a);
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
@@ -259,7 +259,17 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             } catch(CloneNotSupportedException e) {return null;}
         }
     }
-
+    
+ /*   public static abstract class Coordinate3 implements java.io.Serializable {
+        public Coordinate3() {}
+        public abstract void reset();
+        public abstract void reset(Space.Coordinate c1, Space.Coordinate c2, Space.Coordinate c3);
+        public abstract double r2_12();
+        public abstract double r2_13();
+        public abstract double r2_23();
+        public abstract double r12Dotr13();
+    }
+*/
     public static abstract class Boundary implements java.io.Serializable {
         protected final float[][] shift0 = new float[0][0];//cannot be static because several phases may be using at once
         protected float[][] shift;

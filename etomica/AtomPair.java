@@ -2,8 +2,6 @@ package etomica;
 /**
  * An association of two atoms.  Each AtomPair holds one CoordinatePair (obtained from a Space class),
  * which has all the methods needed to compute atom distance and momentum-difference vectors, dot products, etc.
- * Each AtomPair instance must be associated with a phase CoordinatePair requires a phase.boundary
- * for its complete definition
  */
 public final class AtomPair implements java.io.Serializable {
     public static String getVersion() {return "AtomPair:01.06.25";}
@@ -97,7 +95,7 @@ public final class AtomPair implements java.io.Serializable {
     public final Atom atom2() {return atom2;}
     
     /**
-     * Sorts by separation distance all the atom pairs produced by an atomPair iterator
+     * Sorts by separation distance all the atom pairs produced by an atomPair iterator.
      * Returns the first element of a linked list of atomPair(Linker)s, sorted by increasing distance
      * Perhaps better to do this using java.util.Collections (in java 1.2 API)
      */

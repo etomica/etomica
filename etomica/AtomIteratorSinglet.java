@@ -50,7 +50,7 @@ public class AtomIteratorSinglet implements AtomIterator {
         switch(id.atomCount()) {
             case 0:  return reset(); 
             case 1:  return reset(id.atom1()); 
-            case 2:  return reset(id.atom1(), id.atom2()); 
+  //          case 2:  return reset(id.atom1(), id.atom2()); 
             default: hasNext = false; 
             return null;
         }
@@ -74,19 +74,12 @@ public class AtomIteratorSinglet implements AtomIterator {
             if(direction == IteratorDirective.UP) hasNext = a.preceeds(atom);
             else if(direction == IteratorDirective.DOWN) hasNext = atom.preceeds(a);
             else if(direction == IteratorDirective.BOTH) hasNext = true;
-            else /*NEITHER*/ hasNext = false;
+            else /*direction == NEITHER*/ hasNext = false;
         }
         else hasNext = (a == atom);  // isAsNeighbor == false
         return hasNext ? atom : null;
     }
-    
-    /**
-     *  Not yet defined.
-     */
-    public Atom reset(Atom first, Atom last) {
-        return null;
-    }
-    
+        
     public Atom next() {hasNext = false; return atom;}
     
     public void allAtoms(AtomAction act) {

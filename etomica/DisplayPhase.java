@@ -141,7 +141,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     }
     
     public void setSize(int width, int height) {
-        graphic().setSize(width, height);
+//        graphic().setSize(width, height);
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setMinimumSize(temp);
         canvas.setMaximumSize(temp);

@@ -10,13 +10,11 @@ public abstract class Potential2 extends Potential {
     public static String VERSION = "Potential2:01.07.03/"+Potential.VERSION;
     
     protected AtomPairIterator iterator;
-    protected Space.Vector work1;
     private Species species1, species2;
     
     public Potential2(PotentialGroup parent) {
         super(parent);
         iterator = new AtomPairIterator(parentSimulation().space());
-        work1 = parentSimulation().space().makeVector();
     }
     
     public abstract double energy(AtomPair pair);

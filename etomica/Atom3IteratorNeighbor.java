@@ -1,29 +1,29 @@
 package etomica;
 
 /**
- * Basic class for iterating over pairs of atoms.
- * Pairs are iterated by collecting atoms yielded by two atom iterators.
- * Different types of pair iterators can be constructed with different choices
- * of the atom iterators.
+ * Generates triplets of atoms by iterating over the neighbors of a given atom.
+ * The neighbors are associated with an atom through entries in its AtomList
+ * array.  One entry must be specified for upList neighbors, and another for
+ * downList neighbors.
  *
  * @author David Kofke
  */
-public class AtomPairIterator implements java.io.Serializable {
+public class Atom3IteratorNeighbor extends Atom3IteratorNeighbor {
     
-    private AtomPair pair; //want final, but Null inner class won't allow
+    private Atom3 atom3; //want final, but Null inner class won't allow
     private IteratorDirective.Direction direction;
     private final IteratorDirective localDirective = new IteratorDirective();
 
     /**
      * The iterators used to generate the sets of atoms
      */
-    protected /*final*/ AtomIterator ai1, ai2;
-    protected AtomIterator aiInner, aiOuter;
+    protected /*final*/ AtomIterator ai1, ai2, ai3;
+    protected AtomIterator aiInner, aiOuter, aiMiddle;
     
     /**
      * A pair action wrapper used to enable the allPairs method
      */
-    protected AtomPairAction.Wrapper actionWrapper;   // want final too //wrapper inner class defined below
+ //   protected AtomPairAction.Wrapper actionWrapper;   // want final too //wrapper inner class defined below
     protected boolean hasNext;
     /**
      * Flag indicating whether atom1 of pair needs to be updated to point to the same atom that "atom1" in this class points to
@@ -32,15 +32,15 @@ public class AtomPairIterator implements java.io.Serializable {
     private Atom atom1;
     
     //Used only for the NULL iterator, defined below.
-    private AtomPairIterator() {
+    private Atom3Iterator() {
         hasNext = false;
         pair = null;
-        ai1 = ai2 = AtomIterator.NULL;
+        ai1 = ai2 = ai3 = AtomIterator.NULL;
     }
     /**
      * Constructs an iterator of all atom pairs in the given phase.
      */
-    public AtomPairIterator(Phase p) {
+    public Atom3Iterator(Phase p) {
         this(p.parentSimulation().space, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
     }
     /**
@@ -53,24 +53,25 @@ public class AtomPairIterator implements java.io.Serializable {
      /** 
       * Sets pair iterator so that it traverses all leaf-atom pairs in its basis.
       */
-     public AtomPairIterator(Space s) {
+     public Atom3Iterator(Space s) {
         this(s, new AtomIteratorSequential(true), new AtomIteratorSequential(true));
      }
     /**
-     * Construct a pair iterator using the given atom iterators
+     * Construct a triplet iterator using the given atom iterators
      */
-    public AtomPairIterator(Space s, AtomIterator iter1, AtomIterator iter2) {
-        pair = new AtomPair(s);
-        actionWrapper = new AtomPairAction.Wrapper(pair);
+    public Atom3Iterator(Space s, AtomIterator iter1, AtomIterator iter2, AtomItertor iter3) {
+        atom3 = new Atom3(s);
         hasNext = false;
         ai1 = iter1;
         ai2 = iter2;
+        ai3 = iter3;
         direction = IteratorDirective.UP;
     }
     
-    public void setBasis(Atom a1, Atom a2) {
+    public void setBasis(Atom a1, Atom a2, Atom3 a3) {
         ai1.setBasis(a1);
         ai2.setBasis(a2);
+        ai3.setBasis(a3);
     }
     
     public final boolean hasNext() {return hasNext;}
@@ -82,22 +83,22 @@ public class AtomPairIterator implements java.io.Serializable {
                      break;
             case 1:  reset(id.atom1()); 
                      break;
-/*            case 2:  reset(id.atom1(), id.atom2()); 
-                     break;*/
             default: hasNext = false; 
                      break;
         }
     }
     
-    private final void setOuterInner(AtomIterator outIter, AtomIterator inIter) {
+    private final void setOuterInner(AtomIterator outIter, AtomIterator midIter, AtomIterator inIter) {
         aiOuter = outIter;
+        aiMiddle = midIter;
         aiInner = inIter;
         aiOuter.setAsNeighbor(false);
+        aiMiddle.setAsNeighbor(true);
         aiInner.setAsNeighbor(true);
     }
 
     /**
-     * Resets the iterator, so that it is ready to go through all of its pairs.
+     * Resets the iterator, so that it is ready to go through all of its triplets.
      */
     public void reset() {
         if(direction == IteratorDirective.BOTH) direction = IteratorDirective.UP;
@@ -129,26 +130,7 @@ public class AtomPairIterator implements java.io.Serializable {
     }
     
     /**
-     * Resets iterator so that it iterates over all pairs formed from iterates
-     * between and including the given atoms.
-     */
-/*     public void reset(Atom atom1, Atom atom2) {
-        ai1.setAsNeighbor(false);
-        ai2.setAsNeighbor(false);
-        if(ai1.reset(localDirective.set(atom1,atom2).set(direction)) != null) {
-            setOuterInner(ai1, ai2);
-        }
-        else if(ai2.reset(localDirective) != null) {
-            setOuterInner(ai2, ai1);
-        }
-        else {hasNext = false; return;}
-        aiOuter.reset(localDirective);
-        //maybe want to do something with setting inner considering atom2
-        setFirst();
-     }
- */       
-    /**
-     * This is called after aiOuter and aiInner are are reset, 
+     * This is called after aiOuter, aiMiddle and aiInner are are reset, 
      * and it readies iterators to give first pair (or puts hasNext = false if no pairs
      * are forthcoming).
      */
@@ -169,8 +151,16 @@ public class AtomPairIterator implements java.io.Serializable {
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
         if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
-        pair.atom2 = aiInner.next();
-        pair.reset();
+        if(needUpdate2) {pair.atom2 = aimt2; needUpdate2 = false;}  //aiMiddle was advanced
+        atom3.atom3 = aiInner.next();
+        atom3.reset();
+        while(!aiMiddle.hasNext()) {//Middle is done for this atom1, loop until it is prepared for next
+            if(aiOuter.hasNext()) {     //Outer has another atom1...
+                atom1 = aiOuter.next();
+                aiMiddle.reset(localDirective.set(atom1));
+                needUpdate1 = true;
+                
+            
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
                 atom1 = aiOuter.next();           //...get it
@@ -186,7 +176,7 @@ public class AtomPairIterator implements java.io.Serializable {
      * Performs the given action on all pairs returned by this iterator.
      */
      //not carefully checked
-    public void allPairs(AtomPairAction act) {  
+/*    public void allPairs(AtomPairAction act) {  
         reset();
 //        ai1.reset();  //this shouldn't be here, in general; need to consider it more carefully
         actionWrapper.pairAction = act;
@@ -196,12 +186,7 @@ public class AtomPairIterator implements java.io.Serializable {
             ai2.allAtoms(actionWrapper);
         }
     }
-    
-    public static final AtomPairIterator NULL = new Null();
-    private static final class Null extends AtomPairIterator {
-        private Null() {super();}
-        public void reset(IteratorDirective id) {}
-    }
+*/    
     
 /*    public static void main(String[] args) throws java.io.IOException {
         

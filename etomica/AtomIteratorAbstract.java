@@ -129,7 +129,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
         switch(id.atomCount()) {
             case 0:  return reset(upListNow ? defaultFirstAtom() : defaultLastAtom()); 
             case 1:  return reset(id.atom1()); 
-            case 2:  return reset(id.atom1(), id.atom2()); 
+//            case 2:  return reset(id.atom1(), id.atom2()); 
             default: hasNext = false; 
             return null;
         }
@@ -212,7 +212,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      */
      
      //not substantially tested
-     protected Atom reset(Atom first, Atom last) {
+/*     protected Atom reset(Atom first, Atom last) {
         if(isNeighborIterator) {
             if(contains(last)) { //won't work right if last is downlist of first
                 atom = firstNeighbor(first);
@@ -236,6 +236,6 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
         hasNext = atom != null;
         return atom;
     }//end of reset(Atom, Atom)
-    
+  */  
 }//end of AtomIteratorAbstract
     
