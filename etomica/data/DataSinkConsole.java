@@ -96,7 +96,7 @@ public class DataSinkConsole implements DataSink, EtomicaElement {
         this.out = out;
     }
     
-    private String label;
+    private String label = "";
     private Dimension dimension = Dimension.UNDEFINED;
     private Unit unit = Unit.UNDEFINED;
     private PrintStream out = System.out;
