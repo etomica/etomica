@@ -1,5 +1,6 @@
 package etomica.potential;
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -47,11 +48,11 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     }
 
 
- /**
-  * Returns the pair potential energy.
-  */
-    public double energy(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    /**
+     * Returns the pair potential energy.
+     */
+    public double energy(AtomSet pair) {
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         double eTot = 0.0;
         double r2 = cPair.r2();
                  
@@ -67,13 +68,13 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         if (r2 < wellCutoffSquared) {
             e1.E(0.);
             e1.setX(0,1);
-            ((ICoordinateAngular)pair[0].coord).orientation().convertToSpaceFrame(e1);
+            ((ICoordinateAngular)((AtomPair)pair).atom0.coord).orientation().convertToSpaceFrame(e1);
             double er1 = e1.dot(cPair.dr());
                        
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
-                ((ICoordinateAngular)pair[1].coord).orientation().convertToSpaceFrame(e2);
+                ((ICoordinateAngular)((AtomPair)pair).atom1.coord).orientation().convertToSpaceFrame(e2);
                 double er2 = e2.dot(cPair.dr());
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }
