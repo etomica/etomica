@@ -26,7 +26,7 @@ import etomica.lattice.RectangularLattice;
  * species1 in cellB, and species1 in cellA with species0 in cellB.
  */
 
-public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent {
+public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, AtomsetIteratorCellular {
 
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -269,6 +269,13 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent {
         } while(!listIterator.hasNext());
     }//end of advanceCell
     
+    /**
+     * @return Returns the cellIterator.
+     */
+    public CellLattice.NeighborIterator getNbrCellIterator() {
+        return neighborIterator;
+    }
+   
     private final ApiInnerFixed listIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;

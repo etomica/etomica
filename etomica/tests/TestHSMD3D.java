@@ -15,7 +15,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.simulations.HSMD2D;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
@@ -39,6 +38,7 @@ public class TestHSMD3D extends Simulation {
         // makes eta = 0.35
         Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
         ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
+        ((PotentialMasterNbr)potentialMaster).setMaxNeighborRange(neighborRangeFac);
         integrator = new IntegratorHard(potentialMaster);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);

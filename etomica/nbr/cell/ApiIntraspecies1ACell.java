@@ -23,6 +23,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.lattice.CellLattice;
+import etomica.lattice.RectangularLattice;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase, taking one
@@ -33,7 +34,7 @@ import etomica.lattice.CellLattice;
  * molecules in cell's occupant list.
  */
 
-public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule {
+public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular {
 
     /**
      * @param species species whose molecules will form the pair iterates
@@ -242,6 +243,13 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule {
         aiOuter.setAtom(targetMolecule);//targetMolecule may be null here
     }
 
+    /**
+     * @return Returns the cellIterator.
+     */
+    public CellLattice.NeighborIterator getNbrCellIterator() {
+        return neighborIterator;
+    }
+   
     private final ApiInnerFixed nbrCellListIterator;//used only by allAtoms
     private final ApiInnerFixed centralCellListIterator;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;

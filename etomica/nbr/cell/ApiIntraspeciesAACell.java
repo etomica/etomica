@@ -25,7 +25,7 @@ import etomica.lattice.RectangularLattice;
  * Returns iterates formed from all molecule pairs of a single species.
  */
 
-public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
+public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent, AtomsetIteratorCellular {
 
     /**
      * @param D the dimension of the space of the simulation
@@ -193,6 +193,13 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
         } while(!listIterator.hasNext());
     }//end of advanceCell
     
+    /**
+     * @return Returns the cellIterator.
+     */
+    public CellLattice.NeighborIterator getNbrCellIterator() {
+        return neighborIterator;
+    }
+   
     private AtomsetIterator listIterator;
     private final ApiListSimple intraListIterator;
     private final AtomIteratorListSimple aiInner, aiOuter;

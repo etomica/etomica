@@ -5,6 +5,7 @@
 package etomica.nbr;
 
 import etomica.ApiInnerFixed;
+import etomica.ApiMolecule;
 import etomica.Atom;
 import etomica.AtomArrayList;
 import etomica.AtomIteratorArrayList;
@@ -14,6 +15,7 @@ import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomsetIteratorFiltered;
 import etomica.AtomsetIteratorMolecule;
+import etomica.Default;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
@@ -22,6 +24,7 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
+import etomica.nbr.cell.AtomsetIteratorCellular;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.utility.Arrays;
@@ -42,6 +45,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	public PotentialMasterNbr(Space space) {
         super(space,new IteratorFactoryCell(space.D()));
         setNCells(10);
+        setMaxNeighborRange(Default.POTENTIAL_CUTOFF_FACTOR*1.5);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
@@ -72,11 +76,11 @@ public class PotentialMasterNbr extends PotentialMaster {
     	Atom[] targetAtoms = id.getTargetAtoms();
     	if (targetAtoms.length == 0 || targetAtoms[0] == null) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
-    		calculate(phase.speciesMaster, new IteratorDirective(), pc);
+    		calculate(phase.speciesMaster, new IteratorDirective(), pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
     	}
     	else if (targetAtoms.length == 1 || targetAtoms[1] == null) {
     		// one target atom
-			calculate(targetAtoms[0], id, pc);
+			calculate(targetAtoms[0], id, pc, targetAtoms[0].type.getNbrManagerAgent().getPotentials());
     	}
     	else {
     		//more than one target atom
@@ -91,8 +95,7 @@ public class PotentialMasterNbr extends PotentialMaster {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
-	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
-		Potential[] potentials = atom.type.getNbrManagerAgent().getPotentials();
+	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials) {
 		int length = potentials.length;
 		if (length > 0) {
             AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
@@ -123,9 +126,12 @@ public class PotentialMasterNbr extends PotentialMaster {
 			AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
 			listIterator.setList(((AtomTreeNodeGroup)atom.node).childList);
 			listIterator.reset();
-			while(listIterator.hasNext()) {
-				calculate(listIterator.nextAtom(), id, pc);//recursive call
-			}
+            if (listIterator.hasNext()) {
+                Potential[] childPotentials = listIterator.peek()[0].type.getNbrManagerAgent().getPotentials();
+                while(listIterator.hasNext()) {
+                    calculate(listIterator.nextAtom(), id, pc, childPotentials);//recursive call
+                }
+            }
 		}
 	}
 
@@ -153,6 +159,8 @@ public class PotentialMasterNbr extends PotentialMaster {
     		throw new IllegalArgumentException("Illegal species length");
     	}
         AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
+        ((AtomsetIteratorCellular)((ApiMolecule)iterator).getApiAA()).getNbrCellIterator().setRange(maxNeighborRange);
+        ((AtomsetIteratorCellular)((ApiMolecule)iterator).getApi1A()).getNbrCellIterator().setRange(maxNeighborRange);
         iterator = new AtomsetIteratorFiltered(iterator, criterion);
 		neighborManager.addCriterion(criterion);
     	for(int i=0; i<species.length; i++) {
@@ -184,6 +192,11 @@ public class PotentialMasterNbr extends PotentialMaster {
     public void setNCells(int cells) {
         nCells = cells;
     }
+    
+    public void setMaxNeighborRange(double r) {
+        maxNeighborRange = r;
+    }
+    
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
 
 	private final AtomIteratorArrayList atomIterator;
@@ -192,4 +205,5 @@ public class PotentialMasterNbr extends PotentialMaster {
 	private final NeighborManager neighborManager;
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
+    private double maxNeighborRange;
 }

@@ -20,6 +20,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.lattice.CellLattice;
+import etomica.lattice.RectangularLattice;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,
@@ -31,7 +32,7 @@ import etomica.lattice.CellLattice;
  * species, and (unlike ApiIntraspecies1ACell) is not connected to cell ordering.
  */
 
-public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
+public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular {
 
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -274,6 +275,13 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule {
         unset();
     }
 
+    /**
+     * @return Returns the cellIterator.
+     */
+    public CellLattice.NeighborIterator getNbrCellIterator() {
+        return neighborIterator;
+    }
+   
 
     private final ApiInnerFixed listIterator;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;
