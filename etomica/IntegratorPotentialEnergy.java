@@ -28,8 +28,9 @@ public class IntegratorPotentialEnergy implements DataSource, Integrator.Interva
             meterPE.setPhase(phase);
             double[] PE = meterPE.getData();
             for (int i=0; i<phase.length; i++) {
-                if (PE[i] != currentPE[i]) {
+                if (Math.abs(PE[i] - currentPE[i]) > 1.e-9*Math.abs(PE[i]+currentPE[i])) {
                     System.out.println("final potential energy ("+currentPE[i]+") for "+phase[i]+" doesn't match actual energy ("+PE[i]+")");
+                    meterPE.getData();
                 }
             }
         }
