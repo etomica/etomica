@@ -10,10 +10,9 @@ import etomica.utility.java2.Iterator;
 import etomica.utility.java2.LinkedList;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Action that performs a call to the reset() method of a set
+ * of accumulators, as specified via a list of AccumulatorManager
+ * instances.
  */
 public class ResetAccumulators implements Action {
 

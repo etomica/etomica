@@ -16,27 +16,12 @@ import javax.swing.JButton;
   */
 public class DeviceButton extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceButton:01.05.25/"+Device.VERSION;}
-
     private ActionGraphic action;
     private JButton button;
     
     public DeviceButton() {
-        this(Simulation.instance);
-    }
-    public DeviceButton(SimulationElement parent) {
-        super(parent);
+        super();
         button = new JButton();
-//        button.setBackground(DefaultGraphic.BUTTON_COLOR);
-//        button.setForeground(DefaultGraphic.BUTTON_TEXT_COLOR);
-    }
-
-    /**
-     * Constructs button connected to the given action, without registering it with a simulation.
-     */
-    public DeviceButton(SimulationElement parent, ActionGraphic action) {
-        this(parent);
-        setAction(action);
     }
     
     /**
@@ -47,7 +32,7 @@ public class DeviceButton extends Device implements EtomicaElement {
         setAction(action);
     }
     /**
-     * Connects button to given action, and registers it with Simulation.INSTANCE.
+     * Connects button to given action.
      */
     public DeviceButton(etomica.Action action) {
         this(new ActionGraphic(action));

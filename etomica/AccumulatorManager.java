@@ -119,6 +119,9 @@ public class AccumulatorManager implements Integrator.IntervalListener {
         else throw new IllegalArgumentException("Illegal value of update interval");
     }
 	
+    /**
+     * Invokes the reset() method of all accumulators held by this manager.
+     */
     public void resetAccumulators() {
         iterator.reset();
         while(iterator.hasNext()) {

@@ -1,9 +1,13 @@
 package etomica.graphics;
-import etomica.*;
-import java.awt.*;
-import java.beans.PropertyChangeSupport;
+import java.awt.Component;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 import javax.swing.JPanel;
+
+import etomica.Integrator;
+import etomica.Phase;
+import etomica.utility.NameMaker;
 
 /**
  * Superclass of all classes that display something from the simulation.  
@@ -13,10 +17,8 @@ import javax.swing.JPanel;
  *
  * @author David Kofke
  */
-public abstract class Display extends SimulationElement implements GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
+public abstract class Display implements GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
 
-    public static final String VERSION = "Display:01.07.25";
-    
   /**
    * Number of interval events received between updates of display.
    * Default value is 1.
@@ -37,8 +39,8 @@ public abstract class Display extends SimulationElement implements GraphicalElem
                             //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph, DisplayToConsole
     
     // Constructor
-    public Display(SimulationElement parent) {
-        super(parent, Display.class);
+    public Display() {
+        setName(NameMaker.makeName(this.getClass()));
 	    setUpdateInterval(1);
     }
     
@@ -133,10 +135,23 @@ public abstract class Display extends SimulationElement implements GraphicalElem
      */
     public final void setName(String name) {
         String oldName = this.name;
-        super.setName(name);
         this.name = name;
         support.firePropertyChange("name", oldName, name);
     }
+    /**
+     * Accessor method of the name of this phase
+     * 
+     * @return The given name of this phase
+     */
+    public final String getName() {return name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the phase
+     */
+    public String toString() {return getName();}
+
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
@@ -146,4 +161,6 @@ public abstract class Display extends SimulationElement implements GraphicalElem
     }
     
     protected PropertyChangeSupport support = new PropertyChangeSupport(this);
+    
+    private String name;
 }

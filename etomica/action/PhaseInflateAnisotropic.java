@@ -20,7 +20,7 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	 * Constructs action ready to be performed on the given phase.
 	 */
 	public PhaseInflateAnisotropic(Phase phase) {
-		this(phase.simulation().space);
+		this(phase.space);
 		setPhase(phase);
 	}
 

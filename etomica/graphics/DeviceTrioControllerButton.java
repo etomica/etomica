@@ -1,8 +1,13 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.action.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+
 import javax.swing.JPanel;
-import java.awt.event.*;
+
+import etomica.Controller;
+import etomica.Simulation;
+import etomica.action.ResetAccumulators;
+import etomica.action.SimulationRestart;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 
@@ -23,7 +28,7 @@ public class DeviceTrioControllerButton extends Device {
     private DeviceButton button2;
     private DeviceButton button3; 
     private SimulationRestart simReset;
-    private MeterReset meterAverageReset;
+    private ResetAccumulators resetAccumulators;
 	private Simulation simulation;	
 	private double width;
 	private boolean firstResized = true;
@@ -37,11 +42,11 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Constructor if instance of controller is not added.
      */
-    public DeviceTrioControllerButton(SimulationElement parent) {
-        super(parent);
-        simulation = parent.simulation();
+    public DeviceTrioControllerButton(Simulation simulation) {
+        super();
+        this.simulation = simulation;
         simReset = new SimulationRestart(simulation);
-        meterAverageReset = new MeterReset(simulation);
+        resetAccumulators = new ResetAccumulators(simulation.getAccumulatorManagerList());
         
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
@@ -56,12 +61,12 @@ public class DeviceTrioControllerButton extends Device {
                              ,new java.awt.Font(null,java.awt.Font.BOLD,15)
                              ,java.awt.Color.black));
                              */
-        button1 = new DeviceControllerButton(this);
-        button2 = new DeviceButton(this);
+        button1 = new DeviceControllerButton(simulation.getController());
+        button2 = new DeviceButton();
         button2.setAction(new ActionGraphic(simReset));
         
-        button3 = new DeviceButton(this);
-        button3.setAction(new ActionGraphic(meterAverageReset));
+        button3 = new DeviceButton();
+        button3.setAction(new ActionGraphic(resetAccumulators));
         
         jp.add(button1.graphic()); 
         jp.add(button2.graphic());  

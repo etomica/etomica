@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.math.SphericalHarmonics;
 import etomica.units.*;
 import etomica.utility.*;
 

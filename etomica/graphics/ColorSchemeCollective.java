@@ -24,7 +24,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Atom.
         
     public Color atomColor(Atom a) {return (Color)a.allatomAgents[agentIndex];}
    
-    //this method is redundant and for this class does not have any effect 
+    //set aside a agent index entry to store the color with the atom 
     public Object makeAgent(Atom a) {return null;}
 }
 

@@ -95,7 +95,7 @@ public class ParallelTempering extends SimulationGraphic {
                                 
 		controller = new Controller();
         
-		DisplayBox cyclesBox = new DisplayBox((DatumSource)new DataSourceStepCount());
+		DisplayBox cyclesBox = new DisplayBox((DatumSource)new DataSourceCountSteps());
 		cyclesBox.setPrecision(6);
         
 		ColorSchemeByType.setColor(species,java.awt.Color.red);

@@ -65,7 +65,7 @@ public class MediatorGraphic extends Mediator {
              * Sets display as interval listener of first integrator, if it exists
              */
             public void add(Display display) {
-                for(Iterator ip=mediator.parentSimulation().integratorList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getIntegratorList().iterator(); ip.hasNext(); ) {
                     Integrator integrator = (Integrator)ip.next();
                     if(integrator.wasAdded())  {
                         integrator.addIntervalListener(display);
@@ -110,7 +110,7 @@ public class MediatorGraphic extends Mediator {
             public void add(Display display) {
                 if(!vetoConnection(display,lastPhaseAdded)) display.setPhase(lastPhaseAdded);
                 else if(display instanceof etomica.graphics.DisplayPhase) {
-                    for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
+                    for(Iterator ip=mediator.parentSimulation().getPhaseList().iterator(); ip.hasNext(); ) {
                         Phase phase = (Phase)ip.next();
                         if(!vetoConnection(display, phase)) {
                             display.setPhase(phase);
@@ -287,7 +287,7 @@ public class MediatorGraphic extends Mediator {
              * Sets the given phase, if it is the first added, as the phase of all meters.
              */
             public void add(Display display) {
-                for(Iterator ip=mediator.parentSimulation().meterList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getMeterList().iterator(); ip.hasNext(); ) {
                     MeterAbstract meter = (MeterAbstract)ip.next();
                     if(meter.wasAdded()) connect(display, meter);
                     

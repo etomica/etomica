@@ -11,7 +11,7 @@ import etomica.*;
 public class TestAll {
     
     static final String classes[] = {
-        "ActionPointVolume", "AtomAction", "AtomIteratorSequential", "AtomPairIterator",
+        "PhaseInflatePoint", "AtomAction", "AtomIteratorSequential", "AtomPairIterator",
         "ColorSchemeBySpecies",
         "ColorSchemeHeteroAtoms", "ColorSchemeTemperature", "DeviceButton",
         "DeviceSlider", "DeviceTable", "DisplayBox", 

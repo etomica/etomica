@@ -69,7 +69,7 @@ public class DisplayToLog extends Display {
     }
     
     public void doUpdate() {
-        for(Iterator iter=simulation().meterList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation().getMeterList().iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             if(!(meter instanceof MeterScalar)) continue;
             logFile.print(((MeterScalar)meter).average() + " " + ((MeterScalar)meter).error()+ "  ");

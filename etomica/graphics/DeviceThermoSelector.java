@@ -77,7 +77,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
             }
             public void add(Device device) {
                 if(device != DeviceThermoSelector.this) return;
-                for(Iterator ip=mediator.parentSimulation().integratorList().iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().getIntegratorList().iterator(); ip.hasNext(); ) {
                     Integrator integrator = (Integrator)ip.next();
                     if(integrator.wasAdded())  {//will make last integrator the one
                         DeviceThermoSelector.this.integrator = integrator;

@@ -16,7 +16,7 @@ public class PistonCylinder extends SimulationGraphic {
     public P2HardSphereWall potentialHardDiskWall;
     public Controller controller;
     public DisplayPhase display;
-    public DataSourceStepCount meterCycles;
+    public DataSourceCountSteps meterCycles;
     public DisplayBox displayCycles;
 
     public PistonCylinder() {
@@ -44,7 +44,7 @@ public class PistonCylinder extends SimulationGraphic {
 	    
 	    display = new DisplayPhase(this);
 	    
-	    meterCycles = new DataSourceStepCount(this);
+	    meterCycles = new DataSourceCountSteps(this);
 	    displayCycles = new DisplayBox(this,meterCycles);
 	    
 		panel().setBackground(java.awt.Color.yellow);

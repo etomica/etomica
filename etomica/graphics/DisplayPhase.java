@@ -29,8 +29,6 @@ import etomica.utility.java2.LinkedList;
   */
 public class DisplayPhase extends Display implements Integrator.IntervalListener.AfterPbc, EtomicaElement {
         
-    public String getVersion() {return "DisplayPhase:01.03.11/"+Display.VERSION;}
-    
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
     public static final int RIGHT = +1;
@@ -104,18 +102,14 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
  //       catch (NoClassDefFoundError err) {_3dEnabled = false;}
    }
   
-    public DisplayPhase () {
-        this(Simulation.instance);
-    }
-    
-    public DisplayPhase(Simulation sim) {
-        super(sim);
+    public DisplayPhase(Phase phase) {
+        super();
         System.out.println("Serenity now");
         setLabel("Configuration");
 
         int box = (int)(Default.BOX_SIZE * BaseUnit.Length.Sim.TO_PIXELS);
 
-        switch(simulation().space().D()) {
+        switch(phase.space().D()) {
             case 3:
                 box *=1.4;
                     canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
@@ -135,7 +129,9 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         
         setSize(box, box);
         align[0] = align[1] = CENTER;
-        
+
+        setPhase(phase);
+
         InputEventHandler listener = new InputEventHandler();
         canvas.addMouseListener((MouseListener)listener);
         canvas.addMouseMotionListener((MouseMotionListener)listener);
@@ -152,8 +148,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 }
             }
         });
-
-//        ((javax.swing.JPanel)graphic()).setLayout(null);
+        
+ //        ((javax.swing.JPanel)graphic()).setLayout(null);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -216,7 +212,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         drawables.remove(obj);
     }
     public void addDrawable(Object obj) {
-        if(simulation().space.D() == 3) drawables.add(obj);
+        if(phase.space().D == 3) drawables.add(obj);
     }
     public void removeDrawable(Object obj) {
         drawables.remove(obj);
@@ -316,7 +312,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         toPixels = /*(int)*/(getScale()*BaseUnit.Length.Sim.TO_PIXELS);
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*phase().boundary().dimensions().x(0));
-        drawSize[1] = (simulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().x(1));
+        drawSize[1] = (phase.space().D==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -398,7 +394,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         private boolean rotate = false, zoom = false, translate = false;
         
         InputEventHandler() {
-            point = simulation().space().makeVector();
+            point = phase.space().makeVector();
             dpe = new DisplayPhaseEvent(DisplayPhase.this);
         }
         
@@ -412,7 +408,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         public void mousePressed(MouseEvent evt) {
 //			System.out.println("mouse press");
            mouseAction(evt);
-            if(simulation().space().D() == 3) {
+            if(phase.space().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }
@@ -430,7 +426,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
            float x = evt.getX();
             float y = evt.getY();
             
-            if (rotate  && simulation().space().D() == 3) {
+            if (rotate  && phase.space().D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
                 float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
                 if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
@@ -444,7 +440,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 }
             }
 
-            if (translate && simulation().space().D() == 3) {
+            if (translate && phase.space().D() == 3) {
                 float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
                 float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
                 if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
@@ -457,7 +453,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 }
             }                                                   
 
-            if (zoom  && simulation().space().D() == 3) {
+            if (zoom  && phase.space().D() == 3) {
                 float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
                 float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
                 float shift = (xShift+yShift)/2f;
@@ -477,7 +473,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             }
             
             if (!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();
-            if(simulation().space().D() == 3) {
+            if(phase.space().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }

@@ -69,6 +69,7 @@ public class Phase {
     private PhaseImposePbc centralImageEnforcer;
     private String name;
     public final int index;
+    private final Space space;
     private static int instanceCount;
     
     /**
@@ -77,7 +78,7 @@ public class Phase {
     public Phase(Space space) {
         index = instanceCount++;
         speciesMaster = new SpeciesMaster(space, this);
-         
+        this.space = space;
         setName(NameMaker.makeName(this.getClass()));
         inflater = new PhaseInflate(this);
 
@@ -129,6 +130,7 @@ public class Phase {
      */
     public boolean isLrcEnabled() {return lrcEnabled;}
     
+    public final Space space() {return space;}
     
     public Space.Vector randomPosition() {return boundary.randomPosition();}
         
@@ -269,7 +271,7 @@ public class Phase {
     
     public void setDensity(double rho) {
         double vNew = moleculeCount()/rho;
-        double scale = Math.pow(vNew/boundary.volume(), 1.0/boundary.dimensions().D());
+        double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
         inflater.setScale(scale);
         inflater.actionPerformed();
     }

@@ -1,11 +1,15 @@
 package etomica.action;
 
+import java.awt.Graphics;
+import java.awt.Polygon;
+
 import etomica.Atom;
 import etomica.AtomFactoryMono;
 import etomica.AtomIterator;
 import etomica.AtomIteratorList;
 import etomica.AtomIteratorMolecule;
 import etomica.AtomList;
+import etomica.AtomSequencerSimple;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomType;
 import etomica.Phase;
@@ -13,9 +17,11 @@ import etomica.Simulation;
 import etomica.SimulationEventManager;
 import etomica.Space;
 import etomica.Space2D;
-import etomica.lattice.*;
+import etomica.lattice.AbstractLattice;
+import etomica.lattice.BravaisLattice;
+import etomica.lattice.LatticeFactoryCubic;
+import etomica.lattice.Site;
 import etomica.utility.OdeSolver;
-import java.awt.*;
 
 /** 
  * Action that changes the system volume by distorting the space, causing
@@ -297,7 +303,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             this.size = size;
             size1 = size-1;
             LatticeFactoryCubic latticeFactory = 
-                new LatticeFactoryCubic(sim.space, new MySiteFactory(sim), sim.space.D(), size, 1.0/(double)(size-1));
+                new LatticeFactoryCubic(sim.space, new MySiteFactory(sim.space), sim.space.D(), size, 1.0/(double)(size-1));
             squareLattice = (BravaisLattice)latticeFactory.makeAtom();
             squareLattice.shiftFirstToOrigin();
 
@@ -524,7 +530,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         }
     }
     private class MySiteFactory extends AtomFactoryMono {
-        MySiteFactory(Simulation sim) {super(sim);}
+        MySiteFactory(Space space) {super(space, AtomSequencerSimple.FACTORY);}
         protected Atom build(AtomTreeNodeGroup parent) {
             return new MySite(space, parent);
         }

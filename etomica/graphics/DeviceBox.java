@@ -25,7 +25,6 @@ import java.awt.event.KeyEvent;
  
 public class DeviceBox extends Device implements EtomicaElement, javax.swing.event.ChangeListener {
     
-    public String getVersion() {return "DeviceBox:02.09.05/"+Device.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
@@ -59,18 +58,12 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     protected etomica.units.Unit unit;
     
     public DeviceBox() {
-        this(Simulation.instance);
+        super();
+        init();
     }
     public DeviceBox(ModulatorAbstract m) {
-        this(Simulation.instance, m);
-    }
-    public DeviceBox(SimulationElement parent, ModulatorAbstract m) {
-        this(parent);
+        this();
         setModulator(m);
-    }
-    public DeviceBox(SimulationElement parent) {
-        super(parent);
-        init();
     }
 
     private void init() {
@@ -260,15 +253,15 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     public static void main(String[] args) {
 
         SimulationGraphic sim = new SimulationGraphic();
-	    IntegratorHard integrator = new IntegratorHard();
+	    IntegratorHard integrator = new IntegratorHard(sim.potentialMaster);
 	    Species species = new SpeciesSpheresMono();
 	    species.setNMolecules(25);
-	    Phase phase = new Phase();
+	    Phase phase = new Phase(sim.space);
 	    Controller controller = new Controller();
 	    Display display = new DisplayPhase();
 		
         Potential2 potential = new P2SquareWell();
-        sim.hamiltonian.potential.setSpecies(potential, new Species[] {species, species});
+        sim.potentialMaster.setSpecies(potential, new Species[] {species, species});
  //       Potential2 potential = new P2HardSphere(sim);
 		sim.elementCoordinator.go();
 
@@ -279,7 +272,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         DeviceBox box0 = new DeviceBox(mod1);
         //here's a DisplayBox tied to a Modulator
 		DisplayBox box1 = new DisplayBox();
-		box1.setDatumSource(mod1);
+//broken		box1.setDatumSource(mod1);
         //end of unique part
                                             
 		Simulation.instance.elementCoordinator.go(); 		                                    

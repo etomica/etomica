@@ -12,13 +12,10 @@ import etomica.*;
   
 public class DeviceControllerButton extends DeviceButton {
     
-    public DeviceControllerButton(SimulationElement parent) {
-        super(parent);
+    public DeviceControllerButton(Controller controller) {
+        super();
         toggleAction = new Toggle();
-    }
-    public DeviceControllerButton(SimulationElement parent, Controller c) {
-        this(parent);
-        setController(c);
+        setController(controller);
     }
     
     //final because called by constructor

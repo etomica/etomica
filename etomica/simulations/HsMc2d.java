@@ -17,7 +17,7 @@ public class HsMc2d extends SimulationGraphic {
     public P2HardSphere potential;
     public Controller controller;
     public DisplayPhase display;
-    public DataSourceStepCount meterCycles;
+    public DataSourceCountSteps meterCycles;
     public DisplayBox displayCycles;
 
     public HsMc2d() {
@@ -32,7 +32,7 @@ public class HsMc2d extends SimulationGraphic {
 	    potential.setSpecies(new Species[] {species});
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
-	    meterCycles = new DataSourceStepCount(this);
+	    meterCycles = new DataSourceCountSteps(this);
 	    displayCycles = new DisplayBox(this,meterCycles);
 		panel().setBackground(java.awt.Color.yellow);
 	    
