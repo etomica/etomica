@@ -20,22 +20,16 @@ import etomica.atom.AtomFilter;
 public class AtomIteratorFiltered implements AtomIterator {
 
 	/**
-	 * Default constructor that causes no atoms to be filtered.
-	 * Iterator will give all iterates of the given iterator
-	 * until another filter is specified.
-	 */
-	public AtomIteratorFiltered(AtomIterator iterator) {
-		this(iterator, AtomFilter.ACCEPT_ALL);
-	}
-	
-	/**
 	 * Returns the iterates of the given iterator that meet
-	 * the critertia of the given filter.
-	 * @param iterator
-	 * @param filter
+	 * the critertia of the given filter.  Filter is final and
+     * cannot be changed after construction.
+	 * @param iterator the wrapped iterator
+	 * @param filter iterator returns only those atoms for which
+     * this filter's accept method returns true
 	 */
 	public AtomIteratorFiltered(AtomIterator iterator, AtomFilter filter) {
 		this.iterator = iterator;
+        this.filter = filter;
 	}
 
 	
@@ -59,7 +53,7 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 */
 	public void reset() {
 		iterator.reset();
-		next();
+		nextAtom();
 	}
 
 	/**
@@ -115,22 +109,9 @@ public class AtomIteratorFiltered implements AtomIterator {
 	}
 	
 	public final int nBody() {return 1;}
-	
-	/**
-	 * @return Returns the filter.
-	 */
-	public AtomFilter getFilter() {
-		return filter;
-	}
-	/**
-	 * @param filter The filter to set.
-	 */
-	public void setFilter(AtomFilter filter) {
-		this.filter = filter;
-	}
-	
+		
 	private final AtomIterator iterator;
-	private AtomFilter filter;
+	private final AtomFilter filter;
 	private Atom next;
 
 	/**
