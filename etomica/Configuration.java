@@ -6,6 +6,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.space.Vector;
+import etomica.space1d.Space1D;
 
 /**
  * General class for assignment of coordinates to a group of atoms.
@@ -276,6 +277,9 @@ public abstract class Configuration implements java.io.Serializable {
      * Configuration that does nothing to atom positions or momenta.
      */
     private static class Null extends Configuration {
+        Null() {
+            super(new Space1D());
+        }
         public void initializePositions(AtomIterator[] iterators) {}
         public void initializeMomenta(Atom atom, double temperature) {}
     }
