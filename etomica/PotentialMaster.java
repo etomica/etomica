@@ -27,6 +27,12 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
     
     public Simulation parentSimulation() {return parentSimulation;}
     
+    public boolean contains(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential.equals(potential)) return true;
+        }//end for
+        return false;
+    }
     //should build on this to do more filtering of potentials based on directive
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         for(PotentialLinker link=first; link!=null; link=link.next) {

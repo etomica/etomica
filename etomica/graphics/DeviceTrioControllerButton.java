@@ -46,14 +46,18 @@ public class DeviceTrioControllerButton extends Device {
         meterAverageReset = new MeterReset(sim);
         
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
-        jp.setBorder(new javax.swing.border.TitledBorder(
+        jp.setBorder(new javax.swing.border.TitledBorder("Control"));
+        jp.setOpaque(false);
+        jp.setBackground(DefaultGraphic.BORDER_COLOR);
+/*        jp.setBorder(new javax.swing.border.TitledBorder(
                          new javax.swing.border.EtchedBorder(
                              javax.swing.border.EtchedBorder.RAISED, java.awt.Color.red, java.awt.Color.blue) 
-                             ,"CONTROL"
+                             ,"Control"
                              ,javax.swing.border.TitledBorder.LEFT
                              ,javax.swing.border.TitledBorder.TOP
                              ,new java.awt.Font(null,java.awt.Font.BOLD,15)
                              ,java.awt.Color.black));
+                             */
         button1 = new DeviceControllerButton(sim.space);
         button2 = new DeviceButton(sim.space);
         button2.setAction(new ActionGraphic(simReset));

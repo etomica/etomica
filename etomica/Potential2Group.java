@@ -40,6 +40,13 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
     public Potential2Group(PotentialGroup parent, PotentialTruncation truncation) {
         super(parent, truncation);
     }
+
+    public boolean contains(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential.equals(potential)) return true;
+        }//end for
+        return false;
+    }
     /**
      * Performs the specified calculation over the iterates of this potential
      * that comply with the iterator directive.

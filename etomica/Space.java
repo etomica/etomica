@@ -1,5 +1,9 @@
 package etomica;
 
+/* History of changes
+ * 09/01/02 (DAK) added accelerateTo method to Coordinate
+ */
+
 public abstract class Space implements Space.Boundary.Maker, java.io.Serializable {
     
     public static String VERSION = "01.07.09";
@@ -217,6 +221,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void replace();
         public abstract void accelerateBy(Space.Vector u);
         public abstract void accelerateBy(double d, Space.Vector u);
+        public abstract void accelerateTo(Space.Vector u);
         public abstract void displaceWithin(double d);
         public abstract void randomizeMomentum(double temperature);
  //       public abstract void save();

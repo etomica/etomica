@@ -5,15 +5,25 @@ package etomica;
  * 
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 09/01/02 (DAK) added field to flag if total momentum should be set to zero when initalizing
+  *                (made in conjunction with change to Space.CoordinateGroup classes, 
+  *                 which no longer do randomizeMomentum to zero total momentum).
+  */
 public abstract class Configuration implements java.io.Serializable {
 
     protected final Space space;
     protected final Simulation simulation;
     protected double[] dimensions;
+    protected boolean zeroTotalMomentum = true;
+    private final Space.Vector zero;
     
     public Configuration(Simulation sim) {
         simulation = sim;
         space = sim.space;
+        zero = space.makeVector();
+        zero.E(0.0);
         dimensions = new double[space.D()];
         for(int i=0; i<dimensions.length; i++) {dimensions[i] = Default.BOX_SIZE;}
     }
@@ -30,15 +40,26 @@ public abstract class Configuration implements java.io.Serializable {
     }
     public double[] getDimensions() {return dimensions;}
     
+    /** 
+     * Sets flag indicating if total momentum should be zeroed after initializing
+     * sub-atom momenta.  Default is true.
+     */
+    public void setZeroTotalMomentum(boolean b) {zeroTotalMomentum = b;}
+    /** 
+     * Flag indicating if total momentum should be zeroed after initializing
+     * sub-atom momenta.  Default is true.
+     */
+    public boolean isZeroTotalMomentum() {return zeroTotalMomentum;}
  /**   
   * All atom velocities are set such that all have the same total momentum (corresponding to
   * the default value of temperature), with the direction at random
   */
-    public static void initializeMomenta(Atom atom) {
+    public void initializeMomenta(Atom atom) {
         initializeMomenta(atom, Default.TEMPERATURE);
     }
-    public static void initializeMomenta(Atom atom, double temperature) {
+    public void initializeMomenta(Atom atom, double temperature) {
         atom.coord.randomizeMomentum(temperature);
+        if(zeroTotalMomentum) atom.coord.accelerateTo(zero);
     }//end of initializeMomenta
     
     /**

@@ -110,5 +110,70 @@ public class AtomIteratorBonds implements AtomIterator {
         hasNext = false;
     }
     public Atom getBasis() {return basis;}
+    
+    public static void main(String[] args) {
+        Simulation sim = new Simulation();
+        int nAtoms = 4;
+        SpeciesSpheres species = new SpeciesSpheres(1,nAtoms);
+        Phase phase = new Phase();
+        AtomIteratorBonds bondIterator = new AtomIteratorBonds();
+        
+        sim.elementCoordinator.go();
+        
+        AtomIteratorBonds iterator = new AtomIteratorBonds();
+        
+        Atom molecule = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList.getFirst();
+        Atom[] atoms = new Atom[nAtoms];
+        AtomIteratorList listIterator = new AtomIteratorList();
+        listIterator.setBasis(molecule);
+        int i = 0;
+        listIterator.reset();
+        while(listIterator.hasNext()) atoms[i++] = listIterator.next();
+        
+        IteratorDirective directive = new IteratorDirective();
+        
+        System.out.println("Up");
+        directive.set(IteratorDirective.UP);
+        listIterator.reset();
+        while(listIterator.hasNext()) {
+            Atom a = listIterator.next();
+            iterator.reset(directive.set(a));
+            System.out.print(a.toString());
+            while(iterator.hasNext()) {
+                System.out.print("  "+iterator.next().toString());
+            }
+            System.out.println();
+        }
+        System.out.println("Down");
+        directive.set(IteratorDirective.DOWN);
+        listIterator.reset();
+        while(listIterator.hasNext()) {
+            Atom a = listIterator.next();
+            iterator.reset(directive.set(a));
+            System.out.print(a.toString());
+            while(iterator.hasNext()) {
+                System.out.print("  "+iterator.next().toString());
+            }
+            System.out.println();
+        }
+        System.out.println("Both");
+        directive.set(IteratorDirective.BOTH);
+        listIterator.reset();
+        while(listIterator.hasNext()) {
+            Atom a = listIterator.next();
+            iterator.reset(directive.set(a));
+            System.out.print(a.toString());
+            while(iterator.hasNext()) {
+                System.out.print("  "+iterator.next().toString());
+            }
+            System.out.println();
+        }
+	    AtomPairIterator api = new ApiGeneral(sim.space,
+	            new AtomIteratorList(),
+	            new AtomIteratorBonds());
+        api.setBasis(molecule, molecule);
+	    IteratorDirective.testSuitePair(api, atoms[0], atoms[2], atoms[nAtoms-1]);
+	    
+    }
 
 }//end of AtomIteratorBonds

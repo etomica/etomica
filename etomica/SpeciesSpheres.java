@@ -83,7 +83,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(10,6);//10 molecules, 3 atoms per molecule
 	    SpeciesSpheres speciesSpheres2 = new SpeciesSpheres(3);
-	    speciesSpheres2.setColor(java.awt.Color.red);
+	//    speciesSpheres2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    P2HardSphere potential2 = new P2HardSphere();

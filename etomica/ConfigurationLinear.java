@@ -2,7 +2,7 @@ package etomica;
 import etomica.units.Dimension;
 
 /**
- * Places atoms in a straight line. 
+ * Places atoms in a straight line.  Does not zero total momentum.
  *
  * @author David Kofke
  */
@@ -22,6 +22,7 @@ public class ConfigurationLinear extends Configuration {
         orientation = space.makeVector();
         angle = new double[space.D()];
         setAngle(0,etomica.units.Degree.UNIT.toSim(45.));
+        zeroTotalMomentum = false;
     }
               
     public void setBondLength(double b) {
@@ -39,11 +40,11 @@ public class ConfigurationLinear extends Configuration {
             case 2:
                 setOrientation(new Space2D.Vector(Math.cos(angle[0]),Math.sin(angle[0])));
                 return;
-//            case 3:
-//                setOrientation(new Space3D.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
-//                                                  Math.sin(angle[1])*Math.sin(angle[0]),
-//                                                  Math.cos(angle[1])));
-//                return;
+            case 3:
+                setOrientation(new Space3D.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
+                                                  Math.sin(angle[1])*Math.sin(angle[0]),
+                                                  Math.cos(angle[1])));
+                return;
         }
     }
     public double getAngle(int i) {return angle[i];}

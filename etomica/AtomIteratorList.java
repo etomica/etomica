@@ -7,6 +7,10 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
+  */
 public final class AtomIteratorList implements AtomIterator {
     
     private AtomList list;
@@ -346,7 +350,7 @@ public final class AtomIteratorList implements AtomIterator {
     
     public AtomLinker nextLinker() {
         AtomLinker nextLinker = next;
-        next = upListNow ? next.next : next.previous;
+        next = upListNow ? next.next : (doGoDown ? next.previous : header);//9/1/02 added doGoDown? clause to handle NEITHER
         while(next.atom == null) {
             //if terminator is null we stop at the first encounter of a Tab linker
             //otherwise stop only if Tab linker is the specified terminator

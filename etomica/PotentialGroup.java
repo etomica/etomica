@@ -16,6 +16,11 @@ public interface PotentialGroup {
      */
     void removePotential(Potential p);
     
+    /**
+     * Returns true if this group potential contains the given potential.
+     */
+    public boolean contains(Potential p);
+    
     public Simulation parentSimulation();
         
 }

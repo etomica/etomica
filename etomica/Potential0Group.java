@@ -25,6 +25,13 @@ public class Potential0Group extends Potential0 implements PotentialGroup {
     public Potential0Group(PotentialGroup parent) {
         super(parent);
     }
+
+    public boolean contains(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential.equals(potential)) return true;
+        }//end for
+        return false;
+    }
     
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         if(phase == null) return;

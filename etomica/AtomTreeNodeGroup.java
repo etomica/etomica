@@ -135,9 +135,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         }
     }//end of flatten
     
-                
-    }
-    
+    */    
     public int leafAtomCount() {return leafAtomCount;}
     public int childAtomCount() {return childList.size();}
 

@@ -10,6 +10,11 @@ import java.util.Observer;
 import etomica.utility.LinkedList;
 import etomica.utility.Iterator;
 
+/* History of changes
+ * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
+ *                when used.  Change made while modify behavior of momentum initiation
+ *                in Configuration and randomizeMomentum methods in Space.Coord...
+ */
 
 /**
  * This description is out of date.
@@ -250,6 +255,7 @@ public class Phase extends SimulationElement {
         
     public void setConfiguration(Configuration c) {
         configuration = c;
+        c.setZeroTotalMomentum(true);
         configuration.initializeCoordinates(speciesMaster.node.childAtomArray());
     }
     

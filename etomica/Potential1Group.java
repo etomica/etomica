@@ -18,6 +18,13 @@ public class Potential1Group extends Potential1 implements PotentialGroup {
         super(parent);
     }
     
+    public boolean contains(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential.equals(potential)) return true;
+        }//end for
+        return false;
+    }
+    
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         iterator.reset(id);
         localDirective.copy(id);

@@ -4,9 +4,9 @@ import etomica.units.*;
 
 public final class Default {
     
-    public static String WORKING_DIRECTORY = getWorkingDirectory();
+ //   public static String WORKING_DIRECTORY = getWorkingDirectory();
  //   public static String WORKING_DIRECTORY = "D:\\Etomica\\";
- //  public static String WORKING_DIRECTORY = "";
+   public static String WORKING_DIRECTORY = "";
     
     public static String CLASS_DIRECTORY = WORKING_DIRECTORY + "etomica";
     
@@ -35,11 +35,26 @@ public final class Default {
     public static boolean IS_GRAPHIC = false;
     
     /**
+     * Sets default atom size, mass, and potential-well to unity, and scales
+     * other defaults appropriately.
+     */
+    public static void makeLJDefaults() {
+        ATOM_SIZE = 1.0;
+        ATOM_MASS = 1.0;
+        POTENTIAL_WELL = 1.0;
+        TEMPERATURE = 1.0;
+//        PRESSURE = 1.0;
+        TIME_STEP = 0.3;
+        BOX_SIZE = 10.0;
+        etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30;
+    }
+    
+    /**
      * Default block size used for error estimation in simulation averages.
      */
     public static int BLOCK_SIZE = 1000;
  
-    public static String getWorkingDirectory(){
+    private static String getWorkingDirectory(){
         String dir = System.getProperty("user.dir");
         System.out.println("working directory, in Default: "+dir);
         if(dir.indexOf("VisualCafe") != -1) return "D:\\etomica";

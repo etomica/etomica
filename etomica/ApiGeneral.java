@@ -61,6 +61,9 @@ public final class ApiGeneral implements AtomPairIterator, java.io.Serializable 
         }
     }
     
+    public AtomIterator aiOuter() {return aiOuter;}
+    public AtomIterator aiInner() {return aiInner;}
+    
     /**
      * Returns the number of pairs capable of being given by this iterator
      * (that is, if no restrictions are specified in an iteratorDirective).

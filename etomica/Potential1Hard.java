@@ -8,7 +8,7 @@ package etomica;
  
  /* History of changes
   * 08/26/02 (DAK) Modified calculate to handle cases of atomCount 0 or 1 in iterator directive
-  */w
+  */
 public abstract class Potential1Hard extends Potential1Group implements PotentialHard {
 
     public Potential1Hard(PotentialGroup parent) {

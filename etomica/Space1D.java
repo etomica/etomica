@@ -1,6 +1,12 @@
 package etomica;
 import etomica.units.*;
 
+//CoordinateGroup is not updated to the same structure as used in Space2D and Space3D
+
+ /* History of changes
+  * 09/01/02 (DAK) added accelerateTo method to Coordinate
+  *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
+  */
 public class Space1D extends Space implements EtomicaElement {
     
     public static final String version() {return "01.07.20";}
@@ -305,7 +311,8 @@ public class Space1D extends Space implements EtomicaElement {
 
         public void accelerateBy(Space.Vector u) {p.PE(u);}
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
-
+        public void accelerateTo(Space.Vector u) {p.E(u);}
+        
         public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
             if(isStationary()) {p.E(0.0); return;}
             double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
@@ -463,6 +470,11 @@ public class Space1D extends Space implements EtomicaElement {
                 if(coord == lastChild) break;
             }
         }
+        public void accelerateTo(Space.Vector u) {
+            work.Ea1Tv1(-1,momentum());//probably need this first
+            work.PE(u);
+            accelerateBy(work);
+        }
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {
@@ -471,18 +483,18 @@ public class Space1D extends Space implements EtomicaElement {
                 case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                         return;
                 default://multi-atom group
-                    work.E(0.0); double sum=0.0;
+        //            work.E(0.0); double sum=0.0;
                     for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                         coord.randomizeMomentum(temperature);
-                        work.PE(coord.momentum());
-                        sum++;
-                        if(coord == lastChild) break;
+        //                work.PE(coord.momentum());
+        //                sum++;
+        //                if(coord == lastChild) break;
                     }
-                    work.DE(-sum);
-                    for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
-                        coord.accelerateBy(work);
-                        if(coord == lastChild) break;
-                    }
+        //            work.DE(-sum);
+        //            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+        //                coord.accelerateBy(work);
+        //                if(coord == lastChild) break;
+        //            }
             }//end switch
         }//end randomizeMomentum
     }//end of CoordinateGroup

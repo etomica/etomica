@@ -1,6 +1,10 @@
 package etomica;
 import etomica.units.*;
 
+ /* History of changes
+  * 09/01/02 (DAK) added accelerateTo method to Coordinate
+  *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
+  */
 public class Space2D extends Space implements EtomicaElement {
     
     public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
@@ -379,6 +383,7 @@ public class Space2D extends Space implements EtomicaElement {
 
         public void accelerateBy(Space.Vector u) {p.PE(u);}
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
+        public void accelerateTo(Space.Vector u) {p.E(u);}
 
         public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
             if(isStationary()) {p.E(0.0); return;}
@@ -544,6 +549,12 @@ public class Space2D extends Space implements EtomicaElement {
                 a.coord.accelerateBy(d, u);
             }
         }
+        public void accelerateTo(Space.Vector u) {
+            work.Ea1Tv1(-1,momentum());//probably need this first
+            work.PE(u);
+            accelerateBy(work);
+        }
+        
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
             
         public void randomizeMomentum(double temperature) {
@@ -552,20 +563,20 @@ public class Space2D extends Space implements EtomicaElement {
                 case 1: ((AtomTreeNodeGroup)atom.node).firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                         return;
                 default://multi-atom group
-                    work.E(0.0); double sum=0.0;
+     //               work.E(0.0); double sum=0.0;
                     childIterator.reset();
                     while(childIterator.hasNext()) {
                         Atom a = childIterator.next();
                         a.coord.randomizeMomentum(temperature);
-                        work.PE(a.coord.momentum());
-                        sum++;
+     //                   work.PE(a.coord.momentum());
+     //                   sum++;
                     }
-                    work.DE(-sum);
-                    childIterator.reset();
-                    while(childIterator.hasNext()) {
-                        Atom a = childIterator.next();
-                        a.coord.accelerateBy(work);
-                    }
+     //               work.DE(-sum);
+     //               childIterator.reset();
+     //               while(childIterator.hasNext()) {
+     //                   Atom a = childIterator.next();
+   //                     a.coord.accelerateBy(work);
+     //               }
             }//end switch
         }//end randomizeMomentum
             
