@@ -18,7 +18,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         AtomFactoryMono f = new AtomFactoryMono(sim);
         AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(sim,f, na, bondInit, config);
+        AtomFactoryHomo fm = new AtomFactoryHomo(sim, f, na, bondInit, config);
         return fm;
  //       return f;
     }

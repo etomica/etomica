@@ -14,7 +14,7 @@ public abstract class Potential3 extends Potential {
     
     public Potential3(PotentialGroup parent) {
         super(parent);
-        iterator = new Atom3Iterator(parentSimulation().space());
+//        iterator = new Atom3Iterator(parentSimulation().space());
     }
     
     public abstract double energy(Atom3 atom3);

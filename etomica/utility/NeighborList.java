@@ -38,7 +38,7 @@ public class NeighborList {
             Atom root = atoms[i];
             comparator.setOriginAtom(root);
             Arrays.sort(sortArray, comparator);
-            for(int k=1; i<neighborCount; k++) {//loop over neighborCount nearest atoms (skip first, which is root atom)
+            for(int k=1; k<neighborCount; k++) {//loop over neighborCount nearest atoms (skip first, which is root atom)
                 for(int j=0; j<atoms.length; j++) {//look for neighbor downlist of root
                     if(atoms[j] == root) {//uplisted to root without finding neighbor; neighbor is uplist
                         root.atomList[iUp].add(sortArray[k]);
@@ -88,8 +88,8 @@ public class NeighborList {
     etomica.SpeciesSpheresMono speciesSpheres  = new etomica.SpeciesSpheresMono();
     speciesSpheres.setNMolecules(32);
     
-    int iUp = Atom.requestListIndex();
-    int iDn = Atom.requestListIndex();
+    int iUp = Atom.requestAtomListIndex();
+    int iDn = Atom.requestAtomListIndex();
     
     sim.mediator().go(); 
     

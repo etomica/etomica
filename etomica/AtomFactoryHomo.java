@@ -41,7 +41,7 @@ public class AtomFactoryHomo extends AtomFactory {
     /**
      * Constructs a new group.
      */
-    public Atom build() {
+    protected Atom build() {
         AtomGroup group = new AtomGroup(parentSimulation.space(), groupType);
         for(int i=0; i<atomsPerGroup; i++) {
             group.addAtom(childFactory.build());

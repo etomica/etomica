@@ -45,10 +45,14 @@ public abstract class AtomType implements java.io.Serializable {
      * Returns default coordinate type, which has no orientational component.
      * Override for atom types that require other coordinate features.
      */
-    public Space.Coordinate makeCoordinate(Atom a) {
+/*    public Space.Coordinate makeCoordinate(Atom a) {
         return a.parentSimulation().space().makeCoordinate(a);
     }
-    
+*/
+    public void initialize(Atom a) {
+        a.coord.setMass(mass);
+    }
+        
     public final void setElectroType(ElectroType et) {
         electroType = et;
     }
@@ -379,7 +383,7 @@ public abstract class AtomType implements java.io.Serializable {
         }
         public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}
     }
-    
+
     private static class Null extends AtomType.Group {
         public Null() {super(null);}
         public void draw(java.awt.Graphics graphic, int[] origin, double scale, Atom atom) {}

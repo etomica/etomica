@@ -24,7 +24,7 @@ public class AtomFactoryMono extends AtomFactory {
     /**
      * Builds a single atom.
      */
-    public Atom build() {
+    protected Atom build() {
         return new Atom(parentSimulation.space(), atomType);
     }
     

@@ -64,7 +64,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
      */
     public void setAtoms(AtomIterator iter) {
         iterator = iter;
-        nAtoms = Atom.count(iter);
+        nAtoms = iter.size();
         rAccum = new Space.Vector[nAtoms];
         rLast = new Space.Vector[nAtoms];
         iter.reset();

@@ -78,9 +78,7 @@ public class AtomList implements java.io.Serializable
      * @return the first element in this list.
      */
     public Atom getFirst() {
-	    if (size==0)
-	        throw new NoSuchElementException();
-
+	    if (size==0) return null;
 	    return header.next.atom;
     }
 
@@ -91,9 +89,7 @@ public class AtomList implements java.io.Serializable
      * @throws    NoSuchElementException if this list is empty.
      */
     public Atom getLast()  {
-	    if (size==0)
-	        throw new NoSuchElementException();
-
+	    if (size==0) return null;
 	    return header.previous.atom;
     }
 
@@ -104,6 +100,7 @@ public class AtomList implements java.io.Serializable
      * @throws    NoSuchElementException if this list is empty.
      */
     public Atom removeFirst() {
+        if(size == 0) return null;
 	    Atom first = header.next.atom;
 	    remove(header.next);
 	    return first;
@@ -112,10 +109,10 @@ public class AtomList implements java.io.Serializable
     /**
      * Removes and returns the last element from this list.
      *
-     * @return the last element from this list.
-     * @throws    NoSuchElementException if this list is empty.
+     * @return the last element from this list, or null if it is empty
      */
     public Atom removeLast() {
+        if(size == 0) return null;
 	    Atom last = header.previous.atom;
 	    remove(header.previous);
 	    return last;
@@ -338,6 +335,18 @@ public class AtomList implements java.io.Serializable
 
 
     // Search Operations
+    
+    /**
+     * Returns the linker associated with the given atom in this list.
+     * Returns null if the atom is not in the list.
+     */
+    public AtomLinker linker(Atom atom) {
+        if(atom == null) return null;
+        for (AtomLinker e = header.next; e != header; e = e.next) {
+            if (atom.equals(e.atom)) return e;
+        }
+        return null;
+    }
 
     /**
      * Returns the index in this list of the first occurrence of the
@@ -352,19 +361,11 @@ public class AtomList implements java.io.Serializable
      * 	       element.
      */
     public int indexOf(Atom o) {
+        if(o == null) return -1;
         int index = 0;
-        if (o==null) {
-            for (AtomLinker e = header.next; e != header; e = e.next) {
-                if (e.atom==null)
-                    return index;
-                index++;
-            }
-        } else {
-            for (AtomLinker e = header.next; e != header; e = e.next) {
-                if (o.equals(e.atom))
-                    return index;
-                index++;
-            }
+        for (AtomLinker e = header.next; e != header; e = e.next) {
+            if (o.equals(e.atom)) return index;
+            index++;
         }
         return -1;
     }
@@ -382,19 +383,12 @@ public class AtomList implements java.io.Serializable
      * 	       element.
      */
     public int lastIndexOf(Atom o) {
+        if(o == null) return -1;
         int index = size;
-        if (o==null) {
-            for (AtomLinker e = header.previous; e != header; e = e.previous) {
-                index--;
-                if (e.atom==null)
-                    return index;
-            }
-        } else {
-            for (AtomLinker e = header.previous; e != header; e = e.previous) {
-                index--;
-                if (o.equals(e.atom))
-                    return index;
-            }
+        for (AtomLinker e = header.previous; e != header; e = e.previous) {
+            index--;
+            if (o.equals(e.atom))
+                return index;
         }
         return -1;
     }
