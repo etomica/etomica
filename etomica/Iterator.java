@@ -23,17 +23,5 @@ package simulate;
         public AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
         public AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
         public AtomPair.Iterator makeAtomPairIteratorAll() {return new AtomPair.Iterator.All(phase);}
-//        public AtomPair.Iterator makeAtomPairIteratorHalfUp() {return new AtomPair.Iterator.HalfUp(phase);}
-//        public AtomPair.Iterator makeAtomPairIteratorHalfDown() {return new AtomPair.Iterator.HalfDown(phase);}
         public void reset() {}
-    //    public abstract AtomPair.Iterator makeUpAtomPairIterator();
-    //    public abstract AtomPair.Iterator makeDownAtomPairIterator();
     }
-/*
-    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorFull(boundary,iF,iL,oF,oL);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorHalf(boundary,iL,oF,oL);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return parentSimulation.space.makePairIteratorFull(boundary);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return parentSimulation.space.makePairIteratorHalf(boundary);}
-    public final simulate.AtomPair.Iterator.A makeUpIterator() {return parentSimulation.space.makeUpNeighborIterator(boundary);}
-    public final simulate.AtomPair.Iterator.A makeDownIterator() {return parentSimulation.space.makeDownNeighborIterator(boundary);}
-*/

@@ -85,7 +85,7 @@ public class Space2D extends Space {
         }
                 
 //        public double r2() {
-//            return drx*drx + dry*dry;
+//            return r2;
 //        }
         public double v2() {
             double rm1 = c1.parent().rm();

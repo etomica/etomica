@@ -33,6 +33,12 @@ public class LatticeSquare extends Lattice {
         setNeighborIndexCutoff(0.02);
     }
     
+    public final Site nearestSite(Space2D.Vector r) {
+        int ix = (int)Math.floor(r.x * dimensions[0]);
+        int iy = (int)Math.floor(r.y * dimensions[1]);
+        return sites[ix][iy];
+    }
+    
     public final void clearOccupants() {
         for(Site s=origin; s!=null; s=s.nextSite()) {s.setFirst(null);}
     }

@@ -3,10 +3,6 @@ package simulate;
 public class MeterPotentialEnergy extends simulate.Meter
 {
   AtomPair.Iterator iterator;
-//  AtomPair.Iterator.AM iteratorAM;
-//  AtomPair.Iterator.AMAM iteratorAMAM;
-//  AtomPair.Iterator.A iteratorAFull;
-//  AtomPair.Iterator.FMAM iteratorFMAM;
   AtomPair.Iterator.MP iteratorMP;
   AtomPair.Iterator iteratorAll;
   
@@ -19,10 +15,6 @@ public class MeterPotentialEnergy extends simulate.Meter
   
   public void setPhase(Phase p) {
     super.setPhase(p);
-//    iteratorAM = new AtomPair.Iterator.AM(p);
-//    iteratorAMAM = new AtomPair.Iterator.AMAM(p);
-//    iteratorAFull = p.makePairIteratorFull();
-//    iteratorFMAM = new AtomPair.Iterator.FMAM(p);
     iteratorMP = new AtomPair.Iterator.MP(p);
     iteratorAll = p.iterator.makeAtomPairIteratorAll();
     
@@ -35,35 +27,14 @@ public class MeterPotentialEnergy extends simulate.Meter
   * Computes total potential energy for all atom pairs in phase
   */
     public final double currentValue() {
-      
                         //could make special case for single species, monatomic
-      
         double pe = 0.0;
         iteratorAll.reset();
         while(iteratorAll.hasNext()) {
             AtomPair pair = iteratorAll.next();
-            Potential pot = phase.parentSimulation.getPotential(pair);  //inserted pot for debugging
-            pe += pot.energy(pair);
+            pe += phase.parentSimulation.getPotential(pair).energy(pair);
         }
         return pe;
-
-/*      for(Species.Agent s1=phase.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
-        Potential1 p1 = phase.parentSimulation.potential1[s1.parentSpecies().speciesIndex];
-        iteratorAM.reset(s1);
-        while(iteratorAM.hasNext()) {
-            AtomPair pair = iteratorAM.next();
-            pe += p1.getPotential(pair.atom1(),pair.atom2()).energy(pair);
-        }
-        for(Species.Agent s2=s1; s2!=null; s2=s2.nextSpecies()) {
-            Potential2 p2 = phase.parentSimulation.potential2[s1.parentSpecies().speciesIndex][s2.parentSpecies().speciesIndex];
-            iteratorAMAM.reset(s1,s2);
-            while(iteratorAMAM.hasNext()) {
-                AtomPair pair = iteratorAMAM.next();
-                pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
-            }
-        }
-      } 
-      return pe; */
     }
 
   /**
