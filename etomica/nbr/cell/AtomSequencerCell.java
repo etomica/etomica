@@ -6,14 +6,13 @@ package etomica.nbr.cell;
 
 import etomica.Atom;
 import etomica.AtomLinker;
-import etomica.AtomSequencer;
-import etomica.AtomSequencerSimple;
+import etomica.AtomSequencerFactory;
 
 
 /**
  * Sequencer used for atoms being cell listed.
  */
-public final class AtomSequencerCell extends AtomSequencerSimple implements Cellular {
+public class AtomSequencerCell extends AtomLinker implements Cellular {
     
     NeighborCell cell;         //cell currently occupied by this atom
     final AtomLinker nbrLink;  //linker used to arrange atom in sequence according to cells
@@ -54,8 +53,7 @@ public final class AtomSequencerCell extends AtomSequencerSimple implements Cell
 //        assignCell();
 //    }
 
-    public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
-        public AtomSequencer makeSequencer(Atom atom) {return new AtomSequencerCell(atom);}
-        public Class sequencerClass() {return AtomSequencerCell.class;}
+    public static final AtomSequencerFactory FACTORY = new AtomSequencerFactory() {
+        public AtomLinker makeSequencer(Atom atom) {return new AtomSequencerCell(atom);}
     };
 }

@@ -35,7 +35,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
         this(sim.space, sim.potentialMaster.sequencerFactory(), leafFactory, nAtoms);
     }
-    public AtomFactoryTree(Space space, AtomSequencer.Factory seqFactory, 
+    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, 
                             AtomFactory leafFactory, int[] nAtoms) {
         super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, null), nAtoms[0]);
         if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
@@ -50,7 +50,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * of all the atoms below it in the tree, and thus prescribes in part the positioning of 
      * all atoms below its level.
      */
-    public AtomFactoryTree(Space space, AtomSequencer.Factory seqFactory, 
+    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, 
                                 AtomFactory leafFactory, int[] nAtoms, Configuration[] config) {
         super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, config), 
                 nAtoms[0], BondInitializer.NULL, config[0]);
@@ -59,7 +59,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     }
     
     //method used by constructor to determine the child factory
-    private static AtomFactory subFactory(Space space, AtomSequencer.Factory seqFactory,
+    private static AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory,
                             AtomFactory leafFactory, int[] nAtoms, Configuration[] config) {
         if(nAtoms.length < 1) throw new IllegalArgumentException("Error: Attempt to prescribe zero-dimensional lattice in AtomFactoryLattice" );
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
@@ -116,7 +116,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     
     public static void main(String[] args) {
         Simulation sim = new Simulation();
-        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomSequencerSimple.FACTORY);
+        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomSequencerFactory.SIMPLE);
         int[] nA = new int[] {2, 1, 3};
         AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
         Phase phase = new Phase(sim.space);

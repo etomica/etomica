@@ -157,7 +157,7 @@ public class AtomType implements java.io.Serializable {
     public interface AsymmetricTop extends Rotator {} //all moment-of-inertia elements unequal
     
     private static class Null extends AtomTypeGroup {
-        public Null() {super(null, null, false);}
+        public Null() {super(null, false);}
     }
     public static final AtomType.Null NULL = new Null();
         

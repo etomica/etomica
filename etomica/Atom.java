@@ -24,7 +24,7 @@ public class Atom implements java.io.Serializable {
     }*/
     public Atom(Space space, AtomType type, 
                     AtomTreeNode.Factory nodeFactory,
-                    AtomSequencer.Factory seqFactory, AtomTreeNodeGroup parent) {
+                    AtomSequencerFactory seqFactory, AtomTreeNodeGroup parent) {
         this.type = type;//do this first
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this, parent);//must follow setting of sequencer to permit addition to childlist of parent
@@ -40,7 +40,6 @@ public class Atom implements java.io.Serializable {
         for(int i=0; i<agentSource.length; i++) {
             allatomAgents[i] = agentSource[i].makeAgent(this);
         }
-        seq.setParentNotify(parent);//added 08/11/03 (DAK)
     }
     
     /**
@@ -49,7 +48,7 @@ public class Atom implements java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerSimple.FACTORY, null);                        
+    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE, null);                        
     }
     
     /**
@@ -97,7 +96,7 @@ public class Atom implements java.io.Serializable {
         
     public final AtomType type;
     
-    public final AtomSequencer seq;
+    public final AtomLinker seq;
     
     /**
      * An array of agents, or objects made by an agent source and added to this

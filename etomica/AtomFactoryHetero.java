@@ -21,7 +21,7 @@ public class AtomFactoryHetero extends AtomFactory {
     /**
      * @param factory array of atom factories, each of which makes a different child.
      */
-	public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory) {
+	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomFactory[] factory) {
 		this(space, sequencerFactory, factory, new ConfigurationLinear(space));
 	}
     /**
@@ -30,12 +30,12 @@ public class AtomFactoryHetero extends AtomFactory {
      * @param config the configuration applied to each group that is built (default is Linear).
      * @param sequencerFactory the factory making sequencers used in the groups made by this factory (default is simple sequencer).
      */
-    public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
+    public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomFactory[] factory, 
                             Configuration config) {
         this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
     }
     
-	public AtomFactoryHetero(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNodeGroup.Factory nodeFactory,
+	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeGroup.Factory nodeFactory,
 							AtomFactory[] factory, Configuration config) {
 		super(space, sequencerFactory, nodeFactory);
 		init(factory, config);
@@ -45,7 +45,6 @@ public class AtomFactoryHetero extends AtomFactory {
         childFactory = factory;
         configuration = config;
         //set up fields of Group type
-        groupType.childSequencerClass = sequencerFactory.sequencerClass();
         for(int i=0; i<factory.length; i++) {
             groupType.childrenAreGroups = factory[i].isGroupFactory();
             if(groupType.childrenAreGroups) break;

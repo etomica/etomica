@@ -16,8 +16,6 @@ import etomica.units.Dimension;
  
 public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement, Constants {
 
-    public String getVersion() {return "SpeciesPistonCylinder:01.06.05/"+super.getVersion();}
- 
     //making static as a hack until direction can be associated with each molecule
     public static Constants.Direction direction = TOP;
     Space2D.Vector dimensions = new Space2D.Vector();

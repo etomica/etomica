@@ -22,7 +22,7 @@ public abstract class AtomFactory {
     public final Space space;
     private Species species;
     protected Configuration configuration;
-    protected AtomSequencer.Factory sequencerFactory;
+    protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeGroup.Factory nodeFactory;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
@@ -36,14 +36,14 @@ public abstract class AtomFactory {
      * @param space
      */
     public AtomFactory(Space space) {
-        this(space, AtomSequencerSimple.FACTORY);
+        this(space, AtomSequencerFactory.SIMPLE);
     }
     
-    public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory) {
+    public AtomFactory(Space space, AtomSequencerFactory sequencerFactory) {
     	this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
     
-    public AtomFactory(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory) {
+    public AtomFactory(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNode.Factory nodeFactory) {
         this.space = space;
         this.sequencerFactory = sequencerFactory;
         this.nodeFactory = nodeFactory;

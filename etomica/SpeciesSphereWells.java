@@ -22,7 +22,7 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
     public AtomTypeSphere protoType;
     
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Space space, AtomSequencer.Factory seqFactory,
+    private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory,
                                 int na, BondInitializer bondInit, Configuration config) {
         AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
         AtomType type = new AtomTypeWell(f, Default.ATOM_MASS, Default.ATOM_SIZE, 1.5);
@@ -35,10 +35,10 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
     public SpeciesSphereWells(Simulation sim) {
         this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT, 1);
     }
-    public SpeciesSphereWells(Space space, AtomSequencer.Factory seqFactory, int nM, int nA) {
+    public SpeciesSphereWells(Space space, AtomSequencerFactory seqFactory, int nM, int nA) {
         this(space, seqFactory, nM, nA, new BondInitializerChain(), new ConfigurationLinear(space));
     }
-    public SpeciesSphereWells(Space space, AtomSequencer.Factory seqFactory, 
+    public SpeciesSphereWells(Space space, AtomSequencerFactory seqFactory, 
                 int nM, int nA, BondInitializer bondInitializer, Configuration config) {
         super(makeFactory(space, seqFactory, nA, bondInitializer, config));
         factory.setSpecies(this);

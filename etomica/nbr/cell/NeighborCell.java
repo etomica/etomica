@@ -7,7 +7,7 @@ package etomica.nbr.cell;
 import etomica.Atom;
 import etomica.AtomFactory;
 import etomica.AtomList;
-import etomica.AtomSequencerSimple;
+import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomTreeNodeLeaf;
 import etomica.AtomType;
@@ -57,7 +57,7 @@ public class NeighborCell extends Site {
     private static class NeighborCellFactory extends AtomFactory {
         
         public NeighborCellFactory(Space space, Primitive primitive) {
-            super(space, AtomSequencerSimple.FACTORY, AtomTreeNodeLeaf.FACTORY);
+            super(space, AtomSequencerFactory.SIMPLE, AtomTreeNodeLeaf.FACTORY);
             atomType = new AtomTypeCell(this, primitive.unitCell());
         }
         public boolean isGroupFactory() {return false;}

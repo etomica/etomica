@@ -28,7 +28,7 @@ public class AtomReservoir extends Atom {
      */
     public AtomReservoir(AtomFactory factory, int capacity) {
         super(factory.space, AtomType.NULL, new NodeFactory(), 
-                AtomSequencerSimple.FACTORY, null);
+                AtomSequencerFactory.SIMPLE, null);
         this.factory = factory;
         if(capacity < 0) capacity = 0;
         this.capacity = capacity;

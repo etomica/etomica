@@ -27,7 +27,7 @@ public final class SpeciesMaster extends Atom {
 
     public SpeciesMaster(Space space, Phase p) {
         super(space, AtomType.NULL, new NodeFactory(p), 
-                AtomSequencerSimple.FACTORY, null);//parent is null
+                AtomSequencerFactory.SIMPLE, null);//parent is null
         index = p.index;
         node = (AtomTreeNodeGroup)super.node;
   //      ((MasterAtomTreeNode)node).speciesMaster = this;
@@ -158,7 +158,7 @@ public final class SpeciesMaster extends Atom {
         
         Simulation sim = new Simulation();
         Simulation.instance = sim;
-        AtomSequencer.Factory seqFactory = sim.potentialMaster.sequencerFactory();
+        AtomSequencerFactory seqFactory = sim.potentialMaster.sequencerFactory();
         Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim.space,seqFactory,3,3);
         Species species0 = new SpeciesSpheres(sim.space,seqFactory,3,2);

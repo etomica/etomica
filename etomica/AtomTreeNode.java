@@ -73,9 +73,8 @@ public abstract class AtomTreeNode {
     	if(parent == parentNode) {
 			parentPhase = parentNode.parentPhase();
 			depth = parentNode.depth() + 1;
-			atom.seq.setParentNotify(parent);
-			return;    		
-    	}	
+			return;
+        }
     	
         if(parent != null && !parent.isResizable()) return;  //throw an exception?
         
@@ -91,7 +90,6 @@ public abstract class AtomTreeNode {
         if(parentNode == null) {//new parent is null
             parentGroup = null;
             parentPhase = null;
-            atom.seq.setParentNotify(null);//08/12/03 (DAK) added this line
             return;
         }
 
@@ -105,8 +103,7 @@ public abstract class AtomTreeNode {
         parentNode.childList.add(atom.seq);
         
         //should notify this node's children of change
-                
-        atom.seq.setParentNotify(parentNode);//this must follow addition to parentNode.childList
+
         parentNode.addAtomNotify(atom);
     }//end of addAtom
 
@@ -175,6 +172,23 @@ public abstract class AtomTreeNode {
      */
     public AtomTreeNode childWhereDescendedFrom(AtomTreeNode node) {
         return (parentNode == node) ? this : parentNode.childWhereDescendedFrom(node);
+    }
+    
+    
+    /**
+     * Returns true if this atom preceeds the given atom in the atom sequence.
+     * Returns false if the given atom is this atom, or (of course) if the
+     * given atom instead preceeds this one.
+     */
+    public boolean preceeds(Atom a) {
+        //want to return false if atoms are the same atoms
+        if(a == null) return true;
+        if(atom.node.parentGroup() == a.node.parentGroup()) return atom.node.index() < a.node.index();//works also if both parentGroups are null
+        int thisDepth = atom.node.depth();
+        int atomDepth = a.node.depth();
+        if(thisDepth == atomDepth) return atom.node.parentGroup().node.preceeds(a.node.parentGroup());
+        if(thisDepth < atomDepth) return this.preceeds(a.node.parentGroup());
+        /*if(this.depth > atom.depth)*/ return atom.node.parentGroup().node.preceeds(a);
     }
         
     protected final Atom atom;

@@ -6,9 +6,10 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomArrayList;
-import etomica.AtomSequencer;
-import etomica.AtomTreeNodeGroup;
+import etomica.AtomLinker;
+import etomica.AtomSequencerFactory;
 import etomica.Potential;
+import etomica.nbr.cell.AtomSequencerCell;
 import etomica.utility.Arrays;
 
 /**
@@ -17,7 +18,7 @@ import etomica.utility.Arrays;
  * Atoms are stored with reference to the potential that governs their
  * interactions.
  */
-public class AtomSequencerNbr extends AtomSequencer {
+public class AtomSequencerNbr extends AtomSequencerCell {
 
 	protected AtomArrayList[] upList, downList;
 	
@@ -128,18 +129,10 @@ public class AtomSequencerNbr extends AtomSequencer {
      * A factory class that will make this atom sequencer.  Typically this
      * is passed to the constructor of the atom factory.
      */
-    public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
-        public AtomSequencer makeSequencer(Atom atom) {
+    public static final AtomSequencerFactory FACTORY = new AtomSequencerFactory() {
+        public AtomLinker makeSequencer(Atom atom) {
             return new AtomSequencerNbr(atom);
         }
-        public Class sequencerClass() {return AtomSequencerNbr.class;}
     };
     
-    
-	public boolean preceeds(Atom a) {
-		throw new etomica.exception.MethodNotImplementedException();
-	}
-	public void setParentNotify(AtomTreeNodeGroup newParent) {
-		// no action
-	}
 }

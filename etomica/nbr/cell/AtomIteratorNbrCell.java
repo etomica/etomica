@@ -20,7 +20,7 @@ import etomica.lattice.NeighborManager;
  * given atom.  Written specifically for case in which all relevant
  * atoms are at the molecule level of the atom hierarchy.
  */
-
+//TODO make this AtomIteratorDirectable by filtering based on up & down
 public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
 
     /**
@@ -34,7 +34,6 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
 
     /**
      * Specifies the atom whose neighbors will be returned as iterates.
-     * Throws NullPointerException if null atom is specified.
      */
     public void setAtom(Atom atom) {
         this.atom = atom;

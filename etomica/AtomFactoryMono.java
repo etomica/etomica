@@ -16,7 +16,7 @@ public class AtomFactoryMono extends AtomFactory {
     /**
      * Constructor with neighborSequencerFactory and AtomType.Sphere defaults.
      */
-    public AtomFactoryMono(Space space, AtomSequencer.Factory seqFactory) {
+    public AtomFactoryMono(Space space, AtomSequencerFactory seqFactory) {
         super(space, seqFactory, AtomTreeNodeLeaf.FACTORY);
         init();
     }

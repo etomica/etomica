@@ -124,12 +124,12 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     		this.direction = direction;
     		needBasisUpdate = true;
     	}
-    	else if (basisSize == 2) {
+    	else if (basisSize == 2 && basisIterator instanceof AtomsetIteratorDirectable) {
     		// if ignoreDirection is true and there are 2 species,
     		// basisIterator must be an intragroup iterator and
     		// the direction must be passed to it.  All other types
     		// of iterators do not need the direction.
-    		((ApiIntragroup)basisIterator).setDirection(direction);
+    		((AtomsetIteratorDirectable)basisIterator).setDirection(direction);
     	}
     }
      

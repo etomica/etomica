@@ -20,7 +20,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      */
-    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory) {
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory) {
         this(space, sequencerFactory, factory, 1);
     }
     /**
@@ -29,7 +29,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory, int atoms) {
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, int atoms) {
         this(space, sequencerFactory, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(space));
     }
     /**
@@ -39,7 +39,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory, 
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, 
                             int atoms, BondInitializer bondInit, Configuration config) {  
         this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, bondInit, config);
     }
@@ -52,7 +52,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomTreeNode.Factory nodeFactory, 
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNode.Factory nodeFactory, 
     						AtomFactory factory, int atoms, BondInitializer bondInit, Configuration config) {
         super(space, sequencerFactory, nodeFactory);
         init(factory, atoms, bondInit, config);
@@ -66,7 +66,6 @@ public class AtomFactoryHomo extends AtomFactory {
         configuration = config;
         //set up fields of Group type (can't build sample atoms because factories defined by subclassing this one may not be ready to build at atom at this point)
 
-        groupType.childSequencerClass = sequencerFactory.sequencerClass();
         groupType.childrenAreGroups = factory.isGroupFactory();
     }
     

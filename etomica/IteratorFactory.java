@@ -11,6 +11,8 @@ package etomica;
  * @author David Kofke
  */
 
+//used by AtomsetIteratorMolecule constructor
+
 public abstract class IteratorFactory {
 
     /**
@@ -55,14 +57,14 @@ public abstract class IteratorFactory {
      * as the parent). Special because if cell lists are used, they are
      * kept for these atoms.
       */
-    public abstract AtomSequencer.Factory moleculeSequencerFactory();
+    public abstract AtomSequencerFactory moleculeSequencerFactory();
     
     /**
      * Sequencer used for atoms on which concrete potentials (non-group) act.
      * Special because if neighbor lists are used, they are kept for these atoms.
      * @return
      */
-    public abstract AtomSequencer.Factory interactionAtomSequencerFactory();
+    public abstract AtomSequencerFactory interactionAtomSequencerFactory();
 
     /**
      * Sequencer used for molecule-level atoms on which concrete potentials 
@@ -70,6 +72,6 @@ public abstract class IteratorFactory {
      * and cell listing.
      * @return
      */
-    public abstract AtomSequencer.Factory interactionMoleculeSequencerFactory();
+    public abstract AtomSequencerFactory interactionMoleculeSequencerFactory();
 
 }

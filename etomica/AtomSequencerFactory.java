@@ -1,3 +1,7 @@
+/*
+ * History
+ * Created on Dec 2, 2004 by kofke
+ */
 package etomica;
 
 /**
@@ -11,15 +15,14 @@ package etomica;
  * @author David Kofke
  * @version 02.03.09
  */
- 
- /* History
-  * 10/18/02 (DAK) added sequencerClass method to Factory interface
-  */
+public interface AtomSequencerFactory {
+    
+    public AtomLinker makeSequencer(Atom atom);
+    
+    public static final AtomSequencerFactory SIMPLE = new AtomSequencerFactory() {
+        public AtomLinker makeSequencer(Atom atom) {
+            return new AtomLinker(atom);
+        }
+    };
 
-public interface AtomSequencer extends AtomSequencerFactory {
-    
-    public interface Factory {
-        public AtomLinker makeSequencer(Atom atom);
-    }
-    
 }

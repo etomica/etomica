@@ -20,8 +20,13 @@ package etomica;
 public class PotentialMaster extends PotentialGroup {
     
     public PotentialMaster(Space space) {
-        super(-1, space);
+        this(space,IteratorFactorySimple.INSTANCE);
     } 
+    
+    public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
+        super(-1, space);
+        this.iteratorFactory = iteratorFactory;
+    }
     
 	/**
 	 * Returns the potential group that oversees the long-range
@@ -81,7 +86,7 @@ public class PotentialMaster extends PotentialGroup {
     	if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-    	AtomsetIteratorMolecule iterator = new AtomsetIteratorMolecule(species);
+    	AtomsetIteratorMolecule iterator = new AtomsetIteratorMolecule(species,iteratorFactory);
     	addPotential(potential, iterator);
     }
  
@@ -91,11 +96,11 @@ public class PotentialMaster extends PotentialGroup {
     public void setSimulation(Simulation sim) {
     }
     
-    public AtomSequencer.Factory sequencerFactory() {return AtomSequencerSimple.FACTORY;}
+    public AtomSequencerFactory sequencerFactory() {return iteratorFactory.moleculeSequencerFactory();}
 
 	protected PotentialGroupLrc lrcMaster;
 	protected Phase mostRecentPhase = null;
-
+	protected IteratorFactory iteratorFactory;
 	
 }//end of PotentialMaster
     

@@ -36,12 +36,6 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
 		while(childIterator.hasNext()) childIterator.nextAtom().node.setParent(this);//notifies children that there was a change in the hierarchy
 	}            
 	
-    public Class childSequencerClass() {
-        return ((AtomTypeGroup)atom.type).childSequencerClass;
-//        try { return firstChildAtom().seq.getClass();}
-//        catch(NullPointerException e) {return null;}//in case firstChild is null
-    }
-    
     public final Atom firstChildAtom() {return childList.getFirst();}
     public final Atom lastChildAtom() {return childList.getLast();}
 

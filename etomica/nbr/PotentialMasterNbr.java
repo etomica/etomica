@@ -4,7 +4,28 @@
  */
 package etomica.nbr;
 
-import etomica.*;
+import etomica.ApiInnerFixed;
+import etomica.Atom;
+import etomica.AtomArrayList;
+import etomica.AtomIteratorArrayList;
+import etomica.AtomIteratorListSimple;
+import etomica.AtomIteratorSinglet;
+import etomica.AtomSequencerFactory;
+import etomica.AtomTreeNodeGroup;
+import etomica.AtomsetIterator;
+import etomica.AtomsetIteratorFiltered;
+import etomica.AtomsetIteratorMolecule;
+import etomica.IteratorDirective;
+import etomica.IteratorFactory;
+import etomica.Phase;
+import etomica.Potential;
+import etomica.PotentialCalculation;
+import etomica.PotentialGroup;
+import etomica.PotentialMaster;
+import etomica.Simulation;
+import etomica.Space;
+import etomica.Species;
+import etomica.nbr.cell.IteratorFactoryCell;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -29,7 +50,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	 * @param space 
 	 */
 	public PotentialMasterNbr(Space space) {
-		super(space);
+        super(space,IteratorFactoryCell.INSTANCE);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
@@ -140,7 +161,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 		    NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),2.0*potential.getRange());
 	    	setSpecies(potential, species, criterion);
     	} else {
-    	   	AtomsetIterator iterator = new AtomsetIteratorMolecule(species);
+    	   	AtomsetIterator iterator = new AtomsetIteratorMolecule(species,iteratorFactory);
     	    addPotential(potential, iterator);
     	}
     }
@@ -153,7 +174,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     	if (species.length <= 1 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-    	AtomsetIterator iterator = new AtomsetIteratorMolecule(species);
+    	AtomsetIterator iterator = new AtomsetIteratorMolecule(species,iteratorFactory);
     	iterator = new AtomsetIteratorFiltered(iterator, criterion);
 		neighborManager.addCriterion(criterion);
     	for(int i=0; i<species.length; i++) {
@@ -168,7 +189,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 
     public NeighborManager getNeighborManager() {return neighborManager;}
 
-    public AtomSequencer.Factory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
+    public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
 
 	private final AtomIteratorArrayList atomIterator;
 	private final AtomIteratorSinglet singletIterator;
