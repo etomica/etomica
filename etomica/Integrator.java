@@ -9,6 +9,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.utility.Arrays;
 import etomica.utility.NameMaker;
 
 /**
@@ -37,7 +38,6 @@ public abstract class Integrator implements java.io.Serializable {
     protected Phase[] phase;
     protected boolean equilibrating = false;
     protected boolean initialized = false;
-    public int phaseCount = 0;
     public int phaseCountMax = 1;
     protected int sleepPeriod = 10;
     private final LinkedList intervalListeners = new LinkedList();
@@ -47,11 +47,11 @@ public abstract class Integrator implements java.io.Serializable {
     protected boolean isothermal = false;
     private String name;
     protected MeterPotentialEnergy meterPE;
-    protected double[] currentPotentialEnergy;
+    protected double[] currentPotentialEnergy = new double[0];
 
     public Integrator(PotentialMaster potentialMaster) {
         setName(NameMaker.makeName(this.getClass()));
-        phase = new Phase[phaseCountMax];
+        phase = new Phase[0];
         this.potential = potentialMaster;
         meterPE = new MeterPotentialEnergy(potentialMaster);
         if (Default.AUTO_REGISTER) {
@@ -141,7 +141,7 @@ public abstract class Integrator implements java.io.Serializable {
     protected void deployAgents() { //puts an Agent of this integrator in each
         // atom of all phases
         AtomIteratorListSimple iterator = new AtomIteratorListSimple();
-        for (int i = 0; i < phaseCount; i++) {
+        for (int i = 0; i < phase.length; i++) {
             Phase p = phase[i];
             iterator.setList(p.speciesMaster.atomList);
             iterator.reset();
@@ -219,7 +219,7 @@ public abstract class Integrator implements java.io.Serializable {
 	 *         false if the integrator has all the phases it was built to handle
 	 */
 	public boolean wantsPhase() {
-		return phaseCount < phaseCountMax;
+		return phase.length < phaseCountMax;
 	}
 
 	/**
@@ -232,15 +232,14 @@ public abstract class Integrator implements java.io.Serializable {
 	 */
 	//perhaps should throw an exception rather than returning a boolean "false"
 	public boolean addPhase(Phase p) {
-		for (int i = 0; i < phaseCount; i++) {
+		for (int i = 0; i < phase.length; i++) {
 			if (phase[i] == p)
 				return false;
 		} //check that phase is not already registered
 		if (!this.wantsPhase()) {
 			return false;
 		} //if another phase not wanted, return false
-		phase[phaseCount] = p;
-		phaseCount++;
+		phase = (Phase[])Arrays.addOjbect(phase,p);
 		firstPhase = phase[0];
         if (Debug.ON && p.index == Debug.PHASE_INDEX) {
             Debug.setAtoms(p);
@@ -248,23 +247,22 @@ public abstract class Integrator implements java.io.Serializable {
 		return true;
 	}
 
-	/**
-	 * Performs activities needed to disconnect integrator from given phase.
-	 * This method should not be called directly; instead it is invoked by the
-	 * phase in its setIntegrator method
-	 */
-	public void removePhase(Phase p) {
-		for (int i = 0; i < phaseCount; i++) {
-			if (phase[i] == p) {//phase found; remove it
-				phase[i] = null;
-				phaseCount--;
-				if (phaseCount > 0)
-					phase[i] = phase[phaseCount];
-				firstPhase = phase[0];
-				break;
-			}
-		}
-	}
+    /**
+     * Performs activities needed to disconnect integrator from given phase.
+     * This method should not be called directly; instead it is invoked by the
+     * phase in its setIntegrator method
+     */
+    public void removePhase(Phase p) {
+        for (int i = 0; i < phase.length; i++) {
+            if (phase[i] == p) {//phase found; remove it
+                phase = (Phase[])Arrays.removeObject(phase,p);
+                if (phaseCount > 0) {
+                    firstPhase = phase[0];
+                }
+                break;
+            }
+        }
+    }
     
     public Phase[] getPhase() {
         return phase;
