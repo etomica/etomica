@@ -149,10 +149,10 @@ public class PotentialGroup extends Potential {
     //over the sub-potentials of this PotentialGroup.
     public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
-		PotentialCalculation.PotentialGroupWrapper wrapper = pc.wrapper().set(this);
-		wrapper.localDirective.copy(id);
-		iterator.all(basis, wrapper.localDirective, wrapper);
-		wrapper.release();
+		//loop over sub-potentials
+		for(PotentialLinker link=first; link!=null; link=link.next) {
+			pc.set(link.potential).doCalculation(link.iterator, link.potential);
+		}//end for	    	
     }//end calculate
     
     

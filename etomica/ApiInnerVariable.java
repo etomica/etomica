@@ -106,8 +106,17 @@ public final class ApiInnerVariable implements AtomPairIterator {
      */
     public void reset() {
         aiOuter.reset();
-        aiInner.reset();
-        hasNext = aiOuter.hasNext() && aiInner.hasNext();
+        hasNext = false;
+        needUpdate1 = false;
+        while(aiOuter.hasNext()) { //loop over outer iterator...
+            pair.setAtom1(aiOuter.next());
+            aiInner.setAtom(pair.atom1());
+            aiInner.reset();
+            if(aiInner.hasNext()) { //until inner iterator has another
+                hasNext = true;
+                break;        //...until iterator 2 hasNext
+            }
+        }//end while
     }
     
     /**
@@ -116,18 +125,9 @@ public final class ApiInnerVariable implements AtomPairIterator {
      * returns null.
      */
     public AtomPair peek() {
-    	if(!hasNext) {return null;}
-    	
-    	if(aiInner.hasNext()) {
-    		pair.setAtom2(aiInner.peek());
-    	}
-    	else {
-    		// Althouth we advance aiOuter, we 
-    		// are not advancing the pair iterator.
-    		// Outcome of next() is not changed
-    		aiInner.reset();
-    		pair.setAtoms(aiOuter.next(), aiInner.peek());
-    	}
+    	if(!hasNext) {return null;}   	
+        if(needUpdate1) {pair.setAtom1(atom1); needUpdate1 = false;}  //aiOuter was advanced
+        pair.setAtom2(aiInner.peek());
     	return pair;
     }
     
@@ -137,19 +137,20 @@ public final class ApiInnerVariable implements AtomPairIterator {
      * different for each iterate. 
      */
     public AtomPair next() {
-    	if(!hasNext) {return null;}
-    	//Advance the inner loop, if it is not at its end.
-    	if(aiInner.hasNext()) {
-    		pair.setAtom2(aiInner.next());
-    	}
-    	//Advance the outer loop, if the inner loop has reached its end.
-    	else {
-    		Atom nextOuter = aiOuter.next();
-    		aiInner.setAtom(nextOuter);
-    		aiInner.reset();
-			pair.setAtoms(nextOuter , aiInner.next());
-    	}   	
-    	hasNext = aiInner.hasNext() || aiOuter.hasNext();
+    	if(!hasNext) return null;
+        //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
+        //it is not done directly in the while-loop because pair must first return with the old atom1 intact
+        if(needUpdate1) {pair.setAtom1(atom1); needUpdate1 = false;}  //aiOuter was advanced
+        pair.setAtom2(aiInner.next());
+        while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
+            if(aiOuter.hasNext()) {     //Outer has another atom1...
+                atom1 = aiOuter.next();           //...get it
+                aiInner.setAtom(atom1);
+                aiInner.reset();
+                needUpdate1 = true;           //...flag update of pair.atom1 for next time
+            }
+            else {hasNext = false; break;} //Outer has no more; all done with pairs
+        }//end while
         return pair;
     }
 
@@ -170,7 +171,8 @@ public final class ApiInnerVariable implements AtomPairIterator {
     }
     
     private final AtomPair pair;
-    private boolean hasNext;
+    private boolean hasNext, needUpdate1;
+    private Atom atom1;
 
     /**
      * The iterators used to generate the sets of atoms.

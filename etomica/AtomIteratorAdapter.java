@@ -6,17 +6,21 @@ package etomica;
 
 /**
  * Adapater class that wraps another AtomIterator to implement the
- * methods of an iterator, while adding a PhaseDependent interface.  
- * Subclasses must define the setPhase method so that it configures 
- * the wrapped iterator to perform the desired iteration within
- * the given phase.
+ * methods of an iterator.  In the default case, all methods of the
+ * adapter merely front the methods of the wrapped iterator.
+ * Typically, subclasses will introduce additional
+ * methods that configure the wrapped iterator in a particular way to
+ * prepare it for iteration.  Subclasses may also override individual
+ * methods as appropriate to their implementation.
  */
-public abstract class AtomIteratorAdapter implements AtomIteratorPhaseDependent {
+public abstract class AtomIteratorAdapter implements AtomIterator {
 
 	protected final AtomIterator iterator;
 	
 	/**
-	 * 
+	 * Constructor takes the wrapped iterator as an argument. The
+	 * iterator is final and cannot be subsequently replaced by
+	 * another iterator.
 	 */
 	public AtomIteratorAdapter(AtomIterator iterator) {
 		this.iterator = iterator;
@@ -25,56 +29,54 @@ public abstract class AtomIteratorAdapter implements AtomIteratorPhaseDependent 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
-	public final boolean contains(Atom atom) {
+	public boolean contains(Atom atom) {
 		return iterator.contains(atom);
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#hasNext()
 	 */
-	public final boolean hasNext() {
+	public boolean hasNext() {
 		return iterator.hasNext();
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#reset()
 	 */
-	public final void reset() {
+	public void reset() {
 		iterator.reset();
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#unset()
 	 */
-	public final void unset() {
+	public void unset() {
 		iterator.unset();
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#next()
 	 */
-	public final Atom next() {
+	public Atom next() {
 		return iterator.next();
 	}
 	
-	public final Atom peek() {
+	public Atom peek() {
 		return iterator.peek();
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
 	 */
-	public final void allAtoms(AtomActive action) {
+	public void allAtoms(AtomActive action) {
 		iterator.allAtoms(action);
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#size()
 	 */
-	public final int size() {
+	public int size() {
 		return iterator.size();
 	}
-	
-	public abstract void setPhase(Phase phase);
 	
 }

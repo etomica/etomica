@@ -10,7 +10,7 @@ package etomica;
  * action to iterator).
  */
 
-public interface AtomIterator /*extends AtomSetIterator*/ {
+public interface AtomIterator {
     
 	/**
 	 * Indicates whether the atom is among those returned by the iterator.
