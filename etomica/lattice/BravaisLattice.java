@@ -145,7 +145,6 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     public void setCrystal(Crystal crystal) {
         ((AtomTreeNodeGroup)node).removeAllChildren();//need to do this before setting new leaf factory, in case new factory has different groupFactory() field
         factory.crystal = crystal;
-        crystal.getPrimitive().setLattice(this);
         ((Factory)creator()).setLeafFactory(crystal.getBasis().atomFactory());
         rebuild();
     }

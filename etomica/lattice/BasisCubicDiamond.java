@@ -67,7 +67,7 @@ public class BasisCubicDiamond extends Basis {
             int i = 0;
             while(iterator.hasNext()) {
                 r.Ea1Tv1(latticeConstant,positions[i++]);
-                Atom a = iterator.next();
+                Atom a = iterator.nextAtom();
                 try {//may get null pointer exception when beginning simulation
                     a.creator().getConfiguration().initializePositions(a);
                 } catch(NullPointerException e) {}

@@ -61,7 +61,7 @@ public class BasisHcp extends Basis {
             iterator.reset();
             //first atom
             r.E(0.0);
-            Atom atom = iterator.next(); 
+            Atom atom = iterator.nextAtom(); 
             try {//may get null pointer exception when beginning simulation
                 atom.creator().getConfiguration().initializePositions(atom);
             } catch(NullPointerException e) {}
@@ -71,7 +71,7 @@ public class BasisHcp extends Basis {
             for(int i=0; i<a.length; i++) {
                 r.PEa1Tv1(factors[i], a[i]);
             }
-            atom = iterator.next();
+            atom = iterator.nextAtom();
             try {//may get null pointer exception when beginning simulation
                 atom.creator().getConfiguration().initializePositions(atom);
             } catch(NullPointerException e) {}
