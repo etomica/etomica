@@ -75,13 +75,24 @@ public class IteratorFactoryCell implements IteratorFactory {
     }
     
     /**
+     *  
+     * @param sim  The simulation in which this factory is being used
+     * @param nCells the number of cell in each dimension; total number of cells
+     * is then nCells^D.
+     */
+    public IteratorFactoryCell(Simulation sim, int nCells) {
+    	this(sim, new PrimitiveCubic(sim.space), nCells);
+    }
+    
+    /**
      * Constructs a new iterator factory for the given simulation, using
      * cells based on the given primitive.  Does not automatically
      * register the factory with the simulation; this must be done
      * separately using the simulation's setIteratorFactory method.
      *
-     * @sim          The simulation in which this factory is being used
-     * @primitive    The primitive class that defines the type of unit cell used to construct the neighbor-cell lattice
+     * @param sim          The simulation in which this factory is being used
+     * @param primitive    The primitive class that defines the type of unit
+     * cell used to construct the neighbor-cell lattice
      * @param nCells the number of cell in each dimension; total number of cells is then nCells^D.
      */
     public IteratorFactoryCell(Simulation sim, Primitive primitive, int nCells) {

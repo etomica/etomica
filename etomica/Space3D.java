@@ -18,6 +18,8 @@ package etomica;
   * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
   * values were being used prematurely
   * 01/31/03 (JKS/DAK) modifications to make thread-safe
+  * 07/10/03 (DAK) added resetV method to CoordinatePair
+
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -414,13 +416,16 @@ public class Space3D extends Space implements EtomicaElement {
    //         dry = dr.y;
    //         drz = dr.z;
             r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
-            /*  comment here if not doing hard dynamics
+        }
+        
+        public void resetV() {
+  //       /*    comment here if not doing hard dynamics
             double rm1 = c1.rm();
             double rm2 = c2.rm();
             dvx = rm2*c2.p.x - rm1*c1.p.x;
             dvy = rm2*c2.p.y - rm1*c1.p.y;
             dvz = rm2*c2.p.z - rm1*c1.p.z;
-          //  */  //end of non-dynamics commenting
+          //  /* */  //end of non-dynamics commenting
         }
             
         public void reset(Space3D.Vector M) {

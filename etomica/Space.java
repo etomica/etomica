@@ -2,6 +2,7 @@ package etomica;
 
 /* History of changes
  * 09/01/02 (DAK) added accelerateTo method to Coordinate
+ * 07/10/03 (DAK) added resetV method to CoordinatePair
  */
 
 public abstract class Space implements java.io.Serializable {
@@ -320,6 +321,7 @@ public abstract class Space implements java.io.Serializable {
         public double r2;
         public CoordinatePair() {}  //null constructor
         public abstract void reset();
+        public abstract void resetV(); //computes dv
         public abstract void reset(Space.Coordinate c1, Space.Coordinate c2);
         public abstract double v2();
         public abstract double vDotr();

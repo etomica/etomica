@@ -9,16 +9,17 @@ import etomica.units.Dimension;
  */
  
  /* History of changes
-  * 7/9/02 Added energyChange() method
+  * 07/09/02 Added energyChange() method 
+  * 07/09/03 Changed fields from private to protected
   */
   
 public class MCMoveAtom extends MCMove {
     
-    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private Atom atom;
-    private double uOld;
-    private double uNew = Double.NaN;
+    protected final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    protected Atom atom;
+    protected double uOld;
+    protected double uNew = Double.NaN;
 /*debug* /    private PotentialCalculationEnergySumNearestPair energyDebug = 
              new PotentialCalculationEnergySumNearestPair();
     private int idx1 = 8;

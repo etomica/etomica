@@ -21,7 +21,7 @@ public class ApiIntergroup1A extends AtomPairIterator {
     protected Atom group1; 
     protected Atom group2;
     
-    protected final AtomIterator atomIterator;
+    protected /*final*/ AtomIterator atomIterator;//if final, subclasses can't modify (needed in etomica.modules.ternary.TheSimulation)
     
     protected Atom referenceAtom;
     protected final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);

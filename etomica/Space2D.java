@@ -7,6 +7,7 @@ package etomica;
   *                if accelerating to nonzero momentum).
   * 01/04/03 (SKK/DAK) added HSlit Boundary class for horizontal-slit PBC.
   * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
+  * 07/10/03 (DAK) added resetV method to CoordinatePair
  */
 public class Space2D extends Space implements EtomicaElement {
     
@@ -275,6 +276,8 @@ public class Space2D extends Space implements EtomicaElement {
             drx = dr.x; 
             dry = dr.y;
             r2 = drx*drx + dry*dry;
+        }
+        public void resetV() {
             double rm1 = c1.rm();
             double rm2 = c2.rm();
             dvx = (rm2*c2.p.x - rm1*c1.p.x);  

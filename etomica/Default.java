@@ -47,8 +47,8 @@ public final class Default {
      * is assigned to species master)
      */
     // powers of 2, for reference:
-    //  n  1  2  3  4  5  6   7   8   9   10   11   12   13    14     15     16     17      18      19       20
-    // 2^n 2  4  8  16 32 64 128 256 512 1024 2048 4096 8192 16,384 32,768 65,536 131,072 262,144 524,288 1,048,576
+    //  n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |  14  |  15  |  16  |  17   |  18   |  19   |   20    |
+    // 2^n| 2 | 4 | 8 | 16| 32| 64|128|256|512|1024|2048|4096|8192|16,384|32,768|65,536|131,072|262,144|524,288|1,048,576|
     public static final int[] MAX_ATOMS = new int[] {5, 16, 7, 3};
     
     /**
@@ -56,7 +56,7 @@ public final class Default {
      * true, then hasNext()/next() construct is used, if false, all() construct
      * is used.
      */
-    public static final boolean EXPLICIT_LOOP = false;
+    public static final boolean EXPLICIT_LOOP = true;
     
     /**
      * Sets default atom size, mass, and potential-well to unity, and scales

@@ -7,6 +7,7 @@ package etomica;
   *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
   * 09/05/02 (DAK) fixed error in accelerateTo (still probably does not do what one expects
   *                if accelerating to nonzero momentum).
+  * 07/10/03 (DAK) added resetV method to CoordinatePair
   */
 public class Space1D extends Space implements EtomicaElement {
     
@@ -209,6 +210,8 @@ public class Space1D extends Space implements EtomicaElement {
             c1.atom.node.parentPhase().boundary().nearestImage(dr);
             drx = dr.x; 
             r2 = drx*drx;
+        }
+        public void resetV() {
             double rm1 = c1.rm();
             double rm2 = c2.rm();
             dvx = (rm2*c2.p.x - rm1*c1.p.x);  
