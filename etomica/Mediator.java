@@ -147,26 +147,26 @@ public class Mediator implements java.io.Serializable {
    public abstract static class PhasePotential extends Subset {
         public PhasePotential(Mediator m) {super(m);}
 
-        public Class[] elementClasses() {return new Class[] {Phase.class, PotentialAbstract.class};}
+        public Class[] elementClasses() {return new Class[] {Phase.class, Potential.class};}
         
         public void add(Simulation.Element element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Phase) add((Phase)element);
-            if(element instanceof PotentialAbstract) add((PotentialAbstract)element);
+            if(element instanceof Potential) add((Potential)element);
         }
         
         public abstract void add(Phase phase);
-        public abstract void add(PotentialAbstract potential);
+        public abstract void add(Potential potential);
         
         public static class Default extends PhasePotential {
             public Default(Mediator m) {super(m);}
             public void add(Phase phase) {
                 for(Iterator is=mediator.parentSimulation().potentialList.iterator(); is.hasNext(); ) {
-                    PotentialAbstract potential = (PotentialAbstract)is.next();
+                    Potential potential = (Potential)is.next();
                     if(potential.wasAdded()) phase.addPotential(potential.makeAgent(phase));
                 }
             }
-            public void add(PotentialAbstract potential) {
+            public void add(Potential potential) {
                 for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded()) phase.addPotential(potential.makeAgent(phase));

@@ -64,7 +64,7 @@ public class P2HardSphere extends Potential2 implements Potential2Hard, EtomicaE
         }
         return time;
     }
-
+    
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */

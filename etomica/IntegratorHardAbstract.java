@@ -30,6 +30,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
     protected PotentialAgent phasePotential;
+    private AtomPair atomPair;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
@@ -49,6 +50,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
         phasePotential = p.potential();
+        atomPair = new AtomPair(p);
         return true;
     }
 
@@ -87,7 +89,10 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             double tStepNew = tStep - collisionTimeStep;
  //           System.out.println(colliderAgent.atom().toString() +" "+ colliderAgent.collisionPartner().toString());
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
-            colliderAgent.collisionPotential.bump(colliderAgent);
+            atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
+            
+            colliderAgent.collisionPotential.bump(atomPair);
+            
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
             }
@@ -206,8 +211,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         public void resetCollision() {
             collisionTime = periodCollisionTime();
-            collisionPotential = null;
-//            collisionPotential = PotentialAgent.HARD_NULL;
+            collisionPotential = Potential2Hard.NULL;
             collisionPartner = null;
         }
         

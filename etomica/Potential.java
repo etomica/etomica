@@ -28,7 +28,7 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
     }
     
     public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return PotentialAbstract.class;}
+    public final Class baseClass() {return Potential.class;}
     public final boolean wasAdded() {return added;}
     public final void setAdded(boolean b) {added = b;}
     public final String getName() {return name;}

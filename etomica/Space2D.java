@@ -75,10 +75,10 @@ public class Space2D extends Space implements EtomicaElement {
         public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y;}
-        public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = x+u1.y; return WORK;}
-        public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = x-u1.y; return WORK;}
-        public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = x*u1.y; return WORK;}
-        public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; WORK.y = x/u1.y; return WORK;}
+        public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; return WORK;}
+        public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; return WORK;}
+        public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; return WORK;}
+        public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; WORK.y = y/u1.y; return WORK;}
         public Space.Vector abs() {WORK.x = (x>0)?x:-x; WORK.y = (y>0)?y:-y; return WORK;}
         public double min() {return (x < y) ? x : y;}
         public double max() {return (x > y) ? x : y;}

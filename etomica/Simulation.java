@@ -109,7 +109,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         super();
         space = s;
         setName("Simulation" + Integer.toString(instanceCount++));
-        elementLists.put(PotentialAbstract.class, potentialList);
+        elementLists.put(Potential.class, potentialList);
         elementLists.put(Species.class, speciesList);
         elementLists.put(Integrator.class, integratorList);
         elementLists.put(Phase.class, phaseList);
@@ -457,7 +457,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesDisks speciesDisks = new SpeciesDisks();
-	    speciesDisks.setNMolecules(30);
+	    speciesDisks.setNMolecules(300);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();

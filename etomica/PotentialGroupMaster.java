@@ -16,9 +16,9 @@ public class PotentialGroupMaster extends PotentialGroup {
     
     public class Agent extends PotentialGroup.Agent {
 
-        private PotentialAgent.Hard.Linker firstHard;
+//        private PotentialAgent.Hard.Linker firstHard;
         
-        public Agent(PotentialAbstract potential, Phase phase) {
+        public Agent(Potential potential, Phase phase) {
             super(potential, phase);
         }
         

@@ -48,7 +48,7 @@ public final class AtomPair implements java.io.Serializable {
     public void reset(Atom a1, Atom a2) {
         atom1 = a1; 
         atom2 = a2;
-        reset();
+        if(a2 != null) reset();
     }
     /**
      * Resets the coordinate pair for the current values of the atoms

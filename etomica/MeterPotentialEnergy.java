@@ -35,6 +35,32 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        return phase.potential().energy(all);
+        phase.potential().calculate(all, energy);
+        return energy.sum;
     }
+    
+    private final CalculationEnergy energy = new CalculationEnergy();
+    
+    private static final class CalculationEnergy implements Potential1Calculation, Potential2Calculation {
+        
+        double sum = 0.0;
+        
+        public void reset() {sum = 0.0;}
+        
+        //atom pair
+        public void calculate(AtomPairIterator iterator, Potential2 potential) {
+            while(iterator.hasNext()) {
+                sum += potential.energy(iterator.next());
+            }//end while
+        }//end of calculate(AtomPair...
+        
+        //single atom
+        public void calculate(AtomIterator iterator, Potential1 potential) {
+            while(iterator.hasNext()) {
+                sum += potential.energy(iterator.next());
+            }//end while
+        }//end of calculate(Atom...
+    } //end of collisionHandlerUp
+
+    
 }

@@ -82,6 +82,13 @@ public class Space3D extends Space implements EtomicaElement {
         public void TE(int i, double a) {if (i==0) x*=a; else if (i==1) y*=a; else z*=a;}
         public void TE(Vector u) {x *= u.x; y *= u.y; z *= u.z;}
         public void DE(double a) {x /= a; y /= a; z /= a;}
+        public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; WORK.z = z+u1.z; return WORK;}
+        public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; WORK.z = z-u1.z; return WORK;}
+        public Space.Vector T(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x*u1.x; WORK.y = y*u1.y; WORK.z = z*u1.z; return WORK;}
+        public Space.Vector D(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x/u1.x; WORK.y = y/u1.y; WORK.z = z/u1.z; return WORK;}
+        public Space.Vector abs() {WORK.x = (x>0)?x:-x; WORK.y = (y>0)?y:-y; WORK.z = (z>0)?z:-z; return WORK;}
+        public double min() {return (x < y) ? (x<z)?x:z : (y<z)?y:z;}
+        public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
         public double squared() {return x*x + y*y + z*z;}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
         public void randomStep(double d) {x += (2.*random.nextDouble()-1)*d; y +=(2.*random.nextDouble()-1)*d; z +=(2.*random.nextDouble()-1)*d;}
@@ -454,7 +461,7 @@ public class Space3D extends Space implements EtomicaElement {
     }
         
         
-    protected static class BoundaryPeriodicSquare extends Boundary implements Potential.Hard {
+    protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
         private final Vector temp = new Vector();
         public static final Random random = new Random();
         private static Space.Tensor zilch = new Tensor();
@@ -489,26 +496,7 @@ public class Space3D extends Space implements EtomicaElement {
         }
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x*dimensions.y*dimensions.z;}
-        
-        public double collisionTime(AtomPair pair) {
-            Atom a=pair.atom1();
-            if(!(a.type instanceof AtomType.Disk)) {
-                return  Double.MAX_VALUE;
-            }
-            Vector p = (Vector)a.coordinate().momentum();
-            double diameter = ((AtomType.Disk)a.type).diameter();
-            return 0.5*(dimensions.y-1.0001*diameter)/(a.rm()*Math.sqrt(p.squared()));
-        }
-        public void bump(AtomPair pair) {}
-        public double lastCollisionVirial() {return 0.0;}
-        public Space.Tensor lastCollisionVirialTensor() {return zilch;}
-        public double energy(AtomPair pair) {return 0.0;}
-        public double energyLRC(int n1, int n2, double V) {return 0.0;}
-        public boolean overlap(AtomPair pair) {return false;}   
-        public Simulation getParentSimulation() {return simulation;}
-        public void setParentSimulation(Simulation s) {simulation = s;} 
-        private Simulation simulation;
-        
+                
         public void draw(Graphics g, int[] origin, double scale) {
             g.setColor(Color.gray);
             double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;

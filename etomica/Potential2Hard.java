@@ -18,6 +18,15 @@ public interface Potential2Hard extends PotentialHard {
      */ 
     public double collisionTime(AtomPair pair);
     
+    public static Potential2Hard NULL = new NULL();
+    public static class NULL implements Potential2Hard {
+        private NULL() {}
+        public double energy(AtomPair pair) {return 0.0;}
+        public void bump(AtomPair pair) {}
+        public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
+    }
+
+    
 }//end of Potential2Hard
 
     

@@ -1,6 +1,6 @@
 package etomica;
 
-public class PotentialGroup extends PotentialAbstract {
+public class PotentialGroup extends Potential {
     
 //    private PotentialGroup parentGroup;
     
@@ -21,16 +21,14 @@ public class PotentialGroup extends PotentialAbstract {
         private PotentialAgent first;
         private PotentialAgent last;
         
-        public Agent(PotentialAbstract potential, Phase phase) {
+        public Agent(Potential potential, Phase phase) {
             super(potential, phase);
         }
         
-        public double energy(IteratorDirective id) {
-            double sum = 0.0;
+        public void calculate(IteratorDirective id, PotentialCalculation pc) {
             for(PotentialAgent p=first; p!=null; p=p.nextAgent()) {
-                sum += p.energy(id);
+                p.calculate(id, pc);
             }
-            return sum;
         }
         
         /**
