@@ -63,7 +63,7 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
      * Returns 2, indicating that the setBasis method expects an array of two
      * atoms.
      */
-    public int basisSize() {
+    public final int basisSize() {
         return 2;
     }
 
