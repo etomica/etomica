@@ -31,7 +31,6 @@ public class PhaseQuench extends PhaseAction {
 		setTemperature(temperature);
 		meterTemperature = new MeterTemperature(p);
 		meterTemperature.setPhase(new Phase[] {p});
-		meterTemperature.setActive(false);
 	}
 
 	/**
