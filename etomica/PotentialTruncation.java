@@ -25,12 +25,8 @@ public abstract class PotentialTruncation {
      * @return boolean true if potential is to be set to zero for the given
      * atoms
      */
-    public boolean isZero(CoordinateSet coords) {
-    	if(coords instanceof CoordinatePair) {
-    		return isZero(((CoordinatePair)coords).r2());
-    	} else {
-    		return false;
-    	}
+    public boolean isZero(CoordinatePair cPair) {
+  		return isZero(cPair.r2());
     }
     
     public abstract double getRange();
@@ -63,7 +59,7 @@ public abstract class PotentialTruncation {
      * that becomes neglected by the truncation.  Assumes a uniform distribution
      * of atoms beyond this truncation's cutoff distance.
      */
-    public abstract Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential);
+    public abstract Potential0Lrc makeLrcPotential(Space space, Potential2 potential);
     
 
     ///************** end of methods for PotentialTruncation ***************
@@ -77,7 +73,7 @@ public abstract class PotentialTruncation {
         public double uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double duTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double d2uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
-        public Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential) {return null;}
+        public Potential0Lrc makeLrcPotential(Space space, Potential2 potential) {return null;}
         public double getRange() {return Double.MAX_VALUE;}
      }//end of Null
 }//end of PotentialTruncation

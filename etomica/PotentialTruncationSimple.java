@@ -17,19 +17,6 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         
     double rCutoff, r2Cutoff;
     
-    /**
-     * @deprecated -- do not need space argument
-     */
-    public PotentialTruncationSimple(Space space) {
-        this(space, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);}
-        
-	/**
-	 * @deprecated -- do not need space argument
-	 */
-    public PotentialTruncationSimple(Space space, double rCutoff) {
-        super();
-        setTruncationRadius(rCutoff);
-    }
 	public PotentialTruncationSimple() {
 		this(Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);}
         
@@ -61,6 +48,10 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
      * Accessor method for the radial cutoff distance.
      */
     public double getTruncationRadius() {return rCutoff;}
+    
+    //TODO let's pick one and stick with it! 
+    public double getRange() {return rCutoff;}
+    
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
@@ -71,8 +62,8 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
      * energy and its derivatives from pairs that are separated by a distance
      * exceeding the truncation radius.
      */
-    public Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential) {
-        return new P0Lrc(parent, (Potential2SoftSpherical)potential);
+    public Potential0Lrc makeLrcPotential(Space space, Potential2 potential) {
+        return new P0Lrc(space, (Potential2SoftSpherical)potential);
     }
     
     /**
@@ -85,11 +76,15 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
 		private final double A;
 		private final int D;
         
-        public P0Lrc(PotentialMaster parent, Potential2SoftSpherical potential) {
-            super(parent, potential);
+        public P0Lrc(Space space, Potential2SoftSpherical potential) {
+            super(space, potential);
             this.potential = potential;
 			A = space.sphereArea(1.0);  //multiplier for differential surface element
 			D = space.D();              //spatial dimension
+        }
+        
+        public void setPhase(Phase phase) {
+            this.phase = phase;
         }
         
         /**
@@ -98,7 +93,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
          * @param phase
          * @return int
          */
-        private int nPairs(Phase phase) {
+        private int nPairs() {
         	switch(species.length) {
         		case 1: 
         			int n = species[0].getAgent(phase).getNMolecules();
@@ -111,9 +106,9 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         	}
         }
         
-        public double energy(Phase phase) {
+        public double energy(Atom[] atoms) {
         	if(species == null) return 0.0;
-            return uCorrection(nPairs(phase)/phase.volume());
+            return uCorrection(nPairs()/phase.volume());
         }
         
         /**
