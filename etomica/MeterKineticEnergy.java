@@ -4,7 +4,9 @@ import etomica.units.Dimension;
 
 /**
  * Meter for the total kinetic energy in a phase
- * Computes total KE by summing values of KE returned by every atom in the phase
+ * Computes total KE by summing values of KE returned by every atom in the phase.
+ * A different phase-dependent atom integrator may be set to permit calculation
+ * over a particular set of atoms in the phase.
  */
  
  /* History of changes
@@ -12,7 +14,7 @@ import etomica.units.Dimension;
   */
 public class MeterKineticEnergy extends MeterScalar
 {
-    AtomIteratorList atomIterator = new AtomIteratorList();
+    private AtomIteratorPhaseDependent iterator;
     
     public MeterKineticEnergy() {
         this(Simulation.instance);
@@ -20,6 +22,7 @@ public class MeterKineticEnergy extends MeterScalar
     public MeterKineticEnergy(SimulationElement parent) {
         super(parent);
         setLabel("Kinetic Energy");
+        setIterator(new AtomIteratorLeafAtoms());
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -27,14 +30,39 @@ public class MeterKineticEnergy extends MeterScalar
         return info;
     }
 
+    /**
+     * Returns Dimension.ENERGY.
+     */
     public Dimension getDimension() {return Dimension.ENERGY;}
 	
+    /**
+     * Returns the iterator that defines the atoms summed for their
+     * kinetic energy.
+     */
+	public AtomIteratorPhaseDependent getIterator() {
+		return iterator;
+	}
+	
+	/**
+	 * Sets the iterator that defines the atoms which are summed for
+	 * their total kinetic energy.  Default is a leaf-atom iterator,
+	 * giving all leaf atoms in the phase.
+	 * @param iterator
+	 */
+	public void setIterator(AtomIteratorPhaseDependent iterator) {
+		this.iterator = iterator;
+	}
+	
+	/**
+	 * Returns the total kinetic energy summed over all atoms produced by
+	 * the iterator when applied to the given phase.
+	 */
     public double getDataAsScalar(Phase phase) {
         double ke = 0.0;
-        atomIterator.setList(phase.speciesMaster.atomList);
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {    //consider doing this with an allAtoms call
-            Atom atom = atomIterator.next();
+        iterator.setPhase(phase);
+        iterator.reset();
+        while(iterator.hasNext()) {    //consider doing this with an allAtoms call
+            Atom atom = iterator.nextAtom();
             if(atom.type instanceof AtomType.Wall) continue;
             ke += atom.coord.kineticEnergy();
 //            ke += atomIterator.next().coord.kineticEnergy();

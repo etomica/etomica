@@ -26,11 +26,22 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
         return info;
     }
 
+    /**
+     * Returns Dimension.ENERGY
+     */
     public Dimension getDimension() {return Dimension.ENERGY;}
     
+    /**
+     * Sets flag indicating whether calculated energy should include
+     * long-range correction for potential truncation (true) or not (false).
+     */
     public void setIncludeLrc(boolean b) {
     	iteratorDirective.includeLrc = b;
     }
+    /**
+     * Indicates whether calculated energy should include
+     * long-range correction for potential truncation (true) or not (false).
+     */
     public boolean isIncludeLrc() {
     	return iteratorDirective.includeLrc;
     }
@@ -43,6 +54,7 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
     public void setTarget(Atom[] atoms) {
     	iteratorDirective.setTargetAtoms(atoms);
     }
+    
  /**
   * Computes total potential energy for phase.
   * Currently, does not include long-range correction to truncation of energy
