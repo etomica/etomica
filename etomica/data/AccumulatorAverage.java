@@ -21,20 +21,23 @@ public class AccumulatorAverage extends DataAccumulator {
 		setNData(0);
 		setBlockSize(Default.BLOCK_SIZE);
         setDimension(Dimension.UNDEFINED);
+        reset();
 	}
 	
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
+        blockCountDown = blockSize;
 	}
 	public int getBlockSize() {
 		return blockSize;
 	}
 
     /**
-     * Add the given values to the sums and block sums
+     * Add the given values to the sums and block sums.
      */
     public void addData(double[] value) {
     	if(value.length != nData) setNData(value.length);
+        for(int i=0; i<nData; i++) if(Double.isNaN(value[i])) return;
     	for(int i=nDataMinus1; i>=0; i--) {
             double v = value[i];
     		mostRecent[i] = v;
@@ -43,12 +46,12 @@ public class AccumulatorAverage extends DataAccumulator {
     	}
 		if(--blockCountDown == 0) {//count down to zero to determine completion of block
 		    doBlockSum();
-		    count++;
-            blockCountDown = blockSize;
         }
     }
     
     private void doBlockSum() {
+        count++;
+        blockCountDown = blockSize;
         for(int i=nDataMinus1; i>=0; i--) {             
             blockSum[i] /= blockSize;//compute block average
             sum[i] += blockSum[i];
@@ -62,31 +65,26 @@ public class AccumulatorAverage extends DataAccumulator {
     }
     
     public double[] getData() {
-        int blockCount = blockSize - blockCountDown;
-        if(count+blockCount == 0) {
+        int currentBlockCount = blockSize - blockCountDown;
+        double countFraction = (double)currentBlockCount/(double)blockSize;
+        double currentCount = count + countFraction;
+        if(count+currentBlockCount == 0) {
             setNaN(data);
-        } else if(nDataMinus1 == 0) {
-            int i=0;
-            double avg = sum[0]/count;
-            double averageSquared = avg*avg;
-            double err = Math.sqrt((sumSquare[0]/count - averageSquared)/(count-1));             
-            double stdev = Math.sqrt(sumSquareBlock[0]/(count*blockSize) - averageSquared);
-            double mrBlock = (mostRecentBlock[0]!=Double.NaN) ? mostRecentBlock[0] : blockSum[0]/(blockSize - blockCountDown);
-            data[0] = mostRecent[0];
-            data[1] = avg;
-            data[2] = err;
-            data[3] = stdev;
-            data[4] = mrBlock;
         } else {
-            for(int i=nDataMinus1; i>=0; i--) {
-                average[i] = sum[i]/count;
-                double averageSquared = average[i]*average[i];
-                error[i] = Math.sqrt((sumSquare[i]/count - averageSquared)/(count-1));             
-                standardDeviation[i] = Math.sqrt(sumSquareBlock[i]/(count*blockSize) - averageSquared);
-                mostRecentBlock[i] = (mostRecentBlock[i]!=Double.NaN) ? mostRecentBlock[i] : blockSum[i]/(blockSize - blockCountDown);
-            }
-            for(int i=0, k=0; i<nStats; i++, k+=nData) {
-                System.arraycopy(allData[i], 0, data, k, nData);
+            int k = 0;
+            for(int i=0; i<nData; i++) {
+                double currentBlockAverage = blockSum[i]/currentBlockCount;
+                double avg = (sum[i] + countFraction*currentBlockAverage)/currentCount;
+                double avgSquared = avg*avg;
+                double currentSumSquare = (sumSquare[i] + countFraction*currentBlockAverage*currentBlockAverage);
+                double err = Math.sqrt(currentSumSquare/currentCount - avgSquared)/(currentCount-1);
+                double stdev = Math.sqrt((sumSquareBlock[i]+blockSumSq[i])/(currentCount*blockSize) - avgSquared);
+                double mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
+                data[0*nDataMinus1+(k++)] = mostRecent[i];
+                data[1*nDataMinus1+(k++)] = average[i] = avg;
+                data[2*nDataMinus1+(k++)] = error[i] = err;
+                data[3*nDataMinus1+(k++)] = standardDeviation[i] = stdev;
+                data[4*nDataMinus1+(k++)] = mrBlock;
             }
         }
         return data;
@@ -118,7 +116,6 @@ public class AccumulatorAverage extends DataAccumulator {
     protected void setNData(int nData) {
     	this.nData = nData;
     	nDataMinus1 = nData-1;
-        localTranslator = new DataTranslatorArray(nStats, nData);
         data = new double[nStats*nData];
     	sum = redimension(nData, sum);
     	sumSquare = redimension(nData, sumSquare);
@@ -188,9 +185,9 @@ public class AccumulatorAverage extends DataAccumulator {
             new Type("67% Confidence limits", 2),
             new Type("Standard deviation", 3),
             new Type("Latest block average", 4)};
-    public static final Type AVERAGE = CHOICES[0];
-    public static final Type ERROR = CHOICES[1];
-    public static final Type MOST_RECENT = CHOICES[2];
+    public static final Type MOST_RECENT = CHOICES[0];
+    public static final Type AVERAGE = CHOICES[1];
+    public static final Type ERROR = CHOICES[2];
     public static final Type MOST_RECENT_BLOCK = CHOICES[3];
     public static final Type STANDARD_DEVIATION = CHOICES[4];
 	
@@ -222,9 +219,12 @@ public class AccumulatorAverage extends DataAccumulator {
     protected int nData;
     protected boolean saveOnRedimension = false;
     private final int nStats = 5;
+    
+    //array concatenating mostRecent, average, etc. for return by getData
     protected double[] data;
+    
+    //the elements of allData point to mostRecent, average, etc. arrays (see setNData)
     protected final double[][] allData = new double[nStats][];
-    private DataTranslatorArray localTranslator;
 
     public DataTranslator getTranslator() {
     	return DataTranslator.IDENTITY;
@@ -265,5 +265,6 @@ public class AccumulatorAverage extends DataAccumulator {
         private double[] selectedData;
         private final double[][] selectedAllData;
         private final int[] indexes;
-    }
-}
+    }//end of AccumulatorPipe
+    
+}//end of AccumulatorAverage
