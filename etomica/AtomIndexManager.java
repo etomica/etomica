@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.atom.AtomTreeNode;
+import etomica.utility.Arrays;
+
 /**
  * Performs manipulations and interrogations related to the index assigned to
  * each atom. The atom index is held in the node field of the atom. It is an
@@ -54,28 +57,26 @@ public class AtomIndexManager {
         speciesIndexMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
         moleculeIndexMask = ((power2(bitLength[3]) - 1) << bitShift[3]);
         ordinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
+        indexMask = (power2(cumulativeBitLength[depth])-1) << bitShift[depth];//indexMask has 1's in for all bits significant to the index
         samePhaseMask = phaseIndexMask | rootMask;
         sameSpeciesMask = speciesIndexMask | rootMask;
         sameMoleculeMask = moleculeIndexMask | rootMask | samePhaseMask
                 | sameSpeciesMask;
-        //        System.out.println("depth, bitLength:
-        // "+depth+Arrays.toString(bitLength));
-        //        System.out.println("samePhaseMask:
-        // "+Integer.toBinaryString(samePhaseMask));
-        //        System.out.println("sameSpeciesMask:
-        // "+Integer.toBinaryString(sameSpeciesMask));
-        //        System.out.println("sameMoleculeMask:
-        // "+Integer.toBinaryString(sameMoleculeMask));
-        //        System.out.println("ordinalMask:
-        // "+Integer.toBinaryString(ordinalMask|rootMask));
+//        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
+//        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
+//        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
+//        System.out.println("sameMoleculeMask: "+Integer.toBinaryString(sameMoleculeMask));
+//        System.out.println("ordinalMask: "+Integer.toBinaryString(ordinalMask|rootMask));
+//        System.out.println("  indexMask: "+Integer.toBinaryString(indexMask));
     }
 
     //convenience method; return 2^n
     private int power2(int n) {
-        int power2 = 1;
-        for (int i = 0; i < n; i++)
-            power2 *= 2;
-        return power2;
+        return 1 << n;
+//        int power2 = 1;
+//        for (int i = 0; i < n; i++)
+//            power2 *= 2;
+//        return power2;
     }
 
     // {speciesRoot, phases, species, molecules, groups, atoms}
@@ -187,6 +188,19 @@ public class AtomIndexManager {
     public boolean sameMolecule(int index0, int index1) {
         return ((index0 ^ index1) & sameMoleculeMask) == 0;
     }
+    
+    /**
+     * Returns true if the indices are for atoms that have the
+     * same ancestry to the depth of this manager.  If true, and one of the 
+     * indices is for an atom at this depth, then the other index is for
+     * an atom descended from it. 
+     * @param index0
+     * @param index1
+     * @return
+     */
+    public boolean sameAncestry(int index0, int index1) {
+        return ((index0 ^ index1) & indexMask) == 0;
+    }
 
     //convenience method used by constructor
     private static int[] calculateCumulativeBitLength(int[] array) {
@@ -220,5 +234,6 @@ public class AtomIndexManager {
     private final int speciesIndexMask;
     private final int moleculeIndexMask;
     private final int ordinalMask;
+    private final int indexMask;
 
 }

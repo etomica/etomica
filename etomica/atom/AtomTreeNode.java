@@ -159,13 +159,7 @@ public abstract class AtomTreeNode {
      */ 
     public boolean isDescendedFrom(Atom group) {
     	if(group == null) return false;
-        else return this.isDescendedFrom(group.node);
-     //   return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
-    }
-    
-    public boolean isDescendedFrom(AtomTreeNode node) {
-    	if(node == null) return false;
-        else return (this == node) || (parentNode != null && parentNode.isDescendedFrom(node));
+        else return group.type.getIndexManager().sameAncestry(group.node.atomIndex,this.atomIndex);
     }
     
     /**

@@ -155,6 +155,25 @@ public class AtomIndexManagerTest extends TestCase {
         }
         System.out.println("AtomIndexManagerTest(Species): trueCount = "+trueCount+"; falseCount = "+falseCount+"; undefinedCount = "+undefinedCount);
     }
+    
+    public void testAncestry() {
+        for(int i=0; i<atoms.length; i++) {
+            for(int j=0; j<atoms.length; j++) {
+                System.out.println(i+" "+j);
+                if(isDescendedFrom(atoms[i],atoms[j])) {
+                    assertTrue(atoms[i].node.isDescendedFrom(atoms[j]));
+                } else {
+                    assertFalse(atoms[i].node.isDescendedFrom(atoms[j]));
+                }
+            }
+        }
+    }
+    
+    private boolean isDescendedFrom(Atom a1, Atom a2) {
+        if(a1.type.getIndexManager().getDepth() < a2.type.getIndexManager().getDepth()) return false;
+        else if(a1 == a2) return true;
+        else return isDescendedFrom(a1.node.parentGroup(), a2);
+    }
 
     public void testSameMolecule() {
         int trueCount = 0;
