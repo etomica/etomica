@@ -8,7 +8,7 @@ import etomica.action.AtomsetAction;
  * the atoms yielded by the two atom iterators.  The inner-loop iterator must
  * implement AtomIteratorAtomDependent, and its set(Atom) method will be invoked
  * with the current outer-loop atom at the start of each inner-loop iteration.
- * All pairs returned by iterator are the same AtomPair instance, and
+ * All pairs returned by iterator are the same Atom[] instance, and
  * differ only in the Atom instances held by it.
  */
  
@@ -137,7 +137,7 @@ public class ApiInnerVariable implements AtomsetIterator, ApiComposite {
     }
     
     /**
-     * Returns the next pair of atoms. The same AtomPair instance
+     * Returns the next pair of atoms. The same Atom[] instance
      * is returned every time, but the Atoms it holds are (of course)
      * different for each iterate. 
      */
