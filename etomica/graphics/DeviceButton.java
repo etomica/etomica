@@ -12,7 +12,7 @@ public class DeviceButton extends Device implements EtomicaElement {
     
     public String getVersion() {return "DeviceButton:01.05.25/"+Device.VERSION;}
 
-    private etomica.Action action;
+    private ActionGraphic action;
     private JButton button;
     
     public DeviceButton() {
@@ -24,9 +24,9 @@ public class DeviceButton extends Device implements EtomicaElement {
     }
     
     /**
-     * Constructs a slider connected to the given property of the given object
+     * Constructs a button connected to the given action.
      */
-    public DeviceButton(etomica.Action action) {
+    public DeviceButton(ActionGraphic action) {
         this();
         setAction(action);
     }
@@ -38,7 +38,7 @@ public class DeviceButton extends Device implements EtomicaElement {
     }
     
     public etomica.Action getAction() {return action;}
-    public void setAction(etomica.Action newAction) {
+    public void setAction(ActionGraphic newAction) {
         if(action != null) button.removeActionListener(action);
         action = newAction;
         button.addActionListener(action);

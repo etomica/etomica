@@ -11,7 +11,7 @@ import java.awt.event.*;
  * 
  * @see DisplayPhase.Canvas
  */
-public abstract class DisplayCanvas extends javax.swing.JPanel implements java.io.Serializable, DisplayCanvasInterface, PhaseEventListener {
+public abstract class DisplayCanvas extends javax.swing.JPanel implements java.io.Serializable, DisplayCanvasInterface, PhaseListener {
 
     protected Image offScreen;
     protected Graphics osg;
@@ -65,9 +65,11 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
         if(offScreen != null) osg = offScreen.getGraphics();
     }
     
-    public void phaseAction(PhaseEvent evt) {
+    //PhaseListener interface
+    public void actionPerformed(PhaseEvent evt) {
         initialize();
     }
+    public void actionPerformed(SimulationEvent evt) {actionPerformed((PhaseEvent)evt);}
         
     public abstract void doPaint(Graphics g);
     

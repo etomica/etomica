@@ -13,13 +13,13 @@ public class ColorSchemeWallTemperature extends ColorSchemeTemperature {
         super();
     }
       
-    public final void setAtomColor(Atom a) {
+    public final Color atomColor(Atom a) {
         float red, blue;
         double ke =((AtomType.Wall)a.type).getTemperature();
         if(ke > KEMax) {red = 1.0f;}
         else if(ke < KEMin) {red = 0.0f;}
         else {red = (float)((ke-KEMin)*range);}
         blue = 1.0f - red;
-        a.setColor(new Color(red, 0.0f, blue));
+        return new Color(red, 0.0f, blue);
     }
 }

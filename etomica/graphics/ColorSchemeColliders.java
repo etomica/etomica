@@ -1,5 +1,6 @@
 package etomica.graphics;
 import etomica.*;
+import java.awt.Color;
 
 /**
  * This colorScheme acts to color differently the two atoms that are scheduled to collide next.
@@ -25,12 +26,12 @@ public class ColorSchemeColliders extends ColorScheme {
     /**
      * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
      */ 
-    public void colorAtom(Atom a) {
+    public Color atomColor(Atom a) {
         IntegratorHardAbstract.Agent colliderAgent = integrator.colliderAgent();
-        if(colliderAgent == null) a.setColor(baseColor);
-        else if(a == colliderAgent.atom) a.setColor(colliderColor);
-        else if(a == colliderAgent.collisionPartner) a.setColor(partnerColor);
-        else a.setColor(baseColor);
+        if(colliderAgent == null) return baseColor;
+        else if(a == colliderAgent.atom) return colliderColor;
+        else if(a == colliderAgent.collisionPartner) return partnerColor;
+        else return baseColor;
     }
 }//end of HighlightColliders
 

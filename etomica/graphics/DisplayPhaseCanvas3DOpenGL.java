@@ -98,7 +98,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   public float getXRot() {return(xRot);}
   public float getYRot() {return(yRot);}
   public float getZoom() {return(shiftZ);}
-      
+  
+  private ColorScheme colorScheme;
           
   public DisplayPhaseCanvas3DOpenGL(DisplayPhase newDisplayPhase, int w, int h) {
     super(w, h);
@@ -107,6 +108,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //scaleText.setBounds(0,0,100,50);
     setAnimateFps(24.);
     displayPhase = newDisplayPhase;
+    if(displayPhase != null) colorScheme = displayPhase.getColorScheme();
   }
       
   //public void preInit() {
@@ -334,7 +336,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       i += i<<1;
       while(i >= 0) {
         a = walls[i/3];
-        c = a.color;
+        c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
         vertWalls[i] = (float)r.component(0) - xCenter;
@@ -372,7 +374,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         a = sphereCores[i/3];
         Space3D.Vector r3 = (Space3D.Vector)a.coord.position();
 //        System.out.println(a.toString()+", "+r3.x+", "+r3.y+", "+r3.z);
-        c = a.color;
+        c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
         vertSphereCores[i] = (float)r.component(0) - xCenter;
@@ -509,7 +511,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glRotatef(yRot, 0f, 1f, 0f);
     
     //Color all atoms according to colorScheme in DisplayPhase
-    displayPhase.getColorScheme().colorAllAtoms();
+//    displayPhase.getColorScheme().colorAllAtoms();
 
     xCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(0)*.5);
     yCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(1)*.5);

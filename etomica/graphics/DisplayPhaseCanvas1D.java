@@ -15,9 +15,12 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
-        
+    
+    private ColorScheme colorScheme;
+    
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {
         displayPhase = _phase;
+        colorScheme = displayPhase.getColorScheme();
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
@@ -58,7 +61,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             drawWell = true;
         }
 
-        g.setColor(a.color);
+        g.setColor(colorScheme.atomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
         baseYP = origin[1];
@@ -75,7 +78,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
                 g.setColor(wellColor);
                 g.drawRect(xP, yP, sigmaP, Space1D.drawingHeight);
             }
-            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
+//            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
             xP = baseXP;
             yP = baseYP - (Space1D.drawingHeight >> 1);
@@ -159,7 +162,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         displayPhase.computeImageParameters2(w, h);
 
         //Draw other features if indicated
-        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
+//        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 //        if(displayPhase.getDrawBoundary()) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 
         //do drawing of all drawing objects that have been added to the display
@@ -167,9 +170,6 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             Drawable obj = (Drawable)iter.next();
             obj.draw(g, displayPhase.getOrigin(), displayPhase.getScale());
         }
-            
-        //Color all atoms according to colorScheme in DisplayPhase
-        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();

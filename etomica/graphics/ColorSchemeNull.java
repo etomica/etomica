@@ -15,10 +15,6 @@ public final class ColorSchemeNull extends ColorScheme {
  /**
   * Return without changing atom's color.
   */
-    public final void colorAtom(Atom a) {}
- /**
-  * Override to remove loop over atoms.
-  */
-    public final void colorAllAtoms(Atom a) {}
+    public final Color atomColor(Atom a) {return null;}
 
 }

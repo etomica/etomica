@@ -13,12 +13,12 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement {
+public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement, Constants {
 
     public String getVersion() {return "SpeciesPistonCylinder:01.06.05/"+super.getVersion();}
  
     //making static as a hack until direction can be associated with each molecule
-    public static Constants.Direction direction = Constants.TOP;
+    public static Constants.Direction direction = TOP;
     Space2D.Vector dimensions = new Space2D.Vector();
     private Atom piston;
     
@@ -98,9 +98,9 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Sets a vector giving the unit normal to the piston, toward the inside of the cylinder.
    */
   private final void setUnitNormal() {
-    if(direction == Constants.TOP)      {unitNormal.x =  0.0; unitNormal.y = +1.0;}//N
-    else if(direction == Constants.RIGHT)  {unitNormal.x = -1.0; unitNormal.y =  0.0;}//E
-    else if(direction == Constants.BOTTOM) {unitNormal.x =  0.0; unitNormal.y = -1.0;}//S
+    if(direction == TOP)      {unitNormal.x =  0.0; unitNormal.y = +1.0;}//N
+    else if(direction == RIGHT)  {unitNormal.x = -1.0; unitNormal.y =  0.0;}//E
+    else if(direction == BOTTOM) {unitNormal.x =  0.0; unitNormal.y = -1.0;}//S
     else /*LEFT*/                         {unitNormal.x = +1.0; unitNormal.y =  0.0;}//W
   }
   
@@ -250,11 +250,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         atoms[1].coord.setStationary(true);
         atoms[2].coord.setStationary(true);
         atoms[3].coord.setStationary(true);
-        if(SpeciesPistonCylinder.direction == Constants.TOP) {
-            protoType[0].setAlignment(Constants.HORIZONTAL);
-            protoType[1].setAlignment(Constants.VERTICAL);
-            protoType[2].setAlignment(Constants.HORIZONTAL);
-            protoType[3].setAlignment(Constants.VERTICAL);
+        if(SpeciesPistonCylinder.direction == TOP) {
+            protoType[0].setAlignment(HORIZONTAL);
+            protoType[1].setAlignment(VERTICAL);
+            protoType[2].setAlignment(HORIZONTAL);
+            protoType[3].setAlignment(VERTICAL);
             atoms[0].coord.position().setComponent(0,0.0); //top (piston)
             atoms[0].coord.position().setComponent(1,0.0);
             atoms[1].coord.position().setComponent(0,diameter-wallThickness); //right wall
@@ -263,11 +263,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             atoms[2].coord.position().setComponent(1,length-wallThickness);
             atoms[3].coord.position().E(0.0); //left wall
         }
-        else if(SpeciesPistonCylinder.direction == Constants.RIGHT) {
-            protoType[3].setAlignment(Constants.HORIZONTAL);
-            protoType[0].setAlignment(Constants.VERTICAL);
-            protoType[1].setAlignment(Constants.HORIZONTAL);
-            protoType[2].setAlignment(Constants.VERTICAL);
+        else if(SpeciesPistonCylinder.direction == RIGHT) {
+            protoType[3].setAlignment(HORIZONTAL);
+            protoType[0].setAlignment(VERTICAL);
+            protoType[1].setAlignment(HORIZONTAL);
+            protoType[2].setAlignment(VERTICAL);
             atoms[3].coord.position().E(0.0);
             atoms[0].coord.position().setComponent(0,length-pistonWallThickness);
             atoms[0].coord.position().setComponent(1,0.0);
@@ -275,11 +275,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             atoms[1].coord.position().setComponent(1,diameter-wallThickness);
             atoms[2].coord.position().E(0.0);
         }
-        else if(SpeciesPistonCylinder.direction == Constants.BOTTOM) {
-            protoType[2].setAlignment(Constants.HORIZONTAL);
-            protoType[3].setAlignment(Constants.VERTICAL);
-            protoType[0].setAlignment(Constants.HORIZONTAL);
-            protoType[1].setAlignment(Constants.VERTICAL);
+        else if(SpeciesPistonCylinder.direction == BOTTOM) {
+            protoType[2].setAlignment(HORIZONTAL);
+            protoType[3].setAlignment(VERTICAL);
+            protoType[0].setAlignment(HORIZONTAL);
+            protoType[1].setAlignment(VERTICAL);
             atoms[2].coord.position().E(0.0);
             atoms[3].coord.position().setComponent(0,diameter-wallThickness);
             atoms[3].coord.position().setComponent(1,0.0);
@@ -288,10 +288,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             atoms[1].coord.position().E(0.0);
         }
         else { //WEST
-            protoType[1].setAlignment(Constants.HORIZONTAL);
-            protoType[2].setAlignment(Constants.VERTICAL);
-            protoType[3].setAlignment(Constants.HORIZONTAL);
-            protoType[0].setAlignment(Constants.VERTICAL);
+            protoType[1].setAlignment(HORIZONTAL);
+            protoType[2].setAlignment(VERTICAL);
+            protoType[3].setAlignment(HORIZONTAL);
+            protoType[0].setAlignment(VERTICAL);
             atoms[1].coord.position().E(0.0);
             atoms[2].coord.position().setComponent(0,length-wallThickness);
             atoms[2].coord.position().setComponent(1,0.0);
@@ -309,8 +309,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public void computeDimensions() {
             double d = diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS;
             double l = length - thickness / BaseUnit.Length.Sim.TO_PIXELS;
-            dimensions.x = (direction == Constants.TOP || direction == Constants.BOTTOM) ? d : l;
-            dimensions.y = (direction == Constants.TOP || direction == Constants.BOTTOM) ? l : d;
+            dimensions.x = (direction == TOP || direction == BOTTOM) ? d : l;
+            dimensions.y = (direction == TOP || direction == BOTTOM) ? l : d;
         }//end of computeDimensions
       
     /**
@@ -325,7 +325,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         public Space.Vector dimensions() {return SpeciesPistonCylinder.this.dimensions;}
         public double volume() {
             AtomGroup m = (AtomGroup)getAgent(this.phase()).firstMolecule();
-            int index20 = (direction==Constants.TOP || direction==Constants.BOTTOM) ? 1 : 0;
+            int index20 = (direction==TOP || direction==BOTTOM) ? 1 : 0;
             int index31 = 1-index20;//0 or 1, opposite of index20
               //volume is diameter of cylinder times distance between piston (first atom) and base (atom 2) of cylinder
  //           return (diameter - thickness / BaseUnit.Length.Sim.TO_PIXELS)

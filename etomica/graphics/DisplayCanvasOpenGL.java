@@ -10,7 +10,7 @@ import gl4java.awt.GLAnimCanvas;
  *
  * @author Steve Hotchkiss
  */
-public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.io.Serializable, DisplayCanvasInterface, PhaseEventListener {
+public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.io.Serializable, DisplayCanvasInterface, PhaseListener {
     //protected Image offScreen;
     //protected Graphics osg;
         
@@ -49,9 +49,10 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
         setBackground(java.awt.Color.black);
     }
 
-    public void phaseAction(PhaseEvent evt) {
+    public void actionPerformed(PhaseEvent evt) {
         initialize();
     }
+    public void actionPerformed(SimulationEvent evt) {actionPerformed((PhaseEvent)evt);}
         
     public void createOffScreen () {
         //if (offScreen == null) { 

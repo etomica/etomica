@@ -3,9 +3,6 @@ package etomica.graphics;
 import etomica.*;
 import etomica.units.*;
 import java.awt.Color;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.Frame;
 /**
  * Colors atoms according to their kinetic energy.
  * Atoms with high KE are colored red, and those with low KE are colored blue.
@@ -45,14 +42,14 @@ public class ColorSchemeTemperature extends ColorScheme {
         range = 1.0/(KEMax-KEMin);
     }
         
-    public void colorAtom(Atom a) {
+    public Color atomColor(Atom a) {
         float red, blue;
         double ke = a.coord.kineticEnergy();
         if(ke > KEMax) {blue = 0.0f;}
         else if(ke < KEMin) {blue = 1.0f;}
         else {blue = (float)((ke-KEMin)*range);}
         red = 1.0f - blue;
-        a.setColor(new Color(red, 0.0f, blue));
+        return new Color(red, 0.0f, blue);
     }
     
     /**

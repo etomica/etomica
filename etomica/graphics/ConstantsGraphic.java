@@ -1,11 +1,13 @@
 package etomica.graphics;
 import etomica.Simulation;
 
-public class GraphicsConstants extends Object {
+import java.awt.Color;
+
+public class ConstantsGraphic extends Object {
     
     public String getVersion() {return "01.11.20";}    
     
-    private GraphicsConstants() {}   // can't instantiate class
+    private ConstantsGraphic() {}   // can't instantiate class
     
   /* Colors adopted in the web textbook on molecular simulation */
     public static final Color KHAKI = new Color(153,153,102);
@@ -17,7 +19,8 @@ public class GraphicsConstants extends Object {
     public static final Color randomColor() {
         return new Color(Simulation.random.nextFloat(),Simulation.random.nextFloat(),Simulation.random.nextFloat());
     }
-}//end of GraphicsConstants
+}//end of ConstantsGraphic
+
     
     
     

@@ -43,7 +43,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     }
               
     // Exposed Properties
-    public final double getMass() {return protoType.mass();}
+    public final double getMass() {return protoType.getMass();}
     public final void setMass(double m) {
         mass = m;
         allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});

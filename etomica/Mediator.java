@@ -9,7 +9,8 @@ import etomica.utility.HashMap2;
 import etomica.utility.HashMap;
 import etomica.utility.Iterator;
     
-/** Class to perform actions that tie together the elements of a simulation.
+/** 
+ * Class to perform actions that tie together the elements of a simulation.
  * Such actions include placement of species agents in phases, and registering meters and displays with
  * the integrator.  
  * Implemented by calling the go() method of the class before starting the simulation. Only the first call of
@@ -338,5 +339,33 @@ public class Mediator implements java.io.Serializable {
         
         //no Default defined
     }//end of IntegratorNull
+
+    public abstract static class ControllerNull extends Mediator.Subset {
+        public ControllerNull(Mediator m) {
+            super(m);
+        }
+
+        public Class[] elementClasses() {return new Class[] {Controller.class, null};}
+        
+        public void add(SimulationElement element) {
+            if(!superceding && priorSubset != null) priorSubset.add(element);
+            if(element instanceof Controller) add((Controller)element);
+        }
+        
+        public abstract void add(Controller d);
+        
+        /**
+         * Adding an instance of this pair mediator will cause the simulation to not
+         * act on the addition of controller objects.  
+         */
+        public static class NoAction extends ControllerNull {
+            public NoAction(Mediator m) {
+                super(m);
+                setSuperceding(true);//causes all previously added mediators to be ignored
+            }
+            
+            public void add(Controller controller) {}
+        }//end of NoAction
+    }//end of ControllerNull
 
 }//end of Mediator

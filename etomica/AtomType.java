@@ -4,32 +4,76 @@ import etomica.electrostatics.*;
 
 /**
  * AtomType holds atom parameters.  
- * It is used to set the general features of the atom (e.g., whether it is a wall, sphere, etc.),
- * and to prescribe how it is drawn to the screen.
+ * It is used to set the general features of the atom (e.g., whether it is a wall, sphere, etc.).
  * AtomType is responsible for selecting the appropriate type of coordinate needed to describe the
  * position and (perhaps) orientation of the atom.
- * The AtomType of an atom is set by Species when it constructs a molecule.  Each Atom has an instance variable
+ * The AtomType of an atom is set by AtomFactory when it builds a molecule.  
+ * Each Atom has an instance variable
  * named "type" that holds the AtomType object; this may be different for each atom in a molecule, or
- * it may refer to a common AtomType object, as prescribed by the Species.
+ * it may refer to a common AtomType object, as prescribed by the Factory.
  * AtomType could also be used to define particular elemental atoms (Carbon, Oxygen, etc.).
  * 
  */
 
 public abstract class AtomType implements java.io.Serializable {
     public static String getVersion() {return "AtomType:01.11.20";}
-    private double mass, rm;
-    private ElectroType electroType;
-    private String name;
-    private /*final*/ AtomFactory creator;
+    public static Parameter.Source[] parameterSource = new Parameter.Source[0];
+    private final AtomFactory creator;
+    public Parameter[] parameter;
+    private Parameter.Size sizeParameter = Default.SIZE_PARAMETER;
+    private Parameter.Energy energyParameter = Default.ENERGY_PARAMETER;
+    private Parameter.Mass massParameter = Default.MASS_PARAMETER;
+    
+    //fields for linked list of all instances of AtomType
+    public final AtomType previousInstance;
+    private static AtomType lastInstance;
+    
+    public double mass;
+    
+//    private Parameter.Electrostatic electroParameter;
     
     public AtomType(AtomFactory creator) {
         this(creator, Default.ATOM_MASS);
     }
-    
-    public AtomType(AtomFactory creator, double m) {
+    public AtomType(AtomFactory creator, double mass) {
         this.creator = creator;
-        setMass(m);
-        setElectroType(new ElectroType.Null());
+        
+        this.mass = mass;
+        //update linked list of instances
+        this.previousInstance = lastInstance;
+        lastInstance = this;
+        
+        //set up global parameters
+        parameter = new Parameter[parameterSource.length];
+        for(int i=0; i<parameter.length; i++) {
+            parameter[i] = parameterSource[i].makeParameter();
+        }
+    }
+    
+    protected void addGlobalParameter(Parameter.Source source) {
+        Parameter[] newParameter = new Parameter[parameter.length+1];
+        for(int i=0; i<parameter.length; i++) newParameter[i] = parameter[i];
+        newParameter[parameter.length] = source.makeParameter();
+        parameter = newParameter;
+    }
+    
+    /**
+     * Adds given parameter source to parameter-source array and returns index
+     * indicating where in atomtype parameter-array the source's parameter will
+     * be placed.
+     */
+    public static int requestParameterIndex(Parameter.Source source) {
+        Parameter.Source[] newSource = new Parameter.Source[parameterSource.length+1];
+        for(int i=0; i<parameterSource.length; i++) newSource[i] = parameterSource[i];
+        int index = parameterSource.length;
+        newSource[index] = source;
+        parameterSource = newSource;
+        
+        //make parameter for any existing AtomType instances
+        for(AtomType t=lastInstance; t!=null; t=t.previousInstance) {
+            t.addGlobalParameter(source);
+        }
+        return index;
     }
     
     public AtomFactory creator() {return creator;}
@@ -44,11 +88,6 @@ public abstract class AtomType implements java.io.Serializable {
     public void initialize(Atom a) {
         a.coord.setMass(mass);
     }
-        
-    public final void setElectroType(ElectroType et) {
-        electroType = et;
-    }
-    public final ElectroType electroType() {return electroType;}
             
     /**
     * Sets  mass of this atom and updates reciprocal mass accordingly.  Setting
@@ -57,20 +96,11 @@ public abstract class AtomType implements java.io.Serializable {
     * 
     * @param mass   new value for mass
     */
-    public void setMass(double m) {
-        mass = m;
-        rm = (mass==Double.MAX_VALUE) ? 0.0 : 1.0/mass;
-    }
-    public final double getMass() {return mass;}
-    public final double mass() {return mass;}
+    public void setMass(double m) {massParameter.setMass(m);}
+    public final double getMass() {return massParameter.getMass();}
     public final Dimension getMassDimension() {return Dimension.MASS;}
-    public final void setRm(double rm) {
-        setMass( (rm==0) ? Double.MAX_VALUE : 1.0/rm);
-    }
-    public final double rm() {return rm;}
 
-
-    // Sphere-shaped atom.  Assumed to be in 2D
+    // Sphere-shaped atom.
     public static class Sphere extends AtomType {
         
         double diameter, radius;
@@ -113,7 +143,7 @@ public abstract class AtomType implements java.io.Serializable {
         
         private void updateI() {
             if(I == null) return;
-            I[0] = 0.4*this.mass()*radius()*radius();  //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
+            I[0] = 0.4*this.getMass()*radius()*radius();  //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
             I[1] = I[0];
             I[2] = I[1];
         }

@@ -1,16 +1,14 @@
 package etomica;
 
 /**
- * Collection of assorted physical constants given as static final fields.  All values
+ * Collection of assorted physical constants.  All values
  * are in simulations units in which time is in picoseconds, length is in Angstroms,
  * and mass is in Daltons (amu).  Also defines several enumerated constants (or typed
  * constants).
  */
-public class Constants extends Object {
+public interface Constants {
     
-    public String getVersion() {return "01.11.20";}    
-    
-    private Constants() {}   // can't instantiate class
+    public String VERSION = "01.11.20";    
     
     public static final double TWO_PI = 2.0*Math.PI;
     

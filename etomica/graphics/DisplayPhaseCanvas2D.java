@@ -53,7 +53,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         boolean drawOrientation = (a.type instanceof AtomType.OrientedSphere);
         boolean drawWell = (a.type instanceof AtomType.Well);
 
-        g.setColor(a.color);
+        g.setColor(displayPhase.getColorScheme().atomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x);
         baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.y);
@@ -81,7 +81,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
                 xP += dxy; yP += dxy;
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
             }
-            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
+//            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
             xP = origin[0] + (int)(displayPhase.getToPixels()*r.x);
             yP = origin[1] + (int)(displayPhase.getToPixels()*r.y);
@@ -109,7 +109,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
                 g.fillRect(xP,yP,wP,hP);
             }
         } else { // Not a sphere, wall, or one of their derivatives...
-            // Do nothing (how do you draw an object of unkown shape?)
+            // Do nothing (how do you draw an object of unknown shape?)
         }
     }
             
@@ -178,7 +178,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         }
             
         //Color all atoms according to colorScheme in DisplayPhase
-        displayPhase.getColorScheme().colorAllAtoms();
+//        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();

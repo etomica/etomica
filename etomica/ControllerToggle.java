@@ -15,7 +15,10 @@ public class ControllerToggle extends ControllerAction {
     public void actionPerformed(Controller c) {
         doAction(c);
     }
-        
+    
+    /**
+     * Static version of the action, which performs toggle to given controller.
+     */
     public static void doAction(Controller c) {
         if(!c.isActive()) c.start();
         else if(!c.isPaused()) c.pause();

@@ -112,11 +112,11 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
  */               break;
             case 2:
                 canvas = new DisplayPhaseCanvas2D(this);
-/*comment this line for applet*/                Default.DISPLAY_USE_OPENGL = false;
+/*comment this line for applet*/                DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 break;
             case 1:
             default:
-/*comment this line for applet*/               Default.DISPLAY_USE_OPENGL = false;
+/*comment this line for applet*/               DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 canvas = new DisplayPhaseCanvas1D(this);
                 break;
         }
@@ -207,7 +207,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         if(p == null) return;
         if(phase != null) phase.iteratorFactoryMonitor.deleteObserver(iteratorFactoryObserver);
         super.setPhase(p);
-        colorScheme.setPhase(p);
         canvas.setPhase(p);
         atomIterator = p.iteratorFactory().makeAtomIterator();
         iteratorFactoryObserver = new java.util.Observer() {//anonymous inner class
@@ -224,7 +223,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
      */
     public void setColorScheme(ColorScheme colorScheme) {
         this.colorScheme = colorScheme;
-        if(phase != null) colorScheme.setPhase(phase);
     }
     /**
      * Accessor method for the color scheme used for this display
@@ -317,7 +315,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     private int imageShells = 0;
      
     public void doUpdate() {}
-    public void repaint() {if(!Default.DISPLAY_USE_OPENGL) canvas.repaint();}
+    public void repaint() {if(!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();}
       
     public void setMovable(boolean b) {canvas.setMovable(b);}
     public boolean isMovable() {return canvas.isMovable();}
@@ -398,7 +396,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             if (rotate  && parentSimulation().space().D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
                 float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
-                if (!Default.DISPLAY_USE_OPENGL) {
+                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
                     ((DisplayPhaseCanvas3DSoftware)canvas).amat.unit();
                     ((DisplayPhaseCanvas3DSoftware)canvas).amat.xrot(xtheta);
                     ((DisplayPhaseCanvas3DSoftware)canvas).amat.yrot(ytheta);
@@ -412,7 +410,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             if (translate && parentSimulation().space().D() == 3) {
                 float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
                 float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
-                if (!Default.DISPLAY_USE_OPENGL) {
+                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
                     ((DisplayPhaseCanvas3DSoftware)canvas).tmat.unit();
                     ((DisplayPhaseCanvas3DSoftware)canvas).tmat.translate(xShift, yShift, 0);
                     ((DisplayPhaseCanvas3DSoftware)canvas).mat.mult(((DisplayPhaseCanvas3DSoftware)canvas).tmat);
@@ -426,7 +424,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
                 float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
                 float shift = (xShift+yShift)/2f;
-                if (!Default.DISPLAY_USE_OPENGL) {
+                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
                     ((DisplayPhaseCanvas3DSoftware)canvas).zmat.unit();
                     ((DisplayPhaseCanvas3DSoftware)canvas).zmat.scale(shift, shift, shift);
                     ((DisplayPhaseCanvas3DSoftware)canvas).mat.mult(((DisplayPhaseCanvas3DSoftware)canvas).zmat);
@@ -441,7 +439,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 }
             }
             
-            if (!Default.DISPLAY_USE_OPENGL) canvas.repaint();
+            if (!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();
             if(parentSimulation().space().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());

@@ -4,9 +4,13 @@ import java.awt.Color;
 import etomica.*;
 import etomica.units.*;
 
-public final class DefaultGraphics {
+public final class DefaultGraphic {
+    
+    static {
+        Default.IS_GRAPHIC = true;
+    }
         
-    public static String IMAGE_DIRECTORY = "file:/" + WORKING_DIRECTORY + "images/";
+    public static String IMAGE_DIRECTORY = "file:/" + Default.WORKING_DIRECTORY + "images/";
     
     public static String HELP_FILE = "http://www.ccr.buffalo.edu/etomica/help.html";
         

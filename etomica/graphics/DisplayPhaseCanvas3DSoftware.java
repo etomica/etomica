@@ -43,6 +43,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     public float getPrevX() {return(prevx);}
     public float getPrevY() {return(prevy);}
     
+    private ColorScheme colorScheme;
         
     public DisplayPhaseCanvas3DSoftware(DisplayPhase _phase) {
         tvert = new int[4];
@@ -50,6 +51,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
         displayPhase = _phase;
+        colorScheme = displayPhase.getColorScheme();
     }
     
     public void initialize() {
@@ -237,7 +239,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             drawWell = true;
         }
 
-        g.setColor(a.color);
+        Color atomColor = colorScheme.atomColor(a);
+        g.setColor(atomColor);
             
         if(a.type instanceof AtomType.Sphere) {
             baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().boundary().dimensions().component(0)/2)));
@@ -247,11 +250,11 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             //sigmaP = (int)(displayPhase.getToPixels()*2.0f*((AtomType.Sphere)a.type).radius());
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
-            if (ballImages.containsKey(a.color)) {
-                shadedImage = (Image)ballImages.get(a.color);
+            if (ballImages.containsKey(atomColor)) {
+                shadedImage = (Image)ballImages.get(atomColor);
             } else {
-                shadedImage = SphereSetup(lightSource, a.color);
-                ballImages.put(a.color, shadedImage);
+                shadedImage = SphereSetup(lightSource, atomColor);
+                ballImages.put(atomColor, shadedImage);
             }
             g.drawImage(shadedImage, xP, yP, sigmaP, sigmaP, this);
             /* Draw the surrounding well, if any */
@@ -279,7 +282,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
                 xP += dxy; yP += dxy;
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
             }*/
-            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
+//            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
             xP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
             yP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
@@ -368,7 +371,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         displayPhase.computeImageParameters2(w, h);
 
         //Draw other features if indicated
-        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
+//        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 
         // Update Atom Positions
         for(int i = 0, k = 0; i < atoms.length; i++, k+=3) {
@@ -411,7 +414,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             
         //Color all atoms according to colorScheme in DisplayPhase
         //if(!initialized)
-        displayPhase.getColorScheme().colorAllAtoms();
+//        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();

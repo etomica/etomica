@@ -1,7 +1,7 @@
 package etomica;
 
 //need to update to extend simulation element
-public abstract class Action {
+public abstract class Action implements SimulationListener {
     
     public static String VERSION = "Action:01.11.20";
     

@@ -32,6 +32,8 @@ public final class Default {
     
     public static boolean TRUNCATE_POTENTIALS = true;
     
+    public static boolean IS_GRAPHIC = false;
+    
     /**
      * Default block size used for error estimation in simulation averages.
      */
@@ -44,4 +46,27 @@ public final class Default {
         dir = dir.replace('\\', '/');
         return dir+"/";
     }
+    
+    public static final Parameter.Size SIZE_PARAMETER = new Parameter.Size() {
+        double sigma = Default.ATOM_SIZE;
+        public double getSigma() {return sigma;}
+        public void setSigma(double s) {sigma = s;}
+        public Dimension getSigmaDimension() {return Dimension.LENGTH;}
+    };
+    
+    public static final Parameter.Energy ENERGY_PARAMETER = new Parameter.Energy() {
+        double epsilon = Default.POTENTIAL_WELL;
+        public double getEpsilon() {return epsilon;}
+        public void setEpsilon(double e) {epsilon = e;}
+        public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    };
+        
+    
+    public static final Parameter.Mass MASS_PARAMETER = new Parameter.Mass() {
+        double mass = Default.ATOM_MASS;
+        public double getMass() {return mass;}
+        public void setMass(double m) {mass = m;}
+        public Dimension getMassDimension() {return Dimension.MASS;}
+    };
+        
 }

@@ -2,7 +2,6 @@ package etomica;
 
  /**
   * Elementary action performed on a controller.
-  * 
   */
 public abstract class ControllerAction extends etomica.Action implements ControllerListener {
 

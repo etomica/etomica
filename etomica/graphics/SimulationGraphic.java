@@ -24,6 +24,7 @@ public class SimulationGraphic extends Simulation {
     
     public String getVersion() {return "SimulationGraphic:01.11.20;"+Simulation.VERSION;}
     
+    
     private SimulationPanel simulationPanel;
     
     public SimulationGraphic() {
@@ -101,6 +102,9 @@ public class SimulationGraphic extends Simulation {
      
     public void makeAndDisplayFrame() {SimulationGraphic.makeAndDisplayFrame(this);}
     
+    public static final void makeAndDisplayFrame(Simulation sim) {
+        makeAndDisplayFrame((SimulationGraphic)sim);
+    }
     public static final void makeAndDisplayFrame(SimulationGraphic sim) {
         javax.swing.JFrame f = new javax.swing.JFrame();
         f.setSize(700,500);
@@ -118,32 +122,37 @@ public class SimulationGraphic extends Simulation {
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
-        Default.ATOM_SIZE = 1.0;                   
+    public static void main(String[] args) {
+        Simulation.instance = new SimulationGraphic();
+   //     Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
-	    speciesSpheres.setNMolecules(300);
+	    speciesSpheres.setNMolecules(30);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
-	    timer.setUpdateInterval(10);
+//	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
+//	    timer.setUpdateInterval(10);
         integratorHard.setTimeStep(0.01);
-        displayPhase.setColorScheme(new ColorSchemeNull());
+/*        displayPhase.setColorScheme(new ColorSchemeNull());
         for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
-            atom.setColor(Constants.randomColor());
-        }
+            atom.setColor(ConstantsGraphic.randomColor());
+        }*/
         
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
 		                                    
-		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
-        Simulation.makeAndDisplayFrame(Simulation.instance);
+		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
+        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+        
+        for(Atom a=phase.speciesMaster.firstLeafAtom(); a!=null; a=a.nextAtom()) {
+            System.out.println(a.coord.position().toString());
+        }
         
      //   controller.start();
     }//end of main
- */   
+    
 }
 
 
