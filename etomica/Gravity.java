@@ -21,7 +21,8 @@ public class Gravity extends java.util.Observable      {
 
     public Gravity(double g) {
         this.g = g;
-        gVector = Space2DCell.makeVector();  //assume 2D space for now
+        gVector = new Space2D.Vector();
+//        gVector = Space2DCell.makeVector();  //assume 2D space for now
         gVector.E(0.0);
         gVector.setComponent(Simulation.D-1,g);
     }

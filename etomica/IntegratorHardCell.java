@@ -21,7 +21,7 @@ public void registerPhase(Phase p) {
     downPairIterator = p.iterator.makeAtomPairIteratorDown();
     upAtomIterator = p.iterator.makeAtomIteratorUp();
     downAtomIterator = p.iterator.makeAtomIteratorDown();
-    atomPair = p.makeAtomPair();
+    atomPair = new AtomPair(p);
 }
 
           
@@ -306,9 +306,13 @@ protected void downList(Atom atom) {
 
 public void initialize() {
     deployAgents();
-    for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-        upList(a);
-    }
+    Atom.Iterator iterator = firstPhase.iterator.makeAtomIteratorUp();
+    iterator.reset();
+    while(iterator.hasNext()) {upList(iterator.next());}
+        
+//    for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
+//        upList(a);
+//    }
     findNextCollider();
 }
           

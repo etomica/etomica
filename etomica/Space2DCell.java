@@ -39,10 +39,11 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         public final Coordinate previousNeighbor() {return previousNeighbor;}
    //Determines appropriate cell and assigns it
         public void assignCell() {             //assumes coordinates ranges [0,1)
-            int ix = (int)Math.floor(r.x * xCells);
-            int iy = (int)Math.floor(r.y * yCells);
+            LatticeSquare cells = ((NeighborIterator)parentPhase().iterator()).cells;
+            int ix = (int)Math.floor(r.x * cells.dimensions()[0]);
+            int iy = (int)Math.floor(r.y * cells.dimensions()[1]);
 //            System.out.println(ix+"  "+iy);
-            LatticeSquare.Site newCell = (LatticeSquare.Site)((NeighborIterator)parentPhase().iterator()).cells.sites()[ix][iy];
+            LatticeSquare.Site newCell = cells.sites()[ix][iy];
             if(newCell != cell) {assignCell(newCell);}
             //debugging code
 //            LatticeSquare.Cell cellCell = (LatticeSquare.Cell)newCell;
@@ -67,7 +68,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         public Coordinate coordinate;
     }
 
-    private static final class NeighborIterator extends Iterator {
+    public static final class NeighborIterator extends Iterator {
         public LatticeSquare cells;  //want to declare final, but won't compile
         private int xCells, yCells;
         private double neighborRadius;
@@ -84,7 +85,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         }
         public double getNeighborRadius() {return neighborRadius;}
 
-        public final AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase, cells.origin);}
+//        public final AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase, cells.origin);}
         public final AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPairIteratorUp(phase, cells.origin);}
         public final AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPairIteratorDown(phase, cells.origin);}
         public final Atom.Iterator makeAtomIteratorUp() {return new AtomIteratorUp(cells.origin);}

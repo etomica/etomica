@@ -3,14 +3,14 @@ package simulate;
 public class MeterPotentialEnergy extends simulate.Meter
 {
   AtomPair.Iterator iterator;
-  AtomPair.Iterator.AM iteratorAM;
-  AtomPair.Iterator.AMAM iteratorAMAM;
-  AtomPair.Iterator.A iteratorAFull;
-  AtomPair.Iterator.FMAM iteratorFMAM;
+//  AtomPair.Iterator.AM iteratorAM;
+//  AtomPair.Iterator.AMAM iteratorAMAM;
+//  AtomPair.Iterator.A iteratorAFull;
+//  AtomPair.Iterator.FMAM iteratorFMAM;
   AtomPair.Iterator.MP iteratorMP;
   AtomPair.Iterator.P iteratorP;
   
-  AtomPair.Iterator apiUp, apiDown;
+  AtomPair.Iterator.A apiUp, apiDown;
   
   public MeterPotentialEnergy() {
     super();
@@ -19,10 +19,10 @@ public class MeterPotentialEnergy extends simulate.Meter
   
   public void setPhase(Phase p) {
     super.setPhase(p);
-    iteratorAM = new AtomPair.Iterator.AM(p);
-    iteratorAMAM = new AtomPair.Iterator.AMAM(p);
-    iteratorAFull = p.makePairIteratorFull();
-    iteratorFMAM = new AtomPair.Iterator.FMAM(p);
+//    iteratorAM = new AtomPair.Iterator.AM(p);
+//    iteratorAMAM = new AtomPair.Iterator.AMAM(p);
+//    iteratorAFull = p.makePairIteratorFull();
+//    iteratorFMAM = new AtomPair.Iterator.FMAM(p);
     iteratorMP = new AtomPair.Iterator.MP(p);
     iteratorP = new AtomPair.Iterator.P(p);
     
@@ -73,14 +73,14 @@ public class MeterPotentialEnergy extends simulate.Meter
 
    */
     public final double currentValue(Atom a) {
-        if(phase != a.phase()) {return 0.0;}  //also handles condition that phase contains no atoms
+        if(phase != a.parentPhase()) {return 0.0;}  //also handles condition that phase contains no atoms
         double pe = 0.0;
-        apiUp.reset(a,apiUp.INTER);
+        apiUp.reset(a,Iterator.INTER);
         while(apiUp.hasNext()) {
             AtomPair pair = apiUp.next();
             pe += pair.potential.energy(pair);
         }
-        apiDown.reset(a,apiDown.INTER);
+        apiDown.reset(a,Iterator.INTER);
         while(apiDown.hasNext()) {
             AtomPair pair = apiDown.next();
             pe += pair.potential.energy(pair);
@@ -103,12 +103,12 @@ public class MeterPotentialEnergy extends simulate.Meter
       }
       return pe;
     }*/
-    
  /**
   * Computes and returns the intermolecular contribution of a molecule to energy of phase
   * Does not include intramolecular energy of molecule
   * @return  this molecule's inter-molecular potential energy, divided by kB, in Kelvin
   */
+    
     public final double currentValue(Molecule m) {
         iteratorMP.reset(m);
         double pe = 0.0;
@@ -123,6 +123,7 @@ public class MeterPotentialEnergy extends simulate.Meter
   * Computes and returns the total intermolecular energy of a molecule with all molecules in phase
   * Does not include intramolecular energy of molecule
   */
+    
     public final double insertionValue(Molecule m) {
 
         iteratorMP.reset(m);
@@ -142,6 +143,7 @@ public class MeterPotentialEnergy extends simulate.Meter
             pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
       }*/
+    
       return pe;
     }
 

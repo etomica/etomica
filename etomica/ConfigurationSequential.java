@@ -45,9 +45,9 @@ public class ConfigurationSequential extends Configuration {
                 i++;
             }
         }
-        parentPhase.parentSimulation.space().clearCells();
-        for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-            a.coordinate.assignCell();}
+//        parentPhase.parentSimulation.space().clearCells();
+//        for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {
+//            a.coordinate.assignCell();}
         initializeMomenta();
     }
 }
