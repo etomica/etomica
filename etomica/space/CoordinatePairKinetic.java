@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.AtomPair;
 import etomica.Space;
 
 /*
@@ -12,6 +13,10 @@ public class CoordinatePairKinetic extends CoordinatePair {
     public CoordinatePairKinetic(Space space) {
         super(space);
         dv = space.makeVector();
+    }
+    
+    public Vector resetV(AtomPair pair) {
+        return resetV(pair.atom0.coord, pair.atom1.coord);
     }
 
     public Vector resetV(ICoordinate coord1, ICoordinate coord2) {
