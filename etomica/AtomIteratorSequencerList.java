@@ -75,7 +75,7 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter
 		listIterator.setDirection(direction);
 	}
 	public IteratorDirective.Direction getDirection() {
-		return listIterator.getIterationDirection();
+		return listIterator.getDirection();
 	}
 	
 	protected final AtomIteratorList listIterator;
