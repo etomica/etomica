@@ -290,7 +290,6 @@ public class AtomList implements java.io.Serializable
         if (numNew==0) return false;
         
         AtomLinker successor = (index==size ? header : entry(index));
-        AtomLinker predecessor = successor.previous;
 	    iterator.reset();
 	    for (int i=0; i<numNew; i++) {
 	        makeLinker(iterator.nextAtom()).addBefore(successor);
