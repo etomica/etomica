@@ -3,12 +3,10 @@ import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
-import etomica.SpeciesPistonCylinder;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayTimer;
@@ -21,10 +19,8 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2;
 import etomica.space.BoundaryNone;
 import etomica.space2d.Space2D;
-import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
-import etomica.units.Unit;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
