@@ -17,7 +17,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.lattice.Crystal;
-import etomica.lattice.crystal.CrystalFcc;
+import etomica.lattice.LatticeCubicFcc;
 
 public class HSMD3D extends Simulation {
 
@@ -41,9 +41,9 @@ public class HSMD3D extends Simulation {
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(108);
         phase = new Phase(space);
-        Crystal crystal = new CrystalFcc(space);
-        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
-        phase.setConfiguration(configuration);
+//        Crystal crystal = new LatticeCubicFcc(space);
+//        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
+//        phase.setConfiguration(configuration);
         potential = new P2HardSphere(space);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         

@@ -25,7 +25,6 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
     public LatticeCrystal(Crystal crystal) {
         this.crystal = crystal;
         crystalIndex = new int[crystal.D()];
-        positions = crystal.getSpace().makeVector();
         D = crystal.D() + 1;
     }
 
@@ -52,8 +51,9 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
     public Object site(int[] index) {
         if(index.length != D) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
         System.arraycopy(index, 0, crystalIndex, 0, D-1);
-        Space.Vector latticePosition = (Space.Vector)crystal.getLattice().site(index);
+        Space.Vector latticePosition = (Space.Vector)crystal.getLattice().site(crystalIndex);
         Space.Vector[] basisPositions = crystal.getBasis().positions();
+        Space.Vector positions = getSpace().makeVector();
         positions.Ev1Pv2(latticePosition,basisPositions[index[D-1]]);
         return positions;
     }
@@ -64,6 +64,5 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
     
     protected final Crystal crystal;
     private final int[] crystalIndex;
-    private final Space.Vector positions;
     private final int D;
 }

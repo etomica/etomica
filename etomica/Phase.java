@@ -5,6 +5,7 @@ import java.util.Observer;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.PhaseInflate;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;
 import etomica.utility.NameMaker;
 
@@ -81,8 +82,8 @@ public class Phase {
 
         if(space.D() < 3) 
             setConfiguration(new ConfigurationSequential(space));  //default configuration
- //       else
- //           setConfiguration(new ConfigurationFcc(space));
+        else
+            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
 
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);

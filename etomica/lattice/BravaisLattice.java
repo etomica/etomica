@@ -32,7 +32,7 @@ public class BravaisLattice implements SpaceLattice {
         if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
         Space.Vector vector = getSpace().makeVector();
         //TODO figure a way to get unscaled lattice vectors without this
-        //method call, which makes copies each tim
+        //method call, which makes copies each time
         Space.Vector[] latticeVectors = primitive.vectors();
         for(int i=0; i<index.length; i++) {
             vector.PEa1Tv1(index[i], latticeVectors[i]);

@@ -7,7 +7,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.graphics.*;
 import etomica.lattice.Crystal;
-import etomica.lattice.crystal.CrystalFcc;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.units.Dimension;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
@@ -55,7 +55,7 @@ public class SWMD3D extends Simulation {
 
 
     phase = new Phase(space);
-    Crystal crystal = new CrystalFcc(space);
+    Crystal crystal = new LatticeCubicFcc(space);
     ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
     phase.setConfiguration(configuration);
 

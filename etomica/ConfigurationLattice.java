@@ -1,9 +1,9 @@
 package etomica;
 
+import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCubicSimple;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has
@@ -49,7 +49,10 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         
         //determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
-        indexIterator.setSize(latticeDimensions);
+        int[] iteratorDimensions = new int[latticeDimensions.length + 1];
+        System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0, latticeDimensions.length);
+        iteratorDimensions[latticeDimensions.length] = lattice.getBasisSize();
+        indexIterator.setSize(iteratorDimensions);
     
         //determine lattice constant
         double latticeConstant = lattice.getLatticeConstant();
@@ -92,7 +95,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         int n = (int)Math.ceil(Math.pow(nCells/product,1.0/shape.length));
         int[] latticeDimensions = new int[shape.length];
         for(int i=0; i<shape.length; i++) {
-            latticeDimensions[i] = (int)(n*shape[i]);//(int)Math.ceil(n*shape[i]);
+            latticeDimensions[i] = (int)Math.round((n*shape[i]));//(int)Math.ceil(n*shape[i]);
         }
         return latticeDimensions;
     }
@@ -162,12 +165,14 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 		Space space = sim.space;
 		Phase phase = new Phase(space);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
-		int k = 2;
-		species.setNMolecules(k*k*k+7);
+		int k = 4;
+		species.setNMolecules(4*k*k*k);
 		etomica.graphics.ColorSchemeByType.setColor(species, java.awt.Color.red);
-//		CubicLattice lattice = new CrystalFcc();
-        CubicLattice lattice = new LatticeCubicSimple();
+//        CubicLattice lattice = new LatticeCubicBcc();
+        CubicLattice lattice = new LatticeCubicFcc();
+//        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice);
+//        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
 		phase.setConfiguration(configuration);
         phase.speciesMaster.addSpecies(species);
 //		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
