@@ -102,8 +102,8 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	private double interactionRange, displacementLimit2, neighborRadius2;
-	CoordinatePair cPair;
-	protected static int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
+	private final CoordinatePair cPair;
+	protected static final int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
 		public Object makeAgent(Atom atom) {
 			return (atom.coord != null) ? atom.coord.position().clone() : null;
 		}

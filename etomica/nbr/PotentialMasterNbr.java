@@ -105,6 +105,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 			singletIterator.setAtom(atom);
 			IteratorDirective.Direction direction = id.direction();
 			AtomArrayList[] list;
+            ObjectArrayList[] vectors = null;
 			if (direction == IteratorDirective.UP || direction == null) {
 				list = seq.getUpList();
                 vectors = seq.getUpListNearestImageVector();
@@ -218,7 +219,6 @@ public class PotentialMasterNbr extends PotentialMaster {
     private int nCells;
     private double maxNeighborRange;
     private final IteratorDirective idUp = new IteratorDirective();
-    private ObjectArrayList[] vectors;
     
     public static class MyIterator extends AtomIteratorArrayList {
         
