@@ -126,7 +126,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.next().ia).force.E(0.0);
+            ((Agent)atomIterator.nextAtom().ia).force.E(0.0);
         }
         forceSumNPH.u = 0.0;
         forceSumNPH.w = 0.0;

@@ -56,14 +56,14 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.next().ia).force.E(0.0);
+            ((Agent)atomIterator.nextAtom().ia).force.E(0.0);
         }
         potential.calculate(firstPhase, allAtoms, forceSum);
 
         //take step
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
             Space.Vector r = a.coord.position();
             work.E(r);
@@ -79,7 +79,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     protected void doReset() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
             agent.rMrLast.Ea1Tv1(timeStep*a.coord.rm(),a.coord.momentum());//06/13/03 removed minus sign before timeStep
         }

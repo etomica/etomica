@@ -149,7 +149,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		double minCollisionTime = Double.MAX_VALUE;
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			IntegratorHardAbstract.Agent ia = (IntegratorHardAbstract.Agent)atomIterator.next().ia;
+			IntegratorHardAbstract.Agent ia = (IntegratorHardAbstract.Agent)atomIterator.nextAtom().ia;
 			double ct = ia.collisionTime();
 			if( ct < minCollisionTime) {
 				minCollisionTime = ct;
@@ -177,7 +177,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 			//to be fixed...
 			//as constructed using AtomIteratorListSimple with speciesMaster.atomList as the basis,
 			// this atom iterator is not going through the atoms in sequence
-			Atom a = atomIterator.next();
+			Atom a = atomIterator.nextAtom();
 			if(a == collider) { //finished with atoms before collider...
 				if(partner == null) break;  //and there is no partner, so we're done, or...
 				else continue;              //...else just skip this atom and continue with loop
@@ -232,7 +232,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.next();
+			Atom a = atomIterator.nextAtom();
 	 //   for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
 			((Agent)a.ia).decrementCollisionTime(tStep);
 			if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
@@ -249,7 +249,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster)));
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			((IntegratorHardAbstract.Agent)atomIterator.next().ia).resetCollision();
+			((IntegratorHardAbstract.Agent)atomIterator.nextAtom().ia).resetCollision();
 		}
 		potential.calculate(firstPhase, upList.set(), collisionHandlerUp); //assumes only one phase
 		findNextCollider();

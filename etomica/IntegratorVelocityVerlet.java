@@ -75,7 +75,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 
         atomIterator.reset();              //reset iterator of atoms
         while(atomIterator.hasNext()) {    //loop over all atoms
-            Atom a = atomIterator.next();  //  advancing positions full step
+            Atom a = atomIterator.nextAtom();  //  advancing positions full step
             MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
             Space.Vector r = a.coord.position();
             Space.Vector p = a.coord.momentum();
@@ -90,7 +90,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         //Finish integration step
         atomIterator.reset();
         while(atomIterator.hasNext()) {     //loop over atoms again
-            Atom a = atomIterator.next();   //  finishing the momentum step
+            Atom a = atomIterator.nextAtom();   //  finishing the momentum step
             a.coord.momentum().PEa1Tv1(0.5*timeStep,((MyAgent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
@@ -99,7 +99,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 	            double s = Math.sqrt(this.temperature/meterTemperature.currentValue(firstPhase.speciesMaster));
 	            atomIterator.reset();
 	            while(atomIterator.hasNext()) {
-	                Atom a = atomIterator.next();
+	                Atom a = atomIterator.nextAtom();
 	                a.coord.momentum().TE(s); //scale momentum
 	            }
 	        } else {
@@ -107,7 +107,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             atomIterator.reset();
             double nut = nu*timeStep;
             while(atomIterator.hasNext()) {
-                Atom a = atomIterator.next();
+                Atom a = atomIterator.nextAtom();
                 if(Simulation.random.nextDouble() < nut) a.coord.randomizeMomentum(temperature);  //this method in Atom needs some work
             }
         	}
@@ -123,7 +123,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     protected void doReset() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             MyAgent agent = (MyAgent)a.ia;
             agent.force.E(0.0);
         }

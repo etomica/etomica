@@ -164,7 +164,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             a.coord.momentum().TE(s); //scale momentum
             ((Agent)a.ia).collisionTime *= rs;
         }

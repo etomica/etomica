@@ -79,7 +79,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.next().ia).force.E(0.0);
+            ((Agent)atomIterator.nextAtom().ia).force.E(0.0);
         }
         potential.calculate(firstPhase, allAtoms, forceSum);
 	
@@ -93,7 +93,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		double k=0.0;
         double chi;
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.next();
+			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			//Space.Vector r = a.coord.position();
 			Space.Vector p = a.coord.momentum();
@@ -114,7 +114,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		//calculate constrained velocities at T+Dt/2
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.next();
+			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			Space.Vector p = a.coord.momentum();
 			double divmass = a.coord.rm();
@@ -131,7 +131,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.next();
+			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			Space.Vector r = a.coord.position();
 			Space.Vector p = a.coord.momentum();
@@ -149,7 +149,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     protected void doReset() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
           
         }

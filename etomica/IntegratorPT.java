@@ -283,6 +283,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
  * simulation.  Designed for input to a DisplayPlot to provide a graphical
  * record of how the phases swap configurations.
  */
+//XXX this does not seem to fit the criteria for a Meter.  It is not associated with a phase
     public class MeterPhaseTracker extends MeterFunction implements MCMoveListener {
         
         private DataSource[] histories;

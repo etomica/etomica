@@ -51,7 +51,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         double t2 = 0.5*tStep*tStep;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
             agent.decrementCollisionTime(tStep);
             if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
@@ -74,7 +74,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            Agent iagent = (Agent)atomIterator.next().ia;
+            Agent iagent = (Agent)atomIterator.nextAtom().ia;
             iagent.force.E(0.0);
             iagent.forceFree = true;
         }
@@ -90,7 +90,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             if(a.type instanceof AtomType.Wall &&
                 !((Agent)a.ia).forceFree) continue;
             a.coord.momentum().TE(s); //scale momentum
@@ -98,7 +98,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         }
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
             Agent iagent = (Agent)a.ia;

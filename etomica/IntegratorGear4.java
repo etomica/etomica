@@ -78,7 +78,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((IntegratorGear4.Agent)atomIterator.next().ia).force.E(0.0);
+            ((IntegratorGear4.Agent)atomIterator.nextAtom().ia).force.E(0.0);
         }
         //Compute forces on each atom
         potential.calculate(firstPhase, allAtoms, forceSum);
@@ -89,7 +89,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (IntegratorGear4.Agent)a.ia;
             Space.Vector r = a.coord.position();
             Space.Vector p = a.coord.momentum();
@@ -118,7 +118,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     protected void predictor() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
             Space.Vector r = a.coord.position();
             Space.Vector p = a.coord.momentum();
@@ -160,7 +160,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.next();
+            Atom a = atomIterator.nextAtom();
             Agent agent = (IntegratorGear4.Agent)a.ia;
             agent.dr1.E(a.coord.momentum());
             agent.dr2.E(agent.force);
