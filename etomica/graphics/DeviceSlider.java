@@ -19,7 +19,8 @@ import java.awt.event.WindowEvent;
  */
  
  /* History of changes
-  * 8/16/02 (DAK) added showBorder feature and accessor/mutator methods
+  * 08/16/02 (DAK) added showBorder feature and accessor/mutator methods
+  * 08/30/02 (DAK) added default colors through DefaultGraphic
   */
   
 public class DeviceSlider extends Device implements EtomicaElement {
@@ -48,9 +49,10 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     protected String property;
     
-    private int minimum, maximum;
+    private int minimum, maximum, nMajor;
     
     private boolean showBorder = true;
+    private JPanel panel = new JPanel();
     
     public DeviceSlider() {
         this(Simulation.instance);
@@ -58,6 +60,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public DeviceSlider(Simulation sim) {
         super(sim);
         slider = new JSlider();
+        nMajor = 4;
         slider.setSize(200,40);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
@@ -65,6 +68,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
         setMinimum(100);
         setMaximum(500);
         slider.setMajorTickSpacing(100);
+        slider.setBackground(DefaultGraphic.SLIDER_COLOR.brighter());
+        slider.setForeground(DefaultGraphic.CONTRAST_COLOR);
+        panel.setBackground(DefaultGraphic.CONTRAST_COLOR);
+        panel.add(slider);
+        panel.setOpaque(false);
 //        slider.setMinorTickSpacing(50);
         slider.addChangeListener(new SliderListener());  //SliderListener is an inner class defined below
         
@@ -152,8 +160,20 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     public int getMaximum() {return maximum;}
     
+    /**
+     * Number of major ticks.
+     */
+    public void setNMajor(int n) {
+        nMajor = n;
+        setTicks();
+    }
+    /**
+     * Number of major ticks.
+     */
+    public int getNMajor() {return nMajor;}
+    
     private void setTicks() {
-        int spacing = (getMaximum()-getMinimum())/4;
+        int spacing = (getMaximum()-getMinimum())/nMajor;
         if(spacing <= 0) return;
         slider.setMajorTickSpacing(spacing);
         slider.setMinorTickSpacing(slider.getMajorTickSpacing()/2);
@@ -166,7 +186,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * Returns the GUI element for display in the simulation.
      */
     public java.awt.Component graphic(Object obj) {
-        return slider;
+        return panel;//slider;
     }
     
     
@@ -184,8 +204,10 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
     public void setLabel(String text) {
         label = text;
-        if(showBorder) slider.setBorder(new javax.swing.border.TitledBorder(text));
-        else slider.setBorder(null);
+  //      if(showBorder) slider.setBorder(new javax.swing.border.TitledBorder(text));
+  //      else slider.setBorder(null);
+        if(showBorder) panel.setBorder(new javax.swing.border.TitledBorder(text));
+        else panel.setBorder(null);
     }
     /**
      * @return the current instance of the descriptive label.

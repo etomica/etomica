@@ -36,7 +36,7 @@ public final class SimulationRestart extends SimulationAction {
         for(Iterator iter=sim.allElements().iterator(); iter.hasNext(); ) {
             ((SimulationElement)iter.next()).reset();
         }
-        
+                
  /*       for(Iterator iter=sim.phaseList().iterator(); iter.hasNext(); ) {
             Phase phase = (Phase)iter.next();
             phase.getConfiguration().initializeCoordinates(((AtomTreeNodeGroup)phase.speciesMaster().node).childAtomArray());

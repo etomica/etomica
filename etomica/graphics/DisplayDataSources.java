@@ -28,6 +28,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     protected double[] x;
     protected double[][] y;
     protected DataSource.ValueType whichValueX, whichValue;
+    protected boolean allowAddSources = true;
         
     public DisplayDataSources(Simulation sim)  {
         super(sim);
@@ -127,7 +128,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
      * Existing sources are retained.
      */
     public void addDataSources(DataSource s) {
-        if(s == null) return;
+        if(s == null || !allowAddSources) return;
         int nSource = (ySource == null) ? 0 : ySource.length;
         DataSource[] newSources = new DataSource[nSource+1];
         for(int i=0; i<nSource; i++) newSources[i] = ySource[i];
@@ -140,7 +141,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
      * Existing sources are retained.
      */
     public void addDataSources(DataSource[] s) {
-        if(s == null) return;
+        if(s == null || !allowAddSources) return;
         int nSource = (ySource == null) ? 0 : ySource.length;
         DataSource[] newSources = new DataSource[nSource+s.length];
         for(int i=0; i<nSource; i++) newSources[i] = ySource[i];
@@ -253,4 +254,23 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
            y[i] = ySource[i].values(whichValue);
         }
     }
+    
+    /**
+     * Accessor method for flag that determines if new sources can be added
+     * to this display.  If false, addSources methods will return without
+     * adding the new source; does not affect setSources methods, so sources
+     * can be replaced.  Default is true, to allow addition of new sources.
+     * Useful to prevent mediator from adding sources if desired sources were
+     * identified already.
+     */
+    public boolean isAllowAddSources() {return allowAddSources;}
+    /**
+     * Mutator method for flag that determines if new sources can be added
+     * to this display.  If false, addSources methods will return without
+     * adding the new source; does not affect setSources methods, so sources
+     * can be replaced.  Default is true, to allow addition of new sources.
+     * Useful to prevent mediator from adding sources if desired sources were
+     * identified already.
+     */
+    public void setAllowAddSources(boolean allow) {allowAddSources = allow;}
 }//end of DisplayDataSources

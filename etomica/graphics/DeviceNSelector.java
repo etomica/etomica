@@ -27,9 +27,11 @@ public class DeviceNSelector extends DeviceSlider {
         restartAction = new etomica.action.SimulationRestart(agent.node.parentSimulation());
         
         setModulator(new NMoleculeModulator());
+        setNMajor(6);
 	    setMinimum(0);
-	    setMaximum(40);
+	    setMaximum(60);
 	    getSlider().setSnapToTicks(true);
+	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
 	    
 	    if(agent.node.parentSpecies().getName() == "") {
@@ -59,14 +61,17 @@ public class DeviceNSelector extends DeviceSlider {
  //           if(initializing) return;
             if(d < 0) d = 0;
             boolean isPaused = integrator.isPaused();
-            if(!isPaused) {
+   //         if(!isPaused) {
                 try {
                     restartAction.actionPerformed();
                 } catch (NullPointerException ex) {return;}
-            }
+   //         }
             try {
                  speciesAgent.setNMolecules((int)d);
             } catch(NullPointerException ex) {}
+                try {
+                    restartAction.actionPerformed();
+                } catch (NullPointerException ex) {return;}
             if(display != null) display.repaint();
             integrator.reset();
         }

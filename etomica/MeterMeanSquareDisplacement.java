@@ -78,6 +78,11 @@ public class MeterMeanSquareDisplacement extends MeterScalar implements
     }
     public AtomIterator getAtoms() {return iterator;}
     
+    public void reset() {
+        super.reset();
+        if(iterator != null) setAtoms(iterator);
+    }
+    
     public double currentValue() {
         double sum = 0.0;
         for(int i=0; i<nAtoms; i++) {

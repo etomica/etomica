@@ -134,6 +134,10 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
   * Does not override anything, but may want to later
   */
     public class Plot extends ptolemy.plot.Plot {
+        
+        public void setTopPadding(int i) {
+            _topPadding = i;
+        }
     }
 
 }//end of class
