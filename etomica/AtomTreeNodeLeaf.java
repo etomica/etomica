@@ -9,6 +9,10 @@ package etomica;
 
 public final class AtomTreeNodeLeaf implements AtomTreeNode {
     
+    /**
+     * Linker used to form a list of all leaf atoms in the phase.
+     * List is maintained by the speciesMaster node.
+     */
     public final AtomLinker leafLinker;
     
     public AtomTreeNodeLeaf(Atom atom) {
@@ -45,6 +49,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
             depth = parentNode.depth() + 1;
             //parentPhase = parentNode.parentPhase();
         }
+        atom.seq.setParentNotify(parent);
     }
 
     public void setDepth(int d) {

@@ -10,7 +10,14 @@ public abstract class AtomSequencer extends AtomLinker {
     public Atom nextAtom() {return (next != null) ? next.atom : null;}
     
     public Atom previousAtom() {return (previous != null) ? previous.atom : null;}
-        
+    
+    /**
+     * Notifies sequencer that atom has been moved to a new position.
+     */
+    public abstract void moveNotify();
+    
+    public abstract void setParentNotify(AtomTreeNodeGroup newParent);
+    
     public abstract boolean preceeds(Atom a);
     
     public interface Factory {

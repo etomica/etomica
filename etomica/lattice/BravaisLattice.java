@@ -12,22 +12,49 @@ public class BravaisLattice extends Atom implements AbstractLattice {
    private double[] primitiveVectorLength;
    private int[] idx;
    private AtomList siteList;
+   private int[] dimensions;
    int D;
    
-   protected BravaisLattice(Space space, AtomType type) {
+   /**
+    * Constructor should be invoked only within a build() method of a
+    * Factory class.  The build method handles the construction of the
+    * tree structure under this instance, which forms the lattice.
+    */
+   private BravaisLattice(Space space, AtomType type, int[] dimensions) {
         super(space, type);
         D = space.D();
         idx = new int[D];
         primitiveVectorLength = new double[D];
+        this.dimensions = new int[dimensions.length];
+        System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
    }
    
    /**
     * Constructs a unique BravaisLattice factory and returns a new lattice from it.
     */
-   public static BravaisLattice makeLattice(
-                Space space, int[] dimensions, Primitive primitive, AtomFactory siteFactory) {
-        return (BravaisLattice)new Factory(space, dimensions, primitive, siteFactory).build();
-   }
+    public static BravaisLattice makeLattice(
+                Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
+        return (BravaisLattice)new Factory(space, siteFactory, dimensions, primitive).build();
+    }
+    
+    /**
+     * Returns a new BravaisLattice in which the sites are the unit cells of the given primitive.
+     */
+     public static BravaisLattice makeUnitCellLattice(
+                Space space, int[] dimensions, Primitive primitive) {
+        return makeLattice(space, primitive.unitCellFactory(), dimensions, primitive);
+     }
+           
+    public int[] dimensions() {return dimensions;}
+    
+    /**
+     * Translates the lattice so that the first site is positioned at the origin,
+     */
+    public void shiftFirstToOrigin() {
+        Space.Vector shift = Space.makeVector(D);
+        shift.ME(siteList.getFirst().coord.position());
+        this.coord.translateBy(shift);
+    }
    
     /**
      * Observable anonymous inner class that notifies interested objects if the primitive vectors change.
@@ -65,26 +92,6 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
     public Primitive getPrimitive() {return primitive;}
     
-/*    public void setPrimitiveVector(Space.Vector[] pVectors) {
-        if(pVectors == null) return;
-        if(pVectors.length != D) throw new IllegalArgumentException("Error in BravaisLattice.setPrimitiveVector:  incorrect length for primitive-vector array");
-        Atom a = this;
-        for(int i=0; i<D; i++) {
-           primitiveVector[i].E(pVectors[i]);
-           ((ConfigurationLinear)a.creator().getConfiguration()).setOffset(pVectors[i]);
-           a = a.node.firstChildAtom();
-        }
-        type.creator().getConfiguration().initializePositions(this);
-        notifyObservers();
-    }
-    public void setPrimitiveVector(int i, Space.Vector pVector) {
-        if(pVector == null) return;
-        ((ConfigurationLinear)getAtomType(i).creator().getConfiguration()).setOffset(pVector);
-        primitiveVector[i].E(pVector);
-        type.creator().getConfiguration().initializePositions(this);
-        notifyObservers();
-    }
-*/    
     /**
      * Returns the atom type instance held by all atoms at the depth d.
      */
@@ -104,12 +111,17 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         return site(idx);
     }
     
-    public Atom site(int[] idx) {
+    /**
+     * Returns the site corresponding to the given index.
+     */
+     //needs work to improve probable inefficiency with list.get
+     //and to handle index values out of size of lattice
+    public Site site(int[] idx) {
         Atom site = this;
         int i=0;
         do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
         while(!site.node.isLeaf() && i<idx.length);
-        return site;
+        return (Site)site;
     }
     
     /**
@@ -161,22 +173,51 @@ public class BravaisLattice extends Atom implements AbstractLattice {
 
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Criterion that identifies neighbors of a site on a Bravais lattice as
+ * those sites directly adjacent to it, where "adjacent" means that exactly
+ * one index differs by +/- 1.  For example, in 2D the neighbors
+ * of site (1,2) would be {(0,2),(1,1),(1,3),(2,2)}.  If periodic is 
+ * <code>true</code>, then neighbors are indicated also if sites are adjacent
+ * upon application of toroidal peroidic boundaries (thus, for example, site 
+ * (0,1) would be a neighbor of site (3,1) if the lattice dimensions are (4,n)).
+ * Default condition is such that periodic boundaries are applied.
+ */
+
 public static class AdjacencyCriterion implements NeighborManager.Criterion {
     
     private boolean periodic = true;
+    private BravaisLattice lattice;
+    
+    public AdjacencyCriterion(BravaisLattice lattice) {
+        this.lattice = lattice;
+    }
+    
+    /**
+     * Indicates if periodicity is applied in defining adjacency.
+     */
     public boolean isPeriodic() {return periodic;}
+    /**
+     * Sets whether periodicity is applied in defining adjacency.
+     * Default value is true.
+     */
     public void setPeriodic(boolean b) {periodic = b;}
     
+    /**
+     * Returns true if the given sites are adjacent to each other,
+     * considering periodicity as set previously.
+     */
     public boolean areNeighbors(Site s1, Site s2) {
+        int[] dim = lattice.dimensions();
         int[] idx1 = s1.latticeCoordinate();
         int[] idx2 = s2.latticeCoordinate();
 
         boolean sameTillNow = true;
-        int imax = idx1.length - 1;
-        for(int i=0; i<=imax; i++) {
+        for(int i=0; i<dim.length; i++) {
+            int imax = dim[i] - 1;
             int diff = idx1[i] - idx2[i];
             if(periodic && (diff == imax || diff == -imax) ) diff = +1;
-            switch(idx1[i]-idx2[i]) {
+            switch(diff) {
                 case 0: break;
                 case +1:
                 case -1: if(sameTillNow) sameTillNow = false;//found first difference
@@ -200,13 +241,15 @@ public static class Factory extends AtomFactoryTree {
      //dimension of embedding space equals the length of each primitive vector
      //copies of primitive vectors are made during construction of lattice, so subsequent alteration
      //of them by the calling program has no effect on lattice vectors
-    public Factory(Space space, int[] dimensions, Primitive primitive, AtomFactory siteFactory) {
+    public Factory(Space space, AtomFactory siteFactory, int[] dimensions, Primitive primitive) {
         super(space, siteFactory, dimensions, configArray(space, primitive.vectors()));
         this.primitive = primitive;
+        this.dimensions = new int[dimensions.length];
+        System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
     }
     
     public Atom build() {
-        BravaisLattice group = new BravaisLattice(space, groupType);
+        BravaisLattice group = new BravaisLattice(space, groupType, dimensions);
         build(group);
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);
         leafIterator.reset();
@@ -226,6 +269,7 @@ public static class Factory extends AtomFactoryTree {
     }
     
     private Primitive primitive;
+    private final int[] dimensions;
 }//end of Factory
 
     /**
@@ -236,10 +280,12 @@ public static class Factory extends AtomFactoryTree {
         Space space = new Space2D();
         int D = space.D();
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
+        final int nx = 4;
+        final int ny = 5;
         BravaisLattice lattice = BravaisLattice.makeLattice(space, 
-                                new int[] {3,2},
-                                primitive,
-                                new Site.Factory(space));        
+                                new Site.Factory(space),
+                                new int[] {nx,ny},
+                                primitive);        
         System.out.println("Total number of sites: "+lattice.siteList().size());
         System.out.println();
         System.out.println("Coordinate printout");
@@ -251,7 +297,13 @@ public static class Factory extends AtomFactoryTree {
         System.out.println();
         
         System.out.println("Same, using allAtoms method");
-        AtomAction printSites = new AtomAction() {public void actionPerformed(Atom s) {System.out.print(s.coord.position().toString()+" ");}};
+        AtomAction printSites = new AtomAction() {
+            public void actionPerformed(Atom s) {
+                System.out.print(s.coord.position().toString()+" ");
+       //         System.out.println(((Site)s).latticeCoordinate()[1]);
+                if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
+            }
+        };
         iterator.allAtoms(printSites);
         System.out.println();
         
@@ -264,15 +316,24 @@ public static class Factory extends AtomFactoryTree {
         iterator.allAtoms(printSites);
         System.out.println();
         
+        Atom testSite = lattice.site(new int[] {1,1});
+        int[] idx = null;
+        
         System.out.println();
         System.out.println("Translating lattice by (-1.0, 2.0)");
         lattice.coord.translateBy(Space.makeVector(new double[] {-1.0, 2.0}));
         iterator.allAtoms(printSites);
         System.out.println();
-        
+ 
+        System.out.println();
+        System.out.println("Translating to origin");
+        lattice.shiftFirstToOrigin();
+        iterator.allAtoms(printSites);
+        System.out.println();
+   /*     
         System.out.print("Accessing site (1,1): ");
-        Atom testSite = lattice.site(new int[] {1,1});
-        int[] idx = ((Site)testSite).latticeCoordinate();
+        testSite = lattice.site(new int[] {1,1});
+        idx = ((Site)testSite).latticeCoordinate();
         System.out.println(testSite.toString()+testSite.coord.position().toString());
         System.out.print("latticeCoordinate: ");
         for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
@@ -287,8 +348,8 @@ public static class Factory extends AtomFactoryTree {
         for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
         System.out.println();
         System.out.println();
-        
-        lattice.setupNeighbors(new AdjacencyCriterion());
+ /*       
+        lattice.setupNeighbors(new AdjacencyCriterion(lattice));
         SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
         nbrIterator.setBasis(testSite);
 
@@ -324,5 +385,31 @@ public static class Factory extends AtomFactoryTree {
         for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
         System.out.println();
         
+        nbrIterator.setBasis(testSite);
+
+        System.out.println("Sites up-neighbor to this site:");
+        nbrIterator.reset(IteratorDirective.UP);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("Sites down-neighbor to this site:");
+        nbrIterator.reset(IteratorDirective.DOWN);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("All neighbors of this site:");
+        nbrIterator.reset(IteratorDirective.BOTH);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+ */      
     }//end of main
 }//end of BravaisLattice

@@ -41,6 +41,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             depth = parentNode.depth() + 1;
             parentPhase = parentNode.parentPhase();
         }
+        atom.seq.setParentNotify(parent);
     }
         
 

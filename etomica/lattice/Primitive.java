@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.Space;
+import etomica.AtomFactory;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -9,12 +10,16 @@ public abstract class Primitive {
     
     protected final Space.Vector[] r;
     private final Space.Vector[] rCopy;
+    protected final int[] idx;//used to return coordinate index
     public final int D;
+    protected Space space;
     
     public Primitive(Space space) {
+        this.space = space;
         D = space.D();
         r = new Space.Vector[D];
         rCopy = new Space.Vector[D];
+        idx = new int[D];
         for(int i=0; i<D; i++) {
             r[i] = space.makeVector();
             rCopy[i] = space.makeVector();
@@ -40,20 +45,31 @@ public abstract class Primitive {
     }
     
     /**
+     * Returns the index which would give the unit cell containing the given
+     * point if the index were passed to a the site method of a sufficiently
+     * large lattice that uses this primitive.
+     */
+    public abstract int[] latticeIndex(Space.Vector r);
+    
+    /**
      * Returns the primitive for the reciprocal lattice vectors.
      */
     public abstract Primitive reciprocal();
     
     /**
-     * Makes and returns a new Wigner-Seitz cell for the lattice 
-     * specified by this primitive.
+     * Returns a factory for the Wigner-Seitz cell specified by this primitive.
+     * Each WS cell made by this factory remains tied to the primitive,
+     * so its behavior will change to reflect any subsequent changes
+     * in the primitive itself.
      */
-    public abstract AbstractCell wignerSeitzCell();
+    public abstract AtomFactory wignerSeitzCellFactory();
     
     /**
-     * Makes and returns a new unit cell for the lattice 
-     * specified by this primitive.
+     * Returns a factory for the unit cell specified by this primitive.
+     * Each unit cell made by this factory remains tied to the primitive,
+     * so its behavior will change to reflect any subsequent changes
+     * in the primitive itself.
      */
-    public abstract AbstractCell unitCell();
+    public abstract AtomFactory unitCellFactory();
     
 }

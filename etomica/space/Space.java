@@ -7,6 +7,22 @@ public class Space extends etomica.Space implements EtomicaElement {
 
     public static String version() {return "Space:01.07.11/"+Space.VERSION;}
     public final int D() {return D;}
+    public final int powerD(int n) {
+        switch(D) {
+            case 1: return n;
+            case 2: return n*n;
+            case 3: return n*n*n;
+            default: return (int)Math.pow(n,D);
+        }
+    }
+    public final double powerD(double a) {
+        switch(D) {
+            case 1: return a;
+            case 2: return a*a;
+            case 3: return a*a*a;
+            default: return Math.pow(a,D);
+        }
+    }
     
     public Space() {
         this(3);

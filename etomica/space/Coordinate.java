@@ -32,25 +32,37 @@ public class Coordinate extends Space.Coordinate {
     * 
     * @param u
     */
-    public void translateBy(Space.Vector u) {r.PE(u);}
+    public void translateBy(Space.Vector u) {
+        r.PE(u);
+        atom.seq.moveNotify();
+    }
     /**
     * Moves the atom by some vector distance
     * 
     * @param u
     */
-    public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,u);}
+    public void translateBy(double d, Space.Vector u) {
+        r.PEa1Tv1(d,u);
+        atom.seq.moveNotify();
+    }
     /**
     * Moves the atom by some vector distance
     * 
     * @param u
     */
-    public void translateTo(Space.Vector u) {r.E(u);}      
+    public void translateTo(Space.Vector u) {
+        r.E(u);
+        atom.seq.moveNotify();
+    }      
     public void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
     public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
     public void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
     public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
     public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
-    public void replace() {r.E(rLast);}
+    public void replace() {
+        r.E(rLast);
+        atom.seq.moveNotify();
+    }
 //    public final void inflate(double s) {r.TE(s);}
 
     public void accelerateBy(Space.Vector u) {p.PE(u);}

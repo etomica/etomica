@@ -3,7 +3,7 @@ package etomica.utility;
 import java.io.*;
 
 /**
- * Captures the functionality of the Java 1.2 class java.util.LinkedList
+ * Captures the functionality of the Java 1.2 class java.util.HashMap
  * as used in the etomica api.
  *
  * Implements HashMap by wrapping a (Java 1.0) HashTable instance.  Consequently,

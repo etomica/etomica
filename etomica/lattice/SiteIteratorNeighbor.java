@@ -31,13 +31,16 @@ public class SiteIteratorNeighbor implements AtomIterator {
         iterator.allAtoms(act);
     }
     
+    public int size() {return neighborManager.neighborCount();}    
+    
     public void setBasis(NeighborManager manager) {
         neighborManager = manager;
         iterator.setBasis(neighborManager.neighbors());
     }
     
-    public int size() {return neighborManager.neighborCount();}
-    
+    public void setBasis(Site site) {
+        setBasis(site.neighborManater());
+    }
     
     public void setBasis(Atom atom) {
         if(atom instanceof Site) setBasis(((Site)atom).neighborManager());

@@ -12,6 +12,9 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }
     
     public int D() {return D;}
+    public abstract int powerD(int a);
+    public abstract double powerD(double a);
+    
     public abstract Vector origin();
     
     public abstract Vector makeVector();      //Space.Vector

@@ -8,6 +8,8 @@ public class Space1D extends Space implements EtomicaElement {
     public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}
+    public final int powerD(int n) {return n;}
+    public final double powerD(double a) {return a;}
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
     
@@ -261,25 +263,37 @@ public class Space1D extends Space implements EtomicaElement {
         * 
         * @param u
         */
-        public void translateBy(Space.Vector u) {r.PE((Space1D.Vector)u);}
+        public void translateBy(Space.Vector u) {
+            r.PE((Space1D.Vector)u);
+            atom.seq.moveNotify();
+        }
         /**
         * Moves the atom by some vector distance
         * 
         * @param u
         */
-        public void translateBy(double d, Space.Vector u) {r.PEa1Tv1(d,(Vector)u);}
+        public void translateBy(double d, Space.Vector u) {
+            r.PEa1Tv1(d,(Vector)u);
+            atom.seq.moveNotify();
+        }
         /**
         * Moves the atom by some vector distance
         * 
         * @param u
         */
-        public void translateTo(Space.Vector u) {r.E((Space1D.Vector)u);}      
+        public void translateTo(Space.Vector u) {
+            r.E((Space1D.Vector)u);
+            atom.seq.moveNotify();
+        }      
+        public void replace() {
+            r.E(rLast);
+            atom.seq.moveNotify();
+        }
         public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
         public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
         public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
         public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
-        public void replace() {r.E(rLast);}
     //    public final void inflate(double s) {r.TE(s);}
 
         public void accelerateBy(Space.Vector u) {p.PE(u);}

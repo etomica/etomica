@@ -2,9 +2,6 @@ package etomica;
 
 /**
  * Class for constructing linked lists of Atoms.
- * Each Linker points to one atom and another Linker, the next one in the list.
- * Although each atom has built-in ability to link to one next and one previous atom, these
- * Linkers are needed to construct other lists of atoms, particularly for neighbor lists.
  *
  * @author David Kofke
  */
@@ -12,8 +9,13 @@ public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
     public AtomLinker next = null, previous = null;
     
-    //Constructor
+    /**
+     * Constructor throws exception if given atom is null.  Only
+     * AtomLink.Tab instances can have a null atom field.
+     */
     protected AtomLinker(Atom a) {
+        if(a == null && !(this instanceof Tab))
+            throw new IllegalArgumentException("Error: cannot create AtomLinker with null atom");
         atom = a; 
     }
     
@@ -23,6 +25,7 @@ public class AtomLinker implements java.io.Serializable {
     }
     
     public static class Tab extends AtomLinker {
+        public Tab nextTab, previousTab;
         public Tab() {
             super(null);
         }

@@ -14,6 +14,7 @@ public class Site extends Atom {
     }
         
     public NeighborManager neighborManager() {return neighborManager;}
+    
     /**
      * Test for adjacency of the site to another site
      */
@@ -26,9 +27,17 @@ public class Site extends Atom {
         return node.index() < anotherSite.node.index();
     }
     
+    /**
+     * Returns the spatial dimension of the lattice on
+     * which this site resides.
+     */
     public int D() {return coord.position().D();}
     
-    
+    /**
+     * Returns the lattice coordinate of this site, defined such
+     * that upon passing the coordinate to the site(int[]) method
+     * of the parent lattice, this site would be returned.
+     */
     public int[] latticeCoordinate() {
         int D = D();
         int[] idx = new int[D];
@@ -38,7 +47,12 @@ public class Site extends Atom {
         }
         return idx;
     }//end of latticeCoordinate
-        
+
+///////////////////////////////////////////////////////////////////////////
+
+/**
+ * Factory that constructs a simple Site.
+ */
 public static class Factory extends AtomFactory {
     
     AtomType atomType;
