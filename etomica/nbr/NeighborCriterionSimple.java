@@ -4,7 +4,6 @@ import etomica.Atom;
 import etomica.AtomPair;
 import etomica.Debug;
 import etomica.NearestImageTransformerVector;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.AtomPairVector;
@@ -69,7 +68,6 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
 
 	public void setPhase(Phase phase) {
-	    this.phase = phase;
 	}
     
 	public boolean unsafe() {
@@ -103,8 +101,6 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	});
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    private Phase phase;
     private final NearestImageTransformerVector nearestImageTransformer;
-    private NearestImageVectorSource nearestImageVectorSource;
 	
 }
