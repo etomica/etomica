@@ -1,7 +1,6 @@
 package etomica.simulations;
 import etomica.Default;
 import etomica.IntegratorHard;
-import etomica.IteratorDirective;
 import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Potential2;
@@ -10,11 +9,6 @@ import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceTrioControllerButton;
-import etomica.graphics.DisplayPhase;
-import etomica.graphics.SimulationGraphic;
-import etomica.nbr.PotentialCalculationNbrSetup;
 import etomica.nbr.PotentialMasterNbr;
 
 /**
