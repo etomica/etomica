@@ -42,12 +42,14 @@ public abstract class Integrator implements java.io.Serializable {
     protected double temperature = Default.TEMPERATURE;
     protected boolean isothermal = false;
     private String name;
+    protected MeterPotentialEnergy meterPE;
     protected double[] currentPotentialEnergy;
 
     public Integrator(PotentialMaster potentialMaster) {
         setName(NameMaker.makeName(this.getClass()));
         phase = new Phase[phaseCountMax];
         this.potential = potentialMaster;
+        meterPE = new MeterPotentialEnergy(potentialMaster);
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);
         }
@@ -90,20 +92,15 @@ public abstract class Integrator implements java.io.Serializable {
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized. This also recalculates the 
      * potential energy.
-     */
-    public void reset() {
-        PotentialCalculationEnergySum pc = new PotentialCalculationEnergySum();
-        currentPotentialEnergy = new double[phase.length];
+	 */
+	public void reset() {
+        currentPotentialEnergy = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
-            pc.zeroSum();
-            potential.calculate(phase[i],new IteratorDirective(),pc);
-            currentPotentialEnergy[i] = pc.getSum();
             if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
                 throw new RuntimeException("overlap in "+phase[i]);
             }
         }
     }
-
 	
     /**
       ;* Returns a new instance of an agent of this integrator for placement in
@@ -175,8 +172,7 @@ public abstract class Integrator implements java.io.Serializable {
     public double[] getPotentialEnergy() {
         return currentPotentialEnergy;
     }
-
-
+    
 	//Other introspected properties
 	public void setIsothermal(boolean b) {
 		isothermal = b;
