@@ -1,5 +1,9 @@
 package etomica;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+
 import etomica.utility.Arrays;
 
 public class TestClass {
@@ -46,14 +50,36 @@ public class TestClass {
         System.out.println(innerAB.name());
         System.out.println(innerB.name());
         System.out.println(((InnerA)innerB).name());
+        
+        //Introspection to get array of all properties
+        java.beans.PropertyDescriptor[] properties = null;
+        BeanInfo bi = null;
+        try {
+            bi = Introspector.getBeanInfo(innerB.getClass());
+            properties = bi.getPropertyDescriptors();
+        } 
+        catch (IntrospectionException ex) {
+            ex.printStackTrace();
+        }
+        for(int i=0; i<properties.length; i++) {
+            System.out.println(properties[i].getName());
+        }
     }
     
     private static class InnerA {
         public String name() {return "InnerA";}
+        public void setProperty1(double prop1) {}
+        public double getProperty1() {return 0.0;}
+        public void setMyProperty2(int prop2) {}
+        public int getMyProperty2() {return 0;}
+        public void setOn(boolean prop3) {}
+        public boolean isOn() {return true;}
     }
     
     private static class InnerB extends InnerA {
         public String name() {return "InnerB";}
+        public void setPropB(int b) {}
+        public int getPropB() {return 0;}
     }
 }
         
