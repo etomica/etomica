@@ -97,6 +97,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public Space.Vector gradient(AtomPair pair) {
+  //  	System.out.println(((P2LennardJones)this).getSigma()+"  "+((AtomType.Sphere)pair.atom1().type).diameter);
         double r2 = pair.r2();
         if(potentialTruncation.isZero(r2)) work1.E(0.0);
         else {

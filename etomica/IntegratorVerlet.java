@@ -1,5 +1,10 @@
 package etomica;
 
+/* History
+ * 
+ * 06/18/03 (DAK) changed doReset so that rMrLast is given by dt*p/m instead of
+ * -dt*p/m
+ */
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement {
 
     public String getVersion() {return "IntegratorVerlet:01.07.05/"+IntegratorMD.VERSION;}
@@ -76,7 +81,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
-            agent.rMrLast.Ea1Tv1(-timeStep*a.coord.rm(),a.coord.momentum());
+            agent.rMrLast.Ea1Tv1(timeStep*a.coord.rm(),a.coord.momentum());//06/13/03 removed minus sign before timeStep
         }
     }
               

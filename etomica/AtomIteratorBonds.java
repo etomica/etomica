@@ -103,7 +103,7 @@ public class AtomIteratorBonds extends AtomIterator {
     
     //not implemented
     public void allAtoms(AtomAction act) {
-        throw new RuntimeException("allAtoms not implemented in AtomIteratorBonds");
+        throw new etomica.exception.MethodNotImplementedException();
     }
 
     /**
