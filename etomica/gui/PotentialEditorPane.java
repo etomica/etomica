@@ -1,9 +1,9 @@
 /**
  * PotentialEditorPane
  *
- * The PotentialEditorPane class is a splitpane that lists all the simulation components of a 
- * respective potential category (potential 1 or potential 2) on the leftside, and all of the added 
- * components from the leftside list on the rightside in a JList format.
+ * The PotentialEditorPane class is a splitpane that presents buttons for
+ * all species or species pairs on the leftside, and all of the added 
+ * potentials selected for the species from the leftside list on the rightside in a JList format.
  *
  * @author Bryan C. Mihalick
  * 8/16/00
@@ -128,8 +128,8 @@ public abstract class PotentialEditorPane extends EditorPane {
 	            else {
 	                if (rightPaneList.getSelectedValue() != null) {
 	                    SimulationElement wrapperPot;
-	                    if (rightPaneList.getSelectedValue() instanceof P2SimpleWrapper)
-    	                    wrapperPot = ((P2SimpleWrapper)rightPaneList.getSelectedValue()).getOnlyPotential();
+	                    if (false);//rightPaneList.getSelectedValue() instanceof P2SimpleWrapper)
+    	                 //   wrapperPot = ((P2SimpleWrapper)rightPaneList.getSelectedValue()).getOnlyPotential();
                         else wrapperPot = (SimulationElement)rightPaneList.getSelectedValue();
                         propertySheet.setTarget(wrapperPot);
                         try {
@@ -159,7 +159,7 @@ public abstract class PotentialEditorPane extends EditorPane {
 
     public void addButtons() {
         /**
-         * This section adds the start button, but it's disabled until enough simulation components
+         * This section adds the start button, which is disabled until enough simulation components
          * have been added to make a working simulation.
          */
         gbc.gridx = 0;
@@ -220,7 +220,9 @@ public abstract class PotentialEditorPane extends EditorPane {
 	            }});
 	    }
 	    gbl.setConstraints(remove,gbc);
-	    leftPanePanel.add(remove);
+	    
+	    //commented out until remove functionality is enabled
+//	    leftPanePanel.add(remove);
     	// end of remove button
     	    
     	/**

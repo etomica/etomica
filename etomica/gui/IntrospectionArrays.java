@@ -3,7 +3,7 @@ package etomica.gui;
 public class IntrospectionArrays {
     static final Class[] spaceClasses = introspect("Space", true);
     static final Class[] speciesClasses = introspect("Species", true);
-    static final Class[] potentialClasses = introspect("Potential", true);
+    static final Class[] potentialClasses = introspect("P2", true);
     static final Class[] p1Classes = introspect("P1", true);
     static final Class[] integratorClasses = introspect("Integrator", true);
     static final Class[] phaseClasses = introspect("Phase", true);

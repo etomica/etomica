@@ -6,7 +6,7 @@ import etomica.units.*;
 public final class Default {
     
     public static String WORKING_DIRECTORY = getWorkingDirectory();
- //   public static String WORKING_DIRECTORY = "D:\\Etomica\\";
+  //  public static String WORKING_DIRECTORY = "D:\\Etomica\\";
  //   public static String WORKING_DIRECTORY = "";
     
     public static String CLASS_DIRECTORY = WORKING_DIRECTORY + "etomica";

@@ -427,6 +427,9 @@ class PropertySheetPanel extends JPanel {
 	            else if(etomica.units.Unit.class.isAssignableFrom(type)) {
 	                editor = new etomica.UnitEditor((Unit)value);
 	            }
+	            else if(etomica.MCMove[].class.isAssignableFrom(type)) {
+	                editor = new McMoveEditor((etomica.IntegratorMC)parentNode.object());
+	            }
 	            else {
         	        //property is a dimensioned number
         	        if(type == Double.TYPE) {

@@ -155,10 +155,10 @@ public final class JavaWriter {
         public void write(java.io.PrintWriter javaFile) {
             String className = element.getClass().getName();
             String name = etomica.utility.StringUtility.decapitalize(element.getName());
-            Potential onlyPotential = ((P2SimpleWrapper)element).getOnlyPotential();
-            String potentialName = etomica.utility.StringUtility.decapitalize(onlyPotential.getName());
+//            Potential onlyPotential = ((P2SimpleWrapper)element).getOnlyPotential();
+//            String potentialName = etomica.utility.StringUtility.decapitalize(onlyPotential.getName());
             
-            javaFile.println("    "+className+" "+name+"  = new "+className+"("+potentialName+");");
+//            javaFile.println("    "+className+" "+name+"  = new "+className+"("+potentialName+");");
         }
     }    
 }

@@ -17,8 +17,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private AtomIterator phase1AtomIterator;
     private AtomIterator phase2AtomIterator;
-    private final AtomIteratorCompound affectedAtomIterator 
-        = new AtomIteratorCompound(new AtomIterator[] {phase1AtomIterator, phase2AtomIterator});
+    private AtomIteratorCompound affectedAtomIterator;
 
     public MCMoveVolumeExchange(IntegratorMC parent) {
         super(parent);
@@ -45,6 +44,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2 = new PhaseAction.Inflate(secondPhase);
         phase1AtomIterator = firstPhase.makeAtomIterator();
         phase2AtomIterator = secondPhase.makeAtomIterator();
+        affectedAtomIterator 
+            = new AtomIteratorCompound(new AtomIterator[] {phase1AtomIterator, phase2AtomIterator});
     }
     
     public boolean thisTrial() {

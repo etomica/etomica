@@ -10,6 +10,11 @@ import java.awt.*;
 public class McMoveEditor extends PropertyEditorSupport implements java.io.Serializable {
     
     private MCMove[] moves;
+    IntegratorMC integrator;
+    
+    public McMoveEditor(IntegratorMC integrator) {
+        this.integrator = integrator;
+    }
     
     public String getAsText() {return null;}
     

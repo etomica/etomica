@@ -32,4 +32,4 @@ public class BondInitializerChain extends BondInitializer {
         }
     }
     
-}//end of BondInitializer
+}//end of BondInitializerChain

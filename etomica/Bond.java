@@ -8,6 +8,9 @@ package etomica;
  * The basic Bond class describes a two-atom bond.  Other types of bond
  * classes (as yet undeveloped) would be needed to apply to multi-atom 
  * bonds (e.g. pi bonds).
+ * New instances of a Bond are obtained via the makeBond method, rather
+ * than the constructor (which is declared private to prevent using it).
+ * This permits future addition of a bond reservoir facility.
  *
  * @author David Kofke
  */
@@ -57,6 +60,7 @@ public class Bond implements java.io.Serializable {
     public void breakBond() {
         link1.delete();
         link2.delete();
+        //add to reservoir
     }
 
 //consider for multi-atom bonds

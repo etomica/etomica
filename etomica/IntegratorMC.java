@@ -65,6 +65,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         if(firstMove == null) {firstMove = move;}
         else {lastMove.setNextMove(move);}
         lastMove = move;
+        move.setNextMove(null);
         move.setPhase(phase);
         moveCount++;
     }

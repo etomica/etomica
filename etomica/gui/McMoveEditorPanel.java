@@ -15,6 +15,7 @@ public class McMoveEditorPanel extends JPanel {
     PropertyEditorSupport editor;
     MyCheckBox[] checkBox; //array of checkboxes with associated mcmove objects
     private static int IDnumber = 0;
+    private static final Class[] constructorArgs = new Class[] {IntegratorMC.class};
     
     public McMoveEditorPanel(PropertyEditorSupport ed) {
         editor = ed;
@@ -66,11 +67,15 @@ public class McMoveEditorPanel extends JPanel {
 	        for(int i=0; i<checkBox.length; i++) {
 	            if(checkBox[i].isSelected()) {
 	                try {
-	                    newMove = (MCMove)checkBox[i].object.newInstance();
+//	                    newMove = (MCMove)checkBox[i].object.newInstance();
+                        java.lang.reflect.Constructor constructor = checkBox[i].object.getConstructor(constructorArgs);
+                        newMove = (MCMove)constructor.newInstance(new Object[] {((McMoveEditor)editor).integrator});
 	                    newMove.setName(newMove.getClass().getName().substring(8) + Integer.toString(IDnumber++));
 	                } 
 	                catch(InstantiationException e) {continue;}
 	                catch(IllegalAccessException e) {continue;}
+	                catch(java.lang.reflect.InvocationTargetException e) {continue;}
+	                catch(NoSuchMethodException e) {continue;}
 	                moves[count++] = newMove;
 	                checkBox[i].setSelected(false);
 	            }

@@ -16,7 +16,7 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseEventListe
     Atom basis = null;
     
     /**
-     * Constructs iterator the loops over all the children of the given
+     * Constructs iterator that loops over all the children of the given
      * atom group's children (i.e., the group's grandchildren).  Registers
      * as a listener to the group so that iterator is updated if children are
      * added to the given group.  This constructor is used to form molecule
