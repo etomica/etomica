@@ -43,7 +43,7 @@ public class NeighborCell extends Site {
     
     public AtomList[] occupants() {return occupants;}
     
-    private AtomList[] occupants;
+    private AtomList[] occupants = new AtomList[0];
 
     /**
      * Returns a factory that can make NeighborCell instances.

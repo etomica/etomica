@@ -10,6 +10,7 @@ import etomica.AtomIteratorListSimple;
 import etomica.AtomIteratorMolecule;
 import etomica.AtomIteratorPhaseDependent;
 import etomica.Default;
+import etomica.Integrator;
 import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
@@ -32,7 +33,7 @@ import etomica.lattice.Site;
 //TODO consider how (and from where) assignCell calls will be made
 //TODO figure out how sequencers for nbrList and cellList will be used at same time
 
-public class NeighborCellManager {
+public class NeighborCellManager implements Integrator.IntervalListener {
 
     private final BravaisLattice lattice;
     private final int[] dimensions;
@@ -42,6 +43,9 @@ public class NeighborCellManager {
     protected double neighborRange;
     private int listCount;
     private final AtomIteratorPhaseDependent atomIterator;
+    private int iieCount;
+    private int updateInterval;
+    private int priority;
     
     public NeighborCellManager(Phase phase, int nCells) {
         this(phase, nCells, new PrimitiveCubic(phase.space()));
@@ -58,6 +62,8 @@ public class NeighborCellManager {
         for(int i=0; i<space.D(); i++) dimensions[i] = nCells;
         lattice = makeCellLattice(phase);
         atomIterator = new AtomIteratorMolecule(phase);
+        setPriority(150);
+        setUpdateInterval(1);
     }
     /**
      * Constructs the cell lattice used to organize all cell-listed atoms
@@ -229,6 +235,34 @@ public class NeighborCellManager {
         while(iterator.hasNext()) {//loop over cells
             ((NeighborCell)iterator.nextAtom()).addOccupantList();
         }
+    }
+
+    public void intervalAction(Integrator.IntervalEvent event) {
+        if (event.type() == Integrator.IntervalEvent.INITIALIZE) {
+            assignCellAll();
+        }
+        else if (event.type() == Integrator.IntervalEvent.INTERVAL) {
+            if (--iieCount == 0) {
+                assignCellAll();
+                iieCount = updateInterval;
+            }
+        }
+    }
+    
+    public void setUpdateInterval(int updateInterval) {
+        this.updateInterval = updateInterval;
+    }
+
+    public int getUpdateInterval() {
+        return updateInterval;
+    }
+    
+    public int getPriority() {
+        return priority;
+    }
+    
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
     
     //returns a criterion used to set up neighboring cells in lattice
