@@ -198,8 +198,8 @@ public class AccumulatorAverage extends DataAccumulator {
     public static final Type MOST_RECENT = CHOICES[0];
     public static final Type AVERAGE = CHOICES[1];
     public static final Type ERROR = CHOICES[2];
-    public static final Type MOST_RECENT_BLOCK = CHOICES[3];
-    public static final Type STANDARD_DEVIATION = CHOICES[4];
+    public static final Type STANDARD_DEVIATION = CHOICES[3];
+    public static final Type MOST_RECENT_BLOCK = CHOICES[4];
 	
     public int getCount() {
         return count;
