@@ -6,7 +6,9 @@ import etomica.action.AtomsetAction;
  * Iterator for looping through the sequence list relative to a specified atom.
  * Can be configured to loop upList, downList, or both direction from specified
  * atom. Also can be configured to skip any number of atoms from the specified
- * atom.
+ * atom. No list specification is provided; rather iteration is performed beginning
+ * with a linker associated with the atom via a AtomToLinker class given at construction.
+ * Default version uses the atom's sequencer as the linker.
  */
 
 /*
@@ -16,10 +18,20 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
         AtomsetIteratorDirectable {
 
     /**
-     * Constructs new class with hasNext as false. Must invoke setAtom and reset
-     * before beginning iteration.
+     * Default instance uses the atom's sequencer as the linker to begin list iteration.
      */
     public AtomIteratorSequencerList() {
+        this(DEFAULT);
+    }
+    
+    /**
+     * Constructs new class with hasNext as false. Must invoke setAtom and reset
+     * before beginning iteration.  Argument is class that identifies the linker
+     * for beginning iteration, given an atom.
+     */
+    //see etomica.nbr.cell.ApiIntraspecies1ACell for non-default use of this constructor
+    public AtomIteratorSequencerList(AtomToLinker atomToLinker) {
+        this.atomToLinker = atomToLinker;
         listIterator = new AtomIteratorList();
         setDirection(null);
     }
@@ -104,10 +116,15 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
         return 1;
     }
 
+    /**
+     * Sets the first atom for iteration.  Iteration proceeds from this atom
+     * up and/or down the list, as specified by setDirection and setNumToSkip.
+     * Atom's sequencer is used to identify its position in the list.
+     */
     public void setAtom(Atom atom) {
         firstAtom = atom;
         if (atom != null)
-            listIterator.setFirst(atom.seq);
+            listIterator.setFirst(atomToLinker.getLinker(atom));
         else
             listIterator.unset();
     }
@@ -190,5 +207,19 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
     private IteratorDirective.Direction direction;
     private Atom firstAtom = null;
     private final Atom[] atom = new Atom[1];
+    private final AtomToLinker atomToLinker;
+    
+    /**
+     * Interface for class the determines the atom linker given an
+     * atom to begin iteration.
+     */
+    public interface AtomToLinker {
+        public AtomLinker getLinker(Atom atom);
+    }
 
+    private static final AtomToLinker DEFAULT = new AtomToLinker() {
+        public AtomLinker getLinker(Atom atom) {
+            return atom.seq;
+        }
+    };
 }
