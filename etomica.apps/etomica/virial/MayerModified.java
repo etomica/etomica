@@ -1,7 +1,8 @@
 package etomica.virial;
 
 import etomica.Default;
-import etomica.potential.Potential2;
+import etomica.potential.Potential2Spherical;
+import etomica.space.CoordinatePair;
 
 /**
  * @author kofke
@@ -9,16 +10,15 @@ import etomica.potential.Potential2;
  * A Mayer function that returns abs(f) or, when separation is less than a
  * specified amount (sigma), max (abs (f), 1.0).  Suitable for MC sampling.
  */
-public class MayerModified extends MayerFunction {
+public class MayerModified implements MayerFunction {
 
 	/**
 	 * Constructor for MayerModified.
 	 */
-	public MayerModified(Potential2 potential) {
+	public MayerModified(Potential2Spherical potential) {
 		this(potential, Default.ATOM_SIZE);
 	}
-	public MayerModified(Potential2 potential, double sigma) {
-		super();
+	public MayerModified(Potential2Spherical potential, double sigma) {
 		this.potential = potential;
 		setSigma(sigma);
 	}
@@ -26,9 +26,10 @@ public class MayerModified extends MayerFunction {
 	/**
 	 * @see etomica.virial.MayerFunction#f(etomica.AtomPair, double)
 	 */
-	public double f(AtomPair pair, double beta) {
-		double r2 = pair.r2();
-		double bu = beta*potential.energy(pair);
+	public double f(CoordinatePair cPair, double beta) {
+		// FIXME: this calculates distance twice
+		double r2 = cPair.r2();
+		double bu = beta*potential.u(r2);
 		if(r2 < sigma2 && bu > UF1) return 1.0;
 //		if(r2 < sigma2 ) return 1.0;
 //		double bu = beta*potential.energy(pair);
@@ -54,7 +55,7 @@ public class MayerModified extends MayerFunction {
 		sigma2 = sigma*sigma;
 	}
 
-	private final Potential2 potential;
+	private final Potential2Spherical potential;
 	private static final double UF1 = -Math.log(2.0); //value of beta*u for which f = +1
 	private double sigma, sigma2;
 

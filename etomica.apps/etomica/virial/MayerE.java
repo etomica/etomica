@@ -1,28 +1,28 @@
 package etomica.virial;
 
-import etomica.potential.Potential2;
+import etomica.potential.Potential2Spherical;
+import etomica.space.CoordinatePair;
 /**
  * @author kofke
  *
  * Simple e-bond, exp(-beta*u).
  */
-public class MayerE extends MayerFunction {
+public class MayerE implements MayerFunction {
 
 	/**
 	 * Constructor for MayerE.
 	 */
-	public MayerE(Potential2 potential) {
-		super();
+	public MayerE(Potential2Spherical potential) {
 		this.potential = potential;
 	}
 
 	/**
 	 * @see etomica.virial.MayerFunction#f(etomica.AtomPair, double)
 	 */
-	public double f(AtomPair pair, double beta) {
-		return Math.exp(-beta*potential.energy(pair));
+	public double f(CoordinatePair cPair, double beta) {
+		return Math.exp(-beta*potential.u(cPair.r2()));
 	}
 
-	private final Potential2 potential;
+	private final Potential2Spherical potential;
 
 }

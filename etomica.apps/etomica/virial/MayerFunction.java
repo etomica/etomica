@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.space.CoordinatePair;
 
 /**
  * @author kofke
@@ -7,16 +8,12 @@ package etomica.virial;
  * Abstract class for a Mayer f-function, which takes a pair of atoms and
  * returns exp(-u(pair)/kT) - 1
  */
-public abstract class MayerFunction {
+public interface MayerFunction {
 
-	/**
-	 * Constructor for MayerFunction.
-	 */
-	public MayerFunction() {
-		super();
-	}
-
-	public abstract double f(AtomPair pair, double beta);
+    /**
+     * returns Mayer function between atoms in the pair at temperature
+     * 1/beta
+     */
+	public abstract double f(CoordinatePair cPair, double beta);
 	
-	public String toString() {return "f   ";}
 }

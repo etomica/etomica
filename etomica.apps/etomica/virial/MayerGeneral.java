@@ -1,6 +1,7 @@
 package etomica.virial;
 
-import etomica.potential.Potential2;
+import etomica.potential.Potential2Spherical;
+import etomica.space.CoordinatePair;
 
 /**
  * @author kofke
@@ -8,24 +9,18 @@ import etomica.potential.Potential2;
  * General Mayer function, which wraps the Mayer potential around an instance of
  * a Potential2 object.
  */
-public class MayerGeneral extends MayerFunction {
+public class MayerGeneral implements MayerFunction {
 
 	/**
-	 * Constructor for MayerFunctionGeneral.
+	 * Constructor Mayer function using given potential.
 	 */
-	public MayerGeneral(Potential2 potential) {
-		super();
+	public MayerGeneral(Potential2Spherical potential) {
 		this.potential = potential;
 	}
 
-	/**
-	 * @see etomica.virial.MayerFunction#f(etomica.AtomPair, double)
-	 */
-	public double f(AtomPair pair, double beta) {
-		return Math.exp(-beta*potential.energy(pair)) - 1.0;
-//		if(pair.r2() > 1.0) return Math.exp(-beta*potential.energy(pair)) - 1.0;
-//		else return Math.exp(-beta*potential.energy(pair));
+	public double f(CoordinatePair cPair, double beta) {
+		return Math.exp(-beta*potential.u(cPair.r2())) - 1.0;
 	}
 
-	private final Potential2 potential;
+	private final Potential2Spherical potential;
 }
