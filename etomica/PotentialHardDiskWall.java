@@ -21,7 +21,7 @@ public class PotentialHardDiskWall extends Potential implements Potential.Hard, 
     private boolean isothermal = false;
     private double temperature = Default.TEMPERATURE;
 
-    public PotentialHardDiskWall() {this(Simulation.instance, 0.0);}
+    public PotentialHardDiskWall() {this(Simulation.instance, Default.ATOM_SIZE);}
     
     public PotentialHardDiskWall(double d) {
         this(Simulation.instance, d);

@@ -236,7 +236,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         Meter temp = new MeterTemperature();
         Meter energy = new MeterEnergy();
         energy.setHistorying(true);
-        plot.setDataSource(energy);
+//        plot.setDataSource(energy);
         Phase phase = Simulation.instance.phase(0);
         ke.setPhase(phase);
         temp.setPhase(phase);

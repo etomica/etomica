@@ -16,7 +16,7 @@ import java.awt.event.MouseEvent;
  * @author David Kofke
  */
 
-public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawable {
+public class ActionPointVolume extends PhaseAction implements Action.Undoable, DisplayPhase.Drawable {
     
     public static String getVersion() {return "ActionPointVolume:01.02.19"+PhaseAction.getVersion();}
 
@@ -116,7 +116,7 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
         phase.dimensions().TE(scale);
     }
     
-    public void attmpt() {actionPerformed(phase);}
+    public void attempt() {actionPerformed(phase);}
     
     public void undo() {
         for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {

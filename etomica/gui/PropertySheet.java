@@ -20,7 +20,7 @@ import javax.swing.event.TreeExpansionEvent;
 
 public class PropertySheet extends JInternalFrame {
     
-    public String getVersion() {return "PropertySheet:01.03.22";}
+    public String getVersion() {return "PropertySheet:01.05.14";}
 
     static final javax.swing.border.EmptyBorder EMPTY_BORDER = new javax.swing.border.EmptyBorder(2,4,2,2);
     static ImageIcon LEAF_ICON;
@@ -289,8 +289,56 @@ class PropertySheetPanel extends JPanel {
         Object object = parentNode.object();
         if(object == null) return;
         
-        if(object.getClass().isArray()) {}
+        if(object.getClass().isArray()) 
+            addArrayChildren(parentNode);
+        else 
+            addObjectChildren(parentNode);
+            
+        //notify model of the changes below this node
+	    model.nodeStructureChanged(parentNode);
+	    
+    }
+    
+    //called by addChildren
+    //sets up children of an array property
+    private void addArrayChildren(PropertyNode parentNode) {
         
+        Object[] objects = (Object[])parentNode.object();
+                
+        for(int i=0; i<objects.length; i++) {
+            Object object = objects[i];
+            Object value = object;
+            MyLabel newLabel = new MyLabel("["+i+"]", Label.LEFT);
+            Component view = new EmptyPanel(value.toString());
+            PropertyNode child = new PropertyNode(value, newLabel, view, null, null, null);
+            
+//See if object can have child objects in tree (cannot if it is primitive)
+            if(!(value == null || 
+                value instanceof Number || 
+                value instanceof Boolean ||
+                value instanceof Character ||
+                value instanceof String ||
+                value instanceof Color ||
+                value instanceof etomica.Constants.TypedConstant ||
+                value instanceof java.awt.Font)) {/*add dummy child*/
+                child.add(new PropertyNode(null,new JLabel(),new EmptyPanel(), new EmptyPanel(), null, null));
+            }
+            
+            parentNode.add(child);
+            System.out.println(((etomica.MCMove)object).getName());
+        }
+        
+
+        //Introspection to get array of all properties
+//        PropertyDescriptor properties = new PropertyDescriptor;
+    }
+    
+    //called by addChildren
+    //sets up children of a non-array property
+    private void addObjectChildren(PropertyNode parentNode) {
+        
+        Object object = parentNode.object();
+
         //Introspection to get array of all properties
         PropertyDescriptor[] properties = null;
         BeanInfo bi = null;
@@ -303,23 +351,46 @@ class PropertySheetPanel extends JPanel {
 	        return;
 	    }
 
-        //Collect object and its properties in a PropertyGroup and add to list of all groups
-///        PropertyGroup group = new PropertyGroup(object, properties);
-///        groups.add(group);
-        
-        //used to store editors of values of a meter
+        //Loop through all properties and determine current value and find appropriate editor
         DimensionedDoubleEditor averageEditor = null;
         DimensionedDoubleEditor errorEditor = null;
         DimensionedDoubleEditor currentEditor = null;
         PropertyText averageView = null;
         PropertyText errorView = null;
         PropertyText currentView = null;
-        
-        //Loop through all properties and determine current value and find appropriate editor
 	    for (int i = 0; i < properties.length; i++) {
+	        PropertyNode node = processProperty(parentNode, properties[i], bi);
+	        if(node == null) continue;
+	        String name = properties[i].getDisplayName();  //Localized display name
+	        //if meter, set up update thread that refreshes meter's measured values
+    	    if(object instanceof Meter) {
+		        if(name.equals("average")) {
+		            averageEditor = (DimensionedDoubleEditor)node.editor();
+		            averageView = (PropertyText)node.view();
+		        }
+		        else if(name.equals("error")) {
+		            errorEditor = (DimensionedDoubleEditor)node.editor();
+		            errorView = (PropertyText)node.view();
+		        }
+		        else if(name.equals("mostRecent")) {
+		            currentEditor = (DimensionedDoubleEditor)node.editor();
+		            currentView = (PropertyText)node.view();
+		        }
+	        }//end if
+	    }//end of loop over properties
+
+	    //if meter, set to display/update its values on table
+	    if(object instanceof Meter) updateThread.add((Meter)object,currentEditor,averageEditor,errorEditor,
+	                                        currentView,  averageView,  errorView  );
+	                                        
+    }//end of addObjectChildren method
+    
+    private PropertyNode processProperty(PropertyNode parentNode, PropertyDescriptor property,
+                                            BeanInfo bi) {
+        
 	        // Don't display hidden or expert properties.
-	        if (properties[i].isHidden() || properties[i].isExpert())
-		        continue;
+	        if (property.isHidden() || property.isExpert())
+		        return null;
 
 	        Object value = null;
 	        Component view = null;
@@ -327,24 +398,23 @@ class PropertySheetPanel extends JPanel {
 	        JLabel label = null;
 	        PropertyEditor editor = null;
 
-	        String name = properties[i].getDisplayName();  //Localized display name 
-	        if(name.equals("dimension")) continue;         //skip getDimension()
-	        Class type = properties[i].getPropertyType();  //Type (class) of this property
-	        Method getter = properties[i].getReadMethod(); //method used to read value of property in this object
-	        Method setter = properties[i].getWriteMethod();//method used to set value of property
+	        String name = property.getDisplayName();  //Localized display name 
+	        if(name.equals("dimension")) return null;         //skip getDimension()
+	        Class type = property.getPropertyType();  //Type (class) of this property
+	        Method getter = property.getReadMethod(); //method used to read value of property in this object
+	        Method setter = property.getWriteMethod();//method used to set value of property
 	        // Only display read/write properties.
-	        if (getter == null || (setter == null && !(object instanceof Meter)) || type == Class.class) {
-		        continue;
+	        if (getter == null || (setter == null && !(parentNode.object() instanceof Meter)) || type == Class.class) {
+		        return null;
 	        }
 	        try {
 	            //read the current value of the property
 		        Object args[] = { };
-		        try {value = getter.invoke(object, args);}
+		        try {value = getter.invoke(parentNode.object(), args);}
 		        catch(NullPointerException ex) {value = null;}
-///	            group.values[i] = value;
 
                 //find and instantiate the editor used to modify value of the property
-	            if(properties[i].isConstrained())
+	            if(property.isConstrained())
 	                editor = new ConstrainedPropertyEditor();
 	            //if property is a TypedConstant
 	            else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
@@ -354,16 +424,16 @@ class PropertySheetPanel extends JPanel {
         	        //property is a dimensioned number
         	        if(type == Double.TYPE) {
         	            //try to get dimension from get(property)Dimension() method
-        	            etomica.units.Dimension dimension = etomica.units.Dimension.introspect(object,name,bi);
+        	            etomica.units.Dimension dimension = etomica.units.Dimension.introspect(parentNode.object(),name,bi);
         	            //try to get dimension from getDimension() method
-                        if(dimension == null) dimension = etomica.units.Dimension.introspect(object,"",bi);
+                        if(dimension == null) dimension = etomica.units.Dimension.introspect(parentNode.object(),"",bi);
         	            if(dimension != null) {
         	                editor = new DimensionedDoubleEditor(dimension);
         	            }
         	        }
         	        //property is not a dimensioned number; see if its editor was set explicitly
         	        if(editor == null) { 
-	                    Class pec = properties[i].getPropertyEditorClass();
+	                    Class pec = property.getPropertyEditorClass();
 		                if (pec != null) {
 		                    try {
 			                    editor = (PropertyEditor)pec.newInstance();
@@ -377,16 +447,14 @@ class PropertySheetPanel extends JPanel {
 		                editor = PropertyEditorManager.findEditor(type);
 		        }//done with trying to get an editor for the property
 		        
-///	            group.editors[i] = editor;
-
 	            // If we can't edit this component, skip it.
 	            if (editor == null) {
 		            // If it's a user-defined property we give a warning.
-		            String getterClass = properties[i].getReadMethod().getDeclaringClass().getName();
+		            String getterClass = property.getReadMethod().getDeclaringClass().getName();
 		            if (getterClass.indexOf("java.") != 0) {
 		                System.err.println("Warning: Can't find public property editor for property \"" + name + "\".  Skipping.");
 		            }
-		            continue;
+		            return null;
 	            }
 
                 //set the editor to the current value of the property
@@ -412,42 +480,29 @@ class PropertySheetPanel extends JPanel {
 		        else {
 		            System.err.println("Warning: Property \"" + name 
 				        + "\" has non-displayable editor.  Skipping.");
-		            continue;
+		            return null;
 		        }
 		        if(editor instanceof DimensionedDoubleEditor) {
 		            unitView = ((DimensionedDoubleEditor)editor).unitSelector();
-		            if(object instanceof etomica.Meter) {
+		            if(parentNode.object() instanceof etomica.Meter)
 		                ((PropertyText)view).setEditable(false);
-		                if(name.equals("average")) {
-		                    averageEditor = (DimensionedDoubleEditor)editor;
-		                    averageView = (PropertyText)view;
-		                }
-		                else if(name.equals("error")) {
-		                    errorEditor = (DimensionedDoubleEditor)editor;
-		                    errorView = (PropertyText)view;
-		                }
-		                else if(name.equals("mostRecent")) {
-		                    currentEditor = (DimensionedDoubleEditor)editor;
-		                    currentView = (PropertyText)view;
-		                }
-		            }
 		        }
 		        else unitView = new EmptyPanel();
 	        } //end of try
 	        catch (InvocationTargetException ex) {
 		        System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
 		        ex.getTargetException().printStackTrace();
-		        continue;
+		        return null;
 	        } 
 	        catch (Exception ex) {
 		        System.err.println("Skipping property " + name + " ; exception: " + ex);
 		        ex.printStackTrace();
-		        continue;
+		        return null;
 	        }
 
             MyLabel newLabel = new MyLabel(name, Label.LEFT);
 	        
-            PropertyNode child = new PropertyNode(value, newLabel, view, unitView, editor, properties[i]);
+            PropertyNode child = new PropertyNode(value, newLabel, view, unitView, editor, property);
             
 //See if object can have child objects in tree (cannot if it is primitive)
             if(!(value == null || 
@@ -462,17 +517,9 @@ class PropertySheetPanel extends JPanel {
             }
             
             parentNode.add(child);
-	    }//end of loop over properties
-
-        //notify model of the changes below this node
-	    model.nodeStructureChanged(parentNode);
-	    
-	    //if meter, set to display/update its values on table
-	    if(object instanceof Meter) {
-	        updateThread.add((Meter)object,currentEditor,averageEditor,errorEditor,
-	                                       currentView,  averageView,  errorView  );
-	    }
-    }//end of addChildren method
+            
+            return child;
+    }//end of processProperty
         
     private void doLayout(boolean doSetSize) {
         JTree tree = treeTable.getTree();
@@ -572,7 +619,8 @@ class PropertySheetPanel extends JPanel {
         PropertyNode root = (PropertyNode)tree.getModel().getRoot();
 	    if (evt.getSource() instanceof PropertyEditor) {
 	        PropertyEditor editor = (PropertyEditor) evt.getSource();
-            //loop over all objects and properties to find the editor that made the change 
+            //loop over all objects and properties to find the editor that made the change
+            //***could replace this process with a hash table***
             for(java.util.Enumeration enum = root.breadthFirstEnumeration(); enum.hasMoreElements();) {
                 PropertyNode node = (PropertyNode)enum.nextElement();
                 
@@ -638,7 +686,8 @@ class PropertySheetPanel extends JPanel {
 	            o = getter.invoke(target, args);
 	        } 
 	        catch (Exception ex) { o = null; }
-	        if (o == node.object() || (o != null && o.equals(node.object())) ||  setter == null) {
+	        if (o == node.object() || (o != null && o.equals(node.object())) ||  setter == null 
+	            || (o.getClass().isArray() && node.object().getClass().isArray() && java.util.Arrays.equals((Object[])o,(Object[])node.object()))) {
 	            // The property is equal to its old value.
     		    continue;
 	        }
@@ -658,10 +707,8 @@ class PropertySheetPanel extends JPanel {
 	        }
 	    }//end of for(java.util.Enumeration) loop
 	        
-	        //this ensures display is updated if editor changes units
-	        if(evt.getSource() instanceof DimensionedDoubleEditor) {
-	            repaint();
-	        }
+        ((SimulationFrame)Etomica.simulationFrames.get(Simulation.instance)).repaint();
+	    
     }//end of wasModified method
 
    
@@ -714,6 +761,10 @@ class PropertySheetPanel extends JPanel {
     private static class EmptyPanel extends JTextField {
         EmptyPanel() {
             super("");
+            setBorder(PropertySheet.EMPTY_BORDER);
+        }
+        EmptyPanel(String text) {
+            super(text);
             setBorder(PropertySheet.EMPTY_BORDER);
         }
     }

@@ -22,7 +22,7 @@ class PropertySelector extends JComboBox implements ItemListener {
 	    ((JComboBox)this).setModel(componentList);
 	    for (int i = 0; i < tags.length; i++) {
 	        ((JComboBox)this).addItem(tags[i]);
-	        if(current == tags[i]) iCurrent = i;
+	        if(current.equals(tags[i])) iCurrent = i;
 	    }
 	    ((JComboBox)this).setSelectedIndex(iCurrent);
     	addItemListener(this);

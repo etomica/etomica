@@ -36,6 +36,7 @@ public class Mediator implements java.io.Serializable {
         addMediatorPair(new DisplayIntegrator.Default(this));
         addMediatorPair(new Mediator.DisplayPhase.Default(this));
         addMediatorPair(new MeterPhase.Default(this));
+        addMediatorPair(new MeterSpecies.Default(this));
         addMediatorPair(new ControllerIntegrator.Default(this));
         addMediatorPair(new DeviceNull.Default(this));
         addMediatorPair(new DisplayNull.Default(this));
@@ -401,6 +402,35 @@ public class Mediator implements java.io.Serializable {
             }
         }//end of Default
     }//end of MeterPhase
+    public abstract static class MeterSpecies extends Subset {
+        public MeterSpecies(Mediator m) {super(m);}
+
+        public Class[] elementClasses() {return new Class[] {MeterAbstract.class, Species.class};}
+        
+        public void add(Simulation.Element element) {
+            if(!superceding && priorSubset != null) priorSubset.add(element);
+            if(element instanceof MeterAbstract) add((MeterAbstract)element);
+            if(element instanceof Species) add((Species)element);
+        }
+        
+        public abstract void add(MeterAbstract m);
+        public abstract void add(Species s);
+        
+        public static class Default extends MeterSpecies {
+            public Default(Mediator m) {super(m);}
+            /**
+             * Does nothing.
+             */
+            public void add(MeterAbstract meter) {
+            }
+            /**
+             * Does nothing
+             */
+            public void add(Species species) {
+            }
+        }//end of Default
+    }//end of MeterSpecies
+
     public abstract static class ControllerIntegrator extends Subset {
         public ControllerIntegrator(Mediator m) {super(m);}
 

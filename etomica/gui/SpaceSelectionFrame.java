@@ -22,6 +22,7 @@ public class SpaceSelectionFrame extends javax.swing.JInternalFrame implements j
             String name = Etomica.spaceClasses[i].getName();
             int idx = 12;//strip off etomica.Space prefix
             name = name.substring(idx+1);
+            if(name.equals("2DCell")) continue;
             MyButton button = new MyButton(Etomica.spaceClasses[i],name,i==0);
             dimension.add(button);
             getContentPane().add(button);

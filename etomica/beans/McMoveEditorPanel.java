@@ -13,6 +13,7 @@ public class McMoveEditorPanel extends JPanel {
 
     PropertyEditorSupport editor;
     MyCheckBox[] checkBox; //array of checkboxes with associated mcmove objects
+    private static int IDnumber = 0;
     
     public McMoveEditorPanel(PropertyEditorSupport ed) {
         editor = ed;
@@ -29,7 +30,7 @@ public class McMoveEditorPanel extends JPanel {
             checkBox[i] = new MyCheckBox(objects[i]);
             objectPanel.add(checkBox[i]);
         }
-        JButton button = new JButton("OK");
+        JButton button = new JButton("Add");
         button.addActionListener(new DoneButtonListener());
                 
         add(button);
@@ -66,14 +67,15 @@ public class McMoveEditorPanel extends JPanel {
 	            if(checkBox[i].isSelected()) {
 	                try {
 	                    newMove = (MCMove)checkBox[i].object.newInstance();
+	                    newMove.setName(newMove.getClass().getName().substring(8) + Integer.toString(IDnumber++));
 	                } 
 	                catch(InstantiationException e) {continue;}
 	                catch(IllegalAccessException e) {continue;}
 	                moves[count++] = newMove;
+	                checkBox[i].setSelected(false);
 	            }
 	        }
-	        editor.setValue(moves);
-	        editor.firePropertyChange();
+	        editor.setValue(moves); //editor fires property change as part of this call
 	    }
 	}
 	

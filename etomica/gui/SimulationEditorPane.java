@@ -77,6 +77,11 @@ public class SimulationEditorPane extends EditorPane {
     public static Class[] deviceClasses;
 
     /**
+     * Static array of all simulation components that extend action.class
+     */
+    public static Class[] actionClasses;
+
+    /**
      * Constructor that creates all of the left pane's radiobuttons and JButtons, as well as, the right 
      * pane's scrollpane and JList.  It also creates all the listeners for these swing components so that
      * the simulation can be updated as needed.
@@ -166,7 +171,9 @@ public class SimulationEditorPane extends EditorPane {
         Class[] classArray = (Class[])elementClasses.get(getTitle());
         if (getTitle() != "Phase") makeRadioButtons(classArray);
         remove.setEnabled(false);
-		if (getTitle() == "Species") makeDefineMoleculeButton();
+        
+        //this is commented out until the define molecule/potential facility is perfected
+//		if (getTitle() == "Species") makeDefineMoleculeButton();
 		
         // The new actionListener will add an instance of the class that corresponds to the currently
         // selected radioButton to the simulationEditor.getSimulation() object as well as to the SimulationEditorPane's
@@ -191,6 +198,7 @@ public class SimulationEditorPane extends EditorPane {
 	                        componentList.addElement(element); // Add new object to the componentList
                             currentSimulation.elementCoordinator.add(element);
                             ((JavaWriter)Etomica.javaWriters.get(currentSimulation)).add(element);
+                            ((SimulationFrame)Etomica.simulationFrames.get(currentSimulation)).repaint();
 	                        if (getTitle() == "Controller"){
                                 etomica.Device button = ((Controller)getComponent()).getButton();
                                 if(button != null) simulationEditor.getSimulation().elementCoordinator.add(button);

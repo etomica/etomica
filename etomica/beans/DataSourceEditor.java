@@ -8,28 +8,39 @@ import java.beans.PropertyEditorSupport;
  */
 public class DataSourceEditor extends PropertyEditorSupport implements java.io.Serializable {
     
-    public static String version() {return "01.04.28";}
+    public static String version() {return "01.05.14";}
     
     Object[] dataSourceObjects;
     String[] dataSourceNames;
+    String valueAsText;
     
     public DataSourceEditor() {
         super();
-        makeDataSourceLists();
+        makeDataSourceList();
     }
 
     public String getAsText() {
-        makeDataSourceLists();
+//        return valueAsText;
+        makeDataSourceList();
         if(dataSourceNames.length == 0 || getValue() == null) return "null";
         return getValue().toString();
     }
     
     public void setAsText(String s) {
-        makeDataSourceLists();
+        makeDataSourceList();
         for(int i=0; i<dataSourceNames.length; i++) {
             if(dataSourceNames[i].equals(s)) {
-                setValue(dataSourceObjects[i]);
+                int idx = s.indexOf(':');
+                if(idx == -1) {  //not a wrapper
+                    setValue(dataSourceObjects[i]);
+                }
+                else { //wrapper
+                    String sourceText = s.substring(idx+1);
+                    DataSource.Wrapper wrapper = (DataSource.Wrapper)dataSourceObjects[i];
+                    setValue(wrapper.getDataSource(sourceText));
+                }
                 firePropertyChange();
+                valueAsText = s;
                 return;
             }
         }
@@ -37,18 +48,22 @@ public class DataSourceEditor extends PropertyEditorSupport implements java.io.S
 
     public String[] getTags() {return dataSourceNames;}
 
-    protected void makeDataSourceLists() {
+    protected void makeDataSourceList() {
         java.util.LinkedList dataSourceList = etomica.Simulation.instance.allElements();
         //count number of DataSource objects
-        int count=0;
+        int count=1;
         for(java.util.Iterator iter=dataSourceList.iterator(); iter.hasNext(); ) {
             Object obj = iter.next();
             if(obj instanceof DataSource) count++;
+            if(obj instanceof DataSource.Wrapper) 
+                count += ((DataSource.Wrapper)obj).getSourcesAsText().length;
         }
         //collect them together
         dataSourceNames = new String[count];
         dataSourceObjects = new Object[count];
-        int i=0;
+        dataSourceNames[0] = "null";
+        dataSourceObjects[0] = null;
+        int i=1;
         for(java.util.Iterator iter=dataSourceList.iterator(); iter.hasNext(); ) {
             Object obj = iter.next();
             if(obj instanceof DataSource) {
@@ -56,6 +71,16 @@ public class DataSourceEditor extends PropertyEditorSupport implements java.io.S
                 dataSourceNames[i] = dataSourceObjects[i].toString();
                 i++;
             }
-        }
-    }
+            if(obj instanceof DataSource.Wrapper) {
+                DataSource.Wrapper wrapper = (DataSource.Wrapper)obj;
+                String prefix = wrapper.toString() + ':';
+                String[] names = wrapper.getSourcesAsText();
+                for(int j=0; j<names.length; j++) {
+                    dataSourceObjects[i] = wrapper;
+                    dataSourceNames[i] = prefix+names[j];
+                    i++;
+                }
+            }//end if
+        }//end of for
+    }//end of makeDataSourceList
 }//end of class

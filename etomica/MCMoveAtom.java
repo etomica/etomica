@@ -1,6 +1,7 @@
 package etomica;
 
 import java.util.Random;
+import etomica.units.Dimension;
 
 public class MCMoveAtom extends MCMove {
     
@@ -13,6 +14,11 @@ public class MCMoveAtom extends MCMove {
         setStepSize(Default.ATOM_SIZE);
         setPerParticleFrequency(true);
     }
+    
+    public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}
+    public final Dimension getStepSizeMaxDimension() {return Dimension.LENGTH;}
+    public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
+    
     
     //under revision--- does not work for multiatomics, since intramolecular energy is not considered
     public void thisTrial() {

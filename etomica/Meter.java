@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.units.*;
 import etomica.utility.Histogram;
+import etomica.utility.History;
 import etomica.utility.Function;
 
 /**
@@ -12,12 +13,14 @@ import etomica.utility.Function;
  * The default condition of a Meter is "active", meaning that it increments sums for averages upon
  * receiving sufficient interval events from the integrator.
  */
-public abstract class Meter extends MeterAbstract implements DataSource, DatumSource  {
+public abstract class Meter extends MeterAbstract implements DataSource.Wrapper, DatumSource  {
     
-    public static final String VERSION = "Meter:01.03.24/"+MeterAbstract.VERSION;
+    public static final String VERSION = "Meter:01.05.14/"+MeterAbstract.VERSION;
     
     MeterAbstract.Accumulator accumulator = new MeterAbstract.Accumulator();
     private Function function;
+    
+    private static final String[] sourcesAsText = new String[] {"History", "Histogram"};
 
 	public Meter(Simulation sim) {
 	    super(sim);
@@ -77,11 +80,31 @@ public abstract class Meter extends MeterAbstract implements DataSource, DatumSo
 	    else return Double.NaN;
 	}
 	
-	public double[] values(DataSource.ValueType type) {return values((Meter.ValueType)type);}
+/*	public double[] values(DataSource.ValueType type) {return values((Meter.ValueType)type);}
 	public double[] values(Meter.ValueType type) {
 	    if(type==Meter.ValueType.HISTORY) return accumulator.history();
 	 //   else if(type==Meter.ValueType.HISTOGRAM) return histogram();
 	    else return null;
+	}
+	*/
+	public String[] getSourcesAsText() {
+	    int nSources = 0;
+	    if(historying) nSources++;
+	    if(histogramming) nSources++;
+	    String[] sources = new String[nSources];
+	    int i=0;
+	    if(historying) sources[i++] = "History";
+	    if(histogramming) sources[i++] = "Histogram";
+	    return sources;
+	}
+	public DataSource getDataSource(String text) {
+	    if(text.equals("History")) return getHistory();
+//	    else if(text.equals("Histogram")) return getHistogram();
+	    else return null;
+	}
+	
+	public History getHistory() {
+	    return accumulator.history();
 	}
 	
     /**

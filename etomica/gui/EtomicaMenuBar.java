@@ -66,9 +66,10 @@ public class EtomicaMenuBar extends JMenuBar {
     /**
      * View MenuItem Handles
 	 */
+    static final JMenuItem editSimulationItem = new JMenuItem("Simulation Editor");
 	static final JMenuItem workBookItem = new JMenuItem("Workbook");
-	static final JMenuItem propertyListItem = new JMenuItem("Property List");
-	static final JMenuItem simulationItem = new JMenuItem("Simulation");
+	static final JMenuItem propertyListItem = new JMenuItem("Property Sheet");
+	static final JMenuItem simulationItem = new JMenuItem("Simulation Panel");
 	static final JMenuItem componentLibraryItem = new JMenuItem("Component Library");
 	static final JMenuItem classBrowserItem = new JMenuItem("Class Browser");
 	static final JMenuItem messagesItem = new JMenuItem("Messages");
@@ -113,7 +114,6 @@ public class EtomicaMenuBar extends JMenuBar {
     /**
      * SimulationItem Menu Handles
      */
-    static final JMenuItem editSimulationItem = new JMenuItem("Edit Simulation");
     
     /**
      * Window MenuItem Handles
@@ -210,9 +210,14 @@ public class EtomicaMenuBar extends JMenuBar {
          * View Menu naming, adding to menu, and listener creating 
          */
         this.add(viewMenu);
+        editSimulationItem.setEnabled(false);
+        editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
+        viewMenu.add(editSimulationItem);
+        
         workBookItem.addActionListener(ViewActions.WORKBOOK);
         workBookItem.setActionCommand("Workbook");
 //        viewMenu.add(workBookItem);
+
         propertyListItem.addActionListener(ViewActions.PROPERTYLIST);
         propertyListItem.setActionCommand("PropertyList");
 		propertyListItem.setAccelerator(KeyStroke.getKeyStroke("F4"));
@@ -340,16 +345,19 @@ public class EtomicaMenuBar extends JMenuBar {
         windowMenu.add(tileItem);
 //        dragOutlineItem.addActionListener(WindowsActions.DRAG);
 //        windowMenu.add(dragOutlineItem);
+
+        //things moved from simulationMenu
+//        windowMenu.add(new javax.swing.JSeparator());//instantiated simulations will be placed after this separator, as they are created
       
         /**
          * Simulate Menu naming, adding to menu, and listener creating 
          */
         this.add(simulationMenu);
-        editSimulationItem.setEnabled(false);
+/*        editSimulationItem.setEnabled(false);
         editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
         simulationMenu.add(editSimulationItem);
         simulationMenu.add(new javax.swing.JSeparator());//instantiated simulations will be placed after this separator, as they are created
-
+*/
         /**
          * Help Menu naming, adding to menu, and listener creating 
          */

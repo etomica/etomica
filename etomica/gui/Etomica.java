@@ -79,6 +79,7 @@ public final class Etomica {
         item.addActionListener(listener);
         bg.add(item);
         item.setSelected(true);
+//        EtomicaMenuBar.simulationMenu.add(item);
         EtomicaMenuBar.simulationMenu.add(item);
         EtomicaMenuBar.editSimulationItem.setEnabled(true);
         

@@ -100,7 +100,7 @@ public class MCMovePointVolume extends MCMove {
         species.setNMolecules(40);
         
         DisplayPlot plot = new DisplayPlot();
-        plot.setDataSource(dMeter);
+//        plot.setDataSource(dMeter);
         dMeter.setHistorying(true);
                 
 		Simulation.instance.elementCoordinator.go();

@@ -22,6 +22,8 @@ public class MeterBeanInfo extends SimpleBeanInfo {
                 new PropertyDescriptor("average",Meter.class,"average",null),
                 new PropertyDescriptor("error",Meter.class,"error",null),
                 new PropertyDescriptor("active",MeterAbstract.class),
+                new PropertyDescriptor("historying",MeterAbstract.class),
+                new PropertyDescriptor("histogramming",MeterAbstract.class),
                 new PropertyDescriptor("label",MeterAbstract.class),
                 new PropertyDescriptor("updateInterval",MeterAbstract.class)
                 };

@@ -31,9 +31,9 @@ public final class Atom implements Space.Occupant, java.io.Serializable {
     public Atom(Molecule parent, AtomType t, int index) {
         parentMolecule = parent;
         atomIndex = index;
-        workVector = parentPhase().parentSimulation().space().makeVector();
-        rLast = parentPhase().parentSimulation().space().makeVector();
-        velocity = parentPhase().parentSimulation().space().makeVector();
+        workVector = parentSimulation().space().makeVector();
+        rLast = parentSimulation().space().makeVector();
+        velocity = parentSimulation().space().makeVector();
         type = t; //this must precede makeCoordinate call
         coordinate = type.makeCoordinate(this);
       //  coordinate = Simulation.space.makeCoordinate(this);
@@ -57,10 +57,15 @@ public final class Atom implements Space.Occupant, java.io.Serializable {
     public final Molecule parentMolecule() {return parentMolecule;}
 
     /**
+     * Simulation in which this atom resides
+     */
+    public final Simulation parentSimulation() {return parentMolecule.parentSimulation();}
+        
+    /**
      * Phase in which this atom resides
      */
     public final Phase parentPhase() {return parentMolecule.parentPhase();}
-        
+
     /**
      * Coordinates of this atom.
      * When the atom is constructed the coordinate class is provided by the 
@@ -199,7 +204,7 @@ public final class Atom implements Space.Occupant, java.io.Serializable {
 
     public final double kineticEnergy() {return coordinate.kineticEnergy();}
     public final void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
-        double magnitude = Math.sqrt(type.mass()*temperature*(double)parentPhase().parentSimulation().space().D());  //need to divide by sqrt(m) to get velocity
+        double magnitude = Math.sqrt(type.mass()*temperature*(double)parentSimulation().space().D());  //need to divide by sqrt(m) to get velocity
         p.setRandomSphere();
         p.TE(magnitude);
     }

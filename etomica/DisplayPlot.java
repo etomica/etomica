@@ -132,9 +132,8 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
                 }
             }
         }
-        else if(ySource instanceof Meter) {
-            Meter meter = (Meter)ySource;
-            double[] y = meter.values(whichValue);
+        else {
+            double[] y = ySource.values(whichValue);
             for(int i=0; i<y.length; i++) {
                 plot.addPoint(0,(double)i, yUnit.fromSim(y[i]),true);
             }

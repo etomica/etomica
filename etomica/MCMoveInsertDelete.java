@@ -62,4 +62,31 @@ public class MCMoveInsertDelete extends MCMove {
 
     public final void setMu(double mu) {this.mu = mu;}
     public final double getMu() {return mu;}
+    public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
+    
+    public static void main(String[] args) {
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
+        f.setSize(600,350);
+
+        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
+        Simulation.instance = sim;
+
+        //part that is unique to this demonstration
+        MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete();
+        sim.integrator.add(mcMoveInsDel);
+        MeterNMolecules meterN = new MeterNMolecules();
+        DisplayBox box = new DisplayBox(meterN);
+        box.setUpdateInterval(10);
+
+		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
+		                                    //calling it a second time has no effect
+		                                    
+        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
+                                            //display the graphical components
+        f.pack();
+        f.show();
+        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
+        });
+    }
 }

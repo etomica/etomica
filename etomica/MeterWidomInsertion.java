@@ -29,6 +29,23 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
         setLabel("exp(\u03BC/kT)");  //"\u03BC" is Unicode for greek "mu"
         nInsert = 100;
         setResidual(true);
+        
+		//add mediator so that by default first species added to simulation is used for sampling
+        sim.elementCoordinator.addMediatorPair(new Mediator.MeterSpecies(sim.elementCoordinator) {
+            public void add(Species species) {
+                if(MeterWidomInsertion.this.wasAdded()) MeterWidomInsertion.this.setSpecies(species);
+            }
+            public void add(MeterAbstract meter) {
+                if(meter != MeterWidomInsertion.this) return;
+                for(java.util.Iterator ip=mediator.parentSimulation().speciesList.iterator(); ip.hasNext(); ) {
+                    Species species = (Species)ip.next();
+                    if(species.wasAdded())  {//will make first species the one
+                        MeterWidomInsertion.this.setSpecies(species);
+                        return;
+                    }
+                }
+            }
+        });
     }
 
     public static EtomicaInfo getEtomicaInfo() {

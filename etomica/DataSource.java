@@ -16,4 +16,9 @@ public interface DataSource {
         public void setDataSource(DataSource source);
         public DataSource getDataSource();
     }
+    
+    public interface Wrapper {
+        public String[] getSourcesAsText();
+        public DataSource getDataSource(String text);
+    }
 }

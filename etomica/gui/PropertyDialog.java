@@ -15,24 +15,24 @@ class PropertyDialog extends Dialog implements ActionListener {
     private final static int hPad = 4;
 
     PropertyDialog(Frame frame, PropertyEditor pe, int x, int y) {
-	super(frame, pe.getClass().getName(), true);
-	new WindowCloser(this);
-	setLayout(null);
+	    super(frame, pe.getClass().getName(), true);
+	    new WindowCloser(this);
+	    setLayout(null);
 
-	body = pe.getCustomEditor();
-	add(body);
+	    body = pe.getCustomEditor();
+	    add(body);
 
-	doneButton = new Button("Done");
-	doneButton.addActionListener(this);
-	add(doneButton);
+	    doneButton = new Button("Done");
+	    doneButton.addActionListener(this);
+	    add(doneButton);
 
-	setLocation(x, y);
-	show();
+	    setLocation(x, y);
+	    show();
     }
 
     public void actionPerformed(ActionEvent evt) {
-        // Button down.
-	dispose();
+            // Button down.
+	    dispose();
     }
 
     public void doLayout() {

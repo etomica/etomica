@@ -170,13 +170,13 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
         if (t == "Potential1") {
             super.setTitle("P1 Potentials");
             makeRadioButtons(potential1Classes,9);
-            addDefineMolecule();
+   //         addDefineMolecule();  commented out until perfected
             addP1P2ActionListener();
         }
         else if (t == "Potential2") {
             super.setTitle("P2 Potentials");
             makeRadioButtons(potential2Classes,16);
-            addDefineMolecule();
+   //         addDefineMolecule();   commented out until perfected
             addP1P2ActionListener();
         }
         else {

@@ -14,6 +14,7 @@ public class Histogram  {
     private double xMin,xMinOld;
     private double xMax,xMaxOld ;
     private int nValues ;
+    private String name;
     
     public Histogram() {this(100);}
     public Histogram(int n) {
@@ -30,6 +31,9 @@ public class Histogram  {
 	    xMax = x1;
 	    reset();
 	}
+	
+	public void setName(String s) {name = s;}
+	public String toString() {return name;}
 	
 	public boolean isAutoScale() {return autoScale;}
 	public void setAutoScale(boolean b) {autoScale = b;}

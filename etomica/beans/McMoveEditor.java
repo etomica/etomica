@@ -32,7 +32,24 @@ public class McMoveEditor extends PropertyEditorSupport implements java.io.Seria
     }
     
     public Object getValue() {return moves;}
-    public void setValue(Object obj) {moves = (MCMove[])obj;}
+    public void setValue(Object obj) {
+        if(obj == null) return;
+        MCMove[] newMoves = (MCMove[])obj;
+        if(moves == null) { //no moves yet added
+            moves = newMoves;
+        }
+        else { //adding to existing moves
+            MCMove[] allMoves = new MCMove[moves.length + newMoves.length];
+            for(int i=0; i<moves.length; i++) {
+                allMoves[i] = moves[i];
+            }
+            for(int i=0; i<newMoves.length; i++) {
+                allMoves[i+moves.length] = newMoves[i];
+            }
+            moves = allMoves;
+        }
+        firePropertyChange();
+    }
     
  /*   public String getJavaInitializationString() {
         System.out.println("inside ModulatorEditor.getJavaInitializationString");

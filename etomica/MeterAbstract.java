@@ -6,6 +6,7 @@ import java.util.Observer;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.utility.Histogram;
+import etomica.utility.History;
 
 /**
  * Superclass of all meter types.
@@ -34,7 +35,7 @@ import etomica.utility.Histogram;
  */
 public abstract class MeterAbstract implements Integrator.IntervalListener, Simulation.Element,  java.io.Serializable {
 
-    public static final String VERSION = "MeterAbstract:01.03.24.0";
+    public static final String VERSION = "MeterAbstract:01.05.14";
     
     /**
      * Number of integration interval events received before another call to updateSums
@@ -370,30 +371,13 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	* Default is false (do not keep history).
 	*/
 	public void setHistorying(boolean b) {
-	    historying = true;
-	    setHistoryWindow(getHistoryWindow());
-	}
-	
-	/**
-	 * Accessor method for the period of the history, i.e., the number of values
-	 * that are kept recorded.
-	 */
-	public int getHistoryWindow() {return historyWindow;}
-
-	/**
-	 * Accessor method for the period of the history, i.e., the number of values
-	 * that are kept recorded.  Default is 100, minimum is 1.
-	 */
-	public void setHistoryWindow(int window) {
-	    if(window < 1) window = 1; 
-	    historyWindow = window;
-	    if(!isHistorying()) return;
+	    historying = b;
 	    Accumulator[] accumulators = allAccumulators();
 	    for(int i=0; i<accumulators.length; i++) {
-	        accumulators[i].setHistoryWindow();
+	        accumulators[i].setHistorying();
 	    }
 	}
-
+	
     /**
      * Accessor method of the name of this object
      * 
@@ -427,12 +411,10 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
         private double mostRecentBlock = Double.NaN;
         private int count, blockCountDown;
         private Histogram histogram;
-        private double[] history;
-        private int historyCursor; //index of next empty history value; last value is this value minus 1
+        private History history;
         
         public Accumulator() {
             reset();
-            historyCursor = Integer.MAX_VALUE;
         }
         
         /**
@@ -458,7 +440,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	            blockSum = 0.0;
 	        }
 	        if(histogramming) histogram.addValue(value);
-	        if(historying) addToHistory(value);
+	        if(historying) history.addValue(value);
         }
         
         /**
@@ -509,6 +491,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	        blockCountDown = blockSize;
 	        blockSum = 0.0;
 	        if(histogram != null) histogram.reset();
+	        if(history != null) history.reset();
 	    }
 	    
 	    /**
@@ -519,49 +502,33 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	    /**
 	     * Returns the history of values recorded by the accumulator.
 	     */
-	    public double[] history() {return history;}
+	    public History history() {return history;}
     	 
 	    /**
 	    * Accessor method to indicate if the meter should keep a histogram of all measured values.
 	    * Default is false (do not keep histogram).
+	    * Does not take an argument; true/falue value is obtained from outer-class meter
 	    */
+	    //need way to update name if meter name changes
 	    public void setHistogramming() {
-	        if(histogramming && histogram == null) histogram = new Histogram();
-	    }
-	    
-	    public void setHistoryWindow() {
-	        double[] oldHistory = history;
-	        history = new double[historyWindow];
-	        clearHistory(); //set to NaN
-	        if(oldHistory != null) {
-    	        int n = Math.min(oldHistory.length, historyWindow); //setHistoryWindow in MeterAbstract will not let this be less than 1
-	            for(int i=0; i<n; i++) {
-	                history[i] = oldHistory[i];
-	            }
-	            historyCursor = n;
+	        if(histogramming && histogram == null) {
+	            histogram = new Histogram();
+	            histogram.setName(MeterAbstract.this.toString() + ":Histogram");
 	        }
-	        else historyCursor = 0;
-	    }//end of setHistoryWindow
+	    }
 	    
 	    /**
-	     * Sets all history values to NaN and puts cursor at first position.
-	     */
-	    public void clearHistory() {
-	        if(history == null) return;
-	        for(int i=0; i<history.length; i++) {history[i] = Double.NaN;}
-	        historyCursor = 0;
+	    * Accessor method to indicate if the meter should keep a history of all measured values.
+	    * Default is false (do not keep history).
+	    * Does not take an argument; true/falue value is obtained from outer-class meter
+	    */
+	    public void setHistorying() {
+	        if(historying && history == null) {
+	            history = new History();
+	            history.setName(MeterAbstract.this.toString() + ":History");
+	        }
 	    }
-	            
-        public void addToHistory(double value) {
-            if(historyCursor < historyWindow) {
-                history[historyCursor++] = value;
-            }
-            else {
-                MeterAbstract.this.setHistoryWindow(2*historyWindow);
-                addToHistory(value);
-            }
-        }
-
+	    
 	}//end of Accumulator
 	
 	/**

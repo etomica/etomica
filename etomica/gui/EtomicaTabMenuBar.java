@@ -61,14 +61,15 @@ public class EtomicaTabMenuBar extends javax.swing.JToolBar {
         /**
          * Add tabs with the superclass name of the respective simulation components that they contain 
 	     */
+	    tabMenu.addTab("Phase", new javax.swing.JPanel());
 	    tabMenu.addTab("Potentials", new javax.swing.JPanel());
 	    tabMenu.addTab("Species", new javax.swing.JPanel());
 	    tabMenu.addTab("Integrators", new javax.swing.JPanel());
-	    tabMenu.addTab("Phase", new javax.swing.JPanel());
 	    tabMenu.addTab("Controllers", new javax.swing.JPanel());
 	    tabMenu.addTab("Displays", new javax.swing.JPanel());
         tabMenu.addTab("Meters", new javax.swing.JPanel());
 	    tabMenu.addTab("Devices", new javax.swing.JPanel());
+	    tabMenu.addTab("Actions", new javax.swing.JPanel());
 	    
         /**
 	     * Create dummy button icons to test displaying ability of the JTabbedPane tabs

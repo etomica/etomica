@@ -17,7 +17,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public final String getVersion() {return "SpeciesPistonCylinder:01.03.15.0/"+super.getVersion();}
  
     private Constants.Direction direction = Constants.NORTH;
-    private Space2D.Vector dimensions = new Space2D.Vector();
+    Space2D.Vector dimensions = new Space2D.Vector();
    /**
     * Vector giving the unit normal to the piston, away from the inside of the cylinder.
     */
@@ -49,6 +49,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         protoType[3].setLongWall(true);
         setUnitNormal();
         moleculeConfiguration = new PistonCylinderConfiguration(this);
+        computeDimensions();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -83,6 +84,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    */
   public void setDiameter(double d) {
      diameter = d;
+     protoType[0].setLength(diameter);
+     protoType[2].setLength(diameter);
      moleculeConfiguration.initializeCoordinates();
   }
   /**
@@ -299,13 +302,15 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         computeDimensions();
       }//end of initializeCoordinates
       
+      public void computeDimensions() {SpeciesPistonCylinder.this.computeDimensions();}
+      
+  }//end of PistonCylinderConfiguration
+  
         public void computeDimensions() {
             dimensions.x = (direction == Constants.NORTH || direction == Constants.SOUTH) ? diameter : length;
             dimensions.y = (direction == Constants.NORTH || direction == Constants.SOUTH) ? length : diameter;
         }//end of computeDimensions
       
-  }//end of PistonCylinderConfiguration
-  
     /**
      * A phase boundary that coincides with the dimensions of the piston-cylinder system.
      * Dimension of boundary are given by fixed length and diameter of cylinder, while volume
@@ -328,7 +333,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      * Demonstrates and tests this class.
      */
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();
+        javax.swing.JFrame f = new javax.swing.JFrame();
         f.setSize(600,350);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
 	    Phase phase1 = new Phase();
@@ -362,7 +367,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         pressureSlider.setMaximum(1000);
         //end of unique part
 
-		f.add(Simulation.instance);
+		f.getContentPane().add(Simulation.instance);
 		f.pack();
         f.show();
         f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing

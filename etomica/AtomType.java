@@ -39,7 +39,7 @@ public abstract class AtomType implements java.io.Serializable {
      * Override for atom types that require other coordinate features.
      */
     public Space.Coordinate makeCoordinate(Atom a) {
-        return a.parentPhase().parentSimulation().space().makeCoordinate(a);
+        return a.parentSimulation().space().makeCoordinate(a);
     }
     
     public final void setElectroType(ElectroType et) {
@@ -186,7 +186,7 @@ public abstract class AtomType implements java.io.Serializable {
         public double[] momentOfInertia() {return I;}
         
         public Space.Coordinate makeCoordinate(Atom a) {
-            return a.parentPhase().parentSimulation().space().makeCoordinate(a); //override changes nothing, but this may change if revise method in Space
+            return a.parentSimulation().space().makeCoordinate(a); //override changes nothing, but this may change if revise method in Space
         }
         
         private void updateI() {

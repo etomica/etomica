@@ -25,9 +25,11 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     }
     
     /**
-     * Adds all moves in array to integrator's set of moves.
+     * Sets moves in array to be integrator's set of moves, deleting any existing moves.
      */
     public void setMCMoves(MCMove[] moves) {
+        firstMove = null;
+        moveCount = 0;
         for(int i=0; i<moves.length; i++) {
             add(moves[i]);
         }

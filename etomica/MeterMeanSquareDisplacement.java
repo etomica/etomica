@@ -122,7 +122,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
         }   
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;
-	        accumulator.addToHistory(currentValue());
+	        accumulator.history().addValue(currentValue());
 	    }
     }//end of intervalAction	    
 }//end of class
