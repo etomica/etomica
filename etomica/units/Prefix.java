@@ -107,7 +107,7 @@ public abstract class Prefix implements java.io.Serializable {
     public final static class Deka extends Prefix {
         public double value() {return 1.0e+1;}
         public String toString() {return "deka";}
-        public String symbol() {return "D";}
+        public String symbol() {return "da";}
     }
     public final static class Hecto extends Prefix {
         public double value() {return 1.0e+2;}

@@ -17,7 +17,7 @@ import java.awt.event.ActionEvent;
   */
 public class Atom implements java.io.Serializable {
 
-    public static String getVersion() {return "01.07.01";}
+    public static String getVersion() {return "Atom:01.07.01";}
     
     public static int DEBUG = 0;
     public int debugIndex;
@@ -28,7 +28,8 @@ public class Atom implements java.io.Serializable {
         depth = 0;
         atomIndex = index;
         type = t; //this must precede makeCoordinate call
-        coord = type.makeCoordinate(this, type);
+        coord = type.makeCoordinate(this);
+  //      coord = type.makeCoordinate(this, type);
       //  coordinate = Simulation.space.makeCoordinate(this);
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];
     }
@@ -53,6 +54,7 @@ public class Atom implements java.io.Serializable {
     /**
      * Phase in which this atom resides
      */
+     //change to container
     public Phase parentPhase() {return parentGroup.parentPhase();}
 
     public Species parentSpecies() {return parentGroup.parentSpecies();}
@@ -71,7 +73,8 @@ public class Atom implements java.io.Serializable {
      * Integer assigned to this atom by its parent molecule.
      * Assigned during construction of atom.
      */
-    public final int atomIndex() {return atomIndex;}
+    public final int index() {return atomIndex;}
+    public final void setIndex(int i) {atomIndex = i;}
         
     /**
      * Sets atom following this one in linked list, and sets this to be that atom's previous atom in list

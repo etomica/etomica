@@ -14,4 +14,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      */
     public abstract boolean producesAtomGroups();
     
+    
+    public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null
+    
 }

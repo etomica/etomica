@@ -23,4 +23,6 @@ public class AtomFactoryMono extends AtomFactory {
     
     public boolean producesAtomGroups() {return false;}
     
+    public boolean vetoAddition(Atom a) {return (a instanceof AtomGroup);}
+    
 }//end of AtomFactoryMono

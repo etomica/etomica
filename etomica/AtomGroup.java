@@ -12,22 +12,19 @@ public class AtomGroup extends Atom implements java.io.Serializable {
     private final AtomFactory factory;
     private int childCount;
     private boolean resizable = true;
+    private static final IteratorDirective UP = new IteratorDirective(IteratorDirective.UP);
+    private static final IteratorDirective DOWN = new IteratorDirective(IteratorDirective.DOWN);
     
     public AtomGroup(AtomGroup parent, int index, AtomFactory factory, 
                         int nChild, Configuration configuration) {
         super(parent, new AtomType.Group(), index);
         this.factory = factory;
         this.configuration = configuration;
-        if(nChild > 0) {
-            firstAtom = factory.makeAtom(this,0);
-            lastAtom = firstAtom;
-            for(int i=1; i<nChild; i++) {
-                lastAtom.setNextAtom(factory.makeAtom(this,i));
-                lastAtom = lastAtom.nextAtom();
-                ((Space.CoordinateGroup)coord).addCoordinate(lastAtom.coord);
-            }
-            factory.configuration().initializeCoordinates(this);
+        for(int i=0; i<nChild; i++) {
+            addAtom(factory.makeAtom(this,i));
+            ((Space.CoordinateGroup)coord).addCoordinate(lastAtom.coord);
         }
+        factory.configuration().initializeCoordinates(this); //be sure this handles case of no atoms
         childCount = nChild;
     }
     
@@ -42,11 +39,11 @@ public class AtomGroup extends Atom implements java.io.Serializable {
     /**
      * Returns the first leaf atom descended from this group.
      */
-    public Atom firstAtom() {
+    public Atom firstLeafAtom() {
         if(childrenAreGroups()) {
-            childIterator.reset(AtomIterator.UP);
+            childIterator.reset(UP);
             while(childIterator.hasNext()) {
-                Atom atom = ((AtomGroup)childIterator.next()).firstAtom();
+                Atom atom = ((AtomGroup)childIterator.next()).firstLeafAtom();
                 if(atom != null) return atom;
             }
             return null;
@@ -56,11 +53,11 @@ public class AtomGroup extends Atom implements java.io.Serializable {
     /**
      * Returns the last leaf atom descended from this group.
      */
-    public Atom lastAtom() {
-        if(factory.producesAtomGroups()) {
-            childIterator.reset(AtomIterator.DOWN);
+    public Atom lastLeafAtom() {
+        if(childrenAreGroups()) {
+            childIterator.reset(DOWN);
             while(childIterator.hasNext()) {
-                Atom atom = ((AtomGroup)childIterator.next()).lastAtom();
+                Atom atom = ((AtomGroup)childIterator.next()).lastLeafAtom();
                 if(atom != null) return atom;
             }
             return null;
@@ -68,58 +65,87 @@ public class AtomGroup extends Atom implements java.io.Serializable {
         else return lastChild;
     }
 
-    public void addAtom(Atom a) {
+    public void addAtom(Atom aNew) {
         //ensure that the given atom is compatible
-        if(a.parentGroup().atomFactory() != this.factory) {
+        if(atomFactory().vetoAddition(aNew)) { //also checks for a null
             System.out.println("Error in AtomGroup.addAtom:  See source code");  //should throw an exception
             return;
         }
-        a.setParentGroup(this);
-        if(childCount > 0) {//a has siblings
-            a.setNextAtom(lastChild.nextAtom());
-            lastChild.setNextAtom(a);
-            lastChild = a;
+        //set up links within this group
+        aNew.setParentGroup(this);
+        if(childCount > 0) { //siblings
+            aNew.setNextAtom(lastChild.nextAtom());
+            lastChild.setNextAtom(aNew);
+            aNew.setIndex(lastChild.index()+1);
         }
-        else {  //a is an only child
-            firstChild = a;
-            lastChild = a;
-            a.setNextAtom(null);
-            a.clearPreviousAtom();
-            //join up the leaf atoms
-            Atom atom = findPreviousLastAtom();
-            if(previous != null) previous.setNext(a.firstAtom());
-            atom = a.lastAtom();
-            if(atom != null) atom.setNext(findNextFirstAtom());
+        else {  //only child
+            firstChild = aNew;
+            aNew.setNextAtom(null);
+            aNew.clearPreviousAtom();
+            aNew.setIndex(0);
+        }   
+        lastChild = aNew;
+        
+        //set up leaf links
+        if(aNew instanceof AtomGroup) {
+            AtomGroup aNewGroup = (AtomGroup)aNew;//copy to save multiple casts in calls to AtomGroup methods
+            Atom lastNewLeaf = aNewGroup.lastLeafAtom();
+            if(lastNewLeaf != null) {//also implies firstNewLeaf != null
+                lastNewLeaf.setNextAtom(findNextLeafAtom(aNewGroup));
+                Atom previous = findPreviousLeafAtom(aNewGroup);
+                if(previous != null) previous.setNextAtom(aNewGroup.firstLeafAtom());
+            } //no leaf changes anywhere if aNew has no leaf atoms 
+        }
+        else {//aNew is a leaf, not a group
+                //set next in case it wasn't set by aNew.setNextAtom(lastChild.next()) line, above
+            if(aNew.nextAtom() == null) aNew.setNextAtom(findNextLeafAtom(aNew.parentGroup()));
+               //set previous in case it wasn't set by lastChild.setNextAtom(aNew) line, above
+            if(aNew.previousAtom() == null) {
+                Atom previous = findPreviousLeafAtom(aNew.parentGroup());
+                if(previous != null) previous.setNextAtom(aNew);
+            }
         }
         childCount++;
-    }
+    }//end of addAtom
 
 
     public void removeAtom(Atom a) {
+        if(a == null) return;
         //ensure that the given atom is compatible
         if(a.parentGroup() != this) {
             System.out.println("Error in AtomGroup.removeAtom:  See source code");  //should throw an exception
             return;
         }
-        a.setParentGroup(this);
-        if(childCount > 0) {//a has siblings
-            a.setNextAtom(lastChild.nextAtom());
-            lastChild.setNextAtom(a);
-            lastChild = a;
+        Atom next = a.nextAtom();
+        Atom previous = a.previousAtom();
+        
+        //update links within this group
+        if(a == firstChild) {
+            if(childCount == 1) firstChild = null;
+            else firstChild = next;
         }
-        else {  //a is an only child
-            firstChild = a;
-            lastChild = a;
-            a.setNextAtom(null);
-            a.clearPreviousAtom();
-            //join up the leaf atoms
-            Atom atom = findPreviousLastAtom();
-            if(previous != null) previous.setNext(a.firstAtom());
-            atom = a.lastAtom();
-            if(atom != null) atom.setNext(findNextFirstAtom());
+        if(a == lastChild) {
+            if(childCount == 1) lastChild = null;
+            else lastChild = previous;
         }
-        childCount++;
-    }
+        if(previous != null) previous.setNextAtom(next);
+        else if(next != null) next.clearPreviousAtom();
+        childCount--;
+        
+        a.setNextAtom(null);
+        a.clearPreviousAtom();        
+        a.setParentGroup(null);
+        
+        //update leaf-atom links
+        if(a instanceof AtomGroup) {
+            Atom first = ((AtomGroup)a).firstLeafAtom();
+            Atom last = ((AtomGroup)a).lastLeafAtom();
+            next = (last != null) ? last.nextAtom() : null;
+            previous = (first != null) ? first.previousAtom() : null;
+            if(previous != null) previous.setNextAtom(next);
+            else if(next != null) next.clearPreviousAtom();
+        }              
+    }//end of removeAtom
 /*      
     public boolean isResizable() {return resizable;}
     public void setResizable(boolean b) {
@@ -134,65 +160,51 @@ public class AtomGroup extends Atom implements java.io.Serializable {
     }//end setResizable
    */
    
-   /**
-    * Set the atom following this one, and also sets this one's last 
-    * descendent atom to the first descendent atom of the given atom.
-    */
-    public void setNextAtom(Atom a) {
-        //connect to sibling
-        super.setNextAtom(a);
-        //connect leaf atoms
-        Atom lastAtom = lastAtom();
-        if(lastAtom != null) {
-            if(a instanceof AtomGroup) lastAtom.setNextAtom(a.firstAtom());
-            else lastAtom.setNextAtom(a);//handles a being null too
-        }
-    }
-    
     /**
      * Iterator of the children of this group.
      */
     public final AtomIteratorSequential childIterator = new AtomIteratorSequential() {
         public Atom defaultFirstAtom() {return firstChild;}
         public Atom defaultLastAtom() {return lastChild;}
-        public boolean contains(Atom a) {return a.parentGroup == AtomGroup.this;}
+        public boolean contains(Atom a) {return a.parentGroup() == AtomGroup.this;}
     };
     
     /**
-     * Searches the atom hierarchy up from this group to find the first (leaf) atom.
-     * The last leaf atom of this group will have the returned atom as its next atom. 
+     * Searches the atom hierarchy up from (and not including) the given group 
+     * to find the closest (leaf) atom in that direction.
      */
-    private Atom findNextFirstAtom() {
-        AtomGroup parent = parentGroup();
+    private static Atom findNextLeafAtom(AtomGroup a) {
+        AtomGroup parent = a; //search up siblings first
         while(parent != null) {
             AtomGroup uncle = (AtomGroup)parent.nextAtom();
             while(uncle != null) {
-                Atom first = uncle.firstAtom();
-                if(first != null) return first;
+                Atom first = uncle.firstLeafAtom();
+                if(first != null) return first; //found it
                 uncle = (AtomGroup)uncle.nextAtom();
             }
             parent = parent.parentGroup();
         }
         return null;
-    }//end of findNextFirstAtom
+    }//end of findNextLeafAtom
     
     /**
-     * Searches the atom hierarchy down from this group to find the last (leaf) atom
-     * in that direction.
-     * The last first atom of this group will have the returned atom as its previous atom. 
+     * Searches the atom hierarchy down from (and not including) the given group 
+     * to find the closest (leaf) atom in that direction.
+     * The first leaf atom of the given group will have the returned atom as its previous atom. 
      */
-    private Atom findPreviousLastAtom() {
-        AtomGroup parent = parentGroup();
+    private static Atom findPreviousLeafAtom(AtomGroup a) {
+        AtomGroup parent = a;
         while(parent != null) {
             AtomGroup uncle = (AtomGroup)parent.previousAtom();
             while(uncle != null) {
-                Atom last = uncle.lastAtom();
+                Atom last = uncle.lastLeafAtom();
                 if(last != null) return last;
                 uncle = (AtomGroup)uncle.previousAtom();
             }
             parent = parent.parentGroup();
         }
-    }//end of findPreviousLastAtom
+        return null;
+    }//end of findPreviousLeafAtom
     
     /**
      * Indicates whether the children of this group are themselves atom groups,
