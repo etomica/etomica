@@ -45,7 +45,7 @@ public class AtomIteratorArrayList implements AtomIterator {
  		return atoms;
  	}
  	public int size() {
- 		return size();
+ 		return list.size();
  	}
  	
  	public void allAtoms(AtomsetActive act) {
