@@ -117,10 +117,7 @@ public abstract class Integrator implements java.io.Serializable {
 	 */
 	public void initialize() {
 		deployAgents();
-        if (Debug.ON) {
-            Debug.setAtoms(firstPhase);
-        }
-        reset();
+		reset();
 	}
 
 	//how do agents get placed in atoms made during the simulation?
@@ -207,6 +204,9 @@ public abstract class Integrator implements java.io.Serializable {
 		phase[phaseCount] = p;
 		phaseCount++;
 		firstPhase = phase[0];
+        if (p.index == Debug.PHASE_INDEX) {
+            Debug.setAtoms(p);
+        }
 		return true;
 	}
 
@@ -322,24 +322,14 @@ public abstract class Integrator implements java.io.Serializable {
 
 	public static class IntervalEvent extends EventObject {
 
-		//Typed constants used to indicate the type of event integrator is
+		// Typed constants used to indicate the type of event integrator is
 		// announcing
-		public static final Type START = new Type("Start"); //simulation is
-															// starting
-
-		public static final Type INTERVAL = new Type("Interval"); //routine
-																  // interval
-																  // event
-
-		public static final Type DONE = new Type("Done"); //simulation is
-														  // finished
-
-		public static final Type INITIALIZE = new Type("Initialize"); //integrator
-																	  // is
-																	  // initializing
+		public static final Type START = new Type("Start"); //simulation is starting
+		public static final Type INTERVAL = new Type("Interval"); //routine interval event
+		public static final Type DONE = new Type("Done"); //simulation is finished
+		public static final Type INITIALIZE = new Type("Initialize"); //integrator is initializing
 
 		private final Type type;
-
 		private int interval;
 
 		public IntervalEvent(Integrator source, Type t) {
