@@ -82,6 +82,7 @@ public class PistonCylinderGraphic {
     public final javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox;
     final JRadioButton buttonAdiabatic, buttonIsothermal;
+    final JPanel blankPanel = new JPanel();
     
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
@@ -273,20 +274,13 @@ public class PistonCylinderGraphic {
         //tabbed pane for the big displays
     	displayPanel = new javax.swing.JTabbedPane();
     	displayPhasePanel = new javax.swing.JPanel(new java.awt.BorderLayout());
-//    	displayPhasePanel.add(scaleSlider.getSlider(),java.awt.BorderLayout.EAST);
     	displayPhasePanel.add(scaleSliderPanel,java.awt.BorderLayout.EAST);
-//        displayPanel.add(displayPhase.getLabel(),displayPhase.graphic(null));
-//        displayPanel.add("Averages", table.graphic(null));
-//        displayPanel.add(plotD.getLabel(), plotD.graphic());
-//        displayPanel.add(plotT.getLabel(), plotT.graphic());
-//        displayPanel.add(plotP.getLabel(), plotP.graphic());
-//        displayPanel.add(plot.getLabel(), plot.graphic());
         
         JPanel plotPanel = new JPanel(new java.awt.GridLayout(0,1));
         plotPanel.add(plotD.graphic());
         plotPanel.add(plotT.graphic());
         plotPanel.add(plotP.graphic());
-        displayPanel.add("All",new javax.swing.JScrollPane(plotPanel));
+        displayPanel.add("Plots",new javax.swing.JScrollPane(plotPanel));
 
         JPanel startPanel = (JPanel)controlButtons.graphic();
         java.awt.GridBagConstraints gbc0 = new java.awt.GridBagConstraints();
@@ -377,9 +371,6 @@ public class PistonCylinderGraphic {
 
         dataPanel.add(densityPanel, gbc2);
 
-//        controlPanel.add(potentialPanel, gbc2);
-        displayPanel.add(plot.graphic());
-        
         JPanel leftPanel = new JPanel(new GridBagLayout());
         
         leftPanel.add(controlPanel, gbc2);
@@ -423,9 +414,11 @@ public class PistonCylinderGraphic {
         if (displayPhase.graphic() != null) {
             displayPhasePanel.remove(displayPhase.graphic());
             displayPanel.remove(displayPhasePanel);
+            displayPanel.remove(blankPanel);
         }
         if (D == 2) {
-            displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
+            displayPanel.insertTab(displayPhase.getLabel(), null, displayPhasePanel, "", 0);
+//            displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
             displayPhase.setPhase(pc.phase);
             displayPhase.setAlign(1,DisplayPhase.BOTTOM);
             displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
@@ -434,6 +427,9 @@ public class PistonCylinderGraphic {
             displayPhase.addDrawable(pc.wallPotential);
             displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
             pc.integrator.addIntervalListener(displayPhase);
+        } else {
+            
+            displayPanel.add("Run Faster", blankPanel);
         }
                 
         meterCycles = new DataSourceCountSteps(pc.integrator);
@@ -621,6 +617,7 @@ public class PistonCylinderGraphic {
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);
             pc.wallPotential.setCollisionRadius(0.5*d);
+            displayPhase.repaint();
         }
 
         public double getValue() {
