@@ -30,6 +30,7 @@ public class Atom implements java.io.Serializable {
         this.type = type;//do this first
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this, parent);//must follow setting of sequencer to permit addition to childlist of parent
+                                                  //setting parent here in constructor bypasses the call to the parent's addAtomNotify method (which would be called if parent were set in setParent method)
         coord = space.makeCoordinate(this);//must follow setting of type field
         if(parent != null) parent.addAtomNotify(this);
         

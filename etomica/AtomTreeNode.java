@@ -33,7 +33,7 @@ public abstract class AtomTreeNode {
             parentPhase = parent.parentPhase();
             setIndex(parent.newChildIndex());
             parent.childList.add(atom.seq);
- //           parent.addAtomNotify(atom);
+ //           parent.addAtomNotify(atom); //invoked instead in constructor of atom in which this node is being placed
         }
     }
     
