@@ -7,8 +7,8 @@ import etomica.Action;
  * has changed (pressure, mass, velocity)
  */
 
-class IntegratorPistonUpdate implements Action {
-    public IntegratorPistonUpdate(IntegratorHardPiston integrator) {
+public class ActionPistonUpdate implements Action {
+    public ActionPistonUpdate(IntegratorHardPiston integrator) {
         pistonIntegrator = integrator;
     }
     
