@@ -2,6 +2,7 @@ package etomica;
 
 import java.awt.event.*;
 
+//need to update to extend simulation element
 public abstract class Action implements ActionListener, java.io.Serializable {  //still not sure if should extend AbstractAction just implement ActionListener
     
     public static String VERSION = "Action:01.06.04";

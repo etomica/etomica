@@ -10,7 +10,7 @@
 
 package etomica.gui;
 
-import etomica.beans.PhaseCustomizer;
+//import etomica.beans.PhaseCustomizer;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.*;
@@ -182,7 +182,7 @@ public class EditActions {
 	            c.setObject(obj);
 	            JInternalFrame frame = new javax.swing.JInternalFrame("Phase Customizer",true,true,true,true);
 	            frame.setLocation(515, 60);
-	            frame.setSize(((PhaseCustomizer)c).getPreferredSize());
+//	            frame.setSize(((PhaseCustomizer)c).getPreferredSize());
 	            frame.getContentPane().add((java.awt.Component)c);
 	            Etomica.DesktopFrame.desktop.add(frame);
 	            frame.setVisible(true);

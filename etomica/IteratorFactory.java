@@ -16,8 +16,8 @@ package etomica;
         public AtomIterator makeAtomIterator() {return makeAtomIteratorUp();}
         public AtomIterator makeAtomIteratorUp() {return new AtomIterator.Up(phase);}
         public AtomIterator makeAtomIteratorDown() {return new AtomIterator.Down(phase);}
-        public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIterator.UpNeighbor(phase);}
-        public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIterator.DownNeighbor(phase);}
+        public AtomIterator makeAtomIteratorUpNeighbor() {return new AtomIterator.Up(phase);}
+        public AtomIterator makeAtomIteratorDownNeighbor() {return new AtomIterator.Down(phase);}
         public void addMolecule(Molecule m) {}
         public void deleteMolecule(Molecule m) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved

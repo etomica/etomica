@@ -11,13 +11,15 @@ import etomica.units.Dimension;
  
 public class MeterPotentialEnergy extends Meter implements EtomicaElement
 {
-      
+    private IteratorDirective all;  
     public MeterPotentialEnergy() {
         this(Simulation.instance);
     }
     public MeterPotentialEnergy(Simulation sim) {
         super(sim);
         setLabel("Potential Energy");
+        all = new IteratorDirective();
+        all.set(IteratorDirective.ALL);
     }
       
     public static EtomicaInfo getEtomicaInfo() {
@@ -33,6 +35,6 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        return phase.potential.energy();
+        return phase.potential.energy(all);
     }
 }

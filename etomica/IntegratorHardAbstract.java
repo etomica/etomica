@@ -20,7 +20,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     //handle to the integrator agent holding information about the next collision
     protected Agent colliderAgent;
     //iterators for looping through atoms
-    protected Atom.Iterator upAtomIterator;
+    protected AtomIterator upAtomIterator;
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment

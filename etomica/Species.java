@@ -111,7 +111,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             Agent a = (Agent)e.next();
-            Atom.Iterator aIter = a.makeAtomIterator();
+            AtomIterator aIter = a.makeAtomIterator();
             while(aIter.hasNext()) {aIter.next().setStationary(b);}
         }
     }
@@ -279,7 +279,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     public Agent makeAgent(Phase p) {
         Agent a = new Agent(p);
         a.setNMolecules(nMolecules);
-        Atom.Iterator aIter = a.makeAtomIterator();
+        AtomIterator aIter = a.makeAtomIterator();
         while(aIter.hasNext()) {aIter.next().setStationary(stationary);}
         agents.put(p,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
@@ -297,7 +297,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
     /**
      * Returns an atom iterator for this species in the given phase
      */
-     public final Atom.Iterator makeAtomIterator(Phase p) {
+     public final AtomIterator makeAtomIterator(Phase p) {
         if(p != null) return getAgent(p).makeAtomIterator();
         else return null;
      }
@@ -380,7 +380,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
          */
     public final class Agent implements java.io.Serializable {
         public Phase parentPhase;  //want final, but won't compile
-        private Atom.Iterator atomIterator;  //iterator for all atoms of this species in this phase
+        private AtomIterator atomIterator;  //iterator for all atoms of this species in this phase
         
         /**
          * @param p The phase in which this agent will be placed
@@ -396,7 +396,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         /**
          * Returns a new, unique instance of an atom iterator for the species in the phase
          */
-        public final Atom.Iterator makeAtomIterator() {return new AtomIterator();}
+        public final AtomIterator makeAtomIterator() {return new AtomIterator();}
         
         /**
         * @return the number of molecules for this species in this phase
@@ -665,16 +665,18 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
         /**
          * Iterator for all atoms of this species in this phase
          */
-        public final class AtomIterator implements Atom.Iterator {
+        public final class AtomIterator extends etomica.AtomIterator {
             private Atom atom, nextAtom;
             private boolean hasNext;
             public AtomIterator() {reset();}
             public boolean hasNext() {return hasNext;}
-            public void reset() {
+            public Atom reset() {
                 atom = firstAtom();
                 hasNext = (atom != null);
+                return atom;
             }
-            public void reset(Atom a) {reset();}
+            public Atom reset(Atom a) {return reset();}
+            public Atom reset(Atom a1, Atom a2) {return reset();}
             public Atom next() {
                 nextAtom = atom;
                 if(atom == lastAtom()) {hasNext = false;}

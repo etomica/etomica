@@ -40,17 +40,17 @@ public final class AtomIteratorBundle extends AtomIterator {
     }
     public Atom next() {return current.next();}
         
-    public void reset(Atom a) {current.reset(a);}
+    public Atom reset(Atom a) {return current.reset(a);}
 
     /**
     * Resets the iterator, so that it is ready to go through its list again.
     */
-    public void reset() {current.reset();}
+    public Atom reset() {return current.reset();}
 
     /**
     * Resets iterator so that it loops through the given atoms, inclusive.
     */
-    public void reset(Atom first, Atom last) {current.reset(first, last);}
+    public Atom reset(Atom first, Atom last) {return current.reset(first, last);}
     /**
     * Performs the given Action on each atom in the list in sequence.
     * 

@@ -10,7 +10,7 @@ import etomica.units.Dimension;
  */
 public class MeterKineticEnergy extends Meter
 {
-    Atom.Iterator atomIterator;
+    AtomIterator atomIterator;
     
     public MeterKineticEnergy() {
         this(Simulation.instance);

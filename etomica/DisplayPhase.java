@@ -102,7 +102,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
   /**
    * Iterator of atoms in the displayed phase
    */
-   private Atom.Iterator atomIterator;
+   private AtomIterator atomIterator;
   
     public DisplayPhase () {
         this(Simulation.instance);

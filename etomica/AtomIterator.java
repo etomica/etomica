@@ -29,14 +29,10 @@ public abstract class AtomIterator implements java.io.Serializable {
     }
     
     /**
-     * @return true if the iterator will return another atom with a subsequent call to next(), false otherwise
+     * @return true if the iterator will return another atom with a subsequent 
+     * call to next(), false otherwise.
      */
     public boolean hasNext() {return hasNext;}
-
-    /**
-     * @return the next atom in the list
-     */
-    public abstract Atom next();
 
     public void reset(IteratorDirective id) {
         IteratorDirective.Bounds bounds = id.bounds();
@@ -45,23 +41,42 @@ public abstract class AtomIterator implements java.io.Serializable {
         else if(bounds == IteratorDirective.FIRST_LAST) reset(id.firstAtom(), id.lastAtom());
         else hasNext = false;
     }
+
     /**
-     * Resets the iterator in reference to the given atom.
-     * Exactly how the given atom affects the reset depends on the particular iterator.
+     * @return the next atom in the list
+     */
+    public abstract Atom next();
+    
+    /**
+     * Resets the iterator, so that it is ready to go through its list again, beginning
+     * with its natural first iterate (the identity of which depends on the iterator).
+     *
+     * @return the atom that will be returned with the first call to next()
+     */
+    public abstract Atom reset();
+
+    /**
+     * Resets the iterator in reference to the given atom.  If the atom is among the iterates
+     * of this iterator, then it will be the next one returned on a call to next().  If
+     * it is not one of the iterates, this is equivalent to a call to reset().
      * 
-     * @param a
+     * @param first  the nominal first atom returned by the iterator
+     * @return       the atom that will be returned with the next subsequent call to next()
      */
-    public abstract void reset(Atom a);
+    public abstract Atom reset(Atom first);
 
     /**
-     * Resets the iterator, so that it is ready to go through its list again.
+     * Resets iterator in reference to the given atoms.  Initiation of the iteration is
+     * as given by a call to reset(first), and termination of th iteration is done in reference
+     * to the second given atom.  If this atom is among the iterates of this iterator, iteration
+     * will terminate when this atom is reached and returned by next(); if it is not one of
+     * the iterates, iteration terminates when the nature end of the iteration is reached.
+     *
+     * @param first the nominal first atom returned by the iterator
+     * @param last  the nominal last atom returned by the iterator
+     * @return      the atom that will be returned with the first call to next()
      */
-    public abstract void reset();
-
-    /**
-     * Resets iterator so that it loops through the given atoms, inclusive.
-     */
-    public abstract void reset(Atom first, Atom last);
+    public abstract Atom reset(Atom first, Atom last);
     /**
      * Performs the given Action on each atom in the list in sequence.
      * 
@@ -87,41 +102,51 @@ public abstract class AtomIterator implements java.io.Serializable {
         /**
          * Sets to iterate over all atoms in list.
          */
-        public void reset() {
+        public Atom reset() {
             next = first;
             hasNext = (next != null);
-            if(!hasNext) return;
+            if(!hasNext) return null;
             terminator = last.atom();
+            return next.atom();
         }
         /**
-         * Sets to begin iterating from given atom to end of list.
+         * Sets to begin iterating from given atom to end of list.  If atom is not in list
+         * set to iterate from beginning of list.
          */
-        public void reset(Atom firstAtom) {
+        public Atom reset(Atom firstAtom) {
+            //look for firstAtom in list
             next = first;
             while(next != null && next.atom() != firstAtom) next = next.next();
+            if(next == null) next = first; //firstAtom is not in list
+            
             hasNext = (next != null);
-            if(!hasNext) return;
+            if(!hasNext) return null;
             terminator = last.atom();
+            return next.atom();
         }
         /**
          * Sets to begin iterating between given atoms.
-         * Sets hasNext to false if either atom is not on list, or if first comes after last in list.
          */
-        public void reset(Atom firstAtom, Atom lastAtom) {
-            if(first == null) {hasNext = false; return;} //empty list
+        public Atom reset(Atom firstAtom, Atom lastAtom) {
+            Atom nextAtom = reset(firstAtom);
+            terminator = lastAtom;
+            return nextAtom;
+       /*     if(first == null) {hasNext = false; return null;} //empty list
             next = first;
             while(next.atom() != firstAtom) {
                 if(next == last || next.atom() == lastAtom) {//reached end of list, or encountered lastAtom before firstAtom
-                    hasNext = false; return;
+                    hasNext = false; return null;
                 }
                 next = next.next();
             }
             AtomLinker next2 = next;
             while(next2 != null && next2.atom() != lastAtom) next2 = next2.next();
-            if(next2 == null) {hasNext = false; return;} //lastAtom is not in list
+            if(next2 == null) {hasNext = false; return null;} //lastAtom is not in list
             terminator = lastAtom;
             hasNext = true;
+            return next.atom(); */
         }
+        
         public Atom next() { //does not check that next is non-null
             Atom atom = next.atom();
             next = next.next();
@@ -157,12 +182,18 @@ public abstract class AtomIterator implements java.io.Serializable {
         private Atom atom;
         public Singlet() {super();}
         public Singlet(Atom a) {reset(a);}
-        public void reset() {hasNext = (atom != null);}
-        public void reset(Atom a) {atom = a; reset();}
-        public void reset(Atom first, Atom last) {
-            if(first != last) hasNext = false;
-            else reset(first);
-        }
+        /**
+         * Resets iterator to return atom specified by previous call to reset(Atom).
+         */
+        public Atom reset() {hasNext = (atom != null); return atom;}
+        /**
+         * Sets the given atom as the one returned by the iterator.
+         */
+        public Atom reset(Atom a) {atom = a; return reset();}
+        /**
+         * Same as call to reset(first).  Second argument is ignored.
+         */
+        public Atom reset(Atom first, Atom last) {return reset(first);}
         public Atom next() {hasNext = false; return atom;}
         public void allAtoms(AtomAction act) {act.actionPerformed(atom);}
     }//end of AtomIterator.Singlet
@@ -189,23 +220,25 @@ public abstract class AtomIterator implements java.io.Serializable {
         /**
          * Sets the iterator so the next atom is the one given (which may be null)
          */
-        public void reset(Atom a) {
+        public Atom reset(Atom a) {
             atom = a;
             terminator = null;
             hasNext = (a != null);
+            return atom;
         }
         /**
          * Sets the iterator so that the next atom is the first atom of the phase
          */
-        public void reset() {reset(phase.firstAtom());}
+        public Atom reset() {return reset(phase.firstAtom());}
         /**
          * Sets the iterator to loop through the given atoms, inclusive.
-         * Does not check that last atom will be encountered.  If not, iteration
+         * Does not check that last atom will be encountered.  If it isn't, iteration
          * will terminate when last iterable atom is reached.
          */
-        public void reset(Atom first, Atom last) {
+        public Atom reset(Atom first, Atom last) {
             reset(first);
             terminator = last;
+            return atom;
         }
         public Atom next() {
             nextAtom = atom;
@@ -229,13 +262,13 @@ public abstract class AtomIterator implements java.io.Serializable {
         * Also, the no-argument reset performs a reset using the current atom, rather than 
         * resetting to neighbor of first atom in phase.
         */
-    public static final class UpNeighbor extends Up {
+/*    public static final class UpNeighbor extends Up {
         private Atom first;
         public UpNeighbor(Phase p) {super(p);}
         public UpNeighbor(Phase p, Atom a) {super(p,a);} 
         /**
          * Resets iterator so that the next atom is the one just upList of the given atom.
-         */
+         * /
         public void reset(Atom a) {
             atom = a;
             if(a == null) {hasNext = false; return;}
@@ -245,12 +278,12 @@ public abstract class AtomIterator implements java.io.Serializable {
         /**
          * Resets iterator to the condition it was in after the last call to reset(Atom a).
          * This will be hasNext = false if reset(Atom a) was not called previously.
-         */
+         * /
         public void reset() {super.reset(first);}
         /**
          * Performs the given action on all atoms uplist of the one indicated in the last call to reset(Atom).  
          * If reset has not been called before, performs no action.
-         */
+         * /
         public void allAtoms(AtomAction act) {
             if(first == null) return;
             for(Atom a=first; a!=null; a=a.nextAtom()) {act.actionPerformed(a);}
@@ -258,10 +291,10 @@ public abstract class AtomIterator implements java.io.Serializable {
     }//end of AtomIterator.UpNeighbor
         
     /**
-        * Iterator that progresses down a list of atoms.
-        * Order of atoms is that given by the linked list of atoms, which changes
-        * only if atoms are added or removed from the phase.
-        */
+     * Iterator that progresses down a list of atoms.
+     * Order of atoms is that given by the linked list of atoms, which changes
+     * only if atoms are added or removed from the phase.
+     */
     public static class Down extends AtomIterator  {
         protected Atom atom, terminator;
         private Phase phase;
@@ -276,25 +309,27 @@ public abstract class AtomIterator implements java.io.Serializable {
             */
         public Down(Phase p, Atom a) {phase = p; reset(a);}
         public Phase phase() {return phase;}
-        public void reset(Atom a) {
+        public Atom reset(Atom a) {
             atom = a;
             terminator = null;
             hasNext = (a != null);
+            return atom;
         }
         /**
          * Sets the iterator to loop through the given atoms, inclusive.
          * Does not check that last atom will be encountered.  If not, iteration
          * will terminate when last iterable atom is reached.
          */
-        public void reset(Atom first, Atom last) {
+        public Atom reset(Atom first, Atom last) {
             reset(first);
             terminator = last;
+            return atom;
         }
         /**
          * Resets iterator to the first atom of the list.
          * Iterator will return only this atom and then expire, since there is nothing downlist of it
          */
-        public void reset() {reset(phase.firstAtom());}
+        public Atom reset() {return reset(phase.firstAtom());}
         public Atom next() {
             Atom nextAtom = atom;
             atom = atom.previousAtom();
@@ -302,8 +337,8 @@ public abstract class AtomIterator implements java.io.Serializable {
             return nextAtom;
         }
         /**
-            * Performs the given action on all atoms in the phase, starting from the last to the first.
-            */
+         * Performs the given action on all atoms in the phase, starting from the last to the first.
+         */
         public void allAtoms(AtomAction act) {
             for(Atom a=phase.lastAtom(); a!=null; a=a.previousAtom()) {act.actionPerformed(a);}
         }
@@ -317,13 +352,13 @@ public abstract class AtomIterator implements java.io.Serializable {
         * Also, the no-argument reset performs a reset using the current atom, rather than 
         * resetting to neighbor of first atom in phase.
         */
-    public static final class DownNeighbor extends Down {
+ /*   public static final class DownNeighbor extends Down {
         private Atom first;
         public DownNeighbor(Phase p) {super(p);}
         public DownNeighbor(Phase p, Atom a) {super(p,a);}
         /**
             * Resets iterator so that the next atom is the one just downList of the given atom
-            */
+            * /
         public void reset(Atom a) {
             atom = a;
             if(a == null) {hasNext = false; return;}
@@ -333,16 +368,17 @@ public abstract class AtomIterator implements java.io.Serializable {
         /**
          * Resets iterator to the condition it was in after the last call to reset(Atom a)
          * This will be hasNext = false if reset(Atom a) was not called previously.
-         */
+         * /
         public void reset() {super.reset(first);}
         /**
          * Performs the given action on all atoms uplist of the one indicated in the last call to reset(Atom).  
          * If reset has not been called before, performs no action.
-         */
+         * /
         public void allAtoms(AtomAction act) {
             if(first == null) return;
             for(Atom a=first; a!=null; a=a.previousAtom()) {act.actionPerformed(a);}
         }
     }//end of AtomIterator.DownNeighbor
+    */
 }//end of AtomIterator
     

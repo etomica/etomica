@@ -15,12 +15,11 @@ public class AtomPairIterator implements java.io.Serializable {
      * The iterators used to generate the sets of atoms
      */
     protected AtomIterator ai1, ai2;
-    private AtomIterator up1, up2, upNbr, dnNbr;
     
     /**
      * A pair action wrapper used to enable the allPairs method
      */
-    protected ActionWrapper actionWrapper;   // want final too //wrapper inner class defined below
+    protected AtomPairAction.Wrapper actionWrapper;   // want final too //wrapper inner class defined below
     protected boolean hasNext;
     /**
      * Flag indicating whether atom1 of pair needs to be updated to point to the same atom that "atom1" in this class points to
@@ -32,37 +31,28 @@ public class AtomPairIterator implements java.io.Serializable {
      */
     public AtomPairIterator(Phase p) {
         pair = new AtomPair(p); 
-        actionWrapper = new AtomPair.ActionWrapper(pair);
+        actionWrapper = new AtomPairAction.Wrapper(pair);
         hasNext = false;
-        makeIterators();
     }
     /**
      * Construct a pair iterator for use in the given phase and which performs the given action.
      * Initial state is hasNext = false
      */
-    public AtomPairIterator(Phase p, ActionWrapper wrap) {
+    public AtomPairIterator(Phase p, AtomPairAction.Wrapper wrap) {
         pair = new AtomPair(p); 
         actionWrapper = wrap;
         hasNext = false;
-        makeIterators();
     }
     /**
      * Construct a pair iterator for the given phase, using the given atom iterators
      */
     public AtomPairIterator(Phase p, AtomIterator iter1, AtomIterator iter2) {
         pair = new AtomPair(p);
-        actionWrapper = new AtomPair.ActionWrapper(pair);
+        actionWrapper = new AtomPairAction.Wrapper(pair);
         hasNext = false;
         ai1 = iter1;
         ai2 = iter2;
     }
-    
-    private void makeAtomIterators() {
-        up1 = p.iteratorFactory().makeAtomIteratorUp();
-        up2 = p.iteratorFactory().makeAtomIteratorUp();
-        upNbr = p.iteratorFactory().makeAtomIteratorUpNeighbor();
-        dnNbr = p.iteratorFactory().makeAtomIteratorDownNeighbor();
-    }//end of makeAtomIterators
     
     public final boolean hasNext() {return hasNext;}
     public void reset() {
@@ -110,9 +100,10 @@ public class AtomPairIterator implements java.io.Serializable {
         pair.reset();
         while(!ai2.hasNext()) {     //ai2 is done for this atom1, loop until it is prepared for next
             if(ai1.hasNext()) {     //ai1 has another atom1...
-                atom1 = ai1.next();     //...get it
-                ai2.reset(atom1);       //...reset ai2
-                needUpdate1 = true;     //...flag update of pair.atom1 for next time
+                atom1 = ai1.next();           //...get it
+                if(ai2.reset(atom1) == atom1) //...reset ai2
+                              ai2.next();     //...and advance if it's consequently set to return atom1
+                needUpdate1 = true;           //...flag update of pair.atom1 for next time
             }
             else {hasNext = false; break;} //ai1 has no more; all done with pairs
         }//end while
@@ -122,7 +113,7 @@ public class AtomPairIterator implements java.io.Serializable {
     /**
         * Performs the given action on all pairs returned by this iterator
         */
-    public void allPairs(AtomPair.Action act) {  
+    public void allPairs(AtomPairAction act) {  
         reset();
         ai1.reset();  //this shouldn't be here, in general; need to consider it more carefully
         actionWrapper.pairAction = act;
@@ -188,7 +179,6 @@ public class AtomPairIterator implements java.io.Serializable {
             ai2 = p.iteratorFactory().makeAtomIteratorDownNeighbor();
             this.reset();
         }
-    }
-        
+    }        
 }  //end of class AtomPairIterator
     

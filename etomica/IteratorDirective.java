@@ -1,5 +1,11 @@
 package etomica;
 
+/**
+ * Encapsulation of a set of instructions that an AtomIterator
+ * uses to select the atoms it presents on iteration.
+ *
+ * @author David Kofke
+ */
 public class IteratorDirective implements java.io.Serializable {
     
     private Atom firstAtom, lastAtom;
@@ -12,8 +18,11 @@ public class IteratorDirective implements java.io.Serializable {
     }
     public IteratorDirective(Direction direction) {
         set(direction);
+        set(ALL);
     }
     
+    //returns itself as a convenience, so that it may be set while being passed as an
+    //argument to a method
     public final IteratorDirective set(Atom first) {
         firstAtom = first;
         bounds = FIRST;
@@ -36,6 +45,7 @@ public class IteratorDirective implements java.io.Serializable {
     
     public final Bounds bounds() {return bounds;}
     public final Direction direction() {return direction;}
+    
     public final Atom firstAtom() {return firstAtom;}
     public final Atom lastAtom() {return lastAtom;}
     
@@ -61,7 +71,8 @@ public class IteratorDirective implements java.io.Serializable {
     public static final Direction DOWN = Direction.CHOICES[1];
     public static final Direction SINGLET = Direction.CHOICES[2];
     
-    //IteratorDirective.Direction
+    
+    //IteratorDirective.Bounds
     public static final class Bounds extends Constants.TypedConstant {
             
         private Bounds(String label) {super(label);}
@@ -72,7 +83,7 @@ public class IteratorDirective implements java.io.Serializable {
         };
         
         public final Constants.TypedConstant[] choices() {return CHOICES;}
-    }//end of Direction
+    }//end of Bounds
     public static final Bounds FIRST = Bounds.CHOICES[0];
     public static final Bounds FIRST_LAST = Bounds.CHOICES[1];
     public static final Bounds ALL = Bounds.CHOICES[2];
