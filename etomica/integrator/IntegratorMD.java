@@ -137,6 +137,7 @@ public abstract class IntegratorMD extends Integrator {
      */
     protected void randomizeMomenta(Phase aPhase) {
         atomIterator.setPhase(aPhase);
+        atomActionRandomizeVelocity.setTemperature(temperature);
         atomIterator.allAtoms(atomActionRandomizeVelocity);
     }
     
