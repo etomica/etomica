@@ -24,6 +24,7 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.nbratom.cell.IteratorFactoryCell;
 import etomica.nbratom.cell.NeighborCellManager;
+import etomica.nbratom.cell.PotentialCalculationCellAssign;
 import etomica.potential.PotentialCalculation;
 import etomica.utility.Arrays;
 
@@ -49,6 +50,17 @@ public class PotentialMasterNbr extends PotentialMaster {
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         positionDefinition = new AtomPositionDefinitionSimple();
 	}
+    
+    /**
+     * Performs cell-assignment potentialCalculation.  Assigns all molecules
+     * to their cells, and invokes superclass method causing setup to be
+     * performed iterating using species/potential hierarchy.
+     */
+    public void calculate(Phase phase, IteratorDirective id, PotentialCalculationCellAssign pc) {
+//        getNbrCellManager(phase).assignCellAll();
+        super.calculate(phase, id, pc);
+    }
+
 
     /**
      * Overrides superclass method to enable direct neighbor-list iteration

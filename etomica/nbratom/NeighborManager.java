@@ -18,6 +18,8 @@ import etomica.action.PhaseImposePbc;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbratom.cell.ApiAACell;
+import etomica.nbratom.cell.AtomIteratorCell;
+import etomica.nbratom.cell.NeighborCellManager;
 import etomica.potential.Potential2;
 import etomica.utility.Arrays;
 
@@ -49,7 +51,9 @@ public class NeighborManager implements IntervalListener {
         setPriority(200);
         pbcEnforcer = new PhaseImposePbc();
         pbcEnforcer.setApplyToMolecules(true);
+        this.potentialMaster = potentialMaster;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D());
+        atomIterator = new AtomIteratorCell(potentialMaster.getSpace().D());
 	}
 
 	/* (non-Javadoc)
@@ -168,6 +172,13 @@ public class NeighborManager implements IntervalListener {
     }
 
     public void neighborSetup(Phase phase) {
+        NeighborCellManager nbrManager = potentialMaster.getNbrCellManager(phase);
+        atomIterator.setPhase(phase);
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            nbrManager.assignCell(atomIterator.nextAtom());
+        }
+        
         cellNbrIterator.setPhase(phase);
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
@@ -191,6 +202,8 @@ public class NeighborManager implements IntervalListener {
 	private final NeighborCheck neighborCheck;
 	private final NeighborReset neighborReset;
     private final ApiAACell cellNbrIterator;
+    private final AtomIteratorCell atomIterator;
+    private final PotentialMasterNbr potentialMaster;
 	private int priority;
     private PhaseImposePbc pbcEnforcer;
     

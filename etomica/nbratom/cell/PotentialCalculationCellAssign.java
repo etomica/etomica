@@ -4,6 +4,7 @@
  */
 package etomica.nbratom.cell;
 
+import etomica.Atom;
 import etomica.AtomPair;
 import etomica.AtomPairIterator;
 import etomica.AtomsetIterator;
@@ -22,8 +23,9 @@ import etomica.potential.PotentialCalculation;
  */
 public class PotentialCalculationCellAssign extends PotentialCalculation {
 
-	public PotentialCalculationCellAssign() {
+	public PotentialCalculationCellAssign(NeighborCellManager cellManager) {
 		super();
+        this.cellManager = cellManager;
 	}
 
 	/**
@@ -43,11 +45,19 @@ public class PotentialCalculationCellAssign extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			AtomPair atoms = ((AtomPairIterator)iterator).nextPair();
-            
-            //TODO put each atom in cell
-            //TODO save potential in Type
-            
+            Atom atom0 = atoms.atom0;
+            Atom atom1 = atoms.atom1;
+            if(((AtomSequencerCell)atom0.seq).cell == null) {
+                cellManager.assignCell(atom0);
+            }
+            if(((AtomSequencerCell)atom1.seq).cell == null) {
+                cellManager.assignCell(atom1);
+            }
+            atom0.type.getNbrManagerAgent().addPotential(potential);
+            if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
 		}
 	}
+    
+    private final NeighborCellManager cellManager;
     
 }

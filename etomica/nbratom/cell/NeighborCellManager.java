@@ -24,6 +24,7 @@ import etomica.lattice.CellLattice;
 
 //TODO modify assignCellAll to loop through cells to get all atoms to be assigned
 //no need for index when assigning cell
+//different iterator needed
 
 public class NeighborCellManager implements Integrator.IntervalListener {
 
