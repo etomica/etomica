@@ -28,5 +28,7 @@ public abstract class NeighborCriterion implements AtomsetFilter {
 	
 	public abstract boolean unsafe(Atom atom);
 	
+	public abstract void reset(Atom atom);
+	
 	//TODO consider ways to ensure this is removed from nbrmanager if no longer used
 }

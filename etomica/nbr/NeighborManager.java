@@ -55,6 +55,7 @@ public class NeighborManager implements IntervalListener {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
 				phase[i].simulation().potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
+				
 			}
 		}
 	}
@@ -111,6 +112,17 @@ public class NeighborManager implements IntervalListener {
 			needUpdate = false;
 			unsafe = false;
 		}
+
+	}
+	
+	private static class NeighborReset implements AtomsetActive {
+		public void actionPerformed(Atom[] atom) {
+			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
+			if (criterion != null) {
+				criterion.reset(atom[0]);
+			}
+		}
+
 		
 		
 	}
