@@ -23,7 +23,7 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
 
     public JTable table;
     MyTableData dataSource;
-    Modulator[] modulators;
+    ModulatorAbstract[] modulators;
     DimensionedDoubleEditor[] editors;
     PropertyText[] views;
     JPanel panel;
@@ -36,7 +36,7 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         super(sim);
     }
     
-    public DeviceTable(Simulation sim, Modulator[] mods) {
+    public DeviceTable(Simulation sim, ModulatorAbstract[] mods) {
         super(sim);
         modulators = mods;
         editors = new DimensionedDoubleEditor[modulators.length];
@@ -144,8 +144,8 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
      */
     class Adapter implements java.beans.PropertyChangeListener {
         private DimensionedDoubleEditor editor;
-        private Modulator modulator;
-        Adapter(DimensionedDoubleEditor ed, Modulator mod) {
+        private ModulatorAbstract modulator;
+        Adapter(DimensionedDoubleEditor ed, ModulatorAbstract mod) {
             editor = ed;
             modulator = mod;
             ed.addPropertyChangeListener(this);

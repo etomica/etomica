@@ -105,7 +105,7 @@ public abstract class MCMove implements java.io.Serializable {
         nTrialsSum += nTrials;
         nAcceptSum += nAccept;
         if(nTrialsSum != 0) acceptanceRatio = (double)nAcceptSum/(double)nTrialsSum;
-        if(!tunable) return;
+        if(!tunable) {nTrials = nAccept = 0; return;}
         if(nAccept > (int)(acceptanceTarget*nTrials)) {stepSize *= 1.05;}
         else{stepSize *= 0.95;}
         stepSize = Math.min(stepSize,stepSizeMax);
@@ -173,13 +173,20 @@ public abstract class MCMove implements java.io.Serializable {
             
     
     /**
-     * Fraction of time trials of this type were accepted since acceptanceTarget was set
+     * Fraction of time trials of this type were accepted 
+     * since acceptanceTarget was set
      */
-    public double acceptanceRatio() {return acceptanceRatio;}
+    public double acceptanceRatio() {
+        return (acceptanceRatio >= 0.0) ? acceptanceRatio : 
+            (nTrials > 0) ? (double)nAccept/(double)nTrials : Double.NaN;
+    }
     public final void setAcceptanceTarget(double a) {
         nTrialsSum = 0;
         nAcceptSum = 0;
         acceptanceTarget = a;
+        nTrials = 0;
+        nAccept = 0;
+        acceptanceRatio = -1.0;
     }
     public final double getAcceptanceTarget() {return acceptanceTarget;}
     

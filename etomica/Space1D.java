@@ -611,5 +611,38 @@ public class Space1D extends Space implements EtomicaElement {
             }
         } //end of getOverflowShifts
     }  //end of BoundaryPeriodic
+    
+    
+    public static void main(String[] args) {
+        Default.ATOM_SIZE = 1.0;
+        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space1D());
+  //    setIteratorFactory(new IteratorFactoryCell(this));
+        AtomIteratorNeighbor nbrIterator = new AtomIteratorNeighbor();
+	    IntegratorMC integrator = new IntegratorMC(sim);
+	    MCMoveAtom mcmoveAtom = new MCMoveAtom(integrator);
+	    Species species = new SpeciesSpheresMono(sim);
+	    
+	    species.setNMolecules(3);
+	    final Phase phase = new Phase(sim);
+	    Potential2 potential = new P2HardSphere();
+//	    Potential2 potentialOrder = new P2XOrder();
+//	    potential.setSpecies(species,species);
+//	    potentialOrder.setSpecies(species,species);
+	    Controller controller = new Controller(sim);
+	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(sim);
+        display.setColorScheme(new etomica.graphics.ColorSchemeRandom());
+		sim.elementCoordinator.go();
+		
+		AtomPairIterator api = new ApiGeneral(sim.space, new AtomIteratorList(), nbrIterator);
+		potential.setIterator(api);
+		
+		NeighborManager.Criterion criterion = new NeighborManager.Criterion() {
+		    public boolean areNeighbors(Atom a1, Atom a2) {
+		        return Math.abs(a1.node.index()-a2.node.index()) == 1 ||
+		           (a1==phase.firstAtom() && a2==phase.lastAtom());
+		    }};
+		nbrIterator.setupNeighbors(phase.speciesMaster.atomList, criterion);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
+    }
             
 }//end of Space1D

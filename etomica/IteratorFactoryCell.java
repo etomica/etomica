@@ -10,14 +10,15 @@ import etomica.utility.Iterator;
  * Factory is attached to a simulation by invoking the setIteratorFactory method
  * (in Simulation) with an instance of this factory as an argument.
  * Mediator is placed in simulation when this factory is constructed.  This
- * mediator causes a cell lattices to be attached to each phase.
+ * mediator causes a cell lattice to be attached to each phase.
  * Atom factories decide whether each atom it constructs is given a simple
  * sequencer or a neighbor sequencer; this specification is made by passing
- * the to the atom's constructor the corresponding sequencer factory given
+ * to the atom's constructor the corresponding sequencer factory given
  * by the make*SequencerFactory methods of this iterator factory.  Usually
  * neighbor sequencers are given to molecules, and simple sequencers are
  * used for the atoms and groups they comprise.  In large molecules (e.g. polymers)
  * it may be the subgroups of each molecule that are organized into the cells.<br>
+ *
  * Atom is first assigned to its cell when it is constructed in the AtomFactory.makeAtom
  * method.  Its cell assignment is updated every time a translate method is
  * called in its coordinate class (translateTo, translateBy, etc. all perform a call
@@ -116,7 +117,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         primitiveCopy.setLattice(null);
         
         //set up the neighbor lists for each cell in the lattice
-        NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
+        etomica.lattice.NeighborManager.Criterion neighborCriterion = new etomica.lattice.NeighborManager.Criterion() {
             public boolean areNeighbors(Site s1, Site s2) {
                 return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < neighborRange;
             }
@@ -214,7 +215,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         final double rangeSquared = r*r;
         for(int i=0; i<deployedLattices.length; i++) {
             final Phase phase = getPhase(deployedLattices[i]);
-            NeighborManager.Criterion neighborCriterion = new NeighborManager.Criterion() {
+            etomica.lattice.NeighborManager.Criterion neighborCriterion = new etomica.lattice.NeighborManager.Criterion() {
                 public boolean areNeighbors(Site s1, Site s2) {
                     return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < rangeSquared;
                 }

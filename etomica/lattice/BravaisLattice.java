@@ -107,15 +107,22 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     }
     
     /**
-     * Returns the site corresponding to the given index.
+     * Returns the site corresponding to the given index, applying periodic
+     * boundaries if the index describes a site beyond the lattice.
      */
      //needs work to improve probable inefficiency with list.get
-     //and to handle index values out of size of lattice
+     //have not checked handling of values out of size of lattice
     public Site site(int[] idx) {
         Atom site = this;
-        int i=0;
-        do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
-        while(!site.node.isLeaf() && i<idx.length);
+        for(int i=0; i<idx.length && !site.node.isLeaf(); i++) {
+            int k = idx[i];
+            while(k < 0) k += dimensions[i];
+            while(k >= dimensions[i]) k -= dimensions[i];
+            site = ((AtomTreeNodeGroup)site.node).childList.get(k);
+        }
+      //  int i=0;
+      //  do site = ((AtomTreeNodeGroup)site.node).childList.get(idx[i++]);
+      //  while(!site.node.isLeaf() && i<idx.length);
         return (Site)site;
     }
     
@@ -190,14 +197,65 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
     public void setupNeighbors(NeighborManager.Criterion criterion) {
         neighborCriterion = criterion;
+ //       AtomIteratorList iterator = new AtomIteratorList(siteList);
+ //       iterator.reset();
+ //       while(iterator.hasNext()) {
+ //           Site site = (Site)iterator.next();
+ //           site.neighborManager().setupNeighbors(siteList, criterion);
+ //       }
+ 
+        //set up neighbors for first site
+        Site first = (Site)siteList.getFirst();
+        int[] i0 = first.latticeCoordinate();
+        first.neighborManager().setupNeighbors(siteList,criterion);
+        
+        //compute differences in index coordinates between each nbr and first site
+        SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
+        nbrIterator.setBasis(first);
+        nbrIterator.reset();
+        int nbrCount = nbrIterator.size();
+        int[][] delta = new int[nbrCount][D];
+        int n = 0;
+        int[] iN;
+        while(nbrIterator.hasNext()) {            
+            Site nbr = (Site)nbrIterator.next();
+            if(nbr == first) {nbrCount--; continue;} //in case nbrIterator returns central atom itself
+            iN = nbr.latticeCoordinate();
+            for(int i=0; i<D; i++) delta[n][i] = iN[i] - i0[i];
+            n++;
+        }//end while
+        
+        //loop through all other atoms, adding neighbors identified by deltas
+        //in index coordinates
         AtomIteratorList iterator = new AtomIteratorList(siteList);
         iterator.reset();
+        iterator.next(); //skip first
+        iN = new int[D];
+        NbrCriterion nbrCriterion = new NbrCriterion();
         while(iterator.hasNext()) {
-            Site site = (Site)iterator.next();
-            site.neighborManager().setupNeighbors(siteList, criterion);
+            nbrCriterion.root = (Site)iterator.next();
+            i0 = nbrCriterion.root.latticeCoordinate();
+            nbrCriterion.nbrList.clear();
+            for(n=0; n<nbrCount; n++) {
+                for(int i=0; i<D; i++) iN[i] = i0[i] + delta[n][i];
+                nbrCriterion.nbrList.add(site(iN));
+                //site.neighborManager().add to neighbor list
+            }
+            //could be made faster if we could add neighbors to neighborManager's list
+            //in the appropriate order (pbc complicates doing this)
+            nbrCriterion.root.neighborManager().setupNeighbors(siteList, nbrCriterion);
         }
         eventManager.fireEvent(resetNbrEvent);
     }//end of setupNeighbors
+    private class NbrCriterion implements NeighborManager.Criterion {
+        Site root;
+        AtomList nbrList = new AtomList();
+        public boolean areNeighbors(Site s0, Site s1) {
+            return (s0 == root && nbrList.contains(s1))
+                    || (s1 == root && nbrList.contains(s0));
+        }
+    }
+    
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -389,7 +447,7 @@ public static class Factory extends AtomFactoryTree {
         for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
         System.out.println();
         System.out.println();
- /*       
+ */       
         lattice.setupNeighbors(new AdjacencyCriterion(lattice));
         SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
         nbrIterator.setBasis(testSite);
@@ -451,6 +509,6 @@ public static class Factory extends AtomFactoryTree {
         }
         System.out.println();
         System.out.println();
- */      
+ /* */      
     }//end of main
 }//end of BravaisLattice

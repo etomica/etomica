@@ -1,7 +1,7 @@
 package etomica;
 
 /**
- * Loops through molecule pairs given between two group, formed
+ * Loops through molecule pairs given between two groups, formed
  * from 1 molecule and All its neighbors.  Molecule is specified itself
  * or in terms of one of its descendant atoms, via an iterator directive.
  *

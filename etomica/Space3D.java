@@ -1204,7 +1204,7 @@ public static class CoordinateGroup extends Coordinate {
         }
     }//end of BoundarySlidingBrick */
     
-    protected final static class BoundaryDeformableCell extends Boundary implements Space.Boundary.Periodic, Space.Boundary.Deformable {
+/*    protected final static class BoundaryDeformableCell extends Boundary implements Space.Boundary.Periodic, Space.Boundary.Deformable {
 
         public BoundaryDeformableCell() {this(Default.BOX_SIZE);}
         public BoundaryDeformableCell(double length) {this(new double[] {length, length, length});}
@@ -1351,7 +1351,7 @@ public static class CoordinateGroup extends Coordinate {
 
         /**
          * Multiplies all lengths isotropically by the given value.
-         */
+         * /
         public void inflate(double scale) {
             dimensions.TE(scale);
             boundaryTensor.TE(scale);
@@ -1361,7 +1361,7 @@ public static class CoordinateGroup extends Coordinate {
         /**
          * Multiples each dimension (x, y, z) by the corresponding factor in the given vector.
          * Same as deform with a tensor argument formed with the given vector on its diagonal.
-         */
+         * /
         public void inflate(Space.Vector scale) {
             workTensor.E(0.0);
             workTensor.diagE(scale);
@@ -1371,7 +1371,7 @@ public static class CoordinateGroup extends Coordinate {
         /**
          * Sets the length of each boundary edge to the corresponding value in the
          * given vector, keeping the shape of the box unchanged (other than the change in size).
-         */
+         * /
         public void setDimensions(Space.Vector v) {
             workVector.E(v);
             workVector.DE(dimensions);
@@ -1380,7 +1380,7 @@ public static class CoordinateGroup extends Coordinate {
         
         /**
          * Sets the boundary tensor to equal the given tensor.
-         */
+         * /
         public void setDimensions(Space.Tensor t) {
             boundaryTensor.E(t);
             updateDimensions();
@@ -1396,7 +1396,7 @@ public static class CoordinateGroup extends Coordinate {
         /**
          * imageOrigins and getOverFlowShifts are both probably incorrect, if they are
          * even completed.  They should definitely be checked before being implemented.
-         */
+         * /
         
         int shellFormula, nImages, i, j, k, m;
         double[][] origins;
@@ -1417,7 +1417,7 @@ public static class CoordinateGroup extends Coordinate {
                 }
             }
             return origins;
-            */
+            * /
         }//end of imageOrigins
         
         
@@ -1485,7 +1485,8 @@ public static class CoordinateGroup extends Coordinate {
             }
             
             return(shift);
-            */
+            * /
         }//end of getOverflowShifts
-    }//end of BoundaryDeformableCell        
+    }//end of BoundaryDeformableCell 
+    */
 }//end of Space3D

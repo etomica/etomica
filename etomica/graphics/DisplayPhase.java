@@ -116,8 +116,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 break;
             case 1:
             default:
-/*comment this line for applet*/               DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 canvas = new DisplayPhaseCanvas1D(this);
+/*comment this line for applet*/               DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 break;
         }
         

@@ -22,11 +22,11 @@ public class LjMd2D extends SimulationGraphic {
    //     super(new etomica.space.continuum.Space(2));
         setIteratorFactory(new IteratorFactoryCell(this));
         Simulation.instance = this;
-	    integrator = new IntegratorVelocityVerlet(this);
-	    species = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);
+	    species = new SpeciesSpheresMono(this);
 	    potential = new P2LennardJones();
 	    controller = new Controller(this);
+	    integrator = new IntegratorVelocityVerlet(this);
 	    display = new DisplayPhase(this);
 	    DisplayTimer timer = new DisplayTimer(integrator);
 	    timer.setUpdateInterval(10);

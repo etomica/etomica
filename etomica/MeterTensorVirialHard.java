@@ -92,8 +92,12 @@ public class MeterTensorVirialHard extends MeterTensor implements MeterTensor.Co
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
     public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent) {
-        collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
-        collisionVirial.TE(1/(double)phase.atomCount());
+        if(agent.collisionPotential == PotentialHard.NULL) {
+            collisionVirial.E(0.0);
+        } else {
+            collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
+            collisionVirial.TE(1/(double)phase.atomCount());
+        }
         return collisionVirial;
     }
                 

@@ -96,7 +96,12 @@ public final class ApiIntergroupAA implements AtomPairIterator {
     private final AtomIterator aiOuter;
     private final AtomIterator aiInner;
     
-    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.UP);
+    //localdirective direction is set to BOTH to economize inner-loop iteration
+    //with this setting, the inner iterator doesn't bother to check if its iterates
+    //are up or down list of the reference atom (given by the outer loop).  Whatever
+    //sets the basis for this pair iterator should ensure that the basis atoms
+    //are compatible with the direction of iteration it wants
+    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomPair pair;
     private Atom atom1;
     

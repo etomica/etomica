@@ -68,7 +68,19 @@ private static final class SequentialIterator implements AtomIterator {
      * iteration begins with it and proceeds up or down list from there.
      */
     public Atom reset(IteratorDirective id) {
-        return listIterator.reset(id.atom1().seq, id.direction());
+        Atom refAtom = id.atom1();
+        if(refAtom.node.parentNode() == basis) {
+            return listIterator.reset(id.atom1().seq, id.direction());
+        } else if(id.direction()==IteratorDirective.BOTH) {
+            return listIterator.reset();
+        } else {
+            boolean refFirst = refAtom.seq.preceeds(basis.atom());
+            if(refFirst && id.direction()==IteratorDirective.UP 
+                || !refFirst && id.direction()==IteratorDirective.DOWN && !(refAtom==basis.atom())) {
+                    return listIterator.reset();
+            }
+        }
+        return null;
      //   return listIterator.reset(id);
     }
     

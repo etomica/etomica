@@ -83,6 +83,11 @@ public final class SpeciesMaster extends Atom {
             throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesMaster");
         }
         
+        /**
+         * Returns true, because children are SpeciesAgent instances.
+         */
+        public final boolean childrenAreGroups() {return true;}
+        
         public void addAtomNotify(Atom atom) {
             if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount++;}
             else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();}

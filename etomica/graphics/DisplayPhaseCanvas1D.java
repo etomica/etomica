@@ -15,12 +15,10 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
-    
-    private ColorScheme colorScheme;
+    private final AtomIteratorList atomIterator = new AtomIteratorList();
     
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {
         displayPhase = _phase;
-        colorScheme = displayPhase.getColorScheme();
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
@@ -61,7 +59,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             drawWell = true;
         }
 
-        g.setColor(colorScheme.atomColor(a));
+        g.setColor(displayPhase.getColorScheme().atomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         baseYP = origin[1];
@@ -173,10 +171,14 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();
-///        for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
-///            //boundary.centralImage(a.coordinate);        //move atom to central image
-///            drawAtom(g, displayPhase.getOrigin(), a);
-///        }
+        if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
+            ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
+        }
+        atomIterator.setBasis(displayPhase.getPhase().speciesMaster.atomList);
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            drawAtom(g, displayPhase.getOrigin(), atomIterator.next());
+        }
             
         //Draw overflow images if so indicated
         //This needs some work to make more general

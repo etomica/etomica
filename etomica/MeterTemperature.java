@@ -31,7 +31,7 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
     }
     
     public double currentValue(Atom a) {
-        return 2./phase.parentSimulation().space().D()*a.coord.kineticEnergy();
+        return 2./(phase.atomCount()*phase.parentSimulation().space().D())*a.coord.kineticEnergy();
     }
     
 	public Dimension getDimension() {return Dimension.TEMPERATURE;}
