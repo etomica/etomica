@@ -10,6 +10,11 @@ import javax.swing.JPanel;
  *
  * @author David Kofke
  */
+
+/* History
+ * 
+ * 01/03/03 (DAK) added constructor that omits addition of internal panels
+ */
  
 public class SimulationPanel extends JPanel {
     
@@ -55,5 +60,16 @@ public class SimulationPanel extends JPanel {
                     System.out.println("Click");
                 }
             });*/
+    }
+    /**
+     * Constructor for use if no simulation elements are to be laid out
+     * manually in the main program.  No internal panels are added to simulation
+     * panel.
+     * @param simulation Simulation using this panel
+     * @param layout Layout manager to be used to organize components
+     */
+    public SimulationPanel(SimulationGraphic simulation, java.awt.LayoutManager layout) {
+		super(layout);
+    	parentSimulation = simulation;
     }
 }//end of SimulationPanel

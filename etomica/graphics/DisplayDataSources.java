@@ -174,7 +174,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
         }
         else { //no xSource specified; take sequentially
         	int nPoints = maxYPoints();
-        	if(x.length == nPoints) return;
+        	if(x != null && x.length == nPoints) return;
             x = new double[nPoints];
             for(int i=0; i<x.length; i++) {x[i] = i;}
       //      setXUnit(Unit.NULL);

@@ -106,7 +106,6 @@ public class SimulationGraphic extends Simulation {
                 
     /**
      * A visual display of the simulation via a JPanel.
-     * This may become more important if Simulation itself is revised to not extend JPanel.
      */
      public SimulationPanel panel() {
         if(simulationPanel == null) simulationPanel = new SimulationPanel(this);
