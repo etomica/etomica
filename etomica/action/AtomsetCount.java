@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.Atom;
+import etomica.AtomSet;
 
 /**
  * Action that simply counts the number of times the actionPerformed
@@ -18,7 +18,7 @@ public class AtomsetCount extends AtomsetActionAdapter {
 	/**
 	 * Increments the call-counter by 1.
 	 */
-	public void actionPerformed(Atom[] atom) {callCount++;}
+	public void actionPerformed(AtomSet atom) {callCount++;}
 	
 	/**
 	 * Sets the callCount to zero.

@@ -27,16 +27,15 @@ public interface AtomIterator extends AtomsetIterator {
      * @author kofke
      */
     public static final AtomIterator NULL = new AtomIterator() {
-    	private final Atom[] atoms = new Atom[1];
     	public void allAtoms(AtomsetAction action) {}
-    	public boolean contains(Atom[] atom) {return false;}
+    	public boolean contains(AtomSet atom) {return false;}
      	public boolean contains(Atom atom) {return false;}
     	public boolean hasNext() {return false;}
-       	public Atom[] next() {atoms[0] = null; return atoms;}
+       	public AtomSet next() {return null;}
        	public Atom nextAtom() {return null;}
     	public void reset() {}
     	public int size() {return 0;}
-    	public Atom[] peek() {atoms[0] = null; return atoms;}
+    	public AtomSet peek() {return null;}
     	public void unset() {}
     	public int nBody() {return 1;}
     };

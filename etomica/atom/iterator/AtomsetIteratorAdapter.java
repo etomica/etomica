@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 
@@ -33,7 +33,7 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator {
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
-	public boolean contains(Atom[] atom) {
+	public boolean contains(AtomSet atom) {
 		return iterator.contains(atom);
 	}
 
@@ -61,11 +61,11 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator {
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#next()
 	 */
-	public Atom[] next() {
+	public AtomSet next() {
 		return iterator.next();
 	}
 	
-	public Atom[] peek() {
+	public AtomSet peek() {
 		return iterator.peek();
 	}
 	

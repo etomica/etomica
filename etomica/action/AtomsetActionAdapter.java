@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.Atom;
+import etomica.AtomSet;
 
 /**
  * Base class for classes that perform some elementary action on an atom.
@@ -13,17 +13,15 @@ import etomica.Atom;
  * <li>they may be used to generate a Monte Carlo trial in an MCMove object.
  * 
  * @author David Kofke
- * @see Atom.Iterator
- * @see DisplayPhase.AtomActionWrapper
  */
  
 public abstract class AtomsetActionAdapter implements AtomsetAction {
     
-    protected Atom[] atoms;
+    protected AtomSet atoms;
     String label;
 
-    public void setAtoms(Atom[] a) {atoms = a;}
-    public Atom[] getAtoms() {return atoms;}
+    public void setAtoms(AtomSet a) {atoms = a;}
+    public AtomSet getAtoms() {return atoms;}
 
     /**
      * Performs the defined action using the atom most recently specified by setAtom or by the last call to actionPerformed(Atom a).
@@ -37,7 +35,7 @@ public abstract class AtomsetActionAdapter implements AtomsetAction {
      * Method that defines the action to be performed on the atom
      * @param a Atom passed to method by iterator
      */
-    public abstract void actionPerformed(Atom[] a);
+    public abstract void actionPerformed(AtomSet a);
         
     public String getLabel() {
     	return label;

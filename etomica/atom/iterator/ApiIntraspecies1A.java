@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
@@ -70,17 +71,8 @@ public class ApiIntraspecies1A extends AtomsetIteratorAdapter implements
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(Atom[] targetAtoms) {
-        switch(targetAtoms.length) {
-            case 0: 
-                targetAtom = null;
-                break;
-            case 1: 
-                targetAtom = targetAtoms[0];
-                break;
-            default:
-                if(targetAtoms[1] != null) throw new IllegalArgumentException("Specification of more than two target atoms is not supported");
-        }
+    public void setTarget(AtomSet targetAtoms) {
+        targetAtom = (Atom)targetAtoms;
         identifyTargetMolecule();
     }
 

@@ -21,7 +21,7 @@ import etomica.space.ICoordinate;
   * @author David Kofke
   * @author C. Daniel Barnes
   */
-public class Atom implements java.io.Serializable {
+public class Atom implements AtomSet, java.io.Serializable {
 
     public Atom(Space space, AtomType type, 
                     AtomTreeNodeFactory nodeFactory,
@@ -45,6 +45,17 @@ public class Atom implements java.io.Serializable {
      */
     public Atom(Space space) {
     	this(space, new AtomTypeSphere(), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+    }
+    
+    public final int count() {return 1;}
+    
+    public final Atom getAtom(int i) {
+        if(i == 0 ) return this;
+        throw new IllegalArgumentException();
+    }
+    
+    public final boolean equals(AtomSet atoms) {
+        return this == atoms;
     }
     
     /**

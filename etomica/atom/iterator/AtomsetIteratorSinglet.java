@@ -1,8 +1,6 @@
 package etomica.atom.iterator;
 
-import java.util.Arrays;
-
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 
@@ -28,9 +26,8 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
      * be given by this iterator until a call to setAtom is performed.
      */
     public AtomsetIteratorSinglet(int nBody) {
-    	atom = new Atom[nBody];
-    	this.nBody = nBody;
-    	hasNext = false;
+        this.nBody = nBody;
+        hasNext = false;
     }
     
     /**
@@ -38,8 +35,8 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomsetIteratorSinglet(Atom[] a) {
-    	this(a.length);
+    public AtomsetIteratorSinglet(AtomSet a) {
+    	this(a.count());
     	setAtom(a);
     }
         
@@ -47,18 +44,16 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
      * Defines atom returned by iterator and leaves iterator unset.
      * Call to reset() must be performed before beginning iteration.
      */
-    public void setAtom(Atom[] a) {
-    	for (int i=0; i<nBody; i++) {
-    		if (a[i] == null) throw new NullPointerException("cannot set a null atom");
-    	}
-    	System.arraycopy(a,0,atom,0,nBody);
+    public void setAtom(AtomSet a) {
+        if (a != null && a.count() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
+    	atom = a;
     	unset();
     }
     
     /**
      * returns 1.
      */
-    public int size() {return 1;}
+    public int size() {return atom != null ? 0 : 1;}
 
 	public void allAtoms(AtomsetAction action) {
 		action.actionPerformed(atom);
@@ -67,8 +62,8 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
     /**
      * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
      */
-    public boolean contains(Atom[] a) {
-    	return Arrays.equals(a,atom);
+    public boolean contains(AtomSet a) {
+    	return !(atom == null || a == null) && atom.equals(a);
     }
     
     /**
@@ -92,7 +87,7 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public Atom[] next() {
+    public AtomSet next() {
     	if (!hasNext) return null;
     	hasNext = false;
     	return atom;
@@ -102,7 +97,7 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
      * Returns the atom last specified via setAtom.  Does
      * not advance iterator.
      */
-    public Atom[] peek() {
+    public AtomSet peek() {
     	return hasNext ? null : atom;
     }
     
@@ -110,7 +105,7 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
     
     private final int nBody;
     private boolean hasNext = false;
-    private final Atom[] atom;
+    private AtomSet atom;
 
 }//end of AtomIteratorSinglet
         

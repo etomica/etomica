@@ -4,8 +4,9 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomPair;
+import etomica.AtomSet;
 
 /**
  * Iterator that returns pairs formed using two different basis atoms, so that
@@ -33,7 +34,7 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
      * 
      * @see etomica.AtomsetIteratorBasisDependent#setDirective(etomica.IteratorDirective)
      */
-    public void setTarget(Atom[] targetAtoms) {
+    public void setTarget(AtomSet targetAtoms) {
         aiOuter.setTarget(targetAtoms);
     }
 
@@ -48,14 +49,12 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
      * give no iterates until a proper basis is specified via another call to
      * this method.
      */
-    public void setBasis(Atom[] basisAtoms) {
-        if (basisAtoms == null || basisAtoms.length < 2) {
+    public void setBasis(AtomSet basisAtoms) {
+        if (!(basisAtoms instanceof AtomPair)) {
             aiOuter.setBasis(null);
         } else {
-            atom[0] = basisAtoms[0];
-            aiOuter.setBasis(atom);
-            atom[0] = basisAtoms[1];
-            aiInner.setBasis(atom);
+            aiOuter.setBasis(((AtomPair)basisAtoms).atom0);
+            aiInner.setBasis(((AtomPair)basisAtoms).atom1);
         }
     }
 
@@ -85,6 +84,5 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 
     private final AtomsetIteratorBasisDependent aiOuter;
     private final AtomsetIteratorBasisDependent aiInner;
-    private final Atom[] atom = new Atom[1];
 
 }

@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 
 /**
@@ -16,5 +16,5 @@ import etomica.AtomsetIterator;
  * at least one element, although the array elements can be null.
  */
 public interface AtomsetIteratorTargetable extends AtomsetIterator {
-	public void setTarget(Atom[] targetAtoms);
+	public void setTarget(AtomSet targetAtoms);
 }

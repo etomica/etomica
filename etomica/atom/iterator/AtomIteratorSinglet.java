@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.action.AtomsetAction;
 
 /**
@@ -33,7 +34,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
      * If atom is null, hasNext will remain false on reset.
      */
     public void setAtom(Atom a) {
-    	atom[0] = a;
+    	atom = a;
     	unset();
     }
     
@@ -41,7 +42,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
      * @return the atom given by this iterator as its single iterate
      */
     public Atom getAtom() {
-        return atom[0];
+        return atom;
     }
     
     /**
@@ -50,14 +51,14 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     public int size() {return 1;}
 
 	public void allAtoms(AtomsetAction action) {
-		if(atom[0] != null) action.actionPerformed(atom);
+		if(atom != null) action.actionPerformed(atom);
 	}
         
     /**
      * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
      */
-    public boolean contains(Atom[] a) {
-    	return (a != null && a[0] != null && a[0].equals(atom));
+    public boolean contains(AtomSet a) {
+    	return (a != null && a.equals(atom));
     }
     
     /**
@@ -75,7 +76,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
      * Resets iterator to a state where hasNext is true.
      */
     public void reset() {
-        hasNext = (atom[0] != null); 
+        hasNext = (atom != null); 
     }
     
     /**
@@ -84,26 +85,24 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     public Atom nextAtom() {
     	if (!hasNext) return null;
     	hasNext = false;
-    	return atom[0];
+    	return atom;
     }
     
-    public Atom[] next() {
-    	if (!hasNext) return null;
-    	hasNext = false;
-    	return atom;
+    public AtomSet next() {
+        return nextAtom();
     }
     
     /**
      * Returns the atom last specified via setAtom.  Does
      * not advance iterator.
      */
-    public Atom[] peek() {
+    public AtomSet peek() {
     	return hasNext ? null : atom;
     }
     
     public final int nBody() {return 1;}
     
     private boolean hasNext = false;
-    private final Atom[] atom = new Atom[1];
+    private Atom atom;
 
 }//end of AtomIteratorSinglet

@@ -5,6 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
@@ -51,9 +52,8 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * no target atom is specified and all molecules of the species in the
      * phase will be given on iteration.
      */
-    public void setTarget(Atom[] targetAtoms) {
-        if(targetAtoms == null || targetAtoms.length == 0) targetAtom = null;
-        else targetAtom = targetAtoms[0];
+    public void setTarget(AtomSet targetAtoms) {
+        targetAtom = (Atom)targetAtoms;
         setList();
     }
 

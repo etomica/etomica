@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomSet;
 import etomica.action.AtomsetAction;
 import etomica.utility.Arrays;
 
@@ -20,7 +21,6 @@ public final class AtomIteratorCompound implements AtomIterator {
     public AtomIteratorCompound(AtomIterator[] iterators) {
         iteratorSet = iterators;
         reset();
-        atoms = new Atom[1];
     }
     
     /**
@@ -59,7 +59,7 @@ public final class AtomIteratorCompound implements AtomIterator {
         return count;
     }
     
-    public boolean contains(Atom[] atoms) {
+    public boolean contains(AtomSet atoms) {
         if(iteratorSet == null) return false;
         for(int i=0; i<iteratorSet.length; i++) {
             if(iteratorSet[i].contains(atoms)) return true;
@@ -84,13 +84,17 @@ public final class AtomIteratorCompound implements AtomIterator {
         hasNext = iteratorSet[index].hasNext();
     }
     
-    public Atom[] peek() {
+    public AtomSet peek() {
     	return hasNext ? iteratorSet[index].peek() : null;
     }
     
-    public Atom[] next() {
+    public AtomSet next() {
+        return nextAtom();
+    }//end of next
+
+    public Atom nextAtom() {
         if(!hasNext) return null;
-        atoms[0] = iteratorSet[index].nextAtom();
+        Atom atom = iteratorSet[index].nextAtom();
         while(!iteratorSet[index].hasNext()) {
             if(++index < iteratorSet.length) {
                 iteratorSet[index].reset();
@@ -100,11 +104,7 @@ public final class AtomIteratorCompound implements AtomIterator {
                 break;
             }
         }
-        return atoms;
-    }//end of next
-
-    public Atom nextAtom() {
-    	return next()[0];
+        return atom;
     }
     
     public void allAtoms(AtomsetAction action) {
@@ -120,6 +120,5 @@ public final class AtomIteratorCompound implements AtomIterator {
     private AtomIterator[] iteratorSet = new AtomIterator[0];
     private boolean hasNext;
     private int index;
-    private Atom atoms[];
     
 }//end of AtomIteratorCompound

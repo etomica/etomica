@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
@@ -35,7 +36,6 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
 	private int terminatorType;//bitmask to match against for terminators
 	private AtomLinker next;//holds next atom to return on call to next()
     private boolean upList;
-    private final Atom[] atoms = new Atom[1];
     
     /**
      * Constructs a new iterator using an empty list as its basis for iteration.
@@ -124,8 +124,7 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
     	for(AtomLinker link = (first.atom==null) ? (upList ? first.next : first.previous) : first; ; 
     			link=(upList ? link.next : link.previous)) {
     		if(link.atom != null) {
-    			atoms[0] = link.atom;
-    			action.actionPerformed(atoms);
+    			action.actionPerformed(link.atom);
     		}
     		else if((((AtomLinker.Tab)link).type & terminatorType) > 0) break;
     	}       
@@ -204,11 +203,11 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
      * Ignores any atoms other than the first in the array.  Returns false if array does 
      * not specify an atom.  Does not require iterator be reset.
      */
-	public boolean contains(Atom[] atom){
-		if(atom == null || atom.length == 0) return false;
+	public boolean contains(AtomSet atom){
+		if(atom == null) return false;
 		// use AtomList's contains() if first is the header and the terminator type is header (only).
-        if(first == list.header && terminatorType == AtomLinker.Tab.HEADER_TAB)	return list.contains(atom[0]);//returns false also if atom[0] is null
-		AtomsetDetect detector = new AtomsetDetect(atom[0]);
+        if(first == list.header && terminatorType == AtomLinker.Tab.HEADER_TAB)	return list.contains((Atom)atom);
+		AtomsetDetect detector = new AtomsetDetect(atom);
 		allAtoms(detector);
 		return detector.detectedAtom();
 	}
@@ -230,9 +229,8 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
 	 * Returns the next atom from the iterator, as the first element of the returned array.
 	 * Implementation of AtomsetIterator interface.
 	 */
-	public Atom[] next() {
-		atoms[0] = nextLinker().atom;
-		return atoms;
+	public AtomSet next() {
+		return nextAtom();
 	}
 		
 	/**
@@ -246,9 +244,8 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
      * Returns the next atom in the list without advancing the iterator.  Atom 
      * is given as the first element of the returned array.
      */
-    public Atom[] peek() {
-    	atoms[0] = next.atom;
-        return atoms;
+    public AtomSet peek() {
+        return next.atom;
     }
     
     /**

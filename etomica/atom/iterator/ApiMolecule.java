@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
@@ -33,8 +33,8 @@ public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorS
         iterator = apiAA;
 	}
     
-    public void setTarget(Atom[] targetAtoms) {
-        if(targetAtoms[0] == null) {
+    public void setTarget(AtomSet targetAtoms) {
+        if(targetAtoms == null) {
             iterator = apiAA;
         } else {
             iterator = api1A;
@@ -54,7 +54,7 @@ public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorS
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
-	public boolean contains(Atom[] atom) {
+	public boolean contains(AtomSet atom) {
 		return iterator.contains(atom);
 	}
 
@@ -82,11 +82,11 @@ public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorS
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#next()
 	 */
-	public Atom[] next() {
+	public AtomSet next() {
 		return iterator.next();
 	}
 	
-	public Atom[] peek() {
+	public AtomSet peek() {
 		return iterator.peek();
 	}
 	

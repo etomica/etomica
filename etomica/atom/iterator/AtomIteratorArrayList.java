@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomSet;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 
@@ -15,7 +16,6 @@ public class AtomIteratorArrayList implements AtomIterator {
  	 * Index of element to be returned by subsequent call to next.
  	 */
  	protected int cursor = 0;
- 	protected final Atom atoms[] = new Atom[1];
  	protected AtomArrayList list;
 
  	public AtomIteratorArrayList() {
@@ -39,14 +39,12 @@ public class AtomIteratorArrayList implements AtomIterator {
  		return list.get(cursor++);
  	}
  	
- 	public Atom[] next() {
- 		atoms[0] = nextAtom();
- 		return atoms;
+ 	public AtomSet next() {
+ 		return nextAtom();
  	}
  
- 	public Atom[] peek() {
- 		atoms[0] = list.get(cursor);
- 		return atoms;
+ 	public AtomSet peek() {
+ 		return list.get(cursor);
  	}
  	public int size() {
  		return list.size();
@@ -55,8 +53,7 @@ public class AtomIteratorArrayList implements AtomIterator {
  	public void allAtoms(AtomsetAction act) {
  		int arraySize = size();
  		for (int i=0; i<arraySize; i++) {
- 			atoms[0] = list.get(i);
- 			act.actionPerformed(atoms);
+ 			act.actionPerformed(list.get(i));
  		}
  	}
  	
@@ -64,7 +61,7 @@ public class AtomIteratorArrayList implements AtomIterator {
  		cursor = 0;
  	}
  	
- 	public boolean contains(Atom[] atom) {
+ 	public boolean contains(AtomSet atom) {
  		return contains(atom);
  	}
  

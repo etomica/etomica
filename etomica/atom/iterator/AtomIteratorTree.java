@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomSet;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
@@ -56,7 +57,7 @@ public class AtomIteratorTree implements AtomIterator {
 //        if(iterationDepth == 0 || rootNode.isLeaf()) act.actionPerformed(rootNode.atom);
 //        else if(!rootNode.childrenAreGroups() || iterationDepth == 1) {
 //			AtomIteratorListSimple.allAtoms(act, rootNode.childList);
-		if(doAllNodes && rootNode != null) {atoms[0] = rootNode.atom(); act.actionPerformed(atoms);}
+		if(doAllNodes && rootNode != null) {act.actionPerformed(rootNode.atom());}
     	if(!doTreeIteration) {
     		iterator.allAtoms(act);
 		} else {
@@ -91,17 +92,17 @@ public class AtomIteratorTree implements AtomIterator {
      * Returns true if the given atom is among the iterates as
      * currently configured.  Clobbers iteration state.
      */
-    public boolean contains(Atom[] atom) {
+    public boolean contains(AtomSet atoms) {
     	unset();
-    	if(atom == null || atom.length < 1 || atom[0] == null) return false;
-        if(doAllNodes && rootNode!=null && rootNode.atom()==atom[0]) return true;
+    	if(atoms == null) return false;
+        if(doAllNodes && rootNode!=null && rootNode.atom()==atoms) return true;
     	if(!doTreeIteration) {
-    		return iterator.contains(atom);
+    		return iterator.contains(atoms);
     	} else {
     		listIterator.reset();
     		while(listIterator.hasNext()) {
     			treeIterator.setRoot(listIterator.nextAtom());
-				if(treeIterator.contains(atom)) return true;
+				if(treeIterator.contains(atoms)) return true;
     		}
 //			AtomLinker.Tab header = rootNode.childList.header;
 //			for(AtomLinker e=header.next; e!=header; e=e.next) {
@@ -152,14 +153,12 @@ public class AtomIteratorTree implements AtomIterator {
         return nextAtom;
     }
     
-    public Atom[] next() {
-    	atoms[0] = nextAtom();
-    	return atoms;
+    public AtomSet next() {
+    	return nextAtom();
     }
     
-    public Atom[] peek() {
-    	atoms[0] = next;
-    	return atoms;
+    public AtomSet peek() {
+    	return next;
     }
         
     /**
@@ -167,17 +166,17 @@ public class AtomIteratorTree implements AtomIterator {
      * If atom is null, hasNext will report false.
      * User must perform a subsequent call to reset() before beginning iteration.
      */
-    public void setRoot(Atom atom) {
-        if(atom == null) {
+    public void setRoot(Atom rootAtom) {
+        if(rootAtom == null) {
         	rootNode = null;
         	doTreeIteration = false;
         	iterator = AtomIterator.NULL;
-        } else if(iterationDepth == 0 || atom.node.isLeaf()) {//singlet iteration of basis atom
+        } else if(iterationDepth == 0 || rootAtom.node.isLeaf()) {//singlet iteration of basis atom
 	        rootNode = null;
             doTreeIteration = false;
-            iterator = new AtomIteratorSinglet(atom);
+            iterator = new AtomIteratorSinglet(rootAtom);
         } else {
-	        rootNode = (AtomTreeNodeGroup)atom.node;
+	        rootNode = (AtomTreeNodeGroup)rootAtom.node;
 	        listIterator.setList(rootNode.childList);
             //TODO look at this more carefully -- ok to choose based on isEmpty?
 	        doTreeIteration = (iterationDepth > 1 && !rootNode.childList.isEmpty() &&
@@ -263,7 +262,6 @@ public class AtomIteratorTree implements AtomIterator {
     private AtomIterator iterator;
     private int iterationDepth = Integer.MAX_VALUE;
     private Atom next;
-    private Atom[] atoms = new Atom[1];
     private boolean doAllNodes = false;
     
     /**

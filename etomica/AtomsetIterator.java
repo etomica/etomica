@@ -20,7 +20,7 @@ public interface AtomsetIterator {
 	 * @return true if the atom is among the iterates; false if
 	 * otherwise, or if atom is null.
 	 */
-    public boolean contains(Atom[] atom);
+    public boolean contains(AtomSet atom);
     
     /**
      * Indicates whether the iterator has another atom.
@@ -43,14 +43,14 @@ public interface AtomsetIterator {
 	 * at the time method is called, except that calling next()
 	 * will not cause hasNext() to become true.
 	 */
-    public Atom[] next();
+    public AtomSet next();
     
     /**
      * Returns the next iterate without advancing the iterator.
      * No specific behavior is guaranteed if hasNext() == false 
      * at the time method is called.
      */
-    public Atom[] peek();
+    public AtomSet peek();
     
     /**
      * Performs given actions over all the iterates of this iterator in its
@@ -79,12 +79,12 @@ public interface AtomsetIterator {
      */
     public static AtomsetIterator NULL = new AtomsetIterator() {
     	public void allAtoms(AtomsetAction action) {}
-    	public boolean contains(Atom[] atom) {return false;}
+    	public boolean contains(AtomSet atom) {return false;}
     	public boolean hasNext() {return false;}
-    	public Atom[] next() {return null;}
+    	public AtomSet next() {return null;}
     	public void reset() {}
     	public int size() {return 0;}
-    	public Atom[] peek() {return null;}
+    	public AtomSet peek() {return null;}
     	public void unset() {}
     	public int nBody() {return 0;}
     };

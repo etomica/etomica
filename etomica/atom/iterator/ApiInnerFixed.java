@@ -2,6 +2,8 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 
@@ -77,9 +79,9 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
      * atoms in the same atom1/atom2 position as the given pair). Not
      * dependent on state of hasNext.
      */
-    public boolean contains(Atom[] pair) {
-    	return aiOuter.contains(new Atom[] {pair[0]}) 
-				&& aiInner.contains(new Atom[] {pair[1]});
+    public boolean contains(AtomSet pair) {
+    	return aiOuter.contains(((AtomPair)pair).atom0) 
+				&& aiInner.contains(((AtomPair)pair).atom1);
     }
     
     
@@ -104,7 +106,7 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
         aiOuter.reset();
         aiInner.reset();
         hasNext = aiOuter.hasNext() && aiInner.hasNext();
-        if(hasNext) pair[0] = aiOuter.nextAtom();
+        if(hasNext) pair.atom0 = aiOuter.nextAtom();
     }
     
     /**
@@ -113,19 +115,19 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
      * returns null.  A previously-returned pair will be altered
      * by this method.
      */
-    public Atom[] peek() {
+    public AtomSet peek() {
     	if(!hasNext) {return null;}
     	
     	if(aiInner.hasNext()) {
-    		pair[1] = aiInner.peek()[0];
+    		pair.atom1 = (Atom)aiInner.peek();
     	}
     	else {
     		// Althouth we advance aiOuter, we 
     		// are not advancing the pair iterator.
     		// Outcome of next() is not changed
     		aiInner.reset();
-    		pair[0] = aiOuter.nextAtom();
-    		pair[1] = aiInner.peek()[0];
+    		pair.atom0 = aiOuter.nextAtom();
+    		pair.atom1 = (Atom)aiInner.peek();
     	}
     	return pair;
     }
@@ -135,17 +137,17 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
      * is returned every time, but the Atoms it holds are (of course)
      * different for each iterate. 
      */
-    public Atom[] next() {
+    public AtomSet next() {
     	if(!hasNext) {return null;}
     	//Advance the inner loop, if it is not at its end.
     	if(aiInner.hasNext()) {
-    		pair[1] = aiInner.nextAtom();
+    		pair.atom1 = aiInner.nextAtom();
     	}
     	//Advance the outer loop, if the inner loop has reached its end.
     	else {
     		aiInner.reset();
-			pair[0] = aiOuter.nextAtom();
-			pair[1] = aiInner.nextAtom();
+			pair.atom0 = aiOuter.nextAtom();
+			pair.atom1 = aiInner.nextAtom();
     	}   	
     	hasNext = aiInner.hasNext() || aiOuter.hasNext();
         return pair;
@@ -157,10 +159,10 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
     public void allAtoms(AtomsetAction action) {  
        aiOuter.reset();
        while(aiOuter.hasNext()) {
-	       pair[0] = aiOuter.nextAtom();
+	       pair.atom0 = aiOuter.nextAtom();
 	       aiInner.reset();
 	       while(aiInner.hasNext()){
-		       pair[1] = aiInner.nextAtom();
+		       pair.atom1 = aiInner.nextAtom();
 		       action.actionPerformed(pair);
 	       }
        }
@@ -168,7 +170,7 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
     
     public final int nBody() {return 2;}
     
-    private final Atom[] pair = new Atom[2];
+    private final AtomPair pair = new AtomPair();
     private boolean hasNext;
     private final AtomIterator aiInner, aiOuter;
     

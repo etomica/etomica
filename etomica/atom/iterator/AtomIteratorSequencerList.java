@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
@@ -43,9 +44,8 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
         return listIterator.hasNext();
     }
 
-    public Atom[] next() {
-        atom[0] = nextAtom();
-        return atom;
+    public AtomSet next() {
+        return nextAtom();
     }
 
     public Atom nextAtom() {
@@ -55,7 +55,7 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
         return nextAtom;
     }
 
-    public Atom[] peek() {
+    public AtomSet peek() {
         return listIterator.peek();
     }
 
@@ -94,9 +94,9 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
         }
     }
 
-    public boolean contains(Atom[] atom) {
+    public boolean contains(AtomSet atom) {
         if(firstAtom == null) return false;
-        int index = listIterator.getList().indexOf(atom[0]);
+        int index = listIterator.getList().indexOf((Atom)atom);
         if(index == -1) return false; //not in list
         int index0 = listIterator.getList().indexOf(firstAtom);
         int diff = index - index0;

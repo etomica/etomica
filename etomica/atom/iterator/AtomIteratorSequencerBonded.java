@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 
 
 /**
@@ -12,11 +13,11 @@ public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
 
     public AtomIteratorSequencerBonded() {
         super();
-        throw new RuntimeException("this class needs to be updated to handle direction correctly");
+//        throw new RuntimeException("this class needs to be updated to handle direction correctly");
     }
-    public boolean contains(Atom[] atom) {
+    public boolean contains(AtomSet atom) {
         reset();
-        return listIterator.peek()[0] == atom[0]; 
+        return listIterator.peek() == atom; 
     }
 
     public int size() {
@@ -30,10 +31,8 @@ public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
         return next;
     }
 
-    public Atom[] next() {
-        Atom[] next = listIterator.next();
-        listIterator.unset();
-        return next;
+    public AtomSet next() {
+        return nextAtom();
     }
     
 

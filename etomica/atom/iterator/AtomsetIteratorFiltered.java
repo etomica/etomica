@@ -5,6 +5,8 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
@@ -25,7 +27,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 * Iterator will give all iterates of the given iterator
 	 * until another filter is specified.
 	 */
-	public AtomsetIteratorFiltered(AtomsetIteratorBasisDependent iterator) {
+	public AtomsetIteratorFiltered(AtomsetIterator iterator) {
 		this(iterator, AtomsetFilter.ACCEPT_ALL);
 	}
 	
@@ -35,10 +37,16 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 * @param iterator
 	 * @param filter
 	 */
-	public AtomsetIteratorFiltered(AtomsetIteratorBasisDependent iterator, AtomsetFilter filter) {
+	public AtomsetIteratorFiltered(AtomsetIterator iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
-		nextAtoms = new Atom[iterator.nBody()];
+        nBody = iterator.nBody();
+        if (nBody == 2) {
+            nextAtoms = new AtomPair();
+        }
+        else {
+            nextAtoms = null;
+        }
 	}
 
 	
@@ -46,7 +54,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 * Returns true if the iterator contains the given atom and
 	 * atom meets the filter's criteria.
 	 */
-	public boolean contains(Atom[] atom) {
+	public boolean contains(AtomSet atom) {
 		return filter.accept(atom) && iterator.contains(atom);
 	}
 	
@@ -81,20 +89,30 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 * Returns the next atom from the iterator that meets the 
 	 * filter's criteria.
 	 */
-	public Atom[] next() {
-		System.arraycopy(next,0,nextAtoms,0,nextAtoms.length);
+	public AtomSet next() {
+        if (nBody == 1) {
+            nextAtom = (Atom)next;
+        }
+        else {
+            ((AtomPair)next).copyTo((AtomPair)nextAtoms);
+        }
 		next = null;
 		while(iterator.hasNext() && next == null) {
 			next = iterator.next();
 			if(!filter.accept(next)) next = null;
 		}
-		return nextAtoms;
+        if (nBody == 1) {
+            return nextAtom;
+        }
+        else {
+            return nextAtoms;
+        }
 	}
 	
 	/**
 	 * Returns next atom without advancing the iterator.
 	 */
-	public Atom[] peek() {
+	public AtomSet peek() {
 		return next;
 	}
 
@@ -122,11 +140,11 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	}
 	
 	public int basisSize() {
-        return iterator.basisSize();
+        return ((AtomsetIteratorBasisDependent)iterator).basisSize();
     }
     
-    public void setBasis(Atom[] atoms) {
-        iterator.setBasis(atoms);
+    public void setBasis(AtomSet atoms) {
+        ((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);
     }
         
 	/**
@@ -154,14 +172,18 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 		    ((AtomsetIteratorDirectable)iterator).setDirection(direction);
         }
 	}
-	public void setTarget(Atom[] targetAtoms) {
-	    iterator.setTarget(targetAtoms);
+	public void setTarget(AtomSet targetAtoms) {
+        if (iterator instanceof AtomsetIteratorTargetable) {
+            ((AtomsetIteratorTargetable)iterator).setTarget(targetAtoms);
+        }
 	}
 
-	private final AtomsetIteratorBasisDependent iterator;
+	private final AtomsetIterator iterator;
 	private AtomsetFilter filter;
-	private Atom[] next;
-	private final Atom[] nextAtoms;
+	private AtomSet next;
+	private final AtomSet nextAtoms;
+    private final int nBody;
+    private Atom nextAtom;
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed
@@ -169,7 +191,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 */
 	private static AtomsetAction actionWrapper(final AtomsetFilter filter, final AtomsetAction action) {
 		return new AtomsetActionAdapter() {
-			public void actionPerformed(Atom[] atom) {
+			public void actionPerformed(AtomSet atom) {
 				if(filter.accept(atom)) action.actionPerformed(atom);
 			}
 		};

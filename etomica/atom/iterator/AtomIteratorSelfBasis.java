@@ -5,6 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 
 /**
  * Singleton iterator that takes a basis and returns the basis atom
@@ -32,12 +33,8 @@ public class AtomIteratorSelfBasis extends AtomIteratorAdapter implements
 	 * specified, no iterates will be given until a basis atom is specified
 	 * via a subsequent call to this method.
 	 */
-	public void setBasis(Atom[] atoms) {
-		if(atoms == null || atoms.length == 0) {
-			basisAtom = null;
-		} else {
-			basisAtom = atoms[0];
-		}
+	public void setBasis(AtomSet atoms) {
+	    basisAtom = (Atom)atoms;
 	}
 	
 	/**
@@ -65,8 +62,8 @@ public class AtomIteratorSelfBasis extends AtomIteratorAdapter implements
 	 * is given, then iteration will always give the most recently specified
 	 * basis atom.
 	 */
-	public void setTarget(Atom[] targetAtoms) {
-		targetAtom = targetAtoms[0];
+	public void setTarget(AtomSet targetAtoms) {
+		targetAtom = (Atom)targetAtoms;
 	}
 
 	private Atom basisAtom;

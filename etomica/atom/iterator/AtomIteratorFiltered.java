@@ -6,8 +6,10 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomSet;
+import etomica.action.AtomAction;
+import etomica.action.AtomActionAdapter;
 import etomica.action.AtomsetAction;
-import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomFilter;
 
@@ -41,8 +43,8 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * Returns true if the iterator contains the given atom and
 	 * atom meets the filter's criteria.
 	 */
-	public boolean contains(Atom[] atom) {
-		return filter.accept(atom[0]) && iterator.contains(atom);
+	public boolean contains(AtomSet atom) {
+		return filter.accept((Atom)atom) && iterator.contains(atom);
 	}
 	
 	/**
@@ -82,17 +84,15 @@ public class AtomIteratorFiltered implements AtomIterator {
 		return nextAtom;
 	}
 	
-	public Atom[] next() {
-		atoms[0] = nextAtom();
-		return atoms;
+	public AtomSet next() {
+		return nextAtom();
 	}
 	
 	/**
 	 * Returns next atom without advancing the iterator.
 	 */
-	public Atom[] peek() {
-		atoms[0] = next;
-		return atoms;
+	public AtomSet peek() {
+		return next;
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * meet the filter criteria.
 	 */
 	public void allAtoms(AtomsetAction action) {
-		iterator.allAtoms(actionWrapper(filter, action));
+		iterator.allAtoms(actionWrapper(filter,(AtomAction)action));
 	}
 
 	/**
@@ -132,16 +132,15 @@ public class AtomIteratorFiltered implements AtomIterator {
 	private final AtomIterator iterator;
 	private AtomFilter filter;
 	private Atom next;
-	private final Atom[] atoms = new Atom[1];
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed
 	 * only on the atoms meeting the filter's criteria.
 	 */
-	private static AtomsetAction actionWrapper(final AtomFilter filter, final AtomsetAction action) {
-		return new AtomsetActionAdapter() {
-			public void actionPerformed(Atom[] atom) {
-				if(filter.accept(atom[0])) action.actionPerformed(atom);
+	private static AtomAction actionWrapper(final AtomFilter filter, final AtomAction action) {
+		return new AtomActionAdapter() {
+			public void actionPerformed(Atom atom) {
+				if(filter.accept(atom)) action.actionPerformed(atom);
 			}
 		};
 	}

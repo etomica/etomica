@@ -6,6 +6,7 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.atom.AtomTreeNodeGroup;
 
@@ -35,9 +36,9 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
 	}
 
-	public void setTarget(Atom[] targetAtoms) {
+	public void setTarget(AtomSet targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
-        oneTarget = targetAtoms[0] != null && (targetAtoms.length == 1 || targetAtoms[1] == null);
+        oneTarget = targetAtoms.getAtom(0) != null && (targetAtoms instanceof Atom || targetAtoms.getAtom(1) == null);
 	}
 	
 	/**
@@ -61,8 +62,8 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 * array should match the value returned by setBasis, but if it
 	 * is greater no error results; only first atom in array is used.
 	 */
-	public void setBasis(Atom[] atoms) {
-		basis = (atoms != null) ? atoms[0] : null;
+	public void setBasis(AtomSet atoms) {
+		basis = (atoms != null) ? (Atom)atoms : null;
 		aiOuter.setBasis(atoms);
 	}
 	

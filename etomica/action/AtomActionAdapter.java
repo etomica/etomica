@@ -1,6 +1,7 @@
 package etomica.action;
 
 import etomica.Atom;
+import etomica.AtomSet;
 
 /**
  * Base class for classes that perform some elementary action on an atom.
@@ -13,17 +14,15 @@ import etomica.Atom;
  * <li>they may be used to generate a Monte Carlo trial in an MCMove object.
  * 
  * @author David Kofke
- * @see Atom.Iterator
- * @see DisplayPhase.AtomActionWrapper
  */
  
 public abstract class AtomActionAdapter extends AtomsetActionAdapter implements AtomAction {
     
-    public void setAtom(Atom a) {atoms[0] = a;}
-    public Atom getAtom() {return atoms[0];}
+    public void setAtom(Atom a) {atoms = a;}
+    public Atom getAtom() {return (Atom)atoms;}
 
-    public void actionPerformed(Atom[] a) {
-        actionPerformed(a[0]);
+    public void actionPerformed(AtomSet a) {
+        actionPerformed((Atom)a);
     }
     
     /**

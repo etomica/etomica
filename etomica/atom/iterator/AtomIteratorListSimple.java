@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
@@ -66,8 +67,7 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
     	final AtomLinker.Tab header = list.header;
         for (AtomLinker e = header.next; e != header; e = e.next) 
             if(e.atom != null) {
-            	atoms[0] = e.atom;
-            	action.actionPerformed(atoms);
+            	action.actionPerformed(e.atom);
             }
     }
     
@@ -87,8 +87,8 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
     /**
      * Returns true if the given atom is in the list of iterates, false otherwise.
      */
-	public boolean contains(Atom[] atom){
-        return list.contains(atom[0]);
+	public boolean contains(AtomSet atom){
+        return list.contains((Atom)atom);
 	}
 	
 	/**
@@ -100,9 +100,8 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
     /**
      * Returns the next atom in the list without advancing the iterator.
      */
-    public Atom[] peek() {
-        atoms[0] = next.atom;
-        return atoms;
+    public AtomSet peek() {
+        return next.atom;
     }
     
 	/**
@@ -118,9 +117,8 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
 	 * the returned array.  Implementation of AtomsetIterator interface.
 	 */    
 
-    public Atom[] next() {
-    	atoms[0] = hasNext() ? nextLinker().atom : null;
-    	return atoms;
+    public AtomSet next() {
+    	return hasNext() ? nextLinker().atom : null;
     }
     
     /**
@@ -138,7 +136,6 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
     	
     private AtomList list;
 	private AtomLinker next;
-	private final Atom[] atoms = new Atom[1];
     
 //    public static void main(String[] args) {
 //        Simulation sim = new Simulation();

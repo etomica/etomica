@@ -5,6 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 
@@ -38,8 +39,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 * Call to this method leaves iterator unset; call to reset is required
 	 * before beginning iteration.
 	 */
-	public void setTarget(Atom[] targetAtoms) {
-		targetAtom = targetAtoms[0];
+	public void setTarget(AtomSet targetAtoms) {
+		targetAtom = (Atom)targetAtoms;
 		if(targetAtom != null) targetDepth = targetAtom.node.depth();
 		needSetupIterator = (basis != null);//flag to setup iterator only if presently has a non-null basis
 		listIterator.unset();
@@ -54,13 +55,13 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 * iterator will be conditioned to give no iterates until a new basis 
 	 * is specified.  Any atoms beyond the first one in the given array are ignored.
 	 */
-	public void setBasis(Atom[] atoms) {
-		if(atoms == null || atoms.length == 0) {// || atoms[0] == null || atoms[0].node.isLeaf()) {//eliminate last two conditions and allow null basis
+	public void setBasis(AtomSet atoms) {
+		if(atoms == null) {
 			basis = null;
 			listIterator.setList(null);
 			needSetupIterator = false;
 		} else {
-			basis = atoms[0];
+			basis = (Atom)atoms;
 			needSetupIterator = true;
 			listIterator.unset();
 		}

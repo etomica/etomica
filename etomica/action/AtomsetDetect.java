@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.Atom;
+import etomica.AtomSet;
 
 /**
  * Action that simply detects if a particular set of atoms is ever
@@ -24,16 +24,8 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	 * at time of instantiation. 
 	 * @param testAtom atoms against which those passed to actionPerformed are compared.
 	 */
-	public AtomsetDetect(Atom[] testAtom) {
-		this.testAtom = (Atom[])testAtom.clone();
-	}
-	
-	/**
-	 * Constructs to test for the given atom.
-	 * @param testAtom atom against which those passed to actionPerformed are compared.
-	 */
-	public AtomsetDetect(Atom testAtom) {
-		this.testAtom = new Atom[] {testAtom};
+	public AtomsetDetect(AtomSet testAtom) {
+		this.testAtom = testAtom;
 	}
 	
 	/**
@@ -42,9 +34,9 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	 * instantiation.  Detect will stay true until reset(), 
 	 * regardless of outcome of subsequent calls to this method.
 	 */
-	public void actionPerformed(Atom[] atom) {
+	public void actionPerformed(AtomSet atom) {
 		if(detected) return;
-		detected = java.util.Arrays.equals(atom, testAtom);
+		detected = atom.equals(testAtom);
 	}
 	
 	/**
@@ -60,5 +52,5 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	public boolean detectedAtom() {return detected;}
 
 	private boolean detected = false;
-	private final Atom[] testAtom;
+	private final AtomSet testAtom;
 }

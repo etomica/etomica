@@ -4,7 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
@@ -36,13 +37,11 @@ public class ApiListSimple implements AtomsetIterator {
 	 * Returns true if the given pair of atoms are both in the current
 	 * list.  Does not consider order of atoms.
 	 */
-	public boolean contains(Atom[] atom) {
-		if(atom == null || 
-				atom.length < 2 || 
-				atom[0] != null || 
-				atom[1] == null ||
-				atom[0] == atom[1]) return false;
-		else return list.contains(atom[0]) && list.contains(atom[1]);
+	public boolean contains(AtomSet pair) {
+		if(!(pair instanceof AtomPair) || 
+				((AtomPair)pair).atom0 == ((AtomPair)pair).atom1) return false;
+		else return list.contains(((AtomPair)pair).atom0) 
+                                && list.contains(((AtomPair)pair).atom1);
 	}
 
 	/**
@@ -72,10 +71,10 @@ public class ApiListSimple implements AtomsetIterator {
 	/**
 	 * Returns the next iterate pair.  Returns null if hasNext() is false.
 	 */
-	public Atom[] next() {
+	public AtomSet next() {
 		if(!hasNext()) return null;
-		atoms[0] = nextOuter.atom;
-		atoms[1] = nextInner.atom;
+		atoms.atom0 = nextOuter.atom;
+		atoms.atom1 = nextInner.atom;
 		advanceInner();
 		if(nextInner == list.header) {
 			advanceOuter();
@@ -87,9 +86,9 @@ public class ApiListSimple implements AtomsetIterator {
 	/**
 	 * Returns the next iterate pair without advancing the iterator.
 	 */
-	public Atom[] peek() {
-		atoms[0] = nextOuter.atom;
-		atoms[1] = nextInner.atom;
+	public AtomSet peek() {
+		atoms.atom0 = nextOuter.atom;
+		atoms.atom1 = nextInner.atom;
 		return atoms;
 	}
 	
@@ -100,10 +99,10 @@ public class ApiListSimple implements AtomsetIterator {
     	final AtomLinker.Tab header = list.header;
         for (AtomLinker outer = header.next; outer.next != header; outer = outer.next) {
         	if(outer.atom == null) continue;//skip tabs in outer loop
-        	atoms[0] = outer.atom;
+        	atoms.atom0 = outer.atom;
         	for(AtomLinker inner = outer.next; inner != header; inner = inner.next) {
 	            if(inner.atom != null) {
-	            	atoms[1] = inner.atom;
+	            	atoms.atom1 = inner.atom;
 	            	action.actionPerformed(atoms);
 	            }
         	}
@@ -157,6 +156,6 @@ public class ApiListSimple implements AtomsetIterator {
 	
 	private AtomList list;
 	private AtomLinker nextOuter, nextInner;
-	private final Atom[] atoms = new Atom[2];
+	private final AtomPair atoms = new AtomPair();
 
 }
