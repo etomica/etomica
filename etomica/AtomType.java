@@ -32,6 +32,8 @@ public class AtomType implements java.io.Serializable {
     private Parameter.Size sizeParameter = Default.SIZE_PARAMETER;
     private Parameter.Energy energyParameter = Default.ENERGY_PARAMETER;
     private Parameter.Mass massParameter = Default.MASS_PARAMETER;
+    private Potential[] potentials = new Potential[0];
+    private int mostRecentIndex = 0;
     
     //fields for linked list of all instances of AtomType
     public final AtomType previousInstance;
@@ -58,6 +60,31 @@ public class AtomType implements java.io.Serializable {
             parameter[i] = parameterSource[i].makeParameter();
         }
 //        System.out.println("AtomType constructor:"+mass);
+    }
+    
+    public int getPotentialIndex(Potential potential) {
+    	if(potentials[mostRecentIndex]==potential) return mostRecentIndex;
+    	else {
+    		mostRecentIndex = -1;
+    		while(true) {//potential not in list will lead to ArrayIndexOutOfBoundsException 
+    			if(potentials[++mostRecentIndex]==potential) {
+    				return mostRecentIndex; 
+    			}
+    		}
+    	}
+    }
+    
+    public int addPotential(Potential newPotential) {
+    	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
+    		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
+    	}
+    	Potential[] newArray = new Potential[potentials.length+1];
+    	for(int i=0; i<potentials.length; i++) {
+    		newArray[i] = potentials[i];
+    	}
+    	newArray[potentials.length] = newPotential;
+    	potentials = newArray;
+    	return potentials.length-1;
     }
     
     protected void addGlobalParameter(Parameter.Source source) {

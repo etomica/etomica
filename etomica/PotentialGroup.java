@@ -78,6 +78,7 @@ public class PotentialGroup extends Potential {
 			first = makeLinker(potential, iterator, first);
 			if(last == null) last = first;
 		}
+		addPotentialNotify(potential);
 	}
 	
 	//TODO this needs some work
@@ -125,8 +126,29 @@ public class PotentialGroup extends Potential {
 			}//end if
 			previous = link;
 		}//end for
+		removePotentialNotify(potential);
 	}//end removePotential
     
+	public void addPotentialNotify(Potential potential) {
+		if(parentElement instanceof PotentialGroup) {
+			((PotentialGroup)parentElement).addPotentialNotify(potential);
+		}
+		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
+				((PotentialMaster)parentElement).addPotentialNotify(potential);
+		}
+		//else no notification is appropriate
+	}
+	
+	
+	public void removePotentialNotify(Potential potential) {
+		if(parentElement instanceof PotentialGroup) {
+			((PotentialGroup)parentElement).removePotentialNotify(potential);
+		}
+		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
+				((PotentialMaster)parentElement).removePotentialNotify(potential);
+		}
+		//else no notification is appropriate
+	}
     /**
      * Performs the specified calculation over the iterates given by the iterator,
      * using the directive to set up the iterators for the sub-potentials of this group.

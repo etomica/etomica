@@ -17,7 +17,7 @@ package etomica;
   * making a pair from them.
   * 08/31/04 (group) complete overhaul with revamping of potentials, etc.
   */
-public final class PotentialMaster extends PotentialGroup {
+public class PotentialMaster extends PotentialGroup {
     
     public PotentialMaster(Simulation sim) {
         super(-1, sim);
@@ -81,8 +81,8 @@ public final class PotentialMaster extends PotentialGroup {
 //	   return pa;
 //   }	    
    
-	private PotentialGroupLrc lrcMaster;
-	private Phase mostRecentPhase = null;
+	protected PotentialGroupLrc lrcMaster;
+	protected Phase mostRecentPhase = null;
 
 	
 }//end of PotentialMaster
