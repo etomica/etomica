@@ -30,6 +30,9 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	    setList(list);
 	}
     
+	/**
+	 * Indicates whether the iterator is set to give another iterate.
+	 */
 	public boolean hasNext() {
 		return next.atom != null;
 	}
@@ -90,18 +93,27 @@ public final class AtomIteratorListSimple implements AtomIterator {
     }
     
 	/**
-	 * Returns the next atom in the list.
+	 * Returns the next atom in the list. Implementation of the
+	 * AtomIterator interface.
 	 */    
     public Atom nextAtom() {
         return hasNext() ? nextLinker().atom : null;
     }
-    
+ 
+	/**
+	 * Returns the next atom in the list, as the first element of
+	 * the returned array.  Implementation of AtomsetIterator interface.
+	 */    
+
     public Atom[] next() {
     	if(!hasNext()) return null;
     	atoms[0] = nextLinker().atom;
     	return atoms;
     }
     
+    /**
+     * Returns 1, indicating that the array returned by next() has one element.
+     */
     public final int nBody() {return 1;}
     
     //returns current value of next, and advances next to its next value

@@ -31,21 +31,22 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
 	    this(new AtomList());
 	}
 	/**
-	 * Loops through the given iterator as currently reset and constructs a
+	 * Loops through the given iterator as currently conditioned, constructs a
 	 * new list of atoms from its iterates, and constructs a new iterator
-	 * using this new list as its basis for iteration.  Iterator is reset
-	 * for iteration upon construction (constructor calls reset()).
+	 * using this new list as its basis for iteration.  Given iterator need not be
+	 * reset as passed to this constructor; iterator made by this constructor
+	 * must be reset before use.
 	 */
 	public AtomIteratorList(AtomIterator iterator) {
 	    this(new AtomList(iterator));
 	}
 	/**
 	 * Constructs a new iterator using the given list as its basis for iteration.
-	 * Iterator is reset for iteration upon constrcution (constructor calls reset()).
+	 * Iterator is conditioned to start from the first element of list and iterate
+	 * up. Iterator must be reset before use.
 	 */
 	public AtomIteratorList(AtomList list) {
 	    setList(list);
-	    reset();
 	    upList = true;
 	}
 	
@@ -53,7 +54,8 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
 	 * Makes a linked-list copy of the given list and constructs
 	 * an iterator using the copy as a basis.  Useful to iterate over
 	 * a list of atoms while doing operations that might change
-	 * their order in the original list.
+	 * their order in the original list.  Iterator returned by this
+	 * method must be reset before use.
 	 */
 	public static AtomIteratorList makeCopylistIterator(AtomList list) {
 	    return new AtomIteratorList(new AtomIteratorList(list));
@@ -67,9 +69,11 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
 	    
     /**
      * Sets the given list of atoms as the basis for iteration.  The atoms
-     * returned by this iterator will be those from the given list.  A subsequent
-     * call to one of the reset methods is required before iterator is ready 
-     * for iteration (until then, hasNext is false).  Sets basis to null.
+     * returned by this iterator will be those from the given list.  After 
+     * calling this method iterator must be reset before use.  This method 
+     * has no effect on iteration direction, but does set first and terminator 
+     * iteration elements to be the header of the given list. If given
+     * a null argument, an empty list is created for iteration. 
      */
     public void setList(AtomList newList) {
         list = (newList != null) ? newList : new AtomList();
@@ -77,12 +81,16 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
         first = list.header;
     }
     
+    /**
+     * @return the list defining the atoms given by this iterator. 
+     */
     public AtomList getList() {
     	return list;
     }
 
     /**
-     * Resets the iterator using the current values of first, terminator, and upList.  
+     * Set the iterator to begin iteration in its current condition (first, terminator
+     * and direction most recently set).  
      */
     public void reset() {
     	next = first;
@@ -94,9 +102,9 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     }
 
 	/**
-     * Performs action on all atoms as prescribed in most recent call to reset.
-     * Set of atoms for this method is same as that which would be given
-     * by a hasNext/next loop.
+     * Performs action on all atoms according to the current condition of
+     * the iterator (first, terminator, direction). Does not require reset
+     * before use.
      */
     public void allAtoms(AtomsetActive action){
     	AtomLinker.Tab header = list.header;
@@ -118,43 +126,63 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
 		unset();
     }
     
+    /**
+     * @return the current setting for the iteration direction.
+     */
     public IteratorDirective.Direction getIterationDirection() {
     	return upList ? IteratorDirective.UP : IteratorDirective.DOWN;
     }
     
     /**
-     * Resets to begin with the given atom linker.  
-     * Does not check that the linker is an iterate of this iterator.
+     * Resets to begin with the given atom linker and unsets iterator.  
+     * Does not check that the linker is an iterate of this iterator, and
+     * iterator will not function correctly if linker is not in the current list.
      * If given linker is null, sets first to header of list.
      */
+    //TODO revisit the design that permits specifying linker not in list
     public void setFirst(AtomLinker first) {
     	this.first = (first == null) ? list.header : first;
         unset();
     }
     
     /**
-     * Resets in reference to the given atom.  Finds the atom in the list and
-     * calls reset(AtomLinker) in reference to its linker.  If atom is not in list,
-     * or is null, hasNext will be false.
+     * Sets iteration to begin with the given atom. Finds the atom in the list and
+     * calls reset(AtomLinker) in reference to its linker.  If atom is null, sets
+     * iteration to begin with first element of list. If atom is not in list, behavior
+     * is equivalent to setting with null atom.
+     * In all cases, reset is required before using iterator.
      */
     public void setFirst(Atom atom) {
-    	if(atom == null) setFirst((AtomLinker)null);
-        else setFirst(list.entry(atom));
+    	setFirst(list.entry(atom));//entry returns null if atom is null or is not in list
     }
 
+    /**
+     * @return the linker of the atom corresponding to the most recent call to setFirst,
+     * or the list header if a first atom has not be specified.
+     */
     public AtomLinker getFirst() {return first;}
     
     /**
-     * Resets for new iteration, beginning with the atom of the first argument.
-     * If first is an index, iterator is advanced to begin with the
-     * next atom entry.
+     * Specifies a tab that will end iteration when it is encountered by iterator
+     * as it loops through the list.  Throws IllegalArgumentException if
+     * given tab is not in current list. If given terminator is null, iteration
+     * will be set to halt when any tab is encountered in list.
      */
+    //TODO how to set terminator to be header
     public void setTerminator(AtomLinker.Tab terminator) {
     	if((terminator != null) && (terminator.list != this.list)) throw new IllegalArgumentException("Error in setting terminator as an element not in the list set for iteration");
         this.terminator = terminator;
         unset();
     }
     
+    //TODO consider terminators set as any type, using bit masking to detect
+//    public void setTerminatorAsAnyTab(boolean b) {
+//    	anyTabIsTerminator = b;
+//    }
+    
+    /**
+     * @return the current tab that indicates termination of iteration
+     */
     public AtomLinker.Tab getTerminator() {
     	return terminator;
     }
@@ -167,11 +195,14 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     }
 
     /**
-     * Returns true if the given atom is in the list of iterates, false otherwise.
+     * Returns true if the first atom of the given array is in the list of iterates 
+     * that would be given by iterator as currently conditioned; returns false otherwise.  
+     * Ignores any atoms other than the first in the array.  Returns false if array does 
+     * not specify an atom.  Does not require iterator be reset.
      */
 	public boolean contains(Atom[] atom){
 		if(atom == null || atom.length == 0) return false;
-        if(first == list.header && terminator == list.header) return list.contains(atom[0]);
+        if(first == list.header && terminator == list.header) return list.contains(atom[0]);//returns false also if atom[0] is null
 		AtomsetActiveDetect detector = new AtomsetActiveDetect(atom[0]);
 		allAtoms(detector);
 		return detector.detectedAtom();
@@ -179,38 +210,50 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
 	
 	/**
 	 * Returns the total number of iterates that can be returned by this iterator, for
-	 * its current list basis.
+	 * its current list basis, and as it is currently conditioned (as given by most recently
+	 * specified first and terminator). Does not require the iterator be reset.
 	 */
 	public int size() {
 		if(first == list.header && terminator == list.header) return list.size();
 		AtomsetActiveCount counter = new AtomsetActiveCount();
 		allAtoms(counter);
 		return counter.callCount();
-
 	}
 	
+	/**
+	 * Returns the next atom from the iterator, as the first element of the returned array.
+	 * Implementation of AtomsetIterator interface.
+	 */
 	public Atom[] next() {
 		atoms[0] = nextLinker().atom;
 		return atoms;
 	}
 		
 	/**
-	 * Returns the next iterate.
+	 * Returns the next iterate. Implementation of the AtomIterator interface.
 	 */
     public Atom nextAtom() {
         return nextLinker().atom;
     }
     
     /**
-     * Returns the next atom in the list without advancing the iterator.
+     * Returns the next atom in the list without advancing the iterator.  Atom 
+     * is given as the first element of the returned array.
      */
     public Atom[] peek() {
     	atoms[0] = next.atom;
         return atoms;
     }
     
+    /**
+     * Returns 1, indicating that the next() method returns an array with one element.
+     */
     public final int nBody() {return 1;}
     
+    /**
+     * Returns the linker of the next atom given by the iterator.  Advances
+     * iterator in doing so.
+     */
     public AtomLinker nextLinker() {
     	if(next.atom == null) return next;//prevent call to nextLinker from advancing past terminator
         AtomLinker nextLinker = next;

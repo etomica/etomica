@@ -276,16 +276,14 @@ public class AtomList implements java.io.Serializable
      */
     public boolean addAll(int index, AtomIterator iterator) {
 	    int numNew = iterator.size();
-        if (numNew==0)
-            return false;
-
+        if (numNew==0) return false;
+        
         AtomLinker successor = (index==size ? header : entry(index));
         AtomLinker predecessor = successor.previous;
-	    iterator.reset();//should remove this
+	    iterator.reset();
 	    for (int i=0; i<numNew; i++) {
 	        makeLinker(iterator.nextAtom()).addBefore(successor);
 	    }
-
         size += numNew;
         return true;
     }
