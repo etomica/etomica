@@ -13,6 +13,7 @@ public class SimulationEventManager implements java.io.Serializable {
     
     //A Linker class is used to construct a linked list of listeners.
     private SimulationListener.Linker first;
+    int listenerCount = 0;
     
     /**
      * Adds a listener.  Synchronized to avoid conflict with removeListener.
@@ -22,6 +23,7 @@ public class SimulationEventManager implements java.io.Serializable {
         //placement at end causes problem if a listener removes and then adds itself to the list as part of its response to the event
         first = new SimulationListener.Linker(listener, first, null);
         if(first.next != null) first.next.previous = first;
+        listenerCount++;
     }
 
     /**
@@ -30,12 +32,20 @@ public class SimulationEventManager implements java.io.Serializable {
     public synchronized void removeListener(SimulationListener listener) {
         for(SimulationListener.Linker link=first; link!=null; link=link.next) {
             if(link.listener == listener) {
+            	listenerCount--;
                 if(link == first) {first = link.next;}
                 if(link.previous != null) link.previous.next = link.next;
                 if(link.next != null) link.next.previous = link.previous;
                 return;
             }
         }
+    }
+    
+    /**
+     * @return the number of listeners currently managed by this instance.
+     */
+    public int listenerCount() {
+    	return listenerCount;
     }
     
     /**
