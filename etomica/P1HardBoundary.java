@@ -64,7 +64,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         Space.Vector r = atom.coord.truePosition(falseTime);
         Space.Vector p = atom.coord.momentum();
         Space.Vector dimensions = atom.node.parentPhase().dimensions();
-        double tmin = Double.MAX_VALUE;
+        double tmin = Double.POSITIVE_INFINITY;
         for(int i=r.length()-1; i>=0; i--) {
             double px = p.x(i);
             if(px == 0.0) continue;
@@ -73,6 +73,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
             double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
             if(t < tmin) tmin = t;
         }
+        if (Default.FIX_OVERLAP && tmin<0.0) tmin = 0.0;
         return atom.coord.mass()*tmin + falseTime;
     }
                 
@@ -110,6 +111,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         newP.E(p);
         newP.setX(imin,-p.x(imin)); //multiply momentum component by -1
         if(isothermal) {
+            //XXX Evil.  If anything, atoms should get velocity from Maxwell-Boltzmann
+            //distribution such that the atom is moving away from the wall
             newP.TE(Math.sqrt(D*temperature*atom.coord.mass()/newP.squared()));
         }
         atom.coord.trueAccelerateTo(newP,falseTime);
