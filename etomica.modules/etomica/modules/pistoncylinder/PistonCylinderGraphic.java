@@ -69,8 +69,6 @@ public class PistonCylinderGraphic {
     public DataSourceCountSteps meterCycles;
     public DataManager densityManager, temperatureManager, pressureManager;
     public DisplayBox displayCycles, tBox; 
-    public DisplayBox dBoxAvg, dBoxCur, dBoxErr;
-    public DisplayBox tBoxAvg, tBoxCur, tBoxErr;
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
     public DeviceTrioControllerButton controlButtons;
@@ -179,23 +177,6 @@ public class PistonCylinderGraphic {
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(Constants.NORTH);
 
-        //meter and display for density
-        dBoxAvg = new DisplayBox();
-        dBoxAvg.setUpdateInterval(100);
-        dBoxAvg.setLabelType(DisplayBox.BORDER);
-        dBoxAvg.setLabel("Average");
-        dBoxAvg.setPrecision(6);
-        dBoxErr= new DisplayBox();
-        dBoxErr.setUpdateInterval(100);
-        dBoxErr.setLabelType(DisplayBox.BORDER);
-        dBoxErr.setLabel("Error");
-        dBoxErr.setPrecision(6);
-        dBoxCur = new DisplayBox();
-        dBoxCur.setUpdateInterval(10);
-        dBoxCur.setLabelType(DisplayBox.BORDER);
-        dBoxCur.setLabel("Current");
-        dBoxCur.setPrecision(6);
-        
         //plot of temperature and density histories
 /*		DisplayPlot plotD = new DisplayPlot(this);
 		DisplayPlot plotT = new DisplayPlot(this);
@@ -550,9 +531,6 @@ public class PistonCylinderGraphic {
         DataManager densityPlotManager = new DataManager(densityHistory, plotD.makeDataSink());
         densityManager.setUpdateInterval(10);
         
-        dBoxAvg.setDataSource(densityAvg.makeDataSourceAverage());
-        dBoxErr.setDataSource(densityAvg.makeDataSourceError());
-        dBoxCur.setDataSource(densityMeter);
         Unit dUnit, dadUnit;
         if (D == 3) {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
@@ -565,9 +543,6 @@ public class PistonCylinderGraphic {
             dadUnit = new UnitRatio(new PrefixedUnit(Prefix.DECI, Mole.UNIT), 
                                     new PrefixedUnit(new BaseUnitPseudo3D.Volume(Liter.UNIT)));
         }
-        dBoxAvg.setUnit(dUnit);
-        dBoxErr.setUnit(dUnit);
-        dBoxCur.setUnit(dUnit);
         densityMeter.setPhase(new Phase[] {pc.phase});
         
         pc.integrator.addIntervalListener(tBox);
@@ -581,9 +556,6 @@ public class PistonCylinderGraphic {
         pc.integrator.addIntervalListener(targetTemperaturePlotManager);
         pc.integrator.addIntervalListener(targetPressureDataManager);
         pc.integrator.addIntervalListener(targetPressurePlotManager);
-        pc.integrator.addIntervalListener(dBoxAvg);
-        pc.integrator.addIntervalListener(dBoxErr);
-        pc.integrator.addIntervalListener(dBoxCur);
         pc.integrator.addIntervalListener(densityDisplayBox);
         pc.integrator.addIntervalListener(temperatureDisplayBox);
         pc.integrator.addIntervalListener(pressureDisplayBox);
@@ -591,7 +563,7 @@ public class PistonCylinderGraphic {
         densityDisplayBox.setUnit(dUnit);
         temperatureDisplayBox.setUpdateInterval(10);
         temperatureDisplayBox.setUnit(tUnit);
-                
+        
         Unit pUnit;
         if (D == 3) {
             pUnit = Bar.UNIT;
