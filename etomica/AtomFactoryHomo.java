@@ -17,6 +17,7 @@ public class AtomFactoryHomo extends AtomFactory {
     
     /**
      * @param space the coordinate factory
+     * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      */
     public AtomFactoryHomo(Space space, AtomSequencer.Factory sequencerFactory, AtomFactory factory) {
@@ -24,6 +25,7 @@ public class AtomFactoryHomo extends AtomFactory {
     }
     /**
      * @param space the coordinate factory
+     * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      */
@@ -31,6 +33,8 @@ public class AtomFactoryHomo extends AtomFactory {
         this(space, sequencerFactory, factory, atoms, BondInitializer.NULL, new ConfigurationLinear(space));
     }
     /**
+     * @param space the coordinate factory
+     * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
@@ -41,6 +45,9 @@ public class AtomFactoryHomo extends AtomFactory {
     }
  
     /**
+     * @param space the coordinate factory
+     * @param sequencerFactory makes sequencers for each of the atoms built by this factory
+     * @param nodeFactory makes nodes for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).

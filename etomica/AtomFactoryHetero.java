@@ -18,25 +18,6 @@ public class AtomFactoryHetero extends AtomFactory {
     
     private AtomFactory[] childFactory;
     
-    //each constructor has a version that takes a Simulation, and one that takes a Space.
-    //Simulation version is preferred.  It causes a handle to the simulation to be put in 
-    //the AtomType, which is the way that the atom accesses the simulation
-	public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
-		this(sim, sim.potentialMaster.sequencerFactory(), factory);
-	}
-	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory) {
-		this(sim, sequencerFactory, factory, new ConfigurationLinear(sim.space));
-	}
-	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomFactory[] factory, 
-							Configuration config) {
-		this(sim, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
-	}
-	
-	public AtomFactoryHetero(Simulation sim, AtomSequencer.Factory sequencerFactory, AtomTreeNodeGroup.Factory nodeFactory,
-							AtomFactory[] factory, Configuration config) {
-		super(sim, sequencerFactory, nodeFactory);
-		init(factory, config);
-	}
     /**
      * @param factory array of atom factories, each of which makes a different child.
      */
