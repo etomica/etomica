@@ -1,7 +1,7 @@
 package etomica;
 
-import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
+import etomica.utility.Arrays;
 
 /**
  * Iterates over all the atoms given across an array of iterators.  
@@ -10,12 +10,6 @@ import etomica.action.AtomsetAction;
  */
  
 public final class AtomIteratorCompound implements AtomIterator {
-    
-    private AtomIterator[] iteratorSet;
-    private boolean hasNext;
-    private final IteratorDirective directive = new IteratorDirective();
-    private int index;
-    private Atom atoms[];
     
     /**
      * Construct iterator to loop over all iterates obtained from each iterator 
@@ -26,23 +20,26 @@ public final class AtomIteratorCompound implements AtomIterator {
         reset();
         atoms = new Atom[1];
     }
-
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
-		if(basis == null || basis.node.isLeaf() || action == null) return;
-		throw new RuntimeException("Method all not implemented in AtomIteratorCompound");
-	}
     
     /**
      * Adds the given iterator to the set of iterators collected by this 
-     * compound iterator.
+     * compound iterator.  No check is made the iterator was not already added;
+     * if an iterator is added more than once, it will be iterated for each addition,
+     * as if it were a different instance each time.
      */
     public void addIterator(AtomIterator iterator) {
         if(iterator == null) return;
-        int currentLength = (iteratorSet != null) ? iteratorSet.length : 0;
-        AtomIterator[] newSet = new AtomIterator[currentLength+1];
-        for(int i=0; i<currentLength; i++) newSet[i] = iteratorSet[i];
-        newSet[currentLength] = iterator;
-        iteratorSet = newSet;
+        iteratorSet = (AtomIterator[])Arrays.addObject(iteratorSet, iterator);
+        unset();
+    }
+    
+    /**
+     * Removes the given iterator from the set of iterators collected by
+     * this compound iterator.  If iterator was not previously added (or is
+     * null), no action is taken.
+     */
+    public void removeIterator(AtomIterator iterator) {
+        iteratorSet = (AtomIterator[])Arrays.removeObject(iteratorSet, iterator);
     }
     
     public boolean hasNext() {return hasNext;}
@@ -69,7 +66,10 @@ public final class AtomIteratorCompound implements AtomIterator {
     }
         
     public void reset() {
-        if(iteratorSet == null || iteratorSet.length == 0) {hasNext = false; return;}
+        if(!hasIterator()) {
+            hasNext = false; 
+            return;
+        }
         index = 0;
         Atom next = null;
         
@@ -83,10 +83,11 @@ public final class AtomIteratorCompound implements AtomIterator {
     }
     
     public Atom[] peek() {
-    	return iteratorSet[index].peek();
+    	return hasNext ? iteratorSet[index].peek() : null;
     }
     
     public Atom[] next() {
+        if(!hasNext) return null;
         atoms[0] = iteratorSet[index].nextAtom();
         while(!iteratorSet[index].hasNext()) {
             if(++index < iteratorSet.length) {
@@ -104,10 +105,19 @@ public final class AtomIteratorCompound implements AtomIterator {
     	return next()[0];
     }
     
-    public void allAtoms(AtomsetAction act) {
+    public void allAtoms(AtomsetAction action) {
         for(int i=0; i<iteratorSet.length; i++) {
-            iteratorSet[i].allAtoms(act);
+            iteratorSet[i].allAtoms(action);
         }
     }
+
+    private boolean hasIterator() {
+        return (iteratorSet.length > 0);
+    }
+    
+    private AtomIterator[] iteratorSet = new AtomIterator[0];
+    private boolean hasNext;
+    private int index;
+    private Atom atoms[];
     
 }//end of AtomIteratorCompound
