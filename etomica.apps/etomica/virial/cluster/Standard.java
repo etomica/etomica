@@ -100,7 +100,7 @@ public final class Standard {
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
         return virialCluster(nBody,f,true,new FTilde(f));
     }
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e) {
+    public static ClusterSum virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e) {
         if (nBody < 4) {
             e = null;
         }
