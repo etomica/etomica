@@ -4,7 +4,7 @@
  */
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.space.Tensor;
 
 /**
@@ -33,14 +33,14 @@ public interface PotentialHard {
      * according to the action of the collision. Extensions can be defined to
      * instead implement other, perhaps unphysical changes.
      */
-    public void bump(Atom[] atom, double falseTime);
+    public void bump(AtomSet atom, double falseTime);
 
     /**
      * Computes the time of collision of the given atom(s) with the hard
      * potential, assuming no intervening collisions. Usually assumes
      * free-flight between collisions.
      */
-    public double collisionTime(Atom[] atom, double falseTime);
+    public double collisionTime(AtomSet atom, double falseTime);
 
     /**
      * returns change in potential energy due to the last collision

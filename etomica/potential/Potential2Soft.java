@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
 
 
 
@@ -14,9 +14,9 @@ import etomica.Atom;
  * @author David Kofke
  */
 public interface Potential2Soft extends PotentialSoft {
-	public double hyperVirial(Atom[] pair);
+	public double hyperVirial(AtomPair pair);
 
-	public double virial(Atom[] pair);
+	public double virial(AtomPair pair);
     
 	/**
 	 * Integral used to evaluate correction to truncation of potential.
