@@ -200,6 +200,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
      * this is changed
      */
     public void setLambda(double lam) {
+        if (lam <= 1.0) throw new IllegalArgumentException("Square-well lambda must be greater than 1.0");
         lambda = lam;
         wellDiameter = coreDiameter*lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
