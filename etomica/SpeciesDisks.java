@@ -18,7 +18,13 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     public SpeciesDisks() {
         this(Simulation.instance);
     }
+    public SpeciesDisks(int n) {
+        this(Simulation.instance, n);
+    }
     public SpeciesDisks(Simulation sim) {
+        this(sim, Default.MOLECULE_COUNT);
+    }
+    public SpeciesDisks(Simulation sim, int n) {
         super(sim);
         atomsPerMolecule = 1;
         if(sim.space().D() == 1) {
@@ -27,7 +33,7 @@ public class SpeciesDisks extends Species implements EtomicaElement {
         else {
             protoType = new AtomType.Disk(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE);
         }
-        nMolecules = Default.MOLECULE_COUNT;        
+        nMolecules = n;        
         moleculeConfiguration = new Molecule.Configuration.Linear(this);
     }
     

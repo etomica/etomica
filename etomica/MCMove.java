@@ -63,7 +63,7 @@ public abstract class MCMove implements Cloneable, java.io.Serializable {
     }
     public final int getFrequency() {return frequency;}
     public void resetFrequency() {
-        frequency = perParticleFrequency ? nominalFrequency*phase.moleculeCount : nominalFrequency;
+        frequency = (perParticleFrequency && phase!=null) ? nominalFrequency*phase.moleculeCount : nominalFrequency;
     }
     public final void setPerParticleFrequency(boolean b) {perParticleFrequency = b;}
     public final boolean isPerParticleFrequency() {return perParticleFrequency;}

@@ -26,7 +26,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     public static final int BOTTOM = +1;
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
-    java.util.ArrayList drawingObjects = new java.util.ArrayList(10);
+    java.util.ArrayList drawables = new java.util.ArrayList(10);
         
 //    private final ConfigurationCanvas canvas = new ConfigurationCanvas();
     public Canvas canvas;  //do not instantiate here; instead must be in graphic method
@@ -46,19 +46,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
   * Default value is <code>true</code>
   */
   private boolean drawBoundary = true;
-  
- /**
-  * Flag specifying whether a line tracing the boundary of the space should be drawn
-  * Default value is <code>false</code>
-  */
-  private boolean drawSpace = false;
-  
- /**
-  * Flag specifying whether meters should be allowed to draw something
-  * Default value is <code>false</code>
-  */
-  private boolean drawMeters = false;
-
+    
  /**
   * Number of periodic-image shells to be drawn when drawing this phase to the
   * screen.  Default value is 0.
@@ -172,11 +160,11 @@ public class DisplayPhase extends Display implements EtomicaElement {
         }
     }
     
-    public void addDrawingObject(DrawingObject obj) {
-        drawingObjects.add(obj);
+    public void addDrawable(Drawable obj) {
+        drawables.add(obj);
     }
-    public void removeDrawingObject(DrawingObject obj) {
-        drawingObjects.remove(obj);
+    public void removeDrawable(Drawable obj) {
+        drawables.remove(obj);
     }
     
     /**
@@ -252,10 +240,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
             
     public void setDrawBoundary(boolean b) {drawBoundary = b;}
     public boolean getDrawBoundary() {return drawBoundary;}
-    public void setDrawSpace(boolean b) {drawSpace = b;}
-    public boolean getDrawSpace() {return drawSpace;}
-    public void setDrawMeters(boolean b) {drawMeters = b;}
-    public boolean getDrawMeters() {return drawMeters;}
 
     public void doUpdate() {;}
     public void repaint() {canvas.repaint();}
@@ -288,7 +272,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         }
     }
     
-    public interface DrawingObject {
+    public interface Drawable {
         public void draw(Graphics g, int[] origin, double scale);
     }
     
@@ -416,16 +400,10 @@ public class DisplayPhase extends Display implements EtomicaElement {
             computeImageParameters();
             //Draw other features if indicated
             if(drawBoundary) {phase().boundary().draw(g, centralOrigin, scale);}
-            if(drawSpace) {parentSimulation().space().draw(g, centralOrigin, scale);}
-//            if(drawMeters) {
-//                for(java.util.Iterator iter=phase.meterManager().list.iterator(); iter.hasNext(); ) {
-//                    ((MeterAbstract)iter.next()).draw(g, centralOrigin, scale);
-//                }
-//            }
 
             //do drawing of all drawing objects that have been added to the display
-            for(java.util.Iterator iter=drawingObjects.iterator(); iter.hasNext(); ) {
-                DrawingObject obj = (DrawingObject)iter.next();
+            for(java.util.Iterator iter=drawables.iterator(); iter.hasNext(); ) {
+                Drawable obj = (Drawable)iter.next();
                 obj.draw(g, centralOrigin, scale);
             }
             

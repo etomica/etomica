@@ -24,6 +24,8 @@ public class Space1D extends Space implements EtomicaElement {
     public Space.Boundary makeBoundary(Space.Boundary.Type t) {
         if(t == Boundary.NONE) {return new BoundaryNone();}
         else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
+        else if(t == Boundary.HARMONIC) {return new BoundaryHarmonic();}
+        else if(t == Boundary.HARD) {return new BoundaryHard();}
         else return null;
     }
     
@@ -195,7 +197,9 @@ public class Space1D extends Space implements EtomicaElement {
     public static abstract class Boundary extends Space.Boundary {
         public static final Space.Boundary.Type NONE = new Space.Boundary.Type("None");
         public static final Space.Boundary.Type PERIODIC_SQUARE = new Space.Boundary.Type("Periodic");
-        public static final Space.Boundary.Type[] TYPES = {NONE, PERIODIC_SQUARE};
+        public static final Space.Boundary.Type HARMONIC = new Space.Boundary.Type("Harmonic");
+        public static final Space.Boundary.Type HARD = new Space.Boundary.Type("Hard");
+        public static final Space.Boundary.Type[] TYPES = {NONE, PERIODIC_SQUARE ,HARMONIC,HARD};
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);
@@ -205,7 +209,7 @@ public class Space1D extends Space implements EtomicaElement {
     /**
      * Class for implementing no periodic boundary conditions
      */
-    protected static final class BoundaryNone extends Boundary {
+    protected static final class BoundaryNone extends Boundary{
         private final Vector temp = new Vector();
         private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
@@ -229,10 +233,11 @@ public class Space1D extends Space implements EtomicaElement {
         public void draw(Graphics g, int[] origin, double scale) {}
     }
 
+
     /**
      * Class for implementing rectangular periodic boundary conditions
      */
-    protected static final class BoundaryPeriodicSquare extends Boundary {
+    protected static class BoundaryPeriodicSquare extends Boundary{
         private final Vector temp = new Vector();
         public static final Random random = new Random();
        //Explicit dimension to 2 because drawing to 2D image
@@ -295,5 +300,158 @@ public class Space1D extends Space implements EtomicaElement {
             }
         } //end of getOverflowShifts
     }  //end of BoundarySquarePeriodic
+    public static final class BoundaryHarmonic extends BoundaryPeriodicSquare  implements PotentialField.Maker{
+        private double w = 100.0;
+        public BoundaryHarmonic() {super();}
+        public BoundaryHarmonic(Phase p) {super(p);}
+        public BoundaryHarmonic(Phase p, double lx) {super(p,lx);}
+        public Space.Boundary.Type type() {return Boundary.HARMONIC;}
+        public final void nearestImage(Vector dr) {}
+        public final void centralImage(Vector r) {}
+        public final void centralImage(Coordinate c) {}
+        public void setW(double springConstant) {w = springConstant;}
+        public double getW() {return w;}
+        public PotentialField makePotentialField(Phase p) {return new Field(p);}
+        class Field extends PotentialField implements PotentialField.Soft {
+            Field(Phase p) {
+                super(p);
+                maker = BoundaryHarmonic.this;
+            }
+
+            public double energy(Atom a) {
+                if(a == phase.firstAtom()){
+                    double r = a.position(0) - 0.0;//(-0.5*phase.boundary().dimensions().component(0));//System.out.println(0.5*phase.boundary().dimensions().component(0));
+                    return 0.5*w*r*r;
+                }
+                else {
+                    if(a == phase.lastAtom()){
+                        double r = phase.boundary().dimensions().component(0) - a.position(0);
+                        return 0.5*w*r*r;
+                    }
+                    else{
+                        return 0.0;
+                    }
+                }
+            }
+
+        public Space.Vector force(Atom atom){
+            Space.Vector f = new Space1D.Vector();
+                if(atom == phase.firstAtom()){
+                    Space.Vector r = new Space1D.Vector();
+                    r.E(atom.position());
+                    f.E(r);
+                    f.TE(-w);
+                }
+                else {
+                    if(atom == phase.lastAtom()){
+                        Space.Vector r = new Space1D.Vector();
+                        r.E(phase.boundary().dimensions());
+                        r.ME(atom.position());
+                        f.E(r);
+                        f.TE(-w);
+                    }
+                else {
+                        f.E(0.0);
+                    }
+                }
+                return f;
+            }
+            
+
+        }//end of BoundaryPotential
+    }
+    public static final class BoundaryHard extends BoundaryPeriodicSquare  implements PotentialField.Maker {
+        private double collisionRadius = 0.5;
+        public BoundaryHard() {super();}
+        public BoundaryHard(Phase p) {super(p);}
+        public BoundaryHard(Phase p, double lx) {super(p);dimensions.x=lx;}
+        public Space.Boundary.Type type() {return Boundary.HARD;}
+        public void nearestImage(Space.Vector dr) {}
+        public void centralImage(Space.Vector r) {}
+        public void nearestImage(Vector dr) {}
+        public void centralImage(Vector r) {}
+        public void centralImage(Coordinate c) {}
+        public void setCollisionRadius(double d) {collisionRadius = d;}
+        public double getCollisionRadius() {return collisionRadius;}
+        public PotentialField makePotentialField(Phase p) {return new Field(p);}
+        class Field extends PotentialField implements PotentialField.Hard {
+            Field(Phase p) {
+                super(p);
+                maker = BoundaryHard.this;
+            }
+
+            public double energy(Atom a) {
+               if(a == phase.firstAtom()){
+                    double r = a.position(0) - 0.0;//(-0.5*phase.boundary().dimensions().component(0));//System.out.println(0.5*phase.boundary().dimensions().component(0));
+                    double r2 = r*r;
+                    double collisionRadiusSquared = collisionRadius*collisionRadius;
+                    if(r2 < collisionRadiusSquared || a.position(0) < 0.0)return Double.MAX_VALUE; 
+                    else return 0.0;
+                }
+                else {
+                    if(a == phase.lastAtom()){
+                    double r = dimensions.x - a.position(0);
+                    double r2 = r*r;
+                    double collisionRadiusSquared = collisionRadius*collisionRadius;
+                    if(r2 < collisionRadiusSquared || a.position(0)> dimensions.x)return Double.MAX_VALUE; 
+                    else return 0.0;
+                    }
+                    else{
+                        return 0.0;
+                    }
+                }
+                
+            }
+
+        public Space.Vector force(Atom atom){
+            Space.Vector f = new Space1D.Vector();
+                f.E(0.0);
+                return f;
+            }
+            public boolean overlap(Atom a) {
+               if(a == phase.firstAtom()){
+                    double r = a.position(0) - 0.0;//(-0.5*phase.boundary().dimensions().component(0));//System.out.println(0.5*phase.boundary().dimensions().component(0));
+                    double r2 = r*r;
+                    double collisionRadiusSquared = collisionRadius*collisionRadius;
+                    if(r2 < collisionRadiusSquared || a.position(0) < 0.0)return true; 
+                    else return false;
+                }
+                else {
+                    if(a == phase.lastAtom()){
+                    double r = phase.boundary().dimensions().component(0) - a.position(0);
+                    double r2 = r*r;
+                    double collisionRadiusSquared = collisionRadius*collisionRadius;
+                    if(r2 < collisionRadiusSquared || a.position(0) > phase.boundary().dimensions().component(0))return true; 
+                    else return false;
+                    }
+                    else{
+                        return true;
+                    }
+                }
+                }
+            
+        public double collisionTime(Atom a) {
+            Vector r = (Vector)a.coordinate().position();
+            Vector p = (Vector)a.coordinate().momentum();
+            double tx = (p.x > 0.0) ? (dimensions.x - r.x - collisionRadius)/(p.x*a.rm()) : (-r.x + collisionRadius)/(p.x*a.rm());
+            return tx;
+        }
+        public void bump(Atom a) {
+            Vector r = (Vector)a.coordinate().position();
+            Vector p = (Vector)a.coordinate().momentum();
+            double dx = (p.x > 0.0) ? Math.abs(dimensions.x - r.x - collisionRadius) : Math.abs(-r.x + collisionRadius);
+                pAccumulator += 2*Math.abs(p.x);
+                p.x *= -1;
+        }
+        //not yet implemented
+        public double lastCollisionVirial() {return 0.0;}
+        public Space.Tensor lastCollisionVirialTensor() {return Tensor.ZERO;}
+
+        public double pAccumulator = 0.0;
+
+        }//end of BoundaryPotential
+
+    }
+
             
 }

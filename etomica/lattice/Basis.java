@@ -160,7 +160,7 @@ public class Basis implements SiteFactory, java.io.Serializable {
                 Site newSite = siteFactory.makeSite(this,null,new Coordinate(i));
                 basisIterator.addSite(newSite);
             }
-            updateCoordinates();
+       //     updateCoordinates();
         }
         //methods implementing AbstractLattice
         public int siteCount() {return basisIterator.siteCount();}
@@ -172,7 +172,7 @@ public class Basis implements SiteFactory, java.io.Serializable {
         /**
          * Updates all site coordinates for the instance of the basis.
          */
-        public void updateCoordinates() {
+ /*       public void updateCoordinates() {
             basisIterator.reset();
             while(basisIterator.hasNext()) {
                 ((Coordinate)basisIterator.next().coordinate()).update();

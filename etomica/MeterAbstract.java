@@ -62,6 +62,12 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      */
     protected boolean active;
     
+    /**
+     * Size of subaveraging block used to evaluate confidence limits.
+     * Default is 1000 updateIntervals.
+     */
+    int blockSize = Default.BLOCK_SIZE;
+    
     private String name;
     private final Simulation parentSimulation;
     private boolean added = false;
@@ -70,7 +76,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     private transient Observer boundaryObserver;
     private transient Observer iteratorFactoryObserver;
     
-    private boolean histogramming = false;
+    boolean histogramming = false;
 
 	public MeterAbstract(Simulation sim) {
 	    parentSimulation = sim;
@@ -105,11 +111,6 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	 */
 	public abstract void updateSums();
 
-    /**
-     * Method to render an image of the meter to the screen.  
-     * Not commonly used, and default is to perform no action
-     */
-    public void draw(Graphics g, int[] origin, double scale) {} 
     /**
      * Sets the phase in which the meter is performing its measurements.
      * If given phase is null, meter is removed from current phase, if already in one.
@@ -283,6 +284,19 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     }
     
     /**
+     * BlockSize describes the size of the subaverages used to estimate confidence limits 
+     * on simulation averages.
+     * Default is 1000 updateIntervals.
+     */
+    public void setBlockSize(int b) {blockSize = Math.max(1,b);}
+    /**
+     * BlockSize describes the size of the subaverages used to estimate confidence limits 
+     * on simulation averages.
+     */
+    public int getBlockSize() {return blockSize;}
+    
+    
+    /**
      * Sets whether the meter responds to integrator events
      * If false, the meter does not perform regular measurements or keep averages
      */
@@ -344,43 +358,56 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      * Presently error value is not computed well (assumes independent measurements)
      * Future development project: include block averaging, add a plot display to show error as a function of block size
      */
-    public final static class Accumulator implements java.io.Serializable {
-        private double sum, sumSquare;
+    public final class Accumulator implements java.io.Serializable {
+        private double sum, sumSquare, blockSum, error;
         private double mostRecent = Double.NaN;
-        private int count;
+        private int count, blockCountDown;
         private Histogram histogram;
-        private boolean histogramming = false;
+ //       private boolean histogramming = false;
         
         public Accumulator() {
             reset();
         }
         
         /**
-         * Add the given value to the sum and sum of squares
+         * Add the given value to the sum and block sum
          */
         public void add(double value) {
             mostRecent = value;
             if(Double.isNaN(value)) return;
-	        sum += value;
-	        sumSquare += value*value;
+            
+	        blockSum += value;
+	        if(--blockCountDown == 0) {//count down to zero to determine completion of block
+	            blockSum /= blockSize;//compute block average
+	            sum += blockSum;
+	            sumSquare += blockSum*blockSum;
+    	        count++;
+    	        if(count > 1) {
+    	            double avg = sum/(double)count;
+    	            error = Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1));
+    	        }
+	            //reset blocks
+	            blockCountDown = blockSize;
+	            blockSum = 0.0;
+	        }
 	        if(histogramming) histogram.addValue(value);
-	        count++;
         }
         
         /**
          * Compute and return the average from the present value of the accumulation sum
          */
 	    public double average() {
-	        return (count>0) ? sum/(double)count : Double.NaN;
+	        int blockCount = blockSize - blockCountDown;
+	        return (count+blockCount > 0) ? 
+	            (sum + blockSum/blockSize)/(double)(count + (double)blockCount/(double)blockSize) 
+	            : Double.NaN;
 	    }
     	
     	/**
-    	 * Computer and return the 67% confidence limits of the average
-    	 *   Needs more development
+    	 * Return the 67% confidence limits of the average based on variance in block averages.
     	 */
-	    public double error() {    //temporary---needs to be rewritten to do block averaging
-	        double avg = average();
-	        return (count>1) ? Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1)) : Double.NaN;
+	    public double error() {
+	        return (count > 1) ? error : Double.NaN;
 	    }
 	    
 	    /**
@@ -401,8 +428,10 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     	 */
 	    public void reset() {
 	        count = 0;
-	        sum = 0;
-	        sumSquare = 0;
+	        sum = 0.0;
+	        sumSquare = 0.0;
+	        blockCountDown = blockSize;
+	        blockSum = 0.0;
 	        if(histogram != null) histogram.reset();
 	    }
 	    /**

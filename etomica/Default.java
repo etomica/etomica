@@ -33,10 +33,16 @@ public final class Default {
     
     public static double POTENTIAL_CUTOFF = 2.5; //dimensionless multiplier for cutoff distance of potential
     
-    public static double TIME_STEP = 0.05;  //picoseconds
+    public static double TIME_STEP = 0.05;  //picoseconds 
+    
+    /**
+     * Default block size used for error estimation in simulation averages.
+     */
+    public static int BLOCK_SIZE = 1000;
  
     public static String getWorkingDirectory(){
         String dir = System.getProperty("user.dir");
+        System.out.println("working directory, in Default: "+dir);
         if(dir.indexOf("VisualCafe") != -1) return "D:\\etomica";
         dir = dir.replace('\\', '/');
         return dir+"/";

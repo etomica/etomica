@@ -44,7 +44,7 @@ public class Etomica {
         DesktopFrame frame = new DesktopFrame();
         frame.show();
         Simulation.instance = new Simulation(new etomica.Space2D());
-       addSimulation(Simulation.instance);  //uncomment to run in debugger
+        addSimulation(Simulation.instance);  //uncomment to run in debugger
     }
     
     /**

@@ -33,9 +33,18 @@ public abstract class Dimension implements java.io.Serializable {
     public abstract Class baseUnit();
     
     /**
+     * The signature are the exponents of each of the base dimensions forming
+     * the given dimension.  Base dimensions are, in order: mass, length, time, number.
+     */
+    public abstract double[] signature();
+    
+    /**
      * Dimension for a dimensionless quantity
      */
     public static class Null extends Dimension {
+        private Null() {} //singleton; access via static instances, defined below
+        static double[] signature = {0., 0., 0., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Dimensionless";}
         public Unit defaultIOUnit() {return new Unit(BaseUnit.Null.UNIT);}
         public Class baseUnit() {return BaseUnit.Null.class;}
@@ -44,6 +53,9 @@ public abstract class Dimension implements java.io.Serializable {
      * Dimension for a counted quantity, such as number of molecules
      */
     public static class Quantity extends Dimension {
+        private Quantity() {}
+        static double[] signature = {0., 0., 0., 1.};
+        public double[] signature() {return signature;}
         public String toString() {return "Quantity";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().quantity();}
         public Class baseUnit() {return BaseUnit.Quantity.class;}
@@ -51,67 +63,101 @@ public abstract class Dimension implements java.io.Serializable {
     
     //remaining dimensions have obvious interpretations
     public static class Mass extends Dimension {
+        private Mass() {}
+        static double[] signature = {1., 0., 0., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Mass";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().mass();}
         public Class baseUnit() {return BaseUnit.Mass.class;}
     }
     public static class Length extends Dimension {
+        private Length() {}
+        static double[] signature = {0., 1., 0., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Length";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().length();}
         public Class baseUnit() {return BaseUnit.Length.class;}
     }
     public static class Time extends Dimension {
+        private Time() {}
+        static double[] signature = {0., 0., 1., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Time";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().time();}
         public Class baseUnit() {return BaseUnit.Time.class;}
     }
     public static class Angle extends Dimension {
+        private Angle() {}
+        static double[] signature = {0., 0., 0., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Angle";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().angle();}
         public Class baseUnit() {return BaseUnit.Angle.class;}
     }
-    public static class Charge extends Dimension {
+    public static class Charge extends Dimension {//(D-A^3/ps^2)^(1/2)
+        private Charge() {}
+        static double[] signature = {0.5, 1.5, -1., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Charge";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().charge();}
         public Class baseUnit() {return BaseUnit.Charge.class;}
     }
-    public static class Dipole extends Dimension {
+    public static class Dipole extends Dimension {//(D-A^5/ps^2)^(1/2)
+        private Dipole() {}
+        static double[] signature = {0.5, 2.5, -1., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Dipole moment";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().dipole();}
         public Class baseUnit() {return BaseUnit.Dipole.class;}
     }
-    public static class Energy extends Dimension {
+    public static class Energy extends Dimension {//D-A^2/ps^2
+        private Energy() {}
+        static double[] signature = {1., 2., -2., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Energy";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().energy();}
         public Class baseUnit() {return BaseUnit.Energy.class;}
     }
     public static class Temperature extends Energy {
+        private Temperature() {}
         public String toString() {return "Temperature";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().temperature();}
         public Class baseUnit() {return BaseUnit.Temperature.class;}
     }
-    public static class Pressure extends Dimension {
+    public static class Pressure extends Dimension {//(D-A/ps^2)/A^2 = D/(A-ps^2)
+        private Pressure() {}
+        static double[] signature = {1., -1., -2., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Pressure";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().pressure(Simulation.instance.space().D());}
         public Class baseUnit() {return BaseUnit.Pressure.class;}
     }
-    public static class Pressure2D extends Pressure {
+    public static class Pressure2D extends Pressure {//(D-A/ps^2)/A = D/ps^2
+        private Pressure2D() {}
+        static double[] signature = {1., 0., -2., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "2D pressure";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().pressure(2);}
         public Class baseUnit() {return BaseUnit.Pressure2D.class;}
     }
     public static class Volume extends Dimension {
+        private Volume() {}
+        static double[] signature = {0., 3., 0., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "Volume";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().volume(Simulation.instance.space().D());}
         public Class baseUnit() {return BaseUnit.Volume.class;}
     }
     public static class Volume2D extends Volume {
+        private Volume2D() {}
+        static double[] signature = {0., 2., 0., 0.};
+        public double[] signature() {return signature;}
         public String toString() {return "2D volume";}
         public Unit defaultIOUnit() {return Simulation.unitSystem().volume(2);}
         public Class baseUnit() {return BaseUnit.Volume2D.class;}
     }
     
-    //Convenience instances of each dimension
+    //Singleton instances of each dimension
     public static final Dimension NULL = new Null();
     public static final Dimension QUANTITY = new Quantity();
     public static final Dimension MASS = new Mass();
@@ -126,7 +172,26 @@ public abstract class Dimension implements java.io.Serializable {
     public static final Dimension PRESSURE2D = new Pressure2D();
     public static final Dimension VOLUME = new Volume();
     public static final Dimension VOLUME2D = new Volume2D();
+    public static final Dimension[] ALL = new Dimension[] {
+        NULL, QUANTITY, MASS, LENGTH, TIME, ANGLE, CHARGE, DIPOLE, ENERGY, 
+        TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D};
+
     
+    /**
+     * Returns all dimension classes with the same signature as the one given.
+     */
+    public static Dimension[] convertSignature(double[] sig) {
+        java.util.ArrayList dimList = new java.util.ArrayList(5);
+        for(int i=0; i<ALL.length; i++) {
+            double[] dSig = ALL[i].signature();
+            if(sig[0]==dSig[0] && sig[1]==dSig[1] && sig[2]==dSig[2] && sig[3]==dSig[3]) {
+                dimList.add(ALL[i]);
+            }
+        }
+        Dimension[] dimArr = new Dimension[dimList.size()];
+        dimList.toArray(dimArr);
+        return dimArr;
+    }
     /**
      * Method to determine the dimension of a property via introspection.
      *
@@ -158,5 +223,5 @@ public abstract class Dimension implements java.io.Serializable {
             }//end of if(methodName...) block
         }//end of for loop
         return null;
-     }
+     }//end of introspect method
 }

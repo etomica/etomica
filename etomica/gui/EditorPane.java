@@ -89,7 +89,7 @@ public abstract class EditorPane extends javax.swing.JSplitPane {
     private int currentSelection;
         
     /**
-     * If true, the current simulation component has already been added
+     * If true, the property sheet is already visible I think
      */
     public static boolean added = false;
     

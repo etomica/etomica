@@ -139,7 +139,9 @@ public class SimulationEditorPane extends EditorPane {
 
                 propertySheet.setTarget((Simulation.Element)obj);
                 try {
+                    propertySheet.setClosed(false);
                     propertySheet.setSelected(true);
+                    propertySheet.setVisible(true);
                 }
                 catch(java.beans.PropertyVetoException pve){}
     	    }});// end of addListSelectionListener statement

@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.units.*;
 import etomica.utility.Histogram;
+import etomica.utility.Function;
 
 /**
  * Meter for recording and averaging a simple scalar of type double.
@@ -14,11 +15,25 @@ import etomica.utility.Histogram;
 public abstract class Meter extends MeterAbstract
 {
     MeterAbstract.Accumulator accumulator = new MeterAbstract.Accumulator();
+    private Function function;
 
 	public Meter(Simulation sim) {
 	    super(sim);
 	    setActive(true);  //default is to have meter do averages after some number of integrationIntervalEvents
 	}
+	
+	/**
+	 * Sets a function that is applied to the meter's average.
+	 * The meter's average() method returns the value returned by
+	 * the function when applied to the value defined for measurement by the meter.
+	 * For example, the function might square the meter's value, or divide by a temperature.
+	 * If no function is specified (or is set to null), the meter returns its average, unaltered.
+	 */
+	public void setFunction(Function f) {function = f;}
+	/**
+	 * Returns the function that has been specified to apply to the meter's average.
+	 */
+	public Function getFunction() {return function;}
 	
 	/**
 	 * Defined by the subclass to specify what property is measured by the meter.
@@ -40,7 +55,9 @@ public abstract class Meter extends MeterAbstract
     /**
      * Returns the current value of the average
      */
-	public double average() {return accumulator.average();}
+	public double average() {
+	    return (function==null) ? accumulator.average() : function.f(accumulator.average());
+	}
 
     /**
      * Returns the current value of the variance
@@ -50,14 +67,20 @@ public abstract class Meter extends MeterAbstract
 	/**
 	 * Returns the current value of the error bar (67% confidence limit)
 	 */
-	public double error() {return accumulator.error();}
+	public double error() {
+	    if(function == null) return accumulator.error();
+	    else {//have not carefully considered if this is correct
+	        return Math.abs(function.dfdx(accumulator.average()))*accumulator.error();
+	    }
+	}
 	
 	/**
 	 * Returns the value passed most recently obtained via an integrator intervalEvent
 	 * (does not give the value last returned by any direct call to currentValue
 	 *  i.e. by a call to currentValue that was not made in response to an interval event)
 	 */
-	public double mostRecent() {return accumulator.mostRecent();}
+	public double mostRecent() {
+	    return (function==null) ? accumulator.mostRecent() : function.f(accumulator.mostRecent());}
 	
 	/**
 	* Accessor method to indicate if the meter should keep a histogram of all measured values.

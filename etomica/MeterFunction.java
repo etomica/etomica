@@ -244,16 +244,18 @@ public abstract class MeterFunction extends MeterAbstract {
      *   For future development: give more flexibility in setting whether min and max are inclusive or exclusive
      */
     public void setX(double min, double max, int n) {
-        if(n != nPoints) {
-            nPoints = n;
-            resizeArrays(); //this calls setX to finish the method, so return immediately
-            return;
-        }
         xMin = min;
         xMax = max;
+        if(n != nPoints) {
+            nPoints = n;
+            resizeArrays();//this calls calculateX
+        }
+        else calculateX();        
+    }
+    
+    private void calculateX() {
         deltaX = (xMax - xMin)/(double)(nPoints);
         for(int i=0; i<nPoints; i++) {x[i] = xMin + (i+0.5)*deltaX;}
-        
     }
     
     protected void resizeArrays() {
@@ -268,7 +270,7 @@ public abstract class MeterFunction extends MeterAbstract {
                 accumulator[i] = new MeterAbstract.Accumulator();
             }
  //       }
-        setX(xMin, xMax, nPoints);
+        calculateX();
     }
     
 	/**

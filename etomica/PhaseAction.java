@@ -43,7 +43,12 @@ public abstract class PhaseAction extends etomica.Action {
    //     }
         public Inflate(Phase p) {
             super(p);
-            temp = p.parentSimulation().space().makeVector();
+            if(p != null) temp = p.parentSimulation().space().makeVector();
+        }
+        
+        public void setPhase(Phase p) {
+            super.setPhase(p);
+            if(p != null && temp == null) temp = p.parentSimulation().space().makeVector();
         }
  
         public void actionPerformed(double s) {

@@ -26,8 +26,8 @@ public class Lattice implements AbstractLattice, Observer {
      * determines the dimension of the lattice.
      */
     public Lattice(int[] dimensions, Space.Vector[] pVectors, Basis basis) {
-        this.basis = basis;
         lattice = new BravaisLattice(dimensions, basis, pVectors);
+        this.basis = basis;
         lattice.addObserver(this); //to update site positions if primitive vectors change
         basis.addObserver(this);   //to update site positions if basis vectors change
         //Construct iterator of all sites

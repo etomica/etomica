@@ -1,6 +1,10 @@
 package etomica;
 import etomica.units.*;
 
+/**
+ * Evaluates the pressure by examining the change in energy accompanying
+ * small changes in volume.
+ */
 public class MeterPressureByVolumeChange extends MeterFunction implements EtomicaElement {
     
     PhaseAction.Inflate inflater;
@@ -12,6 +16,10 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         this(0);
     }
     
+    /**
+     * Constructor that indicates volume change should be performed anisotropically.
+     * @param i index of the dimension in which volume should be expanded (e.g. i = 0 indicates x-dimension)
+     */
     public MeterPressureByVolumeChange(int i) {
         this(Simulation.instance, i);
     }
@@ -19,6 +27,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     public MeterPressureByVolumeChange(Simulation sim, int i) {
         super(sim);
         setX(-0.001, 0.001, 10);
+        setInflateDimension(i);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -26,30 +35,36 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         return info;
     }
 
-    public void setIsotropic(boolean b) {
+    /**
+     * Method to indicate if volume change should or should not be performed isotropically.
+     */
+    public final void setIsotropic(boolean b) {
         isotropic = b;
         setX(xMin, xMax, nPoints);
-        resetInflater();
     }
+    /**
+     * Accessor method accompanying setIsotropic.
+     */
     public boolean getIsotropic() {return isotropic;}
-    public void setInflateDimension(int i) {
-        inflateDimension = i;
-    }
-    public int getInflateDimension() {return inflateDimension;}
     
-    private void resetInflater() {
-        //inflater = isotropic ? new PhaseAction.Inflate(phase) : new PhaseAction.InflateXY(phase,inflateDimension);
-        //inflater = new PhaseAction.Inflate(phase);
-    }    
+    /**
+     * For anisotropic volume change, indicates dimension in which volume is perturbed.
+     */
+    public final void setInflateDimension(int i) {
+        inflateDimension = i;
+        setIsotropic(false);
+    }
+    /**
+     * Accessor method for setInflateDimension.
+     */
+    public int getInflateDimension() {return inflateDimension;}
     
     public boolean usesPhaseBoundary() {return false;}
     public boolean usesPhaseIteratorFactory() {return false;}
     
     public void setPhase(Phase p) {
         super.setPhase(p);
-   
         inflater = new PhaseAction.Inflate(p);
-        resetInflater();
     }
     
     public void setX(double min, double max, int n) {
@@ -60,31 +75,25 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         }
         scale = new double[nPoints];
         
-        double mult = isotropic ? 1./(double)Simulation.instance.space.D() : 1.0;
+        double mult = isotropic ? 1./(double)parentSimulation().space().D() : 1.0;
         for(int i=0; i<nPoints; i++) {
             scale[i] = Math.exp(mult*x[i]);
         }
     }
     
     public double[] currentValue() {
-           
         for(int i=0; i<nPoints; i++) {
             double uOld = phase.energy.potential();
-            if(isotropic)
-            inflater.actionPerformed(scale[i]);
+            if(isotropic) inflater.actionPerformed(scale[i]);
             else inflater.actionPerformed(phase,scale[i],inflateDimension);
             double uNew = phase.energy.potential();
             y[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
                               + phase.moleculeCount()*x[i]);
             
-            if ( isotropic) inflater.retractAction();
+            if (isotropic) inflater.retractAction();
             else inflater.retractAction(inflateDimension);
             //System.out.println( "  uNew " + uNew +" uOld " +uOld +" x " + x[i] +" scale" + scale[i]+ " y " +y[i] );
-
         }
-        
-        
-           
         return y;
     }
     
@@ -97,8 +106,6 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
            //     System.out.println("i " + i + "y "+ average[i]);
             //} 
         return average;
-        
-        
     }
     
     public Dimension getDimension() {return Dimension.NULL;}
@@ -107,31 +114,31 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
       public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
+        
         Default.ATOM_SIZE =1.2;
+        
+        Simulation.instance = new Simulation(new Space2DCell());
         Phase phase1 = new Phase();
         MCMoveAtom mcmove= new MCMoveAtom();
         
         DisplayPlot plot1 = new DisplayPlot();
 
         MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
+        meterp.setIsotropic(true);
+        
         IntegratorMC integratorMC1 = new IntegratorMC();
 	    integratorMC1.add(mcmove);
 
-	        meterp.setPhase(phase1);
-	       meterp.setActive(true);
-//	       plot1.setMeter(meterp);
-           plot1.setMeterFunction(meterp);
-	       plot1.setUseCurrentValue(false);
-	     SpeciesDisks    speciesDisk1 = new SpeciesDisks();
-	     speciesDisk1.setNMolecules(200);
-	    
-	    
-
-        P2IdealGas p2IdealGas = new P2IdealGas();
-	   
+	    meterp.setPhase(phase1);
+	    meterp.setActive(true);
+        plot1.setMeterFunction(meterp);
+	    plot1.setUseCurrentValue(false);
+	    SpeciesDisks speciesDisk1 = new SpeciesDisks();
+	    speciesDisk1.setNMolecules(200);
+	    PotentialLJ potentialLJ = new PotentialLJ();
+	    P2SimpleWrapper potential = new P2SimpleWrapper(potentialLJ);
 	    
 	    Controller controller1 = new Controller();
-	    
 	  
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    MeterEnergy meterEnergy1 = new MeterEnergy();
@@ -146,28 +153,15 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
 	    temperatureSlider.setMinimum(50);
 	    temperatureSlider.setMaximum(500);
 	    
-    	//Simulation.instance.add(displayPhase1);
-    	//phase1.boundary().dimensions().setComponent(0,15);
-       //Simulation.elementCoordinator = new Simulation.ElementCoordinator.Basic();
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-        //phase1.integrator().setTemperature();
-        meterEnergy1.setPhase(phase1);
-        //meterpxx.setPhase(phase1);
-        phase1.setIntegrator(integratorMC1);
-        integratorMC1.addIntervalListener(box1);
-       integratorMC1.addIntervalListener(meterp);
-       integratorMC1.setTemperature(Kelvin.UNIT.toSim(10));
-        //integratorMC1.addIntervalListener(box2);
-        integratorMC1.addIntervalListener(displayPhase1);
-        controller1.add(integratorMC1);
+		Simulation.instance.elementCoordinator.go(); 
+		
+        integratorMC1.setTemperature(Kelvin.UNIT.toSim(10));
         
 		Simulation.instance.setBackground(java.awt.Color.blue);		                                    
         f.add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();
-        //phase1.boundary().dimensions().setComponent(0,30);
         f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });

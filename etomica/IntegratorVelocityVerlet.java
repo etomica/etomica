@@ -27,6 +27,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
                 ((Agent)pair.atom2().ia).force.ME(f);
             }
         };
+        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

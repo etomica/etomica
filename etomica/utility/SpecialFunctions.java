@@ -21,4 +21,14 @@ public final class SpecialFunctions {
                        1.421413741 +  t * (
                          - 1.453152027 + 1.061405429*t)))))*Math.exp(-x*x);
     }
+    
+    public static int factorial(int i){
+        if(i < 0){
+            throw new IllegalArgumentException("Argument less than zero");
+        }
+        else{
+            return (i <= 1) ? 1 :(i*factorial(i-1));
+        }
+    }
+    
 }

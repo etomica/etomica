@@ -22,7 +22,7 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
 {
     public JTable table;
     MyTableData dataSource;
-    Meter[] meter = new Meter[0];
+    Meter[] meter;
     MeterFunction meterFunction;
     double[] x;    //used if showing MeterFunction
     double[] y;
@@ -54,10 +54,17 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         EtomicaInfo info = new EtomicaInfo("Tabular display of data from several meters or from a single meter function");
         return info;
     }
+    
+    public String getLabel() {
+        return "Table";
+      /*  if(showingFunction) return meterFunction.getLabel();
+        if(nMeters == 1) return meter[0].getLabel();
+        else return "Data";*/
+    }
 
     private void setupTable() {
-        if(panel != null) remove(panel);
-        panel = Box.createVerticalBox();
+        if(panel == null) panel = Box.createVerticalBox();
+        else panel.removeAll();
         panel.setSize(100,150);
         dataSource = new MyTableData(showAverages, showingFunction);   //inner class, defined below
         table = new JTable(dataSource);
@@ -69,7 +76,6 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
 		});
             panel.add(resetButton);
         }
-        add(panel);
     }
     
     public void setShowAverages(boolean b) {
@@ -92,23 +98,28 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
     public void addMeter(Meter m) {
         if(m instanceof MeterPotentialEnergy && !showingPE) {return;}
         if(m instanceof MeterKineticEnergy && !showingKE) {return;}
-        nMeters++;
-        Meter[] temp = new Meter[nMeters];
-        for(int i=0; i<meter.length; i++) {
+        if(showingFunction) {
+            showingFunction = false;
+            meterFunction = null;
+            nMeters = 0;
+        }
+        Meter[] temp = new Meter[nMeters+1];
+        for(int i=0; i<nMeters; i++) {
             temp[i] = meter[i];
             if(m == meter[i]) return;  //meter is already in table
         }
-        temp[nMeters-1] = m;
+        temp[nMeters] = m;
         meter = temp;
-        showingFunction = false;
-        meterFunction = null;
+        nMeters++;
         setupTable();
     }
     
     public void setMeters(Meter[] m) {
         meter = m; 
+        nMeters = meter.length;
         showingFunction = false;
         meterFunction = null;
+        setupTable();
     }
     public Meter[] getMeters() {return meter;}
     
@@ -116,6 +127,7 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         meterFunction = m;
         showingFunction = true;
         meter = null;
+        nMeters = 0;
         setupTable();
         doUpdate();
     }
@@ -203,7 +215,7 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
             }
         }
         
-        public int getRowCount() {return showingFunction ? meterFunction.getNPoints() : meter.length;}
+        public int getRowCount() {return showingFunction ? meterFunction.getNPoints() : nMeters;}
         public int getColumnCount() {return showAverages ? 3 : 2;}
                 
         public String getColumnName(int column) {return columnNames[column];}
@@ -220,6 +232,7 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
         Simulation.makeSimpleSimulation();  //for more general simulations, replace this call with
                                             //construction of the desired pieces of the simulation
         //part that is unique to this demonstration
+        Default.BLOCK_SIZE = 20;
         Meter meter1 = new MeterPressureHard();
         Meter meter2 = new MeterTemperature();
         MeterFunction rdf = new MeterRDF();
@@ -231,13 +244,14 @@ public class DisplayTable extends Display implements Meter.MultiUser, MeterFunct
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-        meter1.setPhase(phase);//must come after go() because phase needs to have integrator for this call
-        meter2.setPhase(phase);//must come after go() because phase needs to have integrator for this call
-        rdf.setPhase(phase);
-//        table.setPhase(phase);
+//        meter1.setPhase(phase);//must come after go() because phase needs to have integrator for this call
+//        meter2.setPhase(phase);//must come after go() because phase needs to have integrator for this call
+//        rdf.setPhase(phase);
+ //      table.setPhase(phase);
         table.addMeter(meter1);
         table.addMeter(meter2);
         rdfTable.setMeterFunction(rdf);
+
         f.add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();

@@ -133,7 +133,9 @@ public abstract class PotentialEditorPane extends EditorPane {
                         else wrapperPot = (Simulation.Element)rightPaneList.getSelectedValue();
                         propertySheet.setTarget(wrapperPot);
                         try {
+                            propertySheet.setClosed(false);
                             propertySheet.setSelected(true);
+                            propertySheet.setVisible(true);
                         }
                         catch(java.beans.PropertyVetoException pve){}
                     }

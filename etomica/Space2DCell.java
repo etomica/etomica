@@ -110,7 +110,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker, Etomi
         public CellListIteratorFactory(Phase p) {
             super(p);
             absoluteNeighborDistance = 1.5*Default.ATOM_SIZE;
-            setNCells(3,3);
+            setNCells(8,8);
         }
         
         public PotentialField makePotentialField(Phase p) {

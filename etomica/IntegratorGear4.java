@@ -43,6 +43,7 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         };
         work1 = sim.space().makeVector();
         work2 = sim.space().makeVector();
+        setTimeStep(etomica.units.LennardJones.Time.UNIT.toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -92,6 +93,7 @@ public final class IntegratorGear4 extends IntegratorMD implements EtomicaElemen
         }
         //Add in forces on each atom due to interaction with fields acting in the phase
         for(PotentialField f=firstPhase.firstField(); f!=null; f=f.nextField()) {
+            if(!(f instanceof PotentialField.Soft)) continue;
             PotentialField.Soft field = (PotentialField.Soft)f;
             Atom.Iterator iterator = f.getAffectedAtoms();  //iterator for atoms under the influence of this field
             iterator.reset();

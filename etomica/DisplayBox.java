@@ -47,6 +47,13 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User, Etom
     public DisplayBox() {
         this(Simulation.instance);
     }
+    public DisplayBox(Meter m) {
+        this(Simulation.instance, m);
+    }
+    public DisplayBox(Simulation sim, Meter m) {
+        this(sim);
+        setMeter(m);
+    }
     public DisplayBox(Simulation sim) {
         super(sim);
         label = new JLabel("Label");

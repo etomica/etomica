@@ -241,7 +241,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
                 running = true;
                 firstClick = false;
                 button.setText("Pause");
-                etomica.gui.EtomicaToolBar.startButton.setEnabled(false);
+//                etomica.gui.EtomicaToolBar.startButton.setEnabled(false);
             }
             else if(running) {
                 running = false;
