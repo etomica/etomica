@@ -173,10 +173,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         
         public final Atom atom() {return atom;}
         
-        public abstract void setNextAtom(Atom a);
-        public abstract Atom nextAtom();
-        public abstract void clearPreviousAtom();
-        public abstract Atom previousAtom();
         public abstract void transform(Vector r0, Tensor A);
         public abstract Vector position();
         public abstract Vector momentum();
@@ -255,13 +251,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             public void freeFlight(double t);
         }
     }//end of Space.Coordinate
-    
-    public interface CoordinateGroup {        
-        public Atom firstAtom();
-        public void setFirstAtom(Atom atom);
-        public Atom lastAtom();
-        public void setLastAtom(Atom atom);
-    }
     
     public static abstract class Orientation {
         public abstract void E(Orientation o); //copies the given orientation to this

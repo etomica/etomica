@@ -4,35 +4,30 @@ import etomica.*;
 import etomica.performance.*;
 import etomica.units.*;
 
-public class LJMC_Benchmark {
+public class HSMD_Benchmark {
     
       public static void main(String[] args) {
         
         // 0 = standard
-        // 1 = performance
-        // 2 = molecule layer
+        // 1 = molecule layer
         final int VERSION = 0;
-        final int nCycles = 1000;
+        final int nMolecules = 100;
         
         Default.BOX_SIZE=30.;
-        Default.ATOM_SIZE=3.0;
+        Default.ATOM_SIZE=1.0;
         Default.TRUNCATE_POTENTIALS=false;
         
-        PotentialLJ potential1 = null;
         Species species;
         
         switch(VERSION) {
             default:
             case 0:
-            case 2:
+            case 1:
 //                Simulation.instance = new Simulation(new SpaceP(3));
 
                Simulation.instance = new Simulation(new Space3D());
-//               Simulation.instance = new Simulation(new etomica.space.continuum.Space(3));
+ //              Simulation.instance = new Simulation(new etomica.space.continuum.Space(2));
                break;
-            case 1:
-                Simulation.instance = new Simulation(new SpaceP(3));
-                break;
         }
         
         Simulation sim = Simulation.instance;
@@ -41,33 +36,25 @@ public class LJMC_Benchmark {
         switch(VERSION) {
             default:
             case 0:
-            case 1:
                 species = new SpeciesSpheresMono();
                 break;
-            case 2:
+            case 1:
                 species = new SpeciesSpheres();
                 break;
         }
                 
-        species.setNMolecules(64);
+        species.setNMolecules(nMolecules);
         
+        P2HardSphere potential = new P2HardSphere();
+
         switch(VERSION) {
             default:
             case 0:
-               P2LennardJones potential = new P2LennardJones();
                potential.setSpecies(species, species);
                break;
-            case 1:  //performance
-                potential1 = new PotentialLJ(Simulation.instance.hamiltonian.potential,species.getNMolecules());
-                potential1.setSigma(Default.ATOM_SIZE);
-                potential1.setEpsilon(Default.POTENTIAL_WELL);
-
-                PotentialCalculationEnergySumPerformance energySum = new PotentialCalculationEnergySumPerformance();
-                Simulation.instance.setEnergySum(energySum);
-                break;
-            case 2:  //molecule layer
+            case 1:  //molecule layer
                 Potential2Group group = new Potential2Group();
-                P2LennardJones potential2 = new P2LennardJones(group);
+                P2HardSphere potential2 = new P2HardSphere(group);
                 group.setSpecies(species,species);
                 break;
         }       
@@ -75,46 +62,26 @@ public class LJMC_Benchmark {
         Phase phase = new Phase(sim);
         
         Controller controller = new Controller();
-        IntegratorMC integrator = new IntegratorMC();
+        IntegratorHard integrator = new IntegratorHard();
         integrator.setDoSleep(false);
-	    integrator.setInterval(species.getNMolecules());
-	    
-//	    MCMoveMolecule mcmovemolecule = new MCMoveMolecule(integrator);
-	    MCMoveAtom mcmovemolecule = new MCMoveAtom(integrator);
-       
-///	    MeterCycles meter2  = new MeterCycles();
-	    MeterPotentialEnergy meter4 = new MeterPotentialEnergy();
-	    meter4.setUpdateInterval(10);
-	    
-///	    meter2.setName("cycles");
-///	    meter4.setName("potentialenergy");
-	    
-///	    MeterValuesToLogFile displayLog = new MeterValuesToLogFile("vrB.BE9.0.C7.txt");
-///	    displayLog.setUpdateInterval(10/*10000 DAK*/);
-///	    displayLog.setResetVal(20/*200000 DAK*/);
-///	    displayLog.setReset(true);
-	    
-        //MeterValuesBenchMark displayLog = new MeterValuesBenchMark("VanRoijBiaBetaE2.0NonGUI.txt");
-///	    integrator.addIntervalListener(displayLog);
-	    
+	    	    
 	    sim.elementCoordinator.go();
+	    
+	    phase.setDensity(0.8);
         
-        if(VERSION == 1) potential1.setArray(phase);
-        
-        integrator.setMaxSteps(nCycles*species.getNMolecules());
-   //     ((Controller)sim.controller(0)).start();
+        MeterCollisionCounter meterCounter = new MeterCollisionCounter();
+        meterCounter.setPhaseIntegrator(integrator);
 
         System.out.println("AtomCount: "+phase.atomCount());
         System.out.println("Molecules: "+phase.moleculeCount());
         System.out.println("Starting");
         integrator.initialize();
-        System.out.println(meter4.currentValue());
         Stopwatch timer = new Stopwatch().start();
         integrator.run();
    //     integrator.start();
         timer.stop();
         System.out.println("Done");
-        System.out.println(meter4.average());
+        System.out.println(meterCounter.currentValue());
         System.out.println("Elapsed time (sec): "+0.001*timer.getElapsedTime());
     }
 }

@@ -61,16 +61,6 @@ public final class Phase extends SimulationElement {
         moleculeIterator = makeMoleculeIterator();//must come after speciesMaster assignment
         
         inflater = new PhaseAction.Inflate(this);
-        //don't use setIteratorFactory here to remove any possibility of complications with Observers
-        if(sim.space() instanceof IteratorFactory.Maker) {
-            iteratorFactory = ((IteratorFactory.Maker)sim.space()).makeIteratorFactory(this);
- //           if(iteratorFactory instanceof PotentialField.Maker) {
- //               addField(((PotentialField.Maker)iteratorFactory).makePotentialField(this));
- //           }
-        }
-        else {
-            iteratorFactory = new IteratorFactory(this);
-        }
 
 //        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(parentSimulation().space().makeBoundary());
@@ -182,26 +172,6 @@ public final class Phase extends SimulationElement {
     public final Space.Boundary boundary() {return boundary;}
     
     /**
-     * Accessor of the phase's iterator factory object
-     * 
-     * @return The phase's iterator factory
-     * @see IteratorFactory
-     */
-    public final IteratorFactory iteratorFactory() {return iteratorFactory;}
-
-    /**
-     * Sets the iterator factory of the phase
-     * 
-     * @param it
-     * @see IteratorFactory
-     */
-    public final void setIteratorFactory(IteratorFactory it) {
-        //notify observers before updating iteratorFactory in case observers want to close business with old iteratorFactory
-        iteratorFactoryMonitor.notifyObservers(it);
-        iteratorFactory = it;
-    }
-    
-    /**
      * Accessor of the integrator governing the movement of the atoms in the phase.
      * 
      * @return The phase's integrator.
@@ -273,7 +243,6 @@ public final class Phase extends SimulationElement {
     public void setConfiguration(Configuration c) {
         configuration = c;
         configuration.initializeCoordinates(speciesMaster.node.childAtomArray());
-        iteratorFactory.reset();
     }
     
     public Configuration getConfiguration() {return configuration;}
@@ -358,9 +327,7 @@ public final class Phase extends SimulationElement {
     public Configuration configuration;
           
     private Integrator integrator;
-    
-    private IteratorFactory iteratorFactory;
-          
+              
 //    public transient MeterEnergy energy;
         
     public Phase.Monitor integratorMonitor = new Phase.Monitor();

@@ -17,13 +17,14 @@ public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "Atom:01.08.08";}
     
-    public Atom(Space space, AtomType t) {
-        this(space, t, new AtomTreeNodeGroup());
+    public Atom(Space space, AtomType type) {
+        this(space, type, new AtomTreeNodeGroup());
     }
-    public Atom(Space space, AtomType t, AtomTreeNode node) {
-        type = t;
-        coord = space.makeCoordinate(this);//must follow setting of type field
+    public Atom(Space space, AtomType type, AtomTreeNode node) {
+        seq = IteratorFactorySimple.INSTANCE.makeAtomSequencer(this);
+        this.type = type;
         this.node = node;
+        coord = space.makeCoordinate(this);//must follow setting of type field
         node.setAtom(this);
         
 //        coord.setMass(type.getMass());//handled in type.initialize statement
@@ -61,53 +62,19 @@ public class Atom implements java.io.Serializable {
     public String signature() {return node.index() + " " + node.parentGroup().signature();}
     public final String toString() {return "Atom(" + signature() + ")";}
         
-    /**
-     * Sets atom following this one in linked list, and sets this to be that atom's previous atom in list
-     * 
-     * @param atom the next atom in the list
-     */
-    public final void setNextAtom(Atom atom) {
-        coord.setNextAtom(atom);
-        /*
-        nextAtom = atom;
-        if(atom != null) atom.previousAtom = this;
-        */
-    }
-
-    /**
-     * Sets this atom's previous atom to be null
-     * 
-     * @see setNextAtom
-     */
-    public final void clearPreviousAtom() {coord.clearPreviousAtom();}
 
     /**
      * @return the next atom in the linked list of atoms
      * @see setNextAtom
      */
-    public final Atom nextAtom() {return coord.nextAtom();}
+    public final Atom nextAtom() {return seq.nextAtom();}
 
     /**
      * @return the previous atom in the linked list of atoms
      * @see setNextAtom
      */
-    public final Atom previousAtom() {return coord.previousAtom();} 
+    public final Atom previousAtom() {return seq.previousAtom();} 
     
-    /**
-     * Returns true if this atom preceeds the given atom in the atom sequence.
-     * Returns false if the given atom is this atom, or (of course) if the
-     * given atom instead preceeds this one.
-     */
-    public final boolean preceeds(Atom atom) {
-        //want to return false if atoms are the same atoms
-        if(atom == null) return true;
-        if(this.node.parentGroup() == atom.node.parentGroup()) return this.node.index() < atom.node.index();//works also if both parentGroups are null
-        int thisDepth = node.depth();
-        int atomDepth = atom.node.depth();
-        if(thisDepth == atomDepth) return this.node.parentGroup().preceeds(atom.node.parentGroup());
-        else if(thisDepth < atomDepth) return this.preceeds(atom.node.parentGroup());
-        else /*if(this.depth > atom.depth)*/ return this.node.parentGroup().preceeds(atom);
-    }
 
     public Integrator.Agent ia;
                 
@@ -116,6 +83,8 @@ public class Atom implements java.io.Serializable {
     public final AtomTreeNode node;
         
     public final AtomType type;
+    
+    public final AtomSequencer seq;// = new AtomSequencerSimple(this);
     
     public Object[] agents;
     

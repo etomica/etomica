@@ -294,7 +294,7 @@ public class Space3D extends Space implements EtomicaElement {
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
-      //      reset();
+            reset();
         }
         public void reset() {
             dr.x = c2.r.x - c1.r.x;
@@ -322,15 +322,15 @@ public class Space3D extends Space implements EtomicaElement {
             r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
         }
         public double r2() {
-         //   return r2;
+            return r2;
          /*   dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
             dr.z = c2.r.z - c1.r.z;
             c1.atom.node.parentPhase().boundary().nearestImage(dr);
             return dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;*/
-            dr.Ev1Mv2(c2.r, c1.r);
-            c1.atom.node.parentPhase().boundary().nearestImage(dr);
-            return dr.squared();
+        ///    dr.Ev1Mv2(c2.r, c1.r);
+        ///    c1.atom.node.parentPhase().boundary().nearestImage(dr);
+        ///    return dr.squared();
         }
             
         public Space.Vector dr() {return dr;}
@@ -361,24 +361,12 @@ public class Space3D extends Space implements EtomicaElement {
     }
         
     public static class Coordinate extends Space.Coordinate {
-        public Coordinate nextCoordinate, previousCoordinate;
         public final Vector r = new Vector();
         public final Vector p = new Vector();
         public final Vector rLast = new Vector();  //vector for saving position
         public final Vector work = new Vector();
         public Coordinate(Atom a) {super(a);}
-        
-        public void setNextAtom(Atom a) {
-            if(a == null) nextCoordinate = null;
-            else {
-                nextCoordinate = (Coordinate)a.coord;
-                ((Coordinate)a.coord).previousCoordinate = this;
-            }
-        }
-        public Atom nextAtom() {return nextCoordinate!=null ? nextCoordinate.atom : null;}
-        public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
-        public void clearPreviousAtom() {previousCoordinate = null;}
-                
+                        
         public void transform(Space.Vector r0, Space.Tensor A) {r.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);}
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
@@ -428,16 +416,167 @@ public class Space3D extends Space implements EtomicaElement {
         }
     }//end of Coordinate
     
-    public static class CoordinateGroup extends Coordinate implements Space.CoordinateGroup {
-        public Coordinate firstChild, lastChild;
-        public CoordinateGroup(AtomGroup a) {super(a);}
+public static class CoordinateGroup extends Coordinate {
 
-        public final Atom firstAtom() {return (firstChild != null) ? firstChild.atom : null;}
-        public final void setFirstAtom(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
-        public final Atom lastAtom() {return (lastChild != null) ? lastChild.atom : null;}
-        public final void setLastAtom(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
+    public CoordinateGroup(AtomGroup a) {super(a);}
+
+    /**
+        * Applies transformation to COM of group, keeping all internal atoms at same relative
+        * positions.
+        */
+    public void transform(Space.Vector r0, Space.Tensor A) {
+        work.E(position()); //work = r
+        work.transform(atom.node.parentPhase().boundary(), r0, A);
+        work.ME(r);//now work vector contains translation vector for COM
+        translateBy(work);
+    }
+    public Space.Vector position() {
+        r.E(0.0); double massSum = 0.0;
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            r.PEa1Tv1(a.coord.mass(), a.coord.position()); massSum += a.coord.mass();
+            if(a == lastChild) break;
+        }
+        r.DE(massSum);
+        return r;
+    }
+    public Space.Vector momentum() {
+        p.E(0.0);
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            p.PE(a.coord.momentum());
+            if(a == lastChild) break;
+        }
+        return p;
+    }
+    public double position(int i) {
+        double sum = 0.0; double massSum = 0.0;
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            sum += a.coord.mass()*a.coord.position(i); massSum += a.coord.mass();
+            if(a == lastChild) break;
+        }
+        sum /= massSum;
+        return sum;
+    }
+    public double momentum(int i) {
+        double sum = 0.0;
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            sum += a.coord.mass()*a.coord.momentum(i);
+            if(a == lastChild) break;
+        }
+        return sum;
+    }
+    public double kineticEnergy() {
+        double sum = 0.0;
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            sum += a.coord.kineticEnergy();
+            if(a == lastChild) break;
+        }
+        return sum;
+    }
+    public void freeFlight(double t) {
+        double sum = 0.0;
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.freeFlight(t);
+            if(a == lastChild) break;
+        }
+    }
+    public void translateBy(Space.Vector u) {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.translateBy(u);
+            if(a == lastChild) break;
+        }
+    }
+    public void translateBy(double d, Space.Vector u) {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.translateBy(d, u);
+            if(a == lastChild) break;
+        }
+    }
+    public void translateTo(Space.Vector u) {
+        work.Ea1Tv1(-1,position()); //position() uses work, so need this first
+        work.PE(u);
+        translateBy(work);
+    }
+    public void displaceBy(Space.Vector u) {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.displaceBy(u);
+            if(a == lastChild) break;
+        }
+    }
+    public void displaceBy(double d, Space.Vector u) {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.displaceBy(d, u);
+            if(a == lastChild) break;
+        }
+    }
+    public void displaceTo(Space.Vector u) {
+        work.Ea1Tv1(-1,position()); //position() uses work, so need this first
+        work.PE(u);
+        displaceBy(work);
+    }
+    public void displaceToRandom(etomica.Phase p) {
+        displaceTo(p.boundary().randomPosition());
+    }
+    public void replace() {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.replace();
+            if(a == lastChild) break;
+        }
+    }
+    public void accelerateBy(Space.Vector u) {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.accelerateBy(u);
+            if(a == lastChild) break;
+        }
+    }
+    public void accelerateBy(double d, Space.Vector u) {
+        Atom lastChild = atom.node.lastChildAtom();
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+            a.coord.accelerateBy(d, u);
+            if(a == lastChild) break;
+        }
+    }
+    public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
+        
+    public void randomizeMomentum(double temperature) {
+        switch(((AtomGroup)atom).node.childAtomCount()) {
+            case 0: return;
+            case 1: atom.node.firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
+                    return;
+            default://multi-atom group
+                work.E(0.0); double sum=0.0;
+                Atom lastChild = atom.node.lastChildAtom();
+                for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+                    a.coord.randomizeMomentum(temperature);
+                    work.PE(a.coord.momentum());
+                    sum++;
+                    if(a == lastChild) break;
+                }
+                work.DE(-sum);
+                for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+                    a.coord.accelerateBy(work);
+                    if(a == lastChild) break;
+                }
+        }//end switch
+    }//end randomizeMomentum
+    
+}//end of CoordinateGroup
+
+    /*public static class CoordinateGroup extends Coordinate {
+        public CoordinateGroup(AtomGroup a) {super(a);}
                 
-        public void updateMass() {
+/*        public void updateMass() {
             double mass = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 mass += coord.mass();
@@ -447,7 +586,7 @@ public class Space3D extends Space implements EtomicaElement {
      //   public double rm() {return 1.0/mass();}
         /**
          * Applies transformation to COM of group, keeping all internal atoms at same relative positions.
-         */
+         * /
         public void transform(Space.Vector r0, Space.Tensor A) {
             work.E(position()); //work = r
             work.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);
@@ -586,8 +725,9 @@ public class Space3D extends Space implements EtomicaElement {
                     }
             }//end switch
         }//end randomizeMomentum
+        
     }//end of CoordinateGroup
-    
+    */
     public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
         private double L = 0.0; //magnitude of angular momentum
         private final Space3D.Vector vector = new Space3D.Vector();//used to return vector quantities (be sure to keep x and y components zero)

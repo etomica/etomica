@@ -9,9 +9,9 @@ package etomica;
  */
 public final class ApiIntraspecies1A implements AtomPairIterator {
     
-    public ApiIntraspecies1A() {
-        atomIterator.setAsNeighbor(true);
-        pair = new AtomPair(Simulation.instance.space);
+    public ApiIntraspecies1A(Simulation sim) {
+        atomIterator = sim.iteratorFactory.makeIntragroupIterator();
+        pair = new AtomPair(sim.space);
     }
     
     public void setBasis(Atom a1, Atom a2) {
@@ -89,7 +89,7 @@ public final class ApiIntraspecies1A implements AtomPairIterator {
     }
     
     //this should be a neighbor iterator
-    private final AtomIterator atomIterator = new AtomIteratorSequential();
+    private final AtomIterator atomIterator;// = new AtomIteratorSequential();
     
     private Atom molecule;
     private final IteratorDirective localDirective = new IteratorDirective();

@@ -202,14 +202,14 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         aNew.node.setParentGroup((AtomGroup)atom);
         aNew.node.setDepth(depth+1);
         if(childAtomCount > 0) { //siblings
-            aNew.setNextAtom(lastChildAtom().nextAtom());
-            lastChildAtom().setNextAtom(aNew);
+            aNew.seq.setNextAtom(lastChildAtom().nextAtom());
+            lastChildAtom().seq.setNextAtom(aNew);
             aNew.node.setIndex(lastChildAtom().node.index()+1);
         }
         else {  //only child
             setFirstAtom(aNew);
-            aNew.setNextAtom(null);
-            aNew.clearPreviousAtom();
+            aNew.seq.setNextAtom(null);
+            aNew.seq.clearPreviousAtom();
             aNew.node.setIndex(0);
         }   
         setLastAtom(aNew);
@@ -219,18 +219,18 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             AtomGroup aNewGroup = (AtomGroup)aNew;//copy to save multiple casts in calls to AtomGroup methods
             Atom lastNewLeaf = aNewGroup.node.lastLeafAtom();
             if(lastNewLeaf != null) {//also implies firstNewLeaf != null
-                lastNewLeaf.setNextAtom(findNextLeafAtom(aNewGroup));
+                lastNewLeaf.seq.setNextAtom(findNextLeafAtom(aNewGroup));
                 Atom previous = findPreviousLeafAtom(aNewGroup);
-                if(previous != null) previous.setNextAtom(aNewGroup.node.firstLeafAtom());
+                if(previous != null) previous.seq.setNextAtom(aNewGroup.node.firstLeafAtom());
             } //no leaf changes anywhere if aNew has no leaf atoms 
         }
         else {//aNew is a leaf, not a group
                 //set next in case it wasn't set by aNew.setNextAtom(lastChildAtom.next()) line, above
-            if(aNew.nextAtom() == null) aNew.setNextAtom(findNextLeafAtom(aNew.node.parentGroup()));
+            if(aNew.nextAtom() == null) aNew.seq.setNextAtom(findNextLeafAtom(aNew.node.parentGroup()));
                //set previous in case it wasn't set by lastChildAtom.setNextAtom(aNew) line, above
             if(aNew.previousAtom() == null) {
                 Atom previous = findPreviousLeafAtom(aNew.node.parentGroup());
-                if(previous != null) previous.setNextAtom(aNew);
+                if(previous != null) previous.seq.setNextAtom(aNew);
             }
         }
         childAtomCount++;
@@ -257,12 +257,12 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             if(childAtomCount == 1) setLastAtom(null);
             else setLastAtom(previous);
         }
-        if(previous != null) previous.setNextAtom(next);
-        else if(next != null) next.clearPreviousAtom();
+        if(previous != null) previous.seq.setNextAtom(next);
+        else if(next != null) next.seq.clearPreviousAtom();
         childAtomCount--;
         
-        a.setNextAtom(null);
-        a.clearPreviousAtom();        
+        a.seq.setNextAtom(null);
+        a.seq.clearPreviousAtom();        
         
         //update leaf-atom links
         if(a instanceof AtomGroup) {
@@ -270,8 +270,8 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             Atom last = ((AtomGroup)a).node.lastLeafAtom();
             next = (last != null) ? last.nextAtom() : null;
             previous = (first != null) ? first.previousAtom() : null;
-            if(previous != null) previous.setNextAtom(next);
-            else if(next != null) next.clearPreviousAtom();
+            if(previous != null) previous.seq.setNextAtom(next);
+            else if(next != null) next.seq.clearPreviousAtom();
         }
         
         removeAtomNotify(a);
@@ -292,8 +292,8 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         Atom last = lastLeafAtom();
         Atom next = (last != null) ? last.nextAtom() : null;
         Atom previous = (first != null) ? first.previousAtom() : null;
-        if(previous != null) previous.setNextAtom(next);
-        else if(next != null) next.clearPreviousAtom();
+        if(previous != null) previous.seq.setNextAtom(next);
+        else if(next != null) next.seq.clearPreviousAtom();
         
         //save first child for return, then erase links to them
         first = firstChildAtom();
@@ -319,12 +319,10 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     private final void setFirstAtom(Atom a) {
         firstAtom = a;
         childrenAreGroups = (firstAtom != null) ? !firstAtom.node.isLeaf() : false;
-        ((Space.CoordinateGroup)atom.coord).setFirstAtom(a);
  //       firstLeafAtom = findFirstLeafAtom();
     }
     private final void setLastAtom(Atom a) {
         lastAtom = a;
-        ((Space.CoordinateGroup)atom.coord).setLastAtom(a);
     }
  
     /**

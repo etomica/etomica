@@ -22,8 +22,8 @@ public abstract class Potential2 extends Potential {
     public Potential2(PotentialGroup parent) {
         super(parent);
         iterator = new ApiGeneral(parentSimulation().space());
-        iterator1 = new ApiIntergroup1A();
-        iteratorA = new ApiIntergroupAA();
+        iterator1 = new ApiIntergroup1A(parentSimulation());
+        iteratorA = new ApiIntergroupAA(parentSimulation());
         if(Default.TRUNCATE_POTENTIALS) {//can't use other constructor because of "this" in constructor of PotentialTruncationSimple
             truncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
         } else {
@@ -83,11 +83,11 @@ public abstract class Potential2 extends Potential {
         species1 = s1;
         species2 = s2;
         if(species1 == species2) {
-            iterator1 = new ApiIntraspecies1A();
-            iteratorA = new ApiIntraspeciesAA();
+            iterator1 = new ApiIntraspecies1A(parentSimulation());
+            iteratorA = new ApiIntraspeciesAA(parentSimulation());
         } else {
-            iterator1 = new ApiInterspecies1A();
-            iteratorA = new ApiInterspeciesAA();
+            iterator1 = new ApiInterspecies1A(parentSimulation());
+            iteratorA = new ApiInterspeciesAA(parentSimulation());
         }
 //        if(speciesMaster != null) set(speciesMaster);
     }

@@ -26,13 +26,11 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         EtomicaInfo info = new EtomicaInfo("Molecular dynamics using velocity Verlet integration algorithm");
         return info;
     }
-
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	protected void makeIterators(IteratorFactory factory) {
-        atomIterator = factory.makeAtomIterator();
+    
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        atomIterator = p.makeAtomIterator();
+        return true;
     }
      
   private double t2;

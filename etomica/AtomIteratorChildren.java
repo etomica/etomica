@@ -31,7 +31,7 @@ public final class AtomIteratorChildren implements AtomIterator {
             || id.atomCount() == 0 
             || id.atom1() == basis) return reset();
         else {
-            boolean before = id.atom1().preceeds(basis);
+            boolean before = id.atom1().seq.preceeds(basis);
             if( (before && id.direction() == IteratorDirective.UP)
                 || (!before && id.direction() == IteratorDirective.DOWN) ) return reset();
         }
@@ -59,7 +59,7 @@ public final class AtomIteratorChildren implements AtomIterator {
      */
     public Atom next() {
         Atom atom = next;
-        next = (next != last) ? next.nextAtom() : null; //check is next is null?
+        next = (next != last) ? next.nextAtom() : null; //check if next is null?
         return atom;
     }        
     
@@ -81,7 +81,7 @@ public final class AtomIteratorChildren implements AtomIterator {
      * a leaf atom, no iterates are given.
      */
     public void setBasis(Atom atom) {
-        basis = (atom == null /*|| atom.node.isLeaf()*/) ? null : atom;
+        basis = /*(atom == null || atom.node.isLeaf()) ? null :*/ atom;
     }
     
     /**

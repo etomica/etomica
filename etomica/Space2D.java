@@ -368,7 +368,7 @@ public class Space2D extends Space implements EtomicaElement {
         }
     }
     
-    public static class CoordinateGroup extends Coordinate implements Space.CoordinateGroup {
+    public static class CoordinateGroup extends Coordinate {
         public Coordinate firstChild, lastChild;
         public CoordinateGroup(AtomGroup a) {super(a);}
 

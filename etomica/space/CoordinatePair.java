@@ -22,7 +22,7 @@ public final class CoordinatePair extends Space.CoordinatePair {
     public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
- //       reset();
+        reset();
     }
     public void reset() {
 //        System.out.println("inside coordintepair reset");
@@ -41,10 +41,10 @@ public final class CoordinatePair extends Space.CoordinatePair {
         r2 = dr.squared();
     }
     public double r2() {
-      //  return r2;
-        dr.Ev1Mv2(c2.r, c1.r);
-        c1.atom.node.parentPhase().boundary().nearestImage(dr);
-        return dr.squared();
+        return r2;
+      //  dr.Ev1Mv2(c2.r, c1.r);
+      //  c1.atom.node.parentPhase().boundary().nearestImage(dr);
+      //  return dr.squared();
     }
             
     public Space.Vector dr() {return dr;}

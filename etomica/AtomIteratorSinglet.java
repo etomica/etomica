@@ -71,8 +71,8 @@ public class AtomIteratorSinglet implements AtomIterator {
     public Atom reset(Atom a) {
         if(atom == null) hasNext = false;
         else if(isAsNeighbor) {
-            if(direction == IteratorDirective.UP) hasNext = a.preceeds(atom);
-            else if(direction == IteratorDirective.DOWN) hasNext = atom.preceeds(a);
+            if(direction == IteratorDirective.UP) hasNext = a.seq.preceeds(atom);
+            else if(direction == IteratorDirective.DOWN) hasNext = atom.seq.preceeds(a);
             else if(direction == IteratorDirective.BOTH) hasNext = true;
             else /*direction == NEITHER*/ hasNext = false;
         }

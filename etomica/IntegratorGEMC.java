@@ -47,8 +47,6 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         secondPhase = phase[1];
         volumeExchange.setPhase(phase);
         moleculeExchange.setPhase(phase);
-        makeIterators(p.iteratorFactory());
-	    p.iteratorFactoryMonitor.addObserver(iteratorFactoryObserver());
         atomDisplace2.setPhase(phase[1]);
     }
     return true;

@@ -41,12 +41,12 @@ public abstract class Potential2Soft extends Potential2 {
             
         //do we give the iterator to the calculation...
 //        ((Potential2Calculation)pc).calculate(iterator, this); 
-     ///   pc.calculate(iterator,this);
+        pc.calculate(iterator,this);
             //inconvenience:  must put loop construct in every PotentialCalculation
             //problem:  must have different calculate methods for each Potentialx type
 
         //...or the calculation to the iterator
-        iterator.allPairs(((PotentialCalculationEnergySum)pc).getAtomPairCalculation(this)); 
+  ///      iterator.allPairs(((PotentialCalculationEnergySum)pc).getAtomPairCalculation(this)); 
  //       System.out.println();
             //problem:  cannot abort iteration once started (e.g., overlap detected)
             //          but this could be resolved by adding a boolean abort() method to Calculation to end iteration

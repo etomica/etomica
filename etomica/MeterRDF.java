@@ -60,7 +60,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	public void setPhase(Phase p) {
 	    super.setPhase(p);
 	    setX(xMin, xMax, nPoints);
-        iterator = new ApiGeneral(phase);
+//        iterator = new ApiGeneral(phase);
 	}
 	
 	/**

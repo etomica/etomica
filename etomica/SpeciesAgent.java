@@ -99,7 +99,6 @@ public final class SpeciesAgent extends AtomGroup {
         
         //reconsider this
         node.parentPhase().configuration.initializeCoordinates(this);
-        node.parentPhase().iteratorFactory().reset();
         
         unpauseIntegrator(wasPaused);
     }

@@ -8,7 +8,7 @@ public class SpaceP extends Space{
     public static int D=3;   
 
     public SpaceP(int dimension){
-
+        super(dimension);
         D=dimension;
 
     }
@@ -115,7 +115,11 @@ public class SpaceP extends Space{
     public final static class Vector extends Space.Vector{  //declared final for efficient method calls
 
     
-
+        public void Ev1Pv2(Space.Vector v1, Space.Vector v2) {}
+        public void Ev1Mv2(Space.Vector v1, Space.Vector v2) {}
+        public void mod(double d) {}
+        public void mod(Space.Vector v) {}
+        
         public double X[];
 
         public static final Vector WORK = new Vector();
@@ -543,7 +547,7 @@ public class SpaceP extends Space{
 
     
 
-     public static class CoordinateGroup extends Coordinate implements Space.CoordinateGroup {
+     public static class CoordinateGroup extends Coordinate {
         public Coordinate firstChild, lastChild;
         public CoordinateGroup(AtomGroup a) {super(a);}
         private final Vector work2 = new Vector();

@@ -9,8 +9,8 @@ package etomica;
  
 public final class ApiIntergroupAA implements AtomPairIterator {
     
-    public ApiIntergroupAA() {
-        pair = new AtomPair(Simulation.instance.space);
+    public ApiIntergroupAA(Simulation sim) {
+        pair = new AtomPair(sim.space);
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         outerWrapper.aiInner = aiInner;
     }

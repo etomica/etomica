@@ -206,7 +206,6 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
             while(iterator.hasNext()) {
                 Atom m = iterator.next();
                 m.coord.replace();
-                phase.iteratorFactory().moveNotify(m);
             }
         }
     }//end of InflateAnisotropic 

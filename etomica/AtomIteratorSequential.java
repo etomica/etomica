@@ -34,21 +34,21 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
     
     public Atom firstUpNeighbor(Atom a) {
         Atom first = defaultFirstAtom();
-        if(a.preceeds(first)) return first;
-        else if(a.preceeds(defaultLastAtom())) return a.nextAtom();
+        if(a.seq.preceeds(first)) return first;
+        else if(a.seq.preceeds(defaultLastAtom())) return a.nextAtom();
         else return null;
     }
     
     public Atom firstDownNeighbor(Atom a) {
         Atom last = defaultLastAtom();
-        if(last == null || last.preceeds(a)) return last;
-        else if(defaultFirstAtom().preceeds(a)) return a.previousAtom();
+        if(last == null || last.seq.preceeds(a)) return last;
+        else if(defaultFirstAtom().seq.preceeds(a)) return a.previousAtom();
         else return null;
     }
     
     public boolean isOrdered(Atom atom1, Atom atom2) {
         if(atom1 == null || atom2 == null || !contains(atom1) || !contains(atom2)) return false;
-        else return atom1 == atom2 || atom1.preceeds(atom2);
+        else return atom1 == atom2 || atom1.seq.preceeds(atom2);
     }
 
     public Atom next() {
@@ -70,10 +70,9 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
     }
 
     /**
-     * Performs the given action on all atoms in the phase.  Unaffected by any prior calls to reset.
+     * Performs the given action on all atoms in the phase,
+     * following specification of most recent reset call.
      */
-     
-     //not implemented
     public void allAtoms(final AtomAction act) {
         if(!upListNow && !doGoDown && atom!=null) {
             act.actionPerformed(atom);

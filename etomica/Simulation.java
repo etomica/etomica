@@ -68,8 +68,13 @@ public class Simulation implements java.io.Serializable {
      * Constructor requires specification of the space used by the simulation
      */
     public Simulation(Space s) {
+        this(s, IteratorFactorySimple.INSTANCE);
+    }
+    
+    public Simulation(Space s, IteratorFactory f) {
         super();
         space = s;
+        iteratorFactory = f;
         setName("Simulation" + Integer.toString(instanceCount++));
         elementLists.put(Potential.class, new LinkedList());
         elementLists.put(Species.class, new LinkedList());
@@ -195,6 +200,8 @@ public class Simulation implements java.io.Serializable {
       * the elementCoordinator field, so it is the preferred way to access it.
       */
      public Mediator mediator() {return elementCoordinator;}
+     
+     public final IteratorFactory iteratorFactory;
      
     /**
      * Demonstrates how this class is implemented.

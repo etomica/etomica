@@ -148,11 +148,6 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
     	        setPhaseBoundary(p.boundary());
 	            p.boundaryMonitor.addObserver(boundaryObserver);
 	        }
-	        if(usesPhaseIteratorFactory()) {
-	            iteratorFactoryObserver = iteratorFactoryObserver();
-    	        setPhaseIteratorFactory(p.iteratorFactory());
-	            p.iteratorFactoryMonitor.addObserver(iteratorFactoryObserver);
-	        }
 	        //zero all averages for this meter
 	        reset();
 	    }

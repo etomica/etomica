@@ -2,7 +2,6 @@ package etomica.space;
 import etomica.*;
 
 public class Coordinate extends Space.Coordinate {
-    public Coordinate nextCoordinate, previousCoordinate;
     public final Space.Vector r, p, rLast, work;
 //    public final etomica.space.continuum.Vector r, p, rLast, work;
     public Coordinate(Space space, Atom atom) {
@@ -17,17 +16,6 @@ public class Coordinate extends Space.Coordinate {
         work = (etomica.space.continuum.Vector)space.makeVector();
  */   }
         
-    public void setNextAtom(Atom a) {
-        if(a == null) nextCoordinate = null;
-        else {
-            nextCoordinate = (Coordinate)a.coord;
-            ((Coordinate)a.coord).previousCoordinate = this;
-        }
-    }
-    public Atom nextAtom() {return nextCoordinate!=null ? nextCoordinate.atom : null;}
-    public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
-    public void clearPreviousAtom() {previousCoordinate = null;}
-
     public void transform(Space.Vector r0, Space.Tensor A) {
         r.transform(atom.node.parentPhase().boundary(), r0, A);
     }

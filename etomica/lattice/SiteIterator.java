@@ -9,7 +9,7 @@ public interface SiteIterator extends java.io.Serializable {
     public Site next();               //advance iterator and return next element
     public void allSites(SiteAction act); //method to perform an action sequentially to every site given by iterator
   //consider adding these methods:
-    //public int siteCount();
+    public int size();
     //public Site randomSite();
     //public Site get(int i);
     public abstract class Cursor implements SiteIterator {
@@ -60,7 +60,7 @@ public interface SiteIterator extends java.io.Serializable {
               hasNext = (next != null);
               return site;
            }
-           public int siteCount() {return siteCount;}
+           public int size() {return siteCount;}
             /**
             * Returns a random site in the lattice
             * Iteratively chooses a row at random and calls randomSite for that row
@@ -104,6 +104,9 @@ public interface SiteIterator extends java.io.Serializable {
               }
               public Site first() {return (first == null) ? null : first.site;}
               public void reset() {cursor = first;}
+              public int size() {
+                throw new RuntimeException("method SiteIterator.Cursor.size() not implemented");
+              }
            }
            
        }//end of SiteIterator.List
@@ -122,6 +125,7 @@ public interface SiteIterator extends java.io.Serializable {
         public void setSite(Site s) {site = s;}
         public Site site() {return site;}
         public int neighborCount() {return count;}
+        public int size() {return count;}
         public boolean hasNext() {return nextLink != null;}
         public void clearAll() {firstUp = null; firstDown = null; nextLink = null; count = 0;}
         public void reset() {nextLink = firstUp; doBoth = true;}
@@ -191,6 +195,10 @@ public interface SiteIterator extends java.io.Serializable {
                 }
                 return nextSite;
             }
+            public int size() {
+                throw new RuntimeException("Method SiteIterator.Cursor.size() not implemented");
+            }
+                
         }
         
         

@@ -25,7 +25,7 @@ public class Bond implements java.io.Serializable {
     private Bond() {}
     
     private Bond(Atom a1, Atom a2) {
-        if(a1.preceeds(a2)) {
+        if(a1.seq.preceeds(a2)) {
             link1 = BondLinker.getNew(this, a1, a1.firstUpBond, null);
             link2 = BondLinker.getNew(this, a2, a2.firstDownBond, null);
             a1.firstUpBond = link1;

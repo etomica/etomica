@@ -14,7 +14,8 @@ public class Lattice implements AbstractLattice, Observer {
     private SiteIterator.List iterator = new SiteIterator.List();
     
     /**
-     * Create a square Bravais lattice (same number of sites in each dimension) of dimension "d" with "size" elements in each dimension
+     * Create a square Bravais lattice (same number of sites in each dimension) of 
+     * dimension "d" with "size" elements in each dimension.
      * Need java 1.2 for Array.fill
      */
     public Lattice(int d, int size, Space.Vector[] pVectors, Basis basis) {

@@ -20,8 +20,8 @@ public final class ApiInterspecies1A implements AtomPairIterator {
     private final IteratorDirective localDirective = new IteratorDirective();
     private final AtomPair pair;
     
-    public ApiInterspecies1A() {
-        pair = new AtomPair(Simulation.instance.space);
+    public ApiInterspecies1A(Simulation sim) {
+        pair = new AtomPair(sim.space);
     }
     
     /**

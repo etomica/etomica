@@ -7,8 +7,8 @@ package etomica;
  */
 public final class ApiIntergroup1A implements AtomPairIterator {
     
-    public ApiIntergroup1A() {
-        pair = new AtomPair(Simulation.instance.space);
+    public ApiIntergroup1A(Simulation sim) {
+        pair = new AtomPair(sim.space);
     }
 
     public void setBasis(Atom a1, Atom a2) {

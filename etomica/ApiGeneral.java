@@ -39,12 +39,6 @@ public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
         ai1 = ai2 = AtomIterator.NULL;
     }
     /**
-     * Constructs an iterator of all atom pairs in the given phase.
-     */
-    public ApiGeneral(Phase p) {
-        this(p.parentSimulation().space, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
-    }
-    /**
      * Constructs an iterator of all pairs formed from the given species in the given phase.
      */
 /*     public AtomPairIterator(Phase p, Species species1, Species species2) {
@@ -114,7 +108,7 @@ public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
      */
     public void reset() {
         if(direction == IteratorDirective.BOTH) direction = IteratorDirective.UP;
-        if(ai2.getBasis().preceeds(ai1.getBasis())) {
+        if(ai2.getBasis().seq.preceeds(ai1.getBasis())) {
             if(direction.doUp()) setOuterInner(ai2, ai1);
             else setOuterInner(ai1, ai2);
         } else {

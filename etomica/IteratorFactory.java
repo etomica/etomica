@@ -7,26 +7,47 @@ package etomica;
  * "Neighbor" iterators yield only atoms that are considered to be "neighbors" of
  * a specified atom.  The definition of "neighbor" depends on the iterator.  "Up neighbors"
  * are those neighbors uplist of the atom; likewise with "Down neighbors".
- * Each instance of a Phase has one instance of an Iterator for iterating over its atoms
  *
  * @author David Kofke
- * @see Atom.Iterator
- * @see AtomPair.Iterator
  */
 
-    public class IteratorFactory implements java.io.Serializable {
-        private Phase phase;
-        public IteratorFactory(Phase p) {phase = p;}
-        public AtomIterator makeAtomIterator() {return phase.makeAtomIterator();}
+public interface IteratorFactory {
 
-        public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved
-        public void reset() {}
-        public Phase phase() {return phase;}
+    /**
+     * Returns iterator that loops over all atoms in a group, without
+     * reference to another atom.
+     */
+    public AtomIterator makeAtomIterator();
+    
+    /**
+     * Returns iterator that loops over all atoms in a group, with reference
+     * to an atom in another group.  The atoms returned by the iterator
+     * would then be "neighbors" of the given atom.  Definition of "neighbor"
+     * depends on iteration scheme defined by the IteratorFactory.
+     */
+    public AtomIterator makeIntergroupIterator();
+
+    /**
+     * Returns iterator that loops over all atoms in a group, with reference
+     * to one of the atoms in the group.  The atoms returned by the iterator
+     * would then be "neighbors" of the given atom.  Definition of "neighbor"
+     * depends on iteration scheme defined by the IteratorFactory.
+     */
+    public AtomIterator makeIntragroupIterator();
+
+    /**
+     * Returns an atom sequencer that does not base ordering on any type
+     * of neighbor scheme.  Sequencer is assigned by atom factory when
+     * creating a new atom.
+     */
+    public AtomSequencer makeAtomSequencer(Atom atom);
+    
+    /**
+     * Returns an atom sequencer that bases ordering on a neighbor scheme.
+     * The nature of the neighbor scheme depends on the way neighboring is
+     * set up by the IteratorFactory products. Sequencer is assigned by 
+     * atom factory when creating a new atom.
+     */
+    public AtomSequencer makeNeighborSequencer(Atom atom);
    
-      /**
-       * Interface for a class that can make an iterator factory
-       */
-        public interface Maker extends java.io.Serializable {
-            public IteratorFactory makeIteratorFactory(Phase p);
-        }
-    }
+}

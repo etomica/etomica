@@ -119,6 +119,12 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	    super.makeIterators(factory);
         upAtomIterator = factory.makeAtomIterator();
     }
+    
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        upAtomIterator = p.makeAtomIterator();
+        return true;
+    }
 
     /**
     * Loops through all atoms to identify the one with the smallest value of collisionTime

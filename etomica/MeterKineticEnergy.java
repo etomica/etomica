@@ -42,7 +42,13 @@ public class MeterKineticEnergy extends MeterScalar
      * It obtains the necessary iterators from the phase.
      */
 	protected void setPhaseIteratorFactory(IteratorFactory factory) {
-        atomIterator = factory.makeAtomIterator();
+       // atomIterator = factory.makeAtomIterator();
+       atomIterator = phase.makeAtomIterator();
+	}
+	
+	public void setPhase(Phase p) {
+	    super.setPhase(p);
+	    atomIterator = p.makeAtomIterator();
 	}
 	
     public double currentValue() {

@@ -36,6 +36,10 @@ public class MeterCollisionCounter extends MeterScalar implements IntegratorHard
     public Dimension getDimension() {return Dimension.QUANTITY;}
     
     public double currentValue() {
+        if(counter > 50000) {
+            integratorHard.halt();
+            System.out.println("Halting execution from MeterCollisionCounter");
+        }
         return (double)counter;
     }
     
@@ -51,7 +55,7 @@ public class MeterCollisionCounter extends MeterScalar implements IntegratorHard
      * Registers itself with the integrator as CollisionListener.
      */
      
-    protected void setPhaseIntegrator(Integrator newIntegrator) {
+    public void setPhaseIntegrator(Integrator newIntegrator) {
         super.setPhaseIntegrator(newIntegrator);
         if(newIntegrator instanceof IntegratorHard) {
             integratorHard = (IntegratorHard)newIntegrator;

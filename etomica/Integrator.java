@@ -157,8 +157,6 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     phase[phaseCount] = p;
     phaseCount++;
     firstPhase = phase[0];
-    makeIterators(p.iteratorFactory());
-	p.iteratorFactoryMonitor.addObserver(iteratorFactoryObserver());
     return true;
   }
   
@@ -188,25 +186,6 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     }
   }
 
-	/**
-	 * Method performs no action, but can be overridden in subclasses to handle setting or change of iteratorFactory in phase
-	 */
-	 //this should be made abstract
-	protected void makeIterators(IteratorFactory i) {}
-
-	/**
-	 * Returns an observer that can be registered with the phase's iteratorFactoryMonitor.
-	 * In this way this integrator is informed if the iteratorFactory object changes to another 
-	 * instance in the phase.
-	 */
-	protected Observer iteratorFactoryObserver() {
-	    return new Observer() {
-	        //This is the action that is to happen if phase takes a new iteratorFactory
-	        public void update(Observable o, Object arg) {
-	            makeIterators((IteratorFactory)arg);
-	        }
-	    };
-	}
   public synchronized void addIntervalListener(IntervalListener iil) {
     boolean added = false;
     //must check all possibilities because listener may implement multiple pbc interfaces

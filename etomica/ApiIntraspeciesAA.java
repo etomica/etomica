@@ -7,9 +7,10 @@ package etomica;
  */
 public final class ApiIntraspeciesAA implements AtomPairIterator {
     
-    public ApiIntraspeciesAA() {
-        aiInner.setAsNeighbor(true);
-        pair = new AtomPair(Simulation.instance.space);
+    public ApiIntraspeciesAA(Simulation sim) {
+        aiOuter = sim.iteratorFactory.makeAtomIterator();
+        aiInner = sim.iteratorFactory.makeIntragroupIterator();
+        pair = new AtomPair(sim.space);
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         outerWrapper.aiInner = aiInner;
     }
@@ -113,9 +114,9 @@ public final class ApiIntraspeciesAA implements AtomPairIterator {
     private boolean hasNext;
     private boolean needUpdate1;
     
-    private final AtomIterator aiOuter = new AtomIteratorSequential();
+    private final AtomIterator aiOuter;// = new AtomIteratorSequential();
     //this should be a neighbor iterator
-    private final AtomIterator aiInner = new AtomIteratorSequential();
+    private final AtomIterator aiInner;// = new AtomIteratorSequential();
     
     private final IteratorDirective localDirective = new IteratorDirective();
     private final AtomPair pair;

@@ -42,8 +42,14 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
 	protected void makeIterators(IteratorFactory factory) {
-	    super.makeIterators(factory);
-        atomIterator = factory.makeAtomIterator();
+//	    super.makeIterators(factory);
+//        atomIterator = factory.makeAtomIterator();
+    }
+    
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        atomIterator = p.makeAtomIterator();
+        return true;
     }
     
     public IntegratorHardAbstract.Agent colliderAgent() {

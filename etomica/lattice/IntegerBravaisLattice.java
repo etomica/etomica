@@ -197,6 +197,11 @@ public class IntegerBravaisLattice implements AbstractLattice {
             }
             return nextSite;
         }
+        public int size() {
+            int count = 1;
+            for(int i=0; i<nRows; i++) {count *= rows[i].iterator().size();}
+            return count;
+        }
         public void allSites(SiteAction act) {
             for(int i=0; i<nRows; i++) {rows[i].iterator().allSites(act);}
         }
@@ -217,6 +222,7 @@ public class IntegerBravaisLattice implements AbstractLattice {
         public void reset() {hasNext = true;}
         public Site next() {hasNext = false; return site;}
         public void allSites(SiteAction act) {act.actionPerformed(site);}
+        public int size() {return 1;}
     }
     
     /**
