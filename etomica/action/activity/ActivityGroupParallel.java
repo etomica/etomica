@@ -11,10 +11,8 @@ import etomica.Activity;
 import etomica.utility.Arrays;
 
 /**
- * @author kofke
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * Organizer of simulation actions to be executed in parallel,
+ * each on its own thread.
  */
 public class ActivityGroupParallel extends Activity {
 

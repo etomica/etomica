@@ -8,9 +8,9 @@ import etomica.Space;
 import etomica.Space2D;
 
 /**
+ * A geometric square.
  * @author kofke
  *
- * A geometric square.
  */
 public class Square extends Polyhedron {
 

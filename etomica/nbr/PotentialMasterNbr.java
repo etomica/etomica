@@ -7,8 +7,6 @@ package etomica.nbr;
 import etomica.*;
 
 /**
- * @author kofke
- *
  * PotentialMaster used to implement neighbor listing.  Instance of this
  * class is given as an argument to the Simulation constructor.
  * Criteria specifying whether two atoms are neighbors for a particular potential

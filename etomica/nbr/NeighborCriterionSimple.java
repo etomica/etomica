@@ -6,10 +6,10 @@ import etomica.Phase;
 import etomica.Space;
 
 /**
- * @author andrew
- *
  * Simple neighbor criterion based on distance moved by a leaf atom since
  * the last update.
+ * @author andrew
+ *
  */
 public class NeighborCriterionSimple extends NeighborCriterion  {
 

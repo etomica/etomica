@@ -7,8 +7,6 @@ package etomica.action;
 import etomica.Space;
 
 /**
- * @author kofke
- * 
  * Action that moves (translates) all the atoms in a phase by a specified
  * (vector) amount.
  */

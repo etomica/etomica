@@ -19,14 +19,14 @@ import etomica.SimulationElement;
 import etomica.Space;
 
 /**
- * @author cribbin
- *
  * Dissipative particle dynamic integrator.
  * Based on the modified velocity Verlet algorithm proposed by Groot and Warren
  * (J. Chem Phys. 107 (11), 15 September 1997, pp.4423-4435)
  * lambdaV is the stepping parameter used to compute the velocity.
  * The timestep is defaulted in the constructor to 0.04;
  * 
+ * @author cribbin
+ *
  */
 
 /*

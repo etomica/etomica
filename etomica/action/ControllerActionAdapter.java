@@ -7,8 +7,6 @@ package etomica.action;
 import etomica.Controller;
 
 /**
- * @author kofke
- * 
  * Convenience class used to define a ControllerAction. Implements all methods
  * of ControllerAction interface, except for actionPerformed.
  */

@@ -7,8 +7,6 @@ package etomica;
 import etomica.units.Dimension;
 
 /**
- * @author kofke
- *
  * Accumulator that simply counts the number of times its 
  * <code>add</code> method is invoked.
  */

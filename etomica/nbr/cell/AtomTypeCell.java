@@ -9,9 +9,9 @@ import etomica.AtomType;
 import etomica.math.geometry.Polytope;
 
 /**
+ * AtomType used by the cells of the cell neighbor-list lattice.
  * @author kofke
  *
- * AtomType used by the cells of the cell neighbor-list lattice.
  */
 public class AtomTypeCell extends AtomType {
 

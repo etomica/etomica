@@ -9,11 +9,12 @@ import etomica.nbr.cell.IteratorFactoryCell;
 
 
 /**
- * @author cribbin
- *
  * Class that contains the main method for running a dissipative particle
  * dynamics (DPD) simulation.
  * 
+ * @author cribbin
+ * 
+ *  
  */
 
 /*Patterned on SwMd2D*/

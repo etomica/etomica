@@ -4,8 +4,6 @@ import etomica.Action;
 import etomica.Atom;
 
 /**
- * @author David Kofke
- *
  * Interface for a class that can perform an action on an atom.
  */
 

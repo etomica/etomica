@@ -7,12 +7,12 @@ package etomica.math.geometry;
 import etomica.Space;
 
 /**
- * @author kofke
- *
  * Representation of a mathematical polytope, which is a finite region
  * of space enclosed by a finite number of hyperplanes.  Subclasses
  * include LineSegment (a 1-D polytope), Polygon (a 2-D polytope), and
  * Polyhedron (a 3-D polytope).
+ * @author kofke
+ *
  */
 
 //TODO add more general methods to specify polytope, and generate features such as vertices

@@ -5,8 +5,6 @@
 package etomica;
 
 /**
- * @author kofke
- *
  * Interface for an object that depends on one or more data sources.
  */
 public interface DataSourceDependent {

@@ -25,8 +25,6 @@ import etomica.lattice.PrimitiveOrthorhombic;
 import etomica.lattice.Site;
 
 /**
- * @author kofke
- *
  * Class that defines and manages construction and use of lattice of cells 
  * for cell-based neighbor listing.
  */

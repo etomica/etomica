@@ -8,9 +8,10 @@ import etomica.Space;
 import etomica.Space3D;
 
 /**
- * @author kofke
- *
  * A geometric cube.
+ * 
+ * @author kofke
+ *  
  */
 public class Cube extends Polyhedron {
 

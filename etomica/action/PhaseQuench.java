@@ -6,8 +6,6 @@ import etomica.MeterTemperature;
 import etomica.Phase;
 
 /**
- * @author kofke
- * 
  * Scales all velocities of a phase so that its kinetic temperature is equal to
  * a given value.
  */

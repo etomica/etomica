@@ -5,8 +5,6 @@
 package etomica;
 
 /**
- * @author kofke
- *
  * Accumulator that keeps statistics for averaging and error analysis.
  */
 public class AccumulatorAverage extends Accumulator implements DataSourceMultitype {

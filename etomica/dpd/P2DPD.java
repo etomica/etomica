@@ -15,10 +15,10 @@ import etomica.Default;
 import etomica.Potential2;
 
 /**
- * @author cribbin
- *
  * The potential used for dissipative particle dynamic simulations.
  * Based on equation 1 of Willemsen et al. (J. Comp. Phys. 162 pp.385-394 (2000))
+ * @author cribbin
+ *
  */
 public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement {
 	double maxRepel; 	//maximum repulsion parameter (aij)

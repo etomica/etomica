@@ -3,10 +3,10 @@ package etomica.models.water;
 import etomica.*;
 
 /**
- * @author kofke
- *
  * Factory that constructs a water molecule, with three child atoms of two
  * Hydrogen and one Oxygen.
+ * @author kofke
+ *
  */
 public class AtomFactoryWater extends AtomFactory {
 

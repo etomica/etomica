@@ -10,8 +10,6 @@ import etomica.utility.java2.Iterator;
 import etomica.utility.java2.LinkedList;
 
 /**
- * @author kofke
- *
  * Keeps a DataSource and one or more Accumulators and adds to Accumulators
  * in response to IntervalEvents using data from the DataSource.
  */

@@ -13,8 +13,6 @@ import etomica.Phase;
 import etomica.Space;
 
 /**
- * @author kofke
- * 
  * Action that imposes the central-image effect of a phase having periodic
  * boundaries. Causes all atoms with coordinates outside the phase boundaries to
  * be moved to the central-image location (inside the boundaries).

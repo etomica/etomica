@@ -5,7 +5,6 @@
 package etomica;
 
 /**
- * @author kofke
  * Iterator that will loop over all leaf atoms in a phase. Can
  * be configured to iterate all leaf atoms, or only those of
  * a particular species.

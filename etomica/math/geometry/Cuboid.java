@@ -8,11 +8,11 @@ import etomica.Space;
 import etomica.Space3D;
 
 /**
- * @author kofke
- * 
  * A polyhedron composed of three pairs of rectangular faces placed opposite
  * each other and joined at right angles, also known as a
  * rectangular parallelepiped.
+ * @author kofke
+ * 
  */
 public class Cuboid extends Polyhedron {
 

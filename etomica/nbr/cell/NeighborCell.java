@@ -17,8 +17,6 @@ import etomica.lattice.Site;
 import etomica.utility.Arrays;
 
 /**
- * @author kofke
- *
  * Site used to form array of cells for cell-based neighbor listing.  Each
  * cell is capable of holding lists of atoms that are in them.
  */

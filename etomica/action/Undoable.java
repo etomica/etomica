@@ -5,8 +5,6 @@
 package etomica.action;
 import etomica.Action;
 /**
- * @author kofke
- *
  * Interface for an action that can be "undone", such that its effect
  * is reversed if the undo() method is invoked immediately after the
  * actionPerformed().

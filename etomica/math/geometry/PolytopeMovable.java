@@ -8,11 +8,11 @@ import etomica.Space;
 import etomica.Space.Vector;
 
 /**
- * @author kofke
- *
  * Wraps a Polytope so that it may be given a position and 
  * orientation different from the fixed configuration defined
  * for the elementary polytopes.
+ * @author kofke
+ *
  */
 public class PolytopeMovable extends Polytope {
 

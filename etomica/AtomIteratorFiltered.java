@@ -9,8 +9,6 @@ import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
 
 /**
- * @author kofke
- *
  * Wraps an AtomIterator and filters its iterates so that
  * only those meeting specified criteria are returned.
  */

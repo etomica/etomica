@@ -5,8 +5,6 @@
 package etomica;
 
 /**
- * @author kofke
- *
  * Defines a conversion between an array of double and an Object.
  * The double[] form is used internally for accumulating averages, and
  * the translator converts this simple data structure into an object

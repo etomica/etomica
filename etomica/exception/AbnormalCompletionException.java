@@ -1,10 +1,10 @@
 package etomica.exception;
 
 /**
- * @author David Kofke
- *
  * Exception that indicates a method is defined for a class (perhaps to adhere
  * to an interface), but its implementation is not yet completed.
+ * 
+ * @author David Kofke
  */
 
 /* History
