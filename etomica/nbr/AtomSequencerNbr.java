@@ -10,7 +10,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.nbr.cell.AtomSequencerCell;
-import etomica.space.Vector;
 import etomica.utility.Arrays;
 import etomica.utility.ObjectArrayList;
 
@@ -42,7 +41,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param a the new uplist neighbor atom
      * @param potential the potential between the atoms
      */
-	public void addUpNbr(Atom a, Potential potential, Vector nearestImageVector) {
+	public void addUpNbr(Atom a, Potential potential) {
 		int index = 0;
 		try {
 			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
@@ -51,7 +50,6 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 			index = addPotential(potential);
 			upList[index].add(a);
 		}
-        upListNearestImageVector[index].add(nearestImageVector);
 	}
 
     /**
@@ -60,7 +58,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param a the new downlist neighbor atom
      * @param potential the potential between the atoms
      */
-    public void addDownNbr(Atom a, Potential potential, Vector nearestImageVector) {
+    public void addDownNbr(Atom a, Potential potential) {
 		int index = 0;
 		try {
 			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
@@ -69,7 +67,6 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 			index = addPotential(potential);
 			downList[index].add(a);
 		}
-        downListNearestImageVector[index].add(nearestImageVector);
 	}
 	
     /**
@@ -89,20 +86,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 	public AtomArrayList[] getDownList() {
 		return downList;
 	}
-	
     
-    /**
-     * @return Returns the downListNearestImageVector.
-     */
-    public ObjectArrayList[] getDownListNearestImageVector() {
-        return downListNearestImageVector;
-    }
-    /**
-     * @return Returns the upListNearestImageVector.
-     */
-    public ObjectArrayList[] getUpListNearestImageVector() {
-        return upListNearestImageVector;
-    }
     /**
      * Indicates that the given potential is involved in this sequencer's
      * atom's interactions.  Enables lists to be stored of atoms interacting 

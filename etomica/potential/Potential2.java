@@ -26,7 +26,7 @@ import etomica.space.CoordinatePair;
 
 public abstract class Potential2 extends Potential {
   
-    protected final CoordinatePair cPair, cPairNbr;
+    protected final CoordinatePair cPair;
     
     public Potential2(Space space) {
         this(space, Default.TRUNCATE_POTENTIALS ? 
@@ -53,16 +53,10 @@ public abstract class Potential2 extends Potential {
 //            potentialTruncation.makeLrcPotential(potentialMaster, this); //constructor of lrcPotential adds it to lrcMaster of potentialMaster
         }
         cPair = space.makeCoordinatePair();
-        cPairNbr = space.makeCoordinatePair();
     }
 
     public void setPhase(Phase phase) {
         cPair.setNearestImageTransformer(phase.boundary());
-        cPairNbr.setNearestImageTransformer(phase.boundary());
-    }
-    
-    public void setNearestImageTransformer(NearestImageTransformer nearestImageTransformer) {
-        cPairNbr.setNearestImageTransformer(nearestImageTransformer);
     }
     
 }//end of Potential2

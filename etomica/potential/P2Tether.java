@@ -90,10 +90,10 @@ public class P2Tether extends Potential2HardSpherical {
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
    */
   public final double collisionTime(AtomSet pair, double falseTime) {
-      cPairNbr.reset((AtomPair)pair);
-      ((CoordinatePairKinetic)cPairNbr).resetV();
-      dr.E(cPairNbr.dr());
-      Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+      cPair.reset((AtomPair)pair);
+      ((CoordinatePairKinetic)cPair).resetV();
+      dr.E(cPair.dr());
+      Vector dv = ((CoordinatePairKinetic)cPair).dv();
       dr.Ea1Tv1(falseTime,dv);
       double r2 = dr.squared();
       double bij = dr.dot(dv);

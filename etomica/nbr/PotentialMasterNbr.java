@@ -7,14 +7,12 @@ package etomica.nbr;
 import etomica.Atom;
 import etomica.AtomSet;
 import etomica.IteratorDirective;
-import etomica.NearestImageTransformerVector;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
-import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
@@ -29,10 +27,8 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.nbr.cell.AtomsetIteratorCellular;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
-import etomica.space.Vector;
 import etomica.utility.Arrays;
 import etomica.utility.ObjectArrayList;
 
@@ -53,7 +49,7 @@ public class PotentialMasterNbr extends PotentialMaster {
         super(space,new IteratorFactoryCell(space.D()));
         setNCells(10);
 		neighborManager = new NeighborManager(this);
-		atomIterator = new MyIterator();
+		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         positionDefinition = new AtomPositionDefinitionSimple();
@@ -112,25 +108,17 @@ public class PotentialMasterNbr extends PotentialMaster {
             ObjectArrayList[] vectors = null;
 			if (direction == IteratorDirective.UP || direction == null) {
 				list = seq.getUpList();
-                vectors = seq.getUpListNearestImageVector();
-                atomIterator.nearestImageTransformer.setPlus(false);
 //              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
 				for (int i=0; i<list.length; i++) {
 					atomIterator.setList(list[i]);
-                    atomIterator.setVectors(vectors[i]);
-                    ((Potential2)potentials[i]).setNearestImageTransformer(atomIterator.nearestImageTransformer);
 					//System.out.println("Up :"+atomIterator.size());
 					pc.doCalculation(pairIterator, id, potentials[i]);
 				}
 			}
 			if (direction == IteratorDirective.DOWN || direction == null) {
 				list = seq.getDownList();
-                vectors = seq.getDownListNearestImageVector();
-                atomIterator.nearestImageTransformer.setPlus(true);
 				for (int i=0; i<list.length; i++) {
 					atomIterator.setList(list[i]);
-                    atomIterator.setVectors(vectors[i]);
-                    ((Potential2)potentials[i]).setNearestImageTransformer(atomIterator.nearestImageTransformer);
 					//System.out.println("Dn :"+atomIterator.size());
 					pc.doCalculation(pairIterator, id, potentials[i]);
 				}
@@ -234,7 +222,7 @@ public class PotentialMasterNbr extends PotentialMaster {
         return positionDefinition;
     }
 
-	private final MyIterator atomIterator;
+	private final AtomIteratorArrayList atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
 	private final NeighborManager neighborManager;
@@ -243,26 +231,4 @@ public class PotentialMasterNbr extends PotentialMaster {
     private final IteratorDirective idUp = new IteratorDirective();
     private AtomPositionDefinition positionDefinition;
     
-    public static class MyIterator extends AtomIteratorArrayList {
-        
-        public Atom nextAtom() {
-            nearestImageTransformer.setNearestImageVector((Vector)vector.get(cursor));
-            return super.nextAtom();
-        }
-        
-        public void allAtoms(AtomsetAction act) {
-            int arraySize = size();
-            for (int i=0; i<arraySize; i++) {
-                nearestImageTransformer.setNearestImageVector((Vector)vector.get(i));
-                act.actionPerformed(list.get(i));
-            }
-        }
-        
-        public void setVectors(ObjectArrayList vector) {
-            this.vector = vector;
-        }
-        
-        ObjectArrayList vector;
-        NearestImageTransformerVector nearestImageTransformer = new NearestImageTransformerVector();
-    }
 }

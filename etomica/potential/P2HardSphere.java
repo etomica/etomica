@@ -67,8 +67,8 @@ public class P2HardSphere extends Potential2HardSpherical {
      */
     public double collisionTime(AtomSet pair, double falseTime) {
 //        dr.E(cPairNbr.reset(pair[0].coord,pair[1].coord));
-        Vector dv = ((CoordinatePairKinetic)cPairNbr).resetV(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
-        dr.Ev1Pa1Tv2(cPairNbr.reset(),falseTime,dv);
+        Vector dv = ((CoordinatePairKinetic)cPair).resetV(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
+        dr.Ev1Pa1Tv2(cPair.reset(),falseTime,dv);
 //        dr.E(cPairNbr.dr());
 //        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
 //        dr.PEa1Tv1(falseTime,dv);

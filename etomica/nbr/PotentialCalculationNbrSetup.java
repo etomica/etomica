@@ -73,11 +73,10 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			AtomPair atoms = (AtomPair)iterator.next();
-            Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
-			((AtomSequencerNbr)atoms.atom0.seq).addUpNbr(atoms.atom1, potential, nearestImageVector);
-			((AtomSequencerNbr)atoms.atom1.seq).addDownNbr(atoms.atom0, potential, nearestImageVector);
+			((AtomSequencerNbr)atoms.atom0.seq).addUpNbr(atoms.atom1, potential);
+			((AtomSequencerNbr)atoms.atom1.seq).addDownNbr(atoms.atom0, potential);
 		}
 	}
     
