@@ -35,8 +35,8 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
     
     public void updateAtom(Atom a) {
-        // actually updates the atom
         PotentialHard collisionPotential = colliderAgent.collisionPotential;
+        // actually updates the atom
         super.updateAtom(a);
         // check if the atom hit the piston.  if so, then update every atom with the piston
         if (collisionPotential == pistonPotential) {
@@ -68,7 +68,7 @@ public class IntegratorHardPiston extends IntegratorHard {
             // recalculate collision time for every atom with the wall
             double collisionTime = pistonPotential.collisionTime(atom1,collisionTimeStep);
             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atom1)))) {
-                System.out.println("collision down time "+collisionTime+" for atom "+atom1[1]+" with null "+pistonPotential.getClass());
+                System.out.println("collision down time "+collisionTime+" for atom "+atom1[0]+" with null "+pistonPotential.getClass());
             }
             if(collisionTime < Double.MAX_VALUE) {
                 Agent aia = (Agent)atom1[0].ia;
@@ -79,7 +79,7 @@ public class IntegratorHardPiston extends IntegratorHard {
                     if (aia.collisionPotential != null) {
                         aia.eventLinker.remove();
                     }
-                    aia.setCollision(collisionTime, atom1[0], pistonPotential);
+                    aia.setCollision(collisionTime, null, pistonPotential);
                     eventList.add(aia.eventLinker);
                 }//end if
             }//end if
