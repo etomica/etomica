@@ -25,7 +25,7 @@ package etomica;
  //in particular if it will treat correctly a molecule basis in which
  //the molecule's subgroups are not structured identically.
  
-public class AtomIteratorTree extends AtomIterator {
+public class AtomIteratorTree implements AtomIterator {
     
     public AtomIteratorTree() {}
 
@@ -53,7 +53,18 @@ public class AtomIteratorTree extends AtomIterator {
         setBasis(atom);
         reset();
     }
-        
+     
+	/**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
+
 	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
 		if(basis==null || action == null) return;
 		if(basis.node.isLeaf() || iterationDepth == 0) {
@@ -171,7 +182,7 @@ public class AtomIteratorTree extends AtomIterator {
             basis = null; 
             listIterator.setBasis(AtomList.NULL); 
             doTreeIteration = false;
-            iterator = AtomIterator.NULL;
+//            iterator = AtomIterator.NULL;
             return;
         }
  //       basisIsMaster = !(atom instanceof SpeciesAgent) && !atom.node.isLeaf() && ((AtomTreeNodeGroup)atom.node).childrenAreGroups();//(atom instanceof SpeciesMaster);

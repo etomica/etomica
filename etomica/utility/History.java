@@ -11,9 +11,9 @@ package etomica.utility;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface History {
-	public void setNValues(int n);
+	public void setHistoryLength(int n);
 
-	public int getNValues();
+	public int getHistoryLength();
 
 	public void reset();
 
@@ -23,6 +23,11 @@ public interface History {
 
 	public double[] getHistory();
 	
+	/**
+	 * Interface for a class that can make a History instance. An instance
+	 * of such a factory is needed to instantiate an AccumulatorHistory
+	 * object.
+	 */
 	public interface Factory {
 		public History makeHistory();
 		public History makeHistory(int n);

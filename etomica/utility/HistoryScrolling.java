@@ -1,24 +1,29 @@
+/* History
+ * 08/09/04 (DAK, AS, NC) new from History (when it was defined as a class)
+ */
 package etomica.utility;
 
+/**
+ * History that records a number of values, with new ones replacing the
+ * earliest ones when the record is full.  The data returned by the
+ * getHistory method will have the earliest first in the array, and the
+ * most recent last.  If presented as a plot, the effect will be to 
+ * scroll the data across the plot window. 
+ * @author kofke, schultz, cribbin
+ */
 public class HistoryScrolling implements History {
     
-    private double[] values;
-    private int cursor;
-	private double[] temp;
-	private double[] xTemp;
-	private int count=0;
-	
     public HistoryScrolling() {this(100);}
     public HistoryScrolling(int n) {
-	    setNValues(n);
+	    setHistoryLength(n);
 	    reset();
     }
     
     /**
-     * sets the number of values kept in the history.
+     * Sets the number of values kept in the history.
      */
-    public void setNValues(int n) {
-    	int originalLength = getNValues();
+    public void setHistoryLength(int n) {
+    	int originalLength = getHistoryLength();
     	if (n==originalLength) return;
     	xTemp = new double[n];
     	for (int i=0; i<n; i++) {
@@ -26,53 +31,55 @@ public class HistoryScrolling implements History {
     	}
     	// calling getHistory() fills the temp array
     	getHistory();
-        values = new double[n];
+        history = new double[n];
         if (n > originalLength) {
-        	System.arraycopy(temp,0,values,0,originalLength);
+        	System.arraycopy(temp,0,history,0,originalLength);
         	for (int i = originalLength; i<n; i++) {
-        		values[i] = Double.NaN;
+        		history[i] = Double.NaN;
         	}
         	cursor = originalLength;
         }
         else {
-        	System.arraycopy(temp,originalLength-n,values,0,n);
+        	System.arraycopy(temp,originalLength-n,history,0,n);
         	cursor = 0;
         }
         temp = new double[n];
     }
-    public int getNValues() {return values.length;}
+    public int getHistoryLength() {return history.length;}
 	
+    /**
+     * Removes entire history, setting all values to NaN.
+     */
 	public void reset() {
-	    int nValues = getNValues();
+	    int nValues = getHistoryLength();
 	    for(int i=0; i<nValues; i++) {
-	        values[i] = Double.NaN;
+	        history[i] = Double.NaN;
 	        xTemp[i] = Double.NaN;
 	    }
 	    cursor = 0;
 	}
 	
     public void addValue(double x) {
-        values[cursor] = x;
+        history[cursor] = x;
         cursor++;
         count++;
-        if(cursor == values.length) cursor = 0;
+        if(cursor == history.length) cursor = 0;
     }
 
     /**
-     * returns an array with the most recent values at the end of
-     * the array
+     * Returns an array with the most recent history at the end.
      */
     public double[] getHistory() {
-		int n=values.length;
+		int n=history.length;
 
-		System.arraycopy(values,cursor,temp,0,n-cursor);
-		System.arraycopy(values,0,temp,n-cursor,cursor);
+		System.arraycopy(history,cursor,temp,0,n-cursor);
+		System.arraycopy(history,0,temp,n-cursor,cursor);
 		
 		return temp;
     }
     
 	public double[] xValues() {
-		int nValues = getNValues();
+		int nValues = getHistoryLength();
 		xTemp[nValues-1] = count;
 		for (int i=nValues-2; i>-1 && xTemp[i+1]>1; i--) {
 			xTemp[i] = xTemp[i+1] - 1;
@@ -80,4 +87,19 @@ public class HistoryScrolling implements History {
 		return xTemp;
 	}
 	
+	/**
+	 * Factory that creates an instance of this class.
+	 */
+    public static final History.Factory FACTORY = 
+    	new History.Factory() {
+    		public History makeHistory() {return new HistoryScrolling();}
+    		public History makeHistory(int n) {return new HistoryScrolling(n);}
+    	};
+	
+    private double[] history;
+    private int cursor;
+	private double[] temp;
+	private double[] xTemp;
+	private int count=0;
+
 }

@@ -28,7 +28,7 @@ public class MeterFourierTransform2 extends MeterGroup {
 		setResetHistoryOnMeterReset(true);
 		setHistorying(true);
 		for (int i=0;i<nMeters;i++) {
-			getHistory(i).setNValues(2*nMeters);
+			getHistory(i).setHistoryLength(2*nMeters);
 			getHistory(i).setLabel("History " + (i+1));
 			getHistory(i).setTransform(new Transform.Fourier());
 			getHistory(i).setXLabel("Frequency (w)");

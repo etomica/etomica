@@ -1,30 +1,21 @@
 package etomica;
 
 /**
- * Loops through all molecule pairs given within a single group.
+ * Loops through all molecule pairs given within a phase.
  *
  * @author David Kofke
  */
  
- //should put AA iterators into a single class, configured at construction
- //with appropriate inner integrators
- //this class and ApiInterspeciesAA are nearly identical
- 
 /* History 
- * 08/25/03 (DAK) modified next method to invoke reset(Atom, Atom) on AtomPair.
- * Previously had pair.atom2 = iterator.next(); pair.reset().  Change made
- * because AtomPair's blank reset method does not call cPair.reset with atom
- * coordinate arguments.
- * 10/28/03 (DAK) added line to setBasis to ensure boundary is set for
- * coordinate pair
+ * 08/04/04 Created
  */
 
-public final class ApiIntragroupAA implements AtomPairIterator {
+public class ApiIntralistAA implements AtomPairIterator, AtomPairListIterator {
     
-    public ApiIntragroupAA(Simulation sim) {
+    public ApiIntralistAA(Simulation sim) {
         pair = new AtomPair(sim.space);
-        aiOuter = sim.iteratorFactory.makeGroupIteratorSequential();
-        aiInner = sim.iteratorFactory.makeIntragroupNbrIterator();
+        aiOuter = new AtomIteratorListSimple();
+        aiInner = new AtomIteratorListSimple();
     }
     
 	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
@@ -34,37 +25,60 @@ public final class ApiIntragroupAA implements AtomPairIterator {
 			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
 		}
 	}
+	public void all(Phase phase, IteratorDirective dummy, AtomPairActive action) {
+		all(phase.speciesMaster().atomList, dummy, action);
+	}
+	
+	public void all(AtomList basisList, IteratorDirective dummy, AtomPairActive action) {
+		if(basisList == null || action == null) return;
+		final AtomLinker header = basisList.header;
+		AtomPair pair;
+		for(AtomLinker e=header.next; e!=header; e=e.next) {
+			if (e.atom != null) {
+				for (AtomLinker f=e.next; f!=header; f=f.next) {
+					if(f.atom != null) {
+						pair = new AtomPair(e.atom, f.atom);
+						action.actionPerformed(pair);
+					}
+				}
+			}
+		}
+	}
+	
 	public void all(Atom basis, IteratorDirective dummy, AtomPairActive action) {
-		if(basis == null || action == null) return;
+		throw new IllegalArgumentException("Error: ApiIntraphaseAA not defined for a pair basis");
+/*		if(basis == null || action == null) return;
 		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
 		outerWrapper.setBoundary(basis.node.parentPhase().boundary());
 		outerWrapper.aiInner = aiInner;
 		outerWrapper.innerBasis = basis;
 		outerWrapper.innerSkipFirst = true;
-		aiOuter.all(basis, dummy, outerWrapper);
+		aiOuter.all(basis, dummy, outerWrapper);*/
 	}
 	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {
-		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a pair basis");
+		throw new IllegalArgumentException("Error: ApiIntraphaseAA not defined for a pair basis");
 	}
 
-	public void setBasis(Atom a) {
-		setBasis(a, a);
+	public void setBasis(Phase phase) {
+		setBasis(phase.speciesMaster().atomList);
 	}
-	
-   public void setBasis(Atom a1, Atom a2) {
-        if(a1 != a2)
-            throw new IllegalArgumentException("Improper basis given to ApiIntraSpeciesAA");
-        group = a1;
-        aiOuter.setBasis(a1);
-        aiInner.setBasis(a1);
-		pair.cPair.setBoundary(group.node.parentPhase().boundary());//(DAK) added 10/29/03
+
+	public void setBasis(AtomList atomList) {
+		aiOuter.setBasis(atomList);
+		aiInner.setBasis(atomList);
+		reset();
+		pair.cPair.setBoundary(atomList.getFirst().node.parentPhase().boundary());
+	}
+
+	// this isn't an appropriate method for this class
+	public void setBasis(Atom a1, Atom a2) {
+        throw new IllegalArgumentException("Improper basis given to ApiIntraphaseAA");
    }
     
     /**
      * Returns the number of pairs capable of being given by this iterator.
      */
     public int size() {
-        if(group == null) return 0;
         int n = aiOuter.size();
         return n*(n-1)/2;
     }  
@@ -83,7 +97,6 @@ public final class ApiIntragroupAA implements AtomPairIterator {
      */
     public void reset() {
         hasNext = false;
-        if(group == null) return;
 
         aiOuter.reset();
         while(aiOuter.hasNext()) { //loop over iterator 1...
@@ -132,16 +145,15 @@ public final class ApiIntragroupAA implements AtomPairIterator {
 //        hasNext = false;
     }
     
-    private Atom group; 
-    private boolean hasNext;
-    private boolean needUpdate1;
+    protected boolean hasNext;
+    protected boolean needUpdate1;
     
-    private final AtomIterator aiOuter;
-    private final AtomIterator aiInner;
+    protected final AtomIteratorListSimple aiOuter;
+    protected final AtomIteratorListSimple aiInner;
     
-    private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.UP);
-    private final AtomPair pair;
-    private Atom atom1;
+    protected final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.UP);
+    protected final AtomPair pair;
+    protected Atom atom1;
     
  //   private int count, outCount, inCount;//used in debugging to count the number of pairs given by the iterator
         

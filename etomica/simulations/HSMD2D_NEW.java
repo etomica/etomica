@@ -235,7 +235,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		}
 
 		protected void write() throws java.io.IOException {
-			int n = wMeter.getHistogram().getNBins();
+			int n = wMeter.getHistogram().getHistoryLength();
 			double[] wVal = wMeter.getHistogram().getData(null);
 			double[] eVal = eMeter.getHistogram().getData(null);
 			double[] xw = wMeter.getHistogram().getX();

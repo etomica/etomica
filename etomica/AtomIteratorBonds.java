@@ -7,7 +7,7 @@ package etomica;
 * @author David Kofke
 */
 
-public class AtomIteratorBonds extends AtomIterator {
+public class AtomIteratorBonds implements AtomIterator {
     
     private boolean hasNext;
     private boolean upListNow, doGoDown;
@@ -17,7 +17,24 @@ public class AtomIteratorBonds extends AtomIterator {
     
 	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
-		throw new RuntimeException("Method all not implemented in AtomIteratorBonds");
+		
+        boolean lUpListNow = id.direction().doUp();
+        boolean lDoGoDown = id.direction().doDown();
+        BondLinker lNextBondLink = null;
+        if(lUpListNow) lNextBondLink = basis.firstUpBond;
+        if(lNextBondLink == null && lDoGoDown) {
+            lNextBondLink = basis.firstDownBond;
+            lUpListNow = false;
+        }
+		while (lNextBondLink != null) {
+	        BondLinker next = nextBondLink;
+	        lNextBondLink = nextBondLink.next;
+	        if(lNextBondLink == null && lUpListNow && lDoGoDown) {//done going up and now prepare to go down
+	            nextBondLink = basis.firstDownBond;
+	            upListNow = false;
+	        }
+			action.actionPerformed((next.bond.link1==next) ? next.bond.link2.atom : next.bond.link1.atom);
+		}
 	}
 	
     public boolean hasNext() {return hasNext;}
@@ -116,7 +133,19 @@ public class AtomIteratorBonds extends AtomIterator {
     }
     public Atom getBasis() {return basis;}
     
-    public static void main(String[] args) {
+	/**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
+
+    
+/*    public static void main(String[] args) {
         Simulation sim = new Simulation();
         int nAtoms = 4;
         SpeciesSpheres species = new SpeciesSpheres(1,nAtoms);
@@ -179,6 +208,6 @@ public class AtomIteratorBonds extends AtomIterator {
         api.setBasis(molecule, molecule);
 	    IteratorDirective.testSuitePair(api, atoms[0], atoms[2], atoms[nAtoms-1]);
 	    
-    }
+    }*/
 
 }//end of AtomIteratorBonds

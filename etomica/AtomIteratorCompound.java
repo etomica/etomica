@@ -6,13 +6,12 @@ package etomica;
  * @author David Kofke
  */
  
-public final class AtomIteratorCompound extends AtomIterator {
+public final class AtomIteratorCompound implements AtomIterator {
     
     private AtomIterator[] iteratorSet;
     private boolean hasNext;
     private final IteratorDirective directive = new IteratorDirective();
     private int index;
-    private Atom basis = null;
     
     /**
      * Construct iterator to loop over all iterates obtained from each iterator 
@@ -49,7 +48,7 @@ public final class AtomIteratorCompound extends AtomIterator {
     public void setBasis(Atom a) {
         throw new RuntimeException("AtomIteratorCompound.setBasis not defined");
     }
-    public Atom getBasis() {return basis;}
+    public Atom getBasis() {return null;}
     
     public int size() {
         if(iteratorSet == null) return 0;
@@ -105,5 +104,10 @@ public final class AtomIteratorCompound extends AtomIterator {
             iteratorSet[i].allAtoms(act);
         }
     }
+    
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
     
 }//end of AtomIteratorCompound

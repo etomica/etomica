@@ -13,7 +13,7 @@ package etomica;
   * configured to interpret reset(Atom) as in modification above, or as the new
   * basis.
   */
-public class AtomIteratorNeighbor extends AtomIterator {
+public class AtomIteratorNeighbor implements AtomIterator {
     
     private NeighborManager neighborManager;
     private IteratorDirective.Direction direction = IteratorDirective.BOTH;
@@ -75,7 +75,8 @@ public class AtomIteratorNeighbor extends AtomIterator {
     
 	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
-		throw new etomica.exception.MethodNotImplementedException();
+		iterator.all(basis, id, action);
+//		throw new etomica.exception.MethodNotImplementedException();
 	}
 
    public boolean hasNext() {return iterator.hasNext();}
@@ -155,6 +156,17 @@ public class AtomIteratorNeighbor extends AtomIterator {
     public boolean contains(Atom a) {
 		throw new etomica.exception.MethodNotImplementedException();
     }
+    
+	/**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
     
     public static void main(String[] args) {
     	Simulation sim = Simulation.instance;

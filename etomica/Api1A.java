@@ -13,7 +13,7 @@ package etomica;
  * 01/25/03 (DAK) new
  */
  
-public final class Api1A extends AtomPairIterator {
+public final class Api1A implements AtomPairIterator {
 
 	public Api1A(AtomPairIterator api1, AtomPairIterator apiA) {
 		this.api1 = api1;
@@ -68,6 +68,13 @@ public final class Api1A extends AtomPairIterator {
 	 */
 	public void allPairs(AtomPairAction act) {throw new etomica.exception.MethodNotImplementedException();}
 
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		if(basis == null || !(action instanceof AtomPairActive)) return;
+		switch(basis.nBody()) {
+			case 1: all((Atom)basis, id, (AtomPairActive)action); break;
+			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
+		}
+	}
 	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		if(id.atomCount()==0) apiA.all(basis, id, action);
 		else api1.all(basis, id.setSkipFirst(true), action);
@@ -77,9 +84,9 @@ public final class Api1A extends AtomPairIterator {
 		else api1.all(basis, id.setSkipFirst(false), action);
 	}
 	
-	private AtomPairIterator api1 = AtomPairIterator.NULL;
-	private AtomPairIterator apiA = AtomPairIterator.NULL;
-	private AtomPairIterator api = api1;
+	private final AtomPairIterator api1;
+	private final AtomPairIterator apiA;
+	private AtomPairIterator api;
 	private Atom basis1, basis2;
 
 }

@@ -23,13 +23,20 @@ package etomica;
   * 
   */
  
-public final class ApiIntragroup1A extends AtomPairIterator {
+public final class ApiIntragroup1A implements AtomPairIterator {
     
     public ApiIntragroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
         atomIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		if(basis == null || !(action instanceof AtomPairActive)) return;
+		switch(basis.nBody()) {
+			case 1: all((Atom)basis, id, (AtomPairActive)action); break;
+			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
+		}
+	}
 	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		Atom atom = id.atom1();
 		if(atom == null || basis == null || action == null) return;
@@ -41,15 +48,21 @@ public final class ApiIntragroup1A extends AtomPairIterator {
 		atomIterator.all(basis, id.set(referenceNode.atom), wrapper);
 	}
 	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {
-		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a pair basis");
+        if(pair.atom1() != pair.atom2())
+            throw new IllegalArgumentException("Improper basis given to ApiIntragroup1A");
+		all(pair.atom1(), id, action);
 	}
 
+    public void setBasis(Atom a) {
+        atomIterator.setBasis(a);
+        group = a;
+        pair.cPair.setBoundary(group.node.parentPhase().boundary());
+    }
+    
     public void setBasis(Atom a1, Atom a2) {
         if(a1 != a2)
             throw new IllegalArgumentException("Improper basis given to ApiIntragroup1A");
-        atomIterator.setBasis(a1);
-        group = a1;
-        pair.cPair.setBoundary(group.node.parentPhase().boundary());
+        setBasis(a1);
     }
     
     /**

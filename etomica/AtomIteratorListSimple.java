@@ -12,7 +12,7 @@ package etomica;
  * 02/21/03 (DAK) added all(AtomList...) method
  * 
  */
-public final class AtomIteratorListSimple extends AtomIterator {
+public final class AtomIteratorListSimple implements AtomIterator {
     
     private AtomList list;
 	private AtomLinker next;
@@ -116,6 +116,17 @@ public final class AtomIteratorListSimple extends AtomIterator {
         while(next.atom == null && next != list.header) {next = next.next;}
         return nextLinker;
     }//end of nextLinker
+    
+	/**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
     
     public static void main(String[] args) {
         Simulation sim = new Simulation();

@@ -19,7 +19,7 @@ package etomica;
   *              Change made while attempting to enable operation of PistonCylinder
   * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
   */
-public class AtomIteratorSinglet extends AtomIterator {
+public class AtomIteratorSinglet implements AtomIterator {
     
     private Atom atom;
     private boolean hasNext;

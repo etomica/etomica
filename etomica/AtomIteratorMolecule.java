@@ -11,7 +11,7 @@ package etomica;
  * @since 02.02.16
  */
 
-public class AtomIteratorMolecule extends AtomIterator {
+public class AtomIteratorMolecule implements AtomIterator {
     
     public AtomIteratorMolecule() {
         treeIterator.setIterationDepth(2);
@@ -37,7 +37,18 @@ public class AtomIteratorMolecule extends AtomIterator {
         setBasis(phase, species);
         reset();
     }
- 
+
+    /**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
+
 	public void all(Phase phase, IteratorDirective dummy, final AtomActive action) {
 		all(phase.speciesMaster, dummy, action);    
 	}

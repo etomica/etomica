@@ -11,7 +11,7 @@ package etomica;
  /* History of changes
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
   */
-public final class AtomIteratorList extends AtomIterator {
+public final class AtomIteratorList implements AtomIterator, AIAtomListDependent {
     
     private AtomList list;
 	private AtomTreeNodeGroup basis;
@@ -115,7 +115,7 @@ public final class AtomIteratorList extends AtomIterator {
      * Called by all the reset methods after they have set these fields.  Also called
      * by allAtoms to prepare for iteration.
      */
-    private Atom doReset() {
+    private void doReset() {
         if(first == header || first == null) next = header;
         else {
             upListNow = direction.doUp();
@@ -123,7 +123,6 @@ public final class AtomIteratorList extends AtomIterator {
             next = first;
             if(next.atom == null || skipFirstAtom) nextLinker();//nextLinker keeps iterating until entry
         }                                                       //with atom is found or terminator is reached
-        return next.atom;
     }
 
 	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
@@ -153,6 +152,44 @@ public final class AtomIteratorList extends AtomIterator {
 				terminator = header;
 			} else {//atom descended from basis
 				first = referenceNode.atom.seq;
+				terminator = header;
+			}
+		}
+		if(first == header) return;
+		AtomIteratorList.all(first, terminator, id, action);
+	}
+	
+	public void all(AtomList atomList, IteratorDirective id, final AtomActive action) {
+		if(basis == null || action == null) return;
+
+		final AtomLinker.Tab header = atomList.header;
+		AtomLinker.Tab terminator = header;
+		AtomLinker first = null;
+		AtomLinker next = null;
+		final IteratorDirective.Direction direction = id.direction();
+		boolean upListNow = direction.doUp();
+		boolean doGoDown = direction.doDown();
+		if(id.atomCount() == 0) {
+			first = upListNow ? header.next : (doGoDown ? header.previous : header);
+			terminator = header;
+		} else {
+			Atom atom = id.atom1();
+			int index = atomList.indexOf(atom);
+//			AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(basis.node);
+//			if(referenceNode == null) {//atom not descended from basis
+			if (index != -1) {
+				// this seems to be a contorted mess to handle abuses of the method
+				//TODO perhaps it should just throw !!!!!!
+//				boolean preceed = atom.seq.preceeds(basis);
+//				if(preceed && upListNow) first = header.next;
+//				else if(!preceed && doGoDown) first = header.previous;
+//				else return;
+				//following statement is equivalent in effect to the above if-else block
+//				first = (preceed && upListNow) ? header.next : (!preceed && doGoDown) ? header.previous : (AtomLinker)header;
+				first = upListNow ? header.next : doGoDown ? header.previous : (AtomLinker)header;
+				terminator = header;
+			} else {//atom descended from basis
+				first = atomList.entry(index);
 				terminator = header;
 			}
 		}
@@ -299,22 +336,22 @@ public final class AtomIteratorList extends AtomIterator {
     /**
      * Sets iterator so that it is ready to go upList its entire list of iterates.
      */
-    public Atom reset() {
-        this.first = header.next;
+    public void reset() {
+    	this.first = header.next;
         this.terminator = header;
         this.direction = IteratorDirective.UP;
-        return doReset();
+        doReset();
     }
     
     /**
      * Resets to begin with the i_th atom, iterating uplist to the end of list.
      * e.g., if i = 3, begins with the third atom in list.
      */
-	public Atom reset(int i) {
+	public void reset(int i) {
 	    this.first = list.entry(i);
 	    this.terminator = header;
 	    this.direction = IteratorDirective.UP;
-	    return doReset();
+	    doReset();
 	}
 
     /**
@@ -330,12 +367,14 @@ public final class AtomIteratorList extends AtomIterator {
      * </ul>
      */
      //should atom.seq be used for reset?
-    public Atom reset(IteratorDirective id){
+    public void reset(IteratorDirective id){
         switch(id.atomCount()) {
-            case 0:  return reset(id.direction()); 
-            case 1:  return reset(id.atom1(), id.direction()); 
-            default: next = header; 
-            return null;
+            case 0:  reset(id.direction());
+            	break;
+            case 1:  reset(id.atom1(), id.direction());
+            	break;
+            default: next = header;
+            	break;
         }
     }
     
@@ -344,33 +383,33 @@ public final class AtomIteratorList extends AtomIterator {
      * last in list; if DOWN, iterates from last to first in list; if NEITHER, no iteration 
      * is performed.
      */
-    public Atom reset(IteratorDirective.Direction direction) {
+    public void reset(IteratorDirective.Direction direction) {
         this.first = direction.doUp() ? header.next : (direction.doDown() ? header.previous : null);
         this.terminator = header;
         this.direction = direction;
-        return doReset();
+        doReset();
     }
     
     /**
      * Resets to begin with the given atom linker, proceeding upList to end.  
      * Does not check that the linker is an iterate of this iterator.
      */
-    public Atom reset(AtomLinker first) {
+    public void reset(AtomLinker first) {
         this.first = first;
         this.terminator = header;
         this.direction = IteratorDirective.UP;
-        return doReset();
+        doReset();
     }
     
     /**
      * Resets to begin with the given atom linker, proceeding in the given direction.  
      * Does not check that the linker is an iterate of this iterator.
      */
-    public Atom reset(AtomLinker first, IteratorDirective.Direction direction) {
+    public void reset(AtomLinker first, IteratorDirective.Direction direction) {
         this.first = first;
         this.terminator = header;
         this.direction =  direction;
-        return doReset();
+        doReset();
     }
     
     /**
@@ -378,11 +417,11 @@ public final class AtomIteratorList extends AtomIterator {
      * calls reset(AtomLinker) in reference to its linker.  If atom is not in list,
      * hasNext will be false.  Iteration proceeds upList to the end.
      */
-    public Atom reset(Atom atom) {
+    public void reset(Atom atom) {
         this.first = list.entry(atom);
         this.terminator = header;
         this.direction = IteratorDirective.UP;
-        return doReset();
+        doReset();
     }
 
     /**
@@ -390,11 +429,11 @@ public final class AtomIteratorList extends AtomIterator {
      * calls reset(AtomLinker) in reference to its linker.  If atom is not in list,
      * hasNext will be false.  Iterator proceeds in the given direction.
      */
-    public Atom reset(Atom atom, IteratorDirective.Direction direction) {
+    public void reset(Atom atom, IteratorDirective.Direction direction) {
         this.first = list.entry(atom);
         this.terminator = header;
         this.direction = direction;
-        return doReset();
+        doReset();
     }
 
     /**
@@ -402,11 +441,11 @@ public final class AtomIteratorList extends AtomIterator {
      * If first is an index, iterator is advanced to begin with the
      * next atom entry.
      */
-    public Atom reset(AtomLinker first, AtomLinker.Tab terminator) {
+    public void reset(AtomLinker first, AtomLinker.Tab terminator) {
         this.first = first;
         this.terminator = terminator;
         this.direction = IteratorDirective.UP;
-        return doReset();
+        doReset();
     }
     
     /**
@@ -423,11 +462,11 @@ public final class AtomIteratorList extends AtomIterator {
      * (unless it is a tab); down iteration always begins with the linker before the given
      * first one.
      */
-    public Atom reset(AtomLinker first, AtomLinker.Tab terminator, IteratorDirective.Direction direction) {
+    public void reset(AtomLinker first, AtomLinker.Tab terminator, IteratorDirective.Direction direction) {
         this.first = first;
         this.terminator = terminator;
         this.direction = direction;
-        return doReset();
+        doReset();
     }
     
     /**
@@ -466,7 +505,6 @@ public final class AtomIteratorList extends AtomIterator {
     }
     
     public AtomLinker nextLinker() {
-        AtomLinker nextLinker = next;
         next = upListNow ? next.next : (doGoDown ? next.previous : header);//9/1/02 added doGoDown? clause to handle NEITHER
         while(next.atom == null) {
             //if terminator is null we stop at the first encounter of a Tab linker
@@ -481,8 +519,19 @@ public final class AtomIteratorList extends AtomIterator {
             }
             else next = upListNow ? next.next : next.previous;
         }
-        return nextLinker;
+        return next;
     }//end of nextLinker
+    
+	/**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
     
     /**
      * Method to test and demonstrate use of class.

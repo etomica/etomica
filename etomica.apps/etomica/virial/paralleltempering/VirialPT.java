@@ -168,7 +168,7 @@ public class VirialPT extends SimulationGraphic {
 		DisplayPlot bPlot = new DisplayPlot(this);
 		bPlot.setDataSources(bMeter.getHistory());	
 		bPlot.setWhichValue(MeterAbstract.CURRENT);
-		bMeter.getHistory().setNBins(1000);
+		bMeter.getHistory().setHistoryLength(1000);
 		bPlot.setLabel("B average ("+meterVirial[k].getTemperature()+")");
 		
 		DisplayTable virialTable = new DisplayTable(this);

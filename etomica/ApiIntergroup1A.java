@@ -20,7 +20,7 @@ package etomica;
   * coordinate arguments.
   */
  
-public class ApiIntergroup1A extends AtomPairIterator {
+public class ApiIntergroup1A implements AtomPairIterator {
     
     protected Atom group1; 
     protected Atom group2;
@@ -36,6 +36,13 @@ public class ApiIntergroup1A extends AtomPairIterator {
         atomIterator = sim.iteratorFactory.makeIntergroupNbrIterator();
     }
     
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		if(basis == null || !(action instanceof AtomPairActive)) return;
+		switch(basis.nBody()) {
+			case 1: all((Atom)basis, id, (AtomPairActive)action); break;
+			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
+		}
+	}
 	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a single basis atom");
 	}

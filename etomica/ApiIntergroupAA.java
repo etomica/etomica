@@ -14,7 +14,7 @@ package etomica;
  */
 
 
-public final class ApiIntergroupAA extends AtomPairIterator {
+public final class ApiIntergroupAA implements AtomPairIterator {
     
     public ApiIntergroupAA(Simulation sim) {
         pair = new AtomPair(sim.space);
@@ -22,6 +22,13 @@ public final class ApiIntergroupAA extends AtomPairIterator {
         aiInner = sim.iteratorFactory.makeIntergroupNbrIterator();
     }
     
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		if(basis == null || !(action instanceof AtomPairActive)) return;
+		switch(basis.nBody()) {
+			case 1: all((Atom)basis, id, (AtomPairActive)action); break;
+			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
+		}
+	}
 	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a single basis atom");
 	}

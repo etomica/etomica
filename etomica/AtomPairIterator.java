@@ -1,20 +1,18 @@
+/*
+ * Created on Aug 5, 2004
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
 package etomica;
 
 /**
- * Basic interface for iterating over pairs of atoms.
+ * @author andrew
  *
- * @author David Kofke
+ * TODO To change the template for this generated type comment go to
+ * Window - Preferences - Java - Code Style - Code Templates
  */
-public abstract class AtomPairIterator implements AtomSetIterator, java.io.Serializable {
-	
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
-	 if(basis == null || !(action instanceof AtomPairActive)) return;
-	 switch(basis.nBody()) {
-		case 1: all((Atom)basis, id, (AtomPairActive)action); break;
-		case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
-	 }
-	}
-
+public interface AtomPairIterator extends AtomSetIterator {
 	public abstract void all(Atom basis, IteratorDirective id, AtomPairActive action);
 	
 	public abstract void all(AtomPair basis, IteratorDirective id, AtomPairActive action);
@@ -45,19 +43,4 @@ public abstract class AtomPairIterator implements AtomSetIterator, java.io.Seria
      */
     public abstract void allPairs(AtomPairAction act);
     
-    public static final AtomPairIterator NULL = new Null();
-    static final class Null extends AtomPairIterator {
-        public void setBasis(Atom a1, Atom a2) {}
-        public int size() {return 0;}                
-        public boolean hasNext() {return false;}       
-        public void reset(IteratorDirective id) {}
-        public void reset() {}
-        public void reset(Atom atom) {}
-        public AtomPair next() {return null;}
-        public void allPairs(AtomPairAction act) {}
-		public void all(Atom basis, IteratorDirective id, AtomPairActive act) {}
-        public void all(AtomPair basis, IteratorDirective id, AtomPairActive act) {}
-    }//end of Null
-    
-}  //end of class AtomPairIterator
-    
+}

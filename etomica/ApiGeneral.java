@@ -14,7 +14,7 @@ package etomica;
   * 08/29/03 (DAK) using reset2 method
   */
   
-public final class ApiGeneral extends AtomPairIterator {
+public final class ApiGeneral implements AtomPairIterator {
     
     private final AtomPair pair;
     private IteratorDirective.Direction direction;
@@ -43,7 +43,15 @@ public final class ApiGeneral extends AtomPairIterator {
         direction = IteratorDirective.UP;
     }
  
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		if(basis == null || !(action instanceof AtomPairActive)) return;
+		switch(basis.nBody()) {
+			case 1: all((Atom)basis, id, (AtomPairActive)action); break;
+			case 2: all((AtomPair)basis, id, (AtomPairActive)action); break;
+		}
+	}
 	public void all(Atom basis, IteratorDirective dummy, AtomPairActive action) {
+		throw new RuntimeException("Method all not implemented in AtomIteratorCompound");
 		//in progress
 	}
 	public void all(AtomPair basis, IteratorDirective dummy, AtomPairActive action) {

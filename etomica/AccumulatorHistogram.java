@@ -87,7 +87,7 @@ public class AccumulatorHistogram extends Accumulator {
     	nDataMinus1 = nData-1;
     	dataTranslator = (DataTranslatorArray)getTranslator();
     	data = new double[nData][];
-    	histogram = new HistogramSimple[nData];
+    	histogram = new Histogram[nData];
     	for(int i=0; i<nData; i++) histogram[i] = histogramFactory.makeHistogram(nBins);
 	}
 	/**
