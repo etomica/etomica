@@ -36,10 +36,10 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * Returns true if the iterator contains the given atom and
 	 * atom meets the filter's criteria.
 	 */
-	public boolean contains(Atom atom) {
-		return filter.accept(atom) && iterator.contains(atom);
+	public boolean contains(Atom[] atom) {
+		return filter.accept(atom[0]) && iterator.contains(atom);
 	}
-
+	
 	/**
 	 * Indicates whether iterator has another iterate to return.
 	 */
@@ -67,28 +67,34 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * Returns the next atom from the iterator that meets the 
 	 * filter's criteria.
 	 */
-	public Atom next() {
+	public Atom nextAtom() {
 		Atom nextAtom = next;
 		next = null;
 		while(iterator.hasNext() && next == null) {
-			next = iterator.next();
+			next = iterator.nextAtom();
 			if(!filter.accept(next)) next = null;
 		}
 		return nextAtom;
 	}
 	
+	public Atom[] next() {
+		atoms[0] = nextAtom();
+		return atoms;
+	}
+	
 	/**
 	 * Returns next atom without advancing the iterator.
 	 */
-	public Atom peek() {
-		return next;
+	public Atom[] peek() {
+		atoms[0] = next;
+		return atoms;
 	}
 
 	/**
 	 * Performs the given action on all atoms from iterator that 
 	 * meet the filter criteria.
 	 */
-	public void allAtoms(AtomActive action) {
+	public void allAtoms(AtomsetActive action) {
 		iterator.allAtoms(actionWrapper(filter, action));
 	}
 
@@ -98,10 +104,13 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * filter.
 	 */
 	public int size() {
-		AtomActiveCount counter = new AtomActiveCount();
+		AtomsetActiveCount counter = new AtomsetActiveCount();
 		allAtoms(counter);
 		return counter.callCount();
 	}
+	
+	public final int nBody() {return 1;}
+	
 	/**
 	 * @return Returns the filter.
 	 */
@@ -118,15 +127,16 @@ public class AtomIteratorFiltered implements AtomIterator {
 	private final AtomIterator iterator;
 	private AtomFilter filter;
 	private Atom next;
+	private final Atom[] atoms = new Atom[1];
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed
 	 * only on the atoms meeting the filter's criteria.
 	 */
-	private static AtomActive actionWrapper(final AtomFilter filter, final AtomActive action) {
-		return new AtomActive() {
-			public void actionPerformed(Atom atom) {
-				if(filter.accept(atom)) action.actionPerformed(atom);
+	private static AtomsetActive actionWrapper(final AtomFilter filter, final AtomsetActive action) {
+		return new AtomsetActive() {
+			public void actionPerformed(Atom[] atom) {
+				if(filter.accept(atom[0])) action.actionPerformed(atom);
 			}
 		};
 	}

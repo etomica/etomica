@@ -283,7 +283,7 @@ public class AtomList implements java.io.Serializable
         AtomLinker predecessor = successor.previous;
 	    iterator.reset();//should remove this
 	    for (int i=0; i<numNew; i++) {
-	        makeLinker(iterator.next()).addBefore(successor);
+	        makeLinker(iterator.nextAtom()).addBefore(successor);
 	    }
 
         size += numNew;

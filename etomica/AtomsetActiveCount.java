@@ -11,12 +11,12 @@ package etomica;
 
  //used by some iterators to implement their size() method
 
-public class AtomActiveCount implements AtomActive {
+public class AtomsetActiveCount implements AtomsetActive {
 
 	/**
 	 * Increments the call-counter by 1.
 	 */
-	public void actionPerformed(Atom atom) {callCount++;}
+	public void actionPerformed(Atom[] atom) {callCount++;}
 	
 	/**
 	 * Sets the callCount to zero.

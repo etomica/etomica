@@ -14,7 +14,7 @@ package etomica;
   * 08/25/04 (DAK et al) new
   */
   
-public final class ApiInnerVariable implements AtomPairIterator {
+public final class ApiInnerVariable implements AtomsetIterator {
     
     /**
      * Construct a pair iterator using the given atom iterators.  Requires
@@ -22,7 +22,6 @@ public final class ApiInnerVariable implements AtomPairIterator {
      */
     public ApiInnerVariable(Space space, AtomIterator aiOuter, 
     						AtomIteratorAtomDependent aiInner) {
-        pair = new AtomPair(space);
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;
         unset();
@@ -75,10 +74,10 @@ public final class ApiInnerVariable implements AtomPairIterator {
      * atoms in the same atom1/atom2 position as the given pair). Not dependent
      * on state of hasNext.
      */
-    public boolean contains(AtomPair pair) {
-    	if(aiOuter.contains(pair.atom1())) {
-    		aiInner.setAtom(pair.atom1());
-    		return aiInner.contains(pair.atom2());
+    public boolean contains(Atom[] pair) {
+    	if(aiOuter.contains(new Atom[] {pair[0]})) {
+    		aiInner.setAtom(pair[0]);
+    		return aiInner.contains(new Atom[] {pair[1]});
     	} else return false;
     }
 
@@ -90,7 +89,7 @@ public final class ApiInnerVariable implements AtomPairIterator {
     	int sum = 0;
         aiOuter.reset();
         while(aiOuter.hasNext()) {
-    		aiInner.setAtom(aiOuter.next());
+    		aiInner.setAtom(aiOuter.nextAtom());
     		sum += aiInner.size();
         }
     	return sum;
@@ -109,8 +108,8 @@ public final class ApiInnerVariable implements AtomPairIterator {
         hasNext = false;
         needUpdate1 = false;
         while(aiOuter.hasNext()) { //loop over outer iterator...
-            pair.setAtom1(aiOuter.next());
-            aiInner.setAtom(pair.atom1());
+            pair[0] = aiOuter.nextAtom();
+            aiInner.setAtom(pair[0]);
             aiInner.reset();
             if(aiInner.hasNext()) { //until inner iterator has another
                 hasNext = true;
@@ -124,10 +123,10 @@ public final class ApiInnerVariable implements AtomPairIterator {
      * If the iterator has reached the end of its iteration,
      * returns null.
      */
-    public AtomPair peek() {
+    public Atom[] peek() {
     	if(!hasNext) {return null;}   	
-        if(needUpdate1) {pair.setAtom1(atom1); needUpdate1 = false;}  //aiOuter was advanced
-        pair.setAtom2(aiInner.peek());
+        if(needUpdate1) {pair[0] = atom1; needUpdate1 = false;}  //aiOuter was advanced
+        pair[1] = aiInner.peek()[0];
     	return pair;
     }
     
@@ -136,15 +135,15 @@ public final class ApiInnerVariable implements AtomPairIterator {
      * is returned every time, but the Atoms it holds are (of course)
      * different for each iterate. 
      */
-    public AtomPair next() {
+    public Atom[] next() {
     	if(!hasNext) return null;
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
-        if(needUpdate1) {pair.setAtom1(atom1); needUpdate1 = false;}  //aiOuter was advanced
-        pair.setAtom2(aiInner.next());
+        if(needUpdate1) {pair[0] = atom1; needUpdate1 = false;}  //aiOuter was advanced
+        pair[1] = aiInner.nextAtom();
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
-                atom1 = aiOuter.next();           //...get it
+                atom1 = aiOuter.nextAtom();           //...get it
                 aiInner.setAtom(atom1);
                 aiInner.reset();
                 needUpdate1 = true;           //...flag update of pair.atom1 for next time
@@ -157,20 +156,22 @@ public final class ApiInnerVariable implements AtomPairIterator {
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
-    public void allPairs(AtomPairActive act) {  
+    public void allAtoms(AtomsetActive act) {  
 		aiOuter.reset();
 		while(aiOuter.hasNext()) {
-			pair.setAtom1(aiOuter.next());
-			aiInner.setAtom(pair.atom1());
+			pair[0] = aiOuter.nextAtom();
+			aiInner.setAtom(pair[0]);
 			aiInner.reset();
 			while(aiInner.hasNext()){
-				pair.setAtom2(aiInner.next());
+				pair[1] = aiInner.nextAtom();
 				act.actionPerformed(pair);
 			}
 		}
     }
     
-    private final AtomPair pair;
+    public final int nBody() {return 2;}
+    
+    private final Atom[] pair = new Atom[2];
     private boolean hasNext, needUpdate1;
     private Atom atom1;
 

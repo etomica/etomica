@@ -39,7 +39,7 @@ class Lister implements AtomActive, AtomPairActive {
 	}
 
 	/**
-	 * @see etomica.AtomSetActive#actionPerformed(etomica.AtomSet)
+	 * @see etomica.AtomsetActive#actionPerformed(etomica.AtomSet)
 	 */
 	public void actionPerformed(AtomSet atomSet) {
 		list.add(atomSet.toString());

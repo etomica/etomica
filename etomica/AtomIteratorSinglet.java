@@ -15,11 +15,8 @@ package etomica;
   * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
   * 08/26/04 (DAK) revised with overhaul of iterators
   */
-public final class AtomIteratorSinglet implements AtomIterator {
+public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     
-    private Atom atom = null;
-    private boolean hasNext = false;
-   
     /**
      * Constructs iterator without defining atom.  No atoms will
      * be given by this iterator until a call to setAtom is performed.
@@ -38,7 +35,7 @@ public final class AtomIteratorSinglet implements AtomIterator {
      * Call to reset() must be performed before beginning iteration.
      */
     public void setAtom(Atom a) {
-    	atom = a; 
+    	atom[0] = a;
     	unset();
     }
     
@@ -46,17 +43,17 @@ public final class AtomIteratorSinglet implements AtomIterator {
      * Returns 0 if atom has not been previously set, or has been set to null;
      * returns 1 otherwise.
      */
-    public int size() {return (atom != null) ? 1 : 0;}
+    public int size() {return (atom[0] != null) ? 1 : 0;}
 
-	public void allAtoms(AtomActive action) {
-		if(atom != null) action.actionPerformed(atom);
+	public void allAtoms(AtomsetActive action) {
+		if(atom[0] != null) action.actionPerformed(atom);
 	}
         
     /**
      * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
      */
-    public boolean contains(Atom a) {
-    	return (a != null && a.equals(atom));
+    public boolean contains(Atom[] a) {
+    	return (a != null && a[0] != null && a[0].equals(atom));
     }
     
     /**
@@ -80,13 +77,22 @@ public final class AtomIteratorSinglet implements AtomIterator {
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public Atom next() {hasNext = false; return atom;}
+    public Atom nextAtom() {hasNext = false; return atom[0];}
+    
+    public Atom[] next() {hasNext = false; return atom;}
     
     /**
      * Returns the atom last specified via setAtom.  Does
      * not advance iterator.
      */
-    public Atom peek() {return atom;}
+    public Atom[] peek() {
+    	return atom;
+    }
     
+    public final int nBody() {return 1;}
+    
+    private boolean hasNext = false;
+    private final Atom[] atom = new Atom[1];
+
 }//end of AtomIteratorSinglet
         

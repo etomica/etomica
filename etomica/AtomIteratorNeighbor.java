@@ -163,7 +163,7 @@ public class AtomIteratorNeighbor implements AtomIterator {
 	 * classes. Otherwise returns without throwing any exception.
 	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
 	 */
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
 		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
 		 all((Atom)basis, id, (AtomActive)action);
 	}

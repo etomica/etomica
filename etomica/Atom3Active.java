@@ -10,6 +10,6 @@ package etomica;
  * 
  * 01/25/03 (DAK) new
  */
-public interface Atom3Active extends AtomSetActive {
+public interface Atom3Active extends AtomsetActive {
 	public void actionPerformed(Atom3 atom3);
 }

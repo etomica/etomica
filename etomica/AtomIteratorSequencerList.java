@@ -35,16 +35,16 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#allAtoms(etomica.AtomActive)
 	 */
-	public void allAtoms(AtomActive action) {
+	public void allAtoms(AtomsetActive action) {
 		if(skippingFirst) listIterator.allAtoms(skipFirstWrapper(action));
 		else listIterator.allAtoms(action);
 	}
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
-	public boolean contains(Atom atom) {
-		return skippingFirst ? (atom != firstAtom && iterator.contains(atom)) 
-							 : iterator.contains(atom);
+	public boolean contains(Atom[] atom) {
+		return skippingFirst ? (atom[0] != firstAtom && listIterator.contains(atom)) 
+							 : listIterator.contains(atom);
 	}
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#size()
@@ -90,10 +90,10 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 	 * effect of preventing it from performing its action on firstAtom.
 	 * Used by the allAtoms method if skippingFirst.
 	 */
-	private AtomActive skipFirstWrapper(final AtomActive action) {
-		return new AtomActive() {
-			public void actionPerformed(Atom atom) {
-				if(atom != firstAtom) action.actionPerformed(atom);
+	private AtomsetActive skipFirstWrapper(final AtomsetActive action) {
+		return new AtomsetActive() {
+			public void actionPerformed(Atom[] atom) {
+				if(atom[0] != firstAtom) action.actionPerformed(atom);
 			}
 		};
 	}

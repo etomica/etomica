@@ -68,7 +68,7 @@ public final class Api1A implements AtomPairIterator {
 	 */
 	public void allPairs(AtomPairAction act) {throw new etomica.exception.MethodNotImplementedException();}
 
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
 		if(basis == null || !(action instanceof AtomPairActive)) return;
 		switch(basis.nBody()) {
 			case 1: all((Atom)basis, id, (AtomPairActive)action); break;

@@ -67,7 +67,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public double energy(Atom[] pair) {
-     //   return u(pair.r2());
     	cPair.reset(pair[0].coord,pair[1].coord);
     	double r2 = cPair.r2();
         if(potentialTruncation.isZero(r2)) return 0.0;

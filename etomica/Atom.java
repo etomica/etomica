@@ -13,7 +13,7 @@ package etomica;
   * @author David Kofke
   * @author C. Daniel Barnes
   */
-public class Atom implements AtomSet, java.io.Serializable {
+public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "Atom:01.08.08";}
     

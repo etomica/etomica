@@ -44,10 +44,13 @@ public final class AtomIteratorListSimple implements AtomIterator {
     /**
      * Performs action on all atoms.
      */
-    public void allAtoms(AtomActive action) {
+    public void allAtoms(AtomsetActive action) {
     	final AtomLinker.Tab header = list.header;
         for (AtomLinker e = header.next; e != header; e = e.next) 
-            if(e.atom != null) action.actionPerformed(e.atom);
+            if(e.atom != null) {
+            	atoms[0] = e.atom;
+            	action.actionPerformed(atoms);
+            }
     }
     
     public static void allAtoms(AtomActive action, AtomList list) {
@@ -73,8 +76,8 @@ public final class AtomIteratorListSimple implements AtomIterator {
     /**
      * Returns true if the given atom is in the list of iterates, false otherwise.
      */
-	public boolean contains(Atom atom){
-        return list.contains(atom);
+	public boolean contains(Atom[] atom){
+        return list.contains(atom[0]);
 	}
 	
 	/**
@@ -86,16 +89,24 @@ public final class AtomIteratorListSimple implements AtomIterator {
     /**
      * Returns the next atom in the list without advancing the iterator.
      */
-    public Atom peek() {
-        return next.atom;
+    public Atom[] peek() {
+        atoms[0] = next.atom;
+        return atoms;
     }
     
 	/**
 	 * Returns the next atom in the list.
 	 */    
-    public Atom next() {
+    public Atom nextAtom() {
         return nextLinker().atom;
     }
+    
+    public Atom[] next() {
+    	atoms[0] = nextLinker().atom;
+    	return atoms;
+    }
+    
+    public final int nBody() {return 1;}
     
     private AtomLinker nextLinker() {
         AtomLinker nextLinker = next;
@@ -106,38 +117,39 @@ public final class AtomIteratorListSimple implements AtomIterator {
     	
     private AtomList list;
 	private AtomLinker next;
+	private final Atom[] atoms = new Atom[1];
     
-    public static void main(String[] args) {
-        Simulation sim = new Simulation();
-        Phase phase = new Phase();
-        SpeciesSpheresMono species = new SpeciesSpheresMono();
-        species.setNMolecules(10);
-        sim.elementCoordinator.go();
-        
-        boolean pauseForInput = true;
-        
-        AtomListRestorable list = new AtomListRestorable(phase.makeMoleculeIterator());
-        AtomIteratorListSimple iterator = new AtomIteratorListSimple(list);
-        
-        System.out.println("Original list");
-        iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
-        
-        System.out.println("Removing each element from list as iterated");
-        iterator.reset();
-        while(iterator.hasNext()) {
-            Atom atom = iterator.next();
-            System.out.println(atom.toString());
-            list.remove(atom);
-        }
-        if(pauseForInput) IteratorDirective.pauseForInput();
-        
-        System.out.println("Empty list");
-        iterator.reset();
-        while(iterator.hasNext()) System.out.println(iterator.next().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
-    }//end main
+//    public static void main(String[] args) {
+//        Simulation sim = new Simulation();
+//        Phase phase = new Phase();
+//        SpeciesSpheresMono species = new SpeciesSpheresMono();
+//        species.setNMolecules(10);
+//        sim.elementCoordinator.go();
+//        
+//        boolean pauseForInput = true;
+//        
+//        AtomListRestorable list = new AtomListRestorable(phase.makeMoleculeIterator());
+//        AtomIteratorListSimple iterator = new AtomIteratorListSimple(list);
+//        
+//        System.out.println("Original list");
+//        iterator.reset();
+//        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+//        if(pauseForInput) IteratorDirective.pauseForInput();
+//        
+//        System.out.println("Removing each element from list as iterated");
+//        iterator.reset();
+//        while(iterator.hasNext()) {
+//            Atom atom = iterator.next();
+//            System.out.println(atom.toString());
+//            list.remove(atom);
+//        }
+//        if(pauseForInput) IteratorDirective.pauseForInput();
+//        
+//        System.out.println("Empty list");
+//        iterator.reset();
+//        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+//        if(pauseForInput) IteratorDirective.pauseForInput();
+//    }//end main
 
 }//end of AtomIteratorListSimple
 

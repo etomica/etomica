@@ -27,7 +27,7 @@ public final class ApiIntragroupAA implements AtomPairIterator {
         aiInner = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
 		if(basis == null || !(action instanceof AtomPairActive)) return;
 		switch(basis.nBody()) {
 			case 1: all((Atom)basis, id, (AtomPairActive)action); break;

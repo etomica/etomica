@@ -22,6 +22,7 @@ public final class AtomIteratorList implements AtomIterator {
 	private AtomLinker.Tab terminator;//tab indicating end of iteration
 	private AtomLinker next;//holds next atom to return on call to next()
     private boolean upList;
+    private final Atom[] atoms = new Atom[1];
     
     /**
      * Constructs a new iterator using an empty list as its basis for iteration.
@@ -95,10 +96,13 @@ public final class AtomIteratorList implements AtomIterator {
      * Set of atoms for this method is same as that which would be given
      * by a hasNext/next loop.
      */
-    public void allAtoms(AtomActive action){
+    public void allAtoms(AtomsetActive action){
     	AtomLinker.Tab header = list.header;
     	for(AtomLinker link=first; link!=terminator && link!=header; link=(upList ? link.next : link.previous)) {
-    		if(link.atom != null) action.actionPerformed(link.atom);
+    		if(link.atom != null) {
+    			atoms[0] = link.atom;
+    			action.actionPerformed(atoms);
+    		}
     		else if(terminator == null) break;
     	}       
     }//end of allAtoms
@@ -181,9 +185,9 @@ public final class AtomIteratorList implements AtomIterator {
     /**
      * Returns true if the given atom is in the list of iterates, false otherwise.
      */
-	public boolean contains(Atom atom){
-        if(first == list.header && terminator == list.header) return list.contains(atom);
-		AtomActiveDetect detector = new AtomActiveDetect(atom);
+	public boolean contains(Atom[] atom){
+        if(first == list.header && terminator == list.header) return list.contains(atom[0]);
+		AtomsetActiveDetect detector = new AtomsetActiveDetect(atom[0]);
 		allAtoms(detector);
 		return detector.detectedAtom();
 	}
@@ -194,25 +198,33 @@ public final class AtomIteratorList implements AtomIterator {
 	 */
 	public int size() {
 		if(first == list.header && terminator == list.header) return list.size();
-		AtomActiveCount counter = new AtomActiveCount();
+		AtomsetActiveCount counter = new AtomsetActiveCount();
 		allAtoms(counter);
 		return counter.callCount();
 
+	}
+	
+	public Atom[] next() {
+		atoms[0] = nextLinker().atom;
+		return atoms;
 	}
 		
 	/**
 	 * Returns the next iterate.
 	 */
-    public Atom next() {
+    public Atom nextAtom() {
         return nextLinker().atom;
     }
     
     /**
      * Returns the next atom in the list without advancing the iterator.
      */
-    public Atom peek() {
-        return next.atom;
+    public Atom[] peek() {
+    	atoms[0] = next.atom;
+        return atoms;
     }
+    
+    public final int nBody() {return 1;}
     
     public AtomLinker nextLinker() {
     	if(next.atom == null) return next;//prevent call to nextLinker from advancing past terminator

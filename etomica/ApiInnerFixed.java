@@ -13,14 +13,13 @@ package etomica;
   * 08/25/04 (DAK et al) new
   */
   
-public final class ApiInnerFixed implements AtomPairIterator {
+public final class ApiInnerFixed implements AtomsetIterator {
     
     /**
      * Construct a pair iterator using the given atom iterators.  Requires
      * call to reset() before beginning iteration.
      */
-    public ApiInnerFixed(Space space, AtomIterator aiOuter, AtomIterator aiInner) {
-        pair = new AtomPair(space);
+    public ApiInnerFixed(AtomIterator aiOuter, AtomIterator aiInner) {
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;
         unset();
@@ -73,8 +72,9 @@ public final class ApiInnerFixed implements AtomPairIterator {
      * atoms in the same atom1/atom2 position as the given pair). Not
      * dependent on state of hasNext.
      */
-    public boolean contains(AtomPair pair) {
-    	return aiOuter.contains(pair.atom1) && aiInner.contains(pair.atom2());
+    public boolean contains(Atom[] pair) {
+    	return aiOuter.contains(new Atom[] {pair[0]}) 
+				&& aiInner.contains(new Atom[] {pair[1]});
     }
     
     
@@ -105,18 +105,19 @@ public final class ApiInnerFixed implements AtomPairIterator {
      * If the iterator has reached the end of its iteration,
      * returns null.
      */
-    public AtomPair peek() {
+    public Atom[] peek() {
     	if(!hasNext) {return null;}
     	
     	if(aiInner.hasNext()) {
-    		pair.setAtom2(aiInner.peek());
+    		pair[1] = aiInner.peek()[0];
     	}
     	else {
     		// Althouth we advance aiOuter, we 
     		// are not advancing the pair iterator.
     		// Outcome of next() is not changed
     		aiInner.reset();
-    		pair.setAtoms(aiOuter.next(), aiInner.peek());
+    		pair[0] = aiOuter.nextAtom();
+    		pair[1] = aiInner.peek()[0];
     	}
     	return pair;
     }
@@ -126,16 +127,17 @@ public final class ApiInnerFixed implements AtomPairIterator {
      * is returned every time, but the Atoms it holds are (of course)
      * different for each iterate. 
      */
-    public AtomPair next() {
+    public Atom[] next() {
     	if(!hasNext) {return null;}
     	//Advance the inner loop, if it is not at its end.
     	if(aiInner.hasNext()) {
-    		pair.setAtom2(aiInner.next());
+    		pair[1] = aiInner.nextAtom();
     	}
     	//Advance the outer loop, if the inner loop has reached its end.
     	else {
     		aiInner.reset();
-			pair.setAtoms(aiOuter.next() , aiInner.next());
+			pair[0] = aiOuter.nextAtom();
+			pair[1] = aiInner.nextAtom();
     	}   	
     	hasNext = aiInner.hasNext() || aiOuter.hasNext();
         return pair;
@@ -144,19 +146,21 @@ public final class ApiInnerFixed implements AtomPairIterator {
 	/**
 	 * Performs the given action on all pairs returned by this iterator.
 	 */
-    public void allPairs(AtomPairActive action) {  
+    public void allAtoms(AtomsetActive action) {  
        aiOuter.reset();
        while(aiOuter.hasNext()) {
-	       pair.setAtom1(aiOuter.next());
+	       pair[0] = aiOuter.nextAtom();
 	       aiInner.reset();
 	       while(aiInner.hasNext()){
-		       pair.setAtom2(aiInner.next());
+		       pair[1] = aiInner.nextAtom();
 		       action.actionPerformed(pair);
 	       }
        }
     }
     
-    private final AtomPair pair;
+    public final int nBody() {return 2;}
+    
+    private final Atom[] pair = new Atom[2];
     private boolean hasNext;
 
     /**

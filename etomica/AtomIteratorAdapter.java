@@ -29,7 +29,7 @@ public abstract class AtomIteratorAdapter implements AtomIterator {
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
-	public boolean contains(Atom atom) {
+	public boolean contains(Atom[] atom) {
 		return iterator.contains(atom);
 	}
 
@@ -57,18 +57,22 @@ public abstract class AtomIteratorAdapter implements AtomIterator {
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#next()
 	 */
-	public Atom next() {
+	public Atom[] next() {
 		return iterator.next();
 	}
 	
-	public Atom peek() {
+	public Atom nextAtom() {
+		return iterator.nextAtom();
+	}
+	
+	public Atom[] peek() {
 		return iterator.peek();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
 	 */
-	public void allAtoms(AtomActive action) {
+	public void allAtoms(AtomsetActive action) {
 		iterator.allAtoms(action);
 	}
 
@@ -79,4 +83,5 @@ public abstract class AtomIteratorAdapter implements AtomIterator {
 		return iterator.size();
 	}
 	
+	public final int nBody() {return 1;}
 }

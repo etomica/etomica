@@ -33,7 +33,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
 	public void setParent(AtomTreeNodeGroup parent) {
 		super.setParent(parent);
 		childIterator.reset();
-		while(childIterator.hasNext()) childIterator.next().node.setParent(this);//notifies children that there was a change in the hierarchy
+		while(childIterator.hasNext()) childIterator.nextAtom().node.setParent(this);//notifies children that there was a change in the hierarchy
 	}            
 	
     public Class childSequencerClass() {
@@ -76,7 +76,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         if(childrenAreGroups()) {
             childIterator.reset();
             while(childIterator.hasNext()) {
-                Atom a1 = childIterator.next().node.firstLeafAtom();
+                Atom a1 = childIterator.nextAtom().node.firstLeafAtom();
                 if(a1 != null) return a1;
             }
             return null;

@@ -242,7 +242,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
 		dnSkip.setSkipFirst(true);
 	}
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
 		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
 		 all((Atom)basis, id, (AtomActive)action);
 	}
