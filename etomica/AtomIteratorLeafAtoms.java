@@ -10,7 +10,7 @@ package etomica;
  * be configured to iterate all leaf atoms, or only those of
  * a particular species.
  */
-public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements AtomsetIteratorSpeciesDependent {
+public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements AtomIteratorSpeciesDependent, AtomsetIteratorSpeciesDependent {
 
 	/**
 	 * Creates iterator with no phase specified. Iteration will
