@@ -68,6 +68,7 @@ public class LatticeRenderer implements Drawable {
         private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
         private final IteratorDirective directive = new IteratorDirective(IteratorDirective.BOTH);
     //    private final IteratorDirective directive = new IteratorDirective(IteratorDirective.UP);
+        private final ColorSchemeByType typeColorScheme = new ColorSchemeByType();
         
         public ColorSchemeNeighbor(Simulation sim) {
             nbrIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
@@ -76,7 +77,10 @@ public class LatticeRenderer implements Drawable {
         public void colorAllAtoms(Phase phase) {
             allIterator.setBasis(phase.speciesMaster.atomList);
             allIterator.reset();
-            while(allIterator.hasNext()) allIterator.next().allatomAgents[agentIndex] = Color.green;
+            while(allIterator.hasNext()) {
+                Atom atom = allIterator.next();
+                atom.allatomAgents[agentIndex] = typeColorScheme.atomColor(atom);//Color.green;
+            }
             nbrIterator.reset(directive);
             while(nbrIterator.hasNext()) nbrIterator.next().allatomAgents[agentIndex] = Color.blue;
             referenceAtom.allatomAgents[agentIndex] = Color.red;

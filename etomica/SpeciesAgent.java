@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-public final class SpeciesAgent extends AtomGroup {
+public final class SpeciesAgent extends Atom {
 
     protected final AtomFactory factory;
 //    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
@@ -19,7 +19,8 @@ public final class SpeciesAgent extends AtomGroup {
     protected Integrator integrator;
     
     public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
-        super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s), parent);
+        super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s), 
+                s.parentSimulation().getIteratorFactory().simpleSequencerFactory(), parent);
         factory = s.moleculeFactory();
 //        node = (AtomTreeNodeGroup)super.node;
     }
@@ -34,7 +35,6 @@ public final class SpeciesAgent extends AtomGroup {
     public Atom randomMolecule() {return ((AtomTreeNodeGroup)node).randomAtom();}
             
     public Atom addNewAtom() {
-        if(!resizable) return null; //should define an exeception 
         Atom aNew = moleculeFactory().makeAtom((AtomTreeNodeGroup)this.node);
         return aNew;
     }
@@ -79,7 +79,6 @@ public final class SpeciesAgent extends AtomGroup {
      */
     public void setNMolecules(int n, boolean forceRebuild) {
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-        if(!resizable) return;
         boolean wasPaused = pauseIntegrator();
         if(forceRebuild) while(treeNode.childList.size() > 0) treeNode.lastChildAtom().sendToReservoir();
         

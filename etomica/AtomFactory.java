@@ -52,13 +52,14 @@ public abstract class AtomFactory {
     }
     
     /**
-     * Constructs a new atomgroup having the given parent and send it
-     * to the build(Atom) method to addition of children.  This method 
+     * Constructs a new atomgroup having the given parent and sends it
+     * to the build(Atom) method for addition of children.  This method 
      * is sometime overridden in subclasses to construct with atom that does
      * not use the group AtomTreeNode, or that is a subclass of Atom.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
-        Atom group = new Atom(parentSimulation.space, groupType, parent);
+        Atom group = new Atom(parentSimulation.space, groupType, AtomTreeNodeGroup.FACTORY, 
+                parentSimulation.getIteratorFactory().simpleSequencerFactory(), parent);
         return build(group);
     }
     

@@ -167,7 +167,7 @@ public class Simulation implements java.io.Serializable {
     /**
      * Returns the energy-sum object used by all Integrator, Meters, MCMoves, etc.
      * Returns the object last passed to setEnergySum, or if no such call was
-     * made (or if call set energySum to null) a new instance of 
+     * made (or if the call set energySum to null) a new instance of 
      * PotentialCalculationEnergySum is returned with each call.
      */
     public PotentialCalculationEnergySum energySum(Object obj) {

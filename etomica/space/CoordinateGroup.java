@@ -144,7 +144,7 @@ public class CoordinateGroup extends Coordinate {
     public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
     public void randomizeMomentum(double temperature) {
-        switch(((AtomGroup)atom).node.childAtomCount()) {
+        switch(((AtomTreeNodeGroup)atom.node).childAtomCount()) {
             case 0: return;
             case 1: ((AtomTreeNodeGroup)atom.node).firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                     return;

@@ -22,7 +22,8 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
     */
    private LatticeCubicFcc(Space space, AtomType type, int[] dimensions, AtomTreeNodeGroup parent,
                             double a) {
-        super(space, type, parent);
+        super(space, type, AtomTreeNodeGroup.FACTORY, 
+                IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
         if(space.D() != 3) throw new IllegalArgumentException("Error in LatticeCubicFcc constructor:  Given space is not 3D");
         this.dimensions = new int[dimensions.length];
         latticeConstant = a;

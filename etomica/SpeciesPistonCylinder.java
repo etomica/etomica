@@ -213,7 +213,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         //the first leaf atom of this agent.  This is the only atom acted
         //on by this potential.
         public void setBasis(Atom a) {
-            setAtom(((AtomGroup)a).node.firstLeafAtom());
+            setAtom(((AtomTreeNodeGroup)a.node).firstLeafAtom());
         }
     }
     

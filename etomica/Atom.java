@@ -17,13 +17,13 @@ public class Atom implements java.io.Serializable {
 
     public static String getVersion() {return "Atom:01.08.08";}
     
-    public Atom(Space space, AtomType type, AtomTreeNodeGroup parent) {
+  /*  public Atom(Space space, AtomType type, AtomTreeNodeGroup parent) {
         this(space, type, AtomTreeNodeGroup.FACTORY, parent);
     }
     public Atom(Space space, AtomType type, 
                     AtomTreeNode.Factory nodeFactory, AtomTreeNodeGroup parent) {
         this(space, type, nodeFactory, IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
-    }
+    }*/
     public Atom(Space space, AtomType type, 
                     AtomTreeNode.Factory nodeFactory,
                     AtomSequencer.Factory seqFactory, AtomTreeNodeGroup parent) {

@@ -69,7 +69,10 @@ public final class AtomIteratorList implements AtomIterator {
 	 * that returned by the getBasis method.
 	 */
     public void setBasis(Atom atom){
-        if(atom.node.isLeaf()) setBasis(AtomList.NULL);
+        if(atom == null || atom.node.isLeaf()) {
+            setBasis(AtomList.NULL);
+            return;
+        }
         basis = (AtomTreeNodeGroup)atom.node;
         this.list = basis.childList;
         header = list.header;
@@ -130,25 +133,14 @@ public final class AtomIteratorList implements AtomIterator {
                     next = next.next;
                 }//end while
             }//end else
-            
-/*            if(doGoDown) {//set next for downList iteration
-                next = first.previous;
-                if(next.atom == null) {//need to advance to find first entry
-                    if(next == header) return;
-                    upListNow = false;//set so that nextLinker() proceeds in proper direction
-                    nextLinker();//find first non-null entry
-                    if(next.atom == null) return; //none found
-                }//end if
-            }//end if
-            else return; //doGoDown is false; return now to avoid another check of it
- */           
+            if(!doGoDown) return;//for NEITHER case, handled at end of method
         }//end if(upListNow)
         
         if(doGoDown) {
             if(skipFirstAtom || upListNow) {//skip first down iterate, either because iterator is set to do so, or it was already given in up iteration
                 next = first.previous;
                 if(next.atom == null) {//need to advance to find first entry
-                    if(next == header) return;
+                    if(next == header || terminator == null) return;
                     upListNow = false;//set so that nextLinker() proceeds in proper direction
                     nextLinker();//find first non-null entry
                     if(next.atom == null) return; //none found
@@ -173,7 +165,7 @@ public final class AtomIteratorList implements AtomIterator {
         //then direction == NEITHER, and loop over only current atom if it is not null
         if(next.atom != null) action.actionPerformed(next.atom);
         
-    }//end of allAtomss
+    }//end of allAtoms
     
     /**
      * Sets iterator so that it is ready to go upList its entire list of iterates.

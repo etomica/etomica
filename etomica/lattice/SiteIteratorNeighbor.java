@@ -49,9 +49,6 @@ public class SiteIteratorNeighbor implements AtomIterator {
     public Atom getBasis() {
         throw new RuntimeException("method SiteIteratorNeighbor.getBasis() not yet implemented");
     }
-    public void setAsNeighbor(boolean b) {
-        throw new RuntimeException("method SiteIteratorNeighbor.setAsNeighbor not implemented");
-    }
     public Atom reset(IteratorDirective d) {
         throw new RuntimeException("method SiteIteratorNeighbor.reset(IteratorDirective) not yet implemented");
     }

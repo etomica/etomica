@@ -11,7 +11,7 @@ public class Site extends Atom {
      * Sets node such that site is a leaf, not a group.
      */
     public Site(Space space, AtomType type, AtomTreeNodeGroup parent) {
-        super(space, type, AtomTreeNodeLeaf.FACTORY, parent);
+        this(space, type, AtomTreeNodeLeaf.FACTORY, parent);
     }
     /**
      * Creates a site having the given parent lattice and coordinate.

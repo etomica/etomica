@@ -23,7 +23,8 @@ public class AtomReservoir extends Atom {
      * Construct reservoir that will accept up to the given number of atoms.
      */
     public AtomReservoir(AtomFactory factory, int capacity) {
-        super(factory.parentSimulation().space, AtomType.NULL, new NodeFactory(), null);
+        super(factory.parentSimulation().space, AtomType.NULL, new NodeFactory(), 
+                factory.parentSimulation().getIteratorFactory().simpleSequencerFactory(), null);
         this.factory = factory;
         if(capacity < 0) capacity = 0;
         this.capacity = capacity;
