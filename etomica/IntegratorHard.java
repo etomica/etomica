@@ -106,10 +106,7 @@ public class IntegratorHard extends IntegratorMD {
             if(count-- == 0) throw new RuntimeException("Unable to advance system through all collisions");
         } 
         advanceAcrossTimeStep(interval);
-        if(isothermal) {
-            scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
-        }
-        
+        if(isothermal) doThermostat();
     }//end of doStep
     
    /**
@@ -220,41 +217,47 @@ public class IntegratorHard extends IntegratorMD {
      */
     public void reset() {
         super.reset();
-        if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            ((IntegratorHard.Agent)atomIterator.nextAtom().ia).resetCollision();
+            ((Agent)atomIterator.nextAtom().ia).resetCollision();
         }
         targetAtom[0] = null;
         upList.setTargetAtoms(targetAtom);
         potential.calculate(firstPhase, upList, collisionHandlerUp); //assumes only one phase
         findNextCollider();
     }
-                
-    /**
-    * The simulation time elapsed since the start of the integration.
-    * Cannot be reset to zero.  
-    * Modified from superclass method to return correct value if in the middle
-    * of processing collisions between time steps.
-    */
-//    public double elapsedTime() {return super.elapsedTime() + timeIncrement;}
 
-              
     /**
-    * Crude method to enforce constant-temperature constraint
-    * Scales momenta of all atoms by a constant factor so that 
-    * phase adheres to setpoint temperature.  Updates collision times appropriately.
-    */
-    public void scaleMomenta(double s) {
+     * Updates collision times appropriately after scaling momenta.
+     */
+    public double scaleMomenta(Phase aPhase) {
+       double s = super.scaleMomenta(aPhase);
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            a.coord.momentum().TE(s); //scale momentum
             ((Agent)a.ia).collisionTime *= rs;
         }
+        return s
     }
-        
+
+    /**
+     * Updates collision times appropriately after randomizing momenta
+     * as part of the Andersen thermostat.
+     */
+    protected void randomizeMomenta(Phase aPhase) {
+        super.randomizeMomenta(aPhase);
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            Atom atom = atomIterator.nextAtom();
+            ((Agent)atom.ia).resetCollision();
+        }
+        targetAtom[0] = null;
+        upList.setTargetAtoms(targetAtom);
+        potential.calculate(aPhase, upList, collisionHandlerUp); //assumes only one phase
+        findNextCollider();
+    }
+    
     /**
      * Registers an object that implements the CollisionListener interface.
      * This causes the collisionAction method of the object to be called after each collision.
