@@ -6,7 +6,7 @@ import etomica.units.Dimension;
 import etomica.utility.Arrays;
 
 /**
- * An object that may hold one or more other data sinks to which it can 
+ * An object that may hold one or more data sinks to which it can 
  * push its data.
  */
 public abstract class DataPusher {

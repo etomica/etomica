@@ -6,7 +6,7 @@ import etomica.DataSource;
 import etomica.DataTranslator;
 
 /**
- * A data pipe that can move data from a source to its sinks
+ * A data pusher that can move data from a source to its sinks
  * as the result of an action performed.
  */
 public class DataPump extends DataPusher implements Action {
