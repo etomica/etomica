@@ -43,6 +43,17 @@ public abstract class IntegratorMD extends Integrator {
      * Cannot be reset to zero.
      */
     public double elapsedTime() {return t0 + (stepCount-stepCount0)*timeStep;}
+    
+    /**
+     * Zeros step counter and reference time (such that elapsed time becomes zero).
+     * Often overridden in subclasses, so that elapsed time does not get zeroed
+     * with iterator reset.
+     */
+    public void doReset() {
+        stepCount = 0;
+        stepCount0 = 0;
+        t0 = 0;
+    }
         
     /**
      * Sets integration time step.
@@ -59,6 +70,7 @@ public abstract class IntegratorMD extends Integrator {
     
     /**
      * Returns a Meter object that gives the elapsed simulation time.
+     * @deprecated use MeterTime
      */
     public ChronoMeter chronoMeter() {
         return new ChronoMeter();

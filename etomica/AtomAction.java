@@ -15,6 +15,10 @@ package etomica;
  * @see Atom.Iterator
  * @see DisplayPhase.AtomActionWrapper
  */
+ 
+ /* History of changes
+  * 7/31/02 (DAK) Added Null subclass and NULL static instance of it.
+  */
 
 public abstract class AtomAction extends etomica.Action {
     
@@ -69,6 +73,15 @@ public abstract class AtomAction extends etomica.Action {
         public void actionPerformed(Atom a, Space.Vector d) {a.coord.position().PE(d);}
         public final void setDisplacement(Space.Vector d) {displacement.E(d);}
     }//end of Translate
+    
+    /**
+     * Action that does nothing.
+     */
+    public static class Null extends AtomAction {
+        public final void actionPerformed(Atom a) {}
+    }
+    
+    public static final AtomAction NULL = new Null();
     
 //        public static class Displace extends Translate {
 //            Atom atom;
