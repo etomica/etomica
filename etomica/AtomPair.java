@@ -1,18 +1,19 @@
 package simulate;
 
-public abstract class AtomPair {
+public class AtomPair {
     public Atom atom1, atom2;
-    public double r2;
+    public final Space.CoordinatePair cPair;
     public Potential potential;
-    public abstract void reset();
-    public abstract void reset(Atom a1, Atom a2);
-    public abstract double v2();
-    public abstract double vDotr();
-    public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
-    public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
+    public AtomPair(Phase phase) {
+        cPair = phase.space.makeCoordinatePair(this,phase.boundary());
+    }
+    public void reset(Atom a1, Atom a2) {
+        atom1 = a1; 
+        atom2 = a2; 
+        cPair.reset(a1.coordinate, a2.coordinate);
+    }
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
-    public final double r2() {return r2;}
     
     /**
      * Interface for classes that generate atom pairs according to various criteria
@@ -349,5 +350,131 @@ public abstract class AtomPair {
             } //end of reset(s1,s2)
             public void reset() {reset(species1, species2);}
         }  //end of class AMAM
+        
+        
+        
+        
+        //These iterators need some work to permit iLast = null
+        
+    //"Full" --> Each iteration of inner loop begins with same first atom
+    static final class Full implements simulate.AtomPair.Iterator.A {
+        final AtomPair pair;
+        Atom outer, inner;
+        private Atom iFirst, iLast, oFirst, oLast;
+        private boolean hasNext;
+        public Full(Phase p) {  //null constructor
+            pair = new AtomPair(p);
+            hasNext = false;
+        }  
+        public Full(Phase p, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
+            pair = new AtomPair(p);
+            reset(iF,iL,oF,oL);
+        }
+        public void reset(Atom iL, Atom oF, Atom oL) {reset(oF,iL,oF,oL);}  //take inner and outer first atoms as same
+        public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {
+            if(iF == null || oF == null) {hasNext = false; return;}
+            iFirst = iF; 
+            iLast =  iL; 
+            oFirst = oF; 
+            oLast =  oL;
+            inner = iFirst;
+            outer = oFirst;
+            hasNext = true;
+        }
+        public AtomPair next() {
+            if(!hasNext) {return null;}
+            pair.atom1 = outer;   //atom1 should always be outer
+            pair.atom2 = inner;
+            pair.reset();
+            if(inner == iLast) {                                     //end of inner loop
+                if(outer == oLast) {hasNext = false;}                //all done
+                else {outer = outer.nextAtom; inner = iFirst;} //advance outer, reset inner
+            }
+            else {inner = inner.nextAtom;}
+            return pair;
+        }
+        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
+        public boolean hasNext() {return hasNext;}
+        public void reset() {reset(iFirst, iLast, oFirst, oLast);}
+    }
+        
+    //"Half" --> Each iteration of inner loop begins with atom after (HalfUp) or before (HalfDown) outer loop atom
+    static final class HalfUp implements simulate.AtomPair.Iterator.A {
+        final AtomPair pair;
+        Atom outer, inner;
+        private Atom iFirst, iLast, oFirst, oLast;
+        private boolean hasNext;
+        public HalfUp(Phase p) {
+            pair = new AtomPair(p);
+            hasNext = false;
+        }
+        public HalfUp(Phase p, Atom iL, Atom oF, Atom oL) {  //constructor
+            pair = new AtomPair(p);
+            reset(iL,oF,oL);
+        }
+        public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
+        public void reset(Atom iL, Atom oF, Atom oL) {
+            if(oF == null) {hasNext = false; return;}
+            iLast =  iL; 
+            oFirst =  oF; 
+            oLast =  oL;
+            outer = oFirst;
+            inner = outer.nextAtom;
+            hasNext = (inner != null);
+        }
+        public AtomPair next() {
+            pair.atom1 = outer;   //c1 should always be outer
+            pair.atom2 = inner;
+            pair.reset();
+            if(inner == iLast) {                                     //end of inner loop
+                if(outer == oLast) {hasNext = false;}                //all done
+                else {outer = outer.nextAtom; inner = outer.nextAtom; hasNext = (inner!=null);} //advance outer, reset inner
+            }
+            else {inner = inner.nextAtom;}
+            return pair;
+        }
+        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
+        public boolean hasNext() {return hasNext;}
+        public void reset() {reset(iLast, oFirst, oLast);}
+    }
+    static final class HalfDown implements simulate.AtomPair.Iterator.A {
+        final AtomPair pair;
+        Atom outer, inner;
+        private Atom iFirst, iLast, oFirst, oLast;
+        private boolean hasNext;
+        public HalfDown(Phase p) {
+            pair = new AtomPair(p);
+            hasNext = false;
+        }
+        public HalfDown(Phase p, Atom iL, Atom oF, Atom oL) {  //constructor
+            pair = new AtomPair(p);
+            reset(iL,oF,oL);
+        }
+        public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
+        public void reset(Atom iL, Atom oF, Atom oL) {
+            if(oF == null) {hasNext = false; return;}
+            iLast =  iL; 
+            oFirst =  oF; 
+            oLast =  oL;
+            outer = oFirst;
+            inner = outer.previousAtom;
+            hasNext = (inner != null);
+        }
+        public AtomPair next() {
+            pair.atom1 = outer;   //c1 should always be outer
+            pair.atom2 = inner;
+            pair.reset();
+            if(inner == iLast) {                                     //end of inner loop
+                if(outer == oLast) {hasNext = false;}                //all done
+                else {outer = outer.previousAtom; inner = outer.previousAtom; hasNext = (inner != null);} //advance outer, reset inner
+            }
+            else {inner = inner.nextAtom;}
+            return pair;
+        }
+        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
+        public boolean hasNext() {return hasNext;}
+        public void reset() {reset(iLast, oFirst, oLast);}
+    }
+        
     }  //end of interface Iterator
 }  //end of  AtomPair

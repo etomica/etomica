@@ -2,30 +2,15 @@ package simulate;
 
 public abstract class Space {
     
-    private double neighborRadius = 1.0;
-    
     public abstract int D();
     
-    public void setNeighborRadius(double radius) {neighborRadius = radius;}
-    public double getNeighborRadius() {return neighborRadius;}
-        
-    public abstract Space.AtomCoordinate makeAtomCoordinate(Atom a);      //Space prefix is redundant
-    public abstract Space.Coordinate makeCoordinate();
-    public abstract Space.Vector makeVector();
+    public abstract Vector makeVector();      //Space.Vector
+    public abstract Coordinate makeCoordinate();
+    public abstract CoordinatePair makeCoordinatePair(AtomPair p, Boundary b);
     public abstract Boundary makeBoundary(int iBoundary);
 
-    public abstract AtomPair.Iterator.A makePairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL);
-    public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b, Atom iL, Atom oF, Atom oL);
-    public abstract AtomPair.Iterator.A makePairIteratorFull(Space.Boundary b);
-    public abstract AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary b);
-    public abstract AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary);
-    public abstract AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary);
-    public abstract Atom.Iterator makeUpAtomIterator();
-    public abstract Atom.Iterator makeDownAtomIterator();
-    public abstract simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2);
-    public abstract void clearCells();
 //  Vector contains what is needed to describe a point in the space
-    interface Vector {
+    interface Vector {    //probably want this to be an abstract class
         public double component(int i);
         public void setComponent(int i, double d);
         public void E(Vector u);
@@ -66,10 +51,8 @@ public abstract class Space {
         public double kineticEnergy();
         public Vector position();
         public Vector momentum();
-*/
-    }
-    
-    interface AtomCoordinate extends Coordinate {      //cannot be a class here because must inherit from Coordinate as it is defined in the PhaseSpace subclass
+
+atomCoordinate methods
         public void translateTo(Vector r);
         public void translateToward(Vector e, double amount);
         public void translateBy(Vector dr);
@@ -103,7 +86,33 @@ public abstract class Space {
         public Space.AtomCoordinate nextNeighbor();
         public Space.AtomCoordinate previousNeighbor();
         public void assignCell();
+        */
     }
+    
+    public abstract class CoordinatePair {
+        public Coordinate coordinate1, coordinate2;
+        public final AtomPair atomPair;
+        public double r2;
+        public Potential potential;
+        public CoordinatePair(AtomPair pair) {atomPair = pair;}  //constructor
+        public abstract void reset();
+        public abstract void reset(Atom a1, Atom a2);
+        public abstract double v2();
+        public abstract double vDotr();
+        public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
+        public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
+        public final Coordinate coordinate1() {return coordinate1;}
+        public final Coordinate coordinate2() {return coordinate2;}
+        public final double r2() {return r2;}       
+    }
+
+    interface NeighborIterator {
+        public void setNeighborRadius(double radius);
+        public double getNeighborRadius();
+        public Iterator makeIterator(Phase p);
+        public void clear();
+    }
+        
     interface Boundary {
         public static final int NONE = 0;
         public static final int PERIODIC = 1;
@@ -137,5 +146,7 @@ public abstract class Space {
 //        public  double[][] imageOrigins(int nShells) {return null;}
 //    }
 
-    public Potential makePotential() {return new PotentialIdealGas();}  //default    
+    public Potential makePotential() {return new PotentialIdealGas();}  //default  
+    
+    
 }    

@@ -4,7 +4,7 @@ import java.util.Random;
 
 //need to rewrite to put neighborCells inside phase
 
-public class Space2DCell extends Space {
+public class Space2DCell extends Space implements Space.NeighborIterator {
     
     public static final int D = 2;
     public final int D() {return D;}
@@ -21,21 +21,14 @@ public class Space2DCell extends Space {
     }
 
     public void setNeighborRadius(double radius) {
-        super.setNeighborRadius(radius); 
+        neighborRadius = radius; 
         cells.setNeighborIndexCutoff(radius*radius);  //probably should do assignCell for each atom
     }
+    public double getNeighborRadius() {return neighborRadius;}
+    public Iterator makeIterator(Phase p) {return new NeighborIterator(p);}
 
-    public Space.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public Space.Coordinate makeCoordinate() {return new Coordinate();}
     public Space.Vector makeVector() {return new Vector();}
-    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Space.Boundary boundary, Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull((Boundary)boundary,iF,iL,oF,oL);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary, Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf((Boundary)boundary,iL,oF,oL);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Space.Boundary boundary) {return new PairIteratorFull((Boundary)boundary);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Space.Boundary boundary) {return new PairIteratorHalf((Boundary)boundary);}
-    public final simulate.AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary) {return new UpNeighborIterator(boundary);}
-    public final simulate.AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary) {return new DownNeighborIterator(boundary);}
-    public final Atom.Iterator makeUpAtomIterator() {return new UpAtomIterator();}
-    public final Atom.Iterator makeDownAtomIterator() {return new DownAtomIterator();}
     public simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
     public final void clearCells() {cells.clearCells();}
     public Potential makePotential() {return new CellPotential();}
@@ -267,6 +260,7 @@ public class Space2DCell extends Space {
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
         public double momentum(int i) {return p.component(i);}
+        public LatticeSquare.Site cell;        //ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
     } 
     
     static class Link {
@@ -399,283 +393,284 @@ public class Space2DCell extends Space {
         public final Atom atom() {return atom;}
     }
     
-    private static final class UpNeighborIterator implements simulate.AtomPair.Iterator.A {
-        final AtomPair pair;
-        Atom atom;
-        private boolean hasNext;
-        private AtomCoordinate neighborAtom;
-        private LatticeSquare.Site cell, neighborCell;
-        private AtomCoordinate coordinate;
-        private LatticeSquare.Linker nextLinker;
-        public UpNeighborIterator(Space.Boundary b) {
-            pair = new AtomPair((Boundary)b);
-            hasNext = false;
-        }
-        public UpNeighborIterator(Space.Boundary b, Atom a) {
-            pair = new AtomPair((Boundary)b);
-            reset(a,null,null,null);
-        }
-        public boolean hasNext() {return hasNext;}
-        public void allDone() {hasNext = false;}
-        public void reset() {reset(atom,null,null,null);}
-        public void reset(Atom a, Atom d1, Atom d2) {reset(a, d1, d2, null);}
-        public void reset(Atom a, Atom d1, Atom d2, Atom d3) {
-            atom = a;
-            coordinate = (AtomCoordinate)a.coordinate;
-            pair.c1 = coordinate;
-            cell = coordinate.cell;
-            nextLinker = cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
-            neighborAtom = coordinate;
-            hasNext = true;
- //           neighborAtom = (AtomCoordinate)coordinate.nextNeighbor();   //this is the next atom to be paired with the fixed atom
- //           hasNext = true;
- //           if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
- //           else {hasNext = true;}
-        }
-        // Finds first neighbor of next occupied cell
-        private void advanceCell() {
-            while(neighborAtom == null) {
-                if(nextLinker == null) {        //no more neighbor cells; no upNeighbors for atom
-                    hasNext = false;
-                    return;
-                }
-                neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
-                neighborAtom = (AtomCoordinate)neighborCell.firstAtom;   //get first atom of another neighbor cell; this is null if cell is empty
-                nextLinker = nextLinker.next();
-            }
-        }
-        public simulate.AtomPair next() {
-//            Atom a = neighborAtom.atom();
-//            pair.c2 = (AtomCoordinate)a.coordinate;
-            pair.c2 = neighborAtom;
-            pair.reset();
-            neighborAtom = neighborAtom.nextNeighbor;
-            if(neighborAtom == null) {advanceCell();}
-            return pair;
-        }
-    } //end of UpNeighborIterator
+    private static final class NeighborIterator extends Iterator {
+        public NeighborIterator(Phase p) {super(p);}
+        public final simulate.AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase);}
+        public final simulate.AtomPair.Iterator.A makeAtomPairIteratorHalf() {return new AtomPairIteratorHalf(phase);}
+    //    public final simulate.AtomPair.Iterator.A makeUpNeighborIterator(Space.Boundary boundary) {return new UpNeighborIterator(boundary);}
+    //    public final simulate.AtomPair.Iterator.A makeDownNeighborIterator(Space.Boundary boundary) {return new DownNeighborIterator(boundary);}
+        public final Atom.Iterator makeAtomIteratorUp() {return new AtomIteratorUp();}
+        public final Atom.Iterator makeAtomIteratorDown() {return new AtomIteratorDown();}
 
-    private static final class DownNeighborIterator implements simulate.AtomPair.Iterator.A {
-        final AtomPair pair;
-        Atom atom;
-        private boolean hasNext;
-        private AtomCoordinate neighborAtom;
-        private LatticeSquare.Site cell, neighborCell;
-        private AtomCoordinate coordinate;
-        private LatticeSquare.Linker nextLinker;
-        public DownNeighborIterator(Space.Boundary b) {
-            pair = new AtomPair((Boundary)b);
-            hasNext = false;
-        }
-        public DownNeighborIterator(Space.Boundary b, Atom a) {
-            pair = new AtomPair((Boundary)b);
-            reset(a,null,null,null);
-        }
-        public boolean hasNext() {return hasNext;}
-        public void allDone() {hasNext = false;}
-        public void reset() {reset(atom,null,null,null);}
-        public void reset(Atom a, Atom d1, Atom d2) {reset(a, d1, d2, null);}
-        public void reset(Atom a, Atom d1, Atom d2, Atom d3) {
-            atom = a;
-            coordinate = (AtomCoordinate)a.coordinate;
-            pair.c1 = coordinate;
-            cell = coordinate.cell;
-            // changes from UpNeighborIterator
-            nextLinker = cell.firstDownNeighbor();  //this points to the cell after the current neighbor cell
-            neighborAtom = (AtomCoordinate)coordinate.previousNeighbor();   //this is the next atom to be paired with the fixed atom
-            //////
-            hasNext = true;
-            if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
-            else {hasNext = true;}
-        }
-        // Finds first neighbor of next occupied cell
-        private void advanceCell() {
-            while(neighborAtom == null) {
-                if(nextLinker == null) {        //no more neighbor cells; no upNeighbors for atom
-                    hasNext = false;
-                    return;
-                }
-                neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
-                neighborAtom = (AtomCoordinate)neighborCell.firstAtom;   //get first atom of another neighbor cell; this is null if cell is empty
-                nextLinker = nextLinker.next();
+        private static final class UpNeighborIterator implements simulate.AtomPair.Iterator.A {
+            final AtomPair pair;
+            Atom atom;
+            private boolean hasNext;
+            private AtomCoordinate neighborAtom;
+            private LatticeSquare.Site cell, neighborCell;
+            private AtomCoordinate coordinate;
+            private LatticeSquare.Linker nextLinker;
+            public UpNeighborIterator(Space.Boundary b) {
+                pair = new AtomPair((Boundary)b);
+                hasNext = false;
             }
-        }
-        public simulate.AtomPair next() {
-            pair.c2 = neighborAtom;
-            pair.reset();
-            neighborAtom = neighborAtom.previousNeighbor;  //////another change from UpNeighborIterator
-            if(neighborAtom == null) {advanceCell();}
-            return pair;
-        }
-    } //end of DownNeighborIterator
-
-    private static final class UpAtomIterator implements Atom.Iterator {
-        AtomCoordinate atom, nextAtom;
-        private boolean hasNext;
-        private LatticeSquare.Site cell;
-        public UpAtomIterator() {
-            hasNext = false;
-        }
-        public UpAtomIterator(Atom a) {
-            reset(a);
-        }
-        public boolean hasNext() {return hasNext;}
-        public void allDone() {hasNext = false;}
-        public void reset(Atom a) {
-            if(a == null) {allDone(); return;}
-            atom = (AtomCoordinate)a.coordinate;
-            cell = atom.cell;
-            hasNext = true;
-        }
-        // Finds first atom of next occupied cell
-        private void advanceCell() {
-            while(atom == null) {
-                cell = cell.nextSite();
-                if(cell == null) {        //no more cells;
-                    allDone();
-                    return;
-                }
-                atom = (AtomCoordinate)cell.firstAtom;
+            public UpNeighborIterator(Space.Boundary b, Atom a) {
+                pair = new AtomPair((Boundary)b);
+                reset(a,null,null,null);
             }
-        }
-        public Space.AtomCoordinate next() {
-            nextAtom = atom;
-            atom = atom.nextNeighbor;      //next atom in cell
-            if(atom == null) {advanceCell();}
-            return nextAtom;
-        }
-    } //end of UpAtomIterator
-    
-    
-    private static final class DownAtomIterator implements Atom.Iterator {
-        AtomCoordinate atom, nextAtom;
-        private boolean hasNext;
-        private LatticeSquare.Site cell, neighborCell;
-        private LatticeSquare.Linker nextLinker;
-        private boolean newCell;
-        public DownAtomIterator() {
-            hasNext = false;
-        }
-        public DownAtomIterator(Atom a) {
-            reset(a);
-        }
-        public boolean hasNext() {return hasNext;}
-        public void allDone() {hasNext = false;}
-
-        public void reset(Atom a) {
-            if(a == null) {allDone(); return;}
-            atom = (AtomCoordinate)a.coordinate;
-            cell = atom.cell;
-            hasNext = true;
-            newCell = false;
-        }
-        // Finds first atom of next occupied cell
-        private void advanceCell() {
-            newCell = true;
-            while(atom == null) {
-                cell = cell.previousSite();
-                if(cell == null) {        //no more cells;
-                    allDone();
-                    return;
-                }
-                atom = (AtomCoordinate)cell.firstAtom;
+            public boolean hasNext() {return hasNext;}
+            public void allDone() {hasNext = false;}
+            public void reset() {reset(atom,null,null,null);}
+            public void reset(Atom a, Atom d1, Atom d2) {reset(a, d1, d2, null);}
+            public void reset(Atom a, Atom d1, Atom d2, Atom d3) {
+                atom = a;
+                coordinate = (AtomCoordinate)a.coordinate;
+                pair.c1 = coordinate;
+                cell = coordinate.cell;
+                nextLinker = cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
+                neighborAtom = coordinate;
+                hasNext = true;
+    //           neighborAtom = (AtomCoordinate)coordinate.nextNeighbor();   //this is the next atom to be paired with the fixed atom
+    //           hasNext = true;
+    //           if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
+    //           else {hasNext = true;}
             }
-        }
-        public Space.AtomCoordinate next() {
-            nextAtom = atom;
-            atom = (newCell) ? atom.nextNeighbor : atom.previousNeighbor; //advance down in atom's cell, advance up in all cells below it (because they begin with first atom in cell, not last)
-            if(atom == null) {advanceCell();}
-            return nextAtom;
-        }
-    } //end of DownAtomIterator
+            // Finds first neighbor of next occupied cell
+            private void advanceCell() {
+                while(neighborAtom == null) {
+                    if(nextLinker == null) {        //no more neighbor cells; no upNeighbors for atom
+                        hasNext = false;
+                        return;
+                    }
+                    neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
+                    neighborAtom = (AtomCoordinate)neighborCell.firstAtom;   //get first atom of another neighbor cell; this is null if cell is empty
+                    nextLinker = nextLinker.next();
+                }
+            }
+            public simulate.AtomPair next() {
+    //            Atom a = neighborAtom.atom();
+    //            pair.c2 = (AtomCoordinate)a.coordinate;
+                pair.c2 = neighborAtom;
+                pair.reset();
+                neighborAtom = neighborAtom.nextNeighbor;
+                if(neighborAtom == null) {advanceCell();}
+                return pair;
+            }
+        } //end of UpNeighborIterator
 
-    
-    //These iterators are identical in every Space class; they are repeated in each
-    //because they make direct use of the Coordinate type in the class; otherwise casting would be needed
-    // Perhaps interitance would work, but haven't tried it
+        private static final class DownNeighborIterator implements simulate.AtomPair.Iterator.A {
+            final AtomPair pair;
+            Atom atom;
+            private boolean hasNext;
+            private AtomCoordinate neighborAtom;
+            private LatticeSquare.Site cell, neighborCell;
+            private AtomCoordinate coordinate;
+            private LatticeSquare.Linker nextLinker;
+            public DownNeighborIterator(Space.Boundary b) {
+                pair = new AtomPair((Boundary)b);
+                hasNext = false;
+            }
+            public DownNeighborIterator(Space.Boundary b, Atom a) {
+                pair = new AtomPair((Boundary)b);
+                reset(a,null,null,null);
+            }
+            public boolean hasNext() {return hasNext;}
+            public void allDone() {hasNext = false;}
+            public void reset() {reset(atom,null,null,null);}
+            public void reset(Atom a, Atom d1, Atom d2) {reset(a, d1, d2, null);}
+            public void reset(Atom a, Atom d1, Atom d2, Atom d3) {
+                atom = a;
+                coordinate = (AtomCoordinate)a.coordinate;
+                pair.c1 = coordinate;
+                cell = coordinate.cell;
+                // changes from UpNeighborIterator
+                nextLinker = cell.firstDownNeighbor();  //this points to the cell after the current neighbor cell
+                neighborAtom = (AtomCoordinate)coordinate.previousNeighbor();   //this is the next atom to be paired with the fixed atom
+                //////
+                hasNext = true;
+                if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
+                else {hasNext = true;}
+            }
+            // Finds first neighbor of next occupied cell
+            private void advanceCell() {
+                while(neighborAtom == null) {
+                    if(nextLinker == null) {        //no more neighbor cells; no upNeighbors for atom
+                        hasNext = false;
+                        return;
+                    }
+                    neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
+                    neighborAtom = (AtomCoordinate)neighborCell.firstAtom;   //get first atom of another neighbor cell; this is null if cell is empty
+                    nextLinker = nextLinker.next();
+                }
+            }
+            public simulate.AtomPair next() {
+                pair.c2 = neighborAtom;
+                pair.reset();
+                neighborAtom = neighborAtom.previousNeighbor;  //////another change from UpNeighborIterator
+                if(neighborAtom == null) {advanceCell();}
+                return pair;
+            }
+        } //end of DownNeighborIterator
+
+        private static final class AtomIteratorUp implements Atom.Iterator {
+            Atom atom, nextAtom;
+            private boolean hasNext;
+            private LatticeSquare.Site cell;
+            public AtomIteratorUp() {hasNext = false;}
+            public AtomIteratorUp(Atom a) {reset(a);}
+            public boolean hasNext() {return hasNext;}
+            public void allDone() {hasNext = false;}
+            public void reset(Atom a) {
+                if(a == null) {allDone(); return;}
+                atom = a;
+                cell = ((Coordinate)atom.coordinate).cell;
+                hasNext = true;
+            }
+            // Finds first atom of next occupied cell
+            private void advanceCell() {
+                while(atom == null) {
+                    cell = cell.nextSite();
+                    if(cell == null) {        //no more cells;
+                        allDone();
+                        return;
+                    }
+                    atom = (AtomCoordinate)cell.firstAtom;
+                }
+            }
+            public Space.AtomCoordinate next() {
+                nextAtom = atom;
+                atom = atom.nextNeighbor;      //next atom in cell
+                if(atom == null) {advanceCell();}
+                return nextAtom;
+            }
+        } //end of UpAtomIterator
         
-    //"Full" --> Each iteration of inner loop begins with same first atom
-    private static final class PairIteratorFull implements simulate.AtomPair.Iterator.A {
-        final AtomPair pair;
-        AtomCoordinate outer, inner;
-        private AtomCoordinate iFirst, iLast, oFirst, oLast;
-        private boolean hasNext;
-        public PairIteratorFull(Space.Boundary b) {  //null constructor
-            pair = new AtomPair((Boundary)b);
-            hasNext = false;
-        }  
-        public PairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
-            pair = new AtomPair((Boundary)b);
-            reset(iF,iL,oF,oL);
-        }
-        public void reset(Atom iL, Atom oF, Atom oL) {reset(oF,iL,oF,oL);}  //take inner and outer first atoms as same
-        public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {
-            if(iF == null || oF == null) {hasNext = false; return;}
-            iFirst = (AtomCoordinate)iF.coordinate; 
-            iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
-            oFirst = (AtomCoordinate)oF.coordinate; 
-            oLast =  (oL==null) ? null : (AtomCoordinate)oL.coordinate;
-            inner = iFirst;
-            outer = oFirst;
-            hasNext = true;
-        }
-        public simulate.AtomPair next() {
-            if(!hasNext) {return null;}
-            pair.c1 = outer;   //c1 should always be outer
-            pair.c2 = inner;
-            pair.reset();
-            if(inner == iLast) {                                     //end of inner loop
-                if(outer == oLast) {hasNext = false;}                //all done
-                else {outer = outer.nextCoordinate; inner = iFirst;} //advance outer, reset inner
-            }
-            else {inner = inner.nextCoordinate;}
-            return pair;
-        }
-        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
-        public boolean hasNext() {return hasNext;}
-        public void reset() {reset(iFirst.atom(), iLast.atom(), oFirst.atom(), oLast.atom());}
-    }
         
-    //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
-    private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
-        final AtomPair pair;
-        AtomCoordinate outer, inner;
-        private AtomCoordinate iFirst, iLast, oFirst, oLast;
-        private boolean hasNext;
-        public PairIteratorHalf(Space.Boundary b) {
-            pair = new AtomPair((Boundary)b);
-            hasNext = false;
-        }
-        public PairIteratorHalf(Space.Boundary b, Atom iL, Atom oF, Atom oL) {  //constructor
-            pair = new AtomPair((Boundary)b);
-            reset(iL,oF,oL);
-        }
-        public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
-        public void reset(Atom iL, Atom oF, Atom oL) {
-            if(oF == null) {hasNext = false; return;}
-            iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
-            oFirst =  (AtomCoordinate)oF.coordinate; 
-            oLast =  (iL==null) ? null : (AtomCoordinate)oL.coordinate;
-            outer = oFirst;
-            inner = outer.nextCoordinate;
-            hasNext = (inner != null);
-        }
-        public simulate.AtomPair next() {
-            pair.c1 = outer;   //c1 should always be outer
-            pair.c2 = inner;
-            pair.reset();
-            if(inner == iLast) {                                     //end of inner loop
-                if(outer == oLast) {hasNext = false;}                //all done
-                else {outer = outer.nextCoordinate; inner = outer.nextCoordinate;} //advance outer, reset inner
+        private static final class AtomIteratorDown implements Atom.Iterator {
+            Atom atom, nextAtom;
+            private boolean hasNext;
+            private LatticeSquare.Site cell, neighborCell;
+            private LatticeSquare.Linker nextLinker;
+            private boolean newCell;
+            public AtomIteratorDown() {hasNext = false;}
+            public AtomIteratorDown(Atom a) {reset(a);}
+            public boolean hasNext() {return hasNext;}
+            public void allDone() {hasNext = false;}
+
+            public void reset(Atom a) {
+                if(a == null) {allDone(); return;}
+                atom = a;
+                cell = ((Coordinate)atom.coordinate).cell;
+                hasNext = true;
+                newCell = false;
             }
-            else {inner = inner.nextCoordinate;}
-            return pair;
+            // Finds first atom of next occupied cell
+            private void advanceCell() {
+                newCell = true;
+                while(atom == null) {
+                    cell = cell.previousSite();
+                    if(cell == null) {        //no more cells;
+                        allDone();
+                        return;
+                    }
+                    atom = cell.firstAtom;
+                }
+            }
+            public Space.AtomCoordinate next() {
+                nextAtom = atom;
+                atom = (newCell) ? atom.nextNeighbor : atom.previousNeighbor; //advance down in atom's cell, advance up in all cells below it (because they begin with first atom in cell, not last)
+                if(atom == null) {advanceCell();}
+                return nextAtom;
+            }
+        } //end of DownAtomIterator
+
+        
+        //These iterators are identical in every Space class; they are repeated in each
+        //because they make direct use of the Coordinate type in the class; otherwise casting would be needed
+        // Perhaps interitance would work, but haven't tried it
+            
+        //"Full" --> Each iteration of inner loop begins with same first atom
+        private static final class PairIteratorFull implements simulate.AtomPair.Iterator.A {
+            final AtomPair pair;
+            AtomCoordinate outer, inner;
+            private AtomCoordinate iFirst, iLast, oFirst, oLast;
+            private boolean hasNext;
+            public PairIteratorFull(Space.Boundary b) {  //null constructor
+                pair = new AtomPair((Boundary)b);
+                hasNext = false;
+            }  
+            public PairIteratorFull(Space.Boundary b, Atom iF, Atom iL, Atom oF, Atom oL) {  //constructor
+                pair = new AtomPair((Boundary)b);
+                reset(iF,iL,oF,oL);
+            }
+            public void reset(Atom iL, Atom oF, Atom oL) {reset(oF,iL,oF,oL);}  //take inner and outer first atoms as same
+            public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {
+                if(iF == null || oF == null) {hasNext = false; return;}
+                iFirst = (AtomCoordinate)iF.coordinate; 
+                iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
+                oFirst = (AtomCoordinate)oF.coordinate; 
+                oLast =  (oL==null) ? null : (AtomCoordinate)oL.coordinate;
+                inner = iFirst;
+                outer = oFirst;
+                hasNext = true;
+            }
+            public simulate.AtomPair next() {
+                if(!hasNext) {return null;}
+                pair.c1 = outer;   //c1 should always be outer
+                pair.c2 = inner;
+                pair.reset();
+                if(inner == iLast) {                                     //end of inner loop
+                    if(outer == oLast) {hasNext = false;}                //all done
+                    else {outer = outer.nextCoordinate; inner = iFirst;} //advance outer, reset inner
+                }
+                else {inner = inner.nextCoordinate;}
+                return pair;
+            }
+            public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
+            public boolean hasNext() {return hasNext;}
+            public void reset() {reset(iFirst.atom(), iLast.atom(), oFirst.atom(), oLast.atom());}
         }
-        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
-        public boolean hasNext() {return hasNext;}
-        public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
-    }
-    
+            
+        //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
+        private static final class PairIteratorHalf implements simulate.AtomPair.Iterator.A {
+            final AtomPair pair;
+            AtomCoordinate outer, inner;
+            private AtomCoordinate iFirst, iLast, oFirst, oLast;
+            private boolean hasNext;
+            public PairIteratorHalf(Space.Boundary b) {
+                pair = new AtomPair((Boundary)b);
+                hasNext = false;
+            }
+            public PairIteratorHalf(Space.Boundary b, Atom iL, Atom oF, Atom oL) {  //constructor
+                pair = new AtomPair((Boundary)b);
+                reset(iL,oF,oL);
+            }
+            public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iL,oF,oL);} //ignore first argument
+            public void reset(Atom iL, Atom oF, Atom oL) {
+                if(oF == null) {hasNext = false; return;}
+                iLast =  (iL==null) ? null : (AtomCoordinate)iL.coordinate; 
+                oFirst =  (AtomCoordinate)oF.coordinate; 
+                oLast =  (iL==null) ? null : (AtomCoordinate)oL.coordinate;
+                outer = oFirst;
+                inner = outer.nextCoordinate;
+                hasNext = (inner != null);
+            }
+            public simulate.AtomPair next() {
+                pair.c1 = outer;   //c1 should always be outer
+                pair.c2 = inner;
+                pair.reset();
+                if(inner == iLast) {                                     //end of inner loop
+                    if(outer == oLast) {hasNext = false;}                //all done
+                    else {outer = outer.nextCoordinate; inner = outer.nextCoordinate;} //advance outer, reset inner
+                }
+                else {inner = inner.nextCoordinate;}
+                return pair;
+            }
+            public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
+            public boolean hasNext() {return hasNext;}
+            public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
+        }
+    }    
     public static class CellPotential extends Potential implements PotentialHard {
         
         public void bump(simulate.AtomPair pair) {

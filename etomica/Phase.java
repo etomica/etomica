@@ -18,6 +18,12 @@ public class Phase extends Container {
     
     public void initialize(Simulation ps) {
         parentSimulation = ps;
+        if(ps.space() instanceof Space.NeighborIterator) {
+            iterator = ps.space().makeIterator(this);
+        }
+        else {
+            iterator = new Iterator(this);
+        }
         setBoundary(iBoundary);
         setPotential();
         add(new ConfigurationSequential());  //default configuration
@@ -25,8 +31,8 @@ public class Phase extends Container {
         potentialEnergy.setUpdateInterval(Integer.MAX_VALUE);  //these meters are placed to permit phase to report its potential and kinetic energies
         kineticEnergy = new MeterKineticEnergy();
         kineticEnergy.setUpdateInterval(Integer.MAX_VALUE);    //change updateInterval if desired to use for averaging also
-//        add(potentialEnergy);
-//        add(kineticEnergy);
+        add(potentialEnergy);
+        add(kineticEnergy);
     }
         
     public void setPotential() {
@@ -42,12 +48,6 @@ public class Phase extends Container {
     
     public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
     public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorFull(boundary,iF,iL,oF,oL);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return parentSimulation.space.makePairIteratorHalf(boundary,iL,oF,oL);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return parentSimulation.space.makePairIteratorFull(boundary);}
-    public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return parentSimulation.space.makePairIteratorHalf(boundary);}
-    public final simulate.AtomPair.Iterator.A makeUpIterator() {return parentSimulation.space.makeUpNeighborIterator(boundary);}
-    public final simulate.AtomPair.Iterator.A makeDownIterator() {return parentSimulation.space.makeDownNeighborIterator(boundary);}
         
     public void paint(Graphics g, int[] origin, double scale) {} 
                     
@@ -211,6 +211,8 @@ public class Phase extends Container {
     private Phase previousPhase;
           
     public Integrator integrator;
+    
+    public Iterator iterator;
           
     public MeterPotentialEnergy potentialEnergy;
     public MeterKineticEnergy kineticEnergy;
