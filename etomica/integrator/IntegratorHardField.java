@@ -10,11 +10,9 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Integrator.Forcible;
-import etomica.IteratorDirective.PotentialCriterion;
 import etomica.atom.AtomTypeWall;
 import etomica.potential.Potential1;
-import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 
 /**
@@ -72,12 +70,11 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
             agent.decrementCollisionTime(tStep);
-            if(a.coord.isStationary()) {continue;}  //skip if atom is stationary
-            a.coord.freeFlight(tStep);
+            a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.coord.translateBy(t2*a.coord.rm(),agent.force);
-                a.coord.accelerateBy(tStep,agent.force);
+                a.coord.position().PEa1Tv1(t2*a.type.rm(),agent.force);
+                ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(tStep*a.type.rm(),agent.force);
             }
         }
     }
@@ -111,7 +108,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             Atom a = atomIterator.nextAtom();
             if(a.type instanceof AtomTypeWall &&
                 !((Agent)a.ia).forceFree) continue;
-            a.coord.momentum().TE(s); //scale momentum
+            ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
             ((Agent)a.ia).collisionTime *= rs;
         }
         atomIterator.reset();

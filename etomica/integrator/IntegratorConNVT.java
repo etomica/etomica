@@ -8,9 +8,9 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.Integrator.Forcible;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 
 /**
@@ -104,15 +104,13 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			//Space.Vector r = a.coord.position();
-			Vector p = a.coord.momentum();
-			mass = a.coord.mass();
+			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             
-			work1.E(p); //work1 = p
-			work1.TE(a.type.rm());  //work1 = p/m = v
+			work1.E(v); //work1 = v
 			work2.E(agent.force);	//work2=F
 			work1.PEa1Tv1(halfTime*a.type.rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
             
-        	 k+=work1.squared();
+        	k+=work1.squared();
  
 		}   
     	//calculate scaling factor chi
@@ -124,16 +122,14 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
-			Vector p = a.coord.momentum();
-			double divmass = a.type.rm();
+			Vector v = ((ICoordinateKinetic)a.coord).velocity();
 		
-			double scale = (2.0*chi-1.0)*divmass; 
-			work3.Ea1Tv1(scale,p); 
-			work4.Ea1Tv1(chi*divmass,agent.force);
+			double scale = (2.0*chi-1.0); 
+			work3.Ea1Tv1(scale,v); 
+			work4.Ea1Tv1(chi*a.type.rm(),agent.force);
 			work4.TE(timeStep);
 			work3.PE(work4);
-			work3.TE(a.coord.mass());
-			p.E(work3);
+			v.E(work3);
 				
 		} 
 
@@ -142,10 +138,9 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			Vector r = a.coord.position();
-			Vector p = a.coord.momentum();
+			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             
-			work.E(p);
-			work.TE(timeStep*a.type.rm());
+			work.Ea1Tv1(timeStep,v);
 			work.PE(r);
 			r.E(work);
 		}

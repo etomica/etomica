@@ -8,9 +8,9 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.Integrator.Forcible;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 
 /* History
@@ -52,11 +52,12 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }
     
         
-  private double t2;
-  public final void setTimeStep(double t) {
-    super.setTimeStep(t);
-    t2 = timeStep*timeStep;
-  }
+	private double t2;
+
+    public final void setTimeStep(double t) {
+        super.setTimeStep(t);
+        t2 = timeStep * timeStep;
+    }
           
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
@@ -78,7 +79,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(a.coord.rm()*t2);
+            agent.force.TE(a.type.rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
@@ -91,7 +92,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
-            agent.rMrLast.Ea1Tv1(timeStep*a.type.rm(),a.coord.momentum());//06/13/03 removed minus sign before timeStep
+            agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.coord).velocity());//06/13/03 removed minus sign before timeStep
         }
         super.reset();
     }
