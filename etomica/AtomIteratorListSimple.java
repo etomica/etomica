@@ -114,8 +114,7 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
 	 */    
 
     public Atom[] next() {
-    	if(!hasNext()) return null;
-    	atoms[0] = nextLinker().atom;
+    	atoms[0] = hasNext() ? nextLinker().atom : null;
     	return atoms;
     }
     
