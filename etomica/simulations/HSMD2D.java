@@ -4,12 +4,14 @@ import etomica.IntegratorHard;
 import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Potential2;
+import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.nbr.cell.NeighborCellManager;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -29,14 +31,14 @@ public class HSMD2D extends Simulation {
     }
     
     public HSMD2D(Space2D space) {
-        super(space, new PotentialMasterNbr(space));
+        super(space, new PotentialMaster(space,IteratorFactoryCell.INSTANCE));
         Default.makeLJDefaults();
   //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
 //        Default.BOX_SIZE = 30.0;
         Default.ATOM_SIZE = 0.4;
         integrator = new IntegratorHard(potentialMaster);
-        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
-        integrator.setTimeStep(0.01);
+//        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+        integrator.setTimeStep(0.001);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
@@ -48,6 +50,8 @@ public class HSMD2D extends Simulation {
 	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 	    this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
+        
+        integrator.addIntervalListener(new NeighborCellManager(phase,5));
         
 //		elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
