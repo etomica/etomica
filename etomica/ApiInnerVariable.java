@@ -41,25 +41,25 @@ public class ApiInnerVariable implements AtomsetIterator, ApiComposite {
      */
     public AtomIterator getInnerIterator() {return aiInner;}
 
-    /**
-     * Defines the atom iterator that performs the inner-loop iteration to
-     * generate the pairs.
-     * @param inner The new inner-loop iterator.
-     */
-    public void setInnerIterator(AtomIteratorAtomDependent inner) {
-    	this.aiInner = inner;
-    	unset();
-    }
-    
-    /**
-     * Defines the iterator the performs the outer-loop iteration to
-     * generate the pairs.
-     * @param outer The new outer-loop iterator.
-     */
-    public void setOuterIterator(AtomIterator outer) {
-    	this.aiOuter = outer;
-    	unset();
-    }
+//    /**
+//     * Defines the atom iterator that performs the inner-loop iteration to
+//     * generate the pairs.
+//     * @param inner The new inner-loop iterator.
+//     */
+//    public void setInnerIterator(AtomIteratorAtomDependent inner) {
+//    	this.aiInner = inner;
+//    	unset();
+//    }
+//    
+//    /**
+//     * Defines the iterator the performs the outer-loop iteration to
+//     * generate the pairs.
+//     * @param outer The new outer-loop iterator.
+//     */
+//    public void setOuterIterator(AtomIterator outer) {
+//    	this.aiOuter = outer;
+//    	unset();
+//    }
     
     /**
      * Sets the iterator such that hasNext is false.
@@ -185,8 +185,8 @@ public class ApiInnerVariable implements AtomsetIterator, ApiComposite {
      * The iterators used to generate the sets of atoms.
      * The inner one is not necessarily atom dependent.
      */
-    protected AtomIteratorAtomDependent aiInner;
-	protected AtomIterator aiOuter;
+    protected final AtomIteratorAtomDependent aiInner;
+	protected final AtomIterator aiOuter;
     
 /*    public static void main(String[] args) throws java.io.IOException {
         

@@ -7,7 +7,7 @@ import etomica.action.AtomsetAction;
  * iteration is independent of the outer-loop atom.  Pairs are formed from
  * the atoms yielded by the two atom iterators.  It is expected that the inner-loop
  * iterator will yield the same set of atoms with each pass of the outer loop.
- * All pairs returned by iterator are the same AtomPair instance, and
+ * All pairs returned by iterator are the same Atom[] instance, and
  * differ only in the Atom instances held by it.
 */
  
@@ -39,25 +39,25 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
      */
     public AtomIterator getInnerIterator() {return aiInner;}
 
-    /**
-     * Defines the atom iterator that performs the inner-loop iteration to
-     * generate the pairs.
-     * @param inner The new inner-loop iterator.
-     */
-    public void setInnerIterator(AtomIterator inner) {
-    	this.aiInner = inner;
-    	unset();
-    }
-    
-    /**
-     * Defines the iterator the performs the outer-loop iteration to
-     * generate the pairs.
-     * @param outer The new outer-loop iterator.
-     */
-    public void setOuterIterator(AtomIterator outer) {
-    	this.aiOuter = outer;
-    	unset();
-    }
+//    /**
+//     * Defines the atom iterator that performs the inner-loop iteration to
+//     * generate the pairs.
+//     * @param inner The new inner-loop iterator.
+//     */
+//    public void setInnerIterator(AtomIterator inner) {
+//    	this.aiInner = inner;
+//    	unset();
+//    }
+//    
+//    /**
+//     * Defines the iterator the performs the outer-loop iteration to
+//     * generate the pairs.
+//     * @param outer The new outer-loop iterator.
+//     */
+//    public void setOuterIterator(AtomIterator outer) {
+//    	this.aiOuter = outer;
+//    	unset();
+//    }
     
     /**
      * Sets the iterator such that hasNext is false.
@@ -167,12 +167,7 @@ public final class ApiInnerFixed implements AtomsetIterator, ApiComposite {
     
     private final Atom[] pair = new Atom[2];
     private boolean hasNext;
-
-    /**
-     * The iterators used to generate the sets of atoms.
-     * The inner one is not necessarily atom dependent.
-     */
-    private AtomIterator aiInner, aiOuter;
+    private final AtomIterator aiInner, aiOuter;
     
 /*    public static void main(String[] args) throws java.io.IOException {
         
