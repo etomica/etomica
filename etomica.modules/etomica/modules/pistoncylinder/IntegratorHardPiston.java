@@ -53,29 +53,29 @@ public class IntegratorHardPiston extends IntegratorHard {
         listToUpdate.clear();
         while (atomIterator.hasNext()) {
             // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-            Atom[] atom1 = atomIterator.next();
-            PotentialHard atom1Potential = ((Agent)atom1[0].ia).collisionPotential;
+            Atom atom1 = (Atom)atomIterator.next();
+            PotentialHard atom1Potential = ((Agent)atom1.ia).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
-                System.out.println(atom1[0]+" thought it would collide with the piston");
+                System.out.println(atom1+" thought it would collide with the piston");
             }
             if(atom1Potential == pistonPotential) {
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(atom1) || Debug.LEVEL > 1)) {
-                    System.out.println("Will update "+atom1[0]+" because it wanted to collide with the piston");
+                    System.out.println("Will update "+atom1+" because it wanted to collide with the piston");
                 }
-                listToUpdate.add(atom1[0]);
+                listToUpdate.add(atom1);
             }
 
             
             // recalculate collision time for every atom with the wall
             double collisionTime = pistonPotential.collisionTime(atom1,collisionTimeStep);
             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atom1)))) {
-                System.out.println("collision down time "+collisionTime+" for atom "+atom1[0]+" with null "+pistonPotential.getClass());
+                System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
             }
             if(collisionTime < Double.MAX_VALUE) {
-                Agent aia = (Agent)atom1[0].ia;
+                Agent aia = (Agent)atom1.ia;
                 if(collisionTime < aia.collisionTime()) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atom1))) {
-                        System.out.println("setting down time "+collisionTime+" for atom "+atom1[0]+" with null");
+                        System.out.println("setting down time "+collisionTime+" for atom "+atom1+" with null");
                     }
                     if (aia.collisionPotential != null) {
                         aia.eventLinker.remove();
