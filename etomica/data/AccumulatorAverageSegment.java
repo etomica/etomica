@@ -30,7 +30,7 @@ public class AccumulatorAverageSegment {
         accumulator = new AccumulatorAverage();
         accumulator.setPushInterval(100);
         dataPump.addDataSink(accumulator);
-        accumulator.makeDataPipe(types).addDataSink(sink);
+        accumulator.makeDataPusher(types).addDataSink(sink);
     }
    
     /**
