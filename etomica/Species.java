@@ -119,14 +119,7 @@ public class Species {
         nMolecules = n;
         allAgents(new AtomActionAdapter() {public void actionPerformed(Atom a) {((SpeciesAgent)a).setNMolecules(nMolecules);}});
     }
-    
-    /**
-     * @return a new molecule of this species.
-     */
-    public Atom makeMolecule() {
-        return factory.makeAtom();
-    }
-    
+        
     /**
      * Performs the given action on all of this species agents in all phases.
      */
@@ -144,7 +137,8 @@ public class Species {
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.node.parentPhase();
-        SpeciesAgent a = new SpeciesAgent(factory.space, this, nMolecules, parent.node);
+        SpeciesAgent a = new SpeciesAgent(factory.space, this, phase, nMolecules);
+        a.node.setParent(parent.node);
         agents.put(phase,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return a;
     }

@@ -8,7 +8,8 @@ import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesAgent;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomReservoir;
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -33,14 +34,16 @@ public class MCMoveInsertDelete extends MCMove {
     //directive must specify "BOTH" to get energy with all atom pairs
     private final MeterPotentialEnergy energyMeter;
 	protected Species species;
-	protected SpeciesAgent speciesAgent;
+	protected AtomTreeNodeGroup speciesAgentNode;
+    protected SpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 	protected Atom testMolecule;
 	protected double uOld;
 	protected double uNew = Double.NaN;
 	protected boolean insert;
-	protected AtomReservoir reservoir;
+	protected final AtomList reservoir;
     private final AtomActionTranslateTo atomTranslator;
+    private AtomFactory moleculeFactory;
 
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
@@ -52,19 +55,26 @@ public class MCMoveInsertDelete extends MCMove {
         setTunable(false);
         energyMeter.setIncludeLrc(true);
         atomTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
+        reservoir = new AtomList();
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
     public void setSpecies(Species s) {
         species = s;
-        if(phases[0] != null) speciesAgent = (SpeciesAgent)species.getAgent(phases[0]); 
-        reservoir = new AtomReservoir(s.moleculeFactory());
+        if(phases[0] != null) {
+            speciesAgent = (SpeciesAgent)species.getAgent(phases[0]);
+            speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
+        }
+        moleculeFactory = species.moleculeFactory();
     }
     public Species getSpecies() {return species;}
     
     public void setPhase(Phase[] p) {
         super.setPhase(p);
-        if(species != null) speciesAgent = (SpeciesAgent)species.getAgent(phases[0]); 
+        if(species != null) {
+            speciesAgent = (SpeciesAgent)species.getAgent(phases[0]);
+            speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
+        }
     }
     
     /**
@@ -75,18 +85,22 @@ public class MCMoveInsertDelete extends MCMove {
         insert = Simulation.random.nextDouble() < 0.5;
         if(insert) {
             uOld = 0.0;
-            testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
+            
+            if(!reservoir.isEmpty()) testMolecule = reservoir.removeFirst();
+            else testMolecule = moleculeFactory.makeAtom();
+            phases[0].addMolecule(testMolecule, speciesAgent);
+
             atomTranslator.setDestination(phases[0].randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
             if(speciesAgent.moleculeCount() == 0) {
-                testMolecule = null;//added this line 09/19/02
+                testMolecule = null;
                 return false;
             }
             testMolecule = speciesAgent.randomMolecule();
+            //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar(phases[0]);
-           reservoir.addAtom(testMolecule);
         } 
         uNew = Double.NaN;
         return true;
@@ -109,12 +123,19 @@ public class MCMoveInsertDelete extends MCMove {
     }
     
     public void acceptNotify() {
-        if(!insert) testMolecule.sendToReservoir();
+        //      accepted deletion - remove from phase and add to reservoir 
+        if(!insert) {
+            phases[0].removeMolecule(testMolecule);
+            reservoir.add(testMolecule.seq);
+        }
     }
     
     public void rejectNotify() {
-        if(insert) testMolecule.sendToReservoir();
-        else testMolecule.node.setParent((AtomTreeNodeGroup)speciesAgent.node);
+        //      rejected insertion - remove from phase and return to reservoir
+        if(insert) {
+            phases[0].removeMolecule(testMolecule);
+            reservoir.add(testMolecule.seq);
+        }
     }
     
     public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}

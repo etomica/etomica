@@ -17,10 +17,9 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
      */
     public final AtomLinker leafLinker;
     
-    public AtomTreeNodeLeaf(Atom atom, AtomTreeNodeGroup parent) {
-        super(atom, parent);
+    public AtomTreeNodeLeaf(Atom atom) {
+        super(atom);
         leafLinker = new AtomLinker(atom);
-//        leafCount = (atom.type instanceof AtomType.Wall) ? 0 : 1;
     }
     
     public boolean isLeaf() {return true;}
@@ -45,9 +44,9 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
      */
     public int childAtomCount() {return 0;}
 
-    public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
-            return new AtomTreeNodeLeaf(atom, parent);
+    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+        public AtomTreeNode makeNode(Atom atom) {
+            return new AtomTreeNodeLeaf(atom);
         }
     };
     

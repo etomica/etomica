@@ -5,6 +5,7 @@ import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.units.Dimension;
 
 /**
@@ -15,29 +16,20 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
- /* History of changes
-  * 08/01/02 (DAK) modified allAtoms method to use loop iteration rather than passing action to iterator
-  * 08/26/02 (DAK) added getMolecule method
-  * 07/30/03 (DAK) modification to setNMolecules to ensure forceRebuild does not
-  * rebuild using reservoir molecules
-  */
-
 public final class SpeciesAgent extends Atom {
 
-    protected final AtomFactory factory;
-    
     protected Integrator integrator;
     public AtomLinker.Tab firstLeafAtomTab;
+    private final Phase phase;
     
-    public SpeciesAgent(Space space, Species s, int nMolecules, AtomTreeNodeGroup parent) {
-        super(space, new AtomTypeGroup(null), new NodeFactory(s), 
-                AtomSequencerFactory.SIMPLE, parent);
-        factory = s.moleculeFactory();
-        ((AtomTypeGroup)type).childrenAreGroups = factory.isGroupFactory();
-//        ((AtomType.Group)type).childSequencerClass = s.simulation().potentialMaster.sequencerClass();
+    public SpeciesAgent(Space space, Species species, Phase phase, int nMolecules) {
+        super(space, new AtomTypeGroup(null), new NodeFactory(species), 
+                AtomSequencerFactory.SIMPLE);
+        this.phase = phase;
+        ((AtomTypeGroup)type).childrenAreGroups = species.moleculeFactory().isGroupFactory();
     }
         
-    public final AtomFactory moleculeFactory() {return factory;}
+    public final AtomFactory moleculeFactory() {return node.parentSpecies().moleculeFactory();}
       
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)seq.next.atom;}
     public int moleculeCount() {return ((AtomTreeNodeGroup)node).childAtomCount();}
@@ -47,7 +39,8 @@ public final class SpeciesAgent extends Atom {
     public Atom getMolecule(int i) {return ((AtomTreeNodeGroup)node).getAtom(i);}
             
     public Atom addNewAtom() {
-        Atom aNew = moleculeFactory().makeAtom((AtomTreeNodeGroup)this.node);
+        Atom aNew = moleculeFactory().makeAtom();
+        phase.addMolecule(aNew, this);
         return aNew;
     }    
     
@@ -64,62 +57,32 @@ public final class SpeciesAgent extends Atom {
     * @see #addMolecule
     */
     public void setNMolecules(int n) {
-        setNMolecules(n, false);
-    }
-        
-    /**
-     * Same as setNMolecules, but takes a boolean argument that can indicate that all
-     * new molecules should be made.
-     */
-    public void setNMolecules(int n, boolean forceRebuild) {
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-//        boolean wasPaused = pauseIntegrator();
-        if(forceRebuild) while(treeNode.childList.size() > 0) treeNode.lastChildAtom().node.dispose();
-        node.parentSpecies().moleculeFactory().reservoir().removeAll();
+        while(treeNode.childList.size() > 0) treeNode.lastChildAtom().dispose();
         if(n > treeNode.childAtomCount()) {
             for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
         }
         else if(n < treeNode.childAtomCount()) {
             if(n < 0) n = 0;
-            for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.lastChildAtom().sendToReservoir();
+            for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.lastChildAtom().dispose();
         }
         
         //reconsider this
         //node.parentPhase().configuration.initializeCoordinates(this);
         node.parentPhase().reset();
-        
-//        unpauseIntegrator(wasPaused);
     }
     
     public int getNMolecules() {return moleculeCount();}
     public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
 
-//    private boolean pauseIntegrator() {
-//        Phase phase = node.parentPhase();
-//        integrator = (phase != null) ? phase.integrator() : null;
-//        boolean wasPaused = true;
-//        if(integrator != null) {
-//            wasPaused = integrator.isPaused();//record pause state of integrator
-//            if(!wasPaused) integrator.pause();//and waits until integrator puts pause in effect
-//        }
-//        return wasPaused;
-//    }
-//    
-//    private void unpauseIntegrator(boolean wasPaused) {
-//        if(integrator != null) {
-//            if(integrator.isInitialized()) integrator.initialize();//reinitialize only if initialized already
-//            if(!wasPaused) integrator.unPause();//resume if was not paused originally
-//        }
-//    }
-    
     /**
      * Special AtomTreeNode class for SpeciesAgent.
      */
     public static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
         
-        private final Species parentSpecies;
-        private AgentAtomTreeNode(Species parentSpecies, Atom atom, AtomTreeNodeGroup speciesMasterNode) {
-            super(atom, speciesMasterNode);
+        private final Species parentSpecies;//remove this 2/05
+        private AgentAtomTreeNode(Species parentSpecies, Atom atom) {
+            super(atom);
             this.parentSpecies = parentSpecies;
             depth = 1;
             setIndex(parentSpecies.getIndex());
@@ -142,13 +105,13 @@ public final class SpeciesAgent extends Atom {
         public final Atom parentMolecule() {return null;}
     }
     
-    private static final class NodeFactory implements AtomTreeNode.Factory {
+    private static final class NodeFactory implements AtomTreeNodeFactory {
         Species species;
         NodeFactory(Species s) {
             species = s;
         }
-        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup speciesMasterNode) {
-            return new AgentAtomTreeNode(species, atom, speciesMasterNode);
+        public AtomTreeNode makeNode(Atom atom) {
+            return new AgentAtomTreeNode(species, atom);
         }
     }
 

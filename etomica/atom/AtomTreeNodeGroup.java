@@ -14,8 +14,8 @@ import etomica.atom.iterator.AtomIteratorListSimple;
   
 public class AtomTreeNodeGroup extends AtomTreeNode {
     
-    public AtomTreeNodeGroup(Atom atom, AtomTreeNodeGroup parent) {
-        super(atom, parent);
+    public AtomTreeNodeGroup(Atom atom) {
+        super(atom);
     }
         
     public int newChildIndex() {
@@ -158,11 +158,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public void removeAllChildren() {
         Atom[] array = childAtomArray();
         for(int i=0; i<array.length; i++) {
-            array[i].sendToReservoir();
+            array[i].dispose();
         }
     }
-    
-    public boolean isResizable() {return true;}
     
     /**
      * Notifies this atom group that an atom has been added to it or one of its descendants.
@@ -186,9 +184,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public final AtomList childList = new AtomList();
     private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple(childList);
         
-    public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
-            return new AtomTreeNodeGroup(atom, parent);
+    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+        public AtomTreeNode makeNode(Atom atom) {
+            return new AtomTreeNodeGroup(atom);
         }
     };
     

@@ -57,7 +57,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNode.Factory nodeFactory, 
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory, 
     						AtomFactory factory, int atoms, Configuration config) {
         super(space, sequencerFactory, nodeFactory);
         childFactory = factory;
@@ -71,13 +71,13 @@ public class AtomFactoryHomo extends AtomFactory {
     public boolean isGroupFactory() {return true;}
     
     /**
-     * Constructs a new group using the given atom.
+     * Constructs a new group.
      */
-     public Atom build(Atom group) {
-        if(!group.creator().equals(this)) 
-            throw new IllegalArgumentException("Error:  Cannot build atom from one created by a different factory");
+     public Atom makeAtom() {
+        Atom group = newParentAtom();
         for(int i=0; i<atomsPerGroup; i++) {
-            childFactory.build((AtomTreeNodeGroup)group.node);
+            Atom childAtom = childFactory.makeAtom();
+            childAtom.node.setParent((AtomTreeNodeGroup)group.node);
         }
         configuration.initializeCoordinates(group);
         return group;

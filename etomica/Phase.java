@@ -302,23 +302,11 @@ public class Phase {
  //   }
     
     /**
-     * Adds the given molecule to this phase, placing it in the molecule/atom linked lists
-     * and removing it from the container it previously resided.
-     * Looks up the molecule's species agent in this phase and passes it with the 
-     * molecule to the two-argument addMolecule method.  If the agent is known already, 
-     * that form of the method should be used instead.
-     */
-    public void addMolecule(Atom a, Species s) {
-        addMolecule(a, s.getAgent(this));
-    }
-    
-    /**
      * Adds the given molecule to this phase.
      * @param molecule the molecule to be added
-     * @param s the species agent in this phase for the molecule's species.  If known, this agent can be provided to save the effort of looking it up.
+     * @param s the species agent in this phase for the molecule's species.
      */
     public void addMolecule(Atom a, SpeciesAgent s) {
-        if(a == null || s == null) return;
         a.node.setParent((AtomTreeNodeGroup)s.node);
     }
     
@@ -327,17 +315,8 @@ public class Phase {
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
-        a.sendToReservoir();
+        a.dispose();
     }
-    
-//need a better way
-    /**
-    * Synchronized version of deleteMolecule.  
-    * Useful if molecules are being deleted by GUI events, rather than by integrator 
-    */
-//    public final synchronized void deleteMoleculeSafely(Molecule m) {  //will this make deleteMolecule synchronized?
- //       deleteMolecule(m);
-//    }
     
     public synchronized void addListener(PhaseListener listener) {
         eventManager.addListener(listener);

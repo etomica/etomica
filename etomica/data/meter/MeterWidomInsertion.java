@@ -110,9 +110,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	 */
 	public void setSpecies(Species s) {
 		species = s;
-		//need a local reservoir
 		testMolecule = s.moleculeFactory().makeAtom();
-		testMolecule.node.setParent((AtomTreeNodeGroup) null);
 		testMoleculeInArray[0] = testMolecule;
 	}
 

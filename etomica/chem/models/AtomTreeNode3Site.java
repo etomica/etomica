@@ -1,7 +1,7 @@
 package etomica.chem.models;
 
 import etomica.Atom;
-import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroup;
 
 /**
@@ -17,15 +17,15 @@ public class AtomTreeNode3Site extends AtomTreeNodeGroup {
 	 * @param atom
 	 * @param parent
 	 */
-	public AtomTreeNode3Site(Atom atom, AtomTreeNodeGroup parent) {
-		super(atom, parent);
+	public AtomTreeNode3Site(Atom atom) {
+		super(atom);
 	}
 	
 	public Atom atom1, atom2, atom3 ;
 	
-	public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-		public etomica.atom.AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
-			return new AtomTreeNode3Site(atom, parent);
+	public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+		public etomica.atom.AtomTreeNode makeNode(Atom atom) {
+			return new AtomTreeNode3Site(atom);
 		}
 	};
 	

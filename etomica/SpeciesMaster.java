@@ -7,6 +7,7 @@ import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTreeNodeLeaf;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomLinker.Tab;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -35,11 +36,9 @@ public final class SpeciesMaster extends Atom {
     public final AtomList atomList = new AtomList();
 
     public SpeciesMaster(Space space, Phase p) {
-        super(space, AtomType.NULL, new NodeFactory(p), 
-                AtomSequencerFactory.SIMPLE, null);//parent is null
+        super(space, AtomType.NULL, new NodeFactory(p),AtomSequencerFactory.SIMPLE);
         index = p.index;
         node = (AtomTreeNodeGroup)super.node;
-  //      ((MasterAtomTreeNode)node).speciesMaster = this;
     }
         
     public void addSpecies(Species species) {
@@ -73,7 +72,7 @@ public final class SpeciesMaster extends Atom {
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
         
         MasterAtomTreeNode(Phase parentPhase, Atom atom) {
-            super(atom, null);
+            super(atom);
             speciesMaster = (SpeciesMaster)atom;
             this.parentPhase = parentPhase;
             leafIterator.setAsLeafIterator();
@@ -146,12 +145,12 @@ public final class SpeciesMaster extends Atom {
         private final AtomIteratorTree leafIterator = new AtomIteratorTree();
     } //end of MasterAtomTreeNode           
     
-    private static final class NodeFactory implements AtomTreeNode.Factory {
+    private static final class NodeFactory implements AtomTreeNodeFactory {
         Phase phase;
         NodeFactory(Phase p) {
             phase = p;
         }
-        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup dummy) {
+        public AtomTreeNode makeNode(Atom atom) {
             return new MasterAtomTreeNode(phase, atom);
         }
     }

@@ -19,15 +19,15 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 	 * @param atom
 	 * @param parent
 	 */
-	public AtomTreeNodeGroupArray(Atom atom, AtomTreeNodeGroup parent) {
-		super(atom, parent);
+	public AtomTreeNodeGroupArray(Atom atom) {
+		super(atom);
 	}
 	
 	public Atom[] childAtomArray = new Atom[0];
 	
-	public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
-		public etomica.atom.AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent) {
-			return new AtomTreeNodeGroupArray(atom, parent);
+	public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+		public etomica.atom.AtomTreeNode makeNode(Atom atom) {
+			return new AtomTreeNodeGroupArray(atom);
 		}
 	};
 	

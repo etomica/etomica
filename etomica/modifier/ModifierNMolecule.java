@@ -25,7 +25,7 @@ public class ModifierNMolecule implements Modifier {
         if (d < 0) d = 0;
         previousValue = mostRecentValue;
         mostRecentValue = (int)d;
-        speciesAgent.setNMolecules((int) d, true);
+        speciesAgent.setNMolecules((int) d);
 //        if (this.selector.display != null)
 //            this.selector.display.repaint();
 //        this.selector.integrator.reset();

@@ -4,7 +4,7 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
@@ -33,18 +33,13 @@ public class Atom implements java.io.Serializable {
         this(space, type, nodeFactory, IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
     }*/
     public Atom(Space space, AtomType type, 
-                    AtomTreeNode.Factory nodeFactory,
-                    AtomSequencerFactory seqFactory, AtomTreeNodeGroup parent) {
+                    AtomTreeNodeFactory nodeFactory,
+                    AtomSequencerFactory seqFactory) {
         this.type = type;//do this first
         seq = seqFactory.makeSequencer(this);
-        node = nodeFactory.makeNode(this, parent);//must follow setting of sequencer to permit addition to childlist of parent
-                                                  //setting parent here in constructor bypasses the call to the parent's addAtomNotify method (which would be called if parent were set in setParent method)
+        node = nodeFactory.makeNode(this);
         coord = space.makeCoordinate(this);//must follow setting of type field
-        if(parent != null) {
-        	parent.addAtomNotify(this);
-        } else {
-        	node.setIndex(NO_PARENT_INSTANCE_COUNT++);
-        }
+        node.setIndex(INSTANCE_COUNT++);//default index; changed when added to parent after construction
         
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
         for(int i=0; i<agentSource.length; i++) {
@@ -58,7 +53,7 @@ public class Atom implements java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE, null);                        
+    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
     }
     
     /**
@@ -87,11 +82,11 @@ public class Atom implements java.io.Serializable {
      */
     public void setIntegratorAgent(Object ia) {this.ia = ia;}
 
-    public void sendToReservoir() {
-        creator().reservoir().addAtom(this);
-    }
-    
     public AtomFactory creator() {return type.creator();}
+    
+    public void dispose() {
+        node.dispose();
+    }
     
     /**
      * Coordinates of this atom.
@@ -142,7 +137,7 @@ public class Atom implements java.io.Serializable {
      * Counter for number of times an atom is instantiated without a parent.  Used
      * to assign a unique index to such atoms.
      */
-    private static int NO_PARENT_INSTANCE_COUNT = 0;
+    private static int INSTANCE_COUNT = 0;
     
     /**
      * Adds given agent source to allatomAgent-source array and returns index

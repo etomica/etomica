@@ -42,11 +42,15 @@ public class AtomFactoryWater extends AtomFactory {
 	/**
 	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
 	 */
-	public Atom build(Atom group) {
+	public Atom makeAtom() {
+        Atom group = newParentAtom();
 		AtomTreeNodeWater waterNode = (AtomTreeNodeWater)group.node;
-		waterNode.O = oFactory.makeAtom(waterNode);
-		waterNode.H1 = hFactory.makeAtom(waterNode);
-		waterNode.H2 = hFactory.makeAtom(waterNode);
+		waterNode.O = oFactory.makeAtom();
+        waterNode.H1 = hFactory.makeAtom();
+        waterNode.H2 = hFactory.makeAtom();
+        waterNode.O.node.setParent(waterNode);
+        waterNode.H1.node.setParent(waterNode);
+        waterNode.H2.node.setParent(waterNode);
 		configuration.initializeCoordinates(group);
 		return group;
 	}

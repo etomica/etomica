@@ -24,26 +24,10 @@ import etomica.SpeciesAgent;
  * @author David Kofke
  */
  
- /* History
-  * 11/15/02 (DAK/DW) modified parentPhase method
-  * 12/04/02 (DAK) added isDescendedFrom(AtomTreeNodeGroup) method, and modified
-  *           isDescendedFrom(Atom) method to work through it.
-  * 12/06/02 (DAK) added childWhereDescendedFrom method.
-  * 08/12/03 (DAK) modifed as indicated in comments in code; modified dispose()
-  * method to operate via setParent method
-  */
- 
-
 public abstract class AtomTreeNode {
     
-    public AtomTreeNode(Atom atom, AtomTreeNodeGroup parent) {
+    public AtomTreeNode(Atom atom) {
         this.atom = atom;
-       	if(parent != null) {
-            parentNode = parent;
-            depth = parent.depth() + 1;
-            setIndex(parent.newChildIndex());
-            parent.childList.add(atom.seq);
-        }
     }
     
     public abstract boolean isLeaf();
@@ -194,9 +178,5 @@ public abstract class AtomTreeNode {
     protected int depth;
     protected int atomIndex;
     private AtomTreeNodeGroup parentNode;
-    
-    public interface Factory {
-        public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent);
-    }
     
 }//end of AtomTreeNode

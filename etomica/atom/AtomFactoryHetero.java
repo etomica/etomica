@@ -40,7 +40,7 @@ public class AtomFactoryHetero extends AtomFactory {
         this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
     }
     
-	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeGroup.Factory nodeFactory,
+	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory,
 							AtomFactory[] factory, Configuration config) {
 		super(space, sequencerFactory, nodeFactory);
 		init(factory, config);
@@ -61,9 +61,11 @@ public class AtomFactoryHetero extends AtomFactory {
     /**
      * Constructs a new group.
      */
-    public Atom build(Atom group) {
+    public Atom makeAtom() {
+        Atom group = newParentAtom();
         for(int i=0; i<childFactory.length; i++) {
-            childFactory[i].build((AtomTreeNodeGroup)group.node);//builds child atom with group as parent
+            Atom childAtom = childFactory[i].makeAtom();
+            childAtom.node.setParent((AtomTreeNodeGroup)group.node);
         }
         configuration.initializeCoordinates(group);
         return group;
@@ -74,13 +76,5 @@ public class AtomFactoryHetero extends AtomFactory {
      * in the group made by this factory.
      */
     public AtomFactory[] childFactory() {return childFactory;}
-    
-    public boolean vetoAddition(Atom a) {return true;} 
-        
-/*    public void renew(Atom a) {//need an exception in the case a is unrenewable
-        if(a.type != groupType) return;  //throw exception
-        configuration.initializeCoordinates((AtomGroup)a);
-    }       
-*/        
 }//end of AtomFactoryHomo
     

@@ -23,12 +23,11 @@ import etomica.Species;
   */
 public abstract class AtomFactory {
     
-    protected final AtomReservoir reservoir;
     public final Space space;
     private Species species;
     protected Configuration configuration;
     protected AtomSequencerFactory sequencerFactory;
-    protected AtomTreeNodeGroup.Factory nodeFactory;
+    protected AtomTreeNodeFactory nodeFactory;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomTypeGroup groupType = new AtomTypeGroup(this);
     protected final AtomTypeSphere spheretype = new AtomTypeSphere(this);
@@ -47,12 +46,11 @@ public abstract class AtomFactory {
     	this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
     
-    public AtomFactory(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNode.Factory nodeFactory) {
+    public AtomFactory(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
         this.space = space;
         this.sequencerFactory = sequencerFactory;
         this.nodeFactory = nodeFactory;
         this.atomType = groupType;
-        reservoir = new AtomReservoir(this);
     }
     
 	public AtomType getType() {
@@ -60,54 +58,24 @@ public abstract class AtomFactory {
 	}
 	
     /**
-     * Makes an atom with the reservoir as its parent.
+     * Builds and returns the atom/atomgroup made by this factory.
+     * Implementation of this method in the subclass defines the 
+     * product of this factory.
      */
-    public Atom makeAtom() {
-        return makeAtom((AtomTreeNodeGroup)reservoir.node);
-    }
+    public abstract Atom makeAtom();
     
     /**
-     * Makes an atom with the given node as its parent.  If reservoir
-     * is not empty, takes atom from it; otherwise makes it from scratch
-     * using the build method.
+     * Method used by subclasses to make the root atom of the group it is building.
      */
-    public Atom makeAtom(AtomTreeNodeGroup parent) {
-        Atom atom = reservoir.getAtom();
-        if(atom == null) atom = build(parent);//reservoir);//using reservoir causes problem for BravaisLattice
-        atom.node.setParent(parent);
-        
+    protected Atom newParentAtom() {
+        Atom atom = new Atom(space, atomType, nodeFactory, sequencerFactory);
         //add agents from any registered sources
         if(agentSource.length > 0) atom.agents = new Object[agentSource.length];
         for(int i=0; i<agentSource.length; i++) {
             atom.agents[i] = agentSource[i].makeAgent(atom);
         }
-        
         return atom;
     }
-    
-    /**
-     * Constructs a new atomgroup having the given parent and sends it
-     * to the build(Atom) method for addition of children.  This method 
-     * is sometime overridden in subclasses to construct with atom that does
-     * not use the group AtomTreeNode, or that is a subclass of Atom.
-     */
-    protected Atom build(AtomTreeNodeGroup parent) {
-        Atom group = new Atom(space, atomType, nodeFactory, sequencerFactory, parent);
-        return build(group);
-    }
-    
-//    public static Atom build(Space space, AtomTreeNodeGroup parent, Model model) {
-//    	if(model instanceof ModelAtomic) {
-//    		return new Atom(space, atomType, nodeFactory, sequencerFactory, parent);
-//    	}
-//		return null;
-//    }
-    
-    /**
-     * Builds an atom from the one given, attaching child atoms as appropriate
-     * for the definition of the concrete subclass.
-     */
-    public abstract Atom build(Atom atom);
     
     /**
      * Indicates if this factory produces atom groups or simple atoms.
@@ -116,8 +84,6 @@ public abstract class AtomFactory {
      */
     public abstract boolean isGroupFactory();
         
-    public AtomReservoir reservoir() {return reservoir;}
-    
     public Space space() {return space;}
     
     public void setSpecies(Species species) {this.species = species;}

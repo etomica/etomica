@@ -1,12 +1,8 @@
 package etomica.atom;
 
 import etomica.Configuration;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Species;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorTree;
 
 /**
  * Builds an atom group that comprises atoms arranged in a tree structure.  The
@@ -122,37 +118,36 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     int depth;
     private AtomFactoryTree parentFactory;
     
-    public static void main(String[] args) {
-        Simulation sim = new Simulation();
-        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomSequencerFactory.SIMPLE);
-        int[] nA = new int[] {2, 1, 3};
-        AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
-        Phase phase = new Phase(sim.space);
-        Species species = new Species(treeFactory);
-        species.setNMolecules(1);
-        treeFactory.makeAtom();
-//        sim.elementCoordinator.go();
-        
-        AtomIteratorTree iterator = new AtomIteratorTree();
-        iterator.setRoot(phase.speciesMaster);
-        for(int i=0; i<6; i++) {
-            System.out.println("i = "+i);
-            iterator.setIterationDepth(i);
-            iterator.reset();
-            while(iterator.hasNext()) System.out.print(iterator.next().toString());
-            System.out.println();
-        }
-        
-        treeFactory.setNAtoms(new int[] {2,2,1});
-        AtomIteratorAllMolecules moleculeIterator = new AtomIteratorAllMolecules(phase);
-        while(moleculeIterator.hasNext()) treeFactory.build(moleculeIterator.nextAtom());
-        for(int i=0; i<6; i++) {
-            System.out.println("i = "+i);
-            iterator.setIterationDepth(i);
-            iterator.reset();
-            while(iterator.hasNext()) System.out.print(iterator.next().toString());
-            System.out.println();
-        }
-    }
+//    public static void main(String[] args) {
+//        Simulation sim = new Simulation();
+//        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomSequencerFactory.SIMPLE);
+//        int[] nA = new int[] {2, 1, 3};
+//        AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
+//        Phase phase = new Phase(sim.space);
+//        Species species = new Species(treeFactory);
+//        species.setNMolecules(1);
+//        phase.addMolecule(treeFactory.makeAtom(), species.getAgent(phase));
+//        
+//        AtomIteratorTree iterator = new AtomIteratorTree();
+//        iterator.setRoot(phase.speciesMaster);
+//        for(int i=0; i<6; i++) {
+//            System.out.println("i = "+i);
+//            iterator.setIterationDepth(i);
+//            iterator.reset();
+//            while(iterator.hasNext()) System.out.print(iterator.next().toString());
+//            System.out.println();
+//        }
+//        
+//        treeFactory.setNAtoms(new int[] {2,2,1});
+//        AtomIteratorAllMolecules moleculeIterator = new AtomIteratorAllMolecules(phase);
+//        while(moleculeIterator.hasNext()) treeFactory.build(moleculeIterator.nextAtom());
+//        for(int i=0; i<6; i++) {
+//            System.out.println("i = "+i);
+//            iterator.setIterationDepth(i);
+//            iterator.reset();
+//            while(iterator.hasNext()) System.out.print(iterator.next().toString());
+//            System.out.println();
+//        }
+//    }
     
 }//end of AtomFactoryTree

@@ -98,7 +98,7 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
         ((AtomFactoryHomo)factory).setAtomsPerGroup(n);
         allAgents(new AtomActionAdapter() {public void actionPerformed(Atom a) {
             SpeciesAgent agent = (SpeciesAgent)a;
-            agent.setNMolecules(agent.getNMolecules(),true);}});
+            agent.setNMolecules(agent.getNMolecules());}});
     }
     /**
      * @return the number of spheres in each molecule made by this species.

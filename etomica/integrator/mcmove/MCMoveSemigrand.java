@@ -8,6 +8,7 @@ import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesAgent;
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -34,6 +35,7 @@ public class MCMoveSemigrand extends MCMove {
     
     private Species[] speciesSet;
     private SpeciesAgent[] agentSet;
+    private AtomList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
     private final AtomIteratorSinglet deleteAtomIterator;
@@ -84,10 +86,12 @@ public class MCMoveSemigrand extends MCMove {
         speciesSet = new Species[nSpecies];
         agentSet = new SpeciesAgent[nSpecies];
         fugacityFraction = new double[nSpecies];
+        reservoirs = new AtomList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
             if(phases[0] != null) agentSet[i] = species[i].getAgent(phases[0]);
             fugacityFraction[i] = 1.0/(double)nSpecies;
+            reservoirs[i] = new AtomList();
         }
     }
     
@@ -167,9 +171,11 @@ public class MCMoveSemigrand extends MCMove {
         deleteMolecule = deleteAgent.randomMolecule();
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar(phases[0]);
-        deleteMolecule.sendToReservoir();
+        phases[0].removeMolecule(deleteMolecule);
         
-        insertMolecule = insertAgent.addNewAtom();
+        if(!reservoirs[iInsert].isEmpty()) insertMolecule = reservoirs[iInsert].removeFirst();
+        else insertMolecule = insertAgent.moleculeFactory().makeAtom();
+        phases[0].addMolecule(insertMolecule, insertAgent);
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
         moleculeTranslator.actionPerformed(insertMolecule);
         //in general, should also randomize orintation and internal coordinates
@@ -189,11 +195,17 @@ public class MCMoveSemigrand extends MCMove {
                 Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
     
-    public void acceptNotify() {  /* do nothing */}
-    
+    public void acceptNotify() {
+        //put deleted molecule in reservoir
+        reservoirs[iDelete].add(deleteMolecule.seq);
+    }
+
     public void rejectNotify() {
-        deleteMolecule.node.setParent(deleteAgent);
-        insertMolecule.sendToReservoir();
+        //put deleted molecule back into phase
+        phases[0].addMolecule(deleteMolecule, deleteAgent);
+        //remove inserted molecule and put in reservoir
+        phases[0].removeMolecule(insertMolecule);
+        reservoirs[iInsert].add(insertMolecule.seq);
     }
 
     public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
