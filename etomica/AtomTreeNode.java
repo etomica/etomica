@@ -33,9 +33,10 @@ public abstract class AtomTreeNode {
     
     public AtomTreeNode(Atom atom, AtomTreeNodeGroup parent) {
         this.atom = atom;
-        if(parent == null && !(atom instanceof SpeciesMaster || atom instanceof AtomReservoir)) {//only SpeciesMaster and AtomReservoir can have null parent
-            throw new NullPointerException("Illegal specification of null parent in AtomTreeNode constructor");
-        } else if(parent != null) {
+//        if(parent == null && !(atom instanceof SpeciesMaster || atom instanceof AtomReservoir)) {//only SpeciesMaster and AtomReservoir can have null parent
+//            throw new NullPointerException("Illegal specification of null parent in AtomTreeNode constructor");
+//        } else if(parent != null) {
+        	if(parent != null) {
             //(add check that parent is resizable)
             parentNode = parent;
             parentGroup = parent.atom;
