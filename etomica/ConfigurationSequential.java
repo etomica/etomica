@@ -40,6 +40,7 @@ public class ConfigurationSequential extends Configuration {
         int sumOfMolecules = iterator.size();
         
         if(sumOfMolecules == 0) return;
+        System.out.println("ConfigurationSequential sumOfMolecules = "+sumOfMolecules);
         
         Space.Vector[] rLat;
         
@@ -68,6 +69,7 @@ public class ConfigurationSequential extends Configuration {
                 a.creator().getConfiguration().initializeCoordinates(a);
             } catch(NullPointerException e) {}
             a.coord.translateTo(rLat[i]);
+            System.out.println("configurationsequential: "+rLat[i].toString());
             i++;
         }
    //     initializeMomenta(phase.speciesMaster());

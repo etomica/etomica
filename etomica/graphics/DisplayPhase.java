@@ -487,7 +487,10 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
          * Returns the molecule nearest the currently selected point
          */
         private Atom selectMolecule() {
-            Atom nearestMolecule = null;
+            //phase.moleculeIterator needs to be defined to implement method
+            throw new RuntimeException("method DisplayPhase.selectMolecule not implemented");
+            
+        /*    Atom nearestMolecule = null;
             double r2Min = Double.MAX_VALUE;
             for(AtomIterator iter=phase.moleculeIterator; iter.hasNext(); ) {
                 Atom m=iter.next();
@@ -497,7 +500,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                    r2Min = r2;
                 }
             }
-            return nearestMolecule;
+            return nearestMolecule;*/
         }  
         
         

@@ -18,7 +18,7 @@ public class CoordinateGroup extends Coordinate {
     public Space.Vector position() {
         r.E(0.0); double massSum = 0.0;
         Atom lastChild = atom.node.lastChildAtom();
-        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.nextAtom()) {
+        for(Atom a=atom.node.firstChildAtom(); a!=null; a=a.seq.nextAtom()) {
             r.PEa1Tv1(a.coord.mass(), a.coord.position()); massSum += a.coord.mass();
             if(a == lastChild) break;
         }

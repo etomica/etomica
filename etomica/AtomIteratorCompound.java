@@ -135,6 +135,7 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
     
     //not implemented
     public void allAtoms(AtomAction act) {
+        throw new RuntimeException("Method allAtoms not implemented in AtomIteratorCompound");
     }
     
     /**

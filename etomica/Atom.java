@@ -65,21 +65,7 @@ public class Atom implements java.io.Serializable {
     public final Space.Coordinate coord;
             
     public String signature() {return node.parentGroup().signature() + " " + node.index();}
-    public final String toString() {return "Atom(" + signature() + ")";}
-        
-
-    /**
-     * @return the next atom in the linked list of atoms
-     * @see setNextAtom
-     */
-    public final Atom nextAtom() {return seq.nextAtom();}
-
-    /**
-     * @return the previous atom in the linked list of atoms
-     * @see setNextAtom
-     */
-    public final Atom previousAtom() {return seq.previousAtom();} 
-    
+    public final String toString() {return "Atom(" + signature() + ")";}    
 
     public Integrator.Agent ia;
                 

@@ -13,6 +13,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
+    private final AtomIteratorList atomIterator = new AtomIteratorList();
         
     public DisplayPhaseCanvas2D(DisplayPhase _phase) {
         scaleText.setVisible(true);
@@ -182,14 +183,17 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             
         //Draw all atoms
         Space.Boundary boundary = displayPhase.getPhase().boundary();
-        for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
-//              boundary.centralImage(a.coordinate);        //move atom to central image
-            drawAtom(g, displayPhase.getOrigin(), a);
+        atomIterator.setBasis(displayPhase.getPhase().speciesMaster.atomList);
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            drawAtom(g, displayPhase.getOrigin(), atomIterator.next());
         }
             
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
-            for(Atom a=displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {
+                Atom a = atomIterator.next();
                 if(!(a.type instanceof AtomType.Sphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {

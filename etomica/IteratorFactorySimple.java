@@ -30,6 +30,7 @@ public class IteratorFactorySimple implements IteratorFactory {
     * @author David Kofke
     */
 
+    //won't work correctly if tabs are in sequence
     public static final class Iterator implements AtomIterator {
         
         /**
@@ -113,11 +114,11 @@ public class IteratorFactorySimple implements IteratorFactory {
         */
         public Atom next() {
             Atom atom = next;
-            if(next != last) next = upListNow ? next.nextAtom() : next.previousAtom();
+            if(next != last) next = upListNow ? next.seq.nextAtom() : next.seq.previousAtom();
             else if(doGoDown) {
                 upListNow = false;
                 doGoDown = false;
-                next = ref.previousAtom();
+                next = ref.seq.previousAtom();
                 last = basis.node.firstChildAtom();
             }
             else next = null;
@@ -130,16 +131,16 @@ public class IteratorFactorySimple implements IteratorFactory {
         public void allAtoms(AtomAction act) {;
             if(next == null) return;
             if(upListNow) {
-                for(Atom atom = next; atom != null; atom=atom.nextAtom()) {
+                for(Atom atom = next; atom != null; atom=atom.seq.nextAtom()) {
                     act.actionPerformed(atom);
                     if(atom == last) break;
                 }
                 if(ref == null) {next = null; return;}
-                next = ref.previousAtom();
+                next = ref.seq.previousAtom();
                 last = basis.node.firstChildAtom();
             }
             if(doGoDown && next != null) {
-                for(Atom atom = next; atom != null; atom=atom.previousAtom()) {
+                for(Atom atom = next; atom != null; atom=atom.seq.previousAtom()) {
                     act.actionPerformed(atom);
                     if(atom == last) break;
                 }

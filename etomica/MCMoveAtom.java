@@ -30,11 +30,7 @@ public class MCMoveAtom extends MCMove {
         double uOld, uNew;
         if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
-        atom = phase.firstAtom();
-        // maybe try while(i-- >= 0) {}
-        for(int j=i; --j>=0; ) {
-            atom = atom.nextAtom();
-        }
+        atom = phase.speciesMaster.atomList.getRandom();
         uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
         if(uOld > 1e10) {
             System.out.println("Uold: "+uOld);

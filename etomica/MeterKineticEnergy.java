@@ -63,12 +63,12 @@ public class MeterKineticEnergy extends MeterScalar
         return ke;
     }//end of currentValue
     
-    public static double currentValue(Phase p) {
+/*    public static double currentValue(Phase p) {
         double ke = 0.0;
         for(Atom atom=p.firstAtom(); atom!=null; atom=atom.nextAtom()) {
             if(atom.type instanceof AtomType.Wall) continue;
             ke += atom.coord.kineticEnergy();
         }
         return ke;
-    }//end of value
+    }//end of value*/
 }

@@ -11,8 +11,7 @@ public final class AtomIteratorList implements AtomIterator {
 	private AtomLinker.Tab header, terminator;
     private AtomList list;
     protected boolean upListNow, doGoDown;
-    private final AtomLinker.Tab nullLinker = new AtomLinker.Tab();
-	private AtomLinker next = nullLinker;
+	private AtomLinker next;
 	private AtomLinker start;
         
 	public AtomIteratorList() {
@@ -23,6 +22,17 @@ public final class AtomIteratorList implements AtomIterator {
 	}
 	public AtomIteratorList(AtomList list) {
 	    setBasis(list);
+	    reset();
+	}
+	
+	/**
+	 * Makes a linked-list copy of the given list and constructs
+	 * an iterator using the copy as a basis.  Useful to iterate over
+	 * a list of atoms while doing operations that might change
+	 * their order in the original list.
+	 */
+	public static AtomIteratorList makeCopylistIterator(AtomList list) {
+	    return new AtomIteratorList(new AtomIteratorList(list));
 	}
 	
 	public void reset(int index) {
@@ -44,9 +54,9 @@ public final class AtomIteratorList implements AtomIterator {
         else setBasis(((AtomTreeNodeGroup)atom.node).childList);
     }
     public void setBasis(AtomList list) {
+        if(list == null) list = AtomList.NULL;
         this.list = list;
-        if(list == null) header = nullLinker;
-        else header = list.header;
+        header = list.header;
         next = terminator = header;
     }
     public Atom getBasis(){return null;}//no implementation

@@ -18,16 +18,16 @@ public final class SpeciesAgent extends AtomGroup {
     public SpeciesAgent(Species s, int nMolecules) {
         super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s));
         factory = s.moleculeFactory();
-        for(int i=0; i<nMolecules; i++) {
+ /*       for(int i=0; i<nMolecules; i++) {
             node.addAtom(factory.makeAtom());
-        }
+        }*/
         node.setDepth(1);
     }
         
     public final AtomFactory moleculeFactory() {return factory;}
     
     
-    public SpeciesAgent nextSpecies() {return (SpeciesAgent)nextAtom();}
+    public SpeciesAgent nextSpecies() {return (SpeciesAgent)seq.nextAtom();}
     public int moleculeCount() {return node.childAtomCount();}
     public Atom firstMolecule() {return node.firstChildAtom();}
     public Atom lastMolecule() {return node.lastChildAtom();}

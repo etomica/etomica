@@ -47,10 +47,8 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
 
     public void setDepth(int d) {
         depth = d;
-        for(Atom atom=firstChildAtom(); atom!=null; atom=atom.nextAtom()) {
-            atom.node.setDepth(d+1);
-            if(atom == lastChildAtom()) break;
-        }
+        childIterator.reset();
+        while(childIterator.hasNext()) childIterator.next().node.setDepth(d+1);
         if(parentNode != null) parentPhase = parentNode.parentPhase();
     }
     
@@ -125,8 +123,9 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     }
     private Atom findFirstLeafAtom() {
         if(childrenAreGroups()) {
-            for(Atom a0=firstChildAtom(); a0!=null; a0=a0.nextAtom()) {
-                Atom a1 = a0.node.firstLeafAtom();
+            childIterator.reset();
+            while(childIterator.hasNext()) {
+                Atom a1 = childIterator.next().node.firstLeafAtom();
                 if(a1 != null) return a1;
             }
             return null;
@@ -147,20 +146,18 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      */
     public Atom lastLeafAtom() {
         if(childrenAreGroups()) {
-            for(Atom a0=lastChildAtom(); a0!=null; a0=a0.previousAtom()) {
-                Atom a1 = ((AtomGroup)a0).node.lastLeafAtom();
-                if(a1 != null) return a1;
+            AtomLinker a0 = childList.header.previous;
+            while(a0 != childList.header) {
+                if(a0.atom == null) {//skip tabs
+                    a0 = a0.previous;
+                } else {
+                    Atom a1 = a0.atom.node.lastLeafAtom();
+                    if(a1 != null) return a1;
+                    else a0 = a0.previous;
+                }
             }
             return null;
         }
-          /* using iterator for loop seems to cause problem with return of null in AtomPairIterator inner loop even though it reports hasNext=true  
-            childIterator.reset(DOWN);
-            while(childIterator.hasNext()) {
-                Atom atom = ((AtomGroup)childIterator.next()).lastLeafAtom();
-                if(atom != null) return atom;
-            }
-            return null;
-        } */
         else return lastChildAtom();
     }
     
@@ -187,10 +184,6 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         if(aNew == null /* || creator().vetoAddition(aNew)*/) { //should ensure group/atom consistency with other children
             throw new NullPointerException("Attempting to add null Atom in AtomTreeNodeGroup.addAtom");
         }
-        //set up links within this group
-        aNew.node.setParent(this);
-        aNew.node.setDepth(depth+1);
-        
         if(childAtomCount() > 0) { //siblings
             aNew.node.setIndex(lastChildAtom().node.index()+1);
         }
@@ -199,6 +192,10 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         }  
         
         childList.add(aNew.seq);
+        
+        //set up links within this group
+        aNew.node.setParent(this);
+        aNew.node.setDepth(depth+1);
         
         //set up leaf links
 /*        if(aNew instanceof AtomGroup) {
@@ -270,7 +267,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      * Searches the atom hierarchy up from (and not including) the given group 
      * to find the closest (leaf) atom in that direction.
      */
-    private static Atom findNextLeafAtom(Atom a) {
+ /*   private static Atom findNextLeafAtom(Atom a) {
         Atom parent = a; //search up siblings first
         while(parent != null) {
             Atom uncle = parent.nextAtom();
@@ -283,13 +280,14 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         }
         return null;
     }//end of findNextLeafAtom
+        */
     
     /**
      * Searches the atom hierarchy down from (and not including) the given group 
      * to find the closest (leaf) atom in that direction.
      * The first leaf atom of the given group will have the returned atom as its previous atom. 
      */
-    private static Atom findPreviousLeafAtom(Atom a) {
+/*    private static Atom findPreviousLeafAtom(Atom a) {
         Atom parent = a;
         while(parent != null) {
             Atom uncle = parent.previousAtom();
@@ -302,7 +300,8 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         }
         return null;
     }//end of findPreviousLeafAtom
-    
+  */  
+  
     protected final Atom atom;
     protected int depth;
     protected int atomIndex;
@@ -316,6 +315,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
     public final AtomList childList = new AtomList();
+    private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple(childList);
     private boolean resizable = true;
         
     public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {

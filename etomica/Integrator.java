@@ -96,9 +96,13 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   
   //how do agents get placed in atoms made during the simulation?
   protected void deployAgents() {  //puts an Agent of this integrator in each atom of all phases
+    AtomIteratorListSimple iterator = new AtomIteratorListSimple(phase.speciesAgent.atomList);
     for(int i=0; i<phaseCount; i++) {
         Phase p = phase[i];
-        for(Atom a=p.firstAtom(); a!=null; a=a.nextAtom()) {
+        iterator.setBasis(p.speciesAgent.atomList);
+        iterator.reset();
+        while(iterator.hasNext()) {//does only leaf atoms; do atom groups need agents?
+            Atom a = iterator.next();
             a.setIntegratorAgent(makeAgent(a));
         }
     }

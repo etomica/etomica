@@ -43,7 +43,10 @@ public abstract class Configuration implements java.io.Serializable {
      */
     public void initializeCoordinates(Atom group) {
         if(group.node.isLeaf()) throw new IllegalArgumentException("Error in Configuration.initializeCoordinates:  Attempt to initialize child coordinates of leaf atom");
-        initializePositions(new AtomIteratorList(((AtomTreeNodeGroup)group.node).childList));
+
+        AtomIteratorList iterator = 
+                AtomIteratorList.makeCopylistIterator(((AtomTreeNodeGroup)group.node).childList);
+        initializePositions(iterator);
         initializeMomenta(group);
     }
     
@@ -60,7 +63,8 @@ public abstract class Configuration implements java.io.Serializable {
     public void initializeCoordinates(Atom[] group) {
         AtomIterator[] iterators = new AtomIterator[group.length];
         for(int i=0; i<group.length; i++) {
-            iterators[i] = new AtomIteratorSequential(group[i]);
+            iterators[i] = AtomIteratorList.makeCopylistIterator(((AtomTreeNodeGroup)group[i].node).childList);
+            //new AtomIteratorSequential(group[i]);
             initializeMomenta(group[i]);
         }
         initializePositions(iterators);
