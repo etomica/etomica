@@ -90,7 +90,7 @@ public class PotentialRoughSphere extends PotentialHardDisk implements EtomicaEl
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
 	    IntegratorHard integratorHard1 = new IntegratorHard();
@@ -117,5 +117,5 @@ public class PotentialRoughSphere extends PotentialHardDisk implements EtomicaEl
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
-    
+ */   
 }

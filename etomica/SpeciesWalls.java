@@ -209,7 +209,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
    * Method to demonstrate the use of this class.
    * Simulates a system of hard disks and a wall.
    */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
         Simulation.makeSimpleSimulation();  
@@ -233,4 +233,5 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
+ */
 }

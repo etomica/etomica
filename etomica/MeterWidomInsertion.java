@@ -134,7 +134,7 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
             testMolecule.translateTo(phase.randomPosition());  //select random position
             if(display != null && i % 10 ==0) display.repaint();
-            double u = phase.energy.meterPotential().currentValue(testMolecule); //compute energy          
+            double u = phase.potential.energy(testMolecule); //compute energy          
             if(u < Double.MAX_VALUE)              //add to test-particle average
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }

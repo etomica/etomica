@@ -603,7 +603,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker, Etomi
     /**
      * Method for testing and demonstrating use of class
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
         Default.ATOM_SIZE = 1.2;
@@ -628,7 +628,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker, Etomi
 	    timer.setUpdateInterval(10);
 		integratorHard1.setIsothermal(true);
 		integratorHard1.setTemperature(50.0);
-*/		
+*x/		
 		IntegratorMC integrator = new IntegratorMC();
 		
 		((CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.1*Default.ATOM_SIZE);
@@ -649,5 +649,5 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker, Etomi
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }
-    
+*/    
 }//end of Space2DCell

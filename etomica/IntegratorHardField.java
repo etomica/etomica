@@ -10,7 +10,7 @@ package etomica;
  
 public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorHardField:01.03.17.0/"+super.getVersion();}
+    public String getVersion() {return "IntegratorHardField:01.03.17/"+super.getVersion();}
 
     public IntegratorHardField() {
         this(Simulation.instance);

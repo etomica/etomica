@@ -75,7 +75,7 @@ public class ColorSchemeBySpecies extends ColorScheme {
     /**
      * Method to test and demonstrate use of this class
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Frame f = new Frame();   //create a window
         f.setSize(600,350);
         
@@ -130,5 +130,5 @@ public class ColorSchemeBySpecies extends ColorScheme {
             public void windowClosing(WindowEvent e) {System.exit(0);}
         });
     }
-        
+    */    
 } //end of ColorSchemeBySpecies

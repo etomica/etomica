@@ -163,7 +163,7 @@ public class PotentialAssociationCone extends Potential implements EtomicaElemen
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
 	    IntegratorMC integrator1 = new IntegratorMC();
@@ -197,6 +197,5 @@ public class PotentialAssociationCone extends Potential implements EtomicaElemen
         });
     }//end of main
     
-    
-    
+        */
 }

@@ -36,8 +36,6 @@ public class Mediator implements java.io.Serializable {
     
     public Mediator(Simulation sim) {
         parentSimulation = sim;
-        addMediatorPair(new Potential2Species.Default(this));
-        addMediatorPair(new Potential1Species.Default(this));
         addMediatorPair(new PhaseSpecies.Default(this));
         addMediatorPair(new IntegratorPhase.Default(this));
         addMediatorPair(new DisplayIntegrator.Default(this));
@@ -113,74 +111,6 @@ public class Mediator implements java.io.Serializable {
         public final boolean isSuperceding() {return superceding;}
     }//end of Subset
     
-    public abstract static class Potential2Species extends Subset {
-        public Potential2Species(Mediator m) {super(m);}
-
-        public Class[] elementClasses() {return new Class[] {Potential2.class, Species.class};}
-        
-        public void add(Simulation.Element element) {
-            if(!superceding && priorSubset != null) priorSubset.add(element);
-            if(element instanceof Potential2) add((Potential2)element);
-            if(element instanceof Species) add((Species)element);
-        }
-        
-        public abstract void add(Potential2 p2);
-        public abstract void add(Species s);
-        
-        public static class Default extends Potential2Species {
-            public Default(Mediator m) {super(m);}
-            /**
-            * Adds given potential to parent simulations potential2 array.
-            * Uses potential's species index values to assign element.
-            */
-            public void add(Potential2 p2) {
-                //assumes speciesIndex of p2 is in bounds of array
-                //should move to approach in Potential2 that sets species index by passing species
-                //instead of an integer
-                Potential2[][] potential2 = mediator.parentSimulation().potential2;
-                potential2[p2.getSpecies1Index()][p2.getSpecies2Index()] = p2;
-                potential2[p2.getSpecies2Index()][p2.getSpecies1Index()] = p2;
-            }
-            /**
-            * Performs no action.
-            */
-            public void add(Species s) {}
-        }//end of Default
-    }//end of Potential2Species
-    
-    public abstract static class Potential1Species extends Subset {
-        public Potential1Species(Mediator m) {super(m);}
-
-        public Class[] elementClasses() {return new Class[] {Potential1.class, Species.class};}
-        
-        public void add(Simulation.Element element) {
-            if(!superceding && priorSubset != null) priorSubset.add(element);
-            if(element instanceof Potential1) add((Potential1)element);
-            if(element instanceof Species) add((Species)element);
-        }
-        
-        public abstract void add(Potential1 p1);
-        public abstract void add(Species s);
-        
-        public static class Default extends Potential1Species {
-            public Default(Mediator m) {super(m);}
-            /**
-            * Adds given potential to parent simulation's potential1 array.
-            * Uses potential's species index values to assign element.
-            */
-            public void add(Potential1 p1) {
-                //assumes speciesIndex of p1 is in bounds of array
-                //should move to approach in Potential1 that sets species index by passing species
-                //instead of an integer
-                Potential1[] potential1 = mediator.parentSimulation().potential1;
-                potential1[p1.getSpeciesIndex()] = p1;
-            }
-            /**
-            * Performs no action.
-            */
-            public void add(Species s) {}
-        }//end of Default
-    }//end of Potential1Species
     
     public abstract static class PhaseSpecies extends Subset {
         public PhaseSpecies(Mediator m) {super(m);}

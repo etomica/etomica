@@ -112,7 +112,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     public Dimension getDimension() {return Dimension.NULL;}
     public Dimension getXDimension() {return Dimension.NULL;}
 
-      public static void main(String[] args) {
+ /*     public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
         
@@ -167,5 +167,5 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
-
+*/
 }

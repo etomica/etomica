@@ -62,7 +62,7 @@ public class MCMovePointVolume extends MCMove {
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
     public final void setLogPressure(int lp) {setPressure(Math.pow(10.,(double)lp));}
         
-    public static void main(String args[]) {
+ /*   public static void main(String args[]) {
         
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
@@ -112,5 +112,5 @@ public class MCMovePointVolume extends MCMove {
         f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
-    }
+    }*/
 }

@@ -160,7 +160,7 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
     /**
      * main method to demonstrate and test this class.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
@@ -190,6 +190,6 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
-    
+ */   
 }
 

@@ -82,7 +82,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
    */
   public MCMoveAtom getMCMoveAtom(int i) {return (i==0) ? atomDisplace1 : atomDisplace2;}
         
-    public static void main(String[] args) {
+ /*   public static void main(String[] args) {
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
         Simulation.setUnitSystem(new etomica.units.UnitSystem.LJ());
@@ -118,14 +118,6 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 		 
 	    meter1.setPhase(phase1);
 	    meter2.setPhase(phase2);
-	    //may have some redundancy with elementCoordinator.go
-	    //these are commented out for this reason
-	    //should introduce a separate IntegratorPhase Mediator
-/*		integratorGEMC1.addIntervalListener(box1);
-		integratorGEMC1.addIntervalListener(box2);
-		integratorGEMC1.addIntervalListener(displayPhase1);
-		integratorGEMC1.addIntervalListener(displayPhase2); 
-		controller1.setIntegrator(integratorGEMC1) */
 	    phase1.setIntegrator(integratorGEMC1);
 	    phase2.setIntegrator(integratorGEMC1);
 	    
@@ -144,4 +136,5 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
+    */
 }

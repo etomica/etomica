@@ -52,6 +52,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private String name;
     private final Simulation parentSimulation;
     private boolean added = false;
+    public PotentialGroup potential = new PotentialGroup();
     
     public Phase() {
         this(Simulation.instance);

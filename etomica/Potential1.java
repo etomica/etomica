@@ -1,72 +1,94 @@
-package etomica;
+package etomica; 
 
 /**
- * One-molecule, intra-molecular potential, defining all interatomic potentials within a molecule.
- * All molecules of the associated species (set by speciesIndex) have intramolecular interactions 
- * as defined here.
+ * Potential acting on a single atom group. This could be an external field acting
+ * on a single atom, or could describe the interactions among the atoms in a group.
  */
- 
- public abstract class Potential1 implements Simulation.Element, java.io.Serializable {
-
-/**
- * Index of the species that has its intramolecular interactions defined here
- *
- * @see Species#speciesIndex
- */
-  int speciesIndex;
+public abstract class Potential1 extends PotentialAbstract {
   
-  private String name;
-  private final Simulation parentSimulation;
-  private boolean added = false;
+    public static String VERSION = "Potential1:01.06.12/"+PotentialAbstract.VERSION;
 
-  public Potential1(Simulation sim) {
-    parentSimulation = sim;
-    speciesIndex = 0;
-    parentSimulation.register(this);
-  }
-  
-    public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return Potential1.class;}
-    public final boolean wasAdded() {return added;}
-    public final void setAdded(boolean b) {added = b;}
+    private Atom1Iterator iterator;
     
-  /**
-   * Returns the interatomic potential between the two given atoms.
-   * Both atoms should be part of the same molecule
-   */
-  public abstract Potential getPotential(Atom a1, Atom a2);
-  
-  /**
-   * Accessor method for the speciesIndex, which defines the species that this potential describes
-   */
-  public final int getSpeciesIndex() {return this.speciesIndex;}  
-  /**
-   * Accessor method for the speciesIndex, which defines the species that this potential describes
-   */
-  public final void setSpeciesIndex(int index) {this.speciesIndex = index;}
-  
+    public Potential1(Simulation sim) {
+        super(sim);
+    }
+    
+    public Atom1Iterator iterator() {return iterator;}
+    
     /**
-     * Accessor method of the name of this object
-     * 
-     * @return The given name
+     * Returns the energy of the given atom group.
      */
-    public final String getName() {return name;}
-
+    public abstract double energy(AtomGroup atom);
+    
     /**
-     * Method to set the name of this object
-     * 
-     * @param name The name string to be associated with this object
+     * Returns the total energy of the field with all affected atoms in the phase
      */
-    public final void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the object
-     */
-    public String toString() {return getName();}  //override Object method
+    public double energy() {
+        double sum = 0.0;
+        iterator.reset();
+        while(iterator.hasNext()) {
+            sum += energy(iterator.next());
+        }
+        return sum;
+    }
           
-  
+    
+    //***************** end of methods for Potential1 class *****************//
+    
+    
+    /**
+    * Methods needed to describe the behavior of a hard field potential.  
+    * A hard potential describes impulsive interactions, in which the energy undergoes a step
+    * change at some point in the space.
+    *
+    * @see PotentialField.Soft
+    */
+         
+    public interface Hard {
+            
+    /**
+     * Returns the energy due to the interaction of the atom with the field.
+     */
+        public double energy(Atom atom);
+    /**
+    * Implements the collision dynamics.
+    * The given atom is assumed to be at the point of collision.  This method is called
+    * to change its momentum according to the action of the collision.  Extensions can be defined to
+    * instead implement other, perhaps unphysical changes.
+    */
+        public void bump(Atom atom);
+    /**
+    * Computes the time of collision of the given atom with the external field, assuming no intervening collisions.
+    * Usually assumes free-flight between collisions
+    */ 
+        public double collisionTime(Atom atom);
+            
+    }  //end of PotentialField.Hard
+
+    /**
+    * Methods needed to describe the behavior of a soft potential.  
+    * A soft potential describes non-impulsive interactions, in which the energy at all points
+    * has smooth, analytic behavior with no discontinuities.  
+    *
+    * @see PotentialField.Hard
+    */
+    public interface Soft {
+        
+        /**
+        * Returns the energy due to the interaction of the atom with the field.
+        */
+        public double energy(Atom atom);
+
+        /**
+        * Force exerted by the field on the atom.
+        *
+        * @return the vector force exerted on the atom
+        */
+        public Space.Vector force(Atom atom);
+
+    } //end of PotentialField.Soft
 }
+
 
 

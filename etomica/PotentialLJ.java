@@ -6,7 +6,7 @@ import etomica.units.Dimension;
  * Spherically symmetric potential of the form u(r) = 4*epsilon*[(sigma/r)^12 - (sigma/r)^6]
  * where epsilon describes the strength of the pair interaction, and sigma is the atom size parameter
  */
-public class PotentialLJ extends Potential implements Potential.Soft, EtomicaElement {
+public class PotentialLJ extends Potential2 implements Potential.Soft, EtomicaElement {
 
   public String getVersion() {return "PotentialLJ:01.05.25/"+Potential.VERSION;}
 

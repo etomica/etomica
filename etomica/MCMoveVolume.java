@@ -52,7 +52,7 @@ public class MCMoveVolume extends MCMove {
     /**
      * main method to test and demonstrate this class
      */
-    public static void main(String args[]) {
+ /*   public static void main(String args[]) {
         
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
@@ -85,5 +85,5 @@ public class MCMoveVolume extends MCMove {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }
-     
+*/     
 }

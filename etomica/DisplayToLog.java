@@ -151,7 +151,7 @@ public class DisplayToLog extends Display {
     }//end of printProperties
     
     //tests and demonstrates use of this class
-    public static void main(String[] args) {
+ /*   public static void main(String[] args) {
         
         Default.ATOM_SIZE = 1.0;
         Simulation sim = new Simulation(new Space2D());
@@ -187,4 +187,5 @@ public class DisplayToLog extends Display {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }
+    */
 }

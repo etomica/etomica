@@ -226,7 +226,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
 
@@ -264,7 +264,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         });
     }
 
-    
+ */   
     //*******  Some convenience subclasses of DisplayBox  ************//
     
     /**

@@ -28,11 +28,11 @@ public class MCMoveAtom extends MCMove {
         Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
-        uOld = phase.energy.meterPotential().currentValue(a);
+        uOld = phase.potential.energy(a);
         a.displaceWithin(stepSize);
         phase.boundary().centralImage(a.coordinate.position());  //maybe a better way than this
         phase.iteratorFactory().moveNotify(a);
-        uNew = phase.energy.meterPotential().currentValue(a);
+        uNew = phase.potential.energy(a);
         if(uNew < uOld) {   //accept
             nAccept++;
             return;

@@ -27,11 +27,11 @@ public class MCMoveRotate extends MCMove {
     Atom a = phase.firstAtom();
     for(int j=i; --j>=0; ) {a = a.nextAtom();}  
         
-    uOld = phase.energy.meterPotential().currentValue(a);
+    uOld = phase.potential.energy(a);
     Space.Orientation orientation = ((Space.Coordinate.Angular)a.coordinate()).orientation(); 
     oldOrientation.E(orientation);  //save old orientation
     orientation.randomRotation(stepSize);
-    uNew = phase.energy.meterPotential().currentValue(a);
+    uNew = phase.potential.energy(a);
     if(uNew < uOld) {   //accept
         nAccept++;
         return;
@@ -44,7 +44,7 @@ public class MCMoveRotate extends MCMove {
     }
     nAccept++;   //accept
  }
- 
+/* 
    public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
@@ -133,5 +133,5 @@ public class MCMoveRotate extends MCMove {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
-    
+   */
 }

@@ -70,13 +70,9 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public LinkedList integratorList = new LinkedList();
     /**
-     * List of all intra-molecular potentials that have been instantiated.
+     * List of all potentials that have been instantiated.
      */
-    public LinkedList potential1List = new LinkedList();
-    /**
-     * List of all inter-molecular potentials that have been instantiated.
-     */
-    public LinkedList potential2List = new LinkedList();
+    public LinkedList potentialList = new LinkedList();
     /**
      * List of all meters that have been instantiated.
      */
@@ -112,8 +108,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         super();
         space = s;
         setName("Simulation" + Integer.toString(instanceCount++));
-        elementLists.put(Potential1.class, potential1List);
-        elementLists.put(Potential2.class, potential2List);
+        elementLists.put(PotentialAbstract.class, potentialList);
         elementLists.put(Species.class, speciesList);
         elementLists.put(Integrator.class, integratorList);
         elementLists.put(Phase.class, phaseList);
@@ -121,8 +116,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         elementLists.put(Display.class, displayList);
         elementLists.put(MeterAbstract.class, meterList);
         elementLists.put(Device.class, deviceList);
-        p1Null = new P1Null(this);
-        p2IdealGas = new P2IdealGas(this);
         elementCoordinator = new Mediator(this);
         setSize(800,550);
         setLayout(new java.awt.FlowLayout());
@@ -169,13 +162,9 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      */
     public final Species species(int n) {return (Species)speciesList.get(n);}
     /**
-     * @return the <code>nth</code> instantiated inter-molecular potential (indexing from zero)
+     * @return the <code>nth</code> instantiated potential (indexing from zero)
      */
-    public final Potential2 potential2(int n) {return (Potential2)potential2List.get(n);}
-    /**
-     * @return the <code>nth</code> instantiated intra-molecular potential (indexing from zero)
-     */
-    public final Potential1 potential1(int n) {return (Potential1)potential1List.get(n);}
+    public final Potential potential(int n) {return (Potential)potentialList.get(n);}
     /**
      * @return the <code>nth</code> instantiated controller (indexing from zero)
      */
@@ -202,8 +191,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public final LinkedList speciesList() {return speciesList;}
     public final LinkedList integratorList() {return integratorList;}
     public final LinkedList controllerList() {return controllerList;}
-    public final LinkedList potential1List() {return potential1List;}
-    public final LinkedList potential2List() {return potential2List;}
+    public final LinkedList potentialList() {return potentialList;}
     public final LinkedList displayList() {return displayList;}
     public final LinkedList deviceList() {return deviceList;}
   
@@ -316,29 +304,17 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         }*/
     }
                 
-    /**
-     * Method invoked in the constructor of a Potential1 object to list it with the simulation
-     */
-    public void unregister(Potential1 p1) {
-        if(!potential1List.contains(p1)) return;
-        if(p1 instanceof P1Null) return;
-        int deleteIndex = potential1List.indexOf(p1);
-        for (int i = deleteIndex; i < potential1List.size()-1; i++)
-            potential1[i] = potential1[i+1];
-        potential1List.remove(p1);
-        allElements.remove(p1);
-    }
                 
     /**
      * Method invoked in the constructor of a Potential2 object to list it with the simulation
      */
-    public void unregister(Potential2 p2) {
+/*    public void unregister(Potential2 p2) {
         if(!potential2List.contains(p2)) return;
         if(p2 instanceof P2IdealGas) return;
         potential2List.remove(p2);
         allElements.remove(p2);
     }
- 
+*/ 
     public LinkedList allElements() {
         LinkedList list;
  //       synchronized(this) {
@@ -359,28 +335,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * @return the number of species that have been constructed and registered with the simulation
      */
      public final int speciesCount() {return speciesList.size();}
-    /**
-     * Returns the potential governing the interaction of the given atoms
-     */
-    public final Potential getPotential(AtomPair pair) {
-        Atom a1 = pair.atom1();
-        Atom a2 = pair.atom2();
-        return getPotential(a1,a2);
-    }
-    /**
-     * Returns the potential governing the interaction of the given atoms
-     */
-    public final Potential getPotential(Atom a1, Atom a2) {
-        if(a1 == a2) {
-            return null;
-//            return a1.parentPhase().potential();  //should rewrite AtomPair to hold phase
-        }
-        else if(a1.parentMolecule() == a2.parentMolecule()) {
-            return potential1[a1.speciesIndex()].getPotential(a1,a2);}
-        else {
-            return potential2[a2.speciesIndex()][a1.speciesIndex()].getPotential(a1,a2);
-        }
-    }
     
     private static int instanceCount = 0;
     private String name;
@@ -480,7 +434,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
 	    Phase phase1 = new Phase();
-	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
+///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
@@ -488,25 +442,35 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 		Simulation.instance.setBackground(java.awt.Color.yellow);
     }//end of makeSimpleSimulation
     
+    public static java.awt.event.WindowAdapter windowCloser 
+        = new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
+        };
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
-        Simulation.makeSimpleSimulation();  //for more general simulations, replace this call with
-                                            //construction of the desired pieces of the simulation
                                             
+	    IntegratorHard integratorHard1 = new IntegratorHard();
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
+	    Phase phase1 = new Phase();
+///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
+	    Controller controller1 = new Controller();
+	    DisplayPhase displayPhase1 = new DisplayPhase();
+	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+	    timer.setUpdateInterval(10);
+		Simulation.instance.setBackground(java.awt.Color.yellow);
+
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-        f.add(Simulation.instance);         //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        f.addWindowListener(Simulation.windowCloser);
     }//end of main
 }
 
