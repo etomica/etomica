@@ -48,16 +48,14 @@ public final class Vector3D extends Vector {
         public void DE(double a) {x /= a; y /= a; z /= a;}
         public void DE(Vector3D u) {x /= u.x; y /= u.y ; z /= u.z;}
         public void Ev1Pv2(Vector u1, Vector u2) {
-            Vector3D v1 = (Vector3D)u1; Vector3D v2 = (Vector3D)u2;
-            x = v1.x + v2.x;
-            y = v1.y + v2.y;
-            z = v1.z + v2.z;
+            x = ((Vector3D)u1).x + ((Vector3D)u2).x;
+            y = ((Vector3D)u1).y + ((Vector3D)u2).y;
+            z = ((Vector3D)u1).z + ((Vector3D)u2).z;
         }
         public void Ev1Mv2(Vector u1, Vector u2) {
-            Vector3D v1 = (Vector3D)u1; Vector3D v2 = (Vector3D)u2;
-            x = v1.x - v2.x;
-            y = v1.y - v2.y;
-            z = v1.z - v2.z;
+            x = ((Vector3D)u1).x - ((Vector3D)u2).x;
+            y = ((Vector3D)u1).y - ((Vector3D)u2).y;
+            z = ((Vector3D)u1).z - ((Vector3D)u2).z;
         }
         public void mod(Vector u) {
             mod((Vector3D)u);
