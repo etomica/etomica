@@ -4,7 +4,8 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
@@ -14,6 +15,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPairVector;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorListSimple;
@@ -141,8 +143,8 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
 	 * if an iterated pair would match the atoms as ordered in the given
 	 * array.
 	 */
-	public boolean contains(Atom[] atoms) {
-        if(atoms==null || atoms[0]==null || atoms[1]==null || atoms[0]==atoms[1]) return false;
+	public boolean contains(AtomSet atoms) {
+        if(!(atoms instanceof AtomPair) || ((AtomPair)atoms).atom0 == ((AtomPair)atoms).atom1) return false;
         AtomsetDetect detector = new AtomsetDetect(atoms);
         allAtoms(detector);
         return detector.detectedAtom();
@@ -152,19 +154,18 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         return listIterator.hasNext();
     }
     
-    public Atom[] next() {
+    public AtomSet next() {
         if(!hasNext()) return null;
-        Atom[] nextPair = listIterator.next();
-        pair[0] = nextPair[0];
-        pair[1] = nextPair[1];
-        nearestImageVector = neighborIterator.getNearestImageVector();
+        AtomPair nextPair = listIterator.nextPair();
+        nextPair.copyTo(pair);
+        pair.nearestImageVector = neighborIterator.getNearestImageVector();
         if(!listIterator.hasNext()) {
             advanceLists();
         }
         return pair;
     }
     
-    public Atom[] peek() {
+    public AtomSet peek() {
         return listIterator.peek();
     }
     
@@ -294,7 +295,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
     
     private NeighborCell centralCell, neighborCell;
     private boolean doListSwap;
-    private final Atom[] pair = new Atom[2];
+    private final AtomPairVector pair = new AtomPairVector();
     private int innerIndex;
     
     private Vector nearestImageVector;
