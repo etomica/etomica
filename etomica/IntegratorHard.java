@@ -65,33 +65,33 @@ public class IntegratorHard extends IntegratorMD {
         double interval = timeStep;
         int count = 10000;
         while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
-			atoms[0] = colliderAgent.atom();
-			atoms[1] = colliderAgent.collisionPartner();
-        	if (collisionTimeStep < 0.0) {
-        		System.out.println("previous collision occured before current one");
-        		System.out.println("previous time: "+(timeStep-interval)+"current time: "+(timeStep-interval+collisionTimeStep));
-        		System.out.println("collision between "+atoms[0]+" and "+atoms[1]);
-        		cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-        		cPairDebug.setBoundary(firstPhase.boundary());
-        		cPairDebug.reset(atoms[0].coord,atoms[1].coord);
-        		System.out.println("distance at last collision time was "+cPairDebug.r2());
-                advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
-        		cPairDebug.reset();
-        		System.out.println("distance now "+cPairDebug.r2());
-        		throw new RuntimeException("this simulation is not a time machine");
-        	}
-        	if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 1 || Debug.anyAtom(atoms))) {
-        		System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+(timeStep-interval+collisionTimeStep));
-        	}
+            atoms[0] = colliderAgent.atom();
+            atoms[1] = colliderAgent.collisionPartner();
+            if (collisionTimeStep < 0.0) {
+                System.out.println("previous collision occured before current one");
+                System.out.println("previous time: "+(timeStep-interval)+"current time: "+(timeStep-interval+collisionTimeStep));
+                System.out.println("collision between "+atoms[0]+" and "+atoms[1]);
+                cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
+                cPairDebug.setBoundary(firstPhase.boundary());
+                cPairDebug.reset(atoms[0].coord,atoms[1].coord);
+                System.out.println("distance at last collision time was "+cPairDebug.r2());
+                advanceAcrossTimeStep(collisionTimeStep);
+                cPairDebug.reset();
+                System.out.println("distance now "+cPairDebug.r2());
+                throw new RuntimeException("this simulation is not a time machine");
+            }
+            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 1 || Debug.anyAtom(atoms))) {
+                System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+(timeStep-interval+collisionTimeStep));
+            }
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
-    		if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null && Debug.ATOM2 != null) {
-    			cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
-    			cPairDebug.setBoundary(firstPhase.boundary());
-    			Debug.checkAtoms(cPairDebug);
-    		}
-			if (colliderAgent.collisionPotential != null) {
-				colliderAgent.collisionPotential.bump(atoms);
-			}
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null && Debug.ATOM2 != null) {
+                cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
+                cPairDebug.setBoundary(firstPhase.boundary());
+                Debug.checkAtoms(cPairDebug);
+            }
+            if (colliderAgent.collisionPotential != null) {
+                colliderAgent.collisionPotential.bump(atoms);
+            }
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
             }
