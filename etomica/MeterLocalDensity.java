@@ -55,7 +55,7 @@ public abstract class MeterLocalDensity extends simulate.Meter
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                  if(this.contains(m) && !(m.firstAtom.type instanceof AtomType.Wall)) {
                     totalSum++;
-                    if(m.getSpeciesIndex() == speciesIndex) speciesSum++;
+                    if(m.speciesIndex() == speciesIndex) speciesSum++;
                  }
             }
             if(totalSum == 0) return Double.NaN;
@@ -69,7 +69,7 @@ public abstract class MeterLocalDensity extends simulate.Meter
               }}
             else {                              //species density
               for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
-                 if(this.contains(m) && m.getSpeciesIndex()==speciesIndex) nSum++;
+                 if(this.contains(m) && m.speciesIndex()==speciesIndex) nSum++;
                }
             }       
             return nSum/(volume*scaleSquared*Constants.DEPTH*Constants.MOL_PER_LITER2SIM);

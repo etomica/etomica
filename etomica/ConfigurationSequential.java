@@ -24,11 +24,10 @@ public class ConfigurationSequential extends Configuration {
     public void initializeCoordinates() {
         if(parentPhase == null) {return;}
         
-//        double Lx = parentPhase.getBounds().width/DisplayConfiguration.SIM2PIXELS;
-//        double Ly = parentPhase.getBounds().height/DisplayConfiguration.SIM2PIXELS;
         double Lx = parentPhase.dimensions().component(0);
         double Ly = parentPhase.dimensions().component(1);
 
+    // Count number of molecules
         int sumOfMolecules = 0;
         for(int j=0; j<species.size(); j++) {   
             Species.Agent s = (Species.Agent)species.elementAt(j);
@@ -40,6 +39,7 @@ public class ConfigurationSequential extends Configuration {
         
         Space2DCell.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
         
+   // Place molecules     
         int i = 0;
         for(int j=0; j<species.size(); j++) {
             Species.Agent s = (Species.Agent)species.elementAt(j);

@@ -154,9 +154,9 @@ public class Simulation extends Panel {
         if(a1 == a2) {
             return pair.atom1().parentPhase().potential();}  //should rewrite AtomPair to hold phase
         else if(a1.parentMolecule() == a2.parentMolecule()) {
-            return potential1[a1.getSpeciesIndex()].getPotential(a1,a2);}
+            return potential1[a1.speciesIndex()].getPotential(a1,a2);}
         else {
-            return potential2[a2.getSpeciesIndex()][a1.getSpeciesIndex()].getPotential(a1,a2);
+            return potential2[a2.speciesIndex()][a1.speciesIndex()].getPotential(a1,a2);
         }
     }
     

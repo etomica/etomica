@@ -29,7 +29,7 @@ public class ColorSchemeHeteroAtoms extends ColorScheme {
     }
     public int getNAtoms() {return nAtoms;}
         
-    public void setAtomColor(Atom a) {a.setColor(atomColors[a.getAtomIndex()]);}
+    public void setAtomColor(Atom a) {a.setColor(atomColors[a.atomIndex()]);}
     
     public void setAtomColors(int i, Color c) {atomColors[i] = c;}
     public Color getAtomColors(int i) {return atomColors[i];}

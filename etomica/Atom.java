@@ -2,7 +2,7 @@ package simulate;
 import java.awt.*;
 
 /**
-*  Each instance of the class Atom holds the position and velocity of one
+*  Each instance of the class Atom holds the coordinates of one
 *  physical atom; all simulation kinetics and dynamics are performed by 
 *  operating on these values.
 *  
@@ -39,11 +39,12 @@ public final class Atom implements Space.Occupant {
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
         
     public final Molecule parentMolecule() {return parentMolecule;}
+    public final Phase parentPhase() {return parentMolecule.parentPhase();}
         
     public final Space.Coordinate coordinate() {return coordinate;}
             
-    public final int getSpeciesIndex() {return parentMolecule.getSpeciesIndex();}
-    public final int getAtomIndex() {return atomIndex;}
+    public final int speciesIndex() {return parentMolecule.speciesIndex();}
+    public final int atomIndex() {return atomIndex;}
         
     public final Color getColor() {return color;}
     public final void setColor(Color c) {this.color = c;}
@@ -74,8 +75,6 @@ public final class Atom implements Space.Occupant {
 
     public final double mass() {return type.mass();}
     public final double rm() {return type.rm();}
-
-    public final Phase parentPhase() {return parentMolecule.parentPhase();}
 
     public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, this);}
 
@@ -144,12 +143,6 @@ public final class Atom implements Space.Occupant {
     public  Space.Vector r, p;  //position, momentum
         
     public  AtomType type;
-//    public final Space.Coordinate coordinate;
-//    public final Space.Vector r, p;  //position, momentum
-        
-//    public final AtomType type;
-        
-//    public final Space.Vector workVector, rLast, velocity;
     public  Space.Vector workVector, rLast, velocity;
         
     public interface Iterator {        

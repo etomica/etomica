@@ -39,9 +39,6 @@ public class P2SquareWell extends Potential2 {
     epsilon = eps;
     ((PotentialSquareWell)potential[0][0]).setEpsilon(eps);
   }
-  public final void setEpsilon(int eps) {
-    setEpsilon((double)eps);
-  }
   
   // Paint a red disk and blue circle at design time to show size of 
   // core diameter and well

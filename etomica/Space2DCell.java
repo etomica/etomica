@@ -119,7 +119,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
                 phase = p;
                 cells = c;
                 pair = new AtomPair(p);
-                cPair = (Space2D.CoordinatePair)phase.space().makeCoordinatePair(p.boundary());
+                cPair = (Space2D.CoordinatePair)pair.cPair;
                 hasNext = false;
             }
             public boolean hasNext() {return hasNext;}
@@ -155,7 +155,9 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             public AtomPair next() {
                 cPair.c2 = neighborCoordinate;
                 cPair.reset();
-                pair.reset(atom,(Atom)neighborCoordinate.parent(),cPair);  //maybe put an Atom in Coordinate to avoid cast
+                pair.atom1 = atom;
+                pair.atom2 = (Atom)neighborCoordinate.parent();
+//                pair.reset(atom,(Atom)neighborCoordinate.parent(),cPair);  //maybe put an Atom in Coordinate to avoid cast
                 neighborCoordinate = neighborCoordinate.nextNeighbor;
                 if(neighborCoordinate == null) {advanceCell();}
                 return pair;
@@ -182,7 +184,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
                 phase = p; 
                 cells = c;
                 pair = new AtomPair(p);
-                cPair = (Space2D.CoordinatePair)phase.space().makeCoordinatePair(p.boundary());
+                cPair = (Space2D.CoordinatePair)pair.cPair;
                 hasNext = false;
             }
             public boolean hasNext() {return hasNext;}
@@ -190,15 +192,13 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             public void reset() {reset(atom,true);}  //change if intra is used
             public void reset(Atom a, boolean intra) {  //presently ignores intra, acting as if it were true
                 atom = a;
+                Coordinate c = (Coordinate)a.coordinate;
+                cPair.c1 = c;
                 if(a.parentPhase() == phase) {  //this atom is currently in this phase
-                    Coordinate c = (Coordinate)a.coordinate;
-                    cPair.c1 = c;
                     nextLinker = c.cell.firstDownNeighbor();  //this points to the cell after the current neighbor cell
                     neighborCoordinate = c.previousNeighbor();   //this is the next atom to be paired with the fixed atom
                 }
                 else {  //this atom is not currently in this phase
-                    Coordinate c = (Coordinate)a.coordinate;        
-                    cPair.c1 = c;
                     LatticeSquare.Site cell = cells.nearestSite(c.r, (Space2D.Vector)phase.dimensions());  //find cell containing atom
                     nextLinker = cell.firstDownNeighbor();             //next cell up list
                     neighborCoordinate = null;     //"inserted" atom at beginning of cell list; none in cell are downlist from it
@@ -220,7 +220,9 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
             public AtomPair next() {
                 cPair.c2 = neighborCoordinate;
                 cPair.reset();
-                pair.reset(atom,(Atom)neighborCoordinate.parent(),cPair);  //maybe put an Atom in Coordinate to avoid cast
+                pair.atom1 = atom;
+                pair.atom2 = (Atom)neighborCoordinate.parent();
+//                pair.reset(atom,(Atom)neighborCoordinate.parent(),cPair);  //maybe put an Atom in Coordinate to avoid cast
                 neighborCoordinate = firstCell ? neighborCoordinate.previousNeighbor : neighborCoordinate.nextNeighbor;  //first cell advances backwards, subsequent cells (before the first) can advance forward
                 if(neighborCoordinate == null) {advanceCell();}
                 return pair;

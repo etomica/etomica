@@ -51,24 +51,30 @@ public class Molecule implements Space.Occupant, Serializable {
    *  Each atom may be of different type, or of same type but with different parameter values.
    *  Number of atoms cannot be changed.
    *  If all atoms are of same type with same parameters, can use the other constructor.
+   *  If mono-atomic and number of atoms not expected to change, may be advantageous to use this constructor
    */
   public Molecule(Species ps, Phase pp, AtomType[] type) {  
     parentSpecies = ps;
     setParentPhase(pp);
-    coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
-    r = coordinate.position();
-    p = coordinate.momentum();
     atomCount = type.length;
-    if(atomCount > 1) atomIterator = new AtomIterator();
-    else atomIterator = new MonoAtomIterator();
-    temp = parentSpecies.parentSimulation.space.makeVector();
-    
     firstAtom = new Atom(this,type[0],0);
     lastAtom = firstAtom;
     for(int i=1; i<atomCount; i++) {
         lastAtom.setNextAtom(new Atom(this,type[i],i));
         lastAtom = lastAtom.nextAtom();
     }
+    if(atomCount > 1) { //Multi-atomic
+        atomIterator = new AtomIterator();
+        coordinate = parentSpecies.parentSimulation.space.makeCoordinate(this);
+    }
+    else {  //Mono-atomic
+        atomIterator = new MonoAtomIterator();
+        coordinate = firstAtom.coordinate();
+    }
+    r = coordinate.position();
+    p = coordinate.momentum();
+    temp = parentSpecies.parentSimulation.space.makeVector();
+    
   }
   
   public final Phase parentPhase() {return parentPhase;}
@@ -84,24 +90,13 @@ public class Molecule implements Space.Occupant, Serializable {
   public final int atomCount() {return atomCount;}
   
  /**
-  * Sets the number of atoms in the molecule, makes and links them, and
-  * sets the molecular mass.  Does not handle linking of atoms to atoms
-  * of other molecules.
-  * Any existing atoms are discarded
-  */
-/*  private final void setNAtoms(int n) {
-    nAtoms = n;
-    makeAtoms();
-  } */
-
- /**
    * Returns the intramolecular potential that governs interactions of all 
    * atoms of this molecule.
    *
    * @return  single-molecule potential for this molecule's atoms
    * @see Potential1
    */
-  public final Potential1 getP1() {return parentSpecies.parentSimulation.potential1[getSpeciesIndex()];}
+  public final Potential1 getP1() {return parentSpecies.parentSimulation.potential1[speciesIndex()];}
  
  /**
   * Returns a vector of intermolecular potentials between this molecule's
@@ -110,7 +105,7 @@ public class Molecule implements Space.Occupant, Serializable {
   * @return  vector of intermolecular potentials between this molecule and all other molecules in the system.
   * @see Potential2
   */
-  public final Potential2[] getP2() {return parentSpecies.parentSimulation.potential2[getSpeciesIndex()];}
+  public final Potential2[] getP2() {return parentSpecies.parentSimulation.potential2[speciesIndex()];}
    
  /**
   * Each species has a unique integer index that is used to identify the correct
@@ -118,12 +113,12 @@ public class Molecule implements Space.Occupant, Serializable {
   *
   * @return  the index of this molecule's parent species
   */
- public final int getSpeciesIndex() {return parentSpecies.getSpeciesIndex();}
+ public final int speciesIndex() {return parentSpecies.getSpeciesIndex();}
   
  /**
   * @return  the parent species of this molecule
   */
-  public final Species getSpecies() {return parentSpecies;}
+  public final Species parentSpecies() {return parentSpecies;}
  
  /**
   * @return the phase in which this molecule resides
@@ -142,11 +137,6 @@ public class Molecule implements Space.Occupant, Serializable {
     else {return 1.0/mass();}
   }
   
- //  public void inflate(double scale) {coordinate.inflate(scale);}
-/*      Space.uEa1Tv1(dr,scale-1.0,COM());
-      this.displace(dr);
-   }*/
-    
   /**
    * Computes and returns the center-of-mass vector of this molecule.  Value is not stored,
    * so it is computed afresh with each call
@@ -230,34 +220,17 @@ public class Molecule implements Space.Occupant, Serializable {
   int atomCount;
   
  /**
-  * Constructs a molecule and all atoms within it.  Atoms are arranged in
-  * linked list that chains the "first" atom of the molecule to the "last".
-  * @see Atom
-  *
-  * @param parent      species in which this molecule resides
-  * @param n           number of atoms in this molecule
-  */
-  
- /**
   * Center-of-mass (COM) coordinate
   */
-//  public final Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
-//  public final Space.Vector r;
-//  public final Space.Vector p;
-  
-//  public final Atom.Iterator atomIterator;
-  public  Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
-  public  Space.Vector r;
-  public  Space.Vector p;
+  public final Space.Coordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
+  public final Space.Vector r;
+  public final Space.Vector p;
   
   public  Atom.Iterator atomIterator;
   
   public Molecule.Container container;
   
-//-------------------------------------------------------------------------
-
-//        protected final Space.Vector temp;
-        protected  Space.Vector temp;
+        protected final Space.Vector temp;
         
         public void updateR() {  //recomputes COM position from atom positions
             if(atomCount==1) {r.E(firstAtom.coordinate().position());}  //one atom in molecule
@@ -332,7 +305,6 @@ public class Molecule implements Space.Occupant, Serializable {
    * @see replace
    */
         public void inflate(double s) {
-//            if(nAtoms==1) return;
             updateR();
             temp.Ea1Tv1(s-1.0,r);
             displaceBy(temp);   //displaceBy doesn't use temp
@@ -354,10 +326,6 @@ public class Molecule implements Space.Occupant, Serializable {
             while(atomIterator.hasNext()) {
                 atomIterator.next().randomizeMomentum(temperature);
             }
-         //   Space.Atom a = firstAtom.coordinate;
-         //   c.randomizeMomentum(temperature);
-         //   if(nAtoms == 1) {return;}
-         //   do {c=c.nextCoordinate(); c.randomizeMomentum(temperature);} while (c.atom()!=lastAtom);
         }
 
  /**
@@ -409,7 +377,7 @@ public class Molecule implements Space.Occupant, Serializable {
             else {atom = atom.nextAtom();}
             return nextAtom;
         }
-    } //end of Atom.Iterator
+    } //end of AtomIterator
   public final class MonoAtomIterator implements Atom.Iterator {
         private boolean hasNext;
         public MonoAtomIterator() {reset();}

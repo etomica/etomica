@@ -1,10 +1,9 @@
 package simulate;
 
-public class AtomPair {
+public final class AtomPair {
     public Atom atom1, atom2;
-    public Space.CoordinatePair cPair;
-    public Potential potential;
-    public AtomPair() {cPair = null;}
+    public final Space.CoordinatePair cPair;
+//    public Potential potential;
     public AtomPair(Phase phase) {
         cPair = phase.space().makeCoordinatePair(phase.boundary());
     }
@@ -16,17 +15,11 @@ public class AtomPair {
     public void reset() {
         cPair.reset(atom1.coordinate(), atom2.coordinate());
     }
-    public void reset(Atom a1, Atom a2, Space.CoordinatePair cp) {
-        atom1 = a1;
-        atom2 = a2;
-        cPair = cp;
-    }
     public final double r2() {return cPair.r2();}
     public final double v2() {return cPair.v2();}
     public final double vDotr() {return cPair.vDotr();}
     public final double dr(int i) {return cPair.dr(i);}
     public final double dv(int i) {return cPair.dv(i);}
-    
     public final Atom atom1() {return atom1;}
     public final Atom atom2() {return atom2;}
     
@@ -40,7 +33,7 @@ public class AtomPair {
         public void reset();
         
         public interface M extends Iterator {public void reset(Molecule m);}
-        public interface A extends Iterator {  //core iterator, found in each Phase subclass
+        public interface A extends Iterator {  
             public void allDone();
             public void reset(Atom a, boolean intra);
         }

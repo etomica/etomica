@@ -180,7 +180,7 @@ public final class Phase extends Container implements Molecule.Container {   // 
     }
     
     public void addMolecule(Molecule m) {
-        addMolecule(m, m.getSpecies().getAgent(this));
+        addMolecule(m, m.parentSpecies().getAgent(this));
     }
     public void addMolecule(Molecule m, Species.Agent s) {
         m.container().removeMolecule(m);
@@ -197,7 +197,7 @@ public final class Phase extends Container implements Molecule.Container {   // 
      * Use deleteMolecule to remove molecule while not adding it to another phase (adds it to species reservoir)
      */
     public void removeMolecule(Molecule m) {
-        removeMolecule(m, m.getSpecies().getAgent(this));
+        removeMolecule(m, m.parentSpecies().getAgent(this));
     }
     public void removeMolecule(Molecule m, Species.Agent s) {
         m.setParentPhase(null);        
@@ -209,7 +209,7 @@ public final class Phase extends Container implements Molecule.Container {   // 
 // deletes molecule by adding it to reservoir
 
 public void deleteMolecule(Molecule m) {
-        m.getSpecies().reservoir().addMolecule(m);
+        m.parentSpecies().reservoir().addMolecule(m);
     }
     /**
     * Synchronized version of deleteMolecule.  

@@ -7,7 +7,7 @@ import java.awt.Color;
  * It is used to set the general features of the atom (e.g., whether it is a disk, wall, sphere, etc.),
  * and to prescribe how it is drawn to the screen.
  * The AtomType of an atom is set by Species when it constructs a molecule.  Each Atom has an instance variable
- * named "type that holds the AtomType object; this may be different for each atom in a molecule, or
+ * named "type" that holds the AtomType object; this may be different for each atom in a molecule, or
  * it may refer to a common AtomType object, as prescribed by the Species.
  * AtomType could also be used to define particular elemental atoms (Carbon, Oxygen, etc.).
  * 

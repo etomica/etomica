@@ -8,7 +8,6 @@ public abstract class Space {
     
     public abstract Vector makeVector();      //Space.Vector
     public abstract Coordinate makeCoordinate(Occupant o);
-    public abstract CoordinatePair makeCoordinatePair(Coordinate c1, Coordinate c2, Boundary b);
     public abstract CoordinatePair makeCoordinatePair(Boundary b);
     public abstract Boundary makeBoundary(int iBoundary);
     
@@ -63,43 +62,31 @@ public abstract class Space {
     }
     
     public static abstract class CoordinatePair {
-        public Coordinate coordinate1, coordinate2;
         public double r2;
-        public Potential potential;
+//        public Potential potential;
         public CoordinatePair() {}  //null constructor
-//        public CoordinatePair(Boundary b) {boundary = b;}
-//        public CoordinatePair(Space.Occupant o1, Space.Occupant o2, Boundary b)
         public abstract void reset();
         public abstract void reset(Space.Coordinate c1, Space.Coordinate c2);
         public abstract double v2();
         public abstract double vDotr();
         public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
         public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
-        public final Coordinate coordinate1() {return coordinate1;}
-        public final Coordinate coordinate2() {return coordinate2;}
         public final double r2() {return r2;}
         public abstract double dr(int i);    //component of separation vector
         public abstract double dv(int i);    //component of velocity-difference vector
     }
 
-//    interface NeighborIterator {
-//        public void setNeighborRadius(double radius);
-//        public double getNeighborRadius();
-//        public Iterator makeIterator(Phase p);
-//        public void clear();
-//    }
-        
-    interface Boundary {
+    public static abstract class Boundary {
         public static final int NONE = 0;
         public static final int PERIODIC = 1;
         public static final int DEFAULT = PERIODIC; //default PBC is periodic
-        public void centralImage(Vector r);
-        public double volume();
-        public Vector dimensions();
-        public Vector randomPosition();
-        public double[][] getOverflowShifts(Vector r, double distance);
-        public void inflate(double s);
-        public void draw(Graphics g, int[] origin, double scale);
+        public abstract void centralImage(Vector r);
+        public abstract double volume();
+        public abstract Vector dimensions();
+        public abstract Vector randomPosition();
+        public abstract double[][] getOverflowShifts(Vector r, double distance);
+        public abstract void inflate(double s);
+        public abstract void draw(Graphics g, int[] origin, double scale);
     /** Set of vectors describing the displacements needed to translate the central image
         *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
         *  first index specifies each perioidic image, while the second index indicates the
