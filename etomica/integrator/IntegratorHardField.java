@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -173,8 +174,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
 			super.doCalculation(iterator,potential);
             iterator.reset();
             while(iterator.hasNext()) {
-                Atom[] atoms = iterator.next();
-                ((Agent)atoms[0].ia).forceFree = false;
+                AtomSet atoms = iterator.next();
+                ((Agent)atoms.getAtom(0).ia).forceFree = false;
             }
 		}
     }//end ForceSums

@@ -1,7 +1,8 @@
 
 package etomica.models.water;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
@@ -24,12 +25,12 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		shift = (etomica.space3d.Vector3D)space.makeVector();
 		setCharges();
 	}   
-	public double energy(Atom[] pair){
+	public double energy(AtomSet pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeWater node1 = (AtomTreeNodeWater)pair[0].node;
-		AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair[1].node;
+		AtomTreeNodeWater node1 = (AtomTreeNodeWater)((AtomPair)pair).atom0.node;
+		AtomTreeNodeWater node2 = (AtomTreeNodeWater)((AtomPair)pair).atom1.node;
 		
 		//compute O-O distance to consider truncation	
 		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.coord.position();
@@ -90,16 +91,16 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		return sum;																					        
 	}//end of energy
     
-	public etomica.space.Vector gradient(Atom[] pair){
+	public etomica.space.Vector gradient(AtomSet pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double hyperVirial(Atom[] pair){
+	public double hyperVirial(AtomPair pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double integral(double rC){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double virial(Atom[] pair){
+	public double virial(AtomPair pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
     

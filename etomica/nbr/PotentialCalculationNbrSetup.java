@@ -4,7 +4,7 @@
  */
 package etomica.nbr;
 
-import etomica.Atom;
+import etomica.AtomPair;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
@@ -72,12 +72,12 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
         }
 		iterator.reset();
 		while(iterator.hasNext()) {
-			Atom[] atoms = iterator.next();
+			AtomPair atoms = (AtomPair)iterator.next();
             Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
-			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential, nearestImageVector);
-			((AtomSequencerNbr)atoms[1].seq).addDownNbr(atoms[0], potential, nearestImageVector);
+			((AtomSequencerNbr)atoms.atom0.seq).addUpNbr(atoms.atom1, potential, nearestImageVector);
+			((AtomSequencerNbr)atoms.atom1.seq).addDownNbr(atoms.atom0, potential, nearestImageVector);
 		}
 	}
     
