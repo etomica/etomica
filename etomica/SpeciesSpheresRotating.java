@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere

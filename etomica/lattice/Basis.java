@@ -1,5 +1,5 @@
-package simulate.lattice;
-import simulate.Space;
+package etomica.lattice;
+import etomica.Space;
 import java.util.Observer;
 import java.util.Observable;
 

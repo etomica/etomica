@@ -1,5 +1,5 @@
-package simulate.simulations;
-import simulate.*;
+package etomica.simulations;
+import etomica.*;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D

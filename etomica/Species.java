@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.Unit;
+package etomica;
+import etomica.units.Unit;
 import java.io.*;
 import java.util.Random;
 import java.util.HashMap;

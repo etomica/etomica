@@ -1,8 +1,8 @@
 //includes a main method to demonstrate and test use
-package simulate;
+package etomica;
 
-import simulate.units.*;
-import simulate.utility.Histogram;
+import etomica.units.*;
+import etomica.utility.Histogram;
 import ptolemy.plot.Plot;
 import javax.swing.JButton;
 import java.awt.event.*;

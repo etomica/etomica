@@ -1,6 +1,6 @@
-package simulate ;
-import simulate.units.*;
-import simulate.utility.Function;
+package etomica ;
+import etomica.units.*;
+import etomica.utility.Function;
 import java.io.*;
 
 /**

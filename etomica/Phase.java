@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.util.Observable;

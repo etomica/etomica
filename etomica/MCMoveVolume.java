@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 
 import java.util.Random;
-import simulate.units.Dimension;
+import etomica.units.Dimension;
 
 public class MCMoveVolume extends MCMove {
     

@@ -1,6 +1,6 @@
-package simulate.gui;
+package etomica.gui;
 
-import simulate.Potential;
+import etomica.Potential;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.GridBagLayout;
@@ -55,7 +55,7 @@ public class PotentialViewer extends JInternalFrame {
         
         potentialList.addListSelectionListener(new javax.swing.event.ListSelectionListener(){
             public void valueChanged(javax.swing.event.ListSelectionEvent lse){
-                wrapper = new Wrapper(potentialList.getSelectedValue(), title, "simulate.gui." + title); 
+                wrapper = new Wrapper(potentialList.getSelectedValue(), title, "etomica.gui." + title); 
                 propSheet.setTarget(wrapper);
 	            propSheet.addInternalFrameListener(new InternalFrameAdapter(){
 	                public void internalFrameClosed( InternalFrameEvent ife ){

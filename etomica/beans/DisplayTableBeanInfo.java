@@ -1,6 +1,6 @@
-package simulate;
-import simulate.beans.*;
-import simulate.units.Unit;
+package etomica;
+import etomica.beans.*;
+import etomica.units.Unit;
 import java.awt.*;
 import java.beans.*;
 

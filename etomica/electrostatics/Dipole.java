@@ -1,7 +1,7 @@
-package simulate.electrostatics;
+package etomica.electrostatics;
 
-import simulate.units.*;
-import simulate.*;
+import etomica.units.*;
+import etomica.*;
 import java.awt.Graphics;
 import java.awt.Color;
 
@@ -16,12 +16,12 @@ public final class Dipole extends ElectroType {
     private final Space.Vector e; //direction
             
     public Dipole() {
-        e = Simulation.space().makeVector();
+        e = Simulation.instance.space().makeVector();
         initializeE();
         setMu(0.0);
     }
     public Dipole(double mu) {
-        e = Simulation.space().makeVector();
+        e = Simulation.instance.space().makeVector();
         initializeE();
         setMu(mu);
     }

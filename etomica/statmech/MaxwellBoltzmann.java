@@ -1,4 +1,4 @@
-package simulate.statmech;
+package etomica.statmech;
 
 /**
  * Class with static methods for implementing features of the Maxwell-Boltzmann velocity distribution

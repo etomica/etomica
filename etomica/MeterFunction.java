@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 
-import simulate.units.Dimension;
-import simulate.utility.Histogram;
+import etomica.units.Dimension;
+import etomica.utility.Histogram;
 
 /**
  * Meter for recording and averaging an array of values of type double

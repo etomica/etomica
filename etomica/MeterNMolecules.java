@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 
-import simulate.units.Dimension;
+import etomica.units.Dimension;
 
 /**
  * Meter for recording the total number of molecules in the phase

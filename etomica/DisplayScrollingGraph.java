@@ -1,8 +1,8 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 import java.awt.*;
 
-    public class DisplayScrollingGraph extends simulate.Display implements Meter.User {
+    public class DisplayScrollingGraph extends etomica.Display implements Meter.User {
 
         Color bgColor = new Color(255, 255, 240);
         int margin = 10;

@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 
 import java.util.Random;
-import simulate.electrostatics.*;
+import etomica.electrostatics.*;
 
 //written for 2D system
 public class MCRotateDipole extends MCMove {

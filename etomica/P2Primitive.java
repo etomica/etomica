@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 /**
  * "Primitive model" potential.  Hard sphere plus Coulomb interaction

@@ -1,6 +1,6 @@
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.Panel;
 
 public class FormDesignFrame extends javax.swing.JInternalFrame {

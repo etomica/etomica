@@ -1,6 +1,6 @@
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.*;
 
 public class P2DefinedPotential extends Potential2 {

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * One-molecule, intra-molecular potential, defining all interatomic potentials within a molecule.

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.

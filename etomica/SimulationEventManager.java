@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Class to take care of listener lists and event firing for simulation elements.

@@ -7,9 +7,9 @@
  * @author Bryan C. Mihalick
  * 8/14/00
  */
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
@@ -55,7 +55,7 @@ public class FileActions {
      * Static action listener for loading a serialized component
      */
     public static final ActionListener OPEN = new OpenAction();
-    
+
     /**
      * Static action listener for printing a simulation window
      */

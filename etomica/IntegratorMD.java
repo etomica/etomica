@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 
-import simulate.units.*;
+import etomica.units.*;
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods and inner classes that 

@@ -9,7 +9,7 @@
  * 8/14/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
 public class SimulationEditorFrame extends javax.swing.JInternalFrame {
     SimulationEditor simulationEditor;

@@ -1,6 +1,6 @@
-package simulate.gui;
+package etomica.gui;
 
-import simulate.gui.treetable.*;
+import etomica.gui.treetable.*;
 
 public class PropertyModel extends AbstractTreeTableModel {
     

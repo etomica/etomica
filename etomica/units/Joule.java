@@ -1,5 +1,5 @@
-package simulate.units;
-import simulate.Constants;
+package etomica.units;
+import etomica.Constants;
 
 public final class Joule extends BaseUnit.Energy {
 

@@ -8,9 +8,9 @@
  * 9/18/00
  */
  
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.GridBagConstraints;
@@ -227,7 +227,7 @@ public class DefineMoleculeFrame extends javax.swing.JInternalFrame {
     
     static {
         // Initialization of spaceClasses array
-	    File dir = new File(simulate.Default.CLASS_DIRECTORY);
+	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {
 	            return name.startsWith("AtomType")
@@ -243,7 +243,7 @@ public class DefineMoleculeFrame extends javax.swing.JInternalFrame {
 	        files[i] = files[i].substring(0,idx);
 	        atomTypeClasses[i] = null;
 	        try{
-	            atomTypeClasses[i] = Class.forName("simulate."+files[i]);
+	            atomTypeClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End of initialization of atomTypeClasses array
 	}

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.utility.HashMap2;
+package etomica;
+import etomica.utility.HashMap2;
 import java.util.Iterator;
     
 /** Class to perform actions that tie together the elements of a simulation.

@@ -9,9 +9,9 @@
  * 8/16/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -250,11 +250,11 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	            else {
 	                if (rightPaneList.getSelectedValue() != null) {
 	                    /*if (rightPaneList.getSelectedValue() instanceof Potential2) 
-                            wrapper = new Wrapper(((Potential2)rightPaneList.getSelectedValue()).getOnlyPotential(), rightPaneList.getSelectedValue().toString(), "simulate.gui." + rightPaneList.getSelectedValue().toString()); 
+                            wrapper = new Wrapper(((Potential2)rightPaneList.getSelectedValue()).getOnlyPotential(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString()); 
                         else if (rightPaneList.getSelectedValue() instanceof Potential1)
-                            wrapper = new Wrapper(((Potential1)rightPaneList.getSelectedValue()).getOnlyPotential(), rightPaneList.getSelectedValue().toString(), "simulate.gui." + rightPaneList.getSelectedValue().toString()); 
-                        else */wrapper = new Wrapper(rightPaneList.getSelectedValue(), rightPaneList.getSelectedValue().toString(), "simulate.gui." + rightPaneList.getSelectedValue().toString());
-                        //wrapper = new Wrapper(rightPaneList.getSelectedValue(), title, "simulate.gui." + title); 
+                            wrapper = new Wrapper(((Potential1)rightPaneList.getSelectedValue()).getOnlyPotential(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString()); 
+                        else */wrapper = new Wrapper(rightPaneList.getSelectedValue(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString());
+                        //wrapper = new Wrapper(rightPaneList.getSelectedValue(), title, "etomica.gui." + title); 
                         propertySheet.setTarget(wrapper);
                         try {
                             propertySheet.setSelected(true);
@@ -362,7 +362,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
                 if (added == false)     // If a property list hasn't been made yet, it makes one
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
 	            if (rightPaneList.getSelectedValue() != null){ 
-                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), title, "simulate.gui." + title); 
+                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), title, "etomica.gui." + title); 
                     propertySheet.setTarget(wrapper);   // Updates property sheet with the selected object's properties
                 }
                 else {
@@ -495,7 +495,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 
 	static {
     	// Initialization of potential1Classes array
-	    File dir = new File(simulate.Default.CLASS_DIRECTORY);
+	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {
                 return name.startsWith("P1")
@@ -508,7 +508,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	        files[i] = files[i].substring(0,idx);
 	        potential1Classes[i] = null;
 	        try{
-	            potential1Classes[i] = Class.forName("simulate."+files[i]);
+	            potential1Classes[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potential1Classes array
     	
@@ -525,7 +525,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	        files[i] = files[i].substring(0,idx);
 	        potential2Classes[i] = null;
 	        try{
-	            potential2Classes[i] = Class.forName("simulate."+files[i]);
+	            potential2Classes[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potential2Classes array
 	}// End of static block

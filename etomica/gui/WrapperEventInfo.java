@@ -1,4 +1,4 @@
-package simulate.gui;
+package etomica.gui;
 
 import java.lang.reflect.Method;
 import java.beans.EventSetDescriptor;

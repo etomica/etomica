@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 /**
  * This is a meter to measure the surface tension for a hard potential.  

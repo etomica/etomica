@@ -8,7 +8,7 @@
  * 8/15/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.GridLayout;
 import java.awt.Frame;
@@ -18,7 +18,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.beans.PropertyVetoException;
-import simulate.*;
+import etomica.*;
 
 public class ViewActions {
     /**

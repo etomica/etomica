@@ -1,4 +1,4 @@
-package simulate.lattice;
+package etomica.lattice;
 
 /**
  * Interface for classes that can construct Site objects.

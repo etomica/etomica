@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.beans.PropertyEditorSupport;
 import java.util.LinkedList;
 

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Superclass for all PotentialField and Potential classes
@@ -32,7 +32,7 @@ public abstract class PotentialAbstract {
     *Returns the virial tensor from the last collision processed.  This is used to measure 
     *the pressure tensor, and eventually the surface tension
     */
-//        public simulate.Space.Tensor lastCollisionVirialTensor();
+//        public etomica.Space.Tensor lastCollisionVirialTensor();
 //    }  //end of Potential.Hard
     
 }

@@ -1,5 +1,5 @@
 
-package simulate.gui;
+package etomica.gui;
 
 import java.io.*;
 

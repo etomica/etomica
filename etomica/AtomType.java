@@ -1,8 +1,8 @@
-package simulate;
+package etomica;
 import java.awt.Graphics;
 import java.awt.Color;
-import simulate.units.*;
-import simulate.electrostatics.*;
+import etomica.units.*;
+import etomica.electrostatics.*;
 
 /**
  * AtomType holds atom parameters, including the mass.  

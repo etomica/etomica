@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 public class P2DiskWall extends Potential2 {
 

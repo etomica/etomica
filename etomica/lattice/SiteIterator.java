@@ -1,5 +1,5 @@
 //see main method in IntegerBravaisLattice for examples of SiteIterator usage.
-package simulate.lattice;
+package etomica.lattice;
 import java.util.Random;
 
 public interface SiteIterator extends java.io.Serializable {

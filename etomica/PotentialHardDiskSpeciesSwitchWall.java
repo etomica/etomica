@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * An unphysical potential that has the sole action of swapping the species identity of

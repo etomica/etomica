@@ -1,5 +1,5 @@
 
-package simulate.gui;
+package etomica.gui;
 
 /**
  * This wrapper class keeps track of various BeanBox related

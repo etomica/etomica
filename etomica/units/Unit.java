@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Class used to specify the physical units to be used when inputting or outputting a quantity.

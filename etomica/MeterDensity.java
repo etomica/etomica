@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 
-import simulate.units.*;
+import etomica.units.*;
 
 /**
  * Meter for measurement of the total molecule number density in a phase

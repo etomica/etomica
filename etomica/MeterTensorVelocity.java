@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 /**
  * A meter to compute the velocity component of the pressure tensor. 

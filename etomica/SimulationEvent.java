@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 public class SimulationEvent extends java.util.EventObject {
     

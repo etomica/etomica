@@ -1,7 +1,7 @@
 //class includes a main method to demonstrate and test its use
-package simulate;
+package etomica;
 
-import simulate.units.*;
+import etomica.units.*;
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -30,7 +30,7 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
      * Displayed panel that holds the label and value
      * (not yet used; meant to implement to make lightweight display)
      */
-//    protected JPanel panel;
+    protected JPanel panel = new JPanel();
     /**
      * Meter that generates the displayed value
      */
@@ -56,12 +56,12 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
         value = new JTextField("");
         value.setEditable(false);
         setPrecision(4);
-        add(label);
-        add(value);
+        panel.add(label);
+        panel.add(value);
         unit = new Unit(BaseUnit.Null.UNIT);
         setUseCurrentValue(true);
         setUpdateInterval(5);
-        setSize(100,60);
+        panel.setSize(100,60);
         
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -98,6 +98,8 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
         if(meter != null) return meter.getDimension();
         else return Dimension.NULL;
     }
+    
+    public java.awt.Component graphic(Object obj) {return panel;}
     
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
@@ -142,8 +144,8 @@ public class DisplayBox extends Display implements Dimensioned, Meter.User {
     public void setLabel(String s) {
         JLabel oldLabel = label;
         label = new JLabel(s);
-        remove(oldLabel);
-        add(label, 0);
+        panel.remove(oldLabel);
+        panel.add(label, 0);
         support.firePropertyChange("label",oldLabel,label);
     }
     /**

@@ -1,8 +1,8 @@
-package simulate;
+package etomica;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.util.Random;
-import simulate.units.*;
+import etomica.units.*;
 
 /**
  * Modeled after space2D and space, most of this should be correct.  All of the boundary conditions should be checked

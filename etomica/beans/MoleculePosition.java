@@ -1,4 +1,4 @@
-package simulate.beans;
+package etomica.beans;
 
 public class MoleculePosition {
     

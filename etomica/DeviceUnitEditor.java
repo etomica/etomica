@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.Component;
@@ -61,7 +61,7 @@ public class DeviceUnitEditor extends Device {
         buttonPanel.add(prefixes);
         for(int i=0; i<classes.length; i++) {
             StringBuffer name = new StringBuffer(classes[i].getName());
-            name.delete(0,15);  //drop "simulate.units."
+            name.delete(0,14);  //drop "etomica.units."
             MyRadioButton button = new MyRadioButton(name.toString(),oldUnit.getClass().getName().equals(classes[i].getName()),classes[i]);
             buttonGroup.add(button);
             buttonPanel.add(button);

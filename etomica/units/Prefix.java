@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Base class for all unit prefixes, such as kilo, micro, nano, etc.

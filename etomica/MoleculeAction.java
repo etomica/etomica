@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * 
@@ -6,7 +6,7 @@ package simulate;
  * @see Molecule.Iterator (when it is written)
  */
 
-public abstract class MoleculeAction extends simulate.Action {
+public abstract class MoleculeAction extends etomica.Action {
     
     protected Molecule molecule;
     public void setMolecule(Molecule m) {molecule = m;}

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 public class MeterPressureHardTensor extends MeterTensor implements IntegratorHard.CollisionListener {
     

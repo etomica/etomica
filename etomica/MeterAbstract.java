@@ -1,11 +1,11 @@
-package simulate;
+package etomica;
 
 import java.awt.Graphics;
 import java.util.Observable;
 import java.util.Observer;
-import simulate.units.Dimension;
-import simulate.units.Unit;
-import simulate.utility.Histogram;
+import etomica.units.Dimension;
+import etomica.units.Unit;
+import etomica.utility.Histogram;
 
 /**
  * Superclass of all meter types.

@@ -1,6 +1,6 @@
 //this class includes a main method to demonstrate its use
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Frame;

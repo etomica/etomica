@@ -1,4 +1,4 @@
-package simulate.lattice;
+package etomica.lattice;
 import java.util.Random;
 
 /**

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 /**
  * This is a meter to count the number of collisions which can be used to determine efficiency vs

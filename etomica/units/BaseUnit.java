@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Superclass for all base unit classes.  These classes provide a means for indicating
@@ -347,7 +347,7 @@ public abstract class BaseUnit implements java.io.Serializable {
     public static Class[] all(Dimension dimension) {
         if(dimension == null) throw new IllegalArgumentException("null argument for dimension passed to BaseUnit.all()");
 	    Class baseUnitClass = dimension.baseUnit();
-	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY+"/units");
+	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY+"/units");
 	    String[] files = dir.list(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File d, String name) {
 	              return !name.startsWith("BaseUnit") ||
@@ -362,7 +362,7 @@ public abstract class BaseUnit implements java.io.Serializable {
 	        files[i] = files[i].substring(0,idx);
 	        allClasses[i] = null;
 	        try{
-	           String classname = "simulate.units."+files[i];
+	           String classname = "etomica.units."+files[i];
 	           allClasses[i] = Class.forName(classname);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	        if(allClasses[i]!=null && baseUnitClass.isAssignableFrom(allClasses[i])) someClasses[nClass++] = allClasses[i];

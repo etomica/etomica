@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.Dimension;
+package etomica;
+import etomica.units.Dimension;
 
 /**
  * Meter for measurement of the temperature based on kinetic-energy equipartition

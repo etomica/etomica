@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.awt.Color;
 /**
  * Colors the atom according to the color given by its type field.

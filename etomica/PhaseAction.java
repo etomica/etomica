@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 import java.awt.event.ActionEvent;
 
@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
   * Inherits from javax.swing.AbstractAction, so may be registered as a listener to GUI components
   * 
   */
-public abstract class PhaseAction extends simulate.Action {
+public abstract class PhaseAction extends etomica.Action {
 
     protected Phase phase;
     public PhaseAction() {this(null);}

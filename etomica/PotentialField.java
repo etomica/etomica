@@ -1,4 +1,4 @@
-package simulate; 
+package etomica; 
 
 /**
  * Basic methods needed to describe the action of an external field (a single-body potential) on an atom.

@@ -1,13 +1,13 @@
 //This class includes a main method to demonstrate its use
-package simulate;
+package etomica;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
-import simulate.units.*;
-import simulate.utility.StringUtility;
+import etomica.units.*;
+import etomica.utility.StringUtility;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 

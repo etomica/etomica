@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Intermolecular pair potential formed from a single interatomic potential

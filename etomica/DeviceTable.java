@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 import javax.swing.JTable;
 import javax.swing.table.*;
 import javax.swing.JPanel;

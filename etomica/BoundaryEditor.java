@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.beans.*;
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -36,7 +36,7 @@ public class BoundaryEditor extends PropertyEditorSupport {
     
     public String[] boundaries() {
         //Get boundary options from space object
-        String[] tags =  simulate.utility.StringUtility.toStringArray(Simulation.instance.space().boundaryTypes());
+        String[] tags =  etomica.utility.StringUtility.toStringArray(Simulation.instance.space().boundaryTypes());
         boundaryMakers.clear();
         boundaryMakers.add(Simulation.instance.space());
         //Loop through all elements in simulation and get any boundary options they provide
@@ -47,7 +47,7 @@ public class BoundaryEditor extends PropertyEditorSupport {
                 Space.Boundary.Maker maker = (Space.Boundary.Maker)obj;
                 boundaryMakers.add(maker);
                 Space.Boundary.Type[] types = maker.boundaryTypes();
-                tags = simulate.utility.StringUtility.arrayCollect(tags, simulate.utility.StringUtility.toStringArray(types));
+                tags = etomica.utility.StringUtility.arrayCollect(tags, etomica.utility.StringUtility.toStringArray(types));
             }
         }
         return tags;

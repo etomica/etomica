@@ -1,11 +1,11 @@
-package simulate.utility;
+package etomica.utility;
 import java.util.HashMap;
 
 /**
  * Implementation of a hash map in which entries are keyed to a pair of objects,
  * instead of to a single object.
  */
-public final class HashMap2 {
+public final class HashMap2 implements java.io.Serializable {
     
     public HashMap table;
     int defaultCapacity;

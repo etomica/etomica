@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Basic hard-(rod/disk/sphere) potential.

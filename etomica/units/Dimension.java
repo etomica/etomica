@@ -1,5 +1,5 @@
-package simulate.units;
-import simulate.Simulation;
+package etomica.units;
+import etomica.Simulation;
 
 /**
  * Collection of interfaces for dimensions of physical quantities.

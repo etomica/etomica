@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.Dimension;
+package etomica;
+import etomica.units.Dimension;
 
 /**
  * Takes measurments to average pressure from momentum flux at Boundary of Space

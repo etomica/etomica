@@ -8,7 +8,7 @@
  * 8/16/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -26,7 +26,7 @@ import javax.swing.JInternalFrame;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FilenameFilter;
-import simulate.*;
+import etomica.*;
 
 public class SimulateActions {
         
@@ -34,6 +34,11 @@ public class SimulateActions {
      * Static action listener for opening the editor window corresponding to the current simulation
      */
     public static final ActionListener EDITSIMULATION = new EditSimulationAction();
+    
+    /**
+     * Static action listener for performing the necessary actions when a new simulation is selected.
+     */
+    public static final ActionListener SELECTSIMULATIONACTION = new SelectSimulationAction(Simulation.instance);
     
     /**
      * Static array of all simulation components that extend space.class
@@ -86,16 +91,6 @@ public class SimulateActions {
     public static Class[] deviceClasses;
     
     /**
-     * Static handle to the internal frame that contains the simulation.instance object
-     */
-    private static JInternalFrame appletFrame;
-    
-    /**
-     * Static handle to the editor window corresponding to the current simulation
-     */
-    private static SimulationEditorFrame editorFrame;
-
-    /**
      * Static class that handles the edit simulation action
      */
     private static class EditSimulationAction implements ActionListener {
@@ -130,32 +125,9 @@ public class SimulateActions {
      * classes
      */
     static {
-        // Initialization of spaceClasses array
-        
-        //spaceclasses is moved to Etomica, so if everything works this segment can be deleted
-	    File dir = new File(simulate.Default.CLASS_DIRECTORY);
-	    String[] files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-	                return name.startsWith("Space")
-	                && name.endsWith("class")
-	                && name.indexOf("$") == -1
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-	                && !name.equals("Space.class");}
-	        });
-	    spaceClasses = new Class[files.length];
-	    for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        spaceClasses[i] = null;
-	        try{
-	            spaceClasses[i] = Class.forName("simulate."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End of initialization of spaceClasses array
-    	
     	// Initialization of potential1Classes array
-	    files = dir.list(new FilenameFilter() {
+	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
+	    String[] files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {
                 return name.startsWith("P1")
                     && name.endsWith("class")
@@ -170,7 +142,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        potential1Classes[i] = null;
 	        try{
-	            potential1Classes[i] = Class.forName("simulate."+files[i]);
+	            potential1Classes[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potential1Classes array
     	
@@ -190,7 +162,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        potential2Classes[i] = null;
 	        try{
-	            potential2Classes[i] = Class.forName("simulate."+files[i]);
+	            potential2Classes[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potential2Classes array
     	
@@ -211,7 +183,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        speciesClasses[i] = null;
 	        try{
-	            speciesClasses[i] = Class.forName("simulate."+files[i]);
+	            speciesClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of speciesClasses array
     	    
@@ -232,7 +204,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        integratorClasses[i] = null;
 	        try{
-	            integratorClasses[i] = Class.forName("simulate."+files[i]);
+	            integratorClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of integratorClasses array
     	    
@@ -254,7 +226,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        phaseClasses[i] = null;
 	        try{
-	            phaseClasses[i] = Class.forName("simulate."+files[i]);
+	            phaseClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of phaseClasses array
     	    
@@ -274,7 +246,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        controllerClasses[i] = null;
 	        try{
-	            controllerClasses[i] = Class.forName("simulate."+files[i]);
+	            controllerClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of controllerClasses array
 	    
@@ -297,7 +269,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        displayClasses[i] = null;
 	        try{
-	            displayClasses[i] = Class.forName("simulate."+files[i]);
+	            displayClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of displayClasses array
 	    
@@ -319,7 +291,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        meterClasses[i] = null;
 	        try{
-	            meterClasses[i] = Class.forName("simulate."+files[i]);
+	            meterClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of meterClasses array
 	    
@@ -340,7 +312,7 @@ public class SimulateActions {
 	        files[i] = files[i].substring(0,idx);
 	        deviceClasses[i] = null;
 	        try{
-	            deviceClasses[i] = Class.forName("simulate."+files[i]);
+	            deviceClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of deviceClasses array
 	}// end of static block for class array initiliazation    

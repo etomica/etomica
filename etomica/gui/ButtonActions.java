@@ -8,7 +8,7 @@
  * 8/14/00
  */
  
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

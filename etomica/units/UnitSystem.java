@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Base class for classes describing the default units to be used for I/O operations.
@@ -7,7 +7,7 @@ package simulate.units;
  *
  * @see Unit
  * @see Dimension
- * @see simulate.Simulation
+ * @see etomica.Simulation
  */
 public abstract class UnitSystem implements java.io.Serializable {
     
@@ -66,7 +66,7 @@ public abstract class UnitSystem implements java.io.Serializable {
      * All quantities are made dimensionless with respect to a characteristic
      * size (sigma), energy (epsilon) and mass.
      * Values of sigma, epsilon, and mass are set via the corresponding static
-     * set methods in simulate.units.LennardJones class.
+     * set methods in etomica.units.LennardJones class.
      */
      public static class LJ extends UnitSystem {        
         public Unit quantity() {return new Unit(Count.UNIT);}

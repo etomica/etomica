@@ -1,5 +1,5 @@
-package simulate.gui;
-import simulate.units.Unit;
+package etomica.gui;
+import etomica.units.Unit;
 
 import java.awt.Component;
 import javax.swing.JLabel;

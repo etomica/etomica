@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.awt.*;
 
 public class P2RoughSphere extends Potential2 {

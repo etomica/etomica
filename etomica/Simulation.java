@@ -1,9 +1,9 @@
 //This class includes a main method to demonstrate its use
-package simulate;
+package etomica;
 
 import javax.swing.*;
 import java.util.*;
-import simulate.units.UnitSystem;
+import etomica.units.UnitSystem;
 import java.beans.Beans;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -198,7 +198,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         if(list.contains(element)) return;
         if(element instanceof P1Null) return;
         if(element instanceof P2IdealGas) return;
-        element.setName(element.getClass().getName().substring(9) + Integer.toString(list.size()));
+        element.setName(element.getClass().getName().substring(8) + Integer.toString(list.size()));
         list.add(element);
         allElements.add(element);
         

@@ -9,9 +9,9 @@
  * 8/14/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
-import simulate.Simulation;
+import etomica.Simulation;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -58,6 +58,7 @@ public class EtomicaMenuBar extends JMenuBar {
 	static final JMenuItem customizeItem = new JMenuItem("Customize");
 	static final JMenuItem reportItem = new JMenuItem("Report");
 	static final JMenuItem bindPropertyItem = new JMenuItem("Bind Property");
+	static final JMenuItem preferencesItem = new JMenuItem("Preferences");
     
     /**
      * View MenuItem Handles
@@ -308,6 +309,8 @@ public class EtomicaMenuBar extends JMenuBar {
         componentMenu.add(componentShownItem);
         bindPropertyItem.addActionListener(EditActions.BINDPROPERTY);
         editMenu.add(bindPropertyItem);
+        preferencesItem.addActionListener(EditActions.PREFERENCES);
+        editMenu.add(preferencesItem);
                 
         /**
          * Window Menu naming, adding to menu, and listener creating 
@@ -327,7 +330,7 @@ public class EtomicaMenuBar extends JMenuBar {
          */
         this.add(simulationMenu);
         editSimulationItem.setEnabled(false);
-        editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
+//        editSimulationItem.addActionListener(SimulateActions.EDITSIMULATION);
         simulationMenu.add(editSimulationItem);
         simulationMenu.add(new javax.swing.JSeparator());//instantiated simulations will be placed after this separator, as they are created
 
@@ -344,7 +347,7 @@ public class EtomicaMenuBar extends JMenuBar {
 	}// end of EtmoicaMenuBar constructor
 	
 	static {
-	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY+"/simulations");
+	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY+"/simulations");
 	    String[] files = dir.list(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File d, String name) {
 	                return name.endsWith("class")
@@ -354,7 +357,7 @@ public class EtomicaMenuBar extends JMenuBar {
 	        int idx = files[i].lastIndexOf(".");
 	        files[i] = files[i].substring(0,idx);
 	        try{
-	            final Class libraryClass = Class.forName("simulate.simulations."+files[i]);
+	            final Class libraryClass = Class.forName("etomica.simulations."+files[i]);
 	            JMenuItem libraryItem = new JMenuItem(libraryClass.toString());
 	            librarySimulationMenu.add(libraryItem);
 	            libraryItem.addActionListener(new java.awt.event.ActionListener() {

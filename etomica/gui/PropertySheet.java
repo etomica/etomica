@@ -1,4 +1,4 @@
-package simulate.gui;
+package etomica.gui;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -17,10 +17,10 @@ import javax.swing.JTree;
 import javax.swing.JTable;
 import javax.swing.tree.*;
 import javax.swing.table.*;
-import simulate.gui.treetable.*;
-import simulate.ConstrainedPropertyEditor;
-import simulate.DimensionedDoubleEditor;
-import simulate.Meter;
+import etomica.gui.treetable.*;
+import etomica.ConstrainedPropertyEditor;
+import etomica.DimensionedDoubleEditor;
+import etomica.Meter;
 
 public class PropertySheet extends javax.swing.JInternalFrame {
 
@@ -90,32 +90,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
      * change while the simulation is running (e.g., meter averages).
      */
     UpdateThread updateThread = new UpdateThread(this);
-
-/*    public static class TextCellEditor extends DefaultCellEditor {
-        private JTree tree;
-        
-        public TextCellEditor(JTree tree, JTextField t){
-            super(t);
-            this.tree = tree;
-        } 
-        
-        public boolean isCellEditable(EventObject e){
-            boolean rv = false;
-            
-            if (e instanceof MouseEvent) {
-                MouseEvent me = (MouseEvent)e;
-                
-                if (me.getClickCount() == 1) {
-                    TreePath path = tree.getPathForLocation(me.getX(), me.getY());
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-                    rv = (node.getUserObject() instanceof PropertyText);
-                }
-            }
-            System.out.println("text," + rv);
-            return rv;
-        }
-    }//end of TextCellEditor
-    */
 
     public static class ComboCellEditor extends DefaultCellEditor {
         private JTree tree;
@@ -337,9 +311,9 @@ class PropertySheetPanel extends javax.swing.JPanel {
         	        //property is a dimensioned number
         	        if(type == Double.TYPE) {
         	            //try to get dimension from get(property)Dimension() method
-        	            simulate.units.Dimension dimension = simulate.units.Dimension.introspect(object,name,bi);
+        	            etomica.units.Dimension dimension = etomica.units.Dimension.introspect(object,name,bi);
         	            //try to get dimension from getDimension() method
-                        if(dimension == null) dimension = simulate.units.Dimension.introspect(object,"",bi);
+                        if(dimension == null) dimension = etomica.units.Dimension.introspect(object,"",bi);
         	            if(dimension != null) {
         	                editor = new DimensionedDoubleEditor(dimension);
         	            }
@@ -399,7 +373,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
 		        }
 		        if(editor instanceof DimensionedDoubleEditor) {
 		            unitView = ((DimensionedDoubleEditor)editor).unitSelector();
-		            if(object instanceof simulate.Meter) {
+		            if(object instanceof etomica.Meter) {
 		                ((PropertyText)view).setEditable(false);
 		                if(name.equals("average")) {
 		                    averageEditor = (DimensionedDoubleEditor)editor;

@@ -13,9 +13,9 @@
  * 9/29/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,7 +42,7 @@ public class DeviceEditorPane extends SimulationEditorPane {
 
 	                try {   // Try to make an instance of the selected class
 	                    setComponent(((Class)currentButton.cls).newInstance());
-	                    ((Device)getComponent()).setName(((Class)currentButton.cls).getName().substring(9) + Integer.toString(IDnumber++));
+	                    ((Device)getComponent()).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
 	                    componentList.addElement(getComponent()); // Add new object to the componentList
                         simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
 	                }

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.

@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 import java.util.Observer;
 import java.util.Observable;
-import simulate.units.Dimension;
+import etomica.units.Dimension;
 
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF)

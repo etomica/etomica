@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 public class Simulation1D extends Simulation {
     

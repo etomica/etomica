@@ -1,8 +1,8 @@
-package simulate;
+package etomica;
 
 import java.awt.Rectangle;
 import java.awt.Graphics;
-import simulate.units.*;
+import etomica.units.*;
 
 /**
  * Meter for measurement of density or species mole fraction within a specified subvolume
@@ -138,7 +138,7 @@ public abstract class MeterLocalDensity extends Meter
         * Assumes a 2D space
         */
 
-        public static class Cube extends simulate.MeterLocalDensity
+        public static class Cube extends etomica.MeterLocalDensity
         {
             double xCenter, yCenter, halfWidth, halfHeight;
             

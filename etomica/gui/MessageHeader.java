@@ -2,7 +2,7 @@
  *	news stream opener
  */
 
-package simulate.gui;
+package etomica.gui;
 
 import java.io.InputStream;
 import java.io.PrintWriter;

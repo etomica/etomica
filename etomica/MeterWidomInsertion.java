@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 import java.awt.Color;
-import simulate.units.Dimension;
+import etomica.units.Dimension;
 
 /**
  * Meter to measure the chemical potential of a species via the Widom insertion method

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.Dimension;
+package etomica;
+import etomica.units.Dimension;
 
 /**
  * Lennard-Jones interatomic potential.

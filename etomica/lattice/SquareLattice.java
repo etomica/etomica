@@ -1,6 +1,6 @@
-package simulate.lattice;
-import simulate.Space;
-import simulate.Space2D;
+package etomica.lattice;
+import etomica.Space;
+import etomica.Space2D;
 
 /**
  * Square lattice in 2D.  Primitive lattice vectors are orthogonal and equal in size.

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.Kelvin;
+package etomica;
+import etomica.units.Kelvin;
 import java.util.Random;
 
 /**
@@ -70,7 +70,7 @@ public class IntegratorGEMC extends IntegratorMC {
     public static void main(String[] args) {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
-        Simulation.setUnitSystem(new simulate.units.UnitSystem.LJ());
+        Simulation.setUnitSystem(new etomica.units.UnitSystem.LJ());
 	    IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
 	    Phase phase1 = new Phase();
@@ -92,7 +92,7 @@ public class IntegratorGEMC extends IntegratorMC {
 	    box2.setMeter(meter2);
 	    //Slider to adjust temperature
 	    DeviceSlider temperatureSlider = new DeviceSlider(integratorGEMC1, "temperature");
-	    temperatureSlider.setUnit(new simulate.units.Unit(Kelvin.UNIT));
+	    temperatureSlider.setUnit(new etomica.units.Unit(Kelvin.UNIT));
 	    temperatureSlider.setMinimum(50);
 	    temperatureSlider.setMaximum(500);
 	    speciesDisks1.setNMolecules(60);

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Meter for recording and averaging several functions of the same variable.

@@ -1,4 +1,4 @@
-package simulate.utility;
+package etomica.utility;
 
 /**
  * Static-method library of various functions

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.awt.Color;
 /**
  * Sets color of a wall based on the value of its temperature field.

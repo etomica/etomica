@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * This potential is modeled after the square well potential.  This is designed to create an attraction between

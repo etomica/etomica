@@ -8,7 +8,7 @@
  * 8/15/00
  */
 
-package simulate.utility;
+package etomica.utility;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;

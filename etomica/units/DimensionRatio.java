@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Class to form a dimension from ratio of two dimensions.

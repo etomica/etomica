@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Interface for an object with an associated physical dimension.

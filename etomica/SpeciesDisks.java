@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 import java.awt.*;
-import simulate.units.Dimension;
+import etomica.units.Dimension;
 
 /**
  * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 

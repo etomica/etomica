@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 
-import simulate.units.*;
+import etomica.units.*;
 import ptolemy.plot.Plot;
 import javax.swing.JButton;
 import java.awt.event.*;

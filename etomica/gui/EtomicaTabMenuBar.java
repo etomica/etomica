@@ -9,7 +9,7 @@
  * 8/14/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;

@@ -1,13 +1,13 @@
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.*;
 
 /**
  * Species in which molecules are made of arbitrary number of disks (same number for all molecules, though) 
  * with each disk having the same mass and size (same type).
  */
-public class SpeciesUserDefinedDisks extends simulate.Species {
+public class SpeciesUserDefinedDisks extends etomica.Species {
     public AtomType[] typeArray; 
 //  The atomType is not declared final here becuase it makes setting up the constructors easier,
 //  but effectively it cannot be changed once initialized; the instance is passed to the atoms, where

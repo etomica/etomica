@@ -1,7 +1,7 @@
 
 // Support for drawing a property value in a Canvas.
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,7 +30,7 @@ class PropertyCanvas extends JPanel implements MouseListener {
 		        ignoreClick = true;
 		        int x = frame.getLocation().x - 30;
 		        int y = frame.getLocation().y + 50;
-		        new PropertyDialog(simulate.gui.Etomica.DesktopFrame.etomicaFrame, editor, x, y);
+		        new PropertyDialog(etomica.gui.Etomica.DesktopFrame.etomicaFrame, editor, x, y);
 	        } 
 	        finally {
     		    ignoreClick = false;

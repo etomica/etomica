@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 import java.awt.event.*;
 import java.util.*;
-import simulate.units.*;
+import etomica.units.*;
 
 public abstract class Integrator implements Simulation.Element, Runnable, java.io.Serializable {
 

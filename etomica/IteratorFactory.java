@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Class for construction of Atom iterators.  Makes single-atom and pair-atom iterators.

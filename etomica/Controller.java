@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -180,7 +180,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
         /**
          * The awt Button that the user interacts with to control the Controller
          */
-        javax.swing.JButton button;
+        public javax.swing.JButton button;
         private boolean firstClick = true;
         private boolean running = false;
 
@@ -235,6 +235,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
                 running = true;
                 firstClick = false;
                 button.setText("Pause");
+                etomica.gui.EtomicaToolBar.startButton.setEnabled(false);
             }
             else if(running) {
                 running = false;

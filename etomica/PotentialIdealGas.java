@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Ideal-gas potential, which defines all atoms to have no interaction

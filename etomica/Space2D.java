@@ -1,8 +1,8 @@
-package simulate;
+package etomica;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.util.Random;
-import simulate.units.*;
+import etomica.units.*;
 
 public class Space2D extends Space {
     

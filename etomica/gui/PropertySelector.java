@@ -1,7 +1,7 @@
 
 // Support for PropertyEditors that use tags.
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.*;
 import java.awt.event.*;

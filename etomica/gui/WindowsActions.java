@@ -8,7 +8,7 @@
  * 8/15/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -41,7 +41,7 @@ public class WindowsActions {
     private static class TileAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            simulate.utility.Windows.tileWindows(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
+            etomica.utility.Windows.tileWindows(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
         }// end of actionPerformed
     }// end of TileAction class
 
@@ -51,7 +51,7 @@ public class WindowsActions {
     private static class CascadeAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            simulate.utility.Windows.cascadeWindows(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
+            etomica.utility.Windows.cascadeWindows(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
         }// end of actionPerformed
     }// end of CascadeAction class
     
@@ -61,7 +61,7 @@ public class WindowsActions {
     private static class NextAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            simulate.utility.Windows.selectNextWindow(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
+            etomica.utility.Windows.selectNextWindow(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
         }// end of actionPerformed
     }// end of NextAction class
 
@@ -71,7 +71,7 @@ public class WindowsActions {
     private static class DragAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            simulate.utility.Windows.dragOutline(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
+            etomica.utility.Windows.dragOutline(((javax.swing.JDesktopPane)Etomica.DesktopFrame.desktop));
         }// end of actionPerformed
     }// end of DragAction class
 }// end of WindowsActions class

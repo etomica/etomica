@@ -1,5 +1,5 @@
 // This class includes a main method demonstrating its use.
-package simulate;
+package etomica;
 import java.awt.Color;  //for the color-change action
 //imports for main method
 import java.awt.event.WindowAdapter;
@@ -21,7 +21,7 @@ import java.awt.Frame;
  * @see DisplayPhase.AtomActionWrapper
  */
 
-public abstract class AtomAction extends simulate.Action {
+public abstract class AtomAction extends etomica.Action {
     
     protected Atom atom;
     public void setAtom(Atom a) {atom = a;}

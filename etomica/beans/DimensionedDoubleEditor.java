@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import javax.swing.JComboBox;
@@ -110,7 +110,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	  */
 	 public JComboBox unitSelector() {return unitList;}
      public JTextField valueEditor() {
-        if(editor==null) editor = new simulate.gui.PropertyText(this);
+        if(editor==null) editor = new etomica.gui.PropertyText(this);
         return editor;
      }   
 

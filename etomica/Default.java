@@ -1,13 +1,15 @@
-package simulate;
+package etomica;
 
 import java.awt.Color;
-import simulate.units.*;
+import etomica.units.*;
 
 public final class Default {
     
-    public static String CLASS_DIRECTORY = "D:/kofke/development/lib/simulate";
+    public static String WORKING_DIRECTORY = getWorkingDirectory();
     
-    public static String IMAGE_DIRECTORY = "file:/D:/kofke/development/images/";
+    public static String CLASS_DIRECTORY = WORKING_DIRECTORY + "etomica";
+    
+    public static String IMAGE_DIRECTORY = "file:/" + WORKING_DIRECTORY + "images/";
         
     public static double ATOM_SIZE = 3.0;  //Angstroms
     
@@ -28,5 +30,10 @@ public final class Default {
     public static double POTENTIAL_CUTOFF = 2.5; //dimensionless multiplier for cutoff distance of potential
     
     public static double TIME_STEP = 0.05;  //picoseconds
-    
+ 
+    public static String getWorkingDirectory(){
+        String dir = System.getProperty("user.dir");
+        dir = dir.replace('\\', '/');
+        return dir+"/";
+    }
 }

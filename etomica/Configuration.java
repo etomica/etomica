@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 import java.util.*;
-import simulate.units.*;
+import etomica.units.*;
 
 /**
  * General class for assignment of coordinates to all molecules/atoms in phase

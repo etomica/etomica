@@ -8,9 +8,9 @@
  * 8/14/00
  */
  
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 

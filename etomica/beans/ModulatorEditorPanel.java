@@ -1,11 +1,11 @@
-package simulate;
-import simulate.*;
+package etomica;
+import etomica.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import javax.swing.*;
 //import com.symantec.itools.vcafe.openapi.*;
-import simulate.utility.StringUtility;
+import etomica.utility.StringUtility;
 
 public class ModulatorEditorPanel extends JPanel {
 

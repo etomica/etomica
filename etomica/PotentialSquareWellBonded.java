@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Identical to square-well potential, but modifies bonding state of atoms with collision,

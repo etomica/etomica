@@ -1,4 +1,4 @@
-package simulate.lattice;
+package etomica.lattice;
 
 public class Site implements java.io.Serializable {
     

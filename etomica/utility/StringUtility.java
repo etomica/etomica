@@ -1,4 +1,4 @@
-package simulate.utility;
+package etomica.utility;
 
 public class StringUtility {
     

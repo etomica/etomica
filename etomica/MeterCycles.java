@@ -1,7 +1,7 @@
-package simulate;
-import simulate.units.Dimension;
-import simulate.units.Unit;
-import simulate.units.Count;
+package etomica;
+import etomica.units.Dimension;
+import etomica.units.Unit;
+import etomica.units.Count;
 
 /**
  * Meter that keeps track of the number of intervalEvents fired by an integrator.

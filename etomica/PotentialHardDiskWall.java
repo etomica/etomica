@@ -1,5 +1,5 @@
-package simulate;
-import simulate.statmech.MaxwellBoltzmann;
+package etomica;
+import etomica.statmech.MaxwellBoltzmann;
 
 /**
  * Interaction between a hard sphere and a hard stationary wall.

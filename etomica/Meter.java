@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 
-import simulate.units.*;
-import simulate.utility.Histogram;
+import etomica.units.*;
+import etomica.utility.Histogram;
 
 /**
  * Meter for recording and averaging a simple scalar of type double.

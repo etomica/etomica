@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.beans.Beans;
 import java.awt.*;
 

@@ -1,6 +1,6 @@
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import javax.swing.JApplet;
 import java.awt.GridLayout;
 import java.awt.Frame;
@@ -37,7 +37,7 @@ public class SimulationApplet extends JApplet {
 
     public static void main(String args[]) { 
         Frame f = new Frame("SimulationApplet"); 
-        SimulationApplet applet = new simulate.gui.SimulationApplet(); 
+        SimulationApplet applet = new etomica.gui.SimulationApplet(); 
         applet.init(); 
         f.setLayout(new GridLayout(1,1)); 
         f.add(applet); 

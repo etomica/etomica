@@ -1,4 +1,4 @@
-package simulate.utility;
+package etomica.utility;
 
 /**
  * Interface for the basic features of a function that maps a double onto another double.

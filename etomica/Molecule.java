@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.io.*;
 import java.util.*;
 import java.awt.Graphics;

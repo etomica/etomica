@@ -1,7 +1,7 @@
 //This class includes a main method to demonstrate its use
-package simulate;
-import simulate.units.*;
-import simulate.units.Dimension;
+package etomica;
+import etomica.units.*;
+import etomica.units.Dimension;
 
 import java.awt.Graphics;
 
@@ -196,7 +196,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
     /**
      * Force as computed from current pressure and piston diameter, and direction of piston-cylinder system.
-     * simulate.units.BaseUnit.D2.FALSE_DEPTH is used to convert 3D pressure to the 2D system
+     * etomica.units.BaseUnit.D2.FALSE_DEPTH is used to convert 3D pressure to the 2D system
      */
     public Space.Vector force(Atom a) {
         forceVector.Ea1Tv1(force,unitNormal);

@@ -1,13 +1,13 @@
-package simulate;
+package etomica;
 
-import simulate.*;
+import etomica.*;
 import java.awt.*;
 import java.util.Observer;
 import java.util.Observable;
 
 // Writes current values of all meters to console
 
-public class DisplayToConsole extends simulate.Display implements Meter.MultiUser
+public class DisplayToConsole extends etomica.Display implements Meter.MultiUser
 {
     Meter[] meter;
     int nMeters = 0;

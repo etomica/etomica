@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Unit class for the number, or quantity, of something.

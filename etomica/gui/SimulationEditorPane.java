@@ -9,9 +9,9 @@
  * 8/16/00
  */
  
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -188,7 +188,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
 	            if (rightPaneList.getSelectedValue() != null){
-                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), rightPaneList.getSelectedValue().toString(), "simulate.gui." + rightPaneList.getSelectedValue().toString());
+                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString());
                     propertySheet.setTarget(wrapper);
                     try {
                         propertySheet.setSelected(true);
@@ -232,8 +232,8 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
             String name = className[i].getName();
             int idx;
             if (getTitle() == "Controller")
-                idx = 8;
-            else idx = 8 + getTitle().length();//name.indexOf("r");  //strip off simulate.P1 prefix
+                idx = 7;
+            else idx = 7 + getTitle().length();//strip off etomica. and the <class name> prefix
             name = name.substring(idx+1);            
             MyRadioButton button = new MyRadioButton(name,false,className[i]);
             button.addActionListener(new ButtonListener());
@@ -326,7 +326,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
                 if (rightPaneList.getSelectedValue() != null){
-                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), getTitle(), "simulate.gui." + getTitle()); 
+                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), getTitle(), "etomica.gui." + getTitle()); 
                     propertySheet.setTarget(wrapper);
                 }
                 else {

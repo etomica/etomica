@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 /**
  * A MeterTensor that returns the virial component of the pressure tensor for a hard potential.  

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -183,12 +183,12 @@ public final class Atom implements Space.Occupant, java.io.Serializable {
      * @param u
      */
     public final void translateTo(Space.Vector u) {r.E(u);}      
-    public final void translateToRandom(simulate.Phase p) {translateTo(p.boundary().randomPosition());}
+    public final void translateToRandom(etomica.Phase p) {translateTo(p.boundary().randomPosition());}
     public final void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
     public final void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
     public final void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
     public final void displaceWithin(double d) {workVector.setRandomCube(); displaceBy(d,workVector);}
-    public final void displaceToRandom(simulate.Phase p) {rLast.E(r); translateToRandom(p);}
+    public final void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
     public final void replace() {r.E(rLast);}
 //    public final void inflate(double s) {r.TE(s);}
 

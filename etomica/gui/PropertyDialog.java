@@ -1,7 +1,7 @@
 
 // Support for PropertyEditor with custom editors.
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.*;
 import java.awt.event.*;

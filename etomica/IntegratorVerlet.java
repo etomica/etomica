@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 public final class IntegratorVerlet extends IntegratorMD {
 

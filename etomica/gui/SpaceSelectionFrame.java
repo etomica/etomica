@@ -1,5 +1,5 @@
-package simulate.gui;
-import simulate.Space;
+package etomica.gui;
+import etomica.Space;
 
 public class SpaceSelectionFrame extends javax.swing.JInternalFrame implements java.awt.event.ActionListener {
 
@@ -20,7 +20,7 @@ public class SpaceSelectionFrame extends javax.swing.JInternalFrame implements j
         //them mutually exclusive, and adds buttonlisteners so that the selected button is known
 	    for(int i=0; i<Etomica.spaceClasses.length; i++) {
             String name = Etomica.spaceClasses[i].getName();
-            int idx = 13;//name.indexOf("r");  //strip off simulate.Space prefix
+            int idx = 12;//strip off etomica.Space prefix
             name = name.substring(idx+1);
             MyButton button = new MyButton(Etomica.spaceClasses[i],name,i==0);
             dimension.add(button);

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 
 /**
  * Meter that takes a (scalar) Meter and records its property as a 1-dimensional function of position in the simulation volume.

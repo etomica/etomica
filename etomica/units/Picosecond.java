@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 public final class Picosecond extends BaseUnit.Time {
 

@@ -1,6 +1,6 @@
-package simulate;
-import simulate.*;
-import simulate.gui.PropertySheet;
+package etomica;
+import etomica.*;
+import etomica.gui.PropertySheet;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;

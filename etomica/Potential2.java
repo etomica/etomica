@@ -1,4 +1,4 @@
-package simulate; 
+package etomica; 
 
 /**
  * Two-molecule, inter-molecular potential, defining all interatomic potentials of two different molecules.

@@ -1,4 +1,4 @@
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.Color;
 import javax.swing.JButton;

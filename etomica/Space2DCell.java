@@ -1,5 +1,5 @@
-package simulate;
-import simulate.lattice.*;
+package etomica;
+import etomica.lattice.*;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.util.Random;
@@ -254,6 +254,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
         private final class AtomIteratorDownNeighbor implements Atom.Iterator {
             private Coordinate nextCoordinate;
             private boolean hasNext;
+            private boolean inNbrCell; //flag indicating if iterator has advanced to atoms in neighboring cells
             private SiteIterator.Neighbor cellIterator;
             private Atom referenceAtom;
             public AtomIteratorDownNeighbor() {
@@ -266,6 +267,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
             public void reset(Atom a) { //resets iterator to begin with atom first downList from given one
                 referenceAtom = a;
                 if(a == null) {hasNext = false; return;}
+                inNbrCell = false;
                 nextCoordinate = (Coordinate)a.coordinate();
                 cellIterator = nextCoordinate.cell.adjacentIterator(); //cell-neighbor iterator for cell containing this atom
                 cellIterator.resetDown();  //next cell returned by iterator is first down the neighbor list
@@ -283,11 +285,12 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
                         return;
                     }
                     nextCoordinate = cell.first;
+                    inNbrCell = true;
                 }
             }
             public Atom next() {
                 Atom nextAtom = (Atom)nextCoordinate.parent();
-                nextCoordinate = nextCoordinate.previousNeighbor;      //next atom in cell
+                nextCoordinate = inNbrCell ? nextCoordinate.nextNeighbor : nextCoordinate.previousNeighbor;      //iterate down if in atom's cell, iterate up if moved to neighbor cells
                 if(nextCoordinate == null) {advanceCell();}
                 return nextAtom;
             }
@@ -549,7 +552,7 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
         
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
-	    speciesDisks1.setAtomsPerMolecule(1);
+	    speciesDisks1.setAtomsPerMolecule(3);
 	    speciesDisks1.setNMolecules(20);
 	    Phase phase1 = new Phase();
 	    P2HardDisk P2HardDisk1 = new P2HardDisk();  //P2 must follow species until setSpeciesCount is fixed

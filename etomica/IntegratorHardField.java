@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Extension of IntegratorHard for case where a constant external force field is applied.

@@ -9,9 +9,9 @@
  * 8/14/00
  */
  
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import javax.swing.JPanel;
 
 public class AppletFrame extends javax.swing.JInternalFrame {

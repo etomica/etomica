@@ -1,9 +1,9 @@
 //This class includes a main method to demonstrate its use
-package simulate;
+package etomica;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.Iterator;
-import simulate.units.*;
+import etomica.units.*;
 
 public class SpeciesWalls extends Species {
 

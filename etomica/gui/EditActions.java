@@ -8,9 +8,9 @@
  * 8/14/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
-import simulate.beans.PhaseCustomizer;
+import etomica.beans.PhaseCustomizer;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.*;
@@ -47,6 +47,11 @@ public class EditActions {
      */
     public static final ActionListener BINDPROPERTY = new BindPropertyAction();
     
+    /**
+     * Static action listener that displays the current setup preferences of the Etomica environment
+     */
+    public static final ActionListener PREFERENCES = new PreferencesAction();
+
     private static Object obj = null;
     public static final void setObject(Object o) { obj = o; }
     public static final Object getObject() { return obj; }
@@ -213,4 +218,14 @@ public class EditActions {
             
         }//end of actionPerformed
     }// end of BindPropertyAction class
+
+    /**
+     * Handles events from the Preferences MenuItem of the Edit Menu.  It displays the PreferenceFrame.
+     */
+    private static class PreferencesAction implements ActionListener {
+                
+        public void actionPerformed(ActionEvent event) {    
+            new PreferenceFrame();
+        }//end of actionPerformed
+    }// end of PreferencesAction class
 }// end of EditActions class

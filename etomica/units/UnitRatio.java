@@ -1,4 +1,4 @@
-package simulate.units;
+package etomica.units;
 
 /**
  * Class for constructing units forms as ratios of other units. 

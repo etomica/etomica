@@ -1,5 +1,5 @@
-package simulate.lattice;
-import simulate.Space;
+package etomica.lattice;
+import etomica.Space;
 
 /**
  * A Site with vertices and a volume.

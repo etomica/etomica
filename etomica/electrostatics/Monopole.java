@@ -1,7 +1,7 @@
-package simulate.electrostatics;
+package etomica.electrostatics;
 
-import simulate.units.*;
-import simulate.Space;
+import etomica.units.*;
+import etomica.Space;
 import java.awt.Graphics;
 
     /**

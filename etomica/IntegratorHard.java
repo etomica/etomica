@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 import java.util.Observable;
 import java.awt.Color;
-import simulate.units.*;
+import etomica.units.*;
 
 /**
  * General-purpose integrator for hard potentials.

@@ -1,5 +1,5 @@
 //includes a main method to test and demonstrate class
-package simulate;
+package etomica;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

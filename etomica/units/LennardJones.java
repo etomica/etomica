@@ -1,5 +1,5 @@
-package simulate.units;
-import simulate.Default;
+package etomica.units;
+import etomica.Default;
 
 /**
  * Lennard-Jones units.

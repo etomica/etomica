@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 /**
  * An association of two atoms.  Each AtomPair holds one CoordinatePair (obtained from a Space class),
  * which has all the methods needed to compute atom distance and momentum-difference vectors, dot products, etc.

@@ -1,4 +1,4 @@
-package simulate.beans;
+package etomica.beans;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
@@ -6,12 +6,12 @@ import java.beans.*;
 import java.util.*;
 import java.awt.*;
 import java.io.*;
-import simulate.*;
+import etomica.*;
 //import com.symantec.itools.vcafe.openapi.*;
 
 public class PhaseCustomizer extends JTabbedPane implements Customizer
 {
-    simulate.Phase phase;
+    etomica.Phase phase;
     BoundaryEditor boundaryEditor;
     Space.Boundary oldBoundary;
     JRadioButton[] boundaryButtons;
@@ -45,7 +45,7 @@ public class PhaseCustomizer extends JTabbedPane implements Customizer
         JPanel meterPane = new JPanel(new GridLayout(0,2));
         for(int i=0; i<meterClasses.length; i++) {
             String name = meterClasses[i].getName();
-            int idx = name.indexOf("r");  //strip off simulate.Meter prefix
+            int idx = name.indexOf("r");  //strip off etomica.Meter prefix
             name = name.substring(idx+1);
             meterPane.add(new JCheckBox(name));
         }
@@ -122,7 +122,7 @@ public class PhaseCustomizer extends JTabbedPane implements Customizer
 	 * are not meant to be instantiated (e.g., MeterAbstract).
 	 */
     static {
-	    File dir = new File(simulate.Default.CLASS_DIRECTORY);
+	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {
 	            return name.startsWith("Meter") 
@@ -142,7 +142,7 @@ public class PhaseCustomizer extends JTabbedPane implements Customizer
 	        files[i] = files[i].substring(0,idx);
 	        meterClasses[i] = null;
 	        try{
-	           meterClasses[i] = Class.forName("simulate."+files[i]);
+	           meterClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }
 	}
@@ -159,7 +159,7 @@ public class PhaseCustomizer extends JTabbedPane implements Customizer
 	        files[i] = files[i].substring(0,idx);
 	        Class cls = null;
 	        try{
-	           cls = Class.forName("simulate."+files[i]);
+	           cls = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	        System.out.println(files[i]+"  "+cls.getName());
 	    }

@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 public class P2Dimer extends Potential2 {
     

@@ -1,5 +1,5 @@
-package simulate;
-import simulate.*;
+package etomica;
+import etomica.*;
 import java.beans.*;
 import java.awt.*;
 

@@ -1,4 +1,4 @@
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

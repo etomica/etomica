@@ -1,8 +1,8 @@
-package simulate;
+package etomica;
 import java.util.Observable;
 import java.util.Observer;
 
-import simulate.units.Dimension;
+import etomica.units.Dimension;
 
 /**
  * Meter for the total kinetic energy in a phase

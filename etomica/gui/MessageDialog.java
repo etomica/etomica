@@ -3,7 +3,7 @@
  * Pop up a (modal) Message dialog and wait for a user to press "continue".
  */
 
-package simulate.gui;
+package etomica.gui;
 
 import java.awt.*;
 import java.awt.event.*;

@@ -1,12 +1,12 @@
-package simulate;
-import simulate.units.Dimension;
+package etomica;
+import etomica.units.Dimension;
 import javax.swing.JTable;
 import javax.swing.table.*;
 import javax.swing.Box;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.JScrollPane;
-import simulate.utility.Histogram;
+import etomica.utility.Histogram;
 
 
 /**

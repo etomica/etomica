@@ -10,9 +10,9 @@
  * 12/20/00
  */
 
-package simulate.gui;
+package etomica.gui;
 
-import simulate.*;
+import etomica.*;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -170,19 +170,19 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
     public void setTitle(String t){ 
         if (t == "Potential1") {
             super.setTitle("P1 Potentials");
-            makeRadioButtons(potential1Classes,10);
+            makeRadioButtons(potential1Classes,9);
             addDefineMolecule();
             addP1P2ActionListener();
         }
         else if (t == "Potential2") {
             super.setTitle("P2 Potentials");
-            makeRadioButtons(potential2Classes,17);
+            makeRadioButtons(potential2Classes,16);
             addDefineMolecule();
             addP1P2ActionListener();
         }
         else {
             super.setTitle("Atom Potentials");
-            makeRadioButtons(potentialClasses,17);
+            makeRadioButtons(potentialClasses,16);
             addPotActionListener();
         }
         addButtons();
@@ -280,16 +280,16 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	                        if (getTitle() == "P1 Potentials"){
 	                            component = ((Class)currentButton.cls).newInstance();
                                 ((Potential1)component).setSpeciesIndex(((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
-	                            ((Potential1)component).setName(((Class)currentButton.cls).getName().substring(9) + Integer.toString(IDnumber++));
+	                            ((Potential1)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
                             else {
-	                            if (currentButton.cls.toString().startsWith("class simulate.Potential"))
+	                            if (currentButton.cls.toString().startsWith("class etomica.Potential"))
 	                                component = new P2SimpleWrapper((Potential)((Class)currentButton.cls).newInstance());
 	                            else component = ((Class)currentButton.cls).newInstance();
 
                                 ((Potential2)component).setSpecies1Index(((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
                                 ((Potential2)component).setSpecies2Index(((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex2);
-	                            ((Potential2)component).setName(((Class)currentButton.cls).getName().substring(9) + Integer.toString(IDnumber++));
+	                            ((Potential2)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
 	                    }
 	                    catch(InstantiationException exc) {System.out.println(e.toString()); System.exit(1);}
@@ -382,7 +382,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	
 	static {
     	// Initialization of potentialClasses array
-	    File dir = new File(simulate.Default.CLASS_DIRECTORY);
+	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {
                 return name.startsWith("Potential")
@@ -401,7 +401,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	        files[i] = files[i].substring(0,idx);
 	        potentialClasses[i] = null;
 	        try{
-	            potentialClasses[i] = Class.forName("simulate."+files[i]);
+	            potentialClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potentialClasses array
 
@@ -421,7 +421,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	        files[i] = files[i].substring(0,idx);
 	        potential1Classes[i] = null;
 	        try{
-	            potential1Classes[i] = Class.forName("simulate."+files[i]);
+	            potential1Classes[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potential1Classes array
     	
@@ -445,7 +445,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	        files[i] = files[i].substring(0,idx);
 	        potential2Classes[i] = null;
 	        try{
-	            potential2Classes[i] = Class.forName("simulate."+files[i]);
+	            potential2Classes[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End initialization of potential2Classes array
    	}// end of static block used for potential class array initialization

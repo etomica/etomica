@@ -1,4 +1,4 @@
-package simulate; 
+package etomica; 
 
 /**
  * Basic methods needed to describe interaction between atoms.  
@@ -79,7 +79,7 @@ public abstract class Potential implements Simulation.Element, java.io.Serializa
     *Returns the virial tensor from the last collision processed.  This is used to measure 
     *the pressure tensor, and eventually the surface tension
     */
-        public simulate.Space.Tensor lastCollisionVirialTensor();
+        public etomica.Space.Tensor lastCollisionVirialTensor();
     }  //end of Potential.Hard
 
     /**

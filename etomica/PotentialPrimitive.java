@@ -1,6 +1,6 @@
-package simulate;
+package etomica;
 
-import simulate.electrostatics.*;
+import etomica.electrostatics.*;
 
 /**
  * Potential for the primitive model of an electrolyte.

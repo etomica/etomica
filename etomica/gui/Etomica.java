@@ -9,9 +9,10 @@
  * Bryan C. Mihalick
  * 8/14/00
  */
-package simulate.gui;
+package etomica.gui;
 
-import simulate.Simulation;
+import etomica.Simulation;
+import etomica.Space2D;
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.event.WindowAdapter;
@@ -26,6 +27,9 @@ public class Etomica {
     public static final SimulationEditorFrame simulationEditorFrame = new SimulationEditorFrame();
     public static java.util.HashMap simulationFrames = new java.util.HashMap(8);
     public static int instanceCount = 0;
+    public static EtomicaMenuBar menuBar = null;
+    public static EtomicaToolBar toolBar = null;
+    public static EtomicaTabMenuBar tabMenuBar = null;
     
     /**
      * This static main method creates an instance DesktopFrame which is a JFrame that contains all 
@@ -34,10 +38,11 @@ public class Etomica {
      * deletions to the JFrame's main content pane, a JDesktopPane.
      */
     public static void main(String[] args) {
-        simulate.Simulation.inEtomica = true;
+        etomica.Simulation.inEtomica = true;
         DesktopFrame frame = new DesktopFrame();
         frame.show();
-        addSimulation(Simulation.instance);  //uncomment to run in debugger
+       // Simulation.instance = new Simulation(new Space2D());
+       addSimulation(Simulation.instance);  //uncomment to run in debugger
     }
     
     /**
@@ -117,9 +122,9 @@ public class Etomica {
             desktop.putClientProperty("JDesktopPane.dragMode", "outline");
             
             // Instantiate Menus
-            EtomicaMenuBar menuBar = new EtomicaMenuBar();
-            EtomicaToolBar toolBar = new EtomicaToolBar();
-            EtomicaTabMenuBar tabMenuBar = new EtomicaTabMenuBar();
+            menuBar = new EtomicaMenuBar();
+            toolBar = new EtomicaToolBar();
+            tabMenuBar = new EtomicaTabMenuBar();
 		    
 		    // Add MenuBar
 		    setJMenuBar(menuBar);
@@ -128,7 +133,7 @@ public class Etomica {
 		    getContentPane().add(BorderLayout.NORTH, toolBar);
 		    
 		    // Add Tabbed Menu
-    	    getContentPane().add(BorderLayout.NORTH, tabMenuBar);
+    	    //getContentPane().add(BorderLayout.NORTH, tabMenuBar);
     	    
     	    
             // Create SimulationEditorFrame
@@ -171,7 +176,7 @@ public class Etomica {
     }
     
     static {
-	    java.io.File dir = new java.io.File(simulate.Default.CLASS_DIRECTORY);
+	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File d, String name) {
 	                return name.startsWith("Space")
@@ -188,7 +193,7 @@ public class Etomica {
 	        files[i] = files[i].substring(0,idx);
 	        spaceClasses[i] = null;
 	        try{
-	            spaceClasses[i] = Class.forName("simulate."+files[i]);
+	            spaceClasses[i] = Class.forName("etomica."+files[i]);
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	    }// End of initialization of spaceClasses array
     }//end of static block

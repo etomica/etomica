@@ -1,5 +1,5 @@
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 	
 /**
  * Class used to construct meters for intensive properties formed as the ratio of two extensive properties (e.g., energy/mole)

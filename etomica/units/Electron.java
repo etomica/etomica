@@ -1,5 +1,5 @@
-package simulate.units;
-import simulate.Constants;
+package etomica.units;
+import etomica.Constants;
 
 /**
  * Unit of charge equal to the magnitude of the charge on an electron

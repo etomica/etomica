@@ -1,7 +1,7 @@
-package simulate;
+package etomica;
 
-import simulate.units.Unit;
-import simulate.units.Dimension;
+import etomica.units.Unit;
+import etomica.units.Dimension;
 
 /**
  * Meter for measurement of the total (potential and kinetic) energy in a phase

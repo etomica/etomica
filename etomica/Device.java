@@ -1,7 +1,7 @@
-package simulate;
-import simulate.units.Unit;
-import simulate.units.Dimensioned;
-import simulate.units.Dimension;
+package etomica;
+import etomica.units.Unit;
+import etomica.units.Dimensioned;
+import etomica.units.Dimension;
 import java.awt.Component;
 
 /**

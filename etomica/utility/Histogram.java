@@ -1,4 +1,4 @@
-package simulate.utility;
+package etomica.utility;
 
 import ptolemy.plot.Plot;
 

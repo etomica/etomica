@@ -1,11 +1,11 @@
-package simulate;
+package etomica;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Iterator; 
 import java.util.Observer;
 import java.util.Observable;
 import java.util.Vector;
-import simulate.units.*;
+import etomica.units.*;
 import javax.swing.JDialog;
 
 /**

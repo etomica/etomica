@@ -1,6 +1,6 @@
 //includes a main method to demonstrate use and to test
-package simulate;
-import simulate.units.*;
+package etomica;
+import etomica.units.*;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

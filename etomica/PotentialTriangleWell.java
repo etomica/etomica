@@ -1,4 +1,4 @@
-package simulate;
+package etomica;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
