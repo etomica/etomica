@@ -1,6 +1,10 @@
 package etomica.graphics;
 import etomica.*;
 import etomica.lattice.*;
+import etomica.math.geometry.Polyhedron;
+import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.nbr.cell.AtomSequencerCell;
+
 import java.awt.*;
 
 /**
@@ -27,7 +31,7 @@ public class LatticeRenderer implements Drawable {
         double toPixels = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
         iterator.reset();
         while(iterator.hasNext()) {
-            AbstractCell cell = (AbstractCell)iterator.next();
+            Polyhedron cell = (Polyhedron)iterator.next();
             Space.Vector[] vertex = (Space.Vector[])cell.vertex();
             for(int i=1; i<vertex.length; i++) {
                 Space2D.Vector v1 = null;
@@ -142,7 +146,7 @@ public class LatticeRenderer implements Drawable {
             allIterator.reset();
             while(allIterator.hasNext()) {
                 Atom atom = allIterator.next();
-                Atom cell = ((IteratorFactoryCell.NeighborSequencer)atom.seq).cell;
+                Atom cell = ((AtomSequencerCell)atom.seq).cell;
                 atom.allatomAgents[agentIndex] = cell.allatomAgents[cellColorIndex];
             }
         }

@@ -8,7 +8,6 @@ import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationContainer;
-import etomica.simulations.HSMD2D;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -138,11 +137,15 @@ public class SimulationGraphic implements SimulationContainer {
      */
     public static void main(String[] args) {
         Default.DO_SLEEP = true;
-        HSMD2D sim = new HSMD2D();
+        etomica.simulations.SwMd2D sim = new etomica.simulations.SwMd2D();
+//        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
+//        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
+//        etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+//        HSMD2D sim = new HSMD2D();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType.setColor(sim.species, java.awt.Color.red);
-        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
+//        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
     }//end of main
     

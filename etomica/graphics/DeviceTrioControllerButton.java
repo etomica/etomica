@@ -46,7 +46,7 @@ public class DeviceTrioControllerButton extends Device {
         super();
         this.simulation = simulation;
         simReset = new SimulationRestart(simulation);
-        resetAccumulators = new ResetAccumulators(simulation.getAccumulatorManagerList());
+        resetAccumulators = new ResetAccumulators(simulation.getDataManagerList());
         
         jp = new JPanel(new java.awt.GridLayout(1, 3)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
