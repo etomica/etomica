@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.statmech.MaxwellBoltzmann;
+
 /**
  *
  * @author Rob Riggleman

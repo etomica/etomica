@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.statmech.MaxwellBoltzmann;
+
 //centralImage not updated to molecule form as in Space3D
 
  /* History of changes

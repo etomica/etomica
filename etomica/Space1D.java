@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.statmech.MaxwellBoltzmann;
+
 //CoordinateGroup is not updated to the same structure as used in Space2D and Space3D
 //centralImage not updated to molecule form as in Space3D
 
