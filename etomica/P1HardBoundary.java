@@ -15,15 +15,14 @@ package etomica;
  //of the phase by the parent potential, since this is probably a common situation for
  //one-body potentials
  
-public class P1HardBoundary extends Potential1 implements Potential1.Hard {
+public class P1HardBoundary extends Potential1 implements Potential.Hard {
     
-    public String getVersion() {return "P1HardBoundary:01.06.29/"+Potential1.VERSION;}
-
     private double collisionRadius = 0.0;
     private boolean isothermal = false;
     private double temperature;
     private final int D;
     private double[] lastVirial = new double[2];
+    private Atom atom;
     
     public P1HardBoundary() {
         this(Simulation.instance.hamiltonian.potential);
@@ -40,12 +39,13 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
         return info;
     }
     
-    public double energy(Atom a) {
+    public double energy(Atom[] a) {
+        atom = a[0];
         double e = 0.0;
-        Space.Vector dimensions = a.node.parentPhase().dimensions();
+        Space.Vector dimensions = atom.node.parentPhase().dimensions();
         double collisionRadiusSquared = collisionRadius*collisionRadius;
-        double rx = a.coord.position(0);
-        double ry = a.coord.position(1);
+        double rx = atom.coord.position(0);
+        double ry = atom.coord.position(1);
         double dx0_2 = rx*rx;
         double dy0_2 = ry*ry;
         double dx1_2 = (rx - dimensions.x(0))*(rx - dimensions.x(0));
@@ -57,10 +57,11 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
         return e;
         }
      
-    public double collisionTime(Atom a) {
-        Space.Vector r = a.coord.position();
-        Space.Vector p = a.coord.momentum();
-        Space.Vector dimensions = a.node.parentPhase().dimensions();
+    public double collisionTime(Atom[] a) {
+    	atom = a[0];
+        Space.Vector r = atom.coord.position();
+        Space.Vector p = atom.coord.momentum();
+        Space.Vector dimensions = atom.node.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
         for(int i=r.length()-1; i>=0; i--) {
             double px = p.x(i);
@@ -70,15 +71,16 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
             double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
             if(t < tmin) tmin = t;
         }
-        return a.coord.mass()*tmin;
+        return atom.coord.mass()*tmin;
     }
                 
 //    public void bump(IntegratorHardAbstract.Agent agent) {
 //        Atom a = agent.atom();
-    public void bump(Atom a) {
-        Space.Vector r = a.coord.position();
-        Space.Vector p = a.coord.momentum();
-        Space.Vector dimensions = a.node.parentPhase().dimensions();
+    public void bump(Atom[] a) {
+    	atom = a[0];
+        Space.Vector r = atom.coord.position();
+        Space.Vector p = atom.coord.momentum();
+        Space.Vector dimensions = atom.node.parentPhase().dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
@@ -103,7 +105,7 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
             }
         }
         p.setX(imin,-p.x(imin)); //multiply momentum component by -1
-        if(isothermal) {p.TE(Math.sqrt(D*temperature*a.coord.mass()/p.squared()));}
+        if(isothermal) {p.TE(Math.sqrt(D*temperature*atom.coord.mass()/p.squared()));}
     }//end of bump
     
     public void setIsothermal(boolean b) {isothermal = b;}
