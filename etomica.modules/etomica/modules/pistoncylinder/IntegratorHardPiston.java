@@ -22,9 +22,9 @@ public class IntegratorHardPiston extends IntegratorHard {
         pistonPotential = potential;
     }
 
-    public void initialize() {
+    public void setup() {
         pistonPotential.setWallPosition(0.0);
-        super.initialize();
+        super.setup();
     }
     
     public void doStep() {
