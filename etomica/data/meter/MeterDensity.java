@@ -37,7 +37,7 @@ public class MeterDensity extends MeterScalar implements EtomicaElement
         			phase.moleculeCount() : 
         			phase.getAgent(species).moleculeCount())
 				/phase.volume();
-   }
+    }
     
     public Dimension getDimension() {return new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME);}
 

@@ -12,6 +12,8 @@ import etomica.Atom;
 /**
  * Interface for a meter that can return a value given an arbitrary atom.
  */
-public interface MeterAtomic {
-    public double currentValue(Atom a);
+public interface MeterScalarAtomic {
+    
+    public double getDataAsScalar(Atom a);
+    
 }

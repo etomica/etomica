@@ -48,7 +48,7 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
      */
     public void setMeter(MeterAbstract m) {
         if (m instanceof MeterCollisional) {cMeter = (MeterCollisional)m;}
-        if (m instanceof MeterAtomic) {meter = (MeterAtomic)m;}
+        if (m instanceof MeterScalarAtomic) {meter = (MeterScalarAtomic)m;}
     }
     
     public double[] getData() {

@@ -114,7 +114,7 @@ public class MeterPressureHard extends MeterScalar implements
         profile.setActive(true);
         profile.setX(0,30,50);
         profile.setMeter(pressureMeter);
-        profile.setMeter(((MeterScalar.MeterAtomic)new MeterTemperature()));
+        profile.setMeter(((MeterScalar.MeterScalarAtomic)new MeterTemperature()));
         etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
            
         //display the meter

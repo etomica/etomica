@@ -1,5 +1,6 @@
 package etomica.data.meter;
 
+import etomica.Atom;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
@@ -9,7 +10,7 @@ import etomica.units.Dimension;
 /**
  * Meter for recording the total number of molecules in the phase
  */
-public class MeterNMolecules extends MeterScalar implements EtomicaElement {
+public class MeterNMolecules extends MeterScalar implements MeterScalarAtomic, EtomicaElement {
     
     private Species species;
     
@@ -31,4 +32,10 @@ public class MeterNMolecules extends MeterScalar implements EtomicaElement {
     public double getDataAsScalar(Phase phase) {
         return (species == null) ? phase.moleculeCount(): phase.getAgent(species).moleculeCount();
     }
+    
+    public double getDataAsScalar(Atom atom) {
+        return (species == null || atom.type.getSpecies() == species) ? 1 : 0;
+    }
+    
+
  }

@@ -28,7 +28,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Meter that defines the property being profiled.
      */
-    MeterAtomic meter;
+    MeterScalarAtomic meter;
     
     private double profileNorm = 1.0;
     private final AtomIteratorList ai1 = new AtomIteratorList();
@@ -77,7 +77,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setMeter(MeterAtomic m) {
+    public void setMeter(MeterScalarAtomic m) {
         meter = m;
     }
     
@@ -109,7 +109,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         ai1.reset();
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
-            double value = meter.currentValue(a);
+            double value = meter.getDataAsScalar(a);
             int i = ((DataSourceUniform)xDataSource).getIndex(a.coord.position().dot(profileVector)*profileNorm);
             phaseData[i] += value;
         }
