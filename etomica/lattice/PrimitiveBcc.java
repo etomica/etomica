@@ -2,41 +2,49 @@ package etomica.lattice;
 import etomica.*;
 
 /**
- * Primitive group for a cubic system.  All primitive
- * vectors orthogonal and of equal length.
+ * Primitive group for a body-centered-cubic system.
  */
-public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3D {
+public class PrimitiveBcc extends Primitive implements Primitive3D {
     
-    //primitive vectors are stored internally at unit length.  When requested
-    //from the vectors() method, copies are scaled to size and returned.
-    //default size is 1.0
     private double size;
+    private Space.Vector[] unitVectors;
+    private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
-    public PrimitiveCubic(Simulation sim) {
+    public PrimitiveBcc(Simulation sim) {
         this(sim, 1.0);
     }
-    public PrimitiveCubic(Simulation sim, double latticeConstant) {
+    public PrimitiveBcc(Simulation sim, double size) {
         super(sim); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
-        setSize(latticeConstant); //also sets reciprocal via update
+        unitVectors = new Space.Vector[D];
+        for(int i=0; i<D; i++) {
+            unitVectors[i] = sim.space.makeVector();
+            unitVectors[i].E(1.0/Math.sqrt(3.0));
+            unitVectors[i].setX(i,-1.0/Math.sqrt(3.0));
+        }
+        setSize(size); //also sets reciprocal via update
     }
     /**
-     * Constructor used by makeReciprocal method.
+     * Constructor used by makeReciprocal method of PrimitiveFcc.
      */
-    private PrimitiveCubic(Simulation sim, Primitive direct) {
+    PrimitiveBcc(Simulation sim, Primitive direct) {
         super(sim, direct);
-        for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
+        unitVectors = new Space.Vector[D];
+        for(int i=0; i<D; i++) {
+            unitVectors[i] = sim.space.makeVector();
+            unitVectors[i].E(1.0/Math.sqrt(3.0));
+            unitVectors[i].setX(i,-1.0/Math.sqrt(3.0));
+        }
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveCubic(simulation, this);
+        return new PrimitiveFcc(simulation, this);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveCubic)reciprocal()).setSize(2.0*Math.PI/size);
+        ((PrimitiveFcc)reciprocal()).setSize(4.0*Math.PI/size);
     }
     
     public void setA(double a) {setSize(a);}
@@ -49,34 +57,27 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     public double getC() {return size;}
     
     public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return rightAngle;}
+    public double getAlpha() {return BCC_ANGLE;}
     
     public void setBeta(double t) {}
-    public double getBeta() {return rightAngle;}
+    public double getBeta() {return BCC_ANGLE;}
     
     public void setGamma(double t) {}
-    public double getGamma() {return rightAngle;}
+    public double getGamma() {return BCC_ANGLE;}
     
     /**
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveCubic(simulation, size);
+        return new PrimitiveBcc(simulation, size);
     }
     
-    //override superclass method to scale copy-vectors to current size
-    protected Space.Vector[] copyVectors() {
-        for(int i=0; i<D; i++) {
-            latticeVectorsCopy[i].E(latticeVectors[i]);
-            latticeVectorsCopy[i].TE(size);
-        }
-        return latticeVectorsCopy;
-    }
     /**
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
         this.size = size;
+        for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size,unitVectors[i]);
         update();
     }
     /**
@@ -84,40 +85,46 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      */
     public double getSize() {return size;}
     
+    /**
+     * Multiplies the size of the current vectors by the given value.
+     */
     public void scaleSize(double scale) {
         setSize(scale*size);
     }
 
     public int[] latticeIndex(Space.Vector q) {
-        for(int i=0; i<D; i++) {
+        throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
+/*        for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
-    }
+*/    }
     
     public int[] latticeIndex(Space.Vector q, int[] dimensions) {
-        for(int i=0; i<D; i++) {
+        throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
+ /*       for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];
         }
         return idx;
-    }
+ */   }
     
     public AtomFactory wignerSeitzCellFactory() {
-        throw new RuntimeException("method PrimitiveCubic.wignerSeitzCell not yet implemented");
+        throw new RuntimeException("method PrimitiveFcc.wignerSeitzCell not yet implemented");
     }
     
     public AtomFactory unitCellFactory() {
-        return new UnitCellFactory(simulation);
+        throw new RuntimeException("method unitCellFactory not yet implemented");
+//        return new UnitCellFactory(simulation);
     }
     
-    public String toString() {return "Cubic";}
+    public String toString() {return "Bcc";}
     
 ///////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 public class UnitCellFactory extends AtomFactory {
 
     AtomType atomType;
@@ -134,7 +141,7 @@ public class UnitCellFactory extends AtomFactory {
 
     /**
      * Builds a single unit cell.
-     */
+     * /
     protected Atom build(AtomTreeNodeGroup parent) {
         return new UnitCell(space, atomType, parent);
     }
@@ -149,7 +156,7 @@ public class UnitCellFactory extends AtomFactory {
 /**
  * A cubic unit cell.  Position of the cell is given by the vertex
  * in which each coordinate is minimized.
- */
+ * /
 public class UnitCell extends AbstractCell {
     
     private final Space.Vector delta;
@@ -160,12 +167,12 @@ public class UnitCell extends AbstractCell {
     }
     /**
      * Dimension of the space occupied by the cell
-     */
+     * /
      public int D() {return space.D();}
      
     /**
      * Returns the volume of the cubic cell.
-     */
+     * /
     public double volume() {
         return space.powerD(size);
     }
@@ -173,7 +180,7 @@ public class UnitCell extends AbstractCell {
     /**
      * Makes vertices for the unit cubic cell, positioned relative to the origin.
      * Must be scaled and translated to cell coordinate position to get true vertex locations.
-     */
+     * /
    /* private Space.Vector[] makeUnitVertices() {
         Space.Vector[] vertices = new Space.Vector[space.powerD(2)];//number of vertices is 2^D
         for(int i=0; i<vertices.length; i++) {
@@ -196,7 +203,7 @@ public class UnitCell extends AbstractCell {
      * Note that vertices might be computed on-the-fly, with each call of the method, rather than
      * computed once and stored; thus it may be worthwhile to store the values if using them often, 
      * but if doing so be careful to update them if any transformations are done to the lattice.
-     */
+     * /
     public Space.Vector[] vertex() {
         Space.Vector[] vertices = new Space.Vector[space.powerD(2)];//number of vertices is 2^D
         for(int i=0; i<vertices.length; i++) {
@@ -219,7 +226,7 @@ public class UnitCell extends AbstractCell {
     /**
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
-     */
+     * /
     public boolean inCell(Space.Vector v) {
         delta.Ev1Mv2(v, coord.position());
         double x = size;
@@ -239,7 +246,7 @@ public class UnitCell extends AbstractCell {
 
     /**
      * Main method to demonstrate use and to aid debugging
-     */
+     * / 
     public static void main(String[] args) {
         System.out.println("main method for PrimitiveCubic");
         Space space = new Space2D();
@@ -322,8 +329,8 @@ public class UnitCell extends AbstractCell {
         for(int i=0; i<vertices.length; i++) {
             System.out.println(vertices[i].toString());
         }
-        */
+        * /
     }//end of main
-    
-}//end of PrimitiveCubic
+  // */  
+}//end of PrimitiveFcc
     

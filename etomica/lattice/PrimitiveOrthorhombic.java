@@ -4,7 +4,7 @@ import etomica.*;
 /**
  * Primitive group for an orthorhombic system.  All primitive
  * vectors orthogonal but not necessarily of equal length.
- * a != b != c; alpha = beta = gamma = 90deg
+ * a != b != c; alpha = beta = gamma = 90deg.
  */
 public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     
@@ -15,33 +15,49 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         this(sim, 1.0, 1.0, 1.0);
     }
     public PrimitiveOrthorhombic(Simulation sim, double a, double b, double c) {
-        super(sim);
-        size = new double[sim.space.D()];
-        sizeCopy = new double[sim.space.D()];
+        super(sim); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        setA(a);
+        setA(a);  
         setB(b);
-        setC(c);
+        setC(c); //also sets reciprocal via update
+    }
+    /**
+     * Constructor used by makeReciprocal method.
+     */
+    private PrimitiveOrthorhombic(Simulation sim, Primitive direct) {
+        super(sim, direct);
+    }
+    
+    //called by superclass constructor
+    protected Primitive makeReciprocal() {
+        return new PrimitiveOrthorhombic(simulation, this);
+    }
+    
+    //called by update method of superclass
+    protected void updateReciprocal() {
+        ((PrimitiveOrthorhombic)reciprocal()).setA(2.0*Math.PI/a);
+        ((PrimitiveOrthorhombic)reciprocal()).setB(2.0*Math.PI/b);
+        ((PrimitiveOrthorhombic)reciprocal()).setC(2.0*Math.PI/c);
     }
     
     public void setA(double a) {
         this.a = a;
         latticeVectors[0].setX(0,a);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getA() {return a;}
     
     public void setB(double b) {
         this.b = b;
         latticeVectors[1].setX(1,b);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getB() {return b;}
         
     public void setC(double c) {
         this.c = c;
         latticeVectors[2].setX(2,c);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getC() {return c;}
     
@@ -71,7 +87,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
             latticeVectors[i].setX(i,size);
             this.size[i] = size;
         }
-        if(lattice != null) lattice.update();
+        update();
     }
     
     /**
@@ -88,7 +104,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
             this.size[i] *= scale;
             latticeVectors[i].setX(i,size[i]);
         }
-        if(lattice != null) lattice.update();
+        update();
     }        
     
     public int[] latticeIndex(Space.Vector q) {
@@ -107,10 +123,6 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
             while(idx[i] < 0)              idx[i] += dimensions[i];
         }
         return idx;
-    }
-    
-    public Primitive reciprocal() {
-        throw new RuntimeException("method PrimitiveOrthorhombic.reciprocal not yet implemented");
     }
     
     public AtomFactory wignerSeitzCellFactory() {

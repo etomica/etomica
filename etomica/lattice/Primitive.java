@@ -14,12 +14,25 @@ public abstract class Primitive {
     protected final double[] size;
     protected final double[] angle;
     private final double[] sizeCopy;
-    protected Space space;
+    public final Space space;
     protected Simulation simulation;
     protected BravaisLattice lattice;
+    private boolean ignoreUpdate = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
+    private Primitive reciprocal;
     
-    public Primitive(Simulation sim) {
+    /**
+     * This constructor is used by when making the direct-lattice primitive.
+     */
+    protected Primitive(Simulation sim) {
+        this(sim, null);
+    }
+    /**
+     * This constructor is called directly when a Primitive is constructing
+     * its reciprocal primitive.  For construction of the direct-lattice
+     * primitive, this constructor is called via the Primitive(Simulation) constructor.
+     */
+    protected Primitive(Simulation sim, Primitive reciprocal) {
         simulation = sim;
         space = sim.space;
         D = space.D();
@@ -35,7 +48,25 @@ public abstract class Primitive {
             latticeVectorsCopy[i] = space.makeVector();
             angle[i] = rightAngle;
         }
+        //if reciprocal is null, this is a direct primitive; if it is not null,
+        //this is a reciprocal primitive of another primitive that is in the
+        //process of being constructed.
+        this.reciprocal = (reciprocal == null) ? makeReciprocal() : reciprocal;
     }
+    
+    /**
+     * Method defining and constructing reciprocal primitive; called by
+     * constructor of Primitive.  
+     */
+     //definition of this method should take care not lead to calling of update 
+     //method of the reciprocal primitive.
+    protected abstract Primitive makeReciprocal();
+    
+    /**
+     * Updates reciprocal primitive so that it is consistent with the
+     * current parameters of this primitive.  Called by update method.
+     */
+    protected abstract void updateReciprocal();
 
     /**
      * Sets the length of each primitive vector to the corresponding
@@ -102,6 +133,14 @@ public abstract class Primitive {
         return sizeCopy;
     }
 */    
+
+    protected void update() {
+        if(ignoreUpdate) return;
+        if(lattice != null) lattice.update();
+        ignoreUpdate = true; 
+        updateReciprocal();
+        ignoreUpdate = false;
+    }
     
     /**
      * Scales (multiplies) the size of each primitive vector by the given value.
@@ -163,7 +202,7 @@ public abstract class Primitive {
     /**
      * Returns the primitive for the reciprocal lattice vectors.
      */
-    public abstract Primitive reciprocal();
+    public Primitive reciprocal() {return reciprocal;}
     
     /**
      * Returns a factory for the Wigner-Seitz cell specified by this primitive.

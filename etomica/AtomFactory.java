@@ -19,7 +19,6 @@ public abstract class AtomFactory {
     
     /**
      * @param sim the parent simulation using this factory
-     * @param species the parent species using this factory (may be null)
      */
     public AtomFactory(Simulation sim) {
         this(sim, sim.getIteratorFactory().simpleSequencerFactory());

@@ -56,7 +56,11 @@ public class IntegratorTMMC extends IntegratorMC {
         
         //perform the trial
         int iStateOld = macrostateManager.stateIndex(firstPhase);//new to tmmc
-        if(!move.doTrial()) return;
+        if(!move.doTrial()) {
+            C[iStateOld][iStateOld] += 1;
+            if(--doStepCount == 0) updateWeights();
+            return;
+        }
         
         //notify any listeners that move has been attempted
         if(eventManager != null) { //consider using a final boolean flag that is set in constructor
@@ -70,7 +74,7 @@ public class IntegratorTMMC extends IntegratorMC {
         int iDelta = iStateNew - iStateOld + 1;// 0, 1, 2  new to tmmc
         double weightDifference = weight[iStateNew] - weight[iStateOld]; //new to tmmc
         double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
-        double r = Math.exp(lnChi); //new to tmmc
+        double r = (lnChi < 0.0) ? Math.exp(lnChi) : 1.0; //new to tmmc
         C[iStateOld][iDelta] += r;  //new to tmmc
         C[iStateOld][1] += (1.0 - r); //new to tmmc
         lnChi += weightDifference;  //new to tmmc

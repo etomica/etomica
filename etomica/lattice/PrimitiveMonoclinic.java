@@ -105,10 +105,6 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
         return idx;
     }
     
-    public Primitive reciprocal() {
-        throw new RuntimeException("method PrimitiveOrthorhombic.reciprocal not yet implemented");
-    }
-    
     public AtomFactory wignerSeitzCellFactory() {
         throw new RuntimeException("method PrimitiveOrthorhombic.wignerSeitzCell not yet implemented");
     }

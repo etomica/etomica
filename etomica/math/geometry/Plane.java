@@ -1,6 +1,9 @@
+
+//(maybe should put this in a Space package hierarchy)
 package etomica.math.geometry;
 
 import etomica.Space3D;
+import etomica.Space;
 
 /**
  * Class describing a plane occupying a 3-dimensional space.
@@ -20,6 +23,19 @@ public class Plane {
     //such that a^2 + b^c + c^2 = 1
     private double a, b, c, d;
     
+    /**
+     * Tolerance used to judge if a given point is in the plane.
+     * Method inPlane is true if the point given to is at a distance
+     * from the plane less than this value.  Default is 1e-5.
+     */
+    public double epsilon = 1.0e-5;
+    
+    /**
+     * Default constructor returns the y-z plane.
+     */
+    public Plane() {
+        this(1.0, 0.0, 0.0, 0.0);
+    }
     public Plane(double a, double b, double c, double d) {
         if(a == 0 && b == 0 && c == 0) throw new IllegalArgumentException("Arguments to Plane constructor do not define a plane"); 
         this.a = a;
@@ -60,7 +76,8 @@ public class Plane {
     /**
      * Sets the orientation of the plane to be normal to the given vector.
      */
-    public void setNormalVector(Space3D.Vector n) {
+    public void setNormalVector(Space.Vector n) {
+        if(!(n instanceof Space3D.Vector)) throw new IllegalArgumentException("Error: Plane.setNormalVector requires 3D vector as argument");
         if(n.squared() == 0.0) throw new IllegalArgumentException("Error: attempt to set orientation of plane with respect to an ill-defined vector");
         a = n.x(0);
         b = n.x(1);
@@ -112,6 +129,13 @@ public class Plane {
     }
     
     /**
+     * Shifts the plane at fixed orientation so that it contains the given point.
+     */
+    public void moveTo(Space3D.Vector r) {
+        d = -(a*r.x(0) + b*r.x(1) + c*r.x(2));
+    }        
+    
+    /**
      * Dihedral angle between this plane and the given plane.
      */
     public double dihedralAngle(Plane p) {
@@ -126,6 +150,13 @@ public class Plane {
      */
     public boolean isPositiveSide(Space3D.Vector p) {
         return distanceTo(p) > 0.0;
+    }
+    
+    /**
+     * Returns true if the given point is within a distance epsilon of this plane.
+     */
+    public boolean inPlane(Space3D.Vector p) {
+        return Math.abs(distanceTo(p)) < epsilon;
     }
     
     /**

@@ -7,18 +7,32 @@ import etomica.*;
  */
 public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     
-    //primitive vectors are stored internally at unit length.  When requested
-    //from the vectors() method, copies are scaled to size and returned.
-    //default size is 1.0
     private double ab, c;
     
     public PrimitiveTetragonal(Simulation sim) {
         this(sim, 1.0, 1.0);
     }
     public PrimitiveTetragonal(Simulation sim, double ab, double c) {
-        super(sim);
-        setAB(ab);
+        super(sim);//also makes reciprocal
+        setAB(ab); //also sets reciprocal via update
         setC(c);
+    }
+    /**
+     * Constructor used by makeReciprocal method.
+     */
+    private PrimitiveTetragonal(Simulation sim, Primitive direct) {
+        super(sim, direct);
+    }
+    
+    //called by superclass constructor
+    protected Primitive makeReciprocal() {
+        return new PrimitiveTetragonal(simulation, this);
+    }
+    
+    //called by update method of superclass
+    protected void updateReciprocal() {
+        ((PrimitiveTetragonal)reciprocal()).setAB(2.0*Math.PI/ab);
+        ((PrimitiveTetragonal)reciprocal()).setC(2.0*Math.PI/c);
     }
     
     public void setA(double a) {setAB(a);}
@@ -31,13 +45,13 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
         this.ab = ab;
         latticeVectors[0].setX(0,ab);
         latticeVectors[1].setX(1,ab);
-        if(lattice != null) lattice.update();
+        update();
     }
     
     public void setC(double c) {
         this.c = c;
         latticeVectors[2].setX(2, c);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getC() {return c;}
     
@@ -82,10 +96,6 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
         }
         return idx;
     */}
-
-    public Primitive reciprocal() {
-        throw new RuntimeException("method reciprocal not yet implemented");
-    }
     
     public AtomFactory wignerSeitzCellFactory() {
         throw new RuntimeException("method wignerSeitzCell not yet implemented");

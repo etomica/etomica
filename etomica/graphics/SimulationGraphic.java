@@ -23,6 +23,7 @@ import etomica.utility.Iterator;
  
  /* History of changes
   * 08/26/02 (DAK) modified makeAndDisplayFrame method to return the frame
+  * 09/13/02 (DAK) added blockDefaultLayout method.
   */
 public class SimulationGraphic extends Simulation {
     
@@ -102,6 +103,15 @@ public class SimulationGraphic extends Simulation {
      public SimulationPanel panel() {
         if(simulationPanel == null) simulationPanel = new SimulationPanel(this);
         return simulationPanel;
+     }
+     
+     /**
+      * Overrides the default mediators that place Displays and Devices in the simulation panel.
+      * Graphics must be added individually if this is done.
+      */
+     public void blockDefaultLayout() {
+        this.mediator().addMediatorPair(new MediatorGraphic.DisplayNull.NoAction(this.mediator()));
+        this.mediator().addMediatorPair(new MediatorGraphic.DeviceNull.NoAction(this.mediator()));
      }
      
     public javax.swing.JFrame makeAndDisplayFrame() {return SimulationGraphic.makeAndDisplayFrame(this);}

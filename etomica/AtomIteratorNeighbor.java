@@ -4,6 +4,12 @@ package etomica;
  * Iterates over the neighbors of a particular atom, as specified by 
  * the atom's neighborManager, which is held as an allatomAgent.
  */
+ 
+ /* History of changes
+  * 09/16/02 (DAK) modified reset(Atom) method so that iteration is performed with
+  *          current basis, beginning from given atom.  Previously this method would
+  *          reset the basis to the given atom.
+  */
 public class AtomIteratorNeighbor implements AtomIterator {
     
     private NeighborManager neighborManager;
@@ -38,9 +44,19 @@ public class AtomIteratorNeighbor implements AtomIterator {
         return reset(IteratorDirective.BOTH);
     }
 
+    /**
+     * Sets iteration to begin with the given atom, using the current basis.
+     * If given atom is not a neighbor of basis atom, hasNext is false.
+     */
     public Atom reset(Atom atom) {
+        /*deleted 09/16/02
         setBasis(atom);
         return iterator.reset(direction);
+      added this:   */
+        iterator.reset(neighborManager.tab, direction);
+        //loop until given atom is found, or iterator expires
+        while(iterator.hasNext() && iterator.peek() != atom) {iterator.next();}
+        return iterator.peek();
     }
 
     public Atom reset(IteratorDirective.Direction direction) {

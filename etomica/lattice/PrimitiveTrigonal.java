@@ -93,10 +93,6 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
         }
         return idx;
     */}
-
-    public Primitive reciprocal() {
-        throw new RuntimeException("method reciprocal not yet implemented");
-    }
     
     public AtomFactory wignerSeitzCellFactory() {
         throw new RuntimeException("method wignerSeitzCell not yet implemented");
