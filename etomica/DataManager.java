@@ -4,10 +4,11 @@
  */
 package etomica;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import etomica.Integrator.IntervalEvent;
 import etomica.log.DataLogger;
-import etomica.utility.java2.Iterator;
-import etomica.utility.java2.LinkedList;
 
 /**
  * Keeps a DataSource and one or more Accumulators and adds to Accumulators
@@ -17,7 +18,7 @@ public class DataManager implements Integrator.IntervalListener {
 
 	private final DataSource dataSource;
 	private final LinkedList dataSinkList;
-	private final Iterator iterator;
+	private Iterator iterator;
 	protected DataLogger finishDataDumper;
     private int priority;
 	
@@ -29,7 +30,6 @@ public class DataManager implements Integrator.IntervalListener {
 		if(dataSource == null) throw new NullPointerException("Error: cannot construct accumulator manager without a data source");
 		this.dataSource = dataSource;
 		dataSinkList = new LinkedList(); 
-		iterator = dataSinkList.iterator();
 		setDataSinks(dataSinks);
 		setUpdateInterval(1);
 		setEventType(Integrator.IntervalEvent.INTERVAL);
@@ -60,19 +60,20 @@ public class DataManager implements Integrator.IntervalListener {
 	    	}
             if (evt.type() == eventType) {
                 double[] data = dataSource.getData();
-                iterator.reset();
+                iterator = dataSinkList.iterator();
                 while(iterator.hasNext()) {
                     ((DataSink)iterator.next()).add(data);
                 }
             }
 		    if(evt.type() == Integrator.IntervalEvent.DONE && finishDataDumper != null) {
-		        iterator.reset();
+                iterator = dataSinkList.iterator();
 		        while(iterator.hasNext()) {
 		        	DataSink dataSink = (DataSink)iterator.next();
 		        	if (dataSink instanceof DataSource) {
 		        		if (dataSink instanceof AccumulatorAverage) {
 		        			finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.AVERAGE));
 		        			finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.STANDARD_DEVIATION));
+                            finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.ERROR));
 		        		}
 		        		else {
 		        			finishDataDumper.add(((DataSource)dataSink).getData());
@@ -152,7 +153,7 @@ public class DataManager implements Integrator.IntervalListener {
      * Invokes the reset() method of all accumulators held by this manager.
      */
     public void resetAccumulators() { 
-        iterator.reset(); 
+        iterator = dataSinkList.iterator();
         while(iterator.hasNext()) {
             DataSink dataSink = (DataSink)iterator.next();
             if (dataSink instanceof Accumulator) {
