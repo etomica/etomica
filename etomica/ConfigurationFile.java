@@ -26,6 +26,7 @@ public class ConfigurationFile extends Configuration {
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
             AtomIterator iterator = iterators[0];
+            AtomIteratorTree leafIterator = new AtomIteratorTree();
             int iIterator = 0;
             iterator.reset();
             while (!iterator.hasNext() && iIterator < iterators.length-1) {
@@ -33,16 +34,20 @@ public class ConfigurationFile extends Configuration {
                 iterator.reset();
             }
             while (iterator.hasNext()) {
-                String string = bufReader.readLine();
-                Atom atom = iterator.nextAtom();
-                Space.Vector newPos = (Space.Vector)atom.coord.position().clone();
-                String[] coordStr = string.split(" +");
-                double[] coord = new double[coordStr.length];
-                for (int i=0; i<coord.length; i++) {
-                    coord[i] = Double.valueOf(coordStr[i]).doubleValue();
+                leafIterator.setRoot(iterator.nextAtom());
+                leafIterator.reset();
+                while (leafIterator.hasNext()) {
+                    String string = bufReader.readLine();
+                    Atom atom = leafIterator.nextAtom();
+                    Space.Vector newPos = (Space.Vector)atom.coord.position().clone();
+                    String[] coordStr = string.split(" +");
+                    double[] coord = new double[coordStr.length];
+                    for (int i=0; i<coord.length; i++) {
+                        coord[i] = Double.valueOf(coordStr[i]).doubleValue();
+                    }
+                    newPos.E(coord);
+                    atom.coord.displaceTo(newPos);
                 }
-                newPos.E(coord);
-                atom.coord.displaceTo(newPos);
                 while (!iterator.hasNext() && iIterator < iterators.length-1) {
                     iterator = iterators[++iIterator];
                     iterator.reset();
