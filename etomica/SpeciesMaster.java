@@ -35,11 +35,8 @@ public final class SpeciesMaster extends Atom {
         
     public void addSpecies(Species species) {
         SpeciesAgent agent = species.makeAgent(this);
+        // setNMolecules will initialize coordinates
         agent.setNMolecules(species.getNMolecules());
-        Configuration config = node.parentPhase().getConfiguration();
-        config.initializeCoordinates(node.childAtomArray());
-
-//        parentPhase.getConfiguration().initializePositions(parentPhase.makeMoleculeIterator());
     }
     
     public SpeciesAgent firstSpecies() {return (SpeciesAgent)node.firstChildAtom();}

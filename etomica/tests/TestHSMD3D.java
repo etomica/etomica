@@ -61,10 +61,11 @@ public class TestHSMD3D extends Simulation {
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species2},criterion);
         
-        phase.setConfiguration(new ConfigurationFile(space,Integer.toString(numAtoms)));
+        phase.setConfiguration(null);
         phase.speciesMaster.addSpecies(species);
         phase.speciesMaster.addSpecies(species2);
         integrator.addPhase(phase);
+        phase.setConfiguration(new ConfigurationFile(space,Integer.toString(numAtoms)));
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
 //        integrator.addIntervalListener(writeConfig);

@@ -214,8 +214,11 @@ public class Phase {
       * Fires PhaseEvent of type RESET after completing action.
       */
      public void reset() {
-        getConfiguration().initializeCoordinates(this);
-        fireEvent(new PhaseEvent(this, PhaseEvent.RESET));
+         Configuration c = getConfiguration();
+         if (c != null) {
+             c.initializeCoordinates(this);
+         }
+         fireEvent(new PhaseEvent(this, PhaseEvent.RESET));
      }
 
     /**
@@ -275,8 +278,10 @@ public class Phase {
         
     public void setConfiguration(Configuration c) {
         configuration = c;
-        c.setZeroTotalMomentum(true);
-        configuration.initializeCoordinates(this);
+        if (c != null) {
+            c.setZeroTotalMomentum(true);
+            c.initializeCoordinates(this);
+        }
     }
     
     public Configuration getConfiguration() {return configuration;}
