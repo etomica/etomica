@@ -165,9 +165,9 @@ public class Basis implements SiteFactory, java.io.Serializable {
         }
         //methods implementing AbstractLattice
         public int siteCount() {return basisIterator.size();}
-        public Site site(AbstractLattice.Coordinate coord) {return basisIterator.get(((Coordinate)coord).basisIndex);}
+        public Site site(AbstractLattice.Coordinate coord) {return basisIterator.list().get(((Coordinate)coord).basisIndex);}
         public int D() {return D;}
-        public Site randomSite() {return basisIterator.randomSite();}         
+        public Site randomSite() {return basisIterator.list().getRandom();}         
         public SiteIterator iterator() {return basisIterator;} 
         
         /**

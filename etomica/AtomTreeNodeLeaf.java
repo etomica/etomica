@@ -25,6 +25,10 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
    //     return (parentNode != null) ? (AtomGroup)parentNode.atom() : null;
     }
     
+    public AtomTreeNodeGroup parentNode() {
+        return parentNode;
+    }
+    
     /**
      * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
      * that is one step below a species agent in the hierarchy of atomgroups.
@@ -35,7 +39,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     
     public void setParentGroup(AtomGroup parent) {
         parentGroup = parent;
-        parentNode = (parent != null) ? parent.node : null;
+        parentNode = (parent != null) ? (AtomTreeNodeGroup)parent.node : null;
         if(parentNode != null) depth = parentNode.depth() + 1;
     }
 
@@ -167,7 +171,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
         throw new RuntimeException("Inappropriate call to removeAtomNotify in AtomTreeNodeLeaf");
     }
     
-    private AtomTreeNode parentNode;
+    private AtomTreeNodeGroup parentNode;
     private AtomGroup parentGroup;
     private Phase parentPhase;
     private Atom atom;

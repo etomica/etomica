@@ -136,7 +136,7 @@ public class SquareLattice extends BravaisLattice {
      * A factory that makes Sites of type SquareLattice.Cell
      */
     public static class CellFactory implements SiteFactory {
-        public Site makeSite(AbstractLattice parent, SiteIterator.Neighbor iterator, AbstractLattice.Coordinate coord) {
+        public Site makeSite(AbstractLattice parent, AbstractLattice.Coordinate coord) {
             if(!(parent instanceof SquareLattice)) {
                 throw new IllegalArgumentException("SquareLattice.CellFactory: parent lattice must be of type SquareLattice");
             }

@@ -11,7 +11,7 @@ public class Lattice implements AbstractLattice, Observer {
     
     private BravaisLattice lattice;
     private Basis basis;
-    private SiteIterator.List iterator = new SiteIterator.List();
+    private SiteIteratorList iterator = new SiteIteratorList();
     
     /**
      * Create a square Bravais lattice (same number of sites in each dimension) of 
@@ -39,7 +39,7 @@ public class Lattice implements AbstractLattice, Observer {
             SiteIterator bIterator = b.iterator();
             bIterator.reset();
             while(bIterator.hasNext()) { //collect sites from each basis
-                iterator.addSite(bIterator.next());
+                iterator.list().add(bIterator.next());
             }
         }
         updateCoordinates();

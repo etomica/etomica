@@ -1,12 +1,11 @@
 package etomica;
 
 /**
- * Implementation of AtomTreeNode that relies on recursion to
- * evaluate most elements of hierarchy relative to the atom.
+ * Implementation of AtomTreeNode for non-leaf node.
  */
- 
+
 public class AtomTreeNodeGroup implements AtomTreeNode {
-   
+    
     public AtomTreeNodeGroup(Atom atom) {
         setAtom(atom);
     }
@@ -20,6 +19,14 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     public AtomGroup parentGroup() {
         return parentGroup;
     }
+    public AtomTreeNodeGroup parentNode() {
+        return parentNode;
+    }
+    
+    public Class childSequencerClass() {
+        try { return firstChildAtom().seq.getClass();}
+        catch(NullPointerException e) {return null;}//in case firstChild is null
+    }
     
     /**
      * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
@@ -31,7 +38,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     
     public void setParentGroup(AtomGroup parent) {
         parentGroup = parent;
-        parentNode = (parent != null) ? parent.node : null;
+        parentNode = (parent != null) ? (AtomTreeNodeGroup)parent.node : null;
         if(parentNode != null) {
             depth = parentNode.depth() + 1;
             parentPhase = parentNode.parentPhase();
@@ -47,17 +54,17 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         if(parentNode != null) parentPhase = parentNode.parentPhase();
     }
     
-    public final Atom firstChildAtom() {return firstAtom;}//((Space.CoordinateGroup)atom.coord).firstAtom();}
-    public final Atom lastChildAtom() {return lastAtom;}//((Space.CoordinateGroup)atom.coord).lastAtom();}
+    public final Atom firstChildAtom() {return childList.getFirst();}
+    public final Atom lastChildAtom() {return childList.getLast();}
 
-    public Atom randomAtom() {return getAtom((int)(Simulation.random.nextDouble()*childAtomCount()));}
+    public Atom randomAtom() {return childList.getRandom();}
     
     /**
      * Indicates whether the children of this group are themselves atom groups,
      * or are leaf atoms.
      */
     public boolean childrenAreGroups() {
-        return childrenAreGroups;//!firstChildAtom().node.isLeaf();
+        return !firstChildAtom().node.isLeaf();
     }
 
     /**
@@ -65,21 +72,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      * and the last atom as Count-1.
      */
     public Atom getAtom(int index) {
-        if(index < 0 || index >= childAtomCount()) {
-            throw new IndexOutOfBoundsException("Index: "+index+
-                                                ", Number of childAtoms: "+childAtomCount());
-        }
-        Atom atom = null;
-        if (index < childAtomCount()/2) {
-            atom = firstChildAtom();
-            for (int i = index; i > 0; i--)
-                atom = atom.nextAtom();
-        } else {
-            atom = lastChildAtom();
-            for (int i = childAtomCount()-1-index; i > 0; i--)
-                atom = atom.previousAtom();
-        }
-        return atom;
+        return childList.get(index);
     }//end of getAtom
             
     /**
@@ -172,7 +165,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     }
     
     public int leafAtomCount() {return leafAtomCount;}
-    public int childAtomCount() {return childAtomCount;}
+    public int childAtomCount() {return childList.size();}
 
     /**
      * Returns the children of this group in an array of atoms.
@@ -182,10 +175,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      * situations involving repeated calls (this should be avoided).
      */
     public Atom[] childAtomArray() {
-        Atom[] childArray = new Atom[childAtomCount()];
-        int i=0;
-        for(Atom a=firstChildAtom(); a!=null; a=a.nextAtom()) childArray[i++] = a;
-        return childArray;
+        return childList.toArray();
     }
     
             
@@ -195,27 +185,22 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         //creator() is not defined for speciesAgent, so this creates a problem when adding
         //new molecule; commented out vetoAddition call until this is fixed or abandoned.
         if(aNew == null /* || creator().vetoAddition(aNew)*/) { //should ensure group/atom consistency with other children
-            System.out.println("Error in AtomGroup.addAtom:  See source code");  //should throw an exception
-            return;
+            throw new NullPointerException("Attempting to add null Atom in AtomTreeNodeGroup.addAtom");
         }
         //set up links within this group
         aNew.node.setParentGroup((AtomGroup)atom);
         aNew.node.setDepth(depth+1);
-        if(childAtomCount > 0) { //siblings
-            aNew.seq.setNextAtom(lastChildAtom().nextAtom());
-            lastChildAtom().seq.setNextAtom(aNew);
+        childList.add(aNew.seq);
+        
+        if(childAtomCount() > 0) { //siblings
             aNew.node.setIndex(lastChildAtom().node.index()+1);
         }
         else {  //only child
-            setFirstAtom(aNew);
-            aNew.seq.setNextAtom(null);
-            aNew.seq.clearPreviousAtom();
             aNew.node.setIndex(0);
         }   
-        setLastAtom(aNew);
         
         //set up leaf links
-        if(aNew instanceof AtomGroup) {
+/*        if(aNew instanceof AtomGroup) {
             AtomGroup aNewGroup = (AtomGroup)aNew;//copy to save multiple casts in calls to AtomGroup methods
             Atom lastNewLeaf = aNewGroup.node.lastLeafAtom();
             if(lastNewLeaf != null) {//also implies firstNewLeaf != null
@@ -233,7 +218,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
                 if(previous != null) previous.seq.setNextAtom(aNew);
             }
         }
-        childAtomCount++;
+        */
         addAtomNotify(aNew);
     }//end of addAtom
 
@@ -245,34 +230,8 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             System.out.println("Error in AtomGroup.removeAtom:  See source code");  //should throw an exception
             return;
         }
-        Atom next = a.nextAtom();
-        Atom previous = a.previousAtom();
-        
-        //update links within this group
-        if(a == firstChildAtom()) {
-            if(childAtomCount == 1) setFirstAtom(null);
-            else setFirstAtom(next);
-        }
-        if(a == lastChildAtom()) {
-            if(childAtomCount == 1) setLastAtom(null);
-            else setLastAtom(previous);
-        }
-        if(previous != null) previous.seq.setNextAtom(next);
-        else if(next != null) next.seq.clearPreviousAtom();
-        childAtomCount--;
-        
-        a.seq.setNextAtom(null);
-        a.seq.clearPreviousAtom();        
-        
-        //update leaf-atom links
-        if(a instanceof AtomGroup) {
-            Atom first = ((AtomGroup)a).node.firstLeafAtom();
-            Atom last = ((AtomGroup)a).node.lastLeafAtom();
-            next = (last != null) ? last.nextAtom() : null;
-            previous = (first != null) ? first.previousAtom() : null;
-            if(previous != null) previous.seq.setNextAtom(next);
-            else if(next != null) next.seq.clearPreviousAtom();
-        }
+        childList.remove(a);
+        //childList.remove(a.seq); //could do this if method not private in AtomList
         
         removeAtomNotify(a);
         a.node.setParentGroup(null);//must follow notify for SpeciesMaster moleculeCount to be updated
@@ -284,24 +243,14 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
      * for use elsewhere.
      * Does not remove this group from its parent group.
      */
+     //doesn't perform removeAtomNotify
     public Atom removeAll() {
-        if(childAtomCount() == 0 || !resizable) return null;
-        
-        //disconnect leaf atoms from their their links to adjacent groups
-        Atom first = firstLeafAtom();
-        Atom last = lastLeafAtom();
-        Atom next = (last != null) ? last.nextAtom() : null;
-        Atom previous = (first != null) ? first.previousAtom() : null;
-        if(previous != null) previous.seq.setNextAtom(next);
-        else if(next != null) next.seq.clearPreviousAtom();
-        
         //save first child for return, then erase links to them
-        first = firstChildAtom();
-        setFirstAtom(null);
-        setLastAtom(null);
+        Atom first = firstChildAtom();
+        childList.clear();
         return first;
     }//end of removeAll
-    
+
     /**
      * Notifies this atom group that an atom has been added to it or one of its descendants.
      */
@@ -316,15 +265,6 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     }
     
 
-    private final void setFirstAtom(Atom a) {
-        firstAtom = a;
-        childrenAreGroups = (firstAtom != null) ? !firstAtom.node.isLeaf() : false;
- //       firstLeafAtom = findFirstLeafAtom();
-    }
-    private final void setLastAtom(Atom a) {
-        lastAtom = a;
-    }
- 
     /**
      * Searches the atom hierarchy up from (and not including) the given group 
      * to find the closest (leaf) atom in that direction.
@@ -363,19 +303,13 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     }//end of findPreviousLeafAtom
 
     protected Atom atom;
-    protected int leafAtomCount;
-    
-    protected int childAtomCount;
     protected int depth;
     protected int atomIndex;
-    private AtomTreeNode parentNode;
+    protected int leafAtomCount;
+    private AtomTreeNodeGroup parentNode;
     private AtomGroup parentGroup;
     private Phase parentPhase;
-    private Atom firstAtom, lastAtom;
-    private boolean childrenAreGroups;
-//    private Atom firstLeafAtom;
-    
+    private final AtomList childList = new AtomList();
     private boolean resizable = true;
-    
     
 }

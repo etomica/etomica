@@ -22,6 +22,7 @@ package etomica;
 public interface AtomTreeNode {
     
     public AtomGroup parentGroup();
+    public AtomTreeNodeGroup parentNode();
     public Atom parentMolecule();
     public SpeciesAgent parentSpeciesAgent();
     public Species parentSpecies();

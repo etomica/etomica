@@ -7,7 +7,7 @@ import etomica.Space;
 public abstract class AbstractCell extends Site {
     
     public AbstractCell(AbstractLattice parent, AbstractLattice.PositionCoordinate coord) {
-        super(parent, new SiteIterator.Neighbor(), coord);
+        super(parent, coord);
         //position null at this point
 //        if(coord.position().D() != this.D()) { //define an exception for this (DimensionConflictException ?)
 //            System.out.println("Dimension conflict in Cell constructor");

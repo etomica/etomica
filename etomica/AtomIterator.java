@@ -22,8 +22,6 @@ public interface AtomIterator {
     
     public Atom reset(IteratorDirective id);
     
-    public void setAsNeighbor(boolean b);
-    
     public Atom reset();
     
     /**

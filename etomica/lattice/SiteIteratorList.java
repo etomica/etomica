@@ -58,6 +58,8 @@ public final class SiteIteratorList implements SiteIterator {
         else return header.next.site;
     }
     
+    public SiteList list() {return list;}
+    
     /**
      * Sets iterator so that it is ready to go up its entire list of iterates.
      */

@@ -49,5 +49,9 @@ public interface IteratorFactory {
      * atom factory when creating a new atom.
      */
     public AtomSequencer makeNeighborSequencer(Atom atom);
+    
+    public Class atomSequencerClass();
+    
+    public Class neighborSequencerClass();
    
 }

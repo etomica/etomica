@@ -8,25 +8,24 @@ package etomica;
  *
  * @author David Kofke
  */
-public final class AtomLinker implements java.io.Serializable {
+public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
     public AtomLinker next = null, previous = null;
+    
     //Constructor
-    private AtomLinker(Atom a, AtomLinker next, AtomLinker previous) {
+    protected AtomLinker(Atom a) {
         atom = a; 
-        this.next = next;
-        this.previous = previous;
-        if(next != null) next.previous = this;
-        if(previous != null) previous.next = this;
     }
     
     //will add a reservoir of linkers, so this is used as constructor for now
-    public static AtomLinker makeLinker(Atom a, AtomLinker next, AtomLinker previous) {
-        return new AtomLinker(a, next, previous);
+    public static AtomLinker makeLinker(Atom a) {
+        return new AtomLinker(a);
     }
     
-    public void delete() {
-        if(previous != null) previous.next = next;
-        if(next != null) next.previous = previous;
+    public static class Index extends AtomLinker {
+        public Index() {
+            super(null);
+        }
     }
-}
+        
+}//end of AtomLinker

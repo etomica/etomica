@@ -52,7 +52,7 @@ import java.util.*;
 
 public class AtomList implements java.io.Serializable
 {
-    public final AtomLinker header = AtomLinker.makeLinker(null, null, null);
+    public final AtomLinker.Index header = new AtomLinker.Index();//modification for index entry
     private int size = 0;
     
     /**
@@ -87,7 +87,9 @@ public class AtomList implements java.io.Serializable
      */
     public Atom getFirst() {
 	    if (size==0) return null;
-	    return header.next.atom;
+	    AtomLinker entry = header.next;
+	    while(entry.atom == null) entry = entry.next;//modification for index entry
+	    return entry.atom;
     }
 
     /**
@@ -98,7 +100,9 @@ public class AtomList implements java.io.Serializable
      */
     public Atom getLast()  {
 	    if (size==0) return null;
-	    return header.previous.atom;
+	    AtomLinker entry = header.previous;
+	    while(entry.atom == null) entry = entry.previous;
+	    return entry.atom;
     }
 
     /**
@@ -166,13 +170,20 @@ public class AtomList implements java.io.Serializable
     /**
      * Appends the specified element to the end of this list.
      *
-     * @param o element to be appended to this list.
+     * @param atom atom to be appended to this list.
      * @return <tt>true</tt> (as per the general contract of
      * <tt>Collection.add</tt>).
      */
-    public boolean add(Atom o) {
-	    addBefore(o, header);
+    public boolean add(Atom atom) {
+	    addBefore(atom, header);
         return true;
+    }
+    
+    /**
+     * Appends the specified atom linker to the end of this list.
+     */
+    public void add(AtomLinker link) {
+        addBefore(link, header);
     }
 
     /**
@@ -238,13 +249,14 @@ public class AtomList implements java.io.Serializable
 
         AtomLinker successor = (index==size ? header : entry(index));
         AtomLinker predecessor = successor.previous;
-	    iterator.reset();
+	    iterator.reset();//should remove this
 	    for (int i=0; i<numNew; i++) {
-           // AtomLinker e = new AtomLinker.makeLinker(it.next(), successor, predecessor);
-            AtomLinker e = AtomLinker.makeLinker(iterator.next(), successor, predecessor);
+            AtomLinker e = AtomLinker.makeLinker(iterator.next());
+            e.previous = predecessor;
             predecessor.next = e;
             predecessor = e;
         }
+        predecessor.next = successor;
         successor.previous = predecessor;
 
         size += numNew;
@@ -276,18 +288,22 @@ public class AtomList implements java.io.Serializable
     }
 
     /**
-     * Replaces the element at the specified position in this list with the
-     * specified element.
+     * Replaces the atom at the specified position in this list with the
+     * specified atom.
      *
      * @param index index of element to replace.
-     * @param element element to be stored at the specified position.
-     * @return the element previously at the specified position.
+     * @param element atom to be stored at the specified position.
+     * @return the atom previously at the specified position.
      * @throws IndexOutOfBoundsException if the specified index is out of
      *		  range (<tt>index &lt; 0 || index &gt;= size()</tt>).
      */
     public Atom set(int index, Atom element) {
         AtomLinker e = entry(index);
-        AtomLinker.makeLinker(element, e.next, e.previous);
+        AtomLinker newLink = AtomLinker.makeLinker(element);
+        newLink.next = e.next;
+        newLink.previous = e.previous;
+        newLink.next.previous = newLink;
+        newLink.previous.next = newLink;
         return e.atom;
     }
 
@@ -326,17 +342,21 @@ public class AtomList implements java.io.Serializable
     /**
      * Return the indexed entry.
      */
-    private AtomLinker entry(int index) {
+    public AtomLinker entry(int index) {
         if (index < 0 || index >= size)
             throw new IndexOutOfBoundsException("Index: "+index+
                                                 ", Size: "+size);
         AtomLinker e = header;
         if (index < size/2) {
-            for (int i = 0; i <= index; i++)
+            for (int i = 0; i <= index; i++) {
                 e = e.next;
+                if(e.atom == null) i--;//modification for index entry
+            }
         } else {
-            for (int i = size; i > index; i--)
+            for (int i = size; i > index; i--) {
                 e = e.previous;
+                if(e.atom == null) i++;//modification for index entry
+            }
         }
         return e;
     }
@@ -373,7 +393,7 @@ public class AtomList implements java.io.Serializable
         int index = 0;
         for (AtomLinker e = header.next; e != header; e = e.next) {
             if (o.equals(e.atom)) return index;
-            index++;
+            if(e.atom != null) index++;//modification for index entry
         }
         return -1;
     }
@@ -390,32 +410,55 @@ public class AtomList implements java.io.Serializable
      * 	       specified element, or -1 if the list does not contain this
      * 	       element.
      */
-    public int lastIndexOf(Atom o) {
-        if(o == null) return -1;
+    public int lastIndexOf(Atom atom) {
+        if(atom == null) return -1;
         int index = size;
         for (AtomLinker e = header.previous; e != header; e = e.previous) {
-            index--;
-            if (o.equals(e.atom))
+            if(e.atom != null) index--;//modification for index entry
+            if (atom.equals(e.atom))
                 return index;
         }
         return -1;
     }
 
-    private AtomLinker addBefore(Atom o, AtomLinker e) {
-	    AtomLinker newAtomLinker = AtomLinker.makeLinker(o, e, e.previous);
+    private AtomLinker addBefore(Atom atom, AtomLinker e) {
+	    return addBefore(AtomLinker.makeLinker(atom), e);
+	}
+	
+	private AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
+	    newAtomLinker.next = e;
+	    newAtomLinker.previous = e.previous;
 	    newAtomLinker.previous.next = newAtomLinker;
-	    newAtomLinker.next.previous = newAtomLinker;
-	    size++;
+	    e.previous = newAtomLinker;
+	    if(newAtomLinker.atom != null) size++;//modification for index entry
 	    return newAtomLinker;
     }
+    
+    /**
+     * Moves the first linker to the position before the second one.
+     * Equivalent to remove(moving); addBefore(moving, newNext); but
+     * saves incrementing and decrementing size.
+     * Assumes both entries are already in the list, and that they are 
+     * not the same entry.
+     */
+    public void moveBefore(AtomLinker moving, AtomLinker newNext) {
+        //assume moving != newNext
+        moving.previous.next = moving.next;
+        moving.next.previous = moving.previous;
+        moving.next = newNext;
+        moving.previous = newNext.previous;
+        moving.previous.next = moving;
+        newNext.previous = moving;
+    }        
 
     private void remove(AtomLinker e) {
-	    if (e == header)
-	        throw new NoSuchElementException();
-
+	    if (e.atom == null) {
+	        if(e == header) throw new NoSuchElementException();
+        } else {//modification for index entry
+            size--;
+        }
 	    e.previous.next = e.next;
 	    e.next.previous = e.previous;
-	    size--;
     }
 
     /**
@@ -428,7 +471,8 @@ public class AtomList implements java.io.Serializable
     public Atom[] toArray() {
 	    Atom[] result = new Atom[size];
         int i = 0;
-        for (AtomLinker e = header.next; e != header; e = e.next) result[i++] = e.atom;
+        for (AtomLinker e = header.next; e != header; e = e.next) 
+            if(e.atom != null) result[i++] = e.atom;//modification for index entry
 	    return result;
     }
 
