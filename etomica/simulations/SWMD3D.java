@@ -2,10 +2,21 @@
 
 package etomica.simulations;
 
-import etomica.*;
+import etomica.Atom;
+import etomica.ConfigurationLattice;
+import etomica.Controller;
+import etomica.IntegratorHard;
+import etomica.ModulatorAbstract;
+import etomica.P2SquareWell;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space3DFalse;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.graphics.*;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.DisplayPhase;
 import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.units.Dimension;
@@ -17,12 +28,9 @@ public class SWMD3D extends Simulation {
 
 	public class MyModulator extends ModulatorAbstract {
 
-		/**
-		 * @see etomica.DatumSource#getDimension()
-		 */
-		public Dimension getDimension() {
-			return Dimension.LENGTH;
-		}
+        public MyModulator() {
+            super(Dimension.LENGTH);
+        }
 
 		/**
 		 * @see etomica.ModulatorAbstract#setValue(double)

@@ -53,6 +53,6 @@ public abstract class DataSourceAdapter implements DataSource {
 	}
 	
 	private String label;
-	private final Dimension dimension;
+	protected Dimension dimension;
 	
 }

@@ -187,6 +187,9 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 	}
 	
 	class MyModulator extends ModulatorAbstract {
+        public MyModulator() {
+            super(Dimension.LENGTH); // VELOCITY???
+        }
 		public void setValue(double v) {speed = (v+1)/10.;}
 		public double getValue() {return speed*10-1;}
 		public etomica.units.Dimension getDimension() {return etomica.units.Dimension.UNDEFINED;}

@@ -19,7 +19,6 @@ public class Modulator extends ModulatorAbstract {
     protected String property;
     protected transient Method[] readMethod;
     protected transient Method[] writeMethod;
-    protected Dimension dimension = Dimension.NULL;
     private int nObjects;
     
     /**
@@ -32,6 +31,7 @@ public class Modulator extends ModulatorAbstract {
      * @param property the name of the property being modulated
      */
     public Modulator(Object[] obj, String prop) {
+        super(Dimension.NULL);
         nObjects = obj.length;
         object    = new Object[nObjects];
         property = prop;
@@ -103,11 +103,6 @@ public class Modulator extends ModulatorAbstract {
         }//end of loop over objects
         
     }
-    
-    /**
-     * Returns the physical dimension of the modulated property
-     */
-    public Dimension getDimension() {return dimension;}
     
     public void setValue(double d) {
         for(int j=0; j<nObjects; j++) {

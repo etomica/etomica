@@ -9,32 +9,16 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-public abstract class ModulatorAbstract implements java.io.Serializable, DatumSource {
+public abstract class ModulatorAbstract extends DataSourceAdapter {
     
-    /**
-     * A string describing the property manipulated by the modulator
-     */
-    protected String label = new String("");
-
-	/**
-	 * Returns the physical dimensions (e.g., mass, length, pressure, etc.) of the quantity being modulated
-	 */
-    public abstract Dimension getDimension();
+    public ModulatorAbstract(Dimension dimension) {
+        super(dimension);
+    }
     
     public abstract void setValue(double d);
     public abstract double getValue();
     
-    /**
-     * Same as getValue, to implement DatumSource interface.  Argument is ignored.
-     */
-    public double value(DataSource.ValueType dummy) {return getValue();}
+    //to implement DataSource
+    public double[] getData() {return new double[]{getValue()};}
     
-	/**
-	 * Accessor method for the modulator's label
-	 */
-	public String getLabel() {return label;}
-	/**
-	 * Accessor method for the modulator's label
-	 */
-	public void setLabel(String s) {label = s;}
 }

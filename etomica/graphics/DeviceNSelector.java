@@ -1,6 +1,16 @@
 package etomica.graphics;
 
-import etomica.*;
+import etomica.Controller;
+import etomica.Integrator;
+import etomica.IntegratorHard;
+import etomica.ModulatorAbstract;
+import etomica.P2HardSphere;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space2D;
+import etomica.SpeciesAgent;
+import etomica.SpeciesSpheresMono;
+import etomica.units.Dimension;
 
 /**
  * Slider that selects the number of atoms of a given species in a phase.
@@ -55,7 +65,7 @@ public class DeviceNSelector extends DeviceSlider {
     private class NMoleculeModulator extends ModulatorAbstract {
         
         public NMoleculeModulator() {
-            super();
+            super(Dimension.QUANTITY);
         }
         
         public void setValue(double d) {
@@ -77,7 +87,6 @@ public class DeviceNSelector extends DeviceSlider {
             integrator.reset();
         }
         public double getValue() {return (speciesAgent!=null)?(double)speciesAgent.moleculeCount():0;}
-        public etomica.units.Dimension getDimension() {return etomica.units.Dimension.NULL;}
     }//end of NMoleculeModulator
     
     //main method to demonstrate and test class
