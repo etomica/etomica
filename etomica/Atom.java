@@ -77,22 +77,7 @@ public class Atom implements java.io.Serializable {
      * Assigns the atom's integrator agent to the given instance.
      */
     public void setIntegratorAgent(Object ia) {this.ia = ia;}
-            
-	/**
-	 *  Returns true if this is the given atom.  Part of AtomSet interface.
-	 */
-	public boolean contains(Atom a) {return this == a;}
-	
-	/**
-	 * Returns 1, indicating this is an atom set of one atom. Part of
-	 * AtomSet interface.
-	 */
-	public final int nBody() {return 1;}
 
-//   linked lists of bonds
-    public BondLinker firstUpBond;
-    public BondLinker firstDownBond;
-    
     public void sendToReservoir() {
         creator().reservoir().addAtom(this);
     }

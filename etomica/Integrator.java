@@ -403,8 +403,8 @@ public abstract class Integrator implements java.io.Serializable {
             //we do explicit comparison of values (rather than returning
             //their difference) to avoid potential problems with large integers.
             if(priority < objPriority) return -1;
-            else if(priority == objPriority) return 0;
-            else return +1;
+            if(priority == objPriority) return 0;
+            return +1;
          }
     }
 }
