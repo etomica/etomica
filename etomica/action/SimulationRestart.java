@@ -1,10 +1,7 @@
 package etomica.action;
 
 import etomica.*;
-//Java2 imports
-//import java.util.Iterator;
-
-import etomica.utility.java2.Iterator;
+import java.util.Iterator;
 
 /**
  * Action that invokes reset method of all registered simulation elements,
@@ -17,51 +14,38 @@ import etomica.utility.java2.Iterator;
 
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart() {
-        super("Reset");
-    }
     public SimulationRestart(Simulation sim) {
-        this();
+        super("Reset");
         setSimulation(sim);
     }
         
+    /**
+     * this method is broken
+     */
     public void actionPerformed() {
         
-        for (Iterator iter = simulation.getIntegratorList().iterator(); iter.hasNext();) {
-            Integrator integrator = (Integrator) iter.next();
-            integrator.halt();//request integrator to stop
-            integrator.join();//wait till it does
+        simulation.getController().halt();
+        try {
+            simulation.getController().wait();
+        }
+        catch (InterruptedException e) {}
+        
+        for(Iterator iter=simulation.getPhaseList().iterator(); iter.hasNext(); ) {
+            Phase phase = (Phase)iter.next();
+            phase.getConfiguration().initializeCoordinates((phase.speciesMaster().node).childAtomArray());
         }
         
-        for(Iterator iter=simulation.allElements().iterator(); iter.hasNext(); ) {
-            ((SimulationElement)iter.next()).reset();
-        }
-                
- /*       for(Iterator iter=sim.phaseList().iterator(); iter.hasNext(); ) {
-            Phase phase = (Phase)iter.next();
-            phase.getConfiguration().initializeCoordinates(((AtomTreeNodeGroup)phase.speciesMaster().node).childAtomArray());
-        }
-        for(Iterator iter=sim.integratorList().iterator(); iter.hasNext(); ) {
+        for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
             integrator.reset();
         }
-        for(Iterator iter=sim.controllerList().iterator(); iter.hasNext(); ) {
-            Controller controller = (Controller)iter.next();
-            controller.reset();
+        
+        for(Iterator iter=simulation.getDataManagerList().iterator(); iter.hasNext(); ) {
+            DataManager dataManager = (DataManager)iter.next();
+            dataManager.resetAccumulators();
         }
- */       
-        for(Iterator iter=simulation.getMeterList().iterator(); iter.hasNext(); ) {
-            MeterAbstract meter = (MeterAbstract)iter.next();
-            //take care that histxxx is reset but restored to prior OnMeterReset condition
-            boolean resetHistory = meter.isResetHistoryOnMeterReset();
-            boolean resetHistogram = meter.isResetHistogramOnMeterReset();
-            meter.setResetHistoryOnMeterReset(true);
-            meter.setResetHistogramOnMeterReset(true);
-            meter.reset();
-            meter.setResetHistoryOnMeterReset(resetHistory);
-            meter.setResetHistogramOnMeterReset(resetHistogram);
-        }
-/*        for(Iterator iter=sim.displayList().iterator(); iter.hasNext(); ) {
+        
+/*        for(Iterator iter=simulation.getDisplayList().iterator(); iter.hasNext(); ) {
             Display display = (Display)iter.next();
             display.doUpdate();
             display.graphic().repaint();
