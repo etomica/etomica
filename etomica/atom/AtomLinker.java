@@ -29,9 +29,14 @@ public class AtomLinker implements java.io.Serializable {
      * puts them in sequence, repairing the hole.
      */
     public void remove() {
+        if (Debug.ON && previous.next != this || next.previous != this) {
+            System.out.println("in AtomLinker.remove, this="+this+" previous.next="+previous.next+" next.previous="+next.previous);
+            System.out.println("in AtomLinker.remove, atom="+atom+" previous.next.atom="+previous.next.atom+" next.previous.atom="+next.previous.atom);
+            throw new RuntimeException("stop it");
+        }
 	    previous.next = next;
 	    next.previous = previous;
-	    if(Debug.ON) next = previous = this;
+	    next = previous = this;
     }
     
     /**
