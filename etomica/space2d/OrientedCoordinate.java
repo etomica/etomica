@@ -21,7 +21,7 @@ public class OrientedCoordinate extends Coordinate implements etomica.space.Coor
     }
     public etomica.space.Vector angularMomentum() {vector.setX(2,L); return vector;}
     public etomica.space.Vector angularVelocity() {vector.setX(2,L/I[0]); return vector;}
-    public void angularAccelerateBy(etomica.space.Vector t) {L += t.x(2);}
+    public void angularAccelerateBy(etomica.space3d.Vector t) {L += t.x(2);}
     public etomica.space.Orientation orientation() {return orientation;}
     public double kineticEnergy() {return super.kineticEnergy() + 0.5*L*L/I[0];}
     public void freeFlight(double t) {
