@@ -38,10 +38,10 @@ public class DeviceNSelector extends DeviceSlider {
         setModifier(new ModifierNMolecule(agent));
         targetAction = new ActionGroup(new Action[]{modifyAction,restartAction});
 	    
-	    if(agent.node.parentSpecies().getName() == "") {
+	    if(agent.type.getSpecies().getName() == "") {
 	        setLabel("Number of molecules");
 	    } else {
-	        setLabel(agent.node.parentSpecies().getName() + " molecules");
+	        setLabel(agent.type.getSpecies().getName() + " molecules");
 	    }
 //	    setShowBorder(true);
     }
