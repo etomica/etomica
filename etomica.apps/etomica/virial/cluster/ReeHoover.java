@@ -1,5 +1,6 @@
 package etomica.virial.cluster;
 
+import etomica.space.CoordinatePair;
 import etomica.virial.Cluster;
 import etomica.virial.MayerFunction;
 
@@ -58,13 +59,13 @@ public class ReeHoover extends Cluster {
 		return true;//didn't find pair in list
 	}
 	
-	private static class FTilde extends MayerFunction {
+	private static class FTilde implements MayerFunction {
 		private final MayerFunction f;
 		private FTilde(MayerFunction f) {
 			this.f = f;
 		}
-		public double f(AtomPair pair, double beta) {
-			return f.f(pair,beta) + 1.0;
+		public double f(CoordinatePair cPair, double beta) {
+			return f.f(cPair,beta) + 1.0;
 		}
 		public String toString() {return "f~  ";}
 	}//end of FTilde
