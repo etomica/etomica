@@ -1,6 +1,8 @@
 package etomica.simulations;
 
 import etomica.*;
+import etomica.action.PhaseImposePbc;
+import etomica.action.PhaseActionAdapter;
 import etomica.graphics.*;
 import etomica.utility.HistoryScrolling;
 
@@ -49,7 +51,7 @@ public class ParallelTempering extends SimulationGraphic {
         
 		phase = new Phase[nPhase];
 		integrator = new IntegratorMC[nPhase];
-		MeterAcceptanceRatio[] meterAccept = new MeterAcceptanceRatio[nPhase-1];
+		DataSourceAcceptanceRatio[] meterAccept = new DataSourceAcceptanceRatio[nPhase-1];
 		double tLast = 0.0;
 		for(int i=0; i<nPhase; i++) {
 			double t; 
@@ -59,7 +61,7 @@ public class ParallelTempering extends SimulationGraphic {
 			integrator[i] = new IntegratorMC(integratorPT);
 			phase[i].setIntegrator(integrator[i]);
 			integrator[i].setTemperature(t);
-			integrator[i].addIntervalListener(new PhaseAction.ImposePbc(phase[i]));
+			integrator[i].addIntervalListener(new PhaseImposePbc());
             
 			MCMoveAtom moveAtom = new MCMoveAtom(integrator[i]);
             
@@ -70,7 +72,7 @@ public class ParallelTempering extends SimulationGraphic {
 			display.setLabel(Double.toString(t));
             
 			if(i>0) {
-				meterAccept[i-1] = new MeterAcceptanceRatio(this, integratorPT.swapMoves()[i-1]);
+				meterAccept[i-1] = new DataSourceAcceptanceRatio(this, integratorPT.swapMoves()[i-1]);
 				meterAccept[i-1].setLabel(Double.toString(tLast)+"<-->"+Double.toString(t));
 			}
 			tLast = t;
@@ -93,7 +95,7 @@ public class ParallelTempering extends SimulationGraphic {
                                 
 		controller = new Controller();
         
-		DisplayBox cyclesBox = new DisplayBox((DatumSource)new MeterCycles());
+		DisplayBox cyclesBox = new DisplayBox((DatumSource)new DataSourceStepCount());
 		cyclesBox.setPrecision(6);
         
 		ColorSchemeByType.setColor(species,java.awt.Color.red);
