@@ -25,8 +25,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     }
             
     public Class childSequencerClass() {
-        try { return firstChildAtom().seq.getClass();}
-        catch(NullPointerException e) {return null;}//in case firstChild is null
+        return ((AtomType.Group)atom.type).childSequencerClass;
+//        try { return firstChildAtom().seq.getClass();}
+//        catch(NullPointerException e) {return null;}//in case firstChild is null
     }
     
     public final Atom firstChildAtom() {return childList.getFirst();}
@@ -36,10 +37,12 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     
     /**
      * Indicates whether the children of this group are themselves atom groups,
-     * or are leaf atoms.
+     * or are leaf atoms.  Returns true if any child atom is a group, and thus does
+     * not imply that all child atoms are groups.
      */
     public boolean childrenAreGroups() {
-        return !firstChildAtom().node.isLeaf();
+        return ((AtomType.Group)atom.type).childrenAreGroups;
+   //     return !firstChildAtom().node.isLeaf();
     }
 
     /**

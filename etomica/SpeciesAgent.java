@@ -19,10 +19,12 @@ public final class SpeciesAgent extends Atom {
     protected Integrator integrator;
     
     public SpeciesAgent(Species s, int nMolecules, AtomTreeNodeGroup parent) {
-        super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s), 
+        super(s.parentSimulation().space(), new AtomType.Group(null), new NodeFactory(s), 
                 s.parentSimulation().getIteratorFactory().simpleSequencerFactory(), parent);
         factory = s.moleculeFactory();
 //        node = (AtomTreeNodeGroup)super.node;
+        ((AtomType.Group)type).childrenAreGroups = factory.isGroupFactory();
+        ((AtomType.Group)type).childSequencerClass = s.parentSimulation().iteratorFactory.neighborSequencerClass();
     }
         
     public final AtomFactory moleculeFactory() {return factory;}

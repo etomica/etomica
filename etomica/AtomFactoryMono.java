@@ -19,6 +19,8 @@ public class AtomFactoryMono extends AtomFactory {
         atomType = type;
     }
 */    
+    public boolean isGroupFactory() {return false;}
+    
     public void setType(AtomType t) {atomType = t;}
     public AtomType type() {return atomType;}
     

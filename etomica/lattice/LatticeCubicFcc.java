@@ -295,11 +295,14 @@ public static class Factory extends AtomFactory {
         configuration = new Configuration4(sim,latticeConstant);
     }
     
+    public boolean isGroupFactory() {return false;}
+    
     /**
      * Instantiates and builds a new fcc lattice using the latticeConstant, dimensions,
      * and atomFactory as currently set in this factory.
      */
     public Atom build(AtomTreeNodeGroup parent) {
+        groupType.childrenAreGroups = true;
         Atom group = new LatticeCubicFcc(parentSimulation.space, groupType, dimensions, parent, latticeConstant);
         return build(group);
     }

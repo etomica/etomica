@@ -47,7 +47,6 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
       
  /**
   * Computes total potential energy for all atom pairs in phase.
-  * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
         return potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();

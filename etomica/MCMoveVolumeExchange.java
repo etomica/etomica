@@ -27,6 +27,7 @@ public final class MCMoveVolumeExchange extends MCMove {
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.3);
+        iteratorDirective.includeLrc = true;
     }
     
     /**

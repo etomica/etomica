@@ -69,6 +69,13 @@ public abstract class AtomFactory {
      */
     public abstract Atom build(Atom atom);
     
+    /**
+     * Indicates if this factory produces atom groups or simple atoms.
+     * If this method returns true, then the atoms made by this factory will have
+     * a node of type (or derived from) AtomTreeNodeGroup.
+     */
+    public abstract boolean isGroupFactory();
+    
 //    protected abstract void renew(Atom a);
     
 //    public abstract boolean vetoAddition(Atom a); //be sure to check that a is non-null

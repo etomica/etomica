@@ -35,8 +35,12 @@ public class AtomFactoryHomo extends AtomFactory {
         atomsPerGroup = atoms;
         bondInitializer = bondInit;
         configuration = config;
+        //set up fields of Group type (can't build sample atoms because factories defined by subclassing this one may not be ready to build at atom at this point)
+        groupType.childSequencerClass = sim.iteratorFactory.simpleSequencerClass();
+        groupType.childrenAreGroups = factory.isGroupFactory();
     }
     
+    public boolean isGroupFactory() {return true;}
     
     /**
      * Constructs a new group using the given atom.
@@ -57,9 +61,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * in the group made by this factory.
      */
     public AtomFactory childFactory() {return childFactory;}
-    
-    public boolean producesAtomGroups() {return true;}
-    
+        
     public boolean vetoAddition(Atom a) {return (a.creator() != childFactory);} 
         
  /*   public void renew(Atom a) {//need an exception in the case a is unrenewable

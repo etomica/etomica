@@ -27,6 +27,7 @@ public class MCMoveAtom extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
         setPerParticleFrequency(true);
+        iteratorDirective.includeLrc = false;
     }
     
     public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}

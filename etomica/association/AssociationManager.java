@@ -148,13 +148,14 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
     }//end actionPerformed
     
     /**
-     * Restores associations list of the given atom, as well as those of that
+     * Restores associations list of the given atom, as well as those of those
      * atoms that were on its association list and are on it before/after
      * its list is restored.
      */
     private void restoreLists(Atom atom){
         //restore list for atoms on atom's current list
         listIterator.setBasis((AtomList)atom.allatomAgents[index]);
+        listIterator.reset();
         while(listIterator.hasNext()) {
             ((AtomListRestorable)listIterator.next().allatomAgents[index]).restore();
         }
@@ -164,6 +165,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
         
         //restore lists for atoms on atom's restored list
         listIterator.setBasis((AtomList)atom.allatomAgents[index]);
+        listIterator.reset();
         while(listIterator.hasNext()) {
             ((AtomListRestorable)listIterator.next().allatomAgents[index]).restore();
         }

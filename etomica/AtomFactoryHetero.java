@@ -28,7 +28,15 @@ public class AtomFactoryHetero extends AtomFactory {
         super(sim);
         childFactory = factory;
         configuration = config;
+        //set up fields of Group type
+        groupType.childSequencerClass = sim.iteratorFactory.simpleSequencerClass();
+        for(int i=0; i<factory.length; i++) {
+            groupType.childrenAreGroups = factory[i].isGroupFactory();
+            if(groupType.childrenAreGroups) break;
+        }
     }
+    
+    public boolean isGroupFactory() {return true;}
     
     /**
      * Constructs a new group.
@@ -47,8 +55,6 @@ public class AtomFactoryHetero extends AtomFactory {
      * in the group made by this factory.
      */
     public AtomFactory[] childFactory() {return childFactory;}
-    
-    public boolean producesAtomGroups() {return true;}
     
     public boolean vetoAddition(Atom a) {return true;} 
         

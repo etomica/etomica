@@ -39,9 +39,10 @@ public class GEMCWithRotation extends SimulationGraphic {
 	    MCMoveRotate mcRotate2 = new MCMoveRotate(integratorGEMC1);
 	    mcRotate2.setPhase(phase2);
 	    
-	    P2HardAssociationCone potential = new P2HardAssociationCone();
+///	    P2HardAssociationCone potential = new P2HardAssociationCone();
+	    P2LennardJones potential = new P2LennardJones();
 	    potential.setSigma(speciesDisk1.getDiameter());
-	    potential.setWellCutoff(potential.getSigma());
+///	    potential.setWellCutoffFactor(1.5);
 	    Controller controller1 = new Controller();
 	    //Configuration displays for each phase
 	    DisplayTable table1 = new DisplayTable();

@@ -20,7 +20,7 @@ public class MCMoveMolecule extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
         setPerParticleFrequency(true);
-        iteratorDirective.includeLrc = true;
+        iteratorDirective.includeLrc = false;
         //set directive to exclude intramolecular contributions to the energy
         iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}

@@ -15,9 +15,9 @@ public final class IteratorDirective implements java.io.Serializable {
     
     /**
      * Flag indicating whether long-range correction contributions should
-     * be included in calculation.  Default is <b>false</b>.
+     * be included in calculation.  Default is <b>true</b>.
      */
-    public boolean includeLrc = false;
+    public boolean includeLrc = true;
     
     public IteratorDirective() {
         this(UP);

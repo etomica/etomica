@@ -43,7 +43,7 @@ private static final class SequentialIterator implements AtomIterator {
      */
     public void setBasis(Atom a) {
         basis = (AtomTreeNodeGroup)a.node;
-        listIterator.setBasis(a);
+        listIterator.setBasis(basis);
     }
     
     /**
@@ -67,7 +67,10 @@ private static final class SequentialIterator implements AtomIterator {
      * direction of iteration is as given by the directive.  If an atom is specified,
      * iteration begins with it and proceeds up or down list from there.
      */
-    public Atom reset(IteratorDirective id) {return listIterator.reset(id);}
+    public Atom reset(IteratorDirective id) {
+        return listIterator.reset(id.atom1().seq, id.direction());
+     //   return listIterator.reset(id);
+    }
     
     /**
      * Returns the next atom in the iteration sequence.  Assumes that hasNext is

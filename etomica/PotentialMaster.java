@@ -15,7 +15,7 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
     private SpeciesMaster speciesMaster;
     private Potential0GroupLrc lrcMaster;
     private final Simulation parentSimulation;
-    private PotentialLinker first;
+    private PotentialLinker first, last;
 
     public PotentialMaster(Simulation sim) {
         parentSimulation = sim;
@@ -36,16 +36,20 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
         return pa;
     }
         
-    //this method is called in the constructor of the given potential
     /**
-     * Adds the potential to the group 
-     */
-     /*and calls its set(SpeciesMaster)
-     * method if this.set(SpeciesMaster) was previously called with a
-     * non-null argument.
+     * Adds the potential to the group.  Normally invoked in the constructor of the
+     * given potential.
      */
     public void addPotential(Potential potential) {
-        first = new PotentialLinker(potential, first);
+        //Set up to evaluate zero-body potentials last, since they may need other potentials
+        //to be configured for calculation (i.e., iterators set up) first
+        if(potential instanceof Potential0 && last != null) {//put zero-body potential at end of list
+            last.next = new PotentialLinker(potential, null);
+            last = last.next;
+        } else {//put other potentials at beginning of list
+            first = new PotentialLinker(potential, first);
+            if(last == null) last = first;
+        }
         if(speciesMaster != null) {
             System.out.println("Warning: adding potential after phase was set for PotentialMaster");
             System.out.println("May lead to error");

@@ -64,7 +64,7 @@ public class IteratorFactoryCell implements IteratorFactory {
      * sim.setIteratorFactory(new IteratorFactoryCell(sim));
      */
     public IteratorFactoryCell(Simulation sim) {
-        this(sim, new PrimitiveCubic(sim), 5);
+        this(sim, new PrimitiveCubic(sim), 10);
     }
     
     /**
@@ -271,7 +271,11 @@ public static final class SequentialIterator implements AtomIterator {
      * given atom.
      */
     public void setBasis(Atom a) {
-        basis = (AtomTreeNodeGroup)a.node;
+        basis = (a != null) ? (AtomTreeNodeGroup)a.node : null;
+        if(basis == null || basis.childAtomCount() == 0) {
+            listIterator.setBasis(AtomList.NULL);
+            return;
+        }
         boolean iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
         if(iterateCells) {
             BravaisLattice lattice = factory.getLattice(basis.parentPhase());
@@ -429,7 +433,8 @@ public static final class IntragroupNbrIterator implements AtomIterator {
         if(atom == null) 
             throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator without referencing an atom");
 
-        direction = IteratorDirective.BOTH;
+//        direction = IteratorDirective.BOTH; //why was this ever here?
+
         //probably need isDescendedFrom instead of parentGroup here
         if(atom.node.parentNode() != basis) {
             throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator referencing an atom not in group of basis");
@@ -524,8 +529,8 @@ public static final class IntragroupNbrIterator implements AtomIterator {
     //may be room for efficiency here
     public void setBasis(AtomTreeNodeGroup node) {
         basis = node;
-        if(basis == null) {
-            listIterator.setBasis((AtomList)null);
+        if(basis == null || basis.childAtomCount() == 0) {
+            listIterator.setBasis(AtomList.NULL);
             iterateCells = false;
             return;
         }
@@ -543,7 +548,7 @@ public static final class IntragroupNbrIterator implements AtomIterator {
     /**
      * Returns the current iteration basis.
      */
-    public Atom getBasis() {return basis.atom();}
+    public Atom getBasis() {return (basis != null) ? basis.atom() : null;}
     
     /**
      * The number of atoms in the current basis.  This will differ from
@@ -577,7 +582,7 @@ public static final class IntragroupNbrIterator implements AtomIterator {
 
         IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
         sim.setIteratorFactory(iteratorFactory);
-        int nAtoms = 100;       
+        int nAtoms = 5;       
 	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
 	    speciesSpheres.setNMolecules(nAtoms);
 	    Potential potential = new P2HardSphere();
@@ -757,7 +762,7 @@ public static final class IntergroupNbrIterator implements AtomIterator {
     //may be room for efficiency here
     public void setBasis(AtomTreeNodeGroup node) {
         basis = node;
-        if(basis == null) {
+        if(basis == null || basis.childAtomCount() == 0) {
             listIterator.setBasis(AtomList.NULL);
             basisIterateCells = false;
             return;
@@ -1100,10 +1105,10 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
   //      IntergroupNbrIterator.main(args); 
         boolean cellListing = true;
         boolean doDisplay = true;
-        boolean md = false;
+        boolean md = true;
         int nAtoms = 90;
         boolean fixedLengthRun = false;
-        boolean mixture = true;
+        boolean mixture = false;
         
         System.out.println(cellListing ? "cellListing" : "no cellListing");
         System.out.println(md ? "md" : "mc");

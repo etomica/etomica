@@ -55,6 +55,7 @@ public final class ApiIntragroupAA implements AtomPairIterator {
         aiOuter.reset();
         while(aiOuter.hasNext()) { //loop over iterator 1...
             pair.atom1 = aiOuter.next();
+//            outCount++;
             aiInner.reset(localDirective.set(pair.atom1));
             if(aiInner.hasNext()) {
                 hasNext = true;
@@ -62,9 +63,13 @@ public final class ApiIntragroupAA implements AtomPairIterator {
                 break;        //...until iterator 2 hasNext
             }
         }//end while
+        
+ //        System.out.println(count + "  " + outCount);
+ //       count = outCount = 0;
     }
         
     public AtomPair next() {
+  //      count++;
         //we use this update flag to indicate that atom1 in pair needs to be set to a new value.
         //it is not done directly in the while-loop because pair must first return with the old atom1 intact
         if(needUpdate1) {pair.atom1 = atom1; needUpdate1 = false;}  //aiOuter was advanced
@@ -72,6 +77,7 @@ public final class ApiIntragroupAA implements AtomPairIterator {
         pair.reset();
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
+  //          outCount++;
                 atom1 = aiOuter.next();           //...get it
                 aiInner.reset(localDirective.set(atom1)); //...reset Inner (don't advance because it is inter-group)
                 needUpdate1 = true;           //...flag update of pair.atom1 for next time
@@ -102,6 +108,8 @@ public final class ApiIntragroupAA implements AtomPairIterator {
     private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.UP);
     private final AtomPair pair;
     private Atom atom1;
+    
+ //   private int count, outCount, inCount;//used in debugging to count the number of pairs given by the iterator
         
 }  //end of class ApiIntraspeciesAA
     

@@ -70,6 +70,8 @@ public static class Factory extends AtomFactory {
         setType(new AtomType(this));//default
     }
     
+    public boolean isGroupFactory() {return false;}
+    
     public void setType(AtomType t) {atomType = t;}
     public AtomType type() {return atomType;}
     

@@ -22,6 +22,7 @@ public class MCMoveRotate extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         setPerParticleFrequency(true);
+        iteratorDirective.includeLrc = false;
     }
      
     public boolean doTrial() {

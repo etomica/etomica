@@ -8,7 +8,7 @@ package etomica;
  */
 public final class PotentialLinker implements java.io.Serializable {
     public final Potential potential;
-    public final PotentialLinker next;
+    public PotentialLinker next;
     //Constructors
 //    public PotentialLinker(Potential a) {potential = a;}
     public PotentialLinker(Potential a, PotentialLinker l) {potential = a; next = l;}

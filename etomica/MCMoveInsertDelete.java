@@ -28,6 +28,7 @@ public class MCMoveInsertDelete extends MCMove {
         setStepSize(0.10);
         setMu(0.0);
         setTunable(false);
+        iteratorDirective.includeLrc = true;
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
