@@ -30,7 +30,8 @@ public class CriterionBondedSimple extends CriterionAdapter {
     
     // always enforce intramolecularity
     public boolean accept(AtomPair pair) {
-        if (isBonded != (Math.abs(pair.atom0.node.getOrdinal()-pair.atom1.node.getOrdinal()) == 1) 
+        int diff = pair.atom0.node.getOrdinal() - pair.atom1.node.getOrdinal();
+        if (isBonded != (diff == 1 || diff == -1) 
                 || (pair.atom0.node.parentMolecule() != pair.atom1.node.parentMolecule())) {
             return false;
         }
