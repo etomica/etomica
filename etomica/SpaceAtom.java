@@ -10,13 +10,13 @@ import java.awt.*;
  *  @author C. Daniel Barnes
  *  @see Molecule
  */
-public abstract class Atom {
+public abstract class SpaceAtom {
 
     /**
      * Constructs an atom with no initialization if parent is null; otherwise constructs atom with default atomIndex = 0.  
      * Expected use of such an Atom is for the construction of other Atoms via makeAtom method
      */
-    public Atom(Molecule parent) {
+    public SpaceAtom(Molecule parent) {   //delete this when possible
         this(parent,0);
     }
     
@@ -28,14 +28,14 @@ public abstract class Atom {
      * @param parent       molecule in which atom resides
      * @param index        sequential index of atom as assigned by parent molecule
      */
-    public Atom(Molecule parent, int index) {
+    public SpaceAtom(Molecule parent, int index) {
         parentMolecule = parent;
         atomIndex = index;
         setStationary(false);
         setColor(Color.black);
     }
         
-    public abstract Atom makeAtom(Molecule m, int i);
+//    public abstract SpaceAtom makeAtom(Molecule m, int i);
     
     public void setIntegratorAgent(IntegratorAgent ia) {this.ia = ia;}
     
@@ -52,20 +52,6 @@ public abstract class Atom {
     }
     public final boolean isStationary() {return stationary;}
 
-    /**
-     * Computes and returns the potential energy of the atom due to its interactions
-     * with all other atoms (intra and intermolecular) in the phase
-     *
-     * @return (potential energy)/kB in Kelvins
-     */
-/*    public final double potentialEnergy() {
-        return intraPotentialEnergy() + interPotentialEnergy();
-    }*/
-    
-//  public abstract double interPotentialEnergy();
-//  public abstract double intraPotentialEnergy();
-    
-  public final Atom getNextAtom() {return nextAtom;}
   /**
    * Sets atom following this one in linked list, and sets this to be that
    * atom's previous atom in list
@@ -73,18 +59,15 @@ public abstract class Atom {
    * @param atom  the next atom in the list
    * @see Molecule#orderAtoms
    */
-  public void setNextAtom(Atom atom) {
+  public void setNextAtom(SpaceAtom atom) {
     this.nextAtom = atom;
     if(atom != null) {atom.previousAtom = this;}
   }
-  
-  public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.getNextAtom();}  //first atom on next molecule
-  public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.getPreviousAtom();}  //first atom on next molecule
-
   public void clearPreviousAtom() {previousAtom = null;}
   
-  public final Atom getPreviousAtom() {return previousAtom;}
-  
+  public final SpaceAtom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom;}  //first atom on next molecule
+  public final SpaceAtom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom;}  //first atom on next molecule
+
   public abstract void draw(Graphics g, int[] origin, double scale);
 
 //    public IntegratorHard integrator = new IntegratorHard();
@@ -119,17 +102,19 @@ public abstract class Atom {
     
     
     /**
-     * next atom in linked list of atoms
+     * next atom in linked list of atoms.  
+     * Because it may be shadowed in subclasses, it should be set only via call to setNextAtom.
      * @see #setNextAtom
      */
-    Atom nextAtom = null;
+    public SpaceAtom nextAtom = null;
     
     /**
-     * previous atom in linked list of atoms
+     * previous atom in linked list of atoms.  
+     * Becasue it may be shadowed in subclasses, it should be set only via call to setPreviousAtom or clearPreviousAtom.
      *
      * @see #setNextAtom
      */
-    Atom previousAtom = null;
+    public SpaceAtom previousAtom = null;
         
     /**
      * Flag indicating whether atom is stationary or mobile.

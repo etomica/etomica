@@ -2,6 +2,8 @@ package simulate;
 
 public class MeterPotentialEnergy extends simulate.Meter
 {
+  SpaceAtomPairIterator iterator;
+  
   public MeterPotentialEnergy() {
     super();
     setLabel("Potential Energy");
@@ -10,11 +12,23 @@ public class MeterPotentialEnergy extends simulate.Meter
  /**
   * Computes total potential energy for all atom pairs in phase
   */
-    public final double currentValue() {  //Might be more efficient to loop over species
+    public final double currentValue() {  
       double pe = 0.0;
-      for(AtomC a=(AtomC)phase.firstAtom(); a!=null; a=a.getNextAtomC()) {
-        if(a.parentMolecule.nAtoms > 1) {pe += upListIntra(a);}   //check for other atoms just to save expense of call
-        pe += upListInter(a);
+      for(Species s1=phase.firstSpecies(); s1!=null; s1=s1.getNextSpecies()) {
+        Potential1 p1 = phase.potential1[s1.speciesIndex];
+        allIntra.reset(s1);
+        while(allIntra.hasNext()) {
+            SpaceAtomPair pair = allIntra.next();
+            pe += p1.getPotential(pair.atom1(),pair.atom2()).energy(pair);
+        }
+        for(Species s2=s1; s2!=null; s2=s2.getNextSpecies()) {
+            Potential2 p2 = phase.potential2[s1.speciesIndex][s2.speciesIndex];
+            allInter.reset(s1,s2);
+            while(allInter.hasNext()) {
+                SpaceAtomPair pair = allInter.next();
+                pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
+            }
+        }
       }
       return pe;
     }

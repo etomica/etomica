@@ -63,13 +63,13 @@ public class Molecule implements Serializable {
   * Atoms in this molecule are part of a linked list of all atoms
   * in the simulation.  This is the first such atom in this molecule.
   */
-  Atom firstAtom;
+  SpaceAtom firstAtom;
   
  /**
   * Last atom in the molecule.
   * @see firstAtom
   */
-  Atom lastAtom;
+  SpaceAtom lastAtom;
   
  /**
   * Number of atoms in this molecule.  Assigned by species when invoking
@@ -263,8 +263,8 @@ public class Molecule implements Serializable {
   */
   public final void updateMass() {
     this.mass = 0.0;
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
+    for(SpaceAtom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
+    for(SpaceAtom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
   }
   
   
@@ -276,8 +276,8 @@ public class Molecule implements Serializable {
   */
   public double kineticEnergy() {
     double energy = 0.0;
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();  //so not computed each time through loop
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {energy += ((AtomC)a).kineticEnergy();}
+    SpaceAtom nextMoleculeAtom = lastAtom.getNextAtom();  //so not computed each time through loop
+    for(SpaceAtom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {energy += ((AtomC)a).kineticEnergy();}
     return energy;
   }
   
@@ -288,8 +288,8 @@ public class Molecule implements Serializable {
      * @see #displace
      */
   public final void translate(double[] dr) {
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(dr);}
+    SpaceAtom nextMoleculeAtom = lastAtom.getNextAtom();
+    for(SpaceAtom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(dr);}
   }
     /**
      * Displaces all atoms in this molecule the distance dr in one coordinate direction.
@@ -298,8 +298,8 @@ public class Molecule implements Serializable {
      * @param dr  displacement distance
      */
   public final void translate(int i, double dr) {
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(i,dr);}
+    SpaceAtom nextMoleculeAtom = lastAtom.getNextAtom();
+    for(SpaceAtom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(i,dr);}
   }
   
     /**
@@ -312,7 +312,7 @@ public class Molecule implements Serializable {
      * @see #translate
      */
    public final void displace(double[] dr) {   //need to revise this
-    Atom nextMoleculeAtom = terminationAtom();
+    SpaceAtom nextMoleculeAtom = terminationAtom();
     for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {a.displace(dr);}
    }
    
@@ -411,8 +411,8 @@ public class Molecule implements Serializable {
     for(Atom a=firstAtom; a!=terminator; a=a.getNextAtom()) {a.draw(g, origin, scale);}
   }
   
-  public final Atom firstAtom() {return firstAtom;}
-  public final Atom lastAtom() {return lastAtom;}
-  public final Atom terminationAtom() {return lastAtom.getNextAtom();}
+  public final SpaceAtom firstAtom() {return firstAtom;}
+  public final SpaceAtom lastAtom() {return lastAtom;}
+  public final SpaceAtom terminationAtom() {return lastAtom.getNextAtom();}
   
 }

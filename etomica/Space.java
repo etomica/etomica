@@ -1,4 +1,6 @@
 package simulate;
+
+//take care not to import java.util.Vector
 import java.io.*;
 import java.awt.*;  //subclasses Component; for Graphics and Color in draw method
 import java.beans.*;
@@ -108,26 +110,122 @@ public class Space extends Component {
         periodic = false;
     }
     
-    public Atom makeAtom(Molecule m, int index) {
-        return new AtomCC(m, index);
+    // Iterates over all intramolecular atom pair in species
+    public class AllSpeciesIntraPairs implements SpaceAtomPairIterator {
+        private boolean mLast;
+        private Molecule m;
+        SpaceAtomPairIterator mPairs = new AllMoleculeIntraPairs(null);
+        
+        public AllSpeciesIntraPairs(Species s) {reset(s);}  //constructor
+        public final boolean hasNext() {return (mPairs.hasNext() || !mLast);}
+        public final SpaceAtomPair next() {
+            if(!hasNext()) return null;
+            if(!mPairs.hasNext()) {
+                m = m.getNextMolecule();
+                mPairs.reset(m);
+                mLast = (m == s.lastMolecule);
+            }
+            return mPairs.next();                
+        }
+        public void reset(Species s) {
+            if(s.nAtomsPerMolecule() == 1) {hasNext = false; return;} //no intramolecular atoms pairs
+            m = s.firstMolecule();
+            mPairs.reset(m);
+            mLast = (m==null || m==s.lastMolecule);
+        }
     }
     
-    private class AtomCC extends Atom {
+    //Iterates over all pairs of atoms in phase
+    //Assumes list structure of phase does not change between calls to next() and hasNext()
+    public class AllPairs implements SpaceAtomPairIterator {
+        Atom outer;  // "outer loop" atom
+        Atom inner;  // "inner loop" atom
+        boolean hasNext;
+        SpaceAtom terminator = null;
+        AtomPair pair = new AtomPair();
         
-        public Atom makeAtom(Molecule m, int i) {return null;}  //delete this
-   
+        public AllPairs() {reset();}  //constructor
+        public final boolean hasNext() {return hasNext;}
+        public final SpaceAtomPair next() {
+            if(!hasNext) return null;
+            inner = inner.nextAtom;
+            if(inner == terminator) {  //end of inner loop; increment outer and begin inner loop again
+                outer = outer.nextAtom;
+                inner = outer.nextAtom;  //hasNext check prevents outer from being null
+            }
+            pair.atom1 = outer;   //here's where we avoid the cast
+            pair.atom2 = inner;
+            hasNext = ( (inner.nextAtom != terminator) || (outer.nextAtom != inner) );  //hasNext true if inner has a next; otherwise (inner is last), hasNext is true if outer is not next-to-last (its nextAtom is not inner)
+            return pair;
+        }
+        public void reset() {reset(parentPhase.firstAtom());}
+        public void reset(Species s) {reset(s.firstAtom());}  //sets first pair to first atom in species and its nextAtom
+        public void reset(Molecule m) {reset(m.firstAtom);}  //sets first pair to first atom in molecule and its nextAtom
+        public void reset(SpaceAtom a) {  //sets first pair to first atom in molecule and its nextAtom
+            inner = null;
+            outer = (Atom)a;
+            if(outer!=null) inner = outer.nextAtom;
+            hasNext = (inner != null);
+        }
+        
+    }
+    
+    // Iterator for atom pairs in a single molecule
+    public class AllMoleculeIntraPairs extends AllPairs {
+        private Molecule currentM;
+        
+        public AllMoleculeIntraPairs(Molecule m) {reset(m);}
+//        public final void reset() {reset(currentM);}  //resets to current molecule
+//        public final void reset(Species s) {reset(s.firstMolecule());}  //sets first pair to first atom in species and its nextAtom
+        public final void reset(Molecule m) {
+            currentM = m;
+            inner = null;
+            if(m!=null) {
+                outer = m.firstAtom;
+                inner = outer.nextAtom;
+                terminator = m.lastAtom.nextAtom;
+            }
+            hasNext = (inner != null) && (inner != terminator);
+        }  
+//        public final void reset(SpaceAtom a) {
+//            if(a != null) reset(a.parentMolecule);
+//        }
+    }
+    
+    public class Vector implements SpaceVector {
+        double x = 0.0;
+        double y = 0.0;
+    }
+    
+    public class AtomPair implements SpaceAtomPair {
+        Atom atom1;
+        Atom atom2;
+        
+        public double r2() {
+            double dx = atom1.r.x - atom2.r.x;
+            double dy = atom1.r.y - atom2.r.y;
+            return dx*dx + dy*dy;
+        }
+        public final SpaceAtom atom1() {return atom1;}
+        public final SpaceAtom atom2() {return atom2;}
+    }
+    
+    public SpaceAtom makeAtom(Molecule m, int index) {
+        return new Atom(m, index);
+    }
+
+    private class Atom extends SpaceAtom {
+           
         public void draw(Graphics g, int[] origin, double scale) {}
         
-        AtomCC(Molecule parent, int index) {
+        Atom(Molecule parent, int index) {
             super(parent, index);
-            Space.uEa1(r,0.0);
-            Space.uEa1(p,0.0);
             setMass(1.0);
             setStationary(false);
         }
-        public final double[] r = new double[Space.D];  //Cartesian coordinates
-        public final double[] p = new double[Space.D];  //Momentum vector
-        private final double[] rLast = new double[Space.D];  //Displace/replace work vector
+        public final Vector r = new Vector();  //Cartesian coordinates
+        public final Vector p = new Vector();  //Momentum vector
+        private final Vector rLast = new Vector();  //Displace/replace work vector
 
         /**
         * Flag indicating whether atom is subject to any forces
@@ -141,46 +239,8 @@ public class Space extends Component {
         double mass;  //Mass of atom in amu
         double rm;    //Reciprocal of the mass
          
-        AtomCC nextAtomC;
-        AtomCC previousAtomC;
-         
-        /**
-        * Computes and returns the potential energy of the atom due to its interactions
-        * with all other atoms in all other molecules in the phase (intermolecular)
-        *
-        * @return (potential energy)/kB in Kelvins
-        */
-        public double interPotentialEnergy() {
-            Potential2[] p2 = parentMolecule.getP2();
-            double energy = 0.0;
-            Atom endAtom = parentMolecule.firstAtom;
-            for(AtomC a=(AtomC)parentMolecule.getPhase().firstAtom(); a!=endAtom && a!=null; a=a.getNextAtomC()) {
-                energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
-                if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
-            }
-            for(AtomC a=(AtomC)parentMolecule.lastAtom.getNextAtom(); a!=null; a=a.getNextAtomC()) {
-                energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
-                if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
-            }
-            return energy;
-        }
-        
-        /**
-        * Computes and returns the potential energy of the atom due to its interactions
-        * with all other atoms in the molecule (intramolecular)
-        *
-        * @return (potential energy)/kB in Kelvins
-        */
-        public final double intraPotentialEnergy() {
-            if(parentMolecule.nAtoms == 1) return 0.0;
-            Potential1 p1 = parentMolecule.getP1();
-            double energy = 0.0;
-            for(AtomCC a=(AtomCC)parentMolecule.firstAtom; a!=parentMolecule.lastAtom.getNextAtom(); a=a.getNextAtomCC()) {
-                if(a == this) {continue;}
-                energy += p1.getPotential(this,a).energy(this,a);
-            }
-            return energy;
-        }
+        Atom nextAtom;      //shadow SpaceAtom's nextAtom
+        Atom previousAtom;  //shadow SpaceAtom's previousAtom
             
         public final double getRm() {return rm;}
         
@@ -212,7 +272,7 @@ public class Space extends Component {
         *
         * @param dp The change in the momentum vector
         */
-        public final void accelerate(double[] dp) {Space.uPEv1(p,dp);}
+//        public final void accelerate(double[] dp) {Space.uPEv1(p,dp);}
     //   public final void accelerate(int i, double dp) {p[i] += dp;}
     //   public final void decelerate(double[] dp) {Space.uMEv1(p,dp);}
     //   public final void setP(double[] dp) {Space.uEv1(p,dp);}
@@ -226,7 +286,7 @@ public class Space extends Component {
         *
         * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
         */
-        public double kineticEnergy() {return 0.5*rm*Space.v1S(p);}
+//        public double kineticEnergy() {return 0.5*rm*Space.v1S(p);}
         
         public void setStationary(boolean b) {
             super.setStationary(b);
@@ -255,10 +315,10 @@ public class Space extends Component {
         * @param dr   vector specifying change in position
         * @see #replace
         */
-        public final void displace(double[] dr) {
-            Space.uEv1(rLast,r);
-            translate(dr);
-        }
+ //       public final void displace(double[] dr) {
+ //           Space.uEv1(rLast,r);
+ //           translate(dr);
+ //       }
          
         /**
         * Puts atom back in position held before last call to displace
@@ -281,15 +341,13 @@ public class Space extends Component {
         */
         public final double getCOMFraction() {return COMFraction;}
           
-        public void setNextAtom(Atom atom) {
+        public void setNextAtom(SpaceAtom atom) {
           super.setNextAtom(atom);
-          this.nextAtomC = (AtomCC)atom;
-          if(atom != null) {((AtomCC)atom).previousAtomC = this;}
+          this.nextAtom = (Atom)atom;
+          if(atom != null) {((Atom)atom).previousAtom = this;}
         }
-            
-        public final AtomCC getNextAtomCC() {return nextAtomC;}
-        public final AtomCC getPreviousAtomCC() {return previousAtomC;}
     }
+            
    /**
     * Sets parentPhase 
     *

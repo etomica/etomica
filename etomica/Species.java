@@ -554,8 +554,9 @@ public abstract class Species extends Container {
   /**
    * Used to terminate loops over molecules in species
    */
-  public final Molecule terminationMolecule() {return lastMolecule.getNextMolecule();}
-  
+  public final Molecule terminationMolecule() {
+    return (lastMolecule == null) ? null : lastMolecule.getNextMolecule();
+  }  
   public final Atom firstAtom() { //return firstAtom;
     return (firstMolecule == null) ? null : firstMolecule.firstAtom();
   }

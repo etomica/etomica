@@ -157,11 +157,11 @@ public final class Phase extends Container {
     return (2./(double)(nAtomTotal*Space.D))*kineticEnergy*Constants.KE2T;
   }
   
-  public final Atom firstAtom() {
+  public final SpaceAtom firstAtom() {
      Molecule m = firstMolecule();
      return (m != null) ? m.firstAtom() : null;
   }
-  public final Atom lastAtom() {
+  public final SpaceAtom lastAtom() {
     Molecule m = lastMolecule();
     return (m != null) ? m.lastAtom() : null;
   }
