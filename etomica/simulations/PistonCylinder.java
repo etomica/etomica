@@ -1,20 +1,17 @@
 package etomica.simulations;
-import etomica.DataSourceCountSteps;
+import etomica.data.DataSourceCountSteps;
 import etomica.Default;
-import etomica.IntegratorHard;
-import etomica.IntegratorProgressListener;
-import etomica.MeterTemperature;
-import etomica.P1HardBoundary;
-import etomica.P2SquareWell;
+import etomica.integrator.IntegratorHard;
+import etomica.data.meter.MeterTemperature;
+import etomica.potential.P1HardBoundary;
+import etomica.potential.P2SquareWell;
 import etomica.Phase;
-import etomica.Potential2;
+import etomica.potential.Potential2;
 import etomica.Simulation;
 import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
-import etomica.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 
@@ -41,7 +38,7 @@ public class PistonCylinder extends Simulation {
         
 	    phase = new Phase(space);
 //        phase.setConfiguration(new ConfigurationFile(space,"pc"));
-        phase.setBoundary(space.makeBoundary(Space2D.Boundary.NONE));
+        phase.setBoundary(space.makeBoundary(etomica.space2d.Boundary.NONE));
         phase.speciesMaster.addSpecies(species);
 	    
 	    potential = new P2SquareWell(space,Default.ATOM_SIZE,lambda,Default.POTENTIAL_WELL);
@@ -70,7 +67,7 @@ public class PistonCylinder extends Simulation {
     public static class Applet extends javax.swing.JApplet {
         public DisplayPhase display;
         public DataSourceCountSteps meterCycles;
-        public DisplayBox displayCycles;
+//        public DisplayBox displayCycles;
         public MeterTemperature thermometer;
 
         public void init() {
