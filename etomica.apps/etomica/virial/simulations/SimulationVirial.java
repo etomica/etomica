@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.Accumulator;
-import etomica.DataManager;
+import etomica.DataTranslator;
 import etomica.Default;
 import etomica.MeterAbstract;
 import etomica.Phase;
@@ -13,6 +12,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSequencerFactory;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.DataAccumulator;
+import etomica.data.DataPump;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
@@ -87,8 +89,8 @@ public class SimulationVirial extends Simulation {
 	}
 	
 	public MeterAbstract meter;
-	public Accumulator accumulator;
-	public DataManager accumulatorManager;
+	public DataAccumulator accumulator;
+	public DataPump accumulatorPump;
 	public SpeciesSpheresMono species;
 	public ActivityIntegrate ai;
 	public IntegratorClusterMC integrator;
@@ -98,9 +100,10 @@ public class SimulationVirial extends Simulation {
 
 	public void setMeter(MeterAbstract newMeter) {
 		if (accumulator != null) { 
-			if (accumulatorManager != null) {
-				integrator.removeIntervalListener(accumulatorManager);
-				accumulatorManager = null;
+			if (accumulatorPump != null) {
+                // XXX oops, sorry you're screwed.
+			    // integrator.removeIntervalListener(accumulatorPump);
+				accumulatorPump = null;
 			}
 			accumulator = null;
 		}
@@ -110,16 +113,15 @@ public class SimulationVirial extends Simulation {
 		}
 	}
 
-	public void setAccumulator(Accumulator newAccumulator) {
+	public void setAccumulator(DataAccumulator newAccumulator) {
 		accumulator = newAccumulator;
-		if (accumulatorManager == null) {
-			accumulatorManager = new DataManager(meter,new Accumulator[] {accumulator});
+		if (accumulatorPump == null) {
+			accumulatorPump = new DataPump(meter,accumulator);
 		}
 		else {
-			accumulatorManager.setDataSinks(new Accumulator[] {accumulator});
+			accumulatorPump.setDataSinks(new DataAccumulator[] {accumulator});
 		}
-		integrator.addIntervalListener(accumulatorManager);
-		accumulatorManager.setUpdateInterval(1);
+		integrator.addIntervalListener(new IntervalActionAdapter(accumulatorPump));
 	}
 	
 	public static void main(String[] args) {
@@ -171,12 +173,14 @@ public class SimulationVirial extends Simulation {
 			sim.ai.setMaxSteps(steps);
 			sim.getController().run();
             AccumulatorAverage acc = (AccumulatorRatioAverage)sim.accumulator;
-            System.out.println("average: "+acc.getData(AccumulatorRatioAverage.RATIO)[1]
-                              +" error: "+acc.getData(AccumulatorRatioAverage.RATIO_ERROR)[1]);
-            System.out.println("hard sphere   average: "+acc.getData(AccumulatorAverage.AVERAGE)[0]
-                              +" stdev: "+acc.getData(AccumulatorAverage.STANDARD_DEVIATION)[0]);
-            System.out.println("lennard jones average: "+acc.getData(AccumulatorAverage.AVERAGE)[1]
-                              +" stdev: "+acc.getData(AccumulatorAverage.STANDARD_DEVIATION)[1]);
+            double[][] allYourBase = (double[][])acc.getTranslator().fromArray(acc.getData());
+            System.out.println(allYourBase.length);
+            System.out.println("average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
+                              +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
+            System.out.println("hard sphere   average: "+allYourBase[AccumulatorRatioAverage.AVERAGE.index][0]
+                              +" stdev: "+allYourBase[AccumulatorRatioAverage.STANDARD_DEVIATION.index][0]);
+            System.out.println("lennard jones average: "+allYourBase[AccumulatorRatioAverage.AVERAGE.index][1]
+                              +" stdev: "+allYourBase[AccumulatorRatioAverage.STANDARD_DEVIATION.index][1]);
 		}
 	}
 }
