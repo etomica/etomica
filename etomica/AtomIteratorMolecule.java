@@ -10,7 +10,7 @@ package etomica;
  * @since 02.02.16
  */
 
-public class AtomIteratorMolecule extends AtomIteratorAdapter implements AtomsetIteratorSpeciesDependent {
+public final class AtomIteratorMolecule extends AtomIteratorAdapter implements AtomsetIteratorSpeciesDependent {
     
     public AtomIteratorMolecule() {
         super(new AtomIteratorTree(2));
@@ -40,6 +40,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements Atomset
     	this.species = species;
     	setPhase(phase);
     }
+    
     public void setPhase(Phase phase) {
     	if(phase == null) treeIterator.setRoot(null);
     	else if(species == null) {

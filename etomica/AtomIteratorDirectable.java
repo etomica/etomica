@@ -10,7 +10,7 @@ package etomica;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class AtomIteratorDirectable extends AtomIteratorAdapter implements
+public final class AtomIteratorDirectable extends AtomIteratorAdapter implements
 		AtomsetIteratorBasisDependent {
 
 	/**

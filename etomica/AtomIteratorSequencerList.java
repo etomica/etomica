@@ -8,7 +8,7 @@ package etomica;
  * Iterator for looping through the sequence list relative to a
  * specified atom.
  */
-public class AtomIteratorSequencerList extends AtomIteratorAdapter implements AtomIteratorAtomDependent {
+public final class AtomIteratorSequencerList extends AtomIteratorAdapter implements AtomIteratorAtomDependent {
 
 	/**
 	 * Constructs new class with hasNext as false.  Must
@@ -75,7 +75,7 @@ public class AtomIteratorSequencerList extends AtomIteratorAdapter implements At
 	}
 	
 	public void setIterationDirection(IteratorDirective.Direction direction) {
-		listIterator.setIterationDirection(direction);
+		listIterator.setDirection(direction);
 	}
 	public IteratorDirective.Direction getIterationDirection() {
 		return listIterator.getIterationDirection();

@@ -14,7 +14,7 @@ package etomica;
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
   * 08/23/04 (DAK, AS, KB) overhauled with revision of iterators
   */
-public final class AtomIteratorList implements AtomIterator {
+public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDirectable {
     
     private AtomList list;
     
@@ -111,7 +111,7 @@ public final class AtomIteratorList implements AtomIterator {
     /**
      * Sets iteration to be in the given direction and unsets iterator.
      */
-    public void setIterationDirection(IteratorDirective.Direction direction) {
+    public void setDirection(IteratorDirective.Direction direction) {
         upList = (direction == IteratorDirective.UP);
 		unset();
     }
@@ -173,7 +173,7 @@ public final class AtomIteratorList implements AtomIterator {
     public void set(AtomLinker first, AtomLinker.Tab terminator, IteratorDirective.Direction direction) {
         this.first = first;
         this.terminator = terminator;
-        setIterationDirection(direction);
+        setDirection(direction);
     }
     
     /**

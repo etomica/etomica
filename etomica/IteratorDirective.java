@@ -68,11 +68,13 @@ public final class IteratorDirective implements java.io.Serializable {
     //argument to a method
     public final IteratorDirective set() {
         atom1 = null;
+        targetAtoms[0] = null;
         atomCount = 0;
         return this;
     }
     public final IteratorDirective set(Atom a) {
         atom1 = a;
+        targetAtoms[0] = atom1;
         atomCount = (atom1 != null) ? 1 : -1;
         return this;
     }

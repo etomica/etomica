@@ -11,7 +11,7 @@ package etomica;
  * childList atoms with the basis' child from which the directive atom is descended.  
  */
 public final class ApiIntragroup extends AtomsetIteratorAdapter implements
-		AtomsetIteratorBasisDependent {
+		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable {
 
 	/**
 	 * Constructor makes iterator that must have basis specified and then be 
@@ -30,7 +30,6 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	/* (non-Javadoc)
 	 * @see etomica.AtomsetIteratorBasisDependent#setDirective(etomica.IteratorDirective)
 	 */
-	//TODO consider a setTarget method instead
 	public void setTarget(Atom[] targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
 		doBoth = targetAtoms != null && targetAtoms.length == 1;
@@ -40,7 +39,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 * Puts iterator in a state to begin iteration.
 	 */
 	public void reset() {
-		if(!upListNow) {
+		if(!upListNow && doBoth) {
 			aiInner.setIterationDirection(IteratorDirective.UP);
 			upListNow = true;
 		}
@@ -64,6 +63,10 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	public void setBasis(Atom[] atoms) {
 		basis = (atoms != null) ? atoms[0] : null;
 		aiOuter.setBasis(atoms);
+	}
+	
+	public void setDirection(IteratorDirective.Direction direction) {
+		
 	}
 	
 	/**

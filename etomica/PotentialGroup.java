@@ -156,6 +156,7 @@ public class PotentialGroup extends Potential {
     	if(!enabled) return;
     	Atom[] targetAtoms = id.targetAtoms();
 		//loop over sub-potentials
+    	//TODO set up separate linked list for this, merging both loops
  		for (PotentialLinker link=first; link!= null; link=link.next) {
 			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
 		}
