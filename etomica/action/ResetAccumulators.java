@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.AccumulatorManager;
+import etomica.DataManager;
 import etomica.Action;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,7 +26,7 @@ public class ResetAccumulators implements Action {
 	public void actionPerformed() {
 		Iterator iterator = accumulatorManagerList.iterator();
 		while (iterator.hasNext()) {
-			((AccumulatorManager)iterator.next()).resetAccumulators();
+			((DataManager)iterator.next()).resetAccumulators();
 		}
 	}
 

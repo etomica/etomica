@@ -12,7 +12,7 @@ import etomica.units.Dimension;
  * Parent class for all accumulators, which are responsible for gathering
  * and processing data during a simulation.
  */
-public abstract class Accumulator implements DataSource {
+public abstract class Accumulator implements DataSource, DataSink {
 
     /**
      * Number of points processed by accumulator. 

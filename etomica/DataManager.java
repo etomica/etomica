@@ -5,8 +5,9 @@
 package etomica;
 
 import etomica.Integrator.IntervalEvent;
-import etomica.utility.java2.LinkedList;
+import etomica.log.DataLogger;
 import etomica.utility.java2.Iterator;
+import etomica.utility.java2.LinkedList;
 
 /**
  * @author kofke
@@ -14,23 +15,26 @@ import etomica.utility.java2.Iterator;
  * Keeps a DataSource and one or more Accumulators and adds to Accumulators
  * in response to IntervalEvents using data from the DataSource.
  */
-public class AccumulatorManager implements Integrator.IntervalListener {
+public class DataManager implements Integrator.IntervalListener {
 
 	private final DataSource dataSource;
-	private final LinkedList accumulatorList;
+	private final LinkedList dataSinkList;
 	private final Iterator iterator;
+	protected DataLogger finishDataDumper;
     private int priority;
 	
 	/**
-	 * Constructs AccumulatorManager with the given DataSource and
+	 * Constructs DataManager with the given DataSource and
 	 * Accumulators.
 	 */
-	public AccumulatorManager(DataSource dataSource, Accumulator[] accumulators) {
+	public DataManager(DataSource dataSource, DataSink[] dataSinks) {
 		if(dataSource == null) throw new NullPointerException("Error: cannot construct accumulator manager without a data source");
 		this.dataSource = dataSource;
-		accumulatorList = new LinkedList(); 
-		iterator = accumulatorList.iterator();
-		setAccumulators(accumulators);
+		dataSinkList = new LinkedList(); 
+		iterator = dataSinkList.iterator();
+		setDataSinks(dataSinks);
+		setUpdateInterval(1);
+		setEventType(Integrator.IntervalEvent.INTERVAL);
         setPriority(200);
 	}
 	
@@ -38,23 +42,46 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 	 * Constructor with AccumulatorAverage as the default Accumulator.
 	 * @param dataSource
 	 */
-	public AccumulatorManager(DataSource dataSource) {
-		this(dataSource, new Accumulator[] {new AccumulatorAverage()});
+	public DataManager(DataSource dataSource) {
+		this(dataSource, new DataSink[] {new AccumulatorAverage()});
 	}
 
+	public void setDumpOnFinishFile(String fileName) {
+		finishDataDumper = new DataLogger(fileName);
+	}
+	
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
 	public void intervalAction(IntervalEvent evt) {
 	    if(!active) return;
-	    if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
-	    if(--iieCount == 0) {
-	        iieCount = updateInterval;
-	        double[] data = dataSource.getData();
-	        iterator.reset();
-	        while(iterator.hasNext()) {
-	        	((Accumulator)iterator.next()).add(data);
-	        }
+	    if(evt.type() == eventType || (evt.type() == Integrator.IntervalEvent.DONE && finishDataDumper != null)) {
+	    	if (eventType == Integrator.IntervalEvent.INTERVAL) {
+	    		if (--iieCount != 0) return;
+                iieCount = updateInterval;
+	    	}
+            if (evt.type() == eventType) {
+                double[] data = dataSource.getData();
+                iterator.reset();
+                while(iterator.hasNext()) {
+                    ((DataSink)iterator.next()).add(data);
+                }
+            }
+		    if(evt.type() == Integrator.IntervalEvent.DONE && finishDataDumper != null) {
+		        iterator.reset();
+		        while(iterator.hasNext()) {
+		        	DataSink dataSink = (DataSink)iterator.next();
+		        	if (dataSink instanceof DataSource) {
+		        		if (dataSink instanceof AccumulatorAverage) {
+		        			finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.AVERAGE));
+		        			finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.STANDARD_DEVIATION));
+		        		}
+		        		else {
+		        			finishDataDumper.add(((DataSource)dataSink).getData());
+		        		}
+		        	}
+		        }
+		    }
 	    }
 	}
 	
@@ -75,23 +102,25 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 	/**
 	 * @return Returns the accumulators.
 	 */
-	public Accumulator[] getAccumulators() {
-		return (Accumulator[])accumulatorList.toArray();
+	public DataSink[] getDataSinks() {
+		return (DataSink[])dataSinkList.toArray();
 	}
 	/**
-	 * @param accumulators The accumulators to set.
+	 * @param dataSinks The accumulators to set.
 	 */
-	public void setAccumulators(Accumulator[] accumulators) {
-		accumulatorList.clear();
-		for(int i=0; i<accumulators.length; i++) {
-			accumulatorList.add(accumulators[i]);
-			accumulators[i].setDataSourceDimension(dataSource.getDimension());
+	public void setDataSinks(DataSink[] dataSinks) {
+		dataSinkList.clear();
+		for(int i=0; i<dataSinks.length; i++) {
+			dataSinkList.add(dataSinks[i]);
+			if (dataSinks[i] instanceof Accumulator)
+				((Accumulator)dataSinks[i]).setDataSourceDimension(dataSource.getDimension());
 		}
 	}
 	
-	public void addAccumulator(Accumulator accumulator) {
-		accumulatorList.add(accumulator);
-		accumulator.setDataSourceDimension(dataSource.getDimension());
+	public void addDataSink(DataSink dataSink) {
+		dataSinkList.add(dataSink);
+		if (dataSink instanceof Accumulator)
+			((Accumulator)dataSink).setDataSourceDimension(dataSource.getDimension());
 	}
 	
 	/**
@@ -99,8 +128,8 @@ public class AccumulatorManager implements Integrator.IntervalListener {
      * @param accumulator accumulator to be removed from this list, if present.
      * @return <tt>true</tt> if the manager contained the specified accumulator.
      */
-	public boolean removeAccumulator(Accumulator accumulator) {
-		return accumulatorList.remove(accumulator);
+	public boolean removeDataSink(DataSink dataSink) {
+		return dataSinkList.remove(dataSink);
 	}
 	
     /**
@@ -124,13 +153,25 @@ public class AccumulatorManager implements Integrator.IntervalListener {
     /**
      * Invokes the reset() method of all accumulators held by this manager.
      */
-    public void resetAccumulators() {
-        iterator.reset();
+    public void resetAccumulators() { 
+        iterator.reset(); 
         while(iterator.hasNext()) {
-        	((Accumulator)iterator.next()).reset();
-        }
+            DataSink dataSink = (DataSink)iterator.next();
+            if (dataSink instanceof Accumulator) {
+                ((Accumulator)dataSink).reset();
+            }
+        } 
+    } 
+    
+    public final void setEventType(Integrator.IntervalEvent.Type type) {
+    	eventType = type;
     }
     
+    /**
+     * determines the type of IntervalEvent the data manager is interested in
+     */
+    protected Integrator.IntervalEvent.Type eventType;
+
     /**
      * @return Returns the interval-listener priority.
      */
@@ -145,7 +186,7 @@ public class AccumulatorManager implements Integrator.IntervalListener {
     public void setPriority(int priority) {
         this.priority = priority;
     }
-	/**
+    /**
 	 * Counter that keeps track of the number of interval events received since last call to updateSums
 	 */
 	protected int iieCount;
@@ -164,5 +205,5 @@ public class AccumulatorManager implements Integrator.IntervalListener {
 	 * In this situation the meter is probably measuring a property for use by some other object
 	 * Default is <code>true</code> for a Meter, but <code>false</code> for a MeterFunction.
 	 */
-	protected boolean active;
+	protected boolean active=true;
 }

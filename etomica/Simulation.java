@@ -107,7 +107,7 @@ public class Simulation {
 	}
 	
 	public final LinkedList getLoggerList() {return loggerList;}
-    public final LinkedList getAccumulatorManagerList() {return accumulatorManagerList;}
+    public final LinkedList getDataManagerList() {return dataManagerList;}
     public final LinkedList getPhaseList() {return phaseList;}
     public final LinkedList getMeterList() {return meterList;}
     public final LinkedList getIntegratorList() {return integratorList;}
@@ -131,15 +131,15 @@ public class Simulation {
     }
     
     /**
-     * Add the given accumulatorManger to a list kept by the simulation.
-     * No other effect results from registering the accumulatorManager.  
+     * Add the given dataManger to a list kept by the simulation.
+     * No other effect results from registering the dataManager.  
      * The list of registered accumulationManagers may be retrieved via
-     * the getAccumulatorManagerList method.  An accumulatorManager may be
+     * the getDataManagerList method.  An dataManager may be
      * removed from the list via the unregister method.
-     * @param accumulatorManager
+     * @param dataManager
      */
-    public void register(AccumulatorManager accumulatorManager) {
-     	accumulatorManagerList.add(accumulatorManager);
+    public void register(DataManager dataManager) {
+     	dataManagerList.add(dataManager);
     }
 
     public void register(Phase phase) {
@@ -163,13 +163,13 @@ public class Simulation {
     }
     
     /**
-     * Removes the given accumulatorManager from the list of accumulatorManagers
+     * Removes the given dataManager from the list of dataManagers
      * kept by the simulation.  No other action results upon removing it from
-     * this list.  If the given accumulatorManager is not in the list already,
+     * this list.  If the given dataManager is not in the list already,
      * the method returns without taking any action.
      */
-    public void unregister(AccumulatorManager accumulatorManager) {
-    	accumulatorManagerList.remove(accumulatorManager);
+    public void unregister(DataManager dataManager) {
+    	dataManagerList.remove(dataManager);
     }
      
     public void unregister(Phase phase) {
@@ -250,7 +250,7 @@ public class Simulation {
      public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
      private static final LinkedList instances = new LinkedList();
      private Controller controller;     
-     private final LinkedList accumulatorManagerList = new LinkedList();
+     private final LinkedList dataManagerList = new LinkedList();
      private final LinkedList phaseList = new LinkedList();
      private final LinkedList loggerList = new LinkedList();
      private final LinkedList meterList = new LinkedList();

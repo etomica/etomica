@@ -23,7 +23,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     private  Modulator       modulatorIndependentVariable,modulatorDependentVariable;
     private  MeterScalar     meter1phase1,meter1phase2,meter2phase1,meter2phase2;
     private  AccumulatorAverage accAve1phase1, accAve1phase2, accAve2phase1, accAve2phase2;
-    private  AccumulatorManager AM1phase1, AM1phase2, AM2phase1, AM2phase2;
+    private  DataManager AM1phase1, AM1phase2, AM2phase1, AM2phase2;
     private  double          i0 ;
     private  double          d0 ;
     private  double          independentVariableFinal ;//final value of independent variable
@@ -85,10 +85,10 @@ public class ControllerGDI extends Controller implements EtomicaElement {
         accAve1phase2 = new AccumulatorAverage();
         accAve2phase1 = new AccumulatorAverage();
         accAve2phase2 = new AccumulatorAverage();
-        AM1phase1 = new AccumulatorManager(meter1phase1, new Accumulator[] {accAve1phase1});
-        AM1phase2 = new AccumulatorManager(meter1phase2, new Accumulator[] {accAve1phase2});
-        AM2phase1 = new AccumulatorManager(meter2phase1, new Accumulator[] {accAve2phase1});
-        AM2phase2 = new AccumulatorManager(meter2phase2, new Accumulator[] {accAve2phase2});
+        AM1phase1 = new DataManager(meter1phase1, new Accumulator[] {accAve1phase1});
+        AM1phase2 = new DataManager(meter1phase2, new Accumulator[] {accAve1phase2});
+        AM2phase1 = new DataManager(meter2phase1, new Accumulator[] {accAve2phase1});
+        AM2phase2 = new DataManager(meter2phase2, new Accumulator[] {accAve2phase2});
         independentVariableFinal = iF.f(finalvalue);
         i0 = i1;
         d0 = d1;
