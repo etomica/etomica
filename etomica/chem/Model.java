@@ -20,7 +20,7 @@ public abstract class Model {
 	
 	public abstract AtomFactory makeAtomFactory(Space space);
 	
-	public abstract Potential makePotential(SimulationElement parent);
+	public abstract Potential makePotential(Space space);
 	
 	/**
 	 * NeighborIteration indicates if atoms at this hierarchy in the model

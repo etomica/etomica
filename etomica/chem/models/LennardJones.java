@@ -35,8 +35,8 @@ public class LennardJones extends ModelAtomic {
 		epsilon = e;
 	}
 	
-	public Potential makePotential(SimulationElement parent) {
-		return new P2LennardJones(parent, sigma, epsilon, truncation);
+	public Potential makePotential(Space space) {
+		return new P2LennardJones(space, sigma, epsilon, truncation);
 	}
 
 	/**

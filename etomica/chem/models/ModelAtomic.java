@@ -36,10 +36,10 @@ public abstract class ModelAtomic extends Model {
 		setDoNeighborIteration(true);	
 	}
 	
-	public AtomFactory makeAtomFactory(Simulation sim) {
+	public AtomFactory makeAtomFactory(Space space) {
 		AtomSequencer.Factory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
 																 : sim.iteratorFactory.simpleSequencerFactory();
-		return new AtomFactoryMono(sim,seqFactory);
+		return new AtomFactoryMono(space,seqFactory);
 	}
 	/**
 	 * Returns the electrostatic.
