@@ -21,7 +21,7 @@ public class P1Harmonic extends Potential1 implements Potential1.Soft {
         this(Simulation.instance.hamiltonian.potential);
     }
     
-    public P1Harmonic(PotentialGroup parent) {
+    public P1Harmonic(SimulationElement parent) {
         super(parent);
         D = simulation().space().D();
         force = simulation().space().makeVector();

@@ -27,11 +27,11 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
         this(Simulation.instance.hamiltonian.potential, d);
     }
     
-    public P2HardSphereWall(PotentialGroup parent) {
+    public P2HardSphereWall(SimulationElement parent) {
         this(parent, Default.ATOM_SIZE);
     }
     
-    public P2HardSphereWall(PotentialGroup parent, double d) {
+    public P2HardSphereWall(SimulationElement parent, double d) {
         super(parent);
         setCollisionDiameter(d);
         ZERO = simulation().space.makeTensor();//temporary

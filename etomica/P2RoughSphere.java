@@ -20,7 +20,7 @@ public class P2RoughSphere extends P2HardSphere {
     public P2RoughSphere(double d) {
         this(Simulation.instance.hamiltonian.potential, d);
     }
-    public P2RoughSphere(PotentialGroup parent, double d) {
+    public P2RoughSphere(SimulationElement parent, double d) {
         super(parent,d);
         v12Surface = simulation().space.makeVector();
         v12Par = simulation().space.makeVector();

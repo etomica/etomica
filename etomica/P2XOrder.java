@@ -19,7 +19,7 @@ public class P2XOrder extends Potential2 implements Potential2.Hard {
         this(Simulation.instance.hamiltonian.potential);
     }
 
-    public P2XOrder(PotentialGroup parent) {
+    public P2XOrder(SimulationElement parent) {
         super(parent);
         dr = simulation().space().makeVector();
     }

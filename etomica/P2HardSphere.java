@@ -33,10 +33,10 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
     public P2HardSphere(double d) {
         this(Simulation.instance.hamiltonian.potential, d);
     }
-    public P2HardSphere(PotentialGroup parent) {
+    public P2HardSphere(SimulationElement parent) {
         this(parent, Default.ATOM_SIZE);
     }
-    public P2HardSphere(PotentialGroup parent, double d) {
+    public P2HardSphere(SimulationElement parent, double d) {
         super(parent);
         setCollisionDiameter(d);
         lastCollisionVirialTensor = simulation().space().makeTensor();

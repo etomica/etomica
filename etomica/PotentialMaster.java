@@ -12,6 +12,9 @@ package etomica;
  /* History of changes
   * 08/13/02 (DAK) added removePotential method
   * 01/27/03 (DAK) many revisions as part of redesign of Potential
+  * 06/15/03 (DAK) in makeBasis, for 2-species case, added check for whether the
+  * two species are the same; if so uses one of them as basis, rather than
+  * making a pair from them.
   */
 public final class PotentialMaster extends PotentialGroup {
     
@@ -114,7 +117,8 @@ public final class PotentialMaster extends PotentialGroup {
 				case 2: 
 					SpeciesAgent speciesA = species[0].getAgent(m);
 					SpeciesAgent speciesB = species[1].getAgent(m);
-					if(speciesA.seq.preceeds(speciesB)) newBasis = new AtomPair(speciesA, speciesB); 
+					if(speciesA.equals(speciesB)) {newBasis = speciesA;}  //06/14/03 added
+					else if(speciesA.seq.preceeds(speciesB)) newBasis = new AtomPair(speciesA, speciesB); 
 					else newBasis = new AtomPair(speciesB, speciesA);
 					break;
 				default: throw new RuntimeException("problem in PotentialMaster.makeBasis");

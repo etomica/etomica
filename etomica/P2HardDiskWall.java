@@ -28,7 +28,7 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
 
     public P2HardDiskWall() {this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);}
     
-    public P2HardDiskWall(PotentialGroup parent) {
+    public P2HardDiskWall(SimulationElement parent) {
         this(parent, Default.ATOM_SIZE);
     }
     
@@ -36,7 +36,7 @@ public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
         this(Simulation.instance.hamiltonian.potential, d);
     }
     
-    public P2HardDiskWall(PotentialGroup parent, double d) {
+    public P2HardDiskWall(SimulationElement parent, double d) {
         super(parent);
         setCollisionDiameter(d);
         ZERO = simulation().space.makeTensor();//temporary

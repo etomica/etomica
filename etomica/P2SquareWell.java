@@ -22,14 +22,14 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
   public P2SquareWell() {
     this(Simulation.instance.hamiltonian.potential);
   }
-  public P2SquareWell(PotentialGroup parent) {
+  public P2SquareWell(SimulationElement parent) {
     this(parent,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
   public P2SquareWell(double coreDiameter, double lambda, double epsilon) {
     this(Simulation.instance.hamiltonian.potential, coreDiameter, lambda, epsilon);
   }
   
-  public P2SquareWell(PotentialGroup parent, double coreDiameter, double lambda, double epsilon) {
+  public P2SquareWell(SimulationElement parent, double coreDiameter, double lambda, double epsilon) {
     super(parent);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);

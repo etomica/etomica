@@ -29,7 +29,7 @@ public class P1HardBoundary extends Potential1 implements Potential1.Hard {
         this(Simulation.instance.hamiltonian.potential);
     }
     
-    public P1HardBoundary(PotentialGroup parent) {
+    public P1HardBoundary(SimulationElement parent) {
         super(parent);
         temperature = Default.TEMPERATURE;
         D = parent.simulation().space.D();

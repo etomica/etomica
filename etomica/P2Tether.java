@@ -21,7 +21,7 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   public P2Tether() {
     this(Simulation.instance.hamiltonian.potential);
   }
-  public P2Tether(PotentialGroup parent) {
+  public P2Tether(SimulationElement parent) {
     super(parent);
     setTetherLength(0.75*Default.ATOM_SIZE);
     lastCollisionVirialTensor = simulation().space().makeTensor();

@@ -19,7 +19,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     
     public P2HardAssociationCone() {this(Simulation.instance.hamiltonian.potential);}
     
-    public P2HardAssociationCone(PotentialGroup parent) {
+    public P2HardAssociationCone(SimulationElement parent) {
         super(parent);
         e1 = simulation().space().makeVector();
         e2 = simulation().space().makeVector();

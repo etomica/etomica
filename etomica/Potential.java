@@ -8,6 +8,7 @@ package etomica;
  */
  
  /* History of changes
+  * 06/16/03 (DAK) Revised to permit SimulationElement in constructor.
   * 01/27/03 (DAK) Large set of changes in revision of design of Potential
   * 08/14/02 (DAK) made parentPotential mutable, so that potential can be
   * added/removed from a potential group added setParentPotential for this
@@ -40,9 +41,10 @@ public abstract class Potential extends SimulationElement {
 	 * Constructor with default potential truncation given
 	 * as PotentialTruncation. NULL.
 	 * @param nBody number of atoms to which potential is applied at a time
-	 * @param parent potential group in which this potential resides
+	 * @param parent simulation element (usually a PotentialGroup) in which this
+	 * potential resides
 	 */
-    public Potential(int nBody, PotentialGroup parent) {
+    public Potential(int nBody, SimulationElement parent) {
     	this(nBody, parent, PotentialTruncation.NULL);
     }
     /**
@@ -54,12 +56,14 @@ public abstract class Potential extends SimulationElement {
      * @param truncation instance of a truncation class that specifies the
      * scheme for truncating the potential
      */
-    public Potential(int nBody, PotentialGroup parent, PotentialTruncation truncation) {
+    public Potential(int nBody, SimulationElement parent, PotentialTruncation truncation) {
         super(parent, Potential.class);
         this.nBody = nBody;
         potentialTruncation = truncation;
-        parentPotential = parent;
-        parentPotential.addPotential(this);
+        if(parent instanceof PotentialGroup) {
+	        parentPotential = (PotentialGroup)parent;
+	        parentPotential.addPotential(this);
+        }
     }
 
     public final PotentialGroup parentPotential() {return parentPotential;}

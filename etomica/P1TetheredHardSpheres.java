@@ -18,7 +18,7 @@ public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.
         this(Simulation.instance.hamiltonian.potential);
     }
     
-    public P1TetheredHardSpheres(PotentialGroup parent) {
+    public P1TetheredHardSpheres(SimulationElement parent) {
         super(1, parent);
         p2HardSphere = new P2HardSphere(this);
         p2Tether = new P2Tether(this);

@@ -1,4 +1,5 @@
 package etomica;
+import etomica.log.LoggerAbstract;
 import etomica.utility.HashMap2;
 
 //Java2 imports
@@ -29,6 +30,10 @@ import etomica.utility.java2.Iterator;
  * when its go method is called, set its <code>completed</code> field to <code>true</code>.
  */
     
+ /* History
+  * 04/18/03 (DAK) added IntegratorLogger subclass
+  * */
+
 public class Mediator implements java.io.Serializable {
 
     public static String getVersion() {return "01.03.11";}
@@ -39,6 +44,7 @@ public class Mediator implements java.io.Serializable {
         parentSimulation = sim;
         addMediatorPair(new PhaseSpecies.Default(this));
         addMediatorPair(new IntegratorPhase.Default(this));
+        addMediatorPair(new IntegratorLogger.Default(this));
         addMediatorPair(new MeterPhase.Default(this));
         addMediatorPair(new MeterSpecies.Default(this));
         addMediatorPair(new ControllerIntegrator.Default(this));
@@ -231,6 +237,51 @@ public class Mediator implements java.io.Serializable {
             }
         }//end of Default
     }//end of PhasePotential
+
+	public abstract static class IntegratorLogger extends Subset {
+	  public IntegratorLogger(Mediator m) {super(m);}
+
+	  public Class[] elementClasses() {return new Class[] {Integrator.class, LoggerAbstract.class};}
+        
+	  public void add(SimulationElement element) {
+		  if(!superceding && priorSubset != null) priorSubset.add(element);
+		  if(element instanceof LoggerAbstract) add((LoggerAbstract)element);
+		  if(element instanceof Integrator) add((Integrator)element);
+	  }
+        
+	  public abstract void add(LoggerAbstract p);
+	  public abstract void add(Integrator i);
+        
+	  public static class Default extends IntegratorLogger {
+		  public Default(Mediator m) {super(m);}
+		  /**
+		   * Loops over all integrators and adds logger to the first one it
+		   * finds
+		   */ 
+		  public void add(LoggerAbstract logger) {
+			  for(Iterator is=mediator.parentSimulation().integratorList().iterator(); is.hasNext(); ) {
+				  Integrator integrator = (Integrator)is.next();
+				  if(logger.getIntegrator()==null) {
+					  logger.setIntegrator(integrator);
+				  }
+				  break;
+			  }
+		  }
+		  /**
+		   * Sets this as the integrator for all loggers that have no
+		   * integrator.
+		   */
+		  public void add(Integrator integrator) {
+			  for(Iterator ip=mediator.parentSimulation().loggerList().iterator(); ip.hasNext(); ) {
+				  LoggerAbstract logger = (LoggerAbstract)ip.next();
+				  if(logger.getIntegrator() == null) { 
+					  logger.setIntegrator(integrator);
+				  }
+			  }
+		  }
+	  }//end of Default
+  }//end of IntegratorLogger
+
 
        public abstract static class IntegratorPhase extends Subset {
         public IntegratorPhase(Mediator m) {super(m);}

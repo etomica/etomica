@@ -33,13 +33,13 @@ public class PotentialGroup extends Potential {
     /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
      */
-    public PotentialGroup(int nBody, PotentialGroup parent) {
+    public PotentialGroup(int nBody, SimulationElement parent) {
         this(nBody, parent, null);
     }
     /**
      * Makes instance with given truncation scheme.
      */
-    public PotentialGroup(int nBody, PotentialGroup parent, PotentialTruncation truncation) {
+    public PotentialGroup(int nBody, SimulationElement parent, PotentialTruncation truncation) {
         super(nBody, parent, truncation);
         switch(nBody) {
         	case 1: iterator = simulation().iteratorFactory.makeGroupIteratorSequential();

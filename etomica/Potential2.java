@@ -21,7 +21,7 @@ public abstract class Potential2 extends Potential {
     
     protected AtomPairIterator iterator;
     
-    public Potential2(PotentialGroup parent) {
+    public Potential2(SimulationElement parent) {
         this(parent, Default.TRUNCATE_POTENTIALS ? 
                         new PotentialTruncationSimple(parent.simulation().space)
                       : PotentialTruncation.NULL);
@@ -37,7 +37,7 @@ public abstract class Potential2 extends Potential {
             potentialTruncation = PotentialTruncation.NULL;
         }*/
     }
-    public Potential2(PotentialGroup parent, PotentialTruncation potentialTruncation) {
+    public Potential2(SimulationElement parent, PotentialTruncation potentialTruncation) {
         super(2, parent, potentialTruncation);
         iterator = new Api1A(new ApiIntergroup1A(simulation()),
         						new ApiIntergroupAA(simulation()));

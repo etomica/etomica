@@ -14,6 +14,8 @@ import etomica.units.Unit;
 /* History
  * 01/03/03 (DAK) changed doUpdate to call setupX(); needed to ensure x is
  * properly dimensioned if y arrays change.
+ * 04/17/03 (DAK) in setDataSources, modified handling of default ySource
+ * Dimension to not have error if default is null
  */
  
 public abstract class DisplayDataSources extends Display implements DataSource.MultiUser
@@ -74,7 +76,9 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
             if(yUnit[i]==null || yUnit[i].dimension() != ySource[i].getDimension()) {
                 //no unit presently defined, or existing unit is not 
                 //of same Dimension as corresponding ySource
-               yUnit[i] = ySource[i].getDimension().defaultIOUnit();
+               etomica.units.Dimension yDim = ySource[i].getDimension();
+               if(yDim == null) yDim = etomica.units.Dimension.NULL;
+               yUnit[i] = yDim.defaultIOUnit();
             }//end if
         }//end for
         if(xSource == null && ySource[0] instanceof DataSource.X) 

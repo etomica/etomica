@@ -2,6 +2,7 @@
 package etomica;
 
 import etomica.units.UnitSystem;
+import etomica.log.LoggerAbstract;
 
 //Java2 imports
 //import java.util.HashMap;
@@ -22,6 +23,11 @@ import etomica.utility.java2.Iterator;
  *
  * @author David Kofke
  */
+
+/* History
+ * 04/18/03 (DAK) added LoggerList
+ */
+ 
 public class Simulation extends SimulationElement {
     
     public static final String VERSION = "Simulation:01.11.20";
@@ -40,11 +46,6 @@ public class Simulation extends SimulationElement {
     public final Hamiltonian hamiltonian;
     
     public PotentialCalculationEnergySum energySum;
-    
-   /**
-    * Object describing the nature of the physical space in which the simulation is performed
-    */
- //   public final Space space;
     
 
     //default unit system for I/O (internal calculations are all done in simulation units)
@@ -74,7 +75,8 @@ public class Simulation extends SimulationElement {
         elementLists.put(Integrator.class, new LinkedList());
         elementLists.put(Phase.class, new LinkedList());
         elementLists.put(Controller.class, new LinkedList());
-        elementLists.put(MeterAbstract.class, new LinkedList());
+		elementLists.put(MeterAbstract.class, new LinkedList());
+		elementLists.put(LoggerAbstract.class, new LinkedList());
         elementCoordinator = new Mediator(this);
         hamiltonian = new Hamiltonian(this);
     }//end of constructor
@@ -113,9 +115,14 @@ public class Simulation extends SimulationElement {
      * @return the <code>nth</code> instantiated meter (indexing from zero)
      */
     public final MeterAbstract meter(int n) {return (MeterAbstract)meterList().get(n);}
+	/**
+	 * @return the <code>nth</code> instantiated logger (indexing from zero)
+	 */
+	public final LoggerAbstract logger(int n) {return (LoggerAbstract)loggerList().get(n);}
 
     public final LinkedList phaseList() {return (LinkedList)elementLists.get(Phase.class);}
-    public final LinkedList meterList() {return (LinkedList)elementLists.get(MeterAbstract.class);}
+	public final LinkedList meterList() {return (LinkedList)elementLists.get(MeterAbstract.class);}
+	public final LinkedList loggerList() {return (LinkedList)elementLists.get(LoggerAbstract.class);}
     public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
     public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
     public final LinkedList controllerList() {return (LinkedList)elementLists.get(Controller.class);}

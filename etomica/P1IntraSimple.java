@@ -22,7 +22,7 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         this(Simulation.instance.hamiltonian.potential);
     }
     
-    public P1IntraSimple(PotentialGroup parent) {
+    public P1IntraSimple(SimulationElement parent) {
         super(1, parent);
     }
     

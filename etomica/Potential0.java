@@ -12,7 +12,7 @@ public abstract class Potential0 extends Potential {
   
     public static String VERSION = "Potential0:01.07.26/"+Potential.VERSION;
     
-    public Potential0(PotentialGroup parent) {
+    public Potential0(SimulationElement parent) {
         super(0, parent);
     }
     

@@ -403,7 +403,7 @@ public class AtomList implements java.io.Serializable
      * @return the last entry in this list.
      * @throws    NoSuchElementException if this list is empty.
      */
-    AtomLinker lastEntry()  {
+    public AtomLinker lastEntry()  {
 	    if (size==0) return null;
 	    AtomLinker entry = header.previous;
 	    while(entry.atom == null) entry = entry.previous;

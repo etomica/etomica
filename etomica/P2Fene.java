@@ -17,10 +17,10 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
 
     private double r0, r02, h, prefactor;
     
-    public P2Fene(PotentialGroup parent) {
+    public P2Fene(SimulationElement parent) {
         this(parent, 1.50*Default.ATOM_SIZE, 30.0*Default.POTENTIAL_WELL/Math.pow(Default.ATOM_SIZE,2)/*1.50*Default.ATOM_SIZE, 250.0*/);
     }
-    public P2Fene(PotentialGroup parent, double r0, double amplitude) {
+    public P2Fene(SimulationElement parent, double r0, double amplitude) {
         super(parent);
         setMaximumSeparation(r0);
         setAmplitude(amplitude);

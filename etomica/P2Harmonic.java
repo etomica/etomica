@@ -17,7 +17,7 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
     public P2Harmonic(double w) {
         this(Simulation.instance.hamiltonian.potential, w);
     }
-    public P2Harmonic(PotentialGroup parent, double w) {
+    public P2Harmonic(SimulationElement parent, double w) {
         super(parent);
         setSpringConstant(w);
     }

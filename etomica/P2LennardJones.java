@@ -16,7 +16,7 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     public P2LennardJones() {
         this(Default.ATOM_SIZE, Default.POTENTIAL_WELL);
     }
-    public P2LennardJones(PotentialGroup parent) {
+    public P2LennardJones(SimulationElement parent) {
         super(parent);
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);
@@ -26,7 +26,7 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
         setSigma(sigma);
         setEpsilon(epsilon);
     }
-    public P2LennardJones(PotentialGroup parent, double sigma, double epsilon,
+    public P2LennardJones(SimulationElement parent, double sigma, double epsilon,
                             PotentialTruncation trunc) {
         super(parent, trunc);
         setSigma(sigma);

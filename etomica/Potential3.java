@@ -11,7 +11,7 @@ public abstract class Potential3 extends Potential {
     
     protected Atom3Iterator iterator;
     
-    public Potential3(PotentialGroup parent) {
+    public Potential3(SimulationElement parent) {
         super(3, parent);
 //        iterator = new Atom3Iterator(parentSimulation().space());
     }

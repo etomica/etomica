@@ -22,7 +22,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     this(Simulation.instance.hamiltonian.potential, coreDiameter, lambda, epsilon);
   }
   
-  public P2TriangleWell(PotentialGroup parent, double coreDiameter, double lambda, double epsilon) {
+  public P2TriangleWell(SimulationElement parent, double coreDiameter, double lambda, double epsilon) {
     super(parent);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);

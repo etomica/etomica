@@ -23,7 +23,7 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
     public P2HardAssociation(double wellDiameter, double epsilon) {
         this(Simulation.instance.hamiltonian.potential, wellDiameter, epsilon);
     }
-    public P2HardAssociation(PotentialGroup parent, double wellDiameter, double epsilon) {
+    public P2HardAssociation(SimulationElement parent, double wellDiameter, double epsilon) {
         super(parent);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);

@@ -49,6 +49,11 @@ import etomica.utility.java2.Iterator;
  * 
  */
 
+/* History
+ * 03/19/03 (DAK) fixed makeCellLattice method to compare r2 to square of
+ * neighbor range
+ * 
+ */
 public class IteratorFactoryCell implements IteratorFactory {
     
     private Primitive primitive;
@@ -120,7 +125,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         //set up the neighbor lists for each cell in the lattice
         etomica.lattice.NeighborManager.Criterion neighborCriterion = new etomica.lattice.NeighborManager.Criterion() {
             public boolean areNeighbors(Site s1, Site s2) {
-                return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < neighborRange;
+                return ((AbstractCell)s1).r2NearestVertex((AbstractCell)s2, phase.boundary()) < neighborRange*neighborRange;//03/19/03 corrected to make neighborrange squared
             }
         };
         lattice.setupNeighbors(neighborCriterion);

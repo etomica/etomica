@@ -12,7 +12,7 @@ public abstract class Potential1 extends Potential {
     protected AtomIterator iterator;
     private final IteratorDirective localDirective = new IteratorDirective();
     
-    public Potential1(PotentialGroup parent) {
+    public Potential1(SimulationElement parent) {
         super(1, parent);
         iterator = simulation().iteratorFactory.makeGroupIteratorSequential();
         localDirective.setSkipFirst(false);
