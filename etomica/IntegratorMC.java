@@ -9,6 +9,10 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/16/02 (DAK) Added space-argument constructor.
+  */
 public class IntegratorMC extends Integrator implements EtomicaElement {
     
     public String version() {return "IntegratorMC:02.03.19"+Integrator.VERSION;}
@@ -25,6 +29,10 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     public IntegratorMC(Simulation sim) {
         super(sim);
         setIsothermal(true); //has no practical effect, but sets value of isothermal to be consistent with way integrator is sampling
+    }
+    public IntegratorMC(Space space, PotentialMaster potential) {
+        super(space, potential);
+        setIsothermal(true);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

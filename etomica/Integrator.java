@@ -31,6 +31,9 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   int phaseCountMax = 1;
   protected int sleepPeriod = 10;
   
+  private static int nonSimCount = 0;//number of times instantiated without a parent simulation
+  
+  
   //should use a different collection structure
   private Vector intervalListenersBeforePbc = new Vector();
   private Vector intervalListenersImposePbc = new Vector();
@@ -52,6 +55,16 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
     potential = sim.hamiltonian.potential;
   }
   
+  /**
+   * Constructor for use when integrator should not be registered with a simulation.
+   * Not often used.  Appropriate if integrator is a component of another simulation
+   * element, such as the parallel-tempering integrator IntegratorPT.
+   */
+    public Integrator(Space space, PotentialMaster potential) {
+        super(space, Integrator.class, nonSimCount++);
+        phase = new Phase[phaseCountMax];
+        this.potential = potential;
+    }
     /** 
      * Performs the elementary integration step, such as a molecular dynamics
      * time step, or a Monte Carlo trial.

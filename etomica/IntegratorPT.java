@@ -25,14 +25,18 @@ package etomica;
 
 public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
-    public String version() {return "IntegratorPT:01.11.20"+super.version();}
+    public String version() {return "IntegratorPT:02.07.16"+super.version();}
 
     public IntegratorPT() {
         this(Simulation.instance);
     }
     public IntegratorPT(Simulation sim) {
+        this(sim, new MCMoveSwapFactoryDefault());
+    }
+    public IntegratorPT(Simulation sim, MCMoveSwapFactory swapFactory) {
         super(sim);
         setSwapInterval(100);
+        mcMoveSwapFactory = swapFactory;
     }
     
     /**
@@ -45,10 +49,17 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
 	public void addIntegrator(Integrator integrator){
 		int n = integrators.length;
 		Integrator[] newintegrators = new Integrator[n+1];
-		for(int i=0; i<n; i++) { newintegrators[i] = integrators[i];}
+		for(int i=0; i<n; i++) {newintegrators[i] = integrators[i];}
 		newintegrators[n] = integrator;
 		integrators = newintegrators;
 		nIntegrators++;
+		
+		if(nIntegrators > 1) {
+		    MCMove[] newMCMoveSwap = new MCMove[n];
+		    for(int i=0; i<n-1; i++) {newMCMoveSwap[i] = mcMoveSwap[i];}
+		    newMCMoveSwap[n-1] = mcMoveSwapFactory.makeMCMoveSwap(this, integrators[n-1], integrators[n]);
+            mcMoveSwap = newMCMoveSwap;
+		}
 	}
 	
 	/**
@@ -80,6 +91,12 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     }
     
     /**
+     * Returns an array containing all the MCMove classes that perform
+     * swaps between the phases.
+     */
+    public MCMove[] swapMoves() {return mcMoveSwap;}
+    
+    /**
      * Sets the average interval between phase-swap trials.  With each 
      * call to doStep of this integrator, there will be a probability of
      * 1/nSwap that a swap trial will be attempted.  An swap is attempted
@@ -98,9 +115,10 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
     private int nSwap;
     private double swapProbability;
-	private Integrator[] integrators = new Integrator[0];	
+	private Integrator[] integrators = new Integrator[0];
+	private MCMove[] mcMoveSwap = new MCMove[0];
 	private int nIntegrators = 0;
-	private MCMoveSwapFactory mcMoveSwapFactory = new MCMoveSwapFactoryDefault();
+	private final MCMoveSwapFactory mcMoveSwapFactory;
 
 	
 	//----------- inner interface -----------
@@ -125,7 +143,7 @@ public interface MCMoveSwapFactory {
 
     // -----------inner class----------------
     
-public class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
+public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
     public MCMove makeMCMoveSwap(IntegratorMC integratorMC, 
                                     Integrator integrator1, Integrator integrator2) {
         return new MCMoveSwapConfiguration(integratorMC, integrator1, integrator2);
@@ -140,7 +158,7 @@ public class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
 	 * Basic MCMove for swapping coordinates of atoms in two phases.
 	 * Requires same number of atoms in each phase.
 	 */
-public class MCMoveSwapConfiguration extends MCMove {
+public static class MCMoveSwapConfiguration extends MCMove {
 
 	private Integrator integrator1, integrator2;	
     private final IteratorDirective iteratorDirective = new IteratorDirective();
