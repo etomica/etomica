@@ -3,22 +3,18 @@
 package etomica.simulations;
 
 import etomica.*;
+import etomica.action.PhaseImposePbc;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.graphics.*;
+import etomica.lattice.Crystal;
+import etomica.lattice.CrystalFcc;
 import etomica.units.Dimension;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
 //problems with this simulation hanging
 
-public class SWMD3D extends SimulationGraphic {
+public class SWMD3D extends Simulation {
 
-	/**
-	 * @author kofke
-	 *
-	 * To change this generated comment edit the template variable "typecomment":
-	 * Window>Preferences>Java>Templates.
-	 * To enable and disable the creation of type comments go to
-	 * Window>Preferences>Java>Code Generation.
-	 */
 	public class MyModulator extends ModulatorAbstract {
 
 		/**
@@ -32,88 +28,91 @@ public class SWMD3D extends SimulationGraphic {
 		 * @see etomica.ModulatorAbstract#setValue(double)
 		 */
 		public void setValue(double d) {
-			potential0.setCoreDiameter(d);
-			speciesSpheres0.setDiameter(d);
+			potential.setCoreDiameter(d);
+			species.setDiameter(d);
 		}
 
 		/**
 		 * @see etomica.ModulatorAbstract#getValue()
 		 */
 		public double getValue() {
-			return potential0.getCoreDiameter();
+			return potential.getCoreDiameter();
 		}
 
 	}
-	P2SquareWell potential0;
-	SpeciesSpheresMono speciesSpheres0;
-	Atom first;
 	
   public SWMD3D() {
 	super(new etomica.Space3D());
-	Simulation.instance = this;
 //	Default.makeLJDefaults();
+    
+    integrator = new IntegratorHard(potentialMaster);
+//  integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+    integrator.setTimeStep(0.01);
+    integrator.setIsothermal(true);
+    integrator.setTemperature(300);
+    ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+    getController().addAction(activityIntegrate);
 
-	etomica.Phase phase0  = new etomica.Phase();
-	phase0.setConfiguration(new ConfigurationFcc(this));
-	potential0  = new etomica.P2SquareWell();
-	etomica.Controller controller0  = new etomica.Controller();
-	new DeviceTrioControllerButton(this, controller0);
-	speciesSpheres0  = new etomica.SpeciesSpheresMono();
-	potential0.setSpecies(speciesSpheres0);
-	potential0.setLambda(1.6);
-	speciesSpheres0.setNMolecules(108);
 
-	etomica.graphics.DisplayPhase displayPhase0  = new etomica.graphics.DisplayPhase();
+    phase = new Phase(space);
+    Crystal crystal = new CrystalFcc(space);
+    ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
+    phase.setConfiguration(configuration);
 
-//	displayPhase0.setColorScheme(new ColorSchemeByType());
-	displayPhase0.setColorScheme(new MyColorScheme());
-	ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
- 
-	etomica.IntegratorHard integratorHard0  = new etomica.IntegratorHard();
-      integratorHard0.setIsothermal(true);
-      integratorHard0.setTemperature(300);
-//	MeterPressureHard meterPressure = new MeterPressureHard();
-//	DisplayBox box = new DisplayBox();
-//	box.setDatumSource(meterPressure);
+    potential  = new etomica.P2SquareWell();
+    potential.setLambda(1.6);
+
+    species  = new etomica.SpeciesSpheresMono(this);
+	species.setNMolecules(108);
+
 	
-	DeviceSlider tControl = new DeviceSlider(integratorHard0, "temperature");
-	DeviceSlider sigmaControl = new DeviceSlider(new MyModulator());
-	DeviceSlider lambdaControl = new DeviceSlider(potential0, "lambda");
-	tControl.setLabel("Temperature (K)");
-	sigmaControl.setLabel("Atom size (Angstroms)");
-	tControl.setShowValues(true);
-	tControl.setShowBorder(true);
-	tControl.setMinimum(100);
-	tControl.setMaximum(700);
-	sigmaControl.setShowValues(true);
-	sigmaControl.setShowBorder(true);
-	sigmaControl.setPrecision(2);
-	sigmaControl.setMinimum(0.0);
-	sigmaControl.setMaximum(3.0);
-	lambdaControl.setShowValues(true);
-	lambdaControl.setShowBorder(true);
-	lambdaControl.setPrecision(2);
-	lambdaControl.setMinimum(1.1);
-	lambdaControl.setMaximum(2.1);
-	lambdaControl.setValue(1.4);
-	lambdaControl.setNMajor(5);
+//	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");
+//	DeviceSlider sigmaControl = new DeviceSlider(new MyModulator());
+//	DeviceSlider lambdaControl = new DeviceSlider(potential0, "lambda");
+//	tControl.setLabel("Temperature (K)");
+//	sigmaControl.setLabel("Atom size (Angstroms)");
+//	tControl.setShowValues(true);
+//	tControl.setShowBorder(true);
+//	tControl.setMinimum(100);
+//	tControl.setMaximum(700);
+//	sigmaControl.setShowValues(true);
+//	sigmaControl.setShowBorder(true);
+//	sigmaControl.setPrecision(2);
+//	sigmaControl.setMinimum(0.0);
+//	sigmaControl.setMaximum(3.0);
+//	lambdaControl.setShowValues(true);
+//	lambdaControl.setShowBorder(true);
+//	lambdaControl.setPrecision(2);
+//	lambdaControl.setMinimum(1.1);
+//	lambdaControl.setMaximum(2.1);
+//	lambdaControl.setValue(1.4);
+//	lambdaControl.setNMajor(5);
 
 
-	mediator().go();
-	first = speciesSpheres0.getAgent(phase0).firstMolecule();
+//	mediator().go();
+    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+    phase.speciesMaster.addSpecies(species);
+    integrator.addPhase(phase);
+    integrator.addIntervalListener(new PhaseImposePbc(phase));
+
+    first = species.getAgent(phase).firstMolecule();
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(phase0));
 //	nControl.setMaximum(108);
-	speciesSpheres0.setNMolecules(108);
-	phase0.setDensity(0.0405);
-	mediator().go();
+	species.setNMolecules(108);
+	phase.setDensity(0.0405);
+//	mediator().go();
   } //end of constructor
 
-  public static void main(String[] args) {
-	Simulation sim = new SWMD3D();
-	sim.mediator().go(); 
-	SimulationGraphic.makeAndDisplayFrame(sim);
-  }//end of main
+  public IntegratorHard integrator;
+  public SpeciesSpheresMono species;
+  public Phase phase;
+  public P2SquareWell potential;
+  public Controller controller;
+  public DisplayPhase display;
+  Atom first;
+
+
   
   public class MyColorScheme extends ColorScheme {
 	  public java.awt.Color atomColor(Atom a) {

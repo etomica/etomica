@@ -9,6 +9,7 @@ import etomica.Space;
 import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
+import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.graphics.DisplayPhase;
 
@@ -31,7 +32,7 @@ public class SwMd2D extends Simulation {
     public SwMd2D(Space space) {
         super(space);
         Default.makeLJDefaults();
-        Default.ATOM_SIZE = 0.4;
+        Default.ATOM_SIZE = 0.8;
         integrator = new IntegratorHard(potentialMaster);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -50,5 +51,6 @@ public class SwMd2D extends Simulation {
         //explicit implementation of elementCoordinator activities
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
+        integrator.addIntervalListener(new PhaseImposePbc(phase));
     } 
 }
