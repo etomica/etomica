@@ -13,17 +13,8 @@ package etomica;
 //PotentialMaster uses instances of this class for all iterators it assigns
 //to the potentials added to it via setSpecies.
 public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
-		implements AtomsetIteratorPhaseDependent, AtomsetIteratorTargetDependent {
+		implements AtomsetIteratorPhaseDependent, AtomsetIteratorTargetable {
 
-	private final Species[] species;
-	private final AtomsetIteratorBasisDependent basisIterator;
-	private final SpeciesAgent[] agents;
-	private final int basisSize;
-	private boolean needBasisUpdate;
-	private Atom[] targetAtoms;
-	private IteratorDirective.Direction direction;
-	private final boolean ignoreDirection;
-	
 	/**
 	 * Constructor requires specification of species for which molecules
 	 * are subject to iteration.  If a single species is given in the array,
@@ -35,12 +26,19 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
 	 * two species are specified, an IllegalArgumentException is thrown.
 	 */
 	public AtomsetIteratorMolecule(Species[] species) {
+		this(species, false);
+	}
+	public AtomsetIteratorMolecule(Species[] species, boolean dummy) {
 		super(makeIterator(species));
 		this.species = (Species[])species.clone();
 		basisIterator = (AtomsetIteratorBasisDependent)iterator;
 		basisSize = species.length;
 		agents = new SpeciesAgent[basisSize];
 		targetAtoms = new Atom[nBody()];
+		
+		//ignore direction specifications if this is a single-atom iterator
+		//or if it is a intra-group pair iterator (in which case the direction
+		//specification is passed on to the wrapped intra-group iterator).
 		ignoreDirection = (basisSize == 1) || (species[0] == species[1]);
 	}
 
@@ -71,6 +69,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     public Species[] getSpecies() {
     	return (Species[])species.clone();
     }
+    
     
     public void setTarget(Atom[] targetAtoms) {
     	System.arraycopy(targetAtoms,0,this.targetAtoms,0,targetAtoms.length);
@@ -116,11 +115,12 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     }
     
     public void setDirection(IteratorDirective.Direction direction) {
-    	if (!ignoreDirection) {
+    	
+    	if (!ignoreDirection) {//if this is true, basisIterator is instanceof ApiInterGroup
     		this.direction = direction;
     		needBasisUpdate = true;
     	}
-    	else if (species.length == 2) {
+    	else if (basisSize == 2) {
     		// if ignoreDirection is true and there are 2 species,
     		// basisIterator must be an intragroup iterator and
     		// the direction must be passed to it.  All other types
@@ -139,11 +139,21 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     		throw new IllegalArgumentException("null or invalid number of species.  Must specify either 1 or 2 species instances.");
     	}
     	if (species.length==1) {
-    		return new AtomIteratorDirectable();
+    		return new AtomIteratorBasis();
     	}
     	else if (species[0] == species[1]) {
     		return new ApiIntragroup();
     	}
     	else return new ApiIntergroup();
     }
+     
+ 	private final Species[] species;
+	private final AtomsetIteratorBasisDependent basisIterator;
+	private final SpeciesAgent[] agents;
+	private final int basisSize;
+	private boolean needBasisUpdate;
+	private Atom[] targetAtoms;
+	private IteratorDirective.Direction direction;
+	private final boolean ignoreDirection;
+	
 }

@@ -14,11 +14,11 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 		AtomsetIteratorBasisDependent {
 
 	public ApiIntergroup() {
-		super(new ApiInnerVariable(
-				new AtomIteratorDirectable(),
+		super(new ApiInnerFixed(
+				new AtomIteratorBasis(),
 				new AtomIteratorSequencerList()));
 		pairIterator = (ApiInnerFixed)iterator;
-		aiOuter = (AtomIteratorDirectable)pairIterator.getOuterIterator();
+		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
 		aiInner = (AtomIteratorListSimple)pairIterator.getInnerIterator();
 	}
 
@@ -46,7 +46,7 @@ public final class ApiIntergroup extends AtomsetIteratorAdapter implements
 	}
 
 	private final ApiInnerFixed pairIterator;
-	private final AtomIteratorDirectable aiOuter;
+	private final AtomIteratorBasis aiOuter;
 	private final AtomIteratorListSimple aiInner;
 	private final Atom[] atom = new Atom[1];
 

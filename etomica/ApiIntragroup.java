@@ -19,10 +19,10 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 */
 	public ApiIntragroup() {
 		super(new ApiInnerVariable(
-					new AtomIteratorDirectable(),
+					new AtomIteratorBasis(),
 					new AtomIteratorSequencerList()));
 		pairIterator = (ApiInnerVariable)iterator;
-		aiOuter = (AtomIteratorDirectable)pairIterator.getOuterIterator();
+		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
 		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
 		aiInner.setSkippingFirst(true);
 	}
@@ -116,7 +116,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	}
 	
 	private final ApiInnerVariable pairIterator;//local, specifically typed copy
-	private final AtomIteratorDirectable aiOuter;//local, specifically typed copy
+	private final AtomIteratorBasis aiOuter;//local, specifically typed copy
 	private final AtomIteratorSequencerList aiInner;//local, specifically typed copy
 	private boolean doBoth;//indicates if inner iteration should proceed UP and then DOWN from atom
 	private boolean upListNow;//indicates if inner iteration is currently in the UP direction
