@@ -6,12 +6,14 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
+import etomica.atom.AtomPairVector;
 import etomica.atom.AtomsetFilter;
 
 /**
@@ -19,9 +21,8 @@ import etomica.atom.AtomsetFilter;
  * only those meeting specified criteria are returned.
  */
 
-//XXX this shouldn't have to be AtomsetIteratorBasisDependent, but as used it does
 public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, AtomsetIteratorDirectable, 
-            AtomsetIteratorBasisDependent {
+            AtomsetIteratorBasisDependent, AtomPairIterator {
 	/**
 	 * Default constructor that causes no atoms to be filtered.
 	 * Iterator will give all iterates of the given iterator
@@ -42,7 +43,8 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 		this.filter = filter;
         nBody = iterator.nBody();
         if (nBody == 2) {
-            nextAtoms = new AtomPair();
+            nextAtoms = new AtomPairVector();
+            next = new AtomPairVector();
         }
         else {
             nextAtoms = null;
@@ -62,7 +64,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 * Indicates whether iterator has another iterate to return.
 	 */
 	public boolean hasNext() {
-		return next != null;
+		return hasNext;
 	}
 
 	/**
@@ -70,10 +72,18 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 */
 	public void reset() {
 		iterator.reset();
-		next = null;
-		while(iterator.hasNext() && next == null) {
-			next = iterator.next();
-			if(!filter.accept(next)) next = null;
+        hasNext = false;
+		while(iterator.hasNext()) {
+            if (nBody == 1) {
+                next = iterator.next();
+            }
+            else {
+                ((AtomPairIterator)iterator).nextPair().copyTo((AtomPair)next);
+            }
+            if(filter.accept(next)) {
+                hasNext = true;
+                break;
+            }
 		}
 	}
 
@@ -82,7 +92,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 */
 	public void unset() {
 		iterator.unset();
-		next = null;
+		hasNext = false;
 	}
 
 	/**
@@ -94,12 +104,20 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
             nextAtom = (Atom)next;
         }
         else {
-            ((AtomPair)next).copyTo((AtomPair)nextAtoms);
+            ((AtomPair)next).copyTo(nextAtoms);
         }
-		next = null;
-		while(iterator.hasNext() && next == null) {
-			next = iterator.next();
-			if(!filter.accept(next)) next = null;
+        hasNext = false;
+		while(iterator.hasNext()) {
+            if (nBody == 1) {
+                next = iterator.next();
+            }
+            else {
+                ((AtomPairIterator)iterator).nextPair().copyTo((AtomPair)next);
+            }
+            if(filter.accept(next)) {
+                hasNext = true;
+                break;
+            }
 		}
         if (nBody == 1) {
             return nextAtom;
@@ -109,6 +127,19 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
         }
 	}
 	
+    public AtomPair nextPair() {
+        ((AtomPair)next).copyTo(nextAtoms);
+        hasNext = false;
+        while(iterator.hasNext()) {
+            ((AtomPairIterator)iterator).nextPair().copyTo((AtomPair)next);
+            if(filter.accept(next)) {
+                hasNext = true;
+                break;
+            }
+        }
+        return nextAtoms;
+    }
+    
 	/**
 	 * Returns next atom without advancing the iterator.
 	 */
@@ -145,6 +176,9 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
     
     public void setBasis(AtomSet atoms) {
         ((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);
+        if (atoms instanceof AtomPairVector) {
+            ((AtomPairVector)next).nearestImageVector = ((AtomPairVector)atoms).nearestImageVector;
+        }
     }
         
 	/**
@@ -181,9 +215,10 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	private final AtomsetIterator iterator;
 	private AtomsetFilter filter;
 	private AtomSet next;
-	private final AtomSet nextAtoms;
+	private final AtomPairVector nextAtoms;
     private final int nBody;
     private Atom nextAtom;
+    private boolean hasNext;
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed
