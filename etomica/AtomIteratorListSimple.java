@@ -13,7 +13,7 @@ package etomica;
  * 08/23/04 (DAK, AS, KB) updated with overhaul of iterators
  * 
  */
-public final class AtomIteratorListSimple implements AtomIterator {
+public final class AtomIteratorListSimple implements AtomIteratorListDependent {
     
 	/**
 	 * Constructs iterator with an empty list for iteration.
@@ -39,11 +39,19 @@ public final class AtomIteratorListSimple implements AtomIterator {
 		
 	/**
 	 * Sets the list containing the atoms that will be returned by this iterator.
-	 * Call to reset() is needed before beginning iteration.
+	 * Call to reset() is needed before beginning iteration.  If argument is null,
+	 * an empty list is created as the iterator's list.
 	 */
     public void setList(AtomList newList) {
         list = (newList != null) ? newList : new AtomList();
         unset();
+    }
+    
+    /**
+     * @return the list used for iteration.
+     */
+    public AtomList getList() {
+    	return list;
     }
  
     /**

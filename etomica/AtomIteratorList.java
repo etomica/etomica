@@ -14,7 +14,7 @@ package etomica;
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
   * 08/23/04 (DAK, AS, KB) overhauled with revision of iterators
   */
-public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDirectable {
+public final class AtomIteratorList implements AtomIteratorListDependent, AtomsetIteratorDirectable {
     
     private AtomList list;
     
@@ -70,7 +70,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
     /**
      * Sets the given list of atoms as the basis for iteration.  The atoms
      * returned by this iterator will be those from the given list.  After 
-     * calling this method iterator must be reset before use.  This method 
+     * calling this method, iterator must be reset before use.  This method 
      * has no effect on iteration direction, but does set first and terminator 
      * iteration elements to be the header of the given list. If given
      * a null argument, an empty list is created for iteration. 
@@ -81,6 +81,7 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorDire
         terminatorType = AtomLinker.Tab.HEADER_TAB;
         first = list.header;
     }
+    
     
     /**
      * @return the list defining the atoms given by this iterator. 
