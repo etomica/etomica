@@ -284,19 +284,13 @@ public abstract class Space implements java.io.Serializable {
         /**
         * @return mass of the atom, in Daltons
         */
-        public double mass() {return mass;}
+        public double mass() {return atom.type.getMass();}//mass;}
 
         /**
         * @return reciprocal of the mass of the atom
         */
-        public double rm() {return rm;}
+        public double rm() {return atom.type.rm();}//rm;}
         
-        public void setMass(double m) {
-            mass = m;
-            rm = 1.0/m;
-        }
-        public double getMass() {return mass;}
-
         /**
         * Sets the atom to be stationary or movable.
         * The atom does not enforce the condition of being stationary, in that it does not

@@ -1,5 +1,4 @@
 package etomica;
-import etomica.exception.MethodNotImplementedException;
 import etomica.units.Dimension;
 
 /**
@@ -13,9 +12,6 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-/* History
- * 08/12/03 (DAK) use sim instead of space in AtomFactoryMono constructor
- */
 public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     private double mass;
@@ -60,17 +56,33 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
         return info;
     }
               
-    // Exposed Properties
+    /**
+     * The mass of each of the spheres.
+     */
     public final double getMass() {return mass;}
+    /**
+     * Sets the mass of all spheres to the given value.
+     */
     public final void setMass(double m) {
-    	throw new MethodNotImplementedException("not implemented");
-//        mass = m;
-//        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+        mass = m;
+        protoType.setMass(m);
     }
+    /**
+     * @return Dimension.MASS
+     */
     public Dimension getMassDimension() {return Dimension.MASS;}
                 
-    public double getDiameter() {return protoType.diameter(null);}
+    /**
+     * The diameter of each of the spheres.
+     */
+    public final double getDiameter() {return protoType.diameter(null);}
+    /**
+     * Sets the diameter of all spheres to the given value.
+     */
     public void setDiameter(double d) {protoType.setDiameter(d);}
+    /**
+     * @return Dimension.LENGTH
+     */
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
 
     /**

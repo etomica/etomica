@@ -26,31 +26,20 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
         AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
         AtomType type = new AtomType.Well(f, Default.ATOM_MASS, Default.ATOM_SIZE, 1.5);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(space, sim.iteratorFactory.neighborSequencerFactory(), f, na, bondInit, config);
+        AtomFactoryHomo fm = new AtomFactoryHomo(space, seqFactory, f, na, bondInit, config);
         return fm;
  //       return f;
     }
-        
-    public SpeciesSphereWells() {
-        this(Simulation.instance);
-    }
-    public SpeciesSphereWells(int n) {
-        this(Simulation.instance, n);
-    }
+   
     public SpeciesSphereWells(Simulation sim) {
-        this(sim, Default.MOLECULE_COUNT);
+        this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT, 1);
     }
-    public SpeciesSphereWells(Simulation sim, int n) {
-        this(sim, n, 1);
+    public SpeciesSphereWells(Space space, AtomSequencer.Factory seqFactory, int nM, int nA) {
+        this(space, seqFactory, nM, nA, new BondInitializerChain(), new ConfigurationLinear(space));
     }
-    public SpeciesSphereWells(int nM, int nA) {
-        this(Simulation.instance, nM, nA);
-    }
-    public SpeciesSphereWells(Simulation sim, int nM, int nA) {
-        this(sim, nM, nA, new BondInitializerChain(), new ConfigurationLinear(sim));
-    }
-    public SpeciesSphereWells(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
-        super(sim, makeFactory(sim, nA, bondInitializer, config));
+    public SpeciesSphereWells(Space space, AtomSequencer.Factory seqFactory, 
+                int nM, int nA, BondInitializer bondInitializer, Configuration config) {
+        super(makeFactory(space, seqFactory, nA, bondInitializer, config));
         factory.setSpecies(this);
         protoType = (AtomType.Sphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
@@ -62,24 +51,51 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
         return info;
     }
               
-    // Exposed Properties
+    /**
+     * The mass of each of the spheres.
+     */
     public final double getMass() {return mass;}
+    /**
+     * Sets the mass of all spheres to the given value.
+     */
     public final void setMass(double m) {
         mass = m;
-        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+        protoType.setMass(m);
     }
+    /**
+     * @return Dimension.MASS
+     */
     public Dimension getMassDimension() {return Dimension.MASS;}
                 
+    /**
+     * The diameter of each of the spheres.
+     */
     public final double getDiameter() {return protoType.diameter(null);}
+    /**
+     * Sets the diameter of all spheres to the given value.
+     */
     public void setDiameter(double d) {protoType.setDiameter(d);}
+    /**
+     * @return Dimension.LENGTH
+     */
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
                     
+    /**
+     * Sets the number of spheres in each molecule.  Causes reconstruction
+     * of all molecules of this species in all phases.  No action is performed
+     * if the given value equals the current value.
+     * @param n new number of atoms in each molecule.
+     */
     public void setAtomsPerMolecule(final int n) {
+        if(n == getAtomsPerMolecule()) return;
         ((AtomFactoryHomo)factory).setAtomsPerGroup(n);
         allAgents(new AtomAction() {public void actionPerformed(Atom a) {
             SpeciesAgent agent = (SpeciesAgent)a;
             agent.setNMolecules(agent.getNMolecules(),true);}});
     }
+    /**
+     * @return the number of spheres in each molecule made by this species.
+     */
     public int getAtomsPerMolecule() {
         return ((AtomFactoryHomo)factory).getAtomsPerGroup();
     }

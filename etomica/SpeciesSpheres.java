@@ -47,24 +47,51 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         return info;
     }
               
-    // Exposed Properties
+    /**
+     * The mass of each of the spheres that form a molecule.
+     */
     public final double getMass() {return mass;}
+    /**
+     * Sets the mass of all spheres in each molecule to the given value.
+     */
     public final void setMass(double m) {
         mass = m;
-        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+        protoType.setMass(m);
     }
+    /**
+     * @return Dimension.MASS
+     */
     public Dimension getMassDimension() {return Dimension.MASS;}
-                
+      
+    /**
+     * The diameter of each of the spheres that form a molecule.
+     */
     public final double getDiameter() {return protoType.diameter(null);}
+    /**
+     * Sets the diameter of all spheres in each molecule to the given value.
+     */
     public void setDiameter(double d) {protoType.setDiameter(d);}
+    /**
+     * @return Dimension.LENGTH
+     */
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
-                    
+    
+    /**
+     * Sets the number of spheres in each molecule.  Causes reconstruction
+     * of all molecules of this species in all phases.  No action is performed
+     * if the given value equals the current value.
+     * @param n new number of atoms in each molecule.
+     */
     public void setAtomsPerMolecule(final int n) {
+        if(n == getAtomsPerMolecule()) return;
         ((AtomFactoryHomo)factory).setAtomsPerGroup(n);
         allAgents(new AtomAction() {public void actionPerformed(Atom a) {
             SpeciesAgent agent = (SpeciesAgent)a;
             agent.setNMolecules(agent.getNMolecules(),true);}});
     }
+    /**
+     * @return the number of spheres in each molecule made by this species.
+     */
     public int getAtomsPerMolecule() {
         return ((AtomFactoryHomo)factory).getAtomsPerGroup();
     }

@@ -9,59 +9,78 @@ import etomica.units.Dimension;
  * @see AtomType.OrientedSphere
  * 
  */
-/* History
- * 08/12/03 (DAK) use sim instead of space in AtomFactoryMono constructor
- */
+
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public double mass;
     
     public AtomType.OrientedSphere protoType;
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Simulation sim) {
-        AtomFactoryMono f = new AtomFactoryMono(sim, sim.iteratorFactory.neighborSequencerFactory());
+    private static AtomFactoryMono makeFactory(Space space, AtomSequencer.Factory seqFactory) {
+        AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
         AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
         f.setType(type);
         return f;
     }
-        
-    public SpeciesSpheresRotating() {
-        this(Simulation.instance);
-    }
-    public SpeciesSpheresRotating(int n) {
-        this(Simulation.instance, n);
-    }
+    /**
+     * Constructs instance with space and AtomSequencer.Factory taken from
+     * given simulation, and using default number of molecules given by
+     * Default.MOLECULE_COUNT.
+     */
     public SpeciesSpheresRotating(Simulation sim) {
-        this(sim, Default.MOLECULE_COUNT);
+        this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT);
     }
-    public SpeciesSpheresRotating(Simulation sim, int nM) {
-        super(sim, makeFactory(sim));
-        factory.setSpecies(this);
-        protoType = (AtomType.OrientedSphere)((AtomFactoryMono)factory).type();
-        nMolecules = nM;
+        
+    /**
+     * Constructs instance with default number of molecules given by
+     * Default.MOLECULE_COUNT.
+     */
+    public SpeciesSpheresRotating(Space space, AtomSequencer.Factory seqFactory) {
+        this(space, seqFactory, Default.MOLECULE_COUNT);
     }
     
+    public SpeciesSpheresRotating(Space space, AtomSequencer.Factory seqFactory, int nM) {
+        super(makeFactory(space, seqFactory));
+        factory.setSpecies(this);
+        protoType = (AtomType.OrientedSphere)((AtomFactoryMono)factory).type();
+        mass = protoType.getMass();
+        nMolecules = nM;
+    }
+            
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Molecules formed from spheres with an attached rotatable direction");
         return info;
     }
               
-    // Exposed Properties
-    public final double getMass() {return protoType.getMass();}
+    /**
+     * The mass of each of the spheres.
+     */
+    public final double getMass() {return mass;}
+    /**
+     * Sets the mass of all spheres to the given value.
+     */
     public final void setMass(double m) {
         mass = m;
-        allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.coord.setMass(mass);}});
+        protoType.setMass(m);
     }
+    /**
+     * @return Dimension.MASS
+     */
     public Dimension getMassDimension() {return Dimension.MASS;}
                 
+    /**
+     * The diameter of each of the spheres.
+     */
     public final double getDiameter() {return protoType.diameter(null);}
+    /**
+     * Sets the diameter of all spheres to the given value.
+     */
     public void setDiameter(double d) {protoType.setDiameter(d);}
+    /**
+     * @return Dimension.LENGTH
+     */
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
-    
-/*    public static void main(String[] args) {
-        P2RoughSphere.main(args);
-    }
-*/    
+ 
 }
 
 
