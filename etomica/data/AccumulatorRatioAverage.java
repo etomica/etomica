@@ -14,9 +14,9 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         } else {
             super.getData();
             int numBaseStats = super.numStats();
-            data[(numBaseStats+0)*nDataMinus1+0] = 1; // average
-            data[(numBaseStats+1)*nDataMinus1+0] = 0; // error
-            data[(numBaseStats+2)*nDataMinus1+0] = 0; // std dev
+            data[(numBaseStats+0)*nData+0] = 1; // average
+            data[(numBaseStats+1)*nData+0] = 0; // error
+            data[(numBaseStats+2)*nData+0] = 0; // std dev
             double errorRatio0 = error[0]/average[0];
             errorRatio0 *= errorRatio0;
             double stdevRatio0 = standardDeviation[0]/average[0];
@@ -31,8 +31,8 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
                     stdevRatio = Math.sqrt(stdevRatio*stdevRatio + stdevRatio0) * average[i]/average[0];
                 }
                 data[(numBaseStats+0)*nData+i] = sum[i]/sum[0];
-                data[(numBaseStats+1)*nData+i] = ratioStandardDeviation[i] = errorRatio;
-                data[(numBaseStats+2)*nData+i] = ratioError[i] = stdevRatio;
+                data[(numBaseStats+1)*nData+i] = ratioError[i] = errorRatio;
+                data[(numBaseStats+2)*nData+i] = ratioStandardDeviation[i] = stdevRatio;
             }
         }
         return data;
