@@ -141,7 +141,6 @@ public abstract class IntegratorMD extends Integrator {
                 for (int i=0; i<phase.length; i++) {
                     AtomList atomList = phase[i].speciesMaster.atomList;
                     int index = Simulation.random.nextInt(atomList.size());
-                    System.out.println("randomizing "+index);
                     randomizeMomentum(atomList.get(index));
                 }
             }
