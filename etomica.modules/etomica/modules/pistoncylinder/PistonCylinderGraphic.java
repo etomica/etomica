@@ -103,7 +103,12 @@ public class PistonCylinderGraphic {
         thermalGroup.add(buttonIsothermal);
         buttonIsothermal.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
-                pc.integrator.setIsothermal(buttonIsothermal.isSelected());
+                pc.controller.doActionNow( new Action() {
+                    public void actionPerformed() {
+                        pc.integrator.setIsothermal(buttonIsothermal.isSelected());
+                    }
+                    public String getLabel() {return "";}
+                });
             }
         });
         
@@ -394,9 +399,12 @@ public class PistonCylinderGraphic {
         int D = pc.space.D();
 
         BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
+        pc.ai.setDoSleep(true);
         if (pc.space.D() == 2) {
-            pc.ai.setDoSleep(true);
             pc.ai.setSleepPeriod(10);
+        }
+        else {
+            pc.ai.setSleepPeriod(1);
         }
 
         pc.integrator.setThermostatInterval(100);
