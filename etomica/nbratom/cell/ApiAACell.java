@@ -48,6 +48,11 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
 	}
 
 	public void setPhase(Phase phase) {
+        if(this.phase == phase) {
+            unset();
+            return;
+        }
+        this.phase = phase;
         cellIterator.setLattice(phase.getLattice());
 		neighborIterator.setLattice(phase.getLattice());
         neighborIterator.setPeriod(phase.boundary().dimensions());
@@ -195,6 +200,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
     }
    
     private AtomPairIterator listIterator;
+    private Phase phase;
     private final ApiListSimple intraListIterator;
     private final AtomIteratorListSimple aiInner, aiOuter;
     private final ApiInnerFixed interListIterator;
