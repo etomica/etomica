@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class PotentialHardDiskWall extends Potential implements PotentialHard
 {
-    double collisionDiameter, collisionRadius, sig2;
+    protected double collisionDiameter, collisionRadius;
 
     public PotentialHardDiskWall(double d) {
         setCollisionDiameter(d);
@@ -26,42 +26,56 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
            wall = (AtomHardWall)atom1;
         }
         
-        double time = Double.MAX_VALUE;
-        int i;
+        int i = (wall.isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
         
-        if(wall.isVertical()) {i = 0;}
-        else if(wall.isHorizontal()) {i = 1;}
-        else {i = 0;}
-        
-        if(parentPhase.noGravity || i==0 || !(wall.isStationary() || disk.isStationary())) {
-            double dr, t, dtdr;
-            dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-            dtdr = 1.0/(disk.p[i]*disk.rm);
-            t = dr*dtdr;
+        //wall or disk has non-zero force
+        if(!wall.isForceFree() || !disk.isForceFree()) {  
+            return timeWithAcceleration(i, disk, wall);
+        }
+        //wall or disk is stationary and gravity is acting       
+        else if(!parentPhase.noGravity && i==0 && (wall.isStationary() || disk.isStationary())) {  
+            return timeWithAcceleration(i, disk, wall);
+        }
+        else {return timeNoAcceleration(i, disk, wall);}
+    }
+    
+    private double timeNoAcceleration(int i, AtomHardDisk disk, AtomHardWall wall) {
+      double dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
+      double dv = wall.p[i]*wall.rm-disk.p[i]*disk.rm;
+       
+      if(dr*dv > 0.0) {return Double.MAX_VALUE;}    //Separating, no collision
 
-            if(t > 0.0) {time = Math.max(0.0,t-collisionDiameter/2.0*Math.abs(dtdr));}
-            return time;
-        }
-        else {
-            double dr, dv;
-            dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
-            dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
-            if(Math.abs(dr) < collisionRadius) {   //this may still need some work
-                return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
-            dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
-            double a = wall.isStationary() ? -(parentPhase.getG()) : parentPhase.getG();
-            double discrim = dv*dv - 2*a*dr;
-            if(discrim > 0) {
-                boolean adr = (a*dr > 0);
-                boolean adv = (a*dv > 0);
-                int aSign = (a > 0) ? +1 : -1;
-                if(adr && adv) {time = Double.MAX_VALUE;}
-                else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;}
-                else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration
-                else {time = (-dv + aSign*Math.sqrt(discrim))/a;}
-            }
-            return time;
-        }
+      double adr = Math.abs(dr);
+      if(adr < collisionRadius) {return 0.0;}            // Inside core and approaching; collision now
+      else {return (adr-collisionRadius)/Math.abs(dv);}  //Outside core and approaching; collision at core
+    }
+    
+    private double timeWithAcceleration(int i, AtomHardDisk disk, AtomHardWall wall) {
+      double time = Double.MAX_VALUE;
+      double dr, dv;
+      dr = parentPhase.space.r1iMr2i(i,wall.r,disk.r);
+      dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
+      
+      if(Math.abs(dr) < collisionRadius) {   //inside wall; collision now if approaching, never otherwise
+        return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}
+        
+      dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
+      double a = wall.f[i]*wall.rm - disk.f[i]*disk.rm;
+      if(i==1) {  //consider acceleration of gravity, which acts on non-stationary atom and/or wall
+        if(!wall.isStationary()) {a += parentPhase.getG();}  
+        if(!disk.isStationary()) {a -= parentPhase.getG();}
+      }
+      double discrim = dv*dv - 2*a*dr;
+      if(discrim > 0) {
+        boolean adr = (a*dr > 0);
+        boolean adv = (a*dv > 0);
+        int aSign = (a > 0) ? +1 : -1;
+        if(adr && adv) {time = Double.MAX_VALUE;}
+        else if(adr) {time = (-dv - aSign*Math.sqrt(discrim))/a;}
+        else if(-a*dr/(dv*dv) < 1.e-7) {if(dr*dv<0) time = -dr/dv*(1+0.5*dr*a/(dv*dv));} //series expansion for small acceleration
+        else {time = (-dv + aSign*Math.sqrt(discrim))/a;}
+      }
+      return time;
     }
     
     public void bump(AtomHard atom1, AtomHard atom2)  //this needs updating to check for isStationary
@@ -77,21 +91,23 @@ public class PotentialHardDiskWall extends Potential implements PotentialHard
            wall = (AtomHardWall)atom1;
         }
         
-        if(wall.isVertical()) {
-            disk.p[0] *= -1;
-            wall.accumulateP(2*Math.abs(disk.p[0]));
+        int i = (wall.isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+
+        if(wall.isStationary()) {
+            disk.p[i] *= -1;
+            wall.accumulateP(2*Math.abs(disk.p[i]));
         }
-        if(wall.isHorizontal()) {
-            disk.p[1] *= -1;
-            wall.accumulateP(2*Math.abs(disk.p[1]));
+        else {
+          double dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
+          double dp = -2.0/(wall.rm + disk.rm)*dv;
+          wall.p[i] += dp;
+          disk.p[i] -= dp; 
         }
-        
     }
     
     public double getCollisionDiameter() {return collisionDiameter;}
     public void setCollisionDiameter(double c) {
         collisionDiameter = c;
         collisionRadius = 0.5*c;
-        sig2 = c*c;
     }
 }

@@ -28,6 +28,20 @@ public abstract class AtomC extends Atom {
     public final double[] rLast = new double[Space.D];
     
     /**
+     * The components of the vector describing the force acting on the atom.
+     */
+    protected final double[] f = new double[Space.D];
+    
+    /**
+     * Flag indicating whether atom is subject to any forces
+     * forceFree = true if no forces act on atom, and it moves in free flight
+     * Any call to method setForce sets forceFree to false; call to zeroForce sets it to true.
+     * Default is true
+     *
+     * @see IntegratorHard
+     */
+    protected boolean forceFree;
+    /**
      * Mass of atom in amu.
      * 1 amu = 1 atomic mass unit = (1/N_Avo) grams
      */
@@ -53,6 +67,7 @@ public abstract class AtomC extends Atom {
             Space.uEa1(p,0.0);
             this.setMass(1.0);
             setStationary(false);
+            this.zeroForce();
         }
     }
 
@@ -157,4 +172,20 @@ public abstract class AtomC extends Atom {
    * @see #updateCOMFraction
    */
   public final double getCOMFraction() {return COMFraction;}
+  
+    public final void setForceFree(boolean b) {forceFree = b;}
+    public final boolean isForceFree() {return forceFree;}
+    public final void setForce(double[] force) {
+        Space.uEv1(f, force);
+        setForceFree(false);
+    }
+    public final double[] getForce() {return f;}
+    public final void zeroForce() {
+        Space.uEa1(f, 0.0);
+        setForceFree(true);
+    }
+    public final void addForce(double[] force) { Space.uPEv1(f, force);}
+    public final void subtractForce(double[] force) {Space.uMEv1(f, force);}
+    
+  
 }
