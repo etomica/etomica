@@ -13,7 +13,7 @@ public final class Debug {
 	/**
 	 * true if any debugging should be done
 	 */
-	public static final boolean ON = true;
+	public static final boolean ON = false;
         
 	/**
 	 * what step of the integrator deubgging should start from.
@@ -41,19 +41,24 @@ public final class Debug {
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = 136;
+	public static final int ATOM1_NUM = -1;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = 155;
+	public static final int ATOM2_NUM = -1;
 	
+    /**
+     * index of phase of interest.  -1 indicates no particular phase.
+     */
+    public static final int PHASE_INDEX = 0;
+    
 	/**
 	 * true if debugging is currently enabled (when the integrator reaches step START) 
 	 */
-	public static boolean DEBUG_NOW = true;
+	public static boolean DEBUG_NOW = false;
 
 	/**
 	 * determines whether any of the atoms in the given array are set to be debugged
@@ -81,6 +86,15 @@ public final class Debug {
 		return true;
 	}
 
+    /**
+     * Checks whether the given phase is of debugging interest
+     * @param checkPhase phase to be checked
+     * @return true if the phase is of interest
+     */
+    public static boolean thisPhase(Phase checkPhase) {
+         return checkPhase.index == PHASE_INDEX;
+    }
+    
 	/**
 	 * Atoms to be debugged.  These are set by setAtoms(phase)
 	 */
@@ -111,9 +125,9 @@ public final class Debug {
     			System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position());
     			System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.position());
     		}
-			if (Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+/*			if (Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
 				throw new RuntimeException("overlap");
-			}
+			}*/
 		}
 		if (Debug.ATOM1.seq instanceof AtomSequencerNbr) {
 			int dnNbrCount = 0, upNbrCount = 0;
