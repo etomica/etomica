@@ -84,6 +84,12 @@ public class TestHSMD3D extends Simulation {
         
         sim.getController().actionPerformed();
         
-        System.out.println("Z="+pMeter.getDataAsScalar(sim.phase));
+        double Z = pMeter.getDataAsScalar(sim.phase);
+        System.out.println("Z="+Z);
+        
+        // compressibility factor for this system should be 5.22
+        if (Math.abs(Z-5) > 0.03) {
+            System.exit(1);
+        }
     }
 }
