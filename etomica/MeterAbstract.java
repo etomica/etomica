@@ -550,18 +550,19 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	 * Used primarily by Display objects.
 	 */
 	public static class ValueType extends DataSource.ValueType {
-        public ValueType(String label) {super(label);}
-        
-        public Constants.TypedConstant[] choices() {return CHOICES;}
-        public static final ValueType AVERAGE = new ValueType("Average");
-        public static final ValueType ERROR = new ValueType("67% Confidence Limits");
-        public static final ValueType CURRENT = new ValueType("Current value");
-        public static final ValueType MOST_RECENT = new ValueType("Latest value");
-        public static final ValueType MOST_RECENT_BLOCK = new ValueType("Latest block average");
-        public static final ValueType VARIANCE = new ValueType("Variance");
-        public static final Constants.TypedConstant[] CHOICES = 
+        public ValueType(String label) {super(label);}       
+        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public static final ValueType[] CHOICES = 
             new ValueType[] {
-                AVERAGE, ERROR, MOST_RECENT, MOST_RECENT_BLOCK, VARIANCE};
-	}
+                new ValueType("Average"), new ValueType("67% Confidence Limits"),
+                new ValueType("Current value"), new ValueType("Latest value"),
+                new ValueType("Latest block average"), new ValueType("Variance")};
+    }//end of ValueType
+    public static final ValueType AVERAGE = ValueType.CHOICES[0];
+    public static final ValueType ERROR = ValueType.CHOICES[1];
+    public static final ValueType CURRENT = ValueType.CHOICES[2];
+    public static final ValueType MOST_RECENT = ValueType.CHOICES[3];
+    public static final ValueType MOST_RECENT_BLOCK = ValueType.CHOICES[4];
+    public static final ValueType VARIANCE = ValueType.CHOICES[5];
 	
 }//end of MeterAbstract	 

@@ -2,29 +2,19 @@ package etomica;
 
 import etomica.units.*;
 import ptolemy.plot.Plot;
-import javax.swing.JButton;
 import java.awt.event.*;
 
 /**
  * Class for creating a plot of simulation data.
- * Data are obtained from a DataSource that is identified via the
- * setDataSource method.
  *
  * @author David Kofke
  */
  
- //need to update to move away from meter and more toward data source
- 
-public class DisplayPlot extends Display implements /*DataSource.User,*/ EtomicaElement {
+public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
     
-    public String getVersion() {return "DisplayPlot:01.05.23/"+Display.VERSION;}
+    public String getVersion() {return "DisplayPlot:01.05.29/"+Display.VERSION;}
 
     private Plot plot;
-    private DataSource[] ySource;
-    private DataSource xSource;
-    private int nSource;
-    private Unit xUnit, yUnit;
-    private DataSource.ValueType whichValueX, whichValue;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
    
     public DisplayPlot() {
@@ -34,8 +24,6 @@ public class DisplayPlot extends Display implements /*DataSource.User,*/ Etomica
         super(sim);
         plot = new Plot();
         panel.add(plot);
-        setXUnit(Unit.NULL);
-        setYUnit(Unit.NULL);
         setName("Data Plot");
 //        new Thread(this).start();
     }
@@ -56,37 +44,22 @@ public class DisplayPlot extends Display implements /*DataSource.User,*/ Etomica
     public java.awt.Component graphic(Object obj) {return panel;}
 
     /**
-     * @deprecated.  Use setDataSource instead.
+     * Performs actions appropriate to addition or change of data source.
+     * Implementation of abstract method from parent class.
      */
-    public void setMeterFunction(MeterFunction m) {setDataSource(m);}
-    
-    public DataSource[] getDataSource() {return ySource;}
-    
-    public DataSource getDataSource(int i) {
-        return (ySource != null && i < nSource) ? ySource[i] : null;
-    }
-    
-    public void setDataSource(DataSource s) {
-        setDataSource(new DataSource[] {s});
-    }
-    
-    public void setDataSource(DataSource[] s) {
-        ySource = s;
-        if(s == null) {nSource = 0; return;}
-        nSource = s.length;
-        if(nSource == 0) return;
-        for(int i=0; i<nSource; i++) {
-            plot.addLegend(i,ySource[i].getLabel());
+    public void setupDisplay() {
+        panel.remove(plot);
+        plot = new Plot();
+        panel.add(plot);
+        if(ySource.length > 1) {
+            for(int i=0; i<ySource.length; i++) plot.addLegend(i,ySource[i].getLabel());
         }
         setLabel(ySource[0].getLabel());
         plot.setYLabel(ySource[0].getLabel());
         //change unit if dimension of new source is different from current source        
         if(yUnit.dimension() != ySource[0].getDimension()) 
             setYUnit(ySource[0].getDimension().defaultIOUnit());
-    }
-    
-    public void setXSource(DataSource s) {
-        xSource = s;
+
         if(xSource == null) {
             setXUnit(Unit.NULL);
             plot.setXLabel("");
@@ -97,18 +70,23 @@ public class DisplayPlot extends Display implements /*DataSource.User,*/ Etomica
             plot.setXLabel(xSource.getLabel()+" ("+xUnit.symbol()+")");
         }
     }
-        
-    public void setXUnit(Unit u) {xUnit = u;}
-    public Unit getXUnit() {return xUnit;}
-    public void setYUnit(Unit u) {yUnit = u;}
-    public Unit getYUnit() {return yUnit;}
-    
+            
     public void doUpdate() {
+        super.doUpdate();
         if(ySource == null) return;
+        int nSource = ySource.length;
         plot.clear(false);
-        if(xSource != null) {
+        ///new stuff
+        for(int k=0; k<nSource; k++) {
+            for(int i=0; i<y.length; i++) {
+              plot.addPoint(k, xUnit.fromSim(x[i]), yUnit.fromSim(y[k][i]), true);
+            }
+        }
+        plot.repaint();
+        ///end of new stuff
+/*        if(xSource != null) {
             for(int k=0; k<nSource; k++) {
-                double[] x = xSource.values(null);
+                double[] x = xSource.values(whichValueX);
                 double[] y = ySource[k].values(whichValue);
                 for(int i=0; i<y.length; i++) {
                     plot.addPoint(k,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
@@ -123,17 +101,10 @@ public class DisplayPlot extends Display implements /*DataSource.User,*/ Etomica
                 }//for i
             }//for k
         }//end else
-        plot.repaint();
+       
+        plot.repaint(); */
     }//end doUpdate method
     
-    /**
-     * Sets whether meter displays average, current value, last block average, etc.
-     */
-    public void setWhichValue(DataSource.ValueType type) {
-        whichValue = type;
-    }
-    public DataSource.ValueType getWhichValue() {return whichValue;}
-     
  /**
   * Define inner class as extension of ptolemy.plot.Plot
   * Does not override anything, but may want to later

@@ -72,12 +72,12 @@ public abstract class MeterTensor extends MeterAbstract {
 	 * Returns the value indicated by the argument.
 	 */
 	public Space.Tensor value(MeterAbstract.ValueType type) {
-	    if(type==MeterAbstract.ValueType.AVERAGE) return average();
-	    else if(type==MeterAbstract.ValueType.MOST_RECENT) return mostRecent();
-	    else if(type==MeterAbstract.ValueType.CURRENT) return currentValue();
-	    else if(type==MeterAbstract.ValueType.MOST_RECENT_BLOCK) return mostRecentBlock();
-	    else if(type==MeterAbstract.ValueType.ERROR) return error();
-	    else if(type==MeterAbstract.ValueType.VARIANCE) return variance();
+	    if(type==MeterAbstract.AVERAGE) return average();
+	    else if(type==MeterAbstract.MOST_RECENT) return mostRecent();
+	    else if(type==MeterAbstract.CURRENT) return currentValue();
+	    else if(type==MeterAbstract.MOST_RECENT_BLOCK) return mostRecentBlock();
+	    else if(type==MeterAbstract.ERROR) return error();
+	    else if(type==MeterAbstract.VARIANCE) return variance();
 	    else return null;
 	}
     

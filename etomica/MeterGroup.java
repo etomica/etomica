@@ -21,6 +21,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
     public static final String VERSION = "MeterGroup:01.05.24/"+MeterAbstract.VERSION;
     
     MeterAbstract.Accumulator[] accumulator;
+    Meter[] meters;
     protected double[] currentValues;
     private double[] values;
     private Function function;
@@ -93,22 +94,32 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    return accumulator;
 	 }
 	
+	public Meter[] allMeters() {
+	    if(meters == null) {
+	        meters = new Meter[nMeters];
+	        for(int i=0; i<nMeters; i++) {
+	            meters[i] = new PseudoMeter(parentSimulation(), i);
+	        }
+	    }
+	    return meters;
+	}
+	
 	public double[] values(DataSource.ValueType type) {return values((MeterAbstract.ValueType)type);}
 	/**
 	 * Returns the value indicated by the argument.
 	 */
 	public double[] values(MeterAbstract.ValueType type) {
-	    if(type==MeterAbstract.ValueType.AVERAGE) 
+	    if(type==MeterAbstract.AVERAGE) 
 	        for(int i=0; i<nMeters; i++) values[i] =  average(i);
-	    else if(type==MeterAbstract.ValueType.MOST_RECENT) 
+	    else if(type==MeterAbstract.MOST_RECENT) 
 	        for(int i=0; i<nMeters; i++) values[i] =  mostRecent(i);
-	    else if(type==MeterAbstract.ValueType.CURRENT) 
+	    else if(type==MeterAbstract.CURRENT) 
 	        for(int i=0; i<nMeters; i++) values[i] =  currentValue(i);
-	    else if(type==MeterAbstract.ValueType.MOST_RECENT_BLOCK) 
+	    else if(type==MeterAbstract.MOST_RECENT_BLOCK) 
 	        for(int i=0; i<nMeters; i++) values[i] =  mostRecentBlock(i);
-	    else if(type==MeterAbstract.ValueType.ERROR) 
+	    else if(type==MeterAbstract.ERROR) 
 	        for(int i=0; i<nMeters; i++) values[i] =  error(i);
-	    else if(type==MeterAbstract.ValueType.VARIANCE) 
+	    else if(type==MeterAbstract.VARIANCE) 
 	        for(int i=0; i<nMeters; i++) values[i] =  variance(i);
 	    return values;
 	}
@@ -189,5 +200,30 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	 * If histogram was never kept for this meter, an all-zero histogram is returned.
 	 */
 	 public Histogram histogram(int i) {return accumulator[i].histogram();}
+	 
+	 /**
+	  * Meter facade the gives the impression of providing data independently,
+	  * although it is actually serving as a wrapper for the one of the data values
+	  * collected by the meter group.
+	  */
+	 public class PseudoMeter extends Meter {
+        //don't call superclass constructor because we don't want to
+        //register as an actual meter
+        private final int index;
+        PseudoMeter(Simulation sim, int i) {
+            super(sim);
+            index = i;
+            this.accumulator = MeterGroup.this.accumulator[i];
+        } 
+        public double  currentValue() {return MeterGroup.this.currentValue(index);}
+        public boolean usesPhaseIteratorFactory() {return false;}
+        public boolean usesPhaseBoundary() {return false;}
+        public String getLabel() {return labels[index];}
+        public Dimension getDimension() {return Dimension.NULL;}//temporary
+        public void updateSums() {//do nothing since this is taken care of by the group
+        }
+        
+        
+	 }
 	 
 }//end of MeterGroup class	 

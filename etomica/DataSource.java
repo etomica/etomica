@@ -53,6 +53,15 @@ public interface DataSource {
         public DataSource getDataSource();
     }
     
+    public interface MultiUser {
+        public void setDataSources(DataSource[] source);
+        public void setDataSources(int i, DataSource source);
+        public DataSource[] getDataSources();
+        public DataSource getDataSources(int i);
+        public void addDataSources(DataSource source);
+        public void addDataSources(DataSource[] source);
+    }
+    
     /**
      * Interface for a class that can provide one or more data source objects, 
      * without necessarily acting as one itself.

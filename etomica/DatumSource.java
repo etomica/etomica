@@ -15,4 +15,14 @@ public interface DatumSource {
         public void setDatumSource(DatumSource source);
         public DatumSource getDatumSource();
     }
+    
+    public interface MultiUser {
+        public void setDatumSources(DatumSource[] source);
+        public void setDatumSources(int i, DatumSource source);
+        public DatumSource[] getDatumSources();
+        public DatumSource getDatumSources(int i);
+        public void addDatumSources(DatumSource source);
+        public void addDatumSources(DatumSource[] source);
+    }
+    
 }

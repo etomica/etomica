@@ -90,7 +90,7 @@ public class MCMovePointVolume extends MCMove {
         Meter dMeter = new MeterDensity();
         DisplayBox box = new DisplayBox();
         box.setMeter(dMeter);
-        box.setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
+        box.setWhichValue(MeterAbstract.MOST_RECENT);
         
         mcMovePointVolume.setPhase(phase);
         integrator.add(mcMoveAtom);

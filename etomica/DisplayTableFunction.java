@@ -8,30 +8,30 @@ import javax.swing.JScrollPane;
 import etomica.units.Unit;
 
 /**
- * Presents data in a tabular form.  Data is obtained from DatumSource objects.
- * Sources may be identified to the Display by passing an array of DatumSource objects (in
- * the setDatumSources method, or one at a time via the addDatumSource method).
+ * Presents function data in a tabular form.  Data is obtained from DataSource objects.
+ * Sources may be identified to the Display by passing an array of DataSource objects (in
+ * the setDataSources method, or one at a time via the addDataSource method).
  */
-public class DisplayTable extends DisplayDatumSources implements EtomicaElement
+public class DisplayTableFunction extends DisplayDataSources implements EtomicaElement
 {
-    public String getVersion() {return "DisplayTable:01.05.29/"+super.getVersion();}
+    public String getVersion() {return "DisplayTableFunction:01.05.29/"+super.getVersion();}
 
     public JTable table;
     Box panel;
     
-    private boolean showLabels = true;
+    private boolean showXColumn = true;
         
-    public DisplayTable() {
+    public DisplayTableFunction() {
         this(Simulation.instance);
     }
-    public DisplayTable(Simulation sim)  {
+    public DisplayTableFunction(Simulation sim)  {
         super(sim);
         setupDisplay();
-        setLabel("Data");
+        setLabel("Function");
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Tabular display of data from several sources");
+        EtomicaInfo info = new EtomicaInfo("Tabular display of function data from several sources");
         return info;
     }
     
@@ -54,14 +54,14 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     /**
      * Mutator method for whether table should include a column of "x" values.
      */
-    public void setShowLabels(boolean b) {
-        showLabels = b;
+    public void setShowXColumn(boolean b) {
+        showXColumn = b;
         setupDisplay();
     }
     /**
      * Accessor method for flag indicating if table should include a column of "x" values.
      */
-    public boolean isShowLabels() {return showLabels;}
+    public boolean isShowXColumn() {return showXColumn;}
             
     public void repaint() {table.repaint();}
 
@@ -75,17 +75,21 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         int y0;  //index of first y column (1 if showing x, 0 otherwise)
         
         MyTableData() {
-            nColumns = whichValues.length;
-            y0 = showLabels ? 1 : 0;
+            nColumns = ySource.length;
+            y0 = showXColumn ? 1 : 0;
             nColumns += y0;
             columnNames = new String[nColumns];
             columnClasses = new Class[nColumns];
-            if(showLabels) {
-                columnNames[0] = "Property";
-                columnClasses[0] = String.class;
+            if(showXColumn) {
+                if(xSource != null) {
+                    if(xSource instanceof DataSource.X) columnNames[0] = ((DataSource.X)xSource).getXLabel();
+                    else columnNames[0] = xSource.getLabel();
+                }
+                else columnNames[0] = "";
+                columnClasses[0] = Double.class;
             }
             for(int i=y0; i<nColumns; i++) {
-                columnNames[i] = (whichValues[i-y0]!=null) ? whichValues[i-y0].toString() : "";
+                columnNames[i] = (ySource[i-y0] != null) ? ySource[i-y0].getLabel() : "";
                 columnClasses[i] = Double.class;
             }
         }
@@ -94,12 +98,12 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
             //because we don't want to call currentValue
             //or average for each function entry
         public Object getValueAt(int row, int column) {
-            if(showLabels && column == 0) return labels[row];
-            else return new Double(y[row][column-y0]);
+            if(showXColumn && column == 0) return new Double(x[row]);
+            else return new Double(y[column-y0][row]);
         }
         
-        public int getRowCount() {return ySource.length;}
-        public int getColumnCount() {return y0 + whichValues.length;}
+        public int getRowCount() {return (y != null && y[0] != null) ? y[0].length : 0;}
+        public int getColumnCount() {return y0 + ((ySource != null) ? ySource.length : 0);}
                 
         public String getColumnName(int column) {return columnNames[column];}
         public Class getColumnClass(int column) {return columnClasses[column];}
@@ -115,19 +119,17 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
                                             //construction of the desired pieces of the simulation
         //part that is unique to this demonstration
         Default.BLOCK_SIZE = 20;
-        MeterPressureHard pMeter = new MeterPressureHard();
-        MeterNMolecules nMeter = new MeterNMolecules();
+        MeterFunction rdf = new MeterRDF();
+        rdf.setActive(true);
         Phase phase = Simulation.instance.phase(0);
-        DisplayTable table = new DisplayTable();
+        DisplayTableFunction rdfTable = new DisplayTableFunction();
         //end of unique part
                                             
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-        table.setDatumSources(pMeter);
-        table.addDatumSources(nMeter);
-        table.setWhichValues(new MeterAbstract.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE});
-        
+        rdfTable.setDataSources(rdf);
+//        rdfTable.setX(rdf.X());
 
         f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
                                             //display the graphical components

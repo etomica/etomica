@@ -132,7 +132,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
     public void setDatumSource(DatumSource m) {
         source = m;
         if(m instanceof Meter && 
-            !(whichValue instanceof MeterAbstract.ValueType)) setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
+            !(whichValue instanceof MeterAbstract.ValueType)) setWhichValue(MeterAbstract.MOST_RECENT);
         setUnit(m.getDimension().defaultIOUnit());
         setLabel();
     }
@@ -185,8 +185,8 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      *   @deprecated  Use setWhichValue instead
      */
     public void setUseCurrentValue(boolean b) {
-        if(b) setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
-        else  setWhichValue(MeterAbstract.ValueType.AVERAGE);
+        if(b) setWhichValue(MeterAbstract.MOST_RECENT);
+        else  setWhichValue(MeterAbstract.AVERAGE);
     }
     /**
      * Sets whether meter displays average, current value, last block average, etc.
@@ -225,7 +225,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         box.setUpdateInterval(10);
         //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
         DisplayBox box0 = new DisplayBox.Energy(sim.phase);
-        box0.setWhichValue(MeterAbstract.ValueType.CURRENT);
+        box0.setWhichValue(MeterAbstract.CURRENT);
         //here's a DisplayBox tied to a Modulator
 		DisplayBox box1 = new DisplayBox();
 		box1.setDatumSource(mod1);

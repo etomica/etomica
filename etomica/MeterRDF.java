@@ -13,13 +13,16 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
     private AtomPair.Iterator iterator;
     private double[] vShell;
     private double delr;
+    private DataSourceUniform xSource;
     
     public MeterRDF() {
         this(Simulation.instance);
     }
     public MeterRDF(Simulation sim) {
 	    super(sim);
-	    setXLabel("r");
+	    xSource = new DataSourceUniform();
+	    xSource.setLabel("r");
+///	    setXLabel("r");
 	    setLabel("rdf");
 	    setActive(true);
     }

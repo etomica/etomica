@@ -9,7 +9,7 @@ import etomica.utility.Histogram;
  * Anticipated use of function meters is to measure some functional quantity (e.g. g(r)) when asked 
  * by a Display object.  To enable averages, call setActive(true)
  */
-public abstract class MeterFunction extends MeterAbstract implements DataSource {
+public abstract class MeterFunction extends MeterAbstract implements DataSource, DataSource.X {
     
     public static final String VERSION = "MeterFunction:01.03.25/"+MeterAbstract.VERSION;
     /**
@@ -95,16 +95,17 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource 
 
 		
 	/**
-	 * Returns the value indicated by the argument.
+	 * Returns the value indicated by the argument.  
+	 * Default is to return the average (returned if argument is null or inappropriate).
 	 */
 	public double[] values(MeterAbstract.ValueType type) {
-	    if(type==MeterAbstract.ValueType.AVERAGE) return average();
-	    else if(type==MeterAbstract.ValueType.MOST_RECENT) return mostRecent();
-	    else if(type==MeterAbstract.ValueType.CURRENT) return currentValue();
-	    else if(type==MeterAbstract.ValueType.MOST_RECENT_BLOCK) return mostRecentBlock();
-	    else if(type==MeterAbstract.ValueType.ERROR) return error();
-	    else if(type==MeterAbstract.ValueType.VARIANCE) return variance();
-	    else return null;
+	    if(type==MeterAbstract.AVERAGE  || type == null) return average();
+	    else if(type==MeterAbstract.MOST_RECENT) return mostRecent();
+	    else if(type==MeterAbstract.CURRENT) return currentValue();
+	    else if(type==MeterAbstract.MOST_RECENT_BLOCK) return mostRecentBlock();
+	    else if(type==MeterAbstract.ERROR) return error();
+	    else if(type==MeterAbstract.VARIANCE) return variance();
+	    else return average();
 	}
 	public final double[] values(DataSource.ValueType type) {return values((MeterAbstract.ValueType)type);}
 	
@@ -178,6 +179,7 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource 
      */
     public double[] X() {return x;}
     
+    public double[] xValues() {return x;}
     /**
      * Accessor method for the number of points tabulated in the function
      */
@@ -272,23 +274,5 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource 
  //       }
         calculateX();
     }
-    
-	/**
-	 * Interface to indicate an object that interacts with a MeterFunction.
-	 */
-	 public interface User {
-	    public void setMeterFunction(MeterFunction m);
-	    public MeterFunction getMeterFunction();
-	 }
-	 
-	/**
-	 * Interface to indicate an object that interacts with multiple MeterFunctions.
-	 */
-	 public interface MultiUser {
-	    public void setMeterFunctions(MeterFunction[] m);
-	    public MeterFunction[] getMeterFunctions();
-	    public void addMeterFunction(MeterFunction m);
-	 }
-	 
     
 }

@@ -631,21 +631,22 @@ public class Mediator implements java.io.Serializable {
                 }
             }//end of add(display)
             
+            //need to handle MeterGroup
             private void connect(Display display, MeterAbstract meter) {
                 if(meter instanceof Meter) {
-                    if(display instanceof Meter.User && ((Meter.User)display).getMeter() == null) {
-                        ((Meter.User)display).setMeter((Meter)meter);
+                    if(display instanceof DatumSource.MultiUser) {
+                        ((DatumSource.MultiUser)display).addDatumSources((Meter)meter);
                     }
-                    else if(display instanceof Meter.MultiUser) {
-                        ((Meter.MultiUser)display).addMeter((Meter)meter);
+                    else if(display instanceof DatumSource.User && ((DatumSource.User)display).getDatumSource() == null) {
+                        ((DatumSource.User)display).setDatumSource((Meter)meter);
                     }
                 }
                 else if(meter instanceof MeterFunction) {
-                    if(display instanceof DataSource.User && ((DataSource.User)display).getDataSource() == null) {
-                        ((DataSource.User)display).setDataSource((MeterFunction)meter);
+                    if(display instanceof DataSource.MultiUser) {
+                        ((DataSource.MultiUser)display).addDataSources((MeterFunction)meter);
                     }
-                    else if(display instanceof MeterFunction.MultiUser) {
-                        ((MeterFunction.MultiUser)display).addMeterFunction((MeterFunction)meter);
+                    else if(display instanceof DataSource.User && ((DataSource.User)display).getDataSource() == null) {
+                        ((DataSource.User)display).setDataSource((MeterFunction)meter);
                     }
                 }
             }//end of connect

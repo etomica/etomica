@@ -132,8 +132,8 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
 
 	    meterp.setPhase(phase1);
 	    meterp.setActive(true);
-        plot1.setMeterFunction(meterp);
-	    plot1.setWhichValue(MeterAbstract.ValueType.AVERAGE);
+        plot1.setDataSources(meterp);
+	    plot1.setWhichValue(MeterAbstract.AVERAGE);
 	    SpeciesDisks speciesDisk1 = new SpeciesDisks();
 	    speciesDisk1.setNMolecules(200);
 	    PotentialLJ potentialLJ = new PotentialLJ();
@@ -147,7 +147,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
 	    DisplayBox box1 = new DisplayBox();
 	    
 	    box1.setMeter(meterEnergy1);
-	    box1.setWhichValue(MeterAbstract.ValueType.AVERAGE);
+	    box1.setWhichValue(MeterAbstract.AVERAGE);
 		displayPhase1.setPhase(phase1);
 		DeviceSlider temperatureSlider = new DeviceSlider(integratorMC1, "temperature");
 	    temperatureSlider.setUnit(new Unit(Kelvin.UNIT));
