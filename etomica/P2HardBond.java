@@ -85,7 +85,6 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     public final void bump(Atom[] pair, double falseTime) {
         cPair.trueReset(pair[0].coord, pair[1].coord,falseTime);
         double r2 = cPair.r2();
-        dr.E(cPair.dr());
         if (Debug.ON) {
             if (cPair.vDotr()<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+minBondLengthSquared);
@@ -96,7 +95,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         }
         lastCollisionVirial = 2.0 / (pair[0].coord.rm() + pair[1].coord.rm()) * cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial / r2;
-        dr.TE(lastCollisionVirialr2);
+        dr.Ea1Tv1(lastCollisionVirialr2,cPair.dr());
         cPair.truePush(dr,falseTime);
     }
 
@@ -134,7 +133,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         if (bij < 0.0) {
             discr = bij*bij - v2 * (r2 - minBondLengthSquared);
             if(discr > 0) {
-                return (-bij - Math.sqrt(discr))/v2;
+                return (-bij - Math.sqrt(discr))/v2 +falseTime;
             }
         }
 

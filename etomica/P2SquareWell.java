@@ -100,7 +100,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
             }
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        dr.TE(lastCollisionVirialr2);
+        dr.Ea1Tv1(lastCollisionVirialr2,cPair.dr());
         cPair.truePush(dr,falseTime);
         if(nudge != 0) cPair.nudge(nudge);
     }//end of bump method
