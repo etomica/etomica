@@ -32,13 +32,13 @@ public class CoordinatePairSet {
 		setAtoms(list, space);
 	}
 	
-	/**
-	 * Returns atom pair for ith and jth atoms in set.
-	 */
-	public CoordinatePair getCPair(int i, int j) {
-		if(i==j) throw new IllegalArgumentException("Error: asking for pair formed with both atoms the same");
-		return i<j ? cPairs[i][j-i-1] : cPairs[j][i-j-1];
-	}
+    /**
+     * Returns atom pair for ith and jth atoms in set.
+     */
+    public CoordinatePair getCPair(int i, int j) {
+        if(i==j) throw new IllegalArgumentException("Error: asking for pair formed with both atoms the same");
+        return i<j ? cPairs[i][j-i-1] : cPairs[j][i-j-1];
+    }
 
 	private void setAtoms(AtomList list, Space space) {
 		AtomIteratorList iterator = new AtomIteratorList(list);

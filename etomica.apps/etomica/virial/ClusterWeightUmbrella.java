@@ -12,7 +12,7 @@ public class ClusterWeightUmbrella implements ClusterWeight {
 	/**
 	 * Contructs an umbrella cluster from the given clusters.
 	 */
-	public ClusterWeightUmbrella(ClusterAbstract[] allClusters) {
+	public ClusterWeightUmbrella(ClusterSum[] allClusters) {
 		clusterArray = allClusters;
 		weightRatio = new double[allClusters.length];
 		for (int i=0; i<weightRatio.length; i++) {
@@ -24,7 +24,7 @@ public class ClusterWeightUmbrella implements ClusterWeight {
 		// can they be different?
 		return clusterArray[0].pointCount();
 	}
-	
+
 	public double value(CoordinatePairSet cPairSet, double beta) {
 		double sum = 0.0;
 		for (int i=0; i<clusterArray.length; i++) {

@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.Atom;
 import etomica.Configuration;
 import etomica.Space;
 import etomica.atom.AtomList;
@@ -32,7 +33,9 @@ public class ConfigurationCluster extends Configuration {
 		Vector center = phase.space().makeVector();
 		iterator.setLists(lists);
 		iterator.reset();
+        if (!iterator.hasNext()) return;
 		while(iterator.hasNext()) iterator.nextAtom().coord.position().E(center);//put all at center of box
+        phase.trialNotify();
 		double value = phase.getSampleCluster().value(phase.getCPairSet(), 1.0);
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
@@ -44,9 +47,14 @@ public class ConfigurationCluster extends Configuration {
 			while(iterator.hasNext()) {
                 translationVector.setRandomCube();
                 translationVector.TE(dimVector);
-                iterator.nextAtom().coord.position().PE(translationVector);
+                Atom a = iterator.nextAtom();
+                a.coord.position().PE(translationVector);
+//                System.out.println("moved "+a+" to "+a.coord.position());
 			}
 			value = phase.getSampleCluster().value(phase.getCPairSet(),1.0);
+            if (value != 0) {
+                System.out.println("that wasn't so bad.");
+            }
 		}
 	}
 

@@ -18,20 +18,13 @@ import etomica.math.discrete.PermutationIterator;
  * computing them all thus saves on recalculation of the r2 separations.
  */
  
-public class Cluster implements ClusterAbstract {
+public class ClusterBonds {
 
-	/**
-	 * Constructs cluster using a single bondgroup, which it wraps in an array
-	 * and passes to other constructor.
-	 */
-	public Cluster(int n, BondGroup bonds) {
-		this(n, new BondGroup[] {bonds});
-	}
 	/**
 	 * Constructor for Cluster, with default to not using permutations (this can
 	 * be changed after construction if desired).
 	 */
-	public Cluster(int n, BondGroup[] bonds) {
+	public ClusterBonds(int n, int[][][] bonds) {
 		this(n, bonds, false);
 	}
 	
@@ -39,29 +32,18 @@ public class Cluster implements ClusterAbstract {
 	 * Constructor for Cluster.  Each BondGroup in the given array defines a set
 	 * of pairs and a single bond function defined between each.  
 	 */	
-	public Cluster(int n, BondGroup[] bonds, boolean usePermutations) {
+	public ClusterBonds(int n, int[][][] bonds, boolean usePermutations) {
 		super();
 		this.nPoints = n;
-		bondCount = 0;
-		for(int i=0; i<bonds.length; i++) bondCount += bonds[i].pairs.length;
-		bondArray = new MayerFunction[n][n];
 		bondIndexArray = new int[n][n];
 		for(int i=0; i<n; i++) for(int j=0; j<n; j++) bondIndexArray[i][j] = -1;//index value that indicates no bond between pair
 		nBondTypes = bonds.length;
-		bondGroup = new BondGroup[nBondTypes];
 		for(int i=0; i<nBondTypes; i++) {
-			bondGroup[i] = new BondGroup(bonds[i]);
-			bondGroup[i].index = i;
-			int[][] idx = bonds[i].pairs;
+			int[][] idx = bonds[i];
 			if(idx == null) continue;
 			for(int j=0; j<idx.length; j++) {
 				int i0 = idx[j][0];
 				int i1 = idx[j][1];
-				if(bondArray[i0][i1]!=null) {
-					throw new IllegalArgumentException("Attempting to construct cluster with two bonds defined for a single pair of atoms");
-				}
-				bondArray[i0][i1] = bonds[i].f;
-				bondArray[i1][i0] = bonds[i].f;
 				bondIndexArray[i0][i1] = i;
 				bondIndexArray[i1][i0] = i;
 			}
@@ -69,23 +51,15 @@ public class Cluster implements ClusterAbstract {
 		if(usePermutations) setUsePermutations(usePermutations);
 	}
 	
-	/**
-	 * Constructs a cluster using the given Mayer function joining the pairs given
-	 * by the first bondgroup of the given cluster.
-	 * @param f Mayer function for this cluster
-	 * @param cluster Cluster defining bonds to which the Mayer function is
-	 * applied.
-	 */
-	public Cluster(MayerFunction f, Cluster cluster) {
-		this(cluster.pointCount(), new BondGroup(f, cluster.bondGroup[0].pairs));
-	}
-	
 	public String toString() {
 		String string = "Cluster \n Number of points: " + nPoints + "\n";
 		if(!usePermutations) {
 			for(int i=0; i<nPoints; i++) {
 				for(int j=0; j<nPoints; j++) {
-					string += "("+i+","+j+")"+String.valueOf(bondArray[i][j]) + "\t";
+                    int protoIndex = bondIndexArray[i][j];
+                    if (protoIndex > -1) {
+                        string += "("+i+","+j+") "+protoIndex + "\t";
+                    }
 				}
 				string += "\n";
 			}
@@ -98,8 +72,9 @@ public class Cluster implements ClusterAbstract {
 					for(int j=0; j<nPoints; j++) {
 						int jp = p[j];
 						int protoIndex = bondIndexArray[i][j];//index of bond between i and j in prototype diagram
-						MayerFunction bond = (protoIndex < 0) ? null : bondGroup[protoIndex].f;
-						string += "("+ip+","+jp+")"+String.valueOf(bond) + "\t";
+						if (protoIndex > -1) {
+						    string += "("+ip+","+jp+") "+ protoIndex  + "\t";
+                        }
 					}
 					string += "\n";
 				}//end for i
@@ -112,12 +87,6 @@ public class Cluster implements ClusterAbstract {
 	
 	public int pointCount() {return nPoints;}
 	
-	public int bondCount() {return bondCount;}
-	
-	public BondGroup[] bondGroup() {return bondGroup;}
-	
-	public boolean hasOddBondCount() {return (bondCount % 2) != 0;}
-
 	/**
 	 * Returns the value of the cluster for the given set of atom pairs at the
 	 * given value of beta = 1/kT. It is expected that the pairs in the given
@@ -128,32 +97,17 @@ public class Cluster implements ClusterAbstract {
 	 * @param beta reciprocal temperature, 1/kT
 	 * @return double value of the cluster
 	 */
-	public double value(CoordinatePairSet cPairs, double beta) {
-		int thisCPairID = cPairs.getID();
-//		if (thisCPairID == cPairID) return value;
-		if (thisCPairID == cPairID) return value;
-		if (thisCPairID == lastCPairID) {
-			// we went back to the previous cluster, presumably because the last
-			// cluster was a trial that was rejected.  so drop the most recent value/ID
-			cPairID = lastCPairID;
-			value = lastValue;
-			return value;
-		}
-		// a new cluster
-		lastCPairID = cPairID;
-		lastValue = value;
-		cPairID = thisCPairID;
-		value = 0.0;
-		if(usePermutations) return valueUsingPermutations(cPairs, beta);
+	public double value(double[][][] fValues) {
+		if(usePermutations) return valueUsingPermutations(fValues);
 		double p = 1.0;
 		for(int i=0; i<nPoints-1; i++) {
 			for(int j=i+1; j<nPoints; j++) {
-				if(bondArray[i][j]==null) continue;
-				p *= bondArray[i][j].f(cPairs.getCPair(i,j),beta);
-				if(p == 0.0) return 0.0;
+                int protoIndex = bondIndexArray[i][j];
+			    if(protoIndex == -1) continue;
+			    p *= fValues[i][j][protoIndex];
+			    if(p == 0.0) return 0.0;
 			}
 		}
-		value = p;
 		return p;
 	}
 	
@@ -164,37 +118,33 @@ public class Cluster implements ClusterAbstract {
 	 * @param beta
 	 * @return double
 	 */
-	private double valueUsingPermutations(CoordinatePairSet cPairs, double beta) {
+	private double valueUsingPermutations(double[][][] fValues) {
 		double sum = 0;
-		
-		//evaluate and store values of all bonds between all pairs
-		for(int i=0; i<nPoints-1; i++) {
-			for(int j=i+1; j<nPoints; j++) {
-				for(int k=0; k<nBondTypes; k++) {
-					f[i][j][k] = bondGroup[k].f.f(cPairs.getCPair(i,j),beta);
-					f[j][i][k] = f[i][j][k];
-				}
-			}
-		}
 		
 		//loop over permutations
 		for(int s=0; s<nPermutations; s++) {
 			int[] p = permutations[s];// e.g. {0,2,1,4} 
 			double prod = 1.0;
 			pairLoop: for(int i=0; i<nPoints-1; i++) {
-				double[][] fj = f[p[i]];//p[i] = index of atom in position i for permuted labeling (e.g., i=1, ip=2}
+				double[][] fi = fValues[p[i]];//p[i] = index of atom in position i for permuted labeling (e.g., i=1, ip=2}
 				int[] bi = bondIndexArray[i];
 				for(int j=i+1; j<nPoints; j++) {
 					int protoIndex = bi[j];//index of bond between i and j in prototype diagram
+//                    System.out.println(i+" "+j+" protoIndex="+protoIndex);
 					if(protoIndex < 0) continue;//no bond there
-					prod *= fj[p[j]][protoIndex];//value of bond for permuted diagram
+//                    System.out.println("v="+fi[p[j]][protoIndex]);
+					prod *= fi[p[j]][protoIndex];//value of bond for permuted diagram
 					if(prod == 0.0) break pairLoop;
 				}
 			}//end pairLoop
 			sum += prod;
+/*            if (prod != 0.0 && (bondGroup[0].f instanceof MayerHardSphere || bondGroup[0].f instanceof MayerEHardSphere)) {
+                System.out.println("whoo-hoo!!!!!!!!!!!!!  we got one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                throw new RuntimeException();
+            }*/
 		}
-		value = sum*rPermutations;//divide by nPermutations
-		return value;
+		sum *= rPermutations;//divide by nPermutations
+		return sum;
 	}//end valueUsingPermutations
 	
 	/**
@@ -206,12 +156,13 @@ public class Cluster implements ClusterAbstract {
 	 * @param beta reciprocal temperature, 1/kT
 	 * @return double value of the cluster
 	 */
-	public double value(Atom atom, CoordinatePairSet cPairs, double beta) {
+	public double value(Atom atom, double[][][] fPairs) {
 		int i = atom.node.index();
 		double p = 1.0;
 		for(int j=0; j<nPoints; j++) {
-			if(bondArray[i][j]==null) continue;
-			p *= bondArray[i][j].f(cPairs.getCPair(i,j),beta);
+            int protoIndex = bondIndexArray[i][j];
+			if(protoIndex==-1) continue;
+			p *= fPairs[protoIndex][i][j];
 		}
 		return p;
 	}
@@ -230,46 +181,23 @@ public class Cluster implements ClusterAbstract {
 	 * @return double value of the cluster
 	 */
 
-	public double value(Atom atom1, Atom atom2, CoordinatePairSet cPairs, double beta) {
+	public double value(Atom atom1, Atom atom2, double[][][] fPairs) {
 		int i = atom1.node.index();
 		int j = atom2.node.index();
-		return (bondArray[i][j]==null) ? 1.0 : bondArray[i][j].f(cPairs.getCPair(i,j),beta);
+        int protoIndex = bondIndexArray[i][j];
+		return (protoIndex==-1) ? 1.0 : fPairs[protoIndex][i][j];
 	}
 
 	private final int nPoints; //number of points (molecules) in cluster
-	protected int bondCount;//number of bonds in cluster (not to be confused with number of types of bonds, nBondTypes)
- 	protected final MayerFunction[][] bondArray;//array of bonds between pairs in prototype (unpermuted) cluster 
  	protected final int[][] bondIndexArray;//array giving bondGroup index of each bond in bondArray
 					                       //bondArray[i][j] = bondGroup[bondIndexArray[i][j]]
 					                       //bondIndexArray[i][j] < 0 indicates bondArray[i][j] == null
-	private BondGroup[] bondGroup;//array with info about all bonds, their index, and pairs they apply to
 	private final int nBondTypes; //length of bondGroup (usually 1, maybe 2)
-	private double[][][] f;//stores value of every bond between every pair; used by valueUsingPermutations method
 	private boolean usePermutations = false;//flag indicating if value is via prototype cluster only, or by average of all its permutations
 	private int[][] permutations;//array of permutations of atom indexes giving cluster different from prototype
 	private int nPermutations; //permutations.length
 	private double rPermutations; //reciprocal of nPermutations
-	private double value, lastValue;
-    private int cPairID=-1, lastCPairID=-1;
 	
-	/**
-	 * Data structure for specifying a bond that is present between one or more
-	 * pairs of atoms.
-	 */
-	public static class BondGroup {
-		public final MayerFunction f;
-		public final int[][] pairs;
-		public int index;
-		//copy constructor
-		public BondGroup(BondGroup original) {
-			this(original.f, original.pairs);
-		}
-		public BondGroup(MayerFunction f, int[][] pairs) {
-			this.f = f;
-			this.pairs = pairs;
-		}
-		public static final BondGroup NULL = new BondGroup(new MayerHardSphere(0.0), new int[][] {});
-	}
 	/**
 	 * Checks for equality of this cluster with another.  Returns true if they
 	 * have the same number of points, and if all bonds between
@@ -278,22 +206,22 @@ public class Cluster implements ClusterAbstract {
 	 * considered labeled and clusters must have corresponding bonds between
 	 * pairs to return true.
 	 */
-	public boolean equals(Object obj) {
-		if(super.equals(obj)) return true;//return true if this is the same instance as the test cluster
-		if(!(obj instanceof Cluster)) return false;
-		Cluster test = (Cluster)obj;
-		if(this.nPoints != test.nPoints) return false;
-		for(int i=0; i<nPoints-1; i++) {
-			for(int j=i+1; j<nPoints; j++) {
-				MayerFunction thisBond = this.bondArray[i][j];
-				MayerFunction testBond = test.bondArray[i][j];
-				if((thisBond==null) ? (testBond==null) : thisBond.equals(testBond)) continue;//both bonds are null, or they're equal; keep going
-				return false; //mismatch found
-			}
-		}
-		return true;
-		//could use java.util.Arrays.equals to test bondArray equality
-	}
+//	public boolean equals(Object obj) {
+//		if(super.equals(obj)) return true;//return true if this is the same instance as the test cluster
+//		if(!(obj instanceof Cluster)) return false;
+//		Cluster test = (Cluster)obj;
+//		if(this.nPoints != test.nPoints) return false;
+//		for(int i=0; i<nPoints-1; i++) {
+//			for(int j=i+1; j<nPoints; j++) {
+//				MayerFunction thisBond = this.bondArray[i][j];
+//				MayerFunction testBond = test.bondArray[i][j];
+//				if((thisBond==null) ? (testBond==null) : thisBond.equals(testBond)) continue;//both bonds are null, or they're equal; keep going
+//				return false; //mismatch found
+//			}
+//		}
+//		return true;
+//		//could use java.util.Arrays.equals to test bondArray equality
+//	}
 	
 	private void makePermutations() {
 		java.util.LinkedList pList = new java.util.LinkedList();//permutations giving unique arrays
@@ -313,8 +241,7 @@ public class Cluster implements ClusterAbstract {
 		nPermutations = pList.size();
 		permutations = new int[nPermutations][];
 		pList.toArray(permutations);//fill permutations array with the elements of pList
-		rPermutations = 1.0/(double)nPermutations;
-		f = new double[nPoints][nPoints][nBondTypes];
+		rPermutations = 1/(double)nPermutations;
 	}//end of makePermutations
 
 	//returns true if all elements in two arrays are equal term by term
@@ -351,8 +278,8 @@ public class Cluster implements ClusterAbstract {
 		
 //		Cluster cluster = new etomica.virial.cluster.D6(new MayerHardSphere(1.0));
 //		Cluster cluster = new etomica.virial.cluster.Ring(5, new MayerHardSphere(1.0));
-		Cluster cluster = new etomica.virial.cluster.ReeHoover(4, new BondGroup(new MayerHardSphere(1.0),etomica.virial.cluster.Standard.chain(4)));
-		cluster.setUsePermutations(true);
-		System.out.println(cluster.toString());
+//		Cluster cluster = new etomica.virial.cluster.ReeHoover(4, new BondGroup(new MayerHardSphere(1.0),etomica.virial.cluster.Standard.chain(4)));
+//		cluster.setUsePermutations(true);
+//		System.out.println(cluster.toString());
 	}
 }
