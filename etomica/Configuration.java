@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.Dimension;
 
 /**
  * General class for assignment of coordinates to a group of atoms.
@@ -8,16 +7,14 @@ import etomica.units.Dimension;
  */
 public abstract class Configuration implements java.io.Serializable {
 
-    protected double temperature = Default.TEMPERATURE;
     protected final Space space;
+    protected double[] dimensions;
     
     public Configuration(Space space) {
         this.space = space;
+        dimensions = new double[space.D()];
+        for(int i=0; i<dimensions.length; i++) {dimensions[i] = Default.BOX_SIZE;}
     }
-
-    public final void setTemperature(double t) {temperature = t;}
-    public final double getTemperature() {return temperature;}
-    public final Dimension getTemperatureDimension() {return Dimension.TEMPERATURE;}
         
     public abstract void initializePositions(AtomIterator[] iterator);
     
@@ -25,19 +22,33 @@ public abstract class Configuration implements java.io.Serializable {
         initializePositions(new AtomIterator[] {iterator});
     }
     
+    public void setDimensions(double[] dimensions) {
+        this.dimensions = dimensions;
+    }
+    public double[] getDimensions() {return dimensions;}
+    
  /**   
   * All atom velocities are set such that all have the same total momentum (corresponding to
-  * the current value of temperature), with the direction at random
+  * the default value of temperature), with the direction at random
   */
-    public void initializeMomenta(Atom atom) {
+    public static void initializeMomenta(Atom atom) {
+        initializeMomenta(atom, Default.TEMPERATURE);
+    }
+    public static void initializeMomenta(Atom atom, double temperature) {
         atom.coord.randomizeMomentum(temperature);
     }//end of initializeMomenta
     
+    /**
+     * Initializes positions and momenta of the given atom group.
+     */
     public void initializeCoordinates(Atom group) {
         initializePositions(new AtomIteratorSequential(group));
         initializeMomenta(group);
     }
     
+    /**
+     * Initializes positions and momenta of the given atom groups.
+     */
     public void initializeCoordinates(Atom[] group) {
         AtomIterator[] iterators = new AtomIterator[group.length];
         for(int i=0; i<group.length; i++) {

@@ -308,8 +308,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         computeDimensions();
       }//end of initializeCoordinates
       
-      public void initializeMomenta(Atom a) {}
-      
       public void computeDimensions() {SpeciesPistonCylinder.this.computeDimensions();}
       
   }//end of PistonCylinderConfiguration

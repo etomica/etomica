@@ -24,6 +24,20 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
     public int leafAtomCount() {return leafAtomCount;}
     public int childAtomCount() {return childAtomCount;}
     
+    /**
+     * Returns the children of this group in an array of atoms.
+     * Array is constructed on-the-fly, and is not updated with any
+     * subsequent atom addition/removals.  Since array construction is
+     * involved, this method can be expensive in computationally intensive
+     * situations involving repeated calls (this should be avoided).
+     */
+    public Atom[] childAtomArray() {
+        Atom[] childArray = new Atom[childAtomCount];
+        int i=0;
+        for(Atom a=firstChildAtom(); a!=null; a=a.nextAtom()) childArray[i++] = a;
+        return childArray;
+    }
+    
     public Atom randomAtom() {return getAtom((int)(Simulation.random.nextDouble()*childAtomCount));}
     
     /**

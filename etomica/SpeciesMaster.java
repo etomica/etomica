@@ -24,7 +24,9 @@ public final class SpeciesMaster extends AtomGroup {
     public void addSpecies(Species species) {
         SpeciesAgent agent = species.makeAgent(this);
         addAtom(agent);
-        parentPhase.getConfiguration().initializePositions(parentPhase.makeMoleculeIterator());
+        parentPhase.getConfiguration().initializeCoordinates(childAtomArray());
+
+//        parentPhase.getConfiguration().initializePositions(parentPhase.makeMoleculeIterator());
     }
     
     public int depth() {return 0;}

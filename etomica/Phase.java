@@ -260,20 +260,12 @@ public final class Phase extends SimulationElement {
     
     public void setConfiguration(Configuration c) {
         configuration = c;
-//        for(Species.Agent s=firstSpecies; s!=null; s=s.nextSpecies()) {
-//            configuration.add(s);
-//        }
-        configuration.initializeCoordinates(speciesMaster);
+        configuration.initializeCoordinates(speciesMaster.childAtomArray());
         iteratorFactory.reset();
     }
     
     public Configuration getConfiguration() {return configuration;}
 
-    /**
-     * @deprecated
-     */
-    public void add(Configuration c){setConfiguration(c);}
-    
 	/**
 	 * Adds a meter to the list of meters working in this phase.
 	 */
@@ -297,7 +289,7 @@ public final class Phase extends SimulationElement {
         //set internal configuration of molecule
    //     if(species.parentSpecies().moleculeConfiguration != null) species.parentSpecies().moleculeConfiguration.initializeCoordinates(this);
         //add species to configuration for this phase and notify iteratorFactory
-   //     configuration.initializeCoordinates(this);
+   //     configuration.initializeCoordinates(speciesMaster.childAtomArray());
    //     iteratorFactory.reset();  
     }
     

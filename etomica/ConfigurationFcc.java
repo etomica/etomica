@@ -3,13 +3,23 @@ import etomica.lattice.*;
 
 public class ConfigurationFcc extends Configuration {
     
+    LatticeFCC fcc;
+    
     public ConfigurationFcc(Space space) {
         super(space);
     }
     
+    public double latticeConstant() {
+        if(fcc != null) return fcc.latticeConstant();
+        else return Double.NaN;
+    }
+    
     public void initializePositions(AtomIterator[] iterators){
-        AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);//lump 'em all together
-        if(iterator == null || iterator.size() == 0) {return;}
+        if(iterators == null || iterators.length == 0) return;
+        AtomIterator iterator;
+        if(iterators.length == 1) iterator = iterators[0];
+        else iterator = new AtomIteratorCompound(iterators);//lump 'em all together
+        if(iterator.size() == 0) {return;}
         if(iterator.size() == 1) {
             iterator.reset();
             iterator.next().coord.translateTo(space.origin());
@@ -20,21 +30,26 @@ public class ConfigurationFcc extends Configuration {
         int sumOfMolecules = iterator.size();
         if(sumOfMolecules == 0) {return;}
         
-        Space3D.Vector[] rLat = new Space3D.Vector[sumOfMolecules];
-        rLat = lattice(sumOfMolecules);
+        fcc = new LatticeFCC(sumOfMolecules, dimensions[0]);
 
-   // Place molecules     
+   // Place molecules  
+        Space3D.Vector[] rLat = fcc.positions();
         int i = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            iterator.next().coord.translateTo(rLat[i++]);
+            iterator.next().coord.translateTo(rLat[i++]);//use translateTo instead of E because atom might be a group
         }
     }//end of initializePositions
     
+    
+    //used only by ConfigurationSequential
+    /**
+     * @deprecated
+     */
     public static Space3D.Vector[] lattice(int n) { 
         Space3D.Vector[] r = new Space3D.Vector[n];
         for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
-        LatticeFCC fcc = new LatticeFCC(n, Default.BOX_SIZE);
+        LatticeFCC fcc = new LatticeFCC(n, Default.BOX_SIZE);//need to extend--assumes cubic box
         SiteIterator iteratorsites = fcc.iterator();
         iteratorsites.reset();
         int i = 0;
@@ -45,4 +60,20 @@ public class ConfigurationFcc extends Configuration {
         }
         return r;
     }//end of lattice
+    
+  public static void main(String[] args) {
+    Simulation sim = new Simulation(new etomica.Space3D());
+    Simulation.instance = sim;
+    Default.ATOM_SIZE = 6.6;
+//    Default.DISPLAY_USE_OPENGL = false;
+    etomica.Phase phase0  = new etomica.Phase();
+    phase0.setConfiguration(new ConfigurationFcc(sim.space));
+    etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
+//    etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
+      speciesSpheres0.setNMolecules(32);
+      speciesSpheres0.setColor(new java.awt.Color(0,255,0));
+    etomica.DisplayPhase displayPhase0  = new etomica.DisplayPhase();
+    sim.mediator().go(); 
+    Simulation.makeAndDisplayFrame(sim);
+  }//end of main
 }//end of ConfigurationFcc

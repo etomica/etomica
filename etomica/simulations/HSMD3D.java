@@ -10,7 +10,7 @@ public class HSMD3D extends Simulation {
     super(new etomica.Space3D());
     Simulation.instance = this;
     Default.ATOM_SIZE = 6.6;
-    Default.DISPLAY_USE_OPENGL = false;
+//    Default.DISPLAY_USE_OPENGL = false;
     etomica.Phase phase0  = new etomica.Phase();
 //    phase0.setConfiguration(new ConfigurationFcc());
     etomica.P2HardSphere potentialHardSphere0  = new etomica.P2HardSphere();
@@ -30,6 +30,6 @@ public class HSMD3D extends Simulation {
     Simulation sim = new HSMD3D();
     sim.mediator().go(); 
     Simulation.makeAndDisplayFrame(sim);
-    sim.controller(0).start();
+  //  sim.controller(0).start();
   }//end of main
 }//end of class

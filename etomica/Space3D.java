@@ -61,7 +61,7 @@ public class Space3D extends Space implements EtomicaElement {
         public int length() {return D;}
         public int D() {return D;}
         public Vector () {x = 0.0; y = 0.0; z = 0.0;}
-        public Vector (double a1,double a2,double a3) {x = a1; y = a2; z = a3;}
+        public Vector (double a1, double a2, double a3) {x = a1; y = a2; z = a3;}
         public Vector (double[] a) {x = a[0]; y = a[1]; z = a[2];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
         public String toString() {return "("+x+", "+y+", "+z+")";}

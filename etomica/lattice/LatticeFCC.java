@@ -3,6 +3,8 @@ import etomica.Space3D;
 
 public class LatticeFCC extends LatticeCubic {
     
+    private double latticeConstant;
+    
     /**
      * Creates an fcc lattice with the given number of sites in a box of the given size,
      * using a simple site factory (Site.Factory).
@@ -29,9 +31,26 @@ public class LatticeFCC extends LatticeCubic {
      * and site factory.
      */
     public LatticeFCC(int[] size, double latticeConstant, SiteFactory factory) {
-        super(size, latticeConstant, new Basis(positions(latticeConstant),factory));
+        super(size, latticeConstant, new Basis(unitCell(latticeConstant),factory));
+        this.latticeConstant = latticeConstant;
     }
     
+    public double latticeConstant() {return latticeConstant;}
+    
+    public Space3D.Vector[] positions() {
+        int n = siteCount();
+        Space3D.Vector[] r = new Space3D.Vector[n];
+        for(int i=0; i<n; i++) {r[i] = new Space3D.Vector();}
+        SiteIterator iteratorsites = iterator();
+        iteratorsites.reset();
+        int i = 0;
+        while (iteratorsites.hasNext()){
+            Site site = iteratorsites.next();
+            r[i++].E(((AbstractLattice.PositionCoordinate)site.coordinate()).position());
+        }
+        return r;
+    }//end of positions
+
 /*    public LatticeFCC(){
         super(3, 4, primaryVectors(), basis1());
         //set up neighbors
@@ -46,25 +65,25 @@ public class LatticeFCC extends LatticeCubic {
         }
     }
  */   
-    private static Space3D.Vector[] positions(double latticeConstant){
+    private static Space3D.Vector[] unitCell(double latticeConstant){
         Space3D.Vector[] p = new Space3D.Vector[4];
         for(int i=0; i<4; i++) {
             p[i] = new Space3D.Vector();
         }
-            p[0].x = 0.0;
-            p[0].y = 0.0;
-            p[0].z = 0.0;
-            p[1].x = 0.0;
-            p[1].y = 0.5*latticeConstant;
-            p[1].z = 0.5*latticeConstant;
-            p[2].x = 0.5*latticeConstant;
-            p[2].y = 0.0;
-            p[2].z = 0.5*latticeConstant;
-            p[3].x = 0.5*latticeConstant;
-            p[3].y = 0.5*latticeConstant;
-            p[3].z = 0.0;
-            return p;
-    }   
+        p[0].x = 0.0;
+        p[0].y = 0.0;
+        p[0].z = 0.0;
+        p[1].x = 0.0;
+        p[1].y = 0.5*latticeConstant;
+        p[1].z = 0.5*latticeConstant;
+        p[2].x = 0.5*latticeConstant;
+        p[2].y = 0.0;
+        p[2].z = 0.5*latticeConstant;
+        p[3].x = 0.5*latticeConstant;
+        p[3].y = 0.5*latticeConstant;
+        p[3].z = 0.0;
+        return p;
+    }//end of unitCell  
     
     /**
      * Determines the size of the cubic lattice consistent with an fcc lattice having
