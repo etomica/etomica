@@ -9,7 +9,10 @@ import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Potential;
+import etomica.atom.AtomsetFilter;
+import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.atom.iterator.AtomsetIteratorFiltered;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Vector;
 
@@ -29,8 +32,14 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 
     public void doCalculation(AtomsetIterator iterator, IteratorDirective id,
             Potential potential) {
-        if(iterator instanceof ApiFiltered) {
+        if(iterator instanceof ApiFiltered || iterator instanceof ApiMolecule) {
             nearestImageVectorSource = (NearestImageVectorSource)iterator;
+        }
+        else if (iterator instanceof AtomsetIteratorFiltered) {
+            AtomsetFilter filter = ((AtomsetIteratorFiltered)iterator).getFilter();
+            if (filter instanceof NeighborCriterion){
+                ((NeighborCriterion)filter).setNearestImageVectorSource(nearestImageVectorSource);
+            }
         }
         else if (iterator.nBody() == 1) {
             nearestImageVectorSource = nullVectorSource;
@@ -62,8 +71,8 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		}
 	}
     
-    NearestImageVectorSource nearestImageVectorSource;
     NullVectorSource nullVectorSource = new NullVectorSource();
+    NearestImageVectorSource nearestImageVectorSource = nullVectorSource;
     
     private static class NullVectorSource implements NearestImageVectorSource {
         public Vector getNearestImageVector() {

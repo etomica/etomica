@@ -183,9 +183,23 @@ public class PotentialMasterNbr extends PotentialMaster {
         AtomsetIteratorMolecule iteratorFiltered = new ApiFiltered(iterator, criterion);
 		neighborManager.addCriterion(criterion);//add criterion to manager so criterion can be informed of the phase
     	for(int i=0; i<species.length; i++) {
-    		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
-    	}
+            species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
+        }
     	addPotential(potential, iteratorFiltered);
+    }
+    
+    /**
+     * Identifies given potential to apply to the given set of species, and 
+     * sets the NeighborCriterion instance to define the neighbors.
+     */
+    public void setSpecies(Potential potential, Species[] species, double potentialRange) {
+        if (species.length <= 1 || potential.nBody() != species.length) {
+            throw new IllegalArgumentException("Illegal species length");
+        }
+        ApiMolecule iterator = (ApiMolecule)iteratorFactory.makeMoleculeIterator(species);
+        ((AtomsetIteratorCellular)iterator.getApiAA()).getNbrCellIterator().setRange(potentialRange);
+        ((AtomsetIteratorCellular)iterator.getApi1A()).getNbrCellIterator().setRange(potentialRange);
+        addPotential(potential, iterator);
     }
     
     public void setSimulation(Simulation sim) {

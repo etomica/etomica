@@ -113,7 +113,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      */
 	public int addPotential(Potential p) {
 		int index = atom.type.getNbrManagerAgent().addPotential(p);
-		if (index > upList.length-1) {
+		while (index > upList.length-1) {
             upList = (AtomArrayList[])Arrays.addObject(upList, new AtomArrayList());
             downList = (AtomArrayList[])Arrays.addObject(downList, new AtomArrayList());
             upListNearestImageVector = (ObjectArrayList[])Arrays.addObject(upListNearestImageVector, new ObjectArrayList());

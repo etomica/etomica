@@ -5,9 +5,11 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
+import etomica.space.Vector;
 
 /**
  * Adapater class that wraps two atomPair iterators, one suitable for
@@ -18,7 +20,7 @@ import etomica.action.AtomsetAction;
  * This class may be set up to do inter- or intra-species iteration, depending
  * on choice of inner iterators given at construction.
  */
-public class ApiMolecule implements AtomsetIteratorMolecule {
+public class ApiMolecule implements AtomsetIteratorMolecule, NearestImageVectorSource {
 
     /**
      * @param api1A iterator for all pairs formed with a target molecule
@@ -113,6 +115,10 @@ public class ApiMolecule implements AtomsetIteratorMolecule {
      */
     public AtomsetIteratorPhaseDependent getCurrentIterator() {
         return iterator;
+    }
+    
+    public Vector getNearestImageVector() {
+        return ((NearestImageVectorSource)iterator).getNearestImageVector();
     }
     
     private AtomsetIteratorPhaseDependent iterator;

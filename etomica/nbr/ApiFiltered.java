@@ -101,12 +101,14 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
         nextAtoms[1] = next[1];
 		next = null;
         nearestImageVector = nextNearestImageVector;
+        filter.setNearestImageVectorSource(nearestImageVectorSource);
 		while(iterator.hasNext() && next == null) {
 			next = iterator.next();
 //            System.out.println("in ApiFiltered.next, "+next[0].coord.position()+" "+next[1].coord.position()+" "+cellIterator.getNearestImageVector());
 			if(!filter.accept(next)) next = null;
 		}
         nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
+        filter.setNearestImageVectorSource(this);
 		return nextAtoms;
 	}
 	
