@@ -31,14 +31,16 @@ import java.beans.*;//for Graphics
  
 public abstract class Species extends Container {
 
-    public Species(int n, int na)
+    public Species(int n, int na, Atom a)
     {
         setSpeciesIndex(0);
-        setFillVolume(true);
+//        setFillVolume(true);
+        atomGenerator = a;
         nAtomsPerMolecule = na;
         setNMolecules(n);
-        this.add(new ColorSchemeDefault(Color.red));
+        this.add(colorScheme);
         this.add(new ConfigurationMoleculeLinear());
+        System.out.println("Creating species");
     }
 
 
@@ -47,7 +49,7 @@ public abstract class Species extends Container {
   */
   String name;
   
-  public ColorScheme colorScheme;
+  public ColorScheme colorScheme = new ColorSchemeDefault(Color.red);
  
  /**
   * A unique integer that identifies the species.  Used to associate
@@ -85,16 +87,6 @@ public abstract class Species extends Container {
   protected double L;
   
  /**
-  * Don't quite remember what this is used for; hope to deprecate it.
-  */
-  int[] simulationPixelDimensions = {-1, -1}; // pixel width (0) and height (1) of simulation box less boundaries. 
- 
- /**
-  * Don't quite remember what this is used for; hope to deprecate it.
-  */
-  double[] simulationRunDimensions = {-1, -1}; //dimensions (0<...<=1.0) used in dynamics calculations.
- 
- /**
   * The phase in which this species resides.  Assigned in add method of Phase
   *
   */
@@ -109,13 +101,7 @@ public abstract class Species extends Container {
   * The Species preceding this one in the linked list of Species
   */
   Species previousSpecies;
- 
- /**
-  * Array of Molecules collected by this Species.  This data structure
-  * may be abandoned in future versions.
-  */
-  Molecule[] molecule;
- 
+  
  /**
   * First molecule in this Species
   *
@@ -137,7 +123,7 @@ public abstract class Species extends Container {
   *
   * @see #draw
   */
-  boolean fillVolume;
+//  boolean fillVolume;
   
  /**
   * Parameter defining when neighbor list of a molecule of this species needs updating.
@@ -153,23 +139,35 @@ public abstract class Species extends Container {
   public ConfigurationMolecule configurationMolecule;
   
  /**
-  * Default constructor.  Creates species containing 20 molecules, each with 1 atom.
+  * Atom used to generate atoms when constructing molecule
+  */
+  Atom atomGenerator;
+  
+ /**
+  * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
   */
   public Species() {
-    this(20,1);
+    this(20,1, new Atom());
+  }
+  
+ /**
+  * Creates species with default number of molecules, 1 atom of given type per molecule
+  */
+  public Species(Atom a) {
+    this(20,1,a);
   }
 
  /**
-  * Sets species defaults and creates molecules.  Called by default constructor.
+  * Sets species defaults and creates molecules.
   *
   * @param n number of molecules in species
   */
   public Species(int n) {
-    this(n,1);
+    this(n,1, new Atom());
   }
   
   public void add(ColorScheme cs) {
-    super.add(cs);
+//    super.add(cs);
     this.colorScheme = cs;
     for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {
         colorScheme.initializeAtomColor(a);
@@ -211,22 +209,33 @@ public abstract class Species extends Container {
   */
   public final void setNMolecules(int n) {
     nMolecules = n;
-    molecule = new Molecule[nMolecules];    //this array is to be deprecated
+/*    molecule = new Molecule[nMolecules];    //this array is to be deprecated
     for(int i=0; i<nMolecules; i++) {molecule[i] = makeMolecule();}
     orderMolecules();
+*/
+    if(nMolecules == 0) {
+        firstMolecule = null;
+        lastMolecule = null;
+        return;
+    }
+    firstMolecule = makeMolecule();
+    lastMolecule = firstMolecule;
+    for(int i=1; i<nMolecules; i++) {
+        lastMolecule.setNextMolecule(makeMolecule());
+        lastMolecule = lastMolecule.getNextMolecule();
+    }
     initializeMolecules();
   }
   
  /**
   * Creates new molecule from the Molecule class.  The number of atoms
-  * per molecule is given by the current value of nAtomsPerMolecule.  
-  * This class can be overridden to make molecules from a class other than
-  * Molecule ("molecule" walls, for example).
+  * per molecule is given by the current value of nAtomsPerMolecule.
+  * The type of Atom used to form the molecule is given by makeAtom
   */
   public Molecule makeMolecule() {
     return new Molecule(this,nAtomsPerMolecule);
   }
- 
+   
  /**
   * Removes molecule from species, and updates atom and molecule linked lists.
   * Updates all values of first/last Molecule/Atom for species and
@@ -326,31 +335,12 @@ public abstract class Species extends Container {
   * Link-list orders the molecules (and atoms) in this species.  Sets values
   * for first and last molecules.
   */ 
-  protected final void orderMolecules() {
+/*  protected final void orderMolecules() {
     firstMolecule = molecule[0];
     lastMolecule = molecule[nMolecules-1];
     for(int i=1; i<nMolecules; i++) {molecule[i-1].setNextMolecule(molecule[i]);}
   }
-  
- /**
-  * Sets this species firstMolecule and firstAtom parameters
-  *
-  * @param m the molecule to be designated this species firstMolecule
-  */
-//  private final void setFirstMolecule(Molecule m) {
-//    firstMolecule = m;
-//    firstAtom = (m != null) ? m.firstAtom : null;  //delete
-//  }
-  
- /**
-  * Sets this species lastMolecule and lastAtom parameters.
-  *
-  * @param m the molecule to be designated this species lastMolecule
-  */
-//  private final void setLastMolecule(Molecule m) {
-//    lastMolecule = m;
-//    lastAtom = (m != null) ? m.lastAtom : null; //delete
-//  }
+*/  
   
  /**
   * @return the next species in the linked list of species.  Returns null if this is the last species.
@@ -382,8 +372,8 @@ public abstract class Species extends Container {
   public final String getName() {return name;}
   public final void setName(String name) {this.name = name;}
   
-  public final boolean isFillVolume() {return fillVolume;}
-  public final void setFillVolume(boolean b) {fillVolume = b;}
+//  public final boolean isFillVolume() {return fillVolume;}
+//  public final void setFillVolume(boolean b) {fillVolume = b;}
 
   public final int getSpeciesIndex() {return speciesIndex;}
   public final void setSpeciesIndex(int index) {speciesIndex = index;}
@@ -425,7 +415,8 @@ public abstract class Species extends Container {
     if(Beans.isDesignTime()) {
         if(getParent() != null) {
             Phase par = (Phase)getParent();
-            initializeSpecies(par);
+//            initializeSpecies(par);
+            parentPhase = par;
             int[] origin = new int[Space.D];
             double scale = 1.0;
             origin[0] = (par.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
@@ -509,13 +500,13 @@ public abstract class Species extends Container {
   * origin and size of occupied volume at design time.
   * Called by paint at design time, and by Phase.add at run time, and by this.setBounds (override of superclass)
   */
-  public abstract void initializeSpecies(Phase phase);
+//  public abstract void initializeSpecies(Phase phase);
   
   public void setBounds(int x, int y, int width, int height) {
     Rectangle r = getBounds();
     if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
         super.setBounds(x, y, width, height);
-        if(parentPhase != null) initializeSpecies(parentPhase);
+//        if(parentPhase != null) initializeSpecies(parentPhase);
     }
   }
  /* 

@@ -140,6 +140,12 @@ public class Atom {
     
     private final double[] partnerForce = new double[Space.D];
     public final double[] rLast = new double[Space.D];
+
+    /**
+     * Constructs an atom with no initialization.  
+     * Expected use of such an Atom is for the construction of other Atoms via makeAtom method
+     */
+    public Atom() {}
     
     /**
      * Constructs an atom with default values for mass, diameter, and color.
@@ -173,6 +179,8 @@ public class Atom {
         setForceFree(true);
         setStationary(false);
     }
+    
+    public Atom makeAtom(Molecule m, int i) {return new Atom(m,i);}
     
     public final Molecule getMolecule() {return parentMolecule;}
     

@@ -10,7 +10,7 @@ public class SpeciesWalls extends Species {
     }
     
     public SpeciesWalls(int n, int na) {
-        super(n,na);
+        super(n, na, new AtomWall());
         colorScheme.setBaseColor(Constants.DARK_RED);
         add(new ConfigurationMoleculeWallsParallel());
     }
@@ -26,7 +26,7 @@ public class SpeciesWalls extends Species {
   public final int getThickness() {return ((AtomWall)firstAtom()).getThickness();}
   public final void setThickness(int t) {((AtomWall)firstAtom()).setThickness(t);}
     
-  public void initializeSpecies(Phase phase) {
-    configurationMolecule.initializeCoordinates();
-  }
+//  public void initializeSpecies(Phase phase) {
+//    configurationMolecule.initializeCoordinates();
+//  }
 }

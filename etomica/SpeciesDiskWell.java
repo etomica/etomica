@@ -14,7 +14,7 @@ public class SpeciesDiskWell extends SpeciesDisks {
   }
   
   void initializeMolecules() {
-    initializeMolecules(diameter, mass, color, lambda, wellColor);
+    initializeMolecules(diameter, mass, colorScheme.getBaseColor(), lambda, wellColor);
   }
   void initializeMolecules(double d, double m, Color c, double l, Color w) {
     setDiameter(d);    //call set methods to pass diameter and mass to atoms
@@ -48,15 +48,17 @@ public class SpeciesDiskWell extends SpeciesDisks {
                g.drawOval(xP,yP,wellP,wellP);
                xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-radius));
                yP = origin[1] + (int)(toPixels*(shifts[i][1]+a.r[1]-radius));
-               g.setColor(color);
+               colorScheme.setAtomColor(a);
+               g.setColor(a.getColor());
                g.fillOval(xP,yP,diameterP,diameterP);
             }
         }
     }
-    g.setColor(color);
     for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
         int xP = origin[0] + (int)(toPixels*(a.r[0]-radius));
         int yP = origin[1] + (int)(toPixels*(a.r[1]-radius));
+        colorScheme.setAtomColor(a);
+        g.setColor(a.getColor());
         g.fillOval(xP,yP,diameterP,diameterP);
     }         
   }

@@ -75,7 +75,7 @@ public class Molecule implements Serializable {
   * Array of atoms in this molecule.  This data structure may be
   * eliminated in future revisions in lieu of just the linked list.
   */
-  Atom[] atom;
+//  Atom[] atom;
   
  /**
   * Number of atoms in this molecule.  Assigned by species when invoking
@@ -108,11 +108,26 @@ public class Molecule implements Serializable {
   * Override this method if subclassing Molecule to define a molecule
   * comprising complex atoms (for example, nonspherical "atoms").
   */
-  protected void makeAtoms() {
+/*  protected void makeAtoms() {
     atom = new Atom[nAtoms];
     for(int i=0; i<nAtoms; i++) {atom[i] = new Atom(this,i);}
   }
-  
+*/ 
+ /**
+  * Constructs atoms of molecule and links them, setting values of firstAtom and lastAtom.  
+  * The number of atoms constructed is equal to the current value of nAtoms.
+  * Does not handle linking to previous or next molecules' atoms
+  */
+  private final void makeAtoms() {
+    Atom generator = parentSpecies.atomGenerator;
+    firstAtom = generator.makeAtom(this,0);
+    lastAtom = firstAtom;
+    for(int i=1; i<nAtoms; i++) {
+        lastAtom.setNextAtom(generator.makeAtom(this,i));
+        lastAtom = lastAtom.getNextAtom();
+    }
+  }
+    
  /**
   * @return the number of atoms in this molecule
   */
@@ -126,7 +141,7 @@ public class Molecule implements Serializable {
   private final void setNAtoms(int n) {
     nAtoms = n;
     makeAtoms();
-    orderAtoms();
+//    orderAtoms();
     updateMass();
   }
 
@@ -137,12 +152,12 @@ public class Molecule implements Serializable {
    * 
    * @see #setNextMolecule
    */
-  private final void orderAtoms() {
+ /* private final void orderAtoms() {
     firstAtom = atom[0];
     lastAtom = atom[nAtoms-1];
     for(int i=1; i<nAtoms; i++) {atom[i-1].setNextAtom(atom[i]);}
   }    
-  
+  */
  /**
   * @return the next molecule following this one in the linked list of molecules,
   *         or null, if this is the lastMolecule in its phase
@@ -254,8 +269,8 @@ public class Molecule implements Serializable {
   */
   public final void updateMass() {
     this.mass = 0.0;
-    for(int i=0; i<nAtoms; i++) {this.mass += atom[i].getMass();}
-    for(int i=0; i<nAtoms; i++) {atom[i].updateCOMFraction();}
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += a.getMass();}
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {a.updateCOMFraction();}
   }
   
  /**

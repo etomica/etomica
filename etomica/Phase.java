@@ -256,7 +256,7 @@ public final class Phase extends Container {
         super.add(species);
         species.parentPhase = this;
         species.configurationMolecule.initializeCoordinates();
-        if(space != null) species.initializeSpecies(this);
+//        if(space != null) species.initializeSpecies(this);   delete if works ok
         configuration.add(species);
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
@@ -299,7 +299,7 @@ public final class Phase extends Container {
         int w = getSize().width;
         int h = getSize().height;
         resetTO_PIXELS();
-        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {s.initializeSpecies(this);}
+//        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {s.initializeSpecies(this);}
         for(int i = 0; i < speciesCount; i++) {
             if(potential1[i] != null) potential1[i].setSpace(space);
             for(int j = i; j < speciesCount; j++) {

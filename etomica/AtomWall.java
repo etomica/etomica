@@ -16,6 +16,8 @@ public class AtomWall extends Atom {
     protected double temperature;
     protected boolean adiabatic;
 
+    public AtomWall() {}
+    
     public AtomWall(Molecule parent, int index) {
         super(parent, index);
         this.setRm(1.0);
@@ -26,6 +28,8 @@ public class AtomWall extends Atom {
         setAdiabatic(true);
         zeroAccumulators();
     }
+
+    public Atom makeAtom(Molecule m, int i) {return new AtomWall(m,i);}
 
     public void setAngle(int t) {
         theta = (t <= 360) ? t : (t % 360);
