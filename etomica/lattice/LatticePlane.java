@@ -26,7 +26,6 @@ public class LatticePlane implements AtomFilter {
     private Vector3D normal, delta;
     private Space space;
     private int[] millerIndices;
-    private double spacePosition;
     private Vector3D origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
@@ -98,7 +97,6 @@ public class LatticePlane implements AtomFilter {
      * origin in the direction of the normal.
      */
     public void setSpacePosition(double d) {
-        spacePosition = d;
         delta.E(origin);
         delta.PEa1Tv1(d/Math.sqrt(normal.squared()), normal);
         plane.moveTo(delta);
