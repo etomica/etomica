@@ -14,7 +14,7 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
-public final class MeterPressureHard extends MeterScalar implements
+public class MeterPressureHard extends MeterScalar implements
                                                 IntegratorHard.CollisionListener,
                                                 MeterCollisional,
                                                 EtomicaElement {
@@ -41,13 +41,14 @@ public final class MeterPressureHard extends MeterScalar implements
      * Returns P*V/N*kB*T = 1 - (virial sum)/(elapsed time)/T/(space dimension)/(number of atoms)
      * Virial sum and elapsed time apply to period since last call to this method.
      */
-    //XXX phase parameter is not used appropriately here
+    //XXX phase parameter is not used appropriately here (virialSum and temperature are not
+    //    necessarily associated with given phase
     //TODO consider how to ensure timer is advanced before this method is invoked
-    public double getDataAsScalar(Phase phase) {
+    public double getDataAsScalar(Phase p) {
         double elapsedTime = timer.getData()[0];
         if(elapsedTime == 0.0) return Double.NaN;
-        int D = phase.boundary().dimensions().D();
-        double value = 1.0 - virialSum/(integratorHard.temperature()*elapsedTime*(double)(D*phase.atomCount()));
+        int D = p.boundary().dimensions().D();
+        double value = 1.0 - virialSum/(integratorHard.temperature()*elapsedTime*(D*p.atomCount()));
  
         virialSum = 0.0;
         timer.reset();
@@ -81,9 +82,9 @@ public final class MeterPressureHard extends MeterScalar implements
 	    if(newIntegrator != null) integratorHard.addCollisionListener(this);
 	}
    
-    private double virialSum = 0.0;
+    protected double virialSum = 0.0;
     private IntegratorHard integratorHard;
-    private final DataSourceCountTime timer;
+    protected final DataSourceCountTime timer;
 
 	
     /**
