@@ -17,7 +17,9 @@ import etomica.DataManager;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
+import etomica.Modifier;
 import etomica.Phase;
+import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceAdapter;
@@ -466,7 +468,7 @@ public class PistonCylinderGraphic {
         potentialChooser.addItemListener(potentialChooserListener);
         setPotential((String)potentialChooser.getSelectedItem());
 
-        ModifierGeneral sigModifier = new ModifierGeneral(potentialSW, "coreDiameter");
+        ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
         sigBox.setModifier(sigModifier);
@@ -606,6 +608,35 @@ public class PistonCylinderGraphic {
         });
     }
     
+    private class ModifierAtomDiameter implements Modifier {
+
+        public void setValue(double d) {
+            Default.ATOM_SIZE = d;
+            //assume one type of atom
+            ((AtomTypeSphere)pc.phase.firstAtom().type).setDiameter(d);
+            PistonCylinderGraphic.this.densityMeter.setAtomDiameter(d);
+            PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
+            PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
+            pc.pistonPotential.setCollisionRadius(0.5*d);
+            pc.wallPotential.setCollisionRadius(0.5*d);
+        }
+
+        public double getValue() {
+            return Default.ATOM_SIZE;
+        }
+
+        public Dimension getDimension() {
+            return Dimension.LENGTH;
+        }
+        
+        public String getLabel() {
+            return "Atom Diameter";
+        }
+        
+        public String toString() {
+            return getLabel();
+        }
+    }
     
     public static void main(String[] args) {
         PistonCylinderGraphic sim = new PistonCylinderGraphic();
