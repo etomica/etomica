@@ -52,7 +52,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 	public PotentialMasterNbr(Space space) {
         super(space,new IteratorFactoryCell(space.D()));
         setNCells(10);
-        setMaxNeighborRange(Default.POTENTIAL_CUTOFF_FACTOR*1.5);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new MyIterator();
 		singletIterator = new AtomIteratorSinglet();
@@ -226,10 +225,6 @@ public class PotentialMasterNbr extends PotentialMaster {
         nCells = cells;
     }
     
-    public void setMaxNeighborRange(double r) {
-        maxNeighborRange = r;
-    }
-    
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
     
     public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
@@ -245,7 +240,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 	private final NeighborManager neighborManager;
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
-    private double maxNeighborRange;
     private final IteratorDirective idUp = new IteratorDirective();
     private AtomPositionDefinition positionDefinition;
     
