@@ -267,26 +267,6 @@ public class Molecule implements Serializable {
     for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
   }
   
- /**
-  * Computes and returns the total (intra- and inter-molecular) contribution
-  * of this molecule to the system's potential energy.
-  *
-  * @return  this molecule's intra- and inter-molecular potential energy, divided by kB, in Kelvin
-  */
-  public final double potentialEnergy() {
-    double energy = 0.0;
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    if(nAtoms > 1) {
-        for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {
-            energy += a.intraPotentialEnergy();
-        }
-        energy *= 0.5;  //remove double-counting
-    }
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {
-        energy += a.interPotentialEnergy();
-    }
-    return energy;
-  }
   
  /**
   * Computes and returns this molecule's total kinetic energy (including

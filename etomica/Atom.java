@@ -58,12 +58,12 @@ public abstract class Atom {
      *
      * @return (potential energy)/kB in Kelvins
      */
-    public final double potentialEnergy() {
+/*    public final double potentialEnergy() {
         return intraPotentialEnergy() + interPotentialEnergy();
-    }
+    }*/
     
-  public abstract double interPotentialEnergy();
-  public abstract double intraPotentialEnergy();
+//  public abstract double interPotentialEnergy();
+//  public abstract double intraPotentialEnergy();
     
   public final Atom getNextAtom() {return nextAtom;}
   /**
@@ -79,8 +79,9 @@ public abstract class Atom {
   }
   
   public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.getNextAtom();}  //first atom on next molecule
+  public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.getPreviousAtom();}  //first atom on next molecule
 
-  public final void clearPreviousAtom() {previousAtom = null;}
+  public void clearPreviousAtom() {previousAtom = null;}
   
   public final Atom getPreviousAtom() {return previousAtom;}
   

@@ -288,7 +288,7 @@ public abstract class Species extends Container {
     if(previous != null) {previous.setNextMolecule(next);} //reconnect linked list if not at beginning
     else if(next != null) {next.clearPreviousMolecule();}  //beginning of list; no previous molecule for next
     nMolecules--;
-//    m.parentSpecies = null;        //line deleted because of spareMolecule
+    m.parentSpecies = null;        //line deleted because of spareMolecule
     m.setNextMolecule(null);
     m.clearPreviousMolecule();
     parentPhase.nMoleculeTotal--;
@@ -321,7 +321,7 @@ public abstract class Species extends Container {
         lastMolecule.setNextMolecule(m);
         lastMolecule = m;
     }
-    else {  
+    else {  //m is going to be the only molecule in species
         firstMolecule = m;
         lastMolecule = m;
         m.setNextMolecule(null); 

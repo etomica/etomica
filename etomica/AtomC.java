@@ -235,6 +235,11 @@ public abstract class AtomC extends Atom {
       if(atom != null) {((AtomC)atom).previousAtomC = this;}
     }
     
+    public final void clearPreviousAtom() {
+        super.clearPreviousAtom();
+        previousAtomC = null;
+    }
+    
     public final AtomC getNextAtomC() {return nextAtomC;}
     public final AtomC getPreviousAtomC() {return previousAtomC;}
     

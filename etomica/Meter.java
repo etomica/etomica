@@ -1,8 +1,6 @@
 package simulate;
 
-import java.awt.*;
-import java.util.Vector;
-import java.util.*;
+import java.awt.Component;
 
 public abstract class Meter extends Component implements IntegrationIntervalListener
 {
@@ -54,7 +52,7 @@ public abstract class Meter extends Component implements IntegrationIntervalList
 	    return (count>0) ? sum/(double)count : 0.0;
 	}
 	
-	public double error() {    //needs to be rewritten to do block averaging
+	public double error() {    //temporary---needs to be rewritten to do block averaging
 	    double avg = average();
 	    return (count>1) ? Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1)) : 0.0;
 	}

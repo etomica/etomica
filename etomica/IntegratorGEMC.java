@@ -51,10 +51,10 @@ public class IntegratorGEMC extends Integrator {
         int i = (int)(rand.nextDouble()*p.nAtomTotal);
         AtomC a = (AtomC)p.firstAtom();
         for(int j=i; --j>=0; ) {a = a.getNextAtomC();}  //get ith atom in list
-        uOld = a.potentialEnergy();
+        uOld = p.potentialEnergy.currentValue(a);
         Space.randomVector(dr, maxRStep, rand);
         a.displace(dr);
-        uNew = a.potentialEnergy();
+        uNew = p.potentialEnergy.currentValue(a);
         if(uNew < uOld) {return;}   //accept
         if(uNew >= Double.MAX_VALUE || 
            Math.exp(-(uNew-uOld)/temperature) < rand.nextDouble()) { //reject
@@ -66,7 +66,7 @@ public class IntegratorGEMC extends Integrator {
     private void trialVolume() {
         double v1Old = firstPhase.space.volume;
         double v2Old = secondPhase.space.volume;
-        double hOld = energy(firstPhase) + energy(secondPhase);
+        double hOld = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
         double vStep = (2.*rand.nextDouble()-1.)*maxVStep;
         double v1New = v1Old + vStep;
         double v2New = v2Old - vStep;
@@ -82,7 +82,7 @@ public class IntegratorGEMC extends Integrator {
         for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
             m.inflate(r2Scale);
         }
-        double hNew = energy(firstPhase) + energy(secondPhase);
+        double hNew = firstPhase.potentialEnergy.currentValue() + secondPhase.potentialEnergy.currentValue();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/temperature+
                        firstPhase.nMoleculeTotal*Math.log(v1Scale) +
@@ -106,35 +106,35 @@ public class IntegratorGEMC extends Integrator {
         if(dSpecies.nMolecules == 0) {return;}
         
         Molecule m = dSpecies.randomMolecule();
-        uOld = m.potentialEnergy();
+        uOld = dSpecies.parentPhase.potentialEnergy.currentValue(m);
         Space.uEv1(dr,m.COM());
         Space.uTEa1(dr,-1.0);
         m.displace(dr);  //zero center-of-mass, saving old coordinates
         iSpecies.parentPhase.space.randomVector(dr, rand);  //random point in insertion volume
         m.translate(dr);
-        m.parentSpecies = iSpecies;
-        uNew = m.potentialEnergy();
+//        m.parentSpecies = iSpecies;
+        uNew = iSpecies.parentPhase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {
             m.replace(); 
-            m.parentSpecies = dSpecies; 
+//            m.parentSpecies = dSpecies; 
             return;        //overlap
         }        
         double bFactor = dSpecies.nMolecules/dSpecies.parentPhase.space.volume
                          * iSpecies.parentPhase.space.volume/(iSpecies.nMolecules+1)
                          * Math.exp(-(uNew-uOld)/temperature);
         if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
-            m.parentSpecies = dSpecies; 
+//            m.parentSpecies = dSpecies; 
             dSpecies.deleteMolecule(m);
             iSpecies.addMolecule(m);
         }
         else {              //reject
             m.replace();
-            m.parentSpecies = dSpecies;
+//            m.parentSpecies = dSpecies;
             return;
         }
     }
            
-    //Computes total energy of phase
+/*    //Computes total energy of phase
     private double energy(Phase p) {
         double energy = 0.0;
         for(AtomC a=(AtomC)p.firstAtom(); a!=null; a=a.getNextAtomC()) {
@@ -151,7 +151,7 @@ public class IntegratorGEMC extends Integrator {
         }
         return energy;
     }
-    
+    */
     public final int getFreqVolume() {return freqVolume;}
     public final void setFreqVolume(int f) {freqVolume = f;}
     public final int getFreqMolecule() {return freqMolecule;}

@@ -80,7 +80,8 @@ public final class Phase extends Container {
   public boolean updatedForces, updatedPotentialEnergy, updatedKineticEnergy;
   public boolean updatedNeighbors, updatedFutureNeighbors;
   
-  private double potentialEnergy, kineticEnergy;  // must access with get methods
+//  private double potentialEnergy
+  private double kineticEnergy;  // must access with get methods
  
  /**
   * The Space object associated with this Phase.
@@ -128,6 +129,8 @@ public final class Phase extends Container {
   private Phase previousPhase;
   
   public Integrator integrator;
+  
+  public MeterPotentialEnergy potentialEnergy;
     
   public Phase() {
     setLayout(null);
@@ -140,6 +143,9 @@ public final class Phase extends Container {
     gravity = new Gravity(0.0);
     noGravity = true;
     add(new ConfigurationSequential());  //default configuration
+    System.out.println("adding potentialenergy");
+    potentialEnergy = new MeterPotentialEnergy();
+    add(potentialEnergy);
   }
   
  /**
@@ -350,7 +356,7 @@ public final class Phase extends Container {
 	    nMeters++;
 	    m.phase = this;
 	    m.initialize();
-	    if(parentSimulation.haveIntegrator()) {
+	    if(parentSimulation != null && parentSimulation.haveIntegrator()) {
 	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
 	    }
 	}
@@ -435,20 +441,20 @@ public final class Phase extends Container {
 */    }
 
 //needs work for efficiency and multiatomics   
-    public double potentialEnergy() {  
+/*    public double potentialEnergy() {  
         double energy = 0.0;
         for(Molecule m1=firstMolecule(); m1!=null; m1=m1.getNextMolecule()) {
            energy += m1.potentialEnergy();
         }
         return (0.5*energy);
       }
-        
+        */
 
     public double getKineticEnergy() {
         if(!updatedKineticEnergy) {updateKineticEnergy();}
         return kineticEnergy;
     }
-    
+ /*   
     public double getPotentialEnergy() {
         if(!updatedPotentialEnergy) {updatePotentialEnergy();}
         return potentialEnergy;
@@ -457,6 +463,6 @@ public final class Phase extends Container {
     public double getTotalEnergy() {
         return getKineticEnergy() + getPotentialEnergy();
     }
-      
+      */
 }
     

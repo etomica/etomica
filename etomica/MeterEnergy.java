@@ -1,8 +1,5 @@
 package simulate;
 
-import simulate.*;
-import java.beans.*;
-
 public class MeterEnergy extends simulate.Meter
 {
     public MeterEnergy()

@@ -18,13 +18,13 @@ public class MCMoveAtom extends MCMove {
         double uOld, uNew;
         if(phase.nAtomTotal==0) {return;}
         int i = (int)(rand.nextDouble()*phase.nAtomTotal);
-        Atom a = phase.firstAtom();
+        AtomC a = (AtomC)phase.firstAtom();
         // maybe try while(i-- >= 0) {}
-        for(int j=i; --j>=0; ) {a = a.getNextAtom();}  //get ith atom in list
-        uOld = a.potentialEnergy();
+        for(int j=i; --j>=0; ) {a = a.getNextAtomC();}  //get ith atom in list
+        uOld = phase.potentialEnergy.currentValue(a);
         Space.randomVector(dr, stepSize, rand);
         ((AtomC)a).displace(dr);
-        uNew = a.potentialEnergy();
+        uNew = phase.potentialEnergy.currentValue(a);
         if(uNew < uOld) {   //accept
             nAccept++;
             return;

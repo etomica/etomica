@@ -108,6 +108,188 @@ public class Space extends Component {
         periodic = false;
     }
     
+    public Atom makeAtom(Molecule m, int index) {
+        return new AtomCC(m, index);
+    }
+    
+    private class AtomCC extends Atom {
+        
+        public Atom makeAtom(Molecule m, int i) {return null;}  //delete this
+   
+        public void draw(Graphics g, int[] origin, double scale) {}
+        
+        AtomCC(Molecule parent, int index) {
+            super(parent, index);
+            Space.uEa1(r,0.0);
+            Space.uEa1(p,0.0);
+            setMass(1.0);
+            setStationary(false);
+        }
+        public final double[] r = new double[Space.D];  //Cartesian coordinates
+        public final double[] p = new double[Space.D];  //Momentum vector
+        private final double[] rLast = new double[Space.D];  //Displace/replace work vector
+
+        /**
+        * Flag indicating whether atom is subject to any forces
+        * forceFree = true if no forces act on atom, and it moves in free flight
+        * Any call to method setForce sets forceFree to false; call to zeroForce sets it to true.
+        * Default is true
+        *
+        * @see IntegratorHard
+        */
+        protected boolean forceFree;
+        double mass;  //Mass of atom in amu
+        double rm;    //Reciprocal of the mass
+         
+        AtomCC nextAtomC;
+        AtomCC previousAtomC;
+         
+        /**
+        * Computes and returns the potential energy of the atom due to its interactions
+        * with all other atoms in all other molecules in the phase (intermolecular)
+        *
+        * @return (potential energy)/kB in Kelvins
+        */
+        public double interPotentialEnergy() {
+            Potential2[] p2 = parentMolecule.getP2();
+            double energy = 0.0;
+            Atom endAtom = parentMolecule.firstAtom;
+            for(AtomC a=(AtomC)parentMolecule.getPhase().firstAtom(); a!=endAtom && a!=null; a=a.getNextAtomC()) {
+                energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
+                if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
+            }
+            for(AtomC a=(AtomC)parentMolecule.lastAtom.getNextAtom(); a!=null; a=a.getNextAtomC()) {
+                energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
+                if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
+            }
+            return energy;
+        }
+        
+        /**
+        * Computes and returns the potential energy of the atom due to its interactions
+        * with all other atoms in the molecule (intramolecular)
+        *
+        * @return (potential energy)/kB in Kelvins
+        */
+        public final double intraPotentialEnergy() {
+            if(parentMolecule.nAtoms == 1) return 0.0;
+            Potential1 p1 = parentMolecule.getP1();
+            double energy = 0.0;
+            for(AtomCC a=(AtomCC)parentMolecule.firstAtom; a!=parentMolecule.lastAtom.getNextAtom(); a=a.getNextAtomCC()) {
+                if(a == this) {continue;}
+                energy += p1.getPotential(this,a).energy(this,a);
+            }
+            return energy;
+        }
+            
+        public final double getRm() {return rm;}
+        
+        /**
+        * Sets reciprocal mass of this atom and updates mass accordingly.  Setting
+        * rm to zero causes mass to be set to largest machine value.
+        * 
+        * @param rm   new value for reciprocal mass
+        */
+        public final void setRm(double rm) {
+            this.rm = rm;
+            mass = (rm==0.0) ? Double.MAX_VALUE : 1.0/rm;
+        }
+        
+        public final double getMass() {return mass;}
+        /**
+        * Sets  mass of this atom and updates reciprocal mass accordingly.  Setting
+        * mass to largest machine double (Double.MAX_VALUE) causes reciprocal mass 
+        * to be set to zero.
+        * 
+        * @param mass   new value for mass
+        */
+        public final void setMass(double mass) {
+            this.mass = mass;
+            rm = (mass==Double.MAX_VALUE) ? 0.0 : 1.0/mass;
+        }
+        /**
+        * Changes the momentum vector
+        *
+        * @param dp The change in the momentum vector
+        */
+        public final void accelerate(double[] dp) {Space.uPEv1(p,dp);}
+    //   public final void accelerate(int i, double dp) {p[i] += dp;}
+    //   public final void decelerate(double[] dp) {Space.uMEv1(p,dp);}
+    //   public final void setP(double[] dp) {Space.uEv1(p,dp);}
+    //   public final void setP(int i, double dp) {p[i] = dp;}
+        
+        public final void scaleP(int i, double scale) {p[i] *= scale;}
+        
+     
+        /**
+        * Computes and returns kinetic energy of atom.
+        *
+        * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
+        */
+        public double kineticEnergy() {return 0.5*rm*Space.v1S(p);}
+        
+        public void setStationary(boolean b) {
+            super.setStationary(b);
+            if(b) Space.uEa1(p,0.0);   //zero momentum if set to stationary
+        }
+
+        /**
+        * Displaces atom by a vector dr.
+        *
+        * @param dr  vector specifying change in position
+        */
+        public final void translate(double[] dr) {Space.uPEv1(r,dr);}
+        
+        /**
+        * Displaces atom the distance dr in one coordinate direction.
+        *
+        * @param i   index specifying coordinate direction of displacement
+        * @param dr  displacement distance
+        */
+        public final void translate(int i, double dr) {r[i] += dr;}
+        
+        /**
+        * Displaces atom by a vector dr, saving its original position,
+        * which can be recovered by call to replace
+        *
+        * @param dr   vector specifying change in position
+        * @see #replace
+        */
+        public final void displace(double[] dr) {
+            Space.uEv1(rLast,r);
+            translate(dr);
+        }
+         
+        /**
+        * Puts atom back in position held before last call to displace
+        *
+        * @see #displace
+        */
+        public final void replace() { Space.uEv1(r,rLast); }
+        
+        /**
+        * Computes and updates COMFraction as the ratio of this atom's mass to the
+        * total mass of the parent molecule.
+        */
+        public final void updateCOMFraction() {COMFraction = mass/parentMolecule.getMass();}
+        /**
+        * Returns stored value of COMFraction.  Does not check to see if value needs
+        * to be updated, but only returns stored value.
+        *
+        * @return   ratio of this atom's mass to the total mass of the parent molecule
+        * @see #updateCOMFraction
+        */
+        public final double getCOMFraction() {return COMFraction;}
+          
+        public void setNextAtom(Atom atom) {
+          super.setNextAtom(atom);
+          this.nextAtomC = (AtomCC)atom;
+          if(atom != null) {((AtomCC)atom).previousAtomC = this;}
+        }
+            
+        public final AtomCC getNextAtomCC() {return nextAtomC;}
+        public final AtomCC getPreviousAtomCC() {return previousAtomC;}
+    }
    /**
     * Sets parentPhase 
     *

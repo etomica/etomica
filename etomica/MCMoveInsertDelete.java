@@ -29,9 +29,9 @@ public class MCMoveInsertDelete extends MCMove {
         Species s = phase.firstSpecies();
         double uNew;
         phase.space.randomVector(dr, rand);  //random point in volume
-        Molecule m = new Molecule(s,s.nAtomsPerMolecule);
+        Molecule m = new Molecule(s,s.nAtomsPerMolecule);  //makes molecule without adding to species
         m.translate(dr);
-        uNew = m.potentialEnergy();
+        uNew = phase.potentialEnergy.insertionValue(m);
         if(uNew == Double.MAX_VALUE) {return;}        //overlap
         double bNew = Math.exp((mu-uNew)/parentIntegrator.temperature)*phase.space.volume/(s.nMolecules+1);
         if(bNew > 1.0 || bNew > rand.nextDouble()) {  //accept
@@ -46,7 +46,7 @@ public class MCMoveInsertDelete extends MCMove {
         int i = (int)(rand.nextDouble()*s.nMolecules);
         Molecule m = s.firstMolecule;
         for(int j=i; --j>=0; ) {m = m.getNextMolecule();}
-        bOld = Math.exp((mu-m.potentialEnergy())/parentIntegrator.temperature);
+        bOld = Math.exp((mu-phase.potentialEnergy.currentValue(m))/parentIntegrator.temperature);
         bNew = s.nMolecules/(phase.space.volume);
         if(bNew > bOld || bNew > rand.nextDouble()*bOld) {  //accept
             s.deleteMolecule(m);

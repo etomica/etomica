@@ -1,8 +1,5 @@
 package simulate;
 
-import simulate.*;
-import java.beans.*;
-
 //Number of integrationIntervalEvent's fired
 
 public class MeterCycles extends simulate.Meter
