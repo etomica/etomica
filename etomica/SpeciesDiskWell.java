@@ -32,14 +32,14 @@ public class SpeciesDiskWell extends SpeciesDisks {
     int diameterP = (int)(toPixels*diameter);
     
     g.setColor(wellColor);
-    for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
+    for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
         int xP = origin[0] + (int)(toPixels*(a.r[0]-halfWell));
         int yP = origin[1] + (int)(toPixels*(a.r[1]-halfWell));
         g.drawOval(xP,yP,wellP,wellP);
     }
 
     if(DisplayConfiguration.DRAW_OVERFLOW) {
-        for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
+        for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
             double[][] shifts = parentPhase.space.getOverflowShifts(a.r,halfWell);
             for(int i=0; i<shifts.length; i++) {
                int xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-halfWell));
@@ -54,7 +54,7 @@ public class SpeciesDiskWell extends SpeciesDisks {
             }
         }
     }
-    for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
+    for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
         int xP = origin[0] + (int)(toPixels*(a.r[0]-radius));
         int yP = origin[1] + (int)(toPixels*(a.r[1]-radius));
         colorScheme.setAtomColor(a);

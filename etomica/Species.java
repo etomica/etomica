@@ -39,8 +39,6 @@ public abstract class Species extends Container {
         nAtomsPerMolecule = na;
         setNMolecules(n);
         this.add(colorScheme);
-        this.add(new ConfigurationMoleculeLinear());
-        System.out.println("Creating species");
     }
 
 
@@ -147,7 +145,7 @@ public abstract class Species extends Container {
   * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.
   */
   public Species() {
-    this(20,1, new Atom());
+    this(20,1, new AtomHardDisk(null));
   }
   
  /**
@@ -163,7 +161,7 @@ public abstract class Species extends Container {
   * @param n number of molecules in species
   */
   public Species(int n) {
-    this(n,1, new Atom());
+    this(n,1, new AtomHardDisk(null));
   }
   
   public void add(ColorScheme cs) {
@@ -475,15 +473,10 @@ public abstract class Species extends Container {
         g.fillOval(xP,yP,diameterP,diameterP);
         */
     }
-    if(DisplayConfiguration.DRAW_OVERFLOW) {
-        for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
-            double[][] shifts = parentPhase.space.getOverflowShifts(a.r,a.radius);
+    if(DisplayConfiguration.DRAW_OVERFLOW && (atomGenerator instanceof AtomDisk)) {
+        for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
+            double[][] shifts = parentPhase.space.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
-                /*
-               int xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-radius));
-               int yP = origin[1] + (int)(toPixels*(shifts[i][1]+a.r[1]-radius));
-               g.fillOval(xP,yP,diameterP,diameterP);
-               */
                shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
                shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
                a.draw(g,shiftOrigin,scale);

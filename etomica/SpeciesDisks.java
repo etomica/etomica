@@ -10,7 +10,8 @@ public class SpeciesDisks extends Species {
   double radius;
   
   public SpeciesDisks() {
-    super(new Atom());
+    super(new AtomHardDisk(null));
+    this.add(new ConfigurationMoleculeLinear());
     initializeMolecules(0.1,1.0,Color.black);
   }
   
@@ -33,7 +34,7 @@ public class SpeciesDisks extends Species {
     public final void setMass(double mass) {
         this.mass = mass;
         if(firstAtom() == null) {return;}  //return if atoms have not yet been ordered
-        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {a.setMass(mass);}
+        for(AtomC a=(AtomC)firstAtom(); a!=lastAtom().getNextAtom(); a=(AtomC)a.getNextAtom()) {a.setMass(mass);}
         for(Molecule m=firstMolecule; m!=lastMolecule.getNextMolecule(); m=m.getNextMolecule()) {m.updateMass();}        
     }
     
@@ -42,7 +43,7 @@ public class SpeciesDisks extends Species {
         diameter = d;
         radius = 0.5*d;
         if(firstAtom() == null) {return;}
-        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {a.setDiameter(d);}
+        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {((AtomDisk)a).setDiameter(d);}
     }
         
     public final Color getColor() {return colorScheme.getBaseColor();}

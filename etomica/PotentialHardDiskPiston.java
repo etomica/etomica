@@ -12,17 +12,17 @@ public class PotentialHardDiskPiston extends Potential implements PotentialHard
         setCollisionDiameter(d);
     }
 
-    public double collisionTime(Atom atom1, Atom atom2) {
+    public double collisionTime(AtomHard atom1, AtomHard atom2) {
    
-        Atom disk;
-        AtomWall wall;
-        if(atom2 instanceof AtomWall) {
-           disk = atom1;
-           wall = (AtomWall)atom2;
+        AtomHardDisk disk;
+        AtomHardWall wall;
+        if(atom2 instanceof AtomHardWall) {
+           disk = (AtomHardDisk)atom1;
+           wall = (AtomHardWall)atom2;
         }
         else {
-           disk = atom2;
-           wall = (AtomWall)atom1;
+           disk = (AtomHardDisk)atom2;
+           wall = (AtomHardWall)atom1;
         }
         
         double time = Double.MAX_VALUE;
@@ -58,17 +58,17 @@ public class PotentialHardDiskPiston extends Potential implements PotentialHard
         return time;
     }
     
-    public void bump(Atom atom1, Atom atom2)
+    public void bump(AtomHard atom1, AtomHard atom2)
     {
-        Atom disk;
-        AtomWall wall;
-        if(atom2 instanceof AtomWall) {
-           disk = atom1;
-           wall = (AtomWall)atom2;
+        AtomHardDisk disk;
+        AtomHardWall wall;
+        if(atom2 instanceof AtomHardWall) {
+           disk = (AtomHardDisk)atom1;
+           wall = (AtomHardWall)atom2;
         }
         else {
-           disk = atom2;
-           wall = (AtomWall)atom1;
+           disk = (AtomHardDisk)atom2;
+           wall = (AtomHardWall)atom1;
         }
 
         int i;

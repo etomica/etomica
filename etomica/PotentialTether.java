@@ -18,7 +18,7 @@ public class PotentialTether extends Potential implements PotentialHard {
 
 //----------------------------------------------------------------------
 
-  public final void bump(Atom atom1, Atom atom2) {
+  public final void bump(AtomHard atom1, AtomHard atom2) {
     parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
     double r2 = tetherLengthSquared;
@@ -31,7 +31,7 @@ public class PotentialTether extends Potential implements PotentialHard {
 
 //----------------------------------------------------------------------
 
-  public final double collisionTime(Atom atom1, Atom atom2) {
+  public final double collisionTime(AtomHard atom1, AtomHard atom2) {
 
     parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
@@ -63,7 +63,7 @@ public class PotentialTether extends Potential implements PotentialHard {
   }
   
     public double energy(Atom atom1, Atom atom2) {
-        return (parentPhase.space.r1Mr2_S(atom1.r, atom2.r) > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
+        return (parentPhase.space.r1Mr2_S(((AtomC)atom1).r, ((AtomC)atom2).r) > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
   
 }

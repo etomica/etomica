@@ -42,7 +42,7 @@ public class SpacePeriodicCubic extends Space {
     }
 
     public void repositionMolecules() {
-       for(Atom a=parentPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
+       for(AtomC a=(AtomC)parentPhase.firstAtom(); a!=null; a=(AtomC)a.getNextAtom()) {
            for(int i=Space.D; --i>=0; ) {
               if(a.r[i] < 0.0) {a.translate(i,dimensions[i]);}
               else if(a.r[i] > dimensions[i]) {a.translate(i,-dimensions[i]);}

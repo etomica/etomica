@@ -25,15 +25,16 @@ public class PotentialWellWall extends Potential implements PotentialHard
         setElasticity(elasticity);
     }
 
-    public double collisionTime(Atom atom1, Atom atom2) {   
-        Atom disk;
-        AtomWall wall;
-        if(atom2 instanceof AtomWall) {
-           disk = atom1;
-           wall = (AtomWall)atom2;}
+    public double collisionTime(AtomHard atom1, AtomHard atom2) {   
+        AtomHardDisk disk;
+        AtomHardWall wall;
+        if(atom2 instanceof AtomHardWall) {
+           disk = (AtomHardDisk)atom1;
+           wall = (AtomHardWall)atom2;
+        }
         else {
-           disk = atom2;
-           wall = (AtomWall)atom1;
+           disk = (AtomHardDisk)atom2;
+           wall = (AtomHardWall)atom1;
         }
         
         int i = (wall.isHorizontal()) ? 1 : 0;
@@ -64,17 +65,17 @@ public class PotentialWellWall extends Potential implements PotentialHard
         }
     }
     
-    public void bump(Atom atom1, Atom atom2)  //this needs updating to check for isStationary
+    public void bump(AtomHard atom1, AtomHard atom2)  //this needs updating to check for isStationary
     {
-        Atom disk;
-        AtomWall wall;
-        if(atom2 instanceof AtomWall) {
-           disk = atom1;
-           wall = (AtomWall)atom2;
+        AtomHardDisk disk;
+        AtomHardWall wall;
+        if(atom2 instanceof AtomHardWall) {
+           disk = (AtomHardDisk)atom1;
+           wall = (AtomHardWall)atom2;
         }
         else {
-           disk = atom2;
-           wall = (AtomWall)atom1;
+           disk = (AtomHardDisk)atom2;
+           wall = (AtomHardWall)atom1;
         }
                
         int i = (wall.isHorizontal()) ? 1 : 0;

@@ -41,16 +41,34 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
 
   /**
    * Sets wall coordinates based on pixel position as obtained by the species' getBounds.
-   * Values of x and y coordinates and wall length, are affected by current values of angle and spanVolume,
+   * Values of x and y coordinates and wall length, are affected by current values of angle and longWall,
    * but these do not in turn alter the original values of the species Bounds
    */
     public void initializeCoordinates(Molecule m) {  //doesn't handle wall that is not either horizontal or vertical
         Rectangle rect = parentSpecies.getBounds();
-        Phase phase = parentSpecies.getParentPhase();
-        int  width = (longWall && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if longWall, to species otherwise
-        int height = (longWall && phase != null) ? phase.getBounds().height : rect.height;
-        double x = (horizontal && longWall) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
-        double y = (vertical && longWall)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
+ //       Phase phase = parentSpecies.getParentPhase();
+        double x, y;
+        int width, height;
+        if(longWall && horizontal) {
+            x = 0.0;
+            width = Integer.MAX_VALUE;
+        }
+        else {
+            x = (double)rect.x/Phase.TO_PIXELS;
+            width = rect.width;
+        }
+        if(longWall && vertical) {
+            y = 0.0;
+            height = Integer.MAX_VALUE;
+        }
+        else {
+            y = (double)rect.y/Phase.TO_PIXELS;
+            height = rect.height;
+        }
+//        int  width = (longWall && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if longWall, to species otherwise
+//        int height = (longWall && phase != null) ? phase.getBounds().height : rect.height;
+//        double x = (horizontal && longWall) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
+//        double y = (vertical && longWall)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
         double w = (double)width/Phase.TO_PIXELS;
         double h = (double)height/Phase.TO_PIXELS;
         int i = 0;
@@ -69,11 +87,11 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             xyNext = x;
             wh = h;
         }
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {  //equally space all "wall atoms"
+        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {  //equally space all "wall atoms"
             Space.uEa1(a.r,0.0);
             a.r[i] = xyNext;
             xyNext += delta;
-            a.setDiameter(wh);   //length of wall
+            ((AtomWall)a).setLength(wh);   //length of wall
             ((AtomWall)a).setAngle(angle);
             ((AtomWall)a).setTemperature(temperature);
         }
@@ -81,12 +99,12 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     
     protected void computeDimensions() {
         if(horizontal) {
-            dim[0] = ((AtomWall)parentSpecies.firstAtom()).getLength();
+            dim[0] = ((AtomHardWall)parentSpecies.firstAtom()).getLength();
             dim[1] = 0.0;
         }
         else if(vertical) {
             dim[0] = 0.0;
-            dim[1] = ((AtomWall)parentSpecies.firstAtom()).getLength();
+            dim[1] = ((AtomHardWall)parentSpecies.firstAtom()).getLength();
         }
         else {
             //does not handle walls that are neither horizontal nor vertical

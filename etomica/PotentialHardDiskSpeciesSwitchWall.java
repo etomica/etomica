@@ -17,17 +17,17 @@ public class PotentialHardDiskSpeciesSwitchWall extends Potential implements Pot
         changeSpecies = (SpeciesDisks)s;
     }
     
-    public double collisionTime(Atom atom1, Atom atom2) {
+    public double collisionTime(AtomHard atom1, AtomHard atom2) {
    
-        Atom disk;
-        AtomWall wall;
-        if(atom2 instanceof AtomWall) {
-           disk = atom1;
-           wall = (AtomWall)atom2;
+        AtomHardDisk disk;
+        AtomHardWall wall;
+        if(atom2 instanceof AtomHardWall) {
+           disk = (AtomHardDisk)atom1;
+           wall = (AtomHardWall)atom2;
         }
         else {
-           disk = atom2;
-           wall = (AtomWall)atom1;
+           disk = (AtomHardDisk)atom2;
+           wall = (AtomHardWall)atom1;
         }
         
         int i;
@@ -67,19 +67,19 @@ public class PotentialHardDiskSpeciesSwitchWall extends Potential implements Pot
     
 // not suited for multiatomic molecules; need to work on IntegratorHard (advanceToCollision method) to make ready
     
-    public void bump(Atom atom1, Atom atom2)  //this needs updating to check for isStationary
+    public void bump(AtomHard atom1, AtomHard atom2)  //this needs updating to check for isStationary
     {
         double eps = 1.0e-6;
         
-        Atom disk;
-        AtomWall wall;
-        if(atom2 instanceof AtomWall) {
-           disk = atom1;
-           wall = (AtomWall)atom2;
+        AtomHardDisk disk;
+        AtomHardWall wall;
+        if(atom2 instanceof AtomHardWall) {
+           disk = (AtomHardDisk)atom1;
+           wall = (AtomHardWall)atom2;
         }
         else {
-           disk = atom2;
-           wall = (AtomWall)atom1;
+           disk = (AtomHardDisk)atom2;
+           wall = (AtomHardWall)atom1;
         }
         
        Molecule m = disk.parentMolecule;
@@ -87,7 +87,7 @@ public class PotentialHardDiskSpeciesSwitchWall extends Potential implements Pot
        oldSpecies.deleteMolecule(m);
        changeSpecies.addMolecule(m);
        for(Atom a=m.firstAtom(); a!=m.lastAtom.getNextAtom(); a=a.getNextAtom()) {
-          a.setDiameter(changeSpecies.getDiameter());
+          ((AtomDisk)a).setDiameter(changeSpecies.getDiameter());
        }
        
        //Ensure wall and atom are separating

@@ -14,7 +14,7 @@ public class PotentialHardDisk extends Potential implements PotentialHard
         setCollisionDiameter(d);
     }
 
-    public double collisionTime(Atom atom1, Atom atom2) {
+    public double collisionTime(AtomHard atom1, AtomHard atom2) {
         parentPhase.space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
         Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1 = (p/m)2 - (p/m)1
         double bij = Space.v1Dv2(r12,v12);                           //r12 . v12
@@ -35,7 +35,7 @@ public class PotentialHardDisk extends Potential implements PotentialHard
         return time;
     }
     
-    public void bump(Atom atom1, Atom atom2)
+    public void bump(AtomHard atom1, AtomHard atom2)
     {
         parentPhase.space.uEr1Mr2(r12, atom2.r, atom1.r);     //instance method      //r2-r1
         Space.uEa1Tv1Ma2Tv2(v12, atom2.rm, atom2.p, atom1.rm, atom1.p);  //v2-v1 = (p/m)2 - (p/m)1
@@ -52,12 +52,12 @@ public class PotentialHardDisk extends Potential implements PotentialHard
         sig2 = c*c;
     }
     
-    public boolean overlap(Atom atom1, Atom atom2, double u) {
+    public boolean overlap(AtomC atom1, AtomC atom2, double u) {
         u = 0.0;
         return (parentPhase.space.r1Mr2_S(atom1.r, atom2.r) < sig2);
     }
     
     public double energy(Atom atom1, Atom atom2) {
-        return (parentPhase.space.r1Mr2_S(atom1.r, atom2.r) < sig2) ? Double.MAX_VALUE : 0.0;
+        return (parentPhase.space.r1Mr2_S(((AtomC)atom1).r, ((AtomC)atom2).r) < sig2) ? Double.MAX_VALUE : 0.0;
     }
 }

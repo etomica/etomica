@@ -42,8 +42,8 @@ public class MeterPressure extends simulate.Meter
         for(Species s=phase.firstSpecies(); s!=null; s=s.getNextSpecies()) {
            if(s.speciesIndex == meterIndex) {
  //               s = (SpeciesWalls)s;
-              double flux = 0.5*((AtomWall)s.firstAtom()).pAccumulator*Constants.SCALE/(timeSum * Constants.SCALE * Constants.DEPTH);
-              ((AtomWall)s.firstAtom()).pAccumulator = 0.0;
+              double flux = 0.5*((AtomHardWall)s.firstAtom()).pAccumulator*Constants.SCALE/(timeSum * Constants.SCALE * Constants.DEPTH);
+              ((AtomHardWall)s.firstAtom()).pAccumulator = 0.0;
               timeSum = 0.0;
               fluxCalc=flux/Constants.BAR2SIM;
            }

@@ -27,7 +27,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
         Space.uEv1(OldCOM,m.COM());
         Space.uEa1(NewCOM,0.0);
         double xNext = 0.0;
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {
             Space.uEa1(a.r,0.0);   //zero all coordinates
             a.r[0] = xNext;
             xNext += bondLength;
@@ -36,7 +36,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
         
         Space.uDEa1(NewCOM,(double)m.nAtoms);
         
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {
             Space.uMEv1(a.r,NewCOM);  //zero the molecule center-of-mass
             Space.uPEv1(a.r,OldCOM);  //move com to original position
         }
@@ -46,8 +46,8 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
         dim[1] = 0.0;
         Molecule m = parentSpecies.firstMolecule();  //a typical molecule
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
-            dim[1] = Math.max(dim[1], a.getDiameter());  //width is that of largest atom
+            dim[1] = Math.max(dim[1], ((AtomDisk)a).getDiameter());  //width is that of largest atom
         }
-        dim[0] = 0.5*(m.firstAtom().getDiameter() + m.lastAtom().getDiameter()) + (m.nAtoms-1) * bondLength;
+        dim[0] = 0.5*(((AtomDisk)m.firstAtom()).getDiameter() + ((AtomDisk)m.lastAtom()).getDiameter()) + (m.nAtoms-1) * bondLength;
     }
 }

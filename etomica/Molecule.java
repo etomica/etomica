@@ -269,8 +269,8 @@ public class Molecule implements Serializable {
   */
   public final void updateMass() {
     this.mass = 0.0;
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += a.getMass();}
-    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {a.updateCOMFraction();}
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
   }
   
  /**
@@ -303,7 +303,7 @@ public class Molecule implements Serializable {
   public double kineticEnergy() {
     double energy = 0.0;
     Atom nextMoleculeAtom = lastAtom.getNextAtom();  //so not computed each time through loop
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {energy += a.kineticEnergy();}
+    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {energy += ((AtomC)a).kineticEnergy();}
     return energy;
   }
   
@@ -315,7 +315,7 @@ public class Molecule implements Serializable {
      */
   public final void translate(double[] dr) {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.translate(dr);}
+    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(dr);}
   }
     /**
      * Displaces all atoms in this molecule the distance dr in one coordinate direction.
@@ -325,7 +325,7 @@ public class Molecule implements Serializable {
      */
   public final void translate(int i, double dr) {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.translate(i,dr);}
+    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(i,dr);}
   }
   
     /**
@@ -337,9 +337,9 @@ public class Molecule implements Serializable {
      * @see #replace
      * @see #translate
      */
-   public final void displace(double[] dr) {
+   public final void displace(double[] dr) {   //need to revise this
     Atom nextMoleculeAtom = terminationAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.displace(dr);}
+    for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {a.displace(dr);}
    }
    
      /**
@@ -347,9 +347,9 @@ public class Molecule implements Serializable {
       *
       * @see #displace
       */
-   public final void replace() { 
+   public final void replace() {    //need to revise this
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.replace();}
+    for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {a.replace();}
    }
 
   /**
@@ -373,10 +373,10 @@ public class Molecule implements Serializable {
    * @return center-of-mass coordinate vector of this molecule, in Angstroms
    */
   public final double[] COM() {
-    if(nAtoms == 1) {return firstAtom.r;}
+    if(nAtoms == 1) {return ((AtomC)firstAtom).r;}
     Space.uEa1(r,0.0);
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {
+    for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {
         Space.uPEa1Tv1(r,a.getCOMFraction(),a.r);
     }
     return r;

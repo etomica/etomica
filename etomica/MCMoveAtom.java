@@ -23,7 +23,7 @@ public class MCMoveAtom extends MCMove {
         for(int j=i; --j>=0; ) {a = a.getNextAtom();}  //get ith atom in list
         uOld = a.potentialEnergy();
         Space.randomVector(dr, stepSize, rand);
-        a.displace(dr);
+        ((AtomC)a).displace(dr);
         uNew = a.potentialEnergy();
         if(uNew < uOld) {   //accept
             nAccept++;
@@ -31,7 +31,7 @@ public class MCMoveAtom extends MCMove {
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
-             a.replace();
+             ((AtomC)a).replace();
              return;
         }
         nAccept++;   //accept

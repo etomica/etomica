@@ -44,7 +44,7 @@ public abstract class Configuration extends Component{
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
             double momentum = Math.sqrt(s.mass*temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
-            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.getNextAtom()) {
+            for(AtomC a=(AtomC)s.firstAtom(); a!=s.terminationAtom(); a=(AtomC)a.getNextAtom()) {
 	            a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
     	        a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
                 sum++;
@@ -57,7 +57,7 @@ public abstract class Configuration extends Component{
         Space.uDEa1(momentumSum,(double)sum);
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
-            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.getNextAtom()) {
+            for(AtomC a=(AtomC)s.firstAtom(); a!=s.terminationAtom(); a=(AtomC)a.getNextAtom()) {
                 Space.uMEv1(a.p, momentumSum);
             }
         }
@@ -65,7 +65,7 @@ public abstract class Configuration extends Component{
     
     public void initializeMomentum(Molecule m) {
         double momentum = Math.sqrt(m.getMass()*temperature/Constants.KE2T*(double)Space.D);
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {
 	        a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
             a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
 	        double momentumNorm = Math.sqrt(Space.v1S(a.p));

@@ -15,7 +15,7 @@ public class MeterEnergy extends simulate.Meter
     {
         double ke = 0.0;
         double pe = 0.0;
-        for(Atom a=phase.firstAtom(); a!=null; a=a.getNextAtom()) {
+        for(AtomC a=(AtomC)phase.firstAtom(); a!=null; a=(AtomC)a.getNextAtom()) {
             ke += a.kineticEnergy();
             Atom nextMoleculeAtom = a.getMolecule().lastAtom.getNextAtom();  //first atom on next molecule
             

@@ -53,7 +53,7 @@ public abstract class MeterLocalDensity extends simulate.Meter
         if(moleFractionMode) {  //compute local mole fraction
             int totalSum = 0, speciesSum = 0;
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
-                 if(this.contains(m) && !(m instanceof MoleculeWall)) {
+                 if(this.contains(m) && !(m.firstAtom() instanceof AtomHardWall)) {
                     totalSum++;
                     if(m.getSpeciesIndex() == speciesIndex) speciesSum++;
                  }
@@ -65,7 +65,7 @@ public abstract class MeterLocalDensity extends simulate.Meter
             int nSum = 0;
             if(speciesIndex == ALL_SPECIES) {   //total density
               for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
-                 if(this.contains(m) && !(m instanceof MoleculeWall)) nSum++;
+                 if(this.contains(m) && !(m.firstAtom() instanceof AtomHardWall)) nSum++;
               }}
             else {                              //species density
               for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
