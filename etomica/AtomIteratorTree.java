@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Atom iterator that traverses all atoms at a specified depth below a
  * specified root atom in the atom tree hierarchy.  The depth may be
@@ -41,7 +43,7 @@ public class AtomIteratorTree implements AtomIterator {
     /**
      * Performs action on all iterates.  Clobbers iteration state.
      */
-    public void allAtoms(AtomsetActive act) {
+    public void allAtoms(AtomsetAction act) {
 //        if(rootNode == null) return;
 //        if(iterationDepth == 0 || rootNode.isLeaf()) act.actionPerformed(rootNode.atom);
 //        else if(!rootNode.childrenAreGroups() || iterationDepth == 1) {

@@ -4,6 +4,8 @@
  */
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Returns all pairs formed from a single list of atoms.
  */
@@ -90,7 +92,7 @@ public class ApiListSimple implements AtomsetIterator {
 	/**
 	 * Performs given action on all pairs that can be formed from the current list.
 	 */
-	public void allAtoms(AtomsetActive action) {
+	public void allAtoms(AtomsetAction action) {
     	final AtomLinker.Tab header = list.header;
         for (AtomLinker outer = header.next; outer.next != header; outer = outer.next) {
         	if(outer.atom == null) continue;//skip tabs in outer loop

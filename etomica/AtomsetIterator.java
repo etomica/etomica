@@ -3,6 +3,8 @@
  */
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Interface for classes that loop over a set of atoms. Permits
  * iteration via a hasNext()-next() while loop (iterator returns
@@ -57,7 +59,7 @@ public interface AtomsetIterator {
      * in the allAtoms call are the same set that would be returned by 
      * looping using hasNext/next.
      */
-    public void allAtoms(AtomsetActive action);
+    public void allAtoms(AtomsetAction action);
 
     /**
      * The number of iterates returned by this iterator in its current state.
@@ -76,7 +78,7 @@ public interface AtomsetIterator {
      * @author kofke
      */
     public static AtomsetIterator NULL = new AtomsetIterator() {
-    	public void allAtoms(AtomsetActive action) {}
+    	public void allAtoms(AtomsetAction action) {}
     	public boolean contains(Atom[] atom) {return false;}
     	public boolean hasNext() {return false;}
     	public Atom[] next() {return null;}

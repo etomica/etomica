@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Pair iterator synthesized from two atom iterators, such that the inner-loop
  * iteration depends on the outer-loop atom.  Pairs are formed from
@@ -159,7 +161,7 @@ public final class ApiInnerVariable implements AtomsetIterator {
     /**
      * Performs the given action on all pairs returned by this iterator.
      */
-    public void allAtoms(AtomsetActive act) {  
+    public void allAtoms(AtomsetAction act) {  
 		aiOuter.reset();
 		while(aiOuter.hasNext()) {
 			pair[0] = aiOuter.nextAtom();

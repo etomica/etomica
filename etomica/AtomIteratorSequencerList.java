@@ -4,6 +4,9 @@
  */
 package etomica;
 
+import etomica.action.AtomsetAction;
+import etomica.action.AtomsetActionAdapter;
+
 /**
  * Iterator for looping through the sequence list relative to a
  * specified atom.
@@ -35,7 +38,7 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#allAtoms(etomica.AtomActive)
 	 */
-	public void allAtoms(AtomsetActive action) {
+	public void allAtoms(AtomsetAction action) {
 		if(skippingFirst) listIterator.allAtoms(skipFirstWrapper(action));
 		else listIterator.allAtoms(action);
 	}
@@ -90,10 +93,10 @@ public final class AtomIteratorSequencerList extends AtomIteratorAdapter impleme
 	 * effect of preventing it from performing its action on firstAtom.
 	 * Used by the allAtoms method if skippingFirst.
 	 */
-	private AtomsetActive skipFirstWrapper(final AtomsetActive realAction) {
-        return new AtomsetActive() {
+	private AtomsetAction skipFirstWrapper(final AtomsetAction realAction) {
+        return new AtomsetActionAdapter() {
                 //fake action for first iterate
-                private AtomsetActive action = new AtomsetActive() {
+                private AtomsetAction action = new AtomsetActionAdapter() {
                         public void actionPerformed(Atom[] atom) {action = realAction;}
                 };
                 public void actionPerformed(Atom[] atom) {

@@ -4,6 +4,8 @@
  */
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Adapater class that wraps another AtomsetIterator to implement the
  * methods of an iterator.  In the default case, all methods of the
@@ -68,7 +70,7 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator {
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
 	 */
-	public void allAtoms(AtomsetActive action) {
+	public void allAtoms(AtomsetAction action) {
 		iterator.allAtoms(action);
 	}
 

@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Iterator that expires after returning a single atom, which is
  * specified by a call to the setAtom method, or via the constructor.
@@ -45,7 +47,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
      */
     public int size() {return 1;}
 
-	public void allAtoms(AtomsetActive action) {
+	public void allAtoms(AtomsetAction action) {
 		action.actionPerformed(atom);
 	}
         

@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
+import etomica.action.AtomsetAction;
 import etomica.lattice.*;
 
 /**
@@ -244,7 +245,7 @@ public static final class IntragroupNbrIterator extends AtomIterator {
 		dnSkip.setSkipFirst(true);
 	}
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetAction action) {
 		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
 		 all((Atom)basis, id, (AtomAction)action);
 	}

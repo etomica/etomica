@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
+import etomica.action.AtomsetAction;
 
 /**
  * Loops over all the atoms in a basis which are not bonded to 
@@ -25,7 +26,7 @@ public class AtomIteratorNonbonded implements AtomIteratorAtomDependent {
         iterator = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetAction action) {
 		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
 		 all((Atom)basis, id, (AtomAction)action);
 	}

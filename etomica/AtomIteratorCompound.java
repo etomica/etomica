@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.action.AtomAction;
+import etomica.action.AtomsetAction;
 
 /**
  * Iterates over all the atoms given across an array of iterators.  
@@ -103,7 +104,7 @@ public final class AtomIteratorCompound implements AtomIterator {
     	return next()[0];
     }
     
-    public void allAtoms(AtomsetActive act) {
+    public void allAtoms(AtomsetAction act) {
         for(int i=0; i<iteratorSet.length; i++) {
             iteratorSet[i].allAtoms(act);
         }

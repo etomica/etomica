@@ -1,5 +1,9 @@
 package etomica;
 
+import etomica.action.AtomsetAction;
+import etomica.action.AtomsetCount;
+import etomica.action.AtomsetDetect;
+
 /**
  * Atom iterator that traverses the elements of an AtomList.
  * Configurable to permit iteration up and/or down list, beginning
@@ -107,7 +111,7 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
      * the iterator (first, terminator, direction). Does not require reset
      * before use.
      */
-    public void allAtoms(AtomsetActive action){
+    public void allAtoms(AtomsetAction action){
     	for(AtomLinker link = (first.atom==null) ? (upList ? first.next : first.previous) : first; ; 
     			link=(upList ? link.next : link.previous)) {
     		if(link.atom != null) {
@@ -194,7 +198,7 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
 		if(atom == null || atom.length == 0) return false;
 		// use AtomList's contains() if first is the header and the terminator type is header (only).
         if(first == list.header && terminatorType == AtomLinker.Tab.HEADER_TAB)	return list.contains(atom[0]);//returns false also if atom[0] is null
-		AtomsetActiveDetect detector = new AtomsetActiveDetect(atom[0]);
+		AtomsetDetect detector = new AtomsetDetect(atom[0]);
 		allAtoms(detector);
 		return detector.detectedAtom();
 	}
@@ -207,7 +211,7 @@ public final class AtomIteratorList implements AtomIteratorListDependent, Atomse
 	public int size() {
 		// use AtomList's size() if first is the header and the terminator type is header (only).
 		if(first == list.header && terminatorType == AtomLinker.Tab.HEADER_TAB) return list.size();
-		AtomsetActiveCount counter = new AtomsetActiveCount();
+		AtomsetCount counter = new AtomsetCount();
 		allAtoms(counter);
 		return counter.callCount();
 	}

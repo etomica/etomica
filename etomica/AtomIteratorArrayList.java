@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomsetAction;
+
  /**
   * An atom iterator of the elements from an AtomArrayList (in proper
   * sequence).
@@ -47,7 +49,7 @@ public class AtomIteratorArrayList implements AtomIterator {
  		return list.size();
  	}
  	
- 	public void allAtoms(AtomsetActive act) {
+ 	public void allAtoms(AtomsetAction act) {
  		int arraySize = size();
  		for (int i=0; i<arraySize; i++) {
  			atoms[0] = list.get(i);

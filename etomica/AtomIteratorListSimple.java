@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.AtomsetAction;
+
 /**
  * Lightweight version of AtomIteratorList.  Iterates uplist only, from
  * beginning to end of list.  Iterator functions correctly in situations where
@@ -57,7 +59,7 @@ public final class AtomIteratorListSimple implements AtomIteratorListDependent {
     /**
      * Performs action on all atoms.
      */
-    public void allAtoms(AtomsetActive action) {
+    public void allAtoms(AtomsetAction action) {
     	final AtomLinker.Tab header = list.header;
         for (AtomLinker e = header.next; e != header; e = e.next) 
             if(e.atom != null) {

@@ -2,19 +2,21 @@
  * History
  * Created on Aug 23, 2004 by kofke
  */
-package etomica;
+package etomica.action;
+
+import etomica.Atom;
 
 /**
  * Action that simply detects if a particular set of atoms is ever
  * given as the argument of the actionPerformed method.  This is
- * consider to occur if a given array has elements that match,
+ * considered to occur if a given array has elements that match,
  * in order, the elements of the array given to the constructor
  * at instantiation.
  */
 
  //used by some iterators to implement their contains() method
 
-public class AtomsetActiveDetect implements AtomsetActive {
+public class AtomsetDetect extends AtomsetActionAdapter {
 
 	/**
 	 * Constructs to test for the given atoms. Given array is copied, so
@@ -22,7 +24,7 @@ public class AtomsetActiveDetect implements AtomsetActive {
 	 * at time of instantiation. 
 	 * @param testAtom atoms against which those passed to actionPerformed are compared.
 	 */
-	public AtomsetActiveDetect(Atom[] testAtom) {
+	public AtomsetDetect(Atom[] testAtom) {
 		this.testAtom = (Atom[])testAtom.clone();
 	}
 	
@@ -30,7 +32,7 @@ public class AtomsetActiveDetect implements AtomsetActive {
 	 * Constructs to test for the given atom.
 	 * @param testAtom atom against which those passed to actionPerformed are compared.
 	 */
-	public AtomsetActiveDetect(Atom testAtom) {
+	public AtomsetDetect(Atom testAtom) {
 		this.testAtom = new Atom[] {testAtom};
 	}
 	

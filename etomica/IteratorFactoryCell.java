@@ -3,6 +3,7 @@ import etomica.utility.java2.HashMap;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
+import etomica.action.AtomsetAction;
 import etomica.lattice.*;
 import etomica.utility.java2.Iterator;
 
@@ -438,7 +439,7 @@ public static final class IntragroupNbrIterator implements AtomIterator {
         dnSkip.setSkipFirst(true);
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetAction action) {
 		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
 		 all((Atom)basis, id, (AtomAction)action);
 	}
@@ -736,7 +737,7 @@ public static final class IntergroupNbrIterator implements AtomIterator {
         iteratorFactory = factory;
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
+	public void all(AtomSet basis, IteratorDirective id, final AtomsetAction action) {
 		 if(!(basis instanceof Atom && action instanceof AtomActionAdapter)) return;
 		 all((Atom)basis, id, (AtomAction)action);
 	}

@@ -6,8 +6,6 @@ package etomica.action;
 
 import etomica.Atom;
 import etomica.Space;
-import etomica.Space.Vector;
-
 
 public class AtomTranslate extends AtomActionAdapter {
     protected Space.Vector displacement;

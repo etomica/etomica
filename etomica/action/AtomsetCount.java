@@ -2,7 +2,9 @@
  * History
  * Created on Aug 23, 2004 by kofke
  */
-package etomica;
+package etomica.action;
+
+import etomica.Atom;
 
 /**
  * Action that simply counts the number of times the actionPerformed
@@ -11,7 +13,7 @@ package etomica;
 
  //used by some iterators to implement their size() method
 
-public class AtomsetActiveCount implements AtomsetActive {
+public class AtomsetCount extends AtomsetActionAdapter {
 
 	/**
 	 * Increments the call-counter by 1.

@@ -4,6 +4,10 @@
  */
 package etomica;
 
+import etomica.action.AtomsetAction;
+import etomica.action.AtomsetActionAdapter;
+import etomica.action.AtomsetCount;
+
 /**
  * @author kofke
  *
@@ -94,7 +98,7 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * Performs the given action on all atoms from iterator that 
 	 * meet the filter criteria.
 	 */
-	public void allAtoms(AtomsetActive action) {
+	public void allAtoms(AtomsetAction action) {
 		iterator.allAtoms(actionWrapper(filter, action));
 	}
 
@@ -104,7 +108,7 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * filter.
 	 */
 	public int size() {
-		AtomsetActiveCount counter = new AtomsetActiveCount();
+		AtomsetCount counter = new AtomsetCount();
 		allAtoms(counter);
 		return counter.callCount();
 	}
@@ -133,8 +137,8 @@ public class AtomIteratorFiltered implements AtomIterator {
 	 * Returns a new action that wraps the given action such that action is performed
 	 * only on the atoms meeting the filter's criteria.
 	 */
-	private static AtomsetActive actionWrapper(final AtomFilter filter, final AtomsetActive action) {
-		return new AtomsetActive() {
+	private static AtomsetAction actionWrapper(final AtomFilter filter, final AtomsetAction action) {
+		return new AtomsetActionAdapter() {
 			public void actionPerformed(Atom[] atom) {
 				if(filter.accept(atom[0])) action.actionPerformed(atom);
 			}

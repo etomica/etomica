@@ -19,13 +19,8 @@ public interface AtomAction extends Action {
     public void setAtom(Atom atom);
     public Atom getAtom();
     
-    public static final AtomActionAdapter NULL = new Null();
-
-    /**
-     * Action that does nothing.
-     */
-    public static class Null extends AtomActionAdapter {
+    public static final AtomAction NULL = new AtomActionAdapter() {
         public final void actionPerformed(Atom a) {}
-    }
+    };
 
 }
