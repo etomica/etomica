@@ -30,7 +30,11 @@ public class Atom implements java.io.Serializable {
         node = nodeFactory.makeNode(this, parent);//must follow setting of sequencer to permit addition to childlist of parent
                                                   //setting parent here in constructor bypasses the call to the parent's addAtomNotify method (which would be called if parent were set in setParent method)
         coord = space.makeCoordinate(this);//must follow setting of type field
-        if(parent != null) parent.addAtomNotify(this);
+        if(parent != null) {
+        	parent.addAtomNotify(this);
+        } else {
+        	node.setIndex(NO_PARENT_INSTANCE_COUNT++);
+        }
         
 //        coord.setMass(type.getMass());//handled in type.initialize statement
         
@@ -142,6 +146,12 @@ public class Atom implements java.io.Serializable {
      * Array used to record all agent sources requesting to place an agent in every atom.
      */
     private static AgentSource[] agentSource = new AgentSource[0];
+    
+    /**
+     * Counter for number of times an atom is instantiated without a parent.  Used
+     * to assign a unique index to such atoms.
+     */
+    private static int NO_PARENT_INSTANCE_COUNT = 0;
     
     /**
      * Adds given agent source to allatomAgent-source array and returns index
