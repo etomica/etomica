@@ -53,6 +53,7 @@ public class SimulationVirial extends Simulation {
 		phase = new PhaseCluster(this,sampleCluster);
 		species = new SpeciesSpheresMono(this,AtomSequencerFactory.SIMPLE);
         species.setNMolecules(nMolecules);
+        phase.makeMolecules();
         
 		integrator = new IntegratorClusterMC(potentialMaster);
 		integrator.setTemperature(temperature);
@@ -159,8 +160,8 @@ public class SimulationVirial extends Simulation {
             targetCluster = new Full(nPoints, fTarget);
 		}
 		else if (nPoints == 4) {
-			refCluster = new ClusterSum(new Cluster[] {new D4(fRef), new D5(fRef), new D6(fRef)}, new double[]{-3./8.,-3./4.,-1./8.});
-            targetCluster = new ClusterSum(new Cluster[] {new D4(fTarget), new D5(fTarget), new D6(fTarget)}, new double[]{-3./8.,-3./4.,-1./8.});
+			refCluster = new ClusterSum(new Cluster[] {new D4(fRef,true), new D5(fRef,true), new D6(fRef)}, new double[]{-3./8.,-3./4.,-1./8.});
+            targetCluster = new ClusterSum(new Cluster[] {new D4(fTarget,true), new D5(fTarget,true), new D6(fTarget)}, new double[]{-3./8.,-3./4.,-1./8.});
 		}
 		else throw new RuntimeException("I don't know how to do clusters with more than 4 points!");
 		ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster); //refCluster.makeClone(fSample);
