@@ -32,7 +32,6 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 
 	public static void main(String[] args) {
 		Default.makeLJDefaults();
-		Default.TRUNCATE_POTENTIALS = false;
 
 		final int nPoints = 5;
         double temperature = 1.3;
@@ -50,7 +49,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 		
         MayerHardSphere fRef = new MayerHardSphere(1.0);
         MayerEHardSphere eRef = new MayerEHardSphere(1.0);
-        P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0,null);
+        P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0);
         System.out.println("LJ sampling");
         MayerGeneral fTarget = new MayerGeneral(p2LJ);
         MayerE eTarget = new MayerE(p2LJ);

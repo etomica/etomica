@@ -6,19 +6,18 @@ import etomica.AtomSet;
 import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialTruncation;
 import etomica.space.Boundary;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
 public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
-	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, Boundary boundary) {
-		this(space, potentialTruncation);
+	public P2WaterSPC(Space space, Boundary boundary) {
+		this(space);
 		this.boundary = boundary;
 	}
-	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation) {
-		super(space, potentialTruncation);
+	public P2WaterSPC(Space space) {
+		super(space);
 		setSigma(3.1670);
 		setEpsilon(Kelvin.UNIT.toSim(78.23));
 		work = (etomica.space3d.Vector3D)space.makeVector();
@@ -39,8 +38,6 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		work.Ev1Mv2(O1r, O2r);
 		boundary.nearestImage(work);
 		r2 = work.squared();
-
-		if(potentialTruncation.isZero(r2)) return 0.0;
 
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 	
@@ -90,6 +87,10 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
 		return sum;																					        
 	}//end of energy
+    
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
+    }
     
 	public etomica.space.Vector gradient(AtomSet pair){
 		throw new etomica.exception.MethodNotImplementedException();

@@ -52,7 +52,6 @@ public class SimulationVirialOverlap extends Simulation {
 	
 	public SimulationVirialOverlap(Space aSpace, double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters) {
 		super(aSpace);
-        Default.TRUNCATE_POTENTIALS = false;
 
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
@@ -161,7 +160,6 @@ public class SimulationVirialOverlap extends Simulation {
 
 	public static void main(String[] args) {
 		Default.makeLJDefaults();
-		Default.TRUNCATE_POTENTIALS = false;
 
 		int nPoints = 5;
 		double temperature = 1.3; //temperature governing sampling of configurations
@@ -178,7 +176,7 @@ public class SimulationVirialOverlap extends Simulation {
 		MayerHardSphere fRef = new MayerHardSphere(1.0);
         MayerEHardSphere eRef = new MayerEHardSphere(1.0);
 		Space3D space = new Space3D();
-        P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0,null);
+        P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0);
 		MayerGeneral fTarget = new MayerGeneral(p2LJ);
         MayerE eTarget = new MayerE(p2LJ);
 		

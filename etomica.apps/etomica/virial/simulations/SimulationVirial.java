@@ -43,7 +43,6 @@ public class SimulationVirial extends Simulation {
 	 */
 	public SimulationVirial(Space space, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space);
-		Default.TRUNCATE_POTENTIALS = false;
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
@@ -122,7 +121,6 @@ public class SimulationVirial extends Simulation {
 	
 	public static void main(String[] args) {
 		Default.makeLJDefaults();
-		Default.TRUNCATE_POTENTIALS = false;
 
 		int nPoints = 4;
 		double temperature = 1.3;
@@ -142,7 +140,7 @@ public class SimulationVirial extends Simulation {
         
         MayerHardSphere fRef = new MayerHardSphere(1.0);
         MayerEHardSphere eRef = new MayerEHardSphere(1.0);
-		P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0,null);
+		P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0);
 		System.out.println("LJ sampling");
 		MayerGeneral fTarget = new MayerGeneral(p2LJ);
         MayerE eTarget = new MayerE(p2LJ);

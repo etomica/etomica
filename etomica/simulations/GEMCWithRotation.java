@@ -56,7 +56,7 @@ public class GEMCWithRotation extends Simulation {
         
         MeterDensity meterDensity = new MeterDensity();
 
-	    potential = new P2LennardJones();
+	    potential = new P2LennardJones(space);
 	    potential.setSigma(species.getDiameter());
 
         this.potentialMaster.setSpecies(potential,new Species[] {species, species});
