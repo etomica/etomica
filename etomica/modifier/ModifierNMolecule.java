@@ -40,11 +40,11 @@ public class ModifierNMolecule implements Modifier {
     }
     
     public String getLabel() {
-        return speciesAgent.node.parentSpecies().getName() + " molecules";
+        return speciesAgent.type.getSpecies().getName() + " molecules";
     }
     
     public String toString() {
-        return "Change number of "+speciesAgent.node.parentSpecies().getName()+
+        return "Change number of "+speciesAgent.type.getSpecies().getName()+
                 " molecules from " + previousValue + " to " + mostRecentValue;
     }
     private final SpeciesAgent speciesAgent;

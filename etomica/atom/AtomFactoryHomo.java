@@ -1,24 +1,19 @@
 package etomica.atom;
 
 import etomica.Atom;
+import etomica.AtomFactory;
 import etomica.Configuration;
 import etomica.ConfigurationLinear;
 import etomica.Space;
+import etomica.Species;
 
 /**
- * Builds an atom group that comprises a set of identically formed atoms or atomgroups.
+ * Builds an atom group that comprises a set of identically formed atoms or atom groups.
  *
  * @author David Kofke
  */
  
- /* History of changes
-  * 09/23/02 (DAK) changed childFactory from private to protected so that AtomFactoryTree can implement a method to change it
-  */
-  
-public class AtomFactoryHomo extends AtomFactory {
-    
-    protected AtomFactory childFactory;
-    private int atomsPerGroup;
+ public class AtomFactoryHomo extends AtomFactory {
     
     /**
      * @param space the coordinate factory
@@ -59,16 +54,16 @@ public class AtomFactoryHomo extends AtomFactory {
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory, 
     						AtomFactory factory, int atoms, Configuration config) {
-        super(space, sequencerFactory, nodeFactory);
+        super(space, new AtomTypeGroup(), sequencerFactory, nodeFactory);
         childFactory = factory;
         atomsPerGroup = atoms;
         configuration = config;
-        //set up fields of Group type (can't build sample atoms because factories defined by subclassing this one may not be ready to build at atom at this point)
-        
-        groupType.childrenAreGroups = factory.isGroupFactory();
     }
     
-    public boolean isGroupFactory() {return true;}
+    public void setSpecies(Species species) {
+        atomType.setSpecies(species);
+        childFactory.setSpecies(species);
+    }
     
     /**
      * Constructs a new group.
@@ -102,6 +97,10 @@ public class AtomFactoryHomo extends AtomFactory {
      * Accessor method for number of child atoms per group constructed.
      */
      public int getAtomsPerGroup() {return atomsPerGroup;}
+
+     protected AtomFactory childFactory;
+     private int atomsPerGroup;
+     
 
 }//end of AtomFactoryHomo
     

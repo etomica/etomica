@@ -1,11 +1,10 @@
 package etomica;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTypeGroup;
-import etomica.atom.AtomTreeNodeFactory;
 import etomica.units.Dimension;
 
 /**
@@ -18,25 +17,19 @@ import etomica.units.Dimension;
  
 public final class SpeciesAgent extends Atom {
 
-    protected Integrator integrator;
-    public AtomLinker.Tab firstLeafAtomTab;
-    private final Phase phase;
-    
     public SpeciesAgent(Space space, Species species, Phase phase, int nMolecules) {
-        super(space, new AtomTypeGroup(null), new NodeFactory(species), 
-                AtomSequencerFactory.SIMPLE);
+        super(space, new AtomTypeGroup(), NODE_FACTORY,  AtomSequencerFactory.SIMPLE);
         this.phase = phase;
-        ((AtomTypeGroup)type).childrenAreGroups = species.moleculeFactory().isGroupFactory();
+        type.setSpecies(species);
     }
         
-    public final AtomFactory moleculeFactory() {return node.parentSpecies().moleculeFactory();}
+    public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
       
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)seq.next.atom;}
     public int moleculeCount() {return ((AtomTreeNodeGroup)node).childAtomCount();}
-    public Atom firstMolecule() {return ((AtomTreeNodeGroup)node).firstChildAtom();}
-    public Atom lastMolecule() {return ((AtomTreeNodeGroup)node).lastChildAtom();}
-    public Atom randomMolecule() {return ((AtomTreeNodeGroup)node).randomAtom();}
-    public Atom getMolecule(int i) {return ((AtomTreeNodeGroup)node).getAtom(i);}
+    public Atom firstMolecule() {return ((AtomTreeNodeGroup)node).childList.getFirst();}
+    public Atom lastMolecule() {return ((AtomTreeNodeGroup)node).childList.getLast();}
+    public Atom randomMolecule() {return ((AtomTreeNodeGroup)node).childList.getRandom();}
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom();
@@ -58,13 +51,13 @@ public final class SpeciesAgent extends Atom {
     */
     public void setNMolecules(int n) {
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-        while(treeNode.childList.size() > 0) treeNode.lastChildAtom().dispose();
+        while(treeNode.childList.size() > 0) treeNode.childList.getLast().node.dispose();
         if(n > treeNode.childAtomCount()) {
             for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
         }
         else if(n < treeNode.childAtomCount()) {
             if(n < 0) n = 0;
-            for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.lastChildAtom().dispose();
+            for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.childList.getLast().node.dispose();
         }
         
         //reconsider this
@@ -80,20 +73,12 @@ public final class SpeciesAgent extends Atom {
      */
     public static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
         
-        private final Species parentSpecies;//remove this 2/05
-        private AgentAtomTreeNode(Species parentSpecies, Atom atom) {
+        private AgentAtomTreeNode(Atom atom) {
             super(atom);
-            this.parentSpecies = parentSpecies;
             depth = 1;
-            setIndex(parentSpecies.getIndex());
         }
 
-        /**
-        * Overrides super class method and terminates recursive call to identify
-        * a constituent atom's species.
-        */
-        public final Species parentSpecies() {return parentSpecies;}
-        /**
+       /**
         * Overrides parent class method and terminates recursive call to identify this
         * as a constituent atom's species agent.
         */
@@ -105,14 +90,12 @@ public final class SpeciesAgent extends Atom {
         public final Atom parentMolecule() {return null;}
     }
     
-    private static final class NodeFactory implements AtomTreeNodeFactory {
-        Species species;
-        NodeFactory(Species s) {
-            species = s;
-        }
+    private final static AtomTreeNodeFactory NODE_FACTORY = new AtomTreeNodeFactory() {
         public AtomTreeNode makeNode(Atom atom) {
-            return new AgentAtomTreeNode(species, atom);
+            return new AgentAtomTreeNode(atom);
         }
-    }
-
+    };
+    public AtomLinker.Tab firstLeafAtomTab;
+    private final Phase phase;
+    
 } //end of SpeciesAgent

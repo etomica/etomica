@@ -4,9 +4,9 @@ import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -28,9 +28,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     private static AtomFactoryHetero makeFactory(Space space, int nA, AtomSequencerFactory sequencerFactory) {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
-            f[i] = new AtomFactoryMono(space, sequencerFactory);
-            AtomType type = new AtomTypeWall(f[i], Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
-            f[i].setType(type);
+            AtomType type = new AtomTypeWall(space, Default.ATOM_MASS, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
+            f[i] = new AtomFactoryMono(space, type, sequencerFactory);
         }
         AtomFactoryHetero fm = new AtomFactoryHetero(space, sequencerFactory, f);
         return fm;
@@ -68,7 +67,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         protoType = new AtomTypeWall[nA];
         nMolecules = nM;
         for(int i=0; i<nA; i++) {
-           AtomTypeWall type = (AtomTypeWall)subfactory[i].type();
+           AtomTypeWall type = (AtomTypeWall)subfactory[i].getType();
 //           type.setStationary(true);
            type.setLength(length);
            type.setXAngle(xAngle);
@@ -76,7 +75,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
            type.setZAngle(zAngle);
            protoType[i] = type;
         }
-        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel());
+        factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(space));
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -147,8 +146,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         private double temperature = Default.TEMPERATURE;
         private double placement;
         
-        public ConfigurationParallel() {
-            super();
+        public ConfigurationParallel(Space space) {
+            super(space);
             setAngle(0.0);
             setLongWall(false);
             setPlacement(0.0);
@@ -216,8 +215,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             while(iterator.hasNext()) {//equally space all "wall atoms"
                 Atom a = iterator.nextAtom();
                 Vector r = a.coord.position();
-                a.coord.momentum().E(0.0);
-                a.coord.setStationary(stationary);
+                ((ICoordinateKinetic)a.coord).velocity().E(0.0);
                 r.setX(i,xyNext);
                 xyNext += delta;
                 ((AtomTypeWall)a.type).setLength(wh);   //length of wall

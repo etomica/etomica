@@ -4,10 +4,10 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTreeNodeLeaf;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTreeNodeFactory;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomLinker.Tab;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -36,7 +36,7 @@ public final class SpeciesMaster extends Atom {
     public final AtomList atomList = new AtomList();
 
     public SpeciesMaster(Space space, Phase p) {
-        super(space, AtomType.NULL, new NodeFactory(p),AtomSequencerFactory.SIMPLE);
+        super(space, new AtomTypeGroup(), new NodeFactory(p),AtomSequencerFactory.SIMPLE);
         index = p.index;
         node = (AtomTreeNodeGroup)super.node;
     }
@@ -47,8 +47,8 @@ public final class SpeciesMaster extends Atom {
         agent.setNMolecules(species.getNMolecules());
     }
     
-    public SpeciesAgent firstSpecies() {return (SpeciesAgent)node.firstChildAtom();}
-    public SpeciesAgent lastSpecies() {return (SpeciesAgent)node.lastChildAtom();}
+    public SpeciesAgent firstSpecies() {return (SpeciesAgent)node.childList.getFirst();}
+    public SpeciesAgent lastSpecies() {return (SpeciesAgent)node.childList.getLast();}
         
     
 //    public int atomCount() {return atomList.size();}//or could use node.leafAtomCount()

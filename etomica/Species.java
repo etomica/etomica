@@ -1,7 +1,6 @@
 package etomica;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
-import etomica.atom.AtomFactory;
 import etomica.chem.Model;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
@@ -49,6 +48,7 @@ public class Species {
         }
         setName(NameMaker.makeName(this.getClass()));
         index = instanceCount++;
+        factory.setSpecies(this);
     }
     
     /**
@@ -156,7 +156,7 @@ public class Species {
     final AgentList agents = new AgentList();
     protected final AtomFactory factory;
     private String name;
-    private int index;
+    private final int index;
     private static int instanceCount;
 
     /**

@@ -3,7 +3,6 @@ import etomica.action.AtomActionAdapter;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.units.Dimension;
@@ -30,12 +29,9 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory,
                                 int na, Configuration config) {
-        AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
-        AtomType type = new AtomTypeWell(f, Default.ATOM_MASS, Default.ATOM_SIZE, 1.5);
-        f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(space, seqFactory, f, na, config);
-        return fm;
- //       return f;
+        AtomType type = new AtomTypeWell(Default.ATOM_MASS, Default.ATOM_SIZE, 1.5);
+        AtomFactoryMono f = new AtomFactoryMono(space, type, seqFactory);
+        return new AtomFactoryHomo(space, seqFactory, f, na, config);
     }
    
     public SpeciesSphereWells(Simulation sim) {
@@ -48,7 +44,7 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
                 int nM, int nA, Configuration config) {
         super(makeFactory(space, seqFactory, nA, config));
         factory.setSpecies(this);
-        protoType = (AtomTypeSphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
+        protoType = (AtomTypeSphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).getType();
         nMolecules = nM;
         mass = protoType.getMass();
     }

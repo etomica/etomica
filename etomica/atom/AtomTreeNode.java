@@ -2,7 +2,6 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.Phase;
-import etomica.Species;
 import etomica.SpeciesAgent;
 
 /**
@@ -102,13 +101,6 @@ public abstract class AtomTreeNode {
      */
     public Phase parentPhase() {
         return (parentNode != null) ? parentNode.parentPhase() : null;
-    }
-
-    /**
-     * @deprecated  want to put this information in AtomType
-     */
-    public Species parentSpecies() {
-        return parentNode.parentSpecies();
     }
     
     public SpeciesAgent parentSpeciesAgent() {

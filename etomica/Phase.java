@@ -62,7 +62,6 @@ import etomica.utility.NameMaker;
 public class Phase {
         
     private Boundary boundary;
-    private PhaseInflate inflater;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
@@ -81,7 +80,6 @@ public class Phase {
         speciesMaster = new SpeciesMaster(space, this);
         this.space = space;
         setName(NameMaker.makeName(this.getClass()));
-        inflater = new PhaseInflate(this);
 
         setBoundary(new BoundaryPeriodicSquare(space));
 
@@ -136,20 +134,6 @@ public class Phase {
     public Vector randomPosition() {return boundary.randomPosition();}
         
     /**
-     * Returns an array of Space.Vector with the center-of-mass position of each molecule
-     * Not meant for computation-intensive use.
-     */
-/*    public Space.Coordinate[] getMoleculePosition() {
-        Space.Coordinate[] positions = new Space.Coordinate[moleculeCount];
-        Molecule molecule = firstMolecule();
-        for(int i=0; i<moleculeCount; i++) {
-            positions[i] = molecule.coordinate();
-            molecule = molecule.nextMolecule();
-        }
-        return positions;
-    }
-*/    
-    /**
      * Returns the ith molecule in the linked list of molecules.
      * 0 returns the first molecule, and moleculeCount-1 returns the last.
      * An argument outside this range throws an IndexOutOfBoundsException
@@ -165,7 +149,7 @@ public class Phase {
             sum += s.node.childAtomCount();
             if(sum > i) break;
         }
-        return ((AtomTreeNodeGroup)s.node).getAtom(i-(sum-((AtomTreeNodeGroup)s.node).childAtomCount()));
+        return ((AtomTreeNodeGroup)s.node).childList.get(i-(sum-((AtomTreeNodeGroup)s.node).childAtomCount()));
     }
     
     /**
@@ -230,10 +214,6 @@ public class Phase {
      * 
      * @return The current instance of the boundary class
      */
-    public final Boundary getBoundary() {return boundary;}
-    /**
-     * Same as getBoundary.
-     */
     public final Boundary boundary() {return boundary;}
     
     /**
@@ -241,12 +221,12 @@ public class Phase {
      */
     public final SpeciesAgent getAgent(Species s) {return s.getAgent(this);}
                        
-    public final Vector dimensions() {return boundary.dimensions();}
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     
     public void setDensity(double rho) {
         double vNew = moleculeCount()/rho;
         double scale = Math.pow(vNew/boundary.volume(), 1.0/space.D());
+        PhaseInflate inflater = new PhaseInflate(this);
         inflater.setScale(scale);
         inflater.actionPerformed();
     }
@@ -265,17 +245,7 @@ public class Phase {
     public final Atom lastAtom() {
         return speciesMaster.node.lastLeafAtom();
     }
-    
-    /**
-     * @return the first Agent in the linked list of Species.Agents in this phase
-     */
-    public final SpeciesAgent firstSpecies() {return (SpeciesAgent)speciesMaster.node.firstChildAtom();}
-    
-    /**
-     * @return the last Agent in the linked list of Species.Agents in this phase
-     */
-    public final SpeciesAgent lastSpecies() {return (SpeciesAgent)speciesMaster.node.lastChildAtom();}
-    
+        
     public int moleculeCount() {return speciesMaster.moleculeCount();}
     
     public int atomCount() {return speciesMaster.node.leafAtomCount();}
@@ -288,18 +258,6 @@ public class Phase {
     }
     
     public Configuration getConfiguration() {return configuration;}
-    
-    /**
-     * Deploys the agent of a species in this phase
-     */
-//    void addSpecies(SpeciesAgent species) {
- //       speciesMaster.addAtom(species);
-        //set internal configuration of molecule
-   //     if(species.parentSpecies().moleculeConfiguration != null) species.parentSpecies().moleculeConfiguration.initializeCoordinates(this);
-        //add species to configuration for this phase and notify iteratorFactory
-   //     configuration.initializeCoordinates(speciesMaster.childAtomArray());
-   //     iteratorFactory.reset();  
- //   }
     
     /**
      * Adds the given molecule to this phase.
@@ -315,7 +273,7 @@ public class Phase {
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
-        a.dispose();
+        a.node.dispose();
     }
     
     public synchronized void addListener(PhaseListener listener) {

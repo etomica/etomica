@@ -5,6 +5,7 @@ import java.awt.Polygon;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomType;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEventManager;
@@ -13,7 +14,6 @@ import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.lattice.AbstractLattice;
@@ -116,7 +116,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             s.ME(r0);
             // centralImage returns the vector to add to s and does not transform s
             phase.boundary().centralImage(s);
-            s.DE(phase.dimensions());
+            s.DE(phase.boundary().dimensions());
             MyCell cell = null;
             if(expand) {
                 cell = lattice.getOriginalCell(s);
@@ -128,7 +128,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
                 cell.revert(s);//works only for scale = 1.0
                 lnJTot -= cell.lnJacobian;
             }
-            s.TE(phase.dimensions());
+            s.TE(phase.boundary().dimensions());
             s.PE(r0);
             phase.boundary().centralImage(s);
             s.TE(scale);
@@ -518,7 +518,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         MyCell cellN, cellS, cellE, cellW;
         Vector originalPosition, deformedPosition, fullyDeformedPosition;
         MySite(Space space, AtomTreeNodeGroup parent) {
-            super(space, AtomType.NULL, parent);
+            super(space, etomica.NULL, parent);
         }
         //computes the location of the deformed-lattice site for the given deformation scale
         public void calculateDeformedPosition(double s) {

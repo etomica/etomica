@@ -39,7 +39,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
     
 	public double energy(Atom[] a) {
 		atom = a[0];
-		Vector dimensions = atom.node.parentPhase().dimensions();
+		Vector dimensions = atom.node.parentPhase().boundary().dimensions();
 		double rx = atom.coord.position().x(0);
 		double ry = atom.coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);

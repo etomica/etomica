@@ -1,9 +1,8 @@
-package etomica.atom;
+package etomica;
 
-import etomica.Atom;
-import etomica.Configuration;
-import etomica.Space;
-import etomica.Species;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNodeFactory;
+import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
@@ -12,58 +11,57 @@ import etomica.Species;
  * @author David Kofke
  */
  
- /* History
-  * 10/18/02 (DAK) Modified to remove Simulation instance, using Space instance instead.
-  *          Many other classes (other factories, lattice classes, modified to be consistent 
-  *          with this change.
-  * 08/12/03 (DAK) Re-introduced simulation field, allowing it to be null.  Used
-  * by AtomType to determine simulation instance, which in turn is referenced by
-  * AtomTreeNode.
-  * 08/26/03 (DAK) Added constructors that take nodeFactory argument.  
-  */
 public abstract class AtomFactory {
     
     public final Space space;
-    private Species species;
     protected Configuration configuration;
     protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeFactory nodeFactory;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
-    protected final AtomTypeGroup groupType = new AtomTypeGroup(this);
-    protected final AtomTypeSphere spheretype = new AtomTypeSphere(this);
-    protected AtomType atomType;
+    protected final AtomType atomType;
     
     /**
      * Makes an atom factory with atoms having AtomSequencerSimple and
      * AtomTreeNodeGroup for sequencer and node, respectively.
      * @param space
      */
-    public AtomFactory(Space space) {
-        this(space, AtomSequencerFactory.SIMPLE);
+    public AtomFactory(Space space, AtomType atomType) {
+        this(space, atomType, AtomSequencerFactory.SIMPLE);
     }
     
-    public AtomFactory(Space space, AtomSequencerFactory sequencerFactory) {
-    	this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY);
+    public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory) {
+    	this(space, atomType, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
     
-    public AtomFactory(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
+    public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
         this.space = space;
         this.sequencerFactory = sequencerFactory;
         this.nodeFactory = nodeFactory;
-        this.atomType = groupType;
+        this.atomType = atomType;
+        atomType.creator = this;
     }
     
-	public AtomType getType() {
-		return atomType;
-	}
-	
     /**
      * Builds and returns the atom/atomgroup made by this factory.
      * Implementation of this method in the subclass defines the 
      * product of this factory.
      */
     public abstract Atom makeAtom();
+
+    /**
+     * Identifies the species for which this factory makes its atoms.
+     * Should be invoked only in the species constructor, and by any
+     * an atom factory on its child factories.
+     * @param species
+     */
+    public abstract void setSpecies(Species species);
     
+    /**
+     * Returns the species that is using this factory or its parent factory.
+     * @return
+     */
+    public Species getSpecies() {return atomType.getSpecies();}
+        
     /**
      * Method used by subclasses to make the root atom of the group it is building.
      */
@@ -76,20 +74,33 @@ public abstract class AtomFactory {
         }
         return atom;
     }
+
+    /**
+     * Returns the atomType instance given to all atoms made by this factory.
+     */
+    public AtomType getType() {
+        return atomType;
+    }
     
     /**
-     * Indicates if this factory produces atom groups or simple atoms.
-     * If this method returns true, then the atoms made by this factory will have
-     * a node of type (or derived from) AtomTreeNodeGroup.
+     * Returns the space used to build the atoms made by this factory.
      */
-    public abstract boolean isGroupFactory();
-        
-    public Space space() {return space;}
+    public Space getSpace() {
+        return space;
+    }
+
+    /**
+     * Sets the configuration used to set the standard arrangement of
+     * the atoms/atom-groups produced by this factory.
+     */
+    public void setConfiguration(Configuration config) {
+        configuration = config;
+    }
     
-    public void setSpecies(Species species) {this.species = species;}
-    public Species species() {return species;}
-        
-    public void setConfiguration(Configuration config) {configuration = config;}
+    /**
+     * Returns the configuration used to set the standard arrangement of
+     * the atoms/atom-groups produced by this factory.
+     */
     public Configuration getConfiguration() {return configuration;}
     
     /**

@@ -102,7 +102,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     public void assignCell(Atom atom) {
         AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
         NeighborCell newCell = (NeighborCell)lattice.site(atom.coord.position());
-        if(newCell != seq.cell) {assignCell(seq, newCell, atom.node.parentSpeciesAgent().node.index());}
+        if(newCell != seq.cell) {assignCell(seq, newCell, atom.type.getSpeciesIndex());}
     }
     
     /**

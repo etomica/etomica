@@ -1,27 +1,21 @@
 package etomica.atom;
 
 import etomica.Atom;
+import etomica.AtomFactory;
 import etomica.Configuration;
 import etomica.ConfigurationLinear;
 import etomica.Space;
+import etomica.Species;
 
 /**
- * Builds an atom group that comprises a set of differently formed atoms or atomgroups.
+ * Builds an atom group that comprises a set of differently-formed atoms or atomgroups.
  * Each child atom is constructed by a different atom factory, which are set as an
- * array of atomfactories given in the constructor.
+ * array of atom factories given in the constructor.
  *
  * @author David Kofke
  */
  
- /* History
-  * 10/22/02 (DAK) Deleted groupType field which shadowed superclass field, causing errors.
-  * 08/26/03 (DAK) Added constructors that permit specification of
-  * AtomTreeNode.Factory
-  */
-  
 public class AtomFactoryHetero extends AtomFactory {
-    
-    private AtomFactory[] childFactory;
     
     /**
      * @param factory array of atom factories, each of which makes a different child.
@@ -42,22 +36,17 @@ public class AtomFactoryHetero extends AtomFactory {
     
 	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory,
 							AtomFactory[] factory, Configuration config) {
-		super(space, sequencerFactory, nodeFactory);
-		init(factory, config);
-	}
-    
-    private void init(AtomFactory[] factory, Configuration config) {
-        childFactory = factory;
+		super(space, new AtomTypeGroup(), sequencerFactory, nodeFactory);
+        childFactory = (AtomFactory[])factory.clone();
         configuration = config;
-        //set up fields of Group type
-        for(int i=0; i<factory.length; i++) {
-            groupType.childrenAreGroups = factory[i].isGroupFactory();
-            if(groupType.childrenAreGroups) break;
-        }
     }
     
-    public boolean isGroupFactory() {return true;}
-    
+    public void setSpecies(Species species) {
+        atomType.setSpecies(species);
+        for(int i=0; i<childFactory.length; i++) {
+            childFactory[i].setSpecies(species);
+        }
+    }
     /**
      * Constructs a new group.
      */
@@ -76,5 +65,8 @@ public class AtomFactoryHetero extends AtomFactory {
      * in the group made by this factory.
      */
     public AtomFactory[] childFactory() {return childFactory;}
-}//end of AtomFactoryHomo
+
+    private final AtomFactory[] childFactory;
+
+}//end of AtomFactoryHetero
     

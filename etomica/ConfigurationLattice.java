@@ -105,7 +105,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 			Atom a = iterator.nextAtom();
 			//initialize coordinates of child atoms
 			try {//may get null pointer exception when beginning simulation
-				a.creator().getConfiguration().initializeCoordinates(a);
+				a.type.creator().getConfiguration().initializeCoordinates(a);
 			} catch(NullPointerException e) {}
             Vector site = (Vector)lattice.site(indexIterator.next());
             site.PE(offsetVector);

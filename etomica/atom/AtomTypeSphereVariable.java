@@ -13,11 +13,11 @@ public class AtomTypeSphereVariable extends AtomTypeSphere {
     
     int index;
     
-    public AtomTypeSphereVariable(AtomFactory creator, int index) {
-        this(creator, index, Default.ATOM_MASS);
+    public AtomTypeSphereVariable(int index) {
+        this(index, Default.ATOM_MASS);
     }
-    public AtomTypeSphereVariable(AtomFactory creator, int index, double m) {
-        super(creator, m, Double.NaN);
+    public AtomTypeSphereVariable(int index, double m) {
+        super(m, Double.NaN);
     }
                 
     public double diameter(Atom a) {return ((Parameter.Size)(a.allatomAgents[index])).getSigma();}

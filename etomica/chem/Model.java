@@ -2,10 +2,10 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem;
+import etomica.AtomFactory;
 import etomica.Default;
 import etomica.Potential;
 import etomica.Space;
-import etomica.atom.AtomFactory;
 import etomica.potential.PotentialTruncation;
 import etomica.potential.PotentialTruncationSimple;
 

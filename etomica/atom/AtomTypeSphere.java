@@ -5,6 +5,7 @@
 package etomica.atom;
 
 import etomica.Atom;
+import etomica.AtomType;
 import etomica.Default;
 
 
@@ -12,11 +13,11 @@ public class AtomTypeSphere extends AtomType {
     
     double diameter, radius;
     
-    public AtomTypeSphere(AtomFactory creator) {
-        this(creator, Default.ATOM_MASS, Default.ATOM_SIZE);
+    public AtomTypeSphere() {
+        this(Default.ATOM_MASS, Default.ATOM_SIZE);
     }
-    public AtomTypeSphere(AtomFactory creator, double m, double d) {
-        super(creator, m);
+    public AtomTypeSphere(double m, double d) {
+        super(m);
         setDiameter(d);
     }
                 

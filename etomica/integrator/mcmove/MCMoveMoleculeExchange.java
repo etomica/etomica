@@ -78,7 +78,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         }
         
         molecule = dPhase.randomMolecule();  //select random molecule to delete
-        Species species = molecule.node.parentSpecies();
+        Species species = molecule.type.getSpecies();
         
         iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent

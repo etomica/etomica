@@ -1,6 +1,4 @@
-package etomica.atom;
-import etomica.Default;
-import etomica.Parameter;
+package etomica;
 import etomica.nbr.NeighborManagerAgent;
 import etomica.units.Dimension;
 //import etomica.electrostatics.*;
@@ -30,11 +28,13 @@ import etomica.units.Dimension;
 public class AtomType implements java.io.Serializable {
 
     public static Parameter.Source[] parameterSource = new Parameter.Source[0];
-    private final AtomFactory creator;
+    AtomFactory creator;//set in constructor of AtomFactory
     public Parameter[] parameter;
     private Parameter.Size sizeParameter = Default.SIZE_PARAMETER;
     private Parameter.Energy energyParameter = Default.ENERGY_PARAMETER;
     private Parameter.Mass massParameter = Default.MASS_PARAMETER;
+    protected int speciesIndex = -1;
+    private Species species;
     
     //fields for linked list of all instances of AtomType
     public final AtomType previousInstance;
@@ -46,11 +46,10 @@ public class AtomType implements java.io.Serializable {
     
 //    private Parameter.Electrostatic electroParameter;
     
-    public AtomType(AtomFactory creator) {
-        this(creator, Default.ATOM_MASS);
+    public AtomType() {
+        this(Default.ATOM_MASS);
     }
-    public AtomType(AtomFactory creator, double mass) {
-        this.creator = creator;
+    public AtomType(double mass) {
         
         //update linked list of instances
         this.previousInstance = lastInstance;
@@ -93,8 +92,31 @@ public class AtomType implements java.io.Serializable {
         return index;
     }
     
+    
     public AtomFactory creator() {return creator;}
     
+    
+    
+    /**
+     * @return Returns the species.
+     */
+    public Species getSpecies() {
+        return species;
+    }
+    /**
+     * @param species The species to set.
+     */
+    public void setSpecies(Species species) {
+        this.species = species;
+        speciesIndex = species.getIndex();
+    }
+    /**
+     * @return Returns the speciesIndex.
+     */
+    public int getSpeciesIndex() {
+        return speciesIndex;
+    }
+
     /**
     * Sets  mass of this atom and updates reciprocal mass accordingly.  Setting
     * mass to largest machine double (Double.MAX_VALUE) causes reciprocal mass 
@@ -158,10 +180,5 @@ public class AtomType implements java.io.Serializable {
     public interface CylindricalTop extends Rotator {} //guarantees Ixx = Iyy
     public interface AsymmetricTop extends Rotator {} //all moment-of-inertia elements unequal
     
-    private static class Null extends AtomTypeGroup {
-        public Null() {super(null, false);}
-    }
-    public static final AtomType.Null NULL = new Null();
-        
 }
         

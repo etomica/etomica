@@ -1,11 +1,13 @@
 package etomica.models.water;
 
 import etomica.Atom;
+import etomica.AtomFactory;
+import etomica.AtomType;
 import etomica.Space;
-import etomica.atom.AtomFactory;
+import etomica.Species;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 
 /**
@@ -26,21 +28,18 @@ public class AtomFactoryWater extends AtomFactory {
     }
     
     public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory) {
-		super(space, sequencerFactory, AtomTreeNodeWater.FACTORY);
+		super(space, new AtomTypeGroup(), sequencerFactory, AtomTreeNodeWater.FACTORY);
 
-		hFactory = new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE);
-		oFactory = new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE);
-		AtomType hType = new AtomTypeSphere(hFactory, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
-		AtomType oType = new AtomTypeSphere(oFactory, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
-        
-		hFactory.setType(hType);
-		oFactory.setType(oType);
+        AtomType hType = new AtomTypeSphere(1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
+        AtomType oType = new AtomTypeSphere(16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
+		hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
+		oFactory = new AtomFactoryMono(space, oType, AtomSequencerFactory.SIMPLE);
 
 		configuration = new ConfigurationWater(space); 
 	}
 
 	/**
-	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
+	 * @see etomica.AtomFactory#build(etomica.Atom)
 	 */
 	public Atom makeAtom() {
         Atom group = newParentAtom();
@@ -54,13 +53,12 @@ public class AtomFactoryWater extends AtomFactory {
 		configuration.initializeCoordinates(group);
 		return group;
 	}
-
-	/**
-	 * @see etomica.atom.AtomFactory#isGroupFactory()
-	 */
-	public boolean isGroupFactory() {
-		return true;
-	}
+    
+    public void setSpecies(Species species) {
+        atomType.setSpecies(species);
+        hFactory.setSpecies(species);
+        oFactory.setSpecies(species);
+    }
 
 	public final AtomFactoryMono hFactory, oFactory;
 }

@@ -74,7 +74,7 @@ public class ConfigurationSequential extends Configuration {
 		while(iterator.hasNext()) {
 			Atom a = iterator.nextAtom();
 			//initialize coordinates of child atoms
-			Configuration config = a.creator().getConfiguration();
+			Configuration config = a.type.creator().getConfiguration();
 			if (config != null) {
 				config.initializeCoordinates(a);
 			}

@@ -112,7 +112,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
                 Atom m = iterator.nextAtom();
                 if(this.contains(m)) {
                     totalSum++;
-                    if(m.node.parentSpecies() == species) speciesSum++;
+                    if(m.type.getSpecies() == species) speciesSum++;
                 }
             }
             if(totalSum == 0) return Double.NaN;

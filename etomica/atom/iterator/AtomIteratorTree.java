@@ -179,8 +179,9 @@ public class AtomIteratorTree implements AtomIterator {
         } else {
 	        rootNode = (AtomTreeNodeGroup)atom.node;
 	        listIterator.setList(rootNode.childList);
-	        doTreeIteration = (iterationDepth > 1 &&
-	                            rootNode.childrenAreGroups());
+            //TODO look at this more carefully -- ok to choose based on isEmpty?
+	        doTreeIteration = (iterationDepth > 1 && !rootNode.childList.isEmpty() &&
+	                            !rootNode.childList.getFirst().node.isLeaf());
 	        if(doTreeIteration) {
 	            if(treeIterator == null) {
 	            	treeIterator = new AtomIteratorTree(iterationDepth-1);
@@ -309,7 +310,7 @@ public class AtomIteratorTree implements AtomIterator {
         System.out.println(treeIterator.size() + "  " + (treeIterator.size() == k));
         System.out.println();
         
-        treeIterator.setRoot(phase.speciesMaster.node.firstChildAtom());
+        treeIterator.setRoot(phase.speciesMaster.node.childList.getFirst());
         treeIterator.setAsLeafIterator();
         treeIterator.setIterationDepth(1);
         treeIterator.reset(); k = 0;

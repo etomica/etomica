@@ -2,7 +2,6 @@ package etomica;
 
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.units.Dimension;
 
@@ -21,10 +20,8 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public AtomTypeOrientedSphere protoType;
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Space space, AtomSequencerFactory seqFactory) {
-        AtomFactoryMono f = new AtomFactoryMono(space, seqFactory);
-        AtomType type = new AtomTypeOrientedSphere(f, Default.ATOM_MASS, Default.ATOM_SIZE);
-        f.setType(type);
-        return f;
+        AtomType type = new AtomTypeOrientedSphere(Default.ATOM_MASS, Default.ATOM_SIZE);
+        return new AtomFactoryMono(space, type, seqFactory);
     }
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
@@ -46,7 +43,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public SpeciesSpheresRotating(Space space, AtomSequencerFactory seqFactory, int nM) {
         super(makeFactory(space, seqFactory));
         factory.setSpecies(this);
-        protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).type();
+        protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
         mass = protoType.getMass();
         nMolecules = nM;
     }

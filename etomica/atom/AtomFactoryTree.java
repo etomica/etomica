@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.AtomFactory;
 import etomica.Configuration;
 import etomica.Simulation;
 import etomica.Space;
@@ -107,10 +108,10 @@ public class AtomFactoryTree extends AtomFactoryHomo {
       * Sets the factory that makes the leaf atoms of the tree.
       */
      public void setLeafFactory(AtomFactory factory) {
-        if(childFactory instanceof AtomFactoryTree) ((AtomFactoryTree)childFactory).setLeafFactory(factory);
-        else {
+        if(childFactory instanceof AtomFactoryTree) {
+            ((AtomFactoryTree)childFactory).setLeafFactory(factory);
+        } else {
             childFactory = factory;
-            groupType.childrenAreGroups = factory.isGroupFactory();// 09/26/02 (DAK)
         }     
      }
     

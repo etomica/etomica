@@ -4,8 +4,10 @@
  */
 package etomica.atom;
 
+import etomica.AtomType;
 import etomica.Constants;
 import etomica.Phase;
+import etomica.Space;
 import etomica.units.Kelvin;
 
 
@@ -26,13 +28,13 @@ public final class AtomTypeWall extends AtomType {
         private Constants.Alignment alignment;
         public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
-        public AtomTypeWall(AtomFactory creator, double m, double l, double x, double y, double z) {
-            super(creator, m);
+        public AtomTypeWall(Space space, double m, double l, double x, double y, double z) {
+            super(m);
             setLength(l);
             setXAngle(x);
             setYAngle(y);
             setZAngle(z);
-            drawShift = new int[creator.space.D()];
+            drawShift = new int[space.D()];
         }
         
         private void checkAlignment() {

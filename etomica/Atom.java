@@ -1,12 +1,10 @@
 package etomica;
 
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeLeaf;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.ICoordinate;
 
@@ -25,13 +23,6 @@ import etomica.space.ICoordinate;
   */
 public class Atom implements java.io.Serializable {
 
-  /*  public Atom(Space space, AtomType type, AtomTreeNodeGroup parent) {
-        this(space, type, AtomTreeNodeGroup.FACTORY, parent);
-    }
-    public Atom(Space space, AtomType type, 
-                    AtomTreeNode.Factory nodeFactory, AtomTreeNodeGroup parent) {
-        this(space, type, nodeFactory, IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
-    }*/
     public Atom(Space space, AtomType type, 
                     AtomTreeNodeFactory nodeFactory,
                     AtomSequencerFactory seqFactory) {
@@ -53,7 +44,7 @@ public class Atom implements java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+    	this(space, new AtomTypeSphere(), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
     }
     
     /**
@@ -82,12 +73,6 @@ public class Atom implements java.io.Serializable {
      */
     public void setIntegratorAgent(Object ia) {this.ia = ia;}
 
-    public AtomFactory creator() {return type.creator();}
-    
-    public void dispose() {
-        node.dispose();
-    }
-    
     /**
      * Coordinates of this atom.
      * When the atom is constructed the coordinate class is provided by the 

@@ -1,11 +1,11 @@
 package etomica.potential;
 
 import etomica.Atom;
+import etomica.AtomType;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.atom.AtomType;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateAngularKinetic;
 import etomica.space.ICoordinateKinetic;

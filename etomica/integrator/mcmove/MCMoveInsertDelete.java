@@ -1,6 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.Atom;
+import etomica.AtomFactory;
 import etomica.AtomIterator;
 import etomica.Phase;
 import etomica.PotentialMaster;
@@ -8,7 +9,6 @@ import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesAgent;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;

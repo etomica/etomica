@@ -1,16 +1,10 @@
 package etomica.atom;
 
 import etomica.Atom;
-import etomica.atom.iterator.AtomIteratorListSimple;
 
 /**
  * Implementation of AtomTreeNode for non-leaf node.
  */
-
- /* History of changes
-  * 08/21/02 (DAK) sketched out flatten method, but not implemented yet.
-  * 08/12/03 (DAK) modified setParent method to notify children
-  */
   
 public class AtomTreeNodeGroup extends AtomTreeNode {
     
@@ -20,7 +14,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         
     public int newChildIndex() {
         if(!childList.isEmpty()) { //siblings
-            return (lastChildAtom().node.index()+1);
+            return (childList.getLast().node.index()+1);
         }
         else {  //only child
             return(0);
@@ -28,85 +22,42 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     }
 
 	/**
-	 * Invoke superclass method and then notify children.  Notification is
-	 * needed, for example, to ensure their phase field is up to date.
+	 * Invoke superclass method and then notify children.
 	 * 
 	 * @see etomica.atom.AtomTreeNode#setParent(AtomTreeNodeGroup)
 	 */
 	public void setParent(AtomTreeNodeGroup parent) {
 		super.setParent(parent);
-		childIterator.reset();
-		while(childIterator.hasNext()) childIterator.nextAtom().node.setParent(this);//notifies children that there was a change in the hierarchy
-	}            
-	
-    public final Atom firstChildAtom() {return childList.getFirst();}
-    public final Atom lastChildAtom() {return childList.getLast();}
-
-    public Atom randomAtom() {return childList.getRandom();}
-    
-    /**
-     * Indicates whether the children of this group are themselves atom groups,
-     * or are leaf atoms.  Returns true if any child atom is a group, and thus does
-     * not imply that all child atoms are groups.
-     */
-    public boolean childrenAreGroups() {
-        return ((AtomTypeGroup)atom.type).childrenAreGroups;
-   //     return !firstChildAtom().node.isLeaf();
+        AtomLinker link = childList.header.next;
+        while(link != childList.header) {
+            link.atom.node.setParent(this);//notifies children that there was a change in the hierarchy
+            link = link.next;
+        }
     }
-
-    /**
-     * Gets the child atom corresponding to the given index, numbering the first atom as zero
-     * and the last atom as Count-1.
-     */
-    public Atom getAtom(int index) {
-        return childList.get(index);
-    }//end of getAtom
-            
-
+	
     public boolean isLeaf() {return false;}
     
     public Atom firstLeafAtom() {
-        return findFirstLeafAtom();//firstLeafAtom;  //firstLeafAtom is not updated correctly
-                                                     //fix this if using stored value
-    }
-    private Atom findFirstLeafAtom() {
-        if(childrenAreGroups()) {
-            childIterator.reset();
-            while(childIterator.hasNext()) {
-                Atom a1 = childIterator.nextAtom().node.firstLeafAtom();
-                if(a1 != null) return a1;
-            }
-            return null;
+        AtomLinker link = childList.header.next;
+        while(link != childList.header) {
+            Atom a1 = link.atom.node.firstLeafAtom();
+            if(a1 != null) return a1;
+            else link = link.next;
         }
-          /* using iterator for loop seems to cause problem with return of null in AtomPairIterator inner loop even though it reports hasNext=true  
-            childIterator.reset(UP);
-            while(childIterator.hasNext()) {
-                Atom atom = ((AtomGroup)childIterator.next()).firstLeafAtom();
-                if(atom != null) return atom;
-            }
-            return null;
-        }*/
-        else return firstChildAtom();
+        return null;
     }
     
     /**
      * Returns the last leaf atom descended from this group.
      */
     public Atom lastLeafAtom() {
-        if(childrenAreGroups()) {
-            AtomLinker a0 = childList.header.previous;
-            while(a0 != childList.header) {
-                if(a0.atom == null) {//skip tabs
-                    a0 = a0.previous;
-                } else {
-                    Atom a1 = a0.atom.node.lastLeafAtom();
-                    if(a1 != null) return a1;
-                    else a0 = a0.previous;
-                }
-            }
-            return null;
+        AtomLinker link = childList.header.previous;
+        while(link != childList.header) {
+            Atom a1 = link.atom.node.lastLeafAtom();
+            if(a1 != null) return a1;
+            else link = link.previous;
         }
-        else return lastChildAtom();
+        return null;
     }
     
     /**
@@ -158,7 +109,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public void removeAllChildren() {
         Atom[] array = childAtomArray();
         for(int i=0; i<array.length; i++) {
-            array[i].dispose();
+            array[i].node.dispose();
         }
     }
     
@@ -182,7 +133,6 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
     public final AtomList childList = new AtomList();
-    private final AtomIteratorListSimple childIterator = new AtomIteratorListSimple(childList);
         
     public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
         public AtomTreeNode makeNode(Atom atom) {

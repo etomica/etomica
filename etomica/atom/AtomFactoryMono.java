@@ -1,7 +1,10 @@
 package etomica.atom;
 
 import etomica.Atom;
+import etomica.AtomFactory;
+import etomica.AtomType;
 import etomica.Space;
+import etomica.Species;
 
 /**
  * Builder of a monoatomic atom group, which comprises just an Atom.
@@ -15,14 +18,16 @@ public class AtomFactoryMono extends AtomFactory {
      * Constructor with AtomTypeSphere default.
      */
     public AtomFactoryMono(Space space, AtomSequencerFactory seqFactory) {
-        super(space, seqFactory, AtomTreeNodeLeaf.FACTORY);
-        setType(new AtomTypeSphere(this));//default
+        this(space, new AtomTypeSphere(), seqFactory);
     }
     
-    public boolean isGroupFactory() {return false;}
+    public AtomFactoryMono(Space space, AtomType atomType, AtomSequencerFactory seqFactory) {
+        super(space, new AtomTypeSphere(), seqFactory, AtomTreeNodeLeaf.FACTORY);
+    }
     
-    public void setType(AtomType t) {atomType = t;}
-    public AtomType type() {return atomType;}
+    public void setSpecies(Species species) {
+        atomType.setSpecies(species);
+    }
     
     /**
      * Returns a new leaf atom having no children.
