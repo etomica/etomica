@@ -6,8 +6,8 @@ package etomica.action;
 
 import etomica.AccumulatorManager;
 import etomica.Action;
-import etomica.utility.java2.Iterator;
-import etomica.utility.java2.LinkedList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Action that performs a call to the reset() method of a set
