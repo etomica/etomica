@@ -18,7 +18,7 @@ public class MCMoveAtom extends MCMove {
         double uOld, uNew;
         if(phase.nAtomTotal==0) {return;}
         int i = (int)(rand.nextDouble()*phase.nAtomTotal);
-        Atom a = phase.firstAtom;
+        Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.getNextAtom();}  //get ith atom in list
         uOld = a.potentialEnergy();

@@ -2,7 +2,7 @@ package simulate;
 import java.util.*;
 import java.awt.*;
 
-public class Configuration1 extends Configuration{
+public class Configuration3 extends Configuration{
 
     private double temperature = 300;
     
@@ -42,8 +42,9 @@ public class Configuration1 extends Configuration{
         e[0] = 0.71;
         e[1] = 0.71;
         ix = iy = 0;
-        for(Enumeration ee = species.elements(); ee.hasMoreElements(); ){
-            s = (Species)ee.nextElement();
+//        for(Enumeration ee = species.elements(); ee.hasMoreElements(); ){
+//            s = (Species)ee.nextElement();
+        s = (Species)species.firstElement();
             Molecule m = s.firstMolecule;
             outer: for ( ; ix<moleculeColumns;ix++) {
             if (iy >= moleculeRows) {iy=0;}
@@ -58,7 +59,7 @@ public class Configuration1 extends Configuration{
 	            }
             //assign velocities by random
 	            a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
-    	        a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
+    	        a.p[0] = Math.sqrt(1.0 - m.p[1]*m.p[1]);
 
 	            momentumNorm = Math.sqrt(a.p[0]*a.p[0]+a.p[1]*a.p[1]);
 	            a.p[0] *= momentum/momentumNorm;
@@ -73,7 +74,7 @@ public class Configuration1 extends Configuration{
                 m=m.getNextMolecule();
                 }
             }
-        }
+//        }
 
     //    Zero center-of-mass momentum
         momentumSumX /= sumOfMolecules; momentumSumY /= sumOfMolecules;

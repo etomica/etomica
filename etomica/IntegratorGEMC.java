@@ -41,7 +41,7 @@ public class IntegratorGEMC extends Integrator {
         if(p.nMoleculeTotal == 0) {return;}
         double uOld, uNew;
         int i = (int)(rand.nextDouble()*p.nAtomTotal);
-        Atom a = p.firstAtom;
+        Atom a = p.firstAtom();
         for(int j=i; --j>=0; ) {a = a.getNextAtom();}  //get ith atom in list
         uOld = a.potentialEnergy();
         Space.randomVector(dr, maxRStep, rand);
@@ -68,10 +68,10 @@ public class IntegratorGEMC extends Integrator {
         double r2Scale = Math.pow(v2Scale,1.0/(double)Space.D);
         firstPhase.space.inflate(r1Scale);
         secondPhase.space.inflate(r2Scale);
-        for(Molecule m=firstPhase.firstMolecule; m!=null; m=m.getNextMolecule()) {
+        for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
             m.inflate(r1Scale);
         }
-        for(Molecule m=secondPhase.firstMolecule; m!=null; m=m.getNextMolecule()) {
+        for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
             m.inflate(r2Scale);
         }
         double hNew = firstPhase.potentialEnergy() + secondPhase.potentialEnergy();
@@ -82,11 +82,11 @@ public class IntegratorGEMC extends Integrator {
                 < rand.nextDouble()) 
             {  //reject
               firstPhase.space.inflate(1.0/r1Scale);
-              for(Molecule m=firstPhase.firstMolecule; m!=null; m=m.getNextMolecule()) {
+              for(Molecule m=firstPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
                 m.replace();
               }
               secondPhase.space.inflate(1.0/r2Scale);
-              for(Molecule m=secondPhase.firstMolecule; m!=null; m=m.getNextMolecule()) {
+              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
                 m.replace();
               }
             }

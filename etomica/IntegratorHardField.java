@@ -18,7 +18,7 @@ public class IntegratorHardField extends IntegratorHard {
   protected void advanceAcrossTimeStep(double tStep) {
     
     double t2 = 0.5*tStep*tStep;
-    for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+    for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
         a.decrementCollisionTime(tStep);
         if(a.isStationary()) {continue;}  //skip if atom is stationary
         if(a.isForceFree()) {
@@ -37,10 +37,10 @@ public class IntegratorHardField extends IntegratorHard {
   
     public final void scaleMomenta(double s) {
       double rs = 1.0/s;
-      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+      for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
         Space.uTEa1(a.p,s);
       }
-      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+      for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
         if(a.isForceFree() && a.getCollisionPartner().isForceFree()) {
             a.collisionTime *= rs;
         }

@@ -15,6 +15,7 @@ public abstract class Configuration extends Component{
     }
     
     public void add(Species s){
+        if(s instanceof SpeciesWalls) {return;}
         species.addElement(s);
         initializeCoordinates();
     }

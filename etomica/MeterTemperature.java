@@ -8,6 +8,7 @@ public class MeterTemperature extends simulate.Meter
     public MeterTemperature()
     {
         super();
+        setLabel("Temperature (K)");
     }
 
     public double currentValue()

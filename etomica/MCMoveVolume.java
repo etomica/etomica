@@ -24,7 +24,7 @@ public class MCMoveVolume extends MCMove {
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/(double)Space.D);
         phase.space.inflate(rScale);
-        for(Molecule m=phase.firstMolecule; m!=null; m=m.getNextMolecule()) {
+        for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
             m.inflate(rScale);
         }
         hNew = phase.potentialEnergy() + pressure*vNew*Constants.PV2T;
@@ -33,7 +33,7 @@ public class MCMoveVolume extends MCMove {
                 < rand.nextDouble()) 
             {  //reject
               phase.space.inflate(1.0/rScale);
-              for(Molecule m=phase.firstMolecule; m!=null; m=m.getNextMolecule()) {m.replace();}
+              for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {m.replace();}
             }
         nAccept++;   //accept
     }

@@ -70,6 +70,8 @@ public abstract class Meter extends Component implements IntegrationIntervalList
       if(meter != null) {meter.previousMeter = this;}
     }
     
+    public void initialize() {;}
+    
     public final Meter getNextMeter() {return nextMeter;}
     public final Meter getPreviousMeter() {return previousMeter;}
     

@@ -134,32 +134,32 @@ public final class Phase extends Container {
  /**
   * First species in the linked list of species in this phase.
   */
-  public Species firstSpecies;
+   Species firstSpecies;
  
  /**
   * Last species in the linked list of species in this phase.
   */
-  public Species lastSpecies;
+  Species lastSpecies;
  
  /**
   * First molecule in the linked list of molecules in this phase
   */
-  public Molecule firstMolecule;
+//  public Molecule firstMolecule;
   
  /**
   * Last molecule in the linked list of molecules in this phase
   */
-  public Molecule lastMolecule;
+//  public Molecule lastMolecule;
  
  /**
   * First atom in the linked list of atoms in this phase
   */
-  public Atom firstAtom;
+//  public Atom firstAtom;
  
  /**
   * Last atom in the linked list of atoms in this phase
   */
-  public Atom lastAtom;
+//  public Atom lastAtom;
  
  /**
   * Total number of atoms in this phase
@@ -195,19 +195,18 @@ public final class Phase extends Container {
   
   private Potential1 p1Null = new P1Null();
   private Potential2 p2IdealGas = new P2IdealGas();
-  Configuration configuration = new Configuration1();
+  public Configuration configuration = new Configuration1();
     
   public Phase() {
     setLayout(null);
     setSize(300,300);
-    setBackground(Color.gray);
+    setBackground(Color.white);
     updatedForces = updatedPotentialEnergy = updatedKineticEnergy = false;
     updatedNeighbors = updatedFutureNeighbors = false;
     useNeighborList = false;
     nAtomTotal = nMoleculeTotal = 0;
     gravity = new Gravity(0.0);
     noGravity = true;
-//    initializeFrame();
   }
  
    /********************Eliza's Code**********************/
@@ -277,6 +276,27 @@ public final class Phase extends Container {
   
   public void setInitialTemperature(double t) {initialTemperature = t;}
   public double getInitialTemperature() {return initialTemperature;}
+  
+  public final Atom firstAtom() {return firstMolecule().firstAtom();}
+  public final Atom lastAtom() {return lastMolecule().lastAtom();}
+  public final Molecule firstMolecule() {
+    for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
+        Molecule m = s.firstMolecule();
+        if(m != null) {return m;}
+    }
+    return null;
+  }
+  public final Molecule lastMolecule() {
+    for(Species s=lastSpecies; s!=null; s=s.getPreviousSpecies()) {
+        Molecule m = s.lastMolecule();
+        if(m != null) {return m;}
+    }
+    return null;
+  
+  
+  }
+  public final Species firstSpecies() {return firstSpecies;}
+  public final Species lastSpecies() {return lastSpecies;}
   
   /** 
    * Resets the class variable Phase.TO_PIXELS so that the x-dimension of this Phase's
@@ -390,10 +410,10 @@ public final class Phase extends Container {
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
-        setFirstMolecule();
-        setLastMolecule();
-        for(Molecule m=species.firstMolecule; m!=null; m=m.getNextMolecule()) {nMoleculeTotal++;}
-        for(Atom a=species.firstAtom; a!=null; a=a.getNextAtom()) {nAtomTotal++;}
+//        setFirstMolecule();
+//        setLastMolecule();
+        for(Molecule m=species.firstMolecule(); m!=null; m=m.getNextMolecule()) {nMoleculeTotal++;}
+        for(Atom a=species.firstAtom(); a!=null; a=a.getNextAtom()) {nAtomTotal++;}
         if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
     }
     
@@ -423,25 +443,27 @@ public final class Phase extends Container {
         speciesCount = n;
     }
     
-    public final void setFirstMolecule() {
+/*    public final void setFirstMolecule() {
         for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
             if(s.firstMolecule != null) {
-                firstMolecule = s.firstMolecule;
-                firstAtom = s.firstAtom;
+//                firstMolecule = s.firstMolecule;
+//                firstAtom = s.firstAtom();
                 return;
             }
         }
     }
     
+    
     public final void setLastMolecule() {
         for(Species s=lastSpecies; s!=null; s=s.getPreviousSpecies()) {
             if(s.lastMolecule != null) {
-                lastMolecule = s.lastMolecule;
-                lastAtom = s.lastAtom;
+//                lastMolecule = s.lastMolecule;
+//                lastAtom = s.lastAtom();
+                return;
             }
         }
     }
-    
+*/    
   
      public void add(Space space) {
         super.add(space);
@@ -506,6 +528,7 @@ public final class Phase extends Container {
 	    lastMeter = m;
 	    nMeters++;
 	    m.phase = this;
+	    m.initialize();
 	    if(parentSimulation.haveIntegrator()) {
 	        parentSimulation.controller.integrator.addIntegrationIntervalListener(m);
 	    }
@@ -522,9 +545,9 @@ public final class Phase extends Container {
     // Updates neighbor list for all molecules
     // Only preceding molecules are included in a given molecule's neighbor list
     public void updateNeighbors() {
-        for(Molecule m1=firstMolecule; m1!=null; m1=m1.getNextMolecule()) {
+        for(Molecule m1=firstMolecule(); m1!=null; m1=m1.getNextMolecule()) {
             m1.clearNeighborList();
-            for(Molecule m2=firstMolecule; m2!=m1; m2=m2.getNextMolecule()) {
+            for(Molecule m2=firstMolecule(); m2!=m1; m2=m2.getNextMolecule()) {
                 if(potential2[m1.getSpeciesIndex()][m2.getSpeciesIndex()].isNeighbor(m1,m2)) {
                     m1.addNeighbor(m2);
                 }
@@ -563,7 +586,7 @@ public final class Phase extends Container {
  // Works only for one species
     public boolean overlap(Atom atom, double energy) {
       energy = 0.0;
-      for(Atom a=firstAtom; a!=atom; a=a.getNextAtom()) {
+      for(Atom a=firstAtom(); a!=atom; a=a.getNextAtom()) {
          double u = 0.0;
          Potential pot = potential2[0][0].getPotential(atom,a);
          if(pot.overlap(atom,a,u)) {return true;}
@@ -592,7 +615,7 @@ public final class Phase extends Container {
 //needs work for efficiency and multiatomics   
     public double potentialEnergy() {  
         double energy = 0.0;
-        for(Molecule m1=firstMolecule; m1!=null; m1=m1.getNextMolecule()) {
+        for(Molecule m1=firstMolecule(); m1!=null; m1=m1.getNextMolecule()) {
            energy += m1.potentialEnergy();
         }
         return (0.5*energy);
@@ -673,7 +696,7 @@ public final class Phase extends Container {
         origin = space.getCentralOrigin();
         for(int i = 0; i < speciesVector.size(); i++) {
             Species species = (Species)speciesVector.elementAt(i);
-            if(species.firstAtom == null) {continue;}
+            if(species.firstAtom() == null) {continue;}
             space.repositionMolecules(species);
             species.draw(offScreenGraphics, origin, space.getScale());
             }

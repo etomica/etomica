@@ -15,6 +15,7 @@ public abstract class Potential2 extends Component {
     species1Index = species2Index = 0;
     neighborRadius = Double.MAX_VALUE;
     potentialCutoff = Double.MAX_VALUE;
+    setSize(60,60);
   }
   
   public abstract Potential getPotential(Atom a1, Atom a2);

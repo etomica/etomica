@@ -36,7 +36,7 @@ public class IntegratorHard extends Integrator {
   protected void findNextCollider() {
     //find next collision pair by looking for minimum collisionTime
     double minCollisionTime = Double.MAX_VALUE;
-    for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+    for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
       if(a.getCollisionTime() < minCollisionTime) {
         minCollisionTime = a.getCollisionTime();
         nextCollider = a;}
@@ -56,7 +56,7 @@ public class IntegratorHard extends Integrator {
     }
     else {
         nextCollider.getCollisionPotential().bump(nextCollider,partner);
-        for(Atom a=firstPhase.firstAtom; a!=partner; a=a.getNextAtom()) {
+        for(Atom a=firstPhase.firstAtom(); a!=partner; a=a.getNextAtom()) {
             if(a.getCollisionPartner()==nextCollider || a.getCollisionPartner()==partner || a==nextCollider) {
                 upList(a);
             }
@@ -78,7 +78,7 @@ public class IntegratorHard extends Integrator {
   protected void advanceAcrossTimeStep(double tStep) {
     
     if(firstPhase.noGravity) {
-        for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+        for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
             a.decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
             Space.uEa1Tv1(dr,tStep*a.rm,a.p);
@@ -87,7 +87,7 @@ public class IntegratorHard extends Integrator {
     }
     else {
         double t2 = tStep*tStep;
-        for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+        for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
             a.decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
             Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2,firstPhase.gravity.gVector);
@@ -103,7 +103,7 @@ public class IntegratorHard extends Integrator {
   */
   public void update(Observable o, Object arg) {
     if(o instanceof Gravity) {
-      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+      for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
         if(a.isStationary() || a.getCollisionPartner().isStationary()) {
             upList(a);
         }
@@ -184,7 +184,7 @@ public class IntegratorHard extends Integrator {
 //--------------------------------------------------------------
 
   public void initialize() {
-    for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+    for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
         upList(a);
     }
     findNextCollider();
@@ -194,7 +194,7 @@ public class IntegratorHard extends Integrator {
 
     public void scaleMomenta(double s) {
       double rs = 1.0/s;
-      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+      for(Atom a=firstPhase.firstAtom(); a!=null; a=a.getNextAtom()) {
         Space.uTEa1(a.p,s);
         a.collisionTime *= rs;
       }

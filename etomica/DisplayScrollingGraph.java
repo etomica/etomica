@@ -1,7 +1,7 @@
 package simulate;
 import java.awt.*;
 
-    public class ViewScrollingGraph extends View {
+    public class DisplayScrollingGraph extends simulate.Display {
 
         Color bgColor = new Color(255, 255, 240);
         int margin = 10;
@@ -23,7 +23,7 @@ import java.awt.*;
         double stdDev;
         Meter meter;
         
-        public ViewScrollingGraph() {
+        public DisplayScrollingGraph() {
             useMeterStatistics = false;
         }
 
@@ -77,9 +77,8 @@ import java.awt.*;
             }
         }
                 
-        public void paint(Graphics osg) {
+        public void doPaint(Graphics osg) {
             osg.setColor(bgColor);
-            int pixels = parentDisplay.pixels;
             osg.fillRect(0, 0, pixels, pixels);
             updateStatistics();
             int x = margin + (int) (number * xScale);

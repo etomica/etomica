@@ -127,28 +127,28 @@ public abstract class Species extends Container {
   *
   * @see Molecule
   */
-  Molecule firstMolecule;
+  protected Molecule firstMolecule;
   
  /**
   * Last molecule in this Species
   *
   * @see Molecule
   */
-  Molecule lastMolecule;
+  protected Molecule lastMolecule;
   
  /**
   * First Atom of the first Molecule in this Species
   *
   * @see Atom
   */
-  public Atom firstAtom;
+//  public Atom firstAtom;
   
  /**
   * Last Atom of the last Molecule in this Species
   *
   * @see Atom
   */
-  Atom lastAtom;
+ // Atom lastAtom;
   
  /**
   * Use to determine initial placement of molecules.  If fillVolume is
@@ -185,7 +185,7 @@ public abstract class Species extends Container {
   
   public void add(ColorScheme cs) {
     this.colorScheme = cs;
-    for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {
+    for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {
         colorScheme.initializeAtomColor(a);
     }
   }
@@ -250,33 +250,26 @@ public abstract class Species extends Container {
     Molecule next = m.getNextMolecule();
     Molecule previous = m.getPreviousMolecule();
     if(m == firstMolecule) {
-        if(nMolecules == 1) {setFirstMolecule(null);}
-        else {setFirstMolecule(next);}
-        if(m == parentPhase.firstMolecule) {
-            parentPhase.setFirstMolecule();
-            if(next != null) {
-                next.previousMolecule = null;
-                next.firstAtom.previousAtom = null;
-            }
-        }
+        if(nMolecules == 1) {firstMolecule = null;}  //deleting the first and only molecule of the species
+        else {firstMolecule = next;}                 //deleting first molecule, but others are present
     }
     if(m == lastMolecule) {
-        if(nMolecules == 1) {setLastMolecule(null);}
-        else {setLastMolecule(previous);}
-        if(m == parentPhase.lastMolecule) {parentPhase.setLastMolecule();}
+        if(nMolecules == 1) {lastMolecule = null;}
+        else {lastMolecule = previous;}
     }
-    if(previous != null) {previous.setNextMolecule(next);}
+    if(previous != null) {previous.setNextMolecule(next);} //reconnect linked list if not at beginning
+    else if(next != null) {next.clearPreviousMolecule();}  //beginning of list; no previous molecule for next
     nMolecules--;
+    m.parentSpecies = null;
     parentPhase.nMoleculeTotal--;
     parentPhase.nAtomTotal -= m.nAtoms;
-    m = null;
   }
 
  /**
   * Adds a molecule to this species and updates linked lists.  Does not handle
   * creation of molecule.  New molecule
   * becomes last molecule of species.  Updates first/last Molecule/Atom
-  * for species and phase, if appropriate.
+  * for species, if appropriate.
   * Not yet correctly implemented for use in a phase containing multiple
   * species (i.e., mixtures).  Adjusts total molecule and atom count in parent phase.
   *
@@ -287,16 +280,27 @@ public abstract class Species extends Container {
     if(nMolecules > 0) {
         m.setNextMolecule(lastMolecule.getNextMolecule());
         lastMolecule.setNextMolecule(m);
-        setLastMolecule(m);
-        if(parentPhase.lastMolecule == m.getPreviousMolecule()) {parentPhase.setLastMolecule();}
+        lastMolecule = m;
     }
-    else {  //not suited for handling mixtures
-        setFirstMolecule(m);
-        setLastMolecule(m);
-        parentPhase.setFirstMolecule();
-        parentPhase.setLastMolecule();
+    else {  
+        firstMolecule = m;
+        lastMolecule = m;
+        m.setNextMolecule(null);  
+        for(Species s=this.getNextSpecies(); s!=null; s=s.getNextSpecies()) { //loop forward in species, looking for next molecule
+            if(s.firstMolecule() != null) {
+                m.setNextMolecule(s.firstMolecule());
+                break;
+            }
+        }
+        for(Species s=this.getPreviousSpecies(); s!=null; s=s.getPreviousSpecies()) { //loop forward in species, looking for next molecule
+            if(s.lastMolecule() != null) {
+                s.lastMolecule.setNextMolecule(m);
+                break;
+            }
+        }
     }
     nMolecules++;
+    m.parentSpecies = this;
     parentPhase.nMoleculeTotal++;
     parentPhase.nAtomTotal += m.nAtoms;
     colorScheme.initializeMoleculeColor(m);
@@ -307,8 +311,8 @@ public abstract class Species extends Container {
   * for first and last molecules.
   */ 
   protected final void orderMolecules() {
-    setFirstMolecule(molecule[0]);
-    setLastMolecule(molecule[nMolecules-1]);
+    firstMolecule = molecule[0];
+    lastMolecule = molecule[nMolecules-1];
     for(int i=1; i<nMolecules; i++) {molecule[i-1].setNextMolecule(molecule[i]);}
   }
   
@@ -317,20 +321,20 @@ public abstract class Species extends Container {
   *
   * @param m the molecule to be designated this species firstMolecule
   */
-  private final void setFirstMolecule(Molecule m) {
-    firstMolecule = m;
-    firstAtom = (m != null) ? m.firstAtom : null;
-  }
+//  private final void setFirstMolecule(Molecule m) {
+//    firstMolecule = m;
+//    firstAtom = (m != null) ? m.firstAtom : null;  //delete
+//  }
   
  /**
   * Sets this species lastMolecule and lastAtom parameters.
   *
   * @param m the molecule to be designated this species lastMolecule
   */
-  private final void setLastMolecule(Molecule m) {
-    lastMolecule = m;
-    lastAtom = (m != null) ? m.lastAtom : null;
-  }
+//  private final void setLastMolecule(Molecule m) {
+//    lastMolecule = m;
+//    lastAtom = (m != null) ? m.lastAtom : null; //delete
+//  }
   
  /**
   * @return the next species in the linked list of species.  Returns null if this is the last species.
@@ -347,7 +351,7 @@ public abstract class Species extends Container {
   public final void setNextSpecies(Species s) {
     this.nextSpecies = s;
     s.previousSpecies = this;
-    this.lastMolecule.setNextMolecule(s.firstMolecule);
+    this.lastMolecule().setNextMolecule(s.firstMolecule);
   }
  /**
   * @return the species preceding this one in the linked list of species.  Returns null if this is the first species.
@@ -453,9 +457,9 @@ public abstract class Species extends Container {
     int diameterP = (int)(toPixels*diameter);
     g.setColor(color);
     */
-    Atom nextSpeciesAtom = lastAtom.getNextAtom();
+    Atom nextSpeciesAtom = lastAtom().getNextAtom();
     Molecule last = lastMolecule.getNextMolecule();
-    for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
+    for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
         colorScheme.setAtomColor(a);
         a.draw(g,origin,scale);
         /*
@@ -465,7 +469,7 @@ public abstract class Species extends Container {
         */
     }
     if(parentPhase.drawOverflowImages) {
-        for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
+        for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()) {
             double[][] shifts = parentPhase.space.getOverflowShifts(a.r,a.radius);
             for(int i=0; i<shifts.length; i++) {
                 /*
@@ -495,7 +499,17 @@ public abstract class Species extends Container {
     Rectangle r = getBounds();
     if(r.x!=x || r.y!=y || r.width!=width || r.height!=height) {  
         super.setBounds(x, y, width, height);
-        //initializeSpecies();
+        if(parentPhase != null) initializeSpecies(parentPhase);
     }
   }
+  
+  public final Molecule firstMolecule() {return firstMolecule;}
+  public final Molecule lastMolecule() {return lastMolecule;}
+  public final Atom firstAtom() { //return firstAtom;
+    return (firstMolecule == null) ? null : firstMolecule.firstAtom();
+  }
+  public final Atom lastAtom() { //return lastAtom;
+    return (lastMolecule == null) ? null : lastMolecule.lastAtom();
+  }
+  
 }

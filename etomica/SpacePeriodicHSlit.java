@@ -28,8 +28,8 @@ public class SpacePeriodicHSlit extends Space {
     }
 
     public void repositionMolecules(Species species) {
-       Atom nextSpeciesAtom = species.lastAtom.getNextAtom();
-       for (Atom a=species.firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()){
+       Atom nextSpeciesAtom = species.lastAtom().getNextAtom();
+       for (Atom a=species.firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()){
            for(int i=Space.D-1; --i>=0; ) {
               if(a.r[i] < 0.0) {a.translate(i,dimensions[i]);}
               else if(a.r[i] > dimensions[i]) {a.translate(i,-dimensions[i]);}

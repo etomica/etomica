@@ -28,6 +28,17 @@ public class Simulation extends Container {
     }
   }
   
+  public void add(Display d) {
+    super.add(d);
+    if(haveIntegrator()) {
+        controller.integrator.addIntegrationIntervalListener(d);
+    }
+    if(d.displayTool != null) {super.add(d.displayTool);}
+    Phase p = (Phase)phases.firstElement();
+    for(Meter m=p.firstMeter; m!=null; m=m.getNextMeter()) {d.setMeter(m);}
+    d.repaint();
+  }
+  
   public void add(Phase p) {
     super.add(p);
     phases.addElement(p);

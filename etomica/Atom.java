@@ -341,7 +341,7 @@ public class Atom {
         Potential2[] p2 = parentMolecule.getP2();
         double energy = 0.0;
         Atom endAtom = parentMolecule.firstAtom;
-        for(Atom a=parentMolecule.getPhase().firstAtom; a!=endAtom && a!=null; a=a.getNextAtom()) {
+        for(Atom a=parentMolecule.getPhase().firstAtom(); a!=endAtom && a!=null; a=a.getNextAtom()) {
             energy += p2[a.getSpeciesIndex()].getPotential(this,a).energy(this,a);
             if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
         }
@@ -402,6 +402,9 @@ public class Atom {
     this.nextAtom = atom;
     if(atom != null) {atom.previousAtom = this;}
   }
+  
+  public final void clearPreviousAtom() {previousAtom = null;}
+  
   public final Atom getPreviousAtom() {return previousAtom;}
   
   /**

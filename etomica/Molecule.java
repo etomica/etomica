@@ -165,6 +165,11 @@ public class Molecule implements Serializable {
     m.previousMolecule = this;
     this.lastAtom.setNextAtom(m.firstAtom);
   }
+  
+  public final void clearPreviousMolecule() {  //use setNextMolecule to set previousMolecule to non-null
+    previousMolecule = null;
+    firstAtom.clearPreviousAtom();
+  }
  
  /**
   * @return the previous molecule before this one in the linked list of molecules,
@@ -404,5 +409,8 @@ public class Molecule implements Serializable {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
     for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.draw(g, origin, scale);}
   }
+  
+  public final Atom firstAtom() {return firstAtom;}
+  public final Atom lastAtom() {return lastAtom;}
   
 }

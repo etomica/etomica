@@ -36,8 +36,8 @@ public class SpeciesDisks extends Species {
     public final double getMass() {return mass;}
     public final void setMass(double mass) {
         this.mass = mass;
-        if(firstAtom == null) {return;}  //return if atoms have not yet been ordered
-        for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setMass(mass);}
+        if(firstAtom() == null) {return;}  //return if atoms have not yet been ordered
+        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {a.setMass(mass);}
         for(Molecule m=firstMolecule; m!=lastMolecule.getNextMolecule(); m=m.getNextMolecule()) {m.updateMass();}        
     }
     
@@ -45,15 +45,15 @@ public class SpeciesDisks extends Species {
     public void setDiameter(double d) {
         diameter = d;
         radius = 0.5*d;
-        if(firstAtom == null) {return;}
-        for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setDiameter(d);}
+        if(firstAtom() == null) {return;}
+        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {a.setDiameter(d);}
     }
         
     public final Color getColor() {return color;}
     public final void setColor(Color c) {
         color = c;
-        if(firstAtom == null) {return;}
-        for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
+        if(firstAtom() == null) {return;}
+        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
     }
         
 

@@ -27,16 +27,10 @@ public class PotentialSquareWell extends Potential {
     pair.energy = (pair.rSquared < wellDiameterSquared) ? -epsilon : 0.0;
     return pair;
   }
-    
-  public double energy(Molecule molecule1, Molecule molecule2) {
-    MoleculeAtomic disk1 = (MoleculeAtomic)molecule1;
-    MoleculeAtomic disk2 = (MoleculeAtomic)molecule2;        
-    space.uEr1Mr2(pair.rij,disk2.r,disk1.r);
-    double r2 = Space.v1Dv2(r12,r12);
-    return (r2 < wellDiameterSquared) ? -epsilon : 0.0;  // assumes no core overlap
-  }
-*/
+ */
+ 
   public void bump(Atom atom1, Atom atom2) {
+    double eps = 1.0e-6;
     space.uEr1Mr2(r12,atom2.r,atom1.r);  //use instance method   //r2-r1
     Space.uEa1Tv1Ma2Tv2(v12,atom2.rm,atom2.p,atom1.rm,atom1.p);  //v2-v1
     double r2 = Space.v1S(r12);
@@ -44,28 +38,38 @@ public class PotentialSquareWell extends Potential {
     // ke is kinetic energy due to components of velocity
     double reduced_m = 1.0/((1.0/atom1.rm+ 1.0/atom2.rm)*atom1.rm*atom2.rm);
     double ke = bij*bij*reduced_m/(2.0*r2);
-    double s;
-    if(r2 < 0.999*wellDiameterSquared) {   // Hard-core collision
+    double s, r2New;
+    if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
       s = 2.0*reduced_m*bij/r2;
+      r2New = r2;
     }
     else {    // Well collision
       if(bij > 0.0) {         // Separating
 	    if(ke < epsilon) {     // Not enough kinetic energy to escape
 	       s = 2.0*reduced_m*bij/r2;
+	       r2New = (1-eps)*wellDiameterSquared; 
 	    }
 	    else {                 // Escape
 //	  s = (0.5*bij/r - Math.sqrt(0.5*(ke - epsilon)))/r;
 	       s = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m))/r2;
+	       r2New = (1+eps)*wellDiameterSquared;
 	    }
       }
       else {                  // Approaching
 //	s = (0.5*bij/r + Math.sqrt(0.5*(ke + epsilon)))/r;
 	     s = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m))/r2;
+	     r2New = (1-eps)*wellDiameterSquared; 
       }
     }
 
     Space.uPEa1Tv1(atom1.p, s, r12);
     Space.uMEa1Tv1(atom2.p, s, r12);
+    if(r2New == r2) return;
+    
+    double ratio = atom1.rm/atom2.rm;  // (mass2/mass1)
+    double delta = (Math.sqrt(r2New/r2) - 1.0)/(1+ratio);
+    Space.uPEa1Tv1(atom1.r, -ratio*delta, r12);
+    Space.uPEa1Tv1(atom2.r, delta, r12);
   }
 
 //----------------------------------------------------------------------
@@ -81,7 +85,11 @@ public class PotentialSquareWell extends Potential {
 
     double tij = Double.MAX_VALUE;
 
-    if(r2 < 1.0001*wellDiameterSquared) {  // Already inside wells
+    if(r2 < wellDiameterSquared) {  // Already inside wells
+
+      if(r2 < coreDiameterSquared) {   // Inside core; collision now if approaching, at well if separating
+        return (bij < 0) ? 0.0 : (-bij + Math.sqrt(bij*bij - v2 * ( r2 - wellDiameterSquared )))/v2;
+      }
 
       if(bij < 0.0) {    // Check for hard-core collision
 	    discr = bij*bij - v2 * ( r2 - coreDiameterSquared );
@@ -94,10 +102,8 @@ public class PotentialSquareWell extends Potential {
 	    }
       }
       else {           // Moving away from each other, wells collide next
-	    if(r2 < 0.9999*wellDiameterSquared) {   // Did not just have a well collision
 	      discr = bij*bij - v2 * ( r2 - wellDiameterSquared );  // This is always > 0
 	      tij = (-bij + Math.sqrt(discr))/v2;
-	    }
       }
     }
     else {              // Outside wells; look for collision at well

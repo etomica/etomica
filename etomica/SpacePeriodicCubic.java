@@ -29,9 +29,9 @@ public class SpacePeriodicCubic extends Space {
     }
 
     public void repositionMolecules(Species species) {
-       if(species.firstAtom == null) {return;}
-       Atom nextSpeciesAtom = species.lastAtom.getNextAtom();
-       for (Atom a=species.firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()){
+       if(species.firstAtom() == null) {return;}
+       Atom nextSpeciesAtom = species.lastAtom().getNextAtom();
+       for (Atom a=species.firstAtom(); a!=nextSpeciesAtom; a=a.getNextAtom()){
            for(int i=Space.D; --i>=0; ) {
               if(a.r[i] < 0.0) {a.translate(i,dimensions[i]);}
               else if(a.r[i] > dimensions[i]) {a.translate(i,-dimensions[i]);}
