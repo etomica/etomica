@@ -4,9 +4,9 @@ public class Potential {
 
   Space space;
   Phase parentPhase;
-//  protected transient final double[] r12 = new double[Space.D];  //work arrays
+  protected transient final double[] r12 = new double[Space.D];  //work arrays
 //  protected transient final double[] f = new double[Space.D];
-//  protected transient final double[] v12 = new double[Space.D];
+  protected transient final double[] v12 = new double[Space.D];
 //  protected transient final PairInteraction pair = new PairInteraction();
 
   public Potential() {;}

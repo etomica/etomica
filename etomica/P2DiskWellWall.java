@@ -7,6 +7,7 @@ public class P2DiskWellWall extends Potential2 {
   private double collisionDiameter = 0.1;
   double lambda = 1.5;
   double epsilon = 300;
+  double elasticity = 1.0;
 
   public P2DiskWellWall() {
     super();
@@ -14,7 +15,7 @@ public class P2DiskWellWall extends Potential2 {
     nAtoms2 = 1;
     setSpecies2Index(1);
     potential = new Potential[nAtoms1][nAtoms2];
-    potential[0][0] = new PotentialWellWall(collisionDiameter,lambda,epsilon);
+    potential[0][0] = new PotentialWellWall(collisionDiameter,lambda,epsilon,elasticity);
   }
   
   public final boolean isNeighbor(Molecule m1, Molecule m2) {
@@ -26,7 +27,7 @@ public class P2DiskWellWall extends Potential2 {
   public final double getCollisionDiameter() {return collisionDiameter;}
   public final void setCollisionDiameter(double d) {
     collisionDiameter = d;
-    ((PotentialWellWall)potential[0][0]).setCollisionDiameter(d);
+    ((PotentialWellWall)potential[0][0]).setCoreDiameter(d);
     setPotentialCutoff(d);
   }
 
@@ -40,6 +41,11 @@ public class P2DiskWellWall extends Potential2 {
     ((PotentialWellWall)potential[0][0]).setLambda(d);
   }
   
+  public double getElasticity() {return elasticity;}
+  public void setElasticity(double e) {
+      elasticity = e;
+  }
+
   // Paint a red disk at design time to show size of collision diameter
   
   public void paint(Graphics g) {

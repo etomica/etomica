@@ -4,6 +4,7 @@ import java.beans.*;
 import java.awt.*;
 import java.beans.Beans;
 
+// Square-well potential between a disk and a wall
 // Not written to handle moving wall
 // No momentum or energy accumulation in wall is recorded
 

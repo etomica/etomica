@@ -79,11 +79,11 @@ public class PotentialHardDiskWall extends simulate.Potential
         
         if(wall.isVertical()) {
             disk.p[0] *= -1;
-            wall.pAccumulator += 2*Math.abs(disk.p[0]);
+            wall.accumulateP(2*Math.abs(disk.p[0]));
         }
         if(wall.isHorizontal()) {
             disk.p[1] *= -1;
-            wall.pAccumulator += 2*Math.abs(disk.p[1]);
+            wall.accumulateP(2*Math.abs(disk.p[1]));
         }
         
     }

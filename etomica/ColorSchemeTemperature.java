@@ -9,7 +9,7 @@ import java.awt.Color;
 public class ColorSchemeTemperature extends ColorScheme {
     
     double TLow, THigh;
-    private double KEMin, KEMax, range;
+    protected double KEMin, KEMax, range;
     
     public ColorSchemeTemperature() {
         this(200.0, 400.0);

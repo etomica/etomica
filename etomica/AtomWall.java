@@ -9,12 +9,12 @@ public class AtomWall extends Atom {
     int thickness;
     private boolean vertical, horizontal;
     double[] r1 = new double[Space.D];  //other end of line in simulation units (first end is denoted r)
-    private int theta;   //orientation (degrees) with respect to positive x-axis, taking r at the origin
-    private double length;  //length of line in simulation units
-    double pAccumulator;  //accumulated momentum perpendicular to wall, for calculation of pressure
-    double qAccumulator;  //accumulated energy absorbed by wall, for calculation of heat transfer
-    double temperature;
-    boolean adiabatic;
+    protected int theta;   //orientation (degrees) with respect to positive x-axis, taking r at the origin
+    protected double length;  //length of line in simulation units
+    protected double pAccumulator;  //accumulated momentum perpendicular to wall, for calculation of pressure
+    protected double qAccumulator;  //accumulated energy absorbed by wall, for calculation of heat transfer
+    protected double temperature;
+    protected boolean adiabatic;
 
     public AtomWall(Molecule parent, int index) {
         super(parent, index);
@@ -24,6 +24,7 @@ public class AtomWall extends Atom {
         setStationary(true);
         setTemperature(300.);
         setAdiabatic(true);
+        zeroAccumulators();
     }
 
     public void setAngle(int t) {
@@ -32,28 +33,39 @@ public class AtomWall extends Atom {
         vertical = (Math.abs(theta) == 90) || (Math.abs(theta) == 270);
         computeR1();
     }
-    public int getAngle() {return theta;}
+    public final int getAngle() {return theta;}
         
-    public boolean isVertical() {return vertical;}
-    public boolean isHorizontal() {return horizontal;}
+    public final boolean isVertical() {return vertical;}
+    public final boolean isHorizontal() {return horizontal;}
     
-    public int getThickness() {return thickness;}
-    public void setThickness(int thickness) {this.thickness = thickness;}
+    public final int getThickness() {return thickness;}
+    public final void setThickness(int thickness) {this.thickness = thickness;}
     
-    public double getLength() {return length;}
-    public void setLength(double length) {
+    public final double getLength() {return length;}
+    public final void setLength(double length) {
         this.length = length;
         computeR1();
     }
     
-    public double getTemperature() {return temperature;}
-    public void setTemperature(int t) {setTemperature((double)t);}  //for connection to sliders, etc.
-    public void setTemperature(double t) {temperature = t;}
+    public final void zeroAccumulators() {
+        zeroQAccumulator();
+        zeroPAccumulator();
+    }
+    public final void zeroQAccumulator() {qAccumulator = 0.0;}
+    public final void zeroPAccumulator() {pAccumulator = 0.0;}
+    public final void accumulateP(double value) {pAccumulator += value;}
+    public final void accumulateQ(double value) {qAccumulator += value;}
+    public final double getAccumulatedP() {return pAccumulator;}
+    public final double getAccumulatedQ() {return qAccumulator;}
     
-    public boolean isAdiabatic() {return adiabatic;}
-    public void setAdiabatic(boolean a) {adiabatic = a;}
+    public final double getTemperature() {return temperature;}
+    public final void setTemperature(int t) {setTemperature((double)t);}  //for connection to sliders, etc.
+    public final void setTemperature(double t) {temperature = t;}
+    
+    public final boolean isAdiabatic() {return adiabatic;}
+    public final void setAdiabatic(boolean a) {adiabatic = a;}
  
-    private void computeR1() {
+    private final void computeR1() {
         r1[0] = r[0] + length * Math.cos((double)theta);
         r1[1] = r[1] + length * Math.sin((double)theta);
     }
