@@ -1,12 +1,12 @@
 package simulate;
 import java.awt.Container;
+import java.awt.Graphics;
 
 public abstract class PhaseSpace extends Container {
 
     public PhaseSpace() {
         setLayout(null);
         setSize(300,300);
-        setBackground(Color.white);
         atomCount = moleculeCount = 0;
         gravity = new Gravity(0.0);
         noGravity = true;
@@ -17,12 +17,13 @@ public abstract class PhaseSpace extends Container {
     
     public abstract PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a);      //PhaseSpace prefix is redundant
     public abstract PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m);
-    public abstract PhaseSpace.AtomPair makeAtomPair(Atom a1, Atom a2);
-    public abstract AtomPairIterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
-    public abstract AtomPairIterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
-    public abstract AtomPairIterator.A makePairIteratorFull();
-    public abstract AtomPairIterator.A makePairIteratorHalf();
+    public abstract simulate.AtomPair makeAtomPair(Atom a1, Atom a2);
+    public abstract AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
+    public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
+    public abstract AtomPair.Iterator.A makePairIteratorFull();
+    public abstract AtomPair.Iterator.A makePairIteratorHalf();
     
+    public abstract double volume();
 
 //  Vector contains what is needed to describe a point in the space
     interface Vector {}
@@ -48,19 +49,19 @@ public abstract class PhaseSpace extends Container {
     interface AtomCoordinate extends Coordinate {      //cannot be a class here because must inherit from Coordinate as it is defined in the PhaseSpace subclass
         public Atom nextAtom();
         public Atom previousAtom();
+        public Atom atom();
+        public AtomCoordinate nextCoordinate();
+        public AtomCoordinate previousCoordinate();
     }
     interface MoleculeCoordinate extends Coordinate {
         public Molecule nextMolecule();
         public Molecule previousMolecule();
+        public Molecule molecule();
+        public MoleculeCoordinate nextCoordinate();
+        public MoleculeCoordinate previousCoordinate();
         public void update();
     }
-    
-    public interface AtomPair {
-        public double r2();
-        public Atom atom1();
-        public Atom atom2();
-    }
-    
+        
  /**
   * Returns the temperature (in Kelvin) of this phase as computed via the equipartition
   * theorem from the kinetic energy summed over all (atomic) degrees of freedom
@@ -79,14 +80,14 @@ public abstract class PhaseSpace extends Container {
     return (m != null) ? m.lastAtom() : null;
   }
   public final Molecule firstMolecule() {
-    for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
+    for(Species s=firstSpecies; s!=null; s=s.nextSpecies()) {
         Molecule m = s.firstMolecule();
         if(m != null) {return m;}
     }
     return null;
   }
   public final Molecule lastMolecule() {
-    for(Species s=lastSpecies; s!=null; s=s.getPreviousSpecies()) {
+    for(Species s=lastSpecies; s!=null; s=s.previousSpecies()) {
         Molecule m = s.lastMolecule();
         if(m != null) {return m;}
     }
@@ -94,17 +95,17 @@ public abstract class PhaseSpace extends Container {
   }
   public final Species firstSpecies() {return firstSpecies;}
   public final Species lastSpecies() {return lastSpecies;}
-  public final Phase getNextPhase() {return nextPhase;}
-  public final Phase getPreviousPhase() {return previousPhase;}
+  public final PhaseSpace nextPhaseSpace() {return nextPhaseSpace;}
+  public final PhaseSpace previousPhaseSpace() {return previousPhaseSpace;}
  /**
   * Sets the phase following this one in the linked list of phases.
   * Does not link species/molecule/atoms of the Phases
   *
   * @param p the phase to be designated as this phase nextPhase
   */
-  public final void setNextPhase(Phase p) {
-    this.nextPhase = p;
-    p.previousPhase = this;
+  public final void setNextPhase(PhaseSpace p) {
+    this.nextPhaseSpace = p;
+    p.previousPhaseSpace = this;
   }
   
   public final double getG() {return gravity.getG();}
@@ -115,14 +116,14 @@ public abstract class PhaseSpace extends Container {
   
     public void add(Species species) {
         super.add(species);
-        species.parentPhase = this;
+        species.parentPhaseSpace = this;
         species.configurationMolecule.initializeCoordinates();
         configuration.add(species);
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
-        for(Molecule m=species.firstMolecule(); m!=null; m=m.getNextMolecule()) {moleculeCount++;}
-        for(Atom a=species.firstAtom(); a!=null; a=a.getNextAtom()) {atomCount++;}
+        for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
+        for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
         if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
     }
     
@@ -154,14 +155,14 @@ public abstract class PhaseSpace extends Container {
   
     public void add(Potential1 p1) {
         super.add(p1);
-        p1.setPhase(this);
+        p1.setPhaseSpace(this);
         if(p1.speciesIndex+1 > speciesCount) {setSpeciesCount(p1.speciesIndex+1);}
         this.potential1[p1.speciesIndex] = p1;
     }
     
     public void add(Potential2 p2) {
         super.add(p2);
-        p2.setPhase(this);
+        p2.setPhaseSpace(this);
         int idx = Math.max(p2.species1Index,p2.species2Index);
         if(idx+1 > speciesCount) {setSpeciesCount(idx+1);}
         this.potential2[p2.species1Index][p2.species2Index] = p2;
@@ -169,9 +170,9 @@ public abstract class PhaseSpace extends Container {
     }
     
     public void add(Configuration c){
-        c.parentPhase = this;
+        c.parentPhaseSpace = this;
         configuration = c;
-        for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
+        for(Species s=firstSpecies; s!=null; s=s.nextSpecies()) {
             configuration.add(s);
         }
     }
@@ -196,32 +197,13 @@ public abstract class PhaseSpace extends Container {
         return m;
     }
 
-    public final boolean isPeriodic() {return periodic;}  
+//    public final boolean isPeriodic() {return periodic;}  
         
    /**
     * @return the dimensions[] array
     */
     public Vector getDimensions() {return dimensions;}
    
-   /**
-    * Scales all dimensions by a constant multiplicative factor and recomputes volume
-    *
-    * @param scale the scaling factor. 
-    */
-    public void inflate(double scale) {
-        Space.uTEa1(dimensions,scale);
-        computeVolume();
-    }
-   
-   /**
-    * Computes the volume of the space based on the current values in
-    * dimensions[], and assigns the result to <code>volume</code>.
-    * Likely to override in subclasses.
-    */
-    protected void computeVolume() {
-        volume = dimensions.x*dimensions.y;
-    }
-        
    /** Set of vectors describing the displacements needed to translate the central image
     *  to all of the periodic images.  Returns a two dimensional array of doubles.  The
     *  first index specifies each perioidic image, while the second index indicates the
@@ -230,32 +212,19 @@ public abstract class PhaseSpace extends Container {
     *
     *  @param nShells the number of shells of images to be computed
     */
-    public double[][] imageOrigins(int nShells) {
-        return new double[0][D];
-    }
+//    public double[][] imageOrigins(int nShells) {
+//        return new double[0][D];
+//    }
        
    /**
     * @return shift0
     * @see #shift0
     * @see Phase#paint
     */
-    public Vector[][] getOverflowShifts(double[] r, double distance) {return shift0;}  //called only if periodic
+//    public Vector[][] getOverflowShifts(double[] r, double distance) {return shift0;}  //called only if periodic
     
-   /**
-    * Draws a light gray outline of the space if <code>visible</code> is set to
-    * <code>true</code>.  The size of the outline is determined by 
-    * <code>drawSize[]</code>.
-    *
-    * @param g      the graphics object to which the image is drawn
-    * @param origin the coordinate origin (in pixels) for drawing the image
-    * @see Phase#paint
-    * @see #computeDrawSize
-    */
-    public void drawSpace(Graphics g, int[] origin, double scale) {
-        g.setColor(Color.gray.brighter());
-        g.drawRect(origin[0],origin[1],(int)(scale*dimensions.x)-1,(int)(scale*dimensions.y)-1);
-    }
-  
+    public abstract void paint(Graphics g, int[] origin, double scale); 
+    
  /**
   * Total number of species contained in this phase.
   */
@@ -319,8 +288,8 @@ public abstract class PhaseSpace extends Container {
   private Potential2 p2IdealGas = new P2IdealGas();
   public Configuration configuration;
   
-  private Phase nextPhase;
-  private Phase previousPhase;
+  private PhaseSpace nextPhaseSpace;
+  private PhaseSpace previousPhaseSpace;
   
   public Integrator integrator;
   

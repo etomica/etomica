@@ -39,8 +39,8 @@ public abstract class Integrator extends Container implements Observer, Serializ
   public abstract IntegratorAgent makeAgent(Atom a);
   
   protected void deployAgents() {  //puts an Agent of this integrator in each atom of all phases
-    for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {
-        for(Atom a=p.firstAtom(); a!=null; a=a.getNextAtom()) {
+    for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {
+        for(Atom a=p.firstAtom(); a!=null; a=a.nextAtom()) {
             a.setIntegratorAgent(makeAgent(a));
         }
     }
@@ -75,7 +75,7 @@ public abstract class Integrator extends Container implements Observer, Serializ
     phase[nPhases] = p;
     nPhases++;
     firstPhase = phase[0];
-    for(Meter m=p.firstMeter; m!=null; m=m.getNextMeter()) {
+    for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {
         addIntegrationIntervalListener(m);
     }
   }
@@ -128,7 +128,7 @@ public abstract class Integrator extends Container implements Observer, Serializ
 ///                firstPhase.updateNeighbors();
 ///            }
             if(integrationCount % integrationInterval == 0) {
-                for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {p.space.repositionMolecules();}                
+//                for(Phase p=firstPhase; p!=null; p=p.nextPhase()) {p.space.repositionMolecules();}                
                 fireIntegrationIntervalEvent(new IntegrationIntervalEvent(this,firstPhase));
             }
 //            for (int i=0; i<nPhases; i++) {phase[i].repaint();}  //not needed now that displayConfiguration does painting

@@ -33,7 +33,7 @@ public abstract class Meter extends Component implements IntegrationIntervalList
         }
     }
     
-	public void updateStatistics(Phase phase) {
+	public void updateStatistics(PhaseSpace phase) {
 	    if(firstCall) {
 	        firstCall = false;
 	    }

@@ -7,6 +7,8 @@ import java.util.*;
 
 public class Simulation extends Container {
 
+  public static int D = 2;  //dimension (2-D, 3-D, etc;)
+
   public Controller controller;
   Phase firstPhase;
   Phase lastPhase;
@@ -16,6 +18,11 @@ public class Simulation extends Container {
   public Simulation() {
     setSize(400,300);
   }
+  
+  //For property sheet (D is static)
+  public void setD(int d) {D = d;}
+  public int getD() {return D;}
+
 
   public void add(Controller c) {
     if(controller != null) {return;}  //already added a controller

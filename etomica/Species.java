@@ -109,7 +109,7 @@ public abstract class Species extends Container {
   */
   public Molecule spareMolecule;   //no longer used
       
-  private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
+  private transient final int[] shiftOrigin = new int[Simulation.D];     //work vector for drawing overflow images
 
  /**
   * Object responsible for setting default configuration of atoms in molecule
@@ -136,7 +136,7 @@ public abstract class Species extends Container {
   
   public void add(ColorScheme cs) {
     this.colorScheme = cs;
-    for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {
+    for(Atom a=firstAtom(); a!=lastAtom().nextAtom(); a=a.nextAtom()) {
         colorScheme.initializeAtomColor(a);
     }
   }
@@ -184,7 +184,7 @@ public abstract class Species extends Container {
     lastMolecule = firstMolecule;
     for(int i=1; i<nMolecules; i++) {
         lastMolecule.setNextMolecule(makeMolecule());
-        lastMolecule = lastMolecule.getNextMolecule();
+        lastMolecule = lastMolecule.nextMolecule();
     }
     spareMolecule = makeMolecule();
     initializeMolecules();
@@ -216,7 +216,7 @@ public abstract class Species extends Container {
   public final Molecule randomMolecule() {
      int i = (int)(rand.nextDouble()*nMolecules);
      Molecule m = firstMolecule;
-     for(int j=i; --j>=0; ) {m = m.getNextMolecule();}
+     for(int j=i; --j>=0; ) {m = m.nextMolecule();}
      return m;
   }
     
@@ -256,8 +256,8 @@ public abstract class Species extends Container {
         System.out.println("Error:  attempt to delete molecule from incorrect species");
         return;
     }
-    Molecule next = m.getNextMolecule();
-    Molecule previous = m.getPreviousMolecule();
+    Molecule next = m.nextMolecule();
+    Molecule previous = m.previousMolecule();
     if(m == firstMolecule) {
         if(nMolecules == 1) {firstMolecule = null;}  //deleting the first and only molecule of the species
         else {firstMolecule = next;}                 //deleting first molecule, but others are present
@@ -272,8 +272,8 @@ public abstract class Species extends Container {
     m.parentSpecies = null;        //line deleted because of spareMolecule
     m.setNextMolecule(null);
     m.clearPreviousMolecule();
-    parentPhaseSpace.nMoleculeTotal--;
-    parentPhaseSpace.nAtomTotal -= m.nAtoms;
+    parentPhaseSpace.moleculeCount--;
+    parentPhaseSpace.atomCount -= m.nAtoms;
 //    if(spareMolecule == null) spareMolecule = m;
   }
 
@@ -298,7 +298,7 @@ public abstract class Species extends Container {
   */
   public final void addMolecule(Molecule m) {
     if(nMolecules > 0) {
-        m.setNextMolecule(lastMolecule.getNextMolecule());
+        m.setNextMolecule(lastMolecule.nextMolecule());
         lastMolecule.setNextMolecule(m);
         lastMolecule = m;
     }
@@ -306,14 +306,14 @@ public abstract class Species extends Container {
         firstMolecule = m;
         lastMolecule = m;
         m.setNextMolecule(null); 
-        for(Species s=this.getNextSpecies(); s!=null; s=s.getNextSpecies()) { //loop forward in species, looking for next molecule
+        for(Species s=this.nextSpecies(); s!=null; s=s.nextSpecies()) { //loop forward in species, looking for next molecule
             if(s.firstMolecule() != null) {
                 m.setNextMolecule(s.firstMolecule());
                 break;
             }
         }
         m.clearPreviousMolecule();
-        for(Species s=this.getPreviousSpecies(); s!=null; s=s.getPreviousSpecies()) { //loop backward in species, looking for previous molecule
+        for(Species s=this.previousSpecies(); s!=null; s=s.previousSpecies()) { //loop backward in species, looking for previous molecule
             if(s.lastMolecule() != null) {
                 s.lastMolecule.setNextMolecule(m);
                 break;
@@ -322,8 +322,8 @@ public abstract class Species extends Container {
     }
     nMolecules++;
     m.parentSpecies = this;
-    parentPhaseSpace.nMoleculeTotal++;
-    parentPhaseSpace.nAtomTotal += m.nAtoms;
+    parentPhaseSpace.moleculeCount++;
+    parentPhaseSpace.atomCount += m.nAtoms;
     initializeMolecules();
     colorScheme.initializeMoleculeColor(m);
   }
@@ -336,7 +336,7 @@ public abstract class Species extends Container {
   public Molecule addMolecule() {
     Molecule m = makeMolecule();
     configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
-    m.setCOM(parentPhaseSpace.space.randomVector());       //place at random position
+    m.setCOM(parentPhaseSpace.randomPosition());       //place at random position
     parentPhaseSpace.configuration.initializeMomentum(m);  //initialize momentum
     addMolecule(m);
     return m;
@@ -345,7 +345,7 @@ public abstract class Species extends Container {
  /**
   * @return the next species in the linked list of species.  Returns null if this is the last species.
   */
-  public final Species getNextSpecies() {return nextSpecies;}
+  public final Species nextSpecies() {return nextSpecies;}
  
  /**
   * Sets the species following this one in the linked list of species.
@@ -367,12 +367,12 @@ public abstract class Species extends Container {
  /**
   * @return the species preceding this one in the linked list of species.  Returns null if this is the first species.
   */
-  public final Species getPreviousSpecies() {return previousSpecies;}
+  public final Species previousSpecies() {return previousSpecies;}
   
  /**
   * @return the phase in which this species resides
   */
-  public final Phase getParentPhaseSpace() {return parentPhaseSpace;}
+  public final PhaseSpace parentPhaseSpace() {return parentPhaseSpace;}
     
   public final String getName() {return name;}
   public final void setName(String name) {this.name = name;}
@@ -400,10 +400,10 @@ public abstract class Species extends Container {
   public void paint(Graphics g) {
     if(Beans.isDesignTime()) {
         if(parentPhaseSpace != null) {
-            int[] origin = new int[Space.D];
+            int[] origin = new int[Simulation.D];
             double scale = 1.0;
-            origin[0] = (parentPhaseSpace.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
-            origin[1] = (parentPhaseSpace.getSize().height - Phase.toPixels(scale*designTimeYDim))/2;
+            origin[0] = (parentPhaseSpace.getSize().width - Phase.toPixels(scale*1.0))/2;  //1.0 -> dimension.x
+            origin[1] = (parentPhaseSpace.getSize().height - Phase.toPixels(scale*1.0))/2; //       dimension.y
             draw(g,origin,scale);
         }
     }
@@ -441,7 +441,7 @@ public abstract class Species extends Container {
     }
     if(DisplayConfiguration.DRAW_OVERFLOW && (atomGenerator instanceof AtomDisk)) {
         for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
-            double[][] shifts = parentPhaseSpace.space.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
+            double[][] shifts = parentPhaseSpace.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
                shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
@@ -495,7 +495,7 @@ public abstract class Species extends Container {
    * Used to terminate loops over molecules in species
    */
   public final Molecule terminationMolecule() {
-    return (lastMolecule == null) ? null : lastMolecule.getNextMolecule();
+    return (lastMolecule == null) ? null : lastMolecule.nextMolecule();
   }  
   public final Atom firstAtom() { //return firstAtom;
     return (firstMolecule == null) ? null : firstMolecule.firstAtom();
@@ -509,7 +509,7 @@ public abstract class Species extends Container {
    */
   public final Atom terminationAtom() {
     Atom last = lastAtom();
-    return (last == null) ? null : last.getNextAtom();
+    return (last == null) ? null : last.nextAtom();
   }
   
 }

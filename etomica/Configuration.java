@@ -10,7 +10,7 @@ public abstract class Configuration extends Component{
 
     protected Vector species = new Vector();
     public double temperature;
-    Phase parentPhase;
+    PhaseSpace parentPhaseSpace;
     Random rand = new Random();
 
     public Configuration(){
@@ -39,18 +39,19 @@ public abstract class Configuration extends Component{
   * the current value of temperature), with the direction at random
   */
     public void initializeMomenta() {
-        double[] momentumSum = new double[Space.D];
+//        double[] momentumSum = new double[Space.D];
         int sum = 0;
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
-            double momentum = Math.sqrt(((AtomC)s.firstAtom()).mass*temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
-            for(AtomC a=(AtomC)s.firstAtom(); a!=s.terminationAtom(); a=(AtomC)a.getNextAtom()) {
-	            a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
+//            double momentum = Math.sqrt(((AtomC)s.firstAtom()).mass*temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
+            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.getNextAtom()) {
+                a.randomizeMomentum(temperature);
+/*	            a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
     	        a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
                 sum++;
 	            double momentumNorm = Math.sqrt(Space.v1S(a.p));
 	            Space.uTEa1(a.p, momentum/momentumNorm);
-	            Space.uPEv1(momentumSum,a.p);
+	            Space.uPEv1(momentumSum,a.p);*/
 	        }
 	    }
     //    Zero center-of-mass momentum

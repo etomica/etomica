@@ -154,7 +154,7 @@ import java.beans.Beans;
         super.setBounds(getLocation().x,getLocation().y,wh,wh);
         createOffScreen(wh);
         phase.space.inflate(rScale);
-        for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
+        for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
           m.inflate(rScale);
         }
         phase.integrator.initialize();
@@ -237,7 +237,7 @@ import java.beans.Beans;
         Space.uEa1Tv1(drawSize,toPixels,space.dimensions);
         centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
-        for(Species s=phase.firstSpecies(); s!=null; s=s.getNextSpecies()) {
+        for(Species s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
             if(s.firstAtom() == null) {continue;}
             s.draw(g, centralOrigin, scale);
         }

@@ -10,7 +10,7 @@ public class SpeciesDisks extends Species {
   double radius;
   
   public SpeciesDisks() {
-    super(new AtomHardDisk(null));
+    super();
     this.add(new ConfigurationMoleculeLinear());
     initializeMolecules(0.1,1.0,Color.black);
   }
@@ -31,8 +31,8 @@ public class SpeciesDisks extends Species {
     public final void setMass(double mass) {
         this.mass = mass;
         if(firstAtom() == null) {return;}  //return if atoms have not yet been ordered
-        for(AtomC a=(AtomC)firstAtom(); a!=lastAtom().getNextAtom(); a=(AtomC)a.getNextAtom()) {a.setMass(mass);}
-        for(Molecule m=firstMolecule; m!=lastMolecule.getNextMolecule(); m=m.getNextMolecule()) {m.updateMass();}        
+        for(AtomC a=(AtomC)firstAtom(); a!=lastAtom().nextAtom(); a=(AtomC)a.nextAtom()) {a.setMass(mass);}
+        for(Molecule m=firstMolecule; m!=lastMolecule.nextMolecule(); m=m.nextMolecule()) {m.updateMass();}        
     }
     
     public final double getDiameter() {return diameter;}
@@ -40,14 +40,14 @@ public class SpeciesDisks extends Species {
         diameter = d;
         radius = 0.5*d;
         if(firstAtom() == null) {return;}
-        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {((AtomDisk)a).setDiameter(d);}
+        for(Atom a=firstAtom(); a!=lastAtom().nextAtom(); a=a.nextAtom()) {((AtomDisk)a).setDiameter(d);}
     }
         
     public final Color getColor() {return colorScheme.getBaseColor();}
     public final void setColor(Color c) {
         colorScheme.setBaseColor(c);
         if(firstAtom() == null) {return;}
-        for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
+        for(Atom a=firstAtom(); a!=lastAtom().nextAtom(); a=a.nextAtom()) {a.setColor(c);}
     }
 }
 

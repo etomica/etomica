@@ -73,12 +73,13 @@ public class Molecule implements Serializable {
  /**
   * Center-of-mass (COM) coordinate
   */
-  private final PhaseSpace.MoleculeCoordinate coordinate;   //private becuase coordinate must be evaluated from atom coordinate
+  public final PhaseSpace.MoleculeCoordinate coordinate;   //might want private becuase coordinate must be evaluated from atom coordinate
   
   public Molecule(Species parent, int n) {
     parentSpecies = parent;
     coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
-    setNAtoms(n);
+    nAtoms = n;
+    makeAtoms();
   }
   
  /**
@@ -92,7 +93,7 @@ public class Molecule implements Serializable {
     lastAtom = firstAtom;
     for(int i=1; i<nAtoms; i++) {
         lastAtom.setNextAtom(new Atom(this,i));
-        lastAtom = lastAtom.getNextAtom();
+        lastAtom = lastAtom.nextAtom();
     }
   }
     
@@ -107,11 +108,10 @@ public class Molecule implements Serializable {
   * of other molecules.
   * Any existing atoms are discarded
   */
-  private final void setNAtoms(int n) {
+/*  private final void setNAtoms(int n) {
     nAtoms = n;
     makeAtoms();
-    updateMass();
-  }
+  } */
 
  /**
   * @return the next molecule following this one in the linked list of molecules,
@@ -147,7 +147,7 @@ public class Molecule implements Serializable {
     coordinate.clearPreviousCoordinate();
     firstAtom.clearPreviousAtom();
   }
- 
+  
  /**
    * Returns the intramolecular potential that governs interactions of all 
    * atoms of this molecule.
@@ -225,7 +225,7 @@ public class Molecule implements Serializable {
      * @see #replace
      * @see #translate
      */
-   public final void displaceTo(PhaseSpace.Vector v) {coordinate.displace(v);}
+   public final void displaceTo(PhaseSpace.Vector v) {coordinate.displaceTo(v);}
      /**
       * Puts molecule's atoms back in position held before last call to displace
       *
@@ -242,7 +242,7 @@ public class Molecule implements Serializable {
    *
    * @see replace
    */
-   public void inflate(double scale) {coordinate.inflate();}
+   public void inflate(double scale) {coordinate.inflate(scale);}
 /*      Space.uEa1Tv1(dr,scale-1.0,COM());
       this.displace(dr);
    }*/
@@ -311,6 +311,6 @@ public class Molecule implements Serializable {
   
   public final Atom firstAtom() {return firstAtom;}
   public final Atom lastAtom() {return lastAtom;}
-  public final Atom terminationAtom() {return lastAtom.getNextAtom();}
+  public final Atom terminationAtom() {return lastAtom.nextAtom();}
   
 }

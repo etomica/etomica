@@ -25,7 +25,7 @@ public abstract class ColorScheme extends Component {
     }
     
     public void initializeMoleculeColor(Molecule m) {
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
             initializeAtomColor(a);
         }
     }

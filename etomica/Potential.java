@@ -14,7 +14,7 @@ public class Potential {
         parentPhase = p;
   }
       
-  public double energy(PhaseSpace.AtomPair pair) {
+  public double energy(AtomPair pair) {
     System.out.println("super energy");
     return 0.0;
   }
@@ -22,7 +22,7 @@ public class Potential {
     return energy(parentPhase.makeAtomPair(atom1, atom2));
   }
   
-  public boolean overlap(PhaseSpace.AtomPair pair) {return false;}
+  public boolean overlap(AtomPair pair) {return false;}
 }
 
 

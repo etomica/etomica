@@ -94,7 +94,7 @@ public class IntegratorGEMC extends Integrator {
                 m.replace();
               }
               secondPhase.space.inflate(1.0/r2Scale);
-              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
+              for(Molecule m=secondPhase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 m.replace();
               }
             }
@@ -137,14 +137,14 @@ public class IntegratorGEMC extends Integrator {
 /*    //Computes total energy of phase
     private double energy(Phase p) {
         double energy = 0.0;
-        for(AtomC a=(AtomC)p.firstAtom(); a!=null; a=a.getNextAtomC()) {
+        for(AtomC a=(AtomC)p.firstAtom(); a!=null; a=a.nextAtomC()) {
             AtomC nextMoleculeAtom = (AtomC)a.nextMoleculeFirstAtom();
             Potential1 p1 = a.parentMolecule.getP1();
-            for(AtomC b=a.getNextAtomC(); b!=nextMoleculeAtom; b=b.getNextAtomC()) {
+            for(AtomC b=a.nextAtomC(); b!=nextMoleculeAtom; b=b.nextAtomC()) {
                 energy += p1.getPotential(a,b).energy(a,b);
             }
             Potential2[] p2 = a.parentMolecule.getP2();
-            for(AtomC b=nextMoleculeAtom; b!=null; b=b.getNextAtomC()) {
+            for(AtomC b=nextMoleculeAtom; b!=null; b=b.nextAtomC()) {
                 energy += p2[b.getSpeciesIndex()].getPotential(a,b).energy(a,b);
                 if(energy >= Double.MAX_VALUE) {return Double.MAX_VALUE;}
             }

@@ -12,7 +12,7 @@ public abstract class Potential1 extends Component {
     
   public abstract Potential getPotential(Atom a1, Atom a2);
   
-  public void setPhase(Phase p) {
+  public void setPhaseSpace(PhaseSpace p) {
     for(int i=0; i<nAtoms-1; i++) {
         for(int j=0; j<nAtoms-1; j++) {
             potential[i][j].setParentPhase(p);

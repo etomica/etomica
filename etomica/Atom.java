@@ -58,7 +58,7 @@ public class Atom {
   public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom();}  //first atom on next molecule
   public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom();}  //first atom on next molecule
 
-  public abstract void draw(Graphics g, int[] origin, double scale);
+  public void draw(Graphics g, int[] origin, double scale) {}
 
     public IntegratorAgent ia;
     

@@ -10,14 +10,14 @@ import java.awt.*;
 public abstract class ConfigurationMolecule extends Component {
   
   Species parentSpecies;
-  protected final double[] dim = new double[Space.D];
+  protected final double[] dim = new double[Simulation.D];
   
   public ConfigurationMolecule(){
     }
     
   public void initializeCoordinates() {
     if(parentSpecies == null) {return;}
-    for(Molecule m=parentSpecies.firstMolecule(); m!=parentSpecies.terminationMolecule(); m=m.getNextMolecule()) {
+    for(Molecule m=parentSpecies.firstMolecule(); m!=parentSpecies.terminationMolecule(); m=m.nextMolecule()) {
         initializeCoordinates(m);
     }
     computeDimensions();

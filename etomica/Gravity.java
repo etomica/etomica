@@ -21,15 +21,15 @@ public class Gravity extends java.util.Observable      {
 
     public Gravity(double g) {
         this.g = g;
-        gVector = new double[Space.D];
+        gVector = new double[Simulation.D];
         Space.uEa1(gVector,0.0);
-        gVector[Space.D-1] = g;
+        gVector[Simulation.D-1] = g;
     }
     
     public void setG(double gNew) {
         deltaG = gNew - g;
         g = gNew;
-        gVector[Space.D-1] = g;
+        gVector[Simulation.D-1] = g;
         setChanged();
         notifyObservers();
     }
