@@ -11,8 +11,7 @@ package etomica;
   * 08/29/03 (DAK) added actionPerformed(AtomSet) method because method made
   * abstract in PotentialCalculation
   */
-public class PotentialCalculationVirialSum extends PotentialCalculation 
-											 implements PotentialCalculation.Summable {
+public class PotentialCalculationVirialSum implements PotentialCalculation {
 											 	
 	private Potential2.Soft p2Soft;
 	

@@ -39,7 +39,7 @@ public final class PotentialMaster extends PotentialGroup {
 	//should build on this to do more filtering of potentials based on directive
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
-    	Atom[] targetAtoms = id.targetAtoms();
+    	Atom[] targetAtoms = id.getTargetAtoms();
     	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
     	for(PotentialLinker link=first; link!=null; link=link.next) {
@@ -49,22 +49,18 @@ public final class PotentialMaster extends PotentialGroup {
 			}
 			((AtomsetIteratorMolecule)link.iterator).setTarget(targetAtoms);
 			((AtomsetIteratorMolecule)link.iterator).setDirection(id.direction());
-        	pc.doCalculation(link.iterator, link.potential);
+        	pc.doCalculation(link.iterator, id, link.potential);
         }//end for
-        for(PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			if(phaseChanged) {
-				((AtomsetIteratorMolecule)link.iterator).setPhase(phase);
-				link.potential.setPhase(phase);
-			}
-			((AtomsetIteratorMolecule)link.iterator).setTarget(targetAtoms);
-			((AtomsetIteratorMolecule)link.iterator).setDirection(id.direction());
-			((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
-        }
     }//end calculate
     
     /**
      * Indicates to the PotentialMaster that the given potential should apply to 
-     * the specified species.
+     * the specified species.  Exception is thown if the potential.nBody() value
+     * is different from the length of the species array.  Thus, for example, if
+     * giving a 2-body potential, then the array should contain exactly
+     * two species; the species may refer to the same instance (appropriate for an 
+     * intra-species potential, defining the iteractions between molecules of the
+     * same species).
      */
     public void setSpecies(Potential potential, Species[] species) {
     	if (species.length == 0 || potential.nBody() != species.length) {

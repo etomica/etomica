@@ -15,14 +15,13 @@ package etomica;
  * abstract in PotentialCalculation
  * 08/31/04 (DAK) overhauled with change in potentials/iterators
  */
-public final class PotentialCalculationEnergySum implements PotentialCalculation {
+public final class PotentialCalculationEnergySum extends PotentialCalculation {
 
 	/**
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
-	 * atoms produced by the given iterator.  Iterator is reset before
-	 * beginning calculation.
+	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
-	public void doCalculation(AtomsetIterator iterator, Potential potential) {
+	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			sum += potential.energy(iterator.next());

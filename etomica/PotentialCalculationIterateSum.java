@@ -6,7 +6,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public final class PotentialCalculationIterateSum implements PotentialCalculation {
+public final class PotentialCalculationIterateSum extends PotentialCalculation {
 
 	double sum = 0.0;
         

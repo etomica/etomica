@@ -4,7 +4,7 @@ package etomica;
  * Sums the force on each iterated atom and adds it to the integrator agent
  * associated with the atom.
  */
-public class PotentialCalculationForceSum implements PotentialCalculation {
+public class PotentialCalculationForceSum extends PotentialCalculation {
         
     private final Space.Vector f;
     

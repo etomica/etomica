@@ -72,23 +72,11 @@ public class PotentialGroup extends Potential {
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
 		//to be configured for calculation (i.e., iterators set up) first
 		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
-			if (potential instanceof PotentialGroup) {
-				lastGroup.next = makeLinker(potential, iterator, null);
-				lastGroup = lastGroup.next;
-			}
-			else {
-				last.next = makeLinker(potential, iterator, null);
-				last = last.next;
-			}
+			last.next = makeLinker(potential, iterator, null);
+			last = last.next;
 		} else {//put other potentials at beginning of list
-			if (potential instanceof PotentialGroup) {
-				firstGroup = makeLinker(potential, iterator, firstGroup);
-				if (lastGroup == null) lastGroup = firstGroup;
-			}
-			else {
-				first = makeLinker(potential, iterator, first);
-				if(last == null) last = first;
-			}
+			first = makeLinker(potential, iterator, first);
+			if(last == null) last = first;
 		}
 	}
 	
@@ -106,14 +94,6 @@ public class PotentialGroup extends Potential {
 				sum += link.potential.energy(link.iterator.next());
 			}
 		}
-		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			//if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
-			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);  			
-			link.iterator.reset();
-			while(link.iterator.hasNext()) {
-				sum += link.potential.energy(link.iterator.next());
-			}
-		}		
 		return sum;
 	}
 	
@@ -154,15 +134,11 @@ public class PotentialGroup extends Potential {
 	//TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
-    	Atom[] targetAtoms = id.targetAtoms();
+    	Atom[] targetAtoms = id.getTargetAtoms();
     	IteratorDirective.Direction direction = id.direction();
 		//loop over sub-potentials
-    	//TODO set up separate linked list for this, merging both loops
+    	//TODO consider separate loops for targetable and directable
  		for (PotentialLinker link=first; link!= null; link=link.next) {
-			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
-			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
-		}
-		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
 			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
 			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
 		}
@@ -171,11 +147,7 @@ public class PotentialGroup extends Potential {
     		Atom[] basisAtoms = iterator.next();
     		for (PotentialLinker link=first; link!= null; link=link.next) {
     			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			
-    			pc.doCalculation(link.iterator,link.potential);
-    		}
-    		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-    			((AtomsetIteratorBasisDependent)link.iterator).setBasis(basisAtoms);   			
-     			((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
+    			pc.doCalculation(link.iterator, id, link.potential);
     		}
      	}
     }//end calculate
@@ -183,9 +155,6 @@ public class PotentialGroup extends Potential {
     public void setPhase(Phase phase) {
     	this.phase = phase;
   		for (PotentialLinker link=first; link!= null; link=link.next) {
-			link.potential.setPhase(phase);
-		}
-		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
 			link.potential.setPhase(phase);
 		}
     }
@@ -209,7 +178,6 @@ public class PotentialGroup extends Potential {
 	}
 	
 	protected PotentialLinker first, last;
-	protected PotentialLinker firstGroup, lastGroup;
 	protected boolean enabled = true;
 	protected Phase phase;
 
