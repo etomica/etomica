@@ -6,15 +6,14 @@ package etomica;
  * size of disks.
  * Suitable for use in space of any dimension.
  */
-public class PotentialHardDisk extends Potential implements Potential.Hard, EtomicaElement
+public class PotentialHardDisk extends Potential2HardAbstract implements EtomicaElement
 {
-    public String getVersion() {return "PotentialHardDisk:01.02.11/"+Potential.VERSION;}
+    public String getVersion() {return "PotentialHardDisk:01.06.17/"+Potential2HardAbstract.VERSION;}
 
    /**
     * Separation at which disks first overlap
     */
    protected double collisionDiameter;
-
    
    /**
     * Square of collisionDiameter
@@ -65,7 +64,7 @@ public class PotentialHardDisk extends Potential implements Potential.Hard, Etom
         }
         return time;
     }
-    
+
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */

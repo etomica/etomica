@@ -26,7 +26,7 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Boundary makeBoundary(Space.Boundary.Type t) {
         if(t == Boundary.NONE) {return new BoundaryNone();}
         else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
-        else if(t == Boundary.HARD) return new BoundaryHard();
+///        else if(t == Boundary.HARD) return new BoundaryHard();
         else if(t == Boundary.SLIDING_BRICK) return new BoundarySlidingBrick();
         else return null;
     }
@@ -372,7 +372,7 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public void draw(Graphics g, int[] origin, double scale) {}
     }
-    
+/* commented during redesign    
     public static final class BoundaryHard extends BoundaryPeriodicSquare {
         public double pAccumulator = 0.0;
         private double collisionRadius = 0.0;
@@ -420,12 +420,13 @@ public class Space2D extends Space implements EtomicaElement {
             public double energy(Atom a) {return 0.0;}
 
         }//end of BoundaryPotential
-    }
+    
+    }    */
 
     /**
      * Class for implementing rectangular periodic boundary conditions
      */
-    protected static class BoundaryPeriodicSquare extends Boundary implements PotentialField.Maker {
+    protected static class BoundaryPeriodicSquare extends Boundary /*implements PotentialField.Maker*/ {
         private final Vector temp = new Vector();
         public static final Random random = new Random();
         private final double[][] shift0 = new double[0][D];
@@ -436,7 +437,7 @@ public class Space2D extends Space implements EtomicaElement {
         public BoundaryPeriodicSquare(Phase p, double lx, double ly) {super(p); dimensions.x = lx; dimensions.y = ly;}
         public BoundaryPeriodicSquare(double lx, double ly) {dimensions.x = lx; dimensions.y = ly;}
         public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
-        public PotentialField makePotentialField(Phase p) {return new Field(p);}
+   ///     public PotentialField makePotentialField(Phase p) {return new Field(p);}
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {
@@ -457,6 +458,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void inflate(double scale) {dimensions.TE(scale);}
         public double volume() {return dimensions.x * dimensions.y;}
         
+ /* commented out for redesign development
         class Field extends PotentialField implements PotentialField.Hard {
             Field(Phase p) {
                 super(p);
@@ -478,7 +480,7 @@ public class Space2D extends Space implements EtomicaElement {
             public Space.Tensor lastCollisionVirialTensor() {return Tensor.ZERO;}
             public double energy(Atom a) {return 0.0;}
             public boolean overlap(Atom a) {return false;}
-        }
+        }*/
         public void draw(Graphics g, int[] origin, double scale) {
             g.setColor(Color.gray);
             double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;

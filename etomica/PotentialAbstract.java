@@ -5,13 +5,11 @@ package etomica;
  */
 public abstract class PotentialAbstract implements Simulation.Element, java.io.Serializable {
     
-    public static String VERSION = "PotentialAbstract:01.06.12";
+    public static String VERSION = "PotentialAbstract:01.06.24";
     
     private final Simulation parentSimulation;
     private boolean added = false;
     private String name, label;
-    protected PotentialAbstract next;
-//    private PotentialAbstract previous;
     
     public PotentialAbstract(Simulation sim) {
         parentSimulation = sim;
@@ -28,16 +26,14 @@ public abstract class PotentialAbstract implements Simulation.Element, java.io.S
     public final void setLabel(String text) {label = text;}
     public String toString() {return label;}
     
-    public abstract double energy();
-    public abstract double energy(Atom atom);
-//    public abstract double energy(AtomGroup group);
+    public abstract PotentialAgent makeAgent(Phase p);
     
-    public PotentialAbstract next() {return next;}
-//    public PotentialAbstract previous() {return previous;}
-    public void setNext(PotentialAbstract potl) {next = potl;}
-    
-    public interface Hard {
-        public void findCollisions(IntegratorHardAbstract.CollisionHandler c);
-        public void findCollisions(Atom a, IteratorDirective id, IntegratorHardAbstract.CollisionHandler c);
-    }
-}
+/*    public abstract void deployAgent(Phase phase) {
+        PotentialAgent agent = makeAgent(phase);
+        if(phase.potential == null) {
+            phase.potential = agent;
+        }
+        else if(phase.potential instanceof PotentialGroup) {
+            phase.potential
+ */   
+}//end of PotentialAbstract

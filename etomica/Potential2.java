@@ -1,83 +1,70 @@
 package etomica; 
 
 /**
- * Potential acting on a pair of atom groups.
+ * Potential acting on a pair of atoms.
+ *
+ * @author David Kofke
  */
 public abstract class Potential2 extends PotentialAbstract {
   
-    public static String VERSION = "Potential2:01.06.12/"+PotentialAbstract.VERSION;
-    
-    private AtomPair.Iterator iterator;
+    public static String VERSION = "Potential2:01.06.24/"+PotentialAbstract.VERSION;
     
     public Potential2(Simulation sim) {
         super(sim);
     }
     
-    public AtomPair.Iterator iterator() {return iterator;}
-    
     /**
-     * Returns the energy of the given atom group.
+     * Returns the energy of the given atom pair.
      */
     public abstract double energy(AtomPair pair);
     
-/*    public double energy(AtomGroup group) {
-        iterator.reset(group);
-        return energySum();
-    }
-*/    
-    public double energy(Atom atom) {
-        iterator.reset(atom);
-        return energySum();
-    }
-    
-    /**
-     * Returns the total energy of all affected atoms.
-     */
-    public double energy() {
-        iterator.reset();
-        return energySum();
-    }
-    
-    private final double energySum() {
-        double sum = 0.0;
-        while(iterator.hasNext()) {
-            sum += energy(iterator.next());
-        }
-        return sum;
-    }
-          
-    
+            
     //***************** end of methods for Potential2 class *****************//
     
+    //Potential2.Agent
+    public class Agent extends PotentialAgent {
+        
+        protected AtomPair.Iterator iterator;
+        /**
+         * @param p The phase in which this agent will be placed
+         */
+        public Agent(Phase p) {
+            super(p);
+            iterator = new AtomPair.Iterator(p);
+        }
+            
+        public void setIterator(AtomPair.Iterator iterator) {
+            this.iterator = iterator;
+        }
+        public AtomPair.Iterator iterator() {return iterator;}
     
-    /**
-    * Methods needed to describe the behavior of a hard potential.  
-    * A hard potential describes impulsive interactions, in which the energy undergoes a step
-    * change at some point in the space.
-    *
-    * @see PotentialField.Soft
-    */
-         
+        public final PotentialAbstract parentPotential() {return Potential2.this;}
+        
+        public double energy(IteratorDirective id) {
+            iterator.reset(id);
+            double sum = 0.0;
+            while(iterator.hasNext()) {
+                sum += Potential2.this.energy(iterator.next());
+            }
+            return sum;
+        }
+    }//end of Agent    
+
+    //Potential2.Hard
     public interface Hard {
-            
-    /**
-     * Returns the energy due to the interaction of the atoms with each other
-     */
-        public double energy(AtomPair pair);
-    /**
-    * Implements the collision dynamics.
-    * The given atoms are assumed to be at the point of collision.  This method is called
-    * to change their momentum according to the action of the collision.  Extensions can be defined to
-    * instead implement other, perhaps unphysical changes.
-    */
-        public void bump(AtomPair pair);
-    /**
-    * Computes the time of collision of the given atoms , assuming no intervening collisions.
-    * Usually assumes free-flight between collisions
-    */ 
-        public double collisionTime(AtomPair pair);
-            
-    }  //end of Potential2.Hard
+        /**
+        * Implements the collision dynamics.
+        * The given atoms are assumed to be at the point of collision.  This method is called
+        * to change their momentum according to the action of the collision.  Extensions can be defined to
+        * instead implement other, perhaps unphysical changes.
+        */
+        public abstract void bump(AtomPair pair);
+        /**
+        * Computes the time of collision of the given atoms , assuming no intervening collisions.
+        * Usually assumes free-flight between collisions
+        */ 
+        public abstract double collisionTime(AtomPair pair);
+    }//end of Hard
 
     /**
     * Methods needed to describe the behavior of a soft potential.  

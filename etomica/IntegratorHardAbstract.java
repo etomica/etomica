@@ -17,20 +17,35 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
 
     public static String VERSION = "IntegratorHardAbstract:01.06.14/"+IntegratorMD.VERSION;
 
-    //convenience handle to the agent holding information about the next collision
-    protected Agent nextCollider;
+    //handle to the integrator agent holding information about the next collision
+    protected Agent colliderAgent;
     //iterators for looping through atoms
     protected Atom.Iterator upAtomIterator;
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
-    protected AtomPair atomPair;
-    protected Potential.Hard potential;
+    protected PotentialAgent.Hard phasePotential;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
-    }
+        
+        //this establishes a listener that will be notified if the master potential
+        //in the parent simulation changes.  The new potential is cast to a Hard potential
+        //with a locally defined handle.
+  /*      sim.potentialMonitor.addListener(new SimulationEventListener() {
+            public void simulationAction(SimulationEvent evt) {
+                PotentialAbstract newPotential = ((Simulation)evt.getSource()).potential();
+                try {
+                    IntegratorHardAbstract.this.potential = (PotentialAbstract.Hard)newPotential;
+                }
+                catch(ClassCastException ex) {//should define an exception to throw for this
+                    System.out.println("Incompatible elements in IntegratorHardAbstract");
+                    System.exit(1);
+                }
+            }
+        });*/
+    }//end of constructor
 
 	/**
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
@@ -49,9 +64,9 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             System.out.println();
             System.out.println("Stack overflow error encountered when attempting to complete time step");
             System.out.println("This occurs when the simulated system becomes jammed, and is unable to clear all collisions and move to the next time step.");
-            System.out.println("NextCollider: "+nextCollider.atom);
-            System.out.println("Collision partner: "+nextCollider.collisionPartner);
-            System.out.println("Collision potential: "+nextCollider.collisionPotential);
+            System.out.println("nextCollider: "+colliderAgent.atom());
+            System.out.println("Collision partner: "+colliderAgent.collisionPartner());
+            System.out.println("Collision potential: "+colliderAgent.collisionPotential);
             System.exit(1);
         }
     }//end of doStep
@@ -63,7 +78,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     * highest-level call
     */
     public void doStep(double tStep) {
-        double collisionTimeStep = nextCollider.collisionTime();
+        double collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         if(tStep < collisionTimeStep) {
             advanceAcrossTimeStep(tStep);
             timeIncrement = 0.0;
@@ -74,10 +89,12 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         else {
             double tStepNew = tStep - collisionTimeStep;
             advanceAcrossTimeStep(collisionTimeStep);
-            processCollision();
+            colliderAgent.collisionPotential.bump(colliderAgent);
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
-                cll.listener.collisionAction(atomPair, potential); //atompair is not updated?
+                cll.listener.collisionAction(colliderAgent);
             }
+            updateCollisions();
+            findNextCollider(); //this sets colliderAgent for the next collision
             timeIncrement += collisionTimeStep;
             doStep(tStepNew);
         }
@@ -90,9 +107,9 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     protected abstract void findNextCollider();
 
     /**
-    * Applies collision dynamics to colliders and updates collision time/partners.
+    * Updates collision times/partners.
     */
-    protected abstract void processCollision();
+    protected abstract void updateCollisions();
 
     /**
     * Advances all atom coordinates by tStep, without any intervening collisions.
@@ -176,10 +193,11 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
      * is designed to manage the sequence of collisions.
      */
     public abstract static class CollisionHandler {
-        public Potential.Hard potential;
-        public final void setPotential(Potential.Hard p) {potential = p;}
-        public abstract void setAtom(Atom a);
-        public abstract void addCollision(Atom atom2, double collisionTime);
+        public PotentialAgent.Hard potential;
+        // the potential field should set by the potential to identify itself 
+        // before it begins looking for collisions
+        public final void setPotential(PotentialAgent.Hard p) {potential = p;}
+        public abstract void addCollision(AtomPair atoms, double collisionTime);
     }//end of CollisionHandler
     
  /**
@@ -192,15 +210,15 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
   */
   //Do not use encapsulation since the fields are for referencing by the integrator
     public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
-        public Atom atom;
- //       public double time0;  //time since last collision
-        private double collisionTime = Double.MAX_VALUE; //time to next collision
-        Atom collisionPartner;  //next atom scheduled for collision by atom containing this Agent
-        Potential.Hard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
-        PotentialField.Hard collisionPotentialField;
-        boolean isFieldCollision;
+        public Atom atom, collisionPartner;
+        public double collisionTime = Double.MAX_VALUE; //time to next collision
+        public PotentialAgent.Hard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
+        public boolean movedInList = false;
         
         public Agent(Atom a) {atom = a;}
+        
+        public final Atom atom() {return atom;}
+        public final Atom collisionPartner() {return collisionPartner;}
         
         public void resetCollision() {collisionTime = Double.MAX_VALUE;}
         
@@ -211,24 +229,12 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
      * @param partner the atom this one will collide with next
      * @param p       the potential for interactions between this atom and its collision partner
      */
-        public final void setCollision(double time, Atom partner, Potential.Hard p) {
-            isFieldCollision = false;
+        public final void setCollision(double time, Atom partner, PotentialAgent.Hard p) {
             collisionTime = time;
             collisionPartner = partner;
             collisionPotential = p;
         }
 
-    /**
-     * Sets parameters associated with next one-body collision of the atom with a hard field.
-     *
-     * @param time    time to collision of this agent's atom with an atom uplist of it
-     * @param p       the potential for interactions between this atom and the field
-     */
-        public final void setCollision(double time, PotentialField.Hard p) {
-            isFieldCollision = true;
-            collisionTime = time;
-            collisionPotentialField = p;
-        }
 
     /**
      * Decreases the recorded time to collision of this atom
@@ -264,14 +270,14 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
          * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
          */ 
         public void colorAtom(Atom a) {
-            if(a == nextCollider.atom) a.setColor(colliderColor);
-            else if(a == nextCollider.collisionPartner) a.setColor(partnerColor);
+            if(a == colliderAgent.atom) a.setColor(colliderColor);
+            else if(a == colliderAgent.collisionPartner) a.setColor(partnerColor);
             else a.setColor(baseColor);
         }
     }//end of HighlightColliders
 
     public interface CollisionListener {
-        public void collisionAction(AtomPair pair, Potential.Hard p);
+        public void collisionAction(Agent colliderAgent);
     }
     
 }//end of IntegratorHardAbstract

@@ -208,12 +208,18 @@ public final class AtomPair implements java.io.Serializable {
         public void reset() {
             reset(null);
         }
+        
+        //need to fill this in
+        public void reset(IteratorDirective id) {
+        }
+        
         /**
          * Resets the first atom iterator with the given atom as an argument
          * Then resets the second iterator using the first non-null atom obtained from 
          * the first iterator.
          */
-        public void reset(Atom a1) {
+         //removed because of conflict with reset(IteratorDirective) and call to reset(null)
+/*        public void reset(Atom a1) {
             if(a1==null) ai1.reset();
             else ai1.reset(a1);
             do {                  //advance up list of atoms until a pair is found
@@ -225,7 +231,7 @@ public final class AtomPair implements java.io.Serializable {
             while(!ai2.hasNext());
             needUpdate1 = true;
             hasNext = true;
-        }
+        }*/
         /**
          * Resets the first and second atom iterators using the first and second arguments, respectively.
          */

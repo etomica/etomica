@@ -51,8 +51,8 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private PhaseAction.Inflate inflater;
     private String name;
     private final Simulation parentSimulation;
+    public PotentialAgent potential;
     private boolean added = false;
-    public PotentialGroup potential = new PotentialGroup();
     
     public Phase() {
         this(Simulation.instance);

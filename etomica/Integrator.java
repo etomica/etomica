@@ -21,6 +21,8 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
   int phaseCount = 0;
   int phaseCountMax = 1;
   protected int sleepPeriod = 10;
+  
+  //should use a different collection structure
   private Vector intervalListenersBeforePbc = new Vector();
   private Vector intervalListenersImposePbc = new Vector();
   private Vector intervalListenersAfterPbc = new Vector();

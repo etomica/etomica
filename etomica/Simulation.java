@@ -45,6 +45,9 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     */
     public Space space; //would like to make final, but compiler doesn't allow
     
+    private PotentialAbstract potential;
+    public SimulationEventManager potentialMonitor = new SimulationEventManager();
+    
     /**
      * List of all controllers that have been instantiated.
      */
@@ -341,6 +344,21 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public void setName(String newName) {name = newName;}
     public String getName() {return name;}
     public String toString() {return getName();}
+    
+    /**
+     * Sets the master potential for this simulation and notifies listeners
+     * that have registered themselves with potentialMonitor.
+     */
+    public void setPotential(PotentialAbstract p) {
+        potential = p;
+        //fire event after setting potential so that listeners can access
+        //new potential as ((Simulation)evt.getSource()).potential()
+        potentialMonitor.fireEvent(new SimulationEvent(this));
+    }
+    /**
+     * Accessor method for the master potential.
+     */
+    public PotentialAbstract potential() {return potential;}
     
     /**
     * Symmetric array of all two-body potentials.  Potentials are associated with species, and each species
