@@ -21,6 +21,9 @@ import etomica.utility.java2.LinkedList;
  
  /* History of changes
   * 09/21/02 (DAK) (temporary) new addDrawable method to add any object, for handling in Space3DOpenGL
+  * 01/04/03 (DAK) changed behavior of r/t/z key press to make them "sticky",
+  * so that user need not keep key pressed to enable action.  Subsequent press
+  * releases key
   */
 public class DisplayPhase extends Display implements Integrator.IntervalListener.AfterPbc, EtomicaElement {
         
@@ -405,20 +408,23 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         public void mouseEntered(MouseEvent evt) {canvas.requestFocus();}
         public void mouseExited(MouseEvent evt) {canvas.transferFocus();}
         public void mousePressed(MouseEvent evt) {
-            mouseAction(evt);
+//			System.out.println("mouse press");
+           mouseAction(evt);
             if(parentSimulation().space().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }
         }
         public void mouseReleased(MouseEvent evt) {
+//			System.out.println("mouse release");
             mouseAction(evt);
             dpe.setAtom(null);
             atomSelected = false;
             moleculeSelected = false;
         }
          public void mouseDragged(MouseEvent evt) {
-             if(atomSelected || moleculeSelected) mouseAction(evt);
+//			System.out.println("mouse drag");
+            if(atomSelected || moleculeSelected) mouseAction(evt);
            float x = evt.getX();
             float y = evt.getY();
             
@@ -539,46 +545,83 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         }  
         
         
-        public void keyPressed(KeyEvent evt) {
-            char c = evt.getKeyChar();
-            if(Character.isDigit(c)) {}
-            else if(Character.isLetter(c)) {
-                switch(c) {
-                    case 'a':
-                        atomSelectEnabled = true;
-                        moleculeSelectEnabled = false;
-                        break;
-                    case 'm':
-                        atomSelectEnabled = false;
-                        moleculeSelectEnabled = true;
-                        break;
-                    case 'r':
-                        rotate = true;
-                        zoom = false;
-                        translate = false;
-                        break;
-                    case 'z':
-                        rotate = false;
-                        zoom = true;
-                        translate = false;
-                        break;
-                    case 't':
-                        rotate = false;
-                        zoom = false;
-                        translate = true;
-                        break;
-                   default:
-                       break;
-                }//end switch
-            }
-            keyAction(evt);
-        }
+//		public void keyPressed(KeyEvent evt) {
+//			System.out.println("key pressed");
+//			char c = evt.getKeyChar();
+//			if(Character.isDigit(c)) {}
+//			else if(Character.isLetter(c)) {
+//				switch(c) {
+//					case 'a':
+//						atomSelectEnabled = true;
+//						moleculeSelectEnabled = false;
+//						break;
+//					case 'm':
+//						atomSelectEnabled = false;
+//						moleculeSelectEnabled = true;
+//						break;
+//					case 'r':
+//						rotate = true;
+//						zoom = false;
+//						translate = false;
+//						break;
+//					case 'z':
+//						rotate = false;
+//						zoom = true;
+//						translate = false;
+//						break;
+//					case 't':
+//						rotate = false;
+//						zoom = false;
+//						translate = true;
+//						break;
+//				   default:
+//					   break;
+//				}//end switch
+//			}
+//			keyAction(evt);
+//		}
+		public void keyPressed(KeyEvent evt) {
+//			System.out.println("key pressed");
+			char c = evt.getKeyChar();
+			if(Character.isDigit(c)) {}
+			else if(Character.isLetter(c)) {
+				switch(c) {
+					case 'a':
+						atomSelectEnabled = true;
+						moleculeSelectEnabled = false;
+						break;
+					case 'm':
+						atomSelectEnabled = false;
+						moleculeSelectEnabled = true;
+						break;
+					case 'r':
+						rotate = !rotate;
+						zoom = false;
+						translate = false;
+						break;
+					case 'z':
+						rotate = false;
+						zoom = !zoom;
+						translate = false;
+						break;
+					case 't':
+						rotate = false;
+						zoom = false;
+						translate = !translate;
+						break;
+				   default:
+					   break;
+				}//end switch
+			}
+			keyAction(evt);
+		}
         public void keyReleased(KeyEvent evt) {
+//        	System.out.println("released");
             atomSelectEnabled = false;
             moleculeSelectEnabled = false;
-            rotate = false;
-            zoom = false;
-            translate = false;
+//            rotate = false;
+//            zoom = false;
+//            translate = false;
             keyAction(evt);
         }
         public void keyTyped(KeyEvent evt) {

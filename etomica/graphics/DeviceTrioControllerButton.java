@@ -2,9 +2,6 @@ package etomica.graphics;
 import etomica.*;
 import etomica.action.*;
 import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 
 /**
@@ -16,7 +13,8 @@ import java.awt.event.*;
  */
  
  /* History of changes.
-  * 7/3/02 Created
+  * 07/03/02 Created
+  * 01/04/03 Added methods to access buttons
   */
 public class DeviceTrioControllerButton extends Device {
     
@@ -69,7 +67,7 @@ public class DeviceTrioControllerButton extends Device {
         jp.add(button2.graphic());  
         jp.add(button3.graphic());
                 
-
+		
         class MyMediator extends Mediator.ControllerNull {
             MyMediator(Mediator m) {
                 super(m);
@@ -121,6 +119,10 @@ public class DeviceTrioControllerButton extends Device {
     public java.awt.Component graphic(Object obj) {
         return jp;
     }
+    
+    public DeviceControllerButton controllerButton() {return button1;}
+    public DeviceButton resetButton() {return button2;}
+    public DeviceButton resetAveragesButton() {return button3;}
  
     /**
      * Sets controller toggle button to read "Start"

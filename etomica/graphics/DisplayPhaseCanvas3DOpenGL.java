@@ -11,15 +11,7 @@
 package etomica.graphics;
 import etomica.*;
 
-import gl4java.utils.glut.fonts.data.*;
-import gl4java.utils.glut.fonts.*;
 import gl4java.utils.glut.*;
-
-import java.awt.Font;
-import java.awt.Shape;
-import java.awt.font.*;
-import java.awt.geom.*;
-
 import etomica.utility.java2.Iterator;
 
     /* History of changes
