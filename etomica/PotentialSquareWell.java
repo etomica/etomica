@@ -9,6 +9,8 @@ import etomica.units.Dimension;
  */
 public class PotentialSquareWell extends Potential implements Potential.Hard, EtomicaElement {
 
+  public String getVersion() {return "PotentialSquareWell:01.05.25/"+Potential.VERSION;}
+
   protected double coreDiameter, coreDiameterSquared;
   protected double wellDiameter, wellDiameterSquared;
   protected double lambda; //wellDiameter = coreDiameter * lambda

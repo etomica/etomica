@@ -107,6 +107,8 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource 
 	    else return null;
 	}
 	public final double[] values(DataSource.ValueType type) {return values((MeterAbstract.ValueType)type);}
+	
+//	public DataSource.ValueType[] dataChoices() {return (DataSource.ValueType[])MeterAbstract.ValueType.CHOICES;}
 
     /**
      * Returns the current value of the averages

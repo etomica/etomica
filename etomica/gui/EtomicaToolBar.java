@@ -147,9 +147,9 @@ public class EtomicaToolBar extends javax.swing.JToolBar {
 		    pasteButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"paste.gif")));//pasteIcon);
 		    cutButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"cut.gif")));//cutIcon);
 		    copyButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"copy.gif")));//copyIcon);
-		    startButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"start1.gif")));//startIcon);
-		    stopButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"stop1.gif")));//stopIcon);
-		    pauseButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"pause1.gif")));//pauseIcon);
+		    startButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"start.gif")));//startIcon);
+		    stopButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"stop.gif")));//stopIcon);
+		    pauseButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"pause.gif")));//pauseIcon);
 		}
 		catch (java.net.MalformedURLException me){}
 	}// end of EtomicaToolBar constructor

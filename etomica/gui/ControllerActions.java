@@ -41,7 +41,8 @@ public class ControllerActions {
     private static class StartAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-            ((Controller.Button)((Controller)Simulation.instance.controllerList.get(0)).getButton()).button.doClick();
+            ((Controller)Simulation.instance.controllerList.get(0)).start();
+            ((Controller.Button)((Controller)Simulation.instance.controllerList.get(0)).getButton()).clickForUnpause();
         }// end of actionPerformed
     }// end of StartAction
 
@@ -51,6 +52,8 @@ public class ControllerActions {
     private static class StopAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
+            ((Controller)Simulation.instance.controllerList.get(0)).halt();
+            ((Controller.Button)((Controller)Simulation.instance.controllerList.get(0)).getButton()).reset();
         }// end of actionPerformed
     }// end of StopAction
 
@@ -59,6 +62,7 @@ public class ControllerActions {
      */
     private static class PauseAction implements ActionListener {
         
+        //need to revise so that attempt to pause cannot cause a start
         public void actionPerformed(ActionEvent event) {
             ((Controller.Button)((Controller)Simulation.instance.controllerList.get(0)).getButton()).button.doClick();
         }// end of actionPerformed

@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
   */
 public abstract class PhaseAction extends etomica.Action {
 
-    public static String getVersion() {return "PhaseAction:01.03.28.0/"+Action.VERSION;}
+    public static String getVersion() {return "PhaseAction:01.03.28/"+Action.VERSION;}
 
     protected Phase phase;
     public PhaseAction() {this(null);}

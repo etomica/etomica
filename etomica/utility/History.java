@@ -92,6 +92,8 @@ public class History implements DataSource {
             return values;
         }
         
+        public etomica.DataSource.ValueType[] dataChoices() {return null;}
+        
         public String getLabel() {return label;}
         public void setLabel(String text) {label = text;}
         

@@ -8,7 +8,7 @@ package etomica;
  */
 public class PotentialHardDisk extends Potential implements Potential.Hard, EtomicaElement
 {
-    public final String getVersion() {return "PotentialHardDisk:01.02.11.0/"+Potential.VERSION;}
+    public String getVersion() {return "PotentialHardDisk:01.02.11/"+Potential.VERSION;}
 
    /**
     * Separation at which disks first overlap

@@ -57,6 +57,10 @@ public final class Etomica {
         frame.show();
         Simulation.instance = new Simulation(new etomica.Space2D());
         addSimulation(Simulation.instance);  //uncomment to run in debugger
+//        frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
+        });
     }
     
     /**

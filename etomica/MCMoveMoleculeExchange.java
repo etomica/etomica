@@ -30,17 +30,11 @@ public final class MCMoveMoleculeExchange extends MCMove {
     public void setPhase(Phase p) {}
 
     public void setPhase(Phase[] p) {
+        super.setPhase(p);
         firstPhase = p[0];
         secondPhase = p[1];
     }
-    
-    /**
-     * Overrides superclass method so that frequency is set based on number of molecules in both phases.
-     */
-    public void resetFrequency() {
-        frequency = (perParticleFrequency && phase!=null) ? nominalFrequency*(firstPhase.moleculeCount+secondPhase.moleculeCount) : nominalFrequency;
-    }
-    
+        
     //under revision--- does not work for multiatomics, since intramolecular energy is not considered
     public void thisTrial() {
         Phase iPhase, dPhase;

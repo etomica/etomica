@@ -14,7 +14,7 @@ public abstract class ModulatorAbstract implements java.io.Serializable, DatumSo
     /**
      * A string describing the property manipulated by the modulator
      */
-    protected String label;
+    protected String label = new String("");
 
 	/**
 	 * Returns the physical dimensions (e.g., mass, length, pressure, etc.) of the quantity being modulated

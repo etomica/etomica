@@ -488,7 +488,9 @@ public class Mediator implements java.io.Serializable {
         public abstract void add(Display d);
         
         public static class Default extends DisplayNull {
-            public Default(Mediator m) {super(m);}
+            public Default(Mediator m) {
+                super(m);
+            }
             /**
              * Adds displays graphic to the simulation display pane
              */
@@ -514,7 +516,9 @@ public class Mediator implements java.io.Serializable {
         }//end of Default
     }//end of DisplayNull
     public abstract static class DeviceNull extends Subset {
-        public DeviceNull(Mediator m) {super(m);}
+        public DeviceNull(Mediator m) {
+            super(m);
+        }
 
         public Class[] elementClasses() {return new Class[] {Device.class, null};}
         
@@ -526,7 +530,11 @@ public class Mediator implements java.io.Serializable {
         public abstract void add(Device d);
         
         public static class Default extends DeviceNull {
-            public Default(Mediator m) {super(m);}
+            private final java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+            public Default(Mediator m) {
+                super(m);
+                gbc.gridx = 0;
+            }
             /**
              * Adds displays graphic to the simulation display pane
              */
@@ -536,7 +544,7 @@ public class Mediator implements java.io.Serializable {
                     mediator.parentSimulation().displayPanel.add(component);
                 }
                 else {
-                    mediator.parentSimulation().devicePanel.add(component);
+                    mediator.parentSimulation().devicePanel.add(component,gbc);
                 }
             }
         }//end of Default

@@ -390,7 +390,17 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      * 
      * @param name The name string to be associated with this object
      */
-    public final void setName(String name) {this.name = name;}
+    public final void setName(String name) {
+        this.name = name;
+	    Accumulator[] accumulators = allAccumulators();
+	    if(accumulators == null) return;
+	    for(int i=0; i<accumulators.length; i++) {
+	        if(accumulators[i].histogram() != null) 
+	            accumulators[i].histogram().setName(this.toString() + ":Histogram");
+	        if(accumulators[i].history() != null) 
+	            accumulators[i].history().setName(this.toString() + ":History");
+	    }
+    }
 
     /**
      * Overrides the Object class toString method to have it return the output of getName
@@ -514,6 +524,8 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	        if(histogramming && histogram == null) {
 	            histogram = new Histogram();
 	            histogram.setName(MeterAbstract.this.toString() + ":Histogram");
+	            histogram.setLabel(MeterAbstract.this.getLabel() + " histogram");
+	            histogram.setXDimension(MeterAbstract.this.getDimension());
 	        }
 	    }
 	    
@@ -526,6 +538,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	        if(historying && history == null) {
 	            history = new History();
 	            history.setName(MeterAbstract.this.toString() + ":History");
+	            history.setLabel(MeterAbstract.this.getLabel() + " history");
 	        }
 	    }
 	    
@@ -538,16 +551,17 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	 */
 	public static class ValueType extends DataSource.ValueType {
         public ValueType(String label) {super(label);}
-        public Constants.TypedConstant[] choices() {
-            return new Constants.TypedConstant[] {
-                AVERAGE, ERROR, MOST_RECENT, MOST_RECENT_BLOCK, VARIANCE};
-        }
+        
+        public Constants.TypedConstant[] choices() {return CHOICES;}
         public static final ValueType AVERAGE = new ValueType("Average");
         public static final ValueType ERROR = new ValueType("67% Confidence Limits");
         public static final ValueType CURRENT = new ValueType("Current value");
         public static final ValueType MOST_RECENT = new ValueType("Latest value");
         public static final ValueType MOST_RECENT_BLOCK = new ValueType("Latest block average");
         public static final ValueType VARIANCE = new ValueType("Variance");
+        public static final Constants.TypedConstant[] CHOICES = 
+            new ValueType[] {
+                AVERAGE, ERROR, MOST_RECENT, MOST_RECENT_BLOCK, VARIANCE};
 	}
 	
 }//end of MeterAbstract	 

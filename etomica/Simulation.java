@@ -18,7 +18,7 @@ import java.beans.Beans;
  */
 public class Simulation extends javax.swing.JPanel implements java.io.Serializable {
     
-    public String getVersion() {return "Simulation:01.03.23.0";}
+    public String getVersion() {return "Simulation:01.03.23";}
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -82,9 +82,9 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     
 	public final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
 	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridLayout(0,1));
-    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
+//    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
+    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridBagLayout());
 //    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.FlowLayout());
-    
 
     /**
      * A static instance of a Simulation, for which the current value at any time is
@@ -116,10 +116,11 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         p2IdealGas = new P2IdealGas(this);
         elementCoordinator = new Mediator(this);
         setSize(800,550);
-        setLayout(new java.awt.FlowLayout());
-        add(devicePanel);
-        add(displayPanel);
-        add(displayBoxPanel);
+//        setLayout(new java.awt.FlowLayout());
+        setLayout(new java.awt.BorderLayout());
+        add(devicePanel, java.awt.BorderLayout.WEST);
+        add(displayPanel, java.awt.BorderLayout.EAST);
+        add(displayBoxPanel, java.awt.BorderLayout.CENTER);
         //workaround for JTabbedPane bug in JDK 1.2
         displayPanel.addChangeListener(
             new javax.swing.event.ChangeListener() {

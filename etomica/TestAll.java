@@ -13,7 +13,7 @@ public class TestAll {
     
     static final String classes[] = {
         "ActionPointVolume", "AtomAction", "ColorSchemeBySpecies",
-        "ColorSchemeHeteroAtoms", "ColorSchemeTemperature",
+        "ColorSchemeHeteroAtoms", "ColorSchemeTemperature", "DeviceButton",
         "DeviceSlider", "DeviceTable", "DisplayBox", 
         "DisplayMeterHistogram", "DisplayTable", "DisplayToLog",
         "IntegratorGEMC", "IntegratorGear4", "MCMovePointVolume",

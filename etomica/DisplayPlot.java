@@ -7,21 +7,24 @@ import java.awt.event.*;
 
 /**
  * Class for creating a plot of simulation data.
- * Data are obtained from a MeterFunction class that is identified via the
- * setMeter method.
+ * Data are obtained from a DataSource that is identified via the
+ * setDataSource method.
  *
  * @author David Kofke
  */
-public class DisplayPlot extends Display implements DataSource.User, EtomicaElement {
+ 
+ //need to update to move away from meter and more toward data source
+ 
+public class DisplayPlot extends Display implements /*DataSource.User,*/ EtomicaElement {
     
-    public String getVersion() {return "DisplayPlot:01.04.29/"+Display.VERSION;}
+    public String getVersion() {return "DisplayPlot:01.05.23/"+Display.VERSION;}
 
-    Plot plot;
-    DataSource ySource, xSource;
-    Unit xUnit, yUnit;
-    DataSource.ValueType whichValueX, whichValue;
-    private JButton resetButton = new JButton("Reset averages");
-    private boolean makeResetButton = false;
+    private Plot plot;
+    private DataSource[] ySource;
+    private DataSource xSource;
+    private int nSource;
+    private Unit xUnit, yUnit;
+    private DataSource.ValueType whichValueX, whichValue;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
    
     public DisplayPlot() {
@@ -31,11 +34,10 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
         super(sim);
         plot = new Plot();
         panel.add(plot);
-        setXUnit(new Unit(BaseUnit.Null.UNIT));
-        setYUnit(new Unit(BaseUnit.Null.UNIT));
+        setXUnit(Unit.NULL);
+        setYUnit(Unit.NULL);
         setName("Data Plot");
-//        setWhichValueX(MeterAbstract.ValueType.AVERAGE);
-        setWhichValue(MeterAbstract.ValueType.AVERAGE);
+//        new Thread(this).start();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -43,15 +45,11 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
         return info;
     }
     
-    public boolean isMakeResetButton() {return makeResetButton;}
-    public void setMakeResetButton(boolean b) {
-        if(b && !makeResetButton) { //asking for resetButton and not already made
-            panel.add(resetButton);
-        }
-        else if(!b) panel.remove(resetButton);
-        makeResetButton = b;
-    }
-    
+    /**
+     * Accessor method to plot class so that its properties can be edited.
+     */
+    public final Plot getPlot() {return plot;}
+        
     /**
      * Overrides superclass method to return a JPanel holding the plot.
      */
@@ -62,96 +60,77 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
      */
     public void setMeterFunction(MeterFunction m) {setDataSource(m);}
     
-    public DataSource getDataSource() {return ySource;}
+    public DataSource[] getDataSource() {return ySource;}
     
-    public void setDataSource(DataSource s) {
-        ySource = s;
-        if(ySource == null) return;
-        plot.setYLabel(ySource.getLabel());
-        if(ySource instanceof MeterFunction) {
-            if(!(whichValue instanceof MeterAbstract.ValueType)) whichValue = MeterAbstract.ValueType.AVERAGE;
-            final MeterFunction meter = (MeterFunction)ySource;
-            plot.setXLabel(meter.getXLabel()+" ("+xUnit.symbol()+")");
-            setWhichValue(getWhichValue());
-            if(ySource instanceof MeterMultiFunction) {
-                int nF = ((MeterMultiFunction)meter).nFunctions();
-                for(int k=0; k<nF; k++) {
-                    MeterFunction m1 = ((MeterMultiFunction)meter).meter(k);
-                    plot.addLegend(k,m1.getLabel());
-                }
-            }
-            setLabel(meter.getLabel()); //tabbed-pane text
-            resetButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {meter.reset();}
-            });
-        }
-        else if(ySource instanceof Meter) {
-            if(!(whichValue instanceof Meter.ValueType)) whichValue = Meter.ValueType.HISTORY;
-            final Meter meter = (Meter)ySource;
-            setWhichValue(getWhichValue());
-            setLabel(meter.getLabel());
-            resetButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {meter.reset();}
-            });
-        }
+    public DataSource getDataSource(int i) {
+        return (ySource != null && i < nSource) ? ySource[i] : null;
     }
     
+    public void setDataSource(DataSource s) {
+        setDataSource(new DataSource[] {s});
+    }
+    
+    public void setDataSource(DataSource[] s) {
+        ySource = s;
+        if(s == null) {nSource = 0; return;}
+        nSource = s.length;
+        if(nSource == 0) return;
+        for(int i=0; i<nSource; i++) {
+            plot.addLegend(i,ySource[i].getLabel());
+        }
+        setLabel(ySource[0].getLabel());
+        plot.setYLabel(ySource[0].getLabel());
+        //change unit if dimension of new source is different from current source        
+        if(yUnit.dimension() != ySource[0].getDimension()) 
+            setYUnit(ySource[0].getDimension().defaultIOUnit());
+    }
+    
+    public void setXSource(DataSource s) {
+        xSource = s;
+        if(xSource == null) {
+            setXUnit(Unit.NULL);
+            plot.setXLabel("");
+        }
+        else {
+            if(xUnit.dimension() != xSource.getDimension())
+                setXUnit(xSource.getDimension().defaultIOUnit());
+            plot.setXLabel(xSource.getLabel()+" ("+xUnit.symbol()+")");
+        }
+    }
+        
     public void setXUnit(Unit u) {xUnit = u;}
     public Unit getXUnit() {return xUnit;}
     public void setYUnit(Unit u) {yUnit = u;}
     public Unit getYUnit() {return yUnit;}
     
-    /**
-     * Specifies whether lines join points in plot (true) or not (false)
-     */
-    public void setConnectPoints(boolean b) {plot.setConnected(b);}
-    public boolean getConnectPoints() {return plot.getConnected();}
-    
     public void doUpdate() {
         if(ySource == null) return;
         plot.clear(false);
-//        plot.repaint();
-        if(ySource instanceof MeterFunction) {
-            MeterFunction meter = (MeterFunction)ySource;
-            if(meter instanceof MeterMultiFunction) {
-                MeterMultiFunction m = (MeterMultiFunction)meter;
-                for(int k=0; k<m.nFunctions(); k++) {
-                    double[] x = m.X(k);
-                    double[] y = m.values(k,(MeterAbstract.ValueType)whichValue);
-                    for(int i=0; i<x.length; i++) {
-                        plot.addPoint(k,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
-                    }
-                }
-            }
-            else {
-                double[] x = meter.X();
-        //     double[] y = (useCurrentValue) ? meter.currentValue() : meter.average();
-                double[] y = meter.values(whichValue);
-                for(int i=0; i<x.length; i++) {
-                    plot.addPoint(0,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
-                }
-            }
-        }
-        else {
-            double[] y = ySource.values(whichValue);
-            for(int i=0; i<y.length; i++) {
-                plot.addPoint(0,(double)i, yUnit.fromSim(y[i]),true);
-            }
-        }
+        if(xSource != null) {
+            for(int k=0; k<nSource; k++) {
+                double[] x = xSource.values(null);
+                double[] y = ySource[k].values(whichValue);
+                for(int i=0; i<y.length; i++) {
+                    plot.addPoint(k,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
+                }//for i
+            }//for k
+        }//end if
+        else {//xSource is null
+            for(int k=0; k<nSource; k++) {
+                double[] y = ySource[k].values(whichValue);
+                for(int i=0; i<y.length; i++) {
+                    plot.addPoint(k,(double)i,yUnit.fromSim(y[i]),true);
+                }//for i
+            }//for k
+        }//end else
         plot.repaint();
-    }
+    }//end doUpdate method
     
     /**
      * Sets whether meter displays average, current value, last block average, etc.
      */
     public void setWhichValue(DataSource.ValueType type) {
         whichValue = type;
-        if(ySource == null) return;
-        if(ySource instanceof MeterFunction) {
-            MeterFunction meter = (MeterFunction)ySource;
-            if(!(whichValue==MeterAbstract.ValueType.MOST_RECENT) && !meter.isActive())
-                {System.out.println("Warning: setting to use averages but meter is not active");}
-        }
     }
     public DataSource.ValueType getWhichValue() {return whichValue;}
      

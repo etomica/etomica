@@ -30,7 +30,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     /**
      * Modulator connecting the slider to the property
      */
-    protected Modulator modulator;
+    protected ModulatorAbstract modulator;
     /**
      * Swing slider displayed to screen
      */
@@ -69,7 +69,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         label.setHorizontalAlignment(SwingConstants.CENTER);
         panel = new JPanel();
         panel.setLayout(new BorderLayout(0,0));
-        panel.add(slider, BorderLayout.NORTH);        
+        panel.add(slider, BorderLayout.SOUTH);        
         panel.add(label, BorderLayout.CENTER);
         
         label.addMouseListener(new MouseAdapter() {
@@ -111,13 +111,13 @@ public class DeviceSlider extends Device implements EtomicaElement {
     /**
      * Constructs a slider connected to the get/set Value methods of the given Modulator
      */
-    public DeviceSlider(Modulator m) {
+    public DeviceSlider(ModulatorAbstract m) {
         this();
         //set component and property in some way
         setModulator(m);
     }
     
-    public final void setModulator(Modulator m) {
+    public final void setModulator(ModulatorAbstract m) {
         modulator = m;
         unit = modulator.getDimension().defaultIOUnit();
         setLabelDefault();
@@ -125,7 +125,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         setMinimum(getMinimum());
         setMaximum(getMaximum());
     }
-    public final Modulator getModulator() {return modulator;}
+    public final ModulatorAbstract getModulator() {return modulator;}
     
     public String getProperty() {return property;}
     public void setProperty(String s) {
@@ -180,17 +180,17 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private void setLabelDefault() {
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
         if(modulator != null) 
-            label.setText(StringUtility.capitalize(modulator.getProperty())+suffix);
+            label.setText(StringUtility.capitalize(modulator.getLabel())+suffix);
     }
 
     /**
      * Sets the value of a descriptive label using the given string.
      */
-    public void setLabel(JLabel l) {label = l;}
+    public void setLabel(String text) {label.setText(text);}
     /**
      * @return the current instance of the descriptive label.
      */
-    public JLabel getLabel() {return label;}
+    public String getLabel() {return label.getText();}
     
     /**
      * @return a handle to the JSlider instance used by this slider device

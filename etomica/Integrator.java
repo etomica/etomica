@@ -5,9 +5,9 @@ import etomica.units.*;
 
 public abstract class Integrator implements Simulation.Element, Runnable, java.io.Serializable {
 
-  public static String VERSION = "Integrator:01.03.24.0";
+  public static String VERSION = "Integrator:01.05.21";
   
-  transient public Thread runner = new Thread(this);
+  transient public Thread runner;
   private boolean haltRequested = false;
   private boolean resetRequested = false;
   protected int maxSteps = Integer.MAX_VALUE;
@@ -30,6 +30,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
   protected double temperature = Default.TEMPERATURE;
   protected boolean isothermal = false;
   private boolean initialized = false;
+  private boolean running = false;
   
   IntervalEvent intervalEvent = new IntervalEvent(this, IntervalEvent.INTERVAL);
   public Controller parentController;
@@ -228,6 +229,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     public void setMaxSteps(int m) {maxSteps = m;}
     
     public void start() {
+        if(running) return;
         fireIntervalEvent(new IntervalEvent(this, IntervalEvent.START));
         haltRequested = false;
         isPaused = false;
@@ -237,6 +239,8 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     }
 
     public void run() {
+        if(running) return; //do not allow two threads
+        running = true;
         stepCount = 0;
         int iieCount = interval+1;
         while(stepCount < maxSteps) {
@@ -255,6 +259,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
             stepCount++;
         }//end of while loop
         initialized = false;
+        running = false;
         fireIntervalEvent(new IntervalEvent(this, IntervalEvent.DONE));
     }//end of run method
     
@@ -278,7 +283,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
      * through the isPaused method.
      */
     public synchronized void pause() {
-        if(initialized && !isPaused) {
+        if(running && !isPaused) {
             pauseRequested = true;
             try {
                 wait();  //make thread requesting pause wait until pause is in effect
@@ -296,7 +301,7 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
     
     //stop function
     public void halt() {
-        haltRequested = true;
+        if(running) haltRequested = true;
         if(pauseRequested) unPause();
     }
     

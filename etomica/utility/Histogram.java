@@ -1,8 +1,10 @@
 package etomica.utility;
 
+import etomica.DataSource;
+import etomica.units.Dimension;
 import ptolemy.plot.Plot;
 
-public class Histogram  {
+public class Histogram implements DataSource.X {
 	private double deltaX;
 	private int  sum;
 	private int[] counts;
@@ -14,8 +16,10 @@ public class Histogram  {
     private double xMin,xMinOld;
     private double xMax,xMaxOld ;
     private int nValues ;
-    private String name;
-    
+    private String name, label, xLabel;
+    private Dimension dimension = Dimension.NULL;
+    private Dimension xDimension = Dimension.NULL;
+
     public Histogram() {this(100);}
     public Histogram(int n) {
 	    nValues = n;
@@ -35,6 +39,18 @@ public class Histogram  {
 	public void setName(String s) {name = s;}
 	public String toString() {return name;}
 	
+	public void setLabel(String s) {label = s;}
+	public String getLabel() {return label;}
+	
+    public Dimension getDimension() {return dimension;}
+    public void setDimension(Dimension dim) {dimension = dim;}
+        
+	public void setXLabel(String s) {xLabel = s;}
+	public String getXLabel() {return xLabel;}
+	
+    public Dimension getXDimension() {return xDimension;}
+    public void setXDimension(Dimension dim) {xDimension = dim;}
+        
 	public boolean isAutoScale() {return autoScale;}
 	public void setAutoScale(boolean b) {autoScale = b;}
 	
@@ -127,6 +143,13 @@ public class Histogram  {
 	    }
 	    return histogram;
     }
+    public double[] values(DataSource.ValueType dummy) {
+        return getHistogram();
+    }
+    public double[] xValues() {return xvalues;}
+    
+    public etomica.DataSource.ValueType[] dataChoices() {return null;}
+    
     public double[] getX() {return xvalues;}
     
     public Plot getPlot() {                //returns a Plot capable of displaying the histogram

@@ -34,8 +34,8 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     private int              cCycles = 1000;
     private int              prodCycles = 10000;
     private boolean          initialSlopeGiven = false;
-    private Function iF = new Function.Null();
-    private Function dF = new Function.Null();
+    private Function iF = new Function.Identity();
+    private Function dF = new Function.Identity();
     
     public ControllerGDI(){
         this(Simulation.instance);
@@ -51,7 +51,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
                             i1,d1,finalvalue,
                             int1, int2,
                             m1, m2, m3, m4,
-                            new Function.Null(), new Function.Null());
+                            new Function.Identity(), new Function.Identity());
     }
     public ControllerGDI(Simulation sim, Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
                             double i1, double d1, double finalvalue,

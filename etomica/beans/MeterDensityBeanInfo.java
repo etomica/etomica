@@ -21,6 +21,8 @@ public class MeterDensityBeanInfo extends SimpleBeanInfo {
             return new PropertyDescriptor[] {
                 phaseDescriptor,
                 new PropertyDescriptor("active",MeterDensity.class),
+                new PropertyDescriptor("historying",MeterDensity.class),
+                new PropertyDescriptor("histogramming",MeterDensity.class),
                 new PropertyDescriptor("label",MeterDensity.class),
                 new PropertyDescriptor("updateInterval",MeterDensity.class)
                 };

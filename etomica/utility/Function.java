@@ -13,7 +13,7 @@ public interface Function {
     /**
      * The function f(x) = x
      */
-    public static class Null implements Function {
+    public static class Identity implements Function {
         public double f(double x) {return x;}
         public double inverse(double f) {return f;}
         public double dfdx(double x) {return 1.0;}
@@ -55,4 +55,21 @@ public interface Function {
             }
          
         }
+
+    /**
+     * The function f(x) = a*x + b
+     */
+    public static class Linear implements Function {
+        private final double a, b, ra;
+        public Linear(double a, double b) {
+            this.a = a;
+            this.b = b;
+            ra = 1.0/a;
+        }
+        public double f(double x) {return a*x + b;}
+        public double inverse(double f) {return ra*(f-b);}
+        public double dfdx(double x) {return a;}
+    }
+    
+
 }

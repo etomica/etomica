@@ -4,7 +4,9 @@ import java.awt.event.*;
 
 public abstract class Action implements ActionListener, java.io.Serializable {  //still not sure if should extend AbstractAction just implement ActionListener
     
-    public static String VERSION = "Action:01.03.28.0";
+    private String label = "Action";
+    
+    public static String VERSION = "Action:01.03.28";
     /**
      * Implementation of abstract method from AbstractAction
      * Invokes actionPerformed().
@@ -19,4 +21,7 @@ public abstract class Action implements ActionListener, java.io.Serializable {  
         public void attempt();
         public void undo();
     }
+    
+    public String getLabel() {return label;}
+    public void setLabel(String text) {label = text;}
 }

@@ -17,6 +17,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     }
     public IntegratorMC(Simulation sim) {
         super(sim);
+        setIsothermal(true); //has no practical effect, but sets value of isothermal to be consistent with way integrator is sampling
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -55,6 +56,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         move.setParentIntegrator(this);
         move.setPhase(phase);
         moveCount++;
+        doReset();
     }
     
     /**
@@ -76,18 +78,20 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     public void doStep() {
         int i = (int)(rand.nextDouble()*frequencyTotal);
         MCMove trialMove = firstMove;
-        while((i-=trialMove.getFrequency()) >= 0) {
+        while((i-=trialMove.fullFrequency()) >= 0) {
             trialMove = trialMove.nextMove();
         }
         trialMove.doTrial();
     }
     
-    
-    protected void doReset() {
+    /**
+     * Recomputes all the move frequencies.
+     */
+    public void doReset() {
         frequencyTotal = 0;
         for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
-            m.resetFrequency();
-            frequencyTotal += m.getFrequency();
+            m.resetFullFrequency();
+            frequencyTotal += m.fullFrequency();
         }
     }
     

@@ -58,6 +58,7 @@ public class DataSourceEditor extends PropertyEditorSupport implements java.io.S
             if(obj instanceof DataSource.Wrapper) 
                 count += ((DataSource.Wrapper)obj).getSourcesAsText().length;
         }
+//        if(count > 2) count++; //more than one source; will add "More..." entry
         //collect them together
         dataSourceNames = new String[count];
         dataSourceObjects = new Object[count];
@@ -82,5 +83,8 @@ public class DataSourceEditor extends PropertyEditorSupport implements java.io.S
                 }
             }//end if
         }//end of for
+//        if(count > 2) {
+//            dataSourceNames[i] = "More...";
+//        }
     }//end of makeDataSourceList
 }//end of class

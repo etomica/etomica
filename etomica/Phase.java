@@ -69,7 +69,10 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
 //        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(parentSimulation().space().makeBoundary());
 
-        add(new ConfigurationSequential());  //default configuration
+        if(parentSimulation.space().D() < 3) 
+            add(new ConfigurationSequential());  //default configuration
+        else
+            add(new ConfigurationFcc());
         
         //Create and register energy meter; 
         //placed to permit phase to report its potential and kinetic energies

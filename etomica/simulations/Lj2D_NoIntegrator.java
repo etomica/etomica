@@ -2,33 +2,39 @@ package etomica.simulations;
 import etomica.*;
 
 /**
- * Simple hard-sphere molecular dynamics simulation in 2D
+ * Simple Lennard-Jones molecular dynamics simulation in 2D
  */
  
-public class HSMD2D extends Simulation {
+public class Lj2D_NoIntegrator extends Simulation {
     
-    public IntegratorHard integrator;
     public SpeciesDisks species;
     public Phase phase;
     public P2SimpleWrapper p2;
-    public PotentialHardDisk potential;
+    public PotentialLJ potential;
     public Controller controller;
     public DisplayPhase display;
+    public DisplayPlot plot;
 
-    public HSMD2D() {
+    public Lj2D_NoIntegrator() {
         super(new Space2D());
         Simulation.instance = this;
-	    integrator = new IntegratorHard(this);
 	    species = new SpeciesDisks(this);
-	    species.setNMolecules(56);
 	    phase = new Phase(this);
-	    potential = new PotentialHardDisk(this);
+	    potential = new PotentialLJ();
 	    p2 = new P2SimpleWrapper(this,potential);
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-	    timer.setUpdateInterval(10);
 		setBackground(java.awt.Color.yellow);
+		
+		phase.energy.setHistorying(true);
+		phase.energy.setActive(true);
+		
+		phase.energy.getHistory().setNValues(500);
+		
+		plot = new DisplayPlot(this);
+		plot.setLabel("Energy");
+		plot.setDataSource(phase.energy.getHistory());
+				
     }
     
     /**
@@ -38,7 +44,8 @@ public class HSMD2D extends Simulation {
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
         
-        Simulation sim = new HSMD2D();
+        Simulation sim = new Lj2D_NoIntegrator();
+        new IntegratorGear4(sim);
 		sim.elementCoordinator.go(); 
 		
         f.getContentPane().add(sim.panel());

@@ -57,31 +57,31 @@ public class Constants extends Object {
      */
     public static class Direction extends TypedConstant {
         private Direction(String label) {super(label);}
-        public static final Direction[] choices = new Direction[] {
+        public static final Direction[] CHOICES = new Direction[] {
             new Direction("North"),
             new Direction("East"),
             new Direction("South"),
             new Direction("West")
         };
-        public final TypedConstant[] choices() {return choices;}
+        public final TypedConstant[] choices() {return CHOICES;}
     }
-    public static final Direction NORTH = Direction.choices[0];
-    public static final Direction EAST = Direction.choices[1];
-    public static final Direction SOUTH = Direction.choices[2];
-    public static final Direction WEST = Direction.choices[3];
+    public static final Direction NORTH = Direction.CHOICES[0];
+    public static final Direction EAST = Direction.CHOICES[1];
+    public static final Direction SOUTH = Direction.CHOICES[2];
+    public static final Direction WEST = Direction.CHOICES[3];
     
     /**
      * Typed constant for specifying HORIZONTAL/VERTICAL alignment.
      */
     public static class Alignment extends TypedConstant {
         private Alignment(String label) {super(label);}
-        public static final Alignment[] choices = new Alignment[] {
+        public static final Alignment[] CHOICES = new Alignment[] {
             new Alignment("Horizontal"),
             new Alignment("Vertical")};
-        public final TypedConstant[] choices() {return choices;}
+        public final TypedConstant[] choices() {return CHOICES;}
     }
-    public static final Alignment HORIZONTAL = Alignment.choices[0];
-    public static final Alignment VERTICAL = Alignment.choices[1];
+    public static final Alignment HORIZONTAL = Alignment.CHOICES[0];
+    public static final Alignment VERTICAL = Alignment.CHOICES[1];
 }
     
     

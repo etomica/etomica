@@ -29,6 +29,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         selector.setEditable(false);
         setUnit(new Unit(Kelvin.UNIT));
         
+        
 /*        selector.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e){
                 Object item = ((javax.swing.JComboBox)e.getSource()).getSelectedItem();
@@ -75,6 +76,8 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         return info;
     }
     
+    public javax.swing.JComboBox getSelector() {return selector;}
+    
     public final void setIncludeAdiabatic(boolean b) {
         if(selector.getItemCount() == 0) includeAdiabatic = false;
         if(includeAdiabatic && !b) selector.removeItem(adiabaticString);//remove if was there and removing
@@ -83,6 +86,15 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     }
     public boolean isIncludeAdiabatic() {return includeAdiabatic;}
     
+    /**
+     * Sets the i-th item (counting from 0) in the list as the one currently selected.
+     * Argument outside bounds is interpreted as first or last item on list.
+     */
+    public void setSelected(int i) {
+        if(i < 0) i = 0;
+        if(i >= selector.getItemCount()) i = selector.getItemCount()-1;
+        selector.setSelectedIndex(i);
+    }
     
     public void setTemperatures(double[] t) {
         selector.removeAllItems();
@@ -106,9 +118,11 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
      * Consists of a combo box used for the selector.
      */
     public java.awt.Component graphic(Object obj) {
-        javax.swing.JPanel panel = new javax.swing.JPanel();
-        panel.add(selector);
-       // return panel;
-        return selector;
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
+        panel.add(new javax.swing.JLabel("Temperature ("+unit.symbol()+")"),java.awt.BorderLayout.NORTH);
+        panel.add(selector, java.awt.BorderLayout.SOUTH);
+        panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
+        return panel;
+       // return selector;
     }
 }

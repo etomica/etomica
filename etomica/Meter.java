@@ -62,7 +62,8 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
 	/**
 	 * For internal use.
 	 */
-	 protected Accumulator[] allAccumulators() {return new Accumulator[] {accumulator};}
+	 protected Accumulator[] allAccumulators() {
+	    return (accumulator!=null) ? new Accumulator[] {accumulator} : new Accumulator[0];}
 	
 	public double value(DataSource.ValueType type) {
 	    return value((MeterAbstract.ValueType)type);
@@ -98,8 +99,8 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
 	    return sources;
 	}
 	public DataSource getDataSource(String text) {
-	    if(text.equals("History")) return getHistory();
-//	    else if(text.equals("Histogram")) return getHistogram();
+	    if(text.equals("History")) return accumulator.history();
+	    else if(text.equals("Histogram")) return accumulator.histogram();
 	    else return null;
 	}
 	

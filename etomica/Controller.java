@@ -60,7 +60,9 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
     * Resets the controller in some manner.
     * Performs no action for this controller, but may do something in subclasses
     */
-    public void reset() {}
+    public void reset() {
+        if(startStopButton != null) startStopButton.reset();
+    }
  
    /**
     * Adds an integrator to the list of integrators managed by this controller.
@@ -109,6 +111,7 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
      * Method to start this controller's thread, causing execution of the run() method
      */
     public void start() {
+        if(runner != null) return;
         parentSimulation().elementCoordinator.go();
         runner = new Thread(this);
         runner.start();
@@ -127,7 +130,17 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
         for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             ((Integrator)iter.next()).start();
         }
+        runner = null;
     }
+    
+    /**
+     * Sends a halt (stop) signal to all integrators.
+     */
+    public void halt() {
+        for(java.util.Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+            ((Integrator)iter.next()).halt();
+        }
+    }        
     
     public synchronized void addListener(SimulationEventListener listener) {
         eventManager.addListener(listener);
@@ -223,6 +236,14 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
             if(running) clickButton();
         }
               
+        /**
+         * A method that mimics the action of a button click, but only if the integrators are already paused.
+         * If the integrators are not currently paused, the method has no action.
+         */
+        public void clickForUnpause() {  //clicks button to unpause if already paused
+            if(!running) clickButton();
+        }
+
         public void setButtonColor(Color c) {button.setBackground(c);}
         public Color getButtonColor() {return button.getBackground();}
               

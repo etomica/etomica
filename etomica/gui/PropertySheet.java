@@ -15,8 +15,10 @@ import etomica.DimensionedDoubleEditor;
 import etomica.TypedConstantEditor;
 import etomica.Meter;
 import etomica.Simulation;
+import etomica.units.Unit;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeExpansionEvent;
+
 
 public class PropertySheet extends JInternalFrame {
     
@@ -35,6 +37,7 @@ public class PropertySheet extends JInternalFrame {
 		catch (java.net.MalformedURLException error) { }
         PropertyEditorManager.registerEditor(etomica.DataSource.class, etomica.DataSourceEditor.class);
         PropertyEditorManager.registerEditor(etomica.MCMove[].class, etomica.McMoveEditor.class);
+        PropertyEditorManager.registerEditor(etomica.units.Unit.class, etomica.UnitEditor.class);
 		
     }
     private PropertySheetPanel panel;
@@ -420,6 +423,9 @@ class PropertySheetPanel extends JPanel {
 	            else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
 	                editor = new TypedConstantEditor();
 	            }
+	            else if(etomica.units.Unit.class.isAssignableFrom(type)) {
+	                editor = new etomica.UnitEditor((Unit)value);
+	            }
 	            else {
         	        //property is a dimensioned number
         	        if(type == Double.TYPE) {
@@ -469,6 +475,8 @@ class PropertySheetPanel extends JPanel {
 		    // Now figure out how to display it...
 		        if (editor.isPaintable() && editor.supportsCustomEditor())
         		    view = new PropertyCanvas(frame, editor);
+        		else if (editor instanceof etomica.UnitEditor) 
+        		    view = ((etomica.UnitEditor)editor).unitSelector();
 		        else if (editor.getTags() != null)
 		            view = new PropertySelector(editor);
                 else if (editor.getAsText() != null) {
@@ -661,7 +669,7 @@ class PropertySheetPanel extends JPanel {
 		                    + property.getName(), ex);
 	            }
 	            if(evt.getSource() instanceof DimensionedDoubleEditor) {
-	   //             node.view().repaint();
+	  //              node.view().repaint();
 	            }
 	            if(node.getChildCount() > 0) {
                     node.removeAllChildren();
@@ -707,7 +715,15 @@ class PropertySheetPanel extends JPanel {
 	        }
 	    }//end of for(java.util.Enumeration) loop
 	        
+	    //refresh the display of the simulation
         ((SimulationFrame)Etomica.simulationFrames.get(Simulation.instance)).repaint();
+        
+        //refresh the display of the property sheet
+        //this handles repainting of values when units change, and unitlist choices when
+        //prefix changes.
+        //unresolved problem: units in unitlist box that spill outside the propertysheet
+        //                    frame are not repainted with new prefix
+        frame.repaint();
 	    
     }//end of wasModified method
 

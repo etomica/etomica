@@ -8,6 +8,8 @@ import etomica.units.Dimension;
  */
 public class PotentialLJ extends Potential implements Potential.Soft, EtomicaElement {
 
+  public String getVersion() {return "PotentialLJ:01.05.25/"+Potential.VERSION;}
+
     private double sigma, sigmaSquared;
     private double cutoffRadius, cutoffRadiusSquared;
     private double epsilon, cutoff;

@@ -51,7 +51,7 @@ public class TypedConstantEditor extends PropertyEditorSupport implements java.i
         for(int i=0; i<choices.length; i++) {
             if(labels[i].equals(s)) {
                 setValue(choices[i]);
-                firePropertyChange();
+                firePropertyChange();  //redundant?  setValue does this
                 return;
             }
         }

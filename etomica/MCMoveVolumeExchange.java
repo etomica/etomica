@@ -27,6 +27,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     public void setPhase(Phase p) {}
 
     public void setPhase(Phase[] p) {
+        super.setPhase(p);
         firstPhase = p[0];
         secondPhase = p[1];
         if(firstPhase == null && secondPhase == null) return;

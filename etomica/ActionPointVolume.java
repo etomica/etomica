@@ -180,7 +180,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
     
     public static void main(String args[]) {
         
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
                 
         Simulation sim = new Simulation(new Space2D());
@@ -261,7 +261,7 @@ public class ActionPointVolume extends PhaseAction implements Action.Undoable, D
 		*/    }
 		});
 		
-        f.add(Simulation.instance.panel()); //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance.panel()); //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();

@@ -38,11 +38,12 @@ public class ModulatorEditor extends PropertyEditorSupport implements java.io.Se
     public void setValue(Object obj) {modulator = (ModulatorAbstract)obj;}
     
     public String getJavaInitializationString() {
-        System.out.println("inside ModulatorEditor.getJavaInitializationString");
+        return "Not Implemented";
+/*        System.out.println("inside ModulatorEditor.getJavaInitializationString");
         if(getValue() == null) return "";
         else {
             String[] value = (String[])getValue();
             return "new Modulator("+value[0]+",\""+value[1]+"\")";
-        }
+        }*/
     }
 }

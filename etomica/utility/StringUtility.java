@@ -3,7 +3,8 @@ package etomica.utility;
 public class StringUtility {
     
     public static String capitalize(String s) {
-        return s.substring(0,1).toUpperCase() + s.substring(1);
+        if(s == null || s.length() == 0) return s;
+        else return s.substring(0,1).toUpperCase() + s.substring(1);
     }
     
     public static String decapitalize(String s) {
