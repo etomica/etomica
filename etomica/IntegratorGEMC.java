@@ -4,7 +4,6 @@ import java.util.Random;
 
 public class IntegratorGEMC extends Integrator {
     
-    private transient final double[] dr = new double[Space.D];
     private final Random rand = new Random();
     public double maxRStep, maxVStep;
     public double pressure, betaMu, eBetaMu;
@@ -173,7 +172,7 @@ public class IntegratorGEMC extends Integrator {
         iTotal = iMolecule;
     }
     
-    public IntegratorAgent makeAgent(Atom a) {
+    public Integrator.Agent makeAgent(Atom a) {
         return new Agent(a);
     }
     

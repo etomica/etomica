@@ -4,7 +4,6 @@ import java.util.Random;
 
 public class MCMoveAtom extends MCMove {
     
-    private transient final double[] dr = new double[Space.D];
     private final Random rand = new Random();
 
     public MCMoveAtom() {
@@ -14,24 +13,23 @@ public class MCMoveAtom extends MCMove {
         setStepSize(0.10);
     }
     
-    public void thisTrial(Phase phase) {
+    public void thisTrial(PhaseSpace phaseSpace) {
         double uOld, uNew;
-        if(phase.nAtomTotal==0) {return;}
-        int i = (int)(rand.nextDouble()*phase.nAtomTotal);
-        AtomC a = (AtomC)phase.firstAtom();
+        if(phaseSpace.atomCount==0) {return;}
+        int i = (int)(rand.nextDouble()*phaseSpace.nAtomTotal);
+        Atom a = phaseSpace.firstAtom();
         // maybe try while(i-- >= 0) {}
-        for(int j=i; --j>=0; ) {a = a.getNextAtomC();}  //get ith atom in list
-        uOld = phase.potentialEnergy.currentValue(a);
-        Space.randomVector(dr, stepSize, rand);
-        ((AtomC)a).displace(dr);
-        uNew = phase.potentialEnergy.currentValue(a);
+        for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
+        uOld = phaseSpace.potentialEnergy.currentValue(a);
+        a.coordinate.displaceWithin(stepSize);
+        uNew = phaseSpace.potentialEnergy.currentValue(a);
         if(uNew < uOld) {   //accept
             nAccept++;
             return;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
-             ((AtomC)a).replace();
+             a.coordinate.replace();
              return;
         }
         nAccept++;   //accept

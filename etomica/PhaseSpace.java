@@ -48,6 +48,7 @@ public abstract class PhaseSpace extends Container {
         public void clearPreviousCoordinate();
         
         public void translateTo(Vector r);
+        public void translateToward(Vector e, double distance);
         public void translateBy(Vector dr);
         public void displaceTo(Vector r);
         public void displaceBy(Vector dr);

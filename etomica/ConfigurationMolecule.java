@@ -9,7 +9,7 @@ import java.awt.*;
 
 public abstract class ConfigurationMolecule extends Component {
   
-  Species parentSpecies;
+  protected Species parentSpecies;  //some subclasses may want to take an action on setting species, so don't make public
   protected final double[] dim = new double[Simulation.D];
   
   public ConfigurationMolecule(){
@@ -22,6 +22,9 @@ public abstract class ConfigurationMolecule extends Component {
     }
     computeDimensions();
   }
+  
+  public void setParentSpecies(Species s) {parentSpecies = s;}
+  public Species parentSpecies() {return parentSpecies;}
   
   public double[] moleculeDimensions() {return dim;}
   

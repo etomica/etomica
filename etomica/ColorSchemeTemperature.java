@@ -32,9 +32,9 @@ public class ColorSchemeTemperature extends ColorScheme {
         range = 1.0/(KEMax-KEMin);
     }
         
-    public final void setAtomColor(Atom a) {
+    public void setAtomColor(Atom a) {
         float red, blue;
-        double ke = ((AtomC)a).kineticEnergy();
+        double ke = a.coordinate.kineticEnergy();
         if(ke > KEMax) {blue = 0.0f;}
         else if(ke < KEMin) {blue = 1.0f;}
         else {blue = (float)((ke-KEMin)*range);}

@@ -13,7 +13,7 @@ public class PotentialLJ extends Potential implements PotentialSoft {
     setEpsilon(epsilon);
   }
    
-    public double energy(PhaseSpace.AtomPair pair) {
+    public double energy(AtomPair pair) {
         double r2 = pair.r2();
         if(r2 > cutoffDiameterSquared) {return 0.0;}
         else {

@@ -5,9 +5,6 @@ import java.util.Random;
 
 public class PhaseSpace2D extends PhaseSpace {
     
-    
-//    public PhaseSpace2D() {}
-    
     public final int D() {return 2;}
  
     public PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
@@ -23,7 +20,8 @@ public class PhaseSpace2D extends PhaseSpace {
     public final double volume() {return Double.MAX_VALUE;}  //infinite volume unless using PBC
  
     public static final class Vector implements PhaseSpace.Vector {  //declared final for efficient method calls
-        public final static Random random = new Random();
+        public static final Random random = new Random();
+        public static final Vector ORIGIN = new Vector(0.0,0.0);
         double x, y;
         public Vector () {x = 0.0; y = 0.0;}
         public Vector (double a1, double a2) {x = a1; y = a2;}
@@ -72,12 +70,13 @@ public class PhaseSpace2D extends PhaseSpace {
     final class AtomCoordinate extends Coordinate implements PhaseSpace.AtomCoordinate {
         AtomCoordinate nextCoordinate, previousCoordinate;
         AtomCoordinate(Atom a) {atom = a;}  //constructor
-        public final Atom atom;
+        public final Atom atom;        
+        private final Vector rLast = new Vector();
+        private final Vector temp = new Vector();
         
-        protected final Vector rLast = new Vector();
-        protected final Vector temp = new Vector();
         public void translateTo(PhaseSpace.Vector u) {r.E((Vector)u);}      //if using PBC, apply here
         public void translateBy(PhaseSpace.Vector u) {r.PE((Vector)u);}
+        public void translateToward(PhaseSpace.Vector u, double d) {temp.Ea1Tv1(d,(Vector)u); translateBy(temp);}
         public void displaceTo(PhaseSpace.Vector u) {rLast.E(r); r.E((Vector)u);}  //want to eliminate these casts
         public void displaceBy(PhaseSpace.Vector u) {rLast.E(r); r.PE((Vector)u);}
         public void displaceWithin(double d) {rLast.E(r); r.randomStep(d);}
@@ -142,6 +141,7 @@ public class PhaseSpace2D extends PhaseSpace {
             if(molecule.nAtoms==1) {return;}  //one atom in molecule
             do {c=c.nextCoordinate; p.PE(c.p);} while (c.atom!=molecule.lastAtom);
         }
+        public void translateToward(PhaseSpace.Vector u, double d) {temp.Ea1Tv1(d,(Vector)u); translateBy(temp);}
         public void translateBy(PhaseSpace.Vector uu) {
             AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
             Vector u = (Vector)uu;

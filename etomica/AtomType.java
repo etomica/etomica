@@ -40,7 +40,7 @@ public abstract class AtomType {
     public final double rm() {return rm;}
     public final double mass() {return mass;}
     
-    // AtomType color may or may not determine drawn color, depending on ColorScheme in Species
+    // AtomType color may or may not determine atom.color (and thus drawn color), depending on ColorScheme in Species
     public final Color color() {return color;}
     public final void setColor(Color c) {color = c;}
     

@@ -43,7 +43,7 @@ public abstract class Species extends Container {
   }
   
   public void add(ConfigurationMolecule cm) {
-    cm.parentSpecies = this;
+    cm.setParentSpecies(this);
     this.configurationMolecule = cm;
     cm.initializeCoordinates();
   }
@@ -292,8 +292,8 @@ public abstract class Species extends Container {
         if(parentPhaseSpace != null) {
             int[] origin = new int[Simulation.D];
             double scale = 1.0;
-            origin[0] = (parentPhaseSpace.getSize().width - Phase.toPixels(scale*1.0))/2;  //1.0 -> dimension.x
-            origin[1] = (parentPhaseSpace.getSize().height - Phase.toPixels(scale*1.0))/2; //       dimension.y
+            origin[0] = (parentPhaseSpace.getSize().width - DisplayConfiguration.SIM2PIXELS*scale)/2;  //1.0 -> dimension.x
+            origin[1] = (parentPhaseSpace.getSize().height - DisplayConfiguration.SIM2PIXELS*scale)/2; //       dimension.y
             draw(g,origin,scale);
         }
     }
@@ -313,7 +313,7 @@ public abstract class Species extends Container {
   
   public void draw(Graphics g, int[] origin, double scale) {
 
-    double toPixels = scale*Phase.TO_PIXELS;
+    double toPixels = scale*DisplayConfiguration.SIM2PIXELS;
  /*   
     int diameterP = (int)(toPixels*diameter);
     g.setColor(color);

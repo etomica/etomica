@@ -16,11 +16,7 @@ public class P2SquareWell extends Potential2 {
     potential[0][0] = new PotentialSquareWell(coreDiameter,lambda,epsilon);
     setLambda(lambda);  //set potentialCutoff, etc.
   }
-  
-  public final boolean isNeighbor(Molecule m1, Molecule m2) {
-    return (space.r1Mr2_S(m1.COM(), m2.COM()) < squareNeighborRadius);
-  }
-  
+    
   public final Potential getPotential(Atom a1, Atom a2) {return potential[0][0];}
   
   public final double getCoreDiameter() {return coreDiameter;}

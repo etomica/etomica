@@ -88,9 +88,9 @@ public class MeterPotentialEnergy extends simulate.Meter
   * Computes and returns the total intermolecular energy of a molecule with all molecules in phaseSpace
   * Does not include intramolecular energy of molecule
   */
-    public final double insertionValue(Molecule m, PhaseSpace ps) {
+    public final double insertionValue(Molecule m) {
 
-      AtomPair.Iterator.FMAM iterator = new AtomPair.Iterator.FMAM(ps,m);
+      AtomPair.Iterator.FMAM iterator = new AtomPair.Iterator.FMAM(phaseSpace,m);
             
       double pe = 0.0;
       for(Species s1=phaseSpace.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {

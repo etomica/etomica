@@ -21,20 +21,20 @@ public class MeterLocalDensityCube extends simulate.MeterLocalDensity
      */
     public void computeVolume() {
         Rectangle rectangle = getBounds();
-        halfWidth = 0.5*rectangle.width / Phase.TO_PIXELS;
-        halfHeight = 0.5*rectangle.height / Phase.TO_PIXELS;
+        halfWidth = 0.5*rectangle.width / DisplayConfiguration.SIM2PIXELS;
+        halfHeight = 0.5*rectangle.height / DisplayConfiguration.SIM2PIXELS;
         volume = 4 * halfWidth * halfHeight;
-        xCenter = rectangle.x/Phase.TO_PIXELS + halfWidth;
-        yCenter = rectangle.y/Phase.TO_PIXELS + halfHeight;
+        xCenter = rectangle.x/DisplayConfiguration.SIM2PIXELS + halfWidth;
+        yCenter = rectangle.y/DisplayConfiguration.SIM2PIXELS + halfHeight;
     }
     
     /**
      Method that specifies if a molecule is inside the local region where the density is measured
      */
     public boolean contains(Molecule m) {
-        double[] r = m.COM();  //molecule center-of-mass
-        if(Math.abs(r[0]-xCenter) > halfWidth) {return false;}
-        else if(Math.abs(r[1]-yCenter) > halfHeight) {return false;}
+        PhaseSpace2D.Vector r = (PhaseSpace2D.Vector)m.COM();  //molecule center-of-mass
+        if(Math.abs(r.x-xCenter) > halfWidth) {return false;}
+        else if(Math.abs(r.y-yCenter) > halfHeight) {return false;}
         else {return true;}
     }
 }

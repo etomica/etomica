@@ -226,8 +226,8 @@ public void initialize() {
         private double collisionTime = Double.MAX_VALUE; //time to next collision
         private Atom collisionPartner;  //next atom scheduled for collision by atom containing this Agent
         private PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
-        protected double pAccumulator;  //accumulated momentum, for calculation of pressure
-        protected double qAccumulator;  //accumulated energy, for calculation of heat transfer
+        public double pAccumulator;  //accumulated momentum, for calculation of pressure
+        public double qAccumulator;  //accumulated energy, for calculation of heat transfer
 
         public Agent(Atom a) {
             atom = a;
@@ -250,15 +250,9 @@ public void initialize() {
         public final PotentialHard getCollisionPotential() {return collisionPotential;}
 
         public final void zeroAccumulators() {
-            zeroQAccumulator();
-            zeroPAccumulator();
+            qAccumulator = 0.0;
+            pAccumulator = 0.0;
         }
-        public final void zeroQAccumulator() {qAccumulator = 0.0;}
-        public final void zeroPAccumulator() {pAccumulator = 0.0;}
-        public final void accumulateP(double value) {pAccumulator += value;}
-        public final void accumulateQ(double value) {qAccumulator += value;}
-        public final double getAccumulatedP() {return pAccumulator;}
-        public final double getAccumulatedQ() {return qAccumulator;}
     
     }
 }

@@ -39,8 +39,8 @@ public class DisplayJTable extends simulate.Display
             meter = temp;
         }
         
-        public void setPhase(Phase p) {
-            for(Meter m=p.firstMeter; m!=null; m=m.getNextMeter()) {this.addMeter(m);}
+        public void setPhaseSpace(PhaseSpace p) {
+            for(Meter m=p.firstMeter; m!=null; m=m.nextMeter()) {this.addMeter(m);}
         }
 
     public void doUpdate() {

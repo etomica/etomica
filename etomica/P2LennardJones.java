@@ -17,9 +17,9 @@ public class P2LennardJones extends Potential2 {
     potential[0][0] = onlyPotential;  //another copy for superclass methods
   }
   
-  public final boolean isNeighbor(Molecule m1, Molecule m2) {
-    return (space.r1Mr2_S(m1.COM(), m2.COM()) < squareNeighborRadius);
-  }
+//  public final boolean isNeighbor(Molecule m1, Molecule m2) {
+//    return (space.r1Mr2_S(m1.COM(), m2.COM()) < squareNeighborRadius);
+//  }
   
   public final Potential getPotential(Atom a1, Atom a2) {return onlyPotential;}
   

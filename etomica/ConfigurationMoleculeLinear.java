@@ -7,6 +7,7 @@ package simulate;
 public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     
     private double bondLength = 0.02;
+    private PhaseSpace.Vector orientation;
     
     public ConfigurationMoleculeLinear(){
     }
@@ -16,38 +17,39 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
         computeDimensions();
     }
     public double getBondLength() {return bondLength;}
+    
+    public void setOrientation(PhaseSpace.Vector e) {orientation.E(e);}
   
   /**
    * Sets all atoms coordinates to lie on a straight line along the x-axis, with the
    * center of mass unchanged from the value before method was called
    */
     public void initializeCoordinates(Molecule m) {
-        double[] OldCOM = new double[Space.D];
-        double[] NewCOM = new double[Space.D];
-        Space.uEv1(OldCOM,m.COM());
-        Space.uEa1(NewCOM,0.0);
+        PhaseSpace.Vector OldCOM = m.parentSpecies.parentPhaseSpace.makeVector();
+        OldCOM.E(m.COM());
         double xNext = 0.0;
-        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {
-            Space.uEa1(a.r,0.0);   //zero all coordinates
-            a.r[0] = xNext;
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
+            a.coordinate.translateTo(OldCOM);  //put all atoms at same point
+            a.coordinate.translateToward(orientation,xNext);  //move xNext distance in direction orientation
             xNext += bondLength;
-            NewCOM[0] += a.r[0] * a.mass;
         }
-        
-        Space.uDEa1(NewCOM,(double)m.nAtoms);
-        
-        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {
-            Space.uMEv1(a.r,NewCOM);  //zero the molecule center-of-mass
-            Space.uPEv1(a.r,OldCOM);  //move com to original position
-        }
+        m.coordinate.translateTo(OldCOM);  //shift molecule to original COM
     }
     
     protected void computeDimensions() {
         dim[1] = 0.0;
-        Molecule m = parentSpecies.firstMolecule();  //a typical molecule
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
-            dim[1] = Math.max(dim[1], ((AtomDisk)a).getDiameter());  //width is that of largest atom
+        Molecule m = parentSpecies().firstMolecule();  //a typical molecule
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.nextAtom()) {
+            dim[1] = Math.max(dim[1], ((AtomType.Disk)a.type).diameter());  //width is that of largest atom
         }
-        dim[0] = 0.5*(((AtomDisk)m.firstAtom()).getDiameter() + ((AtomDisk)m.lastAtom()).getDiameter()) + (m.nAtoms-1) * bondLength;
+        dim[0] = 0.5*(((AtomType.Disk)m.firstAtom().type).diameter() + ((AtomType.Disk)m.lastAtom().type).diameter()) + (m.nAtoms-1) * bondLength;
     }
+
+  public void setParentSpecies(Species s) {
+    parentSpecies = s;
+    orientation = (PhaseSpace2D.Vector)s.parentPhaseSpace.makeVector();   //temporary
+    ((PhaseSpace2D.Vector)orientation).x = 1.0;    //temporary;  fix orientation to x-axis of 2-D space
+  }
+
+
 }
