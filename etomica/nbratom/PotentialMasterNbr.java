@@ -12,7 +12,6 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Species;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
@@ -21,16 +20,12 @@ import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
-import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.nbr.AtomSequencerNbr;
-import etomica.nbr.cell.AtomsetIteratorCellular;
-import etomica.nbr.cell.IteratorFactoryCell;
-import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbratom.cell.IteratorFactoryCell;
+import etomica.nbratom.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculation;
 import etomica.utility.Arrays;
-import etomica.utility.ObjectArrayList;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -46,7 +41,7 @@ public class PotentialMasterNbr extends PotentialMaster {
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
 	public PotentialMasterNbr(Space space) {
-        super(space,new IteratorFactoryCell(space.D()));
+        super(space,new IteratorFactoryCell());
         setNCells(10);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new AtomIteratorArrayList();
@@ -95,7 +90,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 			singletIterator.setAtom(atom);
 			IteratorDirective.Direction direction = id.direction();
 			AtomArrayList[] list;
-            ObjectArrayList[] vectors = null;
 			if (direction == IteratorDirective.UP || direction == null) {
 				list = seq.getUpList();
 //              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
@@ -128,20 +122,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 		}
 	}
 
-    /**
-     * Identifies given potential to apply to the given set of species, and 
-     * sets the NeighborCriterion instance to define the neighbors.
-     */
-    public void setSpecies(Potential potential, Species[] species, double potentialRange) {
-        if (species.length <= 1 || potential.nBody() != species.length) {
-            throw new IllegalArgumentException("Illegal species length");
-        }
-        ApiMolecule iterator = (ApiMolecule)iteratorFactory.makeMoleculeIterator(species);
-        ((AtomsetIteratorCellular)iterator.getApiAA()).getNbrCellIterator().setRange(potentialRange);
-        ((AtomsetIteratorCellular)iterator.getApi1A()).getNbrCellIterator().setRange(potentialRange);
-        addPotential(potential, iterator);
-    }
-    
     public void setSimulation(Simulation sim) {
 //        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
     }

@@ -29,8 +29,6 @@ public class NeighborCellManager implements Integrator.IntervalListener {
 
     private final CellLattice lattice;
     private final Space space;
-    private final Phase phase;
-    private int listCount;
     private final AtomIteratorPhaseDependent atomIterator;
     private int iieCount;
     private int updateInterval;
@@ -46,7 +44,6 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     }
     
     public NeighborCellManager(Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
-        this.phase = phase;
         this.positionDefinition = positionDefinition;
         space = phase.space();
         atomIterator = new AtomIteratorAllMolecules(phase);
@@ -101,16 +98,15 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     public void assignCell(Atom atom) {
         AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
         NeighborCell newCell = (NeighborCell)lattice.site(positionDefinition.position(atom));
-        if(newCell != seq.cell) {assignCell(seq, newCell, atom.type.getSpeciesIndex());}
+        if(newCell != seq.cell) {assignCell(seq, newCell);}
     }
     
     /**
      * Assigns atom sequencer to given cell in the list of the given index.
      */
-    public void assignCell(AtomSequencerCell seq, NeighborCell newCell, int listIndex) {
+    public void assignCell(AtomSequencerCell seq, NeighborCell newCell) {
         if(seq.cell != null) seq.cell.occupants().remove(seq.nbrLink);
         seq.cell = newCell;
-//        seq.nbrLink.remove();
         if(newCell != null) {
             newCell.occupants().add(seq.nbrLink);
         }

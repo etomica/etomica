@@ -9,7 +9,7 @@ import etomica.Potential;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
-import etomica.nbr.cell.AtomSequencerCell;
+import etomica.nbratom.cell.AtomSequencerCell;
 import etomica.utility.Arrays;
 import etomica.utility.ObjectArrayList;
 

@@ -9,7 +9,6 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Integrator;
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.Integrator.IntervalEvent;
@@ -17,7 +16,6 @@ import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.iterator.AtomIteratorTree;
-import etomica.nbr.AtomSequencerNbr;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbratom.cell.ApiAACell;
 import etomica.potential.Potential2;
@@ -42,7 +40,6 @@ public class NeighborManager implements IntervalListener {
 	 */    
 	public NeighborManager(PotentialMasterNbr potentialMaster) {
 		super();
-		this.potentialMaster = potentialMaster;
 		setUpdateInterval(1);
 		iieCount = updateInterval;
 		iterator = new AtomIteratorTree();
@@ -190,11 +187,9 @@ public class NeighborManager implements IntervalListener {
 	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
 	private int iieCount;
-	private final PotentialMasterNbr potentialMaster;
 	private final AtomIteratorTree iterator;
 	private final NeighborCheck neighborCheck;
 	private final NeighborReset neighborReset;
-	private final IteratorDirective id = new IteratorDirective();
     private final ApiAACell cellNbrIterator;
 	private int priority;
     private PhaseImposePbc pbcEnforcer;
@@ -207,7 +202,7 @@ public class NeighborManager implements IntervalListener {
 				needUpdate = true;
 				if (criterion.unsafe()) {
 					if (Debug.DEBUG_NOW) {
-						System.out.println("atom "+(Atom)atom+" exceeded safe limit");
+						System.out.println("atom "+atom+" exceeded safe limit");
 					}
 					unsafe = true;
 				}
