@@ -15,7 +15,6 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
 import etomica.graphics.Display;
 import etomica.graphics.DisplayBox;
@@ -32,7 +31,6 @@ import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.units.Bar;
-import etomica.units.Bar2D;
 import etomica.units.BaseUnit;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
@@ -105,7 +103,7 @@ public class PistonCylinder extends Simulation {
         integrator = new IntegratorHardPiston(potentialMaster,pistonPotential);
         integrator.addPhase(phase);
         integrator.setIsothermal(true);
-        integrator.setThermostatInterval(1000);
+        integrator.setThermostatInterval(100);
         integrator.setTimeStep(1.0);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
@@ -140,7 +138,7 @@ public class PistonCylinder extends Simulation {
             pc.wallPotential.setLongWall(1,false,false);// bottom wall
             pc.wallPotential.setPhase(pc.phase);  // so it has a boundary
 
-            SimulationGraphic sg = new SimulationGraphic(pc,pc.space.D()==2);
+            SimulationGraphic sg = new SimulationGraphic(pc);
             getContentPane().add(sg.panel());
             Iterator displayIterator = sg.displayList().iterator();
             while (displayIterator.hasNext()) {
@@ -189,7 +187,7 @@ public class PistonCylinder extends Simulation {
             pc.integrator.addIntervalListener(pBox);
             sg.panel().add(pBox.graphic());
             
-            MeterPistonDensity dMeter = new MeterPistonDensity(pc.pistonPotential,1);
+            MeterPistonDensity dMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
             dMeter.setPhase(new Phase[]{pc.phase});
             AccumulatorAverage dAcc = new AccumulatorAverage();
             DataManager dMan = new DataManager(dMeter,new DataSink[]{dAcc});
@@ -220,7 +218,7 @@ public class PistonCylinder extends Simulation {
         pMan.setUpdateInterval(10);
         sim.integrator.addIntervalListener(pMan);
         
-        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1);
+        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,0.5*Default.ATOM_SIZE);
         dMeter.setPhase(new Phase[]{sim.phase});
         AccumulatorAverage dAcc = new AccumulatorAverage();
         DataManager dMan = new DataManager(dMeter,new DataSink[]{dAcc});

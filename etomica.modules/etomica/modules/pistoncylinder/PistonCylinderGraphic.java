@@ -424,7 +424,7 @@ public class PistonCylinderGraphic {
         potentialChooser.addItemListener(potentialChooserListener);
         thermometer.setPhase(new Phase[] {pc.phase});
 
-        densityMeter = new MeterPistonDensity(pc.pistonPotential,1);
+        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
         AccumulatorAverage densityAcc = new AccumulatorAverage();
         densityManager = new DataManager(densityMeter,new DataSink[]{densityAcc});
         densityManager.setUpdateInterval(10);
