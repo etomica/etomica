@@ -19,6 +19,16 @@ public abstract class DataPusher {
         return label;
     }
 
+    /**
+     * Sets label to the given value if it was not previously set.
+     * If setLabel was previously called, this method has no effect.
+     * This method is usually invoked automatically when this object
+     * is placed in a data stream.
+     */
+    public void setDefaultLabel(String defaultLabel) {
+        if(label == "") setLabel(defaultLabel);
+    }
+
     public abstract DataTranslator getTranslator();
     
     /**
@@ -51,7 +61,7 @@ public abstract class DataPusher {
                 dataSinkList[i].setDimension(dimension);
 //            }
 //            if(dataSinkList[i].getLabel().equals("")) {
-                dataSinkList[i].setLabel(label);
+                dataSinkList[i].setDefaultLabel(label);
 //            }
         }
     }
@@ -60,6 +70,7 @@ public abstract class DataPusher {
         if(dataSink == null) return;
         dataSinkList = (DataSink[])Arrays.addObject(dataSinkList, dataSink);
         dataSink.setDimension(dimension);
+        dataSink.setDefaultLabel(label);
     }
 
     /**

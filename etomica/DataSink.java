@@ -14,9 +14,10 @@ public interface DataSink {
     
     /**
      * Applies a label used to describe the data when presented, 
-     * for example as a plot legend.
+     * for example as a plot legend.  Usually this is called automatically
+     * when the object is placed in the data stream.
      */
-    public void setLabel(String label);
+    public void setDefaultLabel(String label);
     
     /**
      * Sets the physical dimensions (e.g., length) of the data.

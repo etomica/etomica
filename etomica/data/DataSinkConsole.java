@@ -66,6 +66,18 @@ public class DataSinkConsole implements DataSink, EtomicaElement {
     public void setLabel(String label) {
         this.label = label;
     }
+    
+    /**
+     * Sets label to the given value if it was not previously set.
+     * If setLabel was previously called, this method has no effect.
+     * This method is usually invoked automatically when this data
+     * sink is attached to a data pipe.
+     */
+    public void setDefaultLabel(String defaultLabel) {
+        if(label == "") setLabel(defaultLabel);
+    }
+
+
     /**
      * @return Returns the unit.
      */

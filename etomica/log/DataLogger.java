@@ -14,7 +14,7 @@ public class DataLogger implements DataSink {
 
 	private final String fileName;
     private Dimension dimension;
-    private String label;
+    private String label = "";
 	
 	public DataLogger(String aFileName) {
 		fileName = aFileName;
@@ -39,6 +39,14 @@ public class DataLogger implements DataSink {
     
     public void setDimension(Dimension dimension) {
         this.dimension = dimension;
+    }
+
+    /**
+     * Sets label to the given value if it was not previously set.
+     * If setLabel was previously called, this method has no effect.
+     */
+    public void setDefaultLabel(String defaultLabel) {
+        if(label == "") setLabel(defaultLabel);
     }
 
     public void setLabel(String label) {

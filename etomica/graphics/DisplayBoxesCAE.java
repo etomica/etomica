@@ -85,6 +85,21 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         }
         if(labelType == DisplayBox.STRING) setLabelPosition(labelPosition);
     }
+    
+    public String getLabel() {
+        return jLabelPanelParentGroup.getText();
+    }
+
+    /**
+     * Sets label to the given value if it was not previously set.
+     * If setLabel was previously called, this method has no effect.
+     * This method is usually invoked automatically when this data
+     * sink is attached to a data pipe.
+     */
+    public void setDefaultLabel(String defaultLabel) {
+        if(getLabel() == "") setLabel(defaultLabel);
+    }
+
 
     public void setLabelPosition(Constants.CompassDirection position) {
         labelPosition = position;

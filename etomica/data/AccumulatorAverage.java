@@ -303,6 +303,7 @@ public class AccumulatorAverage extends DataAccumulator {
         }
         public void setLabel(String s) {pusher.setLabel(s);}
         public void setDimension(Dimension d) {pusher.setDimension(d);}
+        public void setDefaultLabel(String s) {pusher.setDefaultLabel(s);}
     }
     
 }//end of AccumulatorAverage

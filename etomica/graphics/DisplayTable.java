@@ -220,7 +220,15 @@ public class DisplayTable extends Display implements EtomicaElement {
             this.dimension = dimension;
         }
 
-        public void setLabel(String label) {
+        /**
+         * Sets label to the given value if it was not previously set.
+         * If setLabel was previously called, this method has no effect.
+         */
+        public void setDefaultLabel(String defaultLabel) {
+            if(label == "") setLabel(defaultLabel);
+        }
+
+       public void setLabel(String label) {
             this.label = label;
         }
     }
