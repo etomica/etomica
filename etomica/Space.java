@@ -40,7 +40,7 @@ public abstract class Space {
         public double squared();
         public double dot(Vector u);
         public void setRandom(double d);
-        public void PEa1Tv1(double a1, Vector u1);
+        public void PEa1Tv1(double a, Vector u);
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum

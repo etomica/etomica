@@ -25,8 +25,8 @@ public class Phase extends Container {
         potentialEnergy.setUpdateInterval(Integer.MAX_VALUE);  //these meters are placed to permit phase to report its potential and kinetic energies
         kineticEnergy = new MeterKineticEnergy();
         kineticEnergy.setUpdateInterval(Integer.MAX_VALUE);    //change updateInterval if desired to use for averaging also
-        add(potentialEnergy);
-        add(kineticEnergy);
+//        add(potentialEnergy);
+//        add(kineticEnergy);
     }
         
     public void setPotential() {

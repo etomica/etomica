@@ -12,7 +12,7 @@ public class Space2DCell extends Space {
     private int xCells, yCells;
     
     public Space2DCell() {
-        xCells = yCells = 8;
+        xCells = yCells = 15;
         cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
     }
     public Space2DCell(int n) {
@@ -445,9 +445,9 @@ public class Space2DCell extends Space {
             }
         }
         public simulate.AtomPair next() {
-            Atom a = neighborAtom.atom();
-            pair.c2 = (AtomCoordinate)a.coordinate;
-//            pair.c2 = neighborAtom;
+//            Atom a = neighborAtom.atom();
+//            pair.c2 = (AtomCoordinate)a.coordinate;
+            pair.c2 = neighborAtom;
             pair.reset();
             neighborAtom = neighborAtom.nextNeighbor;
             if(neighborAtom == null) {advanceCell();}
