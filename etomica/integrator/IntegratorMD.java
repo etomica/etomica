@@ -64,6 +64,8 @@ public abstract class IntegratorMD extends Integrator {
 
     public void setTemperature(double temperature) {
         super.setTemperature(temperature);
+        // trigger immediate thermostat action        
+        thermostatCount = 1;
         atomActionRandomizeVelocity.setTemperature(temperature);
     }
     
