@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Phase;
 import etomica.Space;
 import etomica.potential.Potential0;
@@ -45,7 +45,7 @@ public class P0Cluster extends Potential0 {
     /**
      * @deprecated use weight()
      */
-    public double energy(Atom[] atoms) {
+    public double energy(AtomSet atoms) {
 		double w = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), 1/temperature);
 		if (w == 0) return Double.POSITIVE_INFINITY;
 		return -Math.log(w)*temperature;
