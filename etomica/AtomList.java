@@ -294,8 +294,9 @@ public class AtomList implements java.io.Serializable
      * Removes all of the elements (including tabs) from this list.
      */
     public void clear() {
-        header.remove(); //this has the effect of disconnecting the header from
-                         //all other elements, thereby removing them from this list
+        header.nextTab = header.previousTab = header;
+        header.previous = header.next = header;
+        header.list = null;
 	    size = 0;
     }
 

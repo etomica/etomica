@@ -98,6 +98,7 @@ public class AtomLinker implements java.io.Serializable {
          * Removes references to previous/next tabs while removing linker from list.
          */
         public void remove() {
+        	if(isHeader) throw new RuntimeException("Illegal attempt to remove header from list");
             super.remove();
 	        previousTab.nextTab = nextTab;
 	        nextTab.previousTab = previousTab;
