@@ -50,7 +50,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     public double energy(Atom[] a) {
         atom = a[0];
         double e = 0.0;
-        Vector dimensions = atom.node.parentPhase().dimensions();
+        Vector dimensions = boundary.dimensions();
         double collisionRadiusSquared = collisionRadius*collisionRadius;
         double rx = atom.coord.position(0);
         double ry = atom.coord.position(1);
@@ -60,7 +60,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         double dy1_2 = (ry - dimensions.x(1))*(ry - dimensions.x(1));
         if((dx0_2 < collisionRadiusSquared)||(rx < 0.0)||(rx > dimensions.x(0) )||(dx1_2 < collisionRadiusSquared)||
             (dy0_2 < collisionRadiusSquared)||(ry < 0.0)||(ry > dimensions.x(1) )||(dy1_2 < collisionRadiusSquared)){
-            e = Double.MAX_VALUE;
+            e = Double.POSITIVE_INFINITY;
         }else{e = 0.0;}
         return e;
     }
@@ -71,7 +71,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     	atom = a[0];
         Vector r = atom.coord.truePosition(falseTime);
         Vector p = atom.coord.momentum();
-        Vector dimensions = atom.node.parentPhase().dimensions();
+        Vector dimensions = boundary.dimensions();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=r.length()-1; i>=0; i--) {
             double px = p.x(i);
@@ -91,7 +91,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
     	atom = a[0];
         Vector r = atom.coord.truePosition(falseTime);
         Vector p = atom.coord.momentum();
-        Vector dimensions = atom.node.parentPhase().dimensions();
+        Vector dimensions = boundary.dimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
