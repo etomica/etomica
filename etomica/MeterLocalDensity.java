@@ -19,7 +19,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
      * @see #setSpeciesIndex
      */
     private Species species;
-    private AtomIteratorSpeciesDependent iterator = new AtomIteratorAllMolecules();
+    private AtomIteratorSpeciesDependent iterator = new AtomIteratorLeafAtoms();
     protected double volume;
     /**
      * If <code>true</code> average mole fraction (n<sub>i</sub>/n<sub>total</sub>), if <code>false</code>, average total number density (n<sub>i</sub>/V)
