@@ -16,7 +16,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     }
         
     public int newChildIndex() {
-        if(childAtomCount() > 0) { //siblings
+        if(!childList.isEmpty()) { //siblings
             return (lastChildAtom().node.index()+1);
         }
         else {  //only child
