@@ -10,8 +10,6 @@ package etomica;
 
 public abstract class Space implements java.io.Serializable {
     
-    public static String VERSION = "01.07.09";
-
     public final int D;
     private final double rD; // reciprocal of D
     
@@ -244,12 +242,9 @@ public abstract class Space implements java.io.Serializable {
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     public static abstract class Coordinate implements java.io.Serializable {
+        //TODO consider possibility of removing atom reference, perhaps needed only in CoordinateGroup
         public final Atom atom;  //atom that has this as its coordinate        
-        protected double mass, rm;    //mass and its reciprocal
         protected Coordinate(Atom a) {atom = a;}          //constructor
-        
-        public final Atom atom() {return atom;}
-        
         public abstract void transform(Vector r0, Tensor A);
         public abstract Vector position();
         public abstract Vector momentum();

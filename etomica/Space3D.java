@@ -36,7 +36,6 @@ package etomica;
 
 public class Space3D extends Space implements EtomicaElement {
 
-    public static String version() {return "Space3D:01.07.11/"+Space.VERSION;}
     public static final int D = 3;
     public final int D() {return D;}
     public final int powerD(int n) {return n*n*n;}

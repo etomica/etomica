@@ -19,7 +19,6 @@ package etomica;
   */
 public class Space2D extends Space implements EtomicaElement {
     
-    public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
     public static final int D = 2;
     public final int D() {return D;}
     public final int powerD(int n) {return n*n;}
