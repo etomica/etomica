@@ -7,11 +7,11 @@ import etomica.*;
  */
 public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     
-    //primitive vectors are stored internally at unit length.  When requested
-    //from the vectors() method, copies are scaled to size and returned.
-    //default size is 1.0
-    private double ab, c;
+    private double ab = 1.0, c = 1.0;
+    private int ix = 0, iy = 1;
     private final double gamma = etomica.units.Degree.UNIT.toSim(120.);
+    private final double cosGamma = Math.cos(gamma);
+    private final double sinGamma = Math.sin(gamma);
     
     public PrimitiveTrigonal(Simulation sim) {
         this(sim, 1.0, 1.0);
@@ -20,11 +20,26 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
         super(sim);
         setAB(ab);
         setC(c);
-        //set up properly oriented unit vectors
-        latticeVectors[0].setX(0,1.0);
-        latticeVectors[1].setX(0,Math.cos(gamma));
-        latticeVectors[1].setX(1,Math.sin(gamma));
-        latticeVectors[2].setX(2,1.0);
+    }
+    
+    /**
+     * Constructor used by makeReciprocal method.
+     */
+    private PrimitiveTrigonal(Simulation sim, Primitive direct) {
+        super(sim, direct);
+        ix = 1;
+        iy = 0;
+    }
+    
+    //called by superclass constructor
+    protected Primitive makeReciprocal() {
+        return new PrimitiveTrigonal(simulation, this);
+    }
+    
+    //called by update method of superclass
+    protected void updateReciprocal() {
+        ((PrimitiveTrigonal)reciprocal()).setAB(2.0*Math.PI/(ab*sinGamma));
+        ((PrimitiveTrigonal)reciprocal()).setC(2.0*Math.PI/c);
     }
     
     public void setA(double a) {setAB(a);}
@@ -34,13 +49,21 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     public double getB() {return ab;}
     
     public void setAB(double ab) {
+        if(immutable) return;
         this.ab = ab;
-        if(lattice != null) lattice.update();
+        size[0] = size[1] = ab;
+        latticeVectors[ix].setX(ix,ab);
+        latticeVectors[iy].setX(ix,ab*cosGamma);
+        latticeVectors[iy].setX(iy,ab*sinGamma);
+        update();
     }
     
     public void setC(double c) {
+        if(immutable) return;
         this.c = c;
-        if(lattice != null) lattice.update();
+        size[2] = c;
+        latticeVectors[2].setX(2, c);
+        update();
     }
     public double getC() {return c;}
     
@@ -53,15 +76,13 @@ public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     public void setGamma(double t) {}
     public double getGamma() {return gamma;}
     
-    
-    //override superclass method to scale copy-vectors to current size
-    protected Space.Vector[] copyVectors() {
-        for(int i=0; i<D; i++) latticeVectorsCopy[i].E(latticeVectors[i]);
-        latticeVectorsCopy[0].TE(ab);
-        latticeVectorsCopy[1].TE(ab);
-        latticeVectorsCopy[2].TE(c);
-        return latticeVectorsCopy;
-    }
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return false;}
+    public boolean isEditableC() {return true;}
+    public boolean isEditableAlpha() {return false;}
+    public boolean isEditableBeta() {return false;}
+    public boolean isEditableGamma() {return false;}
+
     /**
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */

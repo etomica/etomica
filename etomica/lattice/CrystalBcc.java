@@ -17,6 +17,6 @@ public class CrystalBcc extends Crystal {
         siteFactory = new BasisCubicBcc(sim, (PrimitiveCubic)primitive);
     }
     
-    public String toString() {return "Bcc (cubic)";}
+    public String toString() {return "Bcc";}
     
 }//end of CrystalBcc

@@ -2,37 +2,45 @@ package etomica.lattice;
 import etomica.*;
 
 /**
- * Primitive group for a tetragonal system.  All primitive
- * vectors orthogonal and two are of equal length.
+ * Primitive group for a hexagonal system.  Primitive-vector angles
+ * are (90,90,120) degrees and two vectors are of equal length.
  */
-public class PrimitiveTetragonal extends Primitive implements Primitive3D {
+public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     
     private double ab = 1.0, c = 1.0;
+    private int ix = 0, iy = 1;
+    private final double gamma = etomica.units.Degree.UNIT.toSim(120.);
+//    private final double gamma = etomica.units.Degree.UNIT.toSim(60.);
+    private final double cosGamma = Math.cos(gamma);
+    private final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveTetragonal(Simulation sim) {
+    public PrimitiveHexagonal(Simulation sim) {
         this(sim, 1.0, 1.0);
     }
-    public PrimitiveTetragonal(Simulation sim, double ab, double c) {
-        super(sim);//also makes reciprocal
-        setAB(ab); //also sets reciprocal via update
+    public PrimitiveHexagonal(Simulation sim, double ab, double c) {
+        super(sim);
+        setAB(ab);
         setC(c);
     }
+    
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveTetragonal(Simulation sim, Primitive direct) {
+    private PrimitiveHexagonal(Simulation sim, Primitive direct) {
         super(sim, direct);
+        ix = 1;
+        iy = 0;
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveTetragonal(simulation, this);
+        return new PrimitiveHexagonal(simulation, this);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveTetragonal)reciprocal()).setAB(2.0*Math.PI/ab);
-        ((PrimitiveTetragonal)reciprocal()).setC(2.0*Math.PI/c);
+        ((PrimitiveHexagonal)reciprocal()).setAB(2.0*Math.PI/(ab*sinGamma));
+        ((PrimitiveHexagonal)reciprocal()).setC(2.0*Math.PI/c);
     }
     
     public void setA(double a) {setAB(a);}
@@ -45,8 +53,15 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
         if(immutable || ab <= 0.0) return;
         this.ab = ab;
         size[0] = size[1] = ab;
-        latticeVectors[0].setX(0,ab);
-        latticeVectors[1].setX(1,ab);
+        
+        //direct lattice (ix = 0, iy = 1)
+        // v[0] = (1,0,0); v[1] = (s,c,0); v[2] = (0,0,1)  (times ab, c)
+         
+        //reciprocal lattice (ix = 1, iy = 0)
+        // v[0] = (s,-c,0); v[1] = (0,1,0); v[2] = (0,0,1);  (times ab, c)
+        latticeVectors[ix].setX(ix,ab);
+        latticeVectors[iy].setX(ix,((ix==0)?+1:-1)*ab*cosGamma);
+        latticeVectors[iy].setX(iy,ab*sinGamma);
         update();
     }
     
@@ -66,8 +81,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     public double getBeta() {return rightAngle;}
     
     public void setGamma(double t) {}
-    public double getGamma() {return rightAngle;}
-    
+    public double getGamma() {return gamma;}
     
     public boolean isEditableA() {return true;}
     public boolean isEditableB() {return false;}
@@ -80,7 +94,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveTetragonal(simulation, ab, c);
+        return new PrimitiveHexagonal(simulation, ab, c);
     }
     
     public void scaleSize(double scale) {
@@ -117,7 +131,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     //    return new UnitCellFactory(simulation);
     }
     
-    public String toString() {return "Tetragonal";}
+    public String toString() {return "Hexagonal";}
     
 ///////////////////////////////////////////////////////////////////////////////////////////
 

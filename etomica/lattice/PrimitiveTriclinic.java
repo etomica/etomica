@@ -8,11 +8,11 @@ import etomica.*;
  */
 public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     
-    private double[] sizeCopy;
-    private double a, b, c;
-    private double alpha, sinAlpha, cosAlpha;
-    private double beta, sinBeta, cosBeta;
-    private double gamma, sinGamma, cosGamma;
+    private double a = 1.0, b = 1.0, c = 1.0;
+    private double alpha = 0.5*Math.PI, sinAlpha = Math.sin(alpha), cosAlpha = Math.cos(alpha);
+    private double beta = 0.5*Math.PI, sinBeta = Math.sin(beta), cosBeta = Math.cos(beta);
+    private double gamma = 0.5*Math.PI, sinGamma = Math.sin(gamma), cosGamma = Math.cos(gamma);
+    private boolean isReciprocal = false;
     
     public PrimitiveTriclinic(Simulation sim) {
         this(sim, 1.0, 1.0, 1.0, rightAngle, rightAngle, rightAngle);
@@ -20,8 +20,6 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     public PrimitiveTriclinic(Simulation sim, double a, double b, double c, 
                                               double alpha, double beta, double gamma) {
         super(sim);
-        size = new double[sim.space.D()];
-        sizeCopy = new double[sim.space.D()];
         setA(a);
         setB(b);
         setC(c);
@@ -29,29 +27,70 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
         setBeta(beta);
         setGamma(gamma);
     }
+    /**
+     * Constructor used by makeReciprocal method.
+     */
+    private PrimitiveTriclinic(Simulation sim, Primitive direct) {
+        super(sim, direct);
+        isReciprocal = true;
+    }
+    
+    //called by superclass constructor
+    protected Primitive makeReciprocal() {
+        return new PrimitiveTriclinic(simulation, this);
+    }
+    
+    //called by update method of superclass
+    protected void updateReciprocal() {
+        PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal();
+        Space3D.Vector aStar = (Space3D.Vector)recip.latticeVectors[0];
+        Space3D.Vector bStar = (Space3D.Vector)recip.latticeVectors[1];
+        Space3D.Vector cStar = (Space3D.Vector)recip.latticeVectors[2];
+        Space3D.Vector aVec = (Space3D.Vector)latticeVectors[0];
+        Space3D.Vector bVec = (Space3D.Vector)latticeVectors[1];
+        Space3D.Vector cVec = (Space3D.Vector)latticeVectors[2];
+        aStar.E(bVec);
+        aStar.XE(cVec);
+        double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
+        aStar.TE(factor);
+        bStar.E(cVec);
+        bStar.XE(aVec);
+        bStar.TE(factor);
+        cStar.E(aVec);
+        cStar.XE(bVec);
+        cStar.TE(factor);
+    }
     
     public void setA(double a) {
+        if(immutable || a <= 0.0) return;
+        if(isReciprocal) throw new RuntimeException("Error: PrimitiveTriclinic reciprocal vectors cannot be edited directly");
         this.a = a;
+        size[0] = a;
         latticeVectors[0].setX(0,a);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getA() {return a;}
     
     public void setB(double b) {
+        if(immutable || b <= 0.0) return;
+        if(isReciprocal) throw new RuntimeException("Error: PrimitiveTriclinic reciprocal vectors cannot be edited directly");
         this.b = b;
-        latticeVectors[0].setX(0,b*cosGamma);
+        size[1] = b;
+        latticeVectors[1].setX(0,b*cosGamma);
         latticeVectors[1].setX(1,b*sinGamma);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getB() {return b;}
         
     public void setC(double c) {
+        if(immutable || c <= 0.0) return;
+        if(isReciprocal) throw new RuntimeException("Error: PrimitiveTriclinic reciprocal vectors cannot be edited directly");
         this.c = c;
+        size[2] = c;
         latticeVectors[2].setX(0,c*cosBeta);
         latticeVectors[2].setX(1,c*(cosAlpha-cosBeta*cosGamma)/sinGamma);
         latticeVectors[2].setX(2,c*Math.sqrt(1.0-cosAlpha*cosAlpha-cosBeta*cosBeta-cosGamma*cosGamma+2*cosAlpha*cosBeta*cosGamma)/sinGamma);
-        if(lattice != null) lattice.update();
-        System.out.println(Math.sqrt(latticeVectors[2].squared()));
+        update();
     }
     public double getC() {return c;}
     
@@ -62,8 +101,11 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     }
     
     public void setAlpha(double t) {
+        if(immutable) return;
+        if(isReciprocal) throw new RuntimeException("Error: PrimitiveTriclinic reciprocal vectors cannot be edited directly");
         t = bounds(t);
         alpha = t;
+        angle[0] = alpha;
         cosAlpha = Math.cos(alpha);
         sinAlpha = Math.sin(alpha);
         setC(c);
@@ -71,8 +113,11 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     public double getAlpha() {return alpha;}
     
     public void setBeta(double t) {
+        if(immutable) return;
+        if(isReciprocal) throw new RuntimeException("Error: PrimitiveTriclinic reciprocal vectors cannot be edited directly");
         t = bounds(t);
         beta = t;
+        angle[1] = beta;
         cosBeta = Math.cos(beta);
         sinBeta = Math.sin(beta);
         setC(c);
@@ -80,8 +125,11 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     public double getBeta() {return beta;}
     
     public void setGamma(double t) {
+        if(immutable) return;
+        if(isReciprocal) throw new RuntimeException("Error: PrimitiveTriclinic reciprocal vectors cannot be edited directly");
         t = bounds(t);
         gamma = t;
+        angle[2] = gamma;
         cosGamma = Math.cos(gamma);
         sinGamma = Math.sin(gamma);
         setB(b);
@@ -89,6 +137,12 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     }
     public double getGamma() {return gamma;}
     
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return true;}
+    public boolean isEditableC() {return true;}
+    public boolean isEditableAlpha() {return true;}
+    public boolean isEditableBeta() {return true;}
+    public boolean isEditableGamma() {return true;}
 
     /**
      * Returns a new, identical instance of this primitive.
@@ -96,22 +150,11 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     public Primitive copy() {
         return new PrimitiveTriclinic(simulation, a, b, c, alpha, beta, gamma);
     }
-    
         
-    /**
-     * Returns a copy of the array of primitive-vector sizes.
-     */
-     //used by IteratorFactoryCell
-    public double[] getSize() {
-        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
-        return sizeCopy;
-    }
-    
     public void scaleSize(double scale) {
         setA(a*scale);
         setB(b*scale);
         setC(c*scale);
-        if(lattice != null) lattice.update();
     }        
     
     public int[] latticeIndex(Space.Vector q) {
@@ -139,8 +182,6 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     public AtomFactory unitCellFactory() {
         return new UnitCellFactory(simulation);
     }
-    
-    private double[] size;
     
     public String toString() {return "Triclinic";}
 

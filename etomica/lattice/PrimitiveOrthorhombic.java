@@ -44,7 +44,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     }
     
     public void setA(double a) {
-        if(immutable) return;
+        if(immutable || a <= 0.0) return;
         size[0] = a;
         latticeVectors[0].setX(0,a);
         update();
@@ -52,7 +52,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     public double getA() {return size[0];}
     
     public void setB(double b) {
-        if(immutable) return;
+        if(immutable || b <= 0.0) return;
         size[1] = b;
         latticeVectors[1].setX(1,b);
         update();
@@ -60,7 +60,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
     public double getB() {return size[1];}
         
     public void setC(double c) {
-        if(immutable) return;
+        if(immutable || c <= 0.0) return;
         size[2] = c;
         latticeVectors[2].setX(2,c);
         update();

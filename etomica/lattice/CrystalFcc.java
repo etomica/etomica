@@ -20,6 +20,6 @@ public class CrystalFcc extends Crystal {
         siteFactory = new BasisCubicFcc(sim, (PrimitiveCubic)primitive);
     }
     
-    public String toString() {return "Fcc (cubic)";}
+    public String toString() {return "Fcc";}
     
 }//end of CrystalFcc

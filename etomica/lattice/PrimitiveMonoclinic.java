@@ -8,41 +8,78 @@ import etomica.*;
  */
 public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     
-    private double[] sizeCopy;
-    private double a, b, c, beta, sinBeta, cosBeta;
+    private boolean isReciprocal = false;
+    private double a = 1.0, b = 1.0, c = 1.0;
+    private double beta = 0.5*Math.PI, sinBeta = Math.sin(beta), cosBeta = Math.cos(beta);
     
     public PrimitiveMonoclinic(Simulation sim) {
         this(sim, 1.0, 1.0, 1.0, rightAngle);
     }
     public PrimitiveMonoclinic(Simulation sim, double a, double b, double c, double beta) {
-        super(sim);
-        size = new double[sim.space.D()];
-        sizeCopy = new double[sim.space.D()];
-        setA(a);
+        super(sim);//also makes reciprocal
+        setA(a);//also sets reciprocal via update
         setB(b);
         setC(c);
         setBeta(beta);
     }
+    /**
+     * Constructor used by makeReciprocal method.
+     */
+    private PrimitiveMonoclinic(Simulation sim, Primitive direct) {
+        super(sim, direct);
+        isReciprocal = true;
+    }
     
+    //called by superclass constructor
+    protected Primitive makeReciprocal() {
+        return new PrimitiveMonoclinic(simulation, this);
+    }
+    
+    //called by update method of superclass
+    protected void updateReciprocal() {
+        ((PrimitiveMonoclinic)reciprocal()).setA(2.0*Math.PI/(a*sinBeta));
+        ((PrimitiveMonoclinic)reciprocal()).setB(2.0*Math.PI/b);
+        ((PrimitiveMonoclinic)reciprocal()).setC(2.0*Math.PI/(c*sinBeta));
+        ((PrimitiveMonoclinic)reciprocal()).setBeta(beta);
+    }
+    
+        //direct lattice (ix = 0, iz = 2)
+        // v[0] = (1,0,0); v[1] = (0,1,0); v[2] = (c,0,s)  (times a, b, c)
+         
+        //reciprocal lattice (ix = 2, iz = 0)
+        // v[0] = (s,0,-c); v[1] = (0,1,0); v[2] = (0,0,1);  (times a, b, c)
     public void setA(double a) {
+        if(immutable || a <= 0.0) return;
         this.a = a;
-        latticeVectors[0].setX(0,a);
-        if(lattice != null) lattice.update();
+        size[0] = a;
+        if(!isReciprocal) latticeVectors[0].setX(0,a);
+        else {
+            latticeVectors[0].setX(0,+a*sinBeta);
+            latticeVectors[0].setX(2,-a*cosBeta);
+        }
+        update();
     }
     public double getA() {return a;}
     
     public void setB(double b) {
-        this.b = b;
+        if(immutable || b <= 0.0) return;
+        this.b = b;;
+        size[1] = b;
         latticeVectors[1].setX(1,b);
-        if(lattice != null) lattice.update();
+        update();
     }
     public double getB() {return b;}
         
     public void setC(double c) {
+        if(immutable || c <= 0.0) return;
         this.c = c;
-        latticeVectors[2].setX(0,c*cosBeta);
-        latticeVectors[2].setX(2,c*sinBeta);
-        if(lattice != null) lattice.update();
+        size[2] = c;
+        if(isReciprocal) latticeVectors[2].setX(2,c);
+        else {
+            latticeVectors[2].setX(0,c*cosBeta);
+            latticeVectors[2].setX(2,c*sinBeta);
+        }
+        update();
     }
     public double getC() {return c;}
     
@@ -50,18 +87,28 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     public double getAlpha() {return rightAngle;}
     
     public void setBeta(double t) {
+        if(immutable) return;
         if(t < rightAngle) t = rightAngle;
         if(t > Math.PI) t = Math.PI;
         beta = t;
+        angle[1] = beta;
         cosBeta = Math.cos(beta);
         sinBeta = Math.sin(beta);
-        setC(c);
+        if(isReciprocal) setA(a); 
+        else setC(c);//setA or setC calls update
     }
     public double getBeta() {return beta;}
     
     public void setGamma(double t) {}
     public double getGamma() {return rightAngle;}
     
+    public boolean isEditableA() {return true;}
+    public boolean isEditableB() {return true;}
+    public boolean isEditableC() {return true;}
+    public boolean isEditableAlpha() {return false;}
+    public boolean isEditableBeta() {return true;}
+    public boolean isEditableGamma() {return false;}
+
 
     /**
      * Returns a new, identical instance of this primitive.
@@ -69,17 +116,7 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     public Primitive copy() {
         return new PrimitiveMonoclinic(simulation, a, b, c, beta);
     }
-    
         
-    /**
-     * Returns a copy of the array of primitive-vector sizes.
-     */
-     //used by IteratorFactoryCell
-    public double[] getSize() {
-        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
-        return sizeCopy;
-    }
-    
     public void scaleSize(double scale) {
         setA(a*scale);
         setB(b*scale);
@@ -112,8 +149,6 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     public AtomFactory unitCellFactory() {
         return new UnitCellFactory(simulation);
     }
-    
-    private double[] size;
     
     public String toString() {return "Monoclinic";}
 

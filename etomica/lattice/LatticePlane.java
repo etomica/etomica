@@ -52,6 +52,8 @@ public class LatticePlane implements AtomFilter {
         setMillerIndices(millerIndices);
     }
     
+    public boolean isPrimitiveHexagonal() {return primitive instanceof PrimitiveHexagonal;}
+    
     /**
      * Sets the plane to the orientation specified by the given Miller indices
      * applied to the current primitive.
@@ -75,11 +77,16 @@ public class LatticePlane implements AtomFilter {
     public int getMillerIndex(int i) {return millerIndices[i];}
     /**
      * Sets the i-th Miller index to h, keeping the others fixed.
+     * If setting causes all indices to be zero, change is not implemented.
      */
     public void setMillerIndex(int i, int h) {
         if(i < 0 || i >= space.D()) throw new IllegalArgumentException("Error: specified miller index passed to LatticePlane.setMillerIndex inconsistent with spatial dimension");
+        int oldH = millerIndices[i];
         millerIndices[i] = h;
-        setMillerIndices(millerIndices);
+        boolean allZero = true;
+        for(int j=0; j<millerIndices.length; j++) if(millerIndices[j] != 0) allZero = false;
+        if(allZero) millerIndices[i] = oldH;
+        else setMillerIndices(millerIndices);
     }
     
     /**
@@ -106,9 +113,8 @@ public class LatticePlane implements AtomFilter {
     public void setPosition(int i) {
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
-        Space.Vector[] b = reciprocal.vectors();
         delta.E(origin);
-        delta.PEa1Tv1((i+0.000001)*2.0*Math.PI/normal.squared(),normal);
+        delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI/normal.squared(),normal);
         plane.moveTo((Space3D.Vector)delta);
     }
     

@@ -83,7 +83,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
-        if(immutable) return;
+        if(immutable || size <= 0.0) return;
         this.size = size;
         update();
     }
