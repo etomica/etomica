@@ -21,8 +21,7 @@ import etomica.utility.java2.Iterator;
  * All of the actions performed by the ElementCoordinator may instead be done directly in the applet
  * or application.  If multiple phases or integrators are present in a simulation, it may be necessary
  * to coordinate them directly rather than invoking an element coordinator.<br>
- * A default element coordinator is held in the Simulation class.  It is invoked automatically by the
- * start() and run() methods of the Controller class.  If a DisplayPhase object is being used, the
+ * A default element coordinator is held in the Simulation class.  If a DisplayPhase object is being used, the
  * element coordinator should be invoked directly by the applet or application to ensure that the initial
  * configuration is displayed (i.e., so that the configuration shows up before the controller is started).
  * To override the choice of the default element coordinator, be sure to change the handle assigned
@@ -49,7 +48,7 @@ public class Mediator implements java.io.Serializable {
         addMediatorPair(new IntegratorLogger.Default(this));
         addMediatorPair(new MeterPhase.Default(this));
         addMediatorPair(new MeterSpecies.Default(this));
-        addMediatorPair(new ControllerIntegrator.Default(this));
+        addMediatorPair(new IntegratorNull.Default(this));
         addMediatorPair(new PotentialSpecies.Default(this));
     }
     public Simulation parentSimulation() {return parentSimulation;}
@@ -412,49 +411,6 @@ public class Mediator implements java.io.Serializable {
         }//end of Default
     }//end of MeterSpecies
 
-    public abstract static class ControllerIntegrator extends Subset {
-        public ControllerIntegrator(Mediator m) {super(m);}
-
-        public Class[] elementClasses() {return new Class[] {Controller.class, Integrator.class};}
-        
-        public void add(SimulationElement element) {
-            if(!superceding && priorSubset != null) priorSubset.add(element);
-            if(element instanceof Controller) add((Controller)element);
-            if(element instanceof Integrator) add((Integrator)element);
-        }
-        
-        public abstract void add(Controller d);
-        public abstract void add(Integrator i);
-        
-        public static class Default extends ControllerIntegrator {
-            private boolean firstController = true;
-            public Default(Mediator m) {super(m);}
-            /**
-             * Sets first controller as controller of given integrator
-             */
-            public void add(Integrator integrator) {
-                for(Iterator ip=mediator.parentSimulation().controllerList().iterator(); ip.hasNext(); ) {
-                    Controller controller = (Controller)ip.next();
-                    if(controller.wasAdded()) {
-                        controller.add(integrator);
-                        break;
-                    }
-                }
-            }
-            /**
-             * Sets given controller, if it is the first added, as controller of all integrators.
-             */
-            public void add(Controller controller) {
-                if(!firstController) return;
-                firstController = false;
-                for(Iterator ip=mediator.parentSimulation().integratorList().iterator(); ip.hasNext(); ) {
-                    Integrator integrator = (Integrator)ip.next();
-                    if(integrator.wasAdded()) controller.add(integrator);
-                }
-            }
-        }//end of Default
-    }//end of ControllerIntegrator
-
     public abstract static class IntegratorNull extends Subset {
         public IntegratorNull(Mediator m) {super(m);}
 
@@ -466,36 +422,17 @@ public class Mediator implements java.io.Serializable {
         }
         
         public abstract void add(Integrator d);
-        
-        //no Default defined
-    }//end of IntegratorNull
 
-    public abstract static class ControllerNull extends Mediator.Subset {
-        public ControllerNull(Mediator m) {
-            super(m);
-        }
-
-        public Class[] elementClasses() {return new Class[] {Controller.class, null};}
-        
-        public void add(SimulationElement element) {
-            if(!superceding && priorSubset != null) priorSubset.add(element);
-            if(element instanceof Controller) add((Controller)element);
-        }
-        
-        public abstract void add(Controller d);
-        
-        /**
-         * Adding an instance of this pair mediator will cause the simulation to not
-         * act on the addition of controller objects.  
-         */
-        public static class NoAction extends ControllerNull {
-            public NoAction(Mediator m) {
-                super(m);
-                setSuperceding(true);//causes all previously added mediators to be ignored
+        public static class Default extends IntegratorNull {
+            public Default(Mediator m) {super(m);}
+            /**
+             * Adds given integrator to the simulation's controller
+             */
+            public void add(Integrator integrator) {
+            	mediator.parentSimulation().getController().add(integrator);
             }
-            
-            public void add(Controller controller) {}
-        }//end of NoAction
-    }//end of ControllerNull
+        }//end of Default
+
+    }//end of IntegratorNull
 
 }//end of Mediator

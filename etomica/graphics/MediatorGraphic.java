@@ -25,7 +25,6 @@ public class MediatorGraphic extends Mediator {
         addMediatorPair(new DeviceNull.Default(this));
         addMediatorPair(new DisplayNull.Default(this));
         addMediatorPair(new DisplayMeter.Default(this));
-        addMediatorPair(new ControllerNullDefault(this));
     }
         
     public abstract static class DeviceIntegrator extends Mediator.Subset {
@@ -332,21 +331,5 @@ public class MediatorGraphic extends Mediator {
         }//end of NoAction (DisplayMeter)
     }//end of DisplayMeter
     
-    /**
-     * Causes addition of button that toggles controller state.
-     */
-    public static class ControllerNullDefault extends ControllerNull {
-        public ControllerNullDefault(Mediator m) {
-            super(m);
-        }
-        /**
-         * Causes addition of button that toggles controller state.
-         */
-        public void add(Controller controller) {
-            mediator.add(new DeviceControllerButton(mediator.parentSimulation(), controller));
-            
-        }
-    }//end of ControllerNullDefault
-
     
 }//end of MediatorGraphic

@@ -29,7 +29,7 @@ public class HSMD2D extends SimulationGraphic {
     public SpeciesSpheresMono species, species2;
     public Phase phase;
     public Potential2 potential;
-    public Controller controller;
+//    public Controller controller;
     public DisplayPhase display;
 
     public HSMD2D() {
@@ -39,14 +39,14 @@ public class HSMD2D extends SimulationGraphic {
     public HSMD2D(Space2D space) {
         super(space, new PotentialMasterNbr(space));
   //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
-        Default.ATOM_SIZE = 1.0;
+        Default.ATOM_SIZE = 2.0;
         integrator = new IntegratorHard(this);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setInterval(1);
         integrator.setTimeStep(0.02);
         species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-	    species.setNMolecules(560);
+	    species.setNMolecules(160);
 	    species2.setNMolecules(5);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();
@@ -54,8 +54,8 @@ public class HSMD2D extends SimulationGraphic {
 	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 	    this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
-	    controller = new Controller(this);
-	    new DeviceTrioControllerButton(this, controller);
+//	    controller = new Controller(this);
+	    new DeviceTrioControllerButton(this, getController());
 	    display = new DisplayPhase(this);
 //	    DisplayTimer timer = new DisplayTimer(integrator);
 //	    timer.setUpdateInterval(10);

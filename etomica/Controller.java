@@ -1,11 +1,11 @@
 package etomica;
 
 //Java2 imports
-//import java.util.LinkedList;
-//import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Iterator;
 
-import etomica.utility.java2.LinkedList;
-import etomica.utility.java2.Iterator;
+//import etomica.utility.java2.LinkedList;
+//import etomica.utility.java2.Iterator;
 
 /**
  * Organizer of activities of the integrators.  Controller sets the protocol for
@@ -15,7 +15,7 @@ import etomica.utility.java2.Iterator;
  * The Controller runs on its own thread, and it spawns Integrator processes
  * each on its own thread.
  */
-public class Controller extends SimulationElement implements Runnable, java.io.Serializable, EtomicaElement {
+public class Controller implements Runnable, java.io.Serializable, EtomicaElement {
 
   /**
    * List of integrators managed by the controller
@@ -25,18 +25,14 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
    * Thread used to run the controller
    */
     protected transient Thread runner;
-    private boolean initialized = false;
-    private boolean autoStart = false;
-    private int maxSteps;
-    private boolean paused = true;
     
     private SimulationEventManager eventManager = new SimulationEventManager();
 
+    /**
+     * Creates a new controller.
+     *
+     */
     public Controller() {
-        this(Simulation.instance);
-    }
-    public Controller(SimulationElement sim) {
-        super(sim, Controller.class);
         maxSteps = Integer.MAX_VALUE;
     }
     
@@ -100,7 +96,7 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
      */
     public void start() {
         if(runner != null) return;
-        simulation().elementCoordinator.go();
+    	active = true;
         paused = false;
         runner = new Thread(this);
         runner.start();
@@ -115,18 +111,32 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
      * the run() method of the integrator.
      */
     public void run() {
-        simulation().elementCoordinator.go();  //perhaps redundant, but safe since it returns without performing any action if already completed
         for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
             if(!integrator.isActive()) integrator.start();
         }
         runner = null;
     }
-    
+
+    public void runInDevelopment() {
+    	LinkedList list;
+//    	while(true) {
+//    		//get next SimulationActivity
+//    		//activity
+//    		//activity.join
+//    	}
+        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+            Integrator integrator = (Integrator)iter.next();
+            if(!integrator.isActive()) integrator.start();
+        }
+        runner = null;
+    }
+
     /**
      * Sends a halt (stop) signal to all integrators.
      */
     public void halt() {
+    	active = false;
         for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
             if(integrator.isActive()) integrator.halt();
@@ -163,10 +173,11 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
      * Returns false if none are active.
      */
     public boolean isActive() {
-        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
-            if(((Integrator)iter.next()).isActive()) return true;
-        }
-        return false;
+    	return active;
+//        for(Iterator iter=integrators.iterator(); iter.hasNext(); ) {
+//            if(((Integrator)iter.next()).isActive()) return true;
+//        }
+//        return false;
     }
     
     /**
@@ -187,6 +198,13 @@ public class Controller extends SimulationElement implements Runnable, java.io.S
     protected void fireEvent(ControllerEvent event) {
         eventManager.fireEvent(event);
     }    
+    
+    private boolean initialized = false;
+    private boolean autoStart = false;
+    private int maxSteps;
+    private boolean paused = true;
+    private boolean active = false;
+
 }//end of Controller
 
 

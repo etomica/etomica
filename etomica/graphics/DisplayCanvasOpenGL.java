@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 //import gl4java.swing.GLAnimJPanel;
 import gl4java.awt.GLAnimCanvas;
+import gl4java.utils.glut.*;
+
 
 /**
  * Parent of classes that use OpenGL to display the phase configuration.

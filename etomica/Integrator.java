@@ -367,8 +367,12 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
         initialized = false;
         running = false;
         fireIntervalEvent(new IntervalEvent(this, IntervalEvent.DONE));
+        notifyHalt(); //release any threads waiting for halt to take effect
     }//end of run method
     
+    private synchronized void notifyHalt() {
+    	notifyAll();
+    }
     /**
      * Requests that the integrator reset itself; if integrator is not running,
      * then reset will be performed immediately. The actual action an integrator
@@ -435,9 +439,12 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
      * be prudent to have the calling thread join() to suspend it until the halt
      * is in effect.
      */
-    public void halt() {
+    public synchronized void halt() {
         if(running) haltRequested = true;
         if(pauseRequested) unPause();
+        try {
+            wait();  //make thread requesting pause wait until halt is in effect
+        } catch(InterruptedException e) {}
     }
     
     /**

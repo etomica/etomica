@@ -66,36 +66,17 @@ public class DeviceTrioControllerButton extends Device {
         jp.add(button1.graphic()); 
         jp.add(button2.graphic());  
         jp.add(button3.graphic());
-                
-		
-        class MyMediator extends Mediator.ControllerNull {
-            MyMediator(Mediator m) {
-                super(m);
-                setSuperceding(true);
-            }
-            /**
-            * Causes addition of button that toggles controller state.
-            */
-            public void add(Controller c) {
-                if(DeviceTrioControllerButton.this.getController() == null) {
-                    setController(c);
-                }            
-            }
-        }//end of MyMediator
-        
-        simulation.elementCoordinator.addMediatorPair(new MyMediator(simulation.elementCoordinator)); 
-        
+                       
         setShape("VERTICAL");
+        setController(simulation.getController());
     }
     
     /**
      * Constructor if instance of controller is added.
-     * Inner class ControllerNull.NoAction causes previously added controller button to be ignored
      */        
     public DeviceTrioControllerButton(Simulation sim, Controller c) {
         this(sim);
         setController(c);        
-        sim.elementCoordinator.addMediatorPair(new Mediator.ControllerNull.NoAction(sim.elementCoordinator));
     }
     
     // final due to being called in contructor
@@ -169,29 +150,28 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * main method to show how to work with this class 
      */        
-     public static void main(String[] args) {
-        
-        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
-
-        Phase phase0  = new Phase();
-            phase0.setLrcEnabled(false);
-        IntegratorHard integrator = new IntegratorHard();    
-        P2SquareWell p2Squarewell0  = new P2SquareWell();
-        Controller controller0  = new Controller();
-        SpeciesSpheresMono speciesSpheres0  = new SpeciesSpheresMono();
-        DisplayPhase displayPhase0  = new DisplayPhase();
-        MeterTemperature meterEnergy = new MeterTemperature();
-        DisplayTable table = new DisplayTable();
-            table.setWhichValues(new AccumulatorAverage.Type[] {AccumulatorAverage.MOST_RECENT, AccumulatorAverage.AVERAGE});
-
-        DeviceTrioControllerButton button = new DeviceTrioControllerButton();
-            button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
-//        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
-//          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
-        
-        Simulation.instance.elementCoordinator.go();
-        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }
+//     public static void main(String[] args) {
+//        
+//        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
+//
+//        Phase phase0  = new Phase();
+//            phase0.setLrcEnabled(false);
+//        IntegratorHard integrator = new IntegratorHard();    
+//        P2SquareWell p2Squarewell0  = new P2SquareWell();
+//        SpeciesSpheresMono speciesSpheres0  = new SpeciesSpheresMono();
+//        DisplayPhase displayPhase0  = new DisplayPhase();
+//        MeterTemperature meterEnergy = new MeterTemperature();
+//        DisplayTable table = new DisplayTable();
+//            table.setWhichValues(new AccumulatorAverage.Type[] {AccumulatorAverage.MOST_RECENT, AccumulatorAverage.AVERAGE});
+//
+//        DeviceTrioControllerButton button = new DeviceTrioControllerButton();
+//            button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
+////        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
+////          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
+//        
+//        Simulation.instance.elementCoordinator.go();
+//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+//    }
     
        
 }//end DeviceTrioControllerButton

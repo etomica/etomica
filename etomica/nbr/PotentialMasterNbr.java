@@ -32,7 +32,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	   	}
  		else {
  	    	Atom[] targetAtoms = id.getTargetAtoms();
- 	    	if (targetAToms.length == 0 || targetAtoms[0] == null) {
+ 	    	if (targetAtoms.length == 0 || targetAtoms[0] == null) {
  	    		//no target atoms specified -- do one-target algorithm to SpeciesMaster
  	    		calculate(phase.speciesMaster, new IteratorDirective(), pc);
  	    	}

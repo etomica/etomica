@@ -71,12 +71,12 @@ public class Simulation extends SimulationElement {
         elementLists.put(Species.class, new LinkedList());
         elementLists.put(Integrator.class, new LinkedList());
         elementLists.put(Phase.class, new LinkedList());
-        elementLists.put(Controller.class, new LinkedList());
 		elementLists.put(MeterAbstract.class, new LinkedList());
 		elementLists.put(LoggerAbstract.class, new LinkedList());
         elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
         potentialMaster.setSimulation(this);
+        setController(new Controller());
         instantiationEventManager.fireEvent(new SimulationEvent(this));
     }//end of constructor
                  
@@ -84,34 +84,43 @@ public class Simulation extends SimulationElement {
     /**
      * @return the <code>nth</code> instantiated phase (indexing from zero)
      */
-    public final Phase phase(int n) {return (Phase)phaseList().get(n);}
+    public final Phase phase(int n) {return (Phase)getElement(Phase.class, n);}
     /**
      * @return the <code>nth</code> instantiated species (indexing from zero)
      */
-    public final Species species(int n) {return (Species)speciesList().get(n);}
+    public final Species species(int n) {return (Species)getElement(Species.class, n);}
     /**
      * @return the <code>nth</code> instantiated controller (indexing from zero)
+     * @deprecated use getController instead
      */
-    public final Controller controller(int n) {return (Controller)controllerList().get(n);}
+    public final Controller controller(int n) {
+    	if(n != 0) throw new IllegalArgumentException("only one controller; must call with 0 index");
+    	return getController();
+    }
     /**
      * @return the <code>nth</code> instantiated integrator (indexing from zero)
      */
-    public final Integrator integrator(int n) {return (Integrator)integratorList().get(n);}
+    public final Integrator integrator(int n) {return (Integrator)getElement(Integrator.class, n);}
     /**
      * @return the <code>nth</code> instantiated meter (indexing from zero)
      */
-    public final MeterAbstract meter(int n) {return (MeterAbstract)meterList().get(n);}
+    public final MeterAbstract meter(int n) {return (MeterAbstract)getElement(MeterAbstract.class, n);}
 	/**
 	 * @return the <code>nth</code> instantiated logger (indexing from zero)
 	 */
-	public final LoggerAbstract logger(int n) {return (LoggerAbstract)loggerList().get(n);}
+	public final LoggerAbstract logger(int n) {return (LoggerAbstract)getElement(LoggerAbstract.class, n);}
 
+	private Object getElement(Class clazz, int n) {
+		LinkedList list = (LinkedList)elementLists.get(clazz);
+		if(n < 0 || n >= list.size()) return null;
+		else return list.get(n);
+	}
+	
     public final LinkedList phaseList() {return (LinkedList)elementLists.get(Phase.class);}
 	public final LinkedList meterList() {return (LinkedList)elementLists.get(MeterAbstract.class);}
 	public final LinkedList loggerList() {return (LinkedList)elementLists.get(LoggerAbstract.class);}
     public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
     public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
-    public final LinkedList controllerList() {return (LinkedList)elementLists.get(Controller.class);}
     public final LinkedList elementList(Class clazz) {return (LinkedList)elementLists.get(clazz);}
     
     public static Simulation getDefault() {
@@ -153,6 +162,14 @@ public class Simulation extends SimulationElement {
         }
     }
     
+	public Controller getController() {
+		return controller;
+	}
+	
+	//TODO transfer control from old to new controller (copy over integrators, etc)
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
     private static int instanceCount = 0;
     
 //    public static final java.util.Random random = new java.util.Random();
@@ -170,6 +187,8 @@ public class Simulation extends SimulationElement {
      
      public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
  
+     private Controller controller;
+     
      /**
      * Demonstrates how this class is implemented.
      */
@@ -180,7 +199,6 @@ public class Simulation extends SimulationElement {
 	    speciesSpheres.setNMolecules(300);
 	    Phase phase = new Phase();
 	    Potential2 potential = new P2HardSphere();
-	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
 	    timer.setUpdateInterval(10);
