@@ -50,11 +50,12 @@ public final class ApiIntergroup1A implements AtomPairIterator {
     }
     
     /**
-     * Resets the iterator, so that it is ready to go through all of its pairs.
+     * Resets the iterator using the current reference atom, or unsets if no
+     * atom was previously given.
      */
     public void reset() {
-        if(referenceAtom == null) return;
-        atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
+        if(referenceAtom == null) atomIterator.unset();
+        else atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
     }
         
     /**
@@ -90,7 +91,6 @@ public final class ApiIntergroup1A implements AtomPairIterator {
     public void allPairs(AtomPairAction act) {
         if(referenceAtom == null) return;
         wrapper.pairAction = act;
-        reset();
         atomIterator.allAtoms(wrapper);
     }
 

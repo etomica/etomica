@@ -61,7 +61,7 @@ public final class AtomIteratorList implements AtomIterator {
 	public boolean hasNext() {return next.atom != null;}
 	
 	public void setSkipFirstAtom(boolean b) {skipFirstAtom = b;}
-	public boolean isSkipFirstatom() {return skipFirstAtom;}
+	public boolean isSkipFirstAtom() {return skipFirstAtom;}
 	
 	/**
 	 * Sets the childList of the given atom as the basis for iteration.
@@ -312,7 +312,12 @@ public final class AtomIteratorList implements AtomIterator {
     /**
      * Sets iterator such that hasNext() will return false.
      */
-    public void unset() {next = header;}
+    public void unset() {
+        this.first = header;
+        this.direction = IteratorDirective.NEITHER;//unsets allAtoms method
+        next = header;
+        upListNow = doGoDown = false;
+    }
 
     /**
      * Returns true if the given atom is in the list of iterates, false otherwise.

@@ -35,11 +35,12 @@ public final class ApiIntragroup1A implements AtomPairIterator {
     }
     
     /**
-     * Resets the iterator, so that it is ready to go through all of its pairs.
+     * Resets the iterator using the current reference atom, or unsets if no
+     * atom was previously given.
      */
     public void reset() {
-        if(referenceAtom == null) return;
-        atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
+        if(referenceAtom == null) atomIterator.unset();
+        else atomIterator.reset(localDirective.set(IteratorDirective.BOTH).set(referenceAtom));
     }
         
     /**
@@ -74,7 +75,6 @@ public final class ApiIntragroup1A implements AtomPairIterator {
     public void allPairs(AtomPairAction act) {
         if(referenceAtom == null) return;
         wrapper.pairAction = act;
-        reset();
         atomIterator.allAtoms(wrapper);
     }
     
@@ -86,6 +86,34 @@ public final class ApiIntragroup1A implements AtomPairIterator {
     private final AtomPair pair;
     
     private final AtomPairAction.Wrapper wrapper;
+    
+    /**
+     * Method to test and demonstrate use of class.
+     */
+    public static void main(String[] args) {
+        
+        Simulation sim = new Simulation();
+        int nMolecules = 5;
+        SpeciesSpheresMono species = new SpeciesSpheresMono();
+        species.setNMolecules(nMolecules);
+        Phase phase = new Phase();
+        sim.elementCoordinator.go();
+//        AtomList atomList = phase.speciesMaster.atomList;
+        AtomList atomList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
+        
+        AtomPairIterator iterator = new ApiIntragroup1A(sim);
+        Atom first = phase.speciesMaster.firstSpecies().firstMolecule();
+        Atom last = phase.speciesMaster.lastSpecies().lastMolecule();
+        Atom middle = null;
+        if(nMolecules > 2) {
+            do middle = phase.randomMolecule();
+            while (middle == first || middle == last);
+        }
+        
+        iterator.setBasis(phase.speciesMaster.firstSpecies(), phase.speciesMaster.lastSpecies());
+        IteratorDirective.testSuitePair(iterator, first, middle, last);
+    }
+    
     
 }  //end of class ApiIntragroup1A
     

@@ -6,7 +6,7 @@ import etomica.*;
  * Causes a list to be kept with each atom that holds references to other
  * atoms associated with it, and keeps a master list of all atoms that have 
  * at least one associate.  Definition of "association" is given by the 
- * AssociationDefintion class passed to the constructor.
+ * AssociationDefinition class passed to the constructor.
  */
  //needs to be further developed to handle MCMoveEvents when affected atoms
  //are not among those managed by this class
