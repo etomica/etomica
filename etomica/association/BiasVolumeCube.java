@@ -1,5 +1,7 @@
 package etomica.association;
 
+import etomica.*;
+
 public class BiasVolumeCube extends BiasVolume {
     
     private final Space.Vector dimensions;

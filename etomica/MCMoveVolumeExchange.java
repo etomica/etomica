@@ -41,7 +41,7 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2 = new PhaseAction.Inflate(secondPhase);
     }
     
-    public void thisTrial() {
+    public boolean thisTrial() {
         double hOld = potential.set(firstPhase).calculate(iteratorDirective, energy.reset()).sum()
                     + potential.set(secondPhase).calculate(iteratorDirective, energy.reset()).sum();
         double v1Old = firstPhase.volume();
@@ -66,7 +66,8 @@ public final class MCMoveVolumeExchange extends MCMove {
             {  //reject
               inflate1.undo();
               inflate2.undo();
+              return false;
         }
-        else nAccept++;
+        else return true;
     }//end of thisTrial
 }//end of MCMoveVolumeExchange

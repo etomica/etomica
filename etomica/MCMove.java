@@ -3,8 +3,9 @@ package etomica;
 public abstract class MCMove implements java.io.Serializable {
     
     private int frequency, fullFrequency;
-    double acceptanceRatio, acceptanceTarget, stepSize, stepSizeMax, stepSizeMin;
-    int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
+    double acceptanceRatio, acceptanceTarget;
+    protected double stepSize, stepSizeMax, stepSizeMin;
+    private int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
     boolean perParticleFrequency;
     protected MCMove nextMove;
     protected boolean tunable = true;
@@ -14,6 +15,8 @@ public abstract class MCMove implements java.io.Serializable {
     protected final IntegratorMC parentIntegrator;
     protected final PotentialMaster potential;
     protected final PotentialCalculationEnergySum energy;
+    protected final MCMoveEvent event = new MCMoveEvent(this);
+    private final SimulationEventManager eventManager = new SimulationEventManager();
     
     public MCMove(IntegratorMC parent) {
         parentIntegrator = parent;
@@ -28,19 +31,27 @@ public abstract class MCMove implements java.io.Serializable {
         setAdjustInterval(100);
     }
     
+    /**
+     * Method called by IntegratorMC to conduct Monte Carlo trial move and decide
+     * acceptance.  Performs other bookkeeping tasks common to all subclasses.
+     * Actual definition of the trial for each subclass is given by the
+     * thisTrial method, which is invoked by this method.
+     */
     public void doTrial() {
         nTrials++;
-        thisTrial();
+        event.acceptedMove = thisTrial();
+        if(event.acceptedMove) nAccept++;
+        if(eventManager != null) eventManager.fireEvent(event);
         if(nTrials > adjustInterval*frequency) {adjustStepSize();}
     }
     
-/*    public void setParentIntegrator(IntegratorMC parent) {
-        parentIntegrator = parent;
-        potential = parentIntegrator.potential;
-    }*/
     public IntegratorMC parentIntegrator() {return parentIntegrator;}
     
-    public abstract void thisTrial();
+    /**
+     * Method to perform trial and decide acceptance.  Returns boolean
+     * indicating if move was accepted (true) or not.
+     */
+    public abstract boolean thisTrial();
     
     public void setPhase(Phase[] p) {
         phases = p;

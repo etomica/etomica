@@ -15,11 +15,11 @@ public class MCMoveRotate extends MCMove {
         setPerParticleFrequency(true);
     }
      
-    public void thisTrial(){   
+    public boolean thisTrial(){   
          
         double uOld, uNew;
        
-        if(phase.atomCount()==0) {return;}
+        if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
         Atom a = phase.firstAtom();
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  
@@ -32,16 +32,15 @@ public class MCMoveRotate extends MCMove {
         potential.set(phase).calculate(iteratorDirective.set(a), energy.reset());
         uNew = energy.sum();
         if(uNew < uOld) {   //accept
-            nAccept++;
-            return;
+            return true;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
             Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
                 // restore the old values of orientation.
             orientation.E(oldOrientation);
-            return;
+            return false;
         }
-        nAccept++;   //accept
+        return true;//accept
     }
  
    public static void main(String[] args) {

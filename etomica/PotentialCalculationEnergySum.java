@@ -3,9 +3,9 @@ package etomica;
 /**
  * Evaluates the energy summed over all iterated atoms.
  */
-public final class PotentialCalculationEnergySum implements PotentialCalculation.Sum, Potential1Calculation, Potential2Calculation {
+public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, Potential1Calculation, Potential2Calculation {
         
-    private double sum = 0.0;
+    protected double sum = 0.0;
         
     public PotentialCalculationEnergySum() {}
         

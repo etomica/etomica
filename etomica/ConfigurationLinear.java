@@ -9,12 +9,16 @@ import etomica.units.Dimension;
 
 public class ConfigurationLinear extends Configuration {
           
-    private double bondLength = 0.5*Default.ATOM_SIZE;
+    private double bondLength;
     private Space.Vector orientation;
     private double[] angle;
     
     public ConfigurationLinear(Space space) {
+        this(space, 0.5*Default.ATOM_SIZE);
+    }
+    public ConfigurationLinear(Space space, double bondLength) {
         super(space);
+        this.bondLength = bondLength;
         orientation = space.makeVector();
         angle = new double[space.D()];
         setAngle(0,etomica.units.Degree.UNIT.toSim(45.));

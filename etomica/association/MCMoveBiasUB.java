@@ -48,7 +48,7 @@ public class MCMoveBiasUB extends MCMove {
             Nai = associationManager.associatedAtomCount();
             deltai = (ni == 0) ? 0 : 1;
 
-            bv.biasInsert(atomA, atomB);
+            biasVolume.biasInsert(atomA, atomB);
          
             uNew = potential.set(phase).calculate(iteratorDirective.set(atomA), energy.reset()).sum();
             if(uNew == Double.MAX_VALUE) {
@@ -88,16 +88,16 @@ public class MCMoveBiasUB extends MCMove {
             deltaj = (nj == 0) ? 0 : 1;
         }//end unbonding
      
-        double phi = bv.biasVolume()/phase.volume();
+        double phi = biasVolume.biasVolume()/phase.volume();
         double chi;
         
-        if(Naj == 0) chi = ni*Nai/((N-1)*phi) * Math.exp(-deltaU/parentIntegrator.temperature);
-        else if(Nai == 0) chi = (N-1)*phi/(nj*Naj) * Math.exp(-deltaU/parentIntegrator.temperature);
+        if(Naj == 0) chi = ni*Nai/((N-1)*phi) * Math.exp(-deltaU/parentIntegrator.temperature());
+        else if(Nai == 0) chi = (N-1)*phi/(nj*Naj) * Math.exp(-deltaU/parentIntegrator.temperature());
         else chi = ((N-1)*phi*deltaj/Naj + ni)/((N-1)*phi*deltai/Nai + nj) *
-                      Math.exp(-deltaU/parentIntegrator.temperature);    
+                      Math.exp(-deltaU/parentIntegrator.temperature());    
 
         if ( chi < Simulation.random.nextDouble()) {// reject
-            atomA.replace();
+            atomA.coord.replace();
             associationManager.update(atomA);
             return;
         }

@@ -24,24 +24,23 @@ public class MCMoveMolecule extends MCMove {
     public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
     
 
-    public void thisTrial() {
-        double uOld, uNew;
-        if(phase.moleculeCount()==0) {return;}
+    public boolean thisTrial() {
+        if(phase.moleculeCount()==0) {return false;}
         Atom a = phase.randomMolecule();
 
-        uOld = potential.set(phase).calculate(iteratorDirective.set(a), energy.reset()).sum();
+        double uOld = potential.set(phase).calculate(iteratorDirective.set(a), energy.reset()).sum();
         a.coord.displaceWithin(stepSize);
-        uNew = potential.calculate(iteratorDirective.set(a), energy.reset()).sum();//not thread safe for multiphase systems
+        double uNew = potential.calculate(iteratorDirective.set(a), energy.reset()).sum();//not thread safe for multiphase systems
         if(uNew < uOld) {   //accept
-            nAccept++;
-            return;
+            return true;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
              a.coord.replace();
-             return;
+             return false;
         }
-        nAccept++;   //accept
+        //accept
+        return true;
     }//end thisTrial
     
     public static void main(String[] args) {

@@ -34,7 +34,7 @@ public class MCMovePointVolume extends MCMove {
         action.setPhase(phase);
     }
         
-    public void thisTrial() {
+    public boolean thisTrial() {
         double hOld, hNew, vOld, vNew;
         vOld = phase.volume();
         hOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum() + pressure*vOld;
@@ -50,11 +50,11 @@ public class MCMovePointVolume extends MCMove {
         hNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum() + pressure*vNew;
         if(hNew >= Double.MAX_VALUE ||  //not correct yet
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature + action.lastLnJacobian())
-                < Math.random()) 
-            {  //reject
+                < Math.random()) {  //reject
               action.undo();
+              return false;
             }
-        nAccept++;   //accept
+        return true;   //accept
     }
     
     public void setPressure(double p) {pressure = p;}

@@ -24,9 +24,9 @@ public class MCMoveAtom extends MCMove {
     public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
     
 
-    public void thisTrial() {
+    public boolean thisTrial() {
         double uOld, uNew;
-        if(phase.atomCount()==0) {return;}
+        if(phase.atomCount()==0) {return false;}
         int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
         Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
@@ -37,16 +37,16 @@ public class MCMoveAtom extends MCMove {
         phase.iteratorFactory().moveNotify(a);
         uNew = potential.calculate(iteratorDirective.set(a), energy.reset()).sum();//not thread safe for multiphase systems
         if(uNew < uOld) {   //accept
-            nAccept++;
-            return;
+            return true;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
            Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
              a.coord.replace();
              phase.iteratorFactory().moveNotify(a);
-             return;
+             return false;
         }
-        nAccept++;   //accept
+        //accept
+        return true;
     }//end thisTrial
     
     public static void main(String[] args) {

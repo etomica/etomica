@@ -25,7 +25,7 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
     public AtomIteratorSequential(Atom a) {
         this(a, false);
     }
-    //instead make an enumerated type to key for leaf iterator
+    //instead should make an enumerated type to key for leaf iterator
     public AtomIteratorSequential(Atom a, boolean isLeafIterator) {
         super(isLeafIterator);
         setBasis(a);

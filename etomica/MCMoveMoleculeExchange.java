@@ -34,7 +34,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         secondPhase = p[1];
     }
         
-    public void thisTrial() {
+    public boolean thisTrial() {
         Phase iPhase, dPhase;
         if(Simulation.random.nextDouble() < 0.5) {
             iPhase = firstPhase;
@@ -44,7 +44,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
             iPhase = secondPhase;
             dPhase = firstPhase;
         }
-        if(dPhase.moleculeCount() == 0) {return;} //no molecules to delete; trial is over
+        if(dPhase.moleculeCount() == 0) {return false;} //no molecules to delete; trial is over
         
         Atom a = dPhase.randomMolecule();  //select random molecule to delete
         Species species = a.parentSpecies();
@@ -63,19 +63,20 @@ public final class MCMoveMoleculeExchange extends MCMove {
             a.coord.replace();                //put it back 
             iPhase.removeMolecule(a,iSpecies);
             dPhase.addMolecule(a,dSpecies);
-            return;        
+            return false;        
         }
         
         double bFactor = (dSpecies.moleculeCount()+1)/dPhase.volume()  //acceptance probability
                          * iPhase.volume()/(iSpecies.moleculeCount())                   //note that dSpecies.nMolecules has been decremented
                          * Math.exp(-(uNew-uOld)/parentIntegrator.temperature);    //and iSpecies.nMolecules has been incremented
         if(bFactor > 1.0 || bFactor > Simulation.random.nextDouble()) {  //accept
-            nAccept++;
+            return true;
         }
         else {              //reject
             a.coord.replace();    //put it back
             iPhase.removeMolecule(a,iSpecies);
             dPhase.addMolecule(a,dSpecies); //place molecule in phase
+            return false;
         }
     }//end of thisTrial
 }//end of MCMoveMoleculeExchange

@@ -210,7 +210,7 @@ public class Atom implements java.io.Serializable {
      * with atomLink[idx].
      * @deprecated
      */
-    public static int requestAtomLinkIndex() {return atomLinkCount++;}
+//    public static int requestAtomLinkIndex() {return atomLinkCount++;}
     
     //replaces AtomLinkIndex
     public static int requestAtomListIndex() {return atomListCount++;}

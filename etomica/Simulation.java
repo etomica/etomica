@@ -40,6 +40,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     
     public final Hamiltonian hamiltonian = new Hamiltonian(this);
     
+    public PotentialCalculationEnergySum energySum;
+    
    /**
     * Object describing the nature of the physical space in which the simulation is performed
     */
@@ -247,8 +249,23 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         return list;
     }
     
+    /**
+     * Returns the energy-sum object used by all Integrator, Meters, MCMoves, etc.
+     * Returns the object last passed to setEnergySum, or if no such call was
+     * made (or if call set energySum to null) a new instance of 
+     * PotentialCalculationEnergySum is returned with each call.
+     */
     public PotentialCalculationEnergySum energySum(Object obj) {
-        return new PotentialCalculationEnergySum();
+        if(energySum != null) return energySum;
+        else return new PotentialCalculationEnergySum();
+    }
+    /**
+     * Sets the energy-sum object that will be given to all Integrators, Meters, etc.
+     * that require one for their operation.  Other such instances may perform additional
+     * calculations with the energy measurement. May be set to null.
+     */
+    public void setEnergySum(PotentialCalculationEnergySum sum) {
+        energySum = sum;
     }
     
     private static int instanceCount = 0;

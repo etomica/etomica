@@ -27,7 +27,7 @@ public class MCMoveVolume extends MCMove {
         inflate = new PhaseAction.Inflate(phase);
     }
     
-    public void thisTrial() {
+    public boolean thisTrial() {
         double hOld, hNew, vOld, vNew, uOld, uNew;
         vOld = phase.volume();
         uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
@@ -44,9 +44,9 @@ public class MCMoveVolume extends MCMove {
                 < Math.random()) 
             {  //reject
               inflate.undo();
-              return;
+              return false;
             }
-        nAccept++;   //accept
+        return true;   //accept
     }
     
     public void setPressure(double p) {pressure = p;}

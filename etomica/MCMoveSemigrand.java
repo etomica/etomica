@@ -117,7 +117,7 @@ public class MCMoveSemigrand extends MCMove {
     /**
      * Performs the trial and decides acceptance.
      */
-    public final void thisTrial() {
+    public final boolean thisTrial() {
         
         double uOld = 0.0;
         double uNew = 0.0;
@@ -125,7 +125,7 @@ public class MCMoveSemigrand extends MCMove {
         //select species for deletion
         int iDelete = (int)(Simulation.random.nextDouble()*nSpecies);//System.out.println("Random no. :"+randomNo);
         SpeciesAgent deleteAgent = agentSet[iDelete];
-        if(deleteAgent.moleculeCount() == 0) return;
+        if(deleteAgent.moleculeCount() == 0) return false;
 
         //select species for insertion
         int iInsert = iDelete;
@@ -147,21 +147,21 @@ public class MCMoveSemigrand extends MCMove {
         if(uNew == Double.MAX_VALUE) {//reject
             deleteAgent.addAtom(deleteMolecule);
             insertMolecule.sendToReservoir();
-            return;
+            return false;
         }
         double w = ((double)(deleteAgent.moleculeCount()+1)/(double)insertAgent.moleculeCount())
                 * (fugacityFraction[iInsert]/fugacityFraction[iDelete])
                 * Math.exp(-(uNew-uOld)/parentIntegrator.temperature);
         
         if(w > 1.0 || Simulation.random.nextDouble() < w) {//accept
-            nAccept++;
             deleteMolecule.sendToReservoir();
-            return;
+            return true;
         }
         
         //reject
         deleteAgent.addAtom(deleteMolecule);
         insertMolecule.sendToReservoir();
+        return false;
         
     }//end of thisTrial
     

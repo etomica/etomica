@@ -64,4 +64,10 @@ public class SimulationEventManager implements java.io.Serializable {
         }
     }
 
+    public void fireEvent(MCMoveEvent event) {
+        for(SimulationEventListener.Linker link=first; link!=null; link=link.next) {
+            ((MCMoveEventListener)link.listener).mcMoveAction(event);
+        }
+    }
+
 }

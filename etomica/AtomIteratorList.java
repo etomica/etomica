@@ -20,6 +20,9 @@ public final class AtomIteratorList implements AtomIterator {
 	AtomIteratorList() {
 	    this(AtomList.NULL);
 	}
+	public AtomIteratorList(AtomIterator iterator) {
+	    this(new AtomList(iterator));
+	}
 	public AtomIteratorList(AtomList list) {
 	    setBasis(list);
 	}
