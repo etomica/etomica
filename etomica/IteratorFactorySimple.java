@@ -2,7 +2,7 @@ package etomica;
 
 import etomica.AtomSequencer.Factory;
 
-public class IteratorFactorySimple implements IteratorFactory {
+public class IteratorFactorySimple extends IteratorFactory {
     
     public static final IteratorFactorySimple INSTANCE = new IteratorFactorySimple();
    
@@ -12,10 +12,10 @@ public class IteratorFactorySimple implements IteratorFactory {
     public Factory interactionMoleculeSequencerFactory() {
         return AtomSequencerSimple.FACTORY;
     }
-    public AtomsetIterator makeInterSpeciesPairIterator() {
+    public AtomsetIterator makeInterSpeciesPairIterator(Species[] species) {
         return new ApiIntergroup();
     }
-    public AtomsetIterator makeIntraSpeciesPairIterator() {
+    public AtomsetIterator makeIntraSpeciesPairIterator(Species[] species) {
         return new ApiIntragroup();
     }
     public Factory moleculeSequencerFactory() {

@@ -11,35 +11,49 @@ package etomica;
  * @author David Kofke
  */
 
-public interface IteratorFactory {
+public abstract class IteratorFactory {
 
+    public AtomsetIterator makeMoleculeIterator(Species[] species) {
+        if (species == null || species.length == 0 || species.length > 2
+                || species[0] == null || species[species.length-1] == null) {
+            throw new IllegalArgumentException("null or invalid number of species.  Must specify either 1 or 2 species instances.");
+        }
+        if (species.length==1) {
+            return new AtomIteratorBasis();
+        }
+        if (species[0] == species[1]) {
+            return makeInterSpeciesPairIterator(species);
+        }
+        return makeIntraSpeciesPairIterator(species);
+    }
+    
     /**
      * creates a pair iterator which loops over all pairs in a neighbor list
      * between two groups
      * @return the pair iterator
      */
-    public AtomsetIterator makeInterSpeciesPairIterator();
+    public abstract AtomsetIterator makeInterSpeciesPairIterator(Species[] species);
     
     /**
      * creates a pair iterator which loops over all pairs in a neighbor list
      * within one group
      * @return the pair iterator
      */
-    public AtomsetIterator makeIntraSpeciesPairIterator();
+    public abstract AtomsetIterator makeIntraSpeciesPairIterator(Species[] species);
     
     /**
      * Sequencer used for molecule-level atoms (those with a SpeciesAgent
      * as the parent). Special because if cell lists are used, they are
      * kept for these atoms.
       */
-    public AtomSequencer.Factory moleculeSequencerFactory();
+    public abstract AtomSequencer.Factory moleculeSequencerFactory();
     
     /**
      * Sequencer used for atoms on which concrete potentials (non-group) act.
      * Special because if neighbor lists are used, they are kept for these atoms.
      * @return
      */
-    public AtomSequencer.Factory interactionAtomSequencerFactory();
+    public abstract AtomSequencer.Factory interactionAtomSequencerFactory();
 
     /**
      * Sequencer used for molecule-level atoms on which concrete potentials 
@@ -47,6 +61,6 @@ public interface IteratorFactory {
      * and cell listing.
      * @return
      */
-    public AtomSequencer.Factory interactionMoleculeSequencerFactory();
+    public abstract AtomSequencer.Factory interactionMoleculeSequencerFactory();
 
 }

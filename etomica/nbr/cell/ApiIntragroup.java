@@ -2,7 +2,19 @@
  * History
  * Created on Aug 30, 2004 by kofke
  */
-package etomica;
+package etomica.nbr.cell;
+
+import etomica.ApiInnerVariable;
+import etomica.Atom;
+import etomica.AtomIteratorBasis;
+import etomica.AtomIteratorSequencerList;
+import etomica.AtomList;
+import etomica.AtomTreeNodeGroup;
+import etomica.AtomsetIteratorAdapter;
+import etomica.AtomsetIteratorBasisDependent;
+import etomica.AtomsetIteratorDirectable;
+import etomica.IteratorDirective;
+import etomica.Species;
 
 /**
  * Returns iterates from from the childList of a single basis atom.  Behavior is set
@@ -17,15 +29,11 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 * Constructor makes iterator that must have basis specified and then be 
 	 * reset() before iteration.
 	 */
-	public ApiIntragroup() {
-		this(new ApiInnerVariable(
+	public ApiIntragroup(Species[] species) {
+		super(new ApiInnerVariable(
 					new AtomIteratorBasis(),
-					new AtomIteratorSequencerList()));
-    }
-    
-    public ApiIntragroup(ApiInnerVariable pairIterator) {
-        super(pairIterator);
-		this.pairIterator = pairIterator;
+					new AtomIteratorNbrCell(species[0],true)));
+		pairIterator = (ApiInnerVariable)iterator;
 		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
 		aiInner = (AtomIteratorSequencerList)pairIterator.getInnerIterator();
 		aiInner.setNumToSkip(1);

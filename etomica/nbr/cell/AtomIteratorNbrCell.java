@@ -6,13 +6,14 @@ package etomica.nbr.cell;
 
 import etomica.Atom;
 import etomica.AtomIteratorAtomDependent;
-import etomica.AtomIteratorListSimple;
+import etomica.AtomIteratorList;
+import etomica.AtomLinker;
 import etomica.AtomList;
 import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
-import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
+import etomica.lattice.NeighborManager;
 
 /**
  * Iterator giving those atoms found in the neighboring cells of a
@@ -20,16 +21,15 @@ import etomica.nbr.cell.IteratorFactoryCell.CellSequencer;
  * atoms are at the molecule level of the atom hierarchy.
  */
 
-//TODO worry about direction issues
-
 public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
 
     /**
      * Constructs iterator such that it will return molecules of the given
      * species as its iterates.
      */
-    public AtomIteratorNbrCell(Species species) {
+    public AtomIteratorNbrCell(Species species, boolean upOnly) {
         nbrListIndex = species.getIndex();
+        this.upOnly = upOnly;
     }
 
     /**
@@ -39,7 +39,11 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     public void setAtom(Atom atom) {
         this.atom = atom;
         NeighborCell referenceCell = ((Cellular)atom.seq).getCell();
-        cellIterator.setList(referenceCell.neighborManager().neighbors());
+        NeighborManager neighborManager = referenceCell.neighborManager();
+        if (upOnly) {
+            cellLinker = neighborManager.tab;
+        }
+        cellIterator.setList(neighborManager.neighbors());
     }
 
     public boolean contains(Atom[] atom) {
@@ -55,8 +59,23 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     }
 
     public void reset() {
-        cellIterator.reset();//reset cell iterator
-        advanceCell();//reset list iterator
+        if (upOnly) {
+            cellIterator.setFirst(cellLinker);
+            cellIterator.reset();//reset cell iterator
+            AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
+            atomIterator.setList(nbrList);
+            atomIterator.setFirst(((AtomSequencerCell)atom.seq).nbrLink);
+            atomIterator.reset();
+            atomIterator.nextAtom();
+            if (!atomIterator.hasNext()) {
+                advanceCell();
+            }
+        }
+        else {
+            cellIterator.reset();
+            atomIterator.unset();
+            advanceCell();//reset list iterator
+        }
     }
 
     public void unset() {
@@ -67,20 +86,23 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     // Moves to next cell that has an iterate
     private void advanceCell() {
         do {
-            if(cellIterator.hasNext()) {//cell iterator
+            if(cellIterator.hasNext()) {
                 AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
                 atomIterator.setList(nbrList);
                 atomIterator.reset();
+                if (!upOnly && atomIterator.hasNext() && atomIterator.peek()[0] == atom) {
+                    atomIterator.nextAtom();
+                }
             } else {//no more cells at all
                 break;
             }
-        } while(!atomIterator.hasNext() || atomIterator.peek()[0] == atom);
+        } while(!atomIterator.hasNext());
     }
 
 
     public Atom nextAtom() {
         Atom atom = atomIterator.nextAtom();
-        if(atomIterator.peek()[0] == atom) atomIterator.next();//skip central atom
+        if(!upOnly && atomIterator.peek()[0] == atom) atomIterator.next();//skip central atom
         if(!atomIterator.hasNext()) advanceCell();
         return atom;
     }
@@ -95,15 +117,22 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     }
 
     public void allAtoms(AtomsetAction action) {
-        if(atom == null) return;//atom will be null if setAtom not yet called
+        if (upOnly) {
+            cellIterator.setFirst(cellLinker);
+        }
         cellIterator.reset();
+        boolean firstCell = true;
         while(cellIterator.hasNext()) {
             AtomList nbrList = ((NeighborCell)cellIterator.nextAtom()).occupants()[nbrListIndex];
             atomIterator.setList(nbrList);
+            if (upOnly && firstCell) {
+                atomIterator.setFirst(((AtomSequencerCell)atom.seq).nbrLink);
+                firstCell = false;
+            }
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom[] next = atomIterator.next();
-                if(next[0] != atom) action.actionPerformed(next);
+                if(!upOnly && next[0] != atom) action.actionPerformed(next);
             }
         }
     }
@@ -124,7 +153,9 @@ public class AtomIteratorNbrCell implements AtomIteratorAtomDependent {
     private Atom atom;
     private final int nbrListIndex;
     private final Atom[] atoms = new Atom[1];
-    private final AtomIteratorListSimple atomIterator = new AtomIteratorListSimple();
-    private final AtomIteratorListSimple cellIterator = new AtomIteratorListSimple();
-
+    private final AtomIteratorList atomIterator = new AtomIteratorList();
+    private final AtomIteratorList cellIterator = new AtomIteratorList();
+    private final boolean upOnly;
+    private AtomLinker cellLinker;
+    
 }

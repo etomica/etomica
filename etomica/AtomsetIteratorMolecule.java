@@ -27,7 +27,11 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
 	 * two species are specified, an IllegalArgumentException is thrown.
 	 */
 	public AtomsetIteratorMolecule(Species[] species) {
-		super(makeIterator(species));
+        this(species,IteratorFactorySimple.INSTANCE);
+    }
+    
+    public AtomsetIteratorMolecule(Species[] species, IteratorFactory iteratorFactory) {
+		super(iteratorFactory.makeMoleculeIterator(species));
 		this.species = (Species[])species.clone();
 		basisIterator = (AtomsetIteratorBasisDependent)iterator;
 		basisSize = species.length;
@@ -127,24 +131,6 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     		// of iterators do not need the direction.
     		((ApiIntragroup)basisIterator).setDirection(direction);
     	}
-    }
-    
-    /**
-     * Method used by constructor to determine the type of iterator to
-     * wrap by this class.
-     */
-     private static AtomsetIterator makeIterator(Species[] species) {
-    	if (species == null || species.length == 0 || species.length > 2
-    			|| species[0] == null || species[species.length-1] == null) {
-    		throw new IllegalArgumentException("null or invalid number of species.  Must specify either 1 or 2 species instances.");
-    	}
-    	if (species.length==1) {
-    		return new AtomIteratorBasis();
-    	}
-    	else if (species[0] == species[1]) {
-    		return new ApiIntragroup();
-    	}
-    	else return new ApiIntergroup();
     }
      
  	private final Species[] species;
