@@ -33,7 +33,7 @@ public class PotentialMaster extends PotentialGroup {
 	 * correction zero-body potentials.
 	 */
 	 public PotentialGroupLrc lrcMaster() {
-		if(lrcMaster == null) lrcMaster = new PotentialGroupLrc(this);
+		if(lrcMaster == null) lrcMaster = new PotentialGroupLrc(space);
 		return lrcMaster;
 	 }
 
