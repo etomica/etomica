@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.utility.HistoryScrolling;
+
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
  * of selecting a molecule at random and changing its species identity.  More precisely,
@@ -236,19 +238,19 @@ public class MCMoveSemigrand extends MCMove {
 	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
 
 		MeterMoleFraction density0 = new MeterMoleFraction();
-		density0.setPhase(phase);
-		density0.setHistorying(true);
-		density0.setActive(true);		
-		density0.getHistory().setHistoryLength(500);		
+		density0.setPhase(new Phase[] {phase});
+		AccumulatorHistory density0Hist = new AccumulatorHistory(HistoryScrolling.FACTORY, 500);
+		AccumulatorManager density0HistManager = new AccumulatorManager(density0, new Accumulator[] {density0Hist});
 		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
 		plot.setLabel("Species0 density");
-		plot.setDataSources(density0.getHistory());
+		plot.setDataSources(density0Hist);
 		
 		MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
-		energyMeter.setUpdateInterval(1);
-		energyMeter.setHistorying(true);
+		AccumulatorHistory energyHist = new AccumulatorHistory();
+		AccumulatorManager energyHistManager = new AccumulatorManager(energyMeter, new Accumulator[] {energyHist});
+		energyHistManager.setUpdateInterval(1);
 		etomica.graphics.DisplayPlot energyPlot = new etomica.graphics.DisplayPlot();
-		energyPlot.setDataSources(energyMeter.getHistory());
+		energyPlot.setDataSources(energyHist);
 		
 		etomica.graphics.DeviceTernarySelector selector = 
 		    new etomica.graphics.DeviceTernarySelector(Simulation.instance, 

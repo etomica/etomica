@@ -155,35 +155,6 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     	return newArray;
     }
         	 
-    /**
-    * Accessor method to indicate if the meter should keep a histogram of all measured values.
-    * Default is false (do not keep histogram).
-    * Does not take an argument; true/falue value is obtained from outer-class meter
-    */
-    //need way to update name if meter name changes
-    public void setHistogramming() {
-        if(histogramming && histogram == null) {
-            histogram = new HistogramSimple();
-            histogram.setName(MeterAbstract.this.toString() + ":HistogramSimple");
-            histogram.setLabel(MeterAbstract.this.getLabel() + " histogram");
-            histogram.setXLabel(MeterAbstract.this.getLabel());
-            histogram.setXDimension(MeterAbstract.this.getDimension());
-        }
-    }
-    
-   /**
-    * Accessor method to indicate if the meter should keep a history of all measured values.
-    * Default is false (do not keep history).
-    * Does not take an argument; true/falue value is obtained from outer-class meter
-    */
-    public void setHistorying() {
-        if(historying && history == null) {
-            history = new HistoryScrolling(Default.HISTORY_PERIOD);
-            history.setName(MeterAbstract.this.toString() + ":History");
-            history.setLabel(MeterAbstract.this.getLabel() + " history");
-        }
-    }
-
 	public double[] getData() {
 	    return getData(AVERAGE);
 	}
@@ -249,4 +220,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     private int nDataMinus1;
     private boolean saveOnRedimension = false;
 
+    public DataTranslator getTranslator() {
+    	return DataTranslator.IDENTITY;
+    }
 }

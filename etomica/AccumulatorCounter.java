@@ -18,9 +18,8 @@ public class AccumulatorCounter extends Accumulator {
 	 * @param parentElement
 	 * @param dataSource
 	 */
-	public AccumulatorCounter(SimulationElement parentElement,
-			DataSource dataSource) {
-		super(parentElement, dataSource);
+	public AccumulatorCounter() {
+		super(Dimension.QUANTITY);
 	}
 
 	/* (non-Javadoc)
@@ -28,7 +27,6 @@ public class AccumulatorCounter extends Accumulator {
 	 */
 	public void add(double[] values) {
 		count++;
-
 	}
 
 	/* (non-Javadoc)
@@ -44,13 +42,8 @@ public class AccumulatorCounter extends Accumulator {
 
 	}
 
-	/**
-	 * Returns QUANTITY dimension.
-	 */
-	public Dimension getDimension() {
-		return Dimension.QUANTITY;
-	}
-
 	int count;
 	double[] data = new double[1];
+	
+	public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
 }

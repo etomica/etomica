@@ -112,12 +112,11 @@ public interface Constants {
     
     //MeterAbstract typed constants, repeated here to enable access by
     //implementing Constants interface
-    public static final MeterAbstract.ValueType AVERAGE = MeterAbstract.AVERAGE;
-    public static final MeterAbstract.ValueType ERROR = MeterAbstract.ERROR;
-    public static final MeterAbstract.ValueType CURRENT = MeterAbstract.CURRENT;
-    public static final MeterAbstract.ValueType MOST_RECENT = MeterAbstract.MOST_RECENT;
-    public static final MeterAbstract.ValueType MOST_RECENT_BLOCK = MeterAbstract.MOST_RECENT_BLOCK;
-    public static final MeterAbstract.ValueType VARIANCE = MeterAbstract.VARIANCE;
+    public static final AccumulatorAverage.Type AVERAGE = AccumulatorAverage.AVERAGE;
+    public static final AccumulatorAverage.Type ERROR = AccumulatorAverage.ERROR;
+    public static final AccumulatorAverage.Type MOST_RECENT = AccumulatorAverage.MOST_RECENT;
+    public static final AccumulatorAverage.Type MOST_RECENT_BLOCK = AccumulatorAverage.MOST_RECENT_BLOCK;
+    public static final AccumulatorAverage.Type STANDARD_DEVIATION = AccumulatorAverage.STANDARD_DEVIATION;
     
 }
     
