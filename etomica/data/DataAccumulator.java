@@ -7,6 +7,8 @@ package etomica.data;
 import etomica.DataPipe;
 import etomica.DataSink;
 import etomica.DataSource;
+import etomica.Default;
+import etomica.Simulation;
 
 /**
  * DataPipe that accumulates and transforms given data and intermittently transmits
@@ -16,6 +18,10 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 
     public DataAccumulator() {
         setPushInterval(1);
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
+
     }
     
 	/**
