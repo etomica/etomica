@@ -13,7 +13,7 @@ import etomica.units.Dimension;
   */
 public class MCMoveMolecule extends MCMove {
     
-    protected final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
     protected double uOld;
@@ -25,11 +25,13 @@ public class MCMoveMolecule extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(0.1*Default.ATOM_SIZE);
         setPerParticleFrequency(true);
-        iteratorDirective.includeLrc = false;
+        energyMeter.setIncludeLrc(false);
         //set directive to exclude intramolecular contributions to the energy
-        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
-            public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
-        });
+
+        //TODO enable meter to do this
+        //       iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
+ //           public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
+ //       });
         setName("MCMoveMolecule");
         
     }
@@ -44,7 +46,8 @@ public class MCMoveMolecule extends MCMove {
         
         molecule = phase.randomMolecule();
 
-        uOld = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();
+        energyMeter.setTarget(molecule);
+        uOld = energyMeter.getDataAsScalar(phase);
         molecule.coord.displaceWithin(stepSize);
         uNew = Double.NaN;
         return true;
@@ -53,7 +56,8 @@ public class MCMoveMolecule extends MCMove {
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
+        energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar(phase);
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     
@@ -65,7 +69,7 @@ public class MCMoveMolecule extends MCMove {
         
     public final AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setBasis(molecule);
+        affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }

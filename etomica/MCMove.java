@@ -32,7 +32,7 @@ public abstract class MCMove implements java.io.Serializable {
     public MCMove(IntegratorMC parent) {
         parentIntegrator = parent;
         potential = parentIntegrator.potential;
-        energy = potential.simulation().energySum(this);
+        energy = new PotentialCalculationEnergySum();
         parent.add(this);
         nTrials = 0;
         nAccept = 0;

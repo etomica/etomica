@@ -28,8 +28,6 @@ import etomica.utility.java2.LinkedList;
   */
 public class SimulationGraphic extends Simulation {
     
-    public String getVersion() {return "SimulationGraphic:01.11.20;"+Simulation.VERSION;}
-    
     static {
         try {
             javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new EtomicaTheme());
@@ -49,7 +47,11 @@ public class SimulationGraphic extends Simulation {
      * Constructor requires specification of the space used by the simulation
      */
     public SimulationGraphic(Space s) {
-        super(s);
+    	this(s,new PotentialMaster(s));
+    }
+    
+    public SimulationGraphic(Space s, PotentialMaster potentialMaster) {
+    	super(s,potentialMaster);
         Default.DO_SLEEP = true;
         elementLists.put(Display.class, new LinkedList());
         elementLists.put(Device.class, new LinkedList());

@@ -15,8 +15,6 @@ package etomica;
   */
 public class Atom implements java.io.Serializable {
 
-    public static String getVersion() {return "Atom:01.08.08";}
-    
   /*  public Atom(Space space, AtomType type, AtomTreeNodeGroup parent) {
         this(space, type, AtomTreeNodeGroup.FACTORY, parent);
     }
@@ -52,6 +50,28 @@ public class Atom implements java.io.Serializable {
     public Atom(Space space) {
     	this(space, new AtomType.Sphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerSimple.FACTORY, null);                        
     }
+    
+    /**
+     * Returns a string of digits that uniquely identifies this atom.  String is
+     * formed by concatenating the index of this atom to the signature
+     * given by the parent of this atom.
+     */
+    public String signature() {return node.parentGroup().signature() + " " + node.index();}
+
+    /**
+     * Returns a string formed by concatenating the signature of this atom
+     * to a string that identifies it as a species master, species agent, 
+     * molecule, group, or (leaf) atom.
+     */
+    public final String toString() {
+    	if(this instanceof SpeciesMaster) return "Master(" + signature() + ")";
+    	else if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
+    	if(node.parentGroup() instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
+    	else if(node.isLeaf()) return "Atom(" + signature() + ")";
+    	else return "Group(" + signature() + ")";
+    }    
+
+
     /**
      * Assigns the atom's integrator agent to the given instance.
      */
@@ -85,9 +105,6 @@ public class Atom implements java.io.Serializable {
      */
     public final Space.Coordinate coord;
             
-    public String signature() {return node.parentGroup().signature() + " " + node.index();}
-    public final String toString() {return "Atom(" + signature() + ")";}    
-
     public Object ia;//integrator agent
                 
     public final AtomTreeNode node;

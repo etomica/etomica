@@ -42,8 +42,8 @@ public abstract class Potential2 extends Potential {
         if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null
             && (this instanceof Potential2SoftSpherical)) ) {
         	//TODO fix by doing this when adding potential to parent group
-            PotentialMaster potentialMaster = simulation().hamiltonian.potential;
-            potentialTruncation.makeLrcPotential(potentialMaster, this); //constructor of lrcPotential adds it to lrcMaster of potentialMaster
+//            PotentialMaster potentialMaster = simulation().potentialMaster;
+//            potentialTruncation.makeLrcPotential(potentialMaster, this); //constructor of lrcPotential adds it to lrcMaster of potentialMaster
         }
         cPair = space.makeCoordinatePair();
     }

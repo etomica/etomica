@@ -13,7 +13,8 @@ package etomica;
 //PotentialMaster uses instances of this class for all iterators it assigns
 //to the potentials added to it via setSpecies.
 public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
-		implements AtomsetIteratorPhaseDependent, AtomsetIteratorTargetable {
+		implements AtomsetIteratorPhaseDependent, AtomsetIteratorTargetable,
+		AtomsetIteratorDirectable {
 
 	/**
 	 * Constructor requires specification of species for which molecules

@@ -11,10 +11,10 @@ public class GEMCWithRotation extends SimulationGraphic {
     
     public GEMCWithRotation() {
         super(new Space2D()/*new Space2DCell()*/);
-        setIteratorFactory(new IteratorFactoryCell(this));
+//        setIteratorFactory(new IteratorFactoryCell(this));
         Default.ATOM_SIZE = 1.2;
-        setUnitSystem(new etomica.units.systems.LJ());
-        Default.TEMPERATURE = unitSystem().temperature().toSim(0.420);
+        Default.UNIT_SYSTEM = new etomica.units.systems.LJ();
+        Default.TEMPERATURE = Default.UNIT_SYSTEM.temperature().toSim(0.420);
         IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 	    integratorGEMC1.setDoSleep(false);
 	    integratorGEMC1.setInterval(400);

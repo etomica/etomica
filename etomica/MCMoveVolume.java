@@ -11,9 +11,9 @@ import etomica.units.Dimension;
 public class MCMoveVolume extends MCMove {
     
     protected double pressure;
+    private MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
     protected final PhaseAction.Inflate inflate = new PhaseAction.Inflate();
-    private final IteratorDirective iteratorDirective = new IteratorDirective();
-    private AtomIterator affectedAtomIterator;
+     private AtomIterator affectedAtomIterator;
 
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
@@ -24,7 +24,7 @@ public class MCMoveVolume extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(0.10);
         setPressure(Default.PRESSURE);
-        iteratorDirective.includeLrc = true;
+        energyMeter.setIncludeLrc(true);
         setName("MCMoveVolume");
         
     }
@@ -33,12 +33,11 @@ public class MCMoveVolume extends MCMove {
         if(p == null) return;
         super.setPhase(p);
         inflate.setPhase(phase);
-        affectedAtomIterator = phase.makeMoleculeIterator();
     }
     
     public boolean doTrial() {
         double vOld = phase.volume();
-        uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
+        uOld = energyMeter.getDataAsScalar(phase);
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
@@ -54,7 +53,7 @@ public class MCMoveVolume extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
+        uNew = energyMeter.getDataAsScalar(phase);
         double hNew = uNew + pressure*vNew;
         return -(hNew - hOld)/parentIntegrator.temperature;
     }
@@ -69,8 +68,7 @@ public class MCMoveVolume extends MCMove {
     
     public AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
-        affectedAtomIterator.reset();
-        return affectedAtomIterator;
+        return new AtomIteratorMolecule(phase);
     }
 
     public void setPressure(double p) {pressure = p;}

@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.units.*;
+import etomica.units.UnitSystem.Sim;
 
 /**
  * Class holding fields that define many of the default values used in building
@@ -44,7 +45,7 @@ public final class Default {
     
     public static boolean IS_GRAPHIC = false;
     
-    public static boolean USE_MOLECULE_NEIGHBORS = false;
+    public static final boolean FIX_OVERLAP = true;
     
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
@@ -130,5 +131,8 @@ public final class Default {
         public void setMass(double m) {mass = m;}
         public Dimension getMassDimension() {return Dimension.MASS;}
     };
+
+	//default unit system for I/O (internal calculations are all done in simulation units)
+	public static UnitSystem UNIT_SYSTEM = new UnitSystem.Sim();
         
 }

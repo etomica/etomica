@@ -58,7 +58,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   public Integrator(SimulationElement parent) {
     super(parent, Integrator.class);
     phase = new Phase[phaseCountMax];
-    potential = parent.simulation().hamiltonian.potential;
+    potential = parent.simulation().potentialMaster;
   }
   
     /** 

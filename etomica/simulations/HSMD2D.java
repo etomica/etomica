@@ -1,6 +1,20 @@
 package etomica.simulations;
-import etomica.*;
-import etomica.graphics.*;
+import etomica.Controller;
+import etomica.IntegratorHard;
+import etomica.IteratorDirective;
+import etomica.P2HardSphere;
+import etomica.Phase;
+import etomica.Potential2;
+import etomica.Simulation;
+import etomica.Space2D;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.SimulationGraphic;
+import etomica.nbr.PotentialCalculationNbrSetup;
+import etomica.nbr.PotentialMasterNbr;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -18,8 +32,11 @@ public class HSMD2D extends SimulationGraphic {
     public DisplayPhase display;
 
     public HSMD2D() {
-  //      super(new etomica.space.continuum.Space(2));
-        super(new Space2D());
+    	this(new Space2D());
+    }
+    
+    public HSMD2D(Space2D space) {
+        super(space, new PotentialMasterNbr(space));
   //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
         Simulation.instance = this;
 	    integrator = new IntegratorHard(this);
@@ -30,9 +47,9 @@ public class HSMD2D extends SimulationGraphic {
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();
 //	    potential = new P2HardSphere();
-	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species,species});
-	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species2,species2});
-	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species,species2});
+	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+	    this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
+	    this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
 	    controller = new Controller(this);
 	    new DeviceTrioControllerButton(this, controller);
 	    display = new DisplayPhase(this);
@@ -42,6 +59,7 @@ public class HSMD2D extends SimulationGraphic {
 	    ColorSchemeByType.setColor(species2, java.awt.Color.blue);
 		panel().setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
+		this.potentialMaster.calculate(phase,new IteratorDirective(),new PotentialCalculationNbrSetup());
     }
     
     /**

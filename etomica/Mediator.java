@@ -50,7 +50,6 @@ public class Mediator implements java.io.Serializable {
         addMediatorPair(new MeterPhase.Default(this));
         addMediatorPair(new MeterSpecies.Default(this));
         addMediatorPair(new ControllerIntegrator.Default(this));
-        addMediatorPair(new PhasePotential.Default(this));
         addMediatorPair(new PotentialSpecies.Default(this));
     }
     public Simulation parentSimulation() {return parentSimulation;}
@@ -149,39 +148,6 @@ public class Mediator implements java.io.Serializable {
         }//end of Default
     }//end of PhaseSpecies
     
-   public abstract static class PhasePotential extends Subset {
-        public PhasePotential(Mediator m) {super(m);}
-
-        public Class[] elementClasses() {return new Class[] {Phase.class, Potential.class};}
-        
-        public void add(SimulationElement element) {
-            if(!superceding && priorSubset != null) priorSubset.add(element);
-            if(element instanceof Phase) add((Phase)element);
-            if(element instanceof Potential) add((Potential)element);
-        }
-        
-        public abstract void add(Phase phase);
-        public abstract void add(Potential potential);
-        
-        //does nothing
-        public static class Default extends PhasePotential {
-            public Default(Mediator m) {super(m);}
-            public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().potentialList().iterator(); is.hasNext(); ) {
-                    Potential potential = (Potential)is.next();
-//                    if(potential.wasAdded()) phase.addPotential(potential);
-                }
-            }
-            public void add(Potential potential) {
-                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
-                    Phase phase = (Phase)ip.next();
-//                    if(phase.wasAdded()) phase.addPotential(potential);
-                }
-            }
-        }//end of Default
-    }//end of PhasePotential
-    
-
     public abstract static class PhaseNull extends Subset {
         public PhaseNull(Mediator m) {super(m);}
 
@@ -204,8 +170,9 @@ public class Mediator implements java.io.Serializable {
         
         public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
-            if(element instanceof Species) add((Species)element);
-            if(element instanceof Potential) add((Potential)element);
+            	//commented out when changed potential to not be a SpeciesElement
+//            if(element instanceof Species) add((Species)element);
+//            if(element instanceof Potential) add((Potential)element);
         }
         
         public abstract void add(Species species);
@@ -217,13 +184,14 @@ public class Mediator implements java.io.Serializable {
             public Default(Mediator m) {super(m);}
             //set for all potentials needing a species
             public void add(Species species) {
-                for(Iterator is=mediator.parentSimulation().potentialList().iterator(); is.hasNext(); ) {
-                    Potential potential = (Potential)is.next();
+            	//TODO fix this to loop through potentials in master
+//                for(Iterator is=mediator.parentSimulation().potentialList().iterator(); is.hasNext(); ) {
+//                    Potential potential = (Potential)is.next();
 /*                    if(potential.wasAdded() 
                         && potential.getSpecies() == null 
                         && potential.parentPotential() instanceof PotentialMaster) 
                             potential.setSpecies(new Species[] {species});*/
-                }
+ //               }
             }
             public void add(Potential potential) {
                 //do nothing if potential already has species assigned, or if it is not a molecule potential
