@@ -33,7 +33,7 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
             nearestImageVectorSource = (NearestImageVectorSource)iterator;
         }
         else if (iterator.nBody() == 1) {
-            nearestImageVectorSource = null;
+            nearestImageVectorSource = nullVectorSource;
         }
         super.doCalculation(iterator, id, potential);
     }
@@ -54,7 +54,7 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();
-            Vector nearestImageVector = nearestImageVectorSource == null ? null : nearestImageVectorSource.getNearestImageVector();
+            Vector nearestImageVector = nearestImageVectorSource.getNearestImageVector();
             //up and down will be defined here, and might not be consistent
             //with definition used elsewhere
 			((AtomSequencerNbr)atoms[0].seq).addUpNbr(atoms[1], potential, nearestImageVector);
@@ -63,4 +63,11 @@ public class PotentialCalculationNbrSetup extends PotentialCalculation {
 	}
     
     NearestImageVectorSource nearestImageVectorSource;
+    NullVectorSource nullVectorSource = new NullVectorSource();
+    
+    private static class NullVectorSource implements NearestImageVectorSource {
+        public Vector getNearestImageVector() {
+            return null;
+        }
+    }
 }
