@@ -28,7 +28,8 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
 		// this slows things down due to caching
 //		weightMeter.setTarget(atom);
 		uOld = weightMeter.getDataAsScalar(phase);
-        translationVector.setRandom(stepSize);
+        translationVector.setRandomCube();
+        translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
 		((PhaseCluster)phase).trialNotify();
 		uNew = Double.NaN;

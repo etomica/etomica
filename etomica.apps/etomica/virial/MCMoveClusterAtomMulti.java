@@ -31,7 +31,8 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
 		if (selectedAtoms[0] == null) selectAtoms();
         uOld = weightMeter.getDataAsScalar(phases[0]);
         for(int i=0; i<selectedAtoms.length; i++) {
-            translationVectors[i].setRandom(stepSize);
+            translationVectors[i].setRandomCube();
+            translationVectors[i].TE(stepSize);
             selectedAtoms[i].coord.position().PE(translationVectors[i]);
         }
 		((PhaseCluster)phases[0]).trialNotify();

@@ -92,7 +92,8 @@ public class MCMoveAtom extends MCMove {
       //      */
             throw new RuntimeException("Overlap found in configuration");
         }
-        translationVector.setRandom(stepSize);
+        translationVector.setRandomCube();
+        translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
         uNew = Double.NaN;
  //       phase.boundary().centralImage(atom.coord.position());
