@@ -1,13 +1,11 @@
 package etomica;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.util.Hashtable;
-import java.awt.image.MemoryImageSource;
 import etomica.utility.Iterator;
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas2D extends DisplayCanvas {
+    
     private TextField scaleText = new TextField();
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     //  private int annotationHeight = font.getFontMetrics().getHeight();
@@ -25,9 +23,9 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     public void initialize() {}
     
     /**
-        * Sets the size of the display to a new value and scales the image so that
-        * the phase fits in the canvas in the same proportion as before.
-        */
+     * Sets the size of the display to a new value and scales the image so that
+     * the phase fits in the canvas in the same proportion as before.
+     */
     public void scaleSetSize(int width, int height) {
         if(getBounds().width * getBounds().height != 0) {  //reset scale based on larger size change
             double ratio1 = (double)width/(double)getBounds().width;
@@ -38,7 +36,6 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             setSize(width, height);
         }
     }
-            
           
     //Override superclass methods for changing size so that scale is reset with any size change  
     // this setBounds is ultimately called by all other setSize, setBounds methods
@@ -49,20 +46,16 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     }
        
     private void drawAtom(Graphics g, int origin[], Atom a) {
-        Space.Vector r = a.coord.position();
-        boolean drawWell = false, drawOrientation = false;
+        Space2D.Vector r = (Space2D.Vector)a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;
 
-        if(a.type instanceof AtomType.OrientedSphere) {
-            drawOrientation = true;
-        } else if(a.type instanceof AtomType.Well) {
-            drawWell = true;
-        }
+        boolean drawOrientation = (a.type instanceof AtomType.OrientedSphere);
+        boolean drawWell = (a.type instanceof AtomType.Well);
 
         g.setColor(a.color);
             
-        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
-        baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
+        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x);
+        baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.y);
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom, specific to the dimension */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter());
@@ -89,8 +82,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
             a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
-            xP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
-            yP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
+            xP = origin[0] + (int)(displayPhase.getToPixels()*r.x);
+            yP = origin[1] + (int)(displayPhase.getToPixels()*r.y);
             int t = Math.max(1,(int)((double)((AtomType.Wall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
             if(!(((AtomType.Wall)a.type).isHorizontal() || ((AtomType.Wall)a.type).isVertical())) {  //not horizontal or vertical; draw line
                 int x1 = xP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getCosZ());
@@ -195,12 +188,17 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         }
             
         //Draw overflow images if so indicated
-        //This needs some work to make more general
-        for(Atom a=displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
-            if(computeShiftOrigin(a, boundary)) {
-                drawAtom(g, shiftOrigin, a);
+        if(displayPhase.getDrawOverflow()) {
+            for(Atom a=displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom()) {
+                if(!(a.type instanceof AtomType.Sphere)) continue;
+                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());  //should instead of radius have a size for all AtomC types
+                for(int i=shifts.length-1; i>=0; i--) {
+                    shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
+                    shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);
+                    drawAtom(g, shiftOrigin, a);
+                }
             }
-        } 
+        }
 
         //Draw periodic images if indicated
         if(displayPhase.getImageShells() > 0) {
@@ -217,5 +215,5 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             g.setFont(font);
             g.drawString("Scale: "+Integer.toString((int)(100*displayPhase.getScale()))+"%", 0, getSize().height-3);
         }
-    }
+    }//end of doPaint
 }  //end of DisplayPhase.Canvas

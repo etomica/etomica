@@ -1,8 +1,6 @@
 package etomica;
 
-import java.util.Random;
-
-public abstract class MCMove implements Cloneable, java.io.Serializable {
+public abstract class MCMove implements java.io.Serializable {
     
     private int frequency, fullFrequency;
     double acceptanceRatio, acceptanceTarget, stepSize, stepSizeMax, stepSizeMin;
@@ -158,14 +156,6 @@ public abstract class MCMove implements Cloneable, java.io.Serializable {
      */
     public final void setTunable(boolean b) {tunable = b;}
     public final boolean getTunable() {return tunable;}
-    
-    public Object clone() {
-        Object o = null;
-        try {
-            o = super.clone();
-        } catch(CloneNotSupportedException e) {}
-        return o;
-    }
     
     /**
      * Accessor method of the name of this object

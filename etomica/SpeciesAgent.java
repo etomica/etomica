@@ -44,9 +44,10 @@ public final class SpeciesAgent extends AtomGroup {
     public final SpeciesAgent parentSpeciesAgent() {return this;}
     
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)nextAtom();}
-    public int moleculeCount() {return childCount();}
-    public Atom firstMolecule() {return firstChild();}
-    public Atom lastMolecule() {return lastChild();}
+    public int moleculeCount() {return childAtomCount();}
+    public Atom firstMolecule() {return firstChildAtom();}
+    public Atom lastMolecule() {return lastChildAtom();}
+    public Atom randomMolecule() {return randomAtom();}
     
     public final int depth() {return 1;}
         
@@ -61,8 +62,8 @@ public final class SpeciesAgent extends AtomGroup {
      * Performs the given action on all children (molecules) of this species agent.
      */
     public void allMolecules(AtomAction action) {
-        Atom last = lastChild();
-        for(Atom a=firstChild(); a!=null; a=a.nextAtom()) {
+        Atom last = lastChildAtom();
+        for(Atom a=firstChildAtom(); a!=null; a=a.nextAtom()) {
             action.actionPerformed(a);
             if(a == last) break;
         }
@@ -105,11 +106,11 @@ public final class SpeciesAgent extends AtomGroup {
         if(forceRebuild) removeAll();
         
         if(n <= 0) removeAll();
-        else if(n > childCount) {
-            for(int i=childCount; i<n; i++) addAtom(factory.makeAtom());
+        else if(n > childAtomCount) {
+            for(int i=childAtomCount; i<n; i++) addAtom(factory.makeAtom());
         }
-        else if(n < childCount) {
-            for(int i=childCount; i>n; i--) removeAtom(lastChild());
+        else if(n < childAtomCount) {
+            for(int i=childAtomCount; i>n; i--) removeAtom(lastChildAtom());
         }
         
         //reconsider this

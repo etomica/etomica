@@ -216,10 +216,10 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }//end of Space.Coordinate
     
     public interface CoordinateGroup {        
-        public Atom firstChild();
-        public void setFirstChild(Atom atom);
-        public Atom lastChild();
-        public void setLastChild(Atom atom);
+        public Atom firstAtom();
+        public void setFirstAtom(Atom atom);
+        public Atom lastAtom();
+        public void setLastAtom(Atom atom);
     }
     
     public static abstract class Orientation {
@@ -260,8 +260,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }
 
     public static abstract class Boundary implements java.io.Serializable {
-        protected static final float[][] shift0 = new float[0][0];
-        protected static float[][] shift;
+        protected final float[][] shift0 = new float[0][0];//cannot be static because several phases may be using at once
+        protected float[][] shift;
         private Phase phase;
         public Boundary() {}
         public Boundary(Phase p) {phase = p;}

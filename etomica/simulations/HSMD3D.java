@@ -9,7 +9,7 @@ public class HSMD3D extends Simulation {
   public HSMD3D() {
     super(new etomica.Space3D());
     Simulation.instance = this;
-    Default.ATOM_SIZE = 6.4;
+    Default.ATOM_SIZE = 6.6;
 //    Default.DISPLAY_USE_OPENGL = false;
     etomica.Phase phase0  = new etomica.Phase();
 //    phase0.setConfiguration(new ConfigurationFcc());

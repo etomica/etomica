@@ -66,9 +66,7 @@ public class MCMoveInsertDelete extends MCMove {
     
     private final void trialDelete() {
         if(speciesAgent.moleculeCount() == 0) {return;}
-        int i = (int)(Simulation.random.nextDouble()*speciesAgent.moleculeCount());
-        Atom testMolecule = speciesAgent.firstMolecule();
-        for(int j=i; --j>=0; ) {testMolecule = testMolecule.nextAtom();}
+        Atom testMolecule = speciesAgent.randomMolecule();
         double uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
         double bNew = speciesAgent.moleculeCount()/phase.volume();

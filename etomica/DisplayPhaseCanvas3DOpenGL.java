@@ -190,7 +190,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     float vertAll[];
     Atom atoms[];
 
-    countAll = displayPhase.getPhase().speciesMaster.atomCount();
+    countAll = displayPhase.getPhase().speciesMaster.leafAtomCount();
     
     if(countAll==0) return;
     

@@ -193,13 +193,13 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             double xyNext;
             double wh;
             if(horizontal) {
-                delta = (h-y)/(m.childCount()-1);
+                delta = (h-y)/(m.childAtomCount()-1);
                 i = 1;
                 xyNext = y;
                 wh = w;
             }
             else { //vertical
-                delta = (w-x)/(m.childCount()-1);
+                delta = (w-x)/(m.childAtomCount()-1);
                 i = 0;
                 xyNext = x;
                 wh = h;

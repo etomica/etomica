@@ -53,11 +53,11 @@ public class ConfigurationLinear extends Configuration {
     public void initializeCoordinates(Atom group) {
         
         if(!(group instanceof AtomGroup) 
-            || ((AtomGroup)group).childCount() < 2) return; //nothing to do if group is just one atom
+            || ((AtomGroup)group).childAtomCount() < 2) return; //nothing to do if group is just one atom
             
         work.E(group.coord.position());//save original COM position
         double xNext = 0.0;
-        for(Atom a=((AtomGroup)group).firstChild(); a!=null; a=a.nextAtom()) {
+        for(Atom a=((AtomGroup)group).firstChildAtom(); a!=null; a=a.nextAtom()) {
             a.coord.translateTo(work);  //put all atoms at same point
             a.coord.translateBy(xNext,orientation);  //move xNext distance in direction orientation
             xNext += bondLength;

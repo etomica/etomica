@@ -234,10 +234,11 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
+        Simulation.instance = new Simulation(new Space2D());
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 	 //   integratorHard1.setTimeStep(0.02);
 	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(10);
-	    SpeciesSpheres speciesSpheres2 = new SpeciesSpheres(3);
+	    SpeciesSpheres speciesSpheres2 = new SpeciesSpheres(1);
 	    speciesSpheres2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential12 = new P2HardSphere(4.0);

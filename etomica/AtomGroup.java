@@ -7,8 +7,8 @@ package etomica;
  */
 public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
     
-    protected int childCount;
-    protected int atomCount;
+    protected int childAtomCount;
+    protected int leafAtomCount;
     protected boolean resizable;
 
     /**
@@ -17,23 +17,36 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      */
     public AtomGroup(Space space, AtomType.Group type) {
         super(space, type);
-        childCount = 0;
+        childAtomCount = 0;
         resizable = true;
     }
     
-    public int atomCount() {return atomCount;}
-    public int childCount() {return childCount;}
+    public int leafAtomCount() {return leafAtomCount;}
+    public int childAtomCount() {return childAtomCount;}
     
-    public Atom getAtom(int i) {
-        if(i < 0 || i >= childCount) {
-            throw new IndexOutOfBoundsException("Index: "+i+
-                                                ", Number of atoms: "+childCount);
+    public Atom randomAtom() {return getAtom((int)(Simulation.random.nextDouble()*childAtomCount));}
+    
+    /**
+     * Gets the child atom corresponding to the given index, numbering the first atom as zero
+     * and the last atom as Count-1.
+     */
+    public Atom getAtom(int index) {
+        if(index < 0 || index >= childAtomCount) {
+            throw new IndexOutOfBoundsException("Index: "+index+
+                                                ", Number of childAtoms: "+childAtomCount);
         }
-        //could make more efficient by selecting to iterate from start or end of list
-        Atom atom = firstChild();
-        for(int j=i; j>0; j--) atom = atom.nextAtom();
+        Atom atom = null;
+        if (index < childAtomCount/2) {
+            atom = firstChildAtom();
+            for (int i = index; i > 0; i--)
+                atom = atom.nextAtom();
+        } else {
+            atom = lastChildAtom();
+            for (int i = childAtomCount-1-index; i > 0; i--)
+                atom = atom.previousAtom();
+        }
         return atom;
-    }
+    }//end of getAtom
             
             
     /**
@@ -41,7 +54,7 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      */
     public Atom firstLeafAtom() {
         if(childrenAreGroups()) {
-            for(Atom a0=firstChild(); a0!=null; a0=a0.nextAtom()) {
+            for(Atom a0=firstChildAtom(); a0!=null; a0=a0.nextAtom()) {
                 Atom a1 = ((AtomGroup)a0).firstLeafAtom();
                 if(a1 != null) return a1;
             }
@@ -55,7 +68,7 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
             }
             return null;
         }*/
-        else return firstChild();
+        else return firstChildAtom();
     }
     
     /**
@@ -63,7 +76,7 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      */
     public Atom lastLeafAtom() {
         if(childrenAreGroups()) {
-            for(Atom a0=lastChild(); a0!=null; a0=a0.previousAtom()) {
+            for(Atom a0=lastChildAtom(); a0!=null; a0=a0.previousAtom()) {
                 Atom a1 = ((AtomGroup)a0).lastLeafAtom();
                 if(a1 != null) return a1;
             }
@@ -77,9 +90,9 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
             }
             return null;
         } */
-        else return lastChild();
+        else return lastChildAtom();
     }
-
+    
     public void addAtom(Atom aNew) {
         if(!resizable) return; //should define an exception
         //ensure that the given atom is compatible
@@ -91,18 +104,18 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
         }
         //set up links within this group
         aNew.setParentGroup(this);
-        if(childCount > 0) { //siblings
-            aNew.setNextAtom(lastChild().nextAtom());
-            lastChild().setNextAtom(aNew);
-            aNew.setIndex(lastChild().index()+1);
+        if(childAtomCount > 0) { //siblings
+            aNew.setNextAtom(lastChildAtom().nextAtom());
+            lastChildAtom().setNextAtom(aNew);
+            aNew.setIndex(lastChildAtom().index()+1);
         }
         else {  //only child
-            setFirstChild(aNew);
+            setFirstAtom(aNew);
             aNew.setNextAtom(null);
             aNew.clearPreviousAtom();
             aNew.setIndex(0);
         }   
-        setLastChild(aNew);
+        setLastAtom(aNew);
         
         //set up leaf links
         if(aNew instanceof AtomGroup) {
@@ -115,15 +128,15 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
             } //no leaf changes anywhere if aNew has no leaf atoms 
         }
         else {//aNew is a leaf, not a group
-                //set next in case it wasn't set by aNew.setNextAtom(lastChild.next()) line, above
+                //set next in case it wasn't set by aNew.setNextAtom(lastChildAtom.next()) line, above
             if(aNew.nextAtom() == null) aNew.setNextAtom(findNextLeafAtom(aNew.parentGroup()));
-               //set previous in case it wasn't set by lastChild.setNextAtom(aNew) line, above
+               //set previous in case it wasn't set by lastChildAtom.setNextAtom(aNew) line, above
             if(aNew.previousAtom() == null) {
                 Atom previous = findPreviousLeafAtom(aNew.parentGroup());
                 if(previous != null) previous.setNextAtom(aNew);
             }
         }
-        childCount++;
+        childAtomCount++;
         addAtomNotify(aNew);
     }//end of addAtom
 
@@ -139,17 +152,17 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
         Atom previous = a.previousAtom();
         
         //update links within this group
-        if(a == firstChild()) {
-            if(childCount == 1) setFirstChild(null);
-            else setFirstChild(next);
+        if(a == firstChildAtom()) {
+            if(childAtomCount == 1) setFirstAtom(null);
+            else setFirstAtom(next);
         }
-        if(a == lastChild()) {
-            if(childCount == 1) setLastChild(null);
-            else setLastChild(previous);
+        if(a == lastChildAtom()) {
+            if(childAtomCount == 1) setLastAtom(null);
+            else setLastAtom(previous);
         }
         if(previous != null) previous.setNextAtom(next);
         else if(next != null) next.clearPreviousAtom();
-        childCount--;
+        childAtomCount--;
         
         a.setNextAtom(null);
         a.clearPreviousAtom();        
@@ -175,7 +188,7 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      * Does not remove this group from its parent group.
      */
     public Atom removeAll() {
-        if(childCount == 0 || !resizable) return null;
+        if(childAtomCount == 0 || !resizable) return null;
         
         //disconnect leaf atoms from their their links to adjacent groups
         Atom first = firstLeafAtom();
@@ -186,10 +199,10 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
         else if(next != null) next.clearPreviousAtom();
         
         //save first child for return, then erase links to them
-        first = firstChild();
-        setFirstChild(null);
-        setLastChild(null);
-        childCount = 0;
+        first = firstChildAtom();
+        setFirstAtom(null);
+        setLastAtom(null);
+        childAtomCount = 0;
         return first;
     }//end of removeAll
     
@@ -197,12 +210,12 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      * Notifies this atom group that an atom has been added to it or one of its descencents.
      */
     protected void addAtomNotify(Atom atom) {
-        atomCount += atom.atomCount();
+        leafAtomCount += atom.leafAtomCount();
         if(parentGroup != null) parentGroup.addAtomNotify(atom);
     }
     
     protected void removeAtomNotify(Atom atom) {
-        atomCount -= atom.atomCount();
+        leafAtomCount -= atom.leafAtomCount();
         if(parentGroup != null) parentGroup.removeAtomNotify(atom);
     }
     
@@ -220,8 +233,8 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
 /*    public final AtomIteratorSequential childIterator = new ChildAtomIterator();
     
     public final class ChildAtomIterator extends AtomIteratorSequential {
-        public Atom defaultFirstAtom() {return firstChild();}
-        public Atom defaultLastAtom() {return lastChild();}
+        public Atom defaultFirstAtom() {return firstChildAtom();}
+        public Atom defaultLastAtom() {return lastChildAtom();}
         public boolean contains(Atom a) {return a.parentGroup() == AtomGroup.this;}
     }
     public final class LeafAtomIterator extends AtomIteratorSequential {
@@ -235,7 +248,7 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
      * or are leaf atoms.
      */
     public final boolean childrenAreGroups() {
-        return firstChild() instanceof AtomGroup;
+        return firstChildAtom() instanceof AtomGroup;
     }
 
     /**
@@ -244,27 +257,25 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
     * @return the randomly seleted atom
     */
 /*    public Atom randomAtom() {
-        int i = (int)(rand.nextDouble()*childCount);
-        Atom a = firstChild;
+        int i = (int)(rand.nextDouble()*atomCount);
+        Atom a = firstChildAtom;
         for(int j=i; --j>=0; ) {a = a.nextAtom();}
         return a;
     }
 */   
 
-    public final Atom firstChild() {return ((Space.CoordinateGroup)coord).firstChild();}
-    protected final void setFirstChild(Atom atom) {((Space.CoordinateGroup)coord).setFirstChild(atom);}
-    public final Atom lastChild() {return ((Space.CoordinateGroup)coord).lastChild();}
-    protected final void setLastChild(Atom atom) {((Space.CoordinateGroup)coord).setLastChild(atom);}
-    public final Atom firstAtom() {return firstChild();}
-    public final Atom lastAtom() {return lastChild();}
+    public final Atom firstChildAtom() {return ((Space.CoordinateGroup)coord).firstAtom();}
+    protected final void setFirstAtom(Atom atom) {((Space.CoordinateGroup)coord).setFirstAtom(atom);}
+    public final Atom lastChildAtom() {return ((Space.CoordinateGroup)coord).lastAtom();}
+    protected final void setLastAtom(Atom atom) {((Space.CoordinateGroup)coord).setLastAtom(atom);}
 /*
     //alternative approach that doesn't delegate link structure to coordinates
-    private Atom firstChild;
-    private Atom lastChild;
-    public final Atom firstChild() {return firstChild;}
-    protected final void setFirstChild(Atom atom) {firstChild = atom;}
-    public final Atom lastChild() {return lastChild;}
-    protected final void setLastChild(Atom atom) {lastChild = atom;}
+    private Atom firstChildAtom;
+    private Atom lastChildAtom;
+    public final Atom firstChildAtom() {return firstChildAtom;}
+    protected final void setfirstChildAtom(Atom atom) {firstChildAtom = atom;}
+    public final Atom lastChildAtom() {return lastChildAtom;}
+    protected final void setlastChildAtom(Atom atom) {lastChildAtom = atom;}
  */   
     /**
      * Searches the atom hierarchy up from (and not including) the given group 

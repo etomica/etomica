@@ -44,7 +44,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * isAsNeighbor flag indicates skipping first atom.
      */
     public final Atom defaultFirstAtom() {
-        return isLeafIterator ? basis.firstLeafAtom() : basis.firstAtom();
+        return isLeafIterator ? basis.firstLeafAtom() : basis.firstChildAtom();
     }
     
     /**
@@ -52,7 +52,7 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * due to call to reset(Atom, Atom).
      */
     public final Atom defaultLastAtom() {
-        return isLeafIterator ? basis.lastLeafAtom() : basis.lastAtom();
+        return isLeafIterator ? basis.lastLeafAtom() : basis.lastChildAtom();
     }
     
     /**

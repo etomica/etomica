@@ -126,10 +126,10 @@ public final class Phase extends SimulationElement {
         int sum = 0;
         SpeciesAgent s;
         for(s=speciesMaster.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            sum += s.childCount();
+            sum += s.childAtomCount();
             if(sum > i) break;
         }
-        return s.getAtom(i-(sum-s.childCount()));
+        return s.getAtom(i-(sum-s.childAtomCount()));
     }
     
     /**
@@ -239,16 +239,16 @@ public final class Phase extends SimulationElement {
     /**
      * @return the first Agent in the linked list of Species.Agents in this phase
      */
-    public final SpeciesAgent firstSpecies() {return (SpeciesAgent)speciesMaster.firstChild();}
+    public final SpeciesAgent firstSpecies() {return (SpeciesAgent)speciesMaster.firstChildAtom();}
     
     /**
      * @return the last Agent in the linked list of Species.Agents in this phase
      */
-    public final SpeciesAgent lastSpecies() {return (SpeciesAgent)speciesMaster.lastChild();}
+    public final SpeciesAgent lastSpecies() {return (SpeciesAgent)speciesMaster.lastChildAtom();}
     
     public int moleculeCount() {return speciesMaster.moleculeCount();}
     
-    public int atomCount() {return speciesMaster.atomCount();}
+    public int atomCount() {return speciesMaster.leafAtomCount();}
     
     /**
     * Returns the temperature (in simulation units) of this phase as computed via the equipartition

@@ -112,6 +112,10 @@ public class Species extends SimulationElement {
         allAgents(new AtomAction() {public void actionPerformed(Atom a) {((SpeciesAgent)a).setNMolecules(nMolecules);}});
     }
     
+    public Atom makeMolecule() {
+        return factory.makeAtom();
+    }
+    
     /**
      * Performs the given action on all of this species agents in all phases.
      */

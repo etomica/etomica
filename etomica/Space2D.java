@@ -305,10 +305,10 @@ public class Space2D extends Space implements EtomicaElement {
         public Coordinate firstChild, lastChild;
         public CoordinateGroup(AtomGroup a) {super(a);}
 
-        public final Atom firstChild() {return (firstChild != null) ? firstChild.atom : null;}
-        public final void setFirstChild(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
-        public final Atom lastChild() {return (lastChild != null) ? lastChild.atom : null;}
-        public final void setLastChild(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
+        public final Atom firstAtom() {return (firstChild != null) ? firstChild.atom : null;}
+        public final void setFirstAtom(Atom a) {firstChild = (a != null) ? (Coordinate)a.coord : null;}
+        public final Atom lastAtom() {return (lastChild != null) ? lastChild.atom : null;}
+        public final void setLastAtom(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
         
         public double mass() {
             double massSum = 0.0;
@@ -432,7 +432,7 @@ public class Space2D extends Space implements EtomicaElement {
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         
         public void randomizeMomentum(double temperature) {
-            switch(((AtomGroup)atom).childCount()) {
+            switch(((AtomGroup)atom).childAtomCount()) {
                 case 0: return;
                 case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                         return;
@@ -603,9 +603,10 @@ public class Space2D extends Space implements EtomicaElement {
             g.setColor(Color.gray);
             double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
             g.drawRect(origin[0],origin[1],(int)(toPixels*dimensions.component(0))-1,(int)(toPixels*dimensions.component(1))-1);
-            }
-        /** Computes origins for periodic images
-        */
+        }
+        /** 
+         * Computes origins for periodic images
+         */
         public double[][] imageOrigins(int nShells) {
             int nImages = (2*nShells+1)*(2*nShells+1)-1;
             double[][] origins = new double[nImages][D];
