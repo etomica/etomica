@@ -70,6 +70,7 @@ public final class AtomsetIteratorMolecule extends AtomsetIteratorAdapter
     
     
     public void setTarget(Atom[] targetAtoms) {
+    	//TODO this is probably inefficient.  swatting a fly with a sledgehammer
     	System.arraycopy(targetAtoms,0,this.targetAtoms,0,targetAtoms.length);
     	for(int i=targetAtoms.length; i<this.targetAtoms.length; i++) {
     		this.targetAtoms[i] = null;

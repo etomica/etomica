@@ -35,7 +35,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 * before beginning iteration.
 	 */
 	public void setTarget(Atom[] targetAtoms) {
-		targetAtom = (targetAtoms == null || targetAtoms.length == 0) ? null : targetAtoms[0];
+		targetAtom = targetAtoms[0];
 		if(targetAtom != null) targetDepth = targetAtom.node.depth();
 		needSetupIterator = (basis != null);//flag to setup iterator only if presently has a non-null basis
 		listIterator.unset();

@@ -32,7 +32,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	 */
 	public void setTarget(Atom[] targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
-		doBoth = targetAtoms != null && (targetAtoms.length == 1 || (targetAtoms.length > 1 && targetAtoms[0] != null && targetAtoms[1] == null));
+		doBoth = targetAtoms[0] != null && (targetAtoms.length == 1 || targetAtoms[1] == null);
 	}
 	
 	/**

@@ -64,11 +64,7 @@ public class AtomIteratorSelfBasis extends AtomIteratorAdapter implements
 	 * basis atom.
 	 */
 	public void setTarget(Atom[] targetAtoms) {
-		if(targetAtoms == null || targetAtoms.length == 0) {
-			targetAtom = null;
-		} else {
-			targetAtom = targetAtoms[0];
-		}
+		targetAtom = targetAtoms[0];
 	}
 
 	private Atom basisAtom;

@@ -66,10 +66,6 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
     }
 
     public void setTarget(Atom[] targetAtoms) {
-    	if (targetAtoms == null || targetAtoms.length == 0) {
-    		canReset = true;
-    		return;
-    	}
     	if (targetAtoms.length > basisSize) {
     		canReset = false;
     		return;
