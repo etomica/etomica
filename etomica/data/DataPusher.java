@@ -60,7 +60,6 @@ public abstract class DataPusher {
         if(dataSink == null) return;
         dataSinkList = (DataSink[])Arrays.addObject(dataSinkList, dataSink);
         dataSink.setDimension(dimension);
-        dataSink.setLabel(label);
     }
 
     /**
