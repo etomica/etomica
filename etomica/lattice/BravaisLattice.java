@@ -13,6 +13,8 @@ import java.util.Observable;
 public class BravaisLattice extends IntegerBravaisLattice { ///implements AbstractLattice {
 
    Space.Vector[] primitiveVector;
+   private double[] primitiveVectorLength;
+   private int[] idx;
    Space.Vector translation;  //amount that lattice has been displaced via call to translateBy
    //anonymous inner class passed to superclass IntegerBravaisLattice constructor to
    //have it use the BravaisLattice coordinates for placement in the sites.
@@ -28,6 +30,8 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
    ///     super(dimensions, factory, coordFactory(dimensions.length));
         primitiveVector = pVectors;
         translation = Space.makeVector(D());
+        idx = new int[D()];
+        primitiveVectorLength = new double[D()];
         //Set lattice for each site
         SiteIterator iter = iterator();
         iter.reset();
@@ -67,6 +71,9 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
     public void setPrimitiveVector(Space.Vector[] pVectors) {
         if(pVectors == null) return;
         primitiveVector = pVectors;
+        for(int i=0; i<D; i++) {
+            primitiveVectorLength[i] = Math.sqrt(pVectors[i].squared());
+        }
         updateCoordinates();
         notifyObservers();
     }
@@ -74,14 +81,26 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
         if(pVector == null) return;
         if(i < 0 || i >= D) return;
         primitiveVector[i] = pVector;
+        primitiveVectorLength[i] = Math.sqrt(pVector.squared());
         updateCoordinates();
         notifyObservers();
     }
     public void setPrimitiveVector(int vectorIndex, int xyzIndex, double value) {
         primitiveVector[vectorIndex].setComponent(xyzIndex,value);
+        primitiveVectorLength[vectorIndex] = Math.sqrt(primitiveVector[vectorIndex].squared());
         updateCoordinates();
         notifyObservers();
     }
+    
+    //not carefully implemented
+    public Site nearestSite(Space.Vector r) {
+        for(int i=D-1; i>=0; i--) {
+            idx[i] = (int)((r.component(i)-translation.component(i))/primitiveVectorLength[i] + 0.5);
+        }
+        return site(idx);
+//        return sites[(int)((r.x/scale.x-translation2D.x)/primitiveVectorLength + 0.5)][(int)((r.y/scale.y-translation2D.y)/primitiveVectorLength + 0.5)];
+    }
+    
     /**
      * Translates all the sites in the lattice by the given vector
      */

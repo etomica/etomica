@@ -9,15 +9,14 @@ package etomica;
 
 public final class AtomTreeNodeLeaf implements AtomTreeNode {
     
+    public final AtomLinker leafLinker;
+    
     public AtomTreeNodeLeaf(Atom atom) {
-        setAtom(atom);
-    }
-    public AtomTreeNodeLeaf() {}
-        
-    public void setAtom(Atom atom) {
         this.atom = atom;
+        leafLinker = new AtomLinker(atom);
         leafCount = (atom.type instanceof AtomType.Wall) ? 0 : 1;
     }
+
     public Atom atom() {return atom;}
         
     public AtomGroup parentGroup() {
@@ -174,9 +173,15 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     private AtomTreeNodeGroup parentNode;
     private AtomGroup parentGroup;
     private Phase parentPhase;
-    private Atom atom;
+    private final Atom atom;
     private int leafCount;
     private int depth;
     private int atomIndex;
         
+    public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
+        public AtomTreeNode makeNode(Atom atom) {
+            return new AtomTreeNodeLeaf(atom);
+        }
+    };
+    
 }

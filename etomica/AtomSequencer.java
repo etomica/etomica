@@ -13,4 +13,8 @@ public abstract class AtomSequencer extends AtomLinker {
         
     public abstract boolean preceeds(Atom a);
     
+    public interface Factory {
+        public AtomSequencer makeSequencer(Atom atom);
+    }
+    
 }

@@ -32,7 +32,6 @@ public interface AtomTreeNode {
     public boolean isDescendedFrom(Atom a);
     
     public Atom atom();
-    public void setAtom(Atom a);
     
     public Atom firstChildAtom();
     public Atom lastChildAtom();
@@ -65,6 +64,8 @@ public interface AtomTreeNode {
     
     public void setParentGroup(AtomGroup group);
  
-    
+    public interface Factory {
+        public AtomTreeNode makeNode(Atom atom);
+    }
     
 }

@@ -18,6 +18,10 @@ public class IteratorFactorySimple implements IteratorFactory {
     public Class atomSequencerClass() {return AtomSequencerSimple.class;}
     
     public Class neighborSequencerClass() {return AtomSequencerSimple.class;}
+    
+    public AtomSequencer.Factory atomSequencerFactory() {return AtomSequencerSimple.FACTORY;}
+    
+    public AtomSequencer.Factory neighborSequencerFactory() {return AtomSequencerSimple.FACTORY;}
    
 /////////////////////////////////////////////////////////////////////////////////////////////
     /**

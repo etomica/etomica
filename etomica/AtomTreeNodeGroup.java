@@ -7,13 +7,9 @@ package etomica;
 public class AtomTreeNodeGroup implements AtomTreeNode {
     
     public AtomTreeNodeGroup(Atom atom) {
-        setAtom(atom);
-    }
-    public AtomTreeNodeGroup() {}
-        
-    public void setAtom(Atom atom) {
         this.atom = atom;
     }
+
     public Atom atom() {return atom;}
         
     public AtomGroup parentGroup() {
@@ -302,14 +298,25 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
         return null;
     }//end of findPreviousLeafAtom
 
-    protected Atom atom;
+    protected final Atom atom;
     protected int depth;
     protected int atomIndex;
     protected int leafAtomCount;
     private AtomTreeNodeGroup parentNode;
     private AtomGroup parentGroup;
     private Phase parentPhase;
-    private final AtomList childList = new AtomList();
+    
+    //childlist is public, but should not add/remove atoms except via node's methods.
+    //consider a mechanism to ensure this; a inner mutator class made available only
+    //to list's creator, for example (still wouldn't prevent modification via direct
+    //access of entry classes).
+    public final AtomList childList = new AtomList();
     private boolean resizable = true;
+        
+    public static final AtomTreeNode.Factory FACTORY = new AtomTreeNode.Factory() {
+        public AtomTreeNode makeNode(Atom atom) {
+            return new AtomTreeNodeGroup(atom);
+        }
+    };
     
 }

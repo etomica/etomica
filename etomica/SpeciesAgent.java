@@ -16,7 +16,7 @@ public final class SpeciesAgent extends AtomGroup {
     protected Integrator integrator;
     
     public SpeciesAgent(Species s, int nMolecules) {
-        super(s.parentSimulation().space(), AtomType.NULL, new AtomTreeNode(s));
+        super(s.parentSimulation().space(), AtomType.NULL, new NodeFactory(s));
         factory = s.moleculeFactory();
         for(int i=0; i<nMolecules; i++) {
             node.addAtom(factory.makeAtom());
@@ -127,10 +127,11 @@ public final class SpeciesAgent extends AtomGroup {
     /**
      * Special AtomTreeNode class for SpeciesAgent.
      */
-    private static final class AtomTreeNode extends AtomTreeNodeGroup {
+    private static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
         
         private final Species parentSpecies;
-        AtomTreeNode(Species parentSpecies) {
+        AgentAtomTreeNode(Species parentSpecies, Atom atom) {
+            super(atom);
             this.parentSpecies = parentSpecies;
             depth = 1;
         }
@@ -155,6 +156,16 @@ public final class SpeciesAgent extends AtomGroup {
         * Returns null, since a species agent is not contained within a molecule.
         */
         public final Atom parentMolecule() {return null;}
+    }
+    
+    private static final class NodeFactory implements AtomTreeNode.Factory {
+        Species species;
+        NodeFactory(Species s) {
+            species = s;
+        }
+        public AtomTreeNode makeNode(Atom atom) {
+            return new AgentAtomTreeNode(species, atom);
+        }
     }
 
 } //end of SpeciesAgent

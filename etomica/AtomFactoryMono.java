@@ -25,7 +25,7 @@ public class AtomFactoryMono extends AtomFactory {
      * Builds a single atom.
      */
     protected Atom build() {
-        return new Atom(space, atomType, new AtomTreeNodeLeaf());
+        return new Atom(space, atomType, AtomTreeNodeLeaf.FACTORY);
     }
     
     public boolean vetoAddition(Atom a) {return (a.type != atomType);}

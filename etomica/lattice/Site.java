@@ -5,6 +5,7 @@ public class Site implements java.io.Serializable {
     private final AbstractLattice lattice;
     private AbstractLattice.Coordinate coordinate;
     private final NeighborManager neighborManager = new NeighborManager(this);
+    public int index;//temporary -- put in sequencer
     
     /**
      * Creates a site having the given parent lattice and coordinate.
@@ -27,6 +28,11 @@ public class Site implements java.io.Serializable {
     }
     
     public String toString() {return coordinate.toString();}
+    
+    //temporary -- put in sequencer
+    public boolean preceeds(Site anotherSite) {
+        return index < anotherSite.index;
+    }
     
     ///////// end of Site methods and fields ///////////
     

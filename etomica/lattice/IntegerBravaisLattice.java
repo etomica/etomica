@@ -184,6 +184,7 @@ public class IntegerBravaisLattice implements AbstractLattice {
         public Coordinate(int[] i) {index = i;}
         public int[] index() {return index;}
         //returns true if exactly one index differs by +/- 1 for this and the given coordinate
+   //need to modify to handle pbcs
         public boolean isAdjacentTo(IndexedCoordinate coord) {
             int[] idx = coord.index();
             boolean sameTillNow = true;

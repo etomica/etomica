@@ -70,6 +70,16 @@ public class Lattice implements AbstractLattice, Observer {
      return array;
    }
    
+   //not well implemented.  
+   public Site nearestSite(Space.Vector r) {
+      return lattice.nearestSite(r);
+   }
+   
+   //not implemented
+   public AbstractCell makeWignerSeitzCell(AbstractLattice.PositionCoordinate coord) {
+      throw new RuntimeException("Lattice.makeWignerSeitzCell not implemented");
+   }
+   
   //Lattice interface methods
     public SiteIterator iterator() {iterator.reset(); return iterator;}
     public int D() {return lattice.D();}           

@@ -53,5 +53,9 @@ public interface IteratorFactory {
     public Class atomSequencerClass();
     
     public Class neighborSequencerClass();
+    
+    public AtomSequencer.Factory atomSequencerFactory();
+    
+    public AtomSequencer.Factory neighborSequencerFactory();
    
 }

@@ -15,9 +15,9 @@ public final class SpeciesMaster extends AtomGroup {
     public int index;
     
     public SpeciesMaster(Phase p) {
-        super(p.parentSimulation().space(), AtomType.NULL, new AtomTreeNode(p));
+        super(p.parentSimulation().space(), AtomType.NULL, new NodeFactory(p));
         index = p.index;
-        ((AtomTreeNode)node).speciesMaster = this;
+        ((MasterAtomTreeNode)node).speciesMaster = this;
     }
         
     public void addSpecies(Species species) {
@@ -48,11 +48,12 @@ public final class SpeciesMaster extends AtomGroup {
         eventManager.removeListener(listener);
     }
     
-    private static final class AtomTreeNode extends AtomTreeNodeGroup {
+    private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
         
         private final Phase parentPhase;
         SpeciesMaster speciesMaster;
-        AtomTreeNode(Phase parentPhase) {
+        MasterAtomTreeNode(Phase parentPhase, Atom atom) {
+            super(atom);
             this.parentPhase = parentPhase;
             depth = 0;
         }
@@ -79,5 +80,15 @@ public final class SpeciesMaster extends AtomGroup {
             speciesMaster.eventManager.fireEvent(speciesMaster.removalEvent.setAtom(atom));
         }
     }            
+    
+    private static final class NodeFactory implements AtomTreeNode.Factory {
+        Phase phase;
+        NodeFactory(Phase p) {
+            phase = p;
+        }
+        public AtomTreeNode makeNode(Atom atom) {
+            return new MasterAtomTreeNode(phase, atom);
+        }
+    }
 
 }//end of SpeciesMaster

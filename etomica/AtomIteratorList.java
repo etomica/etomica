@@ -13,9 +13,8 @@ public final class AtomIteratorList implements AtomIterator {
 	private AtomLinker next, start;
 	private AtomLinker.Index header, terminator;
     private AtomList list;
-    protected boolean hasNext;
     protected boolean upListNow, doGoDown;
-    private IteratorDirective.Direction direction;
+    private final AtomLinker.Index nullLinker = new AtomLinker.Index();
         
 	public AtomIteratorList() {
 	    this(AtomList.NULL);
@@ -29,15 +28,18 @@ public final class AtomIteratorList implements AtomIterator {
 	
 	public void reset(int index) {
 	    next = list.entry(index);
-	    hasNext = (next != header);
+	}
+	
+	public void setAsNeighbor(boolean b) {
+	    throw new RuntimeException("method AtomIteratorList.setAsNeighbor not implemented");
 	}
 
-	public boolean hasNext() {return hasNext;}
+	public boolean hasNext() {return next.atom != null;}
 	
     public void setBasis(Atom dummyAtom){ /* no implementation */}
     public void setBasis(AtomList list) {
         this.list = list;
-        if(list == null) {hasNext = false; return;}
+        if(list == null) {next = header = nullLinker; return;}
         header = list.header;
         reset();
     }
@@ -51,21 +53,18 @@ public final class AtomIteratorList implements AtomIterator {
      * Sets iterator so that it is ready to go up its entire list of iterates.
      */
     public Atom reset() {
-        direction = IteratorDirective.UP;
-        applyDirection();
-        return reset(header.next);
+        return reset(header.next, header, IteratorDirective.UP);
     }
     
     /**
      * Resets using direction and atom specified in directive.
      */
     public Atom reset(IteratorDirective id){
-        direction = id.direction();
-        applyDirection();
+        applyDirection(id.direction());
         switch(id.atomCount()) {
             case 0:  return reset(upListNow ? header.next : (doGoDown ? header.previous : null)); 
             case 1:  return reset(id.atom1()); 
-            default: hasNext = false; 
+            default: next = header; 
             return null;
         }
     }
@@ -75,7 +74,11 @@ public final class AtomIteratorList implements AtomIterator {
      * Does not check that the linker is an iterate of this iterator.
      */
     public Atom reset(AtomLinker first) {
-        return reset(first, header);
+        return reset(first, header, IteratorDirective.UP);
+    }
+    
+    public Atom reset(AtomLinker first, IteratorDirective.Direction direction) {
+        return reset(first, header, direction);
     }
     
     /**
@@ -84,13 +87,18 @@ public final class AtomIteratorList implements AtomIterator {
      * next atom entry.
      */
     public Atom reset(AtomLinker first, AtomLinker.Index last) {
+        return reset(first, last, IteratorDirective.UP);
+    }
+    
+    //if last == null, iterate until first Index is encountered
+    public Atom reset(AtomLinker first, AtomLinker.Index last, IteratorDirective.Direction direction) {
         if(first == header || first == null) {
-            hasNext = false;
+            next = header;
             return null;
         }
+        applyDirection(direction);
         terminator = last;
         next = start = first;
-        hasNext = true;
         if(next.atom == null) nextLinker();//nextLinker keeps iterating until entry with atom is found
         return next.atom;
     }
@@ -98,13 +106,18 @@ public final class AtomIteratorList implements AtomIterator {
     /**
      * Resets in reference to the given atom.  Finds the atom in the list and
      * calls reset(AtomLinker) in reference to its linker.  If atom is not in list,
-     * hasNext is set to false.
+     * hasNext will be false.
      */
     public Atom reset(Atom atom) {
-        return reset(list.linker(atom), header);
+        return reset(list.entry(atom), header);
     }
     
-    private void applyDirection() {
+    /**
+     * Sets iterator such that hasNext() will return false.
+     */
+    public void unset() {next = header;}
+    
+    private void applyDirection(IteratorDirective.Direction direction) {
         upListNow = direction.doUp();
         doGoDown = direction.doDown();
     }
@@ -113,8 +126,7 @@ public final class AtomIteratorList implements AtomIterator {
      * Returns true if the given atom is in the list of iterates, false otherwise.
      */
 	public boolean contains(Atom atom){
-        for (AtomLinker e=header.next; e!=header; e=e.next) if(e.atom == atom) return true;
-        return false;
+        return list.contains(atom);
 	}
 	
 	/**
@@ -126,6 +138,13 @@ public final class AtomIteratorList implements AtomIterator {
 	    
     public Atom next() {
         return nextLinker().atom;
+    }
+    
+    /**
+     * Returns the next atom in the list without advancing the iterator.
+     */
+    public Atom peek() {
+        return next.atom;
     }
     
 /*    public AtomLinker nextLinker() {
@@ -144,13 +163,12 @@ public final class AtomIteratorList implements AtomIterator {
         AtomLinker nextLinker = next;
         next = upListNow ? next.next : next.previous;
         while(next.atom == null) {
-            if(next == terminator) {
-                hasNext = false;
-                break;
-            } else {
-                next = upListNow ? next.next : next.previous;
-            }
+            //if terminator is null we stop at the first encounter of an Index linker
+            //otherwise stop only if Index linker is the specified terminator
+            if(terminator == null || next == terminator) break;
+            else next = upListNow ? next.next : next.previous;
         }
+        //need to decide if we're going to permit iterator to do both directions, or just up/down
 /*        hasNext = (next != header);
         if(!hasNext && upListNow && doGoDown) {//done going up and now prepare to go down
             next = start.previous;

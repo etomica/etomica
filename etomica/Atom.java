@@ -18,14 +18,19 @@ public class Atom implements java.io.Serializable {
     public static String getVersion() {return "Atom:01.08.08";}
     
     public Atom(Space space, AtomType type) {
-        this(space, type, new AtomTreeNodeGroup());
+        this(space, type, AtomTreeNodeGroup.FACTORY, null);
     }
-    public Atom(Space space, AtomType type, AtomTreeNode node) {
-        seq = IteratorFactorySimple.INSTANCE.makeAtomSequencer(this);
-        this.type = type;
-        this.node = node;
+    public Atom(Space space, AtomType type, 
+                    AtomTreeNode.Factory nodeFactory) {
+        this(space, type, nodeFactory, IteratorFactorySimple.INSTANCE.atomSequencerFactory());
+    }
+    public Atom(Space space, AtomType type, 
+                    AtomTreeNode.Factory nodeFactory,
+                    AtomSequencer.Factory seqFactory) {
+        this.type = type;//do this first
+        seq = seqFactory.makeSequencer(this);
+        this.node = nodeFactory.makeNode(this);
         coord = space.makeCoordinate(this);//must follow setting of type field
-        node.setAtom(this);
         
 //        coord.setMass(type.getMass());//handled in type.initialize statement
         if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];//this is to be removed

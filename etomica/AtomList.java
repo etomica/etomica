@@ -87,9 +87,7 @@ public class AtomList implements java.io.Serializable
      */
     public Atom getFirst() {
 	    if (size==0) return null;
-	    AtomLinker entry = header.next;
-	    while(entry.atom == null) entry = entry.next;//modification for index entry
-	    return entry.atom;
+	    return firstEntry().atom;
     }
 
     /**
@@ -100,9 +98,7 @@ public class AtomList implements java.io.Serializable
      */
     public Atom getLast()  {
 	    if (size==0) return null;
-	    AtomLinker entry = header.previous;
-	    while(entry.atom == null) entry = entry.previous;
-	    return entry.atom;
+	    return lastEntry().atom;
     }
 
     /**
@@ -361,6 +357,30 @@ public class AtomList implements java.io.Serializable
         return e;
     }
 
+    /**
+     * Returns the first entry (linker with non-null atom) in this list.
+     *
+     * @return the first entry in this list.
+     */
+    public AtomLinker firstEntry() {
+	    if (size==0) return null;
+	    AtomLinker entry = header.next;
+	    while(entry.atom == null) entry = entry.next;//modification for index entry
+	    return entry;
+    }
+
+    /**
+     * Returns the last entry (linker with non-null atom) in this list.
+     *
+     * @return the last entry in this list.
+     * @throws    NoSuchElementException if this list is empty.
+     */
+    public AtomLinker lastEntry()  {
+	    if (size==0) return null;
+	    AtomLinker entry = header.previous;
+	    while(entry.atom == null) entry = entry.previous;
+	    return entry;
+    }
 
     // Search Operations
     
@@ -368,7 +388,7 @@ public class AtomList implements java.io.Serializable
      * Returns the linker associated with the given atom in this list.
      * Returns null if the atom is not in the list.
      */
-    public AtomLinker linker(Atom atom) {
+    public AtomLinker entry(Atom atom) {
         if(atom == null) return null;
         for (AtomLinker e = header.next; e != header; e = e.next) {
             if (atom.equals(e.atom)) return e;
@@ -443,8 +463,11 @@ public class AtomList implements java.io.Serializable
      */
     public void moveBefore(AtomLinker moving, AtomLinker newNext) {
         //assume moving != newNext
+        
+        //remove from old position
         moving.previous.next = moving.next;
         moving.next.previous = moving.previous;
+        //insert into new position
         moving.next = newNext;
         moving.previous = newNext.previous;
         moving.previous.next = moving;

@@ -21,4 +21,10 @@ public class AtomSequencerSimple extends AtomSequencer {
         else if(thisDepth < atomDepth) return this.preceeds(a.node.parentGroup());
         else /*if(this.depth > atom.depth)*/ return atom.node.parentGroup().seq.preceeds(a);
     }
+    
+    public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
+        public AtomSequencer makeSequencer(Atom atom) {
+            return new AtomSequencerSimple(atom);
+        }
+    };
 }

@@ -19,8 +19,8 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
         super(space, type);
         resizable = true;
     }
-    public AtomGroup(Space space, AtomType.Group type, AtomTreeNode node) {
-        super(space, type, node);
+    public AtomGroup(Space space, AtomType.Group type, AtomTreeNode.Factory nodeFactory) {
+        super(space, type, nodeFactory);
         resizable = true;
     }
     

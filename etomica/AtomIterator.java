@@ -42,7 +42,9 @@ public interface AtomIterator {
     
     public Atom getBasis();
     
-    public int size();   
+    public int size(); 
+    
+    public void setAsNeighbor(boolean b);
 
     /**
      * A placeholder iterator that contains no atoms and always returns false for hasNext.

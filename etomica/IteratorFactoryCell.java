@@ -21,6 +21,10 @@ public class IteratorFactoryCell implements IteratorFactory {
     
     public Class neighborSequencerClass() {return Sequencer.class;}
     
+    public AtomSequencer.Factory atomSequencerFactory() {return IteratorFactorySimple.INSTANCE.atomSequencerFactory();}
+    
+    public AtomSequencer.Factory neighborSequencerFactory() {return Sequencer.FACTORY;}
+    
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -34,16 +38,20 @@ public static final class IntragroupIterator implements AtomIterator {
     /**
      * Indicates if another iterate is forthcoming.
      */
-    public boolean hasNext() {return nextAtom != null;}
+    public boolean hasNext() {return listIterator.hasNext();}
     
     /**
      * True if the parent group of the given atom is the current basis for the iterator.
      * False otherwise, or if atom or basis is null.
      */
     public boolean contains(Atom atom) {
-        return atom != null && basis != null && atom.node.parentGroup() == basis;
+        return atom != null && basis != null && atom.node.parentNode() == basis;
     }
     
+	public void setAsNeighbor(boolean b) {
+	    throw new RuntimeException("method IteratorFactoryCell.IntraGroupIterator.setAsNeighbor not implemented");
+	}
+
     /**
      * Does reset if atom in iterator directive is child of the current basis.  
      * Sets hasNext false if given atom does is not child of basis.  Throws
@@ -54,6 +62,10 @@ public static final class IntragroupIterator implements AtomIterator {
         return reset(id.atom1());
     }
     
+    //we assume that the only Index links in the list are those demarking
+    //the beginning of each cell's sequence; thus we reset the list iterator
+    //using null as the terminator
+    
     public Atom reset(Atom atom) {
         referenceAtom = atom;
         upListNow = direction.doUp();
@@ -63,58 +75,64 @@ public static final class IntragroupIterator implements AtomIterator {
             throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupIterator without referencing an atom");
         //probably need isDescendedFrom instead of parentGroup here
         } 
-        if(atom.node.parentGroup() != basis) {
+        if(atom.node.parentNode() != basis) {
             throw new IllegalArgumentException("Cannot return IteratorFactoryCell.IntragroupIterator referencing an atom not in group of basis");
         }
-        //can base decision whether to iterate over cells on type of sequencer
-        //for given atom, because it is in the group of atoms being iterated
         if(iterateCells) {
             referenceCell = (AtomCell)((Sequencer)atom.seq).site();
+            listIterator.unset();
             if(upListNow) {
-                cellIterator.reset(referenceCell, IteratorDirective.UP);//set cell iterator to return next cell up (shouldn't begin with this cell)
-                nextAtom = atom.seq.nextAtom();
+                cellIterator.reset(referenceCell, IteratorDirective.UP);//set cell iterator to return reference cell
+                AtomCell cell = (AtomCell)cellIterator.next();//this returns referenceCell
+                listIterator.reset(referenceAtom.seq, null, IteratorDirective.UP);
+                listIterator.next();//advance so not to return reference atom
             }
-            if(nextAtom == null) advanceCell();
+            if(!listIterator.hasNext()) advanceCell();
         } else if(upListNow) {
-            nextAtom = atom.seq.nextAtom();
-            if(nextAtom == null && doGoDown) {
-                nextAtom = atom.seq.previousAtom();
+            listIterator.reset(referenceAtom.seq, IteratorDirective.UP);
+            listIterator.next();//advance so not to return reference atom
+            if(!listIterator.hasNext() && doGoDown) {
+                listIterator.reset(referenceAtom.seq, IteratorDirective.DOWN);
+                listIterator.next();//advance so not to return reference atom
                 upListNow = false;
                 doGoDown = false;
             }
         } else if(doGoDown) {
-            nextAtom = atom.seq.previousAtom();
+            listIterator.reset(referenceAtom.seq, IteratorDirective.DOWN);
+            listIterator.next();//advance so not to return reference atom
+            doGoDown = false;
         }
-        return nextAtom;
+        return listIterator.peek();
     }
                 
-    // Finds first atom of next occupied cell
+    // Moves to next cell that has an iterate
     private void advanceCell() {
         do {
-            if(cellIterator.hasNext() && iterateCells) {
-                nextAtom = upListNow ? ((AtomCell)cellIterator.next()).first(speciesIndex)
-                                     : ((AtomCell)cellIterator.next()).last(speciesIndex);
+            if(cellIterator.hasNext()) {
+                AtomCell cell = (AtomCell)cellIterator.next();
+                if(upListNow) {
+                    listIterator.reset(cell.first(speciesIndex), null, IteratorDirective.UP);
+                } else {
+                    listIterator.reset(cell.last(speciesIndex), null, IteratorDirective.DOWN);
+                }
             } else if(doGoDown) {//no more cells that way; see if should now reset to look at down-cells
-                cellIterator.reset(referenceCell, IteratorDirective.DOWN);//set cell iterator to return next cell down
-                nextAtom = referenceAtom.seq.previousAtom();
+                cellIterator.reset(referenceCell, IteratorDirective.DOWN);//set cell iterator to return reference cell
+                AtomCell cell = (AtomCell)cellIterator.next();//this will be the reference cell
+                listIterator.reset(referenceAtom.seq, null, IteratorDirective.DOWN);
+                listIterator.next();//advance so not to return reference atom
                 upListNow = false;
                 doGoDown = false;
             } else {//no more cells at all
                 break;
             }
-        } while(nextAtom == null);
+        } while(!listIterator.hasNext());
     }
             
     public Atom next() {
-        Atom atom = nextAtom;
-        nextAtom = upListNow ? atom.seq.nextAtom() : atom.seq.previousAtom();
-        if(nextAtom == null) advanceCell();
+        Atom atom = listIterator.next();
+        if(!listIterator.hasNext() && iterateCells) advanceCell();
         return atom;
     }
-    /**
-     * Ignored.
-     */
-    public void setAsNeighbor(boolean b) {}
     
     /**
      * Throws RuntimeException because this is a neighbor iterator, and must
@@ -149,8 +167,11 @@ public static final class IntragroupIterator implements AtomIterator {
     
     public void setBasis(AtomTreeNodeGroup node) {
         basis = node;
-        iterateCells = basis.childSequencerClass.equals(Sequencer.class);
+        //can base decision whether to iterate over cells on type of sequencer
+        //for given atom, because it is in the group of atoms being iterated
+        iterateCells = basis.childSequencerClass().equals(Sequencer.class);
         if(iterateCells) speciesIndex = basis.parentSpecies().index;
+        listIterator.setBasis(node.childList);
     }
     
     /**
@@ -167,11 +188,12 @@ public static final class IntragroupIterator implements AtomIterator {
     private Atom next;
     private Atom referenceAtom, nextAtom;
     private boolean upListNow, doGoDown;
-    private IteratorDirective.Direction direction;
-    private SiteIteratorNeighbor cellIterator;
+    private IteratorDirective.Direction direction, currentDirection;
     private AtomCell referenceCell;
     private boolean iterateCells;
     private int speciesIndex;
+    private final SiteIteratorNeighbor cellIterator = new SiteIteratorNeighbor();
+    private final AtomIteratorList listIterator = new AtomIteratorList();
 
 }//end of IntragroupIterator
    
@@ -218,25 +240,23 @@ public static final class Sequencer extends AtomSequencer implements AbstractLat
 
 //Determines appropriate cell and assigns it
     public void assignCell() {
-        AtomCell newCell = (AtomCell)lattice.nearestSite(atom.coord.position(), dimensions);
+        AtomCell newCell = (AtomCell)lattice.nearestSite(atom.coord.position());
         if(newCell != cell) {assignCell(newCell);}
     }
 //Assigns atom to given cell; if removed from another cell, repairs tear in list
     public void assignCell(AtomCell newCell) {
-        if(previous != null) {previous.atom.seq.setNextAtom(next);}
-        else {//removing first atom in cell
-            if(cell != null) cell.setFirst(next); 
-            if(next != null) next.seq.clearPreviousAtom();
-        }   
         cell = newCell;
-        if(cell == null) {setNextAtom(null);}
-        else {
-            setNextAtom(cell.first());
-            cell.setFirst(this);
-        }
-        clearPreviousAtom();
+        if(cell == null) return;
+        AtomTreeNodeGroup parentNode = atom.node.parentNode();
+        parentNode.childList.moveBefore(this, newCell.last(parentNode.parentSpecies().index));
     }//end of assignCell
+    
+    public static final AtomSequencer.Factory FACTORY = new AtomSequencer.Factory() {
+        public AtomSequencer makeSequencer(Atom atom) {return new Sequencer(atom);}
+    };
 }//end of Sequencer
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * A factory that makes Sites of type AtomCell
@@ -246,22 +266,32 @@ private static final class AtomCellFactory implements SiteFactory {
         if(!(coord instanceof BravaisLattice.Coordinate)) {
             throw new IllegalArgumentException("IteratorFactoryCell.AtomCellFactory: coordinate must be of type BravaisLattice.Coordinate");
         }
-        return (new AtomCell(parent, (BravaisLattice.Coordinate)coord));
+        AbstractCell cell = ((Lattice)parent).makeWignerSeitzCell((AbstractLattice.PositionCoordinate)coord);
+        return new AtomCell((Lattice)parent, cell);
     }
 }//end of AtomCellFactory
     
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * A lattice cell that holds a reference to a sequence of atoms.
  */
-private static final class AtomCell extends etomica.lattice.AbstractCell {
+private static final class AtomCell extends AbstractCell {
     public Space.Vector position;
-    public AtomCell(Lattice parent, BravaisLattice.Coordinate coord) {
-        super(parent, coord);
+    AbstractCell cell;
+    private AtomLinker.Index[] firstIndex, lastIndex;
+    public AtomCell(Lattice parent, AbstractCell cell) {
+        super(parent, (AbstractLattice.PositionCoordinate)cell.coordinate());
+        this.cell = cell;
 //        color = Constants.RandomColor();
 //            position = (Space2D.Vector)coord.position();
     }
-    public Atom first(int index) {return firstEntry[index];}
-    public Atom last(int index) {return lastEntry[index];}
+    public boolean inCell(Space.Vector r) {return cell.inCell(r);}
+    public int D() {return cell.D();}
+    public Space.Vector[] vertex() {return cell.vertex();}
+    public double volume() {return cell.volume();}
+    public AtomLinker.Index first(int speciesIndex) {return firstIndex[speciesIndex];}
+    public AtomLinker.Index last(int speciesIndex) {return lastIndex[speciesIndex];}
 }//end of AtomCell
 
    
