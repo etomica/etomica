@@ -41,13 +41,13 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     phaseCount++;
     if(phaseCount == 1) {
         firstPhase = phase[0];
-        atomDisplace1.setPhase(phase[0]);
+        atomDisplace1.setPhase(new Phase[] {phase[0]});
     }
     if(phaseCount == 2) {
         secondPhase = phase[1];
         volumeExchange.setPhase(phase);
         moleculeExchange.setPhase(phase);
-        atomDisplace2.setPhase(phase[1]);
+        atomDisplace2.setPhase(new Phase[] {phase[1]});
     }
     return true;
   }

@@ -227,16 +227,6 @@ public abstract class Integrator implements java.io.Serializable {
 		}
 	}
 
-	/**
-	 * Attempts to set the given integrator as the integrator for all phases
-	 * that were added to this phase.
-	 */
-	public void transferPhasesTo(Integrator anotherIntegrator) {
-		for (int i = 0; i < phaseCount; i++) {
-			phase[i].setIntegrator(anotherIntegrator);
-		}
-	}
-
 	public synchronized void addIntervalListener(IntervalListener iil) {
 		boolean added = false;
 		//must check all possibilities because listener may implement multiple

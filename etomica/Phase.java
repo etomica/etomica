@@ -208,15 +208,9 @@ public class Phase {
      * Sets the boundary object of the phase.
      */
      public void setBoundary(Space.Boundary b) {
-        boolean hasIntegrator = integrator != null;
-//        if(hasIntegrator) integrator.pause();
         boundaryMonitor.notifyObservers(b);
         boundary = b;
         boundary.setPhase(this);
-        if(hasIntegrator) {
-            integrator.reset();
-//            integrator.unPause();
-        }
      }
      
      /**
@@ -243,29 +237,7 @@ public class Phase {
      * Returns the agent of the given species in this phase.
      */
     public final SpeciesAgent getAgent(Species s) {return s.getAgent(this);}
-    /**
-     * Accessor of the integrator governing the movement of the atoms in the phase.
-     * 
-     * @return The phase's integrator.
-     * @see Integrator
-     */
-    public final Integrator integrator() {return integrator;}
-
-    /**
-     * Sets the integrator of the phase.
-     * 
-     * @param i The new integrator.
-     */
-    public void setIntegrator(Integrator i) {
-           //need to define an exception for this
-        if(!i.addPhase(this)) return; //addPhase will return false if the phase was not successfully added to the integrator
-        //notify observers before updating integrator in case observers want to close business with old integrator
-        integratorMonitor.notifyObservers(i);
-//        integratorMonitor.fireEvent(new PhaseIntegratorEvent(i,PhaseIntegratorEvent.NEW_INTEGRATOR));
-        if(integrator != null) integrator.removePhase(this);
-        integrator = i;
-    }
-                        
+                       
     public final Space.Vector dimensions() {return boundary.dimensions();}
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     
@@ -363,14 +335,6 @@ public class Phase {
  //       deleteMolecule(m);
 //    }
     
-    /**
-    * Synchronized version of addMolecule
-    * Useful if molecules are being added by GUI events, rather than by integrator 
-    */
-//    public final synchronized void addMoleculeSafely(Molecule m) {
-//        addMolecule(m);
-//    }
-
     public synchronized void addListener(PhaseListener listener) {
         eventManager.addListener(listener);
     }
@@ -385,11 +349,6 @@ public class Phase {
                                  
     public Configuration configuration;
           
-    private Integrator integrator;
-              
-//    public transient MeterEnergy energy;
-        
-    public Phase.Monitor integratorMonitor = new Phase.Monitor();
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();
 //    public SimulationEventManager integratorMonitor = new SimulationEventManager();
 
