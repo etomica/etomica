@@ -18,16 +18,16 @@ public class MCMoveSemigrand extends MCMove {
     private double[] fugacityFraction;
     private int nSpecies;
     private transient Atom deleteMolecule, insertMolecule;
-    private final AtomIterator deleteAtomIterator;
-    private final AtomIterator insertAtomIterator;
+    private final AtomIteratorListSimple deleteAtomIterator;
+    private final AtomIteratorListSimple insertAtomIterator;
     private final AtomIteratorCompound affectedAtomIterator; 
 
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     
     public MCMoveSemigrand(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
-        deleteAtomIterator = parentIntegrator.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
-        insertAtomIterator = parentIntegrator.parentSimulation().iteratorFactory.makeGroupIteratorSimple();
+        deleteAtomIterator = new AtomIteratorListSimple();
+        insertAtomIterator = new AtomIteratorListSimple();
         affectedAtomIterator = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
         setTunable(false);
         setPerParticleFrequency(true);

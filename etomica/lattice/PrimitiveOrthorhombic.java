@@ -30,7 +30,7 @@ public class PrimitiveOrthorhombic extends Primitive {
     public void setSize(double[] size) {
         if(size.length != D) throw new IllegalArgumentException("Error in PrimitiveOrthorhombic.setSize: Number of sizes given is inconsistent with number of primitive vectors");
         for(int i=0; i<D; i++) {
-            r[i].setComponent(i,size[i]);
+            latticeVectors[i].setComponent(i,size[i]);
             this.size[i] = size[i];
         }
         if(lattice != null) lattice.update();
@@ -41,7 +41,7 @@ public class PrimitiveOrthorhombic extends Primitive {
      */
     public void setSize(double size) {
         for(int i=0; i<D; i++) {
-            r[i].setComponent(i,size);
+            latticeVectors[i].setComponent(i,size);
             this.size[i] = size;
         }
         if(lattice != null) lattice.update();

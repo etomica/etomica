@@ -7,8 +7,8 @@ import etomica.*;
  */
 public abstract class Primitive {
     
-    protected final Space.Vector[] r;
-    private final Space.Vector[] rCopy;
+    protected final Space.Vector[] latticeVectors;
+    protected final Space.Vector[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     public final int D;
     protected Space space;
@@ -19,12 +19,12 @@ public abstract class Primitive {
         simulation = sim;
         space = sim.space;
         D = space.D();
-        r = new Space.Vector[D];
-        rCopy = new Space.Vector[D];
+        latticeVectors = new Space.Vector[D];
+        latticeVectorsCopy = new Space.Vector[D];
         idx = new int[D];
         for(int i=0; i<D; i++) {
-            r[i] = space.makeVector();
-            rCopy[i] = space.makeVector();
+            latticeVectors[i] = space.makeVector();
+            latticeVectorsCopy[i] = space.makeVector();
         }
     }
     
@@ -55,9 +55,9 @@ public abstract class Primitive {
     }
     
     //copies the interal set of vectors to the copy for outside use
-    private Space.Vector[] copyVectors() {
-        for(int i=0; i<D; i++) rCopy[i].E(r[i]);
-        return rCopy;
+    protected Space.Vector[] copyVectors() {
+        for(int i=0; i<D; i++) latticeVectorsCopy[i].E(latticeVectors[i]);
+        return latticeVectorsCopy;
     }
     
     /**

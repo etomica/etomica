@@ -9,7 +9,7 @@ public final class ApiIntergroup1A implements AtomPairIterator {
     
     public ApiIntergroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
-        iterator = sim.iteratorFactory.makeGroupIteratorSimple();
+        iterator = new AtomIteratorListSimple();
     }
 
     public void setBasis(Atom a1, Atom a2) {
@@ -90,7 +90,7 @@ public final class ApiIntergroup1A implements AtomPairIterator {
         }*/
     }
     
-    private final AtomIterator iterator;
+    private final AtomIteratorListSimple iterator;
     private Atom basis1, basis2;
     private Atom atom1;
     private boolean hasNext;

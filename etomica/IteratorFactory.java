@@ -22,7 +22,7 @@ public interface IteratorFactory {
      * it is also more simply implemented and presumably faster than the
      * analogous sequential iterator (given by makeGroupIteratorSequential).
      */
-    public AtomIterator makeGroupIteratorSimple();
+    //public AtomIterator makeGroupIteratorSimple();
     
     /**
      * Returns iterator that loops over all atoms in a group, without

@@ -7,12 +7,14 @@ import etomica.*;
  */
 public class PrimitiveCubic extends Primitive {
     
+    //primitive vectors are stored internally at unit length.  When requested
+    //from the vectors() method, copies are scaled to size and returned.
     private double size;
     
     public PrimitiveCubic(Simulation sim) {
         super(sim);
         //set up orthogonal vectors of unit size
-        setSize(1.0);
+        for(int i=0; i<D; i++) latticeVectors[i].setComponent(i, 1.0);
     }
     
     /**
@@ -24,11 +26,19 @@ public class PrimitiveCubic extends Primitive {
         return copy;
     }
     
+    //override superclass method to scale copy-vectors to current size
+    protected Space.Vector[] copyVectors() {
+        for(int i=0; i<D; i++) {
+            latticeVectorsCopy[i].E(latticeVectors[i]);
+            latticeVectorsCopy[i].TE(size);
+        }
+        return latticeVectorsCopy;
+    }
     /**
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
-        for(int i=0; i<D; i++) r[i].setComponent(i,size);
+ //       for(int i=0; i<D; i++) latticeVectors[i].setComponent(i,size);
         this.size = size;
         if(lattice != null) lattice.update();
     }
@@ -114,9 +124,30 @@ public class UnitCell extends AbstractCell {
     public double volume() {
         return space.powerD(size);
     }
+    
     /**
-     * Returns the positions of the vertices relative to the cell position.
-     * Absolute positions are obtained by adding the coordinate.position vector.
+     * Makes vertices for the unit cubic cell, positioned relative to the origin.
+     * Must be scaled and translated to cell coordinate position to get true vertex locations.
+     */
+   /* private Space.Vector[] makeUnitVertices() {
+        Space.Vector[] vertices = new Space.Vector[space.powerD(2)];//number of vertices is 2^D
+        for(int i=0; i<vertices.length; i++) {
+            vertices[i] = space.makeVector();
+            int mask = 1;
+            for(int j=0; j<D; j++) {
+                //the bits of i indicate whether corresponding primitive vector is added
+                //do bitwise "and" with mask (which has exactly 1 nonzero bit) to see if
+                //each bit is 1 or 0
+                if((i & mask) != 0) vertices[i].PE(latticeVectors[j]);//unit lattice vector
+                mask *= 2;
+            }
+        }
+        return vertices;
+    }//end of vertex
+    */
+    
+    /**
+     * Returns the absolute positions of the vertices .
      * Note that vertices might be computed on-the-fly, with each call of the method, rather than
      * computed once and stored; thus it may be worthwhile to store the values if using them often, 
      * but if doing so be careful to update them if any transformations are done to the lattice.
@@ -125,15 +156,17 @@ public class UnitCell extends AbstractCell {
         Space.Vector[] vertices = new Space.Vector[space.powerD(2)];//number of vertices is 2^D
         for(int i=0; i<vertices.length; i++) {
             vertices[i] = space.makeVector();
-            vertices[i].E(coord.position());
             int mask = 1;
             for(int j=0; j<D; j++) {
                 //the bits of i indicate whether corresponding primitive vector is added
                 //do bitwise "and" with mask (which has exactly 1 nonzero bit) to see if
                 //each bit is 1 or 0
-                if((i & mask) != 0) vertices[i].PE(r[j]);
+                if((i & mask) != 0) vertices[i].PE(latticeVectors[j]);//unit vector
                 mask *= 2;
             }
+            vertices[i].TE(size);//scale to size (good for PrimitiveCubic only)
+            vertices[i].PE(coord.position());//translate to position
+  //          System.out.println(vertices[i].toString());
         }
         return vertices;
     }//end of vertex

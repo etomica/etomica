@@ -12,8 +12,8 @@ public final class ApiIntergroupAA implements AtomPairIterator {
     public ApiIntergroupAA(Simulation sim) {
         pair = new AtomPair(sim.space);
         //inner and outer are arbitrary designations
-        aiOuter = sim.iteratorFactory.makeGroupIteratorSimple();
-        aiInner = sim.iteratorFactory.makeGroupIteratorSimple();
+        aiOuter = new AtomIteratorListSimple();
+        aiInner = new AtomIteratorListSimple();
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         outerWrapper.aiInner = aiInner;
     }
@@ -96,8 +96,8 @@ public final class ApiIntergroupAA implements AtomPairIterator {
     private boolean needUpdate1;
     
     //no neighbor iterator here (not species iterator)
-    private final AtomIterator aiOuter;
-    private final AtomIterator aiInner;
+    private final AtomIteratorListSimple aiOuter;
+    private final AtomIteratorListSimple aiInner;
     
     private final AtomPairAction.OuterWrapper outerWrapper;
     private final IteratorDirective localDirective = new IteratorDirective();
