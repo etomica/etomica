@@ -19,6 +19,7 @@ public class Phase extends Container {
     public void initialize(Simulation ps) {
         parentSimulation = ps;
         setBoundary(iBoundary);
+        setPotential();
         add(new ConfigurationSequential());  //default configuration
         potentialEnergy = new MeterPotentialEnergy();
         potentialEnergy.setUpdateInterval(Integer.MAX_VALUE);  //these meters are placed to permit phase to report its potential and kinetic energies
@@ -28,6 +29,9 @@ public class Phase extends Container {
 //        add(kineticEnergy);
     }
         
+    public void setPotential() {
+        if(parentSimulation != null) potential = parentSimulation.space.makePotential();
+    }
 
     public final void setBoundary(int b) {
         iBoundary = b;
@@ -164,6 +168,9 @@ public class Phase extends Container {
         for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
     }
+    
+    Potential potential;
+    public Potential potential() {return potential;}
             
     /**
     * Object used to describe presence and magnitude of constant gravitational acceleration

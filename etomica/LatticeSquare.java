@@ -22,6 +22,10 @@ public class LatticeSquare extends Lattice {
 //                sites[i][j] = (Site)site.makeSite(new int[] {i,j});
                 if(last != null) last.setNextSite(sites[i][j]);
                 last = sites[i][j];
+                if(i > 0) {last.setW(sites[i-1][j]);}
+                if(i == dimensions[0]-1) {last.setE(sites[0][j]);}
+                if(j > 0) {last.setN(sites[i][j-1]);}
+                if(j == dimensions[1]-1) {last.setS(sites[i][0]);}
             }
         }
         origin = sites[0][0];
@@ -29,6 +33,17 @@ public class LatticeSquare extends Lattice {
     
     public final void clearCells() {
         for(Site s=origin; s!=null; s=s.nextSite()) {s.firstAtom = null;}
+    }
+    
+    public final Space.AtomCoordinate firstAtom() {
+        Site s = origin;
+        Space.AtomCoordinate a = s.firstAtom();
+        while(a == null) {
+            s = s.nextSite();
+            if(s == null) return null;
+            a = s.firstAtom();
+        }
+        return a;
     }
     
     public final double[][] getBasis() {return basis;}
@@ -66,9 +81,17 @@ public class LatticeSquare extends Lattice {
         private Linker firstUpNeighbor;
         private Linker firstDownNeighbor;
         private Site nextSite, previousSite;
-        
         private int[] coordinate;
+        Site n, e, s, w;
         public Site() {}
+        public Site N() {return n;}
+        public Site S() {return s;}
+        public Site E() {return e;}
+        public Site W() {return w;}
+        private void setN(Site k) {n = k; k.s = this;}
+        private void setE(Site k) {e = k; k.w = this;}
+        private void setW(Site k) {w = k; k.e = this;}
+        private void setS(Site k) {s = k; k.n = this;}
         public final Space.AtomCoordinate firstAtom() {return firstAtom;}
         public final void setFirstAtom(Space.AtomCoordinate a) {firstAtom = a;}
         public final Linker firstUpNeighbor() {return firstUpNeighbor;}
@@ -107,7 +130,7 @@ public class LatticeSquare extends Lattice {
     }
     
     public static final class Cell extends Point implements Lattice.Cell {
-        private final double[][] vertices = {{0.5,0.5},{-0.5,0.5},{0.5,-0.5},{-0.5,-0.5}};
+        private final double[][] vertices = {{0.5,0.5},{0.5,-0.5},{-0.5,-0.5},{-0.5,0.5}};
         private final int nVertices = 4;
         private double volume;
         public Cell() {}

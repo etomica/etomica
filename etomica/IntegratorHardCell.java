@@ -72,7 +72,10 @@ protected void advanceToCollision() {
             
     advanceAcrossTimeStep(nextCollider.getCollisionTime());
     Atom partner = nextCollider.getCollisionPartner();
-    if(partner == null) {
+    if(partner == nextCollider.atom) {
+        Atom a = nextCollider.atom;
+//        a.parentMolecule.parentPhase.boundary().centralImage(a.coordinate.position());  //put atom at central image
+//        a.coordinate.assignCell();
         upList(nextCollider.atom);
         downList(nextCollider.atom);
     }
@@ -87,7 +90,8 @@ protected void advanceToCollision() {
         boolean upListedN = false;
         boolean upListedP = false;
 //        for(Atom a=firstPhase.firstAtom(); a!=partnerNextAtom; a=a.nextAtom()) {  //note that nextCollider's or partner's position in linked-list may have been moved by the bump method
-        upAtomIterator.reset(firstPhase.firstAtom());
+//        upAtomIterator.reset(firstPhase.firstAtom());
+        upAtomIterator.reset(((Space2DCell)parentController.parentSimulation.space()).cells.firstAtom().atom());  //first atom in first cell
         while(upAtomIterator.hasNext()) {
             Atom a = upAtomIterator.next().atom();
             if(a == partnerNextAtom) break;
@@ -156,15 +160,15 @@ protected void upList(Atom atom) {  //specific to 2D
             
     double minCollisionTime = Double.MAX_VALUE;
     Agent aia = (Agent)atom.ia;
-    if(!atom.isStationary() && atom.type instanceof AtomType.Disk) {  //if mobile, set collision time to time atom takes to move half a box edge
-        double tnew = Math.abs((0.5*atom.phase().parentSimulation.space.getNeighborRadius()-0.5*1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
-        minCollisionTime = tnew;
+//    if(!atom.isStationary() && atom.type instanceof AtomType.Disk) {  //if mobile, set collision time to time atom takes to move half a box edge
+//        double tnew = Math.abs((0.5*atom.phase().parentSimulation.space.getNeighborRadius()-0.5*1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
+//        minCollisionTime = tnew;
 //        for(int i=Simulation.D-1; i>=0; i--) {
 //            double tnew = Math.abs((atom.phase().dimensions().component(i)-1.0001*((AtomType.Disk)atom.type).diameter())/atom.coordinate.momentum(i));  //assumes range of potential is .le. diameter
 //            minCollisionTime = (tnew < minCollisionTime) ? tnew : minCollisionTime;
 //        }
-        minCollisionTime *= 0.5*atom.mass();
-    }
+//        minCollisionTime *= 0.5*atom.mass();
+//    }
     aia.setCollision(minCollisionTime, null, null);
             
     Atom nextMoleculeAtom = atom.nextMoleculeFirstAtom();  //first atom on next molecule
@@ -193,7 +197,8 @@ protected void upList(Atom atom) {  //specific to 2D
         upPairIterator.reset(atom,null,null);
         while(upPairIterator.hasNext()) {
             AtomPair pair = upPairIterator.next();
-            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
+            PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
+//            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
             double time = potential.collisionTime(pair);
             if(time < minCollisionTime) {
                 minCollisionTime = time;
@@ -253,7 +258,7 @@ protected void downList(Atom atom) {
         while(downPairIterator.hasNext()) {
             AtomPair pair = downPairIterator.next();
             Agent aia = (Agent)pair.atom2().ia;  //atom2 is inner loop
-            PotentialHard potential = (PotentialHard)simulation().potential2[pair.atom2().getSpeciesIndex()][atomSpeciesIndex].getPotential(atom,pair.atom2());
+            PotentialHard potential = (PotentialHard)simulation().getPotential(pair);
     //       Potential potential = p2[a.getSpeciesIndex()].getPotential(atom,a);
             double time = potential.collisionTime(pair);
             if(time < aia.getCollisionTime()) {

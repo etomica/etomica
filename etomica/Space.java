@@ -136,4 +136,6 @@ public abstract class Space {
 //        public void inflate(double s) {}
 //        public  double[][] imageOrigins(int nShells) {return null;}
 //    }
+
+    public Potential makePotential() {return new PotentialIdealGas();}  //default    
 }    

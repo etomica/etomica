@@ -8,7 +8,7 @@ public class Space2DCell extends Space {
     
     public static final int D = 2;
     public final int D() {return D;}
-    private LatticeSquare cells;  //want to declare final, but won't compile
+    public LatticeSquare cells;  //want to declare final, but won't compile
     private int xCells, yCells;
     
     public Space2DCell() {
@@ -38,6 +38,7 @@ public class Space2DCell extends Space {
     public final Atom.Iterator makeDownAtomIterator() {return new DownAtomIterator();}
     public simulate.AtomPair makeAtomPair(Space.Boundary boundary, Atom a1, Atom a2) {return new AtomPair((Boundary)boundary, a1, a2);}
     public final void clearCells() {cells.clearCells();}
+    public Potential makePotential() {return new CellPotential();}
     public Space.Boundary makeBoundary(int b) {
         switch(b) {
             case(Boundary.NONE):            return new BoundaryNone();
@@ -371,17 +372,21 @@ public class Space2DCell extends Space {
         public final Space.AtomCoordinate previousNeighbor() {return previousNeighbor;}
         
         public LatticeSquare.Site cell;        //ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
+   //Determines appropriate cell and assigns it
         public void assignCell() {             //assumes coordinates ranges [0,1)
-            LatticeSquare.Site oldCell = cell;
             int ix = (int)Math.floor(r.x * xCells);
             int iy = (int)Math.floor(r.y * yCells);
-            cell = (LatticeSquare.Site)cells.sites()[ix][iy];
-            if(cell != oldCell) {
-                if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
-                else {if(oldCell != null) oldCell.setFirstAtom(nextNeighbor); if(nextNeighbor != null) nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
-                setNextNeighbor(cell.firstAtom());
-                cell.setFirstAtom(this);
-            }
+            System.out.println(ix+"  "+iy);
+            LatticeSquare.Site newCell = (LatticeSquare.Site)cells.sites()[ix][iy];
+            if(newCell != cell) {assignCell(newCell);}
+        }
+   //Assigns atom to given cell
+        public void assignCell(LatticeSquare.Site newCell) {
+            if(previousNeighbor != null) {previousNeighbor.setNextNeighbor(nextNeighbor);}
+            else {if(cell != null) cell.setFirstAtom(nextNeighbor); if(nextNeighbor != null) nextNeighbor.clearPreviousNeighbor();}   //removing first atom in cell
+            cell = newCell;
+            setNextNeighbor(cell.firstAtom());
+            cell.setFirstAtom(this);
         }
             
         public final Atom atom() {return atom;}
@@ -412,23 +417,13 @@ public class Space2DCell extends Space {
             coordinate = (AtomCoordinate)a.coordinate;
             pair.c1 = coordinate;
             cell = coordinate.cell;
-            // changes from UpNeighborIterator
-            nextLinker = cell.firstDownNeighbor();  //this points to the cell after the current neighbor cell
-            neighborAtom = (AtomCoordinate)coordinate.previousNeighbor();   //this is the next atom to be paired with the fixed atom
-            //////
-            hasNext = true;
-            if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
-            else {hasNext = true;}
-
-            atom = a;
-            coordinate = (AtomCoordinate)a.coordinate;
-            pair.c1 = coordinate;
-            cell = coordinate.cell;
             nextLinker = cell.firstUpNeighbor();  //this points to the cell after the current neighbor cell
-            neighborAtom = (AtomCoordinate)coordinate.nextNeighbor();   //this is the next atom to be paired with the fixed atom
+            neighborAtom = coordinate;
             hasNext = true;
-            if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
-            else {hasNext = true;}
+ //           neighborAtom = (AtomCoordinate)coordinate.nextNeighbor();   //this is the next atom to be paired with the fixed atom
+ //           hasNext = true;
+ //           if(neighborAtom == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
+ //           else {hasNext = true;}
         }
         // Finds first neighbor of next occupied cell
         private void advanceCell() {
@@ -670,5 +665,34 @@ public class Space2DCell extends Space {
         public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
         public void reset() {reset(iLast.atom(), oFirst.atom(), oLast.atom());}
+    }
+    
+    public static class CellPotential extends Potential implements PotentialHard {
+        
+        public void bump(simulate.AtomPair pair) {
+            AtomCoordinate atomC = (AtomCoordinate)pair.atom1().coordinate;
+            LatticeSquare.Point cell = (LatticeSquare.Point)atomC.cell;
+            double dx = atomC.r.x - cell.position()[0];
+            double dy = atomC.r.y - cell.position()[1];
+            if(Math.abs(dx) > Math.abs(dy)) { //collision with left or right wall
+                if(dx > 0) {atomC.assignCell(cell.E());}
+                else {atomC.assignCell(cell.W());}
+            }
+            else {
+                if(dy > 0) {atomC.assignCell(cell.S());}
+                else {atomC.assignCell(cell.N());}
+            }
+        }
+        
+        public double collisionTime(simulate.AtomPair pair) {
+            AtomCoordinate atomC = (AtomCoordinate)pair.atom1().coordinate;
+            LatticeSquare.Cell cell = (LatticeSquare.Cell)atomC.cell;
+            double dx = (atomC.p.x > 0) ? cell.vertices()[0][0] - atomC.r.x : cell.vertices()[2][0] - atomC.r.x; 
+            double tx = Math.abs(dx/atomC.p.x);
+            double dy = (atomC.p.y > 0) ? cell.vertices()[0][1] - atomC.r.y : cell.vertices()[2][1] - atomC.r.y;
+            double ty = Math.abs(dy/atomC.p.y);
+            return (tx > ty) ? ty*atomC.atom().mass() : tx*atomC.atom().mass();
+//        double tnew = Math.abs((0.5*atom.phase().parentSimulation.space.getNeighborRadius()-0.5*1.0001*((AtomType.Disk)atom.type).diameter())/Math.sqrt(atom.coordinate.momentum().squared()));  //assumes range of potential is .le. diameter
+        }
     }
 }

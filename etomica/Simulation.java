@@ -133,7 +133,13 @@ public class Simulation extends Container {
     public boolean haveIntegrator() {
         return (controller != null && controller.integrator != null);
     }
-              
+    
+    //This can be made much more clever
+    public Potential getPotential(AtomPair pair) {
+        if(pair.atom1() == pair.atom2()) {return pair.atom1().phase().potential();}  //should rewrite AtomPair to hold phase
+        else return potential2[pair.atom2().getSpeciesIndex()][pair.atom1().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2());
+    }
+    
     /**
     * Total number of species contained in this phase.
     */
