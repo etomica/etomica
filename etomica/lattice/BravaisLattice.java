@@ -14,6 +14,11 @@ public class BravaisLattice extends Atom implements AbstractLattice {
    private AtomList siteList;
    private int[] dimensions;
    int D;
+   private NeighborManager.Criterion neighborCriterion;
+   private final SimulationEventManager eventManager = new SimulationEventManager();
+   private final LatticeEvent rebuildEvent = new LatticeEvent(this, LatticeEvent.REBUILD);
+   private final LatticeEvent allSiteEvent = new LatticeEvent(this, LatticeEvent.ALL_SITE);
+   private final LatticeEvent resetNbrEvent = new LatticeEvent(this, LatticeEvent.RESET_NBRS);
    
    /**
     * Constructor should be invoked only within a build() method of a
@@ -45,7 +50,14 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         return makeLattice(sim, primitive.unitCellFactory(), dimensions, primitive);
      }
            
-    public int[] dimensions() {return dimensions;}
+    public int[] getDimensions() {return dimensions;}
+    public void setDimensions(int[] dim) {
+        if(dim.length != D) throw new IllegalArgumentException("Incorrect length of dimensions array given to BravaisLattice.setDimensions");
+        for(int i=0; i<dim.length; i++) {
+            dimensions[i] = dim[i];
+        }
+        rebuild();
+    }
     
     /**
      * Translates the lattice so that the first site is positioned at the origin,
@@ -56,27 +68,6 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         this.coord.translateBy(shift);
     }
    
-    /**
-     * Observable anonymous inner class that notifies interested objects if the primitive vectors change.
-     * The observer would then update the sites created with this basis.  Used by the Lattice class.
-     */
-    private Observable monitor = new Observable() {
-        public void notifyObservers() {this.notifyObservers(null);}
-        public void notifyObservers(Object obj) {
-            setChanged();
-            super.notifyObservers(obj);
-        }
-        public void addObserver(Observer o) {if(o != null) super.addObserver(o);}
-    };
-    /**
-     * Registers the given Observer so that it is notified any time the primitive vectors are modified.
-     */
-    public void addObserver(Observer o) {monitor.addObserver(o);}
-    /**
-     * Notifies observers that the primitive vectors are modified.
-     */
-    protected void notifyObservers() {monitor.notifyObservers();}
-
     /**
      * Sets the primitive for this lattice to the one given, and 
      * updates the site positions.
@@ -138,6 +129,24 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     public int D() {return D;}
     
     /**
+     * Returns the event manager the registers listeners and notifies them
+     * of events indicating changes in this lattice.
+     */
+    public SimulationEventManager eventManager() {return eventManager;}
+    
+    /**
+     * Reconstructs all sites of the lattice.  Invoked when dimensions of
+     * lattice are changed.
+     */
+    public void rebuild() {
+        throw new RuntimeException("BravaisLattice.rebuild() not yet working correctly");
+        //sending atom to tree factory for rebuild doesn't work right
+    /*    creator().build(this);
+        eventManager.fireEvent(rebuildEvent);
+        */
+    }
+
+    /**
      * Overrides the superclass method to return a simple string.
      * Terminates the chain of parentGroup calls that define the signature
      * of an atom in this lattice.
@@ -160,16 +169,30 @@ public class BravaisLattice extends Atom implements AbstractLattice {
            a = ((AtomTreeNodeGroup)a.node).firstChildAtom();
         }
         type.creator().getConfiguration().initializePositions(this);
-        notifyObservers();
+        eventManager.fireEvent(allSiteEvent);
     }//end of update
     
+    /**
+     * Sets up neighbors using the default criterion, which is the criterion given
+     * in the most recent call to setupNeighbors(Criterion).  If this was not previously
+     * invoked, the adjacency criterion is used.
+     */
+    public void setupNeighbors() {
+        if(neighborCriterion == null) neighborCriterion = new AdjacencyCriterion(this);
+        setupNeighbors(neighborCriterion);
+    }
+    /**
+     * Sets up the neighbor list of each site according to the given criterion.
+     */
     public void setupNeighbors(NeighborManager.Criterion criterion) {
+        neighborCriterion = criterion;
         AtomIteratorList iterator = new AtomIteratorList(siteList);
         iterator.reset();
         while(iterator.hasNext()) {
             Site site = (Site)iterator.next();
             site.neighborManager().setupNeighbors(siteList, criterion);
         }
+        eventManager.fireEvent(resetNbrEvent);
     }//end of setupNeighbors
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +232,7 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
      * considering periodicity as set previously.
      */
     public boolean areNeighbors(Site s1, Site s2) {
-        int[] dim = lattice.dimensions();
+        int[] dim = lattice.getDimensions();
         int[] idx1 = s1.latticeCoordinate();
         int[] idx2 = s2.latticeCoordinate();
 
@@ -262,7 +285,8 @@ public static class Factory extends AtomFactoryTree {
         BravaisLattice group = (BravaisLattice)atom;
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);
         leafIterator.reset();
-        group.siteList = new AtomList(leafIterator);
+        group.siteList.clear();
+        group.siteList.addAll(leafIterator);
         //assign primitive if not already set for group (would be set if this is a rebuild call)
         if(group.getPrimitive() == null) group.setPrimitive(primitive.copy());
         else group.update();

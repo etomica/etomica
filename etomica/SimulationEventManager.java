@@ -1,10 +1,10 @@
 package etomica;
+import etomica.lattice.*;
 
 /**
  * Class to take care of listener lists and event firing for simulation elements.
  * A class can make an instance of this manager as a field, and delegate any 
- * listener management functions to it.  This is done by the Controller class,
- * and could be used by Integrator.
+ * listener management functions to it.  
  *
  * @see SimulationEvent
  * @see SimulationListener
@@ -69,6 +69,12 @@ public class SimulationEventManager implements java.io.Serializable {
     public void fireEvent(MCMoveEvent event) {
         for(SimulationListener.Linker link=first; link!=null; link=link.next) {
             ((MCMoveListener)link.listener).actionPerformed(event);
+        }
+    }
+
+    public void fireEvent(LatticeEvent event) {
+        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+            ((LatticeListener)link.listener).actionPerformed(event);
         }
     }
 

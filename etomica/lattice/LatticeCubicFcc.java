@@ -9,6 +9,11 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
    private int[] dimensions;
    private final int D = 3;
    private int[] idx = new int[D];
+   private NeighborManager.Criterion neighborCriterion;
+   private final SimulationEventManager eventManager = new SimulationEventManager();
+   private final LatticeEvent rebuildEvent = new LatticeEvent(this, LatticeEvent.REBUILD);
+   private final LatticeEvent allSiteEvent = new LatticeEvent(this, LatticeEvent.ALL_SITE);
+   private final LatticeEvent resetNbrEvent = new LatticeEvent(this, LatticeEvent.RESET_NBRS);
    
    /**
     * Constructor should be invoked only within a build() method of the
@@ -75,8 +80,12 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
         return boxSize/(double)n;
     }
 
+    /**
+     * Returns the event manager the registers listeners and notifies them
+     * of events indicating changes in this lattice.
+     */
+    public SimulationEventManager eventManager() {return eventManager;}
 
-    public int[] dimensions() {return dimensions;}
     public int[] getDimensions() {return dimensions;}
     public void setDimensions(int[] dim) {
         if(dim.length != 3) throw new IllegalArgumentException("Incorrect length of dimensions array given to LatticeCubicFcc.setDimensions");
@@ -152,6 +161,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
      */
     public void rebuild() {
         creator().build(this);
+        eventManager.fireEvent(rebuildEvent);
     }
      
     
@@ -161,9 +171,19 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
      */
     public void update() {
         creator().getConfiguration().initializePositions(this);
+        eventManager.fireEvent(allSiteEvent);
 //        notifyObservers();
     }//end of update
     
+    /**
+     * Sets up neighbors using the default criterion, which is the criterion given
+     * in the most recent call to setupNeighbors(Criterion).  If this was not previously
+     * invoked, the adjacency criterion is used.
+     */
+    public void setupNeighbors() {
+        if(neighborCriterion == null) neighborCriterion = new AdjacencyCriterion(this);
+        setupNeighbors(neighborCriterion);
+    }
     public void setupNeighbors(NeighborManager.Criterion criterion) {
         AtomIteratorList iterator = new AtomIteratorList(siteList);
         iterator.reset();
@@ -171,6 +191,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
             Site site = (Site)iterator.next();
             site.neighborManager().setupNeighbors(siteList, criterion);
         }
+        eventManager.fireEvent(resetNbrEvent);
     }//end of setupNeighbors
     
     public Space.Vector[] positions() {
@@ -204,9 +225,9 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
 public static class AdjacencyCriterion implements NeighborManager.Criterion {
     
     private boolean periodic = true;
-    private BravaisLattice lattice;
+    private LatticeCubicFcc lattice;
     
-    public AdjacencyCriterion(BravaisLattice lattice) {
+    public AdjacencyCriterion(LatticeCubicFcc lattice) {
         this.lattice = lattice;
         
         //need to rewrite areNeighbors method
@@ -228,7 +249,7 @@ public static class AdjacencyCriterion implements NeighborManager.Criterion {
      * considering periodicity as set previously.
      */
     public boolean areNeighbors(Site s1, Site s2) {
-        int[] dim = lattice.dimensions();
+        int[] dim = lattice.getDimensions();
         int[] idx1 = s1.latticeCoordinate();
         int[] idx2 = s2.latticeCoordinate();
 

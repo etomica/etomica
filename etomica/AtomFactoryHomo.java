@@ -80,30 +80,16 @@ public class AtomFactoryHomo extends AtomFactory {
     }       */
         
     /**
-     * Specifies the number of atoms in a molecule of this species.
-     * Since the number of atoms in a molecule cannot be changed once the molecule 
-     * is constructed, to have the atom/molecule change take effect it is necessary to 
-     * create new molecules of this species in each phase.  Thus the method invokes
-     * the setNMolecules method of each agent of this species, replacing all the existing
-     * molecules with ones having the newly prescribed value of atomsPerMolecule.
+     * Specifies the number of child atoms in each atom constructed by this factory.
      * 
-     * @param na The new number of atoms per molecule
+     * @param na The new number of atoms per group
      */
     public void setAtomsPerGroup(int na) {
-        if(na == atomsPerGroup) return;  //do nothing if value isn't changings
         atomsPerGroup = na;
-//        if(parentSimulation == null) {return;}
-/*        Iterator e = agents.values().iterator();
-        while(e.hasNext()) {
-            Agent a = (Agent)e.next();
-            a.setNMolecules(a.nMolecules, true);//2nd argument indicates to make new molecules even though number of them is not changing
-        }*/
     }
             
     /**
-     * Accessor method for number of atoms per molecule
-     * 
-     * @return Present number of atoms in a molecule of this species.
+     * Accessor method for number of child atoms per group constructed.
      */
      public int getAtomsPerGroup() {return atomsPerGroup;}
 

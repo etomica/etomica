@@ -138,6 +138,7 @@ public class AtomIteratorTree implements AtomIterator {
             doTreeIteration = false;
             return;
         }
+ //       basisIsMaster = !(atom instanceof SpeciesAgent) && !atom.node.isLeaf() && ((AtomTreeNodeGroup)atom.node).childrenAreGroups();//(atom instanceof SpeciesMaster);
         basisIsMaster = (atom instanceof SpeciesMaster);
         if(iterationDepth == 0 || atom.node.isLeaf()) {//singlet iteration of basis atom
             if(singletList == null) singletList = new AtomList();
@@ -247,7 +248,6 @@ public class AtomIteratorTree implements AtomIterator {
     public static void main(String args[]) {
         
         Simulation sim = new Simulation();
-        Simulation.instance = sim;
         Species species2 = new SpeciesSpheresMono();
         Species species1 = new SpeciesSpheres(3,3);
         Species species0 = new SpeciesSpheres(3,2);

@@ -22,10 +22,11 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      */
     public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
         super(sim, subFactory(sim, leafFactory, nAtoms, null), nAtoms[0]);
+        depth = nAtoms.length;
     }
     
     /**
-     * Constructor that provides an array to specifies the configuration
+     * Constructor that provides an array to specify the configuration
      * for each level in the tree.  config[0] arranges the child atoms of the
      * root, config[1] the child atoms of each root's child, etc.  Note that
      * arranging the atoms at each level implies arranging the center of mass
@@ -36,6 +37,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
                             Configuration[] config) {
         super(sim, subFactory(sim, leafFactory, nAtoms, config), 
                 nAtoms[0], BondInitializer.NULL, config[0]);
+        depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
@@ -56,5 +58,50 @@ public class AtomFactoryTree extends AtomFactoryHomo {
             }
         }
     }//end of subFactory
+    
+    public void setNAtoms(int[] n) {
+        if(n.length != depth) throw new IllegalArgumentException("AtomFactoryTree.setNAtoms(int[]) attempt to set value inconsistent with depth specified when factory was instantiated");
+        AtomFactoryHomo factory = this;
+        for(int i=0; i<n.length; i++) {
+            factory.setAtomsPerGroup(n[i]);
+            if(i < n.length -1) factory = (AtomFactoryHomo)factory.childFactory();
+        }
+    }
+    
+    //number of layers of atoms below the root atom
+    int depth;
+    
+    public static void main(String[] args) {
+        Simulation sim = new Simulation();
+        AtomFactoryMono leafFactory = new AtomFactoryMono(sim);
+        int[] nA = new int[] {2, 1, 3};
+        AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
+        Phase phase = new Phase();
+        Species species = new Species(sim, treeFactory);
+        species.setNMolecules(1);
+        Atom atom = treeFactory.makeAtom();
+        sim.elementCoordinator.go();
+        
+        AtomIteratorTree iterator = new AtomIteratorTree();
+        iterator.setBasis(phase.speciesMaster);
+        for(int i=0; i<6; i++) {
+            System.out.println("i = "+i);
+            iterator.setIterationDepth(i);
+            iterator.reset();
+            while(iterator.hasNext()) System.out.print(iterator.next().toString());
+            System.out.println();
+        }
+        
+        treeFactory.setNAtoms(new int[] {2,2,1});
+        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(phase);
+        while(moleculeIterator.hasNext()) treeFactory.build(moleculeIterator.next());
+        for(int i=0; i<6; i++) {
+            System.out.println("i = "+i);
+            iterator.setIterationDepth(i);
+            iterator.reset();
+            while(iterator.hasNext()) System.out.print(iterator.next().toString());
+            System.out.println();
+        }
+    }
     
 }//end of AtomFactoryTree

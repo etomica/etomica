@@ -2,10 +2,13 @@ package etomica;
 import etomica.utility.HashMap;
 
 import etomica.lattice.*;
+import etomica.utility.Iterator;
 
 /**
  * Iterator factory that uses a cell-based neighbor list.  Constructed
  * and functions as follows.<br>
+ * Factory is attached to a simulation by invoking the setIteratorFactory method
+ * (in Simulation) with an instance of this factory as an argument.
  * Mediator is placed in simulation when this factory is constructed.  This
  * mediator causes a cell lattices to be attached to each phase.
  * Atom factories decide whether each atom it constructs is given a simple
@@ -40,7 +43,7 @@ import etomica.lattice.*;
  * cell-ordered) sequence when given the parent's childList as its basis.
  *
  * @author David Kofke
- * 02.05.02
+ * 02.02.05
  * 
  */
 
@@ -51,10 +54,22 @@ public class IteratorFactoryCell implements IteratorFactory {
     private int[] dimensions;
     private BravaisLattice[] deployedLattices = new BravaisLattice[0];
     
+    /**
+     * Constructs a new iterator factory for the given simulation, using
+     * cubic cells for the neighbor listing.  Does not automatically
+     * register the factory with the simulation; this must be done
+     * separately using the simulation's setIteratorFactory method.
+     */
     public IteratorFactoryCell(Simulation sim) {
         this(sim, new PrimitiveCubic(sim), 4);
     }
     
+    /**
+     * Constructs a new iterator factory for the given simulation, using
+     * cells based on the given primitive.  Does not automatically
+     * register the factory with the simulation; this must be done
+     * separately using the simulation's setIteratorFactory method.
+     */
     public IteratorFactoryCell(Simulation sim, Primitive primitive, int nCells) {
         this.simulation = sim;
         this.primitive = primitive;
@@ -75,6 +90,7 @@ public class IteratorFactoryCell implements IteratorFactory {
      * the reference in each neighbor sequencer to the cell containing its atom.
      */
     public BravaisLattice makeCellLattice(final Phase phase) {
+        if(phase.parentSimulation() != simulation) throw new IllegalArgumentException("Attempt to apply iterator factory to a phase from a different simulation"); 
         //make the unit cell factory and set it to produce cells of the appropriate size
         AtomFactory cellFactory = primitive.unitCellFactory();
         ((PrimitiveCubic)primitive).setSize(phase.boundary().dimensions().component(0)/(double)dimensions[0]);//this needs work
@@ -104,6 +120,18 @@ public class IteratorFactoryCell implements IteratorFactory {
         }
         deployedLattices[phase.index] = lattice;
         
+        //add listener to notify all sequencers of any lattice events (resizing of lattice, for example)
+        lattice.eventManager().addListener(new LatticeListener() {
+            public void actionPerformed(LatticeEvent evt) {
+                if(evt.type() == LatticeEvent.REBUILD || evt.type() == LatticeEvent.ALL_SITE) {
+                    Phase p = getPhase((BravaisLattice)evt.lattice());
+                    if(p == null) return;
+                    AtomIteratorMolecule iterator = new AtomIteratorMolecule(p);
+                    while(iterator.hasNext()) ((CellSequencer)iterator.next().seq).latticeChangeNotify();
+                }//end if
+            }
+        });
+        
         return lattice;
     }
     
@@ -114,6 +142,20 @@ public class IteratorFactoryCell implements IteratorFactory {
         if(phase == null) return null;
         else return deployedLattices[phase.index];
     }
+    
+    /**
+     * Returns the phase corresponding to the given cell lattice.
+     */
+    public Phase getPhase(BravaisLattice lattice) {
+        if(lattice == null) return null;
+        //check all phases that have been added to the simulation
+        for(Iterator ip=simulation.phaseList().iterator(); ip.hasNext(); ) {
+            Phase phase = (Phase)ip.next();
+            if(getLattice(phase) == lattice) return phase;
+        }
+        return null;//no phase corresponding to given lattice found in simulation
+    }
+
     
     public AtomIterator makeGroupIteratorSimple() {return new AtomIteratorListSimple();}
 
@@ -400,7 +442,7 @@ public interface CellSequencer {
     /**
      * Method called to notify sequencer that the phase has a new cell lattice.
      */
-    public void newLatticeNotify();
+    public void latticeChangeNotify();
     
 }//end of CellSequencer interface
    
@@ -411,9 +453,16 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
     public SimpleSequencer(Atom a) {super(a);}
     
     /**
-     * CellSequencer interface method; performs no action.
+     * CellSequencer interface method; performs no action except to pass event
+     * on to sequencers of child atoms.
      */
-    public void newLatticeNotify() {}
+    public void latticeChangeNotify() {
+        if(atom.node.isLeaf()) return;
+        else {
+            AtomIteratorListSimple iterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)atom.node).childList);
+            while(iterator.hasNext()) ((CellSequencer)atom.seq).latticeChangeNotify();
+        }
+    }
 
     /**
      * Performs no action.
@@ -465,7 +514,14 @@ public static final class Sequencer extends AtomSequencer implements CellSequenc
     }
     
     //CellSequencer interface method
-    public void newLatticeNotify() {}
+    public void latticeChangeNotify() {
+        this.assignCell();
+        if(atom.node.isLeaf()) return;
+        else {
+            AtomIteratorListSimple iterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)atom.node).childList);
+            while(iterator.hasNext()) ((CellSequencer)atom.seq).latticeChangeNotify();
+        }
+    }
 
     public Site site() {return cell;}   //Lattice.Occupant interface method
 
@@ -559,7 +615,7 @@ public static final class Sequencer extends AtomSequencer implements CellSequenc
 
 //Determines appropriate cell and assigns it
     public void assignCell() {
-        int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.dimensions());
+        int[] latticeIndex = lattice.getPrimitive().latticeIndex(atom.coord.position(), lattice.getDimensions());
         AbstractCell newCell = (AbstractCell)lattice.site(latticeIndex);
         if(newCell != cell) {assignCell(newCell);}
     }

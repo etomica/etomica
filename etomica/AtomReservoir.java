@@ -67,6 +67,11 @@ public class AtomReservoir extends Atom {
      * Returns the maximum number of atoms the reservoir will hold.
      */
     public int getCapacity() {return capacity;}
+    
+    /**
+     * Returns "Reservoir"
+     */
+     public String signature() {return "Reservoir";}
 
     /**
      * Special AtomTreeNode class for AtomReservoir.
