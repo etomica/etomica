@@ -28,7 +28,7 @@ public class DataManager implements Integrator.IntervalListener {
 	 * DataSinks.
 	 */
 	public DataManager(DataSource dataSource, DataSink[] dataSinks) {
-		if(dataSource == null) throw new NullPointerException("Error: cannot construct accumulator manager without a data source");
+		if(dataSource == null) throw new NullPointerException("Error: cannot construct data manager without a data source");
 		this.dataSource = dataSource;
 		dataSinkList = new LinkedList(); 
 		setDataSinks(dataSinks);
@@ -65,7 +65,7 @@ public class DataManager implements Integrator.IntervalListener {
                 double[] data = dataSource.getData();
                 iterator = dataSinkList.iterator();
                 while(iterator.hasNext()) {
-                    ((DataSink)iterator.next()).add(data);
+                    ((DataSink)iterator.next()).putData(data);
                 }
             }
 		    if(evt.type() == Integrator.IntervalEvent.DONE && finishDataDumper != null) {
@@ -74,12 +74,12 @@ public class DataManager implements Integrator.IntervalListener {
 		        	DataSink dataSink = (DataSink)iterator.next();
 		        	if (dataSink instanceof DataSource) {
 		        		if (dataSink instanceof AccumulatorAverage) {
-		        			finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.AVERAGE));
-		        			finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.STANDARD_DEVIATION));
-                            finishDataDumper.add(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.ERROR));
+		        			finishDataDumper.putData(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.AVERAGE));
+		        			finishDataDumper.putData(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.STANDARD_DEVIATION));
+                            finishDataDumper.putData(((AccumulatorAverage)dataSink).getData(AccumulatorAverage.ERROR));
 		        		}
 		        		else {
-		        			finishDataDumper.add(((DataSource)dataSink).getData());
+		        			finishDataDumper.putData(((DataSource)dataSink).getData());
 		        		}
 		        	}
 		        }
@@ -102,33 +102,31 @@ public class DataManager implements Integrator.IntervalListener {
 	}
 
 	/**
-	 * @return Returns the accumulators.
+	 * @return Returns the data sinks.
 	 */
 	public DataSink[] getDataSinks() {
 		return (DataSink[])dataSinkList.toArray();
 	}
 	/**
-	 * @param dataSinks The accumulators to set.
+	 * @param dataSinks The data sinks to set.
 	 */
 	public void setDataSinks(DataSink[] dataSinks) {
 		dataSinkList.clear();
 		for(int i=0; i<dataSinks.length; i++) {
 			dataSinkList.add(dataSinks[i]);
-			if (dataSinks[i] instanceof Accumulator)
-				((Accumulator)dataSinks[i]).setDataSourceDimension(dataSource.getDimension());
+			dataSinks[i].setDimension(dataSource.getDimension());
 		}
 	}
 	
 	public void addDataSink(DataSink dataSink) {
 		dataSinkList.add(dataSink);
-		if (dataSink instanceof Accumulator)
-			((Accumulator)dataSink).setDataSourceDimension(dataSource.getDimension());
+		dataSink.setDimension(dataSource.getDimension());
 	}
 	
 	/**
-	 * Removes the specified accumulator from this manager.
-     * @param accumulator accumulator to be removed from this list, if present.
-     * @return <tt>true</tt> if the manager contained the specified accumulator.
+	 * Removes the specified data sink from this manager.
+     * @param dataSink data sink to be removed from this list, if present.
+     * @return <tt>true</tt> if the manager contained the specified data sink.
      */
 	public boolean removeDataSink(DataSink dataSink) {
 		return dataSinkList.remove(dataSink);

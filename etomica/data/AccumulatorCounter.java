@@ -25,7 +25,7 @@ public class AccumulatorCounter extends Accumulator {
 	/* (non-Javadoc)
 	 * @see etomica.Accumulator#add(double[])
 	 */
-	public void add(double[] values) {
+	public void putData(double[] values) {
 		count++;
 	}
 

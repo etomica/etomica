@@ -96,9 +96,9 @@ public class HistoryScrolling implements History {
     		public History makeHistory(int n) {return new HistoryScrolling(n);}
     	};
 	
-    private double[] history;
+    private double[] history = new double[0];
     private int cursor;
-	private double[] temp;
+	private double[] temp = new double[0];
 	private double[] xTemp;
 	private int count=0;
 

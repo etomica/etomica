@@ -47,7 +47,7 @@ public class AccumulatorHistogram extends Accumulator {
 	 * and new histograms are constructed (this behavior can be modified
 	 * by overriding the setNData method).
 	 */
-	public void add(double[] values) {
+	public void putData(double[] values) {
 		if(values.length != nData) setNData(values.length);
 		for(int i=nDataMinus1; i>=0; i--) {       		
 			histogram[i].addValue(values[i]);

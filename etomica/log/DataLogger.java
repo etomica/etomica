@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.DataSink;
+import etomica.units.Dimension;
 
 
 /**
@@ -12,6 +13,8 @@ import etomica.DataSink;
 public class DataLogger implements DataSink {
 
 	private final String fileName;
+    private Dimension dimension;
+    private String label;
 	
 	public DataLogger(String aFileName) {
 		fileName = aFileName;
@@ -23,7 +26,7 @@ public class DataLogger implements DataSink {
         }
 	}
 
-	public void add(double[] values) {
+	public void putData(double[] values) {
         try { 
             FileWriter fileWriter = new FileWriter(fileName,true);
     		for(int j=0; j<values.length; j++) {fileWriter.write(values[j]+" ");}
@@ -33,5 +36,12 @@ public class DataLogger implements DataSink {
             System.err.println("Cannot writing to "+fileName+", caught IOException: " + e.getMessage());
         }
 	}
+    
+    public void setDimension(Dimension dimension) {
+        this.dimension = dimension;
+    }
 
+    public void setLabel(String label) {
+        this.label = label;
+    }
 }

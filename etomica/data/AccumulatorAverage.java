@@ -6,9 +6,11 @@ package etomica.data;
 
 import etomica.Accumulator;
 import etomica.Constants;
+import etomica.DataSource;
 import etomica.DataTranslator;
 import etomica.DataType;
 import etomica.Default;
+import etomica.units.Dimension;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis.
@@ -35,7 +37,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     /**
      * Add the given values to the sums and block sums
      */
-    public void add(double[] value) {
+    public void putData(double[] value) {
     	if(value.length != nData) setNData(value.length);
     	for(int i=nDataMinus1; i>=0; i--) {
             double v = value[i];
@@ -195,6 +197,19 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 	}
 	
 	public DataType[] dataChoices() {return CHOICES;}
+    
+    /**
+     * Makes and returns a data source that gives the average recorded by 
+     * this accumulator.
+     */
+    public DataSource makeDataSourceAverage() {
+        return new DataSource() {
+            public String getLabel() {return AccumulatorAverage.this.getLabel() + "average";}
+            public double[] getData() {return average();}
+            public Dimension getDimension() {return AccumulatorAverage.this.getDimension();}
+            public DataTranslator getTranslator() {return AccumulatorAverage.this.getTranslator();}
+        };
+    }
 	
 	/**
 	 * Typed constant that can be used to indicated the quantity

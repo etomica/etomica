@@ -88,7 +88,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	public void updateSums() {
 	    updateValues();
 	    for(int i=0; i<nMeters(); i++) {
-	        accumulator[i].add(currentValues[i]);
+	        accumulator[i].putData(currentValues[i]);
 	    }
 	}
 	
