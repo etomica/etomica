@@ -40,7 +40,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     */
    private BravaisLattice(Space space, AtomType type, AtomTreeNodeGroup parent) {
         super(space, type, AtomTreeNodeGroup.FACTORY, 
-                IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
+                AtomSequencerSimple.FACTORY, parent);
         D = space.D();
         idx = new int[D];
         primitiveVectorLength = new double[D];

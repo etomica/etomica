@@ -79,11 +79,10 @@ public abstract class Polytope {
         return r2Min;
     }
     
-    public Space getSpace() {
+    public Space space() {
         return space;
     }
     
-    
-    private final Space space;
+    public final Space space;
 
 }

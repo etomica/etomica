@@ -124,7 +124,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      */
     public Polytope wignerSeitzCell() {
         return (D == 2) ? (Polytope)new Square(size) :  (Polytope)new Cube(size);
-            }
+    }
     
     /**
      * Returns a new Square (if primitive is 2D) or Cube (if 3D) with edges
@@ -136,46 +136,44 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     
     public String toString() {return "Cubic";}
     
-    /**
-     * Main method to demonstrate use and to aid debugging
-     */
+//    /**
+//     * Main method to demonstrate use and to aid debugging
+//     */
 //    public static void main(String[] args) {
 //        System.out.println("main method for PrimitiveCubic");
 //        Space space = new Space2D();
-////        Simulation sim = new Simulation(space);
 //        int D = space.D();
 //        PrimitiveCubic primitive = new PrimitiveCubic(space);
 //        AtomFactory siteFactory = primitive.unitCellFactory();
 //        final int nx = 4;
 //        final int ny = 5;
 //        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
-//                                siteFactory, 
 //                                new int[] {nx,ny},
 //                                primitive);
 //        lattice.shiftFirstToOrigin();
 //        System.out.println("Total number of sites: "+lattice.siteList().size());
 //        System.out.println();
 //        System.out.println("Coordinate printout");
-//        AtomActionAdapter printSites = new AtomActionAdapter() {
-//            public void actionPerformed(Atom s) {
-//                System.out.print(s.coord.position().toString()+" ");
-//                if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
+//        AtomsetActionAdapter printSites = new AtomsetActionAdapter() {
+//            public void actionPerformed(Atom[] s) {
+//                System.out.print(s[0].coord.position().toString()+" ");
+//                if(((Site)s[0]).latticeCoordinate()[1]==ny-1) System.out.println();
 //            }
 //        };
 //        AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
 //        iterator.allAtoms(printSites);
 //        System.out.println();
 //                
-//        Polyhedron testSite = (Polyhedron)lattice.site(new int[] {1,2});
+//        Site testSite = (Site)lattice.site(new int[] {1,2});
 //        
-//        Space.Vector vector = space.makeVector(new double[] {1.5, 2.7});
+//        Space.Vector vector = Space.makeVector(new double[] {1.5, 2.7});
 //        System.out.print(vector.toString()+" in cell "+testSite.toString()+"? "+testSite.inCell(vector));
 //        int[] idx = primitive.latticeIndex(vector);
 //        System.out.print("; is in: ");
 //        for(int i=0; i<D; i++) System.out.print(idx[i]);
 //        System.out.println();
 // 
-//        vector = space.makeVector(new double[] {3.5, 5.1});
+//        vector = Space.makeVector(new double[] {3.5, 5.1});
 //        System.out.print(vector.toString()+" in cell "+testSite.toString()+"? "+testSite.inCell(vector));
 //        idx = primitive.latticeIndex(vector);
 //        System.out.print("; is in: ");
@@ -191,21 +189,21 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
 //        
 //        iterator.allAtoms(printSites);
 //        System.out.println();
-//        vector = space.makeVector(new double[] {1.5, 2.7});
+//        vector = Space.makeVector(new double[] {1.5, 2.7});
 //        System.out.print(vector.toString()+" in cell "+testSite.toString()+"? "+testSite.inCell(vector));
 //        idx = primitive.latticeIndex(vector);
 //        System.out.print("; is in: ");
 //        for(int i=0; i<D; i++) System.out.print(idx[i]);
 //        System.out.println();
 //
-//        vector = space.makeVector(new double[] {3.5, 5.1});
+//        vector = Space.makeVector(new double[] {3.5, 5.1});
 //        System.out.print(vector.toString()+" in cell "+testSite.toString()+"? "+testSite.inCell(vector));
 //        idx = primitive.latticeIndex(vector);
 //        System.out.print("; is in: ");
 //        for(int i=0; i<D; i++) System.out.print(idx[i]);
 //        System.out.println();
 //
-//        System.out.println("cell volume: "+testSite.volume());
+//        System.out.println("cell volume: "+primitive.unitCell().volume());
 //  
 //        /*
 //        //write out vertices of some cells
