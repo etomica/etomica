@@ -614,7 +614,7 @@ public class IntegratorHard extends IntegratorMD {
                 eventLinker.sortKey = nullPotential.collisionTime(targetAtom,collisionTimeStep);
             }
             else {
-                eventLinker.sortKey = Double.MAX_VALUE;
+                eventLinker.sortKey = Double.POSITIVE_INFINITY;
             }
             collisionPartner = null;
         }

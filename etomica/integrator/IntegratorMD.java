@@ -1,7 +1,5 @@
 package etomica.integrator;
 
-import java.util.Random;
-
 import etomica.Atom;
 import etomica.Constants;
 import etomica.Default;
@@ -75,8 +73,9 @@ public abstract class IntegratorMD extends Integrator {
         }
     }
     
-    public void setTemperature(double temperature) {
-        super.setTemperature(temperature);
+    public void setTemperature(double t) {
+        if (t == temperature) return;
+        super.setTemperature(t);
         atomActionRandomizeVelocity.setTemperature(temperature);
         if (initialized) {
             // trigger immediate thermostat
@@ -190,9 +189,10 @@ public abstract class IntegratorMD extends Integrator {
         atomIterator.reset();
         // calculate current kinetic temperature
         double t = 2.0*meterKE.getDataAsScalar(aPhase) / (aPhase.atomCount() * aPhase.space().D());
+        if (t == temperature) return 1.0;
         if (t == 0) {
             randomizeMomenta(aPhase);
-            return Double.POSITIVE_INFINITY;
+            t = 2.0*meterKE.getDataAsScalar(aPhase) / (aPhase.atomCount() * aPhase.space().D());
         }
         double s = Math.sqrt(temperature / t);
         while(atomIterator.hasNext()) {
