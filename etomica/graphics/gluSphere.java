@@ -64,7 +64,7 @@ public final class gluSphere {
       } else
         tempInt=j*4;
       if(lines)
-        glf.glBegin(glt.GL_LINE_STRIP);
+        glf.glBegin(gl4java.GLEnum.GL_LINE_STRIP);
       for (i = 0; i <= tempInt; i++) {
         angle = 2 * (float)(Math.PI * i / tempInt);
         normalArray[j][(i*3)] = sintemp2*(float)Math.sin(angle);
@@ -83,9 +83,9 @@ public final class gluSphere {
     }
     for (j = 1; j <= (stacks/2); j++) {
       if(lines)
-        glf.glBegin(glt.GL_LINE_STRIP);
+        glf.glBegin(gl4java.GLEnum.GL_LINE_STRIP);
       else
-        glf.glBegin(glt.GL_TRIANGLE_STRIP);
+        glf.glBegin(gl4java.GLEnum.GL_TRIANGLE_STRIP);
       tempInt=j*4;
       //vertexCount+=3;
       for (i = 0, k = 0; i < tempInt; i++) {
@@ -105,9 +105,9 @@ public final class gluSphere {
     }
     for (j = stacks-1; j >= (stacks/2); j--) {
       if(lines)
-        glf.glBegin(glt.GL_LINE_STRIP);
+        glf.glBegin(gl4java.GLEnum.GL_LINE_STRIP);
       else
-        glf.glBegin(glt.GL_TRIANGLE_STRIP);
+        glf.glBegin(gl4java.GLEnum.GL_TRIANGLE_STRIP);
       tempInt = ((stacks-j)*4);
       //vertexCount+=3;
       if (!((j==(stacks/2))&&((divisions%2)==1))) {
