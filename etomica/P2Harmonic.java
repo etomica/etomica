@@ -15,10 +15,10 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
     
     public P2Harmonic(double w) {
-        this(Simulation.instance, w);
+        this(Simulation.instance.hamiltonian.potential, w);
     }
-    public P2Harmonic(Simulation sim, double w) {
-        super(sim);
+    public P2Harmonic(PotentialGroup parent, double w) {
+        super(parent);
         setSpringConstant(w);
     }
 

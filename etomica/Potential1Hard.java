@@ -7,8 +7,8 @@ package etomica;
  */
 public abstract class Potential1Hard extends Potential1 implements PotentialHard {
 
-    public Potential1Hard(Simulation sim) {
-        super(sim);
+    public Potential1Hard(PotentialGroup parent) {
+        super(parent);
     }
    public void bump(AtomPair pair) {bump(pair.atom1());}
    
@@ -26,5 +26,11 @@ public abstract class Potential1Hard extends Potential1 implements PotentialHard
   */ 
     public abstract double collisionTime(Atom atom);
             
+    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+        if( !(pc instanceof Potential1Calculation) ) return;
+        iterator.reset(id);
+        ((Potential1Calculation)pc).calculate(iterator, this); 
+    }//end of calculate
+
 }  //end of Potential1Hard
 

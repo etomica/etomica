@@ -1,15 +1,11 @@
 package etomica;
-import etomica.units.Unit;
-import java.util.Random;
-import java.beans.Beans;
 
 //Java2 imports
 //import java.util.HashMap;
 //import java.util.Iterator;
 
-import etomica.utility.HashMap;
-import etomica.utility.Iterator;
-import etomica.utility.LinkedList;
+//import etomica.utility.HashMap;
+//import etomica.utility.Iterator;
 
 
      /**
@@ -60,29 +56,17 @@ import etomica.utility.LinkedList;
       * @see SpeciesAgent
       */
      
-public class Species implements Simulation.Element, java.io.Serializable {
+public class Species extends SimulationElement {
 
-    public static final String VERSION = "Species:01.07.09";
-    private static int instanceCount = 0;//used to assign unique index to each species
+    public static final String VERSION = "Species:01.07.25";
     
-    private Simulation parentSimulation;
-    private boolean added = false;
     protected final AtomFactory factory;
-    public final int index;
     
     public Species(Simulation sim, AtomFactory factory) {
-        parentSimulation = sim;
+        super(sim, Species.class);
         this.factory = factory;
-        parentSimulation.register(this);
-        index = instanceCount++;
-        name = "Species "+Integer.toString(index);
     }
-          
-    public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return Species.class;}
-    public final boolean wasAdded() {return added;}
-    public final void setAdded(boolean b) {added = b;}
-    
+              
     public AtomFactory moleculeFactory() {return factory;}
     
     /**
@@ -131,69 +115,33 @@ public class Species implements Simulation.Element, java.io.Serializable {
      * Performs the given action on all of this species agents in all phases.
      */
     public void allAgents(AtomAction action) {
+        if(action == null) return;
+        agents.doToAll(action);
+        /*
         Iterator e = agents.values().iterator();
         while(e.hasNext()) {
             action.actionPerformed((Atom)e.next());
-        }
+        }*/
     }
     
     /**
      * Performs the given action on all of this species molecules in all phases.
      */
     public void allMolecules(AtomAction action) {
-        Iterator e = agents.values().iterator();
-        while(e.hasNext()) {
-            SpeciesAgent agent = (SpeciesAgent)e.next();
-            Atom last = agent.lastMolecule();
-            for(Atom a=agent.firstMolecule(); a!=null; a=a.nextAtom()) {
-                action.actionPerformed(a);
-                if(a == last) break;
-            }
-        }
+        if(action == null) return;
+        allMoleculeAction.setAction(action);//copy action to wrapper class
+        agents.doToAll(allMoleculeAction);  //apply action wrapper over all agents
     }
     
     /**
      * Performs the given action on all of this species (leaf) atoms in all phases.
      */
     public void allAtoms(AtomAction action) {
-        Iterator e = agents.values().iterator();
-        while(e.hasNext()) {
-            SpeciesAgent agent = (SpeciesAgent)e.next();
-            Atom last = agent.lastLeafAtom();
-            for(Atom a=agent.firstLeafAtom(); a!=null; a=a.nextAtom()) {
-                action.actionPerformed(a);
-                if(a == last) break;
-            }
-        }
+        if(action == null) return;
+        allAtomAction.setAction(action);//copy action to wrapper class
+        agents.doToAll(allAtomAction);  //apply action wrapper over all agents
     }
     
-    /**
-     * Accessor method of the name of this species
-     * 
-     * @return The given name of this species
-     */
-    public String getName() {return name;}
-    
- //   public int index() {return index;}
-
-    /**
-     * Method to set the name of this species
-     * The species' name provides a convenient way to label output data that is 
-     * associated with this species.  This method might be used, for example, to place
-     * a heading on a column of data.
-     * Default name is "Species" followed by the integer species index of this species.
-     * 
-     * @param name The name string to be associated with this species
-     */
-    public final void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the species
-     */
-    public String toString() {return getName();}  //override Object method
-          
     /**
      * Constructs an Agent of this species and sets its parent phase
      * 
@@ -217,14 +165,59 @@ public class Species implements Simulation.Element, java.io.Serializable {
      */
     public final SpeciesAgent getAgent(Phase p) {return (SpeciesAgent)agents.get(p);}
         
-    /*
-    * A name to be associated with the species.  Use is optional.
-    */
-    String name;
 
     /**
      * Hashtable to associate agents with phases
      */
-    final HashMap agents = new HashMap();
+ //   final HashMap agents = new HashMap();
+    final AgentList agents = new AgentList();
+    
+    /**
+     * Class that keeps a list of all agents in a way that
+     * they can be referenced according to the phase they are in.
+     * Uses the phase index to index them.
+     * Mimics hash functionality.
+     */
+    private static final class AgentList {
+        
+        private SpeciesAgent[] agentArray = new SpeciesAgent[0];
+        
+        void put(Phase phase, SpeciesAgent agent) {
+            int index = phase.index;
+            //expand array size
+            if(index >= agentArray.length) {
+                SpeciesAgent[] newArray = new SpeciesAgent[index+1];
+                for(int i=0; i<agentArray.length; i++) newArray[i] = agentArray[i];
+                agentArray = newArray;
+            }
+            agentArray[index] = agent;
+        }
+        
+        SpeciesAgent get(Phase phase) {return agentArray[phase.index];}
+        
+        void doToAll(AtomAction action) {
+            for(int i=agentArray.length-1; i>=0; i--) action.actionPerformed(agentArray[i]);
+        }
+        
+    }//end of AgentList
+    
+    /**
+     * Wrapper that enables an action to be performed on all molecules under a species agent.
+     */
+    private final AllMoleculeWrapper allMoleculeAction = new AllMoleculeWrapper();
+    private final class AllMoleculeWrapper extends AtomAction {
+        private AtomAction action;
+        void setAction(AtomAction a) {this.action = a;}
+        public void actionPerformed(Atom a) {((SpeciesAgent)a).allMolecules(action);}
+    }
 
+    /**
+     * Wrapper that enables an action to be performed on all leaf atoms under a species agent.
+     */
+    private final AllAtomWrapper allAtomAction = new AllAtomWrapper();
+    private final class AllAtomWrapper extends AtomAction {
+        private AtomAction action;
+        void setAction(AtomAction a) {this.action = a;}
+        public void actionPerformed(Atom a) {((SpeciesAgent)a).allAtoms(action);}
+    }
 }

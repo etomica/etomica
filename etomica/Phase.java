@@ -41,22 +41,19 @@ import etomica.utility.Iterator;
  * @see Space.Boundary
  * @see MeterAbstract
  */
-public final class Phase implements Simulation.Element, java.io.Serializable {
+public final class Phase extends SimulationElement {
         
     private Space.Boundary boundary;
     private transient final LinkedList meterList = new LinkedList();
     private PhaseAction.Inflate inflater;
-    private String name;
-    private final Simulation parentSimulation;
     public final SpeciesMaster speciesMaster;
-    private boolean added = false;
     
     public Phase() {
         this(Simulation.instance);
     }
     
     public Phase(Simulation sim) {
-        parentSimulation = sim;
+        super(sim, Phase.class);
         
         speciesMaster = new SpeciesMaster(this);
         
@@ -77,19 +74,11 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
 //        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(parentSimulation().space().makeBoundary());
 
-        if(parentSimulation.space().D() < 3) 
-            add(new ConfigurationSequential(parentSimulation.space()));  //default configuration
+        if(parentSimulation().space().D() < 3) 
+            add(new ConfigurationSequential(parentSimulation().space()));  //default configuration
         else
-            add(new ConfigurationFcc(parentSimulation.space()));
-                
-        parentSimulation.register(this);
-        
-    }
-    
-    public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return Phase.class;}
-    public final boolean wasAdded() {return added;}
-    public final void setAdded(boolean b) {added = b;}
+            add(new ConfigurationFcc(parentSimulation().space()));
+    }//end of constructor
     
     public void addSpecies(Species s) {speciesMaster.addSpecies(s);}
     
@@ -361,26 +350,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
 //    public final synchronized void addMoleculeSafely(Molecule m) {
 //        addMolecule(m);
 //    }
-    /**
-     * Accessor method of the name of this object
-     * 
-     * @return The given name
-     */
-    public final String getName() {return name;}
-
-    /**
-     * Method to set the name of this object
-     * 
-     * @param name The name string to be associated with this object
-     */
-    public final void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the object
-     */
-    public String toString() {return getName();}  //override Object method
                                  
     public Configuration configuration;
           

@@ -67,7 +67,7 @@ public class SpeciesDisks extends Species implements EtomicaElement {
     /**
      * Demonstrates how this class is implemented.
      */
- /*   public static void main(String[] args) {
+    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 //	    integratorHard1.setTimeStep(0.02);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10,3);
@@ -89,25 +89,13 @@ public class SpeciesDisks extends Species implements EtomicaElement {
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-    //    potentialAgent.setIterator(new AtomPairIterator(phase));
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
-                
-        potentialAgent = (Potential2.Agent)potential2.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
-                
-        potentialAgent = (Potential2.Agent)potential0.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator()));
+		potential.setSpecies(speciesDisks1, speciesDisks2);
+        potential2.setSpecies(speciesDisks2, speciesDisks2);
+        potential0.setSpecies(speciesDisks1, speciesDisks1);        
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    Simulation.makeAndDisplayFrame(Simulation.instance);
 	}//end of main
-*/
+
 }
 
 

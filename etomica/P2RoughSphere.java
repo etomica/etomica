@@ -15,17 +15,17 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
     private final Space.Vector impulse;
     
     public P2RoughSphere() {
-        this(Simulation.instance, Default.ATOM_SIZE);
+        this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);
     }
     public P2RoughSphere(double d) {
-        this(Simulation.instance, d);
+        this(Simulation.instance.hamiltonian.potential, d);
     }
-    public P2RoughSphere(Simulation sim, double d) {
-        super(sim,d);
-        v12Surface = sim.space.makeVector();
-        v12Par = sim.space.makeVector();
-        v12Perp = sim.space.makeVector();
-        impulse = sim.space.makeVector();
+    public P2RoughSphere(PotentialGroup parent, double d) {
+        super(parent,d);
+        v12Surface = parentSimulation().space.makeVector();
+        v12Par = parentSimulation().space.makeVector();
+        v12Perp = parentSimulation().space.makeVector();
+        impulse = parentSimulation().space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -108,10 +108,7 @@ public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
 	    displayEnergy.setMeter(meterEnergy);
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 		Simulation.instance.elementCoordinator.go();
-		                                    
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
-        
+		                                            
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
     

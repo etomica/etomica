@@ -17,10 +17,13 @@ public class P1Harmonic extends Potential1Soft {
     private double w = 100.0;
     private final Space.Vector force;
     
-    P1Harmonic(Simulation sim) {
-        super(sim);
-        D = sim.space().D();
-        force = sim.space().makeVector();
+    P1Harmonic() {
+        this(Simulation.instance.hamiltonian.potential);
+    }
+    P1Harmonic(PotentialGroup parent) {
+        super(parent);
+        D = parentSimulation().space().D();
+        force = parentSimulation().space().makeVector();
     }
     
     public void setSpringConstant(double springConstant) {w = springConstant;}

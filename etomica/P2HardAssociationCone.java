@@ -16,12 +16,12 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private Space.Vector e2;
     private double theta, ec2;
     
-    public P2HardAssociationCone() {this(Simulation.instance);}
+    public P2HardAssociationCone() {this(Simulation.instance.hamiltonian.potential);}
     
-    public P2HardAssociationCone(Simulation sim) {
-        super(sim);
-        e1 = sim.space().makeVector();
-        e2 = sim.space().makeVector();
+    public P2HardAssociationCone(PotentialGroup parent) {
+        super(parent);
+        e1 = parentSimulation().space().makeVector();
+        e2 = parentSimulation().space().makeVector();
 
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);
@@ -35,6 +35,13 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         EtomicaInfo info = new EtomicaInfo("Lennard-Jones core with an anisotropic, cone-shaped region of square-well attraction");
         return info;
     }
+
+
+    public void calculate(IteratorDirective id, PotentialCalculation pc) {
+        if( !(pc instanceof Potential2Calculation) ) return;
+        iterator.reset(id);
+        ((Potential2Calculation)pc).calculate(iterator, this); 
+    }//end of calculate
 
  /**
   * Returns the pair potential energy.

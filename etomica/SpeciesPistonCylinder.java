@@ -169,13 +169,16 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Field that applies a constant force against the piston.
    * Direction of force is such that it pushes the piston into the cylinder.
    */
-  public final class PistonPressureField extends Potential1Soft {
+  public final class PistonPressureField extends Potential1Soft implements PotentialHard {
     private double pressure = 0.0;
     private Space.Vector gradientVector = parentSimulation().space().makeVector();
     private double force = 0.0;
-    public PistonPressureField(Simulation sim) {
-        super(sim); 
+    public PistonPressureField() {this(Simulation.instance.hamiltonian.potential);}
+    public PistonPressureField(PotentialGroup parent) {
+        super(parent); 
         setPressure(Bar.UNIT.toSim(500.));
+        iterator = new PistonIterator();
+        setSpecies(SpeciesPistonCylinder.this);
     }
     /**
      * Accessor method for the pressure applied to the piston
@@ -183,7 +186,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public void setPressure(double p) {
         pressure = p;
         force = pressure*diameter; //compute force as pressure * length
-        resetIntegrators();
+        parentSimulation().resetIntegrators();
 //        if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
 //                    phase().integrator().reset();
     }
@@ -208,7 +211,24 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      * Always returns zero
      */
     public double energy(Atom a) {return 0.0;}
-        
+    
+    private final class PistonIterator extends AtomIteratorSinglet {
+        //Basis will be set to species agent for PistonCylinder.  Assuming
+        //there is only one piston-cylinder "molecule", the piston will be
+        //the first leaf atom of this agent.  This is the only atom acted
+        //on by this potential.
+        public void setBasis(Atom a) {
+            setAtom(((AtomGroup)a).firstLeafAtom());
+        }
+    }
+    
+    //implementation of PotentialHard interface, which is done because this field is sometimes
+    //used with a hard-potential, constant-field integrator.
+    public void bump(AtomPair pair) {}
+    
+    public double lastCollisionVirial() {return 0.0;}
+    
+    public Space.Tensor lastCollisionVirialTensor() {return null;}
   }//end of PistonPressureField
   
     
@@ -223,12 +243,13 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
       }
       public void initializeCoordinates(Atom atom) {
         AtomGroup m = (AtomGroup)atom;
+        AtomIterator iterator = new AtomIteratorSequential(m);
         Atom[] atoms = new Atom[4];
         double wallThickness = thickness/BaseUnit.Length.Sim.TO_PIXELS;
         double pistonWallThickness = pistonThickness/BaseUnit.Length.Sim.TO_PIXELS;
         int i=0;
-        m.childIterator.reset();
-        while(m.childIterator.hasNext()) {atoms[i++] = m.childIterator.next();}
+        iterator.reset();
+        while(iterator.hasNext()) {atoms[i++] = iterator.next();}
         atoms[0].coord.setStationary(false); //piston
  //       atoms[0].setStationary(true); //piston
         atoms[1].coord.setStationary(true);
@@ -363,7 +384,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         ((DisplayPhase)Simulation.instance.display(0)).setColorScheme(new ColorSchemeByType());
         P2HardDiskWall wallPotential = new P2HardDiskWall();
         
-        PistonPressureField pressureField = pistonCylinder.new PistonPressureField(sim);
+        PistonPressureField pressureField = pistonCylinder.new PistonPressureField();
 
         DeviceSlider pressureSlider = new DeviceSlider(pressureField,"pressure");
         pressureSlider.setUnit(new Unit(Bar.UNIT));
@@ -387,7 +408,11 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 
   //    wall-sphere potential
     //order of specification of atom iterators does matter!
-        Potential2.Agent potentialAgent = (Potential2.Agent)wallPotential.getAgent(phase1);
+        wallPotential.setSpecies(speciesDisks1, pistonCylinder);
+        P2HardDisk1.setSpecies(speciesDisks1, speciesDisks1);
+        //need to add pressure field iterator
+        
+    /*    Potential2.Agent potentialAgent = (Potential2.Agent)wallPotential.getAgent(phase1);
         potentialAgent.setIterator(new AtomPairIterator(phase1,
                 speciesDisks1.makeAtomIterator(phase1), pistonCylinder.makeAtomIterator(phase1)));
 
@@ -399,7 +424,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         //pressure field on piston
         Potential1.Agent potential1Agent = (Potential1.Agent)pressureField.getAgent(phase1);
         potential1Agent.setIterator(new AtomIteratorSinglet(((SpeciesAgent)pistonCylinder.getAgent(phase1)).firstLeafAtom()));
-        
+   */     
 		Simulation.instance.elementCoordinator.go();
 //		pistonCylinder.getAgent(phase1).firstLeafAtom().coord.momentum().E(0.0);
 		pistonCylinder.setStationary(true);

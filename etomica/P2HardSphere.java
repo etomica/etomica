@@ -27,20 +27,20 @@ public class P2HardSphere extends Potential2Hard implements EtomicaElement {
    protected final Space.Tensor lastCollisionVirialTensor;
     
     public P2HardSphere() {
-        this(Simulation.instance, Default.ATOM_SIZE);
+        this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);
     }
 
     public P2HardSphere(double d) {
-        this(Simulation.instance, d);
+        this(Simulation.instance.hamiltonian.potential, d);
     }
-    public P2HardSphere(Simulation sim) {
-        this(sim, Default.ATOM_SIZE);
+    public P2HardSphere(PotentialGroup parent) {
+        this(parent, Default.ATOM_SIZE);
     }
-    public P2HardSphere(Simulation sim, double d) {
-        super(sim);
+    public P2HardSphere(PotentialGroup parent, double d) {
+        super(parent);
         setCollisionDiameter(d);
-        lastCollisionVirialTensor = sim.space().makeTensor();
-        dr = sim.space().makeVector();
+        lastCollisionVirialTensor = parentSimulation().space().makeTensor();
+        dr = parentSimulation().space().makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {

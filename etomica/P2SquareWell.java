@@ -20,22 +20,22 @@ public class P2SquareWell extends Potential2Hard implements EtomicaElement {
   protected Space.Vector dr;
    
   public P2SquareWell() {
-    this(Simulation.instance);
+    this(Simulation.instance.hamiltonian.potential);
   }
-  public P2SquareWell(Simulation sim) {
-    this(sim,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+  public P2SquareWell(PotentialGroup parent) {
+    this(parent,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
   public P2SquareWell(double coreDiameter, double lambda, double epsilon) {
-    this(Simulation.instance, coreDiameter, lambda, epsilon);
+    this(Simulation.instance.hamiltonian.potential, coreDiameter, lambda, epsilon);
   }
   
-  public P2SquareWell(Simulation sim, double coreDiameter, double lambda, double epsilon) {
-    super(sim);
+  public P2SquareWell(PotentialGroup parent, double coreDiameter, double lambda, double epsilon) {
+    super(parent);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
     setEpsilon(epsilon);
-    dr = sim.space().makeVector();
-    lastCollisionVirialTensor = sim.space().makeTensor();
+    dr = parentSimulation().space().makeVector();
+    lastCollisionVirialTensor = parentSimulation().space().makeTensor();
   }
 
     public static EtomicaInfo getEtomicaInfo() {

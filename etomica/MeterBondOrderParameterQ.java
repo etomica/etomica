@@ -124,10 +124,8 @@ public class MeterBondOrderParameterQ extends Meter implements EtomicaElement
         meter.updateSums();
         box.doUpdate();
         display.setScale(2.0);
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
 
         Simulation.makeAndDisplayFrame(sim);
     }//end of main
-}
+}//end of MeterBondOrderParameterQ
 

@@ -7,25 +7,18 @@ package etomica;
  *
  * @author David Kofke
  */
- 
- //under development
+
 public abstract class Potential0 extends Potential {
   
-    public static String VERSION = "Potential0:01.07.08/"+Potential.VERSION;
+    public static String VERSION = "Potential0:01.07.26/"+Potential.VERSION;
     
-    public Potential0(Simulation sim) {
-        super(sim);
+    public Potential0(PotentialGroup parent) {
+        super(parent);
     }
-              
-        
-        /**
-         * No iterator is needed; this method has no action.
-         */
- //       protected void makeDefaultIterator() { }
-            
+                    
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
-//         if( !(pc instanceof Potential0Calculation) ) return;
-        ((Potential0Calculation)pc).calculate(parentPotential0); 
+        if( !(pc instanceof Potential0Calculation) ) return;
+        ((Potential0Calculation)pc).calculate(this); 
     }
         
 }//end of Potential0

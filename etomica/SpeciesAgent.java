@@ -57,6 +57,28 @@ public final class SpeciesAgent extends AtomGroup {
     }
     
     /**
+     * Performs the given action on all children (molecules) of this species agent.
+     */
+    public void allMolecules(AtomAction action) {
+        Atom last = lastChild();
+        for(Atom a=firstChild(); a!=null; a=a.nextAtom()) {
+            action.actionPerformed(a);
+            if(a == last) break;
+        }
+    }
+    
+    /**
+     * Performs the given action on all (leaf) atoms of this species agent.
+     */
+    public void allAtoms(AtomAction action) {
+        Atom last = lastLeafAtom();
+        for(Atom a=firstLeafAtom(); a!=null; a=a.nextAtom()) {
+            action.actionPerformed(a);
+            if(a == last) break;
+        }
+    }
+    
+    /**
     * Sets the number of molecules for this species.  Makes the given number
     * of new molecules, linked-list orders and initializes them.
     * Any previously existing molecules for this species in this phase are abandoned

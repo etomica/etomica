@@ -20,7 +20,7 @@ import etomica.utility.Iterator;
  * The Controller runs on its own thread, and it spawns Integrator processes
  * each on its own thread.
  */
-public class Controller implements Simulation.Element, Runnable, java.io.Serializable, EtomicaElement {
+public class Controller extends SimulationElement implements Runnable, java.io.Serializable, EtomicaElement {
 
   /**
    * List of integrators managed by the controller
@@ -33,9 +33,6 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
     private boolean initialized = false;
     private boolean autoStart = false;
     private int maxSteps;
-    private String name;
-    private Simulation parentSimulation;
-    private boolean added = false;
     private Button startStopButton;
     
     private SimulationEventManager eventManager = new SimulationEventManager();
@@ -44,10 +41,9 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
         this(Simulation.instance);
     }
     public Controller(Simulation sim) {
-        parentSimulation = sim;
+        super(sim, Controller.class);
         maxSteps = Integer.MAX_VALUE;
         setMakeButton(true);
-        parentSimulation.register(this);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -56,11 +52,6 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
         return info;
     }
 
-    public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return Controller.class;}
-    public final boolean wasAdded() {return added;}
-    public final void setAdded(boolean b) {added = b;}
-    
    /**
     * Resets the controller in some manner.
     * Performs no action for this controller, but may do something in subclasses
@@ -170,28 +161,6 @@ public class Controller implements Simulation.Element, Runnable, java.io.Seriali
     
     public Button getButton() {return startStopButton;}
     
-    /**
-     * Accessor method of the name of this object
-     * 
-     * @return The given name
-     */
-    public final String getName() {return name;}
-
-    /**
-     * Method to set the name of this object
-     * 
-     * @param name The name string to be associated with this object
-     */
-    public final void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the object
-     */
-    public String toString() {return getName();}  //override Object method
-          
-
     /**
      * A device that presents a button to pause and resume all integrators
      * operated by this controller.  This is a member class of this controller.

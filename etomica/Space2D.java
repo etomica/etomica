@@ -14,7 +14,7 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Vector makeVector() {return new Vector();}
     public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
-    public Space.Coordinate makeCoordinate(Atom a) {//may want to revise this for o instanceof Molecule
+    public Space.Coordinate makeCoordinate(Atom a) {
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
         else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
@@ -291,6 +291,7 @@ public class Space2D extends Space implements EtomicaElement {
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
 
         public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+            if(isStationary()) {p.E(0.0); return;}
             double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
             momentum().setRandomSphere();
             momentum().TE(magnitude);

@@ -115,7 +115,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         canvas = new DisplayPhase.Canvas();
 
         int box = (int)(Default.BOX_SIZE * BaseUnit.Length.Sim.TO_PIXELS);
-        setSize(box, box);
+        graphic().setSize(box, box);
         align[0] = align[1] = CENTER;
         
         InputEventHandler listener = new InputEventHandler();
@@ -135,7 +135,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             }
         });
 
-        setLayout(null);
+        ((javax.swing.JPanel)graphic()).setLayout(null);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -154,7 +154,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     }
 
     public void setBounds(int x, int y, int width, int height) {
-        super.setBounds(x,y,width,height);
+        graphic().setBounds(x,y,width,height);
         canvas.setBounds(x,y,width,height);
     }
 

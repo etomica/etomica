@@ -1,7 +1,6 @@
 package etomica;
 import java.awt.Graphics;
 import java.awt.Color;
-import java.util.Random;
 import etomica.units.*;
 
 /**
@@ -23,7 +22,11 @@ public class Space3D extends Space implements EtomicaElement {
     public Space.Vector makeVector() {return new Vector();}
     public Space.Orientation makeOrientation() {System.out.println("Orientation class not yet developed in 3D"); return null;}
     public Space.Tensor makeTensor() {return new Tensor();}
-    public Space.Coordinate makeCoordinate(Atom a) {return new Coordinate(a);}
+    public Space.Coordinate makeCoordinate(Atom a) {
+        if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
+   //     else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
+        else return new Coordinate(a);
+    }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
 
     public Space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
@@ -50,7 +53,6 @@ public class Space3D extends Space implements EtomicaElement {
    
     
     public static final class Vector extends Space.Vector{
-        public static final Random random = new Random();
         public static final Vector ORIGIN = new Vector(0.0, 0.0, 0.0);
         public static final Vector WORK = new Vector();
         public double x, y, z;
@@ -91,14 +93,14 @@ public class Space3D extends Space implements EtomicaElement {
         public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
         public double squared() {return x*x + y*y + z*z;}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
-        public void randomStep(double d) {x += (2.*random.nextDouble()-1)*d; y +=(2.*random.nextDouble()-1)*d; z +=(2.*random.nextDouble()-1)*d;}
-        public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d; z = random.nextDouble()*d;}
-        public void setRandom(double dx, double dy, double dz) {x = random.nextDouble()*dx; y = random.nextDouble()*dy; z = random.nextDouble()*dz;}
+        public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1)*d; y +=(2.*Simulation.random.nextDouble()-1)*d; z +=(2.*Simulation.random.nextDouble()-1)*d;}
+        public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d; z = Simulation.random.nextDouble()*d;}
+        public void setRandom(double dx, double dy, double dz) {x = Simulation.random.nextDouble()*dx; y = Simulation.random.nextDouble()*dy; z = Simulation.random.nextDouble()*dz;}
         public void setRandom(Vector u) {setRandom(u.x, u.y, u.z);}
         public void setRandomCube() {
-            x = random.nextDouble() - 0.5;
-            y = random.nextDouble() - 0.5;
-            z = random.nextDouble() - 0.5;
+            x = Simulation.random.nextDouble() - 0.5;
+            y = Simulation.random.nextDouble() - 0.5;
+            z = Simulation.random.nextDouble() - 0.5;
         }
         public void setComponent(int a, double d) { if(a==0) x=d; else if(a==1) y=d; else z=d;}
         public void setRandomSphere() {//check before using
@@ -108,9 +110,9 @@ public class Space3D extends Space implements EtomicaElement {
             double rsq = Double.MAX_VALUE;
             while(rsq > 1.0) {
                 
-                z1 = 1.0 - 2.0*Math.random();
-                z2 = 1.0 - 2.0*Math.random();
-                z3 = 1.0 - 2.0*Math.random();
+                z1 = 1.0 - 2.0*Simulation.random.nextDouble();
+                z2 = 1.0 - 2.0*Simulation.random.nextDouble();
+                z3 = 1.0 - 2.0*Simulation.random.nextDouble();
         
                 rsq = z1*z1+z2*z2+z3*z3;
             }
@@ -127,9 +129,9 @@ public class Space3D extends Space implements EtomicaElement {
             double rsq = Double.MAX_VALUE;
             while(rsq > 1.0) {
                 
-                z1 = 1.0 - 2.0*Math.random();
-                z2 = 1.0 - 2.0*Math.random();
-                z3 = 1.0 - 2.0*Math.random();
+                z1 = 1.0 - 2.0*Simulation.random.nextDouble();
+                z2 = 1.0 - 2.0*Simulation.random.nextDouble();
+                z3 = 1.0 - 2.0*Simulation.random.nextDouble();
         
                 rsq = z1*z1+z2*z2+z3*z3;
             }
@@ -329,6 +331,7 @@ public class Space3D extends Space implements EtomicaElement {
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
 
         public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+            if(isStationary()) {p.E(0.0); return;}
             double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
             momentum().setRandomSphere();
             momentum().TE(magnitude);
@@ -538,7 +541,6 @@ public class Space3D extends Space implements EtomicaElement {
         private final double[][] shift0 = new double[0][D];
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
-        public static final Random random = new Random();
         public BoundaryNone() {super();}
         public BoundaryNone(Phase p) {super(p);}
         public Space.Boundary.Type type() {return Boundary.NONE;}
@@ -552,9 +554,9 @@ public class Space3D extends Space implements EtomicaElement {
         public double[][] imageOrigins(int nShells) {return new double[0][D];}
         public double[][] getOverflowShifts(Space.Vector rr, double distance) {return shift0;}
         public Space.Vector randomPosition() {
-            temp.x = random.nextDouble();
-            temp.y = random.nextDouble();
-            temp.z = random.nextDouble();
+            temp.x = Simulation.random.nextDouble();
+            temp.y = Simulation.random.nextDouble();
+            temp.z = Simulation.random.nextDouble();
             return temp;
         }
         public void draw(Graphics g, int[] origin, double scale) {}
@@ -562,7 +564,6 @@ public class Space3D extends Space implements EtomicaElement {
         
     protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
         private final Vector temp = new Vector();
-        public static final Random random = new Random();
         private static Space.Tensor zilch = new Tensor();
         private double[][] shift0 = new double[0][D];
         private double[][] shift1 = new double[1][D];
@@ -575,9 +576,9 @@ public class Space3D extends Space implements EtomicaElement {
         public final Vector dimensions = new Vector();
         public final Space.Vector dimensions() {return dimensions;}
         public Space.Vector randomPosition() {
-            temp.x = dimensions.x*random.nextDouble();
-            temp.y = dimensions.y*random.nextDouble();
-            temp.z = dimensions.z*random.nextDouble();
+            temp.x = dimensions.x*Simulation.random.nextDouble();
+            temp.y = dimensions.y*Simulation.random.nextDouble();
+            temp.z = dimensions.z*Simulation.random.nextDouble();
             return temp;
         }
         public void nearestImage(Space.Vector dr) {nearestImage((Vector) dr);}

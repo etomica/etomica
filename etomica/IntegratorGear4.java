@@ -158,6 +158,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
 
     protected void doReset() {
+        potential.set(firstPhase);//assumes only one phase
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
@@ -239,10 +240,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
                                             
 		Simulation.instance.elementCoordinator.go();
 
-        P2LennardJones1.setIterator(new AtomPairIterator(phase));
-        P2LennardJones1.set(speciesDisks1.getAgent(phase));
+   //     P2LennardJones1.setIterator(new AtomPairIterator(phase));
+   //     P2LennardJones1.set(speciesDisks1.getAgent(phase));
 				
 		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-}
+    
+}//end of IntegratorGear4
 

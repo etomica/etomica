@@ -33,9 +33,9 @@ import etomica.utility.History;
  * @see MeterMultiFunction
  * @see MeterAbstract.Accumulator
  */
-public abstract class MeterAbstract implements Integrator.IntervalListener, Simulation.Element,  java.io.Serializable {
+public abstract class MeterAbstract extends SimulationElement implements Integrator.IntervalListener,  java.io.Serializable {
 
-    public static final String VERSION = "MeterAbstract:01.05.14";
+    public static final String VERSION = "MeterAbstract:01.07.25";
     
     /**
      * Number of integration interval events received before another call to updateSums
@@ -84,10 +84,6 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
      */
     int blockSize = Default.BLOCK_SIZE;
     
-    private String name;
-    private final Simulation parentSimulation;
-    private boolean added = false;
-    
     private transient Observer integratorObserver;
     private transient Observer boundaryObserver;
     private transient Observer iteratorFactoryObserver;
@@ -96,16 +92,10 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
     boolean historying = false;
 
 	public MeterAbstract(Simulation sim) {
-	    parentSimulation = sim;
+	    super(sim, MeterAbstract.class);
 	    setUpdateInterval(1);
 	    label = "Property";
-	    parentSimulation.register(this);
 	}
-	
-    public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return MeterAbstract.class;}
-    public final boolean wasAdded() {return added;}
-    public final void setAdded(boolean b) {added = b;}
     	
 	/**
 	 * Returns the physical dimensions (e.g., mass, length, pressure, etc.) of the quantity being measured
@@ -414,18 +404,11 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	}
 	
     /**
-     * Accessor method of the name of this object
-     * 
-     * @return The given name
-     */
-    public final String getName() {return name;}
-
-    /**
      * Method to set the name of this object
      * 
      * @param name The name string to be associated with this object
      */
-    public final void setName(String name) {
+    public void setName(String name) {
         this.name = name;
 	    Accumulator[] accumulators = allAccumulators();
 	    if(accumulators == null) return;
@@ -436,13 +419,6 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	            accumulators[i].history().setName(this.toString() + ":History");
 	    }
     }
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the object
-     */
-    public String toString() {return getName();}  //override Object method
           
     /**
      * Class for accumulation of averages and error statistics

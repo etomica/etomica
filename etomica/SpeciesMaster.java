@@ -5,7 +5,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class SpeciesMaster extends AtomGroup {
+public final class SpeciesMaster extends AtomGroup {
     
     private final Phase parentPhase;
     private int moleculeCount;

@@ -1,14 +1,17 @@
 package etomica;
 
-import java.util.Random;
 import etomica.units.Dimension;
+
+/**
+ * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
+ *
+ * @author David Kofke
+ */
 
 public class MCMoveVolume extends MCMove {
     
-    private final Random rand = new Random();
     protected double pressure;
     protected PhaseAction.Inflate inflate;
-    private PotentialMaster.Agent phasePotential;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
@@ -23,20 +26,19 @@ public class MCMoveVolume extends MCMove {
     public void setPhase(Phase p) {
         super.setPhase(p);
         inflate = new PhaseAction.Inflate(phase);
-        phasePotential = p.potential();
     }
     
     public void thisTrial() {
         double hOld, hNew, vOld, vNew, uOld, uNew;
         vOld = phase.volume();
-        uOld = phasePotential.calculate(iteratorDirective, energy.reset()).sum();
+        uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
         hOld = uOld + pressure*vOld;
         double vScale = (2.*Math.random()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/(double)phase.parentSimulation().space().D());
         inflate.setScale(rScale);
         inflate.attempt();
-        uNew = phasePotential.calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
         hNew = uNew + pressure*vNew;
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount()+1)*vScale)
@@ -63,8 +65,8 @@ public class MCMoveVolume extends MCMove {
         Simulation.instance = sim;
         Species species = new SpeciesDisks(sim);
 //        species.setNMolecules(2);
-        P2HardSphere potential = new P2HardSphere(sim);
-//        Potential potential = new P2LennardJones();
+//        P2HardSphere potential = new P2HardSphere();
+        Potential potential = new P2LennardJones();
         IntegratorMC integrator = new IntegratorMC(sim);
         MCMove mcMoveAtom = new MCMoveAtom();
         MCMove mcMoveVolume = new MCMoveVolume();
@@ -89,8 +91,6 @@ public class MCMoveVolume extends MCMove {
   //      phase.setDensity(0.1);
         integrator.add(mcMoveAtom);
         integrator.add(mcMoveVolume);
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
     		                                    
         Simulation.makeAndDisplayFrame(sim);
     }//end of main     

@@ -17,7 +17,10 @@ public class AtomIteratorSequential extends AtomIteratorAbstract  {
      * Initial state is hasNext = false.
      */
     public AtomIteratorSequential() {
-        super();
+        this(false);
+    }
+    public AtomIteratorSequential(boolean isLeafIterator) {
+        super(isLeafIterator);
     }
     public AtomIteratorSequential(Atom a) {
         this(a, false);

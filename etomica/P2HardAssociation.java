@@ -18,17 +18,17 @@ public class P2HardAssociation extends Potential2Hard implements EtomicaElement 
     private final Space.Vector dr;
     
     public P2HardAssociation() {
-        this(Simulation.instance, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+        this(Simulation.instance.hamiltonian.potential, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
     }
     public P2HardAssociation(double wellDiameter, double epsilon) {
-        this(Simulation.instance, wellDiameter, epsilon);
+        this(Simulation.instance.hamiltonian.potential, wellDiameter, epsilon);
     }
-    public P2HardAssociation(Simulation sim, double wellDiameter, double epsilon) {
-        super(sim);
+    public P2HardAssociation(PotentialGroup parent, double wellDiameter, double epsilon) {
+        super(parent);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
-        dr = sim.space().makeVector();
-        lastCollisionVirialTensor = sim.space().makeTensor();
+        dr = parentSimulation().space().makeVector();
+        lastCollisionVirialTensor = parentSimulation().space().makeTensor();
     }
     
    /**

@@ -13,6 +13,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     int inflateDimension = 0; //keys direction for inflation if not isotropic
     private IteratorDirective iteratorDirective;
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialMaster potential;
     
     public MeterPressureByVolumeChange() {
         this(0);
@@ -28,6 +29,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     
     public MeterPressureByVolumeChange(Simulation sim, int i) {
         super(sim);
+        potential = sim.hamiltonian.potential;
         setX(-0.001, 0.001, 10);
         setInflateDimension(i);
         iteratorDirective = new IteratorDirective();
@@ -86,11 +88,11 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     
     public double[] currentValue() {
         for(int i=0; i<nPoints; i++) {
-            double uOld = phase.potential().calculate(iteratorDirective, energy.reset()).sum();
+            double uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
             inflater.setScale(scale[i]);
             if(isotropic) inflater.attempt();
             else inflater.attempt(inflateDimension);
-            double uNew = phase.potential().calculate(iteratorDirective, energy.reset()).sum();
+            double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
             y[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
                               + phase.moleculeCount()*x[i]);
             

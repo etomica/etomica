@@ -19,13 +19,13 @@ public class P2Tether extends Potential2Hard implements EtomicaElement {
   private final Space.Tensor lastCollisionVirialTensor;
 
   public P2Tether() {
-    this(Simulation.instance);
+    this(Simulation.instance.hamiltonian.potential);
   }
-  public P2Tether(Simulation sim) {
-    super(sim);
+  public P2Tether(PotentialGroup parent) {
+    super(parent);
     setTetherLength(0.75*Default.ATOM_SIZE);
-    lastCollisionVirialTensor = sim.space().makeTensor();
-    dr = sim.space().makeVector();
+    lastCollisionVirialTensor = parentSimulation().space().makeTensor();
+    dr = parentSimulation().space().makeVector();
   }
 
     public static EtomicaInfo getEtomicaInfo() {

@@ -12,12 +12,13 @@ import javax.swing.JPanel;
  * Superclass of all classes that display something from the simulation.  
  * Included are displays of graphical and tabular data, and views of the molecules as they
  * move about during the simulation.  Displays are also used to output simulation data and
- * results to file
+ * results to file.
+ *
+ * @author David Kofke
  */
-public abstract class Display extends Panel implements Simulation.GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
+public abstract class Display extends SimulationElement implements Simulation.GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
 
-    public static final String VERSION = "Display:01.06.07";
-    private String name;
+    public static final String VERSION = "Display:01.07.25";
     
   /**
    * Number of interval events received between updates of display.
@@ -32,24 +33,17 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
    * Descriptive text for the display.  Used to set the text in the tab of the tabbed display panel.
    */
    protected String label;
+   
+   private JPanel panel = new JPanel();
     
     protected Phase phase;  //consider removing this and putting in subclasses only as needed
                             //used at least by DisplayPhase, DisplayTable, DisplayScrollingGraph, DisplayToConsole
     
-    private final Simulation parentSimulation;
-    private boolean added = false;
-    
     // Constructor
     public Display(Simulation sim) {
-        parentSimulation = sim;
+        super(sim, Display.class);
 	    setUpdateInterval(1);
-        parentSimulation.register(this);
     }
-    
-    public final Simulation parentSimulation() {return parentSimulation;}
-    public final Class baseClass() {return Display.class;}
-    public final boolean wasAdded() {return added;}
-    public final void setAdded(boolean b) {added = b;}
     
     /**
      * Method to associate a phase with this display.
@@ -70,7 +64,7 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
      * Default action is to return this Display (which is a Panel) as the graphic object.
      * May override in subclass to return a more appropriate graphical element, or none at all.
      */
-    public Component graphic(Object obj) {return this;}
+    public Component graphic(Object obj) {return panel;}
     
     /**
      * Same as graphic method with a null argument.
@@ -84,6 +78,8 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
      * After completing this method the Display does a repaint.
      */
     public abstract void doUpdate();
+    
+    public void repaint() {panel.repaint();}
     
     /**
      * Method of Integrator.IntervalListener interface.
@@ -132,31 +128,17 @@ public abstract class Display extends Panel implements Simulation.GraphicalEleme
         support.firePropertyChange("label", oldLabel, label);
     }
     /**
-     * Accessor method of the name of this object
-     * 
-     * @return The given name
-     */
-    public final String getName() {return name;}
-
-    /**
      * Method to set the name of this object
      * 
      * @param name The name string to be associated with this object
      */
     public final void setName(String name) {
         String oldName = this.name;
+        super.setName(name);
         this.name = name;
         support.firePropertyChange("name", oldName, name);
     }
 
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the object
-     */
-    public String toString() {return getName();}  //override Object method
-          
-    
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }

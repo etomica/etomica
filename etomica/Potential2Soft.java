@@ -9,8 +9,8 @@ package etomica;
 public abstract class Potential2Soft extends Potential2 {
     
     
-    public Potential2Soft(Simulation sim) {
-        super(sim);
+    public Potential2Soft(PotentialGroup parent) {
+        super(parent);
     }
     
     public abstract double virial(AtomPair pair);

@@ -157,7 +157,7 @@ public abstract class MeterTensor extends MeterAbstract {
         
         public DisplayTensorTable() {this(true);
             SymFocus aSymFocus = new SymFocus();
-            this.addFocusListener(aSymFocus);
+            this.graphic().addFocusListener(aSymFocus);
         }
         
         public DisplayTensorTable(boolean showAvgs) {
@@ -173,7 +173,7 @@ public abstract class MeterTensor extends MeterAbstract {
                 });
                 panel.add(resetButton);
             }
-            add(panel);
+            ((javax.swing.JPanel)graphic()).add(panel);
         }
         
         public void resetAverages() {

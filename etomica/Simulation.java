@@ -3,7 +3,6 @@ package etomica;
 
 import javax.swing.JPanel;
 import etomica.units.UnitSystem;
-import java.beans.Beans;
 
 //Java2 imports
 //import java.util.HashMap;
@@ -26,7 +25,7 @@ import etomica.utility.Iterator;
  */
 public class Simulation extends javax.swing.JPanel implements java.io.Serializable {
     
-    public String getVersion() {return "Simulation:01.06.05";}
+    public String getVersion() {return "Simulation:01.07.25";}
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
      * This is set to true by Etomica if it is running; otherwise it is false.
@@ -44,40 +43,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
    /**
     * Object describing the nature of the physical space in which the simulation is performed
     */
-    public final Space space; //would like to make final, but compiler doesn't allow
+    public final Space space;
     
-    /**
-     * List of all controllers that have been instantiated.
-     */
-    public LinkedList controllerList = new LinkedList();
-    /**
-     * List of all phases that have been instantiated.
-     */
-    public LinkedList phaseList = new LinkedList();
-    /**
-     * List of all species that have been instantiated.
-     */
-    public LinkedList speciesList = new LinkedList();
-    /**
-     * List of all displays that have been instantiated.
-     */
-    public LinkedList displayList = new LinkedList();
-    /**
-     * List of all devices that have been instantiated.
-     */
-    public LinkedList deviceList = new LinkedList();
-    /**
-     * List of all integrators that have been instantiated.
-     */
-    public LinkedList integratorList = new LinkedList();
-    /**
-     * List of all potentials that have been instantiated.
-     */
-    public LinkedList potentialList = new LinkedList();
-    /**
-     * List of all meters that have been instantiated.
-     */
-    public LinkedList meterList = new LinkedList();
     /**
      * List of all simulation elements.
      */
@@ -109,14 +76,14 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         super();
         space = s;
         setName("Simulation" + Integer.toString(instanceCount++));
-        elementLists.put(Potential.class, potentialList);
-        elementLists.put(Species.class, speciesList);
-        elementLists.put(Integrator.class, integratorList);
-        elementLists.put(Phase.class, phaseList);
-        elementLists.put(Controller.class, controllerList);
-        elementLists.put(Display.class, displayList);
-        elementLists.put(MeterAbstract.class, meterList);
-        elementLists.put(Device.class, deviceList);
+        elementLists.put(Potential.class, new LinkedList());
+        elementLists.put(Species.class, new LinkedList());
+        elementLists.put(Integrator.class, new LinkedList());
+        elementLists.put(Phase.class, new LinkedList());
+        elementLists.put(Controller.class, new LinkedList());
+        elementLists.put(Display.class, new LinkedList());
+        elementLists.put(MeterAbstract.class, new LinkedList());
+        elementLists.put(Device.class, new LinkedList());
         elementCoordinator = new Mediator(this);
         setSize(800,550);
         setLayout(new java.awt.FlowLayout());
@@ -157,67 +124,73 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * @return the <code>nth</code> instantiated phase (indexing from zero)
      */
-    public final Phase phase(int n) {return (Phase)phaseList.get(n);}
+    public final Phase phase(int n) {return (Phase)phaseList().get(n);}
     /**
      * @return the <code>nth</code> instantiated species (indexing from zero)
      */
-    public final Species species(int n) {return (Species)speciesList.get(n);}
+    public final Species species(int n) {return (Species)speciesList().get(n);}
     /**
      * @return the <code>nth</code> instantiated potential (indexing from zero)
      */
-    public final Potential potential(int n) {return (Potential)potentialList.get(n);}
+    public final Potential potential(int n) {return (Potential)potentialList().get(n);}
     /**
      * @return the <code>nth</code> instantiated controller (indexing from zero)
      */
-    public final Controller controller(int n) {return (Controller)controllerList.get(n);}
+    public final Controller controller(int n) {return (Controller)controllerList().get(n);}
     /**
      * @return the <code>nth</code> instantiated integrator (indexing from zero)
      */
-    public final Integrator integrator(int n) {return (Integrator)integratorList.get(n);}
+    public final Integrator integrator(int n) {return (Integrator)integratorList().get(n);}
     /**
      * @return the <code>nth</code> instantiated meter (indexing from zero)
      */
-    public final MeterAbstract meter(int n) {return (MeterAbstract)meterList.get(n);}
+    public final MeterAbstract meter(int n) {return (MeterAbstract)meterList().get(n);}
     /**
      * @return the <code>nth</code> instantiated display (indexing from zero)
      */
-    public final Display display(int n) {return (Display)displayList.get(n);}
+    public final Display display(int n) {return (Display)displayList().get(n);}
     /**
      * @return the <code>nth</code> instantiated device (indexing from zero)
      */
-    public final Device device(int n) {return (Device)deviceList.get(n);}
+    public final Device device(int n) {return (Device)deviceList().get(n);}
     
-    public final LinkedList phaseList() {return phaseList;}
-    public final LinkedList meterList() {return meterList;}
-    public final LinkedList speciesList() {return speciesList;}
-    public final LinkedList integratorList() {return integratorList;}
-    public final LinkedList controllerList() {return controllerList;}
-    public final LinkedList potentialList() {return potentialList;}
-    public final LinkedList displayList() {return displayList;}
-    public final LinkedList deviceList() {return deviceList;}
+    public final LinkedList phaseList() {return (LinkedList)elementLists.get(Phase.class);}
+    public final LinkedList meterList() {return (LinkedList)elementLists.get(MeterAbstract.class);}
+    public final LinkedList speciesList() {return (LinkedList)elementLists.get(Species.class);}
+    public final LinkedList integratorList() {return (LinkedList)elementLists.get(Integrator.class);}
+    public final LinkedList controllerList() {return (LinkedList)elementLists.get(Controller.class);}
+    public final LinkedList potentialList() {return (LinkedList)elementLists.get(Potential.class);}
+    public final LinkedList displayList() {return (LinkedList)elementLists.get(Display.class);}
+    public final LinkedList deviceList() {return (LinkedList)elementLists.get(Device.class);}
   
-    public void register(Simulation.Element element) {
-        if(hamiltonian == null || element == hamiltonian.potential) return;
+    int register(SimulationElement element) {
+//        if(hamiltonian == null || element == hamiltonian.potential) return;
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
-        if(list.contains(element)) return;
-        if(element instanceof Potential && !(element instanceof Potential.Null))
-                hamiltonian.potential.addPotential((Potential)element);
-        element.setName(element.getClass().getName().substring(8) + Integer.toString(list.size()));
+        if(list.contains(element)) return -1;
+//        if(element instanceof Potential && !(element instanceof Potential.Null))
+//                hamiltonian.potential.addPotential((Potential)element);
         list.add(element);
         allElements.add(element);
+        return list.size() - 1;
     }//end of register method
                 
-    public void unregister(Simulation.Element element) {
+    public void unregister(SimulationElement element) {
         LinkedList list = (LinkedList)elementLists.get(element.baseClass());
         if(!list.contains(element)) return;
         list.remove(element);
         allElements.remove(element);
     }
-                
+     
+    public void resetIntegrators() {
+        for(Iterator is=integratorList().iterator(); is.hasNext(); ) {
+            Integrator integrator = (Integrator)is.next();
+            integrator.reset();
+        }
+    }
     /**
      * Method invoked in the constructor of a Display object to list it with the simulation
      */
-    public void unregister(Display d) {
+ /*   public void unregister(Display d) {
         if(!displayList.contains(d)) return;
         displayList.remove(d);
         allElements.remove(d);
@@ -236,7 +209,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     /**
      * Method invoked in the constructor of a Device object to list it with the simulation
      */
-    public void unregister(Device d) {
+/*    public void unregister(Device d) {
         if(!deviceList.contains(d)) return;
         deviceList.remove(d);
         allElements.remove(d);
@@ -249,18 +222,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
             }
         }
     }
-              
-                  
-    /**
-     * Method invoked in the constructor of a Species object to list it with the simulation
-     */
-    public void unregister(Species species) {
-        if(!speciesList.contains(species)) return;
-        //remove from manager
-        speciesList.remove(species);
-        allElements.remove(species);
-    }
-                
+ */             
                 
     /**
      * Method invoked in the constructor of a Potential2 object to list it with the simulation
@@ -280,55 +242,11 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         return list;
     }
     
-    /**
-     * Accessor of the first species in the linked list of species
-     */
-    public final Species firstSpecies() {return firstSpecies;}
-    /**
-     * Accessor of the last species in the linked list of species
-     */
-    public final Species lastSpecies() {return lastSpecies;}
-    /**
-     * @return the number of species that have been constructed and registered with the simulation
-     */
-     public final int speciesCount() {return speciesList.size();}
-    
     private static int instanceCount = 0;
     private String name;
     public void setName(String newName) {name = newName;}
     public String getName() {return name;}
     public String toString() {return getName();}
-    
-    /**
-    * Symmetric array of all two-body potentials.  Potentials are associated with species, and each species
-    * is assigned a unique index to idenfity it.  Potential2[i][j] is the two-body potential
-    * for Species indexed i and j, respectively.  The potential for i=j is merely the one describing the 
-    * molecular interactions for that species.
-    * 
-    * @see Species#speciesIndex
-    * @see Potential2
-    */
-    public Potential2[][] potential2;
-      
-    /**
-    * Array of all one-body potentials.  Potentials are associated with species, and each species
-    * is assigned a unique index to idenfity it.  Potential1[i] is the one-body potential
-    * for Species indexed i.
-    * 
-    * @see Species#speciesIndex
-    * @see Potential1
-    */
-    public Potential1[] potential1;
-      
-    /**
-    * First species in the linked list of species in this phase.
-    */
-    public Species firstSpecies;
-     
-    /**
-    * Last species in the linked list of species in this phase.
-    */
-    public Species lastSpecies;
     
     public static final java.util.Random random = new java.util.Random();
         
@@ -346,22 +264,10 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
       */
      public Mediator mediator() {return elementCoordinator;}
      
-   /**
-    * A marker interface to indicate that the class is an element of a Simulation
-    */
-    public interface Element {
-        public Simulation parentSimulation();
-        public Class baseClass();
-        public boolean wasAdded(); //indicates whether element was added to simulation (mediator)
-        public void setAdded(boolean b);
-        public void setName(String name);
-        public String getName();
-    }
-    
     /**
      * Interface for a simulation element that can make a graphical component
      */
-    public interface GraphicalElement extends Element {
+    public interface GraphicalElement {
 
         /**
          * Interface for a Simulation element that would be used in a simulation graphical user interface (GUI)
@@ -388,10 +294,11 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         = new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
+        
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesDisks speciesDisks = new SpeciesDisks();
@@ -411,14 +318,12 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         //this method call invokes the mediator to tie together all the assembled components.
 		Simulation.instance.elementCoordinator.go();
 		                                    
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
         Simulation.makeAndDisplayFrame(Simulation.instance);
         
      //   controller.start();
     }//end of main
-    */
+    
 }
 
 

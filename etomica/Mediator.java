@@ -74,7 +74,7 @@ public class Mediator implements java.io.Serializable {
  //       if(completed) return;
         completed = true;
         for(Iterator iter=parentSimulation().allElements().iterator(); iter.hasNext();) {
-            add((Simulation.Element)iter.next());
+            add((SimulationElement)iter.next());
         }
     }
     
@@ -85,7 +85,7 @@ public class Mediator implements java.io.Serializable {
      * Upon completion, the <code>setAdded</code> flag is set to <code>true</code>, so if the element
      * is added again, no action is taken.
      */
-    public void add(Simulation.Element element) {
+    public void add(SimulationElement element) {
         if(element.wasAdded()) return;
         HashMap table = mediatorTable.get(element.baseClass());
         if(table == null) return;
@@ -105,7 +105,7 @@ public class Mediator implements java.io.Serializable {
         protected boolean superceding = false;
         protected Mediator mediator;
         public Subset(Mediator m) {mediator = m;}
-        public abstract void add(Simulation.Element element);
+        public abstract void add(SimulationElement element);
         public abstract Class[] elementClasses();
         public void setPrior(Subset prior) {priorSubset = prior;}
         public final void setSuperceding(boolean b) {superceding = b;}
@@ -118,7 +118,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Phase.class, Species.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Phase) add((Phase)element);
             if(element instanceof Species) add((Species)element);
@@ -130,13 +130,13 @@ public class Mediator implements java.io.Serializable {
         public static class Default extends PhaseSpecies {
             public Default(Mediator m) {super(m);}
             public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().speciesList.iterator(); is.hasNext(); ) {
+                for(Iterator is=mediator.parentSimulation().speciesList().iterator(); is.hasNext(); ) {
                     Species species = (Species)is.next();
                     if(species.wasAdded()) phase.addSpecies(species);
                 }
             }
             public void add(Species species) {
-                for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded()) phase.addSpecies(species);
                 }
@@ -149,7 +149,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Phase.class, Potential.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Phase) add((Phase)element);
             if(element instanceof Potential) add((Potential)element);
@@ -162,13 +162,13 @@ public class Mediator implements java.io.Serializable {
         public static class Default extends PhasePotential {
             public Default(Mediator m) {super(m);}
             public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().potentialList.iterator(); is.hasNext(); ) {
+                for(Iterator is=mediator.parentSimulation().potentialList().iterator(); is.hasNext(); ) {
                     Potential potential = (Potential)is.next();
 //                    if(potential.wasAdded()) phase.addPotential(potential);
                 }
             }
             public void add(Potential potential) {
-                for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
 //                    if(phase.wasAdded()) phase.addPotential(potential);
                 }
@@ -181,7 +181,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Phase.class, Integrator.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Phase) add((Phase)element);
             if(element instanceof Integrator) add((Integrator)element);
@@ -196,7 +196,7 @@ public class Mediator implements java.io.Serializable {
              * Loops over all integrators and adds phase to first that wants a phase
              */
             public void add(Phase phase) {
-                for(Iterator is=mediator.parentSimulation().integratorList.iterator(); is.hasNext(); ) {
+                for(Iterator is=mediator.parentSimulation().integratorList().iterator(); is.hasNext(); ) {
                     Integrator integrator = (Integrator)is.next();
                     if(integrator.wasAdded() && integrator.wantsPhase()) {
                         phase.setIntegrator(integrator);
@@ -209,7 +209,7 @@ public class Mediator implements java.io.Serializable {
              * Sets this as the integrator for all phases that have no integrator.
              */
             public void add(Integrator integrator) {
-                for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded() && phase.integrator() == null) { 
                         phase.setIntegrator(integrator);
@@ -225,7 +225,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Device.class, Integrator.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Device) add((Device)element);
             if(element instanceof Integrator) add((Integrator)element);
@@ -242,7 +242,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Display.class, Integrator.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Display) add((Display)element);
             if(element instanceof Integrator) add((Integrator)element);
@@ -258,7 +258,7 @@ public class Mediator implements java.io.Serializable {
              * Sets display as interval listener of first integrator, if it exists
              */
             public void add(Display display) {
-                for(Iterator ip=mediator.parentSimulation().integratorList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().integratorList().iterator(); ip.hasNext(); ) {
                     Integrator integrator = (Integrator)ip.next();
                     if(integrator.wasAdded())  {
                         integrator.addIntervalListener(display);
@@ -272,7 +272,7 @@ public class Mediator implements java.io.Serializable {
             public void add(Integrator integrator) {
                 if(!firstIntegrator) return;
                 firstIntegrator = false;
-                for(Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().displayList().iterator(); ip.hasNext(); ) {
                     Display display = (Display)ip.next();
                     if(display.wasAdded()) integrator.addIntervalListener(display);
                 }
@@ -284,7 +284,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Display.class, Phase.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Display) add((Display)element);
             if(element instanceof Phase) add((Phase)element);
@@ -303,7 +303,7 @@ public class Mediator implements java.io.Serializable {
             public void add(Display display) {
                 if(!vetoConnection(display,lastPhaseAdded)) display.setPhase(lastPhaseAdded);
                 else if(display instanceof etomica.DisplayPhase) {
-                    for(Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
+                    for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
                         Phase phase = (Phase)ip.next();
                         if(!vetoConnection(display, phase)) {
                             display.setPhase(phase);
@@ -318,7 +318,7 @@ public class Mediator implements java.io.Serializable {
              */
             public void add(Phase phase) {
                 if(lastPhaseAdded == null) { //none of the displays yet have a phase; make this one it for all
-                    for(Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
+                    for(Iterator ip=mediator.parentSimulation().displayList().iterator(); ip.hasNext(); ) {
                         Display display = (Display)ip.next();
                         if(display.wasAdded() && !vetoConnection(display, phase)) display.setPhase(phase);
                     }
@@ -331,7 +331,7 @@ public class Mediator implements java.io.Serializable {
                 //no problem if display is not an etomica.DisplayPhase
                 if(!(display instanceof etomica.DisplayPhase)) return false;
                 //otherwise make sure phase doesn't already have a DisplayPhase
-                for(Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().displayList().iterator(); ip.hasNext(); ) {
                     Display d = (Display)ip.next();
                     if(d instanceof etomica.DisplayPhase && d.getPhase() == phase) return true;
                 }
@@ -346,7 +346,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {MeterAbstract.class, Phase.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof MeterAbstract) add((MeterAbstract)element);
             if(element instanceof Phase) add((Phase)element);
@@ -370,7 +370,7 @@ public class Mediator implements java.io.Serializable {
              * it to be the phase of all subsequently added meters, until another phase is added.
              */
             public void add(Phase phase) {
-                for(Iterator ip=mediator.parentSimulation().meterList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().meterList().iterator(); ip.hasNext(); ) {
                     MeterAbstract meter = (MeterAbstract)ip.next();
                     if(meter.wasAdded() && meter.getPhase() == null) meter.setPhase(phase);
                 }
@@ -383,7 +383,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {MeterAbstract.class, Species.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof MeterAbstract) add((MeterAbstract)element);
             if(element instanceof Species) add((Species)element);
@@ -412,7 +412,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Controller.class, Integrator.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Controller) add((Controller)element);
             if(element instanceof Integrator) add((Integrator)element);
@@ -428,7 +428,7 @@ public class Mediator implements java.io.Serializable {
              * Sets first controller as controller of given integrator
              */
             public void add(Integrator integrator) {
-                for(Iterator ip=mediator.parentSimulation().controllerList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().controllerList().iterator(); ip.hasNext(); ) {
                     Controller controller = (Controller)ip.next();
                     if(controller.wasAdded()) {
                         controller.add(integrator);
@@ -442,7 +442,7 @@ public class Mediator implements java.io.Serializable {
             public void add(Controller controller) {
                 if(!firstController) return;
                 firstController = false;
-                for(Iterator ip=mediator.parentSimulation().integratorList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().integratorList().iterator(); ip.hasNext(); ) {
                     Integrator integrator = (Integrator)ip.next();
                     if(integrator.wasAdded()) controller.add(integrator);
                 }
@@ -456,7 +456,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Display.class, null};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Display) add((Display)element);
         }
@@ -515,7 +515,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Device.class, null};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Device) add((Device)element);
         }
@@ -563,7 +563,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {Integrator.class, null};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof Integrator) add((Integrator)element);
         }
@@ -578,7 +578,7 @@ public class Mediator implements java.io.Serializable {
 
         public Class[] elementClasses() {return new Class[] {MeterAbstract.class, Display.class};}
         
-        public void add(Simulation.Element element) {
+        public void add(SimulationElement element) {
             if(!superceding && priorSubset != null) priorSubset.add(element);
             if(element instanceof MeterAbstract) add((MeterAbstract)element);
             if(element instanceof Display) add((Display)element);
@@ -593,7 +593,7 @@ public class Mediator implements java.io.Serializable {
              * Adds meter to all displays needing or accepting a meter
              */
             public void add(MeterAbstract meter) {
-                for(Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().displayList().iterator(); ip.hasNext(); ) {
                     Display display = (Display)ip.next();
                     if(display.wasAdded()) connect(display, meter);
                 }//end of for
@@ -602,7 +602,7 @@ public class Mediator implements java.io.Serializable {
              * Sets the given phase, if it is the first added, as the phase of all meters.
              */
             public void add(Display display) {
-                for(Iterator ip=mediator.parentSimulation().meterList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().meterList().iterator(); ip.hasNext(); ) {
                     MeterAbstract meter = (MeterAbstract)ip.next();
                     if(meter.wasAdded()) connect(display, meter);
                     

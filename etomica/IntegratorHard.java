@@ -62,6 +62,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         
         //single atom
         public void calculate(AtomIterator iterator, Potential1 potential) {
+            if(!(potential instanceof Potential1Hard)) return;
             Potential1Hard potentialHard = (Potential1Hard)potential;
             while(iterator.hasNext()) {
                 Atom atom = iterator.next();
@@ -217,7 +218,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         while(atomIterator.hasNext()) {
             ((IntegratorHardAbstract.Agent)atomIterator.next().ia).resetCollision();
         }
-        potential.calculate(upList.set(), collisionHandlerUp);
+        potential.set(firstPhase).calculate(upList.set(), collisionHandlerUp); //assumes only one phase
         findNextCollider();
     }
                 
@@ -232,45 +233,42 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
-//	    integratorHard1.setTimeStep(0.02);
+	 //   integratorHard1.setTimeStep(0.02);
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(10);
 	    SpeciesDisks speciesDisks2 = new SpeciesDisks(3);
 	    speciesDisks2.setColor(java.awt.Color.red);
 	    final Phase phase = new Phase();
-	    P2HardSphere potential = new P2HardSphere();
-	    P2HardSphere potential2 = new P2HardSphere();
-	    P2HardSphere potential0 = new P2HardSphere();
+	    P2HardSphere potential12 = new P2HardSphere(4.0);
+	    P2HardSphere potential22 = new P2HardSphere(5.0);
+	    P2HardSphere potential11 = new P2HardSphere(3.0);
+	    speciesDisks2.setDiameter(5.0);
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
 	    timer.setUpdateInterval(10);
-	    MeterEnergy meterEnergy = new MeterEnergy();
-	    meterEnergy.setPhase(phase);
-	    DisplayBox displayEnergy = new DisplayBox();
-	    displayEnergy.setMeter(meterEnergy);
 	    MeterRDF meterRDF = new MeterRDF();
 	    DisplayPlot plot = new DisplayPlot();
 		Simulation.instance.setBackground(java.awt.Color.yellow);
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		                                    
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-    //    potentialAgent.setIterator(new AtomPairIterator(phase));
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
+		Simulation.instance.elementCoordinator.go(); 
+		
+		potential12.setSpecies(speciesDisks1, speciesDisks2);
+		potential22.setSpecies(speciesDisks2, speciesDisks2);
+		potential11.setSpecies(speciesDisks1, speciesDisks1);
+		/*
+        potential.setIterator(new AtomPairIterator(Simulation.instance.space,
+                new AtomIteratorSequential(speciesDisks1.getAgent(phase),true),
+                new AtomIteratorSequential(speciesDisks2.getAgent(phase),true)));
                 
-        potentialAgent = (Potential2.Agent)potential2.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks2.getAgent(phase).makeLeafAtomIterator()));
+        potential2.setIterator(new AtomPairIterator(Simulation.instance.space,
+                new AtomIteratorSequential(speciesDisks2.getAgent(phase),true),
+                new AtomIteratorSequential(speciesDisks2.getAgent(phase),true)));
                 
-        potentialAgent = (Potential2.Agent)potential0.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator(),
-                speciesDisks1.getAgent(phase).makeLeafAtomIterator()));
+        potential0.setIterator(new AtomPairIterator(Simulation.instance.space,
+                new AtomIteratorSequential(speciesDisks1.getAgent(phase),true),
+                new AtomIteratorSequential(speciesDisks1.getAgent(phase),true)));
+                */
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    
 	    displayPhase1.addDrawable(new DisplayPhase.Drawable() {
@@ -307,9 +305,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 }
                 System.out.println();
 	        }
-	    });* /
+	    });*/
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-*/
+
 }//end of IntegratorHard
 

@@ -40,7 +40,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         switch(D) {
             case 1:  return new Space1D.Vector();
             case 2:  return new Space2D.Vector();
-//            case 3:  return new Space3D.Vector();
+            case 3:  return new Space3D.Vector();
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }

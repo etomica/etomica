@@ -19,15 +19,15 @@ public class P2Primitive extends Potential2 implements EtomicaElement {
     private Space.Vector force;
 
     public P2Primitive() {
-        this(Simulation.instance, Default.ATOM_SIZE);
+        this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);
     }
     public P2Primitive(double sigma) {
-        this(Simulation.instance, sigma);
+        this(Simulation.instance.hamiltonian.potential, sigma);
     }
-    public P2Primitive(Simulation sim, double sigma) {
-        super(sim);
+    public P2Primitive(PotentialGroup parent, double sigma) {
+        super(parent);
         setSigma(sigma);
-        force = sim.space().makeVector();
+        force = parentSimulation().space().makeVector();
     }
  
    /**

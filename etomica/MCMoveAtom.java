@@ -2,6 +2,11 @@ package etomica;
 
 import etomica.units.Dimension;
 
+/**
+ * Standard Monte Carlo atom-displacement trial move.
+ *
+ * @author David Kofke
+ */
 public class MCMoveAtom extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);

@@ -1,14 +1,14 @@
 package etomica;
 
 
-public class Potential2Group extends Potential2 {
+public class Potential2Group extends Potential2 implements PotentialGroup {
     
     private final IteratorDirective localDirective = new IteratorDirective();
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     private PotentialLinker first;
     
-    public Potential2Group(Simulation sim) {
-        super(sim);
+    public Potential2Group(PotentialGroup parent) {
+        super(parent);
     }
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         iterator.reset(id);

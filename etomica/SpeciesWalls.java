@@ -54,6 +54,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     
     public SpeciesWalls(Simulation sim, int nM, int nA, double length, int angle) {  //angle is in radians
         super(sim, makeFactory(sim, nA));
+        //get a handle to the factories used to make the walls and create an array (protoType)
+        //of handles to the types attached to each
         AtomFactoryMono[] subfactory = ((AtomFactoryMono[])((AtomFactoryHetero)factory).childFactory());
         protoType = new AtomType.Wall[nA];
         nMolecules = nM;
@@ -64,7 +66,6 @@ public class SpeciesWalls extends Species implements EtomicaElement {
            type.setAngle(angle);
            protoType[i] = type;
         }
-
         factory.setConfiguration(new SpeciesWalls.ConfigurationParallel(sim.space()));
     }
 
@@ -145,6 +146,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         */
         public void initializeCoordinates(Atom atom) {  //doesn't handle wall that is not either horizontal or vertical
             AtomGroup m = (AtomGroup)atom;
+            AtomIterator iterator = new AtomIteratorSequential(m);
        //     Space.Vector d = m.parentPhase().dimensions();  //what if parentPhase is null?
             double x, y;
             double h = Default.BOX_SIZE;//d.component(1);
@@ -178,11 +180,12 @@ public class SpeciesWalls extends Species implements EtomicaElement {
                 xyNext = x;
                 wh = h;
             }                    //2D explicit
-            m.childIterator.reset();
-            while(m.childIterator.hasNext()) {//equally space all "wall atoms"
-                Atom a = m.childIterator.next();
+            iterator.reset();
+            while(iterator.hasNext()) {//equally space all "wall atoms"
+                Atom a = iterator.next();
                 Space.Vector r = a.coord.position();
                 a.coord.momentum().E(0.0);
+                a.coord.setStationary(stationary);
                 r.setComponent(i,xyNext);
                 xyNext += delta;
                 ((AtomType.Wall)a.type).setLength(wh);   //length of wall
@@ -197,31 +200,38 @@ public class SpeciesWalls extends Species implements EtomicaElement {
    * Method to demonstrate the use of this class.
    * Simulates a system of hard disks and a wall.
    */
-   
-   //need multi-species capability to use
     public static void main(String[] args) {
 
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        
+        Simulation sim = new Simulation();
+        Simulation.instance = sim;
+//	    SpeciesSpheresMono species = new SpeciesSpheresMono();
+        SpeciesDisks species = new SpeciesDisks();
+        species.setNMolecules(5);
         SpeciesWalls walls = new SpeciesWalls();
+        walls.setStationary(true);
+	    Phase phase = new Phase();
+	    IntegratorHard integrator = new IntegratorHard();
+	    P2HardSphere potential = new P2HardSphere();
+        P2HardDiskWall wallPotential = new P2HardDiskWall(); //hard wall-disk interaction
+	    Controller controller = new Controller();
+	    DisplayPhase display = new DisplayPhase();
+	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
+	    timer.setUpdateInterval(10);
+	//	elementCoordinator.go();
+
+    //    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        
         //make the wall vertical
         ((ConfigurationParallel)walls.factory.getConfiguration()).setAngle((int)Degree.UNIT.toSim(90.));
-        P2HardDiskWall wallPotential = new P2HardDiskWall(); //hard wall-disk interaction
         //wall (2nd species added) is set to species 1 automatically, disks are species 0; 
         //set new potential to be for 0-1 interaction       
  
         Simulation.instance.elementCoordinator.go();
         
-        walls.setStationary(true);
-        Potential2.Agent potentialAgent = (Potential2.Agent)wallPotential.getAgent(sim.phase);
-        potentialAgent.setIterator(new AtomPairIterator(sim.phase,
-                walls.makeAtomIterator(sim.phase), sim.species.makeAtomIterator(sim.phase)));
-        potentialAgent = (Potential2.Agent)sim.potential.getAgent(sim.phase);
-        potentialAgent.setIterator(new AtomPairIterator(sim.phase,
-                sim.species.makeAtomIterator(sim.phase), sim.species.makeAtomIterator(sim.phase)));
+        potential.setSpecies(species, species);
+        wallPotential.setSpecies(species, walls);
         
         Simulation.makeAndDisplayFrame(Simulation.instance);
         
     }//end of main
- 
 }

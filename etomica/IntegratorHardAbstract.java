@@ -46,12 +46,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         atomIterator = factory.makeAtomIterator();
     }
     
-          //need to modify to handle multiple-phase issues
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        return true;
-    }
-
     /** 
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
@@ -213,7 +207,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         public void resetCollision() {
             collisionTime = periodCollisionTime();
-            collisionPotential = Potential2Hard.NULL;
+            collisionPotential = PotentialHard.NULL;
             collisionPartner = null;
         }
         

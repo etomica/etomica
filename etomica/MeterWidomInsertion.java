@@ -30,12 +30,14 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
     //directive must specify "BOTH" to get energy with all atom pairs
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
+    private final PotentialMaster potential;
     
     public MeterWidomInsertion() {
         this(Simulation.instance);
     }
     public MeterWidomInsertion(Simulation sim) {
         super(sim);
+        potential = sim.hamiltonian.potential;
         setLabel("exp(-\u03BC/kT)");  //"\u03BC" is Unicode for greek "mu"
         nInsert = 100;
         setResidual(true);
@@ -49,7 +51,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
             }
             public void add(MeterAbstract meter) {
                 if(meter != MeterWidomInsertion.this || MeterWidomInsertion.this.getSpecies()!=null) return;
-                for(Iterator ip=mediator.parentSimulation().speciesList.iterator(); ip.hasNext(); ) {
+                for(Iterator ip=mediator.parentSimulation().speciesList().iterator(); ip.hasNext(); ) {
                     Species species = (Species)ip.next();
                     if(species.wasAdded())  {//will make first species the one
                         MeterWidomInsertion.this.setSpecies(species);
@@ -131,7 +133,7 @@ public class MeterWidomInsertion extends Meter implements EtomicaElement {
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
             testMolecule.coord.translateTo(phase.randomPosition());  //select random position
             if(display != null && i % 10 ==0) display.repaint();
-            double u = phase.potential.calculate(iteratorDirective, energy.reset()).sum();
+            double u = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
             if(u < Double.MAX_VALUE)              //add to test-particle average
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }

@@ -1,7 +1,5 @@
 package etomica;
 
-import java.util.Random;
-
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement {
 
     public String getVersion() {return "IntegratorVelocityVerlet:01.07.05/"+IntegratorMD.VERSION;}
@@ -10,10 +8,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     
     public final PotentialCalculation.ForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    protected PotentialAgent phasePotential;
     
     //Fields for Andersen thermostat
-    Random random = new Random();
     double nu = 0.001;  //heat bath "collision" frequency
                 
     public IntegratorVelocityVerlet() {
@@ -31,13 +27,6 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return info;
     }
 
-          //need to modify to handle multiple-phase issues
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        phasePotential = p.potential();
-        return true;
-    }
-    
 	/**
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
@@ -71,7 +60,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         }
                 
         //Compute forces on each atom
-        phasePotential.calculate(allAtoms, forceSum);
+        potential.calculate(allAtoms, forceSum);
         
         //Finish integration step
         atomIterator.reset();
@@ -84,7 +73,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             double nut = nu*timeStep;
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.next();
-                if(random.nextDouble() < nut) a.coord.randomizeMomentum(temperature);  //this method in Atom needs some work
+                if(Simulation.random.nextDouble() < nut) a.coord.randomizeMomentum(temperature);  //this method in Atom needs some work
             }
         }
         return;
@@ -102,7 +91,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             Agent agent = (Agent)a.ia;
             agent.force.E(0.0);
         }
-        phasePotential.calculate(allAtoms, forceSum);
+        potential.set(firstPhase).calculate(allAtoms, forceSum);//assumes only one phase
     }
               
 //--------------------------------------------------------------
@@ -121,6 +110,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         }
         
         public Space.Vector force() {return force;}
-    }
-}
+    }//end of Agent
+    
+}//end of IntegratorVelocityVerlet
 

@@ -2,7 +2,9 @@ package etomica.simulations;
 import etomica.*;
 
 /**
- * Simple hard-sphere Monte Carlo simulation in 2D
+ * Simple hard-sphere Monte Carlo simulation in 2D.
+ *
+ * @author David Kofke
  */
  
 public class HsMc2d extends Simulation {
@@ -25,15 +27,13 @@ public class HsMc2d extends Simulation {
 	    mcMoveAtom = new MCMoveAtom();
 	    integrator.add(mcMoveAtom);
 	    species = new SpeciesDisks(this);
-	    potential = new P2HardSphere(this);
+	    potential = new P2HardSphere();
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 	    meterCycles = new MeterCycles(this);
 	    displayCycles = new DisplayBox(this,meterCycles);
 		setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
     }
     
     /**

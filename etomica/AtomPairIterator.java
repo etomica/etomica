@@ -50,11 +50,14 @@ public class AtomPairIterator implements java.io.Serializable {
         this(p, species1.getAgent(p).new LeafAtomIterator(),
                 species2.getAgent(p).new LeafAtomIterator());
      }*/
+     /** 
+      * Sets pair iterator so that it traverses all leaf-atom pairs in its basis.
+      */
      public AtomPairIterator(Space s) {
-        this(s, new AtomIteratorSequential(), new AtomIteratorSequential());
+        this(s, new AtomIteratorSequential(true), new AtomIteratorSequential(true));
      }
     /**
-     * Construct a pair iterator for the given phase, using the given atom iterators
+     * Construct a pair iterator using the given atom iterators
      */
     public AtomPairIterator(Space s, AtomIterator iter1, AtomIterator iter2) {
         pair = new AtomPair(s);
@@ -122,7 +125,6 @@ public class AtomPairIterator implements java.io.Serializable {
      * Resets iterator so that it iterates over all pairs formed from iterates
      * between and including the given atoms.
      */
-     //not carefully checked for correctness
      public void reset(Atom atom1, Atom atom2) {
         ai1.setAsNeighbor(false);
         ai2.setAsNeighbor(false);

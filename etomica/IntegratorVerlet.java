@@ -8,7 +8,6 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     
     public final PotentialCalculation.ForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
-    protected PotentialAgent phasePotential;
     
     Space.Vector work;
                 
@@ -25,13 +24,6 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Molecular dynamics using basic Verlet algorithm");
         return info;
-    }
-
-          //need to modify to handle multiple-phase issues
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        phasePotential = p.potential();
-        return true;
     }
 
 	/**
@@ -59,7 +51,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             ((Agent)atomIterator.next().ia).force.E(0.0);
         }
-        phasePotential.calculate(allAtoms, forceSum);
+        potential.calculate(allAtoms, forceSum);
 
         //take step
         atomIterator.reset();
@@ -79,6 +71,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     protected void doReset() {
         atomIterator.reset();
+        potential.set(firstPhase);//assumes only one phase
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.next();
             Agent agent = (Agent)a.ia;
@@ -129,10 +122,8 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 		integrator.setSleepPeriod(2);
 		
 		Simulation.instance.elementCoordinator.go();
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
-        
         Simulation.makeAndDisplayFrame(Simulation.instance);
+
     }//end of main
 }//end of IntegratorVerlet
 

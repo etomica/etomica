@@ -15,16 +15,23 @@ package etomica;
  //of the phase by the parent potential, since this is probably a common situation for
  //one-body potentials
  
-public class P1HardBoundary extends Potential1Hard {
+public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     
     public String getVersion() {return "P1HardBoundary:01.06.29/"+Potential1.VERSION;}
 
     private double collisionRadius = 0.0;
     
-    P1HardBoundary(Simulation sim) {
-        super(sim);
+    P1HardBoundary() {
+        this(Simulation.instance.hamiltonian.potential);
+    }
+    P1HardBoundary(PotentialGroup parent) {
+        super(parent);
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Hard repulsive potential at the phase boundaries");
+        return info;
+    }
     public double energy(Atom a) {return 0.0;}
      
     public double collisionTime(Atom a) {
@@ -97,19 +104,13 @@ public class P1HardBoundary extends Potential1Hard {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         sim.species.setNMolecules(10);
-        P1HardBoundary potential = new P1HardBoundary(sim);
+        P1HardBoundary potential = new P1HardBoundary();
+        potential.set(sim.phase.speciesMaster);
         potential.setCollisionRadius(0.5*Default.ATOM_SIZE);
   //      sim.phase.setBoundary(sim.space().makeBoundary(Space2D.Boundary.NONE));
         sim.elementCoordinator.go();
-        Potential1.Agent potentialAgent = (Potential1.Agent)potential.getAgent(sim.phase);
-        potentialAgent.setIterator(sim.phase.iteratorFactory().makeAtomIterator());
         
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,500);
-        f.getContentPane().add(sim.panel());
-        f.pack();
-        f.show();
-        f.addWindowListener(Simulation.WINDOW_CLOSER);
+        Simulation.makeAndDisplayFrame(sim);
     }//end of main
 
 }//end of P1HardBoundary

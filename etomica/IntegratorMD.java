@@ -32,6 +32,12 @@ public abstract class IntegratorMD extends Integrator {
         setTimeStep(Default.TIME_STEP);
     }
     
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+//        potential.set(firstPhase);  //assumes integrator has exclusive access to the potential hierarchy
+        return true;
+    }
+
     /**
      * The simulation time elapsed since the start of the integration.
      * Cannot be reset to zero.
@@ -100,7 +106,7 @@ public abstract class IntegratorMD extends Integrator {
             this.setMeter(meter);
             this.setUnit(new Unit(Picosecond.UNIT));
             this.setPrecision(7);
-            setSize(100,60);
+            graphic().setSize(100,60);
         }
     }
 }

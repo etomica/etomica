@@ -8,6 +8,9 @@ public class Hamiltonian implements java.io.Serializable {
     public final PotentialMaster potential;
     private final Simulation parentSimulation;
     
+    //may need to have a different potential hierarchy for each integrator,
+    //if multiple integrators are to be run on separate threads
+    
     public Hamiltonian(Simulation sim) {
         parentSimulation = sim;
         potential = new PotentialMaster(sim);

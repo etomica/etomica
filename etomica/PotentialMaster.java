@@ -5,15 +5,19 @@ package etomica;
  *
  * @author David Kofke
  */
-public final class PotentialMaster extends Potential1Group {
+public final class PotentialMaster implements PotentialGroup, java.io.Serializable {
     
-    public String getVersion() {return "PotentialMaster:01.07.23/"+Potential1Group.VERSION;}
+    public String getVersion() {return "PotentialMaster:01.07.23";}
 
     private SpeciesMaster speciesMaster;
+    private final Simulation parentSimulation;
+    private PotentialLinker first;
 
     public PotentialMaster(Simulation sim) {
-        super(sim);
+        parentSimulation = sim;
     }
+    
+    public Simulation parentSimulation() {return parentSimulation;}
     
     //should build on this to do more filtering of potentials based on directive
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
@@ -28,12 +32,16 @@ public final class PotentialMaster extends Potential1Group {
         return pa;
     }
         
+    //this method is called in the constructor of the given potential
+    public void addPotential(Potential potential) {
+        first = new PotentialLinker(potential, first);
+    }
+
     /**
      * Sets the basis for iteration of atoms by all potentials.
      * The given parameter must be an instance of SpeciesMaster.
      */
-    public Potential set(Atom a) {
-        speciesMaster = (SpeciesMaster)a;
+    public PotentialMaster set(SpeciesMaster speciesMaster) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             link.potential.set(speciesMaster);
         }//end for
@@ -43,7 +51,10 @@ public final class PotentialMaster extends Potential1Group {
     /**
      * Sets the potentials to iterate on atoms in the given phase.
      */
-    public PotentialMaster set(Phase p) {set(p.speciesMaster); return this;}
+    public PotentialMaster set(Phase p) {
+        set(p.speciesMaster); 
+        return this;
+    }
 
 }//end of PotentialMaster
     

@@ -2,7 +2,9 @@ package etomica.simulations;
 import etomica.*;
 
 /**
- * Simple hard-sphere molecular dynamics simulation in 2D
+ * Simple hard-sphere molecular dynamics simulation in 2D.
+ *
+ * @author David Kofke
  */
  
 public class HSMD2D extends Simulation {
@@ -21,7 +23,7 @@ public class HSMD2D extends Simulation {
 	    species = new SpeciesSpheresMono(this);
 	    species.setNMolecules(25);
 	    phase = new Phase(this);
-	    potential = new P2HardSphere(this);
+	    potential = new P2HardSphere();
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
@@ -29,8 +31,8 @@ public class HSMD2D extends Simulation {
 		setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();
 		
-        potential.setIterator(new AtomPairIterator(phase));
-        potential.set(species.getAgent(phase));
+  //      potential.setIterator(new AtomPairIterator(phase));
+  //      potential.set(species.getAgent(phase));
 		
     }
     

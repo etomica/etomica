@@ -11,24 +11,33 @@ public abstract class Potential2 extends Potential {
     
     protected AtomPairIterator iterator;
     protected Space.Vector work1;
+    private Species species1, species2;
     
-    public Potential2(Simulation sim) {
-        super(sim);
-        work1 = sim.space().makeVector();
+    public Potential2(PotentialGroup parent) {
+        super(parent);
+        iterator = new AtomPairIterator(parentSimulation().space());
+        work1 = parentSimulation().space().makeVector();
     }
     
     public abstract double energy(AtomPair pair);
 
     public Potential set(Atom a) {return set(a,a);}
     public Potential set(Atom a1, Atom a2) {iterator.setBasis(a1, a2); return this;}
- 
-    /**
-     * Default iterator yields no pairs.
-     */
-    protected void makeDefaultIterator() {
-        iterator = AtomPairIterator.NULL;
+             
+    public Potential set(SpeciesMaster s) {
+        if(species1 != null) {
+            iterator.setBasis(species1.getAgent(s.parentPhase()), species2.getAgent(s.parentPhase()));
+        }
+        else iterator.setBasis(s,s);
+        return this;
+      //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);
     }
-            
+    
+    public void setSpecies(Species s1, Species s2) {//throw exception if either are null
+        species1 = s1;
+        species2 = s2;
+    }
+
     public void setIterator(AtomPairIterator iterator) {
         this.iterator = iterator;
     }

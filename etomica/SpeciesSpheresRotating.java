@@ -59,22 +59,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public final void setColor(Color c) {protoType.setColor(c);}
     
     public static void main(String[] args) {
-        Simulation sim = new Simulation(new Space2D());
-        Simulation.instance = sim;
-	    IntegratorHard integrator = new IntegratorHard(sim);
-	    Species species = new SpeciesSpheresRotating(sim);
-	    species.setNMolecules(25);
-	    Phase phase = new Phase(sim);
-	    P2RoughSphere potential = new P2RoughSphere();
-	    Controller controller = new Controller(sim);
-	    Display display = new DisplayPhase(sim);
-//	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-//	    timer.setUpdateInterval(10);
-		sim.setBackground(java.awt.Color.yellow);
-		sim.elementCoordinator.go();
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
-        Simulation.makeAndDisplayFrame(sim);
+        P2RoughSphere.main(args);
     }
     
 }

@@ -14,7 +14,7 @@ import etomica.statmech.MaxwellBoltzmann;
  
 public class P2HardDiskWall extends Potential2Hard implements EtomicaElement {
     
-    public final String getVersion() {return "PotentialHardDiskWall:01.02.15/"+Potential.VERSION;}
+    public final String getVersion() {return "PotentialHardDiskWall:01.07.25/"+Potential.VERSION;}
 
     protected double collisionDiameter, collisionRadius;
     private double lastCollisionVirial;
@@ -22,16 +22,16 @@ public class P2HardDiskWall extends Potential2Hard implements EtomicaElement {
     private boolean isothermal = false;
     private double temperature = Default.TEMPERATURE;
 
-    public P2HardDiskWall() {this(Simulation.instance, Default.ATOM_SIZE);}
+    public P2HardDiskWall() {this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);}
     
     public P2HardDiskWall(double d) {
-        this(Simulation.instance, d);
+        this(Simulation.instance.hamiltonian.potential, d);
     }
     
-    public P2HardDiskWall(Simulation sim, double d) {
-        super(sim);
+    public P2HardDiskWall(PotentialGroup parent, double d) {
+        super(parent);
         setCollisionDiameter(d);
-        ZERO = sim.space.makeTensor();//temporary
+        ZERO = parentSimulation().space.makeTensor();//temporary
     }
     
     public static EtomicaInfo getEtomicaInfo() {
