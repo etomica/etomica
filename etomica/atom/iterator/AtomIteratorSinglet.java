@@ -97,7 +97,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
      * not advance iterator.
      */
     public AtomSet peek() {
-    	return hasNext ? null : atom;
+    	return hasNext ? atom : null;
     }
     
     public final int nBody() {return 1;}
