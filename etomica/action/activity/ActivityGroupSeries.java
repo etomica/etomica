@@ -159,6 +159,6 @@ public class ActivityGroupSeries extends Activity {
     protected Action[] actions = new Action[0];
     protected Action[] completedActions = new Action[0];
 
-}//end of Controller
+}//end of ActivityGroupSeries
 
 
