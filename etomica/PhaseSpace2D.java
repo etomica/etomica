@@ -4,38 +4,76 @@ public class PhaseSpace2D extends PhaseSpace {
     
     public PhaseSpace2D() {}
  
-    public PhaseSpace.Coordinate makeCoordinate(Atom atom) {
-        return new Coordinate(atom);
-    }
+    public PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
+    public PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
+    public PhaseSpace.AtomPair makeAtomPair(Atom a1, Atom a2) {return new AtomPair(a1, a2);}
     
     public final AtomPairIterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(iF,iL,oF,oL);}
     public final AtomPairIterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(iL,oF,oL);}
     public final AtomPairIterator.A makePairIteratorFull() {return new PairIteratorFull();}
     public final AtomPairIterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
  
-    class Coordinate implements PhaseSpace.Coordinate {
-        Coordinate(Atom a) {atom = a;}  //constructor
-        public final Atom atom;
-        public final Vector r = new Vector();  //Cartesian coordinates
-        public final Vector p = new Vector();  //Momentum vector
-        public final SpaceVector makeVector() {return new Vector();}
-        Coordinate nextCoordinate;
-        Coordinate previousCoordinate;
-        public final void setNextCoordinate(PhaseSpaceCoordinate c) {
-           nextCoordinate = (Coordinate)c;
-           if(c != null) {((Coordinate)c).previousCoordinate = this;}
-        }
-        public final void clearPreviousCoordinate() {previousCoordinate = null;}
-    }    
-    
-    public class Vector implements SpaceVector {
+    public class Vector implements PhaseSpace.Vector {
         double x = 0.0;
         double y = 0.0; 
     }
+    abstract class Coordinate implements PhaseSpace.Coordinate {
+        public final Vector r = new Vector();  //Cartesian coordinates
+        public final Vector p = new Vector();  //Momentum vector
+        public double mass;
+    }    
     
-    private class IAtomPair implements AtomPair {  //Inner AtomPair class
+    //much of AtomCoordinate and MoleculeCoordinate are identical in every PhaseSpace class
+    //They are duplicated because they extend Coordinate, which is unique to each PhaseSpace
+    final class AtomCoordinate extends Coordinate implements PhaseSpace.AtomCoordinate {
+        AtomCoordinate nextCoordinate, previousCoordinate;
+        AtomCoordinate(Atom a) {atom = a;}  //constructor
+        public final Atom atom;
+        
+        //following methods are same in all PhaseSpace classes
+        public final void setNextCoordinate(PhaseSpace.Coordinate c) {
+           nextCoordinate = (AtomCoordinate)c;
+           if(c != null) {((AtomCoordinate)c).previousCoordinate = this;}
+        }
+        public final void clearPreviousCoordinate() {previousCoordinate = null;}
+        public final Atom previousAtom() {
+            AtomCoordinate c = atom.coordinate.previousCoordinate;
+            return (c==null) ? null : c.atom;
+        }
+        public final Atom nextAtom() {
+            AtomCoordinate c = atom.coordinate.nextCoordinate;
+            return (c==null) ? null : c.atom;
+        }
+    }    
+    final class MoleculeCoordinate extends Coordinate implements PhaseSpace.MoleculeCoordinate {
+        MoleculeCoordinate nextCoordinate, previousCoordinate;
+        MoleculeCoordinate(Molecule m) {molecule = m;}  //constructor
+        public final Molecule molecule;
+        public final void setNextCoordinate(PhaseSpace.Coordinate c) {
+           nextCoordinate = (MoleculeCoordinate)c;
+           if(c != null) {((MoleculeCoordinate)c).previousCoordinate = this;}
+        }
+        public final void clearPreviousCoordinate() {previousCoordinate = null;}
+        public final Molecule previousMolecule() {
+            MoleculeCoordinate c = molecule.coordinate.previousCoordinate;
+            return (c==null) ? null : c.molecule;
+        }
+        public final Molecule nextMolecule() {
+            MoleculeCoordinate c = molecule.coordinate.nextCoordinate;
+            return (c==null) ? null : c.molecule;
+        }
+    }    
+    
+    private class AtomPair implements PhaseSpace.AtomPair {  //Inner AtomPair class
         Coordinate c1;
         Coordinate c2;
+        public AtomPair() {}
+        public AtomPair(Atom a1, Atom a2) {
+            if(a1 != null && a2 != null) {
+                c1 = (Coordinate)a1.coordinate;
+                c2 = (Coordinate)a2.coordinate;
+            }
+        }
         
         public double r2() {
             double dx = c1.r.x - c2.r.x;   //change for PBC
@@ -52,7 +90,7 @@ public class PhaseSpace2D extends PhaseSpace {
     
     //"Full" --> Each iteration of inner loop begins with same first atom
     private class PairIteratorFull implements AtomPairIterator.A {
-        final IAtomPair pair = new IAtomPair();
+        final AtomPair pair = new AtomPair();
         Coordinate outer, inner;
         private Coordinate iFirst, iLast, oLast;
         private boolean hasNext;
@@ -83,7 +121,7 @@ public class PhaseSpace2D extends PhaseSpace {
     
     //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
     private class PairIteratorHalf implements AtomPairIterator.A {
-        final IAtomPair pair = new IAtomPair();
+        final AtomPair pair = new AtomPair();
         Coordinate outer, inner;
         private Coordinate iFirst, iLast, oLast;
         private boolean hasNext;

@@ -3,22 +3,47 @@ package simulate;
 public abstract class PhaseSpace extends Component {
 
     
-    public abstract PhaseSpace.Coordinate makeCoordinate();
+    public abstract PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a);      //PhaseSpace prefix is redundant
+    public abstract PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m);
+    public abstract PhaseSpace.AtomPair makeAtomPair(Atom a1, Atom a2);
     public abstract AtomPairIterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
     public abstract AtomPairIterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
     public abstract AtomPairIterator.A makePairIteratorFull();
     public abstract AtomPairIterator.A makePairIteratorHalf();
     
-    
-    abstract class Coordinate {
-        public abstract void setNextCoordinate(PhaseSpace.Coordinate c);
-        public abstract void clearPreviousCoordinate();
+
+//  Vector contains what is needed to describe a point in the space
+    interface Vector {}
+
+//  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
+    interface Coordinate {
+        public void setNextCoordinate(Coordinate c);
+        public void clearPreviousCoordinate();
         
-        public final void setNextAtom(Atom a) {
-            if(a == null) {setNextCoordinate(null);}
-            else {setNextCoordinate(a.coordinate);}
-        }
-        public final void clearPreviousAtom() {clearPreviousCoordinate();}
+    /*   //insert abstract methods:  displaceTo, translate, etc.
+        translateTo
+        translateBy
+        displaceTo
+        displaceBy
+        replace
+        inflate
+        kineticEnergy
+        */
+    }
+    
+    interface AtomCoordinate extends Coordinate {      //cannot be a class here because must inherit from Coordinate as it is defined in the PhaseSpace subclass
+        public Atom nextAtom();
+        public Atom previousAtom();
+    }
+    interface MoleculeCoordinate extends Coordinate {
+        public Molecule nextMolecule();
+        public Molecule previousMolecule();
+    }
+    
+    public interface AtomPair {
+        public double r2();
+        public Atom atom1();
+        public Atom atom2();
     }
     
     // Iterator for all intramolecular atom pairs within species

@@ -23,7 +23,7 @@ public abstract class Atom {
     public Atom(Molecule parent, int index) {
         parentMolecule = parent;
         atomIndex = index;
-        coordinate = parentMolecule.parentSpecies.parentPhaseSpace.makeCoordinate(this);
+        coordinate = parentMolecule.parentSpecies.parentPhaseSpace.makeAtomCoordinate(this);
         setStationary(false);
         setColor(Color.black);
     }
@@ -47,8 +47,11 @@ public abstract class Atom {
    * 
    * @param atom  the next atom in the list
    */
-  public final void setNextAtom(Atom atom) {coordinate.setNextAtom(atom);}
-  public final void clearPreviousAtom() {coordinate.clearPreviousAtom();}
+  public final void setNextAtom(Atom atom) {
+    if(atom==null) {coordinate.setNextCoordinate(null);}
+    else {coordinate.setNextCoordinate(atom.coordinate);}
+  }
+  public final void clearPreviousAtom() {coordinate.clearPreviousCoordinate();}
   public final Atom nextAtom() {return coordinate.nextAtom();}
   public final Atom previousAtom() {return coordinate.previousAtom();}
   
@@ -91,5 +94,5 @@ public abstract class Atom {
      */
     final int atomIndex;
     
-    public final PhaseSpace.Coordinate coordinate;
+    public final PhaseSpace.AtomCoordinate coordinate;
 }

@@ -45,13 +45,13 @@ public class Molecule implements Serializable {
   * Atoms in this molecule are part of a linked list of all atoms
   * in the simulation.  This is the first such atom in this molecule.
   */
-  SpaceAtom firstAtom;
+  Atom firstAtom;
   
  /**
   * Last atom in the molecule.
   * @see firstAtom
   */
-  SpaceAtom lastAtom;
+  Atom lastAtom;
   
  /**
   * Number of atoms in this molecule.  Assigned by species when invoking
@@ -69,8 +69,12 @@ public class Molecule implements Serializable {
   * @param parent      species in which this molecule resides
   * @param n           number of atoms in this molecule
   */
+  
+  public final PhaseSpace.MoleculeCoordinate coordinate;
+  
   public Molecule(Species parent, int n) {
     parentSpecies = parent;
+    coordinate = parentSpecies.parentPhaseSpace.makeMoleculeCoordinate(this);
     setNAtoms(n);
   }
   
@@ -78,13 +82,13 @@ public class Molecule implements Serializable {
   * Constructs atoms of molecule and links them, setting values of firstAtom and lastAtom.  
   * The number of atoms constructed is equal to the current value of nAtoms.
   * Does not handle linking to previous or next molecules' atoms
+  * Previously existing atoms are discarded
   */
   private final void makeAtoms() {
-    Atom generator = parentSpecies.atomGenerator;
-    firstAtom = generator.makeAtom(this,0);
+    firstAtom = new Atom(this,i);
     lastAtom = firstAtom;
     for(int i=1; i<nAtoms; i++) {
-        lastAtom.setNextAtom(generator.makeAtom(this,i));
+        lastAtom.setNextAtom(new Atom(this,i));
         lastAtom = lastAtom.getNextAtom();
     }
   }
@@ -98,32 +102,25 @@ public class Molecule implements Serializable {
   * Sets the number of atoms in the molecule, makes and links them, and
   * sets the molecular mass.  Does not handle linking of atoms to atoms
   * of other molecules.
+  * Any existing atoms are discarded
   */
   private final void setNAtoms(int n) {
     nAtoms = n;
     makeAtoms();
-//    orderAtoms();
     updateMass();
   }
 
-  /**
-   * Performs the list-linking of atoms in this molecule from the
-   * firstAtom to the lastAtom.  Does not handle linking of atoms
-   * to atoms of nextMolecule and previousMolecule
-   * 
-   * @see #setNextMolecule
-   */
- /* private final void orderAtoms() {
-    firstAtom = atom[0];
-    lastAtom = atom[nAtoms-1];
-    for(int i=1; i<nAtoms; i++) {atom[i-1].setNextAtom(atom[i]);}
-  }    
-  */
  /**
   * @return the next molecule following this one in the linked list of molecules,
   *         or null, if this is the lastMolecule in its phase
   */
-  public final Molecule getNextMolecule() {return nextMolecule;}
+  public final Molecule nextMolecule() {return coordinate.nextMolecule();}
+  
+ /**
+  * @return the previous molecule before this one in the linked list of molecules,
+  *         or null, if this is the firstMolecule in its phase
+  */
+  public final Molecule previousMolecule() {return coordinate.previousMolecule();}  
   
  /**
   * Sets the argument to be this molecule's nextMolecule.  Also sets
@@ -133,32 +130,21 @@ public class Molecule implements Serializable {
   * @param m   The molecule (possibly null) to be identified as this molecule's nextMolecule.
   */
   public final void setNextMolecule(Molecule m) {
-    this.nextMolecule = m;
-    if(m == null) {
-        this.lastAtom.setNextAtom(null);
-        return;
+    if(m==null) {
+        coordinate.setNextCoordinate(null);
+        lastAtom.setNextAtom(null);
     }
-    m.previousMolecule = this;
-    this.lastAtom.setNextAtom(m.firstAtom);
+    else {
+        coordinate.setNextCoordinate(m.coordinate);
+        lastAtom.setNextAtom(m.firstAtom);
+    }
   }
   
   public final void clearPreviousMolecule() {  //use setNextMolecule to set previousMolecule to non-null
-    previousMolecule = null;
+    coordinate.clearPreviousCoordinate();
     firstAtom.clearPreviousAtom();
   }
  
- /**
-  * @return the previous molecule before this one in the linked list of molecules,
-  *         or null, if this is the firstMolecule in its phase
-  */
-  public final Molecule getPreviousMolecule() {return previousMolecule;}  
-  
- /** Returns the squared distance of the center-of-mass of this
-   * molecule relative to its value since the last call to updateNeighborList
-   * Use is discouraged
-   */
-  public final double getSquareDisplacement() {return parentSpecies.parentPhase.space.r1Mr2_S(COM(),r0);}
-  
  /**
    * Returns the intramolecular potential that governs interactions of all 
    * atoms of this molecule.
@@ -176,25 +162,7 @@ public class Molecule implements Serializable {
   * @see Potential2
   */
   public final Potential2[] getP2() {return parentSpecies.parentPhase.potential2[getSpeciesIndex()];}
- 
- /**
-  * Sets to zero this molecule's force vector
-  */
-  public final void zeroForce() {Space.uEa1(f, 0.0);}
-  
- /**
-  * Increments this molecule's force vector
-  *
-  * @param force the force vector being added to this molecule's force
-  */
-  public final void addForce(double[] force) { Space.uPEv1(f, force);}
- /**
-  * Decrements this molecule's force vector
-  *
-  * @param force the force vector being subtracted from this molecule's force
-  */
-  public final void subtractForce(double[] force) {Space.uMEv1(f, force);}  
-  
+   
  /**
   * Each species has a unique integer index that is used to identify the correct
   * intra- and inter-molecular potentials for its molecules.
@@ -212,16 +180,8 @@ public class Molecule implements Serializable {
   * @return the phase in which this molecule resides
   */
   public final PhaseSpace getPhase() {return parentSpecies.parentPhase;}
- 
- /**
-  * Returns stored value of this molecule's mass; assumes that atom masses and/or number
-  * of atoms is same as when updateMass was last invoked
-  * @see #updateMass
-  * @return the total mass of this molecule, in amu
-  */
-  public final double getMass() {return this.mass;}
-  
- /**
+   
+/* /**
   * Computes the total mass of this molecule by summing the masses
   * of its constituent atoms.  Also updates the center-of-mass fraction
   * of all its atoms.
@@ -230,9 +190,9 @@ public class Molecule implements Serializable {
   */
   public final void updateMass() {
     this.mass = 0.0;
-    for(SpaceAtom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
-    for(SpaceAtom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
-  }
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {this.mass += ((AtomC)a).getMass();}
+    for(Atom a=firstAtom(); a!=terminationAtom(); a=a.getNextAtom()) {((AtomC)a).updateCOMFraction();}
+  }*/
   
   
  /**
@@ -241,12 +201,7 @@ public class Molecule implements Serializable {
   *
   * @return  kinetic energy in (amu)(Angstrom)<sup>2</sup>(ps)<sup>-2</sup>
   */
-  public double kineticEnergy() {
-    double energy = 0.0;
-    SpaceAtom nextMoleculeAtom = lastAtom.getNextAtom();  //so not computed each time through loop
-    for(SpaceAtom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {energy += ((AtomC)a).kineticEnergy();}
-    return energy;
-  }
+  public final double kineticEnergy() {return coordinate.kineticEnergy();}
   
     /**
      * Displaces all atoms in this molecule by a vector dr.  Does not store original coordinates.
@@ -254,21 +209,9 @@ public class Molecule implements Serializable {
      * @param dr  vector specifying change in position
      * @see #displace
      */
-  public final void translate(double[] dr) {
-    SpaceAtom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(SpaceAtom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(dr);}
-  }
-    /**
-     * Displaces all atoms in this molecule the distance dr in one coordinate direction.
-     *
-     * @param i   index specifying coordinate direction of displacement
-     * @param dr  displacement distance
-     */
-  public final void translate(int i, double dr) {
-    SpaceAtom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(SpaceAtom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {((AtomC)a).translate(i,dr);}
-  }
-  
+  public final void translateTo(PhaseSpace.Vector v) {coordinate.translateTo(v);}
+  public final void translateBy(PhaseSpace.Vector v) {coordinate.translateBy(v);}
+
     /**
      * Displaces all atoms in molecule by a vector dr, saving their original positions,
      * which can be recovered by call to replace.  Useful for moving molecules in 
@@ -278,20 +221,13 @@ public class Molecule implements Serializable {
      * @see #replace
      * @see #translate
      */
-   public final void displace(double[] dr) {   //need to revise this
-    SpaceAtom nextMoleculeAtom = terminationAtom();
-    for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {a.displace(dr);}
-   }
-   
+   public final void displaceTo(PhaseSpace.Vector v) {coordinate.displace(v);}
      /**
       * Puts molecule's atoms back in position held before last call to displace
       *
       * @see #displace
       */
-   public final void replace() {    //need to revise this
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {a.replace();}
-   }
+   public final void replace() {coordinate.replace();}    //need to revise this
 
   /**
    * Rescales this particle's center of mass to new position corresponding to a 
@@ -302,10 +238,10 @@ public class Molecule implements Serializable {
    *
    * @see replace
    */
-   public void inflate(double scale) {
-      Space.uEa1Tv1(dr,scale-1.0,COM());
+   public void inflate(double scale) {coordinate.inflate();}
+/*      Space.uEa1Tv1(dr,scale-1.0,COM());
       this.displace(dr);
-   }
+   }*/
     
   /**
    * Computes and returns the center-of-mass vector of this molecule.  Value is not stored,
@@ -313,11 +249,11 @@ public class Molecule implements Serializable {
    *
    * @return center-of-mass coordinate vector of this molecule, in Angstroms
    */
-  public final double[] COM() {
-    if(nAtoms == 1) {return ((AtomC)firstAtom).r;}
+/*  public final double[] COM() {
+    if(nAtoms == 1) {return firstAtom.r;}
     Space.uEa1(r,0.0);
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(AtomC a=(AtomC)firstAtom; a!=nextMoleculeAtom; a=(AtomC)a.getNextAtom()) {
+    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {
         Space.uPEa1Tv1(r,a.getCOMFraction(),a.r);
     }
     return r;
@@ -333,7 +269,7 @@ public class Molecule implements Serializable {
     Space.uEv1(dr,COM());
     Space.uTEa1(dr,-1.0);
     translate(dr);  //zero center-of-mass
-  }
+  }*/
   
  /* public final void accelerate(int i, double dp) {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
@@ -346,7 +282,7 @@ public class Molecule implements Serializable {
     return (getSquareDisplacement() > parentSpecies.neighborUpdateSquareDisplacement);
   }
  */
-  public final void addNeighbor(Molecule m) {neighbors.addElement(m);}
+/*  public final void addNeighbor(Molecule m) {neighbors.addElement(m);}
   public final void clearNeighborList() {neighbors.removeAllElements();}
   public final Enumeration getNeighborList() {return neighbors.elements();}
   public final boolean hasNeighbor(Molecule m) {return neighbors.contains(m);}
@@ -362,7 +298,7 @@ public class Molecule implements Serializable {
         if(p2[m.getSpeciesIndex()].isNeighbor(this,m)) {addNeighbor(m);}
     }
     Space.uEv1(r0,COM());
-  }
+  }*/
   
   /**
    * Draws this molecule by calling its atoms' draw routines. 
@@ -378,8 +314,8 @@ public class Molecule implements Serializable {
     for(Atom a=firstAtom; a!=terminator; a=a.getNextAtom()) {a.draw(g, origin, scale);}
   }
   
-  public final SpaceAtom firstAtom() {return firstAtom;}
-  public final SpaceAtom lastAtom() {return lastAtom;}
-  public final SpaceAtom terminationAtom() {return lastAtom.getNextAtom();}
+  public final Atom firstAtom() {return firstAtom;}
+  public final Atom lastAtom() {return lastAtom;}
+  public final Atom terminationAtom() {return lastAtom.getNextAtom();}
   
 }

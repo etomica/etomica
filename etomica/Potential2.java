@@ -4,7 +4,6 @@ import java.awt.Graphics;
 
 public abstract class Potential2 extends Component {
 
-  Space space;
   int species1Index, species2Index;
   Potential[][] potential;
   int nAtoms1, nAtoms2;
@@ -34,14 +33,6 @@ public abstract class Potential2 extends Component {
         }
     }
   }
-  public void setSpace(Space s) {
-    space = s;
- /*   for(int i1=0; i1<nAtoms1; i1++) {
-        for(int i2=0; i2<nAtoms2; i2++) {
-            potential[i1][i2].space = s;
-        }
-    }
-  */}
   
   public final double getNeighborRadius() {return neighborRadius;}
   
