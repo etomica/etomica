@@ -22,9 +22,14 @@ public class TreeLinker {
      */
     public TreeLinker(Object o) {
         obj = o;
+        sortKey = 0.0;
         if (Debug.ON) {
             nextLeft = previous = nextRight = null;
         }
+    }
+    
+    public String toString() {
+        return "TreeLinker ("+obj.toString()+" "+sortKey+")";
     }
 
     /**
