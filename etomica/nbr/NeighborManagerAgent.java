@@ -31,15 +31,16 @@ public class NeighborManagerAgent {
      * @return index associated with potential
      */
     public int getPotentialIndex(Potential potential) {
-    	if(potentials[mostRecentIndex]==potential) return mostRecentIndex;
-    	else {
-    		mostRecentIndex = -1;
-    		while(true) {//potential not in list will lead to ArrayIndexOutOfBoundsException 
-    			if(potentials[++mostRecentIndex]==potential) {
-    				return mostRecentIndex; 
-    			}
-    		}
-    	}
+        if(mostRecentIndex > -1 && potentials[mostRecentIndex]==potential) return mostRecentIndex;
+
+        mostRecentIndex = -1;
+        while(++mostRecentIndex < potentials.length) {
+            if(potentials[mostRecentIndex]==potential) {
+                return mostRecentIndex; 
+            }
+        }
+        mostRecentIndex = addPotential(potential); 
+        return mostRecentIndex;
     }
     
     /**
@@ -98,7 +99,7 @@ public class NeighborManagerAgent {
     }
     
     private Potential[] potentials = new Potential[0];
-    private int mostRecentIndex = 0;
+    private int mostRecentIndex = -1;
     private NeighborCriterion[] criteria = new NeighborCriterion[0];
 
 }

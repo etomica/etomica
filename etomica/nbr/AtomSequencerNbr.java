@@ -21,36 +21,31 @@ import etomica.utility.ObjectArrayList;
  */
 public class AtomSequencerNbr extends AtomSequencerCell {
 
-	protected AtomArrayList[] upList, downList;
+    protected AtomArrayList[] upList, downList;
     protected ObjectArrayList[] upListNearestImageVector, downListNearestImageVector;
 	
-	/**
-	 * Constructs sequencer for the given atom.
-	 */
-	public AtomSequencerNbr(Atom a) {
-		super(a);
-		upList = new AtomArrayList[0];
-		downList = new AtomArrayList[0];
+    /**
+     * Constructs sequencer for the given atom.
+     */
+    public AtomSequencerNbr(Atom a) {
+        super(a);
+        upList = new AtomArrayList[0];
+        downList = new AtomArrayList[0];
         upListNearestImageVector = new ObjectArrayList[0];
         downListNearestImageVector = new ObjectArrayList[0];
-	}
-	
+    }
+    
     /**
      * Adds the given atom to the neighbor set that are uplist of
      * this sequencer's atom and which interact via the given potential.  
      * @param a the new uplist neighbor atom
      * @param potential the potential between the atoms
      */
-	public void addUpNbr(Atom a, Potential potential) {
-		int index = 0;
-		try {
-			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
-			upList[index].add(a);
-		} catch(ArrayIndexOutOfBoundsException e) {
-			index = addPotential(potential);
-			upList[index].add(a);
-		}
-	}
+    public void addUpNbr(Atom a, Potential potential) {
+        int index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+        ensureCapacity(index);
+        upList[index].add(a);
+    }
 
     /**
      * Adds the given atom to the neighbor set that are downlist of
@@ -59,33 +54,28 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param potential the potential between the atoms
      */
     public void addDownNbr(Atom a, Potential potential) {
-		int index = 0;
-		try {
-			index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
-			downList[index].add(a);
-		} catch(ArrayIndexOutOfBoundsException e) {
-			index = addPotential(potential);
-			downList[index].add(a);
-		}
-	}
-	
+        int index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+        ensureCapacity(index);
+        downList[index].add(a);
+    }
+
     /**
      * Returns an array of uplist-neighbor-atom lists.  Each list in the
      * array corresponds to a specific potential. A zero-length list indicates
      * that no concrete potentials apply to the atom.
      */
-	public AtomArrayList[] getUpList() {
-		return upList;
-	}
+    public AtomArrayList[] getUpList() {
+        return upList;
+    }
 	
     /**
      * Returns an array of downlist-neighbor-atom lists.  Each list in the
      * array corresponds to a specific potential. A zero-length list indicates
      * that no concrete potentials apply to the atom.
      */
-	public AtomArrayList[] getDownList() {
-		return downList;
-	}
+    public AtomArrayList[] getDownList() {
+        return downList;
+    }
     
     /**
      * Indicates that the given potential is involved in this sequencer's
@@ -95,16 +85,14 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @return index of the neighbor-list arrays giving the list of atoms
      * associated with the potential
      */
-	public int addPotential(Potential p) {
-		int index = atom.type.getNbrManagerAgent().addPotential(p);
-		while (index > upList.length-1) {
+    public void ensureCapacity(int index) {
+        while (index > upList.length-1) {
             upList = (AtomArrayList[])Arrays.addObject(upList, new AtomArrayList());
             downList = (AtomArrayList[])Arrays.addObject(downList, new AtomArrayList());
             upListNearestImageVector = (ObjectArrayList[])Arrays.addObject(upListNearestImageVector, new ObjectArrayList());
             downListNearestImageVector = (ObjectArrayList[])Arrays.addObject(downListNearestImageVector, new ObjectArrayList());
         }
-		return index;
-	}
+    }
 	
     /**
      * Indicates that neighbor lists will no longer be kept for the given potential.
