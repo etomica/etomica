@@ -1,4 +1,4 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 
 public interface Primitive3D {
     
