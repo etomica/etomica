@@ -13,6 +13,11 @@ package etomica;
 
 public abstract class MCMove implements java.io.Serializable {
 
+    /**
+     * @param potentialMaster the potential master that move can use to calculate energy
+     * @param nPhases the number of phases on which the move acts.  This is used at
+     * construction to size the (final) phases array and cannot be changed.
+     */
 	public MCMove(PotentialMaster potentialMaster, int nPhases) {
 		this.potential = potentialMaster;
 		nTrials = 0;
@@ -101,11 +106,22 @@ public abstract class MCMove implements java.io.Serializable {
 	 */
 	public abstract double energyChange(Phase phase);
 
+    /**
+     * Sets the phase(s) on which this move acts.  The number of phases is set
+     * at construction, and the size of the given array must equal this value.
+     * The phase(s) itself can be changed via this method, if desired.  Most moves
+     * act on only one phase, but some (such as a volume exchange move) involve
+     * two or more phases.
+     * @param p
+     */
 	public void setPhase(Phase[] p) {
         if(p.length != phases.length) throw new IllegalArgumentException("Invalid number of phases for MCMove");
 		System.arraycopy(p, 0, phases, 0, p.length);
 	}
 
+    /**
+     * @return the phase(s) on which this move acts.
+     */
 	public Phase[] getPhase() {
 		return phases;
 	}
