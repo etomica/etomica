@@ -112,12 +112,6 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                     (2.0*mvsq + forceSumNPH.x + D*D*pCurrent*volume);
     }
     
-    public void scaleMomenta(double s) {
-        double rs = 1.0/s;
-        for(Atom a=firstPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-            a.coord.momentum().TE(s); //scale momentum
-        }
-    }
     protected void calculateForces() {
         
         //Compute all forces

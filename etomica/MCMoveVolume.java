@@ -67,10 +67,10 @@ public class MCMoveVolume extends MCMove {
                     
         Simulation sim = new Simulation(new Space2D());
         Simulation.instance = sim;
-        Species species = new SpeciesSpheres(sim);
+        Species species = new SpeciesSpheresMono(sim);
 //        species.setNMolecules(2);
-//        P2HardSphere potential = new P2HardSphere();
-        Potential potential = new P2LennardJones();
+        P2HardSphere potential = new P2HardSphere();
+//        Potential potential = new P2LennardJones();
         IntegratorMC integrator = new IntegratorMC(sim);
         MCMove mcMoveAtom = new MCMoveAtom(integrator);
         MCMove mcMoveVolume = new MCMoveVolume(integrator);

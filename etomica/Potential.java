@@ -20,7 +20,6 @@ public abstract class Potential extends SimulationElement {
         
     public final String getLabel() {return label;}
     public final void setLabel(String text) {label = text;}
-    public String toString() {return label;}
         
     public abstract void calculate(IteratorDirective id, PotentialCalculation pc);
     

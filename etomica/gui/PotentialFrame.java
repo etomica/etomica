@@ -143,6 +143,8 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
      * Instance ID number for differentiating between objects of this type
      */
     private static int IDnumber = 0;
+    
+    protected javax.swing.JCheckBox groupCheckBox = new javax.swing.JCheckBox("Make as group");
 
     public SimulationEditor simulationEditor;
     /**
@@ -179,6 +181,12 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
             super.setTitle("P2 Potentials");
             makeRadioButtons(potential2Classes,9);
    //         addDefineMolecule();   commented out until perfected
+   
+            gbl.setConstraints(groupCheckBox, gbc);
+            potentialPanel.add(groupCheckBox);
+            gbc.gridy++;
+            panelHeight += radioButtonHeight;// Accounts for height of the new radioButton
+            
             addP1P2ActionListener();
         }
         else {
@@ -310,7 +318,13 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
     	                            potential.setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
 	                            }
 	                            else component = ((Class)currentButton.cls).newInstance();
-	                            
+	                            //------------
+	                            if(groupCheckBox.isSelected()) {
+	                                Potential2Group pGroup = new Potential2Group();
+	                                pGroup.addPotential((Potential)component);
+	                                component = pGroup;
+	                            }
+	                            //------------
                                 ((Potential2)component).setSpecies(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).species1,
                                                                    ((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).species2);
 	                            ((Potential2)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));

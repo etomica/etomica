@@ -181,9 +181,12 @@ public class MCMoveSemigrand extends MCMove {
 	    IntegratorMC integrator = new IntegratorMC();
 	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
 	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
+	    //one species with 3 atoms per molecule
 	    SpeciesSpheres species0 = new SpeciesSpheres(10,3);
+	    //two species with 1 atom per molecule
 	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(0);
 	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(4);
+	    
 	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
 	    species0.setColor(java.awt.Color.red);
 	    species2.setColor(java.awt.Color.green);
@@ -197,20 +200,29 @@ public class MCMoveSemigrand extends MCMove {
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
 	    P2HardSphere potential22 = new P2HardSphere(1.0);*/
+	    
+	    //intramolecular potential for 3-atom molecules
 	    Potential1Group potential0 = new Potential1Group();
 	    P2Tether p2Tether = new P2Tether(potential0);
 	    p2Tether.setIterator(new AtomPairIterator(Simulation.instance.space,
 	            new AtomIteratorSequential(false),
 	            new AtomIteratorBonds()));
 	    potential0.addPotential(p2Tether);
+	    
+	    //hard-sphere intermolecular potential for 3-atom molecules
 	    Potential2Group potential00 = new Potential2Group();
 	    potential00.addPotential(new P2HardSphere(potential00, 3.0));
+	    //0-1 species potential
 	    Potential2Group potential01 = new Potential2Group();
 	    potential01.addPotential(new P2HardSphere(potential01, 4.0));
+	    //0-2 species potential
 	    Potential2Group potential02 = new Potential2Group();
 	    potential02.addPotential(new P2HardSphere(potential02, 2.0));
+	    //1-1 species potential
 	    P2HardSphere potential11 = new P2HardSphere(5.0);
+	    //1-2 species potential
 	    P2HardSphere potential12 = new P2HardSphere(3.0);
+	    //2-2 species potential
 	    P2HardSphere potential22 = new P2HardSphere(1.0);
 	    potential0.setSpecies(species0);
 	    potential00.setSpecies(species0, species0);

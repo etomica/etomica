@@ -45,6 +45,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         super(sim, makeFactory(sim.space(), nA, bondInitializer, config));
         protoType = (AtomType.Sphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
+        mass = protoType.getMass();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -66,6 +67,16 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
                     
     public final Color getColor() {return protoType.color();}
     public final void setColor(Color c) {protoType.setColor(c);}
+    
+    public void setAtomsPerMolecule(final int n) {
+        ((AtomFactoryHomo)factory).setAtomsPerGroup(n);
+        allAgents(new AtomAction() {public void actionPerformed(Atom a) {
+            SpeciesAgent agent = (SpeciesAgent)a;
+            agent.setNMolecules(agent.getNMolecules(),true);}});
+    }
+    public int getAtomsPerMolecule() {
+        return ((AtomFactoryHomo)factory).getAtomsPerGroup();
+    }
 
     /**
      * Demonstrates how this class is implemented.

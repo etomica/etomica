@@ -112,6 +112,7 @@ public class UnitEditor extends PropertyEditorSupport
 	        unit = new Unit(prefix, baseUnit);
     	    setupNames();
 	        setValue(unit);
+	        unitList.getTopLevelAncestor().repaint();
 	    }
 	    return -1;  //indicate no selection of combobox items
 	 }

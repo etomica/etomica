@@ -7,7 +7,7 @@ public final class Default {
     
     public static String WORKING_DIRECTORY = getWorkingDirectory();
   //  public static String WORKING_DIRECTORY = "D:\\Etomica\\";
- //   public static String WORKING_DIRECTORY = "";
+//   public static String WORKING_DIRECTORY = "";
     
     public static String CLASS_DIRECTORY = WORKING_DIRECTORY + "etomica";
     
@@ -17,7 +17,7 @@ public final class Default {
         
     public static String JAVADOC_FILE = "http://www.ccr.buffalo.edu/etomica/JavaDoc/index.html";
 
-    public static boolean DISPLAY_USE_OPENGL = true;
+    public static /*final*/ boolean DISPLAY_USE_OPENGL = true;
     
     public static double ATOM_SIZE = 3.0;  //Angstroms
     

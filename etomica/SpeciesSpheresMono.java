@@ -36,6 +36,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     public SpeciesSpheresMono(Simulation sim, int nM) {
         super(sim, makeFactory(sim.space()));
         protoType = (AtomType.Sphere)((AtomFactoryMono)factory).type();
+        mass = protoType.getMass();
         nMolecules = nM;
     }
     

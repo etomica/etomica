@@ -282,6 +282,8 @@ public class Simulation implements java.io.Serializable {
         public java.awt.Component graphic(Object obj);
     }//end of GraphicalElement
 
+    public void makeAndDisplayFrame() {Simulation.makeAndDisplayFrame(this);}
+    
     public static final void makeAndDisplayFrame(Simulation sim) {
         javax.swing.JFrame f = new javax.swing.JFrame();
         f.setSize(700,500);

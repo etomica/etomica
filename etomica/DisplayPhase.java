@@ -58,7 +58,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     */
     protected final int[] centralOrigin = new int[D];
 
-    private int toPixels;
+    private double toPixels;
         
  /**
   * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
@@ -103,11 +103,11 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                 break;
             case 2:
                 canvas = new DisplayPhaseCanvas2D(this);
-                Default.DISPLAY_USE_OPENGL = false;
+/*comment this line for applet*/                Default.DISPLAY_USE_OPENGL = false;
                 break;
             case 1:
             default:
-                Default.DISPLAY_USE_OPENGL = false;
+/*comment this line for applet*/               Default.DISPLAY_USE_OPENGL = false;
                 canvas = new DisplayPhaseCanvas1D(this);
                 break;
         }
@@ -173,7 +173,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     public final boolean getDrawOverflow() {return drawOverflow;}
     public final void setDrawOverflow(boolean b) {drawOverflow = b;}
 
-    public int getToPixels() {return(toPixels);}
+    public double getToPixels() {return(toPixels);}
 
     public double getScale() {return scale;}
     public void setScale(double s) {
@@ -267,7 +267,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     }
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
-        toPixels = (int)(getScale()*BaseUnit.Length.Sim.TO_PIXELS);
+        toPixels = /*(int)*/(getScale()*BaseUnit.Length.Sim.TO_PIXELS);
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*phase().boundary().dimensions().component(0));
         drawSize[1] = (parentSimulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().component(1));

@@ -65,7 +65,7 @@ public class MCMoveRotate extends MCMove {
 	    integratorMC1.setDoSleep(false);
 
 	    meterp.setPhase(phase1);
-	    meterp.setInflateDimension(0);
+	    meterp.setInflateDimensions(new boolean[] {true, false});
 	    meterp.setActive(true);
         DisplayPlot plot1 = new DisplayPlot();
 	    plot1.setDataSources(meterp);

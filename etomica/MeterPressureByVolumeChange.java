@@ -7,32 +7,39 @@ import etomica.units.*;
  */
 public class MeterPressureByVolumeChange extends MeterFunction implements EtomicaElement {
     
-    PhaseAction.Inflate inflater;
-    double[] scale;
-    boolean isotropic = true;
-    int inflateDimension = 0; //keys direction for inflation if not isotropic
+    PhaseAction.InflateAnisotropic inflater;
+    Space.Vector[] scale;
+    Space space;
+    boolean[] inflateDimensions;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy;
     private final PotentialMaster potential;
+    private int nDimension;
     
     public MeterPressureByVolumeChange() {
-        this(0);
+        this(null);
     }
     
     /**
      * Constructor that indicates volume change should be performed anisotropically.
-     * @param i index of the dimension in which volume should be expanded (e.g. i = 0 indicates x-dimension)
+     * @param dimensions array indicating which dimensions should be inflated
      */
-    public MeterPressureByVolumeChange(int i) {
-        this(Simulation.instance, i);
+    public MeterPressureByVolumeChange(boolean[] dimensions) {
+        this(Simulation.instance, dimensions);
     }
     
-    public MeterPressureByVolumeChange(Simulation sim, int i) {
+    public MeterPressureByVolumeChange(Simulation sim, boolean[] dimensions) {
         super(sim);
+        space = sim.space;
         potential = sim.hamiltonian.potential;
         energy = sim.energySum(this);
         setX(-0.001, 0.001, 10);
-        setInflateDimension(i);
+        inflateDimensions = new boolean[space.D()];
+        if(dimensions == null) {
+            dimensions = new boolean[space.D()];
+            for(int i=0; i<dimensions.length; i++) dimensions[i] = true;
+        }
+        setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
     }
     
@@ -42,35 +49,27 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     }
 
     /**
-     * Method to indicate if volume change should or should not be performed isotropically.
-     */
-    public final void setIsotropic(boolean b) {
-        isotropic = b;
-        setX(xMin, xMax, nPoints);
-    }
-    /**
-     * Accessor method accompanying setIsotropic.
-     */
-    public boolean getIsotropic() {return isotropic;}
-    
-    /**
      * For anisotropic volume change, indicates dimension in which volume is perturbed.
      */
-    public final void setInflateDimension(int i) {
-        inflateDimension = i;
-        setIsotropic(false);
+    public final void setInflateDimensions(boolean[] directions) {
+        if(directions.length != inflateDimensions.length) {
+            throw new IllegalArgumentException();
+        }
+        nDimension = 0;
+        for(int i=0; i<directions.length; i++) {
+            inflateDimensions[i] = directions[i];
+            if(inflateDimensions[i]) nDimension++;
+            
+        }
     }
     /**
      * Accessor method for setInflateDimension.
      */
-    public int getInflateDimension() {return inflateDimension;}
-    
-    public boolean usesPhaseBoundary() {return false;}
-    public boolean usesPhaseIteratorFactory() {return false;}
+    public boolean[] getInflateDimensions() {return inflateDimensions;}
     
     public void setPhase(Phase p) {
         super.setPhase(p);
-        inflater = new PhaseAction.Inflate(p);
+        inflater = new PhaseAction.InflateAnisotropic(p);
     }
     
     public void setX(double min, double max, int n) {
@@ -79,11 +78,15 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         for(int i=0; i<nPoints; i++) { //disallow x = 0
             if(x[i] == 0.0) x[i] = 0.1*deltaX;
         }
-        scale = new double[nPoints];
+        scale = new Space.Vector[nPoints];
         
-        double mult = isotropic ? 1./(double)parentSimulation().space().D() : 1.0;
+        double mult = 1./(double)nDimension;
         for(int i=0; i<nPoints; i++) {
-            scale[i] = Math.exp(mult*x[i]);
+            scale[i] = space.makeVector();
+            scale[i].E(Math.exp(mult*x[i]));
+            for(int j=0; j<space.D(); j++) {
+                if(!inflateDimensions[j]) scale[i].setComponent(j,1.0);
+            }
         }
     }
     
@@ -91,14 +94,12 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
         for(int i=0; i<nPoints; i++) {
             double uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
             inflater.setScale(scale[i]);
-            if(isotropic) inflater.attempt();
-            else inflater.attempt(inflateDimension);
+            inflater.attempt();
             double uNew = potential.calculate(iteratorDirective, energy.reset()).sum();
             y[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
                               + phase.moleculeCount()*x[i]);
             
-            if (isotropic) inflater.undo();
-            else inflater.undo(inflateDimension);
+            inflater.undo();
             //System.out.println( "  uNew " + uNew +" uOld " +uOld +" x " + x[i] +" scale" + scale[i]+ " y " +y[i] );
         }
         return y;

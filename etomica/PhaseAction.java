@@ -83,49 +83,30 @@ public abstract class PhaseAction extends etomica.Action {
         
     }//end of ImposePBC
     
-    public static final class Inflate extends PhaseAction implements Action.Undoable {
-        
-        private double scale = 1.0;
-        private transient Space.Vector temp;
+    
+    /**
+     * Performs actions that cause volume of system to expand, with particle positions
+     * scaled to keep them in the same relative positions.  Inflation is done isotropically,
+     * equal in all coordinate directions.
+     */
+    public static final class Inflate extends InflateAnisotropic implements Action.Undoable {
         
         public Inflate(Phase p) {
             super(p);
-            if(p != null) temp = p.parentSimulation().space().makeVector();
         }
                 
-        public void setScale(double s) {scale = s;}
-        public double getScale() {return scale;}
+        public void setScale(double s) {scale.E(s);}
+ //       public double getScale() {return scale.getComponent(0);}
 
-        public void setPhase(Phase p) {
-            super.setPhase(p);
-            if(p != null && temp == null) temp = p.parentSimulation().space().makeVector();
+        public void actionPerformed(double s) {
+            setScale(s);
+            InflateAnisotropic.doAction(phase, scale, temp);
         }
- 
-        public void actionPerformed(double s) {doAction(phase, s, temp);}
-        public void actionPerformed(Phase p) {doAction(p, scale, temp);}
+        public void actionPerformed(Phase p) {InflateAnisotropic.doAction(p, scale, temp);}
 
-        //specific to 2D
-        public static void doAction(Phase phase, double scale, int i, Space.Vector work){
-            phase.boundary().dimensions().setComponent(i,scale*phase.boundary().dimensions().component(i));         
-            AtomIterator iterator = phase.moleculeIterator;
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom m = iterator.next();
-                if (i==0){
-                    work.setComponent(0, (scale-1.0)*((Space2D.Vector)m.coord.position()).x);
-                    work.setComponent(1,0.);
-                }
-                else {
-                    work.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.coord.position()).y);
-                    work.setComponent(0, 0.);                    
-                }
-                m.coord.translateBy(work);   //displaceBy doesn't use temp
-                phase.iteratorFactory().moveNotify(m);
- //               if(display != null && i % 10 ==0) display.repaint();
-            }
-        }
-        
-        
+        /**
+         * Performs isotropic inflation.
+         * /
         public static void doAction(Phase phase, double scale, Space.Vector work) {
             phase.boundary().inflate(scale);
             AtomIterator iterator = phase.moleculeIterator;
@@ -136,9 +117,10 @@ public abstract class PhaseAction extends etomica.Action {
                 m.coord.translateBy(work); 
                 phase.iteratorFactory().moveNotify(m);
             }
-        }
+        }*/
         
-        public void attempt() {
+  /*      public void attempt() {
+            oldDimensions.E(phase.boundary().dimensions());
             phase.boundary().inflate(scale);
             AtomIterator iterator = phase.moleculeIterator;
             iterator.reset();
@@ -150,7 +132,7 @@ public abstract class PhaseAction extends etomica.Action {
             }
         }
         public void undo() {
-            phase.boundary().inflate(1.0/scale);
+            phase.boundary().dimensions().E(oldDimensions);
             AtomIterator iterator = phase.moleculeIterator;
             iterator.reset();
             while(iterator.hasNext()) {
@@ -159,70 +141,72 @@ public abstract class PhaseAction extends etomica.Action {
                 phase.iteratorFactory().moveNotify(m);
             }
         }
-         
-        public void attempt(int i){
-            phase.boundary().dimensions().setComponent(i,scale*phase.boundary().dimensions().component(i));         
-            AtomIterator iterator = phase.moleculeIterator;
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom m = iterator.next();
-                if (i==0){
-                    temp.setComponent(0, (scale-1.0)*((Space2D.Vector)m.coord.position()).x);
-                    temp.setComponent(1,0.);
-                }
-                else {
-                    temp.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.coord.position()).y);
-                    temp.setComponent(0, 0.);                    
-                }
-                m.coord.displaceBy(temp);   //displaceBy doesn't use temp
-                phase.iteratorFactory().moveNotify(m);
- //               if(display != null && i % 10 ==0) display.repaint();
-            }
-        }
-        public void undo(int i){
-            phase.boundary().dimensions().setComponent(i,phase.boundary().dimensions().component(i)/scale);         
-            AtomIterator iterator = phase.moleculeIterator;
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom m = iterator.next();
-                m.coord.replace();
-                phase.iteratorFactory().moveNotify(m);
-            }
-        }
-        
-        public void attempt(Space.Vector vector){
-            temp.Ea1Tv1(scale-1.0,vector);
-            temp.PE(1.0);
-            phase.boundary().dimensions().TE(temp);
-
-            AtomIterator iterator = phase.moleculeIterator;
-            iterator.reset();
-               
-            while(iterator.hasNext()) {
-                Atom m = iterator.next();
-                        
-                temp.E(m.coord.position());
-                temp.TE(vector);
-                temp.TE(scale-1.0);
-                       
-                m.coord.displaceBy(temp);   //displaceBy doesn't use temp
-    //               if(display != null && i % 10 ==0) display.repaint();
-            }
-        }
-         
-        public void undo(Space.Vector vector){
-
-            temp.Ea1Tv1(scale-1.0,vector);
-            temp.PE(1.0);
-            phase.boundary().dimensions().DE(temp);
-
-            AtomIterator iterator = phase.moleculeIterator;
-            iterator.reset();
-            while(iterator.hasNext()) {
-                iterator.next().coord.replace();
-            }
-              
-        }
-         
+        */
     }//end of Inflate 
+
+    /**
+     * Performs actions that cause volume of system to expand, with particle positions
+     * scaled to keep them in the same relative positions.  Inflation is done anisotropically,
+     * so that each dimension can be scaled differently.
+     */
+    public static class InflateAnisotropic extends PhaseAction implements Action.Undoable {
+        
+        protected Space.Vector scale;
+        protected transient Space.Vector temp;
+        private transient Space.Vector oldDimensions;
+        
+        public InflateAnisotropic(Phase p) {
+            super(p);
+            if(p != null) {
+                scale = p.parentSimulation().space().makeVector();
+                temp = p.parentSimulation().space().makeVector();
+                oldDimensions = p.parentSimulation().space().makeVector();
+            }
+        }
+                
+        public void setScale(Space.Vector s) {scale = s;}
+        public Space.Vector getScale() {return scale;}
+
+        public void setPhase(Phase p) {
+            super.setPhase(p);
+            if(p != null && temp == null) temp = p.parentSimulation().space().makeVector();
+        }
+ 
+        public void actionPerformed(Phase p) {doAction(p, scale, temp);}
+
+        /**
+         * Performs anisotropic inflation.
+         * @param scale Vector describing scaling to be performed in each coordinate
+         *              direction.  scale(i) == 1 indicates no change in size in direction i.
+         */
+        public static void doAction(Phase phase, Space.Vector scale, Space.Vector work) {
+            phase.boundary().dimensions().TE(scale);
+            scale.PE(-1.0);
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                work.E(m.coord.position());
+                work.TE(scale);
+                m.coord.displaceBy(work);
+            }
+            scale.PE(1.0);
+        }
+
+        public void attempt() {
+            oldDimensions.E(phase.boundary().dimensions());
+            doAction(phase, scale, temp);
+        }
+        public void undo() {
+            phase.boundary().dimensions().E(oldDimensions);
+            AtomIterator iterator = phase.moleculeIterator;
+            iterator.reset();
+            while(iterator.hasNext()) {
+                Atom m = iterator.next();
+                m.coord.replace();
+                phase.iteratorFactory().moveNotify(m);
+            }
+        }
+    }//end of InflateAnisotropic 
+
 }//end of PhaseAction

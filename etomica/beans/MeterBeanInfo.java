@@ -7,14 +7,14 @@ import java.lang.reflect.Method;
 public class MeterBeanInfo extends SimpleBeanInfo {
     
     static {
-        PropertyEditorManager.registerEditor(Phase.class, PhaseEditor.class);
+//        PropertyEditorManager.registerEditor(Phase.class, PhaseEditor.class);
     }
     
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
             PropertyDescriptor phaseDescriptor =
                 new PropertyDescriptor("phase", MeterAbstract.class);
-            phaseDescriptor.setPropertyEditorClass(PhaseEditor.class);
+//            phaseDescriptor.setPropertyEditorClass(PhaseEditor.class);
 
             return new PropertyDescriptor[] {
                 phaseDescriptor,

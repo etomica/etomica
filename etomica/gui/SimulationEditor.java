@@ -97,7 +97,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         meterEditor = new SimulationEditorPane(this,"Meter");
         deviceEditor = new SimulationEditorPane(this,"Device");
         editorPanes.put(Potential1.class, potential1Editor);
-        editorPanes.put(Potential2.class, potential2Editor);
+        editorPanes.put(Potential.class, potential2Editor);
         editorPanes.put(Species.class, speciesEditor);
         editorPanes.put(Integrator.class, integratorEditor);
         editorPanes.put(Phase.class, phaseEditor);

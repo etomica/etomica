@@ -11,7 +11,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
-    private final static Color wellColor = new Color(185,185,185, 110);
+    private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
         
     public DisplayPhaseCanvas2D(DisplayPhase _phase) {
         scaleText.setVisible(true);
@@ -132,7 +132,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         if(!isVisible() || displayPhase.getPhase() == null) {return;}
         int w = getSize().width;
         int h = getSize().height;
-            
+        
+/** uncomment this section -------- commented for applet only  -------------         
         String vers = System.getProperty("java.version");
         if (vers.compareTo("1.2") >= 0) {
             Graphics2D g2 = (Graphics2D) g;
@@ -151,7 +152,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
                     RenderingHints.VALUE_COLOR_RENDER_QUALITY);
             }
         }
-            
+   */         
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayPhase.computeImageParameters2(w, h);

@@ -6,7 +6,7 @@ import java.beans.*;
 public class MeterDensityBeanInfo extends SimpleBeanInfo {
     
     static {
-        PropertyEditorManager.registerEditor(Phase.class, PhaseEditor.class);
+//        PropertyEditorManager.registerEditor(Phase.class, PhaseEditor.class);
     }
     
     public PropertyDescriptor[] getPropertyDescriptors() {
@@ -17,7 +17,7 @@ public class MeterDensityBeanInfo extends SimpleBeanInfo {
  //                                      MeterDensity.class.getMethod("setPhase",new Class[] {Phase.class}));
                 new PropertyDescriptor("phase", 
                                        MeterDensity.class);
-            phaseDescriptor.setPropertyEditorClass(PhaseEditor.class);
+//            phaseDescriptor.setPropertyEditorClass(PhaseEditor.class);
             return new PropertyDescriptor[] {
                 phaseDescriptor,
                 new PropertyDescriptor("active",MeterDensity.class),
