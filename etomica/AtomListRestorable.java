@@ -137,14 +137,14 @@ package etomica;
         System.out.println("Original list");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.remove(7);
         list.remove(2);
         System.out.println("Removed elements 7 and 2");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.add(species.factory.makeAtom());
         list.add(species.factory.makeAtom());
@@ -152,104 +152,117 @@ package etomica;
         System.out.println("Added 3 atoms");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored again (should be no change)");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.clear();
         System.out.println("Cleared list");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
  
         list.add(species.factory.makeAtom());
         list.add(species.factory.makeAtom());
         System.out.println("Added 2 atoms");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.clearMemory();
         list.add(species.factory.makeAtom());
         System.out.println("Cleared memory and added 1 atom");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored (should have two extra atoms)");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
-        Atom last = list.removeLast();
         Atom first = list.removeFirst();
         list.addFirst(species.factory.makeAtom());
         System.out.println("Removed first and last and added a new first");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.removeFirst();
         list.add(first);
         System.out.println("Removed new first and added original first at end");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.clear();
         list.clearMemory();
         System.out.println("Cleared list and memory");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored; should still be empty");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.next().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.add(species.factory.makeAtom());
         list.add(species.factory.makeAtom());
         System.out.println("Added 2 atoms");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored; should be empty");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
         list.restore();
         System.out.println("Restored again (should be no change)");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.nextAtom().toString());
-        if(pauseForInput) IteratorDirective.pauseForInput();
+        if(pauseForInput) pauseForInput();
         
     }//end main
+
+    /**
+     * Halts program activity until a return is entered from the console.
+     * Support method for testSuite method.
+     */
+    public static void pauseForInput() {
+        System.out.println("Hit return to continue");
+        try {
+            System.in.read();
+            System.in.read();
+        } catch(Exception e) {}
+    }
+
+    
  }//end AtomListRestorable
