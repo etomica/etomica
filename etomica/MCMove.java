@@ -3,10 +3,10 @@ package etomica;
 /**
  * Parent class for all elementary Monte Carlo move classes, as used by
  * IntegratorMC class. Includes actions needed to complete trial move, and
- * reports numbers needed to determined if move is accepted.<br>
- * Subclasses should set value of nominal frequency and perParticleFrequency flag if
- * the move is to be performed at a rate different from the defaults.  Default
- * nominalFrequency is 100, and isPerParticleFrequency is false.
+ * reports numbers needed to determine if move is accepted. <br>
+ * Subclasses should set value of nominal frequency and perParticleFrequency
+ * flag if the move is to be performed at a rate different from the defaults.
+ * Default nominalFrequency is 100, and perParticleFrequency is false.
  * 
  * @author David Kofke
  */
@@ -30,10 +30,12 @@ public abstract class MCMove implements java.io.Serializable {
 	 *            indicates whether the most recently attempted move was
 	 *            accepted
 	 * @param doAdjustStepSize
-	 *            indicates whether move should perform any adjustments of its
-	 *            step size based on the acceptance history; typically this will
-	 *            be false if the integrator is in production mode, and true if
-	 *            it is still equilibrating
+	 *            indicates whether move is permitted to perform any adjustments
+	 *            of its step size based on the acceptance history; typically
+	 *            this will be false if the integrator is in production mode,
+	 *            and true if it is still equilibrating. Adjustment will be
+	 *            performed only if doAdjustStepSize is true and current number
+	 *            of trials since last adjustment exceeds adjustInterval.
 	 */
 	public void updateCounts(boolean moveWasAccepted, boolean doAdjustStepSize) {
 		nTrials++;
@@ -104,7 +106,7 @@ public abstract class MCMove implements java.io.Serializable {
 	}
 
 	public void setPhase(Phase p) {
-//		phase = p;
+		//		phase = p;
 		if (phases[0] != p) {
 			phases = new Phase[] { p };
 		}
@@ -135,7 +137,6 @@ public abstract class MCMove implements java.io.Serializable {
 		stepSize = Math.max(stepSize, stepSizeMin);
 		nTrials = 0;
 		nAccept = 0;
-		//       System.out.println("in MCMove, stepsize = "+stepSize);
 	}
 
 	/**
@@ -256,8 +257,8 @@ public abstract class MCMove implements java.io.Serializable {
 	 * Sets a flag to indicate whether tuning of the move is to be performed
 	 * Tuning adjust the step size or other property of the move with the aim of
 	 * achieving a trial acceptance rate that is near to some target value. Some
-	 * moves (e.g., simple insertion trial) are inherently untunable, and will have
-	 * false for this property.
+	 * moves (e.g., simple insertion trial) are inherently untunable, and will
+	 * have false for this property.
 	 */
 	public final void setTunable(boolean b) {
 		tunable = b;
@@ -297,15 +298,15 @@ public abstract class MCMove implements java.io.Serializable {
 	}
 
 	/**
-	 * Value giving nominal frequency for performing this move.  Default is 100,
+	 * Value giving nominal frequency for performing this move. Default is 100,
 	 * but may be given a different value by subclasses.
 	 */
 	protected int nominalFrequency;
 
 	/**
-	 * Flag indicating whether nominal frequency is interpreted as a perParticleFrequency,
-	 * or as a full frequency.  Default is false, but may be given a different value
-	 * by subclasses.
+	 * Flag indicating whether nominal frequency is interpreted as a
+	 * perParticleFrequency, or as a full frequency. Default is false, but may
+	 * be given a different value by subclasses.
 	 */
 	protected boolean perParticleFrequency;
 

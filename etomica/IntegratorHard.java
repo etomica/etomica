@@ -215,7 +215,7 @@ public class IntegratorHard extends IntegratorMD {
 	* Sets up the integrator for action.
 	* Do an upList call for each atom and find the next collider
 	*/
-	protected void reset() {
+	public void reset() {
 		if(isothermal) scaleMomenta(Math.sqrt(this.temperature/meterTemperature.getDataAsScalar(firstPhase)));
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {

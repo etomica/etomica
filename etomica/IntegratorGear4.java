@@ -152,7 +152,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 //--------------------------------------------------------------
 
 
-    protected void reset() {
+    public void reset() {
         if(potential == null || firstPhase == null) return;
         calculateForces();
         atomIterator.reset();

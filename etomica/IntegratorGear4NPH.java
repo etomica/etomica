@@ -161,7 +161,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 //--------------------------------------------------------------
 
 
-    protected void reset() {
+    public void reset() {
         super.reset();
         vol1 = 0.0;
         vol2 = 0.0;
@@ -187,7 +187,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             setIsothermal(isothermal);
             if(!isothermal) {
                 calculateForces();
-                double kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
+                double kineticT = meterTemperature.getDataAsScalar(firstPhase);
                 double mvsq = kineticT * D * firstPhase.atomCount();
                 double volume = firstPhase.volume();
                 double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);

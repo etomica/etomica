@@ -141,7 +141,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     }//end of doStep
     
 
-    protected void reset() {
+    public void reset() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();

@@ -10,16 +10,21 @@ package etomica;
 public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     
     public Phase secondPhase;
-    private final MCMoveAtom atomDisplace1 = new MCMoveAtom(this);
-    private final MCMoveAtom atomDisplace2 = new MCMoveAtom(this);
-    private final MCMoveVolumeExchange volumeExchange = new MCMoveVolumeExchange(this);
-    private final MCMoveMoleculeExchange moleculeExchange = new MCMoveMoleculeExchange(this);
+    private final MCMoveAtom atomDisplace1;
+    private final MCMoveAtom atomDisplace2;
+    private final MCMoveVolumeExchange volumeExchange;
+    private final MCMoveMoleculeExchange moleculeExchange;
     
-    public IntegratorGEMC(PotentialMaster potentialMaster) {
+    public IntegratorGEMC(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster);
         phaseCountMax = 2;
 //        super.phaseCountMax = 2;
         phase = new Phase[phaseCountMax];
+        atomDisplace1 = new MCMoveAtom(potentialMaster);
+        atomDisplace2 = new MCMoveAtom(potentialMaster);
+        volumeExchange = new MCMoveVolumeExchange(potentialMaster, space);
+        moleculeExchange = new MCMoveMoleculeExchange(potentialMaster, space);
+        setMCMoves(new MCMove[] {atomDisplace1, atomDisplace2, volumeExchange, moleculeExchange});
         atomDisplace1.setAdjustInterval(100);
         atomDisplace2.setAdjustInterval(100);
     }

@@ -25,12 +25,17 @@ package etomica;
     
     public void doStep() {
         if(action == null) return;
-        action.setTime(elapsedTime());
+        elapsedTime += getTimeStep();
+        action.setTime(elapsedTime);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
             action.actionPerformed(atom);
         }
+    }
+    
+    public void reset() {
+    	elapsedTime = 0.0;
     }
     
     public void setAction(AtomAction action) {this.action = action;}
@@ -48,6 +53,8 @@ package etomica;
     }
     
     public Object makeAgent(Atom a) {return null;}
+    
+    private double elapsedTime = 0.0;
     
     
     /**
