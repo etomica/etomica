@@ -164,7 +164,7 @@ public class IteratorFactoryCell implements IteratorFactory {
             }
         });
         return lattice;
-    }
+    }//end of makeCellLattice method
     
     /**
      * Returns the cell lattice corresponding to the given phase.
@@ -215,7 +215,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         return new SequentialIterator(this);
     }
         
-    public AtomIterator makeIntragroupNbrIterator() {return new IntragroupIterator(this);}
+    public AtomIterator makeIntragroupNbrIterator() {return new IntragroupNbrIterator(this);}
     public AtomIterator makeIntergroupNbrIterator() {
         throw new RuntimeException("IteratorFactoryCell.makeIntergroupIterator not yet implemented");
     }
@@ -243,12 +243,9 @@ public class IteratorFactoryCell implements IteratorFactory {
 public static final class SequentialIterator implements AtomIterator {
     
     private AtomIteratorList listIterator = new AtomIteratorList();
-    private boolean iterateCells;
+    private AtomList neighborSequenceList = new AtomList();
     private IteratorFactoryCell factory;
-    private AtomLinker.Tab cellHeader;
     private AtomTreeNodeGroup basis;
-    private AtomLinker first = null;
-    private IteratorDirective.Direction direction = IteratorDirective.UP;
     
     public SequentialIterator(IteratorFactoryCell f) {
         factory = f;
@@ -260,16 +257,18 @@ public static final class SequentialIterator implements AtomIterator {
      */
     public void setBasis(Atom a) {
         basis = (AtomTreeNodeGroup)a.node;
-        iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
+        boolean iterateCells = basis.childSequencerClass().equals(NeighborSequencer.class);
         if(iterateCells) {
             BravaisLattice lattice = factory.getLattice(basis.parentPhase());
             Atom cell = lattice.siteList().getFirst();
             AtomLinker.Tab[] tabs = (AtomLinker.Tab[])cell.agents[0];
             HashMap hash = (HashMap)lattice.agents[0];    //would like to do this a different way
             int tabIndex = ((Integer)hash.get(basis)).intValue();
-            cellHeader = tabs[tabIndex];
+            AtomLinker.Tab cellHeader = tabs[tabIndex];
+            neighborSequenceList.setAsHeader(cellHeader, basis.childList.size());
+            listIterator.setBasis(neighborSequenceList);
         } else {
-            listIterator.setBasis(basis.childList);
+            listIterator.setBasis(a);
         }
     }
     
@@ -277,32 +276,11 @@ public static final class SequentialIterator implements AtomIterator {
      * Resets iterator so that it will loop up the list of atoms beginning
      * from the first one.
      */
-    public Atom reset() {
-        if(iterateCells) {
-            //set iterator to begin at first cell's tab and circle through 
-            //until it is encountered again
-     //       return listIterator.reset(cellHeader, cellHeader, IteratorDirective.UP);
-    ///        return listIterator.reset(tabs[tabIndex], tabs[tabIndex], IteratorDirective.UP);
-              first = cellHeader;
-              direction = IteratorDirective.UP;
-        } else {
-              first = null;
-     ///       return listIterator.reset();
-        }
-        return doReset();
-    }
-    
-    private Atom doReset() {
-        //listIterator doesn't have a reset(Direction) method
-        if(first == null && direction != IteratorDirective.UP) throw new RuntimeException("IteratorFactoryCell.SequentialIterator not yet able to be reset with direction != UP and null reference atom");
-        return (first != null) ? listIterator.reset(first, cellHeader, direction) : listIterator.reset();
-    }
-    
+    public Atom reset() {return listIterator.reset();}
+        
     public boolean hasNext() {return listIterator.hasNext();}
     
-    public boolean contains(Atom atom) {
-        throw new RuntimeException("IteratorFactoryCell.SequentialIterator.contains() not yet implemented");
-    }
+    public boolean contains(Atom atom) {return listIterator.contains(atom);}
     
     /**
      * Resets for iteration according to the given directive.  If the directive does
@@ -310,26 +288,7 @@ public static final class SequentialIterator implements AtomIterator {
      * direction of iteration is as given by the directive.  If an atom is specified,
      * iteration begins with it and proceeds up or down list from there.
      */
-    public Atom reset(IteratorDirective id) {
-        direction = id.direction();
-        switch(id.atomCount()) {
-            case 0:
-                if(iterateCells) first = cellHeader;//return listIterator.reset(cellHeader, cellHeader, IteratorDirective.UP);
-                else first = null;//return listIterator.reset();
-                break;
-            case 1:
-                Atom a = id.atom1();
-                //direction == BOTH won't work because list iterator will set its normal header as the downlist terminator
-                if(direction == IteratorDirective.BOTH) throw new RuntimeException("IteratorFactoryCell.SequentialIterator.reset(IteratorDirective) not implemented for case where direction = BOTH");
-                if(a.node.parentNode() != basis) throw new IllegalArgumentException("Argument to IteratorFactoryCell.SequentialIterator.reset(Atom) is not in child list of basis");
-                if(iterateCells) first = ((NeighborSequencer)a.seq).nbrLink;//return listIterator.reset(((NeighborSequencer)a.seq).nbrLink, cellHeader, id.direction());
-                else first = a.seq;//return listIterator.reset(a.seq, cellHeader, id.direction());
-                break;
-            default:
-                throw new IllegalArgumentException("IteratorFactoryCell.NeighborSequencer.reset(IteratorDirective) called with unexpected atom number");
-        }//end switch
-        return doReset();
-    }//end reset(IteratorDirective)
+    public Atom reset(IteratorDirective id) {return listIterator.reset(id);}
     
     /**
      * Returns the next atom in the iteration sequence.  Assumes that hasNext is
@@ -339,11 +298,9 @@ public static final class SequentialIterator implements AtomIterator {
     public Atom next() {return listIterator.next();}
     
     public void allAtoms(AtomAction act) {
-        doReset();
         listIterator.allAtoms(act);
     }
     
-        
     public Atom getBasis() {
         return basis.atom;
     }
@@ -360,27 +317,43 @@ public static final class SequentialIterator implements AtomIterator {
 
         IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
         sim.setIteratorFactory(iteratorFactory);
-                
-	    SpeciesSpheres speciesSpheres = new SpeciesSpheres(10,3);
-	    speciesSpheres.setNMolecules(10);
-	    
+        int nAtoms = 6;       
+	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
+	    speciesSpheres.setNMolecules(nAtoms);
+	    Potential potential = new P2HardSphere();
 	    Phase phase = new Phase();
+	    IntegratorHard integrator = new IntegratorHard();
+        integrator.setTimeStep(0.01);
+        Controller controller = new Controller();
 		Simulation.instance.elementCoordinator.go();
+		System.out.println("Starting MD");
+		integrator.setMaxSteps(100);
+		integrator.initialize();
+		integrator.run();
+		System.out.println("Done");
+		
 		
 	    BravaisLattice lattice = ((IteratorFactoryCell)sim.getIteratorFactory()).getLattice(phase);
-	//    ((IteratorFactoryCell)sim.iteratorFactory).setNeighborRange(4.0);
 	    AtomIterator iterator = iteratorFactory.makeGroupIteratorSequential();
 	    iterator.setBasis(phase.getAgent(speciesSpheres));
-	    iterator.reset();
-	    while(iterator.hasNext()) {
-	        System.out.println(iterator.next().signature());
-	    }
-	    System.out.println("allAtoms");
-	    AtomAction print = new AtomAction() {public void actionPerformed(Atom a) {System.out.println(a.signature());}};
-	    iterator.allAtoms(print);
-    }
+		Atom first = null;
+		Atom middle = null;
+		Atom last = null;
+		iterator.reset();
+		int k = 0;
+		while(iterator.hasNext()) {
+		    Atom a = iterator.next();
+		    if(k == 0) first = a;
+		    else if(k == nAtoms/2) middle = a;
+		    else if(k == nAtoms-1) last = a;
+		    k++;
+		}
+	    
+	    IteratorDirective.testSuite(iterator, first, middle, last);
+	    
+    }//end of SequentialIterator.main
     
-}
+}//end of SequentialIterator
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -389,9 +362,9 @@ public static final class SequentialIterator implements AtomIterator {
  * a child of the same basis.
  */
 //would like to modify so that central atom can be any descendant of the basis.
-public static final class IntragroupIterator implements AtomIterator {
+public static final class IntragroupNbrIterator implements AtomIterator {
     
-    public IntragroupIterator(IteratorFactoryCell factory) {
+    public IntragroupNbrIterator(IteratorFactoryCell factory) {
         iteratorFactory = factory;
     }
     
@@ -424,19 +397,23 @@ public static final class IntragroupIterator implements AtomIterator {
     
     public Atom reset(Atom atom) {
         referenceAtom = atom;
-        upListNow = direction.doUp();
-        doGoDown = direction.doDown();
-        nextAtom = null;
-        if(atom == null) {
-            throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupIterator without referencing an atom");
+        if(atom == null) throw new IllegalArgumentException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator without referencing an atom");
+
         //probably need isDescendedFrom instead of parentGroup here
-        } 
         if(atom.node.parentNode() != basis) {
-            throw new IllegalArgumentException("Cannot return IteratorFactoryCell.IntragroupIterator referencing an atom not in group of basis");
+            throw new IllegalArgumentException("Cannot return IteratorFactoryCell.IntragroupNbrIterator referencing an atom not in group of basis");
         }
         if(iterateCells) {
             referenceCell = (AbstractCell)((NeighborSequencer)atom.seq).site();
             cellIterator.setBasis(referenceCell);
+        }
+        return doReset();
+    }
+    
+    public Atom doReset() {
+        upListNow = direction.doUp();
+        doGoDown = direction.doDown();
+        if(iterateCells) {
             listIterator.unset();
             if(upListNow) {
                 cellIterator.reset(IteratorDirective.UP);//set cell iterator to return first up-neighbor of reference cell
@@ -460,7 +437,6 @@ public static final class IntragroupIterator implements AtomIterator {
         }
         return listIterator.peek();
     }
-                
     // Moves to next cell that has an iterate
     private void advanceCell() {
         do {
@@ -483,6 +459,21 @@ public static final class IntragroupIterator implements AtomIterator {
             }
         } while(!listIterator.hasNext());
     }
+
+    /**
+     * Performs given action for each child atom of basis.
+     */
+    public void allAtoms(AtomAction act) {
+        doReset();
+        if(iterateCells) {
+            while(listIterator.hasNext()) {
+                listIterator.allAtoms(act);
+                advanceCell();
+            }
+        } else {
+            listIterator.allAtoms(act);
+        }
+    }
             
     public Atom next() {
         Atom atom = listIterator.next();
@@ -495,23 +486,9 @@ public static final class IntragroupIterator implements AtomIterator {
      * be reset with reference to an atom.
      */
     public Atom reset() {
-        throw new RuntimeException("Cannot reset IteratorFactoryCell.IntragroupIterator without referencing an atom");
+        throw new RuntimeException("Cannot reset IteratorFactoryCell.IntragroupNbrIterator without referencing an atom");
     }
     
-    
-    /**
-     * Performs given action for each child atom of basis.
-     */
-    public void allAtoms(AtomAction act) {
-        throw new RuntimeException("AtomIteratorNbrCellIntra.allAtoms not implemented");
-/*        if(basis == null) return;
-        last = basis.node.lastChildAtom();
-        for(Atom atom = basis.node.firstChildAtom(); atom != null; atom=atom.nextAtom()) {
-            act.actionPerformed(atom);
-            if(atom == last) break;
-        }*/
-    }
-        
     /**
      * Sets the given atom as the basis, so that child atoms of the
      * given atom will be returned upon iteration.  If given atom is
@@ -543,11 +520,15 @@ public static final class IntragroupIterator implements AtomIterator {
     /**
      * The number of atoms returned on a full iteration, using the current basis.
      */
-    public int size() {return (basis != null) ? basis.childAtomCount() : 0;}   
+     //throw exception, since present implementation won't give correct number of iterates in most cases
+    public int size() {
+        throw new RuntimeException("IteratorFactoryCell.IntragroupNbrIterator.size() not implemented");
+       // return (basis != null) ? basis.childAtomCount() : 0;
+    }   
 
     private AtomTreeNodeGroup basis;
     private Atom next;
-    private Atom referenceAtom, nextAtom;
+    private Atom referenceAtom;
     private boolean upListNow, doGoDown;
     private IteratorDirective.Direction direction, currentDirection;
     private AbstractCell referenceCell;
@@ -558,7 +539,57 @@ public static final class IntragroupIterator implements AtomIterator {
     private final AtomIteratorList listIterator = new AtomIteratorList();
     private final IteratorFactoryCell iteratorFactory;
 
-}//end of IntragroupIterator class
+    /**
+     * Method to test IntragroupNbrIterator
+     */
+    public static void main(String args[]) {
+        Default.ATOM_SIZE = 1.0;
+        Simulation sim = new Simulation(new Space2D());
+
+        IteratorFactoryCell iteratorFactory = new IteratorFactoryCell(sim);
+        sim.setIteratorFactory(iteratorFactory);
+        int nAtoms = 100;       
+	    SpeciesSpheresMono speciesSpheres = new SpeciesSpheresMono();
+	    speciesSpheres.setNMolecules(nAtoms);
+	    Potential potential = new P2HardSphere();
+	    Phase phase = new Phase();
+	    IntegratorHard integrator = new IntegratorHard();
+        integrator.setTimeStep(0.01);
+        Controller controller = new Controller();
+		Simulation.instance.elementCoordinator.go();
+		System.out.println("Starting MD");
+		integrator.setMaxSteps(100);
+		integrator.initialize();
+		integrator.run();
+		System.out.println("Done");
+		
+		
+	    BravaisLattice lattice = ((IteratorFactoryCell)sim.getIteratorFactory()).getLattice(phase);
+	    AtomIterator sequenceIterator = iteratorFactory.makeGroupIteratorSequential();
+	    AtomIterator iterator = iteratorFactory.makeIntragroupNbrIterator();
+	    sequenceIterator.setBasis(phase.getAgent(speciesSpheres));
+	    iterator.setBasis(phase.getAgent(speciesSpheres));
+		Atom first = null;
+		Atom middle = null;
+		Atom last = null;
+		sequenceIterator.reset();
+		int k = 0;
+		while(sequenceIterator.hasNext()) {
+		    Atom a = sequenceIterator.next();
+		    if(k == 0) first = a;
+		    else if(k == nAtoms/2) middle = a;
+		    else if(k == nAtoms-1) last = a;
+		    k++;
+		}
+		System.out.println(" first: "+first.signature());
+		System.out.println("middle: "+middle.signature());
+		System.out.println("  last: "+last.signature());
+	    
+	    IteratorDirective.testSuite(iterator, first, middle, last);
+	    
+    }//end of IntragroupNbrIterator.main
+
+}//end of IntragroupNbrIterator class
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -790,6 +821,10 @@ private static void setupListTabs(BravaisLattice lattice/*, AtomList list*/) {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
+        
+  //      SequentialIterator.main(args); 
+        IntragroupNbrIterator.main(args); 
+        
         Default.ATOM_SIZE = 1.0;
         etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space2D());
         Simulation.instance = sim;

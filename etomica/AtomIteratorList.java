@@ -15,6 +15,7 @@ public final class AtomIteratorList implements AtomIterator {
 	private AtomLinker first;
 	private AtomLinker.Tab header, terminator;
 	private IteratorDirective.Direction direction = IteratorDirective.UP;
+	private boolean skipFirstAtom = false;
 	
     private boolean upListNow, doGoDown;
 	private AtomLinker next;
@@ -53,10 +54,14 @@ public final class AtomIteratorList implements AtomIterator {
 	    return new AtomIteratorList(new AtomIteratorList(list));
 	}
 	
+	
 	/**
 	 * Returns true if this iterator has another iterate, false otherwise.
 	 */
 	public boolean hasNext() {return next.atom != null;}
+	
+	public void setSkipFirstAtom(boolean b) {skipFirstAtom = b;}
+	public boolean isSkipFirstatom() {return skipFirstAtom;}
 	
 	/**
 	 * Sets the childList of the given atom as the basis for iteration.
@@ -101,8 +106,8 @@ public final class AtomIteratorList implements AtomIterator {
             upListNow = direction.doUp();
             doGoDown = direction.doDown();
             next = first;
-            if(next.atom == null) nextLinker();//nextLinker keeps iterating until entry
-        }                                      //with atom is found or terminator is reached
+            if(next.atom == null || skipFirstAtom) nextLinker();//nextLinker keeps iterating until entry
+        }                                                       //with atom is found or terminator is reached
         return next.atom;
     }
 
@@ -126,7 +131,7 @@ public final class AtomIteratorList implements AtomIterator {
                 }//end while
             }//end else
             
-            if(doGoDown) {//set next for downList iteration
+/*            if(doGoDown) {//set next for downList iteration
                 next = first.previous;
                 if(next.atom == null) {//need to advance to find first entry
                     if(next == header) return;
@@ -136,10 +141,20 @@ public final class AtomIteratorList implements AtomIterator {
                 }//end if
             }//end if
             else return; //doGoDown is false; return now to avoid another check of it
-            
+ */           
         }//end if(upListNow)
         
         if(doGoDown) {
+            if(skipFirstAtom || upListNow) {//skip first down iterate, either because iterator is set to do so, or it was already given in up iteration
+                next = first.previous;
+                if(next.atom == null) {//need to advance to find first entry
+                    if(next == header) return;
+                    upListNow = false;//set so that nextLinker() proceeds in proper direction
+                    nextLinker();//find first non-null entry
+                    if(next.atom == null) return; //none found
+                }//end if
+            }//end if
+                
             if(terminator == null) {//end loop when first tag is encountered
                 while(next.atom != null) {
                     action.actionPerformed(next.atom);
@@ -357,7 +372,6 @@ public final class AtomIteratorList implements AtomIterator {
         AtomList atomList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
         
         AtomIteratorList iterator = new AtomIteratorList(atomList);
-        IteratorDirective directive = new IteratorDirective();
         Atom first = atomList.getFirst();
         Atom last = atomList.getLast();
         Atom middle = null;
@@ -365,95 +379,8 @@ public final class AtomIteratorList implements AtomIterator {
             middle = atomList.get(atomList.size()/2);//exception thrown if list is empty
         } catch(IndexOutOfBoundsException ex) {}
         
-        System.out.println("reset()");
-        iterator.reset();
-        iterator.test();
-        
-        System.out.println("reset(directive.set(middle).set(IteratorDirective.BOTH))");
-        iterator.reset(directive.set(middle).set(IteratorDirective.BOTH));
-        iterator.test();
-        
-        System.out.println("reset(directive.set(middle).set(IteratorDirective.UP))");
-        iterator.reset(directive.set(middle).set(IteratorDirective.UP));
-        iterator.test();
-        
-        System.out.println("reset(directive.set(middle).set(IteratorDirective.DOWN))");
-        iterator.reset(directive.set(middle).set(IteratorDirective.DOWN));
-        iterator.test();
-        
-        //error here with all atoms -- goes up, then down
-        System.out.println("reset(directive.set(first).set(IteratorDirective.BOTH))");
-        iterator.reset(directive.set(first).set(IteratorDirective.BOTH));
-        iterator.test();
-        System.out.println("reset(directive.set(first).set(IteratorDirective.UP))");
-        iterator.reset(directive.set(first).set(IteratorDirective.UP));
-        iterator.test();
-        System.out.println("reset(directive.set(first).set(IteratorDirective.DOWN))");
-        iterator.reset(directive.set(first).set(IteratorDirective.DOWN));
-        iterator.test();
-        
-        System.out.println("reset(directive.set(last).set(IteratorDirective.BOTH))");
-        iterator.reset(directive.set(last).set(IteratorDirective.BOTH));
-        iterator.test();
-        System.out.println("reset(directive.set(last).set(IteratorDirective.UP))");
-        iterator.reset(directive.set(last).set(IteratorDirective.UP));
-        iterator.test();
-        System.out.println("reset(directive.set(last).set(IteratorDirective.DOWN))");
-        iterator.reset(directive.set(last).set(IteratorDirective.DOWN));
-        iterator.test();
-        
-        System.out.println("reset(directive.set().set(IteratorDirective.BOTH))");
-        iterator.reset(directive.set().set(IteratorDirective.BOTH));
-        iterator.test();
-        System.out.println("reset(directive.set().set(IteratorDirective.UP))");
-        iterator.reset(directive.set().set(IteratorDirective.UP));
-        iterator.test();
-        System.out.println("reset(directive.set().set(IteratorDirective.DOWN))");
-        iterator.reset(directive.set().set(IteratorDirective.DOWN));
-        iterator.test();
-        
-        System.out.println("reset(directive.set(first).set(IteratorDirective.NEITHER))");
-        iterator.reset(directive.set(first).set(IteratorDirective.NEITHER));
-        iterator.test();
-        
-        System.out.println("reset(directive.set().set(IteratorDirective.NEITHER))");
-        iterator.reset(directive.set().set(IteratorDirective.NEITHER));
-        iterator.test();
-        
-    }
-    
-    /**
-     * Causes signature of all atoms given by this iterator, as currently
-     * reset, to be printed to console.
-     */
-    private void test() {test(this);}
-    
-    /**
-     * Causes signature of all iterates of the given iterator, as currently reset,
-     * to be printed to console.
-     */
-    private static void test(AtomIteratorList iterator) {
-        AtomAction printAtom = new AtomAction() {
-            public void actionPerformed(Atom a) {System.out.println(a.signature());}
-        };
-        
-        while(iterator.hasNext()) System.out.println(iterator.next().signature());
-        AtomIteratorList.pauseForInput();
-        System.out.println("allAtoms (twice)");
-        iterator.allAtoms(printAtom);
-        System.out.println();
-        iterator.allAtoms(printAtom);
-        AtomIteratorList.pauseForInput();
-    }
-    /**
-     * Halts program activity until a return is entered from the console.
-     */
-    private static void pauseForInput() {
-        System.out.println("Hit return to continue");
-        try {
-            System.in.read();
-            System.in.read();
-        } catch(Exception e) {}
+        iterator.setSkipFirstAtom(true);
+        IteratorDirective.testSuite(iterator, first, middle, last);
     }
 
 }//end of AtomIteratorList

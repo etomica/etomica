@@ -92,6 +92,132 @@ public final class IteratorDirective implements java.io.Serializable {
         potentialCriteriaHead = newCriterion;
     }
     
+    /**
+     * Method for testing of iterators.  The iterates of the given iterator are generated
+     * and their signature is written to the console.  Various combinations of iteration direction
+     * and reference atom are tested.  The given atoms are used for the reference in
+     * some reset calls, and permit examintion of the iterator's behavior when the first and
+     * last atoms are used for the reference, and an atom chosen from the middle of its
+     * sequence.  Both hasNext/next and allAtoms methods of iteration are performed.
+     */
+    public static void testSuite(AtomIterator iterator, Atom first, Atom middle, Atom last) {
+        
+        IteratorDirective directive = new IteratorDirective();
+        try {
+            System.out.println("reset()");
+            iterator.reset();
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); /*pauseForInput();*/}
+        
+        try {
+            System.out.println("reset(directive.set(middle).set(IteratorDirective.BOTH))");
+            iterator.reset(directive.set(middle).set(IteratorDirective.BOTH));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); /*pauseForInput();*/}
+            
+        try {
+            System.out.println("reset(directive.set(middle).set(IteratorDirective.UP))");
+            iterator.reset(directive.set(middle).set(IteratorDirective.UP));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+            
+        try {
+            System.out.println("reset(directive.set(middle).set(IteratorDirective.DOWN))");
+            iterator.reset(directive.set(middle).set(IteratorDirective.DOWN));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+            
+        try {
+            System.out.println("reset(directive.set(first).set(IteratorDirective.BOTH))");
+            iterator.reset(directive.set(first).set(IteratorDirective.BOTH));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+        try {
+            System.out.println("reset(directive.set(first).set(IteratorDirective.UP))");
+            iterator.reset(directive.set(first).set(IteratorDirective.UP));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+        try {
+            System.out.println("reset(directive.set(first).set(IteratorDirective.DOWN))");
+            iterator.reset(directive.set(first).set(IteratorDirective.DOWN));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+            
+        try {
+            System.out.println("reset(directive.set(last).set(IteratorDirective.BOTH))");
+            iterator.reset(directive.set(last).set(IteratorDirective.BOTH));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+        try {
+            System.out.println("reset(directive.set(last).set(IteratorDirective.UP))");
+            iterator.reset(directive.set(last).set(IteratorDirective.UP));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+        try {
+            System.out.println("reset(directive.set(last).set(IteratorDirective.DOWN))");
+            iterator.reset(directive.set(last).set(IteratorDirective.DOWN));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+            
+        try {
+            System.out.println("reset(directive.set().set(IteratorDirective.BOTH))");
+            iterator.reset(directive.set().set(IteratorDirective.BOTH));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+        try {
+            System.out.println("reset(directive.set().set(IteratorDirective.UP))");
+            iterator.reset(directive.set().set(IteratorDirective.UP));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+        try {
+            System.out.println("reset(directive.set().set(IteratorDirective.DOWN))");
+            iterator.reset(directive.set().set(IteratorDirective.DOWN));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+            
+        try {
+            System.out.println("reset(directive.set(first).set(IteratorDirective.NEITHER))");
+            iterator.reset(directive.set(first).set(IteratorDirective.NEITHER));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+            
+        try {
+            System.out.println("reset(directive.set().set(IteratorDirective.NEITHER))");
+            iterator.reset(directive.set().set(IteratorDirective.NEITHER));
+            test(iterator);
+        } catch(RuntimeException ex) {System.out.println("RuntimeException caught: "+ex.getMessage()); pauseForInput();}
+    }
+        
+    /**
+     * Causes signature of all iterates of the given iterator, as currently reset,
+     * to be printed to console.  Performs iteration using hasNext/next loop, then
+     * using allAtoms method (done twice).  Support method for testSuite method.
+     */
+    private static void test(AtomIterator iterator) {
+        AtomAction printAtom = new AtomAction() {
+            public void actionPerformed(Atom a) {System.out.println(a.signature());}
+        };
+        
+        while(iterator.hasNext()) System.out.println(iterator.next().signature());
+        pauseForInput();
+        System.out.println("allAtoms (twice)");
+        iterator.allAtoms(printAtom);
+        System.out.println();
+        iterator.allAtoms(printAtom);
+        pauseForInput();
+    }
+    /**
+     * Halts program activity until a return is entered from the console.
+     * Support method for testSuite method.
+     */
+    private static void pauseForInput() {
+        System.out.println("Hit return to continue");
+        try {
+            System.in.read();
+            System.in.read();
+        } catch(Exception e) {}
+    }
+    
     //IteratorDirective.Direction
     public static final class Direction extends Constants.TypedConstant {
         
