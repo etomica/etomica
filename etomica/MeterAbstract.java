@@ -102,6 +102,7 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
      */
 	public MeterAbstract(Space space) {
 	    super(space, MeterAbstract.class, nonSimCount++);
+	    setUpdateInterval(1);
 	}
     	
 	/**
@@ -253,7 +254,7 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
      */
     public final int getUpdateInterval() {return updateInterval;}
     /**
-     * Accessor method for the updateInterval
+     * Accessor method for the updateInterval.
      * Sets to given value and resets count of interval events
      * @see #updateInterval
      */

@@ -7,6 +7,7 @@ import javax.swing.table.*;
 import javax.swing.Box;
 import javax.swing.JScrollPane;
 import etomica.units.Unit;
+import java.awt.event.*;
 
 /**
  * Presents data in a tabular form.  Data is obtained from DatumSource objects.
@@ -16,6 +17,11 @@ import etomica.units.Unit;
  * @author David Kofke
  * @see DisplayTableFunction
  */
+ 
+ /* History of changes
+  * 7/20/02 Added key listener to set precision of displayed values
+  */
+ 
 public class DisplayTable extends DisplayDatumSources implements EtomicaElement
 {
     public String getVersion() {return "DisplayTable:01.05.29/"+super.getVersion();}
@@ -26,7 +32,8 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     private boolean fitToWindow = true;
     
         //structures used to adjust precision of displayed values
-	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+//	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+	private final java.text.NumberFormat formatter = new etomica.utility.ScientificFormat();
     private final javax.swing.table.DefaultTableCellRenderer numberRenderer =
         new javax.swing.table.DefaultTableCellRenderer() { 
             public void setValue(Object value) { 
@@ -43,6 +50,9 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         setLabel("Data");
         numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
         setPrecision(4);
+        InputEventHandler listener = new InputEventHandler();
+        panel.addKeyListener(listener);
+        panel.addMouseListener(listener);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -147,6 +157,26 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         public Class getColumnClass(int column) {return columnClasses[column];}
     }
     
+    private class InputEventHandler extends MouseAdapter implements KeyListener {
+        
+        public void keyPressed(KeyEvent evt) {
+            char c = evt.getKeyChar();
+            if(Character.isDigit(c)) {
+                setPrecision(Character.getNumericValue(c));
+                panel.repaint();
+            }
+        }
+        public void keyReleased(KeyEvent evt) {}
+        public void keyTyped(KeyEvent evt) {}
+        
+        public void mouseClicked(MouseEvent evt) {
+            panel.requestFocus();
+        }
+        public void mouseEntered(MouseEvent evt) {panel.requestFocus();}
+        public void mouseExited(MouseEvent evt) {panel.transferFocus();}
+    }
+        
+
     /**
      * Demonstrates how this class is implemented.
      */

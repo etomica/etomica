@@ -7,6 +7,7 @@ import javax.swing.table.*;
 import javax.swing.Box;
 import javax.swing.JScrollPane;
 import etomica.units.Unit;
+import java.awt.event.*;
 
 /**
  * Presents function data in a tabular form.  Data is obtained from DataSource objects.
@@ -16,6 +17,10 @@ import etomica.units.Unit;
  * @author David Kofke
  * @ee DisplayTable
  */
+ 
+ /* History of changes
+  * 7/20/02 Added key listener to set precision of displayed values
+  */
 public class DisplayTableFunction extends DisplayDataSources implements EtomicaElement {
     public String getVersion() {return "DisplayTableFunction:01.05.29/"+super.getVersion();}
 
@@ -24,9 +29,11 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
     private boolean transposed = false;
     private boolean showXColumn = true;
     private boolean fitToWindow = false;
+    private double multiplier = 1.0;//alterntive way to adjust precision
     
         //structures used to adjust precision of displayed values
-	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+//	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+	private final java.text.NumberFormat formatter = new etomica.utility.ScientificFormat();
     private final javax.swing.table.DefaultTableCellRenderer numberRenderer =
         new javax.swing.table.DefaultTableCellRenderer() { 
             public void setValue(Object value) { 
@@ -46,6 +53,9 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         table = new JTable();
         numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
         setPrecision(4);
+        InputEventHandler listener = new InputEventHandler();
+        panel.addKeyListener(listener);
+        panel.addMouseListener(listener);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -109,6 +119,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
      */
     public void setPrecision(int n) {
 	    formatter.setMaximumFractionDigits(n);
+//	    multiplier = Math.pow(10.0, n);
     }
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
@@ -154,8 +165,8 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
             //because we don't want to call currentValue
             //or average for each function entry
         public Object getValueAt(int row, int column) {
-            if(showXColumn && column == 0) return new Double(x[row]);
-            else return new Double(y[column-y0][row]);
+            if(showXColumn && column == 0) return new Double(multiplier*x[row]);
+            else return new Double(multiplier*y[column-y0][row]);
         }
         
         public int getRowCount() {return (y != null && y[0] != null) ? y[0].length : 0;}
@@ -164,6 +175,27 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         public String getColumnName(int column) {return columnNames[column];}
         public Class getColumnClass(int column) {return columnClasses[column];}
     }
+    
+    private class InputEventHandler extends MouseAdapter implements KeyListener {
+        
+        public void keyPressed(KeyEvent evt) {
+            char c = evt.getKeyChar();
+            if(Character.isDigit(c)) {
+                setPrecision(Character.getNumericValue(c));
+                panel.repaint();
+                System.out.println("Changing table precision to "+c);
+            }
+        }
+        public void keyReleased(KeyEvent evt) {}
+        public void keyTyped(KeyEvent evt) {}
+        
+        public void mouseClicked(MouseEvent evt) {
+            panel.requestFocus();
+        }
+        public void mouseEntered(MouseEvent evt) {panel.requestFocus();}
+        public void mouseExited(MouseEvent evt) {panel.transferFocus();}
+    }
+        
     
     /**
      * Demonstrates how this class is implemented.

@@ -48,5 +48,12 @@ public class SimulationPanel extends JPanel {
                     displayPanel.validate();
                 }
         });
+        
+ /*       displayPanel.addMouseListener( 
+            new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    System.out.println("Click");
+                }
+            });*/
     }
 }//end of SimulationPanel
