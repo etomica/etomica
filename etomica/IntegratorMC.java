@@ -8,6 +8,7 @@ package etomica;
  * from the MCMove.
  * 
  * @author David Kofke
+ * @see MCMove
  */
 
 public class IntegratorMC extends Integrator implements EtomicaElement {
