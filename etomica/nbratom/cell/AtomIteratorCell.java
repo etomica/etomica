@@ -6,7 +6,6 @@ package etomica.nbratom.cell;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.Phase;
 import etomica.action.AtomsetAction;
@@ -46,20 +45,14 @@ public class AtomIteratorCell implements AtomIterator {
     public void allAtoms(AtomsetAction action) {
         cellIterator.reset();
         while(cellIterator.hasNext()) {//outer loop over all cells
-            //get cell without advancing -- advance is done via nextIndex,
-            // below
-            NeighborCell cell = (NeighborCell)cellIterator.peek();
+            NeighborCell cell = (NeighborCell)cellIterator.next();
             AtomList list = cell.occupants();
             
-            //no molecules in cell
-            if(list.isEmpty()) {
-                cellIterator.nextIndex();
-                continue;
-            }
-            
             //consider pairs formed from molecules in cell
-            atomIterator.setList(list);
-            atomIterator.allAtoms(action);
+            if(!list.isEmpty()) {
+                atomIterator.setList(list);
+                atomIterator.allAtoms(action);
+            }
         }//end of outer loop over cells
     }//end of allAtoms
     
