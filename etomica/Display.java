@@ -75,13 +75,23 @@ import java.awt.event.*;
         }
     }
     public void createOffScreen (int p) {
-         offScreen = createImage(p,p);
-         osg = offScreen.getGraphics();
+        createOffScreen(p,p);
+    }
+    public void createOffScreen(int w, int h) {
+        offScreen = createImage(w,h);
+        osg = offScreen.getGraphics();
     }
 
-    public void changeSize(int x) {
-        setSize(x,x);
-        createOffScreen(x);
+    public void changeSize(int w, int h, MouseEvent e) {
+        if(e.isShiftDown()) {
+            int x = Math.max(w,h);
+            setSize(x,x);
+            createOffScreen(x);
+        }
+        else {
+            setSize(w,h);
+            createOffScreen(w,h);
+        }
     }
     
     public void update(Graphics g) {paint(g);}
@@ -203,9 +213,7 @@ import java.awt.event.*;
 	        else if (cursorLocation == RESIZE_AREA_SE) {;}
 	        int w = initialSize.width + deltaX;
 	        int h = initialSize.height + deltaY;
-	        int r = Math.max(w,h);
-	        r = Math.max(r,20);
-            changeSize(r);
+            changeSize(w,h,e);
         }
     }
     public void mouseClicked(MouseEvent e) {}
@@ -218,7 +226,9 @@ import java.awt.event.*;
         char c = e.getKeyChar();
         System.out.println("keytyped: "+c);
         if(Character.isDigit(c)) {digitTyped(Character.getNumericValue(c));}
+        else if(Character.isLetter(c)) {letterTyped(c);}
     }
     
-    public void digitTyped(int i) {}  //override if want to process number keypress
+    protected void digitTyped(int i) {}   //override if want to process number keypress
+    protected void letterTyped(char c) {} //override if want to process letter keypress
 }

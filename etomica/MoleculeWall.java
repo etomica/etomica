@@ -14,4 +14,9 @@ public class MoleculeWall extends Molecule {
     for(int i=0; i<nAtoms; i++) {atom[i] = new AtomWall(this,i);}
   }
   
+  public void inflate(double scale) {
+    super.inflate(scale);
+    parentSpecies.configurationMolecule.initializeCoordinates(this);  //for long wall
+  }
+  
 }

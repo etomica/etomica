@@ -1,5 +1,6 @@
 package simulate;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.beans.Beans;
 
     public class DisplayConfiguration extends Display {
@@ -61,12 +62,19 @@ import java.beans.Beans;
   * to have on when imageShells is non-zero.  Default value is <code>false</code>.
   */
   public static boolean DRAW_OVERFLOW = false;
- 
+  
+  private boolean writeScale = false;  //flag to indicate if value of scale should be superimposed on image
+  private TextField scaleText = new TextField();
+  private Font font = new Font("sansserif", Font.PLAIN, 10);
+//  private int annotationHeight = font.getFontMetrics().getHeight();
+  private int annotationHeight = 12;
 
     public DisplayConfiguration () {
         super();
 	    Space.uEa1(align,CENTER);   //default alignment is centered in x and y directions
-        
+        scaleText.setVisible(true);
+        scaleText.setEditable(false);
+        scaleText.setBounds(0,0,100,50);
     }
     
     public void setAlign(int i, int value) {
@@ -85,7 +93,7 @@ import java.beans.Beans;
   }
     
   //Override superclass methods for changing size so that TO_PIXELS is reset with any size change  
-  // this setBound is ultimately called by all other setSize, setBounds methods
+  // this setBounds is ultimately called by all other setSize, setBounds methods
   public void setBounds(int x, int y, int width, int height) {
     if(getBounds().width * getBounds().height != 0) {  //reset scale based on larger size change
         double ratio1 = (double)width/(double)getBounds().width;
@@ -131,12 +139,51 @@ import java.beans.Beans;
 
   public void doUpdate() {;}
   
+  public synchronized void changeSize(int w, int h, MouseEvent e) {
+      if(e.isControlDown()) {  //change volume of simulated phase
+        double rScale;
+        int wh;
+        if(w > h) {
+          wh = w;
+          rScale = (double)w/(double)getSize().width;
+        }
+        else {
+          wh = h;
+          rScale = (double)h/(double)getSize().height;
+        }
+        super.setBounds(getLocation().x,getLocation().y,wh,wh);
+        createOffScreen(wh);
+        phase.space.inflate(rScale);
+        for(Molecule m=phase.firstMolecule(); m!=null; m=m.getNextMolecule()) {
+          m.inflate(rScale);
+        }
+      }
+      else {                    //change scale of image
+        //super.changeSize(w,h,e);  doesn't work well
+          int x = Math.max(w,h);
+          setSize(x,x);
+          createOffScreen(x);
+      }
+  }
+  
+  
   public void digitTyped(int i) {
     setImageShells(i);
   }
+  public void letterTyped(char c) {
+    switch(c) {
+        case 's':
+            writeScale = !writeScale;
+            break;
+        case 'o':
+            DRAW_OVERFLOW = !DRAW_OVERFLOW;
+        default:
+            break;
+    }
+  }
     
  /** 
-  * paint is the method that handles the drawing of the phase to the screen.
+  * doPaint is the method that handles the drawing of the phase to the screen.
   * Several variables and conditions affect how the image is drawn.  First,
   * the class variable <code>TO_PIXELS</code> performs the conversion between simulation
   * length units (Angstroms) and pixels.  The default value is 300 pixels/Angstrom
@@ -199,6 +246,13 @@ import java.beans.Beans;
             for(int i=0; i<origins.length; i++) {
                 g.copyArea(centralOrigin[0],centralOrigin[1],drawSize[0],drawSize[1],(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
             }
+        }
+        if(writeScale) {
+            g.setColor(Color.lightGray);
+            g.fillRect(0,getSize().height-annotationHeight,getSize().width,annotationHeight);
+            g.setColor(Color.black);
+            g.setFont(font);
+            g.drawString("Scale: "+Integer.toString((int)(100*scale))+"%", 0, getSize().height-3);
         }
   }        
 }
