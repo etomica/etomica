@@ -13,8 +13,6 @@ import javax.swing.JButton;
  */
 public class DeviceToggleButton extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceToggleButton:01.10.19/"+Device.VERSION;}
-
     private ModulatorBoolean modulator;
     private JButton button;
     private String trueLabel = "True";
@@ -22,14 +20,11 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
     private boolean currentValue = false;
     
     public DeviceToggleButton(ModulatorBoolean modulator) {
-        this(Simulation.instance, modulator);
+        this(modulator, "True", "False");
     }
-    public DeviceToggleButton(Simulation sim, ModulatorBoolean modulator) {
-        this(sim, modulator, "True", "False");
-    }
-    public DeviceToggleButton(Simulation sim, ModulatorBoolean modulator, 
+    public DeviceToggleButton(ModulatorBoolean modulator, 
                                 String trueText, String falseText) {
-        super(sim);
+        super();
         button = new JButton();
         button.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -12,8 +12,6 @@ import java.awt.*;
  */
 public class DeviceTernarySelector extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceTernarySelector:01.11.18/"+Device.VERSION;}
-
     private Triangle triangle;
     private int sideLength, h;
     private int precision;
@@ -28,18 +26,13 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     private final SimulationEventManager listenerManager = new SimulationEventManager();
     
     public DeviceTernarySelector() {
-        this(Simulation.instance);
-    }
-    
-    public DeviceTernarySelector(Simulation sim) {
-        this(sim, new String[] {"A", "B", "C"});
+        this(new String[] {"A", "B", "C"});
     }
     /**
      * Creates a new devices using the given labels for the diagram.
      * The given string array must be of dimension 3.
      */
-    public DeviceTernarySelector(Simulation sim, String[] labels) {
-        super(sim);
+    public DeviceTernarySelector(String[] labels) {
         trianglePanel = new TrianglePanel();
         panel = new javax.swing.JPanel();
         panel.add(trianglePanel);
@@ -299,21 +292,21 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
         public void ternaryAction(double x1, double x2, double x3);
     }
     
-    public static void main(String[] args) {
-        SimulationGraphic sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
-        DeviceTernarySelector selector = 
-            new DeviceTernarySelector(sim, new String[] {"Benzene","Toluene","Xylene"});
-        selector.addListener(new DeviceTernarySelector.Listener() {
-            public void ternaryAction(double x1, double x2, double x3) {
-                System.out.println("Event!: " + x1 + " " + x2 + " " + x3);
-            }
-        });
-        selector.setShowValues(true);
-        selector.setSymbols(new String[] {"B", "T", "X"});
-      //  selector.setSideLength(400);
-        sim.elementCoordinator.go();
-        sim.makeAndDisplayFrame();
-    }
+//    public static void main(String[] args) {
+//        SimulationGraphic sim = new etomica.simulations.HSMD2D();
+//        Simulation.instance = sim;
+//        DeviceTernarySelector selector = 
+//            new DeviceTernarySelector(sim, new String[] {"Benzene","Toluene","Xylene"});
+//        selector.addListener(new DeviceTernarySelector.Listener() {
+//            public void ternaryAction(double x1, double x2, double x3) {
+//                System.out.println("Event!: " + x1 + " " + x2 + " " + x3);
+//            }
+//        });
+//        selector.setShowValues(true);
+//        selector.setSymbols(new String[] {"B", "T", "X"});
+//      //  selector.setSideLength(400);
+//        sim.elementCoordinator.go();
+//        sim.makeAndDisplayFrame();
+//    }
     
 }

@@ -16,7 +16,6 @@ import etomica.utility.java2.Iterator;
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceThermoSelector:01.03.23/"+Device.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
@@ -29,10 +28,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     private boolean includeAdiabatic = true;
     
     public DeviceThermoSelector() {
-        this(Simulation.instance);
-    }
-    public DeviceThermoSelector(Simulation sim) {
-        super(sim);
+        super();
         selector = new javax.swing.JComboBox(new Object[] {new Object()}); //swingall JComboBox doesn't chokes if we don't give initialize without an object in the list
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
@@ -70,21 +66,21 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
 		    }
 		});//end of addItemListener
 		
-		//add mediator so that last integrator added to simulation is controlled by this device
-        sim.elementCoordinator.addMediatorPair(new MediatorGraphic.DeviceIntegrator(sim.elementCoordinator) {
-            public void add(Integrator integrator) {
-                DeviceThermoSelector.this.integrator = integrator;
-            }
-            public void add(Device device) {
-                if(device != DeviceThermoSelector.this) return;
-                for(Iterator ip=mediator.parentSimulation().getIntegratorList().iterator(); ip.hasNext(); ) {
-                    Integrator integrator = (Integrator)ip.next();
-                    if(integrator.wasAdded())  {//will make last integrator the one
-                        DeviceThermoSelector.this.integrator = integrator;
-                    }
-                }
-            }
-        });
+//		//add mediator so that last integrator added to simulation is controlled by this device
+//        sim.elementCoordinator.addMediatorPair(new MediatorGraphic.DeviceIntegrator(sim.elementCoordinator) {
+//            public void add(Integrator integrator) {
+//                DeviceThermoSelector.this.integrator = integrator;
+//            }
+//            public void add(Device device) {
+//                if(device != DeviceThermoSelector.this) return;
+//                for(Iterator ip=mediator.parentSimulation().getIntegratorList().iterator(); ip.hasNext(); ) {
+//                    Integrator integrator = (Integrator)ip.next();
+//                    if(integrator.wasAdded())  {//will make last integrator the one
+//                        DeviceThermoSelector.this.integrator = integrator;
+//                    }
+//                }
+//            }
+//        });
 		
     }//end of constructor
     

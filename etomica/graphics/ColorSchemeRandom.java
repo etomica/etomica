@@ -13,7 +13,7 @@ public class ColorSchemeRandom extends ColorSchemeCollective {
         iterator.setList(phase.speciesMaster.atomList);
         iterator.reset();
         while(iterator.hasNext()) {
-            Atom a = iterator.next();
+            Atom a = iterator.nextAtom();
             if(a.allatomAgents[agentIndex] == null) {
                 a.allatomAgents[agentIndex] = ConstantsGraphic.randomColor();
             }

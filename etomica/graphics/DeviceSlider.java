@@ -28,8 +28,6 @@ import etomica.event.ChangeEventManager;
   
 public class DeviceSlider extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceSlider:01.05.29/"+Device.VERSION;}
-
     /**
      * Descriptive text label to be displayed with the value
      * No longer used -- instead apply label via a title border on the slider itself
@@ -87,11 +85,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     protected final ChangeEventManager changeEventManager = new ChangeEventManager(this);
     
     public DeviceSlider() {
-        this(Simulation.instance);
-    }
-    
-    public DeviceSlider(SimulationElement parent) {
-        super(parent);
+        super();
         init();
     }
 
@@ -359,80 +353,80 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * Method to demonstrate and test the use of this class.  
      * Slider is used to control the diameter of a hard-sphere in MD simulation
      */
-    public static void main(String[] args) {
-         
-// inner class of Modulator that works with Slider*************************************************************
-           class DiameterModulator extends etomica.ModulatorAbstract {
-
-                public double fullDiameter;
-                public double currentValue;
-                public etomica.graphics.DisplayPhase display;
-                private etomica.P2SquareWell p2SquareWell;
-                private etomica.SpeciesSpheresMono speciesSpheres01;
-                private JPanel valuePanel;
-
-                public DiameterModulator(etomica.P2SquareWell pot, etomica.SpeciesSpheresMono ssm){
-                    p2SquareWell = pot;
-                    speciesSpheres01 = ssm;
-                    fullDiameter = pot.getCoreDiameter();
-                }
-                public etomica.units.Dimension getDimension() {
-                    return etomica.units.Dimension.LENGTH; 
-                }
-                public double getValue() {
-                    return p2SquareWell.getCoreDiameter();
-                }
-                public void setValue(double d) { 
-                    p2SquareWell.setCoreDiameter(d);
-                    speciesSpheres01.setDiameter(d);
-                    display.repaint();
-                }
-                public void setDisplay(etomica.graphics.DisplayPhase display){
-                    this.display = display;
-                }
-            } 
-//end of DiameterModulator class*********************************************************************
-           
-        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
-
-        Phase phase0  = new Phase();
-            phase0.setLrcEnabled(false);
-        IntegratorHard integrator = new IntegratorHard();    
-        P2SquareWell p2SquareWell  = new P2SquareWell();
-        Controller controller0  = new Controller();
-        SpeciesSpheresMono speciesSpheres0  = new SpeciesSpheresMono();
-        DisplayPhase displayPhase0  = new DisplayPhase();
-        DeviceTrioControllerButton button = new DeviceTrioControllerButton();
-//           button.setTrioControllerButtonShape("VERTICAL");     
-
-        DiameterModulator diaModulator= new DiameterModulator(p2SquareWell, speciesSpheres0);
-           diaModulator.setDisplay(displayPhase0);
-           
-        DeviceSlider mySlider = new DeviceSlider();
-//           mySlider.setShowMinorValues(true);
-           mySlider.setPrecision(3);  // default "0" - working with integer without setting precision, better higher precesion than minimum and maximum
-           mySlider.setMinimum(0);  // possible to give double value
-           mySlider.setMaximum(6.2); // possible to give double value
-           mySlider.setModulator(diaModulator); // call modulator instance after setting precision, minimum, and maximum
-//           mySlider.setValue(2*Default.ATOM_SIZE);// if modulator instance is called first then setValue method should be called to set slider value
-//           mySlider.setLabel("  ");  // without this, shows modulator demension  
-           mySlider.setShowValues(true); // default "false" - true makes panel to put Slider and TextField, which shows the values of slider
-           mySlider.setEditValues(true); // defaulst " false" - decide to edit the values after true setShowValues 
-           mySlider.setLabel("Diameter");
-/*           mySlider.getJPanel().setBorder(new javax.swing.border.TitledBorder( // default border is null
-                                            new javax.swing.border.EtchedBorder(
-                                                javax.swing.border.EtchedBorder.RAISED, java.awt.Color.black, java.awt.Color.gray) 
-                                                ,""
-                                                ,javax.swing.border.TitledBorder.LEFT
-                                                ,javax.swing.border.TitledBorder.TOP
-                                                ,new java.awt.Font(null,java.awt.Font.BOLD,15)
-                                                ,java.awt.Color.black));   */         
-//            mySlider.setSliderValueShape("HORIZONTAL"); // default "VERTICAL" 
-//            mySlider.setSliderVerticalOrientation(true); // true is for vertically standing slider 
-//            mySlider.getTextField().setHorizontalAlignment(mySlider.getTextField().LEFT); // default "CENTER"           
-                    
-        Simulation.instance.elementCoordinator.go();
-        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-
-    }
+//    public static void main(String[] args) {
+//         
+//// inner class of Modulator that works with Slider*************************************************************
+//           class DiameterModulator extends etomica.ModulatorAbstract {
+//
+//                public double fullDiameter;
+//                public double currentValue;
+//                public etomica.graphics.DisplayPhase display;
+//                private etomica.P2SquareWell p2SquareWell;
+//                private etomica.SpeciesSpheresMono speciesSpheres01;
+//                private JPanel valuePanel;
+//
+//                public DiameterModulator(etomica.P2SquareWell pot, etomica.SpeciesSpheresMono ssm){
+//                    p2SquareWell = pot;
+//                    speciesSpheres01 = ssm;
+//                    fullDiameter = pot.getCoreDiameter();
+//                }
+//                public etomica.units.Dimension getDimension() {
+//                    return etomica.units.Dimension.LENGTH; 
+//                }
+//                public double getValue() {
+//                    return p2SquareWell.getCoreDiameter();
+//                }
+//                public void setValue(double d) { 
+//                    p2SquareWell.setCoreDiameter(d);
+//                    speciesSpheres01.setDiameter(d);
+//                    display.repaint();
+//                }
+//                public void setDisplay(etomica.graphics.DisplayPhase display){
+//                    this.display = display;
+//                }
+//            } 
+////end of DiameterModulator class*********************************************************************
+//           
+//        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
+//
+//        Phase phase0  = new Phase();
+//            phase0.setLrcEnabled(false);
+//        IntegratorHard integrator = new IntegratorHard();    
+//        P2SquareWell p2SquareWell  = new P2SquareWell();
+//        Controller controller0  = new Controller();
+//        SpeciesSpheresMono speciesSpheres0  = new SpeciesSpheresMono();
+//        DisplayPhase displayPhase0  = new DisplayPhase();
+//        DeviceTrioControllerButton button = new DeviceTrioControllerButton();
+////           button.setTrioControllerButtonShape("VERTICAL");     
+//
+//        DiameterModulator diaModulator= new DiameterModulator(p2SquareWell, speciesSpheres0);
+//           diaModulator.setDisplay(displayPhase0);
+//           
+//        DeviceSlider mySlider = new DeviceSlider();
+////           mySlider.setShowMinorValues(true);
+//           mySlider.setPrecision(3);  // default "0" - working with integer without setting precision, better higher precesion than minimum and maximum
+//           mySlider.setMinimum(0);  // possible to give double value
+//           mySlider.setMaximum(6.2); // possible to give double value
+//           mySlider.setModulator(diaModulator); // call modulator instance after setting precision, minimum, and maximum
+////           mySlider.setValue(2*Default.ATOM_SIZE);// if modulator instance is called first then setValue method should be called to set slider value
+////           mySlider.setLabel("  ");  // without this, shows modulator demension  
+//           mySlider.setShowValues(true); // default "false" - true makes panel to put Slider and TextField, which shows the values of slider
+//           mySlider.setEditValues(true); // defaulst " false" - decide to edit the values after true setShowValues 
+//           mySlider.setLabel("Diameter");
+///*           mySlider.getJPanel().setBorder(new javax.swing.border.TitledBorder( // default border is null
+//                                            new javax.swing.border.EtchedBorder(
+//                                                javax.swing.border.EtchedBorder.RAISED, java.awt.Color.black, java.awt.Color.gray) 
+//                                                ,""
+//                                                ,javax.swing.border.TitledBorder.LEFT
+//                                                ,javax.swing.border.TitledBorder.TOP
+//                                                ,new java.awt.Font(null,java.awt.Font.BOLD,15)
+//                                                ,java.awt.Color.black));   */         
+////            mySlider.setSliderValueShape("HORIZONTAL"); // default "VERTICAL" 
+////            mySlider.setSliderVerticalOrientation(true); // true is for vertically standing slider 
+////            mySlider.getTextField().setHorizontalAlignment(mySlider.getTextField().LEFT); // default "CENTER"           
+//                    
+//        Simulation.instance.elementCoordinator.go();
+//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+//
+//    }
 }

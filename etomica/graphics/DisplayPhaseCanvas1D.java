@@ -186,7 +186,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         atomIterator.setList(displayPhase.getPhase().speciesMaster.atomList);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            drawAtom(g, displayPhase.getOrigin(), atomIterator.next());
+            drawAtom(g, displayPhase.getOrigin(), atomIterator.nextAtom());
         }
             
         //Draw overflow images if so indicated

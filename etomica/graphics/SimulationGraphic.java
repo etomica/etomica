@@ -139,9 +139,9 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulations.SwMd2D sim = new etomica.simulations.SwMd2D();
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
-          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
+//          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
 //      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
-//        HSMD2D sim = new HSMD2D();
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType.setColor(sim.species, java.awt.Color.red);

@@ -250,34 +250,34 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
-
-        SimulationGraphic sim = new SimulationGraphic();
-	    IntegratorHard integrator = new IntegratorHard(sim.potentialMaster);
-	    Species species = new SpeciesSpheresMono();
-	    species.setNMolecules(25);
-	    Phase phase = new Phase(sim.space);
-	    Controller controller = new Controller();
-	    Display display = new DisplayPhase();
-		
-        Potential2 potential = new P2SquareWell();
-        sim.potentialMaster.setSpecies(potential, new Species[] {species, species});
- //       Potential2 potential = new P2HardSphere(sim);
-		sim.elementCoordinator.go();
-
-        //part that is unique to this demonstration
-        integrator.setIsothermal(true);
-        Modulator mod1 = new Modulator(integrator, "temperature");
-        //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
-        DeviceBox box0 = new DeviceBox(mod1);
-        //here's a DisplayBox tied to a Modulator
-		DisplayBox box1 = new DisplayBox();
-//broken		box1.setDatumSource(mod1);
-        //end of unique part
-                                            
-		Simulation.instance.elementCoordinator.go(); 		                                    
-        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }//end of main  
+//    public static void main(String[] args) {
+//
+//        SimulationGraphic sim = new SimulationGraphic();
+//	    IntegratorHard integrator = new IntegratorHard(sim.potentialMaster);
+//	    Species species = new SpeciesSpheresMono();
+//	    species.setNMolecules(25);
+//	    Phase phase = new Phase(sim.space);
+//	    Controller controller = new Controller();
+//	    Display display = new DisplayPhase();
+//		
+//        Potential2 potential = new P2SquareWell();
+//        sim.potentialMaster.setSpecies(potential, new Species[] {species, species});
+// //       Potential2 potential = new P2HardSphere(sim);
+//		sim.elementCoordinator.go();
+//
+//        //part that is unique to this demonstration
+//        integrator.setIsothermal(true);
+//        Modulator mod1 = new Modulator(integrator, "temperature");
+//        //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
+//        DeviceBox box0 = new DeviceBox(mod1);
+//        //here's a DisplayBox tied to a Modulator
+//		DisplayBox box1 = new DisplayBox();
+////broken		box1.setDatumSource(mod1);
+//        //end of unique part
+//                                            
+//		Simulation.instance.elementCoordinator.go(); 		                                    
+//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+//    }//end of main  
   //  */
 
     

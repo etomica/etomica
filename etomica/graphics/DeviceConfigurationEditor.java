@@ -1,9 +1,17 @@
 package etomica.graphics;
-import etomica.*;
-import javax.swing.*;
-import java.awt.event.*;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.WindowConstants;
+
+import etomica.Atom;
 
 public class DeviceConfigurationEditor extends Device {
     
@@ -19,18 +27,16 @@ public class DeviceConfigurationEditor extends Device {
     DisplayPhaseListener currentListener;
     
     public DeviceConfigurationEditor(DisplayPhase display) {
-        this(Simulation.instance, display);
-    }
-    public DeviceConfigurationEditor(Simulation sim, DisplayPhase display) {
-        super(sim);
+        super();
         this.display = display;
         exists = true;
         
         buttonPane = new JInternalFrame() {
             public void dispose() {
-                ((SimulationGraphic)simulation()).panel().remove(this);
-                ((SimulationGraphic)simulation()).panel().validate();
-                ((SimulationGraphic)simulation()).panel().repaint();
+                Container parent = getParent();
+                parent.remove(this);
+                parent.validate();
+                parent.repaint();
                 DeviceConfigurationEditor.exists = false;
                 removeDisplayListeners();
                 super.dispose();

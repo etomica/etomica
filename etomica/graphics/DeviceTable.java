@@ -18,8 +18,6 @@ import javax.swing.JScrollPane;
  //and set up set/get methods for modulators
 public class DeviceTable extends Device /*implements EtomicaElement*/ {
     
-    public String getVersion() {return "DeviceTable:01.04.17/"+Device.VERSION;}
-
     public JTable table;
     MyTableData dataSource;
     ModulatorAbstract[] modulators;
@@ -28,15 +26,11 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
     JPanel panel;
 
     public DeviceTable() {
-        this(Simulation.instance);
+        super();
     }
     
-    public DeviceTable(Simulation sim) {
-        super(sim);
-    }
-    
-    public DeviceTable(Simulation sim, ModulatorAbstract[] mods) {
-        super(sim);
+    public DeviceTable(ModulatorAbstract[] mods) {
+        super();
         modulators = mods;
         editors = new DimensionedDoubleEditor[modulators.length];
         views = new PropertyText[modulators.length];

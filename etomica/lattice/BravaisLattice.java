@@ -1,6 +1,18 @@
 package etomica.lattice;
-import etomica.*;
-import etomica.action.AtomActionAdapter;
+import etomica.Atom;
+import etomica.AtomFactory;
+import etomica.AtomFactoryTree;
+import etomica.AtomIteratorList;
+import etomica.AtomIteratorListSimple;
+import etomica.AtomIteratorTree;
+import etomica.AtomList;
+import etomica.AtomSequencerFactory;
+import etomica.AtomTreeNodeGroup;
+import etomica.AtomType;
+import etomica.Configuration;
+import etomica.ConfigurationLinear;
+import etomica.SimulationEventManager;
+import etomica.Space;
 
 /**
  * Arbitrary-dimension Bravais Lattice. 

@@ -13,8 +13,6 @@ import javax.swing.JCheckBox;
  */
 public class DeviceCheckBox extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceCheckBox:02.08.09/"+Device.VERSION;}
-
     private ModulatorBoolean modulator;
     private JCheckBox box;
     private boolean currentValue = false;
@@ -23,10 +21,7 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
         this("Select", modulator);
     }
     public DeviceCheckBox(String label, ModulatorBoolean modulator) {
-        this(Simulation.instance, label, modulator);
-    }
-    public DeviceCheckBox(SimulationElement parent, String label, ModulatorBoolean modulator) {
-        super(parent);
+        super();
         init(label, modulator);
     }
     
@@ -95,31 +90,31 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
     /**
      * Method to demonstrate and test the use of this class.  
      */
-    public static void main(String[] args) {
-        
-        final etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
-        
-        //here's the part unique to this class
-        //sets up box to toggle atoms between red and blue
-        final ColorSchemeByType colorScheme = new ColorSchemeByType();
-        sim.display.setColorScheme(colorScheme);
-        ModulatorBoolean modulator = new ModulatorBoolean() {
-            public void setBoolean(boolean b) {
-                if(b) ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.blue);
-                else ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.red);
-//                if(b) sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.red);}});
-//                else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
-                sim.panel().repaint();
-            }
-            public boolean getBoolean() {return colorScheme.atomColor(sim.phase.firstAtom()) == java.awt.Color.blue;}
-        };
-        modulator.setBoolean(true);
-        DeviceCheckBox button = new DeviceCheckBox(sim, "Blue", modulator);
-        //end of unique part
- 
-        sim.elementCoordinator.go();
-        SimulationGraphic.makeAndDisplayFrame(sim);
-    }
+//    public static void main(String[] args) {
+//        
+//        final etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+//        Simulation.instance = sim;
+//        
+//        //here's the part unique to this class
+//        //sets up box to toggle atoms between red and blue
+//        final ColorSchemeByType colorScheme = new ColorSchemeByType();
+//        sim.display.setColorScheme(colorScheme);
+//        ModulatorBoolean modulator = new ModulatorBoolean() {
+//            public void setBoolean(boolean b) {
+//                if(b) ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.blue);
+//                else ColorSchemeByType.setColor((SpeciesSpheresMono)sim.species, java.awt.Color.red);
+////                if(b) sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.red);}});
+////                else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
+//                sim.panel().repaint();
+//            }
+//            public boolean getBoolean() {return colorScheme.atomColor(sim.phase.firstAtom()) == java.awt.Color.blue;}
+//        };
+//        modulator.setBoolean(true);
+//        DeviceCheckBox button = new DeviceCheckBox(sim, "Blue", modulator);
+//        //end of unique part
+// 
+//        sim.elementCoordinator.go();
+//        SimulationGraphic.makeAndDisplayFrame(sim);
+//    }
 //    */
 }

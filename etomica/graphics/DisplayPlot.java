@@ -15,8 +15,6 @@ import etomica.units.*;
  
 public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
     
-    public String getVersion() {return "DisplayPlot:01.05.29/"+Display.VERSION;}
-
     private Plot plot;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
     private boolean doLegend = true;

@@ -14,21 +14,16 @@ import javax.swing.*;
  */
 public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
     
-    public String getVersion() {return "DeviceToggleRadioButtons:01.11.10/"+Device.VERSION;}
-
     private ModulatorBoolean modulator;
     private JPanel panel;
     private JRadioButton trueButton, falseButton;
     
-    public DeviceToggleRadioButtons(ModulatorBoolean modulator) {
-        this(Simulation.instance, modulator);
-    }
     /**
      * Constructor with default labels of a blank title and "True" and "False" for
      * the true/false labels.
      */
-    public DeviceToggleRadioButtons(Simulation sim, ModulatorBoolean modulator) {
-        this(sim, modulator, "", "True", "False");
+    public DeviceToggleRadioButtons(ModulatorBoolean modulator) {
+        this(modulator, "", "True", "False");
     }
     
     /**
@@ -38,9 +33,8 @@ public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
      * @param trueText  text associated with "true" state of modulator
      * @param falseText text associated with "false" state of modulator
      */
-    public DeviceToggleRadioButtons(Simulation sim, final ModulatorBoolean modulator, 
+    public DeviceToggleRadioButtons(final ModulatorBoolean modulator, 
                                 String title, String trueText, String falseText) {
-        super(sim);
 
         java.awt.event.ActionListener al = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {

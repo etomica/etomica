@@ -46,28 +46,28 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
     /**
      * Demonstrates how this class is implemented.
      */
-    public static void main(String[] args) {
-        Simulation.instance = new SimulationGraphic(new Space2D());
-	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheresMono speciesBlue = new SpeciesSpheresMono();
-	    SpeciesSpheresMono speciesRed = new SpeciesSpheresMono();
-	    
-	    Phase phase = new Phase();
-	    Potential2 potential = new P2HardSphere();
-	    Controller controller = new Controller();
-	    DisplayPhase displayPhase = new DisplayPhase();
-	    
-	    //this is the special part
-        displayPhase.setColorScheme(new ColorSchemeByType());        
-        ((ParameterColor)((AtomFactoryMono)speciesBlue.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(Color.blue);
-        ((ParameterColor)((AtomFactoryMono)speciesRed.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(Color.red);
-        //--------------------
-                
-        //this method call invokes the mediator to tie together all the assembled components.
-		Simulation.instance.elementCoordinator.go();
-		                                    
-		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
-        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }//end of main
+//    public static void main(String[] args) {
+//        Simulation.instance = new SimulationGraphic(new Space2D());
+//	    IntegratorHard integratorHard = new IntegratorHard();
+//	    SpeciesSpheresMono speciesBlue = new SpeciesSpheresMono();
+//	    SpeciesSpheresMono speciesRed = new SpeciesSpheresMono();
+//	    
+//	    Phase phase = new Phase();
+//	    Potential2 potential = new P2HardSphere();
+//	    Controller controller = new Controller();
+//	    DisplayPhase displayPhase = new DisplayPhase();
+//	    
+//	    //this is the special part
+//        displayPhase.setColorScheme(new ColorSchemeByType());        
+//        ((ParameterColor)((AtomFactoryMono)speciesBlue.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(Color.blue);
+//        ((ParameterColor)((AtomFactoryMono)speciesRed.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(Color.red);
+//        //--------------------
+//                
+//        //this method call invokes the mediator to tie together all the assembled components.
+//		Simulation.instance.elementCoordinator.go();
+//		                                    
+//		((SimulationGraphic)Simulation.instance).panel().setBackground(java.awt.Color.yellow);
+//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+//    }//end of main
     
 }
