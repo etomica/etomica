@@ -74,7 +74,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         return atom.coord.mass()*tmin;
     }
                 
-//    public void bump(IntegratorHardAbstract.Agent agent) {
+//    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
     public void bump(Atom[] a) {
     	atom = a[0];

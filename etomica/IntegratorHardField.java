@@ -9,7 +9,6 @@ package etomica;
  */
 public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
 
-    public String getVersion() {return "IntegratorHardField:01.03.17/"+super.getVersion();}
 //    public final IntegratorHardField.ForceSum forceSum;
 	public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective fieldsOnly = new IteratorDirective();
@@ -129,9 +128,9 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     }
      
     /**
-    * Extends IntegratorHardAbstract.Agent to hold a force vector.
+    * Extends IntegratorHard.Agent to hold a force vector.
     */
-    public static class Agent extends IntegratorHardAbstract.Agent implements Integrator.Forcible { 
+    public static class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
     
         public final Space.Vector force;
         public boolean forceFree = true;

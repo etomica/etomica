@@ -6,7 +6,7 @@ package etomica;
  *
  * @author Rob Riggleman
  */
-public class MeterProfileHard extends MeterProfile implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
+public class MeterProfileHard extends MeterProfile implements IntegratorHard.CollisionListener, EtomicaElement {
     
     private MeterCollisional cMeter;
     private int nCollisions;
@@ -68,7 +68,7 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHardAbst
      * Tabulates the contribution of the last collision involving the given atom pair/potential to the profile.
      * Location of the collision is defined by the average of the atoms' coordinates.
      */
-    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+    public void collisionAction(IntegratorHard.Agent agent) {
         if(agent == null || agent.atom() == null || agent.collisionPartner() == null) return;
     //this way (adding once at midpoint of atoms) doesn't handle PBC well; 
     //causes peak in middle due to collisions at boundaries...

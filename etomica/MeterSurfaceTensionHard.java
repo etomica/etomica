@@ -58,14 +58,14 @@ public class MeterSurfaceTensionHard extends MeterScalar implements MeterAtomic,
     /**
      * Calls collisionAction method of virial contribution
      */
-    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+    public void collisionAction(IntegratorHard.Agent agent) {
         virialTensor.collisionAction(agent);
     }
     
     /**
      * Contribution to the surface tension from the recent collision of the given pair
      */
-    public double collisionValue(IntegratorHardAbstract.Agent agent) {
+    public double collisionValue(IntegratorHard.Agent agent) {
         Space.Tensor vTensor = virialTensor.collisionValue(agent);
         if (D == 1) {collisionValue = vTensor.component(0, 0);}
         else if (D == 2) {collisionValue = vTensor.component(0, 0) - vTensor.component(1, 1);}

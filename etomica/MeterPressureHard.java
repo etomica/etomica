@@ -10,7 +10,7 @@ import etomica.units.*;
  * @author David Kofke
  */
 public final class MeterPressureHard extends MeterScalar implements
-                                                IntegratorHardAbstract.CollisionListener,
+                                                IntegratorHard.CollisionListener,
                                                 MeterCollisional,
                                                 EtomicaElement {
         
@@ -58,7 +58,7 @@ public final class MeterPressureHard extends MeterScalar implements
      * Implementation of CollisionListener interface
      * Adds collision virial (from potential) to accumulator
      */
-    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+    public void collisionAction(IntegratorHard.Agent agent) {
         virialSum += agent.collisionPotential.lastCollisionVirial();
     }
     
@@ -66,7 +66,7 @@ public final class MeterPressureHard extends MeterScalar implements
      * Implementation of Meter.MeterCollisional interface.  Returns -(collision virial)/D.
      * Suitable for tabulation of PV
      */
-	public double collisionValue(IntegratorHardAbstract.Agent agent) {
+	public double collisionValue(IntegratorHard.Agent agent) {
 	    return -agent.collisionPotential.lastCollisionVirial()/(double)D;
 	}
 

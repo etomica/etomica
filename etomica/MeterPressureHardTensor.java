@@ -1,7 +1,7 @@
 package etomica;
 import etomica.units.*;
 
-public class MeterPressureHardTensor extends MeterTensor implements IntegratorHardAbstract.CollisionListener {
+public class MeterPressureHardTensor extends MeterTensor implements IntegratorHard.CollisionListener {
     
     private double[][] virialSum;
     private double t0, t, velocity2;
@@ -70,7 +70,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
         return getData().component(i, j);
     }
     
-    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+    public void collisionAction(IntegratorHard.Agent agent) {
         Space.Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
         for (int i=0; i<lcvt.length(); i++) {
             for (int j=0; j<lcvt.length(); j++) {

@@ -7,6 +7,6 @@ package etomica;
 /**
  * Interface for a meter that can return a value based on a hard-potential collision.
  */
-public interface MeterCollisional extends IntegratorHardAbstract.CollisionListener {
-    public double collisionValue(IntegratorHardAbstract.Agent agent);
+public interface MeterCollisional extends IntegratorHard.CollisionListener {
+    public double collisionValue(IntegratorHard.Agent agent);
 }

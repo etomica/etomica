@@ -105,7 +105,7 @@ public class DataSourceCollisionCount extends DataSourceAdapter {
     private MyCounter[] counter = new MyCounter[0];
     
     //inner class used to handle the counting for each integrator.
-    private static class MyCounter implements IntegratorHardAbstract.CollisionListener  {
+    private static class MyCounter implements IntegratorHard.CollisionListener  {
     	
     	MyCounter(IntegratorHard integrator) {
     		this.integrator = integrator;
@@ -114,7 +114,7 @@ public class DataSourceCollisionCount extends DataSourceAdapter {
 	  /**
 	    * Implements CollisionListener.  Adds one to the counter with each collision.
 	    */
-	    public void collisionAction(IntegratorHardAbstract.Agent agent) {
+	    public void collisionAction(IntegratorHard.Agent agent) {
 	        count++;
 	    }
     	    
