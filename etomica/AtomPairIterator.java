@@ -1,6 +1,6 @@
 package simulate;
 
-public interface SpaceAtomPairIterator {
+public interface AtomPairIterator {
     public boolean hasNext();
 //    public boolean hasPrevious();
 //    public boolean hasNextInSpecies(Species s);

@@ -1,6 +1,6 @@
 package simulate;
 
-public interface SpaceAtomPair {
+public interface AtomPair {
     
     public double r2();
     public SpaceAtom atom1();

@@ -10,13 +10,13 @@ import java.awt.*;
  *  @author C. Daniel Barnes
  *  @see Molecule
  */
-public abstract class SpaceAtom {
+public abstract class Atom {
 
     /**
      * Constructs an atom with no initialization if parent is null; otherwise constructs atom with default atomIndex = 0.  
      * Expected use of such an Atom is for the construction of other Atoms via makeAtom method
      */
-    public SpaceAtom(Molecule parent) {   //delete this when possible
+    public Atom(Molecule parent) {   //delete this when possible
         this(parent,0);
     }
     
@@ -28,7 +28,7 @@ public abstract class SpaceAtom {
      * @param parent       molecule in which atom resides
      * @param index        sequential index of atom as assigned by parent molecule
      */
-    public SpaceAtom(Molecule parent, int index) {
+    public Atom(Molecule parent, int index) {
         parentMolecule = parent;
         atomIndex = index;
         setStationary(false);
@@ -36,6 +36,8 @@ public abstract class SpaceAtom {
     }
         
 //    public abstract SpaceAtom makeAtom(Molecule m, int i);
+    
+    public void establishCoordinate(Coordinate c) {coordinate = c;}
     
     public void setIntegratorAgent(IntegratorAgent ia) {this.ia = ia;}
     
@@ -59,14 +61,14 @@ public abstract class SpaceAtom {
    * @param atom  the next atom in the list
    * @see Molecule#orderAtoms
    */
-  public void setNextAtom(SpaceAtom atom) {
+  public void setNextAtom(Atom atom) {
     this.nextAtom = atom;
     if(atom != null) {atom.previousAtom = this;}
   }
   public void clearPreviousAtom() {previousAtom = null;}
   
-  public final SpaceAtom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom;}  //first atom on next molecule
-  public final SpaceAtom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom;}  //first atom on next molecule
+  public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom;}  //first atom on next molecule
+  public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom;}  //first atom on next molecule
 
   public abstract void draw(Graphics g, int[] origin, double scale);
 
@@ -106,7 +108,7 @@ public abstract class SpaceAtom {
      * Because it may be shadowed in subclasses, it should be set only via call to setNextAtom.
      * @see #setNextAtom
      */
-    public SpaceAtom nextAtom = null;
+    public Atom nextAtom = null;
     
     /**
      * previous atom in linked list of atoms.  
@@ -114,7 +116,7 @@ public abstract class SpaceAtom {
      *
      * @see #setNextAtom
      */
-    public SpaceAtom previousAtom = null;
+    public Atom previousAtom = null;
         
     /**
      * Flag indicating whether atom is stationary or mobile.
@@ -122,4 +124,5 @@ public abstract class SpaceAtom {
      */
     private boolean stationary;
    
+    public Coordinate coordinate;
 }
