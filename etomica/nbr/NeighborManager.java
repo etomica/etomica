@@ -10,8 +10,6 @@ import etomica.AtomsetActive;
 import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 
