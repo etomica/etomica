@@ -41,8 +41,8 @@ public class ConfigurationZincblende extends ConfigurationMolecule {
         }
         
         //create fcc lattice each species at same positions
-        fcc.initializePositions(lists[0]);
-        fcc.initializePositions(lists[1]);
+        fcc.initializePositions(new AtomList[]{lists[0]});
+        fcc.initializePositions(new AtomList[]{lists[1]});
         
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();

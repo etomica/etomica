@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.AtomFactory;
-import etomica.Configuration;
+import etomica.Conformation;
 import etomica.ConfigurationLinear;
 import etomica.Space;
 import etomica.Species;
@@ -40,7 +40,7 @@ import etomica.Species;
      * @param config the configuration applied to each group that is built (default is Linear).
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, 
-                            int atoms, Configuration config) {  
+                            int atoms, Conformation config) {  
         this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, config);
     }
  
@@ -53,7 +53,7 @@ import etomica.Species;
      * @param config the configuration applied to each group that is built (default is Linear).
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory, 
-    						AtomFactory factory, int atoms, Configuration config) {
+    						AtomFactory factory, int atoms, Conformation config) {
         super(space, new AtomTypeGroup(), sequencerFactory, nodeFactory);
         childFactory = factory;
         atomsPerGroup = atoms;
@@ -70,11 +70,12 @@ import etomica.Species;
      */
      public Atom makeAtom() {
         Atom group = newParentAtom();
+        AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.node;
         for(int i=0; i<atomsPerGroup; i++) {
             Atom childAtom = childFactory.makeAtom();
-            childAtom.node.setParent((AtomTreeNodeGroup)group.node);
+            childAtom.node.setParent(node);
         }
-        configuration.initializeCoordinates(group);
+        configuration.initializePositions(node.childList);
         return group;
      }
      

@@ -22,7 +22,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     public AtomTypeSphere protoType;
     
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory, int na, Configuration config) {
+    private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory, int na, Conformation config) {
         AtomType type = new AtomTypeSphere(Default.ATOM_MASS, Default.ATOM_SIZE);
         AtomFactoryMono f = new AtomFactoryMono(space, type, seqFactory);
         return new AtomFactoryHomo(space, seqFactory, f, na, config);
@@ -35,7 +35,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         this(space, seqFactory, nM, nA, new ConfigurationLinear(space));
     }
     public SpeciesSpheres(Space space, AtomSequencerFactory seqFactory, 
-                int nM, int nA, Configuration config) {
+                int nM, int nA, Conformation config) {
         super(makeFactory(space, seqFactory, nA, config));
         factory.setSpecies(this);
         protoType = (AtomTypeSphere)((AtomFactoryHomo)factory).childFactory().getType();

@@ -1,6 +1,8 @@
 package etomica;
 
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.space.Vector;
 
@@ -23,12 +25,14 @@ public class ConfigurationSequential extends ConfigurationMolecule {
 	private boolean fill;
 	private boolean squareConfig;
     private final AtomIteratorListCompound atomIterator;
-    
+    private final AtomActionTranslateTo atomActionTranslateTo;
+
 	public ConfigurationSequential(Space space) {
 		super(space);
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
         atomIterator = new AtomIteratorListCompound();
+        atomActionTranslateTo = new AtomActionTranslateTo(space);
 	}
     
 	public void setFillVertical(boolean b) {fill = b;}
@@ -75,10 +79,14 @@ public class ConfigurationSequential extends ConfigurationMolecule {
             Atom a = atomIterator.nextAtom();
             //initialize coordinates of child atoms
             if (!a.node.isLeaf()) {
-                Configuration config = a.type.creator().getConfiguration();
-                config.initializeCoordinates(a);
+                Conformation config = a.type.creator().getConfiguration();
+                config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
+                atomActionTranslateTo.setDestination(rLat[i]);
+                atomActionTranslateTo.actionPerformed(a);
             }
-            a.coord.position().E(rLat[i]);
+            else {
+                a.coord.position().E(rLat[i]);
+            }
             i++;
         }
     }

@@ -14,7 +14,7 @@ import etomica.atom.AtomTreeNodeGroup;
 public abstract class AtomFactory {
     
     public final Space space;
-    protected Configuration configuration;
+    protected Conformation configuration;
     protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeFactory nodeFactory;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
@@ -93,7 +93,7 @@ public abstract class AtomFactory {
      * Sets the configuration used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
-    public void setConfiguration(Configuration config) {
+    public void setConfiguration(Conformation config) {
         configuration = config;
     }
     
@@ -101,7 +101,7 @@ public abstract class AtomFactory {
      * Returns the configuration used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
-    public Configuration getConfiguration() {return configuration;}
+    public Conformation getConfiguration() {return configuration;}
     
     /**
      * Adds given agent source to agent-source array and returns index

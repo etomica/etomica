@@ -22,7 +22,7 @@ public class AtomFactoryMono extends AtomFactory {
     }
     
     public AtomFactoryMono(Space space, AtomType atomType, AtomSequencerFactory seqFactory) {
-        super(space, new AtomTypeSphere(), seqFactory, AtomTreeNodeLeaf.FACTORY);
+        super(space, atomType, seqFactory, AtomTreeNodeLeaf.FACTORY);
     }
     
     public void setSpecies(Species species) {

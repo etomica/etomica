@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.AtomFactory;
-import etomica.Configuration;
+import etomica.Conformation;
 import etomica.ConfigurationLinear;
 import etomica.Space;
 import etomica.Species;
@@ -30,12 +30,12 @@ public class AtomFactoryHetero extends AtomFactory {
      * @param sequencerFactory the factory making sequencers used in the groups made by this factory (default is simple sequencer).
      */
     public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomFactory[] factory, 
-                            Configuration config) {
+                            Conformation config) {
         this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
     }
     
 	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory,
-							AtomFactory[] factory, Configuration config) {
+							AtomFactory[] factory, Conformation config) {
 		super(space, new AtomTypeGroup(), sequencerFactory, nodeFactory);
         childFactory = (AtomFactory[])factory.clone();
         configuration = config;
@@ -52,11 +52,12 @@ public class AtomFactoryHetero extends AtomFactory {
      */
     public Atom makeAtom() {
         Atom group = newParentAtom();
+        AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.node;
         for(int i=0; i<childFactory.length; i++) {
             Atom childAtom = childFactory[i].makeAtom();
-            childAtom.node.setParent((AtomTreeNodeGroup)group.node);
+            childAtom.node.setParent(node);
         }
-        configuration.initializeCoordinates(group);
+        configuration.initializePositions(node.childList);
         return group;
     }
     

@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
@@ -30,6 +31,7 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
         atomIterator = new AtomIteratorListCompound();
+        work = space.makeVector();
 	}
 	
     public void initializePositions(AtomList[] lists) {
@@ -102,7 +104,7 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Conformation config = (Conformation)a.type.creator().getConfiguration();
+                Conformation config = a.type.creator().getConfiguration();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             Vector site = (Vector)lattice.site(indexIterator.next());
@@ -147,8 +149,9 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
         return latticeDimensions;
     }
 	
-	private CubicLattice lattice;
-    private IndexIteratorSizable indexIterator;
+	private final CubicLattice lattice;
+    private final IndexIteratorSizable indexIterator;
+    private final Vector work;
 	private boolean rescalingToFitVolume = true;
 	private boolean assigningSitesToAtoms = false;
 	private int siteIndex = -1;

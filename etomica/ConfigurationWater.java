@@ -4,7 +4,7 @@ import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
 
-public class ConfigurationWater extends Configuration {
+public class ConfigurationWater extends Conformation {
 
     private double bondLengthOH = 4.0;
     private double angleHOH = 109.5*Math.PI/180.;

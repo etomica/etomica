@@ -2,6 +2,7 @@ package etomica;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -12,7 +13,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-public class ConfigurationLinear extends Configuration {
+public class ConfigurationLinear extends Conformation {
     
     public ConfigurationLinear(Space space) {
         this(space, 0.55*Default.ATOM_SIZE);
@@ -26,7 +27,6 @@ public class ConfigurationLinear extends Configuration {
         orientation = space.makeVector();
         angle = new double[space.D()];
         for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
-        zeroTotalMomentum = false;
         translator = new AtomActionTranslateBy(space);
         moveToOrigin = new AtomActionTranslateTo(space);
         translationVector = translator.getTranslationVector();
@@ -76,8 +76,8 @@ public class ConfigurationLinear extends Configuration {
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Configuration config = a.type.creator().getConfiguration();
-                config.initializeCoordinates(a);
+                Conformation config = a.type.creator().getConfiguration();
+                config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);

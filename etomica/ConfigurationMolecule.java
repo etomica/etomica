@@ -18,10 +18,10 @@ import etomica.atom.iterator.AtomIteratorListSimple;
   * 09/04/02 (DAK) added Null inner class and NULL field
   * 01/21/04 (DAK) added initializeCoordinate(Phase) method
   */
-public abstract class ConfigurationMolecule extends Configuration {
+public abstract class ConfigurationMolecule {
 
     public ConfigurationMolecule(Space space) {
-        super(space);
+        this.space = space;
     }
 
     public abstract void initializePositions(AtomList[] atomList);
@@ -36,14 +36,8 @@ public abstract class ConfigurationMolecule extends Configuration {
         while (speciesAgentIterator.hasNext()) {
             SpeciesAgent agent = (SpeciesAgent)speciesAgentIterator.nextAtom();
             moleculeLists[i++] = ((AtomTreeNodeGroup)agent.node).childList;
-            if (space.isKinetic()) {
-                initializeMomenta(agent);
-            }
         }
         initializePositions(moleculeLists);
-    }
-    public void initializePositions(AtomList atomList) {
-        initializePositions(new AtomList[] {atomList});
     }
     
     public void setDimensions(double[] dim) {
@@ -51,5 +45,8 @@ public abstract class ConfigurationMolecule extends Configuration {
     }
 
     public double[] getDimensions() {return dimensions;}
+    
+    protected double[] dimensions;
+    protected Space space;
     
 }//end of Configuration
