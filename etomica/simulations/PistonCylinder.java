@@ -1,88 +1,120 @@
 package etomica.simulations;
-import etomica.*;
-import etomica.data.DataSourceCountSteps;
-import etomica.data.meter.MeterTemperature;
-import etomica.graphics.*;
-import etomica.integrator.IntegratorHardField;
-import etomica.potential.P2HardSphere;
-import etomica.potential.P2HardSphereWall;
-import etomica.potential.PotentialGroup;
-import etomica.units.*;
+import etomica.DataSourceCountSteps;
+import etomica.Default;
+import etomica.IntegratorHard;
+import etomica.IntegratorProgressListener;
+import etomica.MeterTemperature;
+import etomica.P1HardBoundary;
+import etomica.P2SquareWell;
+import etomica.Phase;
+import etomica.Potential2;
+import etomica.Simulation;
+import etomica.Space2D;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
+import etomica.WriteConfiguration;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.SimulationGraphic;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
  */
-public class PistonCylinder extends SimulationGraphic {
+public class PistonCylinder extends Simulation {
     
-    public IntegratorHardField integrator;
+    public IntegratorHard integrator;
     public SpeciesSpheresMono species;
-    public SpeciesPistonCylinder speciesPC;
     public Phase phase;
-    public P2HardSphere potential;
-    public P2HardSphereWall potentialHardDiskWall;
-    public Controller controller;
-    public DisplayPhase display;
-    public DataSourceCountSteps meterCycles;
-    public DisplayBox displayCycles;
+    public Potential2 potential;
+    public P1HardBoundary wallPotential;
+    public ActivityIntegrate ai;
+    public double lambda;
 
     public PistonCylinder() {
         super(new Space2D());
-        Simulation.instance = this;
+        lambda = 1.5;
         
 	    species = new SpeciesSpheresMono(this);
-	    speciesPC = new SpeciesPistonCylinder(this);
-        speciesPC.setLength(20.);
+//	    speciesPC = new SpeciesPistonCylinder(this);
+//        speciesPC.setLength(20.);
+        
+	    phase = new Phase(space);
+//        phase.setConfiguration(new ConfigurationFile(space,"pc"));
+        phase.setBoundary(space.makeBoundary(Space2D.Boundary.NONE));
+        phase.speciesMaster.addSpecies(species);
 	    
-	    phase = new Phase(this);
+	    potential = new P2SquareWell(space,Default.ATOM_SIZE,lambda,Default.POTENTIAL_WELL);
+//        potential = new P2HardSphere(space,Default.ATOM_SIZE);
+	    potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    
-	    potential = new P2HardSphere();
-	    potential.setSpecies(species, species);
+        wallPotential = new P1HardBoundary(space);
+        wallPotential.setCollisionRadius(Default.ATOM_SIZE*0.5); //potential.getCoreDiameter()*0.5);
+        potentialMaster.setSpecies(wallPotential,new Species[]{species});
+        
 	    
-	    PotentialGroup potentialDiskPC = new PotentialGroup(2);
-	    potentialDiskPC.setSpecies(new Species[] {species, speciesPC});
+//        PotentialGroup potentialDiskPC = new PotentialGroup(2);
+//	    potentialDiskPC.setSpecies(new Species[] {species, speciesPC});
 	    
-	    potentialHardDiskWall = new P2HardSphereWall(potentialDiskPC, Default.ATOM_SIZE);
+//	    potentialHardDiskWall = new P2HardSphereWall(potentialDiskPC, Default.ATOM_SIZE);
 //	    potentialHardDiskWall.setIterator(new ApiGeneral(Simulation.instance.space,
 //	                new AtomIteratorSinglet(), new AtomIteratorSequential()));
 	    
-	    integrator = new IntegratorHardField(this);
-	    controller = new Controller(this);
+	    integrator = new IntegratorHard(potentialMaster);
+        integrator.addPhase(phase);
+        ai = new ActivityIntegrate(integrator);
+        getController().addAction(ai);
 	    
-	    display = new DisplayPhase(this);
-	    
-	    meterCycles = new DataSourceCountSteps(this);
-	    displayCycles = new DisplayBox(this,meterCycles);
-	    
-		panel().setBackground(java.awt.Color.yellow);
-
-        phase.setBoundary(speciesPC.new Boundary(phase)); //have piston-cylinder system define boundary of phase
-        
-        //part unique to this class
-        etomica.data.meter.MeterScalar thermometer = new MeterTemperature();
-        DisplayBox tBox = new DisplayBox();
-        tBox.setMeter(thermometer);
-        tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));
-        display.setAlign(1,DisplayPhase.BOTTOM);
-        
-	    DisplayTimer timer = new DisplayTimer(integrator);
-	    timer.setUpdateInterval(10);
-//		Simulation.instance.elementCoordinator.go();
-
-/*        DeviceSlider pressureSlider = new DeviceSlider((SpeciesPistonCylinder.PistonPressureField)phase.firstField(),"pressure");
-        Simulation.instance.add(pressureSlider.graphic(null));
-        pressureSlider.setUnit(new Unit(Bar.UNIT));
-        pressureSlider.setMinimum(50);
-        pressureSlider.setMaximum(1000);
-*/
     }
+
+    public static class Applet extends javax.swing.JApplet {
+        public DisplayPhase display;
+        public DataSourceCountSteps meterCycles;
+        public DisplayBox displayCycles;
+        public MeterTemperature thermometer;
+
+        public void init() {
+            PistonCylinder pc = new PistonCylinder();
+            Default.DO_SLEEP = true;
+            SimulationGraphic sg = new SimulationGraphic(pc);
+            getContentPane().add(sg.panel());
+            display = new DisplayPhase(pc.phase);
+            
+            meterCycles = new DataSourceCountSteps(pc.integrator);
+//            displayCycles = new DisplayBox(meterCycles);
+            
+            sg.panel().setBackground(java.awt.Color.yellow);
+
+//            pc.phase.setBoundary(speciesPC.new Boundary(phase)); //have piston-cylinder system define boundary of phase
+            
+            //part unique to this class
+            thermometer = new MeterTemperature();
+//            DisplayBox tBox = new DisplayBox();
+//            tBox.setMeter(thermometer);
+//            tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));
+            display.setAlign(1,DisplayPhase.BOTTOM);
+            
+//            DisplayTimer timer = new DisplayTimer(pc.integrator);
+//            timer.setUpdateInterval(10);
+//          Simulation.instance.elementCoordinator.go();
+
+    /*        DeviceSlider pressureSlider = new DeviceSlider((SpeciesPistonCylinder.PistonPressureField)phase.firstField(),"pressure");
+            Simulation.instance.add(pressureSlider.graphic(null));
+            pressureSlider.setUnit(new Unit(Bar.UNIT));
+            pressureSlider.setMinimum(50);
+            pressureSlider.setMaximum(1000);
+            */
+        }
+}
     
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        SimulationGraphic sim = new PistonCylinder();
-		sim.elementCoordinator.go();
-		sim.makeAndDisplayFrame();
+        PistonCylinder sim = new PistonCylinder();
+        sim.ai.setMaxSteps(10000);
+        sim.getController().actionPerformed();
+//		sim.makeAndDisplayFrame();
    }//end of main
     
 }
