@@ -144,12 +144,13 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         SimulationGraphic graphic = new SimulationGraphic(sim);
         
         DeviceThermoSelector device = new DeviceThermoSelector(sim.getController(), sim.integrator);
+        device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});
         graphic.add(device);
         LinkedList displays = graphic.displayList();
         for(Iterator iter=displays.iterator(); iter.hasNext();) {
             Display next = (Display)iter.next();
             if(next instanceof DisplayPhase) {
-                ((DisplayPhase)next).setColorScheme(new ColorSchemeTemperature());
+                ((DisplayPhase)next).setColorScheme(new ColorSchemeTemperature(0.5, 5.0));
             }
         }
         graphic.makeAndDisplayFrame();
