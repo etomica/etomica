@@ -12,14 +12,15 @@ public class AtomReservoir extends AtomGroup {
     private int count = 0;  //index of where next atom is to be placed in atoms array
     private int maximumCapacity;
     private Simulation parentSimulation;
+    private Space space;
     
-    public AtomReservoir(Simulation sim) {
-        this(sim, 10,80);
+    public AtomReservoir(Space space) {
+        this(space, 10,80);
         
     }
-    public AtomReservoir(Simulation sim, int initialCapacity, int maximumCapacity) {
-        super(sim.space(), AtomType.NULL);
-        parentSimulation = sim;
+    public AtomReservoir(Space s, int initialCapacity, int maximumCapacity) {
+        super(s, AtomType.NULL);
+        space = s;
         if(initialCapacity < 1) initialCapacity = 1;
         if(maximumCapacity < 1) maximumCapacity = 1;
         this.maximumCapacity = maximumCapacity;
@@ -78,7 +79,7 @@ public class AtomReservoir extends AtomGroup {
     public Phase parentPhase() {return null;}
     public Species parentSpecies() {return null;}
     public SpeciesAgent parentSpeciesAgent() {return null;}
-    public Simulation parentSimulation() {return parentSimulation;}
+    public Simulation parentSimulation() {return null;}
     
     public void setMaximumCapacity(int i) {
         maximumCapacity = i; 

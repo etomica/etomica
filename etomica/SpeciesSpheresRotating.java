@@ -16,8 +16,8 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public AtomType.OrientedSphere protoType;
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Simulation sim) {
-        AtomFactoryMono f = new AtomFactoryMono(sim);
+    private static AtomFactoryMono makeFactory(Space space) {
+        AtomFactoryMono f = new AtomFactoryMono(space);
         AtomType type = new AtomType.OrientedSphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
         return f;
@@ -33,7 +33,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         this(sim, Default.MOLECULE_COUNT);
     }
     public SpeciesSpheresRotating(Simulation sim, int nM) {
-        super(sim, makeFactory(sim));
+        super(sim, makeFactory(sim.space()));
         protoType = (AtomType.OrientedSphere)((AtomFactoryMono)factory).type();
         nMolecules = nM;
     }

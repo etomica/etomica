@@ -27,8 +27,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
     public void setPhase(Phase p) {}
 
     public void setPhase(Phase[] p) {
+        if(p == null || p.length == 0) return;
         super.setPhase(p);
         firstPhase = p[0];
+        if(p.length < 2) return;
         secondPhase = p[1];
     }
         

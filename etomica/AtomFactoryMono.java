@@ -9,8 +9,8 @@ public class AtomFactoryMono extends AtomFactory {
     
     AtomType atomType;
     
-    public AtomFactoryMono(Simulation sim) {
-        super(sim);
+    public AtomFactoryMono(Space space) {
+        super(space);
     }
     
     //can't pass atomtype to constructor because atomtype needs this in its constructor
@@ -25,7 +25,7 @@ public class AtomFactoryMono extends AtomFactory {
      * Builds a single atom.
      */
     protected Atom build() {
-        return new Atom(parentSimulation.space(), atomType);
+        return new Atom(space, atomType);
     }
     
     public boolean vetoAddition(Atom a) {return (a.type != atomType);}

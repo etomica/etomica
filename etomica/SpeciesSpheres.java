@@ -14,11 +14,11 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     public AtomType.Sphere protoType;
     
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Simulation sim, int na, BondInitializer bondInit, Configuration config) {
-        AtomFactoryMono f = new AtomFactoryMono(sim);
+    private static AtomFactoryHomo makeFactory(Space space, int na, BondInitializer bondInit, Configuration config) {
+        AtomFactoryMono f = new AtomFactoryMono(space);
         AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
-        AtomFactoryHomo fm = new AtomFactoryHomo(sim, f, na, bondInit, config);
+        AtomFactoryHomo fm = new AtomFactoryHomo(space, f, na, bondInit, config);
         return fm;
  //       return f;
     }
@@ -42,7 +42,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         this(sim, nM, nA, new BondInitializerChain(), new ConfigurationLinear(sim.space));
     }
     public SpeciesSpheres(Simulation sim, int nM, int nA, BondInitializer bondInitializer, Configuration config) {
-        super(sim, makeFactory(sim, nA, bondInitializer, config));
+        super(sim, makeFactory(sim.space(), nA, bondInitializer, config));
         protoType = (AtomType.Sphere)((AtomFactoryMono)((AtomFactoryHomo)factory).childFactory()).type();
         nMolecules = nM;
     }

@@ -9,14 +9,14 @@ package etomica;
 public abstract class AtomFactory {
     
     protected final AtomReservoir reservoir;
-    protected Simulation parentSimulation;
+    protected Space space;
     protected Configuration configuration;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     
-    public AtomFactory(Simulation sim) {
-        parentSimulation = sim;
-        reservoir = new AtomReservoir(sim);
+    public AtomFactory(Space s) {
+        space = s;
+        reservoir = new AtomReservoir(space);
     }
     
     public Atom makeAtom() {

@@ -111,6 +111,9 @@ public abstract class AtomType implements java.io.Serializable {
         
         double diameter, radius;
         
+        public Sphere(AtomFactory creator) {
+            this(creator, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
+        }
         public Sphere(AtomFactory creator, double m, Color c, double d) {
             super(creator, m, c);
             setDiameter(d);

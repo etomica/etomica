@@ -77,7 +77,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      diameter = d;
      protoType[0].setLength(diameter);
      protoType[2].setLength(diameter);
-//     moleculeConfiguration.initializeCoordinates();
   }
   /**
    * Accessor method for the width of the piston chamber.
@@ -92,7 +91,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      length = l;
      protoType[1].setLength(length);
      protoType[3].setLength(length);
-//     moleculeConfiguration.initializeCoordinates();
   }
   /**
    * Accessor method for the length of the piston chamber.
@@ -125,7 +123,6 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
   public void setDirection(Constants.Direction d) {
     direction = d;
     setUnitNormal();
-//    moleculeConfiguration.initializeCoordinates();
   }
   
     

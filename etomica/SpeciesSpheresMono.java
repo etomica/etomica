@@ -17,8 +17,8 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     private double mass;
     public AtomType.Sphere protoType;
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Simulation sim) {
-        AtomFactoryMono f = new AtomFactoryMono(sim);
+    private static AtomFactoryMono makeFactory(Space space) {
+        AtomFactoryMono f = new AtomFactoryMono(space);
         AtomType type = new AtomType.Sphere(f, Default.ATOM_MASS, Default.ATOM_COLOR, Default.ATOM_SIZE);
         f.setType(type);
         return f;
@@ -34,7 +34,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
         this(sim, Default.MOLECULE_COUNT);
     }
     public SpeciesSpheresMono(Simulation sim, int nM) {
-        super(sim, makeFactory(sim));
+        super(sim, makeFactory(sim.space()));
         protoType = (AtomType.Sphere)((AtomFactoryMono)factory).type();
         nMolecules = nM;
     }

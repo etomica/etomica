@@ -60,8 +60,8 @@ public class Atom implements java.io.Serializable {
     public SpeciesAgent parentSpeciesAgent() {return parentGroup.parentSpeciesAgent();}
 
 //   linked lists of bonds
-    BondLinker firstUpBond;
-    BondLinker firstDownBond;
+    public BondLinker firstUpBond;
+    public BondLinker firstDownBond;
     
     public void sendToReservoir() {
         if(parentGroup != null) parentGroup.removeAtom(this);

@@ -88,7 +88,7 @@ public final class AtomIteratorList implements AtomIterator {
      * Does not check that the linker is an iterate of this iterator.
      */
     public Atom reset(AtomLinker linker) {
-        if(linker == null) {
+        if(linker == header || linker == null) {
             hasNext = false;
             return null;
         }

@@ -30,7 +30,7 @@ public class BiasVolumeCube extends BiasVolume {
     // Insert atom1 in to the Bonding region of atom2 
     //Bonding region is a cube /rectangle for 2 D
     public void biasInsert(Atom atom1, Atom atom2) {
-        work = randomCube();
+        work.setRandomCube();
         work.TE(dimensions);
         atom2.coord.translateTo(atom1.coord.position());
         atom2.coord.translateBy(work);
@@ -40,7 +40,7 @@ public class BiasVolumeCube extends BiasVolume {
      *Function to check for bonding
      */
     
-    boolean isBonded(Atom atom1, Atom atom2){
+    boolean isAssociated(Atom atom1, Atom atom2){
     
         work.E(atom2.coord.position());
         work.ME(atom1.coord.position());

@@ -31,7 +31,7 @@ public abstract class Potential2 extends Potential {
       //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);
     }
     
-    public void setSpecies(Species s1, Species s2) {//throw exception if either are null
+    public void setSpecies(Species s1, Species s2) {//should throw exception if either are null
         species1 = s1;
         species2 = s2;
     }

@@ -58,6 +58,7 @@ public class AtomIteratorNeighbor implements AtomIterator {
             a = iterator.reset(localDirective.set(IteratorDirective.UP));
         }
         if(!iterator.hasNext() && doGoDown) {
+            upListNow = false;
             iterator.setBasis(atom.atomList[iDn]);
             a = iterator.reset(localDirective.set(IteratorDirective.UP));//go up the downlist
         }

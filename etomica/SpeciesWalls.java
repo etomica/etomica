@@ -18,14 +18,14 @@ public class SpeciesWalls extends Species implements EtomicaElement {
  */
     public AtomType.Wall[] protoType;
 
-    private static AtomFactoryHetero makeFactory(Simulation sim, int nA) {
+    private static AtomFactoryHetero makeFactory(Space space, int nA) {
         AtomFactoryMono[] f = new AtomFactoryMono[nA];
         for(int i=0; i<nA; i++) {
-            f[i] = new AtomFactoryMono(sim);
+            f[i] = new AtomFactoryMono(space);
             AtomType type = new AtomType.Wall(f[i], Default.ATOM_MASS, Default.ATOM_COLOR, Double.MAX_VALUE, 0, 0, 0);// arguments are mass, color, length, angle(degrees)  
             f[i].setType(type);
         }
-        AtomFactoryHetero fm = new AtomFactoryHetero(sim,f);
+        AtomFactoryHetero fm = new AtomFactoryHetero(space,f);
         return fm;
     }
         
@@ -53,7 +53,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
     }
     
     public SpeciesWalls(Simulation sim, int nM, int nA, double length, int xAngle, int yAngle, int zAngle) {  //angle is in radians
-        super(sim, makeFactory(sim, nA));
+        super(sim, makeFactory(sim.space(), nA));
         //get a handle to the factories used to make the walls and create an array (protoType)
         //of handles to the types attached to each
         AtomFactoryMono[] subfactory = ((AtomFactoryMono[])((AtomFactoryHetero)factory).childFactory());

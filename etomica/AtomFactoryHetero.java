@@ -15,17 +15,17 @@ public class AtomFactoryHetero extends AtomFactory {
     /**
      * @param factory the factory that makes each of the identical children.
      */
-    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
-        this(sim, factory, new ConfigurationLinear(sim.space()));
+    public AtomFactoryHetero(Space space, AtomFactory[] factory) {
+        this(space, factory, new ConfigurationLinear(space));
     }
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the configuration applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory, 
+    public AtomFactoryHetero(Space space, AtomFactory[] factory, 
                             Configuration config) {    
-        super(sim);
+        super(space);
         childFactory = factory;
         configuration = config;
     }
@@ -34,7 +34,7 @@ public class AtomFactoryHetero extends AtomFactory {
      * Constructs a new group.
      */
     protected Atom build() {
-        AtomGroup group = new AtomGroup(parentSimulation.space(), groupType);
+        AtomGroup group = new AtomGroup(space, groupType);
         for(int i=0; i<childFactory.length; i++) {
             group.addAtom(childFactory[i].build());
         }

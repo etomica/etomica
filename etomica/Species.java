@@ -86,7 +86,7 @@ public class Species extends SimulationElement {
      * Nominal number of molecules of this species in each phase.
      * Actual number may differ if molecules have been added or removed to/from the phase
      */
-    protected int nMolecules;
+    protected int nMolecules = 20;
     
     /**
      * Accessor method for nominal number of molecules in each phase.  Actual 

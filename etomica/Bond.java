@@ -44,6 +44,16 @@ public class Bond implements java.io.Serializable {
         return new Bond(a1, a2);
     }
     
+    /**
+     * Returns the atom partnered to the given atom via this bond.
+     * Returns null if the given atom is not bonded via this bond.
+     */
+    public Atom partner(Atom atom) {
+        if(atom == link1.atom) return link2.atom;
+        else if(atom == link2.atom) return link1.atom;
+        else return null;
+    }
+    
     public void breakBond() {
         link1.delete();
         link2.delete();

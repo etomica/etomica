@@ -31,8 +31,10 @@ public final class MCMoveVolumeExchange extends MCMove {
     public void setPhase(Phase p) {}
 
     public void setPhase(Phase[] p) {
+        if(p == null || p.length == 0) return;
         super.setPhase(p);
         firstPhase = p[0];
+        if(p.length < 2) return;
         secondPhase = p[1];
         if(firstPhase == null && secondPhase == null) return;
         inflate1 = new PhaseAction.Inflate(firstPhase);
