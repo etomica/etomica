@@ -8,7 +8,12 @@ import etomica.AtomType;
  * provide a zero-body potential that (approximately) corrects for the
  * truncation. The PotentialMaster gets a LRC potential from a potential
  * implementing this interface when the potential is given to the
- * PotentialMaster's setSpecies method.
+ * PotentialMaster's setSpecies method.  PotentialGroup also recognizes
+ * this interface and adds a LRC potential to the PotentialMaster when a
+ * PotentialTruncated is added to it via the type-specifying addPotential method.
+ * 
+ * @see PotentialMaster
+ * @see PotentialGroup
  */
 
 /*
