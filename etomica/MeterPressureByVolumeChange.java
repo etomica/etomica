@@ -11,24 +11,19 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     
     PhaseInflateAnisotropic inflater;
     Space.Vector[] scale;
-    Space space;
     boolean[] inflateDimensions;
     private IteratorDirective iteratorDirective;
-    private final PotentialCalculationEnergySum energy;
+    private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private final PotentialMaster potential;
     private int nDimension;
+    private int spaceD;
     
     public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
         super();
-        this.space = space;
+        spaceD = dimensions.length;
         potential = potentialMaster;
-        energy = sim.energySum(this);
         setX(-0.001, 0.001, 10);
-        inflateDimensions = new boolean[space.D()];
-        if(dimensions == null) {
-            dimensions = new boolean[space.D()];
-            for(int i=0; i<dimensions.length; i++) dimensions[i] = true;
-        }
+        inflateDimensions = new boolean[spaceD];
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
     }
@@ -42,7 +37,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
      * For anisotropic volume change, indicates dimension in which volume is perturbed.
      */
     public final void setInflateDimensions(boolean[] directions) {
-        if(directions.length != inflateDimensions.length) {
+        if(directions.length != spaceD) {
             throw new IllegalArgumentException();
         }
         nDimension = 0;
@@ -60,30 +55,36 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
     public void setX(double min, double max, int n) {
         xDataSource = new DataSourceUniform(n, min, max);
         //x is scaling in volume if isotropic, but is linear scaling if not isotropic
+        double dx = (max-min)/n;
+        double[] x = xDataSource.getData();
         for(int i=0; i<nDataPerPhase; i++) { //disallow x = 0
-            if(x[i] == 0.0) x[i] = 0.1*deltaX;
+            if(x[i] == 0.0) x[i] = 0.1*dx;
         }
         scale = new Space.Vector[nDataPerPhase];
         
-        double mult = 1./(double)nDimension;
+        double mult = 1.0/nDimension;
         for(int i=0; i<nDataPerPhase; i++) {
-            scale[i] = space.makeVector();
+            scale[i] = Space.makeVector(spaceD);
             scale[i].E(Math.exp(mult*xDataSource.getData()[i]));
-            for(int j=0; j<space.D(); j++) {
+            for(int j=0; j<spaceD; j++) {
                 if(!inflateDimensions[j]) scale[i].setX(j,1.0);
             }
         }
     }
     
-    public double[] getDataAsArray(Phase phase) {
-        inflater = new PhaseInflateAnisotropic(phase);
-        double uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
+    public double[] getDataAsArray(Phase p) {
+        inflater = new PhaseInflateAnisotropic(p);
+        energy.zeroSum();
+        potential.calculate(p, iteratorDirective, energy);
+        double uOld = energy.getSum();
         for(int i=0; i<nDataPerPhase; i++) {
             inflater.setScale(scale[i]);
-            inflater.attempt();
-            double uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
-            phaseData[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
-                              + phase.moleculeCount()*xDataSource.getData()[i]);
+            inflater.actionPerformed();
+            energy.zeroSum();
+            potential.calculate(p, iteratorDirective, energy);
+            double uNew = energy.getSum();
+            phaseData[i] = Math.exp(-(uNew-uOld)/p.integrator().temperature()
+                              + p.moleculeCount()*xDataSource.getData()[i]);
 
             //TODO shouldn't this be done outside the loop?
             inflater.undo();
