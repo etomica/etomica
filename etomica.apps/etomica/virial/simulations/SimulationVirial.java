@@ -1,7 +1,8 @@
-package etomica.virial;
+package etomica.virial.simulations;
 
 import etomica.*;
 import etomica.graphics.*;
+import etomica.virial.*;
 
 /**
  * @author kofke
@@ -39,9 +40,9 @@ public class SimulationVirial extends SimulationGraphic {
 		
 		Controller controller = new Controller(this);		
 		DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(this);
-		IntegratorMC integrator = new IntegratorMC(this);
+		integrator = new IntegratorMC(this);
 		integrator.setSleepPeriod(1);
-//		integrator.setDoSleep(false);
+		integrator.setDoSleep(false);
 		integrator.setTemperature(simTemperature);
 		MCMoveAtom mcMoveAtom = new MeterVirial.MyMCMoveAtom(integrator);
 		
@@ -63,12 +64,26 @@ public class SimulationVirial extends SimulationGraphic {
 	
 	public static double sigmaLJ1 = 1.28412293285;//  ( 4 + 4 sqrt(1-Ln(2)) ) / Ln(4))^(1/6), which is where f(r) = 1 for LJ
 
+	/**
+	 * Returns the separation r for the LJ potential at which beta*u(r) = -Ln(2)
+	 * (so that f(r) = 1)
+	 * @param beta
+	 * @return double
+	 */
+	public static double sigmaLJ1B(double beta) {
+		double log2 = Math.log(2.0);
+		if(beta <= log2) return Math.pow(2.0, 1./6.);
+		else return Math.pow( 2.0*(beta + Math.sqrt(beta*(beta-log2)) )/log2, 1./6.);
+	}
 	private MeterVirial meterVirial;
 	private double simTemperature;
 	private double refTemperature;
 	private PairSet pairs;
 	private P2Cluster p2;
 	private SpeciesSpheresMono species;
+	protected IntegratorMC integrator;
+	
+	public IntegratorMC integrator() {return integrator;}
 	/**
 	 * Returns the meterVirial.
 	 * @return MeterVirial
@@ -165,11 +180,12 @@ public class SimulationVirial extends SimulationGraphic {
 	public static void main(String[] args) {
 		double temperature = 1.3;  //temperature of calculated virial coefficient
 		double simTemperature = 1.0*temperature; //temperature governing sampling of configurations
-		double sigmaHSRef = sigmaLJ1;  //diameter of reference HS system
-		double sigmaHSMod = sigmaLJ1; //range in which modified-f for sampling will apply abs() function
-				
-//		int nMolecules = 3;
-		int nMolecules = 4;
+		double sigmaHSRef = sigmaLJ1B(1.0/simTemperature);  //diameter of reference HS system
+		double sigmaHSMod = sigmaLJ1B(1.0/simTemperature); //range in which modified-f for sampling will apply abs() function
+		System.out.println((1./simTemperature)+" "+sigmaHSRef);
+		System.out.println((1./temperature)+" "+sigmaHSMod);
+		int nMolecules = 3;
+//		int nMolecules = 4;
 		SimulationVirial sim = new SimulationVirial(nMolecules, simTemperature);
 		
 		sim.species().setDiameter(sigmaHSRef);
@@ -183,8 +199,8 @@ public class SimulationVirial extends SimulationGraphic {
 		p2.setCluster(ring);				
 		sim.setSimPotential(p2);
 		
-//		MeterVirialB3 meterVirial = new MeterVirialB3(sim, sim.pairs(), sigmaHSRef, p2, p2LJ);
-		MeterVirialB4 meterVirial = new MeterVirialB4(sim, sim.pairs(), sigmaHSRef, p2, p2LJ);
+		MeterVirial meterVirial = (nMolecules==3) ? (MeterVirial)new MeterVirialB3(sim, sim.pairs(), sigmaHSRef, p2, p2LJ)
+												  : (MeterVirial)new MeterVirialB4(sim, sim.pairs(), sigmaHSRef, p2, p2LJ);
 		meterVirial.setTemperature(temperature);
 		sim.setMeterVirial(meterVirial);
 	}//end of main

@@ -130,7 +130,7 @@ public class MCMoveAtom extends MCMove {
     }
         
     
-    public final AtomIterator affectedAtoms(Phase phase) {
+    public AtomIterator affectedAtoms(Phase phase) {
         if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.setBasis(atom);
         affectedAtomIterator.reset();

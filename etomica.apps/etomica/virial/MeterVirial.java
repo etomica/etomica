@@ -53,8 +53,8 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 		for(int i=0; i<clusters.length; i++) {
 			sum += clusters[i].weight()*m[i+1].average();
 		}
-		double denom = m[0].average();
-		return (denom != 0.0) ? sum*refIntegral/(refCluster.weight()*m[0].average()) : Double.NaN;
+		double denom = refCluster.weight()*m[0].average();
+		return (denom != 0.0) ? sum*refIntegral/denom : Double.NaN;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	 *  Overrides MCMoveAtom to prevent index-0 molecule from being displaced
 	 */
 	public static class MyMCMoveAtom extends MCMoveAtom {
-		MyMCMoveAtom(IntegratorMC integrator) {super(integrator);}
+		public MyMCMoveAtom(IntegratorMC integrator) {super(integrator);}
 		
 		public boolean doTrial() {
 			if(phase.atomCount()==0) return false;

@@ -16,9 +16,9 @@ import etomica.SimulationElement;
  */
 public class P2Cluster extends Potential0 {
 
-	private Cluster cluster;
-	private PairSet pairs;
-	private double g = 0;
+	protected Cluster cluster;
+	protected PairSet pairs;
+	protected double g = 0;
 	/**
 	 * Constructor for P2Cluster.
 	 * @param parent
@@ -49,7 +49,7 @@ public class P2Cluster extends Potential0 {
 		return (g==1.0) ? 0.0 : -temperature*Math.log(g);
 	}
 
-	private double temperature, beta;
+	protected double temperature, beta;
 	/**
 	 * Returns the temperature.
 	 * @return double

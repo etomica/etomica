@@ -31,6 +31,8 @@ public class MayerModified extends MayerFunction {
 		double r2 = pair.r2();
 		double bu = beta*potential.energy(pair);
 		if(r2 < sigma2 && bu > UF1) return 1.0;
+//		if(r2 < sigma2 ) return 1.0;
+//		double bu = beta*potential.energy(pair);
 		
 		double f = Math.exp(-bu) - 1.0;		
 		return (f>0) ? f : -f;  

@@ -24,6 +24,7 @@ public class Cluster {
 		super();
 		this.n = n;
 		this.weight = weight;
+		for(int i=0; i<bonds.length; i++) bondCount += bonds[i].pairs.length;
 		bondArray = new MayerFunction[n][n];
 		for(int i=0; i<bonds.length; i++) {
 			int[][] idx = bonds[i].pairs;
@@ -41,8 +42,8 @@ public class Cluster {
 	
 	public String toString() {
 		String string = "Cluster \n Number of points: " + n + " \n Weight: " + weight +"\n";
-		for(int i=0; i<bondArray.length; i++) {
-			for(int j=0; j<bondArray.length; j++) {
+		for(int i=0; i<n; i++) {
+			for(int j=0; j<n; j++) {
 				string += "("+i+","+j+")"+String.valueOf(bondArray[i][j]) + "\t";
 			}
 			string += "\n";
@@ -50,6 +51,19 @@ public class Cluster {
 		return string;
 	}
 	public double weight() {return weight;}
+	
+	public int bondCount() {return bondCount;}
+	
+	public boolean hasOddBondNumber() {return (bondCount % 2) != 0;}
+	
+	/**
+	 * Value of cluster using pairset last specified in setPairSet method.
+	 * @param beta
+	 * @return double
+	 */
+	public double value(double beta) {
+		return value(pairSet, beta);
+	}
 	
 	/**
 	 * Returns the value of the cluster for the given set of atom pairs at the
@@ -111,8 +125,9 @@ public class Cluster {
 
 	private final double weight;
 	private final int n;
+	protected int bondCount;
 	private MayerFunction[][] bondArray;
-	private PairSet pairs;
+	private PairSet pairSet;
 	
 	/**
 	 * Data structure for specifying a bond that is present between one or more
@@ -128,4 +143,20 @@ public class Cluster {
 		}
 	}
 	
+	/**
+	 * Returns the pairSet.
+	 * @return PairSet
+	 */
+	public PairSet getPairSet() {
+		return pairSet;
+	}
+
+	/**
+	 * Sets the pairSet.
+	 * @param pairSet The pairSet to set
+	 */
+	public void setPairSet(PairSet pairSet) {
+		this.pairSet = pairSet;
+	}
+
 }
