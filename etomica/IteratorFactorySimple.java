@@ -4,6 +4,8 @@ public class IteratorFactorySimple implements IteratorFactory {
     
     public static final IteratorFactorySimple INSTANCE = new IteratorFactorySimple();
     
+    public AtomIterator makeGroupIteratorSimple() {return new AtomIteratorListSimple();}
+    
     public AtomIterator makeAtomIterator() {return new Iterator();}
 //    public AtomIterator makeAtomIterator() {return new AtomIteratorSequential();}
 

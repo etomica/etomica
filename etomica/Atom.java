@@ -28,7 +28,7 @@ public class Atom implements java.io.Serializable {
                     AtomTreeNode.Factory nodeFactory,
                     AtomSequencer.Factory seqFactory) {
         this.type = type;//do this first
-        this.node = nodeFactory.makeNode(this);
+        node = nodeFactory.makeNode(this);
         seq = seqFactory.makeSequencer(this);
         coord = space.makeCoordinate(this);//must follow setting of type field
         

@@ -14,9 +14,21 @@ package etomica;
 public interface IteratorFactory {
 
     /**
-     * Returns iterator that loops over all atoms in a group, without
-     * reference to another atom.
+     * Returns iterator that loops over all atoms in a group without
+     * reference to another atom and any convenient order.  Does not
+     * necessarily adhere to up/down ordering.  This iterator is required
+     * if looping over atoms while performing operations on them that might
+     * cause the sequencing to be shuffled during iteration.
      */
+    public AtomIterator makeGroupIteratorSimple();
+    
+    /**
+     * Returns iterator that loops over all atoms in a group, without
+     * reference to another atom.  Adheres to atom sequence, so that
+     * instructions for up or down iteration are followed using ordering
+     * consistent with that followed by neighbor iterators (e.g., IntergroupIterator).
+     */
+     //change name to makeGroupIteratorSequential
     public AtomIterator makeAtomIterator();
     
     /**

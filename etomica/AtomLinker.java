@@ -7,7 +7,7 @@ package etomica;
  */
 public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
-    public AtomLinker next = null, previous = null;
+    public AtomLinker next, previous;
     
     /**
      * Constructor throws exception if given atom is null.  Only
@@ -17,8 +17,25 @@ public class AtomLinker implements java.io.Serializable {
         if(a == null && !(this instanceof Tab))
             throw new IllegalArgumentException("Error: cannot create AtomLinker with null atom");
         atom = a; 
+        next = previous = this;
     }
     
+    public void remove() {
+	    previous.next = next;
+	    next.previous = previous;
+    }
+        
+    public void addBefore(AtomLinker newNext) {
+        next = newNext;
+        previous = newNext.previous;
+        previous.next = this;
+        newNext.previous = this;
+	}
+	public void moveBefore(AtomLinker newNext) {
+	    remove();
+	    addBefore(newNext);
+	}
+
     //will add a reservoir of linkers, so this is used as constructor for now
     public static AtomLinker makeLinker(Atom a) {
         return new AtomLinker(a);
@@ -28,7 +45,30 @@ public class AtomLinker implements java.io.Serializable {
         public Tab nextTab, previousTab;
         public Tab() {
             super(null);
+            nextTab = previousTab = this;
         }
+        
+        public void remove() {
+            super.remove();
+	        previousTab.nextTab = nextTab;
+	        nextTab.previousTab = previousTab;
+        }
+        
+        public void addBefore(AtomLinker newNext) {
+            super.addBefore(newNext);
+	        nextTab = findNextTab(newNext);
+	        previousTab = nextTab.previousTab;
+	        previousTab.nextTab = this;
+	        nextTab.previousTab = this;
+	    }
+    /**
+     * Finds and returns the first Tab linker beginning at or after the given linker.
+     */
+        private AtomLinker.Tab findNextTab(AtomLinker e) {
+            while(e.atom != null) e = e.next;
+            return (AtomLinker.Tab)e;
+        }
+            
     }
         
 }//end of AtomLinker

@@ -52,6 +52,8 @@ public class IteratorFactoryCell implements IteratorFactory {
         else return deployedLattices[phase.index];
     }
     
+    public AtomIterator makeGroupIteratorSimple() {return new FixedSequenceIterator();}
+
     public AtomIterator makeAtomIterator() {return new AtomIteratorChildren();}
         
     public AtomIterator makeIntragroupIterator() {return new IntragroupIterator(this);}
@@ -250,19 +252,154 @@ public static final class IntragroupIterator implements AtomIterator {
    
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+public final class FixedSequenceIterator implements AtomIterator {
+    
+    private AtomList list;
+	private Sequencer next;
+	private AtomLinker first;
+        
+	public FixedSequenceIterator() {
+	    this(AtomList.NULL);
+	}
+	public FixedSequenceIterator(AtomList list) {
+	    setBasis(list);
+	    reset();
+	}
+	
+	
+	public void setAsNeighbor(boolean b) {
+	    throw new RuntimeException("method IteratorFactoryCell.FixedSequenceIterator.setAsNeighbor not implemented");
+	}
+
+    //when iterator expires next will be set to null
+	public boolean hasNext() {return next != null;}
+	
+	/**
+	 * Sets the childList of the given atom as the basis for iteration.
+	 * If atom is a leaf, hasNext is false.
+	 */
+    public void setBasis(Atom atom){
+        if(atom.node.isLeaf()) unset();
+        else setBasis(((AtomTreeNodeGroup)atom.node).childList);
+    }
+    public void setBasis(AtomList list) {
+        if(list == null) list = AtomList.NULL;
+        this.list = list;
+        next = null;
+    }
+    public Atom getBasis(){return null;}//no implementation
+
+    /**
+     * Performs action on all atoms.
+     */
+    public void allAtoms(AtomAction action){
+        reset();
+        while(next != null) {
+            action.actionPerformed(next.atom);
+            next = next.nextFixed;
+            if(next == first) next = null;
+        }
+    }
+    
+    /**
+     * Sets iterator so that it is ready to go up its entire list of iterates.
+     */
+    public Atom reset() {
+        first = list.header.next;
+        while(first.atom == null && first != list.header) first = first.next;
+        if(first == list.header) {next = null; return null;}
+        else {next = (Sequencer)first; return next.atom;}
+    }
+    
+    /**
+     * Resets, ignoring given directive (same as reset()).
+     */
+    public Atom reset(IteratorDirective id) {return reset();}
+    
+    /**
+     * Sets iterator such that hasNext() will return false.
+     */
+    public void unset() {next = null;}
+    
+    /**
+     * Returns true if the given atom is in the list of iterates, false otherwise.
+     */
+	public boolean contains(Atom atom){
+        return list.contains(atom);
+	}
+	
+	/**
+	 * Returns the total number of iterates that can be returned by this iterator, for
+	 * its current list basis.
+	 */
+	public int size() { return list.size();}
+
+	    
+    public Atom next() {
+        return nextLinker().atom;
+    }
+    
+    /**
+     * Returns the next atom in the list without advancing the iterator.
+     */
+    public Atom peek() {
+        return (next != null) ? next.atom : null;
+    }
+    
+    private AtomLinker nextLinker() {
+        AtomLinker nextLinker = next;
+        next = next.nextFixed;
+        if(next == first) next = null;
+        return nextLinker;
+    }//end of nextLinker
+
+}//end of FixedSequenceIterator
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 public static final class Sequencer extends AtomSequencer implements AbstractLattice.Occupant {
     
     public AbstractCell cell;                 //cell currently occupied by this coordinate
     public BravaisLattice lattice;    //cell lattice in the phase occupied by this coordinate
     private int listIndex;
+    public Sequencer nextFixed, previousFixed;
     
     public Sequencer(Atom a) {
         super(a);
+        nextFixed = previousFixed = this;
     }
 
     public Site site() {return cell;}   //Lattice.Occupant interface method
 
     public int listIndex() {return listIndex;}
+
+    public void remove() {
+        super.remove();
+	    previousFixed.nextFixed = nextFixed;
+	    nextFixed.previousFixed = previousFixed;
+    }
+        
+    public void addBefore(AtomLinker newNext) {
+        super.addBefore(newNext);
+        while(newNext.atom == null && newNext != this) newNext = newNext.next;
+        if(newNext == this) {//this is the first and only non-tab entry in the list
+            nextFixed = previousFixed = this;
+            return;
+        }
+        nextFixed = (Sequencer)newNext;
+        previousFixed = nextFixed.previousFixed;
+        previousFixed.nextFixed = this;
+        nextFixed.previousFixed = this;
+	}
+	/**
+	 * Reshuffles position of "standard" links without altering the fixed links.
+	 */
+	public void moveBefore(AtomLinker newNext) {
+	    super.remove();
+	    super.addBefore(newNext);
+	}
+
 
     /**
      * Returns true if this atom preceeds the given atom in the atom sequence.

@@ -248,13 +248,8 @@ public class AtomList implements java.io.Serializable
         AtomLinker predecessor = successor.previous;
 	    iterator.reset();//should remove this
 	    for (int i=0; i<numNew; i++) {
-            AtomLinker e = AtomLinker.makeLinker(iterator.next());
-            e.previous = predecessor;
-            predecessor.next = e;
-            predecessor = e;
-        }
-        predecessor.next = successor;
-        successor.previous = predecessor;
+	        AtomLinker.makeLinker(iterator.next()).addBefore(successor);
+	    }
 
         size += numNew;
         return true;
@@ -295,13 +290,10 @@ public class AtomList implements java.io.Serializable
      * @throws IndexOutOfBoundsException if the specified index is out of
      *		  range (<tt>index &lt; 0 || index &gt;= size()</tt>).
      */
-    public Atom set(int index, Atom element) {
+    public Atom set(int index, Atom atom) {
         AtomLinker e = entry(index);
-        AtomLinker newLink = AtomLinker.makeLinker(element);
-        newLink.next = e.next;
-        newLink.previous = e.previous;
-        newLink.next.previous = newLink;
-        newLink.previous.next = newLink;
+        AtomLinker.makeLinker(atom).addBefore(e);
+        e.remove();
         return e.atom;
     }
 
@@ -448,28 +440,11 @@ public class AtomList implements java.io.Serializable
 	}
 	
 	public AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
-	    newAtomLinker.next = e;
-	    newAtomLinker.previous = e.previous;
-	    newAtomLinker.previous.next = newAtomLinker;
-	    e.previous = newAtomLinker;
 	    if(newAtomLinker.atom != null) size++;//modification for tab entry
-	    else {//new linker is a tab -- link to next/previous tabs
-	        AtomLinker.Tab newTab = (AtomLinker.Tab)newAtomLinker;
-	        newTab.nextTab = findNextTab(e);
-	        newTab.previousTab = newTab.nextTab.previousTab;
-	        newTab.previousTab.nextTab = newTab;
-	        newTab.nextTab.previousTab = newTab;
-        }	        
+	    newAtomLinker.addBefore(e);	        
 	    return newAtomLinker;
     }
     
-    /**
-     * Finds and returns the first Tab linker beginning at or after the given linker.
-     */
-    private AtomLinker.Tab findNextTab(AtomLinker e) {
-        while(e.atom != null) e = e.next;
-        return (AtomLinker.Tab)e;
-    }
     
     /**
      * Moves the first linker to the position before the second one.
@@ -479,39 +454,13 @@ public class AtomList implements java.io.Serializable
      * not the same entry.
      */
     public void moveBefore(AtomLinker moving, AtomLinker newNext) {
-        //assume moving != newNext
-        
-        //remove from old position
-        moving.previous.next = moving.next;
-        moving.next.previous = moving.previous;
-        //insert into new position
-        moving.next = newNext;
-        moving.previous = newNext.previous;
-        moving.previous.next = moving;
-        newNext.previous = moving;
-        if(moving.atom == null) {//moving a Tab
-	        AtomLinker.Tab newTab = (AtomLinker.Tab)moving;
-	        newTab.previousTab.nextTab = newTab.nextTab;
-	        newTab.nextTab.previousTab = newTab.previousTab;
-	        
-	        newTab.nextTab = findNextTab(newNext);
-	        newTab.previousTab = newTab.nextTab.previousTab;
-	        newTab.previousTab.nextTab = newTab;
-	        newTab.nextTab.previousTab = newTab;
-	    }
+        moving.moveBefore(newNext);
     }        
 
     public void remove(AtomLinker e) {
-	    if (e.atom == null) {
-	        if(e == header) throw new NoSuchElementException();
-	        AtomLinker.Tab tab = (AtomLinker.Tab)e;
-	        tab.previousTab.nextTab = tab.nextTab;
-	        tab.nextTab.previousTab = tab.previousTab;
-        } else {//modification for tab entry
-            size--;
-        }
-	    e.previous.next = e.next;
-	    e.next.previous = e.previous;
+	    if (e.atom != null) size--;//decrement size counter if not removing a Tab
+	    else if(e == header) throw new NoSuchElementException();
+	    e.remove();
     }
 
     /**
@@ -524,8 +473,9 @@ public class AtomList implements java.io.Serializable
     public Atom[] toArray() {
 	    Atom[] result = new Atom[size];
         int i = 0;
-        for (AtomLinker e = header.next; e != header; e = e.next) 
+        for (AtomLinker e = header.next; e != header; e = e.next) {
             if(e.atom != null) result[i++] = e.atom;//modification for tab entry
+        }
 	    return result;
     }
 
