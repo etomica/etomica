@@ -56,6 +56,9 @@ public class NeighborManager implements IntervalListener {
 	 */
 	public void reset(Phase[] phase) {
 		for (int i=0; i<phase.length; i++) {
+			for (int j=0; j<criteria.length; j++) {
+				criteria[j].setPhase(phase[i]);
+			}
 			boundary = phase[i].boundary();
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborReset);
@@ -81,6 +84,7 @@ public class NeighborManager implements IntervalListener {
 				boundary = phase[i].boundary();
 				iterator.allAtoms(neighborReset);
 				potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
+				phase[i].integrator().reset();
 			}
 		}
 	}
@@ -131,6 +135,9 @@ public class NeighborManager implements IntervalListener {
 			if (criterion != null && criterion.needUpdate(atom[0])) {
 				needUpdate = true;
 				if (criterion.unsafe()) {
+					if (Debug.DEBUG_NOW) {
+						System.out.println("atom "+atom[0]+" exceeded safe limit");
+					}
 					unsafe = true;
 				}
 			}
