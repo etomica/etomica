@@ -12,10 +12,6 @@ public final class MeterPressureHard extends MeterScalar implements
                                                 IntegratorHard.CollisionListener,
                                                 MeterCollisional,
                                                 EtomicaElement {
-        
-    private double virialSum = 0.0;
-    private IntegratorHard integratorHard;
-    private final DataSourceCountTime timer;
     
     public MeterPressureHard() {
         super();
@@ -72,11 +68,16 @@ public final class MeterPressureHard extends MeterScalar implements
      */
 	protected void setIntegrator(IntegratorHard newIntegrator) {
 		if(newIntegrator == integratorHard) return;
-		integratorHard.removeCollisionListener(this);
+		if(integratorHard != null) integratorHard.removeCollisionListener(this);
 		integratorHard = newIntegrator;
 	    timer.setIntegrator(new IntegratorMD[] {(IntegratorMD)newIntegrator});
 	    if(newIntegrator != null) integratorHard.addCollisionListener(this);
 	}
+   
+    private double virialSum = 0.0;
+    private IntegratorHard integratorHard;
+    private final DataSourceCountTime timer;
+
 	
     /**
      * Method to demonstrate and test the use of this class.  

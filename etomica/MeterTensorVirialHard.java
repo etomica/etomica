@@ -8,13 +8,91 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-/* History
- * 03/12/04 (DAK) modified collisionValue method to not check explicitly
- * for instance of PotentialNull
- */
-
 public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard.CollisionListener, EtomicaElement {
     
+    public MeterTensorVirialHard(Space space) {
+        super(space);
+        setLabel("PV/NkT");
+        collisionVirial = space.makeTensor();
+        virialTensor = space.makeTensor();
+        virialSum = new double[space.D()][space.D()];
+        timer = new DataSourceCountTime();
+    }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Virial tensor for a hard potential");
+        return info;
+    }    
+    
+    /**
+     * Dimension of the measured quantity, which is energy since virial is reported as PV/N
+     */
+    public Dimension getDimension() {return Dimension.NULL;}
+        
+    /**
+     * Current value of the meter, obtained by dividing sum of collision virial contributions by time elapsed since last call.
+     * If elapsed-time interval is zero, returns the value reported at the last call to the method.
+     */
+    //XXX phase parameter is not used appropriately here
+    //TODO consider how to ensure timer is advanced before this method is invoked
+    public Space.Tensor getDataAsTensor(Phase phase) {
+        double elapsedTime = timer.getData()[0];
+        if(elapsedTime == 0.0) {
+            virialTensor.E(Double.NaN);
+            return virialTensor;
+        }
+        int D = phase.boundary().dimensions().D();
+ 
+        for (int i = 0; i < collisionVirial.length(); i++) {
+            for (int j = 0; j < collisionVirial.length(); j++) {
+              virialTensor.setComponent(i, j, virialSum[i][j]);
+              virialSum[i][j] = 0.0;
+            }
+        }
+        virialTensor.TE(-1./(integratorHard.temperature()*elapsedTime*(double)(D*phase.atomCount())));
+        //add 1.0 to diagonal elements
+        //not included because meter returns only virial contribution to pressure
+//        for (int i = 0; i < collisionVirial.length(); i++) {
+//            virialTensor.PE(i,i,1.0);
+//        }       
+        timer.reset();
+        return virialTensor;
+    }
+    
+    /**
+     * Sums contribution to virial for each collision.
+     */
+    public void collisionAction(IntegratorHard.Agent agent) {
+       collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
+//       collisionValue(agent);            //Assign virial
+        for (int i = 0; i < collisionVirial.length(); i++) {
+            for (int j = 0; j < collisionVirial.length(); j++) {
+                virialSum[i][j] += collisionVirial.component(i, j);
+            }
+        }
+    }
+    
+    /**
+     * Contribution to the virial from the most recent collision of the given pair/potential.
+     */
+//    public Space.Tensor collisionValue(IntegratorHard.Agent agent) {
+//        collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
+//        collisionVirial.TE(1/(double)phase.atomCount());
+//        return collisionVirial;
+//    }
+                
+    /**
+     * Informs meter of the integrator for its phase, and zeros elapsed-time counter
+     */
+    protected void setIntegrator(IntegratorHard newIntegrator) {
+        if(newIntegrator == integratorHard) return;
+        if(integratorHard != null) integratorHard.removeCollisionListener(this);
+        integratorHard = newIntegrator;
+        timer.setIntegrator(new IntegratorMD[] {(IntegratorMD)newIntegrator});
+        if(newIntegrator != null) integratorHard.addCollisionListener(this);
+    }
+    
+    private final DataSourceCountTime timer;
     /**
      * Sums contributions to the virial from collisions, between calls to currentValue
      */
@@ -31,84 +109,5 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
      * Convenience handle to integrator to avoid multiple casting to IntegratorHard
      */
     private IntegratorHard integratorHard;
-    /**
-     * Simulation time of last call to currentValue.  Used to determine elapsed time for summing of collision virials.
-     */
-    private double t0;
-    
-    public MeterTensorVirialHard(Space space) {
-        super(space);
-        collisionVirial = space.makeTensor();
-        virialTensor = space.makeTensor();
-        virialSum = new double[space.D()][space.D()];
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Virial tensor for a hard potential");
-        return info;
-    }    
-    
-    /**
-     * Dimension of the measured quantity, which is energy since virial is reported as PV/N
-     */
-    public Dimension getDimension() {return Dimension.ENERGY;}
-    
-    /**
-     * Descriptive label
-     */
-    public String getLabel() {return "PV/N";}
-    
-    /**
-     * Current value of the meter, obtained by dividing sum of collision virial contributions by time elapsed since last call.
-     * If elapsed-time interval is zero, returns the value reported at the last call to the method.
-     */
-    public Space.Tensor getData() {
-        double t = integratorHard.elapsedTime();
-        if (t > t0) {
-            for (int i = 0; i < collisionVirial.length(); i++) {
-                for (int j = 0; j < collisionVirial.length(); j++) {
-                  virialTensor.setComponent(i, j, virialSum[i][j]);
-                  virialSum[i][j] = 0.0;
-                }
-            }
-            virialTensor.TE(-1./((t-t0)));
-        }
-        
-        t0 = t;
-        return virialTensor;
-    }
-    
-    /**
-     * Sums contribution to virial for each collision.
-     */
-    public void collisionAction(IntegratorHard.Agent agent) {
-        collisionValue(agent);            //Assign virial
-        for (int i = 0; i < collisionVirial.length(); i++) {
-            for (int j = 0; j < collisionVirial.length(); j++) {
-                virialSum[i][j] += collisionVirial.component(i, j);
-            }
-        }
-    }
-    
-    /**
-     * Contribution to the virial from the most recent collision of the given pair/potential.
-     */
-    public Space.Tensor collisionValue(IntegratorHard.Agent agent) {
-        collisionVirial.E(agent.collisionPotential.lastCollisionVirialTensor());
-        collisionVirial.TE(1/(double)phase.atomCount());
-       return collisionVirial;
-    }
-                
-    /**
-     * Informs meter of the integrator for its phase, and zeros elapsed-time counter
-     */
-    protected void setPhaseIntegrator(Integrator newIntegrator) {
-        super.setPhaseIntegrator(newIntegrator);
-        if(newIntegrator instanceof IntegratorHard) {
-            integratorHard = (IntegratorHard)newIntegrator;
-            integratorHard.addCollisionListener(this);
-            t0 = integratorHard.elapsedTime();
-        }
-        else throw new IllegalArgumentException("Error in integrator type in MeterPressureHardTensor");
-    }
+
 }//end of MeterTensorVirialHard

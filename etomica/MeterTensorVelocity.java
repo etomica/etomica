@@ -10,15 +10,11 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-/* History
- * 04/08/04 (JKS) fixed velocityTensor.TE call in current value to make sure
- * argument isn't made zero by ratio of two integers (1 -> 1.0)
- */
-public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atomic {
+public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.Atomic*/ {
     /**
      * Iterator of atoms.
      */
-    private final AtomIteratorList ai1 = new AtomIteratorList();
+    private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
     /**
      * Tensor used to form velocity dyad for each atom, and returned by currentValue(atom) method.
      */
@@ -38,16 +34,7 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
         EtomicaInfo info = new EtomicaInfo("Velocity tensor, formed from averaging dyad of velocity vector for each atom");
         return info;
     }
-    
-    /**
-     * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
-     * It obtains the necessary iterators from the phase.
-     */
-	public void setPhase(Phase p) {
-	    super.setPhase(p);
-        ai1.setList(p.speciesMaster.atomList);
-	}
-    
+       
     /**
      * Returns the dimension of the measured value, here given as energy
      */
@@ -63,25 +50,28 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
-    public Space.Tensor getData() {
+    public Space.Tensor getDataAsTensor(Phase phase) {
+        ai1.setPhase(phase);
         ai1.reset();
         velocityTensor.E(0.0);
+        int count = 0;
         while(ai1.hasNext()) {
-            Atom a = ai1.next();
+            Atom a = ai1.nextAtom();
             velocity.E(a.coord.momentum(), a.coord.momentum());
             velocity.TE(a.coord.rm());
             velocityTensor.PE(velocity);
+            count++;
         }
-        velocityTensor.TE(1.0/phase.atomCount());
+        velocityTensor.TE(1.0/(double)count);
         return velocityTensor;
     }
     
     /**
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
-    public Space.Tensor currentValue(Atom atom) {
-        velocity.E(atom.coord.momentum(), atom.coord.momentum());
-        velocity.TE(atom.coord.rm());
-        return velocity;
-    }
+//    public Space.Tensor currentValue(Atom atom) {
+//        velocity.E(atom.coord.momentum(), atom.coord.momentum());
+//        velocity.TE(atom.coord.rm());
+//        return velocity;
+//    }
 }

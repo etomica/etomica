@@ -21,7 +21,12 @@ public abstract class MeterTensor extends MeterAbstract {
         super(space.D()*space.D());
         translator = new DataTranslatorTensor(space);
     }
-        
+    
+    public abstract Space.Tensor getDataAsTensor(Phase phase);
+    
+    public double[] getData(Phase phase) {
+        return translator.toArray(getDataAsTensor(phase));
+    }
     public DataTranslator getTranslator() {return translator;}
     
     private final DataTranslatorTensor translator;
