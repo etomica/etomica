@@ -30,14 +30,7 @@ import java.beans.*;//for Graphics
  */
  
 public abstract class Species extends Container {
-    public void setNAtomsPerMolecule(int na)
-    {
-        nAtomsPerMolecule = na;
-        setNMolecules(nMolecules);
-    }
-    
-    public int getNAtomsPerMolecule() {return nAtomsPerMolecule;}
-    
+
     public Species(int n, int na)
     {
         setSpeciesIndex(0);
@@ -45,6 +38,7 @@ public abstract class Species extends Container {
         nAtomsPerMolecule = na;
         setNMolecules(n);
         this.add(new ColorSchemeDefault(Color.red));
+        this.add(new ConfigurationMoleculeLinear());
     }
 
 
@@ -137,20 +131,6 @@ public abstract class Species extends Container {
   protected Molecule lastMolecule;
   
  /**
-  * First Atom of the first Molecule in this Species
-  *
-  * @see Atom
-  */
-//  public Atom firstAtom;
-  
- /**
-  * Last Atom of the last Molecule in this Species
-  *
-  * @see Atom
-  */
- // Atom lastAtom;
-  
- /**
   * Use to determine initial placement of molecules.  If fillVolume is
   * true, initial coordinates fill all of Phase; otherwise initial-coordinate
   * cube may be shrunk at design time if desired.
@@ -167,6 +147,11 @@ public abstract class Species extends Container {
   
   private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
 
+ /**
+  * Object responsible for setting default configuration of atoms in molecule
+  */
+  ConfigurationMolecule configurationMolecule;
+  
  /**
   * Default constructor.  Creates species containing 20 molecules, each with 1 atom.
   */
@@ -188,6 +173,11 @@ public abstract class Species extends Container {
     for(Atom a=firstAtom(); a!=lastAtom().getNextAtom(); a=a.getNextAtom()) {
         colorScheme.initializeAtomColor(a);
     }
+  }
+  
+  public void add(ConfigurationMolecule cm) {
+    this.configurationMolecule = cm;
+    cm.initializeCoordinates();
   }
   
  /**
@@ -511,13 +501,46 @@ public abstract class Species extends Container {
     }
   }
   
+  public void addNotify() {
+    super.addNotify();
+    if(getParent() instanceof Phase) {
+       parentPhase = (Phase)getParent();
+    }
+    else {  //use an exception here?
+        System.out.println("Error:  Species can be added only to a Phase");
+    }
+  }
+  
+    public void setNAtomsPerMolecule(int na)
+    {
+        nAtomsPerMolecule = na;
+        setNMolecules(nMolecules);
+    }
+    
+    public int getNAtomsPerMolecule() {return nAtomsPerMolecule;}
+    
+  
   public final Molecule firstMolecule() {return firstMolecule;}
   public final Molecule lastMolecule() {return lastMolecule;}
+  
+  /**
+   * Used to terminate loops over molecules in species
+   */
+  public final Molecule terminationMolecule() {return lastMolecule.getNextMolecule();}
+  
   public final Atom firstAtom() { //return firstAtom;
     return (firstMolecule == null) ? null : firstMolecule.firstAtom();
   }
   public final Atom lastAtom() { //return lastAtom;
     return (lastMolecule == null) ? null : lastMolecule.lastAtom();
+  }
+  
+  /**
+   * Used to terminate loops over atoms in species
+   */
+  public final Atom terminationAtom() {
+    Atom last = lastAtom();
+    return (last == null) ? null : last.getNextAtom();
   }
   
 }

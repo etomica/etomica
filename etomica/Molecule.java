@@ -412,5 +412,6 @@ public class Molecule implements Serializable {
   
   public final Atom firstAtom() {return firstAtom;}
   public final Atom lastAtom() {return lastAtom;}
+  public final Atom terminationAtom() {return lastAtom.getNextAtom();}
   
 }

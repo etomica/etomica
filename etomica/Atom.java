@@ -151,15 +151,6 @@ public class Atom {
      */
     public Atom(Molecule parent, int index) {
         this(parent, index, 1.0, 0.1);
-        /**   delete if everything works ok
-        parentMolecule = parent;
-        atomIndex = index;
-        Space.uEa1(r,0.0);
-        Space.uEa1(p,0.0);
-        this.zeroForce();
-        this.setMass(1.0);
-        this.setDiameter(0.1);
-        */
     }
     
     /**

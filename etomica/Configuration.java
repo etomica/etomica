@@ -2,6 +2,10 @@ package simulate;
 import java.util.*;
 import java.awt.*;
 
+/**
+ * General class for assignment of coordinates to all molecules/atoms in phase
+ */
+
 public abstract class Configuration extends Component{
 
     Vector species = new Vector();

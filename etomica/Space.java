@@ -426,6 +426,16 @@ public class Space extends Component {
         u[1] -= v1[1];
         return;
     }
+    
+    public static void uPEa1(double[] u, double a1) {
+        u[0] += a1;
+        u[1] += a1;
+    }
+        
+    public static void uMEa1(double[] u, double a1) {
+        u[0] -= a1;
+        u[1] -= a1;
+    }
         
     public static void uTEa1(double[] u, double a1) {
         u[0] *= a1;
@@ -433,9 +443,9 @@ public class Space extends Component {
         return;
     }
     
-    public static void uTEa1(double[] u, int a1) {
-        u[0] *= a1;
-        u[1] *= a1;
+    public static void uDEa1(double[] u, int a1) {
+        u[0] /= a1;
+        u[1] /= a1;
     }
         
     public static void uPEa1Tv1(double[] u, double a1, double[] v1) {

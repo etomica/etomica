@@ -24,7 +24,7 @@ public class Constants extends Object {
     
     public static final double AVOGADRO = 6.022e23;
     
-    public static final double KE2T = 10.0/8.314;   //converts kinetic energy (mass*velocity^2/kB) to temperature
+    public static final double KE2T = 10.0/8.314;   //converts kinetic energy (amu*(A/ps)^2/kB) to temperature
     public static final double PV2T = 1e5*1e-30/8.314*AVOGADRO;  //converts P*V/kB to temperature in Kelvins
     public static final double BAR2SIM = 1e5*1000*AVOGADRO/1e10/1e24;  //converts bar to amu/A-ps^2 (pressure)
     public static final double MOL_PER_LITER2SIM = 1e3*Constants.AVOGADRO/1e30; //converts mol/liter to molecules/A^3

@@ -15,7 +15,7 @@ public class MeterTemperature extends simulate.Meter
     {
         // This method is derived from class simulate.Meter
         // to do: code goes here
-        return phase.getKineticTemperature();
+        return phase.getKineticTemperature() * Constants.SCALE * Constants.SCALE;
     }
 
 }
