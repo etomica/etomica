@@ -25,8 +25,8 @@ public class Cube extends Polyhedron {
      */
     public Cube(double size) {
         super();
-        vertices = new etomica.space3d.Vector[8];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new etomica.space3d.Vector();
+        vertices = new etomica.space3d.Vector3D[8];
+        for(int i=0; i<vertices.length; i++) vertices[i] = new etomica.space3d.Vector3D();
         setSize(size);
     }
 
@@ -82,6 +82,6 @@ public class Cube extends Polyhedron {
     }
     private double size;
     private double n, p;//n = -size/2, p = +size/2
-    private final etomica.space3d.Vector[] vertices;
+    private final etomica.space3d.Vector3D[] vertices;
 
 }

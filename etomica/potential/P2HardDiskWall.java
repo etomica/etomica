@@ -85,7 +85,7 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
         if(wallType.isVertical()) {i = 0;}
         else {i = 1;}
         
-        dr = wall.coord.position(i) - disk.coord.position(i);
+        dr = wall.coord.position().x(i) - disk.coord.position().x(i);
         return (Math.abs(dr) < collisionRadius);
     }
   
@@ -191,8 +191,8 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
             }
         }
         else {
-          double dv = wall.coord.momentum(i)*wall.coord.rm()-disk.coord.momentum(i)*disk.coord.rm();
-          double dp = -2.0/(wall.coord.rm() + disk.coord.rm())*dv;
+          double dv = wall.coord.momentum().x(i)*wall.type.rm()-disk.coord.momentum().x(i)*disk.coord.rm();
+          double dp = -2.0/(wall.type.rm() + disk.type.rm())*dv;
           wall.coord.momentum().PE(i,+dp);  
           disk.coord.momentum().PE(i,-dp);
           wallType.pAccumulator -= dp;

@@ -1,11 +1,19 @@
 package etomica;
 
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.space.Boundary;
 import etomica.space.Coordinate;
+import etomica.space.CoordinateAngular;
+import etomica.space.CoordinateAngularKinetic;
+import etomica.space.CoordinateKinetic;
 import etomica.space.CoordinatePair;
+import etomica.space.ICoordinate;
 import etomica.space.Orientation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.space1d.Space1D;
+import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 
 /* History of changes
  * 09/01/02 (DAK) added accelerateTo method to Coordinate
@@ -24,6 +32,7 @@ public abstract class Space implements java.io.Serializable {
         if(d < 1 || d > 3) throw new IllegalArgumentException("Illegal dimension for space");
         D = d;
         rD = 1.0/D;
+        kinetic = true;
     }
     
     /**
@@ -57,18 +66,30 @@ public abstract class Space implements java.io.Serializable {
      */
     public double rootD(double a) {return Math.pow(a, rD);}
     
-    public abstract Vector origin();
-    
-    public abstract Vector makeVector();      //Space.Vector
+    public abstract Vector makeVector();
     public abstract Orientation makeOrientation();
     public abstract Tensor makeTensor();
     public abstract Tensor makeRotationTensor();
-    public abstract Coordinate makeCoordinate(Atom a);
-    public abstract CoordinatePair makeCoordinatePair();
-    public abstract Boundary makeBoundary();  //makes boundary of default type
-    public abstract Boundary makeBoundary(Boundary.Type type);
-    public abstract Boundary.Type[] boundaryTypes();
-    public boolean requiresSpecialBoundary() {return false;}
+
+    public ICoordinate makeCoordinate(Atom atom) {
+        if(atom.node instanceof AtomTreeNodeGroup) return null;
+        
+        //boolean angular = something with atom.type;
+        boolean angular = false;
+        if(kinetic) {
+            if(angular) return new CoordinateAngularKinetic(this);
+            return new CoordinateKinetic(this);
+        } else {
+            if(angular) return new CoordinateAngular(this);
+            return new Coordinate(this);
+        }
+    }
+    
+    public CoordinatePair makeCoordinatePair() {
+        return new CoordinatePair(this);
+    }
+
+    
     /**
      * Returns an array of dimension D, with each element equal to the given value.
      */
@@ -78,43 +99,30 @@ public abstract class Space implements java.io.Serializable {
      */
     public abstract double[] makeArrayD(double d);
 
-    public double sphereVolume(double r) {
-        switch(D) {
-            case 1: return 2*r;
-            case 2: return Math.PI*r*r;
-            default:
-            case 3: return (Math.PI*4.0*r*r*r/3.0);
-        }
-    }
-    public double sphereArea(double r)  {
-        switch(D) {
-            case 1: return 2;
-            case 2: return 2*Math.PI*r;
-            default:
-            case 3: return 4*Math.PI*r*r;
-        }
-    }
+    public abstract double sphereVolume(double r);
+
+    public abstract double sphereArea(double r);
     
     /**
      * Returns the square distance between the two vectors, using the given boundary condition.
      */
-    public static double r2(Vector u1, Vector u2, Boundary b) {
-        return r2(u1, u2, b, makeVector(u1.D()));
-    }
-    public static final double r2(Vector u1, Vector u2, Boundary b, Vector work) {
+    public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
-        work.Ev1Mv2(u1, u2);
-        b.nearestImage(work);
-        return work.squared();
+        switch(u1.D()) {
+            case 1: return Space1D.r2((etomica.space1d.Vector1D)u1, (etomica.space1d.Vector1D)u2, (Boundary)b);
+            case 2: return Space2D.r2((etomica.space2d.Vector2D)u1, (etomica.space2d.Vector2D)u2, (Boundary)b);
+            case 3: return Space3D.r2((etomica.space3d.Vector3D)u1, (etomica.space3d.Vector3D)u2, (Boundary)b);
+            default: throw new IllegalArgumentException("Space.r2: Unknown vector dimension");
+        }
     }
     /**
      * Returns a Vector from the space of the given dimension.
      */
     public static Vector makeVector(int D) {
         switch(D) {
-            case 1:  return new etomica.space1d.Vector();
-            case 2:  return new etomica.space2d.Vector();
-            case 3:  return new etomica.space3d.Vector();
+            case 1:  return new etomica.space1d.Vector1D();
+            case 2:  return new etomica.space2d.Vector2D();
+            case 3:  return new etomica.space3d.Vector3D();
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
@@ -124,9 +132,9 @@ public abstract class Space implements java.io.Serializable {
      */
     public static Vector makeVector(double[] a) {
         switch(a.length) {
-            case 1:  return new etomica.space1d.Vector(a);
-            case 2:  return new etomica.space2d.Vector(a);
-            case 3:  return new etomica.space3d.Vector(a);
+            case 1:  return new etomica.space1d.Vector1D(a);
+            case 2:  return new etomica.space2d.Vector2D(a);
+            case 3:  return new etomica.space3d.Vector3D(a);
             default: throw new IllegalArgumentException("Space.makeVector: Requested dimension not implemented");
         }
     }
@@ -152,4 +160,18 @@ public abstract class Space implements java.io.Serializable {
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }
+    
+    /**
+     * @return Returns the kinetic.
+     */
+    public boolean isKinetic() {
+        return kinetic;
+    }
+    /**
+     * @param kinetic The kinetic to set.
+     */
+    public void setKinetic(boolean kinetic) {
+        this.kinetic = kinetic;
+    }
+    private boolean kinetic;
 }//end of Space    

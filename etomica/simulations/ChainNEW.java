@@ -12,6 +12,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Vector;
+import etomica.space2d.Space2D;
 
 import java.awt.*;
 import javax.swing.*;

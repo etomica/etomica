@@ -9,8 +9,9 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space.ICoordinateAngular;
 import etomica.space.Boundary;
-import etomica.space.Coordinate;
+import etomica.space.ICoordinate;
 import etomica.space.Vector;
 import etomica.utility.java2.Iterator;
 
@@ -96,7 +97,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
             /* Draw the orientation line, if any */
             if(drawOrientation) {
-                double theta = ((Coordinate.Angular)a.coord).orientation().angle()[0];
+                double theta = ((ICoordinateAngular)a.coord).orientation().angle()[0];
                 int dxy = (int)(displayPhase.getToPixels()*((AtomTypeOrientedSphere)a.type).radius(a));
                 int dx = (int)(dxy*Math.cos(theta));
                 int dy = (int)(dxy*Math.sin(theta));

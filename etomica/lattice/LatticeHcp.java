@@ -1,8 +1,8 @@
 package etomica.lattice;
 import etomica.Default;
-import etomica.Space3D;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.PrimitiveHexagonal;
+import etomica.space3d.Space3D;
 
 /**
  * Hexagonal primitive with a 2-site hcp basis.

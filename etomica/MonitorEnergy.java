@@ -7,6 +7,7 @@ import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
+import etomica.space3d.Space3D;
 import etomica.units.*;
 
 /**

@@ -1,8 +1,8 @@
 package etomica.lattice;
 import etomica.Default;
-import etomica.Space3D;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.space3d.Space3D;
 
 /**
  * Cubic primitive with a 4-site fcc basis.

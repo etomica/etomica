@@ -8,7 +8,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTreeNodeLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.space.Coordinate;
+import etomica.space.ICoordinate;
 
  /**
   * Object corresponding to one physical atom or (in subclasses) group of atoms.
@@ -98,7 +98,7 @@ public class Atom implements java.io.Serializable {
      * When the atom is constructed the coordinate class is provided by the 
      * governing Space for the simulation.
      */
-    public final Coordinate coord;
+    public final ICoordinate coord;
             
     public Object ia;//integrator agent
                 

@@ -7,6 +7,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Boundary;
+import etomica.space3d.Space3D;
 import etomica.virial.*;
 import etomica.virial.overlap.*;
 import etomica.virial.cluster.*;

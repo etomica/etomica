@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.log.LoggerAbstract;
+import etomica.space2d.Space2D;
 import etomica.utility.NameMaker;
 import java.util.HashMap;
 import java.util.Iterator;

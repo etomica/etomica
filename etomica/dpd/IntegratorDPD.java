@@ -97,12 +97,11 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 			MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
 			Vector r = a.coord.position();
 			Vector p = a.coord.momentum();
-			r.PEa1Tv1(timeStep*a.coord.rm(),p);         // r += p*dt/m
-			r.PEa1Tv1(t2*a.coord.rm(),agent.force);  // r += f(old)*dt^2/2m
+			r.PEa1Tv1(timeStep*a.type.rm(),p);         // r += p*dt/m
+			r.PEa1Tv1(t2*a.type.rm(),agent.force);  // r += f(old)*dt^2/2m
 			p.PEa1Tv1(lambdaV*timeStep, agent.force);  // p += f(old)*dt*lambdaV
 			agent.fOld.E(agent.force);
 			agent.force.E(0.0);				//sets all components of the force vector to 0
-			a.seq.moveNotify();//11-17-03 (DAK) added this
 		}
                 
 		//Compute forces on each atom

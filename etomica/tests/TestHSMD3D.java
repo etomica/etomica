@@ -5,7 +5,6 @@ import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Space3D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
@@ -16,6 +15,7 @@ import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
+import etomica.space3d.Space3D;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.

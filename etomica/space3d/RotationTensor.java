@@ -9,7 +9,7 @@ import etomica.Simulation;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class RotationTensor extends Tensor implements etomica.space.RotationTensor {
+public class RotationTensor extends Tensor3D implements etomica.space.RotationTensor {
     public RotationTensor() {super(); reset();}
     public void reset() {
         xx = 1.0; xy = 0.0; xz = 0.0;
@@ -76,9 +76,9 @@ public class RotationTensor extends Tensor implements etomica.space.RotationTens
      */
     public static void main (String[] args) {
         
-        Vector r1 = new Vector(2,2,3);
+        Vector3D r1 = new Vector3D(2,2,3);
         System.out.println("r1_before" + r1.toString());
-        Tensor tensor = new Tensor(new double[] {1,2,0,1,1,2,0,0,1});
+        Tensor3D tensor = new Tensor3D(new double[] {1,2,0,1,1,2,0,0,1});
         RotationTensor tensor2 = new RotationTensor();
         tensor2.E(tensor);
         System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 

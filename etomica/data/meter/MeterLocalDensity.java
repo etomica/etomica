@@ -4,11 +4,11 @@ import etomica.Atom;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Space2D;
 import etomica.Species;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorSpeciesDependent;
-import etomica.space2d.Vector;
+import etomica.space2d.Space2D;
+import etomica.space2d.Vector2D;
 import etomica.units.*;
 
 /**
@@ -169,7 +169,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
              * Method that specifies if a molecule center-of-mass is inside the local region where the density is measured
              */
             public boolean contains(Atom m) {
-                Vector r = (Vector)m.coord.position();  //molecule center-of-mass
+                Vector2D r = (Vector2D)m.coord.position();  //molecule center-of-mass
                 if(Math.abs(r.x(0)-xCenter) > halfWidth) {return false;}
                 else if(Math.abs(r.x(1)-yCenter) > halfHeight) {return false;}
                 else {return true;}

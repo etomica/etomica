@@ -23,7 +23,7 @@ public class HSMD3D extends Simulation {
     public P2HardSphere potential;
     
     public HSMD3D() {
-        this(new etomica.Space3D());
+        this(new etomica.space3d.Space3D());
     }
     private HSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));

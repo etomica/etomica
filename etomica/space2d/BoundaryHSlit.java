@@ -19,10 +19,10 @@ public class BoundaryHSlit extends Boundary implements etomica.space.Boundary.Pe
     public BoundaryHSlit(Phase p, double lx, double ly) {super(p); dimensions.x = lx; dimensions.y = ly; updateDimensions();}
     public BoundaryHSlit(double lx, double ly) {dimensions.x = lx; dimensions.y = ly; updateDimensions();}
     public etomica.space.Boundary.Type type() {return Boundary.HSLIT;}
-    private final Vector temp = new Vector();
-    private final Vector dimensions = new Vector();
-    private final Vector dimensionsCopy = new Vector();
-    private final Vector dimensionsHalf = new Vector();
+    private final Vector2D temp = new Vector2D();
+    private final Vector2D dimensions = new Vector2D();
+    private final Vector2D dimensionsCopy = new Vector2D();
+    private final Vector2D dimensionsHalf = new Vector2D();
     public final etomica.space.Vector dimensions() {return dimensionsCopy;}
     private final void updateDimensions() {
         dimensionsHalf.Ea1Tv1(0.5,dimensions);
@@ -33,8 +33,8 @@ public class BoundaryHSlit extends Boundary implements etomica.space.Boundary.Pe
         temp.y = dimensions.y*Simulation.random.nextDouble(); 
         return temp;
     }
-    public void nearestImage(etomica.space.Vector dr) {nearestImage((Vector)dr);}
-    public void nearestImage(Vector dr) {
+    public void nearestImage(etomica.space.Vector dr) {nearestImage((Vector2D)dr);}
+    public void nearestImage(Vector2D dr) {
        // dr.x -= dimensions.x * ((dr.x > 0.0) ? Math.floor(dr.x/dimensions.x+0.5) : Math.ceil(dr.x/dimensions.x-0.5));
        // dr.y -= dimensions.y * ((dr.y > 0.0) ? Math.floor(dr.y/dimensions.y+0.5) : Math.ceil(dr.y/dimensions.y-0.5));
        // final double dimxHalf = 0.5*dimensions.x;
@@ -43,8 +43,8 @@ public class BoundaryHSlit extends Boundary implements etomica.space.Boundary.Pe
         while(dr.y < -dimensionsHalf.y) {dr.y += dimensions.y;}//System.out.println("Space2D here0 4");}       
     }
     public boolean centralImage(Coordinate c) {return centralImage(c.r);}
-    public boolean centralImage(etomica.space.Vector r) {return centralImage((Vector)r);}
-    public boolean centralImage(Vector r) {
+    public boolean centralImage(etomica.space.Vector r) {return centralImage((Vector2D)r);}
+    public boolean centralImage(Vector2D r) {
     /*    while(r.x > dimensions.x) r.x -= dimensions.x;
         while(r.x < 0.0)          r.x += dimensions.x;
         while(r.y > dimensions.y) r.y -= dimensions.y;
@@ -92,10 +92,10 @@ public class BoundaryHSlit extends Boundary implements etomica.space.Boundary.Pe
      * 0, 1, or 3 shifts may be returned
      */
     int shiftX, shiftY;
-    Vector r;
+    Vector2D r;
     public float[][] getOverflowShifts(etomica.space.Vector rr, double distance) {
         shiftX = 0; shiftY = 0;
-        r = (Vector)rr;
+        r = (Vector2D)rr;
         
         if(r.x-distance < 0.0) {shiftX = +1;}
         else if(r.x+distance > dimensions.x) {shiftX = -1;}

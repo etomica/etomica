@@ -6,9 +6,9 @@ import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.AtomType;
-import etomica.space.Coordinate;
+import etomica.space.ICoordinateAngular;
+import etomica.space.ICoordinate;
 import etomica.space.Tensor;
-import etomica.space.Coordinate.Angular;
 import etomica.space.Vector;
 
 /**
@@ -19,7 +19,7 @@ import etomica.space.Vector;
  */
 public class P2RoughSphere extends P2HardSphere {
 
-    private final etomica.space3d.Vector omegaSum = new etomica.space3d.Vector();
+    private final etomica.space3d.Vector3D omegaSum = new etomica.space3d.Vector3D();
     private final Vector v12Surface;
     private final Vector v12Par;
     private final Vector v12Perp;
@@ -57,8 +57,8 @@ public class P2RoughSphere extends P2HardSphere {
         Vector p1 = a1.coord.momentum();
         Vector p2 = a2.coord.momentum();
         dr.E(cPair.dr());
-        omegaSum.E(((Coordinate.Angular)a1.coord).angularVelocity());
-        omegaSum.PE(((Coordinate.Angular)a2.coord).angularVelocity());
+        omegaSum.E(((ICoordinateAngular)a1.coord).angularVelocity());
+        omegaSum.PE(((ICoordinateAngular)a2.coord).angularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
         v12Surface.E(dr); // (r2 - r1)
         v12Surface.XE(omegaSum); //(r2-r1) X (omega2+omega1)
@@ -81,8 +81,8 @@ public class P2RoughSphere extends P2HardSphere {
         //here omegaSum is used to hold the angular impulse
         omegaSum.E(dr.cross(impulse));
         omegaSum.TE(-0.5);
-        ((Coordinate.Angular)a1.coord).angularAccelerateBy(omegaSum);
-        ((Coordinate.Angular)a2.coord).angularAccelerateBy(omegaSum);
+        ((ICoordinateAngular)a1.coord).angularAccelerateBy(omegaSum);
+        ((ICoordinateAngular)a2.coord).angularAccelerateBy(omegaSum);
         
         lastCollisionVirial = 2.0/(a1.coord.rm() + a2.coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;

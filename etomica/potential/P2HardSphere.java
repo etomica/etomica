@@ -6,6 +6,8 @@ import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
 import etomica.Space;
+import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -63,17 +65,21 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(Atom[] pair, double falseTime) {
-    	cPairNbr.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double r2 = cPairNbr.r2();
-        double bij = cPairNbr.vDotr();
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        Vector dr = cPairNbr.dr();
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double v2 = dv.squared();
         double time = Double.MAX_VALUE;
 
         if(bij < 0.0) {
         	if (Default.FIX_OVERLAP && r2 < sig2) return 0.0;
-        	double velocitySquared = cPairNbr.v2();
-            double discriminant = bij*bij - velocitySquared * ( r2 - sig2 );
+            double discriminant = bij*bij - v2 * ( r2 - sig2 );
             if(discriminant > 0) {
-                time = (-bij - Math.sqrt(discriminant))/velocitySquared;
+                time = (-bij - Math.sqrt(discriminant))/v2;
             }
         }
         if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || time < 0.0)) {
@@ -87,13 +93,22 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Implements collision dynamics and updates lastCollisionVirial
      */
     public void bump(Atom[] pair, double falseTime) {
-    	cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
-        double r2 = cPair.r2();
+        cPairNbr.reset(pair[0].coord,pair[1].coord);
+        ((CoordinatePairKinetic)cPairNbr).resetV();
+        dr.E(cPairNbr.dr());
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
         dr.E(cPair.dr());  //used by lastCollisionVirialTensor
-        lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
+        lastCollisionVirial = 2.0/(pair[0].type.rm() + pair[1].type.rm())*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        dr.TE(lastCollisionVirialr2);
-        cPair.truePush(dr,falseTime);
+        //dv is now change in velocity due to collision
+        dv.Ea1Tv1(lastCollisionVirialr2,dr);
+        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
+        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
+        pair[0].coord.position().Ea1Tv1(-falseTime,dv);
+        pair[1].coord.position().Ea1Tv1(falseTime,dv);
     }
     
     public double lastCollisionVirial() {
@@ -102,7 +117,7 @@ public class P2HardSphere extends Potential2HardSpherical {
     
     public Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);
-        lastCollisionVirialTensor.TE(lastCollisionVirialr2);
+//        lastCollisionVirialTensor.DE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        
     }
     

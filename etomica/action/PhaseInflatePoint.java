@@ -9,7 +9,6 @@ import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEventManager;
 import etomica.Space;
-import etomica.Space2D;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
@@ -22,6 +21,7 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeFactoryCubic;
 import etomica.lattice.Site;
 import etomica.space.Vector;
+import etomica.space2d.Space2D;
 import etomica.utility.OdeSolver;
 
 /** 
@@ -117,6 +117,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
             Atom a = moleculeIterator.nextAtom();
             s.E(a.coord.position());
             s.ME(r0);
+            // centralImage returns the vector to add to s and does not transform s
             phase.boundary().centralImage(s);
             s.DE(phase.dimensions());
             MyCell cell = null;

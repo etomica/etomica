@@ -5,9 +5,12 @@ import etomica.AtomIterator;
 import etomica.Default;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -23,6 +26,8 @@ public class MCMoveMolecule extends MCMove {
     
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    private final AtomGroupAction moveMoleculeAction;
+    private final Vector translationVector;
     private Atom molecule;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -30,6 +35,8 @@ public class MCMoveMolecule extends MCMove {
     public MCMoveMolecule(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        moveMoleculeAction = new AtomGroupAction(new AtomActionTranslateBy(potentialMaster.getSpace()));
+        translationVector = ((AtomActionTranslateBy)moveMoleculeAction.getAction()).getTranslationVector();
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(0.1*Default.ATOM_SIZE);
@@ -58,7 +65,9 @@ public class MCMoveMolecule extends MCMove {
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar(phase);
-        molecule.coord.displaceWithin(stepSize);
+        translationVector.setRandomCube();
+        translationVector.TE(stepSize);
+        moveMoleculeAction.actionPerformed(molecule);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -74,7 +83,8 @@ public class MCMoveMolecule extends MCMove {
     public void acceptNotify() {  /* do nothing */}
     
     public void rejectNotify() {
-        molecule.coord.replace();
+        translationVector.TE(-1);
+        moveMoleculeAction.actionPerformed(molecule);
     }
         
     public final AtomIterator affectedAtoms(Phase phase) {
@@ -86,7 +96,7 @@ public class MCMoveMolecule extends MCMove {
 
     public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     
-
+    
 /*    public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();

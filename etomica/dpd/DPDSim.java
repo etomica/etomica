@@ -9,6 +9,8 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 
 
 /**

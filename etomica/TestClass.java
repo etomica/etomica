@@ -38,6 +38,22 @@ public class TestClass {
         System.out.println(Arrays.toString(new double[] {3.0}));
         System.out.println(Arrays.toString(new double[] {3.2,4./3.,-5,Double.MAX_VALUE}));
         
+        InnerA innerA = new InnerA();
+        InnerA innerAB = new InnerB();
+        InnerB innerB = new InnerB();
+        
+        System.out.println(innerA.name());
+        System.out.println(innerAB.name());
+        System.out.println(innerB.name());
+        System.out.println(((InnerA)innerB).name());
+    }
+    
+    private static class InnerA {
+        public String name() {return "InnerA";}
+    }
+    
+    private static class InnerB extends InnerA {
+        public String name() {return "InnerB";}
     }
 }
         

@@ -108,9 +108,9 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			mass = a.coord.mass();
             
 			work1.E(p); //work1 = p
-			work1.TE(a.coord.rm());  //work1 = p/m = v
+			work1.TE(a.type.rm());  //work1 = p/m = v
 			work2.E(agent.force);	//work2=F
-			work1.PEa1Tv1(halfTime*a.coord.rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
+			work1.PEa1Tv1(halfTime*a.type.rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
             
         	 k+=work1.squared();
  
@@ -125,7 +125,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			Atom a = atomIterator.nextAtom();
 			Agent agent = (Agent)a.ia;
 			Vector p = a.coord.momentum();
-			double divmass = a.coord.rm();
+			double divmass = a.type.rm();
 		
 			double scale = (2.0*chi-1.0)*divmass; 
 			work3.Ea1Tv1(scale,p); 
@@ -145,7 +145,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			Vector p = a.coord.momentum();
             
 			work.E(p);
-			work.TE(timeStep*a.coord.rm());
+			work.TE(timeStep*a.type.rm());
 			work.PE(r);
 			r.E(work);
 		}

@@ -3,7 +3,7 @@ package etomica.lattice;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
-import etomica.space3d.Vector;
+import etomica.space3d.Vector3D;
 import etomica.*;
 
 /**
@@ -22,30 +22,30 @@ public class LatticePlane implements AtomFilter {
     private final Plane plane;
     private Primitive primitive;
     private Primitive reciprocal;
-    private Vector normal, delta;
+    private Vector3D normal, delta;
     private Space space;
     private int[] millerIndices;
     private double spacePosition;
-    private Vector origin;
+    private Vector3D origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
         reciprocal = primitive.reciprocal();
         space = primitive.space;
-        origin = (Vector)space.makeVector();
+        origin = (Vector3D)space.makeVector();
         millerIndices = new int[space.D()];
         if(space.D() != 3) {
             throw new IllegalArgumentException("LatticePlane not defined for other than 3D space");
         }
         plane = new Plane();
         plane.epsilon = 1.0e-2;//tolerance for defining a point to be in the plane
-        normal = (Vector)space.makeVector();
-        delta = (Vector)space.makeVector();
+        normal = (Vector3D)space.makeVector();
+        delta = (Vector3D)space.makeVector();
         setMillerIndices(h);
     }
     
     public boolean accept(Atom a) {
-        return !plane.isPositiveSide((Vector)a.coord.position());
+        return !plane.isPositiveSide((Vector3D)a.coord.position());
     }
     
     public void setPrimitive(Primitive primitive) {
@@ -135,14 +135,14 @@ public class LatticePlane implements AtomFilter {
      * plane toward which the normal vector points.  The direction
      * of the normal vector can be inverted using the invert method.
      */
-    public boolean isPositiveSide(Vector p) {
+    public boolean isPositiveSide(Vector3D p) {
         return plane.isPositiveSide(p);
     }
     
     /**
      * Returns true if the given point is inside the plane (within some small tolerance).
      */
-    public boolean inPlane(Vector p) {
+    public boolean inPlane(Vector3D p) {
         return plane.inPlane(p);
     }
     
@@ -165,7 +165,7 @@ public class LatticePlane implements AtomFilter {
     /**
      * Sets the origin from which the position of the atom is measured.
      */
-    public void setOrigin(Vector origin) {
+    public void setOrigin(Vector3D origin) {
         this.origin.E(origin);
     }
     public etomica.space.Vector getOrigin() {return origin;}

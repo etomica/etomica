@@ -39,7 +39,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
                 t = (t < 0) ? -t : t;//abs
                 tmin = (t < tmin) ? t : tmin;
             }
-            return 0.25*a[0].coord.mass()*tmin + falseTime; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+            return 0.25*a[0].type.getMass()*tmin + falseTime; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
       //      return 0.25*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
             //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
         }

@@ -9,7 +9,8 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Boundary;
-import etomica.space3d.Vector;
+import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.virial.*;
 import etomica.virial.cluster.*;
 
@@ -60,10 +61,10 @@ public class SimulationSign extends SimulationGraphic {
 		
 		this.elementCoordinator.go();
 		
-		Vector origin = new Vector(5.,5.,5.);
+		Vector3D origin = new Vector3D(5.,5.,5.);
 		SpeciesAgent speciesAgent = phase.getAgent(species);
-		speciesAgent.coord.translateTo(new Vector(5.,5.,5.));
-		speciesAgent.firstMolecule().coord.translateTo(new Vector(5.,5.,5.));
+		speciesAgent.coord.translateTo(new Vector3D(5.,5.,5.));
+		speciesAgent.firstMolecule().coord.translateTo(new Vector3D(5.,5.,5.));
 				
 		AtomList childList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
 		AtomIteratorList list1 = new AtomIteratorList(childList);

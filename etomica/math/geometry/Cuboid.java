@@ -25,9 +25,9 @@ public class Cuboid extends Polyhedron {
      */
     public Cuboid(double a, double b, double c) {
         super();
-        vertices = new etomica.space3d.Vector[8];
+        vertices = new etomica.space3d.Vector3D[8];
         for (int i = 0; i < vertices.length; i++)
-            vertices[i] = new etomica.space3d.Vector();
+            vertices[i] = new etomica.space3d.Vector3D();
         setSize(a, b, c);
     }
 
@@ -105,6 +105,6 @@ public class Cuboid extends Polyhedron {
     private double nb, pb;//nb = -b/2, p = +a/2
     private double nc, pc;//nc = -c/2, p = +a/2
 
-    private final etomica.space3d.Vector[] vertices;
+    private final etomica.space3d.Vector3D[] vertices;
 
 }

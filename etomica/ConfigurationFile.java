@@ -13,7 +13,7 @@ import etomica.space.Vector;
 public class ConfigurationFile extends Configuration {
 
     public ConfigurationFile(Space space, String aConfName) {
-        super();
+        super(space);
         confName = aConfName;
         newPos = space.makeVector();
     }
@@ -67,7 +67,7 @@ public class ConfigurationFile extends Configuration {
             coord[i] = Double.valueOf(coordStr[i]).doubleValue();
         }
         newPos.E(coord);
-        atom.coord.displaceTo(newPos);
+        atom.coord.position().E(newPos);
     }
     
     private String confName;

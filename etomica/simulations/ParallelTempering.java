@@ -10,6 +10,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.space2d.Space2D;
 import etomica.utility.HistoryScrolling;
 
 /**

@@ -4,6 +4,7 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorGear4;
 import etomica.potential.P2LennardJones;
+import etomica.space2d.Space2D;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D

@@ -6,6 +6,7 @@ import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.space.Vector;
+import etomica.space3d.Space3D;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has
@@ -22,7 +23,8 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	 * @param space
 	 */
 	public ConfigurationLattice(CubicLattice lattice, IndexIteratorSizable indexIterator) {
-	    this.lattice = lattice;
+	    super(lattice.getSpace());
+        this.lattice = lattice;
         this.indexIterator = indexIterator;
 	}
 	
@@ -38,7 +40,9 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         if(sumOfMolecules == 0) {return;}
 		if(sumOfMolecules == 1) {
 			iterator.reset();
-			iterator.nextAtom().coord.translateTo(lattice.getSpace().origin());
+            work.E(0.0);
+            //XXX broken
+			iterator.nextAtom().coord.position().E(work);
 			return;
 		}
         int nCells = (int)Math.ceil((double)sumOfMolecules/(double)lattice.getBasisSize());

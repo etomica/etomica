@@ -48,7 +48,7 @@ public class SWMD3D extends Simulation {
 	}
 	
   public SWMD3D() {
-	super(new etomica.Space3D());
+	super(new etomica.space3d.Space3D());
 //	Default.makeLJDefaults();
     
     integrator = new IntegratorHard(potentialMaster);

@@ -1,8 +1,9 @@
-package etomica;
+package etomica.space1d;
 
-import etomica.atom.AtomTreeNodeGroup;
-import etomica.space1d.*;
-import etomica.statmech.MaxwellBoltzmann;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Space;
+import etomica.space.Boundary;
 
 //CoordinateGroup is not updated to the same structure as used in Space2D and Space3D
 //centralImage not updated to molecule form as in Space3D
@@ -28,7 +29,7 @@ public class Space1D extends Space implements EtomicaElement {
     public final int D() {return D;}
     public final int powerD(int n) {return n;}
     public final double powerD(double a) {return a;}
-    public static final Vector ORIGIN = new Vector();
+    public static final Vector1D ORIGIN = new Vector1D();
     public final etomica.space.Vector origin() {return ORIGIN;}
     public static final Space1D INSTANCE = new Space1D();
     
@@ -36,25 +37,11 @@ public class Space1D extends Space implements EtomicaElement {
     
     public double sphereVolume(double r) {return 2.0*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0;}      //surface area of sphere of radius r (used for differential shell volume)
-    public etomica.space.Vector makeVector() {return new Vector();}
+    public etomica.space.Vector makeVector() {return new Vector1D();}
     public etomica.space.Orientation makeOrientation() {System.out.println("Orientation class not implemented in 1D"); return null;}
-    public etomica.space.Tensor makeTensor() {return new Tensor();}
+    public etomica.space.Tensor makeTensor() {return new Tensor1D();}
     public etomica.space.Tensor makeRotationTensor() {return new RotationTensor();}
-    public etomica.space.Coordinate makeCoordinate(Atom a) {
-        if(a.node instanceof AtomTreeNodeGroup) return new CoordinateGroup(a);
-//        else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
-        return new Coordinate(a);
-    }
-    public etomica.space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
 
-    public etomica.space.Boundary.Type[] boundaryTypes() {return Boundary.TYPES;}
-    public etomica.space.Boundary makeBoundary() {return makeBoundary(Boundary.PERIODIC_SQUARE);}  //default
-    public etomica.space.Boundary makeBoundary(etomica.space.Boundary.Type t) {
-        if(t == Boundary.NONE) {return new BoundaryNone();}
-        else if(t == Boundary.PERIODIC_SQUARE) {return new BoundaryPeriodicSquare();}
-        else return null;
-    }
-    
     public int[] makeArrayD(int i) {return new int[] {i};}
     public double[] makeArrayD(double d) {return new double[] {d};}
     
@@ -63,6 +50,13 @@ public class Space1D extends Space implements EtomicaElement {
         return info;
     }
 
+    public static final double r2(Vector1D u1, Vector1D u2, Boundary b) {
+        Vector1D.WORK.x = u1.x - u2.x;
+        b.nearestImage(Vector1D.WORK);
+        return Vector1D.WORK.x*Vector1D.WORK.x;
+    }
+    
+    
 //    public static void main(String[] args) {
 //        Default.ATOM_SIZE = 1.0;
 //        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space1D());

@@ -10,6 +10,7 @@ import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.space1d.Space1D;
 import etomica.utility.java2.Iterator;
 
     /* History of changes

@@ -15,6 +15,7 @@ import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
 import etomica.space.Vector;
 import etomica.space3d.Boundary;
+import etomica.space3d.Space3D;
 import etomica.*;
 
 /**

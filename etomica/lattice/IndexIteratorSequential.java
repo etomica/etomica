@@ -56,6 +56,18 @@ public class IndexIteratorSequential implements IndexIteratorSizable {
         return index;
     }
     
+    /**
+     * Sets range of all indexes to the given value
+     * @param size
+     */
+    public void setSize(int size) {
+        maxCount = 1;
+        for(int i=0; i<D; i++) {
+            this.size[i] = size;
+            maxCount *= size;
+        }
+    }
+    
     public void setSize(int[] size) {
         if(size.length != D) throw new IllegalArgumentException("Length of array inconsistent with dimension of iterator");
         maxCount = 1;

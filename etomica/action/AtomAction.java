@@ -11,7 +11,7 @@ import etomica.Atom;
  * 
  * 01/25/03 (DAK) new
  */
-public interface AtomAction extends Action {
+public interface AtomAction extends AtomsetAction {
 
     public void actionPerformed(Atom atom);
     public void setAtom(Atom atom);

@@ -10,6 +10,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;
 import etomica.space.Boundary;
+import etomica.space.BoundaryPeriodicSquare;
 import etomica.space.Vector;
 import etomica.utility.NameMaker;
 
@@ -82,7 +83,7 @@ public class Phase {
         setName(NameMaker.makeName(this.getClass()));
         inflater = new PhaseInflate(this);
 
-        setBoundary(space.makeBoundary());
+        setBoundary(new BoundaryPeriodicSquare(space));
 
         if(space.D() < 3) 
             setConfiguration(new ConfigurationSequential(space));  //default configuration
@@ -210,7 +211,6 @@ public class Phase {
      public void setBoundary(Boundary b) {
         boundaryMonitor.notifyObservers(b);
         boundary = b;
-        boundary.setPhase(this);
      }
      
      /**

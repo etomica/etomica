@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.action.AtomActionAccelerateTo;
+import etomica.action.AtomActionRandomizeVelocity;
+import etomica.action.AtomGroupAction;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.space.Vector;
@@ -22,8 +25,17 @@ public abstract class Configuration implements java.io.Serializable {
 
     protected boolean zeroTotalMomentum = true;
     protected double[] dimensions;
+    protected AtomGroupAction atomActionRandomizeVelocity;
+    protected AtomActionAccelerateTo atomActionAccelerateTo;
+    protected Space space;
+    protected Vector work;
     
-    public Configuration() {}
+    public Configuration(Space space) {
+        this.space = space;
+        atomActionRandomizeVelocity = new AtomGroupAction(new AtomActionRandomizeVelocity());
+        atomActionAccelerateTo = new AtomActionAccelerateTo(space);
+        work = space.makeVector();
+    }
 
     public abstract void initializePositions(AtomIterator[] iterator);
     
@@ -59,11 +71,12 @@ public abstract class Configuration implements java.io.Serializable {
         initializeMomenta(atom, Default.TEMPERATURE);
     }
     public void initializeMomenta(Atom atom, double temperature) {
-        atom.coord.randomizeMomentum(temperature);
+        ((AtomActionRandomizeVelocity)atomActionRandomizeVelocity.getAction()).setTemperature(temperature);
+        atomActionRandomizeVelocity.actionPerformed(atom);
         if(zeroTotalMomentum) {
-            Vector zero = (Vector)atom.coord.position().clone();
-            zero.E(0.0);
-            atom.coord.accelerateTo(zero);
+            work.E(0.0);
+            atomActionAccelerateTo.setTargetVelocity(work);
+            atomActionAccelerateTo.actionPerformed(atom);
         }
     }//end of initializeMomenta
     
@@ -99,11 +112,11 @@ public abstract class Configuration implements java.io.Serializable {
         initializePositions(iterators);
     }
 
-    public static etomica.space1d.Vector[] lineLattice(int n, double Lx) {
-        etomica.space1d.Vector[] r = new etomica.space1d.Vector[n];
+    public static etomica.space1d.Vector1D[] lineLattice(int n, double Lx) {
+        etomica.space1d.Vector1D[] r = new etomica.space1d.Vector1D[n];
         double delta = Lx/n;
         for(int i=0; i<n; i++) {
-            r[i] = new etomica.space1d.Vector();
+            r[i] = new etomica.space1d.Vector1D();
             r[i].setX(0, (i+0.5)*delta);
         }
         return r;
@@ -116,9 +129,9 @@ public abstract class Configuration implements java.io.Serializable {
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public final static etomica.space2d.Vector[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        etomica.space2d.Vector[] r = new etomica.space2d.Vector[n];
-        for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector();}
+    public final static etomica.space2d.Vector2D[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+        etomica.space2d.Vector2D[] r = new etomica.space2d.Vector2D[n];
+        for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector2D();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;
@@ -165,17 +178,17 @@ public abstract class Configuration implements java.io.Serializable {
 	    return r;
     }//end of squareLattice
  
-	public final static etomica.space2d.Vector[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
-		etomica.space2d.Vector[] r = new etomica.space2d.Vector[n];
+	public final static etomica.space2d.Vector2D[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
+		etomica.space2d.Vector2D[] r = new etomica.space2d.Vector2D[n];
 		if(n == 0) return r;
-		Vector com = new etomica.space2d.Vector();
+		Vector com = new etomica.space2d.Vector2D();
 		com.E(0.0); // later becomes present Center of Mass
-		Vector dcom = new etomica.space2d.Vector();
+		Vector dcom = new etomica.space2d.Vector2D();
 		dcom.E(0.0); // difference in Present COM and Original COM
-		Vector ocom = new etomica.space2d.Vector();
+		Vector ocom = new etomica.space2d.Vector2D();
 		ocom.setX(0, Lx);ocom.setX(1, Ly); ocom.TE(0.5); // Original Center Of Mass
                         
-		for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector();}
+		for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector2D();}
 
 		int moleculeColumns, moleculeRows;
 		double moleculeInitialSpacingX, moleculeInitialSpacingY;

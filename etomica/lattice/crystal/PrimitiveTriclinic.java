@@ -1,9 +1,9 @@
 package etomica.lattice.crystal;
 import etomica.Space;
-import etomica.Space3D;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
 import etomica.space.Vector;
+import etomica.space3d.Space3D;
 
 /**
  * Primitive group for a triclinic system.  No restrictions on
@@ -47,12 +47,12 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     //called by update method of superclass
     protected void updateReciprocal() {
         PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal();
-        etomica.space3d.Vector aStar = (etomica.space3d.Vector)recip.latticeVectors[0];
-        etomica.space3d.Vector bStar = (etomica.space3d.Vector)recip.latticeVectors[1];
-        etomica.space3d.Vector cStar = (etomica.space3d.Vector)recip.latticeVectors[2];
-        etomica.space3d.Vector aVec = (etomica.space3d.Vector)latticeVectors[0];
-        etomica.space3d.Vector bVec = (etomica.space3d.Vector)latticeVectors[1];
-        etomica.space3d.Vector cVec = (etomica.space3d.Vector)latticeVectors[2];
+        etomica.space3d.Vector3D aStar = (etomica.space3d.Vector3D)recip.latticeVectors[0];
+        etomica.space3d.Vector3D bStar = (etomica.space3d.Vector3D)recip.latticeVectors[1];
+        etomica.space3d.Vector3D cStar = (etomica.space3d.Vector3D)recip.latticeVectors[2];
+        etomica.space3d.Vector3D aVec = (etomica.space3d.Vector3D)latticeVectors[0];
+        etomica.space3d.Vector3D bVec = (etomica.space3d.Vector3D)latticeVectors[1];
+        etomica.space3d.Vector3D cVec = (etomica.space3d.Vector3D)latticeVectors[2];
         aStar.E(bVec);
         aStar.XE(cVec);
         double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)

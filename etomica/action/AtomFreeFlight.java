@@ -5,6 +5,7 @@
 package etomica.action;
 
 import etomica.Atom;
+import etomica.space.ICoordinateKinetic;
 
 
 /**
@@ -14,8 +15,7 @@ import etomica.Atom;
 public class AtomFreeFlight extends AtomActionAdapter {
     private double tStep = 0.0;
     public void actionPerformed(Atom a) {
-        if(a.coord.isStationary()) {return;}  //skip if atom is stationary
-        a.coord.freeFlight(tStep);  // r += tStep*p/m
+        a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
     }
     public void actionPerformed(Atom a, double t) {
         tStep = t;

@@ -10,11 +10,11 @@ import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.atom.AtomArrayList;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.space.CoordinatePair;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.utility.TreeLinker;
 import etomica.utility.TreeList;
@@ -96,9 +96,9 @@ public class IntegratorHard extends IntegratorMD {
                 if (atoms[1] != null) {
                     cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                     cPairDebug.setNearestImageTransformer(firstPhase.boundary());
-                    cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
+//                    cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
                     System.out.println("distance at last collision time was "+Math.sqrt(cPairDebug.r2()));
-                    cPairDebug.trueReset(collisionTimeStep);
+//                    cPairDebug.trueReset(collisionTimeStep);
                     System.out.println("distance now "+Math.sqrt(cPairDebug.r2()));
                 }
                 throw new RuntimeException("this simulation is not a time machine");
@@ -110,13 +110,13 @@ public class IntegratorHard extends IntegratorMD {
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                 cPairDebug.setNearestImageTransformer(firstPhase.boundary());
-                cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
+//                cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
                 double r2 = cPairDebug.r2();
                 if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
                     System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
                     if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-                        System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.truePosition(collisionTimeStep));
-                        System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.truePosition(collisionTimeStep));
+//                        System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.truePosition(collisionTimeStep));
+//                        System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.truePosition(collisionTimeStep));
                     }
                 }
                 Debug.checkAtoms();
@@ -279,15 +279,15 @@ public class IntegratorHard extends IntegratorMD {
     
 
 	/**
-	* Advances all atom coordinates by tStep, without any intervening collisions.
-	* Uses free-flight kinematics.
-	*/
+     * Advances all atom coordinates by tStep, without any intervening collisions.
+     * Uses free-flight kinematics.
+     */
 	protected void advanceAcrossTimeStep(double tStep) {
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
 			((Agent)a.ia).decrementCollisionTime(tStep);
-			a.coord.freeFlight(tStep);
+			a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
 		}
 	}
 

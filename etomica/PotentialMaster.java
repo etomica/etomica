@@ -149,6 +149,14 @@ public class PotentialMaster {
     
     public AtomSequencerFactory sequencerFactory() {return iteratorFactory.moleculeSequencerFactory();}
 
+    
+    /**
+     * @return Returns the space.
+     */
+    public Space getSpace() {
+        return space;
+    }
+    
 	protected PotentialGroupLrc lrcMaster;
 	protected Phase mostRecentPhase = null;
 	protected IteratorFactory iteratorFactory;

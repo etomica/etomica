@@ -6,6 +6,7 @@ import etomica.Phase;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 
 /**
@@ -65,9 +66,7 @@ public class MeterKineticEnergy extends MeterScalar
         iterator.reset();
         while(iterator.hasNext()) {    //consider doing this with an allAtoms call
             Atom atom = iterator.nextAtom();
-            if(atom.type instanceof AtomTypeWall) continue;
-            ke += atom.coord.kineticEnergy();
-//            ke += atomIterator.next().coord.kineticEnergy();
+            ke += 0.5*((ICoordinateKinetic)atom.coord).velocity().squared()*atom.type.getMass();
         }
         return ke;
     }//end of getDataAsScalar

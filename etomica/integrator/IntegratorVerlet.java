@@ -91,7 +91,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
-            agent.rMrLast.Ea1Tv1(timeStep*a.coord.rm(),a.coord.momentum());//06/13/03 removed minus sign before timeStep
+            agent.rMrLast.Ea1Tv1(timeStep*a.type.rm(),a.coord.momentum());//06/13/03 removed minus sign before timeStep
         }
         super.reset();
     }

@@ -18,8 +18,8 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		super(space, potentialTruncation);
 		setSigma(3.1670);
 		setEpsilon(Kelvin.UNIT.toSim(78.23));
-		work = (etomica.space3d.Vector)space.makeVector();
-		shift = (etomica.space3d.Vector)space.makeVector();
+		work = (etomica.space3d.Vector3D)space.makeVector();
+		shift = (etomica.space3d.Vector3D)space.makeVector();
 		setCharges();
 	}   
 	public double energy(Atom[] pair){
@@ -30,8 +30,8 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
-		etomica.space3d.Vector O1r = (etomica.space3d.Vector)node1.O.coord.position();
-		etomica.space3d.Vector O2r = (etomica.space3d.Vector)node2.O.coord.position();
+		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.coord.position();
+		etomica.space3d.Vector3D O2r = (etomica.space3d.Vector3D)node2.O.coord.position();
 
 		work.Ev1Mv2(O1r, O2r);
 		boundary.nearestImage(work, shift);
@@ -46,10 +46,10 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-		etomica.space3d.Vector H11r = (etomica.space3d.Vector)node1.H1.coord.position();
-		etomica.space3d.Vector H12r = (etomica.space3d.Vector)node1.H2.coord.position();
-		etomica.space3d.Vector H21r = (etomica.space3d.Vector)node2.H1.coord.position();
-		etomica.space3d.Vector H22r = (etomica.space3d.Vector)node2.H2.coord.position();
+		etomica.space3d.Vector3D H11r = (etomica.space3d.Vector3D)node1.H1.coord.position();
+		etomica.space3d.Vector3D H12r = (etomica.space3d.Vector3D)node1.H2.coord.position();
+		etomica.space3d.Vector3D H21r = (etomica.space3d.Vector3D)node2.H1.coord.position();
+		etomica.space3d.Vector3D H22r = (etomica.space3d.Vector3D)node2.H2.coord.position();
         		
 		final boolean zeroShift = shift.isZero();
 					
@@ -126,7 +126,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 	private double chargeH = Electron.UNIT.toSim(0.41);
 	private double chargeO = Electron.UNIT.toSim(-0.82);
 	private double chargeOO, chargeOH, chargeHH;
-	private etomica.space3d.Vector work, shift;
+	private etomica.space3d.Vector3D work, shift;
 	/**
 	 * Returns the boundary.
 	 * @return Space3D.Boundary

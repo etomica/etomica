@@ -40,8 +40,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	public double energy(Atom[] a) {
 		atom = a[0];
 		Vector dimensions = atom.node.parentPhase().dimensions();
-		double rx = atom.coord.position(0);
-		double ry = atom.coord.position(1);
+		double rx = atom.coord.position().x(0);
+		double ry = atom.coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
 		return energy(rx) + energy(ry) + energy(dx1) + energy(dy1);		
@@ -64,8 +64,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	public Vector gradient(Atom[] a) {
 		atom = a[0];
 		Vector dimensions = boundary.dimensions();
-		double rx = atom.coord.position(0);
-		double ry = atom.coord.position(1);
+		double rx = atom.coord.position().x(0);
+		double ry = atom.coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
 		double gradx = gradient(rx) - gradient(dx1);

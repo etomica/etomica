@@ -108,7 +108,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             work1.PEa1Tv1(chi*a.coord.mass(),r);
             work2.E(work1);
             work2.ME(agent.dr1);
-            r.PEa1Tv1(c0*a.coord.rm(), work2);
+            r.PEa1Tv1(c0*a.type.rm(), work2);
             agent.dr1.E(work1);
             agent.dr2.PEa1Tv1(c2,work2);
             agent.dr3.PEa1Tv1(c3,work2);

@@ -17,31 +17,19 @@ import etomica.Atom;
  * @see DisplayPhase.AtomActionWrapper
  */
  
-public abstract class AtomActionAdapter implements AtomAction {
+public abstract class AtomActionAdapter extends AtomsetActionAdapter implements AtomAction {
     
-    protected Atom atom;
-    String label;
+    public void setAtom(Atom a) {atoms[0] = a;}
+    public Atom getAtom() {return atoms[0];}
 
-    public void setAtom(Atom a) {atom = a;}
-    public Atom getAtom() {return atom;}
-
-    /**
-     * Performs the defined action using the atom most recently specified by setAtom or by the last call to actionPerformed(Atom a).
-     * Performs no action if the atom is null.
-     */
-    public void actionPerformed() {if(atom != null) actionPerformed(atom);}
+    public void actionPerformed(Atom[] a) {
+        actionPerformed(a[0]);
+    }
     
     /**
      * Method that defines the action to be performed on the atom
      * @param a Atom passed to method by iterator
      */
     public abstract void actionPerformed(Atom a);
-        
-    public String getLabel() {
-    	return label;
-    }
-    public void setLabel(String label) {
-    	this.label = label;
-    }
     
-} //end of AtomAction   
+}   

@@ -9,12 +9,11 @@ import etomica.Debug;
 import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
+import etomica.action.PhaseImposePbc;
 import etomica.atom.iterator.AtomIteratorTree;
-import etomica.space.Boundary;
 import etomica.utility.Arrays;
 
 /**
@@ -44,6 +43,7 @@ public class NeighborManager implements IntervalListener {
 		neighborCheck = new NeighborCheck();
 		neighborReset = new NeighborReset();
         setPriority(200);
+        pbcEnforcer = new PhaseImposePbc();
 	}
 
 	/* (non-Javadoc)
@@ -68,7 +68,6 @@ public class NeighborManager implements IntervalListener {
 			for (int j=0; j<criteria.length; j++) {
 				criteria[j].setPhase(phase[i]);
 			}
-			boundary = phase[i].boundary();
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborReset);
 			potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
@@ -93,7 +92,8 @@ public class NeighborManager implements IntervalListener {
 				if (neighborCheck.unsafe) {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
-				boundary = phase[i].boundary();
+                pbcEnforcer.setPhase(phase[i]);
+                pbcEnforcer.actionPerformed();
 				iterator.allAtoms(neighborReset);
 				potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
 				resetIntegrator = true;
@@ -146,11 +146,22 @@ public class NeighborManager implements IntervalListener {
         this.priority = priority;
     }
 
+    /**
+     * @return Returns the pbcEnforcer.
+     */
+    public PhaseImposePbc getPbcEnforcer() {
+        return pbcEnforcer;
+    }
+    /**
+     * @param pbcEnforcer The pbcEnforcer to set.
+     */
+    public void setPbcEnforcer(PhaseImposePbc pbcEnforcer) {
+        this.pbcEnforcer = pbcEnforcer;
+    }
 
 	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
 	private int iieCount;
-	private Boundary boundary;
 	private final PotentialMasterNbr potentialMaster;
 	private final AtomIteratorTree iterator;
 	private final NeighborCheck neighborCheck;
@@ -158,6 +169,7 @@ public class NeighborManager implements IntervalListener {
 	private final IteratorDirective id = new IteratorDirective();
 	private final PotentialCalculationNbrSetup potentialCalculationNbrSetup = new PotentialCalculationNbrSetup();
 	private int priority;
+    private PhaseImposePbc pbcEnforcer;
     
 	private static class NeighborCheck extends AtomsetActionAdapter {
 		private boolean needUpdate = false, unsafe = false;
@@ -187,7 +199,6 @@ public class NeighborManager implements IntervalListener {
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)atom[0].seq).clearNbrs();
 			if (criterion != null) {
-				boundary.centralImage(atom[0].coord);
 				criterion.reset(atom[0]);
 			}
 		}

@@ -61,7 +61,7 @@ public class MeterFourierTransform extends MeterFunction {
 		for (int i=0;i<nMolecules;i++) {
 			currentAtom = iterator.nextAtom();
 			// calculate the displacement from their home position.
-			data[i] = currentAtom.coord.position(0) - (i*Default.BOX_SIZE/nMolecules);
+			data[i] = currentAtom.coord.position().x(0) - (i*Default.BOX_SIZE/nMolecules);
 			
 			// accomodates for excessive distances due to wrap around
 			if (data[i]>Default.BOX_SIZE/2){data[i]-=Default.BOX_SIZE;}

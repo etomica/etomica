@@ -2,6 +2,7 @@ package etomica.data;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.space.ICoordinateKinetic;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -27,8 +28,8 @@ public class DataSourceRmsVelocity extends DataSourceAdapter {
 		value[0] = 0.0;
 		while (iterator.hasNext()) {
 			Atom atom = iterator.nextAtom();
-			value[0] = atom.coord.rm()
-					* Math.sqrt(atom.coord.momentum().squared());
+			value[0] = atom.type.rm()
+					* Math.sqrt(((ICoordinateKinetic)atom.coord).momentum().squared());
 			count++;
 		}
 		value[0] /= (double) count;

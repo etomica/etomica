@@ -8,6 +8,7 @@ import etomica.PotentialMaster;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -25,6 +26,7 @@ public class MCMoveAtom extends MCMove {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final MeterPotentialEnergy energyMeter;
+    private final Vector translationVector;
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
@@ -39,6 +41,7 @@ public class MCMoveAtom extends MCMove {
     public MCMoveAtom(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        translationVector = potentialMaster.getSpace().makeVector();
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
@@ -88,8 +91,10 @@ public class MCMoveAtom extends MCMove {
       //      System.out.println();
       //      */
             throw new RuntimeException("Overlap found in configuration");
-        }    
-        atom.coord.displaceWithin(stepSize);
+        }
+        translationVector.setRandomCube();
+        translationVector.TE(stepSize);
+        atom.coord.position().PE(translationVector);
         uNew = Double.NaN;
  //       phase.boundary().centralImage(atom.coord.position());
         return true;
@@ -135,7 +140,9 @@ public class MCMoveAtom extends MCMove {
     public void rejectNotify() {
   /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej1 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
             //         if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-  /* //  */          atom.coord.replace();
+             */
+        translationVector.TE(-1);
+        atom.coord.position().PE(translationVector);
   /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
             //         if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
      // } // */

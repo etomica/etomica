@@ -83,7 +83,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         if(wallType.isVertical()) {i = 0;}
         else {i = 1;}
         
-        dr = wall.coord.position(i) - sphere.coord.position(i);
+        dr = wall.coord.position().x(i) - sphere.coord.position().x(i);
         return (Math.abs(dr) < collisionRadius);
     }
   
@@ -116,10 +116,10 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
         }
         double a = 0.0;
         if(wall.ia instanceof Integrator.Forcible  && !wall.coord.isStationary()) {
-            a = ((Integrator.Forcible)wall.ia).force().x(i) * wall.coord.rm();
+            a = ((Integrator.Forcible)wall.ia).force().x(i) * wall.type.rm();
         }
         if(sphere.ia instanceof Integrator.Forcible  && !sphere.coord.isStationary()) {
-            a -= ((Integrator.Forcible)sphere.ia).force().x(i) * sphere.coord.rm();
+            a -= ((Integrator.Forcible)sphere.ia).force().x(i) * sphere.type.rm();
         }
         //wall or sphere has non-zero force
         double time = 0.0;
@@ -175,7 +175,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
     
         int i = (((AtomTypeWall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
         cPair.resetV();
-        double pOld = sphere.coord.momentum(i);
+        double pOld = sphere.coord.momentum().x(i);
         
         if(wall.coord.isStationary()) {
          /*   if(isothermal) {//specific to 2D
@@ -200,7 +200,7 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
             
         }
         else {
-          double dv = wall.coord.momentum(i)*wall.coord.rm()-sphere.coord.momentum(i)*sphere.coord.rm();
+          double dv = wall.coord.momentum().x(i)*wall.coord.rm()-sphere.coord.momentum(i)*sphere.coord.rm();
           double dp = -2.0/(wall.coord.rm() + sphere.coord.rm())*dv;
  //         wall.coord.momentum().PE(i,+dp);  
           sphere.coord.momentum().PE(i,-dp);

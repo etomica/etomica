@@ -5,11 +5,11 @@ import etomica.Integrator;
 import etomica.ModulatorAbstract;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space2D;
 import etomica.SpeciesAgent;
 import etomica.SpeciesSpheresMono;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P2HardSphere;
+import etomica.space2d.Space2D;
 import etomica.units.Dimension;
 
 /**

@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.Action;
 import etomica.Atom;
 
 /**
@@ -10,7 +11,7 @@ import etomica.Atom;
  * 
  * 01/25/03 (DAK) new
  */
-public interface AtomsetAction {
+public interface AtomsetAction extends Action {
     
 	public void actionPerformed(Atom[] atoms);
     public void setAtoms(Atom[] atom);

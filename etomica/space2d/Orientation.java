@@ -13,7 +13,7 @@ public class Orientation extends etomica.space.Orientation {
     //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
     //components in the body-fixed frame
     private final double[][] A = new double[2][2];
-    private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0), new Vector(0.0,1.0)};
+    private final Vector2D[] bodyFrame = new Vector2D[] {new Vector2D(1.0,0.0), new Vector2D(0.0,1.0)};
     private final double[] angle = new double[1];
     private boolean needToUpdateA = true;
     public void E(etomica.space.Orientation o) {E((Orientation)o);}
@@ -47,18 +47,18 @@ public class Orientation extends etomica.space.Orientation {
         needToUpdateA = false;
     }
  //   public double[][] rotationMatrix() {return A;}
-    public void convertToBodyFrame(Vector v) {
+    public void convertToBodyFrame(Vector2D v) {
         if(needToUpdateA) updateRotationMatrix();
         double x = A[0][0]*v.x + A[0][1]*v.y;
         v.y = A[1][0]*v.x + A[1][1]*v.y;
         v.x = x;
     }
-    public void convertToSpaceFrame(Vector v) {
+    public void convertToSpaceFrame(Vector2D v) {
         if(needToUpdateA) updateRotationMatrix();
         double x = A[0][0]*v.x + A[1][0]*v.y;
         v.y = A[0][1]*v.x + A[1][1]*v.y;
         v.x = x;
     }
-    public void convertToBodyFrame(etomica.space.Vector v) {convertToBodyFrame((Vector)v);}
-    public void convertToSpaceFrame(etomica.space.Vector v) {convertToSpaceFrame((Vector)v);}
+    public void convertToBodyFrame(etomica.space.Vector v) {convertToBodyFrame((Vector2D)v);}
+    public void convertToSpaceFrame(etomica.space.Vector v) {convertToSpaceFrame((Vector2D)v);}
 }

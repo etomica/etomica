@@ -6,11 +6,11 @@ package etomica.space3d;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Tensor implements etomica.space.Tensor {
+public class Tensor3D implements etomica.space.Tensor {
     double xx, xy, xz, yx, yy, yz, zx, zy, zz;
-    public static final Tensor ORIGIN = new Tensor();
-    public Tensor () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
-    public Tensor (double[] d) {
+    public static final Tensor3D ORIGIN = new Tensor3D();
+    public Tensor3D () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
+    public Tensor3D (double[] d) {
         this.E(d);
     }
     public double component(int i, int j) {
@@ -22,19 +22,19 @@ public class Tensor implements etomica.space.Tensor {
         else if (i==1) {if (j==0) {yx = d;} else if (j==1) {yy=d;} else yz = d;}
         else {if (j==0) {zx = d;} else if (j==1) {zy = d;} else zz = d;}
     }
-    public void E(Tensor t) {xx=t.xx; xy=t.xy; xz=t.xz; yx=t.yx; yy=t.yy; yz=t.yz; zx=t.zx; zy=t.zy; zz=t.zz;}
-    public void E(Vector u1, Vector u2) {xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z; yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z; zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;}
+    public void E(Tensor3D t) {xx=t.xx; xy=t.xy; xz=t.xz; yx=t.yx; yy=t.yy; yz=t.yz; zx=t.zx; zy=t.zy; zz=t.zz;}
+    public void E(Vector3D u1, Vector3D u2) {xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z; yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z; zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;}
     public void E(double a) {xx=xy=xz=yx=yy=yz=zx=zy=zz=a;}
-    public void PE(Tensor t) {xx+=t.xx; xy+=t.xy; xz+=t.xz; yx+=t.yx; yy+=t.yy; yz+=t.yz; zx+=t.zx; zy+=t.zy; zz+=t.zz;}
+    public void PE(Tensor3D t) {xx+=t.xx; xy+=t.xy; xz+=t.xz; yx+=t.yx; yy+=t.yy; yz+=t.yz; zx+=t.zx; zy+=t.zy; zz+=t.zz;}
     public void PE(int i, int j, double d) {
         if (i==0) {if (j==0) {xx += d;} else if (j==1) {xy += d;} else xz += d;}
         else if (i==1) {if (j==0) {yx += d;} else if (j==1) {yy += d;} else yz += d;}
         else {if (j==0) {zx += d;} else if (j==1) {zy += d;} else zz += d;}
     }
     public double trace() {return xx+yy+zz;}
-    public void E(etomica.space.Tensor t) {E((Tensor)t);}
-    public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector)u1, (Vector)u2);}
-    public void PE(etomica.space.Tensor t) {PE((Tensor) t);}
+    public void E(etomica.space.Tensor t) {E((Tensor3D)t);}
+    public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector3D)u1, (Vector3D)u2);}
+    public void PE(etomica.space.Tensor t) {PE((Tensor3D) t);}
     public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE(u1,u2);}
     public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
     public void E(double[] d) {

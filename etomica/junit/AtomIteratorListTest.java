@@ -4,6 +4,7 @@ import etomica.*;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.space3d.Space3D;
 import junit.framework.*;
 import java.util.*;
 

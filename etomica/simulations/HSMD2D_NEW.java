@@ -8,6 +8,7 @@ import etomica.action.PhaseQuench;
 import etomica.data.meter.MeterScalar;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
+import etomica.space2d.Space2D;
 import etomica.units.Dimension;
 import etomica.log.LoggerAbstract;
 import etomica.potential.P2HardSphere;

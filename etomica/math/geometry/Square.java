@@ -24,8 +24,8 @@ public class Square extends Polyhedron {
      */
     public Square(double size) {
         super();
-        vertices = new etomica.space2d.Vector[4];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new etomica.space2d.Vector();
+        vertices = new etomica.space2d.Vector2D[4];
+        for(int i=0; i<vertices.length; i++) vertices[i] = new etomica.space2d.Vector2D();
         setSize(size);
     }
 
@@ -76,6 +76,6 @@ public class Square extends Polyhedron {
     }
     private double size;
     private double n, p;//n = -size/2, p = +size/2
-    private final etomica.space2d.Vector[] vertices;
+    private final etomica.space2d.Vector2D[] vertices;
 
 }

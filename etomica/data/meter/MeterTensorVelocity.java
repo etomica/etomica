@@ -65,7 +65,7 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
             velocity.E(a.coord.momentum(), a.coord.momentum());
-            velocity.TE(a.coord.rm());
+            velocity.TE(a.type.rm());
             velocityTensor.PE(velocity);
             count++;
         }

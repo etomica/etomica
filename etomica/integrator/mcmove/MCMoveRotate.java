@@ -8,9 +8,8 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
-import etomica.space.Coordinate;
+import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
-import etomica.space.Coordinate.Angular;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -49,7 +48,7 @@ public class MCMoveRotate extends MCMove {
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar(phase);
-        orientation = ((Coordinate.Angular)molecule.coord).orientation(); 
+        orientation = ((ICoordinateAngular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
         uNew = Double.NaN;

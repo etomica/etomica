@@ -4,14 +4,15 @@
  */
 package etomica.action;
 
+import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Integrator;
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.space.Boundary;
+import etomica.space.Vector;
 
 /**
  * Action that imposes the central-image effect of a phase having periodic
@@ -42,14 +43,32 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	public PhaseImposePbc(Phase phase) {
 		this();
 		setPhase(phase);
+        translator = new AtomActionTranslateBy(phase.space());
 	}
 
 	public void actionPerformed() {
 		Boundary boundary = phase.boundary();
 		iterator.reset();
-		while (iterator.hasNext()) {
-			boundary.centralImage(iterator.nextAtom().coord);
-		}
+        if (applyToMolecules) {
+            while (iterator.hasNext()) {
+                Atom molecule = iterator.nextAtom();
+                Atom atom = molecule.node.firstLeafAtom();
+                Vector shift = boundary.centralImage(atom.coord.position());
+                if (!shift.isZero()) {
+                    translator.setTranslationVector(shift);
+                    translator.actionPerformed(molecule);
+                }
+            }
+        }
+        else {
+            while (iterator.hasNext()) {
+                Atom atom = iterator.nextAtom();
+                Vector shift = boundary.centralImage(iterator.nextAtom().coord.position());
+                if (!shift.isZero()) {
+                    atom.coord.position().PE(shift);
+                }
+            }
+        }
 	}
 
 	public void intervalAction(Integrator.IntervalEvent evt) {
@@ -116,6 +135,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	}
 
 	private AtomIteratorPhaseDependent iterator;
+    private AtomActionTranslateBy translator;
 
 	private boolean applyToMolecules;
 

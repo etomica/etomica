@@ -69,7 +69,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private float prevx, prevy, xRot = 0f, yRot = 0f;
   //Centers the phase in the canvas
   private float xCenter, yCenter, zCenter;
-  private etomica.space3d.Vector center = new etomica.space3d.Vector();
+  private etomica.space3d.Vector3D center = new etomica.space3d.Vector3D();
 
   //The groups of atoms
   private Atom sphereCores[];
@@ -391,9 +391,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
 
     private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
-    private etomica.space3d.Vector[] points;
-    private etomica.space3d.Vector normal;
-    private etomica.space3d.Vector nearest;
+    private etomica.space3d.Vector3D[] points;
+    private etomica.space3d.Vector3D normal;
+    private etomica.space3d.Vector3D nearest;
     
   private void drawDisplay() {
     

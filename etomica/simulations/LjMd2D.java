@@ -3,7 +3,6 @@ import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space2D;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
@@ -12,6 +11,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.P2LennardJones;
+import etomica.space2d.Space2D;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D

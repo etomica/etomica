@@ -1,4 +1,6 @@
 package etomica;
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -25,6 +27,9 @@ public class ConfigurationLinear extends Configuration {
         angle = new double[space.D()];
         for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
         zeroTotalMomentum = false;
+        translator = new AtomActionTranslateBy(space);
+        moveToOrigin = new AtomActionTranslateTo(space);
+        translationVector = translator.getTranslationVector();
     }
 
     public void setBondLength(double b) {
@@ -40,10 +45,10 @@ public class ConfigurationLinear extends Configuration {
             case 1:
                 return;
             case 2:
-                setOrientation(new etomica.space2d.Vector(Math.cos(angle[0]),Math.sin(angle[0])));
+                setOrientation(new etomica.space2d.Vector2D(Math.cos(angle[0]),Math.sin(angle[0])));
                 return;
             case 3:
-                setOrientation(new etomica.space3d.Vector(Math.sin(angle[1])*Math.cos(angle[0]),
+                setOrientation(new etomica.space3d.Vector3D(Math.sin(angle[1])*Math.cos(angle[0]),
                                                   Math.sin(angle[1])*Math.sin(angle[0]),
                                                   Math.cos(angle[1])));
                 return;
@@ -76,8 +81,9 @@ public class ConfigurationLinear extends Configuration {
             try {//may get null pointer exception when beginning simulation
                 a.creator().getConfiguration().initializePositions(a);
             } catch(NullPointerException e) {}
-            a.coord.translateTo(space.origin());
-            a.coord.translateBy(xNext,orientation);  //move xNext distance in direction orientation
+            moveToOrigin.actionPerformed(a);
+            translationVector.Ea1Tv1(xNext, orientation);
+            translator.actionPerformed(a);
             xNext += bondLength;
         }
     }//end of initializeCoordinates
@@ -86,5 +92,8 @@ public class ConfigurationLinear extends Configuration {
     private Vector orientation;
     private double[] angle;
     private Space space;
+    private Vector translationVector;
+    private AtomActionTranslateBy translator;
+    private AtomActionTranslateTo moveToOrigin;
 }//end of ConfigurationLinear
       
