@@ -42,6 +42,7 @@ public class TestHSMD3D extends Simulation {
         integrator = new IntegratorHard(potentialMaster);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
+        integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(2000000/numAtoms);
