@@ -5,7 +5,6 @@ import etomica.*;
 public class Site extends Atom {
     
     private final NeighborManager neighborManager = new NeighborManager(this);
-    public int index;//temporary -- put in sequencer
     
     /**
      * Creates a site having the given parent lattice and coordinate.
@@ -24,7 +23,41 @@ public class Site extends Atom {
     
     //temporary -- put in sequencer
     public boolean preceeds(Site anotherSite) {
-        return index < anotherSite.index;
+        return node.index() < anotherSite.node.index();
     }
+    
+    public int D() {return coord.position().D();}
+    
+    
+    public int[] latticeCoordinate() {
+        int D = D();
+        int[] idx = new int[D];
+        AtomTreeNode node = this.node;
+        for(int i=D-1; i>=0; i--, node=node.parentNode()) {
+            idx[i] = node.index();
+        }
+        return idx;
+    }//end of latticeCoordinate
+        
+public static class Factory extends AtomFactory {
+    
+    AtomType atomType;
+    
+    public Factory(Space space) {
+        super(space);
+        setType(new AtomType(this));//default
+    }
+    
+    public void setType(AtomType t) {atomType = t;}
+    public AtomType type() {return atomType;}
+    
+    /**
+     * Builds a single site.
+     */
+    protected Atom build() {
+        return new Site(space, atomType);
+    }
+    
+}//end of AtomFactorySite
         
 }//end of Site

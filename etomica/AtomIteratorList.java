@@ -3,8 +3,6 @@ package etomica;
 /**
  * Atom iterator that traverses the elements of an AtomList.
  * IteratorDirective direction can set to cause iterator to go up or down list.
- * Can be set or as a neighbor iterator, in which case the first indicated atom
- * is skipped.
  *
  * @author David Kofke
  */
@@ -37,7 +35,14 @@ public final class AtomIteratorList implements AtomIterator {
 
 	public boolean hasNext() {return next.atom != null;}
 	
-    public void setBasis(Atom dummyAtom){ /* no implementation */}
+	/**
+	 * Sets the childList of the given atom as the basis for iteration.
+	 * If atom is a leaf, hasNext is false.
+	 */
+    public void setBasis(Atom atom){
+        if(atom.node.isLeaf()) unset();
+        else setBasis(((AtomTreeNodeGroup)atom.node).childList);
+    }
     public void setBasis(AtomList list) {
         this.list = list;
         if(list == null) header = nullLinker;
@@ -96,14 +101,27 @@ public final class AtomIteratorList implements AtomIterator {
         return reset(first, last, IteratorDirective.UP);
     }
     
-    //if last == null, iterate until first Tab is encountered
-    public Atom reset(AtomLinker first, AtomLinker.Tab last, IteratorDirective.Direction direction) {
+    /**
+     * Resets to begin iteration in the given direction, stopping when the specified tab
+     * is encountered.  If direction is UP, iteration proceeds up list and ends when terminator
+     * or header is encountered; likewise if direction is DOWN.  If direction is BOTH, 
+     * proceeds up list from starting point until encountering header or terminator, 
+     * and then down it from the starting point, again until encountering header or terminator.
+     * If terminator is null, iteration halts in each direction when any tab (or the header) 
+     * is encountered.<br>
+     * To iterate completely in either or both directions (ignoring all tabs), use the 
+     * reset(AtomLinker, Direction) method.<br>
+     * Up iteration always begins by returning the given first linker
+     * (unless it is a tab); down iteration always begins with the linker before the given
+     * first one.
+     */
+    public Atom reset(AtomLinker first, AtomLinker.Tab terminator, IteratorDirective.Direction direction) {
         if(first == header || first == null) {
             next = header;
             return null;
         }
         applyDirection(direction);
-        terminator = last;
+        this.terminator = terminator;
         next = start = first;
         if(next.atom == null) nextLinker();//nextLinker keeps iterating until entry with atom is found
         return next.atom;
@@ -153,36 +171,24 @@ public final class AtomIteratorList implements AtomIterator {
         return next.atom;
     }
     
-/*    public AtomLinker nextLinker() {
-        AtomLinker nextLinker = next;
-        next = upListNow ? next.next : next.previous;
-        hasNext = (next != header);
-        if(!hasNext && upListNow && doGoDown) {//done going up and now prepare to go down
-            next = start.previous;
-            hasNext = next != header;
-            upListNow = false;
-        }
-        return nextLinker;
-    }*/
-
     public AtomLinker nextLinker() {
         AtomLinker nextLinker = next;
         next = upListNow ? next.next : next.previous;
         while(next.atom == null) {
             //if terminator is null we stop at the first encounter of a Tab linker
             //otherwise stop only if Tab linker is the specified terminator
-            if(terminator == null || next == terminator) break;
+            if(terminator == null || next == header || next == terminator) {
+                if(upListNow && doGoDown) {//done going up and now prepare to go down
+                    next = start.previous;
+                    upListNow = false;
+                } else {
+                    break;
+                }
+            }
             else next = upListNow ? next.next : next.previous;
         }
-        //need to decide if we're going to permit iterator to do both directions, or just up/down
-/*        hasNext = (next != header);
-        if(!hasNext && upListNow && doGoDown) {//done going up and now prepare to go down
-            next = start.previous;
-            hasNext = next != header;
-            upListNow = false;
-        }*/
         return nextLinker;
-    }
+    }//end of nextLinker
 
 }//end of AtomIteratorList
 

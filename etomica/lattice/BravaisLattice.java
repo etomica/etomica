@@ -148,7 +148,48 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         }
         type.creator().getConfiguration().initializePositions(this);
         notifyObservers();
-    }
+    }//end of update
+    
+    public void setupNeighbors(NeighborManager.Criterion criterion) {
+        AtomIteratorList iterator = new AtomIteratorList(siteList);
+        iterator.reset();
+        while(iterator.hasNext()) {
+            Site site = (Site)iterator.next();
+            site.neighborManager().setupNeighbors(siteList, criterion);
+        }
+    }//end of setupNeighbors
+
+//////////////////////////////////////////////////////////////////////////////////
+
+public static class AdjacencyCriterion implements NeighborManager.Criterion {
+    
+    private boolean periodic = true;
+    public boolean isPeriodic() {return periodic;}
+    public void setPeriodic(boolean b) {periodic = b;}
+    
+    public boolean areNeighbors(Site s1, Site s2) {
+        int[] idx1 = s1.latticeCoordinate();
+        int[] idx2 = s2.latticeCoordinate();
+
+        boolean sameTillNow = true;
+        int imax = idx1.length - 1;
+        for(int i=0; i<=imax; i++) {
+            int diff = idx1[i] - idx2[i];
+            if(periodic && (diff == imax || diff == -imax) ) diff = +1;
+            switch(idx1[i]-idx2[i]) {
+                case 0: break;
+                case +1:
+                case -1: if(sameTillNow) sameTillNow = false;//found first difference
+                            else return false;//more than one differs
+                            break;
+                default: return false;//found one that differs by more than +/- 1
+            }//end switch
+        }//end for
+        return !sameTillNow;//returns false if all indexes were the same, true if one differed by 1
+    }//end areNeighbors
+}//end AdjacencyCriterion
+
+//////////////////////////////////////////////////////////////////////////////////
 
  /**
   * Factory to construct an arbitrary-dimension Bravais lattice.
@@ -175,6 +216,7 @@ public static class Factory extends AtomFactoryTree {
     }
 
     private static Configuration[] configArray(Space space, Space.Vector[] pVectors) {
+        if(pVectors.length != space.D()) throw new IllegalArgumentException("Error in BravaisLattice.Factory constructor:  number of primitive vectors inconsistent with dimension of space");
         Configuration[] array = new Configuration[pVectors.length];
         for(int i=0; i<array.length; i++) {
             array[i] = new ConfigurationLinear(space);
@@ -197,7 +239,7 @@ public static class Factory extends AtomFactoryTree {
         BravaisLattice lattice = BravaisLattice.makeLattice(space, 
                                 new int[] {3,2},
                                 primitive,
-                                new AtomFactoryMono(space));        
+                                new Site.Factory(space));        
         System.out.println("Total number of sites: "+lattice.siteList().size());
         System.out.println();
         System.out.println("Coordinate printout");
@@ -230,33 +272,57 @@ public static class Factory extends AtomFactoryTree {
         
         System.out.print("Accessing site (1,1): ");
         Atom testSite = lattice.site(new int[] {1,1});
+        int[] idx = ((Site)testSite).latticeCoordinate();
         System.out.println(testSite.toString()+testSite.coord.position().toString());
+        System.out.print("latticeCoordinate: ");
+        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+        System.out.println();
         System.out.println();
         
         System.out.print("Accessing site (2,0): ");
         testSite = lattice.site(new int[] {2,0});
+        idx = ((Site)testSite).latticeCoordinate();
         System.out.println(testSite.toString()+testSite.coord.position().toString());
+        System.out.print("latticeCoordinate: ");
+        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
         System.out.println();
-    /*            
+        System.out.println();
+        
+        lattice.setupNeighbors(new AdjacencyCriterion());
+        SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
+        nbrIterator.setBasis(testSite);
+
         System.out.println("Sites up-neighbor to this site:");
-        iterator = testSite.neighborIterator();
-        ((SiteIterator.Neighbor)iterator).resetUp();
-        while(iterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(iterator.next().toString()+" ");
+        nbrIterator.reset(IteratorDirective.UP);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
         }
         System.out.println();
         System.out.println();
         
         System.out.println("Sites down-neighbor to this site:");
-        iterator = testSite.neighborIterator();
-        ((SiteIterator.Neighbor)iterator).resetDown();
-        while(iterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(iterator.next().toString()+" ");
+        nbrIterator.reset(IteratorDirective.DOWN);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
         }
         System.out.println();
         System.out.println();
-*/
+        
+        System.out.println("All neighbors of this site:");
+        nbrIterator.reset(IteratorDirective.BOTH);
+        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+            System.out.print(nbrIterator.next().toString()+" ");
+        }
+        System.out.println();
+        System.out.println();
+
         System.out.print("A randomly selected site: ");
-        System.out.println(lattice.siteList().getRandom().toString());
+        testSite = lattice.siteList().getRandom();
+        idx = ((Site)testSite).latticeCoordinate();       
+        System.out.println(testSite.toString());
+        System.out.print("latticeCoordinate: ");
+        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+        System.out.println();
+        
     }//end of main
 }//end of BravaisLattice

@@ -8,11 +8,6 @@ public abstract class AbstractCell extends Site {
     
     public AbstractCell(Space space, AtomType type) {
         super(space, type);
-        //position null at this point
-//        if(coord.position().D() != this.D()) { //define an exception for this (DimensionConflictException ?)
-//            System.out.println("Dimension conflict in Cell constructor");
-//            System.exit(1);
-//        }
     }
     /**
      * Dimension of the space occupied by the cell

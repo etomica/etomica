@@ -12,12 +12,36 @@ public class SiteIteratorNeighbor implements AtomIterator {
     private boolean upListNow, doGoDown;
     private Atom next;
     
-    public boolean hasNext() {return next != null;}
+    public boolean hasNext() {return iterator.hasNext();}
+    
     public Atom reset() {
-        throw new RuntimeException("method SiteIteratorNeighbor.reset() not yet implemented");
+        return reset(IteratorDirective.BOTH);
     }
+
+    public Atom reset(IteratorDirective.Direction direction) {
+        return iterator.reset(neighborManager.tab, direction);
+    }
+    
+    public Atom first() {
+        throw new RuntimeException("method first() not implemented in SiteIteratorNeighbor");
+    }
+    public Atom next() {return iterator.next();}
+
+    public void allAtoms(AtomAction act) {
+        iterator.allAtoms(act);
+    }
+    
+    public void setBasis(NeighborManager manager) {
+        neighborManager = manager;
+        iterator.setBasis(neighborManager.neighbors());
+    }
+    
+    public int size() {return neighborManager.neighborCount();}
+    
+    
     public void setBasis(Atom atom) {
-        throw new RuntimeException("method SiteIteratorNeighbor.setBasis(Atom) not yet implemented");
+        if(atom instanceof Site) setBasis(((Site)atom).neighborManager());
+        else throw new IllegalArgumentException("Error in SiteIteratorNeighbor.setBasis:  Must specify a Site instance to set basis");
     }
     public Atom getBasis() {
         throw new RuntimeException("method SiteIteratorNeighbor.getBasis() not yet implemented");
@@ -31,56 +55,4 @@ public class SiteIteratorNeighbor implements AtomIterator {
     public boolean contains(Atom a) {
         throw new RuntimeException("method SiteIteratorNeighbor.contains(Atom) not yet implemented");
     }
-        
-    public void reset(Atom site, IteratorDirective.Direction direction) {
-        reset(((Site)site).neighborManager(), direction);
-    }
-    public void reset(NeighborManager manager, IteratorDirective.Direction direction) {
-        neighborManager = manager;
-        if(direction == null) direction = IteratorDirective.NEITHER;
-        upListNow = direction.doUp();
-        doGoDown = direction.doDown();
-        iterator.reset((AtomLinker)null);
-        next = null;
-        if(neighborManager == null) return;
-        if(upListNow) iterator.setBasis(neighborManager.upNeighbors());
-        if(iterator.hasNext()) {
-            next = iterator.next();
-        } else if(doGoDown) {
-            iterator.setBasis(neighborManager.downNeighbors());
-            if(iterator.hasNext()) next = iterator.next();
-            doGoDown = false;
-        }
-    }
-    public Atom first() {
-        throw new RuntimeException("method first() not implemented in SiteIteratorNeighbor");
-    }
-    public Atom next() {
-        Atom nextAtom = next;
-        if(iterator.hasNext()) {
-            next = iterator.next();
-        } else if(doGoDown) {
-            iterator.setBasis(neighborManager.downNeighbors());
-            
-            if(iterator.hasNext()) next = iterator.next();
-            else next = null;
-            
-            doGoDown = false;
-        } else next = null;
-        
-        return nextAtom;
-    }
-    public void allAtoms(AtomAction act) {
-        if(neighborManager == null) return;
-        if(upListNow) {
-            iterator.setBasis(neighborManager.upNeighbors());
-            iterator.allAtoms(act);
-        }
-        if(doGoDown) {
-            iterator.setBasis(neighborManager.downNeighbors());
-            iterator.allAtoms(act);
-        }
-    }
-    
-    public int size() {return neighborManager.neighborCount();}
-}
+}//end of SiteIteratorNeighbor

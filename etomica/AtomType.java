@@ -15,7 +15,7 @@ import etomica.units.*;
  * 
  */
 
-public abstract class AtomType implements java.io.Serializable {
+public class AtomType implements java.io.Serializable {
     public static String getVersion() {return "AtomType:01.11.20";}
     public static Parameter.Source[] parameterSource = new Parameter.Source[0];
     private final AtomFactory creator;

@@ -11,23 +11,23 @@ import etomica.*;
 public class NeighborManager {
     
     private final AtomList neighborList;
-    private final Atom site;
-    private final AtomLinker.Tab tab;
+    private final Site site;
+    public final AtomLinker.Tab tab;
     
-    public NeighborManager(Atom s) {
+    public NeighborManager(Site s) {
         site = s;
         neighborList = new AtomList();
         tab = new AtomLinker.Tab();
         neighborList.add(tab);
     }
-    public NeighborManager(Atom s, AtomList list, Criterion criterion) {
+    public NeighborManager(Site s, AtomList list, Criterion criterion) {
         this(s);
         setupNeighbors(list, criterion);
     }
 
-    public Atom site() {return site;}
+    public Site site() {return site;}
     public int neighborCount() {return neighborList.size();}
-    public boolean isNeighbor(Atom s) {
+    public boolean isNeighbor(Site s) {
         return (neighborList.contains(s));
     }
     
@@ -53,7 +53,7 @@ public class NeighborManager {
         iterator.reset();
         boolean down = true;
         while(iterator.hasNext()) {              //begin outer loop
-            Atom s = iterator.next();
+            Site s = (Site)iterator.next();
             if(s == site) {down = false;}     //subsequent neighbors go in up-list
             else if(criterion.areNeighbors(s,site)) {
                 if(down) neighborList.addBefore(s, tab);
@@ -69,13 +69,13 @@ public class NeighborManager {
          * <code>true</code>.
          */
         public interface Criterion {
-            public boolean areNeighbors(Atom s1, Atom s2);
+            public boolean areNeighbors(Site s1, Site s2);
              
             /**
              * Criterion that defines all sites on the lattice to be neighbors of each other.
              */
             public class All implements Criterion {
-                public boolean areNeighbors(Atom s1, Atom s2) {return s1 != s2;}
+                public boolean areNeighbors(Site s1, Site s2) {return s1 != s2;}
             }//end of Criterion.All
         }//end of NeighborManager.Criterion
                     
