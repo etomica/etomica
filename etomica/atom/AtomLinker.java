@@ -36,7 +36,7 @@ public class AtomLinker implements java.io.Serializable {
         }
 	    previous.next = next;
 	    next.previous = previous;
-	    next = previous = this;
+	    if (Debug.ON) next = previous = null;
     }
     
     /**
