@@ -1,6 +1,5 @@
 package etomica.simulations;
 import etomica.Default;
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
@@ -13,8 +12,6 @@ import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbratom.PotentialMasterNbr;
-import etomica.nbratom.cell.NeighborCellManager;
-import etomica.nbratom.cell.PotentialCalculationCellAssign;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space2d.Space2D;
@@ -61,7 +58,6 @@ public class HSMD2D_atomNbr extends Simulation {
 	    phase = new Phase(this);
 	    potential = new P2HardSphere(space);
         
-        integrator.addIntervalListener(new NeighborCellManager(phase,15));
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
 
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -77,9 +73,6 @@ public class HSMD2D_atomNbr extends Simulation {
 //        phase.speciesMaster.addSpecies(species2);
         integrator.addPhase(phase);
         
-        PotentialCalculationCellAssign pc = new PotentialCalculationCellAssign(((PotentialMasterNbr)potentialMaster).getNbrCellManager(phase));
-        ((PotentialMasterNbr)potentialMaster).calculate(phase, new IteratorDirective(),pc); 
-                
     }
     
     /**
