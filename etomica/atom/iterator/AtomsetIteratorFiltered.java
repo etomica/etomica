@@ -17,13 +17,15 @@ import etomica.atom.AtomsetFilter;
  * only those meeting specified criteria are returned.
  */
 
-public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, AtomsetIteratorDirectable {
+//XXX this shouldn't have to be AtomsetIteratorBasisDependent, but as used it does
+public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, AtomsetIteratorDirectable, 
+            AtomsetIteratorBasisDependent {
 	/**
 	 * Default constructor that causes no atoms to be filtered.
 	 * Iterator will give all iterates of the given iterator
 	 * until another filter is specified.
 	 */
-	public AtomsetIteratorFiltered(AtomsetIterator iterator) {
+	public AtomsetIteratorFiltered(AtomsetIteratorBasisDependent iterator) {
 		this(iterator, AtomsetFilter.ACCEPT_ALL);
 	}
 	
@@ -33,7 +35,7 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 	 * @param iterator
 	 * @param filter
 	 */
-	public AtomsetIteratorFiltered(AtomsetIterator iterator, AtomsetFilter filter) {
+	public AtomsetIteratorFiltered(AtomsetIteratorBasisDependent iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
 		nextAtoms = new Atom[iterator.nBody()];
@@ -119,8 +121,14 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
 		return iterator.nBody();
 	}
 	
-	
-	
+	public int basisSize() {
+        return iterator.basisSize();
+    }
+    
+    public void setBasis(Atom[] atoms) {
+        iterator.setBasis(atoms);
+    }
+        
 	/**
 	 * @return Returns the filter.
 	 */
@@ -147,12 +155,10 @@ public class AtomsetIteratorFiltered implements AtomsetIteratorTargetable, Atoms
         }
 	}
 	public void setTarget(Atom[] targetAtoms) {
-	    if (iterator instanceof AtomsetIteratorTargetable) {
-	        ((AtomsetIteratorTargetable)iterator).setTarget(targetAtoms);
-        }
+	    iterator.setTarget(targetAtoms);
 	}
 
-	private final AtomsetIterator iterator;
+	private final AtomsetIteratorBasisDependent iterator;
 	private AtomsetFilter filter;
 	private Atom[] next;
 	private final Atom[] nextAtoms;
