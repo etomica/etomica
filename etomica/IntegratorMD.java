@@ -49,7 +49,7 @@ public abstract class IntegratorMD extends Integrator {
      * Often overridden in subclasses, so that elapsed time does not get zeroed
      * with iterator reset.
      */
-    public void doReset() {
+    protected void doReset() {
         stepCount = 0;
         stepCount0 = 0;
         t0 = 0;

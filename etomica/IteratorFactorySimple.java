@@ -1,7 +1,7 @@
 package etomica;
 
 /* History of changes
- * 7/29/02 (DAK) Changed reset(IteratorDirective) to handle null atom1()
+ * 7/29/02 (DAK) In SequentialIterator, changed reset(IteratorDirective) to handle null atom1()
  */
 
 public class IteratorFactorySimple implements IteratorFactory {
@@ -46,6 +46,9 @@ private static final class SequentialIterator implements AtomIterator {
      * given atom.
      */
     public void setBasis(Atom a) {
+        if(!(a.node instanceof AtomTreeNodeGroup)) {
+            System.out.println("uh oh");
+        }
         basis = (AtomTreeNodeGroup)a.node;
         listIterator.setBasis(basis);
     }

@@ -8,9 +8,14 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 8/4/02 (DAK) special-purpose modification to setBasis method to in attempt to work with PistonCylinder
+  */
+  
 public final class ApiGeneral implements AtomPairIterator, java.io.Serializable {
     
-    private final AtomPair pair; //want final, but Null inner class won't allow
+    private final AtomPair pair;
     private IteratorDirective.Direction direction;
     private final IteratorDirective localDirective = new IteratorDirective();
 
@@ -45,8 +50,15 @@ public final class ApiGeneral implements AtomPairIterator, java.io.Serializable 
     }
     
     public void setBasis(Atom a1, Atom a2) {
-        aiOuter.setBasis(a1);
-        aiInner.setBasis(a2);
+        //ugly workaround for PistonCylinder
+        if(a1.node.isLeaf() && aiInner instanceof AtomIteratorSinglet) {
+            aiOuter.setBasis(a2);
+            aiInner.setBasis(a1);
+        } else {
+            //originally was just this, without if/else block
+            aiOuter.setBasis(a1);
+            aiInner.setBasis(a2);
+        }
     }
     
     /**

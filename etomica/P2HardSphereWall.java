@@ -28,6 +28,10 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
         this(Simulation.instance.hamiltonian.potential, d);
     }
     
+    public P2HardSphereWall(PotentialGroup parent) {
+        this(parent, Default.ATOM_SIZE);
+    }
+    
     public P2HardSphereWall(PotentialGroup parent, double d) {
         super(parent);
         setCollisionDiameter(d);

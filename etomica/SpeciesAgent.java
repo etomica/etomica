@@ -8,6 +8,10 @@ import etomica.units.Dimension;
  * 
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 8/1/02 (DAK) modified allAtoms method to use loop iteration rather than passing action to iterator
+  */
 
 public final class SpeciesAgent extends Atom {
 
@@ -56,7 +60,11 @@ public final class SpeciesAgent extends Atom {
      * synchronized to prevent multiple processes from using the single iterator.
      */
     public synchronized void allAtoms(AtomAction action) {
-        leafIterator.allAtoms(action);
+      //  leafIterator.allAtoms(action); //use other form because AtomIteratorTree does yet implement allAtoms method
+        leafIterator.reset();
+        while(leafIterator.hasNext()) {
+            action.actionPerformed(leafIterator.next());
+        }
     }
     
     /**

@@ -122,6 +122,8 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
      */
 /*    public static void main(String[] args) {
         
+    //see DeviceCheckBox for an updated version of this method
+    
         final etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         

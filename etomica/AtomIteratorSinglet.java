@@ -13,6 +13,12 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 8/4/02 (DAK) Modified reset(Atom) to set basis to given atom while putting iterator ready for iteration
+  *              Change made while attempting to enable operation of PistonCylinder
+  * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
+  */
 public class AtomIteratorSinglet implements AtomIterator {
     
     private Atom atom;
@@ -66,10 +72,13 @@ public class AtomIteratorSinglet implements AtomIterator {
     }
     
     /**
-     * Sets the given atom as the one returned by the iterator.
+     * Resets iterator to return basis atom if it is descended from the given atom.
      */
     public Atom reset(Atom a) {
-        if(atom == null) hasNext = false;
+/*   //     atom = a;
+        hasNext = (atom != null);
+        return atom;
+*/        if(atom == null) hasNext = false;
         else hasNext = contains(a);
         return hasNext ? atom : null;
     }

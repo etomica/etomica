@@ -12,6 +12,10 @@ import etomica.statmech.MaxwellBoltzmann;
  * @author David Kofke
  */
  
+ /* History of changes
+  * 8/1/02 (DAK) added constructor taking only parent potential
+  */
+ 
 public class P2HardDiskWall extends Potential2Hard implements EtomicaElement {
     
     public final String getVersion() {return "PotentialHardDiskWall:01.07.25/"+Potential.VERSION;}
@@ -23,6 +27,10 @@ public class P2HardDiskWall extends Potential2Hard implements EtomicaElement {
     private double temperature = Default.TEMPERATURE;
 
     public P2HardDiskWall() {this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);}
+    
+    public P2HardDiskWall(PotentialGroup parent) {
+        this(parent, Default.ATOM_SIZE);
+    }
     
     public P2HardDiskWall(double d) {
         this(Simulation.instance.hamiltonian.potential, d);
