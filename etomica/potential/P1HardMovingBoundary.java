@@ -4,10 +4,7 @@ import etomica.Atom;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
 import etomica.Space;
-import etomica.Integrator.IntervalEvent;
-import etomica.integrator.IntegratorHard;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
@@ -18,7 +15,7 @@ import etomica.space.Vector;
  * accelerate subject to an external force field (pressure).
  */
  
-public class P1HardMovingBoundary extends Potential1 implements PotentialHard, Integrator.IntervalListener {
+public class P1HardMovingBoundary extends Potential1 implements PotentialHard {
     
     private double collisionRadius = 0.0;
     private final int D;
@@ -100,13 +97,66 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
      
     public double energyChange() {return 0.0;}
     
-    public double collisionTime(Atom[] a, double falseTime) {
-    	atom = a[0];
+    public double collisionTime(Atom[] atoms, double falseTime) {
+    	atom = atoms[0];
         double dr = atom.coord.position().x(wallD) - wallPosition;
         double dv = ((ICoordinateKinetic)atom.coord).velocity().x(wallD) - wallVelocity;
         dr += dv*falseTime;
+        if (pressure >= 0.0) {
+            double area = 1.0;
+            if (pressure > 0.0) {
+                final Vector dimensions = pistonBoundary.dimensions();
+                for (int i=0; i<D; i++) {
+                    if (i != wallD) {
+                        area *= dimensions.x(i);
+                    }
+                }
+            }
+            force = pressure/area;
+        }
+        double a = -force/wallMass;   // atom acceleration - wall acceleration
+        dv += a*falseTime;
+        dr += 0.5*a*falseTime*falseTime;
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atoms)) {
+            System.out.println(dr+" "+dv+" "+falseTime+" "+atom);
+            System.out.println(((ICoordinateKinetic)atom.coord).velocity().x(wallD));
+            System.out.println(atom.coord.position().x(wallD));
+        }
         double t = Double.POSITIVE_INFINITY;
-        if (dv * dr < 0.0) {
+        double discr = -1.0;
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atoms)) {
+            System.out.println(atom);
+        }
+        if (dr*dv < 0.0 || dr*a < 0.0) {
+            // either moving toward or accelerating toward each other
+            if (Math.abs(dr) < collisionRadius && dr*dv < 0.0) {
+                throw new RuntimeException("overlap "+atom+" "+dr+" "+dv+" "+a);
+            }
+            double drc;
+            if (dr>0.0) {
+                drc = dr - collisionRadius;
+            }
+            else {
+                drc = dr + collisionRadius;
+            }
+            discr = dv*dv - 2.0*a*drc;
+            if (discr >= 0.0) {
+                discr = Math.sqrt(discr);
+                if (dr*dv > 0.0 && dr*a < 0.0) {
+                    t = -dv/a + discr/Math.abs(a);
+                }
+                else if (dr*dv < 0.0 && dr*a > 0.0) {
+                    t = -dv/a - discr/Math.abs(a);
+                }
+                else if (dr*dv < 0.0 && dr*a < 0.0) {
+                    t = -dv/a + discr/Math.abs(a);
+                }
+                else {
+                    throw new RuntimeException("oops");
+                }
+            }
+        }
+/*        if (dv * dr < 0.0) {
             if (dv > 0.0) {
                 dr = dr - collisionRadius;
             }
@@ -114,9 +164,12 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
                 dr = -dr + collisionRadius;
             }
             t = dr / dv;
-        }
-        //approaching wall
+        }*/
         if (Default.FIX_OVERLAP && t<0.0) t = 0.0;
+        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(atoms))) {
+            System.out.println(a+" "+dr+" "+dv+" "+discr+" "+t+" "+atom);
+            if (t<0) throw new RuntimeException("foo");
+        }
         return t + falseTime;
     }
                 
@@ -124,7 +177,6 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
     	atom = a[0];
         double r = atom.coord.position().x(wallD);
         Vector v = ((ICoordinateKinetic)atom.coord).velocity();
-        lastVirial = 2.0/(1/wallMass + atom.type.rm())*(wallPosition-r)*(wallVelocity-v.x(wallD));
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
@@ -138,21 +190,46 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
             force = pressure/area;
         }
         double trueWallVelocity = wallVelocity + falseTime*force/wallMass;
-        double dv = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
-        lastVirial = -Math.abs(dv)*collisionRadius;
+        double dp = 2.0/(1/wallMass + atom.type.rm())*(trueWallVelocity-v.x(wallD));
+        lastVirial = -Math.abs(dp)*collisionRadius;
         if (Debug.ON) {
-            double trueWallPosition = wallPosition + wallVelocity*falseTime + 0.5*falseTime*(force/wallMass)*(force/wallMass);
-            if (Math.abs(trueWallPosition-(r+v.x(wallD)*falseTime)) - collisionRadius > 1.e-9*collisionRadius) {
-                System.out.println("bork at "+falseTime+" ! "+atom+" "+r+" "+v);
-                System.out.println("wall bork! "+wallPosition+" "+wallVelocity+" "+force);
+            double trueWallPosition = wallPosition + wallVelocity*falseTime + 0.5*falseTime*falseTime*(force/wallMass);
+//            if (Math.abs(Math.abs(trueWallPosition-(r+v.x(wallD)*falseTime)) - collisionRadius) > 1.e-9*collisionRadius) {
+                System.out.println("bork at "+falseTime+" ! "+atom+" "+(r+v.x(wallD)*falseTime)+" "+v.x(wallD));
+                System.out.println("wall bork! "+trueWallPosition+" "+trueWallVelocity+" "+force);
                 System.out.println("dr bork! "+((r+v.x(wallD)*falseTime)-trueWallPosition)+" "+collisionRadius);
-                throw new RuntimeException("bork!");
-            }
+                System.out.println(atom.coord.position().x(wallD));
+//                throw new RuntimeException("bork!");
+//            }
         }
-        v.setX(wallD,v.x(wallD)+dv*atom.type.rm());
-        atom.coord.position().setX(wallD,r-dv*atom.type.rm()*falseTime);
-        wallVelocity -= dv/wallMass;
-        wallPosition += dv/wallMass*falseTime;
+        v.setX(wallD,v.x(wallD)+dp*atom.type.rm());
+        atom.coord.position().setX(wallD,r-dp*atom.type.rm()*falseTime);
+        wallVelocity -= dp/wallMass;
+        wallPosition += dp/wallMass*falseTime;
+        
+        double dr = atom.coord.position().x(wallD) - wallPosition;
+        double dv = ((ICoordinateKinetic)atom.coord).velocity().x(wallD) - wallVelocity;
+        dr += dv*falseTime;
+        if (pressure >= 0.0) {
+            double area = 1.0;
+            if (pressure > 0.0) {
+                final Vector dimensions = pistonBoundary.dimensions();
+                for (int i=0; i<D; i++) {
+                    if (i != wallD) {
+                        area *= dimensions.x(i);
+                    }
+                }
+            }
+            force = pressure/area;
+        }
+        double acc = -force/wallMass;   // atom acceleration - wall acceleration
+        dv += acc*falseTime;
+        dr += 0.5*acc*falseTime*falseTime;
+        System.out.println("*****"+atom+" "+dr+" "+dv+" "+acc);
+        if (dv < 0) {
+            throw new RuntimeException("dv must be positive");
+        }
+        
     }
     
     public double lastCollisionVirial() {return lastVirial;}
@@ -176,7 +253,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
     public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
 
     
-    public void intervalAction(IntervalEvent evt) {
+    public void advanceAcrossTimeStep(double tStep) {
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
@@ -189,11 +266,10 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, I
             }
             force = pressure/area;
         }
-        double t = ((IntegratorHard)evt.getSource()).getTimeStep();
         double a = force/wallMass;
-        wallPosition += wallVelocity * t + 0.5*t*a*a;
-        wallVelocity += t*a;
-        System.out.println("pressure => velocity "+(t*a)+" "+wallVelocity);
+        wallPosition += wallVelocity * tStep + 0.5*tStep*tStep*a;
+        wallVelocity += tStep*a;
+        System.out.println("pressure => velocity "+(tStep*a)+" "+wallVelocity+" "+wallPosition+" "+tStep);
     }
  /*   
     public static void main(String[] args) {

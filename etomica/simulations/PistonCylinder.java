@@ -10,6 +10,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorHardPiston;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
@@ -58,9 +59,8 @@ public class PistonCylinder extends Simulation {
         pistonPotential.setPressure(200000.0);
         potentialMaster.setSpecies(pistonPotential,new Species[]{species});
 	    
-	    integrator = new IntegratorHard(potentialMaster);
+	    integrator = new IntegratorHardPiston(potentialMaster,pistonPotential);
         integrator.addPhase(phase);
-        integrator.addIntervalListener(pistonPotential);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 	    
