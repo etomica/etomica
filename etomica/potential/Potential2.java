@@ -4,6 +4,8 @@ import etomica.Default;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
+import etomica.nbr.NeighborCriterion;
+import etomica.nbr.NeighborCriterionAll;
 import etomica.space.CoordinatePair;
 
 /**
@@ -25,8 +27,6 @@ import etomica.space.CoordinatePair;
 
 public abstract class Potential2 extends Potential {
   
-    protected final CoordinatePair cPair;
-    
     public Potential2(Space space) {
         this(space, Default.TRUNCATE_POTENTIALS ? 
                         new PotentialTruncationSimple()
@@ -58,6 +58,15 @@ public abstract class Potential2 extends Potential {
         cPair.setNearestImageTransformer(phase.boundary());
     }
     
+    public void setCriterion(NeighborCriterion criterion) {
+        this.criterion = criterion;
+    }
+    public NeighborCriterion getCriterion() {
+        return criterion;
+    }
+    
+    protected final CoordinatePair cPair;
+    protected NeighborCriterion criterion = new NeighborCriterionAll();
 }//end of Potential2
 
 
