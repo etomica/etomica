@@ -2,10 +2,10 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.Atom;
+import etomica.AtomType;
 import etomica.Parameter;
 import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomType;
 
 /**
  * Colors the atom according to the color given by its type field.  Instantiation
@@ -36,7 +36,7 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
     
     
     public static void setColor(SpeciesSpheresMono s, Color c) {
-        ((ParameterColor)((AtomFactoryMono)s.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(c);
+        ((ParameterColor)((AtomFactoryMono)s.moleculeFactory()).getType().parameter[ColorSchemeByType.colorIndex]).setColor(c);
     }
    
     public static void setColor(AtomType type, Color c) {
@@ -44,7 +44,7 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
     }
     
     public static Color getColor(SpeciesSpheresMono s) {
-        return ((ParameterColor)((AtomFactoryMono)s.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).getColor();
+        return ((ParameterColor)((AtomFactoryMono)s.moleculeFactory()).getType().parameter[ColorSchemeByType.colorIndex]).getColor();
     }
         /*
     public static void setColor(SpeciesWater s, Color c) {
