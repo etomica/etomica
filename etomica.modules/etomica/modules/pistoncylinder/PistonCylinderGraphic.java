@@ -104,7 +104,7 @@ public class PistonCylinderGraphic {
     public DataSourceWallPressure pressureMeter;
     public int plotUpdateInterval, dataInterval, guiInterval;
     public Unit eUnit;
-    double lambda, epsilon;
+    double lambda, epsilon, mass;
     
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
@@ -127,6 +127,7 @@ public class PistonCylinderGraphic {
         
         lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
+        mass = Default.ATOM_MASS;
         
         //restart action and button
         controlButtons = new DeviceTrioControllerButton();
@@ -416,9 +417,11 @@ public class PistonCylinderGraphic {
             pistonHeld = pc.pistonPotential.isStationary();
             lambda = potentialSW.getLambda();
             epsilon = potentialSW.getEpsilon();
+            mass = pc.species.getMass();
             pc.getController().halt();
         }
         pc = sim;
+        pc.species.setMass(mass);
         int D = pc.space.D();
 
 
