@@ -9,23 +9,35 @@ package etomica;
  */
  
  /* History of changes
-  * 7/13/02 (DAK) Restructured instantiation of LRC potential; Space argument for constructor
+  * 07/13/02 (DAK) Restructured instantiation of LRC potential; Space argument
+  * for constructor 
+  * 03/03/04 (DAK) Moved A to P0Lrc, added no-space constructors
   */
 public final class PotentialTruncationSimple extends PotentialTruncation {
         
-    double rCutoff, r2Cutoff, rCD;
-    private /*final*/ double A; //inner class doesn't permit finals
-    private /*final*/ int D;
+    double rCutoff, r2Cutoff;
     
+    /**
+     * @deprecated -- do not need space argument
+     */
     public PotentialTruncationSimple(Space space) {
         this(space, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);}
         
+	/**
+	 * @deprecated -- do not need space argument
+	 */
     public PotentialTruncationSimple(Space space, double rCutoff) {
         super();
-        A = space.sphereArea(1.0);  //multiplier for differential surface element
-        D = space.D();              //spatial dimension
         setTruncationRadius(rCutoff);
     }
+	public PotentialTruncationSimple() {
+		this(Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);}
+        
+	public PotentialTruncationSimple(double rCutoff) {
+		super();
+		setTruncationRadius(rCutoff);
+	}
+	
     public boolean isZero(double r2) {return r2 > r2Cutoff;}
         
     public double uTransform(double r2, double untruncatedValue) {
@@ -44,8 +56,6 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
     public final void setTruncationRadius(double rCut) {
         rCutoff = rCut;
         r2Cutoff = rCut*rCut;
-        rCD = 1.0;
-        for(int i=D; i>0; i--) {rCD *= rCD;}  //rC^D
     }
     /**
      * Accessor method for the radial cutoff distance.
@@ -72,10 +82,14 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         
         private Phase phase;
         private final Potential2SoftSpherical potential;//shadow superclass field (ok because final)
+		private final double A;
+		private final int D;
         
         public P0Lrc(PotentialMaster parent, Potential2SoftSpherical potential) {
             super(parent, potential);
             this.potential = potential;
+			A = space.sphereArea(1.0);  //multiplier for differential surface element
+			D = space.D();              //spatial dimension
         }
         
         /**
@@ -120,7 +134,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         public double duCorrection(double pairDensity) {
             Potential2SoftSpherical potentialSpherical = (Potential2SoftSpherical)potential;
             double integral = potentialSpherical.integral(rCutoff);
-            integral = A*rCD*potentialSpherical.u(rCutoff) - D*integral;//need potential to be spherical to apply here
+            integral = A*space.powerD(rCutoff)*potentialSpherical.u(rCutoff) - D*integral;//need potential to be spherical to apply here
             return pairDensity*integral;
         }
 

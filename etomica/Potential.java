@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.Space.Tensor;
+import etomica.Space.Vector;
+
 /**
  * Superclass for all Potential classes, which define how the atoms in the
  * system interact with each other.
@@ -208,5 +211,34 @@ public abstract class Potential extends SimulationElement {
 		this.p0Lrc = p0Lrc;
 	}
 
+	public static final Potential NullPotential(Simulation parent) {return new MyNull(parent);}
+	
+	private static final class MyNull extends Potential implements Potential1.Hard, Potential2.Hard, Potential2.Soft {
+		
+		private final Space.Vector zero;
+		private final Space.Tensor zeroT;
+		
+		public MyNull(Simulation sim) {
+			super(sim);
+			zero = sim.space.makeVector();
+			zeroT = sim.space.makeTensor();
+		}
+
+		public void bump(Atom atom) {}
+		public double collisionTime(Atom atom) {return Double.MAX_VALUE;}
+		public double energy(Atom atom) {return 0;}
+		public void bump(AtomPair pair) {}
+		public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
+		public double energy(AtomPair pair) {return 0;}
+		public Vector gradient(AtomPair pair) {return zero;}
+		public double hyperVirial(AtomPair pair) {return 0;}
+		public double integral(double rC) {return 0;}
+		public double virial(AtomPair pair) {return 0;}
+		public double lastCollisionVirial() {return 0;}
+		public Tensor lastCollisionVirialTensor() {return zeroT;}
+		public void calculate(AtomSet basis,IteratorDirective id,PotentialCalculation pc) {}
+		public AtomSetIterator getIterator() {return null;}
+		public void setIterator(AtomSetIterator iterator) {}
+	}
 }//end of Potential
 

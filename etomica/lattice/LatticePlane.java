@@ -114,7 +114,8 @@ public class LatticePlane implements AtomFilter {
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
         delta.E(origin);
-        delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI/normal.squared(),normal);
+		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI/normal.squared(),normal);
+//		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI,normal);
         plane.moveTo((Space3D.Vector)delta);
     }
     

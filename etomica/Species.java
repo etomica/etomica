@@ -1,5 +1,7 @@
 package etomica;
 import etomica.units.Dimension;
+import etomica.chem.*;
+import etomica.chem.models.*;
 //Java2 imports
 //import java.util.HashMap;
 //import java.util.Iterator;
@@ -61,6 +63,7 @@ public class Species extends SimulationElement {
     public static final String VERSION = "Species:03.01.25";
     
     protected final AtomFactory factory;
+    protected Model model;
     
     /**
      * Constructs species and registers it as part of the given simulation, with
@@ -69,6 +72,10 @@ public class Species extends SimulationElement {
     public Species(Simulation sim, AtomFactory factory) {
         super(sim, Species.class);
         this.factory = factory;
+    }
+    
+    public Species(Simulation sim, Model model) {
+    	this(sim, model.makeAtomFactory(sim));
     }
                   
     public AtomFactory moleculeFactory() {return factory;}

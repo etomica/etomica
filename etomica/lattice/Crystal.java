@@ -1,4 +1,5 @@
 package etomica.lattice;
+import etomica.AtomFactory;
 
 /**
  * A class packaging together a Primitive and a Basis.
@@ -21,6 +22,16 @@ public class Crystal {
     public Crystal(Primitive primitive, Basis basis) {
         this.primitive = primitive;
         this.basis = basis;
+    }
+    
+    /**
+     * Indicates crystal with one site at each primitive-vector combination,
+     * with Atom at each site made by the given factory.
+     * @param primitive
+     * @param factory
+     */
+    public Crystal(Primitive primitive, AtomFactory factory) {
+    	this(primitive, new Basis(primitive.space, 1, factory));
     }
     
     public Primitive getPrimitive() {return primitive;}

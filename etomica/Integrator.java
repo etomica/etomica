@@ -16,6 +16,8 @@ import etomica.units.*;
  * 
  * 07/10/03 (DAK) made Agent interface public
  * 08/25/03 (DAK) changed default for doSleep to <false>
+ * 01/27/04 (DAK) initialized iieCount to inverval (instead of interval+1) in
+ * run method; changed setInterval do disallow non-positive interval
  */
 public abstract class Integrator extends SimulationElement implements Runnable, java.io.Serializable {
 
@@ -124,7 +126,16 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
   public boolean isIsothermal() {return isothermal;}
     
   public final int getInterval() {return interval;}
-  public final void setInterval(int interval) {this.interval = interval;}
+  /**
+   * Sets the value of the interval (number of doStep calls) between firing of
+   * interval events. If zero or negative value is given, interval will be set
+   * to 1.
+   * @param interval new value (>0) for integrator interval
+   */
+  public final void setInterval(int interval) {
+      if(interval <=0) interval = 1;
+	  this.interval = interval;
+  }
   
   public final int getSleepPeriod() {return sleepPeriod;}
   public final void setSleepPeriod(int s) {sleepPeriod = s;}
@@ -327,7 +338,7 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
 //        if(running) return; //do not allow two threads
         running = true;
         stepCount = 0;
-        int iieCount = interval+1;
+        int iieCount = interval;//changed from "interval + 1"
         while(stepCount < maxSteps) {
             while(pauseRequested) doWait();//keep this before resetRequest, since need for reset might naturally follow completion of pause
             if(resetRequested) {doReset(); resetRequested = false;}

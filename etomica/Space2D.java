@@ -26,6 +26,7 @@ public class Space2D extends Space implements EtomicaElement {
     public final double powerD(double a) {return a*a;}
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
+    public static final Space2D INSTANCE = new Space2D();
     
     public Space2D() {super(2);}
     
@@ -103,6 +104,12 @@ public class Space2D extends Space implements EtomicaElement {
         public void TE(int i, double a) {if(i==0) x *= a; else y *= a;}
         public void DE(double a) {x /= a; y /= a;}
         public void DE(Vector u) {x /= u.x; y /= u.y;}
+		public double Mv1Squared(Space.Vector u) {
+			Vector u1 = (Vector)u;
+			double dx = x-u1.x;
+			double dy = y-u1.y;
+			return dx*dx + dy*dy;
+		}
         public void Ev1Pv2(Space.Vector u1, Space.Vector u2) {
             Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
             x = v1.x + v2.x;

@@ -19,22 +19,23 @@ public class LatticeFactoryCubic extends BravaisLattice.Factory {
         this(space, siteFactory, dArray(D, dimension), latticeConstant);
     }
     /**
-     * Creates a Bravais lattice with the given basis.  Number of lattice sites in each
-     * dimension is determined by the given integer array.  Size of this array also
-     * determines the dimension of the lattice.
+     * Creates a Bravais lattice with basis formed by the given factory, which
+     * places one Atom at each lattice site. Number of lattice sites in each
+     * dimension is determined by the given integer array. Size of this array
+     * also determines the dimension of the lattice.
      */
     public LatticeFactoryCubic(Space space, AtomFactory siteFactory, 
                                 int[] dimensions, double latticeConstant) {
-        super(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, new PrimitiveCubic(space));
-        ((PrimitiveCubic)primitive).setSize(latticeConstant);
+        super(space, new Crystal(new PrimitiveCubic(space), siteFactory), dimensions);
+        ((PrimitiveCubic)crystal.getPrimitive()).setSize(latticeConstant);
     }
     
        
     public void setLatticeConstant(double a) {
-        ((PrimitiveCubic)primitive).setSize(a);
+        ((PrimitiveCubic)crystal.getPrimitive()).setSize(a);
     }
     public double getLatticeConstant() {
-        return ((PrimitiveCubic)primitive).getSize();
+        return ((PrimitiveCubic)crystal.getPrimitive()).getSize();
     }
     
     /**

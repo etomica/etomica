@@ -14,17 +14,18 @@ public class HSMD3D extends SimulationGraphic {
  //   super(new etomica.space.continuum.Space(3));
     super(new etomica.Space3D());
     Simulation.instance = this;
-    Default.ATOM_SIZE = 6.6;
+    Default.makeLJDefaults();
+//    Default.ATOM_SIZE = 6.6;
 //    Default.DISPLAY_USE_OPENGL = false;
     etomica.Phase phase0  = new etomica.Phase();
 //    phase0.setConfiguration(new ConfigurationFcc());
     etomica.P2HardSphere potentialHardSphere0  = new etomica.P2HardSphere();
     etomica.Controller controller0  = new etomica.Controller();
     new DeviceTrioControllerButton(this, controller0);
-		
     etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
+	potentialHardSphere0.setSpecies(speciesSpheres0);
 //    etomica.SpeciesSpheres speciesSpheres0  = new etomica.SpeciesSpheres();
-      speciesSpheres0.setNMolecules(32);
+      speciesSpheres0.setNMolecules(108);
 //      speciesSpheres0.setColor(new java.awt.Color(0,255,0));
     etomica.graphics.DisplayPhase displayPhase0  = new etomica.graphics.DisplayPhase();
 
@@ -36,7 +37,11 @@ public class HSMD3D extends SimulationGraphic {
     etomica.IntegratorHard integratorHard0  = new etomica.IntegratorHard();
  //     integratorHard0.setIsothermal(true);
  //     integratorHard0.setTemperature(1500.);
+ 	MeterPressureHard meterPressure = new MeterPressureHard();
+ 	DisplayBox box = new DisplayBox();
+ 	box.setDatumSource(meterPressure);
     mediator().go();
+    phase0.setDensity(0.5);
     System.out.println(phase0.getAgent(speciesSpheres0).coord.momentum().toString());
   } //end of constructor
 

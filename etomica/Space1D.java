@@ -28,6 +28,7 @@ public class Space1D extends Space implements EtomicaElement {
     public final double powerD(double a) {return a;}
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
+    public static final Space1D INSTANCE = new Space1D();
     
     public Space1D() {super(1);}
     
@@ -107,6 +108,10 @@ public class Space1D extends Space implements EtomicaElement {
             Vector v1 = (Vector)u1; Vector v2 = (Vector)u2;
             x = v1.x - v2.x;
         }
+		public double Mv1Squared(Space.Vector u1) {
+			double dx = x-((Vector)u1).x;
+			return dx*dx;
+		}
         public void mod(Space.Vector u) {
             mod((Vector)u);
         }
@@ -538,7 +543,7 @@ public class Space1D extends Space implements EtomicaElement {
         public void randomizeMomentum(double temperature) {
             switch(((AtomTreeNodeGroup)atom.node).childAtomCount()) {
                 case 0: return;
-                case 1: firstChild.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
+				case 1: ((AtomTreeNodeGroup)atom.node).firstChildAtom().coord.randomizeMomentum(temperature);//do not zero COM momentum if only one child atom
                         return;
                 default://multi-atom group
         //            work.E(0.0); double sum=0.0;

@@ -55,6 +55,19 @@ public abstract class Dimension implements java.io.Serializable {
         public Unit defaultIOUnit() {return new Unit(BaseUnit.Null.UNIT);}
         public Class baseUnit() {return BaseUnit.Null.class;}
     }
+    
+	/**
+	 * Dimension indicating that a dimensions class is not yet defined
+	 */
+	public static class Undefined extends Dimension {
+		private Undefined() {} //singleton; access via static instances, defined below
+		static double[] signature = {0., 0., 0., 0.};
+		public double[] signature() {return signature;}
+		public String toString() {return "Undefined";}
+		public Unit defaultIOUnit() {return new Unit(BaseUnit.Null.UNIT);}
+		public Class baseUnit() {return BaseUnit.Null.class;}
+	}
+
     /**
      * Dimension for a counted quantity, such as number of molecules
      */
@@ -164,7 +177,7 @@ public abstract class Dimension implements java.io.Serializable {
     }
     
     //Singleton instances of each dimension
-    public static final Dimension NULL = new Null();
+	public static final Dimension NULL = new Null();
     public static final Dimension QUANTITY = new Quantity();
     public static final Dimension MASS = new Mass();
     public static final Dimension LENGTH = new Length();
@@ -178,9 +191,10 @@ public abstract class Dimension implements java.io.Serializable {
     public static final Dimension PRESSURE2D = new Pressure2D();
     public static final Dimension VOLUME = new Volume();
     public static final Dimension VOLUME2D = new Volume2D();
-    public static final Dimension[] ALL = new Dimension[] {
+	public static final Dimension UNDEFINED = new Undefined();
+   public static final Dimension[] ALL = new Dimension[] {
         NULL, QUANTITY, MASS, LENGTH, TIME, ANGLE, CHARGE, DIPOLE, ENERGY, 
-        TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D};
+        TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D, UNDEFINED};
 
     
     /**

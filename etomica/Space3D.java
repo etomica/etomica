@@ -46,6 +46,7 @@ public class Space3D extends Space implements EtomicaElement {
     
     public static final Vector ORIGIN = new Vector();
     public final Space.Vector origin() {return ORIGIN;}
+    public static final Space3D INSTANCE = new Space3D();
     
     public Space3D() {super(3);}
     
@@ -217,7 +218,8 @@ public class Space3D extends Space implements EtomicaElement {
         	double dz = z-u1.z+u2.z;
         	return dx*dx + dy*dy + dz*dz;
         }
-		public double Mv1Squared(Vector u1) {
+		public double Mv1Squared(Space.Vector u) {
+			Vector u1 = (Vector)u;
 			double dx = x-u1.x;
 			double dy = y-u1.y;
 			double dz = z-u1.z;

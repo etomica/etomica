@@ -5,9 +5,11 @@ import etomica.lattice.*;
 /**
  * @author kofke
  *
- * Creates a configuration using a BravaisLattice to specify positions.
+ * Creates a configuration using a BravaisLattice to specify positions.  Has
+ * capability to assign lattice site to atoms when specifying their coordinates.
+ * See setAssigningSitesToAtoms method.
  */
-public class ConfigurationLattice extends Configuration {
+public class ConfigurationLattice extends Configuration implements Atom.AgentSource {
 
 	/**
 	 * Constructor for ConfigurationLattice.
@@ -50,16 +52,15 @@ public class ConfigurationLattice extends Configuration {
 		int sumOfMolecules = iterator.size();
 		if(sumOfMolecules == 0) {return;}
 		
-		lattice.setSize(sumOfMolecules, dimensions);
+		if(rescalingToFitVolume) lattice.setSize(sumOfMolecules, dimensions);
+		else lattice.setSize(sumOfMolecules);
         
         AtomIteratorList siteIterator = new AtomIteratorList(lattice.siteList());
         
-		Atom centerAtom = lattice.centerSite();
-		centerAtom = centerAtom.node.firstLeafAtom();
 		Space.Vector center = Space.makeVector(dimensions);
 		center.TE(0.5);
-//		center.ME(centerAtom.coord.position());
 		lattice.coord.translateCOMTo(center);
+		lattice.eventManager.fireEvent((LatticeEvent)null);
 
    // Place molecules  
 		iterator.reset();
@@ -69,12 +70,16 @@ public class ConfigurationLattice extends Configuration {
 			try {//may get null pointer exception when beginning simulation
 				a.creator().getConfiguration().initializeCoordinates(a);
 			} catch(NullPointerException e) {}
-			a.coord.translateTo(siteIterator.next().coord.position());//use translateTo instead of E because atom might be a group
+			Atom site = siteIterator.next();
+			a.coord.translateTo(site.coord.position());//use translateTo instead of E because atom might be a group
+			if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
 		}
-
 	}
 	
 	private BravaisLattice lattice;
+	private boolean rescalingToFitVolume = true;
+	private boolean assigningSitesToAtoms = false;
+	private int siteIndex = -1;
 
 	public static void main(String[] args) {
 		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space3D());
@@ -92,4 +97,64 @@ public class ConfigurationLattice extends Configuration {
 		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();
 	}
+	/**
+	 * Returns the resizeLatticeToFitVolume flag.
+	 * @return boolean
+	 */
+	public boolean isRescalingToFitVolume() {
+		return rescalingToFitVolume;
+	}
+
+	/**
+	 * Sets the resizeLatticeToFitVolume flag, which if true indicates that the
+	 * primitive vectors should be resized to fit the dimensions of the phase.
+	 * Default is true.
+	 * @param resizeLatticeToFitVolume The resizeLatticeToFitVolume to set
+	 */
+	public void setRescalingToFitVolume(boolean resizeLatticeToFitVolume) {
+		this.rescalingToFitVolume = resizeLatticeToFitVolume;
+	}
+
+	/**
+	 * Returns the assigningSitesToAtoms field.
+	 * @return boolean
+	 */
+	public boolean isAssigningSitesToAtoms() {
+		return assigningSitesToAtoms;
+	}
+
+	/**
+	 * Sets flage that causes sites to be assigned to atoms.  When this is set
+	 * to true, an atom agent is made in every new Atom instance, which will
+	 * hold a field that points to the site used to set the atom's position
+	 * during any call to initializeCoordinates.
+	 * @param assigningSitesToAtoms The assigningSitesToAtoms to set
+	 */
+	public void setAssigningSitesToAtoms(boolean assigningSitesToAtoms) {
+		this.assigningSitesToAtoms = assigningSitesToAtoms;
+		if(assigningSitesToAtoms && siteIndex < 0) siteIndex = Atom.requestAgentIndex(this);
+	}
+	
+	/**
+	 * Returns the index used to access the site.  Given an atom, its site is
+	 * accessed via: 
+	 * ((ConfigurationLattice.Agent)atom.allAtomAgents[siteIndex]).site
+	 * @return int the site index in allatomAgents with this class' agent
+	 */
+	public final int siteIndex() {return siteIndex;}
+	
+	/**
+	 * Implementation of Atom.AgentSource interface.
+	 * @see etomica.Atom.AgentSource#makeAgent(Atom)
+	 */
+	public Object makeAgent(Atom a) {return new Agent();}
+	
+	/**
+	 * Atom agent that simply has a field that points to a lattice site
+	 * associated with the atom.
+	 */
+	public static class Agent {
+		public Atom site;
+	}
+
 }

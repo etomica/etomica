@@ -17,6 +17,7 @@ import java.util.Observer;
  * 01/21/04 (DAK) changed initializeCoordinate calls to take this phase as
  * argument.  As a result, Configuration will set its dimensions equal to that
  * of this phase before assigning coordinates.
+ * 01/29/04 (DAK) added nearestAtom method.
  */
 
 /**
@@ -134,6 +135,33 @@ public class Phase extends SimulationElement {
             if(sum > i) break;
         }
         return ((AtomTreeNodeGroup)s.node).getAtom(i-(sum-((AtomTreeNodeGroup)s.node).childAtomCount()));
+    }
+    
+    /**
+     * Finds and returns the atom nearest to the each of one or more given
+     * positions, using the boundary associated with this phase.
+     * @param r a positions in the phase.  Point may be outside the phase, as
+     * minimum-image separations are used in accordance with phase's boundary.
+     * @return Atom the (leaf) atoms in the phase nearest to each position. A
+     * given atom can appear more than once in this list, if it is nearest to
+     * more than one of the positions.
+     */
+    public Atom[] nearestAtom(Space.Vector[] r) {
+    	AtomIterator iterator = makeAtomIterator();
+    	Atom[] nearest = new Atom[r.length];
+    	for(int i=0; i<r.length; i++) {
+	    	double r2Min = Double.MAX_VALUE;
+	    	iterator.reset();
+	    	while(iterator.hasNext()) {
+	    		Atom atom = iterator.next();
+	    		double r2 = Space.r2(atom.coord.position(), r[i], boundary);
+	    		if(r2 < r2Min) {
+	    			r2Min = r2;
+	    			nearest[i] = atom;
+	    		}
+	    	}
+    	}
+    	return nearest;
     }
     
     /**

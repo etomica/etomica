@@ -400,6 +400,20 @@ public class Mediator implements java.io.Serializable {
                 lastPhaseAdded = phase;
             }
         }//end of Default
+		/**
+		 * Adding an instance of this pair mediator will cause the simulation to not
+		 * act to coordinate Meter and Phase objects.  
+		 */
+		public static class NoAction extends MeterPhase {
+			public NoAction(Mediator m) {
+				super(m);
+				setSuperceding(true);//causes all previously added mediators to be ignored
+			}
+            
+			public void add(MeterAbstract meter) {}
+			public void add(Phase phase) {}
+		}//end of NoAction
+
     }//end of MeterPhase
     public abstract static class MeterSpecies extends Subset {
         public MeterSpecies(Mediator m) {super(m);}

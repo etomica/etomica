@@ -64,17 +64,26 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
 	    if(--count == 0) {
 	        count = updateInterval;
 	        openFile();
-	        write();
+	        try {
+		        write();
+	        } catch(java.io.IOException ex) {
+	        	System.out.println("Exception when writing to log ");
+	        	ex.printStackTrace();
+	        }
 	        if(closeFileEachTime) closeFile();
 	    }
         if(evt.type() == Integrator.IntervalEvent.DONE) closeFile(); //close the file when DONE.
     }
     
     /**
-     * This methods will be defined by each subclass to do the log things.
-     * e.g. write out data/configuration.
+     * This method will be defined by each subclass to do the log things. e.g.
+     * write out data/configuration.
      */
-    protected abstract void write();
+    	//EXAMPLE
+		//	protected void write() throws java.io.IOException {
+		//		fileWriter.write(Double.toString(meter.average()));
+		//	}
+    protected abstract void write() throws java.io.IOException;
     
     /**
      * Define how many number of interval events received between writings to
@@ -92,7 +101,7 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
         try { 
             if(sameFileEachTime && fileIsOpen) return;
             if(fileName == "") fileName = defaultFileName(); //if fileName is not defined yet, use the current date to be the fileName.
-            fileWriter = new FileWriter(fileName + fileNameSuffix, appendFlag);
+            fileWriter = new FileWriter(fileName + fileNameSuffix, appending);
             fileIsOpen = true;
         }catch(IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
@@ -126,14 +135,16 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
     public String getFileName() { return (fileName+fileNameSuffix); }
     
     /**
-     * Overwrite or attach the data to the file.
+     * Overwrite or attach the data to the file.  Default is to append, not
+     * overwrite.
      */
-    public void setAppendFlag(boolean appendFlag) {this.appendFlag = appendFlag; }
+    public void setAppending(boolean appending) {this.appending = appending; }
     
-    public boolean isAppendFlag() {return appendFlag;}
+    public boolean isAppending() {return appending;}
     
     /**
-     * Write to the same file at each time INTERVAL, and close the file at the end of the simulation.
+     * Write to the same file at each time INTERVAL, and close the file at the
+     * end of the simulation. Default is true.
      */
     public void setSameFileEachTime(boolean sameFileEachTime) { this.sameFileEachTime = sameFileEachTime;}
     
@@ -150,7 +161,7 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
     private int updateInterval; //number of times specified by the user between two actions.
                                 //could be set by setUpdateInterval() method.
     private String fileName; //output file name. This name should not have a suffix.
-    private boolean appendFlag = true; //whether to overwrite to the existing data 
+    private boolean appending = true; //whether to overwrite to the existing data 
                                         //or attach the data. Default is not overwriting.
     private Integrator integrator;
     protected FileWriter fileWriter; //this is a handle that subclass can use to write data.

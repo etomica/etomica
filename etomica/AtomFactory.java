@@ -1,4 +1,6 @@
 package etomica;
+import etomica.chem.*;
+import etomica.chem.models.*;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
@@ -92,6 +94,13 @@ public abstract class AtomFactory {
         Atom group = new Atom(space, atomType, nodeFactory, sequencerFactory, parent);
         return build(group);
     }
+    
+//    public static Atom build(Space space, AtomTreeNodeGroup parent, Model model) {
+//    	if(model instanceof ModelAtomic) {
+//    		return new Atom(space, atomType, nodeFactory, sequencerFactory, parent);
+//    	}
+//		return null;
+//    }
     
     /**
      * Builds an atom from the one given, attaching child atoms as appropriate
