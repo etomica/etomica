@@ -10,7 +10,6 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
 
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
-    private double r2;
     private double lastCollisionVirial, lastCollisionVirialr2;
     private final Space.Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
@@ -37,33 +36,33 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     public void bump(Atom[] pair) {
         double eps = 1e-6;
         cPair.reset(pair[0].coord,pair[1].coord);
-        r2 = cPair.r2();
+        double r2 = cPair.r2();
         double bij = cPair.vDotr();
         //ke is kinetic energy from the components of velocity
         double reduced_m = 1/(pair[0].coord.rm() + pair[1].coord.rm());
         dr.E(cPair.dr());
         double ke = bij*bij*reduced_m/(2*r2);
-        double r2New;
+        double nudge = 0;
         if (bij > 0.0) {    //Separating
             if (ke < epsilon) {    //Not enough energy to escape the well
                 lastCollisionVirial = 2*bij*reduced_m;
-                r2New = (1 - eps)*wellDiameterSquared;
+                nudge = -eps;
                 lastEnergyChange = 0.0;
             }
             else {  //Escaping the well
                 lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
-                r2New = (1 + eps)*wellDiameterSquared;
+                nudge = eps;
                 lastEnergyChange = epsilon;
             }
         }
         else {          //Approaching
             lastCollisionVirial = reduced_m*(bij + Math.sqrt(bij*bij + 2.0*r2*epsilon/reduced_m));  //might need to double check
-            r2New = (1 - eps)*wellDiameterSquared;
+            nudge = -eps;
             lastEnergyChange = -epsilon;
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         cPair.push(lastCollisionVirialr2);
-        if(r2New != r2) cPair.setSeparation(r2New);
+        cPair.nudge(nudge);
     }       //end of bump
     
     

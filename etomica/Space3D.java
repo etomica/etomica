@@ -572,6 +572,15 @@ public class Space3D extends Space implements EtomicaElement {
             c2.p.y -= impulse*dr.y;
             c2.p.z -= impulse*dr.z;
         }
+        public void nudge(double rDelta) {
+            double ratio = c2.mass()*c1.rm()*rDelta;
+            c1.r.x -= ratio*dr.x;
+            c1.r.y -= ratio*dr.y;
+            c1.r.z -= ratio*dr.z;
+            c2.r.x += ratio*dr.x;
+            c2.r.y += ratio*dr.y;
+            c2.r.z += ratio*dr.z;
+        }
         public void setSeparation(double r2New) {
             double ratio = c2.mass()*c1.rm();
             double delta = (Math.sqrt(r2New/this.r2()) - 1.0)/(1 + ratio);

@@ -376,6 +376,7 @@ public abstract class Space implements java.io.Serializable {
         public abstract double vDotr();
         public abstract double vDot(Space.Vector u);
         public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
+        public abstract void nudge(double rDelta);  //nudge pair apart by rDelta away from each other
         public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
         public abstract double r2();
 //        public final double r2() {return r2;}

@@ -62,13 +62,12 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
         cPair.resetV();
         double bij = cPair.vDotr();
         double reduced_m = 1.0/(pair[0].coord.rm() + pair[1].coord.rm());
-        double r2New;
+        double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
             if (Debug.ON && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
             lastCollisionVirial = 2.0*reduced_m*bij;
-            r2New = r2;
             lastEnergyChange = 0.0;
         }
         else {    // Well collision
@@ -80,7 +79,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
                         throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
                     }
                     lastCollisionVirial = 2.0*reduced_m*bij;
-                    r2New = (1-eps)*wellDiameterSquared;
+                    nudge = -eps;
                     lastEnergyChange = 0.0;
                 }
                 else {                 // Escape
@@ -88,7 +87,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
                         throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
                     }
                     lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
-                    r2New = (1+eps)*wellDiameterSquared;
+                    nudge = eps;
                     lastEnergyChange = epsilon;
                 }
             }
@@ -97,13 +96,13 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
                     throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+wellDiameterSquared);
                 }
                 lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
-                r2New = (1-eps)*wellDiameterSquared;
+                nudge = -eps;
                 lastEnergyChange = -epsilon;
             }
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         cPair.push(lastCollisionVirialr2);
-        if(r2New != r2) cPair.setSeparation(r2New);
+        if(nudge != 0) cPair.nudge(nudge);
     }//end of bump method
 
     public double lastCollisionVirial() {

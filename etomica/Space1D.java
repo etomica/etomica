@@ -275,6 +275,11 @@ public class Space1D extends Space implements EtomicaElement {
             c1.p.x += impulse*drx;
             c2.p.x -= impulse*drx;
         }
+        public void nudge(double rDelta) {
+            double ratio = c2.mass()*c1.rm()*rDelta;
+            c1.r.x -= ratio*dr.x;
+            c2.r.x += ratio*dr.x;
+        }
         public void setSeparation(double r2New) {
             double ratio = c2.mass()*c1.rm();  // (mass2/mass1)
             double delta = (Math.sqrt(r2New/this.r2()) - 1.0)/(1+ratio);
