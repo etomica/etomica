@@ -10,9 +10,9 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.Integrator.Forcible;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 
 //import etomica.units.*;
@@ -73,9 +73,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     }
         
     
-//--------------------------------------------------------------
-// steps all particles across time interval tStep
-
     public void doStep() {
         
         predictor();
@@ -103,26 +100,26 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             Atom a = atomIterator.nextAtom();
             Agent agent = (IntegratorGear4.Agent)a.ia;
             Vector r = a.coord.position();
-            Vector p = a.coord.momentum();
-            work1.E(p);
-            work1.PEa1Tv1(chi*a.coord.mass(),r);
+            Vector v = ((ICoordinateKinetic)a.coord).velocity();
+            work1.E(v);
+            work1.PEa1Tv1(chi,r);
             work2.E(work1);
             work2.ME(agent.dr1);
-            r.PEa1Tv1(c0*a.type.rm(), work2);
+            r.PEa1Tv1(c0, work2);
             agent.dr1.E(work1);
             agent.dr2.PEa1Tv1(c2,work2);
             agent.dr3.PEa1Tv1(c3,work2);
             agent.dr4.PEa1Tv1(c4,work2);
             
-            work1.E(agent.force);
-            work1.PEa1Tv1(-(zeta+chi),p);
+            work1.Ea1Tv1(a.type.rm(),agent.force);
+            work1.PEa1Tv1(-(zeta+chi),v);
             work2.E(work1);
-            work2.ME(agent.dp1);
-            p.PEa1Tv1(c0,work2);
-            agent.dp1.E(work1);
-            agent.dp2.PEa1Tv1(c2,work2);
-            agent.dp3.PEa1Tv1(c3,work2);
-            agent.dp4.PEa1Tv1(c4,work2);
+            work2.ME(agent.dv1);
+            v.PEa1Tv1(c0,work2);
+            agent.dv1.E(work1);
+            agent.dv2.PEa1Tv1(c2,work2);
+            agent.dv3.PEa1Tv1(c3,work2);
+            agent.dv4.PEa1Tv1(c4,work2);
         }
     }//end of corrector
         
@@ -132,12 +129,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             Atom a = atomIterator.nextAtom();
             Agent agent = (Agent)a.ia;
             Vector r = a.coord.position();
-            Vector p = a.coord.momentum();
-            double rm = a.coord.rm();
-            r.PEa1Tv1(p1*rm, agent.dr1);
-            r.PEa1Tv1(p2*rm, agent.dr2);
-            r.PEa1Tv1(p3*rm, agent.dr3);
-            r.PEa1Tv1(p4*rm, agent.dr4);
+            Vector v = ((ICoordinateKinetic)a.coord).velocity();
+            r.PEa1Tv1(p1, agent.dr1);
+            r.PEa1Tv1(p2, agent.dr2);
+            r.PEa1Tv1(p3, agent.dr3);
+            r.PEa1Tv1(p4, agent.dr4);
             
             agent.dr1.PEa1Tv1(p1, agent.dr2);
             agent.dr1.PEa1Tv1(p2, agent.dr3);
@@ -148,23 +144,21 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             
             agent.dr3.PEa1Tv1(p1, agent.dr4);
             
-            p.PEa1Tv1(p1, agent.dp1);
-            p.PEa1Tv1(p2, agent.dp2);
-            p.PEa1Tv1(p3, agent.dp3);
-            p.PEa1Tv1(p4, agent.dp4);
+            v.PEa1Tv1(p1, agent.dv1);
+            v.PEa1Tv1(p2, agent.dv2);
+            v.PEa1Tv1(p3, agent.dv3);
+            v.PEa1Tv1(p4, agent.dv4);
             
-            agent.dp1.PEa1Tv1(p1, agent.dp2);
-            agent.dp1.PEa1Tv1(p2, agent.dp3);
-            agent.dp1.PEa1Tv1(p3, agent.dp4);
+            agent.dv1.PEa1Tv1(p1, agent.dv2);
+            agent.dv1.PEa1Tv1(p2, agent.dv3);
+            agent.dv1.PEa1Tv1(p3, agent.dv4);
             
-            agent.dp2.PEa1Tv1(p1, agent.dp3);
-            agent.dp2.PEa1Tv1(p2, agent.dp4);
+            agent.dv2.PEa1Tv1(p1, agent.dv3);
+            agent.dv2.PEa1Tv1(p2, agent.dv4);
             
-            agent.dp3.PEa1Tv1(p1, agent.dp4);
+            agent.dv3.PEa1Tv1(p1, agent.dv4);
         }
     }
-//--------------------------------------------------------------
-
 
     public void reset() {
         //XXX is this check really necessary?
@@ -174,20 +168,18 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             Agent agent = (IntegratorGear4.Agent)a.ia;
-            agent.dr1.E(a.coord.momentum());
-            agent.dr2.E(agent.force);
+            agent.dr1.E(((ICoordinateKinetic)a.coord).velocity());
+            agent.dr2.Ea1Tv1(a.type.rm(),agent.force);
             agent.dr3.E(0.0);
             agent.dr4.E(0.0);
-            agent.dp1.E(agent.force);
-            agent.dp2.E(0.0);
-            agent.dp3.E(0.0);
-            agent.dp4.E(0.0);
+            agent.dv1.Ea1Tv1(a.type.rm(),agent.force);
+            agent.dv2.E(0.0);
+            agent.dv3.E(0.0);
+            agent.dv4.E(0.0);
         }
         super.reset();
     }
               
-//--------------------------------------------------------------
-
     public Object makeAgent(Atom a) {
         return new Agent(space,a);
     }
@@ -196,7 +188,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         public Atom atom;
         public Vector force;
         public Vector dr1, dr2, dr3, dr4;
-        public Vector dp1, dp2, dp3, dp4;
+        public Vector dv1, dv2, dv3, dv4;
 
         public Agent(Space space, Atom a) {
             atom = a;
@@ -205,10 +197,10 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             dr2 = space.makeVector();
             dr3 = space.makeVector();
             dr4 = space.makeVector();
-            dp1 = space.makeVector();
-            dp2 = space.makeVector();
-            dp3 = space.makeVector();
-            dp4 = space.makeVector();
+            dv1 = space.makeVector();
+            dv2 = space.makeVector();
+            dv3 = space.makeVector();
+            dv4 = space.makeVector();
         }
         
         public Vector force() {return force;}

@@ -10,10 +10,11 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Integrator.Forcible;
+import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 
 /* History of changes
@@ -30,6 +31,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     private final Space space;
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final MeterTemperature meterTemperature = new MeterTemperature();
+    private final AtomActionRandomizeVelocity velocityRandomizer;
     
     //Fields for Andersen thermostat
     double nu = 0.001;  //heat bath "collision" frequency
@@ -39,7 +41,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         super(potentialMaster);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
-        
+        velocityRandomizer = new AtomActionRandomizeVelocity();
         setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
     }
     
@@ -91,9 +93,9 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             Atom a = atomIterator.nextAtom();  //  advancing positions full step
             MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
             Vector r = a.coord.position();
-            Vector p = a.coord.momentum();
-            p.PEa1Tv1(0.5*timeStep,agent.force);  // p += f(old)*dt/2
-            r.PEa1Tv1(timeStep*a.coord.rm(),p);         // r += p*dt/m
+            Vector v = ((ICoordinateKinetic)a.coord).velocity();
+            v.PEa1Tv1(0.5*timeStep*a.type.rm(),agent.force);  // p += f(old)*dt/2
+            r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             agent.force.E(0.0);
         }
                 
@@ -104,7 +106,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();
         while(atomIterator.hasNext()) {     //loop over atoms again
             Atom a = atomIterator.nextAtom();   //  finishing the momentum step
-            a.coord.momentum().PEa1Tv1(0.5*timeStep,((MyAgent)a.ia).force);  //p += f(new)*dt/2
+            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*a.type.rm(),((MyAgent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
         	if(!andersenThermostat) {
@@ -113,7 +115,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 	            atomIterator.reset();
 	            while(atomIterator.hasNext()) {
 	                Atom a = atomIterator.nextAtom();
-	                a.coord.momentum().TE(s); //scale momentum
+	                ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
 	            }
 	        } else {
             //Andersen thermostat
@@ -121,11 +123,21 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             double nut = nu*timeStep;
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.nextAtom();
-                if(Simulation.random.nextDouble() < nut) a.coord.randomizeMomentum(temperature);  //this method in Atom needs some work
-            }
+                if(Simulation.random.nextDouble() < nut) velocityRandomizer.actionPerformed(a);
         	}
+            }
         }
         return;
+    }
+    
+    
+    
+    /* (non-Javadoc)
+     * @see etomica.Integrator#setTemperature(double)
+     */
+    public void setTemperature(double temperature) {
+        super.setTemperature(temperature);
+        velocityRandomizer.setTemperature(temperature);
     }
     
     public void setAndersenNu(double n) {nu = n;}
