@@ -39,6 +39,13 @@ public class DataManager implements Integrator.IntervalListener {
             Simulation.getDefault().register(this);
         }
 	}
+    
+    /**
+     * Constructs DataManager with the given DataSource and a single DataSink.
+     */
+    public DataManager(DataSource dataSource, DataSink dataSink) {
+        this(dataSource, new DataSink[] {dataSink});
+    }
 	
 	/**
 	 * Constructor with AccumulatorAverage as the default DataSink.
@@ -115,12 +122,14 @@ public class DataManager implements Integrator.IntervalListener {
 		for(int i=0; i<dataSinks.length; i++) {
 			dataSinkList.add(dataSinks[i]);
 			dataSinks[i].setDimension(dataSource.getDimension());
+            dataSinks[i].setLabel(dataSource.getLabel());
 		}
 	}
 	
 	public void addDataSink(DataSink dataSink) {
 		dataSinkList.add(dataSink);
 		dataSink.setDimension(dataSource.getDimension());
+        dataSink.setLabel(dataSource.getLabel());
 	}
 	
 	/**
