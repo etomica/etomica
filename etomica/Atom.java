@@ -22,7 +22,7 @@ public class Atom implements java.io.Serializable {
     }
     public Atom(Space space, AtomType type, 
                     AtomTreeNode.Factory nodeFactory, AtomTreeNodeGroup parent) {
-        this(space, type, nodeFactory, IteratorFactorySimple.INSTANCE.atomSequencerFactory(), parent);
+        this(space, type, nodeFactory, IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
     }
     public Atom(Space space, AtomType type, 
                     AtomTreeNode.Factory nodeFactory,
@@ -35,11 +35,6 @@ public class Atom implements java.io.Serializable {
         if(parent != null) parent.addAtomNotify(this);
         
 //        coord.setMass(type.getMass());//handled in type.initialize statement
-        if(atomLinkCount > 0) atomLink = new AtomLinker[atomLinkCount];//this is to be removed
-        if(atomListCount > 0) atomList = new AtomList[atomListCount];
-        for(int i=0; i<atomListCount; i++) {
-            atomList[i] = new AtomList();
-        }
         
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
         for(int i=0; i<agentSource.length; i++) {
@@ -77,31 +72,40 @@ public class Atom implements java.io.Serializable {
 
     public Integrator.Agent ia;
                 
-//    private Atom nextAtom, previousAtom;
-
     public final AtomTreeNode node;
         
     public final AtomType type;
     
     public final AtomSequencer seq;// = new AtomSequencerSimple(this);
     
+    /**
+     * An array of agents, or objects made by an agent source and added to this
+     * atom (and all others produced by this atom's creator factory) 
+     * to perform some function or store data for the source.  
+     * Placement of agents in this array is managed by the factory
+     * producing this atom.  An agent source registers itself with the factory
+     * via the requestAgentIndex method, and the integer returned with that call
+     * indicates the place in this array where the source can find its agent
+     * in this atom.
+     */
     public Object[] agents;
     
- /** This is an array of AtomLinkers that enable lists of atoms to be constructed
-  *  and associated with this atom.  Useful for setting up neighbor lists, for example, or
-  *  for defining bonds between atoms.
-  *  Each element of this array points to the first linker in some linked list of atoms.
-  *  Different simulation elements may wish to establish lists; they can do
-  *  so without interfering with each other by requesting an index from the requestAtomLinkIndex()
-  *  method of this class.  This returns a unique index that the element can use to construct a
-  *  linked list of atoms beginning from atomLink[index].
-  *  In many situations, this array is not used at all.
-  *  @see Iterator.FixedNeighbors
-  */
-    public AtomLinker[] atomLink;
-    public AtomList[] atomList;
+    /**
+     * An array of agents, or objects made by an agent source and added to this
+     * atom (and all other atoms) to perform some function or store data for the source.
+     * Placement of agents in this array is managed by the Atom class.  An agent
+     * source registers itself with Atom via the Atom.requestAgentIndex method, and
+     * the integer returned with that call indicates the place in this array where
+     * the source can find its agent in this atom.
+     * Differs from agents class in that all atoms get an instance of an agent if put
+     * in the allatomAgents array, while only atoms produced by a particular factory
+     * are given agents that are in the agents array.
+     */
     public Object[] allatomAgents;
     
+    /**
+     * Array used to record all agent sources requesting to place an agent in every atom.
+     */
     private static AgentSource[] agentSource = new AgentSource[0];
     
     /**
@@ -117,27 +121,6 @@ public class Atom implements java.io.Serializable {
         agentSource = newSource;
         return index;
     }    
-    
-    /**
-     * Counter of the number of atom link index requests that have been fielded so far.
-     * @deprecated
-     */
-    private static int atomLinkCount = 0;
-    
-    //replaces atomLinkCount
-    private static int atomListCount = 0;
-    
-    //replaces AtomLinkIndex
-    public static int requestAtomListIndex() {return atomListCount++;}
-    /**
-     * Returns a unique index that can be used by a simulation element to set up a linked
-     * list of atoms associated with each atom.  If idx is the value returned by this
-     * method, the element is permitted to set up a linked list of atoms beginning
-     * with atomLink[idx].
-     * @deprecated
-     */
-//    public static int requestAtomLinkIndex() {return atomLinkCount++;}
-    
     
     /**
      * Interface for an object that makes an agent to be placed in each atom

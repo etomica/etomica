@@ -16,7 +16,7 @@ public class DeviceControllerButton extends DeviceButton {
         this(sim);
         controller = c;
         setAction(new ActionGraphic(new Toggle(c)));
-        setLabel("Start");
+        setLabel("  Start  ");
     }
     
     public void setController(Controller c) {controller = c;}
@@ -28,7 +28,7 @@ public class DeviceControllerButton extends DeviceButton {
             super.actionPerformed(c);
             String text;
             if(c.isPaused()) text = "Continue";
-            else text = "Pause";
+            else text = "  Pause ";
             DeviceControllerButton.this.setLabel(text);
         }
     }//end Toggle

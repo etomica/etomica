@@ -15,7 +15,7 @@ public class AtomIteratorNonbonded implements AtomIterator {
     private Atom nextAtom;
     
     public AtomIteratorNonbonded(Simulation sim) {
-        iterator = sim.iteratorFactory.makeIntragroupIterator();
+        iterator = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
     public boolean hasNext() {return hasNext;}

@@ -100,7 +100,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     //not carefully implemented
     public Atom nearestSite(Space.Vector r) {
         for(int i=D-1; i>=0; i--) {
-            idx[i] = (int)(r.component(i)/primitiveVectorLength[i] + 0.5);
+            idx[i] = (int)(r.x(i)/primitiveVectorLength[i] + 0.5);
         }
         return site(idx);
     }

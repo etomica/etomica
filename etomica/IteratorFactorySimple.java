@@ -3,25 +3,21 @@ package etomica;
 public class IteratorFactorySimple implements IteratorFactory {
     
     public static final IteratorFactorySimple INSTANCE = new IteratorFactorySimple();
-    
- //   public AtomIterator makeGroupIteratorSimple() {return new AtomIteratorListSimple();}
-    
-    public AtomIterator makeGroupIteratorSequential() {return new Iterator();}
-//    public AtomIterator makeAtomIterator() {return new AtomIteratorSequential();}
-
-    public AtomSequencer makeAtomSequencer(Atom atom) {return new AtomSequencerSimple(atom);}
         
-    public AtomIterator makeIntragroupIterator() {return new Iterator();}
-    public AtomIterator makeIntergroupIterator() {return new Iterator();}
- //   public AtomIterator makeNeighborIterator() {return new AtomIteratorSequential();}
+    public AtomIterator makeGroupIteratorSequential() {return new Iterator();}
+
+    public AtomSequencer makeSimpleSequencer(Atom atom) {return new AtomSequencerSimple(atom);}
+        
+    public AtomIterator makeIntragroupNbrIterator() {return new Iterator();}
+    public AtomIterator makeIntergroupNbrIterator() {return new Iterator();}
     
     public AtomSequencer makeNeighborSequencer(Atom atom) {return new AtomSequencerSimple(atom);}
     
-    public Class atomSequencerClass() {return AtomSequencerSimple.class;}
+    public Class simpleSequencerClass() {return AtomSequencerSimple.class;}
     
     public Class neighborSequencerClass() {return AtomSequencerSimple.class;}
     
-    public AtomSequencer.Factory atomSequencerFactory() {return AtomSequencerSimple.FACTORY;}
+    public AtomSequencer.Factory simpleSequencerFactory() {return AtomSequencerSimple.FACTORY;}
     
     public AtomSequencer.Factory neighborSequencerFactory() {return AtomSequencerSimple.FACTORY;}
    

@@ -56,8 +56,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 
         g.setColor(displayPhase.getColorScheme().atomColor(a));
             
-        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
-        baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
+        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
+        baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom, specific to the dimension */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter());
@@ -84,8 +84,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
-            xP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
-            yP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
+            xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
+            yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
             int t = Math.max(1,(int)((double)((AtomType.Wall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
             if(!(((AtomType.Wall)a.type).isHorizontal() || ((AtomType.Wall)a.type).isVertical())) {  //not horizontal or vertical; draw line
                 int x1 = xP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getCosZ());
@@ -94,8 +94,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
             else if(((AtomType.Wall)a.type).isLongWall()) {
                 java.awt.Rectangle rect = g.getClipBounds();
-                //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().component(1));
-                //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().component(0));
+                //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(1));
+                //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(0));
                 int wP = ((AtomType.Wall)a.type).isVertical() ? t : Integer.MAX_VALUE;
                 int hP = ((AtomType.Wall)a.type).isHorizontal() ? t : Integer.MAX_VALUE;
                 //int X = vertical ? xP : origin[0];
@@ -165,8 +165,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             g.setColor(Color.gray);
             double toPixels = displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
             g.drawRect(displayPhase.getOrigin()[0],displayPhase.getOrigin()[1],
-                        (int)(toPixels*dimensions.component(0))-1,
-                        (int)(toPixels*dimensions.component(1))-1);
+                        (int)(toPixels*dimensions.x(0))-1,
+                        (int)(toPixels*dimensions.x(1))-1);
         }
 
 

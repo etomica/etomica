@@ -31,6 +31,15 @@ public interface AtomIterator {
      */
     public Atom next();
     
+    /**
+     * Performs given actions over all the iterates of this iterator.  Iterates
+     * are defined according to most recent call to a reset method, or to
+     * a class-dependent default if reset was not previously called.  A call to reset
+     * followed by this method should cause iteration over the same set of atoms
+     * that would be returned by looping using hasNext/next.  Unlike the
+     * hasNext/next iteration, allAtoms can be called successively without intervening
+     * reset calls to loop over the same set of atoms repeatedly.
+     */
     public void allAtoms(AtomAction act);
     
     /**

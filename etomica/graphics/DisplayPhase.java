@@ -275,8 +275,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         //Compute factor converting simulation units to pixels for this display
         toPixels = /*(int)*/(getScale()*BaseUnit.Length.Sim.TO_PIXELS);
         //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*phase().boundary().dimensions().component(0));
-        drawSize[1] = (parentSimulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().component(1));
+        drawSize[0] = (int)(toPixels*phase().boundary().dimensions().x(0));
+        drawSize[1] = (parentSimulation().space().D()==1) ? Space1D.drawingHeight: (int)(toPixels*phase().boundary().dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = computeOrigin(align[1],drawSize[1],h);
@@ -447,8 +447,8 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             double toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
             double x = (evt.getX() - centralOrigin[0])/toPixels;
             double y = (evt.getY() - centralOrigin[1])/toPixels;
-            point.setComponent(0, x);
-            point.setComponent(1, y);
+            point.setX(0, x);
+            point.setX(1, y);
    //         phase().boundary().centralImage(point);
             dpe.setPhase(phase());
             dpe.setPoint(point);

@@ -78,7 +78,7 @@ public abstract class Configuration implements java.io.Serializable {
         double delta = Lx/(double)n;
         for(int i=0; i<n; i++) {
             r[i] = new Space1D.Vector();
-            r[i].x = (i+0.5)*delta;
+            r[i].setX(0, (i+0.5)*delta);
         }
         return r;
     }
@@ -119,8 +119,8 @@ public abstract class Configuration implements java.io.Serializable {
         int ix = 0;
         int iy = 0;
         while(i < n) {
-            r[i].x = ix*moleculeInitialSpacingX + moleculeColumnsShift;
-	        r[i].y = iy*moleculeInitialSpacingY + moleculeRowsShift;
+            r[i].setX(0, ix*moleculeInitialSpacingX + moleculeColumnsShift);
+	        r[i].setX(1, iy*moleculeInitialSpacingY + moleculeRowsShift);
 	        i++;
 	        if(fillVertical) {
 	            iy++;

@@ -18,7 +18,7 @@ public class Site extends Atom {
      */
     public Site(Space space, AtomType type, AtomTreeNode.Factory nodeFactory, AtomTreeNodeGroup parent) {
         super(space, type, nodeFactory, 
-            IteratorFactorySimple.INSTANCE.atomSequencerFactory(), parent);
+            IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
     }
         
     public NeighborManager neighborManager() {return neighborManager;}

@@ -10,7 +10,7 @@ package etomica;
 public final class ApiIntraspecies1A implements AtomPairIterator {
     
     public ApiIntraspecies1A(Simulation sim) {
-        atomIterator = sim.iteratorFactory.makeIntragroupIterator();
+        atomIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
         pair = new AtomPair(sim.space);
     }
     

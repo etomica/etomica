@@ -30,7 +30,7 @@ public class PrimitiveOrthorhombic extends Primitive {
     public void setSize(double[] size) {
         if(size.length != D) throw new IllegalArgumentException("Error in PrimitiveOrthorhombic.setSize: Number of sizes given is inconsistent with number of primitive vectors");
         for(int i=0; i<D; i++) {
-            latticeVectors[i].setComponent(i,size[i]);
+            latticeVectors[i].setX(i,size[i]);
             this.size[i] = size[i];
         }
         if(lattice != null) lattice.update();
@@ -41,20 +41,20 @@ public class PrimitiveOrthorhombic extends Primitive {
      */
     public void setSize(double size) {
         for(int i=0; i<D; i++) {
-            latticeVectors[i].setComponent(i,size);
+            latticeVectors[i].setX(i,size);
             this.size[i] = size;
         }
         if(lattice != null) lattice.update();
     }
     
     public int[] latticeIndex(Space.Vector q) {
-        for(int i=0; i<D; i++) idx[i] = (int)(q.component(i)/size[i]);
+        for(int i=0; i<D; i++) idx[i] = (int)(q.x(i)/size[i]);
         return idx;
     }
 
     public int[] latticeIndex(Space.Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            idx[i] = (int)(q.component(i)/size[i]);
+            idx[i] = (int)(q.x(i)/size[i]);
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];
         }
@@ -145,12 +145,12 @@ public class UnitCell extends AbstractCell {
     public boolean inCell(Space.Vector v) {
   /*      double x = size;
         switch(D()) {
-            case 3: x = v.component(2);
-                    if(x < 0.0 || x > r[2].component(2)) return false;
-            case 2: x = v.component(1);
-                    if(x < 0.0 || x > r[1].component(1)) return false;
-            case 1: x = v.component(0);
-                    if(x < 0.0 || x > r[0].component(0)) return false;
+            case 3: x = v.x(2);
+                    if(x < 0.0 || x > r[2].x(2)) return false;
+            case 2: x = v.x(1);
+                    if(x < 0.0 || x > r[1].x(1)) return false;
+            case 1: x = v.x(0);
+                    if(x < 0.0 || x > r[0].x(0)) return false;
                     break;
             default: throw new RuntimeException("PrimitiveCubic.UnitCell.inCell not implemented for given dimension");
         }*/

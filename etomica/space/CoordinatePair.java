@@ -48,8 +48,8 @@ public final class CoordinatePair extends Space.CoordinatePair {
     }
             
     public Space.Vector dr() {return dr;}
-    public double dr(int i) {return dr.component(i);}
-    public double dv(int i) {return dv.component(i);}
+    public double dr(int i) {return dr.x(i);}
+    public double dv(int i) {return dv.x(i);}
     public double v2() {return dv.squared();}
     public double vDot(Space.Vector u) {return dv.dot(u);}
     public double vDotr() {return dv.dot(dr);}

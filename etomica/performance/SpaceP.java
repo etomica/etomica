@@ -172,9 +172,9 @@ public class SpaceP extends Space{
 
         public int D() {return D;}
 
-        public double component(int i) {return X[i];}
+        public double x(int i) {return X[i];}
 
-        public void setComponent(int i, double d) {X[i]=d;}
+        public void setX(int i, double d) {X[i]=d;}
 
         public void E(Vector u) {for(int i=0;i<D;i++)X[i]=u.X[i];}
        
@@ -365,9 +365,9 @@ public class SpaceP extends Space{
 
         public Space.Vector momentum() {return p;}
 
-        public double position(int i) {return r.component(i);}
+        public double position(int i) {return r.x(i);}
 
-        public double momentum(int i) {return p.component(i);}
+        public double momentum(int i) {return p.x(i);}
 
         
 
@@ -542,7 +542,7 @@ public class SpaceP extends Space{
         public double dv(int i) {return 0.0;}//dv.X[i];}
         public double v2() {return dvx*dvx + dvy*dvy + dvz*dvz;}
         public double vDot(Space.Vector u) {return vDot((Space3D.Vector)u);}
-        public double vDot(Space3D.Vector u) {return dvx*u.x + dvy*u.y + dvz*u.z;}
+        public double vDot(Space3D.Vector u) {return dvx*u.x(0) + dvy*u.x(1) + dvz*u.x(2);}
         public double vDotr() {return 0.0;}//dr.x*dvx + dr.y*dvy + dr.z*dvz;}
         public void push(double impulse) {/*
             c1.p.x += impulse*dr.x;
@@ -660,18 +660,18 @@ public class SpaceP extends Space{
         }
         public void translateTo(Space.Vector u) {
             if(!(u instanceof Vector)) {
-                work2.X[0] = ((Space3D.Vector)u).x;
-                work2.X[1] = ((Space3D.Vector)u).y;
-                work2.X[2] = ((Space3D.Vector)u).z;
+                work2.X[0] = ((Space3D.Vector)u).x(0);
+                work2.X[1] = ((Space3D.Vector)u).x(1);
+                work2.X[2] = ((Space3D.Vector)u).x(2);
             } else work2.E(u);
             work.Ea1Tv1(-1,position()); //position() uses work, so need this first
             work.PE((Vector)work2);
             translateBy(work);
         }
         public void translateTo(Space3D.Vector u) {
-            work2.X[0] = u.x;
-            work2.X[1] = u.y;
-            work2.X[2] = u.z;
+            work2.X[0] = u.x(0);
+            work2.X[1] = u.x(1);
+            work2.X[2] = u.x(2);
             translateTo(work2);
         }
         public void displaceBy(Space.Vector u) {
@@ -808,15 +808,15 @@ public class SpaceP extends Space{
             
             Space.Vector zAxis = findPerpend(xAxis, yAxis);
             
-            A[0][0]=zAxis.component(2)*xAxis.component(0);
-            A[0][1]=zAxis.component(2)*xAxis.component(1);
-            A[0][2]=-zAxis.component(0);
-            A[1][0]=zAxis.component(0)*yAxis.component(2)*xAxis.component(0) - yAxis.component(1)*xAxis.component(1);
-            A[1][1]=zAxis.component(0)*yAxis.component(2)*xAxis.component(1)+xAxis.component(0)*yAxis.component(1);
-            A[1][2]=zAxis.component(2)*yAxis.component(2);
-            A[2][0] =yAxis.component(1)*zAxis.component(0)*xAxis.component(0)+ yAxis.component(2)*xAxis.component(1);
-            A[2][1] =yAxis.component(1)*zAxis.component(0)*xAxis.component(1) -yAxis.component(2)*xAxis.component(0);
-            A[2][2] = yAxis.component(1)*zAxis.component(2);
+            A[0][0]=zAxis.x(2)*xAxis.x(0);
+            A[0][1]=zAxis.x(2)*xAxis.x(1);
+            A[0][2]=-zAxis.x(0);
+            A[1][0]=zAxis.x(0)*yAxis.x(2)*xAxis.x(0) - yAxis.x(1)*xAxis.x(1);
+            A[1][1]=zAxis.x(0)*yAxis.x(2)*xAxis.x(1)+xAxis.x(0)*yAxis.x(1);
+            A[1][2]=zAxis.x(2)*yAxis.x(2);
+            A[2][0] =yAxis.x(1)*zAxis.x(0)*xAxis.x(0)+ yAxis.x(2)*xAxis.x(1);
+            A[2][1] =yAxis.x(1)*zAxis.x(0)*xAxis.x(1) -yAxis.x(2)*xAxis.x(0);
+            A[2][2] = yAxis.x(1)*zAxis.x(2);
             bodyFrame[0].E(A[0]);
             bodyFrame[1].E(A[1]);
             bodyFrame[2].E(A[2]);
@@ -825,24 +825,24 @@ public class SpaceP extends Space{
       public Space.Vector findPerpend(Space.Vector u){
            SpaceP.Vector v = new SpaceP.Vector();
            double a, b, c;
-           if (u.component(0)!= 0){
+           if (u.x(0)!= 0){
                 b = (2*Simulation.random.nextDouble() - 1.0);
                 c = (2*Simulation.random.nextDouble() - 1.0);
-                a =- (u.component(1)*b+ u.component(2)*c)/u.component(0);
+                a =- (u.x(1)*b+ u.x(2)*c)/u.x(0);
            }
-           else if ( u.component(1)!=0){
+           else if ( u.x(1)!=0){
                 a =(2*Simulation.random.nextDouble() -1.0);
                 b =(2*Simulation.random.nextDouble() -1.0);
-                c =-b*u.component(1)/u.component(2);
+                c =-b*u.x(1)/u.x(2);
              }
             else {
                 a =(2*Simulation.random.nextDouble() -1.0);
                 b =(2*Simulation.random.nextDouble() -1.0);
                 c =(2*Simulation.random.nextDouble() -1.0);
             }
-            v.setComponent(0, a);
-            v.setComponent(1, b);
-            v.setComponent(2, c);
+            v.setX(0, a);
+            v.setX(1, b);
+            v.setX(2, c);
             v.normalize();
             return v;
             
@@ -984,13 +984,15 @@ public class SpaceP extends Space{
         }
         
         public void nearestImage(Space3D.Vector dr) {
+            throw new RuntimeException("SpaceP.CoordinatePair.nearestImage(Space3D.Vector) not implemented");
+            /*  broken because xyz are private in Space3D.Vector
             while(dr.x > d02x)dr.x -= dmx;
             while(dr.x <_d02x)dr.x += dmx;
             while(dr.y > d02y)dr.y -= dmy;
             while(dr.y <_d02y)dr.y += dmy;
             while(dr.z > d02z)dr.z -= dmz;
-            while(dr.z <_d02z)dr.z += dmz;
-            System.out.println("nearestImage in SpaceP.BoundaryPeriodicSquare");
+            while(dr.z <_d02z)dr.z += dmz;*/
+      //      System.out.println("nearestImage in SpaceP.BoundaryPeriodicSquare");
         }
         
        // public void centralImage(Coordinate c) {centralImage(c.r);}

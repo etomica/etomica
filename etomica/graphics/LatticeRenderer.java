@@ -4,8 +4,8 @@ import etomica.lattice.*;
 import java.awt.*;
 
 /**
- * Methods for drawing a lattice to a display.
- * Works for 2D only.
+ * Methods for drawing a lattice to a display (2D only).
+ * Defines color schemes useful to examination of cell neighbor list behavior.
  */
  
  //plan to develop to configure for different types of drawing.
@@ -46,10 +46,10 @@ public class LatticeRenderer implements Drawable {
                         v2 = (Space2D.Vector)vertex[2];
                         break;
                 }
-                int x1 = origin[0] + (int)(toPixels*v1.x);
-                int y1 = origin[1] + (int)(toPixels*v1.y);
-                int x2 = origin[0] + (int)(toPixels*v2.x);
-                int y2 = origin[1] + (int)(toPixels*v2.y);
+                int x1 = origin[0] + (int)(toPixels*v1.x(0));
+                int y1 = origin[1] + (int)(toPixels*v1.x(1));
+                int x2 = origin[0] + (int)(toPixels*v2.x(0));
+                int y2 = origin[1] + (int)(toPixels*v2.x(1));
                 g.drawLine(x1, y1, x2, y2);
             }
         }
@@ -70,13 +70,13 @@ public class LatticeRenderer implements Drawable {
     //    private final IteratorDirective directive = new IteratorDirective(IteratorDirective.UP);
         
         public ColorSchemeNeighbor(Simulation sim) {
-            nbrIterator = sim.iteratorFactory.makeIntragroupIterator();
+            nbrIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
         }
         
         public void colorAllAtoms(Phase phase) {
             allIterator.setBasis(phase.speciesMaster.atomList);
             allIterator.reset();
-            while(allIterator.hasNext()) allIterator.next().allatomAgents[agentIndex] = Color.black;
+            while(allIterator.hasNext()) allIterator.next().allatomAgents[agentIndex] = Color.green;
             nbrIterator.reset(directive);
             while(nbrIterator.hasNext()) nbrIterator.next().allatomAgents[agentIndex] = Color.blue;
             referenceAtom.allatomAgents[agentIndex] = Color.red;

@@ -224,7 +224,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
                 double d = ((AtomType.Sphere)atom.type).diameter();
                 int D = dim.D();
                 for(int i=0; i<D; i++) {
-                    double t = (dim.component(i)-d)/p.component(i);
+                    double t = (dim.x(i)-d)/p.x(i);
                     t = (t < 0) ? -t : t;//abs
                     tmin = (t < tmin) ? t : tmin;
                 }

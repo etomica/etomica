@@ -96,10 +96,10 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
         }
         double a = 0.0;
         if(wall.ia instanceof Integrator.Agent.Forcible  && !wall.coord.isStationary()) {
-            a = ((Integrator.Agent.Forcible)wall.ia).force().component(i) * wall.coord.rm();
+            a = ((Integrator.Agent.Forcible)wall.ia).force().x(i) * wall.coord.rm();
         }
         if(sphere.ia instanceof Integrator.Agent.Forcible  && !sphere.coord.isStationary()) {
-            a -= ((Integrator.Agent.Forcible)sphere.ia).force().component(i) * sphere.coord.rm();
+            a -= ((Integrator.Agent.Forcible)sphere.ia).force().x(i) * sphere.coord.rm();
         }
         //wall or sphere has non-zero force
         double time = 0.0;
@@ -109,7 +109,7 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
                 if(dr*dv < 0.0) return 0.0;  //approaching; collide now
                 else {  //separating; move just outside contact and continue to compute collision time
                     moveToContact(i,pair);
-                    dr = wall.coord.position().component(i)-sphere.coord.position().component(i);
+                    dr = wall.coord.position().x(i)-sphere.coord.position().x(i);
                 }
             }  
             dr += (dr > 0.0) ? -collisionRadius : +collisionRadius;
@@ -162,14 +162,14 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
                 double px = MaxwellBoltzmann.randomMomentumComponent(temperature,sphere.coord.mass());
                 double py = MaxwellBoltzmann.randomMomentumComponent(temperature,sphere.coord.mass());
                 //enforce reflection from wall; new momentum must have opposite sign to old momentum
-                if(i==0 && px*sphere.coord.momentum().component(i) > 0) px = -px;
-                else if(i==1 && py*sphere.coord.momentum().component(i) > 0) py = -py;
-                sphere.coord.momentum().setComponent(0,px);
-                sphere.coord.momentum().setComponent(1,py);
+                if(i==0 && px*sphere.coord.momentum().x(i) > 0) px = -px;
+                else if(i==1 && py*sphere.coord.momentum().x(i) > 0) py = -py;
+                sphere.coord.momentum().setx(0,px);
+                sphere.coord.momentum().setx(1,py);
             }
             else {
                 sphere.coord.momentum().TE(i,-1.0);
-    //            wallType.pAccumulator += 2*sphere.momentum().component(i);
+    //            wallType.pAccumulator += 2*sphere.momentum().x(i);
             }*/
                 sphere.coord.momentum().TE(i,-1.0);
  //               wallType.pAccumulator += 2.*sphere.coord.momentum(i);
@@ -197,8 +197,8 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
             double p2Tot = px*px + py*py;
             px = xSign*Math.sqrt(Simulation.random.nextDouble()*p2Tot);
             py = ySign*Math.sqrt(p2Tot - px*px);
-            sphere.coord.momentum().setComponent(0,px);
-            sphere.coord.momentum().setComponent(1,py);
+            sphere.coord.momentum().setX(0,px);
+            sphere.coord.momentum().setX(1,py);
         }
         double deltaP = sphere.coord.momentum(i) - pOld;
         if(!wall.coord.isStationary()) wall.coord.momentum().PE(i,-deltaP);
@@ -220,17 +220,17 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
             Space.Vector r1 = pair.atom1.coord.position();
             Space.Vector r2 = pair.atom2.coord.position();
             if(pair.atom2.coord.isStationary()) 
-                r1.setComponent(i,r2.component(i)+mult*(collisionRadius+1e-6));
+                r1.setX(i,r2.x(i)+mult*(collisionRadius+1e-6));
             else if(pair.atom1.coord.isStationary())
-                r2.setComponent(i,r1.component(i)-mult*(collisionRadius+1e-6));
+                r2.setX(i,r1.x(i)-mult*(collisionRadius+1e-6));
             else {
-                double mid = (r1.component(i)+r2.component(i))*0.5;
-                r1.setComponent(i,mid+0.5*mult*(collisionRadius+1e-6));
-                r2.setComponent(i,mid-0.5*mult*(collisionRadius+1e-6));
+                double mid = (r1.x(i)+r2.x(i))*0.5;
+                r1.setX(i,mid+0.5*mult*(collisionRadius+1e-6));
+                r2.setX(i,mid-0.5*mult*(collisionRadius+1e-6));
      //           pair.atom2.r.PE(i,delta);
      //           pair.atom1.r.PE(i,-delta);
             }
-     //       delta = Math.abs(pair.atom2.r.component(i)-pair.atom1.r.component(i)) - collisionRadius;
+     //       delta = Math.abs(pair.atom2.r.x(i)-pair.atom1.r.x(i)) - collisionRadius;
      //       System.out.println(delta);
         }
     }    

@@ -355,18 +355,21 @@ public static class Factory extends AtomFactory {
             for(int i=0; i<4; i++) {
                 p[i] = new Space3D.Vector();
             }
-            p[0].x = 0.0;
-            p[0].y = 0.0;
-            p[0].z = 0.0;
-            p[1].x = 0.0;
-            p[1].y = 0.5*latticeConstant;
-            p[1].z = 0.5*latticeConstant;
-            p[2].x = 0.5*latticeConstant;
-            p[2].y = 0.0;
-            p[2].z = 0.5*latticeConstant;
-            p[3].x = 0.5*latticeConstant;
-            p[3].y = 0.5*latticeConstant;
-            p[3].z = 0.0;
+            p[0].setX(0,0.0);
+            p[0].setX(1,0.0);
+            p[0].setX(2,0.0);
+            
+            p[1].setX(0,0.0);
+            p[1].setX(1,0.5*latticeConstant);
+            p[1].setX(2,0.5*latticeConstant);
+            
+            p[2].setX(0,0.5*latticeConstant);
+            p[2].setX(1,0.0);
+            p[2].setX(2,0.5*latticeConstant);
+            
+            p[3].setX(0,0.5*latticeConstant);
+            p[3].setX(1,0.5*latticeConstant);
+            p[3].setX(2,0.0);
             return p;
         }//end of unitCell  
     }//end of Configuration4

@@ -50,7 +50,7 @@ public class Space2D extends Space implements EtomicaElement {
     public final static class Vector extends Space.Vector {  //declared final for efficient method calls
         public static final Vector ORIGIN = new Vector(0.0,0.0);  //anything using WORK is not thread-safe
         public static final Vector WORK = new Vector();
-        public double x, y;
+        private double x, y;
         public Vector () {x = 0.0; y = 0.0;}
         public Vector (double x, double y) {this.x = x; this.y = y;}
         public Vector (double[] a) {x = a[0]; y = a[1];}//should check length of a for exception
@@ -65,8 +65,8 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public int length() {return D;}//bad name for this
         public int D() {return D;}
-        public double component(int i) {return (i==0) ? x : y;}
-        public void setComponent(int i, double d) {if(i==0) x=d; else y=d;}
+        public double x(int i) {return (i==0) ? x : y;}
+        public void setX(int i, double d) {if(i==0) x=d; else y=d;}
         public void E(Vector u) {x = u.x; y = u.y;}
         public void E(double[] u) {x = u[0]; y = u[1];}  //should check length of array for exception
         public void E(double a) {x = a; y = a;}
@@ -118,15 +118,15 @@ public class Space2D extends Space implements EtomicaElement {
         public double squared() {return x*x + y*y;}
         public double dot(Vector u) {return x*u.x + y*u.y;}
         public Space3D.Vector cross(Space3D.Vector u) {//not thread safe
-            Space3D.Vector.WORK.x = y*u.z;
-            Space3D.Vector.WORK.y = -x*u.z;
-            Space3D.Vector.WORK.z = x*u.y - y*u.x;
+            Space3D.Vector.WORK.setX(0, y*u.x(2));
+            Space3D.Vector.WORK.setX(1,-x*u.x(2));
+            Space3D.Vector.WORK.setX(2, x*u.x(1) - y*u.x(0));
             return Space3D.Vector.WORK;
         }
         public Space3D.Vector cross(Space2D.Vector u) {//not thread safe
-            Space3D.Vector.WORK.x = 0.0;
-            Space3D.Vector.WORK.y = 0.0;
-            Space3D.Vector.WORK.z = x*u.y - y*u.x;
+            Space3D.Vector.WORK.setX(0, 0.0);
+            Space3D.Vector.WORK.setX(1, 0.0);
+            Space3D.Vector.WORK.setX(2, x*u.y - y*u.x);
             return Space3D.Vector.WORK;
         }
         /**
@@ -134,8 +134,8 @@ public class Space2D extends Space implements EtomicaElement {
          * onto the 2D plane.  This vector becomes the result of (this vector) X u.
          */
         public void XE(Space3D.Vector u) {
-            double xNew = y*u.z;
-            y = -x*u.z;
+            double xNew = y*u.x(2);
+            y = -x*u.x(2);
             x = xNew;
         }
             
@@ -322,8 +322,8 @@ public class Space2D extends Space implements EtomicaElement {
                 
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
-        public double position(int i) {return r.component(i);}
-        public double momentum(int i) {return p.component(i);}
+        public double position(int i) {return r.x(i);}
+        public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {
             double tM = t*rm(); // t/mass
@@ -580,9 +580,9 @@ public class Space2D extends Space implements EtomicaElement {
             super(a);
             I = ((AtomType.SphericalTop)((Atom)a).type).momentOfInertia();
         }
-        public Space3D.Vector angularMomentum() {vector.z = L; return vector;}
-        public Space3D.Vector angularVelocity() {vector.z = L/I[0]; return vector;}
-        public void angularAccelerateBy(Space3D.Vector t) {L += t.z;}
+        public Space3D.Vector angularMomentum() {vector.setX(2,L); return vector;}
+        public Space3D.Vector angularVelocity() {vector.setX(2,L/I[0]); return vector;}
+        public void angularAccelerateBy(Space3D.Vector t) {L += t.x(2);}
         public Space.Orientation orientation() {return orientation;}
         public double kineticEnergy() {return super.kineticEnergy() + 0.5*L*L/I[0];}
         public void freeFlight(double t) {

@@ -60,7 +60,7 @@ public class Space3D extends Space implements EtomicaElement {
     public static final class Vector extends Space.Vector{
         public static final Vector ORIGIN = new Vector(0.0, 0.0, 0.0);
         public static final Vector WORK = new Vector();
-        public double x, y, z;
+        private double x, y, z;
         public int length() {return D;}
         public int D() {return D;}
         public Vector () {x = 0.0; y = 0.0; z = 0.0;}
@@ -68,7 +68,7 @@ public class Space3D extends Space implements EtomicaElement {
         public Vector (double[] a) {x = a[0]; y = a[1]; z = a[2];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
         public String toString() {return "("+x+", "+y+", "+z+")";}
-        public double component(int i) {return((i==0) ? x : (i==1) ? y : z);}
+        public double x(int i) {return((i==0) ? x : (i==1) ? y : z);}
         public double[] toArray() {return new double[] {x, y, z};}
         public boolean equals(Space.Vector v) {return equals((Vector)v);}
         public boolean equals(Vector v) {return (x == v.x) && (y == v.y) && (z == v.z);}
@@ -158,7 +158,7 @@ public class Space3D extends Space implements EtomicaElement {
             y = Simulation.random.nextDouble() - 0.5;
             z = Simulation.random.nextDouble() - 0.5;
         }
-        public void setComponent(int a, double d) { if(a==0) x=d; else if(a==1) y=d; else z=d;}
+        public void setX(int a, double d) { if(a==0) x=d; else if(a==1) y=d; else z=d;}
         public void setRandomSphere() {//check before using
             double z1 = 0.0;
             double z2 = 0.0;
@@ -199,9 +199,9 @@ public class Space3D extends Space implements EtomicaElement {
         public void DE(Space.Vector u) {DE((Vector) u);}
         public double dot(Space.Vector u) {return dot((Vector)u);}
         public Space3D.Vector cross(Space2D.Vector u) {
-            Space3D.Vector.WORK.x = -z*u.y;
-            Space3D.Vector.WORK.y = z*u.x;
-            Space3D.Vector.WORK.z = x*u.y - y*u.x;
+            Space3D.Vector.WORK.x = -z*u.x(1);
+            Space3D.Vector.WORK.y = z*u.x(0);
+            Space3D.Vector.WORK.z = x*u.x(1) - y*u.x(0);
             return Space3D.Vector.WORK;
         }
         public Space3D.Vector cross(Space3D.Vector u) {//not thread safe
@@ -377,8 +377,8 @@ public class Space3D extends Space implements EtomicaElement {
         }
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
-        public double position(int i) {return r.component(i);}
-        public double momentum(int i) {return p.component(i);}
+        public double position(int i) {return r.x(i);}
+        public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {
             double tM = t*rm(); // t/mass

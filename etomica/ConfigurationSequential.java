@@ -30,11 +30,11 @@ public class ConfigurationSequential extends Configuration {
 
         AtomIteratorCompound iterator = new AtomIteratorCompound(iterators);//lump 'em all together
 
-        double Lx = dimensions.component(0);
+        double Lx = dimensions.x(0);
         double Ly = 0.0;
         double Lz = 0.0;
-        if(dimensions.length()>1)  Ly = dimensions.component(1);
-        if(dimensions.length()>2)  Lz = dimensions.component(2);
+        if(dimensions.length()>1)  Ly = dimensions.x(1);
+        if(dimensions.length()>2)  Lz = dimensions.x(2);
 
         int sumOfMolecules = iterator.size();
         

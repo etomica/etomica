@@ -22,7 +22,7 @@ public final class ApiInterspecies1A implements AtomPairIterator {
     
     public ApiInterspecies1A(Simulation sim) {
         pair = new AtomPair(sim.space);
-        atomIterator = sim.iteratorFactory.makeIntragroupIterator();
+        atomIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
     /**

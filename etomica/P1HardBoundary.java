@@ -46,10 +46,10 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
         Space.Vector dimensions = a.node.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
         for(int i=r.length(); i>=0; i--) {
-            double px = p.component(i);
+            double px = p.x(i);
             if(px == 0.0) continue;
-            double rx = r.component(i);
-            double dx = dimensions.component(i);
+            double rx = r.x(i);
+            double dx = dimensions.x(i);
             double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
             if(t < tmin) tmin = t;
         }
@@ -69,17 +69,17 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
         int imin = 0;
         //figure out which component is colliding
         for(int i=r.length(); i>=0; i--) {
-            double rx = r.component(i);
-            double px = p.component(i);
-            double dx = dimensions.component(i);
+            double rx = r.x(i);
+            double px = p.x(i);
+            double dx = dimensions.x(i);
             double del = (px > 0.0) ? Math.abs(dx - rx - collisionRadius) : Math.abs(-rx + collisionRadius);
             if(del < delmin) {
                 delmin = del;
                 imin = i;
             }
         }
-//        pAccumulator += 2*Math.abs(p.component(imin));
-        p.setComponent(imin,-p.component(imin)); //multiply momentum component by -1
+//        pAccumulator += 2*Math.abs(p.x(imin));
+        p.setX(imin,-p.x(imin)); //multiply momentum component by -1
         if(isothermal) {p.TE(Math.sqrt(D*temperature*a.coord.mass()/p.squared()));}
     }//end of bump
     

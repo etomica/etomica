@@ -63,7 +63,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
 
         g.setColor(colorScheme.atomColor(a));
             
-        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
+        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         baseYP = origin[1];
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom */

@@ -40,9 +40,9 @@ public final class Vector extends Space.Vector {
 
     public int D() {return D;}
 
-    public double component(int i) {return x[i];}
+    public double x(int i) {return x[i];}
 
-    public void setComponent(int i, double d) {x[i]=d;}
+    public void setX(int i, double d) {x[i]=d;}
 
     public void E(Space.Vector u) {
         double[] ux;

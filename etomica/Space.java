@@ -94,8 +94,12 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
             sphericalCoordinates(array);
             return array;
         }
-        public abstract double component(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)
-        public abstract void setComponent(int i, double d);   //sets ith component of vector to d
+        // @deprecated use x 
+  //      public double component(int i) {return x(i);}
+        // @deprecated use setX 
+  //      public void setComponent(int i, double d) {setX(i, d);}
+        public abstract double x(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)
+        public abstract void setX(int i, double d);   //sets ith component of vector to d
         public abstract void E(Vector u);                     //sets each element of the vector equal to the elements of the vector u
 //        public abstract void E(int i, double a);              //sets component i of this vector equal to a
         public abstract void E(double a);                     //sets all components of the vector equal to the constant a

@@ -14,7 +14,7 @@ public class PrimitiveCubic extends Primitive {
     public PrimitiveCubic(Simulation sim) {
         super(sim);
         //set up orthogonal vectors of unit size
-        for(int i=0; i<D; i++) latticeVectors[i].setComponent(i, 1.0);
+        for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
     }
     
     /**
@@ -38,7 +38,7 @@ public class PrimitiveCubic extends Primitive {
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
- //       for(int i=0; i<D; i++) latticeVectors[i].setComponent(i,size);
+ //       for(int i=0; i<D; i++) latticeVectors[i].setx(i,size);
         this.size = size;
         if(lattice != null) lattice.update();
     }
@@ -48,13 +48,13 @@ public class PrimitiveCubic extends Primitive {
     public double getSize() {return size;}
     
     public int[] latticeIndex(Space.Vector q) {
-        for(int i=0; i<D; i++) idx[i] = (int)(q.component(i)/size);
+        for(int i=0; i<D; i++) idx[i] = (int)(q.x(i)/size);
         return idx;
     }
     
     public int[] latticeIndex(Space.Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            double x = q.component(i)/size;
+            double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];
@@ -180,11 +180,11 @@ public class UnitCell extends AbstractCell {
         delta.Ev1Mv2(v, coord.position());
         double x = size;
         switch(D()) {
-            case 3: x = delta.component(2);
+            case 3: x = delta.x(2);
                     if(x < 0.0 || x > size) return false;
-            case 2: x = delta.component(1);//fall through to check all dimensions
+            case 2: x = delta.x(1);//fall through to check all dimensions
                     if(x < 0.0 || x > size) return false;
-            case 1: x = delta.component(0);
+            case 1: x = delta.x(0);
                     if(x < 0.0 || x > size) return false;
                     break;
             default: throw new RuntimeException("PrimitiveCubic.UnitCell.inCell not implemented for given dimension");

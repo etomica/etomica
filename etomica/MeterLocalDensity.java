@@ -167,8 +167,8 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
              */
             public boolean contains(Atom m) {
                 Space2D.Vector r = (Space2D.Vector)m.coord.position();  //molecule center-of-mass
-                if(Math.abs(r.x-xCenter) > halfWidth) {return false;}
-                else if(Math.abs(r.y-yCenter) > halfHeight) {return false;}
+                if(Math.abs(r.x(0)-xCenter) > halfWidth) {return false;}
+                else if(Math.abs(r.x(1)-yCenter) > halfHeight) {return false;}
                 else {return true;}
             }
             

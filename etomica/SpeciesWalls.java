@@ -205,7 +205,7 @@ public class SpeciesWalls extends Species implements EtomicaElement {
                 Space.Vector r = a.coord.position();
                 a.coord.momentum().E(0.0);
                 a.coord.setStationary(stationary);
-                r.setComponent(i,xyNext);
+                r.setX(i,xyNext);
                 xyNext += delta;
                 ((AtomType.Wall)a.type).setLength(wh);   //length of wall
                 ((AtomType.Wall)a.type).setXAngle(angle);

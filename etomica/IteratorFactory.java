@@ -41,8 +41,7 @@ public interface IteratorFactory {
      * the iterator from makeGroupIteratorSequential (except that this
      * neighbor iterator may return fewer atoms).
      */
-     //perhaps rename to makeIntergroupNbrIterator
-    public AtomIterator makeIntergroupIterator();
+    public AtomIterator makeIntergroupNbrIterator();
 
     /**
      * Returns iterator that loops over all atoms in a group, with reference
@@ -50,15 +49,14 @@ public interface IteratorFactory {
      * would then be "neighbors" of the given atom.  Definition of "neighbor"
      * depends on iteration scheme defined by the IteratorFactory.
      */
-     //perhaps rename to makeIntragroupNbrIterator
-    public AtomIterator makeIntragroupIterator();
+    public AtomIterator makeIntragroupNbrIterator();
 
     /**
      * Returns an atom sequencer that does not base ordering on any type
      * of neighbor scheme.  Sequencer is assigned by atom factory when
      * creating a new atom.
      */
-    public AtomSequencer makeAtomSequencer(Atom atom);
+    public AtomSequencer makeSimpleSequencer(Atom atom);
     
     /**
      * Returns an atom sequencer that bases ordering on a neighbor scheme.
@@ -68,11 +66,11 @@ public interface IteratorFactory {
      */
     public AtomSequencer makeNeighborSequencer(Atom atom);
     
-    public Class atomSequencerClass();
+    public Class simpleSequencerClass();
     
     public Class neighborSequencerClass();
     
-    public AtomSequencer.Factory atomSequencerFactory();
+    public AtomSequencer.Factory simpleSequencerFactory();
     
     public AtomSequencer.Factory neighborSequencerFactory();
    

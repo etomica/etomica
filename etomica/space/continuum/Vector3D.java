@@ -57,9 +57,9 @@ public final class Vector3D extends Space.Vector {
 
     public int D() {return D;}//x.length;}
 
-    public double component(int i) {copy(); return X[i];}
+    public double x(int i) {copy(); return X[i];}
 
-    public void setComponent(int i, double d) {copy(); X[i]=d; uncopy();}
+    public void setX(int i, double d) {copy(); X[i]=d; uncopy();}
 
     public void E(Space.Vector u1) {
         Vector3D u;
@@ -70,9 +70,9 @@ public final class Vector3D extends Space.Vector {
         z = u.z;
     }
     public void E(Space3D.Vector u) {
-        x = u.x;
-        y = u.y;
-        z = u.z;
+        x = u.x(0);
+        y = u.x(1);
+        z = u.x(2);
     }
        
     public void E(double[] u) {

@@ -31,9 +31,9 @@ public abstract class PotentialBase extends Potential
     public abstract double energy(int l, int m);
     public void setArray(Phase phase1){
         phase=phase1;
-        dmx=phase.boundary().dimensions().component(0);
-        dmy=phase.boundary().dimensions().component(1);
-        dmz=phase.boundary().dimensions().component(2);
+        dmx=phase.boundary().dimensions().x(0);
+        dmy=phase.boundary().dimensions().x(1);
+        dmz=phase.boundary().dimensions().x(2);
         invdimx=1.0/dmx;
         invdimy=1.0/dmy;
         invdimz=1.0/dmz;

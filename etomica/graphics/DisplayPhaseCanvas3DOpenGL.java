@@ -214,9 +214,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       Atom a = iter.next();
 //    for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom(), i+=3) {
       atoms[i/3] = a;
-      vertAll[i] = (float)a.coord.position().component(0);
-      vertAll[i+1] = (float)a.coord.position().component(1);
-      vertAll[i+2] = (float)a.coord.position().component(2);
+      vertAll[i] = (float)a.coord.position().x(0);
+      vertAll[i+1] = (float)a.coord.position().x(1);
+      vertAll[i+2] = (float)a.coord.position().x(2);
       if(a.type instanceof AtomType.OrientedSphere) countSphereRotators++;
       if(a.type instanceof AtomType.Well) countSphereWells++;
       if(a.type instanceof AtomType.Sphere) countSphereCores++;
@@ -337,6 +337,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       Drawable obj = (Drawable)iter.next();
     }*/
 
+    if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
+        ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
+    }
+
     if(walls.length > 0) {
       lastColor = null;
       i = walls.length - 1;
@@ -346,9 +350,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
-        vertWalls[i] = (float)r.component(0) - xCenter;
-        vertWalls[i+1] = (float)r.component(1) - yCenter;
-        vertWalls[i+2] = (float)r.component(2) - zCenter;
+        vertWalls[i] = (float)r.x(0) - xCenter;
+        vertWalls[i+1] = (float)r.x(1) - yCenter;
+        vertWalls[i+2] = (float)r.x(2) - zCenter;
         //Update the color for the atom
         if(!c.equals(lastColor)) {
           gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
@@ -384,9 +388,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
-        vertSphereCores[i] = (float)r.component(0) - xCenter;
-        vertSphereCores[i+1] = (float)r.component(1) - yCenter;
-        vertSphereCores[i+2] = (float)r.component(2) - zCenter;
+        vertSphereCores[i] = (float)r.x(0) - xCenter;
+        vertSphereCores[i+1] = (float)r.x(1) - yCenter;
+        vertSphereCores[i+2] = (float)r.x(2) - zCenter;
         //Update the color for the atom
         if(!c.equals(lastColor)) {
           gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
@@ -520,9 +524,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Color all atoms according to colorScheme in DisplayPhase
 //    displayPhase.getColorScheme().colorAllAtoms();
 
-    xCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(0)*.5);
-    yCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(1)*.5);
-    zCenter = (float)(displayPhase.getPhase().boundary().dimensions().component(2)*.5);
+    xCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(0)*.5);
+    yCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(1)*.5);
+    zCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(2)*.5);
     rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
     topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
     backClipPlane[3] = frontClipPlane[3] = zCenter + ((2*zCenter)*displayPhase.getImageShells());

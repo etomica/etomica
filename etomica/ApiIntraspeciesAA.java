@@ -9,7 +9,7 @@ public final class ApiIntraspeciesAA implements AtomPairIterator {
     
     public ApiIntraspeciesAA(Simulation sim) {
         aiOuter = sim.iteratorFactory.makeGroupIteratorSequential();
-        aiInner = sim.iteratorFactory.makeIntragroupIterator();
+        aiInner = sim.iteratorFactory.makeIntragroupNbrIterator();
         pair = new AtomPair(sim.space);
         outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         outerWrapper.aiInner = aiInner;

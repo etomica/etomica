@@ -34,7 +34,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         super(sim);
         setX(0, 1, 100);
         profileVector = sim.space().makeVector();
-        profileVector.setComponent(0, 1.0);
+        profileVector.setX(0, 1.0);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

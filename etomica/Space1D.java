@@ -50,7 +50,7 @@ public class Space1D extends Space implements EtomicaElement {
     public final static class Vector extends Space.Vector {  //declared final for efficient method calls
         public static final Vector ZERO = new Vector(0.0);
         public static final Vector WORK = new Vector();
-        double x;
+        private double x;
         public Vector () {x = 0.0;}
         public Vector (double a1) {x = a1;}
         public Vector (double[] a) {x = a[0];}//should check length of a for exception
@@ -60,8 +60,8 @@ public class Space1D extends Space implements EtomicaElement {
         public String toString() {return "("+x+")";}
         public int length() {return D;}
         public int D() {return D;}
-        public double component(int i) {return x;}
-        public void setComponent(int i, double d) {x=d;}
+        public double x(int i) {return x;}
+        public void setX(int i, double d) {x=d;}
         public double[] toArray() {return new double[] {x};}
         public void sphericalCoordinates(double[] result) {result[0] = x;}
         public void E(Vector u) {x = u.x;}
@@ -258,8 +258,8 @@ public class Space1D extends Space implements EtomicaElement {
         }
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
-        public double position(int i) {return r.component(i);}
-        public double momentum(int i) {return p.component(i);}
+        public double position(int i) {return r.x(i);}
+        public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {r.x += p.x*t*rm(); atom.seq.moveNotify();}
         public void inflate(double s) {r.x *= s;}

@@ -247,8 +247,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         g.setColor(atomColor);
             
         if(a.type instanceof AtomType.Sphere) {
-            baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().boundary().dimensions().component(0)/2)));
-            baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().boundary().dimensions().component(1)/2)));
+            baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().boundary().dimensions().x(0)/2)));
+            baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().boundary().dimensions().x(1)/2)));
             /* Draw the core of the atom */
             sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomType.Sphere)a.type).radius()));
             //sigmaP = (int)(displayPhase.getToPixels()*2.0f*((AtomType.Sphere)a.type).radius());
@@ -288,8 +288,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             }*/
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
-            xP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
-            yP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
+            xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
+            yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
             int t = Math.max(1,(int)((double)((AtomType.Wall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
             if(!(((AtomType.Wall)a.type).isHorizontal() || ((AtomType.Wall)a.type).isVertical())) {  //not horizontal or vertical; draw line
                 int x1 = xP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getCosX());
@@ -298,8 +298,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             }
             else if(((AtomType.Wall)a.type).isLongWall()) {
                 java.awt.Rectangle rect = g.getClipBounds();
-                //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().component(1));
-                //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().component(0));
+                //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(1));
+                //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(0));
                 int wP = ((AtomType.Wall)a.type).isVertical() ? t : Integer.MAX_VALUE;
                 int hP = ((AtomType.Wall)a.type).isHorizontal() ? t : Integer.MAX_VALUE;
                 //int X = vertical ? xP : origin[0];
@@ -379,9 +379,9 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
 
         // Update Atom Positions
         for(int i = 0, k = 0; i < atoms.length; i++, k+=3) {
-            vert[k] = atoms[i].coord.position().component(0);
-            vert[k+1] = atoms[i].coord.position().component(1);
-            vert[k+2] = atoms[i].coord.position().component(2);
+            vert[k] = atoms[i].coord.position().x(0);
+            vert[k+1] = atoms[i].coord.position().x(1);
+            vert[k+2] = atoms[i].coord.position().x(2);
             //System.out.println("Atom "+i+"("+vert[k]+", "+vert[k+1]+", "+vert[k+2]+")");
         }
 

@@ -85,7 +85,7 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
             scale[i] = space.makeVector();
             scale[i].E(Math.exp(mult*x[i]));
             for(int j=0; j<space.D(); j++) {
-                if(!inflateDimensions[j]) scale[i].setComponent(j,1.0);
+                if(!inflateDimensions[j]) scale[i].setX(j,1.0);
             }
         }
     }

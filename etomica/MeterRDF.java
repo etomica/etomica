@@ -46,7 +46,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
     
 	protected void setPhaseBoundary(Space.Boundary b) {
 //	    if(phase == null || phase.boundary() == null) return;
-	    setX(0.0, 0.5*b.dimensions().component(0),nPoints);
+	    setX(0.0, 0.5*b.dimensions().x(0),nPoints);
 	}
 	/**
 	 * Returns true to flag that this meter uses the phase boundary.

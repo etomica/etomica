@@ -12,8 +12,8 @@ public class MCMoveAtom extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom atom;
-    private PotentialCalculationEnergySumNearestPair energyDebug = 
-        new PotentialCalculationEnergySumNearestPair();
+//debug    private PotentialCalculationEnergySumNearestPair energyDebug = 
+//debug        new PotentialCalculationEnergySumNearestPair();
 
     public MCMoveAtom(IntegratorMC parentIntegrator) {
         super(parentIntegrator);
@@ -41,7 +41,7 @@ public class MCMoveAtom extends MCMove {
         uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
         if(uOld > 1e10) {
             System.out.println("Uold: "+uOld);
-            uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
+   /*debug         uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
             System.out.println(k + "rMin = "+Math.sqrt(energyDebug.r2Min));
             System.out.println(energyDebug.atom1.node.index()+energyDebug.atom1.coord.position().toString());
             System.out.println(energyDebug.atom2.node.index()+energyDebug.atom2.coord.position().toString());
@@ -58,6 +58,7 @@ public class MCMoveAtom extends MCMove {
       //      }
             System.out.println();
             throw new RuntimeException();
+            */
         }    
         atom.coord.displaceWithin(stepSize);
         phase.boundary().centralImage(atom.coord.position());
@@ -129,7 +130,7 @@ public class MCMoveAtom extends MCMove {
      * Class used to examine configuration in cases when a large energy is found
      * before the trial is made.  A debugging tool.
      */
-    private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
+/*    private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
         public double r2Min;
         Atom atom1, atom2;
 
@@ -148,5 +149,5 @@ public class MCMoveAtom extends MCMove {
             }//end while
         }//end of calculate
     }
-    
+ */   
 }
