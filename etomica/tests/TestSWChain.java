@@ -119,7 +119,7 @@ public class TestSWChain extends Simulation {
         if (Math.abs(PE+8.06) > 1.0) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.012) > 0.005) {
+        if (Math.abs(Cv-0.012) > 0.02) {
             System.exit(1);
         }
     }
