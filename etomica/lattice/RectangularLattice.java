@@ -508,7 +508,9 @@ public class RectangularLattice implements FiniteLattice {
          * @param newPeriod values of new period are copied to internal vector
          */
         public void setPeriod(Space.Vector newPeriod) {
-            this.period.E(newPeriod);
+            if(period.equals(newPeriod)) return;
+            
+            period.E(newPeriod);
 
             int[] idx = new int[D];
             for (int i=0; i<D; i++) {
@@ -533,6 +535,8 @@ public class RectangularLattice implements FiniteLattice {
                     idx[--i]++;
                 }
             }
+            nearestImageVectors[(nearestImageVectors.length-1)/2] = null;
+
         }
 //        private void gatherAllNeighbors(int d, int startIndex) {
 //            int centralIndex = centralSite[d];
