@@ -56,8 +56,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
             species0 = species[1];
             species1 = species[0];
         }
-        index0 = species0.getIndex();
-        index1 = species1.getIndex();
+        index0 = species0.getIndex()-1;
+        index1 = species1.getIndex()-1;
 
         neighborIterator = new CellLattice.NeighborIterator(D);
         aiOuter = new AtomIteratorSinglet();

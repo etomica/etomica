@@ -48,7 +48,6 @@ public class HSMD3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
-        phase = new Phase(space);
 //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
 //        phase.setConfiguration(configuration);
@@ -58,9 +57,7 @@ public class HSMD3D extends Simulation {
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
 
-//      elementCoordinator.go();
-        //explicit implementation of elementCoordinator activities
-        phase.speciesMaster.addSpecies(species);
+        phase = new Phase(this);
         integrator.addPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         

@@ -140,6 +140,7 @@ public class DisplayPlot extends Display implements EtomicaElement {
     public DataSink makeDataSink(Unit u) {
         DataGroup newGroup = (DataGroup)makeDataSink();
         newGroup.unit = u;
+        data = (DataGroup[])Arrays.addObject(data, newGroup);
         return newGroup;
     }
     
@@ -180,14 +181,14 @@ public class DisplayPlot extends Display implements EtomicaElement {
     private class DataGroup implements DataSink {
         double[] y;
         Dimension dimension = Dimension.UNDEFINED;
-        Unit unit = Unit.NULL;
+        Unit unit = Unit.UNDEFINED;
         String label = "";
         
         DataGroup(int n) {
             y = new double[n];
         }
 
-        public synchronized void putData(double[] values) {
+        public void putData(double[] values) {
             if(y.length != values.length) y = (double[])values.clone();
             else System.arraycopy(values, 0, y, 0, values.length);
  //           doUpdate();

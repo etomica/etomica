@@ -2,8 +2,10 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.AtomFactory;
+import etomica.AtomIndexManager;
+import etomica.AtomType;
 import etomica.Conformation;
-import etomica.ConfigurationLinear;
+import etomica.ConformationLinear;
 import etomica.Space;
 import etomica.Species;
 
@@ -20,8 +22,9 @@ import etomica.Species;
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory) {
-        this(space, sequencerFactory, factory, 1);
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomFactory factory) {
+        this(space, sequencerFactory, indexManager, factory, 1);
     }
     /**
      * @param space the coordinate factory
@@ -29,19 +32,21 @@ import etomica.Species;
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, int atoms) {
-        this(space, sequencerFactory, factory, atoms, new ConfigurationLinear(space));
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomFactory factory, int atoms) {
+        this(space, sequencerFactory, indexManager, factory, atoms, new ConformationLinear(space));
     }
     /**
      * @param space the coordinate factory
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
-     * @param config the configuration applied to each group that is built (default is Linear).
+     * @param config the conformation applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomFactory factory, 
-                            int atoms, Conformation config) {  
-        this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, atoms, config);
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomFactory factory, int atoms, Conformation config) {  
+        this(space, sequencerFactory, indexManager,
+                  AtomTreeNodeGroup.FACTORY, factory, atoms, config);
     }
  
     /**
@@ -50,14 +55,15 @@ import etomica.Species;
      * @param nodeFactory makes nodes for each of the atoms built by this factory
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
-     * @param config the configuration applied to each group that is built (default is Linear).
+     * @param config the conformation applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory, 
+    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomTreeNodeFactory nodeFactory, 
     						AtomFactory factory, int atoms, Conformation config) {
-        super(space, new AtomTypeGroup(), sequencerFactory, nodeFactory);
+        super(space, new AtomType(indexManager), sequencerFactory, nodeFactory);
         childFactory = factory;
         atomsPerGroup = atoms;
-        configuration = config;
+        conformation = config;
     }
     
     public void setSpecies(Species species) {
@@ -65,10 +71,10 @@ import etomica.Species;
         childFactory.setSpecies(species);
     }
 
-    public void setDepth(int depth) {
-        atomType.setDepth(depth);
-        childFactory.setDepth(depth + 1);
-    }
+//    public void setDepth(int depth) {
+//        atomType.setDepth(depth);
+//        childFactory.setDepth(depth + 1);
+//    }
     
     /**
      * Constructs a new group.
@@ -80,7 +86,7 @@ import etomica.Species;
             Atom childAtom = childFactory.makeAtom();
             childAtom.node.setParent(node);
         }
-        configuration.initializePositions(node.childList);
+        conformation.initializePositions(node.childList);
         return group;
      }
      

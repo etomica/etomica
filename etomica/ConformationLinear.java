@@ -13,15 +13,15 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-public class ConfigurationLinear extends Conformation {
+public class ConformationLinear extends Conformation {
     
-    public ConfigurationLinear(Space space) {
+    public ConformationLinear(Space space) {
         this(space, 0.55*Default.ATOM_SIZE);
     }
-    public ConfigurationLinear(Space space, double bondLength) {
+    public ConformationLinear(Space space, double bondLength) {
     	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
     }
-    public ConfigurationLinear(Space space, double bondLength, double[] initAngles) {
+    public ConformationLinear(Space space, double bondLength, double[] initAngles) {
         super(space);
         this.bondLength = bondLength;
         orientation = space.makeVector();
@@ -76,7 +76,7 @@ public class ConfigurationLinear extends Conformation {
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConfiguration();
+                Conformation config = a.type.creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             moveToOrigin.actionPerformed(a);
@@ -93,5 +93,5 @@ public class ConfigurationLinear extends Conformation {
     private AtomActionTranslateBy translator;
     private AtomActionTranslateTo moveToOrigin;
     private final AtomIteratorListSimple atomIterator;
-}//end of ConfigurationLinear
+}//end of ConformationLinear
       

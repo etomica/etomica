@@ -7,6 +7,7 @@ import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.ICoordinate;
+import etomica.utility.Arrays;
 
  /**
   * Object corresponding to one physical atom or (in subclasses) group of atoms.
@@ -30,7 +31,7 @@ public class Atom implements AtomSet, java.io.Serializable {
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this);
         coord = space.makeCoordinate(this);//must follow setting of type field
-        node.setIndex(INSTANCE_COUNT++);//default index; changed when added to parent after construction
+        node.setOrdinal(0,1); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
         
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
         for(int i=0; i<agentSource.length; i++) {
@@ -40,11 +41,11 @@ public class Atom implements AtomSet, java.io.Serializable {
     
     /**
      * Makes a simple atom for the given space.  Node is for a leaf atom;
-     * sequencer is simple; type is a sphere, unique to the new atom.
+     * sequencer is simple; type is a sphere, unique to the new atom; depth is 0.
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+    	this(space, new AtomTypeSphere(new AtomIndexManager(Default.BIT_LENGTH,0)), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
     }
     
     public final int count() {return 1;}
@@ -63,7 +64,7 @@ public class Atom implements AtomSet, java.io.Serializable {
      * formed by concatenating the index of this atom to the signature
      * given by the parent of this atom.
      */
-    public String signature() {return node.parentGroup().signature() + " " + node.index();}
+    public String signature() {return node.parentGroup().signature() + " " + node.getOrdinal();}
 
     /**
      * Returns a string formed by concatenating the signature of this atom
@@ -141,12 +142,8 @@ public class Atom implements AtomSet, java.io.Serializable {
      * be placed.
      */
     public static int requestAgentIndex(AgentSource aSource) {
-        AgentSource[] newSource = new AgentSource[agentSource.length+1];
-        for(int i=0; i<agentSource.length; i++) newSource[i] = agentSource[i];
-        int index = agentSource.length;
-        newSource[index] = aSource;
-        agentSource = newSource;
-        return index;
+        agentSource = (AgentSource[])Arrays.addObject(agentSource, aSource);
+        return agentSource.length - 1;
     }    
     
     /**

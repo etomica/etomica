@@ -2,6 +2,7 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.AtomFactory;
+import etomica.AtomIndexManager;
 import etomica.AtomType;
 import etomica.Space;
 import etomica.Species;
@@ -17,8 +18,8 @@ public class AtomFactoryMono extends AtomFactory {
     /**
      * Constructor with AtomTypeSphere default.
      */
-    public AtomFactoryMono(Space space, AtomSequencerFactory seqFactory) {
-        this(space, new AtomTypeSphere(), seqFactory);
+    public AtomFactoryMono(Space space, AtomSequencerFactory seqFactory, AtomIndexManager indexManager) {
+        this(space, new AtomTypeSphere(indexManager), seqFactory);
     }
     
     public AtomFactoryMono(Space space, AtomType atomType, AtomSequencerFactory seqFactory) {
@@ -27,10 +28,6 @@ public class AtomFactoryMono extends AtomFactory {
     
     public void setSpecies(Species species) {
         atomType.setSpecies(species);
-    }
-
-    public void setDepth(int depth) {
-        atomType.setDepth(depth);
     }
 
     /**

@@ -4,6 +4,7 @@
  */
 package etomica.atom;
 
+import etomica.AtomIndexManager;
 import etomica.AtomType.SphericalTop;
 
 
@@ -14,8 +15,8 @@ import etomica.AtomType.SphericalTop;
 public final class AtomTypeOrientedSphere extends AtomTypeSphere implements SphericalTop {
     
     private final double[] I = new double[3];
-    public AtomTypeOrientedSphere(double m, double d) {
-        super(m, d);
+    public AtomTypeOrientedSphere(AtomIndexManager indexManager, double m, double d) {
+        super(indexManager, m, d);
         updateI();
     }
     public double[] momentOfInertia() {return I;}

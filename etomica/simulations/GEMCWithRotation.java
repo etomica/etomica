@@ -41,12 +41,12 @@ public class GEMCWithRotation extends Simulation {
 	    species = new SpeciesSpheresRotating(this);
         species.setNMolecules(200);
 
-	    phase1 = new Phase(space);	    
+	    phase1 = new Phase(this);	    
 	    MCMoveRotate mcRotate1 = new MCMoveRotate(potentialMaster, space);
 	    mcRotate1.setPhase(new Phase[] {phase1});
         integrator.addMCMove(mcRotate1);
 
-	    phase2 = new Phase(space);
+	    phase2 = new Phase(this);
 	    MeterDensity meter2 = new MeterDensity();	    
 	    MCMoveRotate mcRotate2 = new MCMoveRotate(potentialMaster, space);
 	    mcRotate2.setPhase(new Phase[] {phase2});
@@ -61,8 +61,6 @@ public class GEMCWithRotation extends Simulation {
 
         this.potentialMaster.setSpecies(potential,new Species[] {species, species});
 
-        phase1.speciesMaster.addSpecies(species);
-        phase2.speciesMaster.addSpecies(species);
         integrator.addIntervalListener(new PhaseImposePbc(phase1));
         integrator.addIntervalListener(new PhaseImposePbc(phase2));
 

@@ -2,12 +2,12 @@ package etomica.models.water;
 
 import etomica.Atom;
 import etomica.AtomFactory;
+import etomica.AtomIndexManager;
 import etomica.AtomType;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 
 /**
@@ -23,19 +23,22 @@ public class AtomFactoryWater extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-	public AtomFactoryWater(Space space) {
-        this(space, AtomSequencerFactory.SIMPLE);
+	public AtomFactoryWater(Space space, AtomIndexManager indexManager) {
+        this(space, AtomSequencerFactory.SIMPLE, indexManager);
     }
     
-    public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory) {
-		super(space, new AtomTypeGroup(), sequencerFactory, AtomTreeNodeWater.FACTORY);
+    public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager) {
+		super(space, new AtomType(indexManager), sequencerFactory, AtomTreeNodeWater.FACTORY);
 
-        AtomType hType = new AtomTypeSphere(1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
-        AtomType oType = new AtomTypeSphere(16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
-		hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
+        AtomIndexManager childIndexManager = indexManager.makeChildManager();
+        
+        AtomType hType = new AtomTypeSphere(childIndexManager, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
+        AtomType oType = new AtomTypeSphere(childIndexManager, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
+
+        hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
 		oFactory = new AtomFactoryMono(space, oType, AtomSequencerFactory.SIMPLE);
 
-		configuration = new ConfigurationWater(space); 
+		conformation = new ConfigurationWater(space); 
 	}
 
 	/**
@@ -50,7 +53,7 @@ public class AtomFactoryWater extends AtomFactory {
         waterNode.O.node.setParent(waterNode);
         waterNode.H1.node.setParent(waterNode);
         waterNode.H2.node.setParent(waterNode);
-		configuration.initializePositions(waterNode.childList);
+		conformation.initializePositions(waterNode.childList);
 		return group;
 	}
     
@@ -60,11 +63,11 @@ public class AtomFactoryWater extends AtomFactory {
         oFactory.setSpecies(species);
     }
     
-    public void setDepth(int depth) {
-        atomType.setDepth(depth);
-        hFactory.setDepth(depth+1);
-        oFactory.setDepth(depth+1);
-    }
+//    public void setDepth(int depth) {
+//        atomType.setDepth(depth);
+//        hFactory.setDepth(depth+1);
+//        oFactory.setDepth(depth+1);
+//    }
 
 	public final AtomFactoryMono hFactory, oFactory;
 }

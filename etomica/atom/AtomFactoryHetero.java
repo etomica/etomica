@@ -2,8 +2,10 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.AtomFactory;
+import etomica.AtomIndexManager;
+import etomica.AtomType;
 import etomica.Conformation;
-import etomica.ConfigurationLinear;
+import etomica.ConformationLinear;
 import etomica.Space;
 import etomica.Species;
 
@@ -20,25 +22,26 @@ public class AtomFactoryHetero extends AtomFactory {
     /**
      * @param factory array of atom factories, each of which makes a different child.
      */
-	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomFactory[] factory) {
-		this(space, sequencerFactory, factory, new ConfigurationLinear(space));
+	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomFactory[] factory) {
+		this(space, sequencerFactory, indexManager, factory, new ConformationLinear(space));
 	}
     /**
      * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
-     * @param config the configuration applied to each group that is built (default is Linear).
+     * @param config the conformation applied to each group that is built (default is Linear).
      * @param sequencerFactory the factory making sequencers used in the groups made by this factory (default is simple sequencer).
      */
-    public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomFactory[] factory, 
-                            Conformation config) {
-        this(space, sequencerFactory, AtomTreeNodeGroup.FACTORY, factory, config);
+    public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomFactory[] factory,  Conformation config) {
+        this(space, sequencerFactory, indexManager, AtomTreeNodeGroup.FACTORY, factory, config);
     }
     
-	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory,
-							AtomFactory[] factory, Conformation config) {
-		super(space, new AtomTypeGroup(), sequencerFactory, nodeFactory);
+	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
+                            AtomTreeNodeFactory nodeFactory, AtomFactory[] factory, Conformation config) {
+		super(space, new AtomType(indexManager), sequencerFactory, nodeFactory);
         childFactory = (AtomFactory[])factory.clone();
-        configuration = config;
+        conformation = config;
     }
     
     public void setSpecies(Species species) {
@@ -48,12 +51,12 @@ public class AtomFactoryHetero extends AtomFactory {
         }
     }
     
-    public void setDepth(int depth) {
-        atomType.setDepth(depth);
-        for(int i=0; i<childFactory.length; i++) {
-            childFactory[i].setDepth(depth+1);
-        }
-    }
+//    public void setDepth(int depth) {
+//        atomType.setDepth(depth);
+//        for(int i=0; i<childFactory.length; i++) {
+//            childFactory[i].setDepth(depth+1);
+//        }
+//    }
 
     /**
      * Constructs a new group.
@@ -65,7 +68,7 @@ public class AtomFactoryHetero extends AtomFactory {
             Atom childAtom = childFactory[i].makeAtom();
             childAtom.node.setParent(node);
         }
-        configuration.initializePositions(node.childList);
+        conformation.initializePositions(node.childList);
         return group;
     }
     

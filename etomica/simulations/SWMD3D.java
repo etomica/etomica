@@ -64,7 +64,7 @@ public class SWMD3D extends Simulation {
     getController().addAction(activityIntegrate);
 
 
-    phase = new Phase(space);
+    phase = new Phase(this);
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
     phase.setConfiguration(configuration);
 
@@ -100,7 +100,7 @@ public class SWMD3D extends Simulation {
 
 //	mediator().go();
     this.potentialMaster.setSpecies(potential,new Species[]{species,species});
-    phase.speciesMaster.addSpecies(species);
+
     integrator.addPhase(phase);
     integrator.addIntervalListener(new PhaseImposePbc(phase));
 

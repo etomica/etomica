@@ -36,7 +36,7 @@ public final class Debug {
 	 * performance should suffer as the level goes up, and
 	 * finding useful information might get difficult.
 	 */
-	public static int LEVEL = 1;
+	public static int LEVEL = 2;
 	
     /**
      * true if debugging is currently enabled (when the integrator reaches step START) 
@@ -48,7 +48,7 @@ public final class Debug {
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = -1;
+	public static final int ATOM1_NUM = 1500;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
@@ -110,7 +110,7 @@ public final class Debug {
      * @return true if the phase is of interest
      */
     public static boolean thisPhase(Phase checkPhase) {
-         return checkPhase.index == PHASE_INDEX;
+         return checkPhase.getIndex() == PHASE_INDEX;
     }
     
 	/**

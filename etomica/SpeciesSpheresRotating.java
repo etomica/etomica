@@ -19,8 +19,9 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public AtomTypeOrientedSphere protoType;
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Space space, AtomSequencerFactory seqFactory) {
-        AtomType type = new AtomTypeOrientedSphere(Default.ATOM_MASS, Default.ATOM_SIZE);
+    private static AtomFactoryMono makeFactory(Space space, AtomSequencerFactory seqFactory,
+                                AtomIndexManager indexManager) {
+        AtomType type = new AtomTypeOrientedSphere(indexManager, Default.ATOM_MASS, Default.ATOM_SIZE);
         return new AtomFactoryMono(space, type, seqFactory);
     }
     /**
@@ -29,23 +30,19 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
      * Default.MOLECULE_COUNT.
      */
     public SpeciesSpheresRotating(Simulation sim) {
-        this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT);
+        this(sim, sim.potentialMaster.sequencerFactory());
     }
         
     /**
      * Constructs instance with default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresRotating(Space space, AtomSequencerFactory seqFactory) {
-        this(space, seqFactory, Default.MOLECULE_COUNT);
-    }
-    
-    public SpeciesSpheresRotating(Space space, AtomSequencerFactory seqFactory, int nM) {
-        super(makeFactory(space, seqFactory));
+    public SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory) {
+        super(sim, makeFactory(sim.space, seqFactory, sim.speciesRoot.type.getIndexManager().makeMoleculeIndexManager()));
         factory.setSpecies(this);
         protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
         mass = protoType.getMass();
-        nMolecules = nM;
+        nMolecules = Default.MOLECULE_COUNT;
     }
             
     public static EtomicaInfo getEtomicaInfo() {

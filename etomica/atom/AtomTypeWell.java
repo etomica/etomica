@@ -4,13 +4,15 @@
  */
 package etomica.atom;
 
+import etomica.AtomIndexManager;
+
 public final class AtomTypeWell extends AtomTypeSphere {  
     
     private double lambda;                    //diameter of well, in units of core diameter
     private double wellDiameter, wellRadius;  //size of well, in simulation units
     
-    public AtomTypeWell(double m, double d, double l) {
-        super(m, d);
+    public AtomTypeWell(AtomIndexManager indexManager, double m, double d, double l) {
+        super(indexManager, m, d);
         setDiameter(d);
         setLambda(l);
     }

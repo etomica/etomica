@@ -37,15 +37,13 @@ public class HsMc2d extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
-	    phase = new Phase(space);
+	    phase = new Phase(this);
 	    potential = new P2HardSphere();
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         potentialMaster.setSpecies(potential, new Species[] {species, species2});
         potentialMaster.setSpecies(potential, new Species[] {species2, species2});
 	    meterCycles = new DataSourceCountSteps();
 
-        phase.speciesMaster.addSpecies(species);
-        phase.speciesMaster.addSpecies(species2);
         integrator.addPhase(phase);
         integrator.addIntervalListener(new PhaseImposePbc(phase));
 

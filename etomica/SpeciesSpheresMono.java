@@ -17,39 +17,34 @@ import etomica.units.Dimension;
 
 public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
-    private double mass;
-    public AtomTypeSphere protoType;
+    private final AtomTypeSphere atomType;
     
     //static method used to make factory on-the-fly in the constructor
     private static AtomFactoryMono makeFactory(Space space, 
-                                                AtomSequencerFactory seqFactory) {
-        AtomType type = new AtomTypeSphere(Default.ATOM_MASS, Default.ATOM_SIZE);
+                                                AtomSequencerFactory seqFactory,
+                                                AtomIndexManager indexManager) {
+        AtomType type = new AtomTypeSphere(indexManager, Default.ATOM_MASS, Default.ATOM_SIZE);
         return new AtomFactoryMono(space, type, seqFactory);
     }
-
+ 
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
      * given simulation, and using default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
     public SpeciesSpheresMono(Simulation sim) {
-        this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT);
+        this(sim, sim.potentialMaster.sequencerFactory());
     }
-        
+
     /**
      * Constructs instance with default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresMono(Space space, AtomSequencerFactory seqFactory) {
-        this(space, seqFactory, Default.MOLECULE_COUNT);
-    }
-    
-    public SpeciesSpheresMono(Space space, AtomSequencerFactory seqFactory, int nM) {
-        super(makeFactory(space, seqFactory));
+    public SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory) {
+        super(sim, makeFactory(sim.space, seqFactory, sim.speciesRoot.type.getIndexManager().makeMoleculeIndexManager()));
         factory.setSpecies(this);
-        protoType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();
-        mass = protoType.getMass();
-        nMolecules = nM;
+        atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();
+        nMolecules = Default.MOLECULE_COUNT;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -60,13 +55,12 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     /**
      * The mass of each of the spheres.
      */
-    public final double getMass() {return mass;}
+    public double getMass() {return atomType.getMass();}
     /**
      * Sets the mass of all spheres to the given value.
      */
-    public final void setMass(double m) {
-        mass = m;
-        protoType.setMass(m);
+    public void setMass(double m) {
+        atomType.setMass(m);
     }
     /**
      * @return Dimension.MASS
@@ -76,11 +70,11 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     /**
      * The diameter of each of the spheres.
      */
-    public final double getDiameter() {return protoType.diameter(null);}
+    public double getDiameter() {return atomType.diameter(null);}
     /**
      * Sets the diameter of all spheres to the given value.
      */
-    public void setDiameter(double d) {protoType.setDiameter(d);}
+    public void setDiameter(double d) {atomType.setDiameter(d);}
     /**
      * @return Dimension.LENGTH
      */

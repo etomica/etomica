@@ -131,10 +131,9 @@ import etomica.atom.iterator.AtomIteratorListSimple;
      */
     public static void main(String[] args) {
         Simulation sim = new Simulation();
-        Phase phase = new Phase(sim.space);
+        Phase phase = new Phase(sim);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         species.setNMolecules(10);
-        phase.speciesMaster.addSpecies(species);
 //        sim.elementCoordinator.go();
         
         boolean pauseForInput = true;

@@ -14,7 +14,7 @@ import etomica.atom.AtomTreeNodeGroup;
 public abstract class AtomFactory {
     
     public final Space space;
-    protected Conformation configuration;
+    protected Conformation conformation;
     protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeFactory nodeFactory;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
@@ -54,7 +54,7 @@ public abstract class AtomFactory {
      * molecules are level 2.
      * @param depth
      */
-    public abstract void setDepth(int depth);
+ //   public abstract void setDepth(int depth);
     
     /**
      * Identifies the species for which this factory makes its atoms.
@@ -98,18 +98,18 @@ public abstract class AtomFactory {
     }
 
     /**
-     * Sets the configuration used to set the standard arrangement of
+     * Sets the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
-    public void setConfiguration(Conformation config) {
-        configuration = config;
+    public void setConformation(Conformation config) {
+        conformation = config;
     }
     
     /**
-     * Returns the configuration used to set the standard arrangement of
+     * Returns the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */
-    public Conformation getConfiguration() {return configuration;}
+    public Conformation getConformation() {return conformation;}
     
     /**
      * Adds given agent source to agent-source array and returns index

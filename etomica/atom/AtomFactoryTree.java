@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.AtomFactory;
+import etomica.AtomIndexManager;
 import etomica.Conformation;
 import etomica.Simulation;
 import etomica.Space;
@@ -37,12 +38,13 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      *               nAtoms[0] gives the number of child atoms for the root, nAtoms[1] the number of
      *               child atoms under each of the root's child atoms, etc.
      */
-    public AtomFactoryTree(Simulation sim, AtomFactory leafFactory, int[] nAtoms) {
-        this(sim.space, sim.potentialMaster.sequencerFactory(), leafFactory, nAtoms);
+    public AtomFactoryTree(Simulation sim, AtomIndexManager indexManager, AtomFactory leafFactory, int[] nAtoms) {
+        this(sim.space, sim.potentialMaster.sequencerFactory(), indexManager, leafFactory, nAtoms);
     }
-    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, 
+    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomIndexManager indexManager,
                             AtomFactory leafFactory, int[] nAtoms) {
-        super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, null), nAtoms[0]);
+        super(space, seqFactory, indexManager, subFactory(space, seqFactory, indexManager, leafFactory, nAtoms, null), nAtoms[0]);
+        if(childFactory().getType().getIndexManager().getDepth()-indexManager.getDepth() != nAtoms.length) throw new IllegalArgumentException("Incompatible leaf factory and nAtoms specification");
         if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
@@ -55,16 +57,16 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * of all the atoms below it in the tree, and thus prescribes in part the positioning of 
      * all atoms below its level.
      */
-    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, 
+    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomIndexManager indexManager,
                                 AtomFactory leafFactory, int[] nAtoms, Conformation[] config) {
-        super(space, seqFactory, subFactory(space, seqFactory, leafFactory, nAtoms, config), 
+        super(space, seqFactory, indexManager, subFactory(space, seqFactory, indexManager, leafFactory, nAtoms, config), 
                 nAtoms[0], config[0]);
         if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
-    private static AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory,
+    private static AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory, AtomIndexManager indexManager,
                             AtomFactory leafFactory, int[] nAtoms, Conformation[] config) {
         if(nAtoms.length < 1) throw new IllegalArgumentException("Error: Attempt to prescribe zero-dimensional lattice in AtomFactoryLattice" );
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
@@ -72,11 +74,11 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         int[] newDim = new int[nAtoms.length-1];//arraycopy
         for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
         if(config == null) {
-            return new AtomFactoryTree(space, seqFactory, leafFactory, newDim);
+            return new AtomFactoryTree(space, seqFactory, indexManager.makeChildManager(), leafFactory, newDim);
         }
         Conformation[] newConfig = new Conformation[config.length-1];//arraycopy
         for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
-        return new AtomFactoryTree(space, seqFactory, leafFactory, newDim, newConfig);
+        return new AtomFactoryTree(space, seqFactory, indexManager.makeChildManager(), leafFactory, newDim, newConfig);
     }//end of subFactory
     
     public void setNAtoms(int[] n) {

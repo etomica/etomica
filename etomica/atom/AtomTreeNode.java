@@ -62,7 +62,7 @@ public abstract class AtomTreeNode {
             return;
         }
 
-        setIndex(parentNode.newChildIndex());
+        setOrdinal(parentNode.newChildIndex());
         
         parentNode.childList.add(atom.seq);
         parentNode.addAtomNotify(atom);
@@ -103,7 +103,26 @@ public abstract class AtomTreeNode {
      * Assigned during construction of atom.
      */
     public final int index() {return atomIndex;}
-    public final void setIndex(int i) {atomIndex = i;}
+
+    public void setOrdinal(int ordinal) {
+        setOrdinal((parentNode != null) ? parentNode.index() : 0, ordinal);
+    }
+    
+    public void setOrdinal(int parentIndex, int ordinal) {
+        atomIndex = parentIndex + atom.type.getIndexManager().shiftOrdinal(ordinal);
+        if (atom.type.getIndexManager().getOrdinal(atomIndex) != ordinal) {
+            atom.type.getIndexManager().getOrdinal(atomIndex);
+            throw new RuntimeException(atomIndex+" "+ordinal+" "+atom.type.getIndexManager().getOrdinal(atomIndex));
+        }
+    }
+    
+    public int getOrdinal() {
+//        System.out.println(atom.type.getDepth()+" "+atom.type.getIndexManager().getOrdinal(atomIndex));
+//        if(atom.type.getDepth()==4 && atom.type.getIndexManager().getOrdinal(atomIndex)==6) {
+//        }
+        return atom.type.getIndexManager().getOrdinal(atomIndex);
+    }
+    
 
     /**
      * Returns true if the given atom is in the hierarchy of parents of this atom,
@@ -150,38 +169,7 @@ public abstract class AtomTreeNode {
     public boolean preceeds(Atom a) {
         return (a != null) ? preceeds(a.node) : true;
     }
-    
-    /**
-     * Integer array indicating the maximum number of atoms at each depth in the
-     * atom hierarchy.  Maximum depth is given by the size of the array.  Each
-     * element of array is log2 of the maximum number of child atoms permitted
-     * under one atom.  This is used to assign index values to each atom when it
-     * is made.  The indexes permit quick comparison of the relative ordering
-     * and/or hierarchical relation of any two atoms.  Sum of digits in array
-     * should not exceed 31. For example, {5, 16, 7, 3} indicates 31
-     * speciesAgents maximum, 65,536 molecules each, 128 groups per molecule, 8
-     * atoms per group (number of species agents is one fewer, because index 0
-     * is assigned to species master)
-     */
-    // powers of 2, for reference:
-    //  n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |  14  |  15  |  16  |  17   |  18   |  19   |   20    |
-    // 2^n| 2 | 4 | 8 | 16| 32| 64|128|256|512|1024|2048|4096|8192|16,384|32,768|65,536|131,072|262,144|524,288|1,048,576|
-    public static final int[] MAX_ATOMS = new int[] {5, 16, 7, 3};
-    protected static final int[] MAX_ATOMS_CUMULATIVE = calculateMaxAtomsCumulative(MAX_ATOMS);
-    
-    private static int[] calculateMaxAtomsCumulative(int[] array) {
-        int[] newArray = (int[])array.clone();
-        for(int i=1; i<newArray.length; i++) {
-            newArray[i] += newArray[i-1];
-        }
-        if(newArray[newArray.length-1] != 31) {
-            throw new RuntimeException("Improper setup of AtomTreeNode.MAX_ATOMS");
-        }
-        return newArray;
-    }
-    
-
-        
+            
     protected final Atom atom;
     protected int atomIndex;
     private AtomTreeNodeGroup parentNode;

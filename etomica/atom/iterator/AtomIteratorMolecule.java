@@ -31,7 +31,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         super(new AtomIteratorListSimple());
         listIterator = (AtomIteratorListSimple)iterator;
         this.species = species[0];
-        index = this.species.getIndex();
         setList();
     }
 
@@ -87,7 +86,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         }
     }
 
-    private final int index;
     private final AtomIteratorListSimple listIterator;
     private final Species species;
     private final AtomList littleList = new AtomList();

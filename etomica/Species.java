@@ -1,6 +1,5 @@
 package etomica;
 import etomica.action.AtomAction;
-import etomica.action.AtomActionAdapter;
 import etomica.chem.Model;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
@@ -41,23 +40,19 @@ public class Species {
     /**
      * Constructs species with molecules built by the given atom factory.
      */
-    public Species(AtomFactory factory) {
+    public Species(Simulation sim, AtomFactory factory) {
         this.factory = factory;
-        if (Default.AUTO_REGISTER) {
-            Simulation.getDefault().register(this);
-        }
         setName(NameMaker.makeName(this.getClass()));
-        index = instanceCount++;
+        index = sim.speciesRoot.addSpecies(this);
         factory.setSpecies(this);
-        factory.setDepth(2);//change comment in AtomFactory assigning differently
     }
     
     /**
      * Constructs species with an atom factory that makes molecules from
      * the given model for the given space.
      */
-    public Species(Space space, Model model) {
-    	this(model.makeAtomFactory(space));
+    public Species(Simulation sim, Model model) {
+    	this(sim, model.makeAtomFactory(sim.space));
     }
 
     public int getIndex() {
@@ -118,7 +113,6 @@ public class Species {
      */
     public void setNMolecules(int n) {
         nMolecules = n;
-        allAgents(new AtomActionAdapter() {public void actionPerformed(Atom a) {((SpeciesAgent)a).setNMolecules(nMolecules);}});
     }
         
     /**
@@ -138,10 +132,12 @@ public class Species {
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.node.parentPhase();
-        SpeciesAgent a = new SpeciesAgent(factory.space, this, phase, nMolecules);
-        a.node.setParent(parent.node);
-        agents.put(phase,a);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
-        return a;
+        SpeciesAgent agent = new SpeciesAgent(factory.space, 
+                new AtomType(parent.type.getIndexManager().makeChildManager()), 
+                this, phase, nMolecules);
+        agent.node.setParent(parent.node);
+        agents.put(phase, agent);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
+        return agent;
     }
 
     /**
@@ -174,7 +170,7 @@ public class Species {
         private SpeciesAgent[] agentArray = new SpeciesAgent[0];
         
         void put(Phase phase, SpeciesAgent agent) {
-            int index = phase.index;
+            int index = phase.getIndex();
             //expand array size
             if(index >= agentArray.length) {
                 agentArray = (SpeciesAgent[])etomica.utility.Arrays.resizeArray(agentArray,index+1);
@@ -182,7 +178,7 @@ public class Species {
             agentArray[index] = agent;
         }
         
-        SpeciesAgent get(Phase phase) {return agentArray[phase.index];}
+        SpeciesAgent get(Phase phase) {return agentArray[phase.getIndex()];}
         
         void doToAll(AtomAction action) {
             for(int i=agentArray.length-1; i>=0; i--) action.actionPerformed(agentArray[i]);

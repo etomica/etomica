@@ -160,7 +160,7 @@ public class SimulationGraphic implements SimulationContainer {
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
-        ColorSchemeByType.setColor(sim.species.protoType, java.awt.Color.red);
+        ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
     }//end of main

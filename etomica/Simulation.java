@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.DataAccumulator;
 import etomica.log.LoggerAbstract;
 import etomica.space2d.Space2D;
@@ -40,6 +42,7 @@ public class Simulation {
     
     public final PotentialMaster potentialMaster;
     public final Space space;
+    public final SpeciesRoot speciesRoot;
     
     /**
      * A static instance of a Simulation, for which the current value at any time is
@@ -61,6 +64,10 @@ public class Simulation {
     }
     
     public Simulation(Space space, PotentialMaster potentialMaster) {
+        this(space,potentialMaster,Default.BIT_LENGTH);
+    }
+    
+    public Simulation(Space space, PotentialMaster potentialMaster, int[] bitLength) {
         this.space = space;
         instance = this;
         instanceCount++;
@@ -70,6 +77,7 @@ public class Simulation {
         this.potentialMaster = potentialMaster;
         potentialMaster.setSimulation(this);
         setController(new Controller());
+        speciesRoot = new SpeciesRoot(space,(int[])bitLength.clone());
         instantiationEventManager.fireEvent(new SimulationEvent(this));
     }//end of constructor
                  
@@ -78,18 +86,7 @@ public class Simulation {
      * @return the <code>nth</code> instantiated phase (indexing from zero)
      */
     public final Phase phase(int n) {return (Phase)getElement(Phase.class, n);}
-    /**
-     * @return the <code>nth</code> instantiated species (indexing from zero)
-     */
-    public final Species species(int n) {return (Species)getElement(Species.class, n);}
-    /**
-     * @return the <code>nth</code> instantiated controller (indexing from zero)
-     * @deprecated use getController instead
-     */
-    public final Controller controller(int n) {
-    	if(n != 0) throw new IllegalArgumentException("only one controller; must call with 0 index");
-    	return getController();
-    }
+
     /**
      * @return the <code>nth</code> instantiated integrator (indexing from zero)
      */
@@ -111,7 +108,15 @@ public class Simulation {
 	
 	public final LinkedList getLoggerList() {return loggerList;}
     public final LinkedList getDataAccumulatorList() {return dataAccumulatorList;}
-    public final LinkedList getPhaseList() {return phaseList;}
+    public final LinkedList getPhaseList() {
+        phaseList.clear();
+        AtomIteratorListSimple listIterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)speciesRoot.node).childList);
+        listIterator.reset();
+        while(listIterator.hasNext()) {
+            phaseList.add(listIterator.nextAtom().node.parentPhase());
+        }
+        return phaseList;
+    }
     public final LinkedList getMeterList() {return meterList;}
     public final LinkedList getIntegratorList() {return integratorList;}
     public final LinkedList getSpeciesList() {return speciesList;}

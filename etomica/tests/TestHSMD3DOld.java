@@ -50,7 +50,6 @@ public class TestHSMD3DOld extends Simulation {
         species2 = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
         species2.setNMolecules(numAtoms/100);
-        phase = new Phase(space);
         potential = new P2HardSphere(space);
 
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -60,9 +59,8 @@ public class TestHSMD3DOld extends Simulation {
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species2},criterion);
         
+        phase = new Phase(this);
         phase.setConfiguration(null);
-        phase.speciesMaster.addSpecies(species);
-        phase.speciesMaster.addSpecies(species2);
         integrator.addPhase(phase);
         phase.setConfiguration(new ConfigurationFile(space,Integer.toString(numAtoms)));
         

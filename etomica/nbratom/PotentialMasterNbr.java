@@ -142,13 +142,13 @@ public class PotentialMasterNbr extends PotentialMaster {
 
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        if(phase.index > neighborCellManager.length-1) {
-            neighborCellManager = (NeighborCellManager[])Arrays.resizeArray(neighborCellManager, phase.index+1);
+        if(phase.getIndex() > neighborCellManager.length-1) {
+            neighborCellManager = (NeighborCellManager[])Arrays.resizeArray(neighborCellManager, phase.getIndex()+1);
         }
-        if(neighborCellManager[phase.index] == null) {
-            neighborCellManager[phase.index] = new NeighborCellManager(phase,nCells,positionDefinition);
+        if(neighborCellManager[phase.getIndex()] == null) {
+            neighborCellManager[phase.getIndex()] = new NeighborCellManager(phase,nCells,positionDefinition);
         }
-        return neighborCellManager[phase.index];
+        return neighborCellManager[phase.getIndex()];
     }
 
     public int getNCells() {

@@ -43,13 +43,12 @@ public class SwMd2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(50);
-        phase = new Phase(space);
+        phase = new Phase(this);
         potential = new P2SquareWell(space);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
         integrator.addIntervalListener(new PhaseImposePbc(phase));
     } 

@@ -1,7 +1,7 @@
 package etomica.tests;
 
 import etomica.ConfigurationFile;
-import etomica.ConfigurationLinear;
+import etomica.ConformationLinear;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
@@ -63,13 +63,14 @@ public class TestSWChainOld extends Simulation {
 
         P2SquareWell potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
 
-        SpeciesSpheres species = new SpeciesSpheres(space,potentialMaster.sequencerFactory(),numMolecules,chainLength);
+        SpeciesSpheres species = new SpeciesSpheres(this,potentialMaster.sequencerFactory(),chainLength);
+        species.setNMolecules(numMolecules);
         P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(space);
         ((P2HardBond)potentialChainIntra.bonded).setBondLength(Default.ATOM_SIZE);
         ((P2HardBond)potentialChainIntra.bonded).setBondDelta(bondFactor);
         potentialChainIntra.setNonbonded(potential);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
-        ((ConfigurationLinear)species.getFactory().getConfiguration()).setBondLength(Default.ATOM_SIZE);
+        ((ConformationLinear)species.getFactory().getConformation()).setBondLength(Default.ATOM_SIZE);
 
         PotentialGroup p2Inter = new PotentialGroup(2,space);
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -79,10 +80,9 @@ public class TestSWChainOld extends Simulation {
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
         ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 
-        phase = new Phase(space);
+        phase = new Phase(this);
 
         phase.setConfiguration(null);
-        phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
         phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)));
     }

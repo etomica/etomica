@@ -58,7 +58,7 @@ public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent,
         aiOuter = ((AtomIteratorListSimple)interListIterator.getOuterIterator());
         intraListIterator = new ApiListSimple();
         listIterator = intraListIterator;
-        index = species[0].getIndex();
+        index = species[0].getIndex()-1;
 	}
 
 	public void setPhase(Phase phase) {

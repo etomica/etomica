@@ -54,7 +54,6 @@ public class TestHSMD3D extends Simulation {
         species2 = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
         species2.setNMolecules(numAtoms/100);
-        phase = new Phase(space);
 
         potential = new P2HardSphere(space);
         NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -84,9 +83,7 @@ public class TestHSMD3D extends Simulation {
         nbrManager.addCriterion(nbrCriterion);
         species2.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
         
-        phase.setConfiguration(null);
-        phase.speciesMaster.addSpecies(species);
-        phase.speciesMaster.addSpecies(species2);
+        phase = new Phase(this);
         integrator.addPhase(phase);
         phase.setConfiguration(new ConfigurationFile(space,Integer.toString(numAtoms)));
         

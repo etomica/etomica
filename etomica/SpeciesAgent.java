@@ -4,7 +4,6 @@ import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomTypeGroup;
 import etomica.units.Dimension;
 
 /**
@@ -17,11 +16,10 @@ import etomica.units.Dimension;
  
 public final class SpeciesAgent extends Atom {
 
-    public SpeciesAgent(Space space, Species species, Phase phase, int nMolecules) {
-        super(space, new AtomTypeGroup(), NODE_FACTORY,  AtomSequencerFactory.SIMPLE);
+    SpeciesAgent(Space space, AtomType type, Species species, Phase phase, int nMolecules) {
+        super(space, type, NODE_FACTORY,  AtomSequencerFactory.SIMPLE);
         this.phase = phase;
         type.setSpecies(species);
-        type.setDepth(1);
     }
         
     public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
@@ -34,7 +32,7 @@ public final class SpeciesAgent extends Atom {
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom();
-        phase.addMolecule(aNew, this);
+        aNew.node.setParent((AtomTreeNodeGroup)node);
         return aNew;
     }    
     
@@ -51,6 +49,7 @@ public final class SpeciesAgent extends Atom {
     * @see #addMolecule
     */
     public void setNMolecules(int n) {
+        lastNMolecules = n;
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
         while(treeNode.childList.size() > 0) treeNode.childList.getLast().node.dispose();
         if(n > treeNode.childAtomCount()) {
@@ -64,6 +63,11 @@ public final class SpeciesAgent extends Atom {
         //reconsider this
         //node.parentPhase().configuration.initializeCoordinates(this);
         node.parentPhase().reset();
+    }
+    
+    public void makeMolecules() {
+        int nMolecules = (lastNMolecules>-1) ? lastNMolecules : type.getSpecies().getNMolecules(); 
+        setNMolecules(nMolecules);
     }
     
     public int getNMolecules() {return moleculeCount();}
@@ -85,9 +89,11 @@ public final class SpeciesAgent extends Atom {
         public final SpeciesAgent parentSpeciesAgent() {return (SpeciesAgent)this.atom;}
         
         /**
-        * Returns null, since a species agent is not contained within a molecule.
-        */
-        public final Atom parentMolecule() {return null;}
+         * Throws a RuntimeException, because a species agent is not contained within a molecule.
+         */
+        public final Atom parentMolecule() {
+            throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
+        }
     }
     
     private final static AtomTreeNodeFactory NODE_FACTORY = new AtomTreeNodeFactory() {
@@ -97,5 +103,6 @@ public final class SpeciesAgent extends Atom {
     };
     public AtomLinker.Tab firstLeafAtomTab;
     private final Phase phase;
+    private int lastNMolecules = -1;
     
 } //end of SpeciesAgent

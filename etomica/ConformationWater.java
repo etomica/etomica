@@ -4,13 +4,13 @@ import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
 
-public class ConfigurationWater extends Conformation {
+public class ConformationWater extends Conformation {
 
     private double bondLengthOH = 4.0;
     private double angleHOH = 109.5*Math.PI/180.;
     private final AtomIteratorListSimple moleculeIterator;
 
-    public ConfigurationWater(Space space) {
+    public ConformationWater(Space space) {
         super(space);
         moleculeIterator = new AtomIteratorListSimple();
     }

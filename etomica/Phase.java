@@ -3,8 +3,8 @@ package etomica;
 import java.util.Observable;
 import java.util.Observer;
 
-import etomica.action.PhaseImposePbc;
 import etomica.action.PhaseInflate;
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
@@ -65,20 +65,17 @@ public class Phase {
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
-    private static int nonSimCount = 0;//number of times instantiated without a parent simulation
-    private PhaseImposePbc centralImageEnforcer;
     private String name;
-    public final int index;
     private final Space space;
-    private static int instanceCount;
     
     /**
      * Constructs phase.
      */
-    public Phase(Space space) {
-        index = instanceCount++;
-        speciesMaster = new SpeciesMaster(space, this);
-        this.space = space;
+    public Phase(Simulation sim) {
+        space = sim.space;
+        speciesMaster = new SpeciesMaster(sim, this);
+        speciesMaster.node.setParent(sim.speciesRoot);
+        makeMolecules();
         setName(NameMaker.makeName(this.getClass()));
 
         setBoundary(new BoundaryPeriodicSquare(space));
@@ -88,12 +85,19 @@ public class Phase {
         else
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
 
-        if (Default.AUTO_REGISTER) {
-            Simulation.getDefault().register(this);
-        }
     }//end of constructor
-   
 
+    public void makeMolecules() {
+        AtomLinker agentHead = speciesMaster.node.childList.header;
+        for (AtomLinker link=agentHead.next; link!=agentHead; link=link.next) {
+            ((SpeciesAgent)link.atom).makeMolecules();
+        }
+    }
+    
+    public int getIndex() {
+        return speciesMaster.node.getOrdinal();
+    }
+    
     /**
      * Accessor method of the name of this phase
      * 
@@ -341,25 +345,6 @@ public class Phase {
         Simulation.instance.elementCoordinator.go();
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
     }*/
-    
-	/**
-	 * Returns the centralImageEnforcer.
-	 * @return PhaseActionAdapter.PhaseImposePbc
-	 */
-	public PhaseImposePbc getCentralImageEnforcer() {
-		return centralImageEnforcer;
-	}
-
-	/**
-	 * Sets the centralImageEnforcer.  Normally this is set by the
-	 * IntegratorPhase mediator, and is also registered as an
-	 * IntervalEventListener with the Integrator.
-	 * @param centralImageEnforcer The centralImageEnforcer to set
-	 */
-	public void setCentralImageEnforcer(
-		PhaseImposePbc centralImageEnforcer) {
-		this.centralImageEnforcer = centralImageEnforcer;
-	}
 
 } //end of Phase
         

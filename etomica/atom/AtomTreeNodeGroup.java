@@ -12,26 +12,20 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         super(atom);
     }
         
-    public int newChildIndex() {
-        if(!childList.isEmpty()) { //siblings
-            return (childList.getLast().node.index()+1);
-        }
-        else {  //only child
-            return(0);
-        }
+    int newChildIndex() {
+        return childList.isEmpty() ? 1 : childList.getLast().node.getOrdinal()+1;
     }
-
-	/**
-	 * Invoke superclass method and then notify children.
-	 * 
-	 * @see etomica.atom.AtomTreeNode#setParent(AtomTreeNodeGroup)
-	 */
-	public void setParent(AtomTreeNodeGroup parent) {
-		super.setParent(parent);
-        AtomLinker link = childList.header.next;
-        while(link != childList.header) {
-            link.atom.node.setParent(this);//notifies children that there was a change in the hierarchy
-            link = link.next;
+    
+    /**
+     * Set this atom's index and update indexes of its descendants.
+     */
+    public void setOrdinal(int index) {
+        super.setOrdinal(index);
+        int i = 0;
+        for(AtomLinker link=childList.header.next;
+                        link!=childList.header; 
+                        link = link.next) {
+            link.atom.node.setOrdinal(atomIndex, ++i);
         }
     }
 	
@@ -60,38 +54,6 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         return null;
     }
     
-    /**
-     * Rearranges the hierarchy of atoms below this node, resulting
-     * in a situation where all children of this node are leaf atoms.
-     */
-     //need to find way to update childrenAreGroups to give false 
-     //after this method is invoked
-     
-     //commented because this is just a detailed sketch of the method; not tested at all
-    /*
-    public void flatten() {
-        AtomIteratorListSimple iterator = new AtomIteratorListSimple();
-        AtomList tempChildList = new AtomList(childList);//copy because we're modifying the child list
-        childList.clear();
-        childIterator.setBasis(tempChildList);
-        childIterator.reset();
-        while(childIterator.hasNext()) {
-            Atom child = childIterator.next();
-            if(child.node instanceof AtomTreeGroupNode) {
-                AtomTreeNodeGroup childNode = (AtomTreeNodeGroup)child.node;
-                childNode.flatten();
-                iterator.setBasis(childNode.childList);
-                iterator.reset();
-                while(iterator.hasNext()) {
-                    childList.add(iterator.next().seq);
-                }
-            } else {
-                childList.add(child.seq)
-            }
-        }
-    }//end of flatten
-    
-    */    
     public int leafAtomCount() {return leafAtomCount;}
     public int childAtomCount() {return childList.size();}
 

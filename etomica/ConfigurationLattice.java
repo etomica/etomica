@@ -104,7 +104,7 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConfiguration();
+                Conformation config = a.type.creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             Vector site = (Vector)lattice.site(indexIterator.next());
@@ -215,7 +215,7 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
         Simulation sim = new Simulation(Space3D.INSTANCE);
 		Default.ATOM_SIZE = 5.0;
 		Space space = sim.space;
-		Phase phase = new Phase(space);
+		Phase phase = new Phase(sim);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 		int k = 4;
 		species.setNMolecules(4*k*k*k);
@@ -226,7 +226,6 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice);
 //        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
 		phase.setConfiguration(configuration);
-        phase.speciesMaster.addSpecies(species);
 //		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);

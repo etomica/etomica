@@ -2,7 +2,7 @@
 
 package etomica.simulations;
 
-import etomica.ConfigurationLinear;
+import etomica.ConformationLinear;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -56,11 +56,12 @@ public class ChainHSMD3D extends Simulation {
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheres(space,((PotentialMasterNbr)potentialMaster).sequencerFactory(),numAtoms,chainLength);
-        ((ConfigurationLinear)((AtomFactoryHomo)species.getFactory()).getConfiguration()).setBondLength(Default.ATOM_SIZE);
-        ((ConfigurationLinear)((AtomFactoryHomo)species.getFactory()).getConfiguration()).setAngle(1,0.5);
+        species = new SpeciesSpheres(this,((PotentialMasterNbr)potentialMaster).sequencerFactory(),chainLength);
+        species.setNMolecules(numAtoms);
+        ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setBondLength(Default.ATOM_SIZE);
+        ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setAngle(1,0.5);
         
-        phase = new Phase(space);
+        phase = new Phase(this);
         
         P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(space);
         potentialMaster.setSpecies(p1Intra,new Species[]{species});
@@ -76,8 +77,8 @@ public class ChainHSMD3D extends Simulation {
         ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
         
         //        Crystal crystal = new LatticeCubicFcc(space);
-//        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
-//        phase.setConfiguration(configuration);
+//        ConfigurationLattice conformation = new ConfigurationLattice(space, crystal);
+//        phase.setConfiguration(conformation);
 //        potential = new P2HardSphere(space);
 //        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
@@ -86,7 +87,6 @@ public class ChainHSMD3D extends Simulation {
 
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         

@@ -5,19 +5,25 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import etomica.Action;
+import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageSegment;
+import etomica.data.meter.MeterNMolecules;
+import etomica.data.meter.MeterPressureHard;
+import etomica.units.Dimension;
+import etomica.units.Unit;
+import etomica.utility.Arrays;
 
 /**
- * Presents data in a tabular form.  Data is obtained from DatumSource objects.
- * Sources may be identified to the Display by passing an array of DatumSource objects (in
- * the setDatumSources method, or one at a time via the addDatumSource method).
+ * Presents data in a tabular form.
  *
  * @author David Kofke
  * @see DisplayTableFunction
@@ -27,12 +33,15 @@ import etomica.Simulation;
   * 7/20/02 Added key listener to set precision of displayed values
   */
  
-public class DisplayTable extends DisplayDatumSources implements EtomicaElement {
-    public JTable table;
-    javax.swing.JPanel panel;
+public class DisplayTable extends Display implements EtomicaElement {
+    
+    private JTable table;
+    private JPanel panel;
     private boolean showLabels = true;
     private boolean fitToWindow = true;
     private MyTableData tableSource;
+    private DataGroup[] data = new DataGroup[0];
+    private boolean fillHorizontal;
     
         //structures used to adjust precision of displayed values
 //	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
@@ -45,10 +54,6 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement 
         };
         
     public DisplayTable() {
-        this(Simulation.instance);
-    }
-    public DisplayTable(Simulation sim)  {
-        super(sim);
         setupDisplay();
         setLabel("Data");
         numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
@@ -56,6 +61,8 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement 
         InputEventHandler listener = new InputEventHandler();
         panel.addKeyListener(listener);
         panel.addMouseListener(listener);
+        setFillHorizontal(true);
+        setupDisplay();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -68,21 +75,29 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement 
      * data sources are added or changed.
      */
     protected void setupDisplay() {
-   //     if(panel == null) panel = Box.createVerticalBox();
         if(panel == null) panel = new javax.swing.JPanel(new java.awt.FlowLayout());
         else panel.removeAll();
         panel.setSize(100,150);
-        if(ySource == null || ySource.length == 0) return;
         tableSource = new MyTableData();   //inner class, defined below
         table = new JTable(tableSource);
         if(!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setDefaultRenderer(Number.class, numberRenderer);
         table.setDefaultRenderer(Double.class, numberRenderer);
         panel.add(new JScrollPane(table));
-        doUpdate();
-        
     }
         
+    /**
+     * If true, each data set fills a row; if false, data are arranged to fill columns.
+     */
+    public boolean isFillHorizontal() {
+        return fillHorizontal;
+    }
+    /**
+     * If fillHorizontal is true, each data set fills a row; if false, data are arranged to fill columns.
+     */
+    public void setFillHorizontal(boolean fillHorizontal) {
+        this.fillHorizontal = fillHorizontal;
+    }
     /**
      * If true, columns will be squeezed so table fits to window; if false, table
      * will exceed window size, and to view full width must be placed in a scroll pane.
@@ -136,7 +151,6 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement 
         int y0;  //index of first y column (1 if showing x, 0 otherwise)
         
         MyTableData() {
-            nColumns = whichValues.length;
             y0 = showLabels ? 1 : 0;
             nColumns += y0;
             columnNames = new String[nColumns];
@@ -146,25 +160,71 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement 
                 columnClasses[0] = String.class;
             }
             for(int i=y0; i<nColumns; i++) {
-                columnNames[i] = (whichValues[i-y0]!=null) ? whichValues[i-y0].toString() : "";
+                columnNames[i] = "";
                 columnClasses[i] = Double.class;
             }
         }
         
-            //x-y values are updated in update() method
-            //because we don't want to call currentValue
-            //or average for each function entry
         public Object getValueAt(int row, int column) {
-            if(showLabels && column == 0) return labels[row];
-            else return new Double(yUnit[row].fromSim(y[row][column-y0]));
+            int r = fillHorizontal ? row : column;
+            int c = fillHorizontal ? column : row;
+//            if(showLabels && column == 0) return labels[row];
+            return new Double(data[r].unit.fromSim(data[r].y[c]));
         }
         
-        public int getRowCount() {return ySource.length;}
-        public int getColumnCount() {return y0 + whichValues.length;}
+        public int getRowCount() {return fillHorizontal ? data.length : nColumns;}
+        public int getColumnCount() {return fillHorizontal ? nColumns : data.length;}
                 
         public String getColumnName(int column) {return columnNames[column];}
         public Class getColumnClass(int column) {return columnClasses[column];}
     }
+    
+    public DataSink makeDataSink(Unit u) {
+        DataGroup newGroup = (DataGroup)makeDataSink();
+        newGroup.unit = u;
+        data = (DataGroup[])Arrays.addObject(data, newGroup);
+        return newGroup;
+    }
+    
+    public DataSink makeDataSink() {
+        DataGroup newGroup = new DataGroup();
+        data = (DataGroup[])Arrays.addObject(data, newGroup);
+        return newGroup;
+    }
+    
+    public void removeDataSink(DataSink sink) {
+        data = (DataGroup[])Arrays.removeObject(data, sink);
+    }
+    
+    public void removeAllSinks() {
+        data = new DataGroup[0];
+    }
+
+    private class DataGroup implements DataSink {
+        double[] y;
+        Dimension dimension = Dimension.UNDEFINED;
+        Unit unit = Unit.UNDEFINED;
+        String label = "";
+        
+        DataGroup() {
+            y = new double[0];
+        }
+
+        public void putData(double[] values) {
+            if(y.length != values.length) y = (double[])values.clone();
+            else System.arraycopy(values, 0, y, 0, values.length);
+            repaint();
+        }
+
+        public void setDimension(Dimension dimension) {
+            this.dimension = dimension;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+    }
+
     
     private class InputEventHandler extends MouseAdapter implements KeyListener {
         
@@ -200,26 +260,29 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement 
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
+        SimulationGraphic graphic = new SimulationGraphic(sim);
+        sim.integrator.setIsothermal(true);
         
         //part that is unique to this demonstration
-        Default.BLOCK_SIZE = 20;
-        MeterPressureHard pMeter = new MeterPressureHard();
-        MeterNMolecules nMeter = new MeterNMolecules();
         DisplayTable table = new DisplayTable();
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        pMeter.setPhase(sim.phase);
+        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(pMeter, sim.integrator, 
+                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR},
+                table.makeDataSink());
+        MeterNMolecules nMeter = new MeterNMolecules();
+        nMeter.setPhase(sim.phase);
+        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(nMeter, sim.integrator, 
+                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR},
+                table.makeDataSink());
         //end of unique part
                                             
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		                                    
-        table.setDatumSources(pMeter);
-        table.addDatumSources(nMeter);
-        table.setWhichValues(new MeterAbstract.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE});
         table.setPrecision(7);
         
-        Simulation.makeAndDisplayFrame(sim);
+        graphic.add(table);
+        graphic.makeAndDisplayFrame();
     }//end of main
-*/
+
 }

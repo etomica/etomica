@@ -44,9 +44,6 @@ public class AtomLinker implements java.io.Serializable {
      * and after the linker that originally preceded the given one.
      */
     public void addBefore(AtomLinker newNext) {
-        if(Debug.ON && next != this) {//also implies (previous!=this)
-            throw new IllegalStateException("Illegal attempt to add a linker to a list while it has not been removed from another list.");
-        }
         if(Debug.ON && this == newNext) {
             throw new IllegalArgumentException("Illegal attempt to link a linker to itself.");
         }

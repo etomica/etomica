@@ -38,13 +38,12 @@ public class LjMd2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(50);
-        phase = new Phase(space);
+        phase = new Phase(this);
         potential = new P2LennardJones(space);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
 		
 		energy = new MeterEnergy(potentialMaster);

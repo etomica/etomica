@@ -34,14 +34,16 @@ public class AtomType implements java.io.Serializable {
     private final NeighborManagerAgent neighborManagerAgent;
     
     public double mass, rm;
-    private int depth;
+    private final AtomIndexManager indexManager;
     
 //    private Parameter.Electrostatic electroParameter;
     
-    public AtomType() {
-        this(Default.ATOM_MASS);
+    public AtomType(AtomIndexManager indexManager) {
+        this(indexManager, Default.ATOM_MASS);
     }
-    public AtomType(double mass) {
+    public AtomType(AtomIndexManager indexManager, double mass) {
+        
+        this.indexManager = indexManager;
         
         //update linked list of instances
         this.previousInstance = lastInstance;
@@ -56,6 +58,10 @@ public class AtomType implements java.io.Serializable {
 
 //        System.out.println("AtomType constructor:"+mass);
         neighborManagerAgent = new NeighborManagerAgent();
+    }
+    
+    public AtomIndexManager getIndexManager() {
+        return indexManager;
     }
     
     protected void addGlobalParameter(Parameter.Source source) {
@@ -92,13 +98,7 @@ public class AtomType implements java.io.Serializable {
      * the number of parent relations between this atom and the species master.
      */
     public int getDepth() {
-        return depth;
-    }
-    /**
-     * @param depth The depth to set.
-     */
-    public void setDepth(int depth) {
-        this.depth = depth;
+        return indexManager.getDepth();
     }
     /**
      * @return Returns the species.

@@ -19,28 +19,30 @@ import etomica.units.Dimension;
 public class SpeciesSpheres extends Species implements EtomicaElement {
 
     private double mass;
-    public AtomTypeSphere protoType;
+    private final AtomTypeSphere atomType;
     
     //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory, int na, Conformation config) {
-        AtomType type = new AtomTypeSphere(Default.ATOM_MASS, Default.ATOM_SIZE);
+    private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory, 
+                                                AtomIndexManager indexManager, int na, Conformation config) {
+        AtomType type = new AtomTypeSphere(indexManager.makeChildManager(), Default.ATOM_MASS, Default.ATOM_SIZE);
         AtomFactoryMono f = new AtomFactoryMono(space, type, seqFactory);
-        return new AtomFactoryHomo(space, seqFactory, f, na, config);
+        return new AtomFactoryHomo(space, seqFactory, indexManager, f, na, config);
     }
     
     public SpeciesSpheres(Simulation sim) {
-        this(sim.space, sim.potentialMaster.sequencerFactory(), Default.MOLECULE_COUNT, 1);
+        this(sim, sim.potentialMaster.sequencerFactory(), 1);
     }
-    public SpeciesSpheres(Space space, AtomSequencerFactory seqFactory, int nM, int nA) {
-        this(space, seqFactory, nM, nA, new ConfigurationLinear(space));
+    public SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, int nA) {
+        this(sim, seqFactory, nA, new ConformationLinear(sim.space));
     }
-    public SpeciesSpheres(Space space, AtomSequencerFactory seqFactory, 
-                int nM, int nA, Conformation config) {
-        super(makeFactory(space, seqFactory, nA, config));
+    public SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, 
+                int nA, Conformation conformation) {
+        super(sim, makeFactory(sim.space, seqFactory, sim.speciesRoot.type.getIndexManager().makeMoleculeIndexManager(),
+                                nA, conformation));
         factory.setSpecies(this);
-        protoType = (AtomTypeSphere)((AtomFactoryHomo)factory).childFactory().getType();
-        nMolecules = nM;
-        mass = protoType.getMass();
+        atomType = (AtomTypeSphere)((AtomFactoryHomo)factory).childFactory().getType();
+        nMolecules = Default.MOLECULE_COUNT;
+        mass = atomType.getMass();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -57,7 +59,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
      */
     public final void setMass(double m) {
         mass = m;
-        protoType.setMass(m);
+        atomType.setMass(m);
     }
     /**
      * @return Dimension.MASS
@@ -67,11 +69,11 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     /**
      * The diameter of each of the spheres that form a molecule.
      */
-    public final double getDiameter() {return protoType.diameter(null);}
+    public final double getDiameter() {return atomType.diameter(null);}
     /**
      * Sets the diameter of all spheres in each molecule to the given value.
      */
-    public void setDiameter(double d) {protoType.setDiameter(d);}
+    public void setDiameter(double d) {atomType.setDiameter(d);}
     /**
      * @return Dimension.LENGTH
      */

@@ -58,7 +58,7 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         if(species == null || species.length < 1 || species[0] == null) throw new NullPointerException("Constructor of ApiIntraspecies1A requires two non-null species references to the same instance");
         if(species[0] != species[1]) throw new IllegalArgumentException("Constructor of ApiIntraspecies1A requires references to the same species instance");
         this.species = species[0];
-        innerIndex = this.species.getIndex();
+        innerIndex = this.species.getIndex()-1;
 
         neighborIterator = new CellLattice.NeighborIterator(D);
         aiOuter = new AtomIteratorSinglet();

@@ -46,8 +46,8 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         listIterator = ApiBuilder.makeInterlistIterator();
         aiInner = ((AtomIteratorListSimple)listIterator.getInnerIterator());
         aiOuter = ((AtomIteratorListSimple)listIterator.getOuterIterator());
-        index0 = species[0].getIndex();
-        index1 = species[1].getIndex();
+        index0 = species[0].getIndex()-1;
+        index1 = species[1].getIndex()-1;
         if(index0 == index1) throw new IllegalArgumentException("Intergroup iterator cannot be constructed with a single species");
 	}
 

@@ -77,7 +77,7 @@ public class ConfigurationZincblende extends ConfigurationMolecule {
         Simulation sim = new Simulation(Space3D.INSTANCE);
         Default.ATOM_SIZE = 5.0;
         Space space = sim.space;
-        Phase phase = new Phase(space);
+        Phase phase = new Phase(sim);
         etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono(sim);
         etomica.SpeciesSpheresMono speciesSpheres1  = new etomica.SpeciesSpheresMono(sim);
         speciesSpheres0.setNMolecules(32);
@@ -85,8 +85,6 @@ public class ConfigurationZincblende extends ConfigurationMolecule {
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0,new java.awt.Color(0,255,0));
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.red);
         phase.setConfiguration(new ConfigurationZincblende(space));
-        phase.speciesMaster.addSpecies(speciesSpheres0);
-        phase.speciesMaster.addSpecies(speciesSpheres1);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();

@@ -7,7 +7,6 @@ import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTreeNodeLeaf;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomLinker.Tab;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -20,12 +19,12 @@ import etomica.atom.iterator.AtomIteratorTree;
  
 public final class SpeciesMaster extends Atom {
     
+    final AtomType childType;
     private int moleculeCount;
     //manager and events for addition/removal of descendant atoms
     private final SimulationEventManager eventManager = new SimulationEventManager();
     private final PhaseEvent additionEvent = new PhaseEvent(this, PhaseEvent.ATOM_ADDED);
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
-    public int index;
     public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     public final static int SPECIES_TAB = Tab.requestTabType();
     //reference to phase is kept in node
@@ -35,17 +34,10 @@ public final class SpeciesMaster extends Atom {
      */
     public final AtomList atomList = new AtomList();
 
-    public SpeciesMaster(Space space, Phase p) {
-        super(space, new AtomTypeGroup(), new NodeFactory(p),AtomSequencerFactory.SIMPLE);
-        index = p.index;
-        type.setDepth(0);
+    SpeciesMaster(Simulation sim, Phase p) {
+        super(sim.space, sim.speciesRoot.childType, new NodeFactory(p), AtomSequencerFactory.SIMPLE);
         node = (AtomTreeNodeGroup)super.node;
-    }
-        
-    public void addSpecies(Species species) {
-        SpeciesAgent agent = species.makeAgent(this);
-        // setNMolecules will initialize coordinates
-        agent.setNMolecules(species.getNMolecules());
+        childType = new AtomType(type.getIndexManager().makeChildManager());
     }
     
     public SpeciesAgent firstSpecies() {return (SpeciesAgent)node.childList.getFirst();}
@@ -69,7 +61,6 @@ public final class SpeciesMaster extends Atom {
         eventManager.removeListener(listener);
     }
     
-    //why not make inner class?
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
         
         MasterAtomTreeNode(Phase parentPhase, Atom atom) {
@@ -77,7 +68,6 @@ public final class SpeciesMaster extends Atom {
             speciesMaster = (SpeciesMaster)atom;
             this.parentPhase = parentPhase;
             leafIterator.setAsLeafIterator();
-            setIndex(parentPhase.index);
         }
         public Phase parentPhase() {return parentPhase;}
         
@@ -88,24 +78,18 @@ public final class SpeciesMaster extends Atom {
             throw new RuntimeException("Error:  Unexpected call to parentSpeciesAgent in SpeciesMaster");
         }
         /**
-        * Returns null, because a species master is not contained within a molecule.
-        */
+         * Throws a RuntimeException, because a species master is not contained within a molecule.
+         */
         public final Atom parentMolecule() {
             throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesMaster");
         }
         
         /**
-         * Ends recursive chain to determine child of given node from which this
-         * node is descended.  Always returns null.
-         */
-        public AtomTreeNode childWhereDescendedFrom(AtomTreeNode node) {
-            return null;
-        }
-        /**
          * Returns true, because children are SpeciesAgent instances.
          */
         public final boolean childrenAreGroups() {return true;}
         
+        //does not pass notification up to parent (root)
         public void addAtomNotify(Atom atom) {
         	if(atom.node.parentGroup() instanceof SpeciesAgent) {
             	speciesMaster.moleculeCount++;
@@ -165,12 +149,12 @@ public final class SpeciesMaster extends Atom {
         Simulation.instance = sim;
         AtomSequencerFactory seqFactory = sim.potentialMaster.sequencerFactory();
         Species species2 = new SpeciesSpheresMono(sim);
-        Species species1 = new SpeciesSpheres(sim.space,seqFactory,3,3);
-        Species species0 = new SpeciesSpheres(sim.space,seqFactory,3,2);
+        Species species1 = new SpeciesSpheres(sim,seqFactory,3);
+        Species species0 = new SpeciesSpheres(sim,seqFactory,2);
         species0.setNMolecules(4);
         species1.setNMolecules(2);
         species2.setNMolecules(2);
-        Phase phase = new Phase(sim.space);
+        Phase phase = new Phase(sim);
 //        sim.elementCoordinator.go();
         
         AtomIteratorList listIterator = new AtomIteratorList();
