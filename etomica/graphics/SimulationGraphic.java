@@ -20,6 +20,10 @@ import etomica.utility.Iterator;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 08/26/02 (DAK) modified makeAndDisplayFrame method to return the frame
+  */
 public class SimulationGraphic extends Simulation {
     
     public String getVersion() {return "SimulationGraphic:01.11.20;"+Simulation.VERSION;}
@@ -100,18 +104,19 @@ public class SimulationGraphic extends Simulation {
         return simulationPanel;
      }
      
-    public void makeAndDisplayFrame() {SimulationGraphic.makeAndDisplayFrame(this);}
+    public javax.swing.JFrame makeAndDisplayFrame() {return SimulationGraphic.makeAndDisplayFrame(this);}
     
-    public static final void makeAndDisplayFrame(Simulation sim) {
-        makeAndDisplayFrame((SimulationGraphic)sim);
+    public static final javax.swing.JFrame makeAndDisplayFrame(Simulation sim) {
+        return makeAndDisplayFrame((SimulationGraphic)sim);
     }
-    public static final void makeAndDisplayFrame(SimulationGraphic sim) {
+    public static final javax.swing.JFrame makeAndDisplayFrame(SimulationGraphic sim) {
         javax.swing.JFrame f = new javax.swing.JFrame();
         f.setSize(700,500);
         f.getContentPane().add(sim.panel());
         f.pack();
         f.show();
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
+        return f;
     }
     
     public static final java.awt.event.WindowAdapter WINDOW_CLOSER 

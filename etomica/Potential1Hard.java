@@ -5,6 +5,10 @@ package etomica;
  * A hard potential describes impulsive interactions, in which the energy undergoes a step
  * change at some point in the space.
  */
+ 
+ /* History of changes
+  * 08/26/02 (DAK) Modified calculate to handle cases of atomCount 0 or 1 in iterator directive
+  */w
 public abstract class Potential1Hard extends Potential1Group implements PotentialHard {
 
     public Potential1Hard(PotentialGroup parent) {
@@ -28,9 +32,17 @@ public abstract class Potential1Hard extends Potential1Group implements Potentia
             
     public void calculate(IteratorDirective id, PotentialCalculation pc) {
         if( !(pc instanceof Potential1Calculation) ) return;
-        iterator.reset(id);
-        ((Potential1Calculation)pc).calculate(iterator, this); 
+        if(id.atomCount() == 0) {
+            iterator.reset(id);
+            ((Potential1Calculation)pc).calculate(iterator, this); 
+        } else {
+            singletIterator.setAtom(id.atom1());
+            singletIterator.reset();
+            ((Potential1Calculation)pc).calculate(singletIterator, this); 
+        }            
     }//end of calculate
+    
+    private AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
 
 }  //end of Potential1Hard
 

@@ -10,7 +10,8 @@ import etomica.units.Dimension;
  */
  
  /* History of changes
-  * 8/1/02 (DAK) modified allAtoms method to use loop iteration rather than passing action to iterator
+  * 08/01/02 (DAK) modified allAtoms method to use loop iteration rather than passing action to iterator
+  * 08/26/02 (DAK) added getMolecule method
   */
 
 public final class SpeciesAgent extends Atom {
@@ -39,6 +40,7 @@ public final class SpeciesAgent extends Atom {
     public Atom firstMolecule() {return ((AtomTreeNodeGroup)node).firstChildAtom();}
     public Atom lastMolecule() {return ((AtomTreeNodeGroup)node).lastChildAtom();}
     public Atom randomMolecule() {return ((AtomTreeNodeGroup)node).randomAtom();}
+    public Atom getMolecule(int i) {return ((AtomTreeNodeGroup)node).getAtom(i);}
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom((AtomTreeNodeGroup)this.node);
