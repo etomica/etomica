@@ -4,7 +4,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     public String getVersion() {return "IntegratorVerlet:01.07.05/"+IntegratorMD.VERSION;}
 
-    AtomIterator atomIterator;
+    private final AtomIteratorList atomIterator = new AtomIteratorList();
     
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
@@ -30,8 +30,10 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
-	protected void makeIterators(IteratorFactory factory) {
-        atomIterator = factory.makeAtomIterator();
+	public boolean addPhase(Phase p) {
+	    if(!super.addPhase(p)) return false;
+        atomIterator.setBasis(p.speciesMaster.atomList);
+        return true;
     }
     
         

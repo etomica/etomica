@@ -35,13 +35,7 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement
     public final boolean usesPhaseBoundary() {
         return kinetic.usesPhaseBoundary() || potential.usesPhaseBoundary();
     }
-    /**
-     * Declaration whether this meter uses the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {
-        return kinetic.usesPhaseIteratorFactory() || potential.usesPhaseIteratorFactory();
-    }
-
+    
     public Dimension getDimension() {return Dimension.ENERGY;}
 
     /**

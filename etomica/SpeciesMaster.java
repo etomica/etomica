@@ -13,7 +13,7 @@ public final class SpeciesMaster extends Atom {
     private final PhaseEvent additionEvent = new PhaseEvent(this, PhaseEvent.ATOM_ADDED);
     private final PhaseEvent removalEvent = new PhaseEvent(this, PhaseEvent.ATOM_REMOVED);
     public int index;
-    public final AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
+    public /*final*/ AtomTreeNodeGroup node;//shadow superclass field of same name to avoid casts
     
     /**
      * List of leaf atoms in phase, suitable for iteration via an AtomIteratorList.

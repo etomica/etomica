@@ -10,14 +10,14 @@ package etomica;
  */
 public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
     
-    private final AtomPair pair; //want final, but Null inner class won't allow
+    private /*final*/ AtomPair pair; //want final, but Null inner class won't allow
     private IteratorDirective.Direction direction;
-    private final IteratorDirective localDirective = new IteratorDirective();
+    private /*final*/ IteratorDirective localDirective = new IteratorDirective();
 
     /**
      * The iterators used to generate the sets of atoms
      */
-    protected final AtomIterator ai1, ai2;
+    protected /*final*/ AtomIterator ai1, ai2;
     protected AtomIterator aiInner, aiOuter;
     
     /**
@@ -45,12 +45,7 @@ public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
         this(p, species1.getAgent(p).new LeafAtomIterator(),
                 species2.getAgent(p).new LeafAtomIterator());
      }*/
-     /** 
-      * Sets pair iterator so that it traverses all leaf-atom pairs in its basis.
-      */
-     public ApiGeneral(Space s) {
-        this(s, new AtomIteratorSequential(true), new AtomIteratorSequential(true));
-     }
+
     /**
      * Construct a pair iterator using the given atom iterators
      */
@@ -99,8 +94,6 @@ public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
     private final void setOuterInner(AtomIterator outIter, AtomIterator inIter) {
         aiOuter = outIter;
         aiInner = inIter;
-        aiOuter.setAsNeighbor(false);
-        aiInner.setAsNeighbor(true);
     }
 
     /**
@@ -164,7 +157,8 @@ public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
         hasNext = false;
         while(aiOuter.hasNext()) { //loop over iterator 1...
             pair.atom1 = aiOuter.next();
-            aiInner.reset(localDirective.set(pair.atom1));
+            Atom nextInner = aiInner.reset(localDirective.set(pair.atom1));
+            if(nextInner == atom1) aiInner.next();//move to atom after atom1
             if(aiInner.hasNext()) {
                 hasNext = true;
                 needUpdate1 = false;
@@ -182,7 +176,8 @@ public class ApiGeneral implements AtomPairIterator, java.io.Serializable {
         while(!aiInner.hasNext()) {     //Inner is done for this atom1, loop until it is prepared for next
             if(aiOuter.hasNext()) {     //Outer has another atom1...
                 atom1 = aiOuter.next();           //...get it
-                aiInner.reset(localDirective.set(atom1)); //...reset Inner
+                Atom nextInner = aiInner.reset(localDirective.set(atom1)); //...reset Inner
+                if(nextInner == atom1) aiInner.next();
                 needUpdate1 = true;           //...flag update of pair.atom1 for next time
             }
             else {hasNext = false; break;} //Outer has no more; all done with pairs

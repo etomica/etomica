@@ -9,6 +9,7 @@ public final class ApiIntergroup1A implements AtomPairIterator {
     
     public ApiIntergroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
+        iterator = sim.iteratorFactory.makeGroupIteratorSimple();
     }
 
     public void setBasis(Atom a1, Atom a2) {
@@ -77,7 +78,8 @@ public final class ApiIntergroup1A implements AtomPairIterator {
 
      //needs to change for neighbor iteration
     public void allPairs(AtomPairAction act) {
-        Atom basis = iterator.getBasis();
+        throw new RuntimeException("ApiIntergroup1A.allPairs not yet implemented");
+   /*     Atom basis = iterator.getBasis();
         if(basis == null || atom1 == null) return;
         Atom last = basis.node.lastChildAtom();
         for(Atom atom = basis.node.firstChildAtom(); atom != null; atom=atom.nextAtom()) {
@@ -85,10 +87,10 @@ public final class ApiIntergroup1A implements AtomPairIterator {
             pair.reset();
             act.action(pair);
             if(atom == last) break;
-        }
+        }*/
     }
     
-    private final AtomIteratorChildren iterator = new AtomIteratorChildren();
+    private final AtomIterator iterator;
     private Atom basis1, basis2;
     private Atom atom1;
     private boolean hasNext;

@@ -206,20 +206,7 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	        }
 	    };
 	}
-	/**
-	 * Returns an observer that can be registered with the phase's iteratorFactoryMonitor.
-	 * In this way this meter is informed if the iteratorFactory object changes to another instance in the phase.
-	 * Registration of this observer is done automatically by the setPhase method, but 
-	 * only if the usesIteratorFactory method of this meter returns <code>true</code>.
-	 */
-	protected Observer iteratorFactoryObserver() {
-	    return new Observer() {
-	        //This is the action that is to happen if phase takes a new iteratorFactory
-	        public void update(Observable o, Object arg) {
-	            setPhaseIteratorFactory((IteratorFactory)arg);
-	        }
-	    };
-	}
+
 	/**
 	 * Returns an observer that can be registered with the phase's boundaryMonitor
 	 * In this way this meter is informed if the boundary object changes to another instance in the phase
@@ -243,24 +230,11 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	 * not to make a typographical error in the name and thereby just define a different method).
 	 */
 	protected boolean usesPhaseBoundary() {return false;}
-	/**
-	 * Flags whether the meter uses the phase iteratorFactory when making its measurements.
-	 * If so, then the meter will be registered (within the setPhase method) as an observer of the phase's iteratorFactoryMonitor,
-	 * which notifies if the iteratorFactory object in the phase is changed to another iteratorFactory.
-	 * This method returns <code>false</code> by default.  Subclasses that use the 
-	 * phase iteratorFactory should override this method to return <code>true</code> (and take care
-	 * not to make a typographical error in the name and thereby just define a different method).
-	 */
-	protected boolean usesPhaseIteratorFactory() {return false;}
 	
 	/**
 	 * Method performs no action, but can be overridden in subclasses to handle setting or change of boundary in phase
 	 */
 	protected void setPhaseBoundary(Space.Boundary b) {}
-	/**
-	 * Method performs no action, but can be overridden in subclasses to handle setting or change of iteratorFactory in phase
-	 */
-	protected void setPhaseIteratorFactory(IteratorFactory i) {}
 	
 	/**
 	 * Accessor method for the phase in which this meter resides

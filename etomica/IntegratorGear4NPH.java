@@ -25,6 +25,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     private double rrh = 300.;
     private double kp, kh;
     private int D;
+    private final MeterTemperature meterTemperature = new MeterTemperature((Space)null);
     
     public IntegratorGear4NPH() {
         this(Simulation.instance);
@@ -95,7 +96,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }//end of doStep
     
     public void drivePT() {
-        kineticT = firstPhase.kineticTemperature();
+        kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -107,7 +108,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     public void drivePH() {
-        kineticT = firstPhase.kineticTemperature();
+        kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -188,7 +189,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             setIsothermal(isothermal);
             if(!isothermal) {
                 calculateForces();
-                double kineticT = firstPhase.kineticTemperature();
+                double kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
                 double mvsq = kineticT * D * firstPhase.atomCount();
                 double volume = firstPhase.volume();
                 double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -211,7 +212,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         }
         public void updateValues() {
             if(firstPhase == null) return;
-            kineticT = firstPhase.kineticTemperature();
+            kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
             double mvsq = kineticT * D * firstPhase.atomCount();
             double volume = firstPhase.volume();
             double pCurrent = firstPhase.getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);

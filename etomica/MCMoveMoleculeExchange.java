@@ -12,7 +12,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase secondPhase;
     private final double ROOT;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {

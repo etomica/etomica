@@ -61,7 +61,7 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
     public double energy(AtomPair pair) {
      //   return u(pair.r2());
         double r2 = pair.r2();
-        if(truncation.isZero(r2)) return 0.0;
+        if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.uTransform(r2, u(r2));
     }
     
@@ -71,7 +71,7 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
      */
     public double virial(AtomPair pair) {
         double r2 = pair.r2();
-        if(truncation.isZero(r2)) return 0.0;
+        if(potentialTruncation.isZero(r2)) return 0.0;
         else return potentialTruncation.duTransform(r2, du(r2));
     }
     

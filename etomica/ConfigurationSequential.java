@@ -12,7 +12,6 @@ package etomica;
 public class ConfigurationSequential extends Configuration {
 
     private boolean fill;
-    private final AtomIteratorSequential iterator = new AtomIteratorSequential();
     private Space.Vector dimensions;
     
     public ConfigurationSequential(Space space) {

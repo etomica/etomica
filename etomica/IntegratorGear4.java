@@ -13,7 +13,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     public String getVersion() {return "IntegratorGear4:01.07.05/"+IntegratorMD.VERSION;}
 
-    protected AtomIterator atomIterator;
+    protected final AtomIteratorList atomIterator = new AtomIteratorList();
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     final Space.Vector work1, work2;
@@ -45,7 +45,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
-        atomIterator = p.makeAtomIterator();
+        atomIterator.setBasis(p.speciesMaster.atomList);
         return true;
     }
 
@@ -61,14 +61,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         c4 = GEAR4 * p1 / p4;
     }
         
-
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	protected void makeIterators(IteratorFactory factory) {
-        atomIterator = factory.makeAtomIterator();
-    }
     
 //--------------------------------------------------------------
 // steps all particles across time interval tStep

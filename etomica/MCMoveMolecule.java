@@ -10,7 +10,7 @@ import etomica.units.Dimension;
 public class MCMoveMolecule extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
-    private final AtomIteratorSequential affectedAtomIterator = new AtomIteratorSequential(true);
+    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private Atom molecule;
 
     public MCMoveMolecule(IntegratorMC parentIntegrator) {

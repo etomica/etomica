@@ -13,7 +13,7 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
     /**
      * Iterator of atoms.
      */
-    private AtomIterator ai1;
+    private final AtomIteratorList ai1 = new AtomIteratorList();
     /**
      * Tensor used to form velocity dyad for each atom, and returned by currentValue(atom) method.
      */
@@ -36,25 +36,14 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
         EtomicaInfo info = new EtomicaInfo("Velocity tensor, formed from averaging dyad of velocity vector for each atom");
         return info;
     }
-
-    /**
-     * Indicates that this meter does not reference the phase boundary.
-     * @return false
-     */
-    public boolean usesPhaseBoundary() {return false;}
-    
-    /**
-     * Indicates that this meter uses iterators.
-     * @return true
-     */
-    public boolean usesPhaseIteratorFactory() {return true;}
     
     /**
      * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
      * It obtains the necessary iterators from the phase.
      */
-	protected void setPhaseIteratorFactory(IteratorFactory factory) {
-        ai1 = factory.makeAtomIterator();
+	public void setPhase(Phase p) {
+	    super.setPhase(p);
+        ai1.setBasis(p.speciesMaster.atomList);
 	}
     
     /**

@@ -80,7 +80,7 @@ public abstract class AtomTreeNode {
         }
 
         //parent is not null
-        parentGroup = parentNode.atom
+        parentGroup = parentNode.atom;
         parentPhase = parentNode.parentPhase();
         depth = parentNode.depth() + 1;
 

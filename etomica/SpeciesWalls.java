@@ -163,8 +163,8 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         * Sets wall coordinates 
         */
         public void initializeCoordinates(Atom atom) {  //doesn't handle wall that is not either horizontal or vertical
-            AtomGroup m = (AtomGroup)atom;
-            AtomIterator iterator = new AtomIteratorSequential(m);
+            AtomTreeNodeGroup mnode = (AtomTreeNodeGroup)atom.node;
+            AtomIterator iterator = new AtomIteratorList(((AtomTreeNodeGroup)atom.node).childList);
        //     Space.Vector d = m.parentPhase().dimensions();  //what if parentPhase is null?
             double x, y;
             double h = Default.BOX_SIZE;//d.component(1);
@@ -187,13 +187,13 @@ public class SpeciesWalls extends Species implements EtomicaElement {
             double xyNext;
             double wh;
             if(horizontal) {
-                delta = (h-y)/(m.node.childAtomCount()-1);
+                delta = (h-y)/(mnode.childAtomCount()-1);
                 i = 1;
                 xyNext = y;
                 wh = w;
             }
             else { //vertical
-                delta = (w-x)/(m.node.childAtomCount()-1);
+                delta = (w-x)/(mnode.childAtomCount()-1);
                 i = 0;
                 xyNext = x;
                 wh = h;

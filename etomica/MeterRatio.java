@@ -24,13 +24,6 @@ public class MeterRatio extends MeterScalar {
     public final boolean usesPhaseBoundary() {
         return nMeter.usesPhaseBoundary() || dMeter.usesPhaseBoundary();
     }
-    /**
-     * Declaration whether this meter uses the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {
-        return nMeter.usesPhaseIteratorFactory() || dMeter.usesPhaseIteratorFactory();
-    }
-
 
 	public Dimension getDimension() {
 	    return new DimensionRatio(nMeter.getDimension(), dMeter.getDimension());
@@ -38,6 +31,12 @@ public class MeterRatio extends MeterScalar {
 	    
 	public double currentValue() {
 	    return nMeter.currentValue()/dMeter.currentValue();
+	}
+	
+	public void setPhase(Phase p) {
+	    super.setPhase(p);
+	    nMeter.setPhase(p);
+	    dMeter.setPhase(p);
 	}
 	    
 	public void setNumerator(MeterScalar numerator) {nMeter = numerator;}
