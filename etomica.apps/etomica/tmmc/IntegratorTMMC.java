@@ -15,11 +15,8 @@ import etomica.log.*;
   
 public class IntegratorTMMC extends IntegratorMC {
     
-    public IntegratorTMMC() {
-        this(Simulation.instance);
-    }
-    public IntegratorTMMC(Simulation sim) {
-        super(sim);
+    public IntegratorTMMC(PotentialMaster potentialMaster) {
+        super(potentialMaster);
         setWeightUpdateInterval(1000000); //10^6
     }
     
@@ -94,7 +91,7 @@ public class IntegratorTMMC extends IntegratorMC {
             eventManager.fireEvent(event);
         }
         
-        move.updateCounts(event.wasAccepted);
+        move.updateCounts(event.wasAccepted,isEquilibrating());
         
         if(--doStepCount == 0) updateWeights();
     }//end of doStep

@@ -7,25 +7,24 @@ import etomica.*;
 
 public class P2WaterSPC extends Potential2 implements Potential2.Soft {
 
-	public P2WaterSPC(SimulationElement parent, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
-		this(parent, potentialTruncation);
+	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation, Space3D.Boundary boundary) {
+		this(space, potentialTruncation);
 		this.boundary = boundary;
 	}
-	public P2WaterSPC(SimulationElement parent, PotentialTruncation potentialTruncation) {
-		super(parent);
+	public P2WaterSPC(Space space, PotentialTruncation potentialTruncation) {
+		super(space, potentialTruncation);
 		setSigma(3.1670);
 		setEpsilon(Kelvin.UNIT.toSim(78.23));
-		this.potentialTruncation = potentialTruncation;
 		work = (Space3D.Vector)space.makeVector();
 		shift = (Space3D.Vector)space.makeVector();
 		setCharges();
 	}   
-	public double energy(AtomPair pair){
+	public double energy(Atom[] pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeWater node1 = (AtomTreeNodeWater)pair.atom1().node;
-		AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair.atom2().node;
+		AtomTreeNodeWater node1 = (AtomTreeNodeWater)pair[0].node;
+		AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair[1].node;
 		
 		//compute O-O distance to consider truncation	
 		Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
@@ -86,16 +85,16 @@ public class P2WaterSPC extends Potential2 implements Potential2.Soft {
 		return sum;																					        
 	}//end of energy
     
-	public Space.Vector gradient(AtomPair pair){
+	public Space.Vector gradient(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double hyperVirial(AtomPair pair){
+	public double hyperVirial(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double integral(double rC){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double virial(AtomPair pair){
+	public double virial(Atom[] pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
     
@@ -120,8 +119,6 @@ public class P2WaterSPC extends Potential2 implements Potential2.Soft {
     
 	public double sigma , sigma2;
 	public double epsilon, epsilon4;
-	private PotentialTruncation potentialTruncation;
-	private Atom O1, H11, H12, O2, H21, H22;
 	private Space3D.Boundary boundary;
 	private double chargeH = Electron.UNIT.toSim(0.41);
 	private double chargeO = Electron.UNIT.toSim(-0.82);

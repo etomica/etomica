@@ -4,14 +4,14 @@ import etomica.*;
 public class SpeciesWater extends Species implements EtomicaElement {
     
    public SpeciesWater() {
-        this(Simulation.instance);
+        this(Simulation.instance.space);
     }     
   
-    public SpeciesWater(Simulation sim) {
-        this(sim, Default.MOLECULE_COUNT);
+    public SpeciesWater(Space space) {
+        this(space, Default.MOLECULE_COUNT);
     }
-    public SpeciesWater(Simulation sim, int nM) {
-       super(sim, new AtomFactoryWater(sim));
+    public SpeciesWater(Space space, int nM) {
+       super(new AtomFactoryWater(space));
        factory.setSpecies(this);
        nMolecules = nM;
     }
