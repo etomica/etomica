@@ -5,16 +5,24 @@
 package etomica.nbratom.cell;
 
 import etomica.Atom;
+import etomica.AtomIterator;
 import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.data.DataSourceCOM;
+import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.CellLattice;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 
 /**
  * Class that defines and manages construction and use of lattice of cells 
@@ -31,6 +39,8 @@ public class NeighborCellManager {
     private final Space space;
     private final AtomIteratorTree atomIterator;
     private final AtomPositionDefinition positionDefinition;
+    private final Phase phase;
+
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
@@ -42,6 +52,7 @@ public class NeighborCellManager {
     
     public NeighborCellManager(Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
+        this.phase = phase;
         space = phase.space();
         atomIterator = new AtomIteratorTree();
         atomIterator.setDoAllNodes(true);
@@ -105,4 +116,70 @@ public class NeighborCellManager {
         }
     }//end of assignCell
     
+    public MCMoveListener makeMCMoveListener() {
+        return new MyMCMoveListener();
+    }
+
+    
+    private class MyMCMoveListener implements MCMoveListener {
+        public MyMCMoveListener() {
+            treeIterator = new AtomIteratorTree();
+            treeIterator.setDoAllNodes(true);
+            moleculePosition = new DataSourceCOM(space);
+            translator = new AtomActionTranslateBy(space);
+            moleculeTranslator = new AtomGroupAction(translator);
+        }
+        
+        public void actionPerformed(SimulationEvent evt) {
+            actionPerformed((MCMoveEvent)evt);
+        }
+
+        public void actionPerformed(MCMoveEvent evt) {
+            if (!evt.isTrialNotify && evt.wasAccepted) {
+                return;
+            }
+            MCMove move = evt.mcMove;
+            AtomIterator iterator = move.affectedAtoms(phase);
+            iterator.reset();
+            while (iterator.hasNext()) {
+                Atom atom = iterator.nextAtom();
+                if (!atom.node.isLeaf()) {
+                    treeIterator.setRoot(atom);
+                    treeIterator.reset();
+                    while (treeIterator.hasNext()) {
+                        Atom childAtom = treeIterator.nextAtom();
+                        updateCell(childAtom);
+                    }
+                }
+                else {
+                    updateCell(atom);
+                }
+            }
+        }
+
+        private void updateCell(Atom atom) {
+            Boundary boundary = phase.boundary();
+            if (((AtomSequencerCell)atom.seq).cell != null) {
+                if (!atom.node.isLeaf()) {
+                    Vector shift = boundary.centralImage(moleculePosition.position(atom));
+                    if (!shift.isZero()) {
+                        translator.setTranslationVector(shift);
+                        moleculeTranslator.actionPerformed(atom);
+                    }
+                }
+                else {
+                    Vector shift = boundary.centralImage(atom.coord.position());
+                    if (!shift.isZero()) {
+                        atom.coord.position().PE(shift);
+                    }
+                }
+                assignCell(atom);
+            }
+        }
+        
+        private final AtomIteratorTree treeIterator;
+        private final AtomPositionDefinition moleculePosition;
+        private final AtomActionTranslateBy translator;
+        private final AtomGroupAction moleculeTranslator;
+    }
 }//end of NeighborCellManager

@@ -182,6 +182,7 @@ public class NeighborManager implements IntervalListener {
         this.pbcEnforcer = pbcEnforcer;
     }
 
+    //XXX should this use assignCellAll?
     public void neighborSetup(Phase phase) {
         NeighborCellManager nbrManager = potentialMaster.getNbrCellManager(phase);
         atomIterator.setPhase(phase);

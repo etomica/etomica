@@ -60,4 +60,32 @@ public abstract class NeighborCriterion implements AtomsetFilter {
     public abstract double getNeighborRange();
     
 	//TODO consider ways to ensure this is removed from nbrmanager if no longer used
+    
+    public static final NeighborCriterion ALL = new NeighborCriterion() {
+        /**
+         * Always returns false, indicating that neighbor list never needs updating.
+         * This is appropriate if atoms are never added to or removed from phase,
+         * because all atoms are always on neighbor list.
+         */
+        public boolean needUpdate(Atom atom) {return false;}
+        public double getNeighborRange() {return Double.POSITIVE_INFINITY;}
+        /**
+         * Performs no action.
+         */
+        public void setPhase(Phase phase) {}
+        /**
+         * Always returns false, indicating that neighbor list never needs updating.
+         * This is appropriate if atoms are never added to or removed from phase,
+         * because all atoms are always on neighbor list.
+         */
+        public boolean unsafe() {return false;}
+        /**
+         * Performs no action.
+         */
+        public void reset(Atom atom) {}
+        /**
+         * Always returns true, indicating that all atoms pairs are neighbors.
+         */
+        public boolean accept(AtomPair pair) {return true;}
+    };
 }

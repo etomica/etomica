@@ -18,8 +18,8 @@ import etomica.potential.PotentialGroup;
  * PotentialCalculation that adds concrete potentials to the NeighborManagerAgents of
  * the AtomTypes to which they apply.  This action should be invoked by passing an
  * instance of this class to the PotentialMaster's calculate method (the PotentialMaster
- * should be an instance of PotentialMasterNbr), with an iterator directive that specifies
- * no target atom.
+ * should be an instance of PotentialMasterNbr or PotentialMasterCell), with an 
+ * iterator directive that specifies no target atom.
  */
 public class PotentialCalculationAgents extends PotentialCalculation {
 

@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.AtomSet;
 import etomica.AtomsetIterator;
+import etomica.Debug;
 import etomica.action.AtomsetAction;
 
 /**
@@ -45,7 +46,7 @@ public final class AtomsetIteratorSinglet implements AtomsetIterator {
      * Call to reset() must be performed before beginning iteration.
      */
     public void setAtom(AtomSet a) {
-        if (a != null && a.count() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
+        if (Debug.ON && a != null && a.count() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
     	atom = a;
     	unset();
     }
