@@ -142,7 +142,17 @@ public abstract class BaseUnit implements Unit {
         	super(1.0, "dimensionless", "", Dimension.NULL, Prefix.NOT_ALLOWED);
         }
     }
-    
+
+    /**
+     * Undefined unit used for quantities with undefined or unknown units.
+     */
+    public static class Undefined extends BaseUnit {
+        public static final Undefined UNIT = new Undefined();
+        public Undefined() {
+            super(1.0, "undefined", "", Dimension.UNDEFINED, Prefix.NOT_ALLOWED);
+        }
+    }
+
     /**
      * Simulation unit for the quantity of discrete things (e.g. molecules) is Count.
      * An example of another unit of this type is the mole.
