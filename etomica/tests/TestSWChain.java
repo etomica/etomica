@@ -1,7 +1,7 @@
 package etomica.tests;
 
 import etomica.ConfigurationFile;
-import etomica.ConfigurationLinearRandom;
+import etomica.ConfigurationLinear;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
@@ -11,8 +11,6 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheres;
-import etomica.WriteConfiguration;
-import etomica.WritePDB;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.iterator.ApiIntergroup;
@@ -83,8 +81,7 @@ public class TestSWChain extends Simulation {
         criterion.setBonded(true);
         potentialChainIntra.bonded.setCriterion(criterion);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
-        ConfigurationLinearRandom config = new ConfigurationLinearRandom(space,Default.ATOM_SIZE,potential);
-        species.moleculeFactory().setConfiguration(config);
+        ((ConfigurationLinear)species.getFactory().getConfiguration()).setBondLength(Default.ATOM_SIZE);
         
         potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
         nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -100,15 +97,10 @@ public class TestSWChain extends Simulation {
 
         phase = new Phase(space);
 
-//        phase.setConfiguration(null);
+        phase.setConfiguration(null);
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
-//        phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength)));
-        WriteConfiguration writeConfig = new WriteConfiguration("chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength),phase,1);
-        WritePDB writePDB = new WritePDB("chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength),phase,1);
-        integrator.addIntervalListener(writeConfig);
-        integrator.addIntervalListener(writePDB);
-        Default.FIX_OVERLAP = true;
+        phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength)));
     }
     
     public static void main(String[] args) {
