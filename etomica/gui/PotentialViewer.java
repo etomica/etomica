@@ -1,6 +1,7 @@
 package etomica.gui;
 
 import etomica.Potential;
+import etomica.Simulation;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.GridBagLayout;
@@ -34,12 +35,6 @@ public class PotentialViewer extends JInternalFrame {
     final GridBagLayout gbl = new GridBagLayout();
     
     /**
-     * Envelopes a simulation component in order to have the component's properties listed in the 
-     * property sheet.
-     */
-    public static Wrapper wrapper = null;
-    
-    /**
      * Internal frame that lists the properties of a component
      */
     public static PropertySheet propSheet;
@@ -55,8 +50,7 @@ public class PotentialViewer extends JInternalFrame {
         
         potentialList.addListSelectionListener(new javax.swing.event.ListSelectionListener(){
             public void valueChanged(javax.swing.event.ListSelectionEvent lse){
-                wrapper = new Wrapper(potentialList.getSelectedValue(), title, "etomica.gui." + title); 
-                propSheet.setTarget(wrapper);
+                propSheet.setTarget((Simulation.Element)potentialList.getSelectedValue());//wrapper);
 	            propSheet.addInternalFrameListener(new InternalFrameAdapter(){
 	                public void internalFrameClosed( InternalFrameEvent ife ){
 	                    potentialList.clearSelection();

@@ -46,6 +46,7 @@ public class Space1D extends Space {
         public int D() {return D;}
         public double component(int i) {return x;}
         public void setComponent(int i, double d) {x=d;}
+        public double[] toArray() {return new double[] {x};}
         public void E(Vector u) {x = u.x;}
         public void E(double a) {x = a;}
         public void E(int i, double a) {x = a;}  //assumes i = 0

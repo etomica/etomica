@@ -67,9 +67,10 @@ public class ViewActions {
         boolean added = false;
         
         PropertyListAction(){
-            propertySheet = new PropertySheet(new Wrapper(new Blank(), "", ""), 770, 60); 
+            propertySheet = new PropertySheet(null, 515, 60);
+            Etomica.setPropertySheet(propertySheet);
             SimulationEditorPane.setPropertySheet(propertySheet);
-            SpeciesPotentialLinkPane.setPropertySheet(propertySheet);
+            PotentialEditorPane.setPropertySheet(propertySheet);
         }// end of PropertyListAction
         
         public void actionPerformed(ActionEvent event) {
@@ -77,12 +78,12 @@ public class ViewActions {
 	            propertySheet.addInternalFrameListener(new InternalFrameAdapter(){
 	                public void internalFrameClosed( InternalFrameEvent ife ){
                         SimulationEditorPane.added = false;
-                        SpeciesPotentialLinkPane.added = false;
+                        PotentialEditorPane.added = false;
                         added = false;
                     }});
                 added = true;
                 SimulationEditorPane.added = true;
-                SpeciesPotentialLinkPane.added = true;
+                PotentialEditorPane.added = true;
                 try {
                     propertySheet.setClosed(false);
                 }

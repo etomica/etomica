@@ -15,7 +15,6 @@ import etomica.*;
 import javax.swing.JPanel;
 
 public class SimulationFrame extends javax.swing.JInternalFrame {
-    public static Wrapper wrapper;
     private Simulation simulation;
     /**
      * Constructor that sets up all the properties of the JInternalFrame and adds an instance of the
@@ -31,5 +30,4 @@ public class SimulationFrame extends javax.swing.JInternalFrame {
     }// end of AppletFrame constructor
     
     public Simulation simulation() {return simulation;}
-    
 }// end of AppletFrame class

@@ -54,6 +54,7 @@ public class Space3D extends Space {
         public Vector (double[] a) {x = a[0]; y = a[1]; z = a[2];}//should check length of a for exception
         public Vector (Vector u) {this.E(u);}
         public double component(int i) {if (i==0) return x; else if (i==1) return y; else return z;}
+        public double[] toArray() {return new double[] {x, y, z};}
         public void E(Vector u) {x = u.x; y = u.y; z = u.z;}
         public void E(double a) {x = a; y = a; z = a;}
         public void E(int i, double a) {if (i==0) x=a; else if (i==1) y=a; else z=a;}

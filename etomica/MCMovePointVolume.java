@@ -3,6 +3,7 @@ package etomica;
 import java.util.Random;
 import etomica.units.Dimension;
 import etomica.lattice.*;
+import etomica.utility.OdeSolver;
 
 public class MCMovePointVolume extends MCMove {
     
@@ -94,7 +95,7 @@ public class MCMovePointVolume extends MCMove {
         /**
          * Size is the number of sites in each dimension; considered non-periodically
          */
-        MyLattice(int size) {
+        MyLattice(int size, final VelocityField vField, double deltaT) {
             this.size = size;
             squareLattice = new SquareLattice(size, new MySiteFactory(), 1.0/(double)(size-1));
             sites = new MySite[size][size];
@@ -110,7 +111,19 @@ public class MCMovePointVolume extends MCMove {
                     MySite site = sites[i][j];
                     site.c1 = new MyCell(site, sites[i][j+1], sites[i+1][j+1]);
                     site.c2 = new MyCell(site, sites[i+1][j], sites[i+1][j+1]);
-                    deform(site);
+                } 
+            }
+            //make a local rhs class from the velocity field suitable for input to the ode solver
+            OdeSolver.Rhs rhs = new OdeSolver.Rhs() {
+                public double[] dydx(OdeSolver.Variables xy) {
+                    return vField.v(xy.y);
+                }
+            };
+            for(int i=0; i<size; i++) {
+                for(int j=0; j<size; j++) {
+                    MySite site = sites[i][j];
+                    OdeSolver.Variables xy0 = new OdeSolver.Variables(0.0, site.originalPosition.toArray());
+                    OdeSolver.rungeKuttaAdaptive(xy0,deltaT,1.e-7,rhs);
                 } 
             }
         }//end of MyLattice constructor
@@ -129,7 +142,7 @@ public class MCMovePointVolume extends MCMove {
             return (dy > dx) ? site.c1 : site.c2;
         }
         
-        private void deform(MySite site) {
+        private void deform(MySite site, OdeSolver.Rhs rhs) {
             //deformation algorithm
         }
         
@@ -189,3 +202,42 @@ public class MCMovePointVolume extends MCMove {
         }
     }
 }
+
+class VelocityField {
+    
+    double[][] source;
+    double[] velocity;
+    int D;
+    int nSource;
+    double m = 1;
+    VelocityField(int dim, int nSourceHalf) {
+        D = dim;
+        velocity = new double[D];
+        nSource = 2*nSourceHalf + 1;
+        source = new double[nSource][D];
+        int k=0;
+        for(int i=-nSourceHalf; i<=nSourceHalf; i++) {
+            source[k][0] = 0.0;
+            for(int j=0; j<D-1; j++) {
+                source[k][j] = 0.0;
+            }
+            source[k][D-1] = (double)i;
+            k++;
+        }
+    }
+        //written for 2D
+    public double[] v(double[] r) {
+        velocity[0] = 0.0;
+        velocity[1] = 0.0;
+        for(int k=0; k<nSource; k++) {
+            double dx = r[0] - source[k][0];
+            double dy = r[1] - source[k][1];
+            double r2 = dx*dx + dy*dy;
+            velocity[0] += dx/r2;
+            velocity[1] += dy/r2;
+        }
+        velocity[0] *= m;
+        velocity[1] *= m;
+        return velocity;
+    }
+}//end of VelocityField

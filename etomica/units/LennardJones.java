@@ -125,7 +125,7 @@ public class LennardJones implements java.io.Serializable {
     }
 
 
-    public static final class Temperature extends BaseUnit.Energy {
+    public static final class Temperature extends BaseUnit.Temperature {
         public static final LennardJones.Temperature UNIT = new LennardJones.Temperature();
         public Temperature() {
             prefixAllowed = false;

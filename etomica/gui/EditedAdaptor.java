@@ -6,11 +6,11 @@ import java.beans.*;
 class EditedAdaptor implements PropertyChangeListener {
 
     EditedAdaptor(PropertySheet t) {
-	sink = t;
+    	sink = t;
     }	
 
     public void propertyChange(PropertyChangeEvent evt) {
-	sink.wasModified(evt);
+    	sink.wasModified(evt);
     }
 
     PropertySheet sink;

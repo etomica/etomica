@@ -18,7 +18,8 @@ import java.awt.FileDialog;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.ButtonGroup;
 
 public class Etomica {
     
@@ -30,6 +31,8 @@ public class Etomica {
     public static EtomicaMenuBar menuBar = null;
     public static EtomicaToolBar toolBar = null;
     public static EtomicaTabMenuBar tabMenuBar = null;
+    public static PropertySheet propertySheet = null;
+    static final ButtonGroup bg = new ButtonGroup();
     
     /**
      * This static main method creates an instance DesktopFrame which is a JFrame that contains all 
@@ -41,7 +44,7 @@ public class Etomica {
         etomica.Simulation.inEtomica = true;
         DesktopFrame frame = new DesktopFrame();
         frame.show();
-       // Simulation.instance = new Simulation(new Space2D());
+        Simulation.instance = new Simulation(new Space2D());
        addSimulation(Simulation.instance);  //uncomment to run in debugger
     }
     
@@ -57,10 +60,12 @@ public class Etomica {
         instanceCount++;
         sim.elementCoordinator.go();
         
-        JMenuItem item = new JMenuItem(sim.toString());
+        JRadioButtonMenuItem item = new JRadioButtonMenuItem(sim.toString());
         java.awt.event.ActionListener listener = new SimulateActions.SelectSimulationAction(sim);
         item.addActionListener(listener);
         listener.actionPerformed(null); //make new simulation the current one
+        bg.add(item);
+        item.setSelected(true);
         
         EtomicaMenuBar.simulationMenu.add(item);
         EtomicaMenuBar.editSimulationItem.setEnabled(true);
@@ -76,7 +81,7 @@ public class Etomica {
         SimulationEditor simulationEditor = new SimulationEditor(sim);
         simulationEditorFrame.setSimulationEditor(simulationEditor);
         simulationEditorFrame.setVisible(true);
-        simulationEditor.speciesEditor.accountForNewSpecies(sim.speciesList().size());
+        simulationEditor.speciesEditor.accountForNewSpecies();
                                     
                                 
     // Update MenuBars
@@ -90,11 +95,14 @@ public class Etomica {
         return (SimulationFrame)simulationFrames.get(sim);
     } 
 
+    public static void setPropertySheet(PropertySheet p){ propertySheet = p; }
+    public static PropertySheet propertySheet(){ return propertySheet; }
+
     /**
      * Class that forms the basis of the Etomica environment.  It contains all components used to 
      * create simulations.  These include the JToolBars, JMenuBars, JInternalFrames, etc.
      */
-    public static class DesktopFrame extends JFrame implements java.io.Serializable, java.beans.VetoableChangeListener{
+    public static class DesktopFrame extends JFrame implements java.io.Serializable, java.beans.VetoableChangeListener, java.awt.print.Printable {
         /**
          * Handle to the Etomica environment main JFrame
          */
@@ -170,13 +178,46 @@ public class Etomica {
                     throw new java.beans.PropertyVetoException("User canceled close", event);
             }
         }// end of vetoableChange
+        
+        public int print(java.awt.Graphics g, java.awt.print.PageFormat pgFormat, int pgIndex) throws java.awt.print.PrinterException{
+            
+//            g2d.translate(format.getImageableX(), format.getImageableY());
+//            g2d.setPaint(Color.black);
+            java.awt.Image offScreen = etomicaFrame.createImage((int)pgFormat.getWidth(),(int)pgFormat.getHeight());
+		    etomicaFrame.paint(offScreen.getGraphics());
+            g.drawImage(offScreen, (int)pgFormat.getImageableX(), (int)pgFormat.getImageableY(),java.awt.Color.white,null);
+            return java.awt.print.Printable.NO_SUCH_PAGE;
+        }// end of print
     }//end of DesktopFrame
     
     public static class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {
     }
     
     static {
-	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY);
+        /**
+         * Etomica.jar test 
+         */
+/*        int count = 0;
+        String[] files = new String[100];
+        try {
+            java.util.jar.JarFile jarFile = new java.util.jar.JarFile(etomica.Default.JAR_FILE,false);//file);
+            for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+                java.util.zip.ZipEntry entry = ((java.util.zip.ZipEntry)enum.nextElement());
+	            String name = entry.getName();
+	            int idx = name.lastIndexOf("/");
+	            if (idx != -1)
+	                name = name.substring(idx+1);
+	            if (name.startsWith("Space") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.equals("Space.class")
+	                && !name.equals("SpaceSelectionFrame.class")){
+                        files[count++] = name;
+                }
+                
+            }
+	    }
+	    catch (java.io.IOException ioe){ioe.printStackTrace();}
+*/	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY);
 	    String[] files = dir.list(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File d, String name) {
 	                return name.startsWith("Space")
@@ -187,8 +228,8 @@ public class Etomica {
 	                && !name.endsWith("Customizer.class")
 	                && !name.equals("Space.class");}
 	        });
-	    spaceClasses = new Class[files.length];
-	    for(int i=0; i<files.length; i++) {
+	    spaceClasses = new Class[files.length];//count was files.length
+	    for(int i=0; i<files.length; i++) {//count was files.length
 	        int idx = files[i].lastIndexOf(".");
 	        files[i] = files[i].substring(0,idx);
 	        spaceClasses[i] = null;

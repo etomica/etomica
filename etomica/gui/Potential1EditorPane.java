@@ -1,10 +1,15 @@
 package etomica.gui;
 
+import etomica.Simulation;
+import etomica.Potential1;
+import etomica.utility.HashMap2;
 import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-public class Potential1EditorPane extends SpeciesPotentialLinkPane {
+public class Potential1EditorPane extends PotentialEditorPane {
+    
+    public HashMap2 potentialButtons = new HashMap2();
     
     Potential1EditorPane(SimulationEditor ed){
         super(ed);
@@ -16,7 +21,7 @@ public class Potential1EditorPane extends SpeciesPotentialLinkPane {
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         gbc.anchor = gbc.WEST;
-        leftPanelHeight = (getNumOSpecies()+3)*jButtonHeight;
+        leftPanelHeight = (speciesCount()+3)*jButtonHeight;
         leftPanePanel.setMinimumSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
         leftPanePanel.removeAll();
@@ -32,19 +37,20 @@ public class Potential1EditorPane extends SpeciesPotentialLinkPane {
          * of buttons, unlike P2.  This accomplishes this single column of JButtons based on the 
          * numOSpecies.
          */
-        currentButtons = new JButton[getNumOSpecies()+1];
-        potButtons = new JButton[getNumOSpecies()+1];
+        currentButtons = new JButton[speciesCount()+1];
+        potButtons = new JButton[speciesCount()+1];
  
         gbc.gridx = 0;
         gbc.gridy++;
         // add buttons and labels
-        for (int i = 0; i < getNumOSpecies(); i++){
+        for (int i = 0; i < speciesCount(); i++){
             JLabel label2 = new JLabel("Species " + String.valueOf(i));
             gbl.setConstraints(label2,gbc);
             leftPanePanel.add(label2);
             gbc.gridx++;
 
             SpeciesPairButton button = new SpeciesPairButton(String.valueOf(i));
+            potentialButtons.put(Integer.toString(0),Integer.toString(i),button);
             button.speciesIndex1 = i;
             potButtons[i] = button;
             button.setBackground(Color.lightGray);
@@ -56,7 +62,23 @@ public class Potential1EditorPane extends SpeciesPotentialLinkPane {
         }// end of button and label addition
         
         // As long as at least one species exists, the "Add," "Start," and "Remove" buttons are added
-        if (getNumOSpecies() != 0)
+        if (speciesCount() != 0)
             addButtons();
+        
+        linkButtons(); // Associate a potential to each button if one is present in the simulation
     }// end of update method
+    
+    private void linkButtons(){
+        java.util.LinkedList list = simulationEditor().getSimulation().potential1List();
+
+        for(int i = 0; i < list.size(); i++){
+            Potential1 potential = (Potential1)list.get(i);
+            SpeciesPairButton button = (SpeciesPairButton)potentialButtons.get(Integer.toString(0),Integer.toString(potential.getSpeciesIndex()));
+            button.potential = potential.getClass();
+            button.setEnabled(false);
+            button.setBackground(Color.lightGray);
+        }
+    }
+    
+    public HashMap2 potentialButtons(){ return potentialButtons; }
 }

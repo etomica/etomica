@@ -13,7 +13,11 @@ public class MeterPressureByVolumeChange extends MeterFunction {
     }
     
     public MeterPressureByVolumeChange(int i) {
-        super(Simulation.instance);
+        this(Simulation.instance, i);
+    }
+    
+    public MeterPressureByVolumeChange(Simulation sim, int i) {
+        super(sim);
         setX(-0.001, 0.001, 10);
     }
     

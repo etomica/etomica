@@ -166,6 +166,7 @@ public class PotentialAssociationCone extends Potential {
 	    Phase phase1 = new Phase();
 	    PotentialAssociationCone potential = new PotentialAssociationCone();
 	//    potential.setEpsilon(0.0);
+	    potential.setWellCutoff(1.5*potential.getSigma());
 	    P2SimpleWrapper p2StrongFluids1 = new P2SimpleWrapper(potential);
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();

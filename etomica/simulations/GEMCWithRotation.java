@@ -9,7 +9,7 @@ import etomica.units.*;
 public class GEMCWithRotation extends Simulation {
     
     public GEMCWithRotation() {
-        super(new Space2D());
+        super(new Space2DCell());
         Default.ATOM_SIZE = 1.2;
         Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(0.420);
         Simulation.instance = this;
@@ -19,7 +19,6 @@ public class GEMCWithRotation extends Simulation {
 	    integratorGEMC1.setInterval(400);
 	    
 	    SpeciesSpheresRotating speciesDisk1 = new SpeciesSpheresRotating(200);
-	    speciesDisk1.setDiameter(1.2);
 
 	    Phase phase1 = new Phase();	    
 	    MeterDensity meter1 = new MeterDensity();

@@ -165,7 +165,7 @@ public class EditActions {
     }// end of PasteAction class
 
     /**
-     * This will eventually call the Customizer for the selected bean
+     * This calls the Customizer for the selected simulation element
      */
     private static class CustomizeAction implements ActionListener {
         public void actionPerformed(ActionEvent event) {
@@ -185,6 +185,7 @@ public class EditActions {
 	            frame.setSize(((PhaseCustomizer)c).getPreferredSize());
 	            frame.getContentPane().add((java.awt.Component)c);
 	            Etomica.DesktopFrame.desktop.add(frame);
+	            frame.setVisible(true);
 	            frame.setSelected(true);
             }
             catch (PropertyVetoException pve){}

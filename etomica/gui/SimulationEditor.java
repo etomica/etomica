@@ -31,43 +31,43 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
      * Static splitpane that displays all the species classes on the left (as radiobuttons) and 
      * all the species added to the simulation.instance on the right (in a JList).
      */
-    public final SpeciesEditorPane speciesEditor;
+    public final SimulationEditorPane speciesEditor;
     
     /**
      * Static splitpane that displays all the integrator classes on the left (as radiobuttons) and 
      * all the integrator added to the simulation.instance on the right (in a JList).
      */
-    public final IntegratorEditorPane integratorEditor;
+    public final SimulationEditorPane integratorEditor;
     
     /**
      * Static splitpane that displays all the phase classes on the left (as radiobuttons) and 
      * all the phase added to the simulation.instance on the right (in a JList).
      */
-    public final PhaseEditorPane phaseEditor;
+    public final SimulationEditorPane phaseEditor;
     
     /**
      * Static splitpane that displays all the controller classes on the left (as radiobuttons) and 
      * all the controller added to the simulation.instance on the right (in a JList).
      */
-    public final ControllerEditorPane controllerEditor;
+    public final SimulationEditorPane controllerEditor;
     
     /**
      * Static splitpane that displays all the display classes on the left (as radiobuttons) and 
      * all the display added to the simulation.instance on the right (in a JList).
      */
-    public final DisplayEditorPane displayEditor;
+    public final SimulationEditorPane displayEditor;
     
     /**
      * Static splitpane that displays all the meters classes on the left (as radiobuttons) and 
      * all the meter added to the simulation.instance on the right (in a JList).
      */
-    public final MeterEditorPane meterEditor;
+    public final SimulationEditorPane meterEditor;
     
     /**
      * Static splitpane that displays all the device classes on the left (as radiobuttons) and 
      * all the device added to the simulation.instance on the right (in a JList).
      */
-    public final DeviceEditorPane deviceEditor;
+    public final SimulationEditorPane deviceEditor;
     
     /**
      * Instance of the simulation being edited by this tab pane.
@@ -83,13 +83,13 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         simulation = sim;
         potential1Editor = new Potential1EditorPane(this);
         potential2Editor = new Potential2EditorPane(this);
-        speciesEditor = new SpeciesEditorPane(this);
-        integratorEditor = new IntegratorEditorPane(this);
-        phaseEditor = new PhaseEditorPane(this);
-        controllerEditor = new ControllerEditorPane(this);
-        displayEditor = new DisplayEditorPane(this);
-        meterEditor = new MeterEditorPane(this);
-        deviceEditor = new DeviceEditorPane(this);
+        speciesEditor = new SimulationEditorPane(this,"Species");
+        integratorEditor = new SimulationEditorPane(this,"Integrator");
+        phaseEditor = new SimulationEditorPane(this,"Phase");
+        controllerEditor = new SimulationEditorPane(this,"Controller");
+        displayEditor = new SimulationEditorPane(this,"Display");
+        meterEditor = new SimulationEditorPane(this,"Meter");
+        deviceEditor = new SimulationEditorPane(this,"Device");
         editorPanes.put(Potential1.class, potential1Editor);
         editorPanes.put(Potential2.class, potential2Editor);
         editorPanes.put(Species.class, speciesEditor);
@@ -129,6 +129,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
             editorPane.getComponentList().addElement(element);
             editorPane.setEnabled(true);
         }
+        speciesEditor.accountForNewSpecies();
     }
     
     public void setAllRemove(boolean r) { 
@@ -175,18 +176,13 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         }
     }
     
-    public SpeciesEditorPane getSpeciesEditor(){ return speciesEditor; }
+    public SimulationEditorPane getSpeciesEditor(){ return speciesEditor; }
     public Potential1EditorPane getPotential1Editor(){ return potential1Editor; }
     public Potential2EditorPane getPotential2Editor(){ return potential2Editor; }
-    public IntegratorEditorPane getIntegratorEditor(){ return integratorEditor; }
-    public PhaseEditorPane getPhaseEditor(){ return phaseEditor; }
-    public ControllerEditorPane getControllerEditor(){ return controllerEditor; }
-    public DisplayEditorPane getDisplayEditor(){ return displayEditor; }
-    public MeterEditorPane getMeterEditor(){ return meterEditor; }
-    public DeviceEditorPane getDeviceEditor(){ return deviceEditor; }
-    
-    public interface EditorPane {
-        public javax.swing.DefaultListModel getComponentList();
-        public void setEnabled(boolean b);
-    }
+    public SimulationEditorPane getIntegratorEditor(){ return integratorEditor; }
+    public SimulationEditorPane getPhaseEditor(){ return phaseEditor; }
+    public SimulationEditorPane getControllerEditor(){ return controllerEditor; }
+    public SimulationEditorPane getDisplayEditor(){ return displayEditor; }
+    public SimulationEditorPane getMeterEditor(){ return meterEditor; }
+    public SimulationEditorPane getDeviceEditor(){ return deviceEditor; }
 }// end of SimEditorTabMenu class

@@ -1,33 +1,26 @@
 package etomica.gui;
 
+import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.beans.*;
 import java.lang.reflect.*;
-import java.awt.*;
+import java.net.URL;
 import java.util.EventObject;
-import java.awt.event.MouseEvent;
 import java.util.Vector;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.table.*;
 import etomica.gui.treetable.*;
 import etomica.ConstrainedPropertyEditor;
 import etomica.DimensionedDoubleEditor;
 import etomica.Meter;
+import etomica.Simulation;
 
-public class PropertySheet extends javax.swing.JInternalFrame {
-
+public class PropertySheet extends JInternalFrame {
     static final javax.swing.border.EmptyBorder EMPTY_BORDER = new javax.swing.border.EmptyBorder(2,4,2,2);
-    static final javax.swing.Icon LEAF_ICON = new javax.swing.ImageIcon("clearpixel.gif");
-    static final javax.swing.Icon OPEN_ICON = new javax.swing.ImageIcon("TreeExpanded.gif");
-    static final javax.swing.Icon CLOSED_ICON = new javax.swing.ImageIcon("TreeCollapsed.gif");
+    static ImageIcon LEAF_ICON = new ImageIcon();
+    static ImageIcon OPEN_ICON = new ImageIcon();
+    static ImageIcon CLOSED_ICON = new ImageIcon();
     
     private PropertySheetPanel panel;
     private boolean started;
@@ -39,7 +32,7 @@ public class PropertySheet extends javax.swing.JInternalFrame {
      */
     public static int updateSleepPeriod = 1000;
         
-    public PropertySheet(Wrapper target, int x, int y) {
+    public PropertySheet(Simulation.Element element, int x, int y) {
 	    super("Properties - <initializing...>",
 	            true, //resizable
 	            true  //closable
@@ -56,9 +49,10 @@ public class PropertySheet extends javax.swing.JInternalFrame {
 	    panel = new PropertySheetPanel(this);
 	    getContentPane().add(panel);
         
-	    panel.setTarget(target);
-	    setTitle("Properties - " + target.getBeanLabel());
-
+	    panel.setTarget(element);
+        if (element != null)
+	        setTitle("Properties - " + element.getName());
+        else setTitle("Properties - " + "null");
         //turn off updateThread when closing window.
         addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
             public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {panel.updateThread.clear();}
@@ -66,15 +60,13 @@ public class PropertySheet extends javax.swing.JInternalFrame {
 	    started = true;
     }
 
-    public void setTarget(Wrapper targ) {
-//	    Object bean = targ.getBean();
-	    String displayName = targ.getBeanLabel();
-	    panel.setTarget(targ);
+    public void setTarget(Simulation.Element e) {
+        String displayName;
+        if (e != null)
+	        displayName = e.getName();
+	    else displayName = null;
+	    panel.setTarget(e);
 	    setTitle("Properties - " + displayName);
-    }
-
-    public void setCustomizer(Customizer c) {
-	    panel.setCustomizer(c);
     }
 
     void wasModified(PropertyChangeEvent evt) {
@@ -82,7 +74,7 @@ public class PropertySheet extends javax.swing.JInternalFrame {
     }
 }//end of PropertySheet
 
-class PropertySheetPanel extends javax.swing.JPanel {
+class PropertySheetPanel extends JPanel {
     JScrollPane sp,sp2;
     JTree labelTree,componentTree;
     /**
@@ -91,31 +83,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
      */
     UpdateThread updateThread = new UpdateThread(this);
 
-    public static class ComboCellEditor extends DefaultCellEditor {
-        private JTree tree;
-        
-        public ComboCellEditor(JTree tree, JComboBox c){
-            super(c);
-            this.tree = tree;
-        }      
-        
-        public boolean isCellEditable(EventObject e){
-            boolean rv = false;
-            
-            if (e instanceof MouseEvent) {
-                MouseEvent me = (MouseEvent)e;
-                
-                if (me.getClickCount() == 1) {
-                    TreePath path = tree.getPathForLocation(me.getX(), me.getY());
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-                    rv = (node.getUserObject() instanceof PropertySelector);
-                }
-            }
-            return rv;
-        }
-    }//end of ComboCellEditor
-    
-    private static class CellEditor extends javax.swing.DefaultCellEditor implements javax.swing.table.TableCellEditor{
+    private static class CellEditor extends DefaultCellEditor implements javax.swing.table.TableCellEditor{
         private JLabel labelEditor;
         private JPanel canvasEditor;
         private JTextField textEditor;
@@ -142,8 +110,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
         private EmptyPanel emptyPanel;
         private Component c;
         
-        CellRenderer () {
-        }
+        CellRenderer () {}
 
         public Component getTableCellRendererComponent(JTable table,
             Object value, boolean selected, boolean hasFocus,
@@ -160,9 +127,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
                     }
                     return new StaticTextField("Error here!");
                 }
-                else {
-                    return c;
-                }
+                else return c;
         }
     }//end of CellRenderer
 
@@ -175,8 +140,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	    adaptor = new EditedAdaptor(frame);
     }
     
-    synchronized void setTarget(Wrapper targ) {
-
+    synchronized void setTarget(Simulation.Element e) {
         updateThread.clear();
         updateThread = new UpdateThread(this);
 	    removeAll();
@@ -187,13 +151,11 @@ class PropertySheetPanel extends javax.swing.JPanel {
 
 	    // As a workaround for #4056424, we avoid making the panel
 	    // invisible first time though, during startup.
-	    if (target != null) {
+	    if (target != null)
 	        setVisible(false);
-  	    }
 
-	    targetWrapper = targ;
-	    target = targ.getBean();
-	    
+	    target = e;
+
         //set up the treetable
         PropertyNode rootNode = makeNode(target, null, null, null);
         if(rootNode == null) return;
@@ -201,23 +163,70 @@ class PropertySheetPanel extends javax.swing.JPanel {
         JTreeTable treeTable = new JTreeTable(model);
         treeTable.getTree().setRootVisible(false);
         treeTable.getTree().putClientProperty("JTree.lineStyle","Angled");
-//        ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setLeafIcon(PropertySheet.LEAF_ICON);
-//        ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setClosedIcon(PropertySheet.CLOSED_ICON);
-//        ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setOpenIcon(PropertySheet.OPEN_ICON);
+        try {
+    	    PropertySheet.LEAF_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"clearpixel.gif"));
+		    PropertySheet.CLOSED_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeCollapsed.gif"));
+		    PropertySheet.OPEN_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeExpanded.gif"));
+		}
+		catch (java.net.MalformedURLException error) { }
+
+        ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setLeafIcon(PropertySheet.LEAF_ICON);
+        ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setClosedIcon(PropertySheet.CLOSED_ICON);
+        ((DefaultTreeCellRenderer)treeTable.getTree().getCellRenderer()).setOpenIcon(PropertySheet.OPEN_ICON);
         treeTable.setDefaultRenderer(Object.class, new CellRenderer());
         treeTable.setDefaultEditor(Object.class, new CellEditor());
-  //      treeTable.setShowGrid(true);
-  //      treeTable.setRowHeight(30);
-  //      treeTable.setGridColor(java.awt.Color.darkGray);
     
-        // Put tree in a scrollable pane
-        sp = new JScrollPane(treeTable);
-        BorderLayout bl = new BorderLayout();
-        setLayout(bl);
-        add(sp, BorderLayout.CENTER);
-//        add(sp);
+        
+        sp = new JScrollPane(treeTable); // Put tree in a scrollable pane
+        
+        /*
+         * Creates JComboBox that holds all currently added simulation elements.  If a different element is
+         * selected from the box, the properties of the newly selected element are displayed in the prop. sheet
+	     */
+	    JComboBox elementCombo = new JComboBox(Simulation.instance.allElements().toArray());
+	    elementCombo.setSelectedItem(target);
+	    elementCombo.addItemListener(new java.awt.event.ItemListener() {
+	        public void itemStateChanged(java.awt.event.ItemEvent ie){
+	            Simulation.Element item = (Simulation.Element)((JComboBox)ie.getSource()).getSelectedItem();
+	            Etomica.propertySheet().setTarget(item);//new Wrapper(item, item.getName(), "etomica" + item.getName()));
+	        }
+	    });
+ 
+        // GridBagLayout is created and set as the current layout of the property sheet.
+        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagLayout gbl = new GridBagLayout();
+        setLayout(gbl);
+        
+        /*
+         * Add elementCombo at (0,0) position (gridx = gridy = 0).  It can grow in x-dir but not y-dir 
+         * (weightx = 1, weighty = 0).  It is allocated one gridblock in height and infinite gridblocks in 
+         * length (gridheight = 1, gridwidth = REMAINDER).  It expands to fill all of its allocated
+         * gridblocks in x-dir (gbc.fill = GridBagConstraints.HORIZONTAL)
+         */
+        gbc.gridx = gbc.gridy = 0;
+        gbc.weightx = 1;
+        gbc.weighty = 0;
+        gbc.gridheight = 1;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbl.setConstraints(elementCombo, gbc);
+        add(elementCombo);
+        // end of JComboBox, elementCombo, addition
+        
+        /*
+         * Add sp at (0,1) position (gridx = 0, gridy = 1).  It can grow in both the x-dir and the y-dir 
+         * (weightx = 1, weighty = 1).  It is allocated one gridblock in height and infinite gridblocks in 
+         * length (gridheight = 1, gridwidth = REMAINDER).  It expands to fill all of its allocated
+         * gridblocks in x-dir and y-dir (gbc.fill = GridBagConstraints.BOTH)
+         */
+        gbc.gridy = 1;
+        gbc.weighty = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbl.setConstraints(sp, gbc);
+        add(sp);
+        // end of scrollpane, sp, addition.
+	    
 	    frame.getContentPane().add(this);
-//        frame.getContentPane().add(sp);
 	    doLayout(true);
 
 	    processEvents = true;
@@ -227,12 +236,9 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	    int frameWidth = getSize().width + ins.left + ins.right + 20;
 	    int frameHeight = getSize().height + ins.top + ins.bottom + 20;
         
+        frameHeight += 25;//account for height of elementCombo
+        frameWidth += 200;
 	    frame.setSize(frameWidth,frameHeight);
-//	    sp.setSize(frameWidth,frameHeight);
-//	    sp2.setSize(frameWidth/2,frameHeight);
-//	    frame.setSize(frameWidth,frameHeight);
-//	    setLocation(ins.left, ins.top);
-//	    frame.getContentPane().add(this);
         setVisible(true);
     }
     
@@ -276,9 +282,8 @@ class PropertySheetPanel extends javax.swing.JPanel {
         //Loop through all properties and determine current value and find appropriate editor
 	    for (int i = 0; i < properties.length; i++) {
 	        // Don't display hidden or expert properties.
-	        if (properties[i].isHidden() || properties[i].isExpert()) {
+	        if (properties[i].isHidden() || properties[i].isExpert())
 		        continue;
-	        }
 
 	        Object value = null;
 	        Component view = null;
@@ -289,7 +294,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	        Class type = properties[i].getPropertyType();  //Type (class) of this property
 	        Method getter = properties[i].getReadMethod(); //method used to read value of property in this object
 	        Method setter = properties[i].getWriteMethod();//method used to set value of property
-  //          System.out.println(name);
 	        // Only display read/write properties.
 	        if (getter == null || (setter == null && !(object instanceof Meter)) || type == Class.class) {
 		        continue;
@@ -303,11 +307,9 @@ class PropertySheetPanel extends javax.swing.JPanel {
 
                 //find and instantiate the editor used to modify value of the property
 	            PropertyEditor editor = null;
-	            if(properties[i].isConstrained()) {
+	            if(properties[i].isConstrained())
 	                editor = new ConstrainedPropertyEditor();
-	            }
 	            else {
-        	        
         	        //property is a dimensioned number
         	        if(type == Double.TYPE) {
         	            //try to get dimension from get(property)Dimension() method
@@ -330,9 +332,8 @@ class PropertySheetPanel extends javax.swing.JPanel {
 		            }
 		            //property is not a dimensioned number and was not set explicitly
 		            //have editor manager look for an appropriate editor
-		            if (editor == null) {
+		            if (editor == null)
 		                editor = PropertyEditorManager.findEditor(type);
-		            }
 		        }//done with trying to get an editor for the property
 		        
 	            group.editors[i] = editor;
@@ -342,8 +343,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
 		            // If it's a user-defined property we give a warning.
 		            String getterClass = properties[i].getReadMethod().getDeclaringClass().getName();
 		            if (getterClass.indexOf("java.") != 0) {
-		                System.err.println("Warning: Can't find public property editor for property \""
-				        + name + "\".  Skipping.");
+		                System.err.println("Warning: Can't find public property editor for property \"" + name + "\".  Skipping.");
 		            }
 		            continue;
 	            }
@@ -389,10 +389,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
 		                }
 		            }
 		        }
-		        else {
-		            unitView = new EmptyPanel();
-		        }
-
+		        else unitView = new EmptyPanel();
 	        } //end of try
 	        catch (InvocationTargetException ex) {
 		        System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
@@ -427,51 +424,7 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	    return root;
     }//end of makeNode method
 
-    void stretch() {
-	// This gets called when a user explicitly resizes the frame.
-
-	    Component child = null;
-	    try {
-	        child = (Component)frame.getContentPane().getComponent(0);
-	    } catch (Exception ex) {
-	        // frame has no active children;
-	        return;
-	    }
-	    Dimension childSize = child.getSize();
-	    Dimension frameSize = frame.getSize();
-	    Insets ins = frame.getInsets();
-	    int vpad = ins.top + ins.bottom;
-	    int hpad = ins.left + ins.right;
-
-	    // If the frame size hasn't changed, do nothing.
-	    if (frameSize.width == (childSize.width + hpad) &&
-		    frameSize.height == (childSize.height + vpad)) {
-	        return;
-	    }
-
-	    // We treat the new frame sizes as a future maximum for our own
-	    // voluntary size changes.
-	    maxHeight = frameSize.height;
-	    maxWidth = frameSize.width;
-
-	    // If we've gotten smaller, force new layout.
-	    if (frameSize.width < (childSize.width + hpad) ||
-			    frameSize.height < (childSize.height + vpad)) {
-	        // frame has shrunk in at least one dimension.
-	        setTarget(targetWrapper);
-	    } else {
-	    // Simply resize the contents.  Note that this won't make
-	    // any ScrollPane go away, that will happen on the next
-	    // focus change.
- 	    child.setSize(frameSize.width - hpad, frameSize.height - vpad);
-    	    
-	    }
-    }//end of stretch
-
     private void doLayout(boolean doSetSize) {
-//	    if (views == null || labels == null) {
-//	        return;
-//	    }
         if(groups.isEmpty())  return;
 
 	    // First figure out the size of the columns.
@@ -482,15 +435,15 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	        PropertyGroup g = (PropertyGroup)iter.next();
 	        for (int i = 0; i < g.labels.length; i++) {
 	            if (g.labels[i] == null || g.views[i] == null) {
-		        continue;
+		            continue;
 	            }
 	            int w = g.labels[i].getPreferredSize().width;
 	            if (w > labelWidth) {
-		        labelWidth = w;
+		            labelWidth = w;
 	            }
 	            w = g.views[i].getPreferredSize().width;
 	            if (w > viewWidth) {
-		        viewWidth = w;
+		            viewWidth = w;
 	            }
 	        }
 	    }
@@ -501,34 +454,17 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	    int y = 10;
 	    for (int i = 0; i < g.labels.length; i++) {
 	        if (g.labels[i] == null || g.views[i] == null) {
-		    continue;
+		        continue;
 	        }
 	        g.labels[i].setBounds(hPad, y, labelWidth, 20);
-
-//	        Dimension viewSize = views[i].getPreferredSize();
-	        int h = 20;//viewSize.height;
-	        //if (h < 20) {
-		    //    h = 20;
-	        //}
+	        int h = 20;
 	        g.views[i].setBounds(labelWidth + 2*hPad, y, viewWidth, h);
 	        y += (h + vPad);
 	    }
-
 	    y += vPad;
 
-	    if (doSetSize) {
+	    if (doSetSize)
 	        setSize(width, y);
-	    }
-    }
-
-/*    public void doLayout() {
-	    doLayout(false);
-    }*/
-
-    synchronized void setCustomizer(Customizer c) {
-	    if (c != null) {
-	        c.addPropertyChangeListener(new EditedAdaptor(frame));
-	    }
     }
 
     /**
@@ -537,9 +473,8 @@ class PropertySheetPanel extends javax.swing.JPanel {
      * other properties and repaints the sheet accordingly.
      */
     synchronized void wasModified(PropertyChangeEvent evt) {
-        if (!processEvents) {
+        if (!processEvents)
 	        return;
-	    }
 
 	    if (evt.getSource() instanceof PropertyEditor) {
 	        PropertyEditor editor = (PropertyEditor) evt.getSource();
@@ -557,14 +492,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
 		                    Object args[] = { value };
 		                    args[0] = value;
 		                    setter.invoke(g.target, args);
-            		        
-		                    // We add the changed property to the targets wrapper
-		                    // so that we know precisely what bean properties have
-		                    // changed for the target bean and we're able to
-		                    // generate initialization statements for only those
-		                    // modified properties at code generation time. 
-                            targetWrapper.getChangedProperties().addElement(g.properties[i]);
-
 		                } 
 		                catch (InvocationTargetException ex) {
 		                    if (ex.getTargetException() instanceof PropertyVetoException) {
@@ -628,10 +555,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	    }//end of for(java.util.Iterator) loop
     }//end of wasModified method
 
-    private void warning(String s) {
-    //	new ErrorDialog(frame, "Warning: " + s);
-    }
-
     //----------------------------------------------------------------------
     // Log an error.
     private void error(String message, Throwable th) {
@@ -640,7 +563,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
 	    th.printStackTrace();
 	    // Popup an ErrorDialog with the given error message.
     //	new ErrorDialog(frame, mess);
-
     }
 
     private class MyLabel extends JLabel implements java.awt.event.ActionListener {
@@ -762,7 +684,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
                 next = n;
             }//end of constructor
         }//end of UpdateGroup class
-        
     }//end of UpdateThread class
     
     //----------------------------------------------------------------------
@@ -772,7 +693,6 @@ class PropertySheetPanel extends javax.swing.JPanel {
     // We need to cache the targets' wrapper so we can annoate it with
     // information about what target properties have changed during design
     // time.
-    private Wrapper targetWrapper;   
     private Object target;
     private java.util.Vector groups = new java.util.Vector();
     private boolean processEvents;
@@ -784,5 +704,4 @@ class PropertySheetPanel extends javax.swing.JPanel {
     //maximum tree depth for property nesting
     static final int MAX_DEPTH = 3;
     private int depth = 0;
-    
 }

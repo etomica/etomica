@@ -113,6 +113,4 @@ public abstract class Meter extends MeterAbstract
 	    public Meter[] getMeters();
 	    public void addMeter(Meter m);
 	 }
-	 
-	 
 }	 

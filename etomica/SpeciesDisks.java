@@ -14,7 +14,7 @@ public class SpeciesDisks extends Species {
 //  Note that the parameters of the type can be changed; only the instance of it is frozen once the atoms are made
 //    (this is the same behavior as declaring it final)
     public AtomType.Disk protoType;
-     
+        
     public SpeciesDisks() {
         this(Simulation.instance);
     }

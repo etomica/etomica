@@ -10,7 +10,11 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
     
     public IteratorFactory makeIteratorFactory(Phase p) {return new CellListIteratorFactory(p);}
 
-    public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
+ //   public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
+    public Space.Coordinate makeCoordinate(Space.Occupant o) {//may want to revise this for o instanceof Molecule
+        if(o instanceof Atom && ((Atom)o).type instanceof AtomType.Rotator) return new OrientedCoordinate(o);
+        else return new Coordinate(o);
+    }
 
 //    public Potential makePotential(Phase p) {return new CellPotential(p);}
     
@@ -18,8 +22,27 @@ public class Space2DCell extends Space2D implements IteratorFactory.Maker {
         if(t == Space2D.Boundary.PERIODIC_SQUARE) return new BoundaryPeriodicSquare();  //this space's version overrides centralImage methods
         else return super.makeBoundary(t);
     }
+    public static class OrientedCoordinate extends Coordinate implements Space.Coordinate.Angular {
+        private double L = 0.0; //magnitude of angular momentum
+        private final Space3D.Vector vector = new Space3D.Vector();//used to return vector quantities (be sure to keep x and y components zero)
+        private final double[] I;
+        private final Orientation orientation = new Orientation();
+        public OrientedCoordinate(Space.Occupant o) {
+            super(o);
+            I = ((AtomType.SphericalTop)((Atom)o).type).momentOfInertia();
+        }
+        public Space3D.Vector angularMomentum() {vector.z = L; return vector;}
+        public Space3D.Vector angularVelocity() {vector.z = L/I[0]; return vector;}
+        public void angularAccelerateBy(Space3D.Vector t) {L += t.z;}
+        public Space.Orientation orientation() {return orientation;}
+        public double kineticEnergy() {return super.kineticEnergy() + 0.5*L*L/I[0];}
+        public void freeFlight(double t) {
+            super.freeFlight(t);
+            orientation.rotateBy(2, t*L/I[0]);//all elements of I equal for spherical top
+        }
+    }
 
-    public final class Coordinate extends Space2D.Coordinate implements AbstractLattice.Occupant {
+    public static class Coordinate extends Space2D.Coordinate implements AbstractLattice.Occupant {
         Coordinate nextNeighbor, previousNeighbor;  //next and previous coordinates in neighbor list
         public AtomCell cell;             //cell currently occupied by this coordinate
         public SquareLattice lattice;               //cell lattice in the phase occupied by this coordinate

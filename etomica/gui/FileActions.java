@@ -110,7 +110,7 @@ public class FileActions {
         public void actionPerformed(ActionEvent event) {
     	    FileDialog fd = new FileDialog(Etomica.DesktopFrame.etomicaFrame, "Serialize Component into File", FileDialog.SAVE);
 	        // needed for a bug under Solaris...
-	        fd.setDirectory(System.getProperty("user.dir"));
+            fd.setDirectory(System.getProperty("user.dir"));
 	        fd.setFile(defaultSerializeEditFile);
 	        fd.show();
 	        String fname = fd.getFile();
@@ -188,9 +188,6 @@ public class FileActions {
         }// end of error
     }// end of SerAppletAction
     
-    /**
-     * Static class that handles the load a serialized component action
-     */
     private static class OpenAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
@@ -210,7 +207,10 @@ public class FileActions {
                 int idx = fname.lastIndexOf(".");
                 fname = fname.substring(0, idx);
 	            try{
-	                simulationClass = Class.forName(((String)file.getAbsolutePath()).substring(11,25));//"simulate.simulations."+fname.toString());
+	                String pathName = ((String)file.getAbsolutePath());
+	                pathName = pathName.substring(Default.WORKING_DIRECTORY.length(),pathName.length()-6);
+                    pathName = pathName.replace('\\', '.');	                
+	                simulationClass = Class.forName(pathName);
 	                Simulation sim = (Simulation)simulationClass.newInstance();
 	                Etomica.addSimulation(sim);
 	            }
@@ -245,33 +245,34 @@ public class FileActions {
     private static class PrintAction implements ActionListener {
         
         public void actionPerformed(ActionEvent event) {
-/*            java.awt.PrintJob pj = java.awt.Toolkit.getDefaultToolkit().getPrintJob(Etomica.DesktopFrame.etomicaFrame, "Printing Test", (java.util.Properties)null);
-
-    	    if (pj != null) {
-//	    	    Graphics g;
-//		        Dimension pageDim = pj.getPageDimension();
-//		        int pageRes = pj.getPageResolution();
-//		        boolean lastFirst = pj.lastPageFirst();
-
-		        Graphics gr  = pj.getGraphics();
+//            java.awt.PrintJob pj = java.awt.Toolkit.getDefaultToolkit().getPrintJob(Etomica.DesktopFrame.etomicaFrame, "Printing Test", (java.util.Properties)null);
+            java.awt.print.PrinterJob pJob = java.awt.print.PrinterJob.getPrinterJob();
+            pJob.setPrintable(Etomica.DesktopFrame.etomicaFrame);
+            pJob.printDialog();
+            try {
+                pJob.print();
+            }
+            catch (java.awt.print.PrinterException pe) { pe.printStackTrace(); }
+/*    	    if (pj != null) {
+	    	    Graphics gr  = pj.getGraphics();
+		        Dimension pageDim = pj.getPageDimension();
+		        int pageRes = pj.getPageResolution();
+		        boolean lastFirst = pj.lastPageFirst();
     		
 		        if (gr!=null) {
-		            // We print all components one after the other in the
-		            // same page. 		  
-		            int count = Etomica.DesktopFrame.etomicaFrame.getComponentCount();
-		            System.out.println(count);
-		            for (int i=0; i<count; i++) {
-		                Wrapper wr = new Wrapper(SimulateActions.getApplet(),"SimulationFrame1","simulate.gui.SimulationFrame");
-		                Object bean = wr.getBean();
-		                if (bean instanceof Component) {
-		                    Component c = (Component) java.beans.Beans.getInstanceOf(bean, Component.class);
-		                    Dimension d = c.getSize();
-		                    java.awt.Point o = wr.getLocation();
-		                    java.awt.Image offScreen = c.createImage(d.width, d.height);
-		                    c.paint(offScreen.getGraphics());
-		                    gr.drawImage(offScreen, o.x, o.y, java.awt.Color.white, null);
-		                }
-		            }
+		            // We print all components one after the other in the same page. 		  
+		            Component c = (Component)Etomica.DesktopFrame.etomicaFrame;
+		            Dimension d = c.getSize();
+		            double proportion = d.width/pageDim.width;
+		            if (d.height/pageDim.height > proportion) {
+                        proportion = d.height/pageDim.height;
+                    }
+		            java.awt.Point o = new java.awt.Point(0,0);
+		            java.awt.Image offScreen = c.createImage((int)(d.width/proportion), (int)(d.height/proportion));
+		            System.out.println("width=" + d.width + "propwidth=" + d.width/proportion);
+		            System.out.println("height=" + d.height+ "propheight=" + d.height/proportion);
+		            c.paint(offScreen.getGraphics());
+		            gr.drawImage(offScreen, o.x, o.y, java.awt.Color.white, null);
 		        }
 		        else System.err.println("Could not get Graphics handle.");
         			     
@@ -279,9 +280,7 @@ public class FileActions {
 	            pj.end();
 	        } 
 	        else System.err.println("PrintJob cancelled.");     
-        */
-
-        }// end of actionPerformed
+*/        }// end of actionPerformed
     }// end of PrintAction
     
     /**

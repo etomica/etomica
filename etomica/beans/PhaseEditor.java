@@ -1,5 +1,4 @@
 package etomica;
-import etomica.*;
 import java.beans.*;
 import java.util.*;
 
@@ -37,7 +36,7 @@ public class PhaseEditor extends PropertyEditorSupport {
     public String[] getTags() {return phaseNames;}
 
     protected void makePhaseLists() {
-        java.util.LinkedList phaseList = Simulation.instance.phaseList();
+        java.util.LinkedList phaseList = etomica.Simulation.instance.phaseList();
         phaseNames = new String[phaseList.size()];
         phaseObjects = new Object[phaseList.size()];
         int i=0;

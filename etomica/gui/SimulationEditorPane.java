@@ -12,165 +12,96 @@
 package etomica.gui;
 
 import etomica.*;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JInternalFrame;
 import javax.swing.JRadioButton;
-import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.beans.*;
 
-public abstract class SimulationEditorPane extends javax.swing.JSplitPane implements SimulationEditor.EditorPane {
-    /**
-     * Determines format of the JList on the right pane of the SimulationEditorPane
-     */
-    protected final javax.swing.DefaultListModel componentList = new javax.swing.DefaultListModel();    
+public class SimulationEditorPane extends EditorPane {
     
     /**
-     * JList that contains all of the simulation components that were added from the left pane's choices
+     * Handle to the radio button that is currently selected
      */
-    final javax.swing.JList rightPaneList = new javax.swing.JList(componentList);
-    
-    /**
-     * Lists all of the simulation components corresponding to the respective tabs name.  These are listed
-     * as radio buttons.
-     */
-    final javax.swing.JPanel leftPanePanel = new javax.swing.JPanel();
-    
-    /**
-     * Scrollable pane that holds the leftPanePanel from above
-     */
-    final javax.swing.JScrollPane leftPane = new javax.swing.JScrollPane(leftPanePanel);
-    
-    /**
-     * Scrollable pane that holds the rightPaneList from above
-     */
-    final javax.swing.JScrollPane rightPane = new javax.swing.JScrollPane(rightPaneList);
-    
-    /**
-     * Holds all constraints needed for displaying the next awt or swing component
-     */
-    final GridBagConstraints gbc = new GridBagConstraints();
-    
-    /**
-     * Determines how to display an awt or swing component by using gbc from above
-     */
-    final GridBagLayout gbl = new GridBagLayout();
-    
-    /**
-     * Button for adding objects to the JList of the right pane.  
-     */
-    final JButton addToSim = new JButton("Add");
-    
-    /**
-     * Button for removing objects from the JList of the right pane.  Only enabled if an object is in the
-     * JList
-     */
-    final JButton remove = new JButton("Remove");
-    
-    /**
-     * Button for starting the simulation.  Only enabled if a sufficient number of simulation components
-     * have been added to make a working simulation
-     */
-    final JButton start = new JButton("Start");
-    
-    /**
-     * Envelopes a simulation component in order to have the component's properties listed in the 
-     * property sheet.
-     */
-    protected static Wrapper wrapper = null;
-    
-    /**
-     * Internal frame that lists the properties of a component
-     */
-    protected static PropertySheet propertySheet;
-    
-    /**
-     * Gives the index of the currently selected object in the JList of the right pane
-     */
-    private int currentSelection;
-        
-    /**
-     * If true, the current simulation component has already been added
-     */
-    public static boolean added = false;
-    
-    /**
-     * Buttongroup that provides mutual exclusion for the radio buttons of the left pane
-     */
-    final ButtonGroup simComponents = new ButtonGroup();
+    MyRadioButton currentButton;
     
     /**
      * Makes it possible to determine which radio button was selected when the "add" button is pressed
      */
     final ButtonListener buttonListener = new ButtonListener();
-        
-    /**
-     * Handle to the radio button that is currently selected
-     */
-    static MyRadioButton currentButton;
     
-    /**
-     * Handle to the simulation component that is going to be added to the JList on the right pane and
-     * to the simulation.instance object
-     */
-    private Object component;
+    private java.util.HashMap elementClasses = new java.util.HashMap(16);
     
-    /**
-     * Name of editor pane
-     */
-    private String title;
+    private int IDnumber = 0;
     
-    /**
-     * Initial height of splitPane
-     */
-    protected int splitPaneHeight = 580;
-    
-    /**
-     * Initial width of splitPane
-     */
-    protected int splitPaneWidth = 580;
-    
-    /**
-     * Height of leftPane.  Used for determining when scrollbars should be added to the scrollPane
-     */
-    protected int leftPanelHeight;
-    
-    /**
-     * Width of leftPane.  Used for determining when scrollbars should be added to the scrollPane
-     */
-    protected int leftPanelWidth;
-    
-    /**
-     * Height of one JRadioButton.  Used for determining leftPanelHeight.
-     */
-    static final protected int radioButtonHeight = 24;
+    private double dividerPlacement = 0.4;
 
     /**
-     * Height of one JButton.  Used for determining leftPanelHeight.
+     * Static array of all simulation components that extend species.class
      */
-    static final protected int jButtonHeight = 32;
+    public static Class[] speciesClasses;
     
-    protected final SimulationEditor simulationEditor;
+    /**
+     * Static array of all simulation components that extend integrator.class
+     */
+    public static Class[] integratorClasses;
+    
+    /**
+     * Static array of all simulation components that extend phase.class
+     */
+    public static Class[] phaseClasses;
+    
+    /**
+     * Static array of all simulation components that extend controller.class
+     */
+    public static Class[] controllerClasses;
+    
+    /**
+     * Static array of all simulation components that extend display.class
+     */
+    public static Class[] displayClasses;
+    
+    /**
+     * Static array of all simulation components that extend meter.class
+     */
+    public static Class[] meterClasses;
+    
+    /**
+     * Static array of all simulation components that extend device.class
+     */
+    public static Class[] deviceClasses;
 
     /**
      * Constructor that creates all of the left pane's radiobuttons and JButtons, as well as, the right 
      * pane's scrollpane and JList.  It also creates all the listeners for these swing components so that
      * the simulation can be updated as needed.
      */
-    public SimulationEditorPane(SimulationEditor ed){
-        simulationEditor = ed;
+    public SimulationEditorPane(SimulationEditor ed, String t){
+        super(ed);
+        elementClasses.put("Species", speciesClasses);
+        elementClasses.put("Integrator", integratorClasses);
+        elementClasses.put("Phase", phaseClasses);
+        elementClasses.put("Controller", controllerClasses);
+        elementClasses.put("Display", displayClasses);
+        elementClasses.put("Meter", meterClasses);
+        elementClasses.put("Device", deviceClasses);
+        
+        setTitle(t);
         setSize(splitPaneWidth, splitPaneHeight);
     	setLeftComponent(leftPane);
         setRightComponent(rightPane);
-        setDividerLocation(0.4);
+	    if (getTitle() == "Phase") dividerPlacement = 0.5;
+        else if (getTitle() == "Meter") dividerPlacement = 0.65;
+	    setDividerLocation(dividerPlacement);
+        leftPanelWidth = (int)(dividerPlacement*splitPaneWidth)-10;//10 accounts for width of slider bar
         leftPanelHeight = splitPaneHeight;
-        leftPanelWidth = (int)(0.4*splitPaneWidth)-10;//10 accounts for width of slider bar
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 3;
@@ -183,13 +114,23 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 		rightPaneList.getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		rightPaneList.addListSelectionListener(new MyListSelectionListener(){
 		    public void valueChanged(javax.swing.event.ListSelectionEvent lse){
-		        EditActions.setObject(rightPaneList.getSelectedValue());
+		        Object obj = rightPaneList.getSelectedValue();
+		        EditActions.setObject(obj);
+		        
+		        // See if customizer exists for the selected object.  If one does, enable customize
+		        // selection on EditMenu, otherwise disable it.
+		        try {
+		            if (Introspector.getBeanInfo(obj.getClass()).getBeanDescriptor().getCustomizerClass() != null) {
+		                EtomicaMenuBar.customizeItem.setEnabled(true);
+		            }
+		            else EtomicaMenuBar.customizeItem.setEnabled(false);
+                }
+                catch (IntrospectionException ie){}
 		        setCurrentSelection(rightPaneList.getLeadSelectionIndex());
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
 	            if (rightPaneList.getSelectedValue() != null){
-                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString());
-                    propertySheet.setTarget(wrapper);
+                    propertySheet.setTarget((Simulation.Element)rightPaneList.getSelectedValue());
                     try {
                         propertySheet.setSelected(true);
                     }
@@ -201,12 +142,83 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 	                }});
     	    }});// end JList instantiation and setup
 
+
         leftPanePanel.setLayout(gbl);
         leftPanePanel.setMinimumSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
+        /*if (getTitle() = "Meter"){
+            leftPanePanel.setMinimumSize(new java.awt.Dimension(360, getHeight()));
+	        leftPanePanel.setPreferredSize(new java.awt.Dimension(360, getHeight()));
+        }*/
+        
+        // Calls introspection method from SimulationEditorPane to instantiate the related species
+        // classes contained in the SimulateActions.<component name>Classes static array.  These are listed
+        // as a buttonGroup of radioButtons
+        Class[] classArray = (Class[])elementClasses.get(getTitle());
+        if (getTitle() != "Phase") makeRadioButtons(classArray);
+        remove.setEnabled(false);
+		if (getTitle() == "Species") makeDefineMoleculeButton();
+		
+        // The new actionListener will add an instance of the class that corresponds to the currently
+        // selected radioButton to the simulationEditor.getSimulation() object as well as to the SimulationEditorPane's
+        // componentList.  
+        addToSim.addActionListener(new MyActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    remove.setEnabled(true);                            // Enable 'Remove' button  
+
+                    if ((getTitle() == "Phase") || (currentButton.cls != null)) {
+	                    try {   // Try to make an instance of the selected class
+	                        if (getTitle() == "Phase") {
+	                            Phase phase = new Phase();
+	                            setComponent(phase);
+	                            ((Simulation.Element)getComponent()).setName(getTitle() + Integer.toString(IDnumber++));
+	                        }
+	                        else {
+	                            setComponent(((Class)currentButton.cls).newInstance());
+	                            ((Simulation.Element)getComponent()).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
+    	                    }
+	                        componentList.addElement(getComponent()); // Add new object to the componentList
+                            simulationEditor.getSimulation().elementCoordinator.add((Simulation.Element)getComponent());
+	                        if (getTitle() == "Controller"){
+                                etomica.Device button = ((Controller)getComponent()).getButton();
+                                if(button != null) simulationEditor.getSimulation().elementCoordinator.add(button);
+	                        }
+	                    }
+	                    catch(InstantiationException exc) {}
+	                    catch(IllegalAccessException exc) {}
+	                }
+                    else {
+                        DefineMoleculeFrame newMolFrame = new DefineMoleculeFrame(simulationEditor);
+                        Etomica.DesktopFrame.desktop.add(newMolFrame);
+                        try { newMolFrame.setSelected(true); }
+                        catch (java.beans.PropertyVetoException pve){}
+                    }
+                    
+                    if (getTitle() == "Species") accountForNewSpecies();
+                    // Check if the addition of the new species will complete the list of necessary
+                    // components for a feasible simulation.  If so, it will enable the 'start' button.
+                    simulationEditor.checkSimFeasibility();
+             }});
+        addAddButton();     // Creates and adds the new JButton 'Add'
+        addStartButton();   // Creates and adds the new JButton 'Start'
+
+        // The new actionListener will remove the object corresponding to the current selection of the
+        // componentList from the simulationEditor.getSimulation() object.
+	    remove.addActionListener(new MyActionListener(){
+	        public void actionPerformed(ActionEvent e){
+                simulationEditor.getSimulation().unregister(((Simulation.Element)componentList.getElementAt(getCurrentSelection())));
+	            componentList.remove(getCurrentSelection());
+                propertySheet.setTarget(null);
+
+                if (getTitle() == "Species") accountForNewSpecies();
+                if (componentList.getSize() == 0)
+                    ((JButton)e.getSource()).setEnabled(false);
+                
+                simulationEditor.checkSimFeasibility();
+	        }});
+        addRemoveButton();  // Creates and adds the new JButton 'Remove'
+        addPropertyButton();// Creates and adds the new JButton 'Property Sheet'
     }
-    
-    public SimulationEditor simulationEditor() {return simulationEditor;}
     
     private void writeObject(ObjectOutputStream out) throws java.io.IOException {
         out.defaultWriteObject();
@@ -218,8 +230,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
         currentButton = ((MyRadioButton)in.readObject());
         if (getTitle() == "Species")
             ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
-        wrapper = new Wrapper(new Blank(),"","");
-        propertySheet.setTarget(wrapper);
+        propertySheet.setTarget(null);
     }    
     
     public void makeRadioButtons(Class[] className) {
@@ -227,6 +238,13 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 		 * This section creates all of the left pane's radio buttons, adds listeners to these buttons,
 		 * and adds them to the pane in a grid bag layout.
 		 */
+		if (className == null){
+		    leftPanelHeight = 0;
+            leftPanePanel.setMinimumSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
+	        leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
+		    return;
+		}
+		 
 		leftPanelHeight = 0;
 		for(int i=0; i < className.length; i++) {
             String name = className[i].getName();
@@ -260,9 +278,19 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 	    leftPanePanel.setPreferredSize(new java.awt.Dimension(leftPanelWidth, leftPanelHeight));
     }
     
-    public final void accountForNewSpecies(int i) {
-        simulationEditor.potential1Editor.setNumOSpecies(simulationEditor.potential1Editor.getNumOSpecies() + i);
-        simulationEditor.potential2Editor.setNumOSpecies(simulationEditor.potential2Editor.getNumOSpecies() + i);
+    public void makeDefineMoleculeButton(){
+		// Adds a RadioButton that allows the user to make their own Molecule with Atoms of different 
+		// AtomType.
+		MyRadioButton defineMolecule = new MyRadioButton("Define Molecule",false,null);
+		defineMolecule.addActionListener(buttonListener);
+		gbl.setConstraints(defineMolecule, gbc);
+		simComponents.add(defineMolecule);
+		leftPanePanel.add(defineMolecule);
+		gbc.gridy++;
+        leftPanelHeight += radioButtonHeight;//Account for extra radioButton on leftPanePanel;
+    }
+    
+    public final void accountForNewSpecies() {
         simulationEditor.potential1Editor.update();
         simulationEditor.potential2Editor.update();
     }
@@ -276,7 +304,7 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
         gbc.gridx = 0;
         gbc.gridwidth = 1;
         gbl.setConstraints(addToSim, gbc);
-        if (title == "Phase")
+        if (getTitle() == "Phase")
             addToSim.setText("Add Phase");
         leftPanePanel.add(addToSim);
     }// end of add button
@@ -310,7 +338,6 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 	    gbl.setConstraints(remove, gbc);
 	    leftPanePanel.add(remove);
     }// end of remove button
-    public void setEnabled(boolean b) {remove.setEnabled(b);}
     
 	/**
 	 * This section creates the property sheet button which displays the properties of the currently
@@ -326,13 +353,20 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
                 if (rightPaneList.getSelectedValue() != null){
-                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), getTitle(), "etomica.gui." + getTitle()); 
-                    propertySheet.setTarget(wrapper);
+                    Object obj = rightPaneList.getSelectedValue();
+                    propertySheet.setTarget((Simulation.Element)obj);
+
+		            // See if customizer exists for the selected object.  If one does, enable customize
+		            // selection on EditMenu, otherwise disable it.
+		            try {
+		                if (Introspector.getBeanInfo(obj.getClass()).getBeanDescriptor().getCustomizerClass() != null) {
+		                    EtomicaMenuBar.customizeItem.setEnabled(true);
+		                }
+		                else EtomicaMenuBar.customizeItem.setEnabled(false);
+                    }
+                    catch (IntrospectionException ie){}
                 }
-                else {
-                    wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
-                    propertySheet.setTarget(wrapper);
-                }
+                else { propertySheet.setTarget(null); }
                 try {
                     propertySheet.setSelected(true);
                 }
@@ -344,30 +378,6 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 	    leftPanePanel.add(propSheet);
     }// end of property sheet button
     
-    /**
-     * Provides a handle to the single instance of the property sheet so that it can be updated with the
-     * new component's properties.
-     */
-    public static void setPropertySheet(PropertySheet p){ propertySheet = p; }
-    
-    /**
-     * Provides a handle to the wrapper object that is displayed in the propertySheet
-     */
-    public static void setWrapper(Wrapper w){ wrapper = w; }
-    
-    public void setTitle(String t){ 
-        title = t; 
-        if (title == "Phase")
-            addToSim.setText("Add Phase");
-    }
-    public String getTitle() { return title; }
-    
-    public void setComponent(Object o) { component = o; }
-    public Object getComponent() { return component; }
-    
-    public void setCurrentSelection(int cs) { currentSelection = cs; }
-    public int getCurrentSelection() { return currentSelection; }
-        
     /**
      * Extension class of JRadioButton that allows button to know what simulation class they correspond to.
      */
@@ -389,16 +399,300 @@ public abstract class SimulationEditorPane extends javax.swing.JSplitPane implem
 	        currentButton = ((MyRadioButton)evt.getSource());
         }//end of actionPerformed
 	}//end of ButtonListener
-	
-	public javax.swing.DefaultListModel getComponentList(){ return componentList; }
-	
-	private class MyListSelectionListener implements javax.swing.event.ListSelectionListener, java.io.Serializable {
-	    public void valueChanged(javax.swing.event.ListSelectionEvent lse){}
-	}
-	
-	public class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {}
 
-	public class MyActionListener implements java.awt.event.ActionListener, java.io.Serializable {
-	    public void actionPerformed(java.awt.event.ActionEvent ae){}
-	}
+    /**
+     * This static block sets up all of the static arrays that hold all of the simulation component
+     * classes
+     */
+    static {
+        /**
+         * Etomica.jar test 
+         */
+/*        int count = 0;
+        String[] files = new String[100];
+        JarFile jarFile = null;
+        try {
+            jarFile = new JarFile(etomica.Default.JAR_FILE,false);
+        }
+        catch (java.io.IOException ioe){ioe.printStackTrace();}
+
+    	// Initialization of speciesClasses array
+	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Species") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.equals("Species.class")
+	                && !name.endsWith("UserDefinedDisks.class")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY);
+	    String[] files = dir.list(new java.io.FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Species")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.endsWith("PistonCylinder.class")
+	                && !name.equals("Species.class");}
+	        });
+        speciesClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        speciesClasses[i] = null;
+	        try{
+	            speciesClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of speciesClasses array
+    	    
+	    // Initialization of integratorClasses array
+/*	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Integrator") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.equals("Integrator.class")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    files = dir.list(new FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Integrator")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.equals("Integrator.class");}
+	        });
+        integratorClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        integratorClasses[i] = null;
+	        try{
+	            integratorClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of integratorClasses array
+    	    
+	    // Initialization of phaseClasses array
+/*	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Phase") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.startsWith("PhaseAction") 
+	                && !name.startsWith("PhaseEvent")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    files = dir.list(new FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Phase")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.startsWith("PhaseAction")
+	                && !name.startsWith("PhaseEvent");}	                	                
+	        });
+        phaseClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        phaseClasses[i] = null;
+	        try{
+	            phaseClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of phaseClasses array
+    	    
+	    // Initialization of controllerClasses array
+/*	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Controller") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.endsWith("Actions.class")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    files = dir.list(new FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Controller")
+	                && name.endsWith("class")
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && name.indexOf("$") == -1;}
+	        });
+        controllerClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        controllerClasses[i] = null;
+	        try{
+	            controllerClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of controllerClasses array
+	    
+	    // Initialization of displayClasses array
+/*	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Display") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.startsWith("DisplayPhaseEvent")
+	                && !name.startsWith("DisplayPhaseListener") && !name.equals("Display.class")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    files = dir.list(new FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Display")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.startsWith("DisplayPhaseEvent")
+	                && !name.startsWith("DisplayPhaseListener")
+	                && !name.endsWith("Canvas.class")
+	                && !name.equals("Display.class");}
+	        });
+        displayClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        displayClasses[i] = null;
+	        try{
+	            displayClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of displayClasses array
+	    
+	    // Initialization of meterClasses array
+/*	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Meter") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.startsWith("MeterAbstract")
+	                && !name.equals("Meter.class")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    files = dir.list(new FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Meter")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.startsWith("MeterAbstract")
+	                && !name.endsWith("ArrayEditorPanel.class")
+	                && !name.endsWith("Function.class")
+	                && !name.endsWith("MultiFunction.class")
+	                && !name.equals("Meter.class");}
+	        });
+        meterClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        meterClasses[i] = null;
+	        try{
+	            meterClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of meterClasses array
+	    
+	    // Initialization of deviceClasses array
+/*	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        int idx = name.indexOf("/");
+	        if (idx != -1) { name = name.substring(idx+1); } //chop off "etomica."
+	        idx = name.indexOf("/"); // see if any more "/" characters exist.  If so, this is a 
+	                                // sub-package of etomica and is skipped
+	        if (idx == -1) {
+	            name = name.substring(idx+1);
+	            if (name.startsWith("Device") && name.endsWith("class") && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class") && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class") && !name.startsWith("Device.class")){
+                        files[count++] = name;
+                }
+            }    
+        }
+*/	    files = dir.list(new FilenameFilter() {
+	        public boolean accept(File d, String name) {
+                return name.startsWith("Device")
+	                && name.endsWith("class")
+	                && name.indexOf("$") == -1
+	                && !name.endsWith("BeanInfo.class")
+	                && !name.endsWith("Editor.class")
+	                && !name.endsWith("Customizer.class")
+	                && !name.equals("Device.class");}
+	        });
+        deviceClasses = new Class[files.length];
+        for(int i=0; i<files.length; i++) {
+	        int idx = files[i].lastIndexOf(".");
+	        files[i] = files[i].substring(0,idx);
+	        deviceClasses[i] = null;
+	        try{
+	            deviceClasses[i] = Class.forName("etomica."+files[i]);
+	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
+	    }// End initialization of deviceClasses array
+	}// end of static block for class array initiliazation    
 }//end of SimulationEditorPane class

@@ -22,6 +22,8 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicToolBarUI;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 public class EtomicaMenuBar extends JMenuBar {
  
@@ -179,20 +181,21 @@ public class EtomicaMenuBar extends JMenuBar {
         cutItem.setActionCommand("Cut");
 		cutItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.Event.CTRL_MASK));
         cutItem.addActionListener(EditActions.CUT);
-        editMenu.add(cutItem);
+//        editMenu.add(cutItem);
         copyItem.setActionCommand("Copy");
 		copyItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.Event.CTRL_MASK));
 		copyItem.setMnemonic((int)'C');
         copyItem.addActionListener(EditActions.COPY);
-        editMenu.add(copyItem);
+//        editMenu.add(copyItem);
         pasteItem.setActionCommand("Paste");
 		pasteItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.Event.CTRL_MASK));
         pasteItem.addActionListener(EditActions.PASTE);
-        editMenu.add(pasteItem);
+//        editMenu.add(pasteItem);
         customizeItem.addActionListener(EditActions.CUSTOMIZE);
+        customizeItem.setEnabled(false);
         editMenu.add(customizeItem);
         reportItem.addActionListener(EditActions.REPORT);
-        editMenu.add(reportItem);
+//        editMenu.add(reportItem);
         
         /**
          * View Menu naming, adding to menu, and listener creating 
@@ -200,7 +203,7 @@ public class EtomicaMenuBar extends JMenuBar {
         this.add(viewMenu);
         workBookItem.addActionListener(ViewActions.WORKBOOK);
         workBookItem.setActionCommand("Workbook");
-        viewMenu.add(workBookItem);
+//        viewMenu.add(workBookItem);
         propertyListItem.addActionListener(ViewActions.PROPERTYLIST);
         propertyListItem.setActionCommand("PropertyList");
 		propertyListItem.setAccelerator(KeyStroke.getKeyStroke("F4"));
@@ -209,22 +212,22 @@ public class EtomicaMenuBar extends JMenuBar {
         componentLibraryItem.addActionListener(ViewActions.COMPONENTLIBRARY);
         componentLibraryItem.setActionCommand("Component Library");
 		componentLibraryItem.setMnemonic((int)'L');
-        viewMenu.add(componentLibraryItem);
+//        viewMenu.add(componentLibraryItem);
         classBrowserItem.addActionListener(ViewActions.CLASSBROWSER);
         classBrowserItem.setActionCommand("Class Browser");
 		classBrowserItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.Event.CTRL_MASK + java.awt.Event.SHIFT_MASK));
 		classBrowserItem.setMnemonic((int)'C');
-        viewMenu.add(classBrowserItem);
+//        viewMenu.add(classBrowserItem);
         messagesItem.addActionListener(ViewActions.MESSAGES);
         messagesItem.setActionCommand("Messages");
 		messagesItem.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.Event.CTRL_MASK + java.awt.Event.SHIFT_MASK));
 		messagesItem.setMnemonic((int)'M');
-        viewMenu.add(messagesItem);
+//        viewMenu.add(messagesItem);
         
         /**
          *  Event Menu listed under Edit Menu naming, adding to menu, and listener creating 
          */
-        editMenu.add(eventMenu);
+//        editMenu.add(eventMenu);
         
         /**
          * Property Change Menu (Sub Menu of Event Menu) naming, adding to menu, and listener creating 
@@ -308,7 +311,7 @@ public class EtomicaMenuBar extends JMenuBar {
         componentShownItem.addActionListener(EventActions.COMPONENTSHOWN);
         componentMenu.add(componentShownItem);
         bindPropertyItem.addActionListener(EditActions.BINDPROPERTY);
-        editMenu.add(bindPropertyItem);
+//        editMenu.add(bindPropertyItem);
         preferencesItem.addActionListener(EditActions.PREFERENCES);
         editMenu.add(preferencesItem);
                 
@@ -347,7 +350,29 @@ public class EtomicaMenuBar extends JMenuBar {
 	}// end of EtmoicaMenuBar constructor
 	
 	static {
-	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY+"/simulations");
+        /**
+         * Etomica.jar test 
+         */
+/*        int count = 0;
+        String[] files = new String[25];
+        JarFile jarFile = null;
+        try {
+            jarFile = new JarFile(etomica.Default.JAR_FILE,false);
+        }
+        catch (java.io.IOException ioe){ioe.printStackTrace();}
+
+	    count = 0;
+        for (java.util.Enumeration enum = jarFile.entries(); enum.hasMoreElements(); ){
+            ZipEntry entry = ((ZipEntry)enum.nextElement());
+	        String name = entry.getName();
+	        if (name.startsWith("etomica/simulations/") && name.endsWith("class") && name.indexOf("$") == -1){
+                    int idx = name.lastIndexOf("/");
+                    name = name.substring(idx+1);
+                    files[count++] = name;
+            }
+                
+        }
+*/	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY+"/simulations");
 	    String[] files = dir.list(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File d, String name) {
 	                return name.endsWith("class")
@@ -358,7 +383,7 @@ public class EtomicaMenuBar extends JMenuBar {
 	        files[i] = files[i].substring(0,idx);
 	        try{
 	            final Class libraryClass = Class.forName("etomica.simulations."+files[i]);
-	            JMenuItem libraryItem = new JMenuItem(libraryClass.toString());
+	            JMenuItem libraryItem = new JMenuItem((libraryClass.toString()).substring(26));
 	            librarySimulationMenu.add(libraryItem);
 	            libraryItem.addActionListener(new java.awt.event.ActionListener() {
 	                final Class simulationClass = libraryClass;

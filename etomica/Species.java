@@ -215,7 +215,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
      * 
      * @return The given name of this species
      */
-    public final String getName() {return name;}
+    public String getName() {return name;}
 
     /**
      * Method to set the name of this species

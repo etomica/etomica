@@ -14,6 +14,7 @@ package etomica.gui;
 import javax.swing.JButton;
 import java.net.URL;
 import javax.swing.JToolBar.Separator;
+import javax.swing.ImageIcon;
 
 public class EtomicaToolBar extends javax.swing.JToolBar {
     
@@ -58,8 +59,7 @@ public class EtomicaToolBar extends javax.swing.JToolBar {
         /**
          * Find and add icons to each button instance
          */
-        try {
-			//newIcon.setImageLocation(symantec.itools.net.RelativeURL.getURL("images/new.gif"));
+/*        try {
 			newIcon.setImageLocation(new URL(etomica.Default.IMAGE_DIRECTORY+"new.gif"));
 			openIcon.setImageLocation(new URL(etomica.Default.IMAGE_DIRECTORY+"open.gif"));
 			saveIcon.setImageLocation(new URL(etomica.Default.IMAGE_DIRECTORY+"save.gif"));
@@ -72,7 +72,7 @@ public class EtomicaToolBar extends javax.swing.JToolBar {
 			pauseIcon.setImageLocation(new URL(etomica.Default.IMAGE_DIRECTORY+"pause1.gif"));
 		}
 		catch (java.net.MalformedURLException error) { }
-        
+  */      
         //this.setFloatable(false);
         this.setBounds(0, 0, 363, 56);
         
@@ -139,15 +139,18 @@ public class EtomicaToolBar extends javax.swing.JToolBar {
         /**
          * Add icons to each button instance
          */
-        saveButton.setIcon(saveIcon);
-		newButton.setIcon(newIcon);
-		openButton.setIcon(openIcon);
-		aboutButton.setIcon(aboutIcon);
-		pasteButton.setIcon(pasteIcon);
-		cutButton.setIcon(cutIcon);
-		copyButton.setIcon(copyIcon);
-		startButton.setIcon(startIcon);
-		stopButton.setIcon(stopIcon);
-		pauseButton.setIcon(pauseIcon);
+        try {
+            saveButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"save.gif")));//saveIcon);
+		    newButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"new.gif")));//newIcon);
+		    openButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"open.gif")));//openIcon);
+		    aboutButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"about.gif")));//aboutIcon);
+		    pasteButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"paste.gif")));//pasteIcon);
+		    cutButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"cut.gif")));//cutIcon);
+		    copyButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"copy.gif")));//copyIcon);
+		    startButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"start1.gif")));//startIcon);
+		    stopButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"stop1.gif")));//stopIcon);
+		    pauseButton.setIcon(new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"pause1.gif")));//pauseIcon);
+		}
+		catch (java.net.MalformedURLException me){}
 	}// end of EtomicaToolBar constructor
 }// end of EtomicaToolBar class

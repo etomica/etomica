@@ -29,6 +29,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 public class PotentialFrame extends javax.swing.JInternalFrame {
     /**
@@ -105,7 +107,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
     /**
      * Handle to the corresponding PotentialEditorPane
      */
-    protected static SpeciesPotentialLinkPane potentialEditor;
+    protected static PotentialEditorPane potentialEditor;
     
     /**
      * Height of the potentialPanel above
@@ -130,11 +132,6 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
     /**
      * Static array of all simulation components that extend potential.class
      */
-    public static Class[] potentialClasses; 
-
-    /**
-     * Static array of all simulation components that extend potential.class
-     */
     public static Class[] potential1Classes; 
     
     /**
@@ -154,6 +151,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
      * the type of potentials being used, sets the title, and adds the JInternalFrame to the JDesktopPane
      */
     public PotentialFrame(SimulationEditor ed){
+        super();
         simulationEditor = ed;
         setResizable(true);
         setLocation(515, 60);
@@ -182,7 +180,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
         }
         else {
             super.setTitle("Atom Potentials");
-            makeRadioButtons(potentialClasses,16);
+            makeRadioButtons(potential2Classes,16);
             addPotActionListener();
         }
         addButtons();
@@ -226,6 +224,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
                         getPotentialEditor().currentButtons[i].setBackground(Color.lightGray);
                         getPotentialEditor().currentButtons[i] = null;
                     }
+
                     getPotentialEditor().buttonCount = 0;
 	                    
 	                try {
@@ -258,9 +257,8 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
             final SimulationEditor simulationEditor = PotentialFrame.this.simulationEditor;
             public void actionPerformed(ActionEvent e){
                 simulationEditor.getParent().repaint();
-                            
                 for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                    ((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).potential = ((Class)currentButton.cls);
+                    ((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).potential = ((Class)currentButton.cls);
                     potentialEditor.currentButtons[i].setEnabled(false);
                     potentialEditor.currentButtons[i].setBackground(Color.lightGray);
                 }
@@ -279,16 +277,15 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	                    try {
 	                        if (getTitle() == "P1 Potentials"){
 	                            component = ((Class)currentButton.cls).newInstance();
-                                ((Potential1)component).setSpeciesIndex(((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
+                                ((Potential1)component).setSpeciesIndex(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
 	                            ((Potential1)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
                             else {
 	                            if (currentButton.cls.toString().startsWith("class etomica.Potential"))
 	                                component = new P2SimpleWrapper((Potential)((Class)currentButton.cls).newInstance());
 	                            else component = ((Class)currentButton.cls).newInstance();
-
-                                ((Potential2)component).setSpecies1Index(((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
-                                ((Potential2)component).setSpecies2Index(((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex2);
+                                ((Potential2)component).setSpecies1Index(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex1);
+                                ((Potential2)component).setSpecies2Index(((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[0]).speciesIndex2);
 	                            ((Potential2)component).setName(((Class)currentButton.cls).getName().substring(8) + Integer.toString(IDnumber++));
                             }
 	                    }
@@ -297,14 +294,14 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
       
 	                    if (getTitle() == "P1 Potentials"){
                             for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                                simulationEditor.getSimulation().potential1[((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential1)component;
+                                simulationEditor.getSimulation().potential1[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential1)component;
                                 potentialEditor.currentButtons[i] = null;
                             }
                         }
                         else {
                             for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-                                simulationEditor.getSimulation().potential2[((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1][((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2] = (Potential2)component;
-                                simulationEditor.getSimulation().potential2[((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2][((SpeciesPotentialLinkPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential2)component;
+                                simulationEditor.getSimulation().potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2] = (Potential2)component;
+                                simulationEditor.getSimulation().potential2[((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex2][((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).speciesIndex1] = (Potential2)component;
                                 potentialEditor.currentButtons[i] = null;
                             }
                         }
@@ -317,11 +314,6 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
                         catch (java.beans.PropertyVetoException pve){}
                     }
 	            }
-    	                    
-                for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
-	                potentialEditor.currentButtons[i] = null;
-	            }
-    	                    
 
 	            if (simulationEditor.allRemoveEnabled())
 	                    simulationEditor.setAllStart(true);
@@ -350,8 +342,8 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
             }});
     }
 
-    public static void setPotentialEditor(SpeciesPotentialLinkPane p) { potentialEditor = p; }
-    public static SpeciesPotentialLinkPane getPotentialEditor() { return potentialEditor; }
+    public static void setPotentialEditor(PotentialEditorPane p) { potentialEditor = p; }
+    public static PotentialEditorPane getPotentialEditor() { return potentialEditor; }
     
     /**
      * Class that has all the functionality of a JRadioButton with the addition of being able to
@@ -381,32 +373,9 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
 	}
 	
 	static {
-    	// Initialization of potentialClasses array
 	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
+        // Initialization of potential1Classes array
 	    String[] files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("Potential")
-                    && name.endsWith("class")
-	                && !name.endsWith("BeanInfo.class")
-	                && !name.endsWith("Editor.class")
-	                && !name.endsWith("Customizer.class")
-                    && !name.startsWith("Potential1")
-                    && !name.startsWith("Potential2")
-                    && !name.startsWith("Potential.class")
-	                && name.indexOf("$") == -1;
-            }});
-        potentialClasses = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        potentialClasses[i] = null;
-	        try{
-	            potentialClasses[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of potentialClasses array
-
-    	// Initialization of potential1Classes array
-	    files = dir.list(new FilenameFilter() {
 	        public boolean accept(File d, String name) {
                 return name.startsWith("P1")
                     && name.endsWith("class")
@@ -437,8 +406,9 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
                     && !name.startsWith("Potential1")
                     && !name.startsWith("Potential2")
                     && !name.startsWith("Potential.class")
+	                && !name.endsWith("Abstract.class")
 	                && name.indexOf("$") == -1;
-	        }});
+ 	        }});
         potential2Classes = new Class[files.length];
         for(int i=0; i<files.length; i++) {
 	        int idx = files[i].lastIndexOf(".");

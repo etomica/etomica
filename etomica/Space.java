@@ -70,6 +70,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public static abstract class Vector implements java.io.Serializable { 
         public abstract int length();                         //number of components to vector; equal to the dimension of the space
         public abstract int D();                              //dimension of the space occupied by vector
+        public abstract double[] toArray();                   //converts components to array of double
         public abstract double component(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)
         public abstract void setComponent(int i, double d);   //sets ith component of vector to d
         public abstract void E(Vector u);                     //sets each element of the vector equal to the elements of the vector u

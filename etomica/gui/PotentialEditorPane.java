@@ -1,7 +1,7 @@
 /**
- * SpeciesPotentialLinkPane
+ * PotentialEditorPane
  *
- * The SpeciesPotentialLinkPane class is a splitpane that lists all the simulation components of a 
+ * The PotentialEditorPane class is a splitpane that lists all the simulation components of a 
  * respective potential category (potential 1 or potential 2) on the leftside, and all of the added 
  * components from the leftside list on the rightside in a JList format.
  *
@@ -13,100 +13,28 @@ package etomica.gui;
 
 import etomica.*;
 import java.awt.Color;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JRadioButton;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
+import java.beans.*;
 import java.io.File;
 import java.io.FilenameFilter;
+import javax.swing.JButton;
+import javax.swing.JRadioButton;
+import javax.swing.event.InternalFrameEvent;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
-public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane implements SimulationEditor.EditorPane {
-    /**
-     * Determines format of the JList on the right pane of the SimulationEditorPane
-     */
-    protected final javax.swing.DefaultListModel componentList = new javax.swing.DefaultListModel();    
-    
-    /**
-     * JList that contains all of the simulation components that were added from the left pane's choices
-     */
-    final javax.swing.JList rightPaneList = new javax.swing.JList(componentList);
-    
-    /**
-     * Lists all of the simulation components corresponding to the respective tabs name.  These are listed
-     * as radio buttons.
-     */
-    final javax.swing.JPanel leftPanePanel = new javax.swing.JPanel();
-    
-    /**
-     * Scrollable pane that holds the leftPanePanel from above
-     */
-    final javax.swing.JScrollPane leftPane = new javax.swing.JScrollPane(leftPanePanel);
-    
-    /**
-     * Scrollable pane that holds the rightPaneList from above
-     */
-    final javax.swing.JScrollPane rightPane = new javax.swing.JScrollPane(rightPaneList);
+public abstract class PotentialEditorPane extends EditorPane {
 
-    /**
-     * Buttongroup that provides mutual exclusion for the radio buttons of the left pane
-     */
-    final ButtonGroup simComponents = new ButtonGroup();
-    
-    /**
-     * Makes it possible to determine which radio button was selected when the "add" button is pressed
-     */
-    final ButtonListener buttonListener = new ButtonListener();
-    
-    /**
-     * Holds all constraints needed for displaying the next awt or swing component
-     */
-    final GridBagConstraints gbc = new GridBagConstraints();
-    
-    /**
-     * Determines how to display an awt or swing component by using gbc from above
-     */
-    final GridBagLayout gbl = new GridBagLayout();
-
-    /**
-     * Handle to the simulation component that is going to be added to the JList on the right pane and
-     * to the simulation.instance object
-     */
-    Object component;
-    
-    /**
-     * Number of species added from the species pane
-     */
-    private int numOSpecies = 0;
-    
-    /**
-     * Button for removing objects from the JList of the right pane.  Only enabled if an object is in the
-     * JList
-     */
-    final JButton remove = new JButton("Remove");
-    
-    /**
-     * Button for starting the simulation.  Only enabled if a sufficient number of simulation components
-     * have been added to make a working simulation
-     */
-    final JButton start = new JButton("Start");
-    
     /**
      * Array of all current JButtons that are pressed 
      */
-    public static JButton[] currentButtons = new JButton[1];
+    public JButton[] currentButtons = new JButton[1];
     
     /**
      * Array of all potential JButtons on the left pane
      */
-    public static JButton[] potButtons = new JButton[1];
+    public JButton[] potButtons = new JButton[1];
     
     /**
      * Number of buttons on left pane that are currently pressed
@@ -117,22 +45,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
      * Index of the potential class that the currently selected JButton in the left pane corresponds to
      */
     private int currentIndex = 0;
-    
-    /**
-     * Index of object that is currently selected in the JList on the right pane
-     */
-    private int currentSelection = -1;
-    
-    /**
-     * The title that will be displayed on the property sheet when a component is selected
-     */
-    private String title;
-    
-    /**
-     * If true, the current simulation component has already been added
-     */
-    public static boolean added = false;
-    
+   
     /**
      * Frame containing radioButtons for all of the Potential classes
      */
@@ -145,69 +58,22 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
     boolean firstSpecies = true;
     
     /**
-     * Envelopes a simulation component in order to have the component's properties listed in the 
-     * property sheet.
-     */
-    protected static Wrapper wrapper = null;
-    
-    /**
-     * Internal frame that lists the properties of a component
-     */
-    protected static PropertySheet propertySheet;
-    
-    /**
      * Determines if Potential Arrays need to be instantiated or not
      */
     public static boolean makePotArrays = true;
     
     /**
-     * Static array of all simulation components that extend potential1.class
+     * Makes it possible to determine which radio button was selected when the "add" button is pressed
      */
-    public static Class[] potential1Classes;
+    final ButtonListener buttonListener = new ButtonListener();
     
-    /**
-     * Static array of all simulation components that extend potential2.class
-     */
-    public static Class[] potential2Classes;
-        
-    /**
-     * Initial height of splitPane
-     */
-    protected int splitPaneHeight = 580;
-    
-    /**
-     * Initial width of splitPane
-     */
-    protected int splitPaneWidth = 580;
-    
-    /**
-     * Height of leftPane.  Used for determining when scrollbars should be added to the scrollPane
-     */
-    protected int leftPanelHeight;
-    
-    /**
-     * Width of leftPane.  Used for determining when scrollbars should be added to the scrollPane
-     */
-    protected int leftPanelWidth;
-    
-    /**
-     * Height of one JRadioButton.  Used for determining leftPanelHeight.
-     */
-    static final protected int radioButtonHeight = 24;
-
-    /**
-     * Height of one JButton.  Used for determining leftPanelHeight.
-     */
-    static final protected int jButtonHeight = 32;
-
-    protected SimulationEditor simulationEditor;
     /**
      * Constructor that creates all of the left pane's radiobuttons and JButtons, as well as, the right 
      * pane's scrollpane and JList.  It also creates all the listeners for these swing components so that
      * the simulation can be updated as needed.
      */
-    public SpeciesPotentialLinkPane(SimulationEditor ed){
-        simulationEditor = ed;
+    public PotentialEditorPane(SimulationEditor ed){
+        super(ed);
         setSize(580, 580);
 		setLeftComponent(leftPane);
         setRightComponent(rightPane);
@@ -225,10 +91,22 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
          */
         rightPaneList.addListSelectionListener(new MyListSelectionListener(){
             public void valueChanged(javax.swing.event.ListSelectionEvent lse){
-		        currentSelection = rightPaneList.getLeadSelectionIndex();
+		        Object obj = rightPaneList.getSelectedValue();
+		        EditActions.setObject(obj);
+		        
+		        // See if customizer exists for the selected object.  If one does, enable customize
+		        // selection on EditMenu, otherwise disable it.
+		        try {
+		            if (Introspector.getBeanInfo(obj.getClass()).getBeanDescriptor().getCustomizerClass() != null) {
+		                EtomicaMenuBar.customizeItem.setEnabled(true);
+		            }
+		            else EtomicaMenuBar.customizeItem.setEnabled(false);
+                }
+                catch (IntrospectionException ie){}
+		        setCurrentSelection(rightPaneList.getLeadSelectionIndex());
                 for (int i = 0; i < leftPanePanel.getComponentCount(); i++){
                     if (leftPanePanel.getComponent(i) instanceof SpeciesPairButton){
-                        if (((SpeciesPairButton)leftPanePanel.getComponent(i)).index == currentSelection && currentSelection != -1)
+                        if (((SpeciesPairButton)leftPanePanel.getComponent(i)).index == getCurrentSelection() && getCurrentSelection() != -1)
                             ((javax.swing.AbstractButton)leftPanePanel.getComponent(i)).setBackground(Color.red);
                         else ((javax.swing.AbstractButton)leftPanePanel.getComponent(i)).setBackground(Color.lightGray);
                     }
@@ -249,13 +127,11 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	            }
 	            else {
 	                if (rightPaneList.getSelectedValue() != null) {
-	                    /*if (rightPaneList.getSelectedValue() instanceof Potential2) 
-                            wrapper = new Wrapper(((Potential2)rightPaneList.getSelectedValue()).getOnlyPotential(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString()); 
-                        else if (rightPaneList.getSelectedValue() instanceof Potential1)
-                            wrapper = new Wrapper(((Potential1)rightPaneList.getSelectedValue()).getOnlyPotential(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString()); 
-                        else */wrapper = new Wrapper(rightPaneList.getSelectedValue(), rightPaneList.getSelectedValue().toString(), "etomica.gui." + rightPaneList.getSelectedValue().toString());
-                        //wrapper = new Wrapper(rightPaneList.getSelectedValue(), title, "etomica.gui." + title); 
-                        propertySheet.setTarget(wrapper);
+	                    Simulation.Element wrapperPot;
+	                    if (rightPaneList.getSelectedValue() instanceof P2SimpleWrapper)
+    	                    wrapperPot = ((P2SimpleWrapper)rightPaneList.getSelectedValue()).getOnlyPotential();
+                        else wrapperPot = (Simulation.Element)rightPaneList.getSelectedValue();
+                        propertySheet.setTarget(wrapperPot);
                         try {
                             propertySheet.setSelected(true);
                         }
@@ -271,8 +147,6 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	    leftPanePanel.setMinimumSize(new java.awt.Dimension(300, 200));
     }
 
-    public SimulationEditor simulationEditor() {return simulationEditor;}
-    public void setEnabled(boolean b) {remove.setEnabled(b);}
     
     /**
      * This method is called when a species is added or removed from the species pane.  It figures out
@@ -316,7 +190,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	                // Checks what buttons corresponded to the deleted potential and resets those
 	                // buttons so that a new potential can be designated for them.
 	                for (int i = 0; i < potButtons.length-1; i++){
-	                    if (((SpeciesPairButton)potButtons[i]).index == currentSelection){
+	                    if (((SpeciesPairButton)potButtons[i]).index == getCurrentSelection()){
 	                        potButtons[i].setEnabled(true);
 	                        potButtons[i].setBackground(Color.lightGray);
 	                        ((SpeciesPairButton)potButtons[i]).index = -1;
@@ -324,16 +198,15 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	                    }
 	                }
 	                currentIndex--;                         // Decreases the total number of current potentials
-	                shiftIndices(currentSelection);         // Updates indices of each button
-	                if (title == "Potential1") {
-	                        Simulation.instance.unregister((Potential1)componentList.getElementAt(currentSelection));
+	                shiftIndices(getCurrentSelection());         // Updates indices of each button
+	                if (getTitle() == "Potential1") {
+	                        Simulation.instance.unregister((Potential1)componentList.getElementAt(getCurrentSelection()));
                     }
                     else {
-                        Simulation.instance.unregister((Potential2)componentList.getElementAt(currentSelection));
+                        Simulation.instance.unregister((Potential2)componentList.getElementAt(getCurrentSelection()));
 	                }
-	                componentList.remove(currentSelection); // Removes selected potential from the component list
-                    wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
-                    propertySheet.setTarget(wrapper);
+	                componentList.remove(getCurrentSelection()); // Removes selected potential from the component list
+                    propertySheet.setTarget(null);
                     if (componentList.getSize() == 0)
                         ((JButton)e.getSource()).setEnabled(false);
                         
@@ -362,13 +235,20 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
                 if (added == false)     // If a property list hasn't been made yet, it makes one
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
 	            if (rightPaneList.getSelectedValue() != null){ 
-                    wrapper = new Wrapper(rightPaneList.getSelectedValue(), title, "etomica.gui." + title); 
-                    propertySheet.setTarget(wrapper);   // Updates property sheet with the selected object's properties
+                    Object obj = rightPaneList.getSelectedValue();
+                    propertySheet.setTarget((Simulation.Element)obj);// Updates property sheet with the selected object's properties
+
+		            // See if customizer exists for the selected object.  If one does, enable customize
+		            // selection on EditMenu, otherwise disable it.
+		            try {
+		                if (Introspector.getBeanInfo(obj.getClass()).getBeanDescriptor().getCustomizerClass() != null) {
+		                    EtomicaMenuBar.customizeItem.setEnabled(true);
+		                }
+		                else EtomicaMenuBar.customizeItem.setEnabled(false);
+                    }
+                    catch (IntrospectionException ie){}
                 }
-                else {
-                    wrapper = new Wrapper(FileActions.OPEN, "null", "null"); 
-                    propertySheet.setTarget(wrapper);
-                }
+                else propertySheet.setTarget(null);
                 try {
                     propertySheet.setSelected(true);
                 }
@@ -385,35 +265,14 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
      * This method shifts the index of each JButton when a potential is removed from the JList
      */ 
     public void shiftIndices(int deletedIndex){
-    
         for (int i = 0; i < potButtons.length-1; i++){
             if (((SpeciesPairButton)potButtons[i]).index > deletedIndex)
                 ((SpeciesPairButton)potButtons[i]).index--;
         }
     }// end of shiftIndices
     
-    /**
-     * Provides a handle to the single instance of the property sheet so that it can be updated with the
-     * new component's properties.
-     */
-    public static void setPropertySheet(PropertySheet p){ propertySheet = p; }
-    
-    public void setNumOSpecies(int n){ numOSpecies = n; }
-    public int getNumOSpecies(){ return numOSpecies; }
-    
-    public void setComponent(Object o) { component = o; }
-    public Object getComponent() { return component; }
- 
     public void setCurrentIndex(int cs) { currentIndex = cs; }
     public int getCurrentIndex() { return currentIndex; }
-    
-    public void setCurrentSelection(int cs) { currentSelection = cs; }
-    public int getCurrentSelection() { return currentSelection; }
-
-    public void setTitle(String t){ title = t; }
-    public String getTitle() { return title; }
-    
-	public javax.swing.DefaultListModel getComponentList(){ return componentList; }
     
     /**
      * This class allows buttons to hold a handle to the potential class that is associated to the button,
@@ -427,7 +286,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
         
         SpeciesPairButton(String name){
             super(name);
-        }// end of SpeciesPairButton constructor        
+        }// end of SpeciesPairButton constructor
     }// end of SpeciesPairButton class
     
     /**
@@ -449,16 +308,13 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	        }
 	        catch (java.lang.ArrayIndexOutOfBoundsException exc) {}
 	        
-	        
 	        ((SpeciesPairButton)currentButtons[buttonCount]).index = currentIndex;
 	        buttonCount++;
-            currentSelection = -1;
+            setCurrentSelection(-1);
 	        rightPaneList.clearSelection();
 	        ((java.awt.Component)evt.getSource()).setBackground(Color.red);
 
             if (makePotArrays) {
-///                Simulation.potential1 = new Potential1[getNumOSpecies()];
-///                Simulation.potential2 = new Potential2[getNumOSpecies()][getNumOSpecies()];
                 makePotArrays = false;
             }
             
@@ -476,57 +332,11 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	            }
 	            Etomica.DesktopFrame.desktop.add(potentialFrame);
 	            try {
+	                potentialFrame.setVisible(true);
 	                potentialFrame.setSelected(true);
 	            }
 	            catch(java.beans.PropertyVetoException pve){}
             }
         }// end of actionPerformed
 	}// end of ButtonListener class
-	
-	private class MyListSelectionListener implements javax.swing.event.ListSelectionListener, java.io.Serializable {
-	    public void valueChanged(javax.swing.event.ListSelectionEvent lse){}
-	}
-	
-	public class MyInternalFrameAdapter extends javax.swing.event.InternalFrameAdapter implements java.io.Serializable {}
-
-	public class MyActionListener implements java.awt.event.ActionListener, java.io.Serializable {
-	    public void actionPerformed(java.awt.event.ActionEvent ae){}
-	}
-
-	static {
-    	// Initialization of potential1Classes array
-	    File dir = new File(etomica.Default.CLASS_DIRECTORY);
-	    String[] files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("P1")
-                    && name.endsWith("class")
-	                && !name.startsWith("P1$");}
-	        });
-        potential1Classes = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        potential1Classes[i] = null;
-	        try{
-	            potential1Classes[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of potential1Classes array
-    	
-    	// Initialization of potential2Classes array
-	    files = dir.list(new FilenameFilter() {
-	        public boolean accept(File d, String name) {
-                return name.startsWith("P2")
-	                && name.endsWith("class")
-	                && !name.startsWith("P2$");}
-	        });
-        potential2Classes = new Class[files.length];
-        for(int i=0; i<files.length; i++) {
-	        int idx = files[i].lastIndexOf(".");
-	        files[i] = files[i].substring(0,idx);
-	        potential2Classes[i] = null;
-	        try{
-	            potential2Classes[i] = Class.forName("etomica."+files[i]);
-	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
-	    }// End initialization of potential2Classes array
-	}// End of static block
-}// end of SpeciesPotentialLinkPane class
+}// end of PotentialEditorPane class

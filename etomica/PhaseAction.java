@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 public abstract class PhaseAction extends etomica.Action {
 
     protected Phase phase;
+    private DisplayPhase display; 
     public PhaseAction() {this(null);}
     public PhaseAction(Phase p) {
         super();
@@ -37,9 +38,9 @@ public abstract class PhaseAction extends etomica.Action {
         private double scale = 1.0;
         private transient Space.Vector temp;
         
- //       public Inflate() {
- //           this(null);
- //       }
+          public Inflate() {
+          this(null);
+        }
         public Inflate(Phase p) {
             super(p);
             temp = p.parentSimulation().space().makeVector();
@@ -54,6 +55,25 @@ public abstract class PhaseAction extends etomica.Action {
             this.setPhase(p);
             actionPerformed();
         }
+        public void actionPerformed(Phase p,  double s, int i){
+          
+           setScale(s);
+           this.setPhase(p); 
+             
+            phase.boundary().dimensions().setComponent(i,s*phase.boundary().dimensions().component(i));         
+            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+                if ( i==0){
+                    temp.setComponent(0, (scale-1.0)*((Space2D.Vector)m.position()).x);
+                    temp.setComponent(1,0.);
+                }
+                else {
+                    temp.setComponent(1, (scale-1.0)* ((Space2D.Vector)m.position()).y);
+                    temp.setComponent(0, 0.);                    
+                }
+                m.displaceBy(temp);   //displaceBy doesn't use temp
+                if(display != null && i % 10 ==0) display.repaint();
+            }
+        }
         public void actionPerformed() {
             phase.boundary().inflate(scale);
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
@@ -63,6 +83,13 @@ public abstract class PhaseAction extends etomica.Action {
         }
         public void retractAction() {
             phase.boundary().inflate(1.0/scale);
+            for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
+                m.replace();
+            }
+        }
+         
+        public void retractAction(int i){
+            phase.boundary().dimensions().setComponent(i,phase.boundary().dimensions().component(i)/scale);         
             for(Molecule m=phase.firstMolecule(); m!=null; m=m.nextMolecule()) {
                 m.replace();
             }

@@ -31,7 +31,6 @@ public class P2SimpleWrapper extends Potential2 {
    * Accessor method for the interatomic potential
    */
   public final void setOnlyPotential(Potential p) {onlyPotential = p;}
-
 }
 
 

@@ -1,4 +1,3 @@
-
 package etomica.gui;
 
 /**
@@ -179,7 +178,7 @@ class PropertyHookupTarget implements Serializable {
  
     private void readObject(ObjectInputStream s)
   		  throws ClassNotFoundException, IOException {
-//	int version = s.readInt();
+	int version = s.readInt();
 	String setterName = (String)s.readObject();
 	object = s.readObject();
 

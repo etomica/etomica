@@ -10,6 +10,7 @@ public class MCMoveRotate extends MCMove {
      setStepSizeMax(Math.PI);
      setStepSizeMin(0.0);
      setStepSize(Math.PI/2.0);
+     setPerParticleFrequency(true);
  }
  
  public void setParentIntegrator(IntegratorMC parent) {
@@ -48,7 +49,7 @@ public class MCMoveRotate extends MCMove {
         java.awt.Frame f = new java.awt.Frame();   //create a window
         f.setSize(600,350);
         Default.ATOM_SIZE =1.2;
-         Simulation.instance = new Simulation(new Space2D());
+         Simulation.instance = new Simulation(new Space2DCell());
         Phase phase1 = new Phase();
         
         MCMoveAtom mcmove= new MCMoveAtom();
@@ -56,20 +57,22 @@ public class MCMoveRotate extends MCMove {
         DisplayPlot plot1 = new DisplayPlot();
          Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(1.30);
         //MCMoveVolumeXY mcmovevolume = new MCMoveVolumeXY();
-//        MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
+        MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
         IntegratorMC integratorMC1 = new IntegratorMC();
 	    integratorMC1.add(mcmove);
+	    integratorMC1.setDoSleep(false);
 
 	    integratorMC1.add(mcrotate);
 	     //integratorMC1.add(mcmovevolume);
-//	        meterp.setPhase(phase1);
-	  //      meterp.setInflateDimension(0);
-//	        meterp.setActive(true);
-//	        plot1.setMeterFunction(meterp);
+	        meterp.setPhase(phase1);
+	        meterp.setInflateDimension(0);
+	        meterp.setActive(true);
+	        plot1.setMeterFunction(meterp);
 	       //plot1.setMeter(meterp);
 	       
 	        plot1.setUseCurrentValue(false);
-        	integratorMC1.setTemperature(Default.TEMPERATURE);  
+        	integratorMC1.setTemperature
+        	(Default.TEMPERATURE);  
         	 System.out.println("temp"+ integratorMC1.getTemperature());
 	   // SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(80);
 	    SpeciesSpheresRotating speciesDisks1 = new SpeciesSpheresRotating(200);
@@ -77,7 +80,8 @@ public class MCMoveRotate extends MCMove {
 	    // SpeciesDisks    speciesDisk1 = new SpeciesDisks();
 	    // speciesDisk1.setNMolecules(200);
 	    
-	    
+	    PotentialAssociationCone potential = new PotentialAssociationCone();
+	    potential.setWellCutoff(1.5*speciesDisks1.getDiameter());
 	    Potential2 p2 = new P2SimpleWrapper(new PotentialAssociationCone());
 //       P2IdealGas p2IdealGas = new P2IdealGas();
 	   
