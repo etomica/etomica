@@ -83,6 +83,14 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
         p.speciesMaster.addListener(this);
     }
     
+    /**
+     * Same as setSize, but included to implement DisplayCanvasInterface,
+     * which has this for compatibility with OpenGL.
+     */
+    public void reshape(int width, int height) {
+        setSize(width, height);
+    }
+    
     public void setMovable(boolean b) {movable = b;}
     public boolean isMovable() {return movable;}
     public void setResizable(boolean b) {resizable = b;}

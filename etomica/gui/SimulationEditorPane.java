@@ -299,6 +299,7 @@ public class SimulationEditorPane extends EditorPane {
                         continue;
                     }
                     button.setToolTipText(info.getDescription());
+                    button.setEnabled(info.isEnabled());
                 }
             }
         //end new stuff

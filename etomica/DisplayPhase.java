@@ -29,6 +29,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     public static final int RIGHT = +1;
     public static final int TOP = -1;
     public static final int BOTTOM = +1;
+    public static boolean _3dEnabled;
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
@@ -83,6 +84,12 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
    * Iterator of atoms in the displayed phase
    */
    private AtomIterator atomIterator;
+   
+   static {
+        _3dEnabled = true;
+        try {new DisplayPhaseCanvas3DOpenGL(null, 10, 10);}
+        catch (NoClassDefFoundError err) {_3dEnabled = false;}
+   }
   
     public DisplayPhase () {
         this(Simulation.instance);
@@ -90,7 +97,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     
     public DisplayPhase(Simulation sim) {
         super(sim);
-        
+        System.out.println("Serenity now");
         setLabel("Configuration");
 
         int box = (int)(Default.BOX_SIZE * BaseUnit.Length.Sim.TO_PIXELS);
@@ -98,7 +105,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         switch(parentSimulation().space().D()) {
             case 3:
                 box *=1.4;
-                canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
+                    canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
  /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
  */               break;
@@ -138,17 +145,16 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
+        if(Simulation.instance.space.D() == 3 && !_3dEnabled) info.setEnabled(false);
         return info;
     }
     
     public void setSize(int width, int height) {
-//        graphic().setSize(width, height);
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setMinimumSize(temp);
         canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
-        if(Default.DISPLAY_USE_OPENGL) ((DisplayCanvasOpenGL)canvas).reshape(width, height);
-        else canvas.setSize(width, height);
+        canvas.reshape(width, height);
     }
 
     public int[] getOrigin() {
@@ -254,13 +260,19 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         }
     }
     
-    public double getFPS() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getFps());return(0.);}
+/*    public double getFPS() {
+        try {
+            return Default.DISPLAY_USE_OPENGL ? ((DisplayCanvasOpenGL)canvas).getFps() : 0.;
+        }
+        catch(NoClassDefFoundError e) {System.out.println("NoClassDefFoundError in getFPS");}
+        return 0.0;
+    }
     public boolean getUseFpsSleep() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getUseFpsSleep());return(true);}
     public boolean getUseRepaint() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getUseRepaint());return(true);}
     public void setFPS(double fps) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setAnimateFps(fps);}
     public void setUseFpsSleep(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseFpsSleep(b);}
     public void setUseRepaint(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseRepaint(b);}
-
+*/
     protected void computeImageParameters() {
         int w = canvas.getSize().width;
         int h = canvas.getSize().height;
@@ -403,7 +415,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                     ((DisplayPhaseCanvas3DSoftware)canvas).tmat.unit();
                     ((DisplayPhaseCanvas3DSoftware)canvas).tmat.translate(xShift, yShift, 0);
                     ((DisplayPhaseCanvas3DSoftware)canvas).mat.mult(((DisplayPhaseCanvas3DSoftware)canvas).tmat);
-                } else {
+               } else {
                     canvas.setShiftX(xShift+canvas.getShiftX());
                     canvas.setShiftY(yShift+canvas.getShiftY());
                 }

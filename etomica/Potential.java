@@ -1,7 +1,7 @@
 package etomica;
 
 /**
- * Superclass for all Potential classes
+ * Superclass for all Potential classes.
  *
  * @author David Kofke
  */

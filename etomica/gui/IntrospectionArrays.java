@@ -21,6 +21,8 @@ public class IntrospectionArrays {
     }
     
     public static Class[] introspect(String path, String t, boolean b){
+        boolean saveGL = etomica.Default.DISPLAY_USE_OPENGL;
+        etomica.Default.DISPLAY_USE_OPENGL = false;
         final String title = t;
         final boolean checkInterfaces = b;
         validCount = 0;
@@ -41,8 +43,9 @@ public class IntrospectionArrays {
 	        int idx = files[i].lastIndexOf(".");
 	        files[i] = files[i].substring(0,idx);
 	        workingClass[validCount] = null;
+	        String packageName = "";
 	        try{
-	            String packageName = path.substring(etomica.Default.WORKING_DIRECTORY.length());
+	            packageName = path.substring(etomica.Default.WORKING_DIRECTORY.length());
 	            packageName = packageName.replace('/', '.');
 	            workingClass[validCount] = Class.forName(packageName + "." + files[i]);
 	            if (checkInterfaces){
@@ -51,6 +54,12 @@ public class IntrospectionArrays {
                 else { validCount++; }
 	        } catch(ClassNotFoundException e) {System.out.println("Failed for "+files[i]);}
 	        catch(java.lang.SecurityException se) {System.out.println("security exc");}
+	        catch(java.lang.NoClassDefFoundError e) {
+	            System.out.println(packageName);
+	            System.out.println(files[i]);
+	            System.out.println("no class def found error");
+	            e.printStackTrace();
+	        }
 	    }// End of initialization of Classes array
 	    if (validCount !=0) {
 	        validClasses = new Class[validCount];
@@ -58,6 +67,7 @@ public class IntrospectionArrays {
                 validClasses[i] = workingClass[i];
             }
         }
+        etomica.Default.DISPLAY_USE_OPENGL = saveGL;
 	    return validClasses;
     }// end of introspect method
     

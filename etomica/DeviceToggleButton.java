@@ -97,7 +97,7 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
     /**
      * @return the label displayed when the toggle is set to true.
      */
-    public String getTrueLabel() {return falseLabel;}
+    public String getTrueLabel() {return trueLabel;}
     /**
      * Specifies the button's label when the toggle is set to false.
      */

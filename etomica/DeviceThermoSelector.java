@@ -11,6 +11,7 @@ import etomica.utility.Iterator;
  * to select adiabatic.  Enforces selection by manipulating properties of integrator.
  * By default, last integrator added to simulation is the only one controlled by this device.
  *
+ * @author David Kofke
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     

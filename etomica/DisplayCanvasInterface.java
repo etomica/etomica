@@ -46,6 +46,7 @@ public interface DisplayCanvasInterface {
     public void addMouseMotionListener(MouseMotionListener listener);
     public void addKeyListener(KeyListener listener);
     public void setSize(int width, int height);
+    public void reshape(int width, int height);
     public void setMinimumSize(Dimension temp);
     public void setMaximumSize(Dimension temp);
     public void setPreferredSize(Dimension temp);

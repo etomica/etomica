@@ -43,6 +43,11 @@ public final class SpeciesAgent extends AtomGroup {
      */
     public final SpeciesAgent parentSpeciesAgent() {return this;}
     
+    /**
+     * Returns null, since a species agent is not contained within a molecule.
+     */
+    public final Atom parentMolecule() {return null;}
+    
     public SpeciesAgent nextSpecies() {return (SpeciesAgent)nextAtom();}
     public int moleculeCount() {return childAtomCount();}
     public Atom firstMolecule() {return firstChildAtom();}

@@ -81,30 +81,6 @@ public abstract class AtomType implements java.io.Serializable {
     public final Color color() {return color;}
     public final void setColor(Color c) {color = c;}
     
-    /**
-     * Accessor method of the name of this species
-     * 
-     * @return The given name of this species
-     */
-    public final String getName() {return name;}
-
-    /**
-     * Method to set the name of this species
-     * The species' name provides a convenient way to label output data that is 
-     * associated with this species.  This method might be used, for example, to place
-     * a heading on a column of data.
-     * Default name is "Species" followed by the integer species index of this species.
-     * 
-     * @param name The name string to be associated with this species
-     */
-    public final void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the species
-     */
-    public String toString() {return getName();}  //override Object method
 
     // Sphere-shaped atom.  Assumed to be in 2D
     public static class Sphere extends AtomType {

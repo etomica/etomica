@@ -2,6 +2,8 @@ package etomica;
 
 /**
  * Evaluates the energy summed over all iterated atoms.
+ *
+ * @author David Kofke
  */
 public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, 
                                                         Potential0Calculation,

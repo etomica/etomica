@@ -199,9 +199,6 @@ public final class Phase extends SimulationElement {
         //notify observers before updating iteratorFactory in case observers want to close business with old iteratorFactory
         iteratorFactoryMonitor.notifyObservers(it);
         iteratorFactory = it;
-//        if(it instanceof PotentialField.Maker) {
-//            addField(((PotentialField.Maker)it).makePotentialField(this));
-//        }
     }
     
     /**

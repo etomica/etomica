@@ -1,7 +1,10 @@
 package etomica; 
 
 /**
- * Potential acting on a pair of atoms or atom groups.
+ * Potential acting on a pair of atoms or atom groups.  The Potential2Group
+ * subclass of this potential is used to describe the inter-group interactions.
+ * The Potential2Group would contain other Potential2 (or higher-body) instances
+ * that describe the specific interactions between the atoms of the group.
  *
  * @author David Kofke
  */

@@ -20,7 +20,7 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Coordinate makeCoordinate(Atom a) {
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
         else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
-        else return new Coordinate(a);
+        else {return new Coordinate(a);}
     }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
     

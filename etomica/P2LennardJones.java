@@ -38,8 +38,11 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
      * instead it is applied in the energy(AtomPair) method of Potential2SoftSpherical.
      */
     public double u(double r2) {
-        double s2 = sigmaSquared/r2;
-        double s6 = s2*s2*s2;
+        if(r2 != r2Last) {
+            double s2 = sigmaSquared/r2;
+            s6 = s2*s2*s2;
+            r2Last = r2;
+        }
         return epsilon4*s6*(s6 - 1.0);
     }
 
@@ -47,8 +50,11 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-        double s2 = sigmaSquared/r2;
-        double s6 = s2*s2*s2;
+        if(r2 != r2Last) {
+            double s2 = sigmaSquared/r2;
+            s6 = s2*s2*s2;
+            r2Last = r2;
+        }
         return -epsilon48*s6*(s6 - 0.5);
     }
 
@@ -57,8 +63,11 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-        double s2 = sigmaSquared/r2;
-        double s6 = s2*s2*s2;
+        if(r2 != r2Last) {
+            double s2 = sigmaSquared/r2;
+            s6 = s2*s2*s2;
+            r2Last = r2;
+        }
         return epsilon624*s6*(s6 - _168div624);
     }
             
@@ -121,5 +130,8 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     private double epsilon4, epsilon48, epsilon624;
     private static final double _168div624 = 168./624.;
     private double uInt, rCLast;  
+    private double r2Last = -1.0;
+    private double s6;
+    
 }//end of P2LennardJones
   

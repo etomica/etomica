@@ -24,7 +24,8 @@ public final class SpeciesMaster extends AtomGroup {
     public void addSpecies(Species species) {
         SpeciesAgent agent = species.makeAgent(this);
         addAtom(agent);
-        parentPhase.getConfiguration().initializeCoordinates(childAtomArray());
+        Configuration config = parentPhase.getConfiguration();
+        config.initializeCoordinates(childAtomArray());
 
 //        parentPhase.getConfiguration().initializePositions(parentPhase.makeMoleculeIterator());
     }
@@ -38,6 +39,10 @@ public final class SpeciesMaster extends AtomGroup {
     public Species parentSpecies() {return null;} //never called
     public SpeciesAgent parentSpeciesAgent() {return null;}//never called
     public Simulation parentSimulation() {return parentPhase.parentSimulation();}
+    /**
+     * Returns null, since a species master is not contained within a molecule.
+     */
+    public final Atom parentMolecule() {return null;}
     
     protected void addAtomNotify(Atom atom) {
         if(atom.parentGroup() instanceof SpeciesAgent) {moleculeCount++;}

@@ -1,5 +1,13 @@
 package etomica;
 
+/**
+ * Collection of zero-body (Potential0) potentials.  A set(Phase) method call
+ * is passed to the contained potentials, and a calculate(IteratorDirective, PotentialCalculation)
+ * method call is passed on to these potentials, which then perform the given
+ * calculation using the previously-specified phase.
+ *
+ * @author David Kofke
+ */
 
 public class Potential0Group extends Potential0 implements PotentialGroup {
     
@@ -39,7 +47,8 @@ public class Potential0Group extends Potential0 implements PotentialGroup {
 
     /**
      * Adds potential to group and sets its phase to the one most recently
-     * passed to the set(Phase) method.
+     * passed to the set(Phase) method.  If given potential is null, no
+     * action is performed.
      */
     public void addPotential(Potential potential) {
         if(potential == null) return;

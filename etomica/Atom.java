@@ -37,6 +37,14 @@ public class Atom implements java.io.Serializable {
             
     public final AtomGroup parentGroup() {return parentGroup;}
     
+    /**
+     * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
+     * that is one step below a species agent in the hierarchy of atomgroups.
+     */
+    public Atom parentMolecule() {
+        return (parentGroup instanceof SpeciesAgent) ? this : parentGroup.parentMolecule();
+    }
+    
     public void setParentGroup(AtomGroup parent) {parentGroup = parent;}
     
     public int leafAtomCount() {return (type instanceof AtomType.Wall) ? 0 : 1;}

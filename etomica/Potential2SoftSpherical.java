@@ -3,7 +3,8 @@ package etomica;
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
  * Truncation (if defined for the instance) is applied in the energy, virial, 
- * hypervirial and gradient methods.
+ * hypervirial and gradient methods.  Subclasses must provide concrete definitions
+ * for the energy (method u(double)) and its derivatives without applying truncation.
  *
  * @author David Kofke
  */
@@ -17,6 +18,9 @@ public abstract class Potential2SoftSpherical extends Potential2Soft {
         work1 = parentSimulation().space().makeVector();
    }
    public Potential2SoftSpherical(PotentialGroup parent, PotentialTruncation trunc) {
+     //constructors repeat code rather than call the other because superclass constructors
+     //define truncation differently.  Since truncation field is final it cannot be
+     //subsequently changed
         super(parent, trunc);
         work1 = parentSimulation().space().makeVector();
    }

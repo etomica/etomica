@@ -1,7 +1,10 @@
 package etomica;
 
 /**
- * Master potential that oversees all other potentials in the Hamiltonian.  
+ * Master potential that oversees all other potentials in the Hamiltonian.
+ * Most calls to compute the energy or other potential calculations begin
+ * with the calculate method of this class.  It then passes the calculation 
+ * on to the contained potentials.
  *
  * @author David Kofke
  */

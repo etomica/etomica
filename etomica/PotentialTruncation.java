@@ -3,6 +3,7 @@ package etomica;
 /**
  * Class that defines whether and how the interatomic potential is truncated.
  *
+ * @see Potential0Lrc
  * @author David Kofke
  */
  
@@ -56,7 +57,7 @@ public abstract class PotentialTruncation {
      * No-op version of PotentialTruncation that performs no truncation at all.
      */
      private static final class Null extends PotentialTruncation {
-        public Null() {super(null);}
+        Null() {super(null);}
         public boolean isZero(double r2) {return false;}
         public double uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double duTransform(double r2, double untruncatedValue) {return untruncatedValue;}
