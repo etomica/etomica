@@ -12,7 +12,6 @@ import etomica.space.Vector;
  */
 public class AtomActionTranslateTo extends AtomActionAdapter {
     
-    private final Vector dr;
     private final Vector destination;
     private AtomPositionDefinition atomPositionDefinition;
     private AtomGroupAction atomTranslator;
@@ -24,7 +23,6 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
      * @param space
      */
     public AtomActionTranslateTo(Space space) {
-        dr = space.makeVector();
         destination = space.makeVector();
         atomPositionDefinition = new DataSourceCOM(space);
         atomTranslator = new AtomGroupAction(new AtomActionTranslateBy(space));

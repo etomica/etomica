@@ -69,6 +69,5 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private final PotentialMaster potential;
-    private final Atom[] singleAtom = new Atom[1];
     
 }//end of MeterPotentialEnergy
