@@ -35,18 +35,7 @@ public abstract class Configuration implements java.io.Serializable {
         zero.E(0.0);
         dimensions = space.makeArrayD(Default.BOX_SIZE);
     }
-        //remove this constructor when possible
-    /**
-     * @deprecated
-     */
-    public Configuration(Simulation sim) {
-        simulation = sim;
-        space = sim.space;
-        zero = space.makeVector();
-        zero.E(0.0);
-        dimensions = space.makeArrayD(Default.BOX_SIZE);
-    }
-        
+
     public abstract void initializePositions(AtomIterator[] iterator);
     
     public void initializeCoordinates(Phase phase) {
@@ -119,7 +108,7 @@ public abstract class Configuration implements java.io.Serializable {
 
     public static Space1D.Vector[] lineLattice(int n, double Lx) {
         Space1D.Vector[] r = new Space1D.Vector[n];
-        double delta = Lx/(double)n;
+        double delta = Lx/n;
         for(int i=0; i<n; i++) {
             r[i] = new Space1D.Vector();
             r[i].setX(0, (i+0.5)*delta);
@@ -143,8 +132,8 @@ public abstract class Configuration implements java.io.Serializable {
 
     //  Number of molecules per row (moleculeColumns) and number of rows (moleculeRows)
     //  in initial configuration
-        moleculeColumns = (int)Math.sqrt(Lx/Ly*(double)n);
-        moleculeRows = (int)(n/moleculeColumns);
+        moleculeColumns = (int)Math.sqrt(Lx/Ly*n);
+        moleculeRows = n/moleculeColumns;
 
         if(moleculeRows*moleculeColumns < n) moleculeRows++;
 
@@ -187,11 +176,11 @@ public abstract class Configuration implements java.io.Serializable {
 		Space2D.Vector[] r = new Space2D.Vector[n];
 		if(n == 0) return r;
 		Space2D.Vector com = new Space2D.Vector();
-			com.E(0.0); // later becomes present Center of Mass
+		com.E(0.0); // later becomes present Center of Mass
 		Space2D.Vector dcom = new Space2D.Vector();
-			dcom.E(0.0); // difference in Present COM and Original COM
+		dcom.E(0.0); // difference in Present COM and Original COM
 		Space2D.Vector ocom = new Space2D.Vector();
-			ocom.setX(0, Lx);ocom.setX(1, Ly); ocom.TE(0.5); // Original Center Of Mass
+		ocom.setX(0, Lx);ocom.setX(1, Ly); ocom.TE(0.5); // Original Center Of Mass
                         
 		for(int i=0; i<n; i++) {r[i] = new Space2D.Vector();}
 
@@ -205,48 +194,68 @@ public abstract class Configuration implements java.io.Serializable {
 		double half = 0.0;
 
 		if(fillVertical){
-			moleculeRows = (int)Math.sqrt(Ly/Lx*(double)n*Math.sqrt(3.0)*0.5);
+			moleculeRows = (int)Math.sqrt(Ly/Lx*n*Math.sqrt(3.0)*0.5);
 			if(moleculeRows == 0) moleculeRows = 1;
-			moleculeColumns = (int)(n/moleculeRows);
+			moleculeColumns = n/moleculeRows;
 			if(moleculeColumns == 0) moleculeColumns = 1;
 			if(moleculeRows*moleculeColumns < n) moleculeColumns++;
 			int rowsDrawn = (int)((double)n/(double)moleculeColumns - 1.0E-10) + 1;
 			moleculeInitialSpacingX = Lx/moleculeColumns;
-			moleculeInitialSpacingY = Ly/rowsDrawn;
-				while(i < n) {
-							r[i].setX(0, ix*moleculeInitialSpacingX );//+ 0.5*moleculeColumnsShift );//  + nx*moleculeColumnsShift);  //x
-							r[i].setX(1, (iy+half)*moleculeInitialSpacingY);//+0.75*moleculeColumnsShift);// + ny*moleculeRowsShift);   //y
-							i++;
-							iy++;
-							if(iy >= moleculeRows) {
-								iy = 0;
-								 if(on){half = 0.5; on = false;} else { half = 0.0; on = true;}
-								ix++;}} //end of while
-		}else{ 
-			moleculeColumns = (int)Math.sqrt(Lx/Ly*(double)n*Math.sqrt(3.0)*0.5);
-			if(moleculeColumns == 0) moleculeColumns = 1;
-			moleculeRows = (int)(n/moleculeColumns);
-			if(moleculeRows == 0) moleculeRows = 1;
-			if(moleculeRows*moleculeColumns < n) moleculeRows++;
-			int columnsDrawn = (int)((double)n/(double)moleculeRows - 1.0E-10) + 1;
-			moleculeInitialSpacingX = Lx/columnsDrawn;
-			moleculeInitialSpacingY = Ly/moleculeRows;
-				while(i < n) {
-							r[i].setX(0, (half+ix)*moleculeInitialSpacingX );//+ 0.5*moleculeColumnsShift );//  + nx*moleculeColumnsShift);  //x
-							r[i].setX(1, iy*moleculeInitialSpacingY);//+0.75*moleculeColumnsShift);// + ny*moleculeRowsShift);   //y
-							i++;
-							ix++;
-							if(ix >= columnsDrawn) {
-								 ix = 0;
-								 if(on){half = 0.5; on = false;} else { half = 0.0; on = true;}
-								iy++;}} //end of while
-			 }
-        
-		for(int j=0;j<n;j++){
-			com.PE(r[j]);
-		}
-			com.DE((double)n); 
-			dcom.E(ocom);dcom.ME(com);
+			moleculeInitialSpacingY = Ly / rowsDrawn;
+            while (i < n) {
+                r[i].setX(0, ix * moleculeInitialSpacingX);
+                r[i].setX(1, (iy + half) * moleculeInitialSpacingY);
+                i++;
+                iy++;
+                if (iy >= moleculeRows) {
+                    iy = 0;
+                    if (on) {
+                        half = 0.5;
+                        on = false;
+                    }
+                    else {
+                        half = 0.0;
+                        on = true;
+                    }
+                    ix++;
+                }
+            } //end of while
+        }
+        else {
+            moleculeColumns = (int)Math.sqrt(Lx/Ly*n*Math.sqrt(3.0)*0.5);
+            if (moleculeColumns == 0) moleculeColumns = 1;
+            moleculeRows = n / moleculeColumns;
+            if (moleculeRows == 0) moleculeRows = 1;
+            if (moleculeRows * moleculeColumns < n) moleculeRows++;
+            int columnsDrawn = (int)((double)n/(double)moleculeRows - 1.0E-10) + 1;
+            moleculeInitialSpacingX = Lx/columnsDrawn;
+            moleculeInitialSpacingY = Ly/moleculeRows;
+            while (i < n) {
+                r[i].setX(0, (half + ix) * moleculeInitialSpacingX);
+                r[i].setX(1, iy * moleculeInitialSpacingY);
+                i++;
+                ix++;
+                if (ix >= columnsDrawn) {
+                    ix = 0;
+                    if (on) {
+                        half = 0.5;
+                        on = false;
+                    }
+                    else {
+                        half = 0.0;
+                        on = true;
+                    }
+                    iy++;
+                }
+            } //end of while
+        }
+
+        for (int j = 0; j < n; j++) {
+            com.PE(r[j]);
+        }
+        com.DE((double) n);
+        dcom.E(ocom);
+        dcom.ME(com);
 
 		for(int j=0;j<n;j++){
 			r[j].PE(dcom);
