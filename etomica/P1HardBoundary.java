@@ -23,6 +23,7 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     private boolean isothermal = false;
     private double temperature;
     private final int D;
+    private double []lastVirial = new double[2];
     
     public P1HardBoundary() {
         this(Simulation.instance.hamiltonian.potential);
@@ -38,7 +39,23 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("Hard repulsive potential at the phase boundaries");
         return info;
     }
-    public double energy(Atom a) {return 0.0;}
+    
+    public double energy(Atom a) {
+        double e = 0.0;
+        Space.Vector dimensions = a.node.parentPhase().dimensions();
+        double collisionRadiusSquared = collisionRadius*collisionRadius;
+        double rx = a.coord.position(0);
+        double ry = a.coord.position(1);
+        double dx0_2 = rx*rx;
+        double dy0_2 = ry*ry;
+        double dx1_2 = (rx - dimensions.x(0))*(rx - dimensions.x(0));
+        double dy1_2 = (ry - dimensions.x(1))*(ry - dimensions.x(1));
+        if((dx0_2 < collisionRadiusSquared)||(rx < 0.0)||(rx > dimensions.x(0) )||(dx1_2 < collisionRadiusSquared)||
+            (dy0_2 < collisionRadiusSquared)||(ry < 0.0)||(ry > dimensions.x(1) )||(dy1_2 < collisionRadiusSquared)){
+            e = Double.MAX_VALUE;
+        }else{e = 0.0;}
+        return e;
+        }
      
     public double collisionTime(Atom a) {
         Space.Vector r = a.coord.position();
@@ -79,6 +96,15 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
             }
         }
 //        pAccumulator += 2*Math.abs(p.x(imin));
+        lastVirial[0] = 0.0;
+        lastVirial[1] = 0.0;
+        if(imin == 0){
+            if(p.x(0) > 0.0){
+                lastVirial[0] = 2.0*p.x(0)*(dimensions.x(0)-r.x(0));
+            }else{
+                lastVirial[1] = 2.0*p.x(0)*(0.0-r.x(0));
+            }
+        }
         p.setX(imin,-p.x(imin)); //multiply momentum component by -1
         if(isothermal) {p.TE(Math.sqrt(D*temperature*a.coord.mass()/p.squared()));}
     }//end of bump
@@ -90,11 +116,13 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
     public double getTemperature() {return temperature;}
     public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Dimension.TEMPERATURE;}
         
+    public double lastCollisionVirial(int i) {return lastVirial[i];}
 
     /**
      * not yet implemented
      */
-    public double lastCollisionVirial() {return Double.NaN;}
+    public double lastCollisionVirial() {return lastVirial[0];}
+    //public double lastCollisionVirial() {return Double.NaN;}
     
     /**
      * not yet implemented.

@@ -1,7 +1,5 @@
 package etomica.lattice;
 import etomica.*;
-import java.util.Observer;
-import java.util.Observable;
 
 /**
  * Arbitrary-dimension Bravais Lattice. 
@@ -13,6 +11,8 @@ import java.util.Observable;
   *           added accessor methods for Factory dimensions field (changes made to
   *           AtomFactoryTree permit this field to be changed.
   * 09/18/02 (DAK) modified site method to return Atom instead of Site.
+  * 01/12/03 (DAK) commented/uncommented parts of setupNeighbors(Criterion), as
+  * indicated there
   */
 public class BravaisLattice extends Atom implements AbstractLattice {
 
@@ -222,14 +222,16 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
     public void setupNeighbors(NeighborManager.Criterion criterion) {
         neighborCriterion = criterion;
- //       AtomIteratorList iterator = new AtomIteratorList(siteList);
- //       iterator.reset();
- //       while(iterator.hasNext()) {
- //           Site site = (Site)iterator.next();
- //           site.neighborManager().setupNeighbors(siteList, criterion);
- //       }
+        //inefficient method for setting up neighbors.  Repeats same calculation over all sites
+//        AtomIteratorList iterator = new AtomIteratorList(siteList);
+//        iterator.reset();
+//        while(iterator.hasNext()) {
+//            Site site = (Site)iterator.next();
+//            site.neighborManager().setupNeighbors(siteList, criterion);
+//        }
  
-        //set up neighbors for first site
+        //much more efficient approach:
+        //set up neighbors for first site, then copy that neighbor structure to all other sites
         Site first = (Site)siteList.getFirst();
         int[] i0 = first.latticeCoordinate();
         first.neighborManager().setupNeighbors(siteList,criterion);

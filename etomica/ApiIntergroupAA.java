@@ -106,5 +106,5 @@ public final class ApiIntergroupAA implements AtomPairIterator {
     private Atom atom1;
     
     
-}  //end of class ApiInterspeciesAA
+}  //end of class ApiIntergroupAA
     

@@ -55,7 +55,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public void doStep() {
         double collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         double interval = timeStep;
-        int count = 100000;
+        int count = 10000;
         while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
             atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());

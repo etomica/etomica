@@ -5,8 +5,9 @@ package etomica;
   *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
   * 09/05/02 (DAK) fixed error in accelerateTo (still probably does not do what one expects
   *                if accelerating to nonzero momentum).
-  * 01/04/02 (SKK/DAK) added HSlit Boundary class for horizontal-slit PBC.
-  */
+  * 01/04/03 (SKK/DAK) added HSlit Boundary class for horizontal-slit PBC.
+  * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
+ */
 public class Space2D extends Space implements EtomicaElement {
     
     public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
@@ -156,8 +157,10 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public void transform(Space.Tensor A) {transform((Tensor)A);}
         public void transform(Tensor A) {
-            x = A.xx*x + A.xy*y; 
-            y = A.yx*x + A.yy*y;
+        	double x0 = x;
+        	double y0 = y;
+            x = A.xx*x0 + A.xy*y0; 
+            y = A.yx*x0 + A.yy*y0;
         }
         public void transform(Space.Boundary b, Space.Vector r0, Space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
         public void transform(Boundary b, Vector r0, Tensor A) {

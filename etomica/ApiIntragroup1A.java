@@ -9,9 +9,9 @@ package etomica;
  */
  
  /* History of changes
-  * 08/04/02 Changed reset(atom) to use isDescendedFrom rather than just
-  * checking parent. Changes performed to correct problem uncovered in "surfactant" module
-  * simulation
+  * 08/04/02 (DAK) Changed reset(atom) to use isDescendedFrom rather than just
+  * checking parent. Changes performed to correct problem uncovered in
+  * "surfactant" module simulation
   * 
   * 01/02/03 (DAK) reset checks if basis is null
   */

@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.*;
 
 //CoordinateGroup is not updated to the same structure as used in Space2D and Space3D
 

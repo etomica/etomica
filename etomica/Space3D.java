@@ -1,5 +1,4 @@
 package etomica;
-import etomica.units.*;
 
 /**
  *
@@ -16,6 +15,8 @@ import etomica.units.*;
   *                changed CoordinateGroup.randomizeMomentum to not enforce zero COM momentum
   * 09/05/02 (DAK) fixed error in accelerateTo (still probably does not do what one expects
   *                if accelerating to nonzero momentum).
+  * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
+  * values were being used prematurely
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -149,9 +150,12 @@ public class Space3D extends Space implements EtomicaElement {
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
         public void transform(Space.Tensor A) {transform((Tensor)A);}
         public void transform(Tensor A) {
-            x = A.xx*x + A.xy*y + A.xz*z; 
-            y = A.yx*x + A.yy*y + A.yz*z;
-            z = A.zx*x + A.zy*y + A.zz*z;
+        	double x0 = x;
+        	double y0 = y;
+        	double z0 = z;
+            x = A.xx*x0 + A.xy*y0 + A.xz*z0; 
+            y = A.yx*x0 + A.yy*y0 + A.yz*z0;
+            z = A.zx*x0 + A.zy*y0 + A.zz*z0;
         }
         public void transform(Space.Boundary b, Space.Vector r0, Space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
         public void transform(Boundary b, Vector r0, Tensor A) {

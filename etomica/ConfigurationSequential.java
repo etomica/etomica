@@ -11,6 +11,7 @@ package etomica;
 
 /* History
  * 01/04/03 (SKK/DAK) added hexagonal lattice for 2D configuration
+ * 01/14/03 (DAK) fixed typo in name of getSquareConfig method
  */
  
 public class ConfigurationSequential extends Configuration {
@@ -33,7 +34,7 @@ public class ConfigurationSequential extends Configuration {
 	public boolean getFillVertical() {return fill;}
     
 	public void setSquareConfig(boolean b){ squareConfig = b;}
-	public boolean getSqurareConfig() {return squareConfig;}
+	public boolean getSquareConfig() {return squareConfig;}
     
 	public void initializePositions(AtomIterator[] iterators) {
 

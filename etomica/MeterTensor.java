@@ -1,13 +1,11 @@
 package etomica;
-import etomica.units.Dimension;
 /*import javax.swing.JTable;
 import javax.swing.table.*;
 import javax.swing.Box;
 //import java.awt.event.*;
 import java.awt.*;
 import javax.swing.JScrollPane;
-*/import etomica.utility.Histogram;
-
+*/
 
 /**
  * Meter for recording and averaging tensor data.  Includes a DisplayTensorTable method to show results.

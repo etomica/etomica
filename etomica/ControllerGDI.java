@@ -1,7 +1,5 @@
 package etomica ;
-import etomica.units.*;
 import etomica.utility.Function;
-import java.io.*;
 
 /**
  * Controller that implements a Gibbs-Duhem integration for tracing a line of phase coexistence
