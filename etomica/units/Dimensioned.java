@@ -9,6 +9,6 @@ public interface Dimensioned {
     
     public void setUnit(Unit u);
     public Unit getUnit();
-    public Dimension dimension();
+    public Dimension getDimension();
     
 }
