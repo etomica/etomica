@@ -41,7 +41,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 		DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(this);
 		integrator = new IntegratorMC(this);
 		integrator.setSleepPeriod(1);
-		integrator.setDoSleep(false);
+		integrator.setDoSleep(true);
 		integrator.setTemperature(simTemperature);
 		integrator.setInterval(1);
 //		MCMoveAtom mcMoveAtom = new MeterVirial.MyMCMoveAtom(integrator);
@@ -178,13 +178,13 @@ public class SimulationVirialWater extends SimulationGraphic {
 	public static void main(String[] args) {
 		double sigmaW = 3.167;
 		double epsW = 78.21;
-		double temperature = Kelvin.UNIT.toSim(423.0);  //temperature of calculated virial coefficient
+		double temperature = Kelvin.UNIT.toSim(600.0);  //temperature of calculated virial coefficient
 		double simTemperature = 1.0*temperature; //temperature governing sampling of configurations
 		double sigmaHSRef = 1.5*sigmaW*SimulationVirial.sigmaLJ1B(epsW/simTemperature);  //diameter of reference HS system
 //		double sigmaHSMod = sigmaW*SimulationVirial.sigmaLJ1B(epsW/simTemperature); //range in which modified-f for sampling will apply abs() function
 		System.out.println((epsW/simTemperature)+" "+sigmaHSRef);
 //		System.out.println((epsW/temperature)+" "+sigmaHSMod);
-		int nMolecules = 2;
+		int nMolecules = 4;
 		SimulationVirialWater sim = new SimulationVirialWater(nMolecules, simTemperature);
 		
 		//set up simulation potential

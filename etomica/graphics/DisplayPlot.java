@@ -10,6 +10,7 @@ import etomica.units.*;
 
 /* History
  * 01/01/03 (DAK) Modified doUpdate to plot only if isShowing
+ * 05/18/04 (DAK) Added setSize method
  */
  
 public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
@@ -133,6 +134,11 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
     public void setXUnit(Unit u) {
         xUnit = u;
         if(plot != null && xUnit != null) plot.setXLabel(getXLabel() + " ("+xUnit.symbol()+")");
+    }
+    
+    public void setSize(int width, int height) {
+    	plot.setSize(width, height);
+    	panel.setSize(width, height);
     }
 
  /**

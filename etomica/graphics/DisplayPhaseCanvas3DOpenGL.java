@@ -22,6 +22,8 @@ import etomica.utility.java2.Iterator;
      * 08/08/03 (DAK) added drawExpansionFactor to draw in a box larger than
      * simulated one
      * 08/14/03 (DAK) improved selection of default zoom level
+     * 04/15/04 (DAK) made init, initialize, and display methods synchronized,
+     * to correct problems arising with grand-canonical simulations
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -126,7 +128,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //stereoView = false;
   //}
 
-  public void init() {
+  public synchronized void init() {
     if(glInitialized) return;
     
     // DAK - 09/27/02 rescale display to adjust to size of phase
@@ -231,7 +233,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     glInitialized = true;
 }
       
-  public void initialize() {
+  public synchronized void initialize() {
     int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
     int countWalls = 0, countAll = 0;
     float vertAll[];
@@ -592,7 +594,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   /**
   * display is the method that handles the drawing of the phase to the screen.
   */
-  public void display() {
+  public synchronized void display() {
     //Makes sure there is something to draw
     if(!canvasInitialized) {this.initialize();return;}
     //Ensure GL is initialized correctly

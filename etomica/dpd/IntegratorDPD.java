@@ -136,7 +136,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 		return new MyAgent(simulation(),a);
 	}
             
-	public final static class MyAgent implements Integrator.Agent.Forcible {  //need public so to use with instanceof
+	public final static class MyAgent implements Integrator.Forcible {  //need public so to use with instanceof
 		public Atom atom;
 		public Space.Vector force, fOld;
 
