@@ -13,8 +13,6 @@ public class SpeciesWalls extends Species {
         super(n,na);
         colorScheme.setBaseColor(Constants.DARK_RED);
         add(new ConfigurationMoleculeWallsParallel());
-        ((ConfigurationMoleculeWallsParallel)configurationMolecule).setAngle(0);   //horizontal walls are the default
-        ((ConfigurationMoleculeWallsParallel)configurationMolecule).setSpanVolume(false);
     }
 
   public void initializeMolecules() {

@@ -11,6 +11,7 @@ public abstract class Configuration extends Component{
     protected Vector species = new Vector();
     public double temperature;
     Phase parentPhase;
+    Random rand = new Random();
 
     public Configuration(){
         setTemperature(300.);
@@ -38,7 +39,6 @@ public abstract class Configuration extends Component{
   * the current value of temperature), with the direction at random
   */
     public void initializeMomenta() {
-        Random rand = new Random();
         double[] momentumSum = new double[Space.D];
         int sum = 0;
         for(int j=0; j<species.size(); j++) {
@@ -62,6 +62,16 @@ public abstract class Configuration extends Component{
             }
         }
     }
+    
+    public void initializeMomentum(Molecule m) {
+        double momentum = Math.sqrt(m.getMass()*temperature/Constants.KE2T*(double)Space.D);
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+	        a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
+            a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
+	        double momentumNorm = Math.sqrt(Space.v1S(a.p));
+	        Space.uTEa1(a.p, momentum/momentumNorm);
+	    }
+	}
         
     
     public abstract void initializeCoordinates();

@@ -134,6 +134,8 @@ public class Space extends Component {
     * Coordinate origins for all images about central image.
     */
     protected int[][] origins;
+
+    protected Random randomGenerator = new Random();
     
    /**
     * Creates Space with unit dimensions and computes its volume.
@@ -498,15 +500,23 @@ public class Space extends Component {
         uEa1Tv1(u,norm,u);
     }
     
+    
+    //would like to change name to randomPoint
+    
     //random point in square centered on origin with each edge 2*rmax
     public static void randomVector(double[] u, double rmax, Random rand) {
         u[0] = (2.0*rand.nextDouble()-1.0)*rmax;
         u[1] = (2.0*rand.nextDouble()-1.0)*rmax;
     }
     
-    public final void randomVector(double[] u, Random rand) {  //random point in entire space
+    public void randomVector(double[] u, Random rand) {  //random point in entire space
         u[0] = rand.nextDouble()*dimensions[0];
         u[1] = rand.nextDouble()*dimensions[1];
     }
     
+    public double[] randomVector() {  //random point in entire space
+        double[] u = new double[D];
+        randomVector(u, randomGenerator);
+        return u;
+    }
 }

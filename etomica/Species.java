@@ -150,7 +150,7 @@ public abstract class Species extends Container {
  /**
   * Object responsible for setting default configuration of atoms in molecule
   */
-  ConfigurationMolecule configurationMolecule;
+  public ConfigurationMolecule configurationMolecule;
   
  /**
   * Default constructor.  Creates species containing 20 molecules, each with 1 atom.
@@ -239,7 +239,10 @@ public abstract class Species extends Container {
   * @param m the molecule being deleted
   * @see #addMolecule
   */
-  public final void deleteMolecule(Molecule m) {
+  
+  // Need to make deleteMoleculeSafely method, which is syncrhonized, and unsync this one
+  // Likewise with addMolecule
+  public final synchronized void deleteMolecule(Molecule m) {
     if(m.parentSpecies != this) {
         System.out.println("Error:  attempt to delete molecule from incorrect species");
         return;
@@ -275,7 +278,7 @@ public abstract class Species extends Container {
   * @param m the molecule being added
   * @see deleteMolecule
   */
-  public final void addMolecule(Molecule m) {
+  public final synchronized void addMolecule(Molecule m) {
     if(nMolecules > 0) {
         m.setNextMolecule(lastMolecule.getNextMolecule());
         lastMolecule.setNextMolecule(m);
@@ -305,6 +308,18 @@ public abstract class Species extends Container {
     parentPhase.nAtomTotal += m.nAtoms;
     initializeMolecules();
     colorScheme.initializeMoleculeColor(m);
+  }
+  
+ /**
+  * Makes a new molecule, assigns it a random position and velocity,
+  * and adds it to the species
+  */
+  public void addMolecule() {
+    Molecule m = makeMolecule();
+    configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
+    m.setCOM(parentPhase.space.randomVector());       //place at random position
+    parentPhase.configuration.initializeMomentum(m);  //initialize momentum
+    addMolecule(m);
   }
         
  /**

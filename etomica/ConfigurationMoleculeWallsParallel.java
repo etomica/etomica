@@ -10,10 +10,12 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     
     private int angle;
     private boolean horizontal, vertical;
-    private boolean spanVolume;
+    private boolean longWall;  //If true, specifies that the wall extends the whole length of the simulation volume
     private double temperature = 300.;
     
     public ConfigurationMoleculeWallsParallel(){
+        setAngle(0);
+        setLongWall(false);
     }
       
     public final int getAngle() {return angle;}
@@ -31,9 +33,9 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
         initializeCoordinates();
     }
     
-    public final boolean getSpanVolume() {return spanVolume;}
-    public final void setSpanVolume(boolean s) {
-        spanVolume = s;
+    public final boolean isLongWall() {return longWall;}
+    public final void setLongWall(boolean s) {
+        longWall = s;
         initializeCoordinates();
     }
 
@@ -45,10 +47,10 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     public void initializeCoordinates(Molecule m) {  //doesn't handle wall that is not either horizontal or vertical
         Rectangle rect = parentSpecies.getBounds();
         Phase phase = parentSpecies.getParentPhase();
-        int  width = (spanVolume && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if spanVolume, to species otherwise
-        int height = (spanVolume && phase != null) ? phase.getBounds().height : rect.height;
-        double x = (horizontal && spanVolume) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
-        double y = (vertical && spanVolume)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
+        int  width = (longWall && phase != null) ? phase.getBounds().width  : rect.width;    //size to phase if spanVolume, to species otherwise
+        int height = (longWall && phase != null) ? phase.getBounds().height : rect.height;
+        double x = (horizontal && longWall) ? 0.0 : (double)rect.x/Phase.TO_PIXELS;  //put against left or top wall if spanning volume
+        double y = (vertical && longWall)   ? 0.0 : (double)rect.y/Phase.TO_PIXELS;
         double w = (double)width/Phase.TO_PIXELS;
         double h = (double)height/Phase.TO_PIXELS;
         int i = 0;

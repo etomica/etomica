@@ -195,7 +195,7 @@ public final class Phase extends Container {
   
   private Potential1 p1Null = new P1Null();
   private Potential2 p2IdealGas = new P2IdealGas();
-  public Configuration configuration = new ConfigurationSequential();
+  public Configuration configuration;
     
   public Phase() {
     setLayout(null);
@@ -207,6 +207,7 @@ public final class Phase extends Container {
     nAtomTotal = nMoleculeTotal = 0;
     gravity = new Gravity(0.0);
     noGravity = true;
+    add(new ConfigurationSequential());  //default configuration
   }
  
    /********************Eliza's Code**********************/

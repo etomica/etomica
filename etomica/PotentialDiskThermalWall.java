@@ -24,7 +24,6 @@ public class PotentialDiskThermalWall extends PotentialHardDiskWall {
         Atom disk;
         AtomWall wall;
         
-        double angle;
         if(atom2 instanceof AtomWall) {
            disk = atom1;
            wall = (AtomWall)atom2;
@@ -36,7 +35,7 @@ public class PotentialDiskThermalWall extends PotentialHardDiskWall {
         
         double pSquaredPrior = Space.v1S(disk.p);
         double kPrior = 0.5*pSquaredPrior*disk.rm;
-        double pSquaredAfter = disk.mass*wall.temperature*(double)Space.D/Constants.KE2T;  //need to divide by sqrt(m) to get velocity
+        double pSquaredAfter = disk.mass*wall.getTemperature()*(double)Space.D/Constants.KE2T;  //need to divide by sqrt(m) to get velocity
         double kAfter = 0.5*pSquaredAfter*disk.rm;
         wall.accumulateQ(kAfter-kPrior);
         double pScale = Math.sqrt(pSquaredAfter/pSquaredPrior);
