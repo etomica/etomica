@@ -73,6 +73,7 @@ public class NeighborManager implements IntervalListener {
                 potentialMaster.getNbrCellManager(phases[i]).assignCellAll();
             }
 			reset(((Integrator)evt.getSource()).getPhase());
+            ((Integrator)evt.getSource()).reset();
 		} else if(evt.type() == IntervalEvent.INTERVAL) {
 			if (--iieCount == 0) {
 				updateNbrsIfNeeded((Integrator)evt.getSource());
