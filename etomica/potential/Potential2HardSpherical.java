@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Space;
 
 /**
@@ -24,8 +25,8 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * Energy of the pair as given by the u(double) method, with application
      * of any PotentialTruncation that may be defined for the potential.
      */
-    public double energy(AtomPair pair) {
-    	cPair.reset(pair.atom0.coord,pair.atom1.coord);
+    public double energy(AtomSet pair) {
+    	cPair.reset(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
     	double r2 = cPair.r2();
     	return u(r2);
     }

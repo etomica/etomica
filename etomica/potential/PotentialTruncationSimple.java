@@ -1,6 +1,6 @@
 package etomica.potential;       
 
-import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Space;
@@ -111,7 +111,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         	}
         }
         
-        public double energy(Atom[] atoms) {
+        public double energy(AtomSet atoms) {
         	if(species == null) return 0.0;
             return uCorrection(nPairs()/phase.volume());
         }

@@ -1,6 +1,8 @@
 package etomica.potential;
 
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.AtomsetIterator;
 import etomica.Integrator;
 import etomica.Potential;
@@ -28,17 +30,17 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 		int nBody = potential.nBody();
 		iterator.reset();
 		while(iterator.hasNext()) {
-			Atom[] atoms = iterator.next();
+			AtomSet atoms = iterator.next();
 			f.E(potentialSoft.gradient(atoms));
 	//TODO update gradient method to return array of gradient vectors, one for each atom
 	//TODO make a consistent definition so that atoms[0] is always ME(f)
 			switch(nBody) {
 				case 1: 
-					((Integrator.Forcible)atoms[0].ia).force().ME(f);
+					((Integrator.Forcible)((Atom)atoms).ia).force().ME(f);
 					break;
 				case 2: 
-			        ((Integrator.Forcible)atoms[0].ia).force().PE(f);
-			        ((Integrator.Forcible)atoms[1].ia).force().ME(f);
+			        ((Integrator.Forcible)((AtomPair)atoms).atom0.ia).force().PE(f);
+			        ((Integrator.Forcible)((AtomPair)atoms).atom0.ia).force().ME(f);
 			 		break;
 			 	default:
 			 		throw new RuntimeException("Force calculation not implemented to treat (n>2)-body interactions");	

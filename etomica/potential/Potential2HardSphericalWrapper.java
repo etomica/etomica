@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Space;
 import etomica.space.Tensor;
 
@@ -15,7 +15,7 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         wrappedPotential = potential;
     }
     
-    public double collisionTime(AtomPair atoms, double falseTime) {
+    public double collisionTime(AtomSet atoms, double falseTime) {
         if (wrappedPotential==null) return Double.POSITIVE_INFINITY;
         return wrappedPotential.collisionTime(atoms,falseTime);
     }
@@ -30,7 +30,7 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         return wrappedPotential.lastCollisionVirialTensor();
     }
     
-    public void bump(AtomPair atoms, double falseTime) {
+    public void bump(AtomSet atoms, double falseTime) {
         if (wrappedPotential==null) throw new RuntimeException("can't bump with null potential");
         wrappedPotential.bump(atoms,falseTime);
     }
