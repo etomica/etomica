@@ -15,6 +15,21 @@ public final class Standard {
 		super();
 	}
 
+
+	/**
+	 * Returns a chain of bonds, {{0,1},{1,2},...{n-2,n-1}}
+	 * @param n number of points in chain
+	 * @return int[][] array describing chain of bonds
+	 */
+	public static int[][] chain(int n) {
+		int[][] array = new int[n-1][];
+		for(int i=0; i<n-1; i++) {
+			array[i] = new int[] {i,i+1};
+		}
+		return array;
+	}
+	
+	
 	/**
 	 * Returns a ring of bonds, {{0,1},{1,2},...{n-2,n-1},{n-1,0}}
 	 * @param n number of points in ring
@@ -55,6 +70,6 @@ public final class Standard {
 	}
 	public static double C3HS(double sigma) {
 		double b0 = B2HS(sigma);
-		return -5./8. * b0 * b0;
+		return 5./8. * b0 * b0;
 	}
 }

@@ -32,7 +32,7 @@ public class SimulationSign extends SimulationGraphic {
 		Default.makeLJDefaults();
 		Default.TRUNCATE_POTENTIALS = false;
 		
-		final Phase phase = new Phase(this);
+		final PhaseCluster phase = new PhaseCluster(this);
 		phase.setBoundary(this.space.makeBoundary(Space3D.Boundary.NONE));	
 		species = new SpeciesSpheresMono(this);
 		species.setNMolecules(nMolecules);
@@ -115,7 +115,6 @@ public class SimulationSign extends SimulationGraphic {
 	 */
 	public void setMeterSign(MeterSign meterSign) {
 		this.meterSign = meterSign;
-		meterSign.setPairSet(pairs);
 
 		MeterDatumSourceWrapper bMeter = new MeterDatumSourceWrapper(meterSign);
 		bMeter.setWhichValue(MeterAbstract.AVERAGE);
@@ -168,7 +167,7 @@ public class SimulationSign extends SimulationGraphic {
 	public static void main(String[] args) {
 		double simTemperature = 1.3; //temperature governing sampling of configurations
 		double sigmaHSMod = 0.0;//sigmaLJ1B(1.0/simTemperature); //range in which modified-f for sampling will apply abs() function
-		int nMolecules = 4;
+		int nMolecules = 5;
 //		int nMolecules = 4;
 		SimulationSign sim = new SimulationSign(nMolecules, simTemperature);
 		
@@ -176,19 +175,18 @@ public class SimulationSign extends SimulationGraphic {
 //		sim.integrator().setDoSleep(true);
 		
 		//set up simulation potential
-		P0Cluster p2 = new P0Cluster(sim.hamiltonian.potential, sim.pairs());
-		p2.setTemperature(simTemperature);		
-		P2LennardJones p2LJ = new P2LennardJones(p2);
+		P2LennardJones p2LJ = new P2LennardJones(new Simulation());//dummy simulation
+		Simulation.instance = sim;
 		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
-//		Cluster ring = new etomica.virial.cluster.Full(nMolecules, 1.0, f);
-		Cluster ring = new ReeHoover(nMolecules, 1.0, new Cluster.BondGroup(f,Standard.D4));
-		p2.setCluster(ring);				
-		sim.setSimPotential(p2);
+		Cluster simCluster = new etomica.virial.cluster.Full(nMolecules, 1.0, f);
+//		Cluster simCluster = new ReeHoover(nMolecules, 1.0, new Cluster.BondGroup(f,Standard.D4));
+		P0Cluster p0 = new P0Cluster(sim.hamiltonian.potential, simCluster);
+		sim.setSimPotential(p0);
 		
 		MayerFunction fLJ = new MayerGeneral(p2LJ);
-//		Cluster cluster = new etomica.virial.cluster.Full(nMolecules, 1.0, fLJ);
-		Cluster cluster = new ReeHoover(nMolecules, 1.0, new Cluster.BondGroup(fLJ,Standard.D4));
-		MeterSign meterSign = new MeterSign(sim, sim.pairs(), cluster);
+		Cluster cluster = new etomica.virial.cluster.Full(nMolecules, 1.0, fLJ);
+//		Cluster cluster = new ReeHoover(nMolecules, 1.0, new Cluster.BondGroup(fLJ,Standard.D4));
+		MeterSign meterSign = new MeterSign(sim, cluster);
 		sim.setMeterSign(meterSign);
 	}//end of main
 }

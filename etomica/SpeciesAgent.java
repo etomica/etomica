@@ -12,6 +12,8 @@ import etomica.units.Dimension;
  /* History of changes
   * 08/01/02 (DAK) modified allAtoms method to use loop iteration rather than passing action to iterator
   * 08/26/02 (DAK) added getMolecule method
+  * 07/30/03 (DAK) modification to setNMolecules to ensure forceRebuild does not
+  * rebuild using reservoir molecules
   */
 
 public final class SpeciesAgent extends Atom {
@@ -92,9 +94,9 @@ public final class SpeciesAgent extends Atom {
     public void setNMolecules(int n, boolean forceRebuild) {
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
         boolean wasPaused = pauseIntegrator();
-        if(forceRebuild) while(treeNode.childList.size() > 0) treeNode.lastChildAtom().sendToReservoir();
-        
-        else if(n > treeNode.childAtomCount()) {
+        if(forceRebuild) while(treeNode.childList.size() > 0) treeNode.lastChildAtom().node.dispose();
+        node.parentSpecies().moleculeFactory().reservoir().removeAll();
+        if(n > treeNode.childAtomCount()) {
             for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
         }
         else if(n < treeNode.childAtomCount()) {

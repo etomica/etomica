@@ -53,12 +53,14 @@ public class PairSet {
 	
 	/**
 	 * Calls  reset method for all pairs, computing all r-squared values for
-	 * current configuration.
+	 * current configuration.  Returns this pairSet, so reset can be called in-
+	 * line.
 	 */
-	public void resetPairs() {
+	public PairSet resetPairs() {
 		for(int i=0; i<N-1; i++) {
 			for(int j=0; j<N-1-i; j++) pairs[i][j].reset();
 		}
+		return this;
 	}
 	
 	public int nMolecules() {return N;}

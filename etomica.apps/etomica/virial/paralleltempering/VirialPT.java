@@ -14,7 +14,7 @@ public class VirialPT extends SimulationGraphic {
 	P0Cluster potential;
     
     //computes temperature values in fixed ratios given max, min and number of values
-	private static double[] betaFixedRatio(double tMin, double tMax, int nT) {
+	private static double[] tFixedRatio(double tMin, double tMax, int nT) {
 		double[] temperatures = new double[nT];
 		for(int i=0; i<nT; i++) {
 			if(nT > 1) temperatures[i] = Math.exp(Math.log(tMin) + (double)i/(double)(nT-1)*Math.log(tMax/tMin));
@@ -25,7 +25,7 @@ public class VirialPT extends SimulationGraphic {
 
     
 	public VirialPT(int nMolecules, double tMin, double tMax, int nPhase) {
-		this(nMolecules, betaFixedRatio(tMin, tMax, nPhase));
+		this(nMolecules, tFixedRatio(tMin, tMax, nPhase));
 	}
 	
 	public VirialPT(int nMolecules, double[] temperatures) {
@@ -39,11 +39,11 @@ public class VirialPT extends SimulationGraphic {
 		P2LennardJones p2LJ = new P2LennardJones(new Simulation());//dummy simulation; parent of this potential will not be connected to the simulation
 		Simulation.instance = this;
        
-        double targetTemperature = 1.3;
 		double sigmaHSRef = 1.0;//etomica.virial.simulations.SimulationVirial.sigmaLJ1B(targetTemperature);
 		double refTemperature = 1.0;
 		double refIntegral = Standard.C3HS(sigmaHSRef);
-		Cluster[] clusters = MeterVirialB3.B3Clusters(p2LJ);
+//		Cluster[] clusters = MeterVirialB3.B3Clusters(p2LJ);
+		Cluster[] clusters = MeterVirialB4.B4Clusters(p2LJ);
 		Cluster refCluster = new Cluster(new MayerHardSphere(sigmaHSRef), clusters[0]);     
         
 		elementCoordinator.addMediatorPair(new MediatorGraphic.DisplayMeter.NoAction(elementCoordinator));
@@ -62,7 +62,10 @@ public class VirialPT extends SimulationGraphic {
 //		P0Cluster potential = new P0Cluster(this.hamiltonian.potential);
 //		potential.setCluster(simCluster);
 		P0ClusterUmbrella potential = new P0ClusterUmbrella(this.hamiltonian.potential);
-		potential.setCluster(new Cluster[] {refCluster, simCluster});
+		Cluster[] umbClusters = new Cluster[clusters.length+1];
+		umbClusters[0] = refCluster;
+		for(int i=1; i<umbClusters.length; i++) umbClusters[i] = clusters[i-1];
+		potential.setCluster(umbClusters);
 
 		IntegratorPT.MCMoveSwapFactory swapFactory = new MCMoveSwapCluster.Factory();
 		IntegratorPT integratorPT = new IntegratorPT(this, swapFactory);
@@ -182,8 +185,8 @@ public class VirialPT extends SimulationGraphic {
 //		double tMax = 1.0/Double.parseDouble(args[2]);
 //		int n = Integer.parseInt(args[3]);
 //		VirialPT sim = new VirialPT(nM, tMin, tMax, n);
-		int nM = 3;
-		double[] temperature = new double[] {0.1, 0.3, 0.7, 1.3, 2.5, 10.0, 100.};
+		int nM = 4;
+		double[] temperature = new double[] {0.3, 0.7, 1.3, 2.5, 10.0};
 		VirialPT sim = new VirialPT(nM, temperature);
 		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();

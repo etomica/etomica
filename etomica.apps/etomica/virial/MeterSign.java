@@ -16,16 +16,14 @@ public class MeterSign extends MeterScalar {
 
 	private Cluster cluster;
 	private double temperature, beta;
-	private PairSet pairSet;
 	
 	/**
 	 * Constructor for MeterSign.
 	 * @param parent
 	 */
-	public MeterSign(SimulationElement parent, PairSet pairSet, Cluster cluster) {
+	public MeterSign(SimulationElement parent, Cluster cluster) {
 		super(parent);
 		setCluster(cluster);
-		setPairSet(pairSet);
 		setTemperature(1.0); //almost always, temperature is irrelevant.  Sign of f does not normally depend on temperature.
 	}
 
@@ -33,7 +31,7 @@ public class MeterSign extends MeterScalar {
 	 * @see etomica.MeterScalar#currentValue()
 	 */
 	public double currentValue() {
-		return (cluster.value(pairSet, beta)>0) ? +1.0 : -1.0;
+		return (cluster.value(((PhaseCluster)phase).getPairSet(), beta)>0) ? +1.0 : -1.0;
 	}
 
 	/**
@@ -74,22 +72,6 @@ public class MeterSign extends MeterScalar {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 		beta = 1.0/temperature;
-	}
-
-	/**
-	 * Returns the pairSet.
-	 * @return PairSet
-	 */
-	public PairSet getPairSet() {
-		return pairSet;
-	}
-
-	/**
-	 * Sets the pairSet.
-	 * @param pairSet The pairSet to set
-	 */
-	public void setPairSet(PairSet pairSet) {
-		this.pairSet = pairSet;
 	}
 
 }

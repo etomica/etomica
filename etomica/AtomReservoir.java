@@ -6,6 +6,10 @@ package etomica;
  *
  * @author David Kofke
  */
+
+/* History
+ * 07/30/03 (DAK) added removeAll method
+ */
 public class AtomReservoir extends Atom {
     
     private int capacity;
@@ -42,6 +46,10 @@ public class AtomReservoir extends Atom {
         //restore atom to condition when built
 //        if(atom instanceof AtomGroup) ((AtomGroup)atom).creator().renew(atom);
         //add to reservoir
+    }
+    
+    public void removeAll() {
+    	while(!isEmpty()) getAtom().node.dispose();
     }
     
     /**

@@ -136,7 +136,7 @@ public class Cluster {
 	private final double weight;
 	private final int n;
 	protected int bondCount;
-	private MayerFunction[][] bondArray;
+	protected MayerFunction[][] bondArray;
 	private BondGroup[] bondGroup;
 	
 	/**
