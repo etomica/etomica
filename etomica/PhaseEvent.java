@@ -49,14 +49,16 @@ public class PhaseEvent extends SimulationEvent {
             new Type("Atom removed"),
             new Type("Atom selected"),
             new Type("Atom released"),
-            new Type("Boundary Inflate")};
+            new Type("Boundary Inflate"),
+            new Type("Reset")};
         public final Constants.TypedConstant[] choices() {return CHOICES;}
     }
-    public static final Type POINT_SELECTED = Type.CHOICES[0];
-    public static final Type ATOM_ADDED = Type.CHOICES[1];
-    public static final Type ATOM_REMOVED = Type.CHOICES[2];
-    public static final Type ATOM_SELECTED = Type.CHOICES[3];
-    public static final Type ATOM_RELEASED = Type.CHOICES[4];
+    public static final Type POINT_SELECTED =   Type.CHOICES[0];
+    public static final Type ATOM_ADDED =       Type.CHOICES[1];
+    public static final Type ATOM_REMOVED =     Type.CHOICES[2];
+    public static final Type ATOM_SELECTED =    Type.CHOICES[3];
+    public static final Type ATOM_RELEASED =    Type.CHOICES[4];
     public static final Type BOUNDARY_INFLATE = Type.CHOICES[5];
+    public static final Type RESET =            Type.CHOICES[6];
 }//end of PhaseEvent
     

@@ -6,19 +6,23 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/13/02 (DAK) Restructured instantiation of LRC potential; Space argument for constructor
+  */
 public final class PotentialTruncationSimple extends PotentialTruncation {
         
     double rCutoff, r2Cutoff, rCD;
     private /*final*/ double A; //inner class doesn't permit finals
     private /*final*/ int D;
     
-    public PotentialTruncationSimple(Potential2 potential) {
-        this(potential, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);}
+    public PotentialTruncationSimple(Space space) {
+        this(space, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);}
         
-    public PotentialTruncationSimple(Potential2 potential, double rCutoff) {
-        super(potential);
-        A = potential.parentSimulation().space().sphereArea(1.0);  //multiplier for differential surface element
-        D = potential.parentSimulation().space().D();              //spatial dimension
+    public PotentialTruncationSimple(Space space, double rCutoff) {
+        super();
+        A = space.sphereArea(1.0);  //multiplier for differential surface element
+        D = space.D();              //spatial dimension
         setTruncationRadius(rCutoff);
     }
     public boolean isZero(double r2) {return r2 > r2Cutoff;}
@@ -56,8 +60,8 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
      * energy and its derivatives from pairs that are separated by a distance
      * exceeding the truncation radius.
      */
-    public Potential0Lrc makeLrcPotential(PotentialGroup parent) {
-        return new P0Lrc(parent);
+    public Potential0Lrc makeLrcPotential(PotentialGroup parent, Potential2 potential) {
+        return new P0Lrc(parent, potential);
     }
     
     /**
@@ -66,8 +70,12 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
     private class P0Lrc extends Potential0Lrc {
         
         private Phase phase;
+        private Potential2SoftSpherical potential;
         
-        public P0Lrc(PotentialGroup parent) {super(parent);}
+        public P0Lrc(PotentialGroup parent, Potential2 potential) {
+            super(parent);
+            this.potential = (Potential2SoftSpherical)potential;
+        }
         public Potential set(Atom a) {return this;}
         public Potential set(Atom a1, Atom a2) {return this;}
         public Potential set(SpeciesMaster s) {return this;}
@@ -115,5 +123,47 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
             throw new RuntimeException("method d2uCorrection not implemented in PotentialTruncationSimple.P0Lrc");
         }
     }//end of P0lrc
+    
+    /**
+     * main method to demonstrate and test this class.
+     */
+/*   public static void main(String[] args) {
+        
+        Default.TRUNCATE_POTENTIALS = true;
+        Simulation.instance = new etomica.graphics.SimulationGraphic();
+	    IntegratorMC integrator = new IntegratorMC();
+	    MCMoveAtom mcMove = new MCMoveAtom(integrator);//comment this line to examine LRC by itself
+	    SpeciesSpheresMono species = new SpeciesSpheresMono();
+	    species.setNMolecules(72);
+	    final Phase phase = new Phase();
+	    P2LennardJones potential = new P2LennardJones(3.0, 2000.);
+	    Controller controller = new Controller();
+	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
+
+		MeterEnergy energy = new MeterEnergy();
+		energy.setPhase(phase);
+		energy.setHistorying(true);
+		energy.setActive(true);		
+		energy.getHistory().setNValues(500);		
+		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
+		plot.setLabel("Energy");
+		plot.setDataSources(energy.getHistory());
+		
+		integrator.setSleepPeriod(2);
+		
+		etomica.graphics.DeviceToggleButton lrcToggle = new etomica.graphics.DeviceToggleButton(Simulation.instance,
+		    new ModulatorBoolean() {
+		        public void setBoolean(boolean b) {phase.setLrcEnabled(b);}
+		        public boolean getBoolean() {return phase.isLrcEnabled();}
+		    },"LRC enabled", "LRC disabled" );
+		
+		Simulation.instance.elementCoordinator.go();
+	    
+//        potential.setIterator(new AtomPairIteratorGeneral(phase));
+//        potential.set(species.getAgent(phase));
+        
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
+    }//end of main
+ // */   
         
 }//end of PotentialTruncationSimple

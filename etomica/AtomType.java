@@ -14,6 +14,11 @@ import etomica.units.*;
  * AtomType could also be used to define particular elemental atoms (Carbon, Oxygen, etc.).
  * 
  */
+ 
+ /* History of changes
+  * 7/16/02 (DAK) AtomType.Sphere.diameter method modified to take atom as argument
+  *               Added AtomType.SphereVariable inner class
+  */
 
 public class AtomType implements java.io.Serializable {
     public static String getVersion() {return "AtomType:01.11.20";}
@@ -114,8 +119,8 @@ public class AtomType implements java.io.Serializable {
             setDiameter(d);
         }
                     
-        public final double diameter() {return diameter;}
-        public final double radius() {return radius;}
+        public double diameter(Atom a) {return diameter;}
+        public double radius(Atom a) {return radius;}
         
         /**
         * Sets diameter of this atom and updates radius accordingly.
@@ -123,6 +128,30 @@ public class AtomType implements java.io.Serializable {
         * @param d   new value for diameter
         */
         public void setDiameter(double d) {diameter = d; radius = 0.5*d;}
+    }
+    
+    // Sphere-shaped atom, but of size that is variable from one atom to the
+    // next.  Size is obtained from agent in atom
+    public static class SphereVariable extends Sphere {
+        
+        int index;
+        
+        public SphereVariable(AtomFactory creator, int index) {
+            this(creator, index, Default.ATOM_MASS);
+        }
+        public SphereVariable(AtomFactory creator, int index, double m) {
+            super(creator, m, Double.NaN);
+        }
+                    
+        public double diameter(Atom a) {return ((Parameter.Size)(a.allatomAgents[index])).getSigma();}
+        public double radius(Atom a) {return 0.5*diameter(a);}
+        
+        /**
+        * Sets diameter of this atom and updates radius accordingly.
+        *
+        * @param d   new value for diameter
+        */
+        public void setDiameter(double d) {if(!Double.isNaN(d)) throw new RuntimeException("Unexpected call to AtomType.SphereVariable.setDiameter method");}
     }
     
     /**
@@ -144,7 +173,7 @@ public class AtomType implements java.io.Serializable {
         
         private void updateI() {
             if(I == null) return;
-            I[0] = 0.4*this.getMass()*radius()*radius();  //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
+            I[0] = 0.4*this.getMass()*radius*radius;  //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
             I[1] = I[0];
             I[2] = I[1];
         }
@@ -181,7 +210,7 @@ public class AtomType implements java.io.Serializable {
         }
         public final void setLambda(double l) {
             lambda = l; 
-            wellDiameter = lambda*diameter(); 
+            wellDiameter = lambda*diameter; 
             wellRadius = 0.5*wellDiameter;
         }
     }

@@ -206,5 +206,16 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
            // }
         }
     }//end of InflateAnisotropic 
+    
+    /**
+     * Toggles the state of enabling the long-range-corrections to the 
+     * potential truncation in the phase.
+     */
+    public static class ToggleLrc extends PhaseAction {
+        
+        public void actionPerformed(Phase phase) {
+            phase.setLrcEnabled(!phase.isLrcEnabled());
+        }
+    }
 
 }//end of PhaseAction

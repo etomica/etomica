@@ -133,13 +133,14 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     }
     
     /**
-     * Recomputes all the move frequencies.
+     * Recomputes all the move frequencies and resets all MCMoves.
      */
     public void doReset() {
         frequencyTotal = 0;
         for(MCMove m=firstMove; m!=null; m=m.nextMove()) {
             m.resetFullFrequency();
             frequencyTotal += m.fullFrequency();
+            m.reset();
         }
     }
     

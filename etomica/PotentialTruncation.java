@@ -7,18 +7,14 @@ package etomica;
  * @author David Kofke
  */
  
+ /* History of changes
+  * 7/13/02 (DAK) Restructured instantiation of LRC potential
+  */
+ 
 public abstract class PotentialTruncation {
     
-    protected final Potential2 potential;
-    
-    public PotentialTruncation(Potential2 potential) {
-        this.potential = potential;
-        if(potential != null) {//expect null only for inner Null class defined below
-            Potential0GroupLrc lrcMaster = potential.parentSimulation().hamiltonian.potential.lrcMaster();
-            makeLrcPotential(lrcMaster); //adds this to lrcMaster
-        }
-    }
-    
+    public PotentialTruncation() {}
+        
     /**
      * Returns true if the truncation makes the potential zero at the given separation.
      */
@@ -47,7 +43,7 @@ public abstract class PotentialTruncation {
      * that becomes neglected by the truncation.  Assumes a uniform distribution
      * of atoms beyond this truncation's cutoff distance.
      */
-    public abstract Potential0Lrc makeLrcPotential(PotentialGroup parent);
+    public abstract Potential0Lrc makeLrcPotential(PotentialGroup parent, Potential2 potential);
     
 
     ///************** end of methods for PotentialTruncation ***************
@@ -57,11 +53,10 @@ public abstract class PotentialTruncation {
      * No-op version of PotentialTruncation that performs no truncation at all.
      */
      private static final class Null extends PotentialTruncation {
-        Null() {super(null);}
         public boolean isZero(double r2) {return false;}
         public double uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double duTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double d2uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
-        public Potential0Lrc makeLrcPotential(PotentialGroup parent) {return null;}
+        public Potential0Lrc makeLrcPotential(PotentialGroup parent, Potential2 potential) {return null;}
      }//end of Null
 }//end of PotentialTruncation

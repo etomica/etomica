@@ -22,6 +22,10 @@ import java.awt.geom.*;
 
 import etomica.utility.Iterator;
 
+    /* History of changes
+     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     */
+
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements GLUTEnum {
     
@@ -396,8 +400,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
           gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
           lastColor = c;
         }
-        if(sphereListRadius != ((AtomType.Sphere)a.type).radius())
-          initSphereList(((AtomType.Sphere)a.type).radius());
+        if(sphereListRadius != ((AtomType.Sphere)a.type).radius(a))
+          initSphereList(((AtomType.Sphere)a.type).radius(a));
         gl.glPushMatrix();
         gl.glTranslatef(vertSphereCores[i], vertSphereCores[i+1], vertSphereCores[i+2]);
         gl.glCallList(sphereList[getQuality()]);
@@ -492,7 +496,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
               
   protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
     if(a.type instanceof AtomType.Sphere)
-      originShifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());
+      originShifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));
     else if(a.type instanceof AtomType.Wall)
       originShifts = b.getOverflowShifts(a.coord.position(),((AtomType.Wall)a.type).getLength());
     else

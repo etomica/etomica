@@ -17,12 +17,22 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
     private PotentialLinker first;
     private final Atom[] atoms = new Atom[2];
     
+    /**
+     * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
+     * Parent potential is potential master for current value of Simulation.instance.
+     */
     public Potential2Group() {
         this(Simulation.instance.hamiltonian.potential);
     }
+    /**
+     * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
+     */
     public Potential2Group(PotentialGroup parent) {
         this(parent, null);
     }
+    /**
+     * Makes instance with given truncation scheme.
+     */
     public Potential2Group(PotentialGroup parent, PotentialTruncation truncation) {
         super(parent, truncation);
     }
@@ -78,9 +88,7 @@ public final class Potential2Group extends Potential2 implements PotentialGroup 
 
     
     public double energy(AtomPair pair) {
-        System.out.println("energy method not implemented in Potential2Group");
-        System.exit(1);
-        return 0.0;
+        throw new RuntimeException("energy method not implemented in Potential2Group");
 //        return calculate(localDirective.set().set(IteratorDirective.BOTH), energy).sum();
     }
 

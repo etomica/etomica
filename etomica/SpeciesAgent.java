@@ -93,7 +93,8 @@ public final class SpeciesAgent extends Atom {
         }
         
         //reconsider this
-        node.parentPhase().configuration.initializeCoordinates(this);
+        //node.parentPhase().configuration.initializeCoordinates(this);
+        node.parentPhase().reset();
         
         unpauseIntegrator(wasPaused);
     }

@@ -8,6 +8,11 @@ package etomica;
  *
  * @author David Kofke
  */
+
+ /* History of changes
+  * 7/13/02 (DAK) Restructured instantiation of LRC potential
+  */
+
 public abstract class Potential2 extends Potential {
   
     public static String VERSION = "Potential2:01.07.03/"+Potential.VERSION;
@@ -20,20 +25,30 @@ public abstract class Potential2 extends Potential {
     public final PotentialTruncation potentialTruncation;
 
     public Potential2(PotentialGroup parent) {
+        this(parent, Default.TRUNCATE_POTENTIALS ? 
+                        new PotentialTruncationSimple(parent.parentSimulation().space)
+                      : PotentialTruncation.NULL);
+      /*                  
         super(parent);
         iterator1 = new ApiIntergroup1A(parentSimulation());
         iteratorA = new ApiIntergroupAA(parentSimulation());
         if(Default.TRUNCATE_POTENTIALS) {//can't use other constructor because of "this" in constructor of PotentialTruncationSimple
-            potentialTruncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
+            potentialTruncation = new PotentialTruncationSimple(parentSimulation().space, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
+            Potential0GroupLrc lrcMaster = parentSimulation().hamiltonian.potential.lrcMaster();
+            potentialTruncation.makeLrcPotential(lrcMaster, this); //adds this to lrcMaster
         } else {
             potentialTruncation = PotentialTruncation.NULL;
-        }
+        }*/
     }
-    public Potential2(PotentialGroup parent, PotentialTruncation trunc) {
+    public Potential2(PotentialGroup parent, PotentialTruncation potentialTruncation) {
         super(parent);
         iterator1 = new ApiIntergroup1A(parentSimulation());
         iteratorA = new ApiIntergroupAA(parentSimulation());
-        potentialTruncation = trunc;
+        this.potentialTruncation = potentialTruncation;
+        if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null) ) {
+            Potential0GroupLrc lrcMaster = parentSimulation().hamiltonian.potential.lrcMaster();
+            potentialTruncation.makeLrcPotential(lrcMaster, this); //adds lrcPotential to lrcMaster
+        }
     }
     
     public abstract void calculate(IteratorDirective id, PotentialCalculation pc);

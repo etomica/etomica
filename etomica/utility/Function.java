@@ -11,6 +11,18 @@ public interface Function {
     public double dfdx(double x);
  
     /**
+     * The function f(x) = constant
+     */
+    public static class Constant implements Function {
+        private double c;
+        public Constant() {this(0.0);}
+        public Constant(double c) {this.c = c;}
+        public double f(double x) {return c;}
+        public double inverse(double f) {throw new RuntimeException("function not invertible");}
+        public double dfdx(double x) {return 0.0;}
+    }
+    
+    /**
      * The function f(x) = x
      */
     public static class Identity implements Function {

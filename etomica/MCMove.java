@@ -190,6 +190,13 @@ public abstract class MCMove implements java.io.Serializable {
             fullFrequency *= mCount;
         }
     }
+    
+    /**
+     * Zeros all accumulators for acceptance-rate statistics.
+     */
+    public void reset() {
+        setAcceptanceTarget(acceptanceTarget);
+    }
             
     
     /**

@@ -4,6 +4,10 @@ import etomica.*;
 import java.awt.*;
 import etomica.utility.Iterator;
 
+    /* History of changes
+     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     */
+
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas2D extends DisplayCanvas {
     
@@ -60,7 +64,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom, specific to the dimension */
-            sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter());
+            sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter(a));
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
             g.fillOval(xP, yP, sigmaP, sigmaP);
@@ -75,7 +79,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             /* Draw the orientation line, if any */
             if(drawOrientation) {
                 double theta = ((Space.Coordinate.Angular)a.coord).orientation().angle()[0];
-                int dxy = (int)(displayPhase.getToPixels()*((AtomType.OrientedSphere)a.type).radius());
+                int dxy = (int)(displayPhase.getToPixels()*((AtomType.OrientedSphere)a.type).radius(a));
                 int dx = (int)(dxy*Math.cos(theta));
                 int dy = (int)(dxy*Math.sin(theta));
                 g.setColor(Color.red);
@@ -198,7 +202,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.next();
                 if(!(a.type instanceof AtomType.Sphere)) continue;
-                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());  //should instead of radius have a size for all AtomC types
+                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                     shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

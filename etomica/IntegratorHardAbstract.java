@@ -246,7 +246,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
                 Space.Vector p = atom.coord.momentum();
                 Space.Vector dim = boundary.dimensions();
                 double tmin = Double.MAX_VALUE;
-                double d2 = 2.0*((AtomType.Sphere)atom.type).diameter();
+                double d2 = 2.0*((AtomType.Sphere)atom.type).diameter(atom);
                 int D = dim.D();
                 for(int i=0; i<D; i++) {
                     double t = (dim.x(i)-d2)/p.x(i);

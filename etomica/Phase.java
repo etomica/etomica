@@ -165,11 +165,12 @@ public class Phase extends SimulationElement {
      
      /**
       * Resets phase by initializing coordinates according to current instance of configuration.
+      * Fires PhaseEvent of type RESET after completing action.
       */
      public void reset() {
         getConfiguration().initializeCoordinates(((AtomTreeNodeGroup)speciesMaster().node).childAtomArray());
+        fireEvent(new PhaseEvent(this, PhaseEvent.RESET));
      }
-        
 
     /**
      * Returns the current boundary instance.
@@ -311,6 +312,18 @@ public class Phase extends SimulationElement {
 //    public final synchronized void addMoleculeSafely(Molecule m) {
 //        addMolecule(m);
 //    }
+
+    public synchronized void addListener(PhaseListener listener) {
+        eventManager.addListener(listener);
+    }
+
+    public synchronized void removeListener(PhaseListener listener) {
+        eventManager.removeListener(listener);
+    }
+
+    protected void fireEvent(PhaseEvent event) {
+        eventManager.fireEvent(event);
+    }    
                                  
     public Configuration configuration;
           
@@ -321,6 +334,9 @@ public class Phase extends SimulationElement {
     public Phase.Monitor integratorMonitor = new Phase.Monitor();
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();
 //    public SimulationEventManager integratorMonitor = new SimulationEventManager();
+
+    //used to handle firing of reset events
+    private SimulationEventManager eventManager = new SimulationEventManager();
     
     public static class Monitor extends Observable implements java.io.Serializable {
         
@@ -332,6 +348,7 @@ public class Phase extends SimulationElement {
             super.notifyObservers(obj);
         }
         public void addObserver(Observer o) {if(o != null) super.addObserver(o);}
+        public void deleteObserver(Observer o) {super.deleteObserver(o);}
     }
      
     /**

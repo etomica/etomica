@@ -138,5 +138,62 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     private double r2Last = -1.0;
     private double s6;
     
+    /**
+     * main method to test and demonstrate use of potential.
+     * Simulates a two-component mixture.
+     */
+/*    public static void main(String[] args) {
+        
+        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new Space2D());
+        Simulation.instance = sim;
+        
+	    Phase phase = new Phase();
+	    
+	    //set up species
+	    SpeciesSpheresMono species1 = new SpeciesSpheresMono();
+	    SpeciesSpheresMono species2 = new SpeciesSpheresMono();
+	    species1.setDiameter(1.0);
+	    species2.setDiameter(3.0);
+	    
+	    //define potentials
+	    Potential2 potential11 = new P2LennardJones(1.0, 100.);//sigma, epsilon
+	    Potential2 potential12 = new P2LennardJones(2.0, 600.);
+	    Potential2 potential22 = new P2LennardJones(3.0, 300.);
+	    
+	    //connect species and potentials
+	    potential11.setSpecies(species1, species1);
+	    potential12.setSpecies(species1, species2);
+	    potential22.setSpecies(species2, species2);
+	    
+	    //control
+	    Controller controller = new Controller();
+	    IntegratorMD integrator = new IntegratorVelocityVerlet();
+	    
+	    //display
+	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
+	    etomica.graphics.DisplayTimer timer = new etomica.graphics.DisplayTimer(integrator);
+	    timer.setUpdateInterval(10);
+	    
+	    display.setColorScheme(new etomica.graphics.ColorSchemeByType());
+	    etomica.graphics.ColorSchemeByType.setColor(species1, java.awt.Color.blue);
+		
+        etomica.graphics.DeviceTrioControllerButton button = new etomica.graphics.DeviceTrioControllerButton();
+
+        //meters
+		MeterEnergy energy = new MeterEnergy();
+		energy.setHistorying(true);
+		energy.setActive(true);
+		
+		energy.getHistory().setNValues(500);
+		
+		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
+		plot.setLabel("Energy");
+		plot.setDataSource(energy.getHistory());
+		
+		integrator.setSleepPeriod(2);
+		sim.elementCoordinator.go();
+		sim.makeAndDisplayFrame();
+    } // */
+    
 }//end of P2LennardJones
   

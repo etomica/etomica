@@ -7,6 +7,10 @@ import java.awt.image.MemoryImageSource;
 //import java.util.Hashtable;
 import etomica.utility.Iterator;
 
+    /* History of changes
+     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     */
+
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private TextField scaleText = new TextField();
@@ -65,7 +69,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         baseYP = origin[1];
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom */
-            sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter());
+            sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter(a));
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (Space1D.drawingHeight >> 1);
             g.fillRect(xP, yP, sigmaP, Space1D.drawingHeight);
@@ -105,7 +109,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             
     protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
         if(a.type instanceof AtomType.Sphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());  //should instead of radius have a size for all AtomC types
+            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

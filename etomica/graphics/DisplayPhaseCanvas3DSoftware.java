@@ -9,6 +9,10 @@ import java.util.Hashtable;
 //java2 replacement
 import etomica.utility.Iterator;
 
+    /* History of changes
+     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
+     */
+
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     private TextField scaleText = new TextField();
@@ -250,7 +254,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().boundary().dimensions().x(0)/2)));
             baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().boundary().dimensions().x(1)/2)));
             /* Draw the core of the atom */
-            sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomType.Sphere)a.type).radius()));
+            sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomType.Sphere)a.type).radius(a)));
             //sigmaP = (int)(displayPhase.getToPixels()*2.0f*((AtomType.Sphere)a.type).radius());
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
@@ -320,7 +324,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             
     protected boolean computeShiftOrigin(Atom a, Space.Boundary b) {
         if(a.type instanceof AtomType.Sphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius());  //should instead of radius have a size for all AtomC types
+            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

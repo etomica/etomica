@@ -63,7 +63,7 @@ public class SpeciesSphereWells extends Species implements EtomicaElement {
     }
     public Dimension getMassDimension() {return Dimension.MASS;}
                 
-    public final double getDiameter() {return protoType.diameter();}
+    public final double getDiameter() {return protoType.diameter(null);}
     public void setDiameter(double d) {protoType.setDiameter(d);}
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
                     

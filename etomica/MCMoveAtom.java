@@ -44,7 +44,7 @@ public class MCMoveAtom extends MCMove {
      * Method to perform trial move.
      */
     public boolean doTrial() {
-        Atom atom0 = phase.speciesMaster.atomList.getFirst();
+      //  Atom atom0 = phase.speciesMaster.atomList.getFirst();
   //      System.out.println(((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom0.seq).cell.agents[0])[0].toString());
  /*debug* / atomIdx1 = phase.speciesMaster.atomList.get(idx1);
            atomIdx2 = phase.speciesMaster.atomList.get(idx2);  // */
