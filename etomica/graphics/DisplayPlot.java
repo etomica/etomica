@@ -1,9 +1,12 @@
 package etomica.graphics;
+import etomica.DataSink;
+import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.MeterAbstract;
-import etomica.Simulation;
+import etomica.data.DataSourceUniform;
+import etomica.units.Dimension;
 import etomica.units.Unit;
+import etomica.utility.Arrays;
 
 /**
  * Class for creating a plot of simulation data.
@@ -16,22 +19,22 @@ import etomica.units.Unit;
  * 05/18/04 (DAK) Added setSize method
  */
  
-public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
+public class DisplayPlot extends Display implements EtomicaElement {
     
     private Plot plot;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
     private boolean doLegend = true;
+    protected DataGroup[] data = new DataGroup[0];
+    protected DataGroup x;
+    private DataSource xSource;
    
     public DisplayPlot() {
-        this(Simulation.instance);
-    }
-    public DisplayPlot(Simulation sim) {
-        super(sim);
+        super();
         plot = new Plot();
         panel.add(plot);
+        xSource = new DataSourceUniform();
+        x = new DataGroup(xSource.getData().length);
         setName("Data Plot");
-        setWhichValue(MeterAbstract.AVERAGE);
-//        new Thread(this).start();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -73,73 +76,67 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         panel.add(plot);
         panel.revalidate();
         panel.repaint();
-        if(ySource == null) return;
-        if(ySource.length > 1) {
-            for(int i=0; i<ySource.length; i++) plot.addLegend(i,doLegend ? ySource[i].getLabel() : "");
+        
+        for(int i=0; i<data.length; i++) {
+            plot.addLegend(i,doLegend ? data[i].label : "");
         }
-        setLabel(ySource[0].getLabel());
-        plot.setYLabel(ySource[0].getLabel());
+        
+        setLabel(data[0].label);
+        plot.setYLabel(data[0].label);
 
-        if(xSource == null) {
-            plot.setXLabel("");
-        }
-        else {
-            if(xUnit.dimension() != xSource.getDimension())
-            plot.setXLabel(getXLabel() + " ("+xUnit.symbol()+")");
-        }
+        plot.setXLabel(x.label + " ("+x.unit.symbol()+")");
+        
         doUpdate();
     }
             
     public void doUpdate() {
-    	if(!plot.isShowing()) return;
-        super.doUpdate();
-        if(ySource == null) return;
-        int nSource = ySource.length;
+        if(!plot.isShowing()) return;
+        int nSource = data.length;
         plot.clear(false);
-        ///new stuff
+        x.y = xSource.getData();
         for(int k=0; k<nSource; k++) {
-            for(int i=0; i<x.length; i++) {
-              if(!Double.isNaN(y[k][i])) { 
-				plot.addPoint(k, xUnit.fromSim(x[i]), yUnit[k].fromSim(y[k][i]), true);
-              } else if(i==x.length-1) {
-				plot.addPoint(k, xUnit.fromSim(x[i]), 0.0, false);
+            for(int i=0; i<data[k].y.length; i++) {
+              if(!Double.isNaN(data[k].y[i])) { 
+				plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
+              } else if(i==x.y.length-1) {
+				plot.addPoint(k, x.unit.fromSim(x.y[i]), 0.0, false);
               }
             }//for i
         }//for k
         plot.repaint();
-        ///end of new stuff
-/*        if(xSource != null) {
-            for(int k=0; k<nSource; k++) {
-                double[] x = xSource.values(whichValueX);
-                double[] y = ySource[k].values(whichValue);
-                for(int i=0; i<y.length; i++) {
-                    plot.addPoint(k,xUnit.fromSim(x[i]),yUnit.fromSim(y[i]),true);
-                }//for i
-            }//for k
-        }//end if
-        else {//xSource is null
-            for(int k=0; k<nSource; k++) {
-                double[] y = ySource[k].values(whichValue);
-                for(int i=0; i<y.length; i++) {
-                    plot.addPoint(k,(double)i,yUnit.fromSim(y[i]),true);
-                }//for i
-            }//for k
-        }//end else
-       
-        plot.repaint(); */
+
     }//end doUpdate method
     
     /**
      * Extend superclass method to update label with change of unit.
      */
     public void setXUnit(Unit u) {
-        xUnit = u;
-        if(plot != null && xUnit != null) plot.setXLabel(getXLabel() + " ("+xUnit.symbol()+")");
+        x.unit = u;
+        if(plot != null && x.unit != null) plot.setXLabel(x.label + " ("+x.unit.symbol()+")");
     }
     
+    public void setXSource(DataSource xSource) {
+        this.xSource = xSource;
+        x.y = xSource.getData();
+    }
+    
+    public DataSink makeDataSink() {
+        DataGroup newGroup = new DataGroup(x.y.length);
+        data = (DataGroup[])Arrays.addObject(data, newGroup);
+        return newGroup;
+    }
+    
+    public void removeDataSink(DataSink sink) {
+        data = (DataGroup[])Arrays.removeObject(data, sink);
+    }
+    
+    public void removeAllSinks() {
+        data = new DataGroup[0];
+    }
+
     public void setSize(int width, int height) {
-    	plot.setSize(width, height);
-    	panel.setSize(width, height);
+        plot.setSize(width, height);
+        panel.setSize(width, height);
     }
 
  /**
@@ -154,6 +151,31 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         }
         public void setTopPadding(int i) {
             _topPadding = i;
+        }
+    }
+    
+    private class DataGroup implements DataSink {
+        double[] y;
+        Dimension dimension = Dimension.UNDEFINED;
+        Unit unit = Unit.NULL;
+        String label = "";
+        
+        DataGroup(int n) {
+            y = new double[n];
+        }
+
+        public void putData(double[] values) {
+            if(y.length != values.length) y = (double[])values.clone();
+            else System.arraycopy(values, 0, y, 0, values.length);
+            doUpdate();
+        }
+
+        public void setDimension(Dimension dimension) {
+            this.dimension = dimension;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
         }
     }
 
