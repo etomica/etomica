@@ -8,7 +8,8 @@ package etomica;
   * 01/04/03 (SKK/DAK) added HSlit Boundary class for horizontal-slit PBC.
   * 01/12/03 (JKS/DAK) corrected error in Vector.transform, where updated xyz
   * 07/10/03 (DAK) added resetV method to CoordinatePair
- */
+  * 08/27/03 (DAK) added isZero method to Vector
+  */
 public class Space2D extends Space implements EtomicaElement {
     
     public static String version() {return "Space2D:01.07.07/"+Space.VERSION;}
@@ -71,6 +72,7 @@ public class Space2D extends Space implements EtomicaElement {
         public double[] toArray() {return new double[] {x, y};}
         public boolean equals(Space.Vector v) {return equals((Vector)v);}
         public boolean equals(Vector v) {return (x == v.x) && (y == v.y);}
+        public boolean isZero() {return (x == 0.0) && (y == 0.0);}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y);
             result[1] = Math.atan2(y,x);  //theta
@@ -119,6 +121,21 @@ public class Space2D extends Space implements EtomicaElement {
             while(y > a)   y -= a;
             while(y < 0.0) y += a;
         }
+//		public void EModShift(Space.Vector r, Space.Vector u) {
+//			EModShift((Vector)r, (Vector)u);
+//		}
+		//sets this equal to (r mod u) - r
+		public void EModShift(Vector r, Vector u) {
+			x = r.x;
+			while(x > u.x) x -= u.x;
+			while(x < 0.0) x += u.x;
+			x -= r.x;
+			y = r.y;
+			while(y > u.y) y -= u.y;
+			while(y < 0.0) y += u.y;
+			y -= r.y;
+		}
+
 
         public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; WORK.y = y+u1.y; return WORK;}
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; WORK.y = y-u1.y; return WORK;}

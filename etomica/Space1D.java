@@ -8,6 +8,7 @@ package etomica;
   * 09/05/02 (DAK) fixed error in accelerateTo (still probably does not do what one expects
   *                if accelerating to nonzero momentum).
   * 07/10/03 (DAK) added resetV method to CoordinatePair
+  * 08/27/03 (DAK) added isZero method to Vector
   */
 public class Space1D extends Space implements EtomicaElement {
     
@@ -68,6 +69,7 @@ public class Space1D extends Space implements EtomicaElement {
         public Vector (Vector u) {this.E(u);}
         public boolean equals(Space.Vector v) {return equals((Vector)v);}
         public boolean equals(Vector v) {return (x == v.x);}
+        public boolean isZero() {return x==0;}
         public String toString() {return "("+x+")";}
         public int length() {return D;}
         public int D() {return D;}
@@ -109,6 +111,17 @@ public class Space1D extends Space implements EtomicaElement {
             while(x > a)   x -= a;
             while(x < 0.0) x += a;
         }
+//        public void EModShift(Space.Vector r, Space.Vector u) {
+//        	EModShift((Vector)r, (Vector)u);
+//        }
+		//sets this equal to (r mod u) - r
+		public void EModShift(Vector r, Vector u) {
+			x = r.x;
+			while(x > u.x) x -= u.x;
+			while(x < 0.0) x += u.x;
+			x -= r.x;
+		}
+
 
         public Space.Vector P(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x+u1.x; return WORK;}
         public Space.Vector M(Space.Vector u) {Vector u1=(Vector)u; WORK.x = x-u1.x; return WORK;}

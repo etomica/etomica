@@ -58,6 +58,7 @@ public class Phase extends SimulationElement {
     private boolean lrcEnabled = true;
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private static int nonSimCount = 0;//number of times instantiated without a parent simulation
+    private PhaseAction.ImposePbc centralImageEnforcer;
     
     
     /**
@@ -401,5 +402,24 @@ public class Phase extends SimulationElement {
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
     }*/
     
+	/**
+	 * Returns the centralImageEnforcer.
+	 * @return PhaseAction.ImposePbc
+	 */
+	public PhaseAction.ImposePbc getCentralImageEnforcer() {
+		return centralImageEnforcer;
+	}
+
+	/**
+	 * Sets the centralImageEnforcer.  Normally this is set by the
+	 * IntegratorPhase mediator, and is also registered as an
+	 * IntervalEventListener with the Integrator.
+	 * @param centralImageEnforcer The centralImageEnforcer to set
+	 */
+	public void setCentralImageEnforcer(
+		PhaseAction.ImposePbc centralImageEnforcer) {
+		this.centralImageEnforcer = centralImageEnforcer;
+	}
+
 } //end of Phase
         

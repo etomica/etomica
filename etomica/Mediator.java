@@ -32,7 +32,9 @@ import etomica.utility.java2.Iterator;
     
  /* History
   * 04/18/03 (DAK) added IntegratorLogger subclass
-  * */
+  * 08/27/03 (DAK) modified IntegratorPhase.Default for phase.
+  * setCentralImageEnforcer
+  */
 
 public class Mediator implements java.io.Serializable {
 
@@ -307,7 +309,9 @@ public class Mediator implements java.io.Serializable {
                     Integrator integrator = (Integrator)is.next();
                     if(integrator.wasAdded() && integrator.wantsPhase() && phase.integrator()==null) {
                         phase.setIntegrator(integrator);
-                        integrator.addIntervalListener(new PhaseAction.ImposePbc(phase));
+                        PhaseAction.ImposePbc imposePbc = new PhaseAction.ImposePbc(phase);
+                        phase.setCentralImageEnforcer(imposePbc);
+                        integrator.addIntervalListener(imposePbc);
                     }
                     break;
                 }
@@ -320,7 +324,9 @@ public class Mediator implements java.io.Serializable {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded() && integrator.wantsPhase() && phase.integrator() == null) { 
                         phase.setIntegrator(integrator);
-                        integrator.addIntervalListener(new PhaseAction.ImposePbc(phase));
+						PhaseAction.ImposePbc imposePbc = new PhaseAction.ImposePbc(phase);
+						phase.setCentralImageEnforcer(imposePbc);
+						integrator.addIntervalListener(imposePbc);
                     }
                 }
             }

@@ -6,19 +6,26 @@ package etomica;
   * Superclass of classes that apply some elementary action (transformation) to a phase.
   * 
   */
+ 
+ /* History
+  * 08/27/03 (DAK) modifications to ImposePBC to handle molecules versus atoms
+  */
 public abstract class PhaseAction extends etomica.Action implements PhaseListener {
 
     public static String getVersion() {return "PhaseAction:01.03.28/"+Action.VERSION;}
-    public static AtomIteratorMolecule iterator = new AtomIteratorMolecule();
+    private static final AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule();
 
     protected Phase phase;
     public PhaseAction() {this(null);}
     public PhaseAction(Phase p) {
         super();
-        phase = p;
+        setPhase(p);
     }
         
-    public void setPhase(Phase p) {phase = p;}
+    public void setPhase(Phase p) {
+    	if(p == null) throw new IllegalArgumentException("Cannot set null phase in PhaseAction");
+    	phase = p;
+    }
     public Phase getPhase() {return phase;}
     
     public void actionPerformed(SimulationEvent evt) {
@@ -66,31 +73,84 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
     
     public static final class ImposePbc extends PhaseAction implements Integrator.IntervalListener.ImposePbc {
         
+        
         public ImposePbc(Phase p) {
             super(p);
         }
         
-        public void actionPerformed(Phase p) {doAction(p);}
-        
-        public static void doAction(Phase p) {
-            Space.Boundary boundary = p.boundary();
-            iterator.setBasis(p.speciesMaster.atomList);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                Atom a = iterator.next();
-                //centralImage returns true if it causes the atom to be moved
-                if(boundary.centralImage(a.coord)) a.seq.moveNotify();
-            }
+        public void actionPerformed() {
+			Space.Boundary boundary = phase.boundary();
+			iterator.reset();
+			while(iterator.hasNext()) {
+				Atom a = iterator.next();
+				//centralImage returns true if it causes the atom to be moved
+//				if(boundary.centralImage(a.coord)) a.seq.moveNotify();
+				boundary.centralImage(a.coord); //08/27/03 - don't need to notify sequencer because coord.translateBy does this
+			}        	
         }
+               
+        public void actionPerformed(Phase p) {
+        	setPhase(p);
+        	actionPerformed();
+		}
         
         public void intervalAction(Integrator.IntervalEvent evt) {
-            doAction(phase);
+            actionPerformed();
         }
         
-        //revise this to make nonstatic
-        private static final AtomIteratorList iterator = new AtomIteratorList();
+        private AtomIterator iterator;
+        private boolean applyToMolecules = false;
         
-        
+        public void setPhase(Phase phase) {
+        	super.setPhase(phase);
+        	if(applyToMolecules) iterator = phase.makeMoleculeIterator();
+        	else iterator = phase.makeAtomIterator();
+        }
+		/**
+		 * Returns the iterator that gives the atoms to which central imaging
+		 * is applied.
+		 * @return AtomIteratorList
+		 */
+		public AtomIterator getIterator() {
+			return iterator;
+		}
+
+		/**
+		 * Sets the iterator the gives the atoms for central imaging.  Normally
+		 * this does not need to be set, but if central imaging scheme is
+		 * desired for application at a level other than the molecules or the
+		 * leaf atoms, or if it is to be applied only to a subet of the atoms
+		 * in a phase, this can be invoked by setting this iterator
+		 * appropriately.
+		 * @param iterator The iterator to set
+		 */
+		public void setIterator(AtomIterator iterator) {
+			this.iterator = iterator;
+		}
+
+		/**
+		 * Returns the applyToMolecules.
+		 * @return boolean
+		 */
+		public boolean isApplyToMolecules() {
+			return applyToMolecules;
+		}
+
+		/**
+		 * Sets a flag indicating whether periodic boundaries are applied to the
+		 * molecules (true), or to the atoms (false).  If applied to the atoms
+		 * (the default case), then central imaging is done to each atom
+		 * individually, which could cause a molecule to be split, with some of
+		 * its atoms on one edge of the simulation box, and others on the other
+		 * edge.  If applied to molecules, the entire molecule will be shifted
+		 * as a whole when enforcing central imaging.
+		 * @param applyToMolecules The new value of the flag.
+		 */
+		public void setApplyToMolecules(boolean applyToMolecules) {
+			this.applyToMolecules = applyToMolecules;
+			setPhase(phase);
+		}
+
     }//end of ImposePBC
     
     
@@ -124,10 +184,10 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
          */
         public static void doAction(Phase phase, double scale) {
             phase.boundary().inflate(scale);
-            iterator.setBasis(phase);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                iterator.next().coord.inflate(scale);
+            moleculeIterator.setBasis(phase);
+            moleculeIterator.reset();
+            while(moleculeIterator.hasNext()) {
+                moleculeIterator.next().coord.inflate(scale);
             }
         }
         
@@ -177,10 +237,10 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         public static void doAction(Phase phase, Space.Vector scale, Space.Vector work) {
             phase.boundary().inflate(scale);
       //      scale.PE(-1.0);
-            iterator.setBasis(phase);
-            iterator.reset();
-            while(iterator.hasNext()) {
-                iterator.next().coord.inflate(scale);
+            moleculeIterator.setBasis(phase);
+            moleculeIterator.reset();
+            while(moleculeIterator.hasNext()) {
+                moleculeIterator.next().coord.inflate(scale);
               //  Atom m = iterator.next();
               //  work.E(m.coord.position());
               //  work.TE(scale);

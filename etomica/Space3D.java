@@ -22,6 +22,8 @@ package etomica;
   * 08/13/03 (DAK) added massSum check in CoordinateGroup.position()
   * 08/25/03 (DAK/DW) revised CoordinateGroup.position() to return position of
   * first atom, rather than center-of-mass position
+  * 08/27/03 (DAK) added isZero and EModShift methods to Vector
+  * 08/28/03 (DAK) added mod2 method to Vector
   */
 
 public class Space3D extends Space implements EtomicaElement {
@@ -89,6 +91,7 @@ public class Space3D extends Space implements EtomicaElement {
         public double[] toArray() {return new double[] {x, y, z};}
         public boolean equals(Space.Vector v) {return equals((Vector)v);}
         public boolean equals(Vector v) {return (x == v.x) && (y == v.y) && (z == v.z);}
+		public boolean isZero() {return (x == 0.0) && (y == 0.0) && (z == 0);}
         public void sphericalCoordinates(double[] result) {
             result[0] = Math.sqrt(x*x + y*y + z*z);
             result[1] = Math.acos(z/result[0]); //theta
@@ -141,7 +144,56 @@ public class Space3D extends Space implements EtomicaElement {
             while(z > a)   z -= a;
             while(z < 0.0) z += a;
         }
+		public void mod2(Vector u) {
+			while(x > +u.x) x -= (u.x+u.x);
+			while(x < -u.x) x += (u.x+u.x);
+			while(y > +u.y) y -= (u.y+u.y);
+			while(y < -u.y) y += (u.y+u.y);
+			while(z > +u.z) z -= (u.z+u.z);
+			while(z < -u.z) z += (u.z+u.z);
+		}
 
+//		public void modShift(Vector u, Vector shift) {
+//			while(x+shift.x > u.x) shift.x -= u.x;
+//			while(x-shift.x < 0.0) shift.x += u.x;
+//			while(y+shift.y > u.y) shift.y -= u.y;
+//			while(y-shift.y < 0.0) shift.y += u.y;
+//			while(z+shift.z > u.z) shift.z -= u.z;
+//			while(z-shift.z < 0.0) shift.z += u.z;
+//		}
+//			don't need Space.Vector form -- this method is used only by methods in Boundary
+//		public void EModShift(Space.Vector r, Space.Vector u) {
+//			EModShift((Vector)r, (Vector)u);
+//		}
+		//sets this equal to (r mod u) - r
+		public void EModShift(Vector r, Vector u) {
+			x = r.x;
+			while(x > u.x) x -= u.x;
+			while(x < 0.0) x += u.x;
+			x -= r.x;
+			y = r.y;
+			while(y > u.y) y -= u.y;
+			while(y < 0.0) y += u.y;
+			y -= r.y;
+			z = r.z;
+			while(z > u.z) z -= u.z;
+			while(z < 0.0) z += u.z;
+			z -= r.z;
+		}
+		public void EMod2Shift(Vector r, Vector u) {
+			x = r.x;
+			while(x > +u.x) x -= (u.x+u.x);
+			while(x < -u.x) x += (u.x+u.x);
+			x -= r.x;
+			y = r.y;
+			while(y > +u.y) y -= (u.y+u.y);
+			while(y < -u.y) y += (u.y+u.y);
+			y -= r.y;
+			z = r.z;
+			while(z > +u.z) z -= (u.z+u.z);
+			while(z < -u.z) z += (u.z+u.z);
+			z -= r.z;
+		}
         
 		public Space.Vector P(Space.Vector u) {Vector work = new Vector(); work.Ev1Pv2(this,u); return work;}
 		public Space.Vector M(Space.Vector u) {Vector work = new Vector(); work.Ev1Mv2(this,u); return work;}
@@ -520,6 +572,12 @@ public class Space3D extends Space implements EtomicaElement {
             r.PE((Vector)u); 
             atom.seq.moveNotify();
         }
+        //for use by other methods/classes in Space3D
+        //(not sure if this is used, or the Space.Vector version)
+		private void translateBy(Vector u) {
+			r.PE(u); 
+			atom.seq.moveNotify();
+		}
         /**
         * Moves the atom by some vector distance
         * 
@@ -1111,6 +1169,7 @@ public static class CoordinateGroup extends Coordinate {
         public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
         private static Space.Tensor zilch = new Tensor();
         private final Vector temp = new Vector();
+        private final Vector modShift = new Vector();//must be used only by centralImage and nearestImage methods
         private final Vector dimensions = new Vector();
         private final Vector dimensionsCopy = new Vector();
         private final Vector dimensionsHalf = new Vector();
@@ -1148,7 +1207,19 @@ public static class CoordinateGroup extends Coordinate {
         //    dr.y = ((dr.y + dimensions.y) % dimensions.y) - dimensionsHalf.y;
         //    dr.z = ((dr.z + dimensions.z) % dimensions.z) - dimensionsHalf.z;
         }
-        public boolean centralImage(Coordinate c) {return centralImage(c.r);}
+        public boolean centralImage(Coordinate c) {
+        	modShift.EModShift((Space3D.Vector)c.position(), dimensions);
+//			Vector r = (Space3D.Vector)c.position();
+//        	modShift.E(r);
+//			modShift.mod(dimensions);
+//			modShift.ME(r);  //shift = (r mod dimensions) - r
+        	if(modShift.isZero()) return false;
+        	else {
+        		c.translateBy(modShift);
+        		return true;
+        	}
+//        	return centralImage(c.r);
+        }
  /*		public boolean centralImage(Coordinate c) {
  			Vector displace = centralImage(c.position());
  			c.translateBy(displace);

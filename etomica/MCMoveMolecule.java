@@ -23,7 +23,7 @@ public class MCMoveMolecule extends MCMove {
         super(parentIntegrator);
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
-        setStepSize(Default.ATOM_SIZE);
+        setStepSize(0.1*Default.ATOM_SIZE);
         setPerParticleFrequency(true);
         iteratorDirective.includeLrc = false;
         //set directive to exclude intramolecular contributions to the energy

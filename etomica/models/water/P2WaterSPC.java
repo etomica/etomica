@@ -27,21 +27,6 @@ public class P2WaterSPC extends Potential2 implements Potential2.Soft {
 			AtomTreeNodeWater node1 = (AtomTreeNodeWater)pair.atom1().node;
 			AtomTreeNodeWater node2 = (AtomTreeNodeWater)pair.atom2().node;
 			
-//			O = node1.O;
-//			H11 = node1.H1;
-//			H12 = node1.H2;
-//			
-//			O2 = node2.O;
-//			H21 = node2.H1;
-//			H22 = node2.H2;
-//			O1 = pair.atom1().node.firstLeafAtom();
-//			H11 = O1.seq.next.atom;
-//			H12 = pair.atom1().node.lastLeafAtom();
-//            
-//			O2 = pair.atom2().node.firstLeafAtom();
-//			H21 = O2.seq.next.atom;
-//			H22 = pair.atom2().node.lastLeafAtom();
-			
 			Space3D.Vector O1r = (Space3D.Vector)node1.O.coord.position();
 			Space3D.Vector O2r = (Space3D.Vector)node2.O.coord.position();
 			Space3D.Vector H11r = (Space3D.Vector)node1.H1.coord.position();

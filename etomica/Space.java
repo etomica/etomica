@@ -3,6 +3,7 @@ package etomica;
 /* History of changes
  * 09/01/02 (DAK) added accelerateTo method to Coordinate
  * 07/10/03 (DAK) added resetV method to CoordinatePair
+ * 08/27/03 (DAK) added isZero method to Vector
  */
 
 public abstract class Space implements java.io.Serializable {
@@ -171,6 +172,7 @@ public abstract class Space implements java.io.Serializable {
         public abstract double max();                         //returns maximum of all components
         public abstract double squared();                     //square-magnitude of vector (e.g., x^2 + y^2)
         public abstract void normalize();                     //scales the vector to unit length
+        public abstract boolean isZero();					  //returns true if all elements of vector are zero
         public abstract double dot(Vector u);                 //dot product of this vector with the vector u
         public abstract Space3D.Vector cross(Space2D.Vector u);       //cross product of this vector with u
         public abstract Space3D.Vector cross(Space3D.Vector u);       //cross product of this vector with u
