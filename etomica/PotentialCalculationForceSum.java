@@ -22,7 +22,9 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			Atom[] atoms = iterator.next();
-			f.E(potentialSoft.gradient(atoms);
+			f.E(potentialSoft.gradient(atoms));
+	//TODO update gradient method to return array of gradient vectors, one for each atom
+	//TODO make a consistent definition so that atoms[0] is always ME(f)
 			switch(nBody) {
 				case 1: 
 					((Integrator.Forcible)atoms[0].ia).force().ME(f);

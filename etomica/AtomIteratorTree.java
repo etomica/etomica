@@ -142,10 +142,9 @@ public class AtomIteratorTree implements AtomIterator {
         	doTreeIteration = false;
         	iterator = AtomIterator.NULL;
         } else if(iterationDepth == 0 || atom.node.isLeaf()) {//singlet iteration of basis atom
-	        rootNode = (AtomTreeNodeGroup)atom.node;
+	        rootNode = null;
             doTreeIteration = false;
             iterator = new AtomIteratorSinglet(atom);
-            return;
         } else {
 	        rootNode = (AtomTreeNodeGroup)atom.node;
 	        listIterator.setList(rootNode.childList);

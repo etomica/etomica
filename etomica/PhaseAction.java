@@ -103,8 +103,8 @@ public abstract class PhaseAction extends etomica.Action implements PhaseListene
         
         public void setPhase(Phase phase) {
         	super.setPhase(phase);
-        	if(applyToMolecules) iterator = phase.makeMoleculeIterator();
-        	else iterator = phase.makeAtomIterator();
+        	if(applyToMolecules) iterator = new AtomIteratorMolecule(phase); 
+        	else iterator = new AtomIteratorLeafAtoms(phase);
         }
 		/**
 		 * Returns the iterator that gives the atoms to which central imaging

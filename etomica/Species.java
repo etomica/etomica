@@ -141,24 +141,6 @@ public class Species extends SimulationElement {
     }
     
     /**
-     * Performs the given action on all of this species molecules in all phases.
-     */
-    public void allMolecules(AtomAction action) {
-        if(action == null) return;
-        allMoleculeAction.setAction(action);//copy action to wrapper class
-        agents.doToAll(allMoleculeAction);  //apply action wrapper over all agents
-    }
-    
-    /**
-     * Performs the given action on all of this species (leaf) atoms in all phases.
-     */
-    public void allAtoms(AtomAction action) {
-        if(action == null) return;
-        allAtomAction.setAction(action);//copy action to wrapper class
-        agents.doToAll(allAtomAction);  //apply action wrapper over all agents
-    }
-    
-    /**
      * Constructs an Agent of this species and sets its parent phase
      * 
      * @param p The given parent phase of the agent
@@ -219,23 +201,4 @@ public class Species extends SimulationElement {
         
     }//end of AgentList
     
-    /**
-     * Wrapper that enables an action to be performed on all molecules under a species agent.
-     */
-    private final AllMoleculeWrapper allMoleculeAction = new AllMoleculeWrapper();
-    private final class AllMoleculeWrapper extends AtomAction {
-        private AtomAction action;
-        void setAction(AtomAction a) {this.action = a;}
-        public void actionPerformed(Atom a) {((SpeciesAgent)a).allMolecules(action);}
-    }
-
-    /**
-     * Wrapper that enables an action to be performed on all leaf atoms under a species agent.
-     */
-    private final AllAtomWrapper allAtomAction = new AllAtomWrapper();
-    private final class AllAtomWrapper extends AtomAction {
-        private AtomAction action;
-        void setAction(AtomAction a) {this.action = a;}
-        public void actionPerformed(Atom a) {((SpeciesAgent)a).allAtoms(action);}
-    }
 }

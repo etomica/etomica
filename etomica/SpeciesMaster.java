@@ -117,7 +117,7 @@ public final class SpeciesMaster extends Atom {
             leafIterator.setRoot(atom);
             leafIterator.reset();
             while(leafIterator.hasNext()) {
-                speciesMaster.atomList.addBefore(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker, nextTab);
+                speciesMaster.atomList.addBefore(((AtomTreeNodeLeaf)leafIterator.nextAtom().node).leafLinker, nextTab);
             }
             speciesMaster.eventManager.fireEvent(speciesMaster.additionEvent.setAtom(atom));
         }
@@ -130,7 +130,7 @@ public final class SpeciesMaster extends Atom {
             leafIterator.setRoot(atom);
             leafIterator.reset();
             while(leafIterator.hasNext()) {
-                speciesMaster.atomList.remove(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker);
+                speciesMaster.atomList.remove(((AtomTreeNodeLeaf)leafIterator.nextAtom().node).leafLinker);
             }
             speciesMaster.eventManager.fireEvent(speciesMaster.removalEvent.setAtom(atom));
         }

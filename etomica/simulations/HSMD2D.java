@@ -27,12 +27,12 @@ public class HSMD2D extends SimulationGraphic {
 	    species.setNMolecules(26);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere();
-	    potential.setSpecies(species,species);
+	    this.hamiltonian.potential.setSpecies(potential,new Species[]{species,species});
 	    controller = new Controller(this);
 	    new DeviceTrioControllerButton(this, controller);
 	    display = new DisplayPhase(this);
-	    DisplayTimer timer = new DisplayTimer(integrator);
-	    timer.setUpdateInterval(10);
+//	    DisplayTimer timer = new DisplayTimer(integrator);
+//	    timer.setUpdateInterval(10);
 	    ColorSchemeByType.setColor(species, java.awt.Color.red);
 		panel().setBackground(java.awt.Color.yellow);
 		elementCoordinator.go();

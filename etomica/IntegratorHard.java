@@ -21,6 +21,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 	protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
 	protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
 
+	private Atom[] targetAtom = new Atom[1];
+	
 	//collision handler is passed to the potential and is notified of each collision
 	//the potential detects.  The collision handler contains the necessary logic to
 	//process this information so that the collision lists are kept up to date.
@@ -29,7 +31,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     
 	//the up-handler has the logic of the Allen & Tildesley upList subroutine
 	//sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-	private static final class CollisionHandlerUp extends PotentialCalculation {
+	private static final class CollisionHandlerUp implements PotentialCalculation {
 		double minCollisionTime;
 		IntegratorHardAbstract.Agent aia;
 		Atom atom1;
@@ -44,88 +46,43 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		}//end of setAtom
         
 		//atom pair
-		public void actionPerformed(AtomPair pair) {
+		public void doCalculation(AtomsetIterator iterator, Potential potential) {
 //			System.out.println("collisionhandlerup "+pair.toString());
-			if(pair.atom1() != atom1) setAtom(pair.atom1()); //need this if doing minimum collision time calculation for more than one atom
-			double collisionTime = p2Hard.collisionTime(pair);
-  /*debug* /   System.out.println("      UP "+pair.atom1.toString()+","
-									+pair.atom2.toString()+","
-									+(float)collisionTime+","
-									+(float)minCollisionTime); /* */
-			if(collisionTime < minCollisionTime) {
-				minCollisionTime = collisionTime;
-				aia.setCollision(collisionTime, pair.atom2(), p2Hard);
-			}//end if
+			iterator.reset();
+			PotentialHard pHard = (PotentialHard)potential; 
+			while (iterator.hasNext()) {
+				Atom[] atoms = iterator.next();
+				if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
+				double collisionTime = pHard.collisionTime(atoms);
+				if(collisionTime < minCollisionTime) {
+					minCollisionTime = collisionTime;
+					aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
+				}//end if
+			}
    //info         System.out.println(atom1.toString()+" UP: "+count);
 		}//end of calculate(AtomPair...
         
-		//single atom
-		public void actionPerformed(Atom atom) {
-			setAtom(atom);
-			double collisionTime = p1Hard.collisionTime(atom);
-			if(collisionTime < minCollisionTime) {
-				minCollisionTime = collisionTime;
-				aia.setCollision(collisionTime, null, p1Hard);
-			}
-		}//end of calculate(Atom...
-		public void actionPerformed(Atom3 atom3) {
-			throw new etomica.exception.MethodNotImplementedException();
-		}
-		public void actionPerformed(AtomSet atomN) {
-			throw new etomica.exception.MethodNotImplementedException();
-		}
-
-		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p1Hard = (PotentialHard)p1;
-			return super.set(p1);
-		}
-		public PotentialCalculation set(Potential2 p2) {
-			if(!(p2 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p2Hard = (PotentialHard)p2;
-			return super.set(p2);
-		}
 	} //end of collisionHandlerUp
 
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
-	private static final class CollisionHandlerDown extends PotentialCalculation {
-		private PotentialHard p2Hard;
-		private PotentialHard p1Hard;
-		public void actionPerformed(AtomPair pair) {
-			double collisionTime = p2Hard.collisionTime(pair);
- /*debug * /   System.out.println("      DN "+pair.atom1.toString()+","
-									+pair.atom2.toString()+","
-									+(float)collisionTime+","
-									+(float)((IntegratorHardAbstract.Agent)pair.atom2().ia).collisionTime());  /* */
-			if(collisionTime < Double.MAX_VALUE) {
-				IntegratorHardAbstract.Agent aia = (IntegratorHardAbstract.Agent)pair.atom2().ia;
-				if(collisionTime < aia.collisionTime()) {
-					aia.setCollision(collisionTime, pair.atom1(), p2Hard);
+	private static final class CollisionHandlerDown implements PotentialCalculation {
+		public void doCalculation(AtomsetIterator iterator, Potential potential) {
+			if (potential.nBody() != 2) return;
+			iterator.reset();
+			PotentialHard pHard = (PotentialHard)potential; 
+			while (iterator.hasNext()) {
+				Atom[] atoms = iterator.next();
+				double collisionTime = pHard.collisionTime(atoms);
+				if(collisionTime < Double.MAX_VALUE) {
+					IntegratorHardAbstract.Agent aia = (IntegratorHardAbstract.Agent)atoms[1].ia;
+					if(collisionTime < aia.collisionTime()) {
+						aia.setCollision(collisionTime, atoms[0], pHard);
+					}//end if
 				}//end if
-			}//end if
-//info            System.out.println(" DN: "+count);
+			}
 		}//end of actionPerformed
-		public void actionPerformed(Atom atom) {
-//			throw new etomica.exception.MethodNotImplementedException();
-		}
-		public void actionPerformed(Atom3 atom3) {
-			throw new etomica.exception.MethodNotImplementedException();
-		}
-		public void actionPerformed(AtomSet atomN) {
-			throw new etomica.exception.MethodNotImplementedException();
-		}
-		public PotentialCalculation set(Potential1 p1) {
-			if(!(p1 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p1Hard = (PotentialHard)p1;
-			return super.set(p1);
-		}
-		public PotentialCalculation set(Potential2 p2) {
-			if(!(p2 instanceof PotentialHard)) throw new RuntimeException("Error: Only hard potentials can be used with IntegratorHard");
-			p2Hard = (PotentialHard)p2;
-			return super.set(p2);
-		}
 	} //end of collisionHandlerDown
 
 	public IntegratorHard() {
@@ -207,12 +164,18 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 
 
 		colliderAgent.resetCollision();
-		potential.calculate(firstPhase, upList.set(collider), collisionHandlerUp.setAtom(collider));
-		potential.calculate(firstPhase, downList.set(collider), collisionHandlerDown);
+		targetAtom[0] = collider;
+		upList.setTargetAtoms(targetAtom);
+		downList.setTargetAtoms(targetAtom);
+		potential.calculate(firstPhase, upList, collisionHandlerUp.setAtom(collider));
+		potential.calculate(firstPhase, downList, collisionHandlerDown);
 		if(partner != null) {
 			((IntegratorHardAbstract.Agent)partner.ia).resetCollision();
-			potential.calculate(firstPhase, upList.set(partner), collisionHandlerUp.setAtom(partner));
-			potential.calculate(firstPhase, downList.set(partner), collisionHandlerDown);
+			targetAtom[0] = partner;
+			upList.setTargetAtoms(targetAtom);
+			downList.setTargetAtoms(targetAtom);
+			potential.calculate(firstPhase, upList, collisionHandlerUp.setAtom(partner));
+			potential.calculate(firstPhase, downList, collisionHandlerDown);
 		}
 
 	}//end of processCollision
@@ -252,6 +215,12 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 			((IntegratorHardAbstract.Agent)atomIterator.nextAtom().ia).resetCollision();
 		}
 		potential.calculate(firstPhase, upList.set(), collisionHandlerUp); //assumes only one phase
+		atomIterator.reset();
+		System.out.println("foo");
+		while(atomIterator.hasNext()) {
+			Atom a = atomIterator.nextAtom();
+			System.out.println("collision for "+a+" with "+((Agent)(a.ia)).collisionPartner()+" at "+((Agent)(a.ia)).collisionTime());
+		}
 		findNextCollider();
 	}
                 

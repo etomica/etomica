@@ -138,7 +138,7 @@ public class Phase extends SimulationElement {
     }
     
     /**
-     * Finds and returns the atom nearest to the each of one or more given
+     * Finds and returns the atom nearest to each of one or more given
      * positions, using the boundary associated with this phase.
      * @param r a positions in the phase.  Point may be outside the phase, as
      * minimum-image separations are used in accordance with phase's boundary.
@@ -147,7 +147,7 @@ public class Phase extends SimulationElement {
      * more than one of the positions.
      */
     public Atom[] nearestAtom(Space.Vector[] r) {
-    	AtomIterator iterator = makeAtomIterator();
+    	AtomIterator iterator = new AtomIteratorListSimple(speciesMaster.atomList);
     	Atom[] nearest = new Atom[r.length];
     	for(int i=0; i<r.length; i++) {
 	    	double r2Min = Double.MAX_VALUE;
@@ -393,29 +393,6 @@ public class Phase extends SimulationElement {
         public final Phase.Linker next() {return next;}
         public final void setNext(Phase.Linker l) {next = l;}
     }//end of Phase.Linker
-    
-    /**
-     * Makes an iterator that loops through all the (leaf) atoms present in this phase.
-     */
-    public AtomIterator makeAtomIterator() {
-        return new AtomIteratorList(speciesMaster.atomList);
-    }
-    
-    /**
-     * Makes an iterator that loops through all the molecules 
-     * (children of the species agents) in this phase.
-     */
-    public AtomIterator makeMoleculeIterator() {
-        return new AtomIteratorMolecule(this);
-    }//end of makeMoleculeIterator
-    
-    /**
-     * Makes an iterator that loops through all the (leaf) atoms 
-     * derived from the given species in this phase.
-     */
-    public AtomIterator makeAtomIterator(Species s) {
-        return new AtomIteratorTree(getAgent(s));
-    }
     
 /*    public static void main(String[] args) {
         

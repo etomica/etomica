@@ -46,6 +46,7 @@ public final class AtomIteratorList implements AtomIterator {
 	public AtomIteratorList(AtomList list) {
 	    setList(list);
 	    reset();
+	    upList = true;
 	}
 	
 	/**
@@ -233,7 +234,7 @@ public final class AtomIteratorList implements AtomIterator {
         while(next.atom == null) {
             //if terminator is null we stop at the first encounter of a Tab linker
             //otherwise stop only if Tab linker is the specified terminator or the header (which could be encountered before terminator, if different
-            if(terminator == null || next == terminator || next == list.header) break;//check against header also, in case it is not the terminator but it is reached first
+            if(terminator == null || next == terminator || ((AtomLinker.Tab)next).isHeader()) break;//check against header also, in case it is not the terminator but it is reached first
             next = upList ? next.next : next.previous;
         }
         return nextLinker;
@@ -261,7 +262,7 @@ public final class AtomIteratorList implements AtomIterator {
         } catch(IndexOutOfBoundsException ex) {}
         
 //        iterator.setSkipFirstAtom(true);
-        IteratorDirective.testSuite(iterator, first, middle, last);
+//        IteratorDirective.testSuite(iterator, first, middle, last);
     }
 
 }//end of AtomIteratorList

@@ -64,6 +64,7 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
             time = (-bij - Math.sqrt(discriminant))/velocitySquared;
           }
         }
+    	System.out.println("in collisionTime "+pair[0]+" "+pair[1]+" "+time);
         return time;
     }
     

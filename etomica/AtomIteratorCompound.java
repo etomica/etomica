@@ -12,6 +12,7 @@ public final class AtomIteratorCompound implements AtomIterator {
     private boolean hasNext;
     private final IteratorDirective directive = new IteratorDirective();
     private int index;
+    private Atom atoms[];
     
     /**
      * Construct iterator to loop over all iterates obtained from each iterator 
@@ -20,6 +21,7 @@ public final class AtomIteratorCompound implements AtomIterator {
     public AtomIteratorCompound(AtomIterator[] iterators) {
         iteratorSet = iterators;
         reset();
+        atoms = new Atom[1];
     }
 
 	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
@@ -50,6 +52,8 @@ public final class AtomIteratorCompound implements AtomIterator {
     }
     public Atom getBasis() {return null;}
     
+    public int nBody() {return 1;}
+    
     public int size() {
         if(iteratorSet == null) return 0;
         int count = 0;
@@ -59,55 +63,54 @@ public final class AtomIteratorCompound implements AtomIterator {
         return count;
     }
     
-    public boolean contains(Atom atom) {
+    public boolean contains(Atom[] atoms) {
         if(iteratorSet == null) return false;
         for(int i=0; i<iteratorSet.length; i++) {
-            if(iteratorSet[i].contains(atom)) return true;
+            if(iteratorSet[i].contains(atoms)) return true;
         }
         return false;
     }
         
     public void reset() {
-        reset(directive.clear());
-    }
-
-    public Atom reset(IteratorDirective id) {
-        if(iteratorSet == null || iteratorSet.length == 0) {hasNext = false; return null;}
-        directive.copy(id);
+        if(iteratorSet == null || iteratorSet.length == 0) {hasNext = false; return;}
         index = 0;
         Atom next = null;
         
-        do next = iteratorSet[index].reset(id);
-        while(next == null && ++index < iteratorSet.length);
+        iteratorSet[index].reset();
+        while(!iteratorSet[index].hasNext() && index+1 < iteratorSet.length) {
+        	index++;
+        	iteratorSet[index].reset();
+        }
 
-        hasNext = (next != null);
-        return next;
+        hasNext = iteratorSet[index].hasNext();
     }
     
+    public Atom[] peek() {
+    	return iteratorSet[index].peek();
+    }
     
-    public Atom next() {
-        Atom next = iteratorSet[index].next();
+    public Atom[] next() {
+        atoms[0] = iteratorSet[index].nextAtom();
         while(!iteratorSet[index].hasNext()) {
             if(++index < iteratorSet.length) {
-                iteratorSet[index].reset(directive);
+                iteratorSet[index].reset();
             }
             else {
                 hasNext = false;
                 break;
             }
         }
-        return next;
+        return atoms;
     }//end of next
+
+    public Atom nextAtom() {
+    	return next()[0];
+    }
     
-    public void allAtoms(AtomAction act) {
+    public void allAtoms(AtomsetActive act) {
         for(int i=0; i<iteratorSet.length; i++) {
             iteratorSet[i].allAtoms(act);
         }
     }
-    
-	public void all(AtomSet basis, IteratorDirective id, final AtomsetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
-		 all((Atom)basis, id, (AtomActive)action);
-	}
     
 }//end of AtomIteratorCompound

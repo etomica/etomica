@@ -219,15 +219,15 @@ public class Mediator implements java.io.Serializable {
             public void add(Species species) {
                 for(Iterator is=mediator.parentSimulation().potentialList().iterator(); is.hasNext(); ) {
                     Potential potential = (Potential)is.next();
-                    if(potential.wasAdded() 
+/*                    if(potential.wasAdded() 
                         && potential.getSpecies() == null 
                         && potential.parentPotential() instanceof PotentialMaster) 
-                            potential.setSpecies(new Species[] {species});
+                            potential.setSpecies(new Species[] {species});*/
                 }
             }
             public void add(Potential potential) {
                 //do nothing if potential already has species assigned, or if it is not a molecule potential
-                if(!(potential.getSpecies() == null && potential.parentPotential() instanceof PotentialMaster)) return;
+/*                if(!(potential.getSpecies() == null && potential.parentPotential() instanceof PotentialMaster)) return;
                 //set using first species
                 for(Iterator ip=mediator.parentSimulation().speciesList().iterator(); ip.hasNext(); ) {
                     Species species = (Species)ip.next();
@@ -235,7 +235,7 @@ public class Mediator implements java.io.Serializable {
                         potential.setSpecies(new Species[] {species});
                         return;
                     }
-                }
+                }*/
             }
         }//end of Default
     }//end of PhasePotential
@@ -386,7 +386,7 @@ public class Mediator implements java.io.Serializable {
              * no phase has been previously set for this meter.
              */
             public void add(MeterAbstract meter) {
-                if(lastPhaseAdded != null && meter.getPhase() == null) meter.setPhase(lastPhaseAdded);
+//                if(lastPhaseAdded != null && meter.getPhase() == null) meter.setPhase(lastPhaseAdded);
             }
             /**
              * Sets the given phase as the phase of all previously added meters, and positions
@@ -395,7 +395,7 @@ public class Mediator implements java.io.Serializable {
             public void add(Phase phase) {
                 for(Iterator ip=mediator.parentSimulation().meterList().iterator(); ip.hasNext(); ) {
                     MeterAbstract meter = (MeterAbstract)ip.next();
-                    if(meter.wasAdded() && meter.getPhase() == null) meter.setPhase(phase);
+//                    if(meter.wasAdded() && meter.getPhase() == null) meter.setPhase(phase);
                 }
                 lastPhaseAdded = phase;
             }

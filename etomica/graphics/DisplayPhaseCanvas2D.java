@@ -204,14 +204,14 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         atomIterator.setList(displayPhase.getPhase().speciesMaster.atomList);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            drawAtom(g, displayPhase.getOrigin(), atomIterator.next());
+            drawAtom(g, displayPhase.getOrigin(), atomIterator.nextAtom());
         }
             
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
             atomIterator.reset();
             while(atomIterator.hasNext()) {
-                Atom a = atomIterator.next();
+                Atom a = atomIterator.nextAtom();
                 if(!(a.type instanceof AtomType.Sphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomType.Sphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {

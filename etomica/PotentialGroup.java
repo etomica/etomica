@@ -66,9 +66,9 @@ public class PotentialGroup extends Potential {
 			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
 		}
 		//the given iterator should expect a basis of atoms equal in number to the order of this potential
-		if(this.nBody() != ((AtomsetIteratorBasisDependent)iterator).basisSize()) {
+/*		if(this.nBody() != ((AtomsetIteratorBasisDependent)iterator).basisSize()) {
 			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
-		}
+		}*/
 		//Set up to evaluate zero-body potentials last, since they may need other potentials
 		//to be configured for calculation (i.e., iterators set up) first
 		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
@@ -148,18 +148,19 @@ public class PotentialGroup extends Potential {
 	}//end removePotential
     
     /**
-     * Performs the specified calculation over the iterates of this potential
-     * that comply with the iterator directive.
+     * Performs the specified calculation over the iterates given by the iterator,
+     * using the directive to set up the iterators for the sub-potentials of this group.
      */
+	//TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
     	Atom[] targetAtoms = id.targetAtoms();
 		//loop over sub-potentials
  		for (PotentialLinker link=first; link!= null; link=link.next) {
-			((AtomsetIteratorBasisDependent)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
 		}
 		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
-			((AtomsetIteratorBasisDependent)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
 		}
     	iterator.reset();
 		while (iterator.hasNext()) {

@@ -33,7 +33,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 	//TODO consider a setTarget method instead
 	public void setTarget(Atom[] targetAtoms) {
 		aiOuter.setTarget(targetAtoms);
-		doBoth = targetAtoms.atomCount() == 1;
+		doBoth = targetAtoms != null && targetAtoms.length == 1;
 	}
 	
 	/**
@@ -98,7 +98,7 @@ public final class ApiIntragroup extends AtomsetIteratorAdapter implements
 		if(atoms==null || atoms[0]==null || atoms[1]==null || atoms[0]==atoms[1]) return false;
 		AtomList list = ((AtomTreeNodeGroup)basis.node).childList;
 		if(doBoth) return (atoms[0] == basis) && list.contains(atoms[1]);
-		else return list.contains(atoms[0]) && list.contains(atoms[1]);
+		else return atoms[0].seq.preceeds(atoms[1]) && list.contains(atoms[0]) && list.contains(atoms[1]);
 	}
 
 	/**

@@ -232,7 +232,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         if(p == null) return;
         super.setPhase(p);
         canvas.setPhase(p);
-        atomIterator = p.makeAtomIterator();
+        atomIterator = new AtomIteratorLeafAtoms(p);
         initialize();
     }//need to add an iterator observer (in superclass)
     
@@ -516,7 +516,7 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
             double r2Min = Double.MAX_VALUE;
             atomIterator.reset();
             while(atomIterator.hasNext()) {
-                Atom atom = atomIterator.next();
+                Atom atom = atomIterator.nextAtom();
                 double r2 = Space.r2(point,atom.coord.position(),phase().boundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;

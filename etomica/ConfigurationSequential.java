@@ -74,7 +74,7 @@ public class ConfigurationSequential extends Configuration {
 		int i = 0;
 		iterator.reset();
 		while(iterator.hasNext()) {
-			Atom a = iterator.next();
+			Atom a = iterator.nextAtom();
 			if(a.node.parentSpecies() instanceof SpeciesWalls) continue;
 			//initialize coordinates of child atoms
 			try {//may get null pointer exception when beginning simulation

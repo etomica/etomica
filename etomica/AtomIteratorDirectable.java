@@ -25,7 +25,8 @@ public class AtomIteratorDirectable extends AtomIteratorAdapter implements
 	 * @see etomica.AtomsetIteratorBasisDependent#setDirective(etomica.IteratorDirective)
 	 */
 	public void setTarget(Atom[] targetAtoms) {
-		targetAtom = targetAtoms[0];
+		targetAtom = targetAtoms == null ? null : targetAtoms[0];
+		setupIterator();
 	}
 
 	/**
@@ -35,16 +36,27 @@ public class AtomIteratorDirectable extends AtomIteratorAdapter implements
 	 * iterator will be set to give no iterates until a new basis is specified.
 	 */
 	public void setBasis(Atom[] atoms) {
-//		if(atoms == null || atoms.length < 1 || atoms[0] == null || atoms[0].node.isLeaf()) {
-//			listIterator.setList(null);
-//			return;
-//		}
+		if(atoms == null || atoms.length < 1) {// || atoms[0] == null || atoms[0].node.isLeaf()) {
+			basis = null;
+			listIterator.setList(null);
+		} else {
+			basis = atoms[0];
+			setupIterator();
+		}
+	}
+	
+	private void setupIterator() {
 		try {
-		//if targetAtom == null loop over all children
-		listIterator.setList(((AtomTreeNodeGroup)atoms[0].node).childList);
-		
-		//return child of basis that is or is above targetAtom (if in hierarchy of basis)
-		//do no looping if not in hierarchy of basis
+			if(targetAtom == null) {
+				listIterator.setList(((AtomTreeNodeGroup)basis.node).childList);
+			} else {
+				//return child of basis that is or is above targetAtom (if in hierarchy of basis)
+				//do no looping if not in hierarchy of basis				
+				Atom targetNode = targetAtom.node.childWhereDescendedFrom(basis.node).atom;
+				littleList.clear();
+				littleList.add(targetNode);
+				listIterator.setList(littleList);
+			}		
 		} catch(Exception e) {listIterator.setList(null);}
 
 	}
@@ -58,4 +70,6 @@ public class AtomIteratorDirectable extends AtomIteratorAdapter implements
 
 	private AtomIteratorListSimple listIterator;
 	private Atom targetAtom;
+	private AtomList littleList = new AtomList();
+	private Atom basis;
 }

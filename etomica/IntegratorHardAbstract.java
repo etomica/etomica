@@ -29,21 +29,20 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
-    private AtomPair atomPair;
+    private Atom[] atoms;
     protected final MeterTemperature meterTemperature = new MeterTemperature(this);
     Space.Vector c3;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
-        Agent.nullPotential = (PotentialHard)Potential.NullPotential(sim);
-        atomPair = new AtomPair(sim.space);
+        Agent.nullPotential = null; //(PotentialHard)Potential.NullPotential(sim);
+        atoms = new Atom[2];
     }//end of constructor
     
     public boolean addPhase(Phase phase) {
         if(!super.addPhase(phase)) return false;
         atomIterator.setList(phase.speciesMaster.atomList);
         meterTemperature.setPhase(this.phase);
-        atomPair.cPair.setBoundary(phase.boundary());
         return true;
     }
     
@@ -60,13 +59,12 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         int count = 10000;
         while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
- 			Atom partner = colliderAgent.collisionPartner();
- 			if(partner == null) {
- 				((PotentialHard)colliderAgent.collisionPotential).bump(colliderAgent.atom());
- 			} else {
-	            atomPair.reset(colliderAgent.atom(), colliderAgent.collisionPartner());
-	            ((PotentialHard)colliderAgent.collisionPotential).bump(atomPair);
-	 		}            
+			atoms[0] = colliderAgent.atom();
+			atoms[1] = colliderAgent.collisionPartner();
+			System.out.println("collision between "+atoms[0]+" and "+atoms[1]);
+			if (colliderAgent.collisionPotential != null) {
+				((PotentialHard)colliderAgent.collisionPotential).bump(atoms);
+			}
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
             }
@@ -76,6 +74,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             interval -= collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
             if(count-- == 0) throw new RuntimeException("Unable to advance system through all collisions");
+            throw new RuntimeException("made it through one");
         } 
         advanceAcrossTimeStep(interval);
         if(isothermal) {
