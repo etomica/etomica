@@ -79,7 +79,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public boolean addPhase(Phase p) {
         boolean b = super.addPhase(p);
         inflate = new PhaseAction.Inflate(firstPhase);
-        meterTemperature.setPhase(firstPhase);
+        meterTemperature.setPhase(phase);
         return b;
     }
     
@@ -97,7 +97,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }//end of doStep
     
     public void drivePT() {
-        kineticT = meterTemperature.getData();
+        kineticT = meterTemperature.getData()[0];
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);

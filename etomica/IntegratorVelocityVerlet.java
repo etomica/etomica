@@ -38,7 +38,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
         atomIterator = p.makeAtomIterator();
-        meterTemperature.setPhase(p);
+        meterTemperature.setPhase(phase);
         return true;
     }
     /**

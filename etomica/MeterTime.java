@@ -11,7 +11,9 @@ import etomica.units.Dimension;
   * 7/29/02 (DAK) new
   */
 
-public class MeterTime extends MeterAbstract implements EtomicaElement {
+//TODO MeterTime no longer has an integrator and needs a way to get the time.
+
+public class MeterTime extends MeterScalar implements EtomicaElement {
         
     double time0;
     
@@ -19,7 +21,7 @@ public class MeterTime extends MeterAbstract implements EtomicaElement {
         this(Simulation.instance);
     }
     public MeterTime(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         this.reset();
         setLabel("Elapsed time");
     }
@@ -49,8 +51,8 @@ public class MeterTime extends MeterAbstract implements EtomicaElement {
      * Returns the simulation time elapsed since the instantiation of
      * this meter, or since the last call to reset().
      */
-    public void doMeasurement() {
-    	data[0] = ((IntegratorMD)integrator).elapsedTime() - time0;
+    public double getDataAsScalar(Phase phase) {
+    	return ((IntegratorMD)integrator).elapsedTime() - time0;
     }
 
 }//end of MeterTime

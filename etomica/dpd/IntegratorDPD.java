@@ -73,7 +73,7 @@ public class IntegratorDPD extends IntegratorMD implements EtomicaElement {
 	public boolean addPhase(Phase p) {
 		if(!super.addPhase(p)) return false;
 		atomIterator = p.makeAtomIterator();
-		meterTemperature.setPhase(p);
+		meterTemperature.setPhase(new Phase[] {p});
 		return true;
 	}
  

@@ -29,11 +29,11 @@ public class MeterRatio extends MeterScalar {
 	    return new DimensionRatio(nMeter.getDimension(), dMeter.getDimension());
 	}
 	    
-	public double getData() {
-	    return nMeter.getData()/dMeter.getData();
+	public double getDataAsScalar(Phase p) {
+	    return nMeter.getDataAsScalar(p)/dMeter.getDataAsScalar(p);
 	}
 	
-	public void setPhase(Phase p) {
+	public void setPhase(Phase[] p) {
 	    super.setPhase(p);
 	    nMeter.setPhase(p);
 	    dMeter.setPhase(p);

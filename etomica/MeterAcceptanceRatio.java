@@ -8,7 +8,7 @@ import etomica.units.Count;
  * Returns acceptance rate as kept by the MCMove.
  */
 
-public final class MeterAcceptanceRatio extends MeterAbstract {
+public final class MeterAcceptanceRatio extends MeterScalar {
     
     private MCMove move;
     
@@ -16,7 +16,7 @@ public final class MeterAcceptanceRatio extends MeterAbstract {
         this(Simulation.instance);
     }
     public MeterAcceptanceRatio(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         setLabel("AcceptanceRatio");
     }
     public MeterAcceptanceRatio(Simulation sim, MCMove move) {
@@ -39,8 +39,8 @@ public final class MeterAcceptanceRatio extends MeterAbstract {
         
     public MCMove getMove() {return move;}
         
-       
-    public void doMeasurement() {
-        data[0] = move.acceptanceRatio();
+    //FIXME this should actually use the phase passed in
+    public double getDataAsScalar(Phase p) {
+        return move.acceptanceRatio();
     }    
 }

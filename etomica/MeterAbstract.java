@@ -172,4 +172,6 @@ public abstract class MeterAbstract extends SimulationElement implements DataSou
 	    }
 	 }//end of Molar
 
+	 public DataTranslator GetTranslator() {return DataTranslator.IDENTITY;}
+	 
 }//end of MeterAbstract	 

@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.utility.Function;
 import etomica.units.Dimension;
+import etomica.utility.IntegerRange;
 
 /**
  * Datasource formed as a wrapper around a function.  Takes a
@@ -28,6 +29,16 @@ public class DataSourceFunction implements DataSource, DataSourceDependent {
     }
     
     public DataSource getXSource() {return xSource;}
+    
+    public DataSource[] getDataSource() {
+    	return new DataSource[] {xSource};
+    }
+    public void setDataSource(DataSource[] source) {
+    	xSource = source[0];
+    }
+    public IntegerRange dataSourceCountRange() {
+    	return new IntegerRange(1,1);
+    }
     
     public double[] getData() {
         return y;
@@ -57,5 +68,6 @@ public class DataSourceFunction implements DataSource, DataSourceDependent {
     private String label;
     private Dimension dimension;
     
+    public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
  
 }//end of DataSourceFunction

@@ -8,7 +8,6 @@ package etomica;
 public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
 {
     private Species species;
-    private SpeciesAgent speciesAgent;
     
     public MeterDensitySpecies() {
         this(Simulation.instance);
@@ -24,7 +23,6 @@ public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
     
     public void setSpecies(Species s) {
         species = s;
-        speciesAgent = species.getAgent(getPhase());
     }
     public Species getSpecies() {return species;}
 
@@ -33,9 +31,8 @@ public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
         return info;
     }
 
-    public void getData() {
-        if(species == null) data[0] = 0.0;
-        else data[0] = speciesAgent.moleculeCount()/phase.volume();
+    public double getDataAsScalar(Phase phase) {
+        return species.getAgent(phase).moleculeCount()/phase.volume();
     }
     
     public double currentValue(Atom a) {

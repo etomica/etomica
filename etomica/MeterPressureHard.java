@@ -9,7 +9,7 @@ import etomica.units.*;
  *
  * @author David Kofke
  */
-public final class MeterPressureHard extends MeterAbstract implements
+public final class MeterPressureHard extends MeterScalar implements
                                                 IntegratorHardAbstract.CollisionListener,
                                                 MeterCollisional,
                                                 EtomicaElement {
@@ -24,7 +24,7 @@ public final class MeterPressureHard extends MeterAbstract implements
         this(Simulation.instance);
     }
     public MeterPressureHard(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         D = simulation().space().D();
         setLabel("PV/Nk");
     }
@@ -43,7 +43,8 @@ public final class MeterPressureHard extends MeterAbstract implements
      * Returns P*V/N*kB = T - (virial sum)/(elapsed time)/(space dimension)/(number of atoms)
      * Virial sum and elapsed time apply to period since last call to this method.
      */
-    public void doMeasurement() {
+    //XXX phase parameter is not used appropriately here
+    public double getDataAsScalar(Phase phase) {
         double t = integratorHard.elapsedTime();
         if(t > t0) { // could have t==t0 if called twice before advancing integator
             double flux = -virialSum/((t-t0)*(double)(D*phase.atomCount()));   //divide by time interval
@@ -51,7 +52,7 @@ public final class MeterPressureHard extends MeterAbstract implements
             t0 = t;
             virialSum = 0.0;
         }
-        data[0] = value;
+        return value;
     }
     /**
      * Implementation of CollisionListener interface
@@ -74,7 +75,6 @@ public final class MeterPressureHard extends MeterAbstract implements
      * Performs only superclass method if integrator is not an instance of IntegratorHard.
      */
 	protected void setPhaseIntegrator(Integrator newIntegrator) {
-	    super.setPhaseIntegrator(newIntegrator);
 	    if(newIntegrator == null) return;
 	    if(newIntegrator instanceof IntegratorHard) {
 	        integratorHard = (IntegratorHard)newIntegrator;

@@ -18,9 +18,8 @@ public final class MeterCycles extends MeterScalar implements EtomicaElement
         this(Simulation.instance);
     }
     public MeterCycles(Simulation sim){
-        super(sim, 1);
+        super(sim);
         setLabel("Cycles");
-        setUpdateInterval(1);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -42,8 +41,8 @@ public final class MeterCycles extends MeterScalar implements EtomicaElement
     /**
      * Returns the number of interval events received, divided by updateInterval
      */
-    public void doMeasurement() {
+    public double getDataAsScalar() {
     	count += getUpdateInterval();
-        data[0] = (double)count;  
+        return (double)count;  
     }
 }

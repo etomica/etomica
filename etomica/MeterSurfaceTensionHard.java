@@ -10,7 +10,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterSurfaceTensionHard extends MeterAbstract implements MeterAtomic, MeterCollisional {//, EtomicaElement {
+public class MeterSurfaceTensionHard extends MeterScalar implements MeterAtomic, MeterCollisional {//, EtomicaElement {
     private final Space.Tensor pressureTensor;
     private final MeterTensorVelocity velocityTensor = new MeterTensorVelocity();
     private final MeterTensorVirialHard virialTensor = new MeterTensorVirialHard();
@@ -21,7 +21,7 @@ public class MeterSurfaceTensionHard extends MeterAbstract implements MeterAtomi
         this(Simulation.instance);
     }
     public MeterSurfaceTensionHard(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         pressureTensor = sim.space().makeTensor();
         D = sim.space().D();
         setLabel("Surface Tension");
@@ -44,13 +44,15 @@ public class MeterSurfaceTensionHard extends MeterAbstract implements MeterAtomi
      * Surface tension is given by difference between normal and tangential stress components.
      * Written for 2-, or 3-dimensional systems; assumes that normal to interface is along x-axis.
      */
-    public void doMeasurement() {
+    
+    //XXX this should properly use the Phase parameter it is passed
+    public double getDataAsScalar(Phase p) {
         pressureTensor.E(velocityTensor.getData());
         pressureTensor.PE(virialTensor.getData());
         if (D == 1) {surfaceTension = pressureTensor.component(0, 0);}
         else if (D == 2) {surfaceTension = 0.5*(pressureTensor.component(0, 0) - pressureTensor.component(1, 1));}
         else {surfaceTension = 0.5*(pressureTensor.component(0, 0) - 0.5*(pressureTensor.component(1, 1) + pressureTensor.component(2, 2)));}
-        data[0] = surfaceTension;
+        return surfaceTension;
     }
     
     /**

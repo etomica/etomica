@@ -19,7 +19,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Meter that defines the property being profiled.
      */
-    Atomic meter;
+    MeterAtomic meter;
     
     private double profileNorm = 1.0;
     private final AtomIteratorList ai1 = new AtomIteratorList();
@@ -32,7 +32,6 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     }
     public MeterProfile(Simulation sim) {
         super(sim);
-        setX(0, 1, 100);
         profileVector = sim.space().makeVector();
         profileVector.setX(0, 1.0);
     }
@@ -84,8 +83,8 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setMeter(Atomic m) {
-        if (m instanceof Atomic) meter = (Atomic)m;
+    public void setMeter(MeterAtomic m) {
+        if (m instanceof MeterAtomic) meter = (MeterAtomic)m;
         else throw new IllegalArgumentException("Error in meter type in MeterProfile.  Must be Meter.MeterAtomic");
     }
     
@@ -110,21 +109,22 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Returns the profile for the current configuration.
      */
-    public double[] getData() {
-        for (int i = 0; i <nPoints; i++) {
-            y[i] = 0.0;
+    public double[] getDataAsArray(Phase p) {
+        ai1.setBasis(p.speciesMaster.atomList);
+        for (int i = 0; i <nDataPerPhase; i++) {
+            phaseData[i] = 0.0;
         }
         ai1.reset();
         while(ai1.hasNext()) {
             Atom a = ai1.next();
             double value = meter.currentValue(a);
             int i = getXIndex(a.coord.position().dot(profileVector)*profileNorm);
-            y[i] += value;
+            phaseData[i] += value;
         }
-        double norm = 1/((double)phase.atomCount()*deltaX);
-        for (int i =0; i < nPoints; i++) {
-            y[i] *= norm;
+        double norm = 1/((double)p.atomCount()*deltaX);
+        for (int i =0; i < nDataPerPhase; i++) {
+            phaseData[i] *= norm;
         }
-        return y;
+        return phaseData;
     }
 }//end of MeterProfile

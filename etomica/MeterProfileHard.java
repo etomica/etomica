@@ -29,14 +29,6 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHardAbst
     private IntegratorHard integratorHard;
     
     
-    public MeterProfileHard() {
-        this(Simulation.instance);
-    }
-    public MeterProfileHard(Simulation sim) {
-        super(sim);
-        setX(0, 1, 100);
-    }
-    
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Breaks a hard meter's measurements into a profile along some direction in the phase");
         return info;
@@ -49,7 +41,7 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHardAbst
      */
     public void setMeter(MeterAbstract m) {
         if (m instanceof MeterCollisional) {cMeter = (MeterCollisional)m;}
-        if (m instanceof Atomic) {meter = (Atomic)m;}
+        if (m instanceof MeterAtomic) {meter = (MeterAtomic)m;}
     }
     
     public double[] getData() {
@@ -57,9 +49,9 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHardAbst
         double t = integratorHard.elapsedTime();
         if (t > t0) {
             if (meter != null) {z = super.getData();}  //atomic contribution
-            else {for (int i=0; i<nPoints; i++) { z[i] = 0.;}}
+            else {for (int i=0; i<nDataPerPhase; i++) { z[i] = 0.;}}
             double norm = 1.0/(deltaX*(t-t0));
-            for (int i = 0; i < nPoints; i++) {
+            for (int i = 0; i < nDataPerPhase; i++) {
                 w[i] *= norm;
                 z[i] += w[i];
                 w[i] = 0.0;
@@ -86,17 +78,17 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHardAbst
         double value = 0.5*cMeter.collisionValue(agent); //0.5 is to compensate for double addition
         
         double dot = agent.atom().coord.position().dot(profileVector);
-        int j = getXIndex(dot);
+        int j = ((DataSourceUniform)xDataSource).getIndex(dot);
         w[j] += value;
         dot = agent.collisionPartner().coord.position().dot(profileVector);
-        j = getXIndex(dot);
+        j = ((DataSourceUniform)xDataSource).getIndex(dot);
         w[j] += value;
     }
     
-    protected void resizeArrays() {
-        super.resizeArrays();
-        z = new double[nPoints];
-        w = new double[nPoints];
+    protected void setNDataPerPhase(int nDataPerPhase) {
+        super.setNDataPerPhase(nDataPerPhase);
+        z = new double[nDataPerPhase];
+        w = new double[nDataPerPhase];
     }
     
     /**

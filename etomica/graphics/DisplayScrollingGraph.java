@@ -86,7 +86,7 @@ import java.awt.*;
     public etomica.units.Unit getUnit() {return unit;}
 
         public void doUpdate() {
-            addValue(meter.getData()); //re-examine this
+            addValue(meter.getData()[0]); //re-examine this
         }
         
         private void updateStatistics() {

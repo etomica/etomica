@@ -67,53 +67,39 @@ public class MeterPressureByVolumeChange extends MeterFunction implements Etomic
      */
     public boolean[] getInflateDimensions() {return inflateDimensions;}
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        inflater = new PhaseAction.InflateAnisotropic(p);
-    }
-    
     public void setX(double min, double max, int n) {
-        super.setX(min, max, n);
+        xDataSource = new DataSourceUniform(n, min, max);
         //x is scaling in volume if isotropic, but is linear scaling if not isotropic
-        for(int i=0; i<nPoints; i++) { //disallow x = 0
+        for(int i=0; i<nDataPerPhase; i++) { //disallow x = 0
             if(x[i] == 0.0) x[i] = 0.1*deltaX;
         }
-        scale = new Space.Vector[nPoints];
+        scale = new Space.Vector[nDataPerPhase];
         
         double mult = 1./(double)nDimension;
-        for(int i=0; i<nPoints; i++) {
+        for(int i=0; i<nDataPerPhase; i++) {
             scale[i] = space.makeVector();
-            scale[i].E(Math.exp(mult*x[i]));
+            scale[i].E(Math.exp(mult*xDataSource.getData()[i]));
             for(int j=0; j<space.D(); j++) {
                 if(!inflateDimensions[j]) scale[i].setX(j,1.0);
             }
         }
     }
     
-    public double[] getData() {
-        for(int i=0; i<nPoints; i++) {
-            double uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
+    public double[] getDataAsArray(Phase phase) {
+        inflater = new PhaseAction.InflateAnisotropic(phase);
+        double uOld = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
+        for(int i=0; i<nDataPerPhase; i++) {
             inflater.setScale(scale[i]);
             inflater.attempt();
             double uNew = potential.calculate(phase, iteratorDirective, energy.reset()).sum();
-            y[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
-                              + phase.moleculeCount()*x[i]);
-            
+            phaseData[i] = Math.exp(-(uNew-uOld)/phase.integrator().temperature()
+                              + phase.moleculeCount()*xDataSource.getData()[i]);
+
+            //TODO shouldn't this be done outside the loop?
             inflater.undo();
             //System.out.println( "  uNew " + uNew +" uOld " +uOld +" x " + x[i] +" scale" + scale[i]+ " y " +y[i] );
         }
-        return y;
-    }
-    
-    public double[] average() {
-        average = super.average();
-        for(int i=0; i<nPoints; i++) {
-            average[i] = Math.log(average[i])/(x[i]*phase.moleculeCount());
-        }
-         //for(int i=0; i<nPoints; i++) {
-           //     System.out.println("i " + i + "y "+ average[i]);
-            //} 
-        return average;
+        return phaseData;
     }
     
     public Dimension getDimension() {return Dimension.NULL;}

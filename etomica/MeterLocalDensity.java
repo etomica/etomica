@@ -11,14 +11,13 @@ import etomica.units.*;
  
  //setBounds is no longer implemented.  Class may need repair
 
-public abstract class MeterLocalDensity extends MeterAbstract implements EtomicaElement
+public abstract class MeterLocalDensity extends MeterScalar implements EtomicaElement
 {
     /**
      * Class variable used to specify that all species are included in number-density calculation
      *
      * @see #setSpeciesIndex
      */
-    private SpeciesAgent speciesAgent;
     private Species species;
     private AtomIteratorMolecule iterator = new AtomIteratorMolecule();
     protected double volume;
@@ -33,7 +32,7 @@ public abstract class MeterLocalDensity extends MeterAbstract implements Etomica
         this(Simulation.instance);
     }
     public MeterLocalDensity(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         initialLabel = "Local Density";
         setLabel(initialLabel);
         setSpecies(null);
@@ -97,12 +96,11 @@ public abstract class MeterLocalDensity extends MeterAbstract implements Etomica
     /**
      * @return the current value of the local density or local mole fraction
      */
-    public void doMeasurement()
+    public double getDataAsScalar(Phase p)
     {
         if(moleFractionMode) {  //compute local mole fraction
-            if(speciesAgent == null) data[0] = 1.0;
             int totalSum = 0, speciesSum = 0;
-            iterator.setBasis(phase);
+            iterator.setBasis(p);
             iterator.reset();
             while(iterator.hasNext()) {
                 Atom m = iterator.next();
@@ -111,26 +109,25 @@ public abstract class MeterLocalDensity extends MeterAbstract implements Etomica
                     if(m.node.parentSpecies() == species) speciesSum++;
                 }
             }
-            if(totalSum == 0) data[0] = Double.NaN;
-            else data[0] = (double)speciesSum/(double)totalSum;
+            if(totalSum == 0) return Double.NaN;
+            return (double)speciesSum/(double)totalSum;
         }
-        else {                 //compute local molar density
-            int nSum = 0;
-            if(species == null) {   //total density
-                iterator.setBasis(phase);
-                iterator.reset();
-                while(iterator.hasNext()) {
-                    if(this.contains(iterator.next())) nSum++;
-                }
+        //compute local molar density
+        int nSum = 0;
+        if(species == null) {   //total density
+            iterator.setBasis(p);
+            iterator.reset();
+            while(iterator.hasNext()) {
+                if(this.contains(iterator.next())) nSum++;
             }
-            else {                              //species density
-                iterator.setBasis(phase, species);
-                while(iterator.hasNext()) {
-                    if(this.contains(iterator.next())) nSum++;
-               }
-            }       
-            data[0] = nSum/volume;
         }
+        else {                              //species density
+            iterator.setBasis(p, species);
+            while(iterator.hasNext()) {
+                if(this.contains(iterator.next())) nSum++;
+           }
+        }       
+        return nSum/volume;
     }
     
         /**

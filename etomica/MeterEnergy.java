@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * This meter is constructed from kinetic-energy and a potential-energy meters
  * An instance of this meter is placed in each phase to allow for energy measurements in the phase
  */
-public final class MeterEnergy extends MeterAbstract implements EtomicaElement {
+public final class MeterEnergy extends MeterScalar implements EtomicaElement {
 
     private MeterKineticEnergy kinetic;
     private MeterPotentialEnergy potential;
@@ -16,7 +16,7 @@ public final class MeterEnergy extends MeterAbstract implements EtomicaElement {
         this(Simulation.instance);
     }
     public MeterEnergy(Simulation sim) {
-        super(sim, 1);
+        super(sim);
         setLabel("Energy");
         kinetic = new MeterKineticEnergy();
         potential = new MeterPotentialEnergy();
@@ -49,26 +49,26 @@ public final class MeterEnergy extends MeterAbstract implements EtomicaElement {
     /**
      * @return the current value of the total kinetic energy of the molecules in the phase
      */
-    public double kinetic() {return kinetic.getData();}
+    public double kinetic() {return kinetic.getData()[0];}
     /**
      * @return the current value of the total potential energy of the molecules in the phase
      */
-    public double potential() {return potential.getData();}
+    public double potential() {return potential.getData()[0];}
     
     /**
-     * Sets the phase where the energy is measured
+     * Sets the phase(s) where the energy is measured
      * Propagates change to the kinetic- and potential-energy meters
      */
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        kinetic.setPhase(p);
-        potential.setPhase(p);
+    public void setPhase(Phase[] p) {
+    	super.setPhase(p);
+    	kinetic.setPhase(p);
+    	potential.setPhase(p);
     }
     
     /**
      * Current value of the total energy (kinetic + potential)
      */
-    public void doMeasurement() {
-        data[0] = kinetic.getData() + potential.getData();
+    public double getDataAsScalar(Phase phase) {
+        return kinetic.getDataAsScalar(phase) + potential.getDataAsScalar(phase);
     }
 }

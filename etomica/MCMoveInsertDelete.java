@@ -168,12 +168,13 @@ public class MCMoveInsertDelete extends MCMove {
 		mcMoveInsDel1.setMu(-2000.);
 		mcMoveInsDel2.setMu(0.);
 		
+		//TODO this should be one meter and two phases and one meter for each phase
 		MeterNMolecules meterN1 = new MeterNMolecules();
-		meterN1.setPhase(phase1);
+		meterN1.setPhase(new Phase[] {phase1});
 		etomica.graphics.DisplayBox box1 = new etomica.graphics.DisplayBox((DatumSource)meterN1);
 		box1.setUpdateInterval(10);
 		MeterNMolecules meterN2 = new MeterNMolecules();
-		meterN2.setPhase(phase2);
+		meterN2.setPhase(new Phase[] {phase2});
 		etomica.graphics.DisplayBox box2 = new etomica.graphics.DisplayBox((DatumSource)meterN2);
 		box1.setUpdateInterval(10);
         

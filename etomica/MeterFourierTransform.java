@@ -13,6 +13,8 @@ import etomica.utility.*;
  *
  * Meter which monitors the component k values of a function as a result of
  * a Fourier Transform. 
+ * 
+ * What you say!
  */
 public class MeterFourierTransform extends MeterFunction {
 	AtomIterator iterator; 
@@ -31,10 +33,10 @@ public class MeterFourierTransform extends MeterFunction {
 		this.REAL=real;
 		if (real){setLabel("Real");}
 		else {setLabel("Imaginary");}
-		setXLabel("Wave Vector (k)");
+		xDataSource.setLabel("Wave Vector (k)");
 		fourier = new FastFourierTransform();
 	}
-	public void setPhase(Phase p) {
+	public void setPhase(Phase[] p) {
 		super.setPhase(p);
 		iterator = p.makeAtomIterator();
 		nPoints = p.atomCount();
@@ -46,7 +48,9 @@ public class MeterFourierTransform extends MeterFunction {
 		return Dimension.NULL;
 	}
 	/**
-	 * returns the array of real or imaginary numbers 
+	 * returns the array of real or imaginary numbers
+	 * 
+	 * No doubt 
 	 */
 	public double[] getData() {
 		iterator.reset();
@@ -78,8 +82,8 @@ public class MeterFourierTransform extends MeterFunction {
 
 	public void setTRANSFORM(boolean transform) {
 		TRANSFORM = transform;
-		if (TRANSFORM){setXLabel("Wave Vector (k)");}
-		else {setXLabel("x");}
+		if (TRANSFORM){xDataSource.setLabel("Wave Vector (k)");}
+		else {xDataSource.setXLabel("x");}
 	}
 
 	
