@@ -5,9 +5,8 @@
 package etomica.nbr;
 import etomica.Atom;
 import etomica.AtomPair;
-import etomica.AtomSet;
 import etomica.Phase;
-import etomica.atom.AtomsetFilter;
+import etomica.atom.AtomPairFilter;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,
@@ -16,12 +15,8 @@ import etomica.atom.AtomsetFilter;
  * methods to set the phase where the criterion is being applied, and to
  * indicate if neighbor list for atom needs updating.
  */
-public abstract class NeighborCriterion implements AtomsetFilter {
+public abstract class NeighborCriterion implements AtomPairFilter {
 
-    public boolean accept(AtomSet atoms) {
-        return accept((AtomPair)atoms);
-    }
-    
     public abstract boolean accept(AtomPair pair);
     
     /**

@@ -12,8 +12,8 @@ import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
+import etomica.atom.AtomPairFilter;
 import etomica.atom.AtomPairVector;
-import etomica.atom.AtomsetFilter;
 import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 
@@ -53,7 +53,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
      * atom meets the filter's criteria.
      */
     public boolean contains(AtomSet atom) {
-        return filter.accept(atom) && iterator.contains(atom);
+        return filter.accept((AtomPair)atom) && iterator.contains(atom);
     }
 
     /**
@@ -135,7 +135,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
     /**
      * @return Returns the filter.
      */
-    public AtomsetFilter getFilter() {
+    public AtomPairFilter getFilter() {
         return filter;
     }
 
@@ -165,10 +165,10 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
      * Returns a new action that wraps the given action such that action is performed
      * only on the atoms meeting the filter's criteria.
      */
-    private static AtomsetAction actionWrapper(final AtomsetFilter filter, final AtomsetAction action) {
+    private static AtomsetAction actionWrapper(final AtomPairFilter filter, final AtomsetAction action) {
         return new AtomsetActionAdapter() {
             public void actionPerformed(AtomSet atom) {
-                if(filter.accept(atom)) action.actionPerformed(atom);
+                if(filter.accept((AtomPair)atom)) action.actionPerformed(atom);
             }
         };
     }
