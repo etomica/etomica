@@ -8,24 +8,21 @@ import etomica.Constants;
 import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.MeterAbstract;
-import etomica.Simulation;
-import etomica.data.meter.MeterScalar;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
- * Value is obtained from an associated DatumSource.
+ * Value is obtained from an associated DataSource.
  * A label and unit is associated with the value.
  *
  * @author David Kofke
  */
  
-public class DisplayBox extends Display implements etomica.units.Dimensioned, DatumSource.User, EtomicaElement, javax.swing.event.ChangeListener {
+public class DisplayBox extends Display implements etomica.units.Dimensioned, DataSource.User, EtomicaElement, javax.swing.event.ChangeListener {
     
     /**
      * Descriptive text label to be displayed with the value
      */
-    protected JLabel label;
+    protected JLabel jLabel;
     private Constants.CompassDirection labelPosition = Constants.NORTH;
     /**
      * Object for displaying the value as a text field
@@ -39,13 +36,12 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     /**
      * Datum source that generates the displayed value
      */
-    protected DatumSource source;
+    protected DataSource source;
     /**
      * Integer specifying the number of significant figures to be displayed.
      * Default is 4.
      */
     int precision;
-    private DataSource.ValueType whichValue;
     private LabelType labelType;
     
     /**
@@ -54,19 +50,13 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      */
     protected etomica.units.Unit unit;
     
+    public DisplayBox(DataSource m) {
+        this();
+        setDataSource(m);
+    }
     public DisplayBox() {
-        this(Simulation.instance);
-    }
-    public DisplayBox(DatumSource m) {
-        this(Simulation.instance, m);
-    }
-    public DisplayBox(SimulationElement parent, DatumSource m) {
-        this(parent);
-        setDatumSource(m);
-    }
-    public DisplayBox(SimulationElement parent) {
-        super(parent);
-        label = new JLabel("Label");
+        super();
+        jLabel = new JLabel("Label");
         value = new JTextField("");
         value.setEditable(false);
         panel.add(value, java.awt.BorderLayout.CENTER);
@@ -90,7 +80,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     }//end of constructor
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple display of one meter's value with a label");
+        EtomicaInfo info = new EtomicaInfo("Simple display of one data source's value with a label");
         return info;
     }
     
@@ -116,11 +106,11 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     
     /**
      * Returns the dimensions of the quantity being measured.
-     * Obtained from the meter associated with this display.
+     * Obtained from the datsource associated with this display.
      */
     public etomica.units.Dimension dimension() {
         if(source != null) return source.getDimension();
-        else return etomica.units.Dimension.NULL;
+        return etomica.units.Dimension.NULL;
     }
     
     public java.awt.Component graphic(Object obj) {return panel;}
@@ -138,25 +128,23 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     }
     
     /**
-     * Specifies the meter that generates the displayed value.
+     * Specifies the datasourcethat generates the displayed value.
      */
-    public void setDatumSource(DatumSource m) {
+    public void setDataSource(DataSource m) {
         source = m;
-        if(m instanceof MeterScalar && 
-            !(whichValue instanceof MeterAbstract.ValueType)) setWhichValue(MeterAbstract.MOST_RECENT);
         setUnit(m.getDimension().defaultIOUnit());
         setLabel();
     }
     
     /**
-     * Accessor method for the meter that generates the displayed value.
+     * Accessor method for the datsource that generates the displayed value.
      */
-    public DatumSource getDatumSource() {
+    public DataSource getDataSource() {
         return source;
     }
     
     /**
-     * Sets the value of a descriptive label using the meter's label and the unit's symbol (abbreviation).
+     * Sets the value of a descriptive label using the datsource's label and the unit's symbol (abbreviation).
      */
     private void setLabel() {
         if(source == null) return;
@@ -168,7 +156,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      * Sets the value of a descriptive label using the given string.
      */
     public void setLabel(String s) {
-        label.setText(s);
+        jLabel.setText(s);
         if(labelType == BORDER) {
             panel.setBorder(new javax.swing.border.TitledBorder(s));
         }
@@ -182,14 +170,14 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     /**
      * @return the current value of the descriptive label.
      */
-    public String getLabel() {return label.getText();}
+    public String getLabel() {return jLabel.getText();}
     
 
     public void setLabelType(LabelType labelType) {
         this.labelType = labelType;
         if(labelType != BORDER) panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
-        if(labelType != STRING) panel.remove(label);
-        setLabel(label.getText());
+        if(labelType != STRING) panel.remove(jLabel);
+        setLabel(jLabel.getText());
     }
     public LabelType getLabelType() {
         return labelType;
@@ -198,8 +186,8 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     public void setLabelPosition(Constants.CompassDirection position) {
         labelPosition = position;
         if(labelType != STRING) return;
-        panel.remove(label);
-        panel.add(label,position.toString());//toString() returns the corresponding BorderLayout constant
+        panel.remove(jLabel);
+        panel.add(jLabel,position.toString());//toString() returns the corresponding BorderLayout constant
 //        support.firePropertyChange("label",oldLabel,label);
         panel.revalidate();
         panel.repaint();
@@ -207,34 +195,12 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     
     public Constants.CompassDirection getLabelPosition() {return labelPosition;}
     /**
-     * Sets the display text to reflect the desired value from the meter.
+     * Sets the display text to reflect the desired value from the datasource.
      */
     public void doUpdate() {
         if(source == null) return;
-        value.setText(format(unit.fromSim(source.value(whichValue)),precision));
+        value.setText(format(unit.fromSim(source.getData()[0]),precision));
     }
-    /**
-     *   @deprecated  Use setWhichValue instead
-     */
-    public void setUseCurrentValue(boolean b) {
-        if(b) setWhichValue(MeterAbstract.MOST_RECENT);
-        else  setWhichValue(MeterAbstract.AVERAGE);
-    }
-    /**
-     * Sets whether meter displays average, current value, last block average, etc.
-     */
-    public void setWhichValue(DataSource.ValueType type) {
-        whichValue = type;
-        if(source == null) return;
-//        if(!(whichValue==MeterAbstract.ValueType.MOST_RECENT) && !meter.isActive())
-//            {System.out.println("Warning: setting to use averages but meter is not active");}
-    }
-    public DataSource.ValueType getWhichValue() {return whichValue;}
-    
-    public void setMeter(MeterScalar m) {
-        setDatumSource(m);
-    }
-    public etomica.data.meter.MeterScalar getMeter() {return (etomica.data.meter.MeterScalar)getDatumSource();}
     
     /**
      * Demonstrates how this class is implemented.
@@ -337,7 +303,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
         int p = precision;
         while (--p > 0)
             d *= 10;
-        long ld = (long) Math.round(d);
+        long ld = Math.round(d);
         char[] digits = new char[precision];
         p = precision;
 	long ld_div_10 = 0;
@@ -398,7 +364,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      
 	public static class LabelType extends Constants.TypedConstant {
         public LabelType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public Constants.TypedConstant[] choices() {return CHOICES;}
         public static final LabelType[] CHOICES = 
             new LabelType[] {
                 new LabelType("Border"),
