@@ -4,6 +4,8 @@ import simulate.*;
 import java.beans.*;
 import java.awt.*;
 
+// This class needs some serious re-thinking
+
 public class MeterPressure extends simulate.Meter
 {
     private P2 momentumP2;
@@ -58,7 +60,7 @@ public class MeterPressure extends simulate.Meter
         super(2,1);
     }
     public void initializeMolecules() {
-      setVertical(true);
+      setAngle(90);
       setVisible(false);
     }
     public void draw(Graphics g, int[] origin, double scale) {;}

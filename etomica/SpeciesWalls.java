@@ -6,7 +6,6 @@ public class SpeciesWalls extends Species {
 
     int borderTol;
     boolean boundary;
-    int coordinateIndex;
 
     public SpeciesWalls() {
         this(1,1);
@@ -19,7 +18,7 @@ public class SpeciesWalls extends Species {
 
   public void initializeMolecules() {
     setThickness(4);
-    setHorizontal(true);
+    setAngle(0);
     setColor(Constants.DARK_RED);
   }
 
@@ -33,21 +32,9 @@ public class SpeciesWalls extends Species {
     public final int getBorderTol() {return borderTol;}
     public final void setBorderTol(int borderTol) {this.borderTol = borderTol;}
 
-    public final boolean isVertical() {return ((AtomWall)firstAtom()).isVertical();}
-    public void setVertical(boolean b) {
-        ((AtomWall)firstAtom()).setVertical(b);
-        ((AtomWall)lastAtom()).setVertical(b);  //make this a loop someday
-        coordinateIndex = 0;
- //       if(b && this.isHorizontal()) {this.setHorizontal(false);}
- //       if(!b && !this.isHorizontal()) {this.setHorizontal(true);}
-    }
-
-    public final boolean isHorizontal() {return ((AtomWall)firstAtom()).isHorizontal();}
-    public void setHorizontal(boolean b) {
-        ((AtomWall)firstAtom()).setHorizontal(b);
-        coordinateIndex = 1;
-//        if(b && this.isVertical()) {this.setVertical(false);}
-//        if(!b && !this.isVertical()) {this.setVertical(true);}
+    public final int getAngle() {return ((AtomWall)firstAtom()).getAngle();}
+    public final void setAngle(int theta) {
+        ((AtomWall)firstAtom()).setAngle(theta);
     }
 
     public final int getThickness() {return ((AtomWall)firstAtom()).getThickness();}
@@ -61,7 +48,7 @@ public class SpeciesWalls extends Species {
     double toPixels = Phase.TO_PIXELS;
     int x = getLocation().x;
     int y = getLocation().y;
-    if(isVertical()) {
+    if(((AtomWall)firstAtom()).isVertical()) {
         firstAtom().r[1] = (double)y/Phase.TO_PIXELS;
         if(fillVolume) {firstAtom().r[1] = 0.0; firstAtom().setDiameter(designTimeYDim);}
         else {firstAtom().setDiameter((double)getSize().width/Phase.TO_PIXELS);}
@@ -72,7 +59,7 @@ public class SpeciesWalls extends Species {
         else {firstAtom().r[0] = (double)x/toPixels;}
         if(Beans.isDesignTime()) setBounds((int)(Phase.TO_PIXELS*firstAtom().r[0]),(int)(Phase.TO_PIXELS*firstAtom().r[1]),getThickness(),(int)(toPixels*firstAtom().getDiameter()));
     }
-    else if(isHorizontal()) {
+    else if(((AtomWall)firstAtom()).isHorizontal()) {
         firstAtom().r[0] = (double)x/toPixels;
         if(fillVolume) {firstAtom().r[0] = 0.0; firstAtom().setDiameter(designTimeXDim);}
         else {firstAtom().setDiameter((double)getSize().height/toPixels);}
