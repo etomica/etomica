@@ -159,7 +159,7 @@ public class AtomIndexManagerTest extends TestCase {
     public void testAncestry() {
         for(int i=0; i<atoms.length; i++) {
             for(int j=0; j<atoms.length; j++) {
-                System.out.println(i+" "+j);
+//                System.out.println(i+" "+j);
                 if(isDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(atoms[i].node.isDescendedFrom(atoms[j]));
                 } else {
