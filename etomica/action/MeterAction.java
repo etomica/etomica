@@ -47,9 +47,16 @@ public abstract class MeterAction implements etomica.Action {
      */
     public MeterAbstract[] getMeters() {return meters;}
     
+    /**
+     * Returns a descriptive label for this action.
+     */
 	public String getLabel() {
 		return label;
 	}
+	/**
+	 * Sets a descriptive label for this action.  This might be referenced,
+	 * for example, by a button invoking this action in a graphical interface.
+	 */
 	public void setLabel(String label) {
 		this.label = label;
 	}

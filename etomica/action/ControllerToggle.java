@@ -1,28 +1,21 @@
 package etomica.action;
-import etomica.*;
 
 /**
  * Switches controller between paused and unpaused conditions, or starts
  * it if not yet active.
  */
-public class ControllerToggle extends ControllerAction {
+public class ControllerToggle extends ControllerActionAdapter {
         
- /*   public ControllerToggle() {
-        super(parentSimulation());
-    }*/
-        
-        
-    public void actionPerformed(Controller c) {
-        doAction(c);
+    public ControllerToggle() {
+        super("Start/pause/resume");
     }
     
-    /**
-     * Static version of the action, which performs toggle to given controller.
-     */
-    public static void doAction(Controller c) {
-        if(!c.isActive()) c.start();
-        else if(!c.isPaused()) c.pause();
-        else c.unPause();
-	}
+    public void actionPerformed() {
+    	if(controller == null) return;
+        if(!controller.isActive()) controller.start();
+        else if(!controller.isPaused()) controller.pause();
+        else controller.unPause();
+    }
+
 }//end of ControllerToggle
     

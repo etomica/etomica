@@ -4,7 +4,6 @@ import etomica.AtomIteratorListSimple;
 import etomica.Default;
 import etomica.MeterTemperature;
 import etomica.Phase;
-import etomica.PhaseAction;
 
 /**
  * @author kofke
@@ -12,7 +11,7 @@ import etomica.PhaseAction;
  * Scales all velocities of a phase so that its kinetic temperature is equal to
  * a given value.
  */
-public class PhaseQuench extends PhaseAction {
+public class PhaseQuench extends PhaseActionAdapter {
 
 	/**
 	 * Constructor for PhaseQuench.  Uses temperature in Default.
@@ -34,7 +33,7 @@ public class PhaseQuench extends PhaseAction {
 	}
 
 	/**
-	 * @see etomica.PhaseAction#actionPerformed(etomica.Phase)
+	 * @see etomica.action.PhaseActionAdapter#actionPerformed(etomica.Phase)
 	 */
 	public void actionPerformed(Phase p) {
 		double currentTemperature = meterTemperature.currentValue(phase.speciesMaster);
