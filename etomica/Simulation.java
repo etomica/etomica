@@ -77,6 +77,7 @@ public class Simulation extends SimulationElement {
 		elementLists.put(LoggerAbstract.class, new LinkedList());
         elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
+        potentialMaster.setSimulation(this);
         instantiationEventManager.fireEvent(new SimulationEvent(this));
     }//end of constructor
                  

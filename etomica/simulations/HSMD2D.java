@@ -3,6 +3,7 @@ import etomica.Controller;
 import etomica.Default;
 import etomica.IntegratorHard;
 import etomica.IteratorDirective;
+import etomica.Mediator;
 import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Potential2;

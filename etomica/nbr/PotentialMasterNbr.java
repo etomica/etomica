@@ -28,7 +28,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
 	   	if(pc instanceof PotentialCalculationNbrSetup) {
-	   		//TODO clear neighbor lists
 	   		super.calculate(phase, id, pc);
 	   	}
  		else {
@@ -118,6 +117,11 @@ public class PotentialMasterNbr extends PotentialMaster {
 	    	}
     	}
     	addPotential(potential, iterator);
+    }
+    
+    public void setSimulation(Simulation sim) {
+        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
+        
     }
 
     public NeighborManager getNeighborManager() {return neighborManager;}

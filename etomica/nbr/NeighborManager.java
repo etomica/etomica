@@ -10,6 +10,7 @@ import etomica.AtomsetActive;
 import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
 
@@ -54,6 +55,7 @@ public class NeighborManager implements IntervalListener {
 	 */
 	public void reset(Phase[] phase) {
 		for (int i=0; i<phase.length; i++) {
+			boundary = phase[i].boundary();
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborReset);
 		}
@@ -71,6 +73,7 @@ public class NeighborManager implements IntervalListener {
 				if (neighborCheck.unsafe) {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
+				boundary = phase[i].boundary();
 				iterator.allAtoms(neighborReset);
 				potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
 			}
@@ -108,6 +111,7 @@ public class NeighborManager implements IntervalListener {
 	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
 	private int iieCount;
+	private Space.Boundary boundary;
 	private final PotentialMasterNbr potentialMaster;
 	private final AtomIteratorTree iterator;
 	private final NeighborCheck neighborCheck;
@@ -134,12 +138,13 @@ public class NeighborManager implements IntervalListener {
 
 	}
 	
-	private static class NeighborReset implements AtomsetActive {
+	private class NeighborReset implements AtomsetActive {
 		public void actionPerformed(Atom[] atom) {
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
 			((AtomSequencerNbr)atom[0].seq).clearNbrs();
 			if (criterion != null) {
 				criterion.reset(atom[0]);
+				boundary.centralImage(atom[0].coord); //08/27/03 - don't need to notify sequencer because coord.translateBy does this
 			}
 		}
 

@@ -81,6 +81,9 @@ public class PotentialMaster extends PotentialGroup {
 //	   return pa;
 //   }	    
     
+    public void setSimulation(Simulation sim) {
+    }
+    
     public AtomSequencer.Factory sequencerFactory() {return AtomSequencerSimple.FACTORY;}
 
    
