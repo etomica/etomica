@@ -1,8 +1,11 @@
 //includes a main method to demonstrate use and to test
 package etomica.graphics;
-import etomica.*;
-import etomica.units.*;
 import java.awt.Color;
+
+import etomica.Atom;
+import etomica.space.ICoordinateKinetic;
+import etomica.units.Dimension;
+import etomica.units.Kelvin;
 /**
  * Colors atoms according to their kinetic energy.
  * Atoms with high KE are colored red, and those with low KE are colored blue.
@@ -44,7 +47,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         
     public Color atomColor(Atom a) {
         float red, blue;
-        double ke = a.coord.kineticEnergy();
+        double ke = a.type.getMass()*((ICoordinateKinetic)a.coord).velocity().squared();
         if(ke > KEMax) {blue = 0.0f;}
         else if(ke < KEMin) {blue = 1.0f;}
         else {blue = (float)((KEMax-ke)*range);}
