@@ -4,8 +4,6 @@
  */
 package etomica.nbr;
 
-import etomica.Atom;
-import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.NearestImageVectorSource;
 import etomica.Phase;
@@ -13,6 +11,7 @@ import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
+import etomica.atom.AtomPairVector;
 import etomica.atom.AtomsetFilter;
 import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
@@ -46,7 +45,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
       if(iterator.nBody() != 2) throw new IllegalArgumentException("Illegal attempt to construct pair iterator by wrapping a non-pair iterator");
       this.iterator = iterator;
       this.filter = filter;
-      nextAtoms = new AtomPair();
+      nextAtoms = new AtomPairVector();
    }
 
 
@@ -75,7 +74,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
       iterator.reset();
       next = null;
       while(iterator.hasNext() && next == null) {
-         next = (AtomPair)iterator.next();
+         next = (AtomPairVector)iterator.next();
          if(!filter.accept(next)) next = null;
       }
       nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
@@ -102,10 +101,9 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
        next.copyTo(nextAtoms);
        next = null;
        while(iterator.hasNext() && next == null) {
-          next = (AtomPair)iterator.next();
+          next = (AtomPairVector)iterator.next();
           if(!filter.accept(next)) next = null;
        }
-//       nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
        return nextAtoms;
     }
 
@@ -167,8 +165,8 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
 
     private final ApiMolecule iterator;
     private final NeighborCriterion filter;
-    private AtomPair next;
-    private final AtomPair nextAtoms;
+    private AtomPairVector next;
+    private final AtomPairVector nextAtoms;
     private NearestImageVectorSource nearestImageVectorSource;
     private Vector nearestImageVector, nextNearestImageVector;
 
