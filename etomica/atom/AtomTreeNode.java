@@ -44,9 +44,7 @@ public abstract class AtomTreeNode {
         	if(parent != null) {
             //(add check that parent is resizable)
             parentNode = parent;
-            parentGroup = parent.atom;
             depth = parent.depth() + 1;
-            parentPhase = parent.parentPhase();
             setIndex(parent.newChildIndex());
             parent.childList.add(atom.seq);
  //           parent.addAtomNotify(atom); //invoked instead in constructor of atom in which this node is being placed
@@ -76,7 +74,6 @@ public abstract class AtomTreeNode {
     	
     	//parent isn't changing, but may need to update fields (added this 'if' block 08/12/03 (DAK))
     	if(parent == parentNode) {
-			parentPhase = parentNode.parentPhase();
 			depth = parentNode.depth() + 1;
 			return;
         }
@@ -93,14 +90,10 @@ public abstract class AtomTreeNode {
         parentNode = parent;
 
         if(parentNode == null) {//new parent is null
-            parentGroup = null;
-            parentPhase = null;
             return;
         }
 
         //new parent is not null
-        parentGroup = parentNode.atom;
-        parentPhase = parentNode.parentPhase();
         depth = parentNode.depth() + 1;
 
         setIndex(parentNode.newChildIndex());
@@ -115,7 +108,7 @@ public abstract class AtomTreeNode {
     public Atom atom() {return atom;}
         
     public Atom parentGroup() {
-        return parentGroup;
+        return parentNode.atom;
     }
     public AtomTreeNodeGroup parentNode() {
         return parentNode;
@@ -133,8 +126,7 @@ public abstract class AtomTreeNode {
      * Phase in which this atom resides
      */
     public Phase parentPhase() {//return parentPhase;}//parentNode.parentPhase();}
-        return (parentPhase != null) ? parentPhase : 
-                    (parentNode != null) ? parentNode.parentPhase() : null;
+        return (parentNode != null) ? parentNode.parentPhase() : null;
     }
 
     public Species parentSpecies() {return parentNode.parentSpecies();}
@@ -185,22 +177,23 @@ public abstract class AtomTreeNode {
      * Returns false if the given atom is this atom, or (of course) if the
      * given atom instead preceeds this one.
      */
-    public boolean preceeds(Atom a) {
+    public boolean preceeds(AtomTreeNode node) {
         //want to return false if atoms are the same atoms
-        if(a == null) return true;
-        if(parentGroup == a.node.parentGroup) return atomIndex < a.node.atomIndex;//works also if both parentGroups are null
-        if(depth == a.node.depth) return parentNode.preceeds(a.node.parentGroup);
-        if(depth < a.node.depth) return this.preceeds(a.node.parentGroup);
-        /*if(this.depth > atom.depth)*/ return parentNode.preceeds(a);
+        if(node == null) return true;
+        if(this.parentNode == node.parentNode) return atomIndex < node.atomIndex;//works also if both parentGroups are null
+        if(depth == node.depth) return parentNode.preceeds(node.parentNode);
+        if(depth < node.depth) return this.preceeds(node.parentNode);
+        /*if(this.depth > atom.depth)*/ return parentNode.preceeds(node);
+    }
+    
+    public boolean preceeds(Atom a) {
+        return (a != null) ? preceeds(a.node) : true;
     }
         
     protected final Atom atom;
     protected int depth;
     protected int atomIndex;
     private AtomTreeNodeGroup parentNode;
-    private Atom parentGroup;
-    private Phase parentPhase;
-
     
     public interface Factory {
         public AtomTreeNode makeNode(Atom atom, AtomTreeNodeGroup parent);
