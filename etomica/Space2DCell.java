@@ -105,7 +105,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
          * Takes a given atom and generates pairs from it and uplist neighbors
          * Handles (untested as of yet) case where given atom is not in phase
          */
-        private static final class AtomPairIteratorUp implements simulate.AtomPair.Iterator.A {
+        private static final class AtomPairIteratorUp implements simulate.AtomPair.Iterator {
             private final Phase phase;
             private final LatticeSquare cells;
             final AtomPair pair;
@@ -164,7 +164,7 @@ public class Space2DCell extends Space2D implements Iterator.Maker {
          * Takes a given atom and generates pairs from it and downlist neighbors
          * Handles (untested as of yet) case where given atom is not in phase
          */
-        private static final class AtomPairIteratorDown implements simulate.AtomPair.Iterator.A {
+        private static final class AtomPairIteratorDown implements simulate.AtomPair.Iterator {
             final AtomPair pair;
             private final Phase phase;
             private final LatticeSquare cells;

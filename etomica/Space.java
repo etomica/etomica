@@ -48,7 +48,7 @@ public abstract class Space {
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
     public static abstract class Coordinate {
-        protected final Space.Occupant parent;        //parent is the "Space-occupant" that has this as its coordinate        
+        protected final Space.Occupant parent;        //parent is the "Space-occupant" (e.g, Atom or Molecule) that has this as its coordinate        
         Coordinate(Occupant p) {parent = p;}          //constructor
         public final Space.Occupant parent() {return parent;}
         public final Phase parentPhase() {return parent.parentPhase();}

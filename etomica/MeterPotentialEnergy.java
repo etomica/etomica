@@ -52,14 +52,14 @@ public class MeterPotentialEnergy extends simulate.Meter
     public final double currentValue(Atom a) {
         if(phase != a.parentPhase()) {return 0.0;}  //also handles condition that phase contains no atoms
         double pe = 0.0;
-        apiUp.reset(a,Iterator.INTER);
+        apiUp.reset(a);
         while(apiUp.hasNext()) {
             AtomPair pair = apiUp.next();
             double energy = phase.parentSimulation.getPotential(pair).energy(pair);
             if(energy == Double.MAX_VALUE) return Double.MAX_VALUE;
             pe += energy;
         }
-        apiDown.reset(a,Iterator.INTER);
+        apiDown.reset(a);
         while(apiDown.hasNext()) {
             AtomPair pair = apiDown.next();
             double energy = phase.parentSimulation.getPotential(pair).energy(pair);

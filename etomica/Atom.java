@@ -183,7 +183,7 @@ public final class Atom implements Space.Occupant {
             public boolean hasNext() {return hasNext;}
             public void reset() {hasNext = (atom != null);}
             public void reset(Atom a) {atom = a; reset();}
-            public Atom next() {return atom;}
+            public Atom next() {hasNext = false; return atom;}
             public void allAtoms(Atom.Action act) {act.action(atom);}
         }
         

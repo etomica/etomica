@@ -97,26 +97,25 @@ public final class AtomPair {
     }
     
     public static class Iterator {
-        private final AtomPair pair;
+        private AtomPair pair;  //want final, but derived class MP somehow prevents compiler from doing this
         protected Atom.Iterator ai1, ai2;
-        protected final ActionWrapper actionWrapper;   //wrapper inner class defined below
+        protected ActionWrapper actionWrapper;   // want final too //wrapper inner class defined below
         protected boolean hasNext, needUpdate1;
         private Atom atom1;
         public Iterator(Phase p) {
             pair = new AtomPair(p); 
-            hasNext = false;
             actionWrapper = new AtomPair.ActionWrapper(pair);
+            hasNext = false;
         }
         public Iterator(Phase p, ActionWrapper wrap) {
             pair = new AtomPair(p); 
-            hasNext = false;
             actionWrapper = wrap;
+            hasNext = false;
         }
         public Iterator(Phase p, Atom.Iterator iter1, Atom.Iterator iter2) {
-//            this(p);
             pair = new AtomPair(p);
-            hasNext = false;
             actionWrapper = new AtomPair.ActionWrapper(pair);
+            hasNext = false;
             ai1 = iter1;
             ai2 = iter2;
         }
