@@ -64,17 +64,14 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         if(nAtoms.length < 1) throw new IllegalArgumentException("Error: Attempt to prescribe zero-dimensional lattice in AtomFactoryLattice" );
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
         if(nAtoms.length == 1) return leafFactory; 
-        else {
-            int[] newDim = new int[nAtoms.length-1];//arraycopy
-            for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
-            if(config == null) {
-                return new AtomFactoryTree(space, seqFactory, leafFactory, newDim);
-            } else {
-                Configuration[] newConfig = new Configuration[config.length-1];//arraycopy
-                for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
-                return new AtomFactoryTree(space, seqFactory, leafFactory, newDim, newConfig);
-            }
+        int[] newDim = new int[nAtoms.length-1];//arraycopy
+        for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
+        if(config == null) {
+            return new AtomFactoryTree(space, seqFactory, leafFactory, newDim);
         }
+        Configuration[] newConfig = new Configuration[config.length-1];//arraycopy
+        for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
+        return new AtomFactoryTree(space, seqFactory, leafFactory, newDim, newConfig);
     }//end of subFactory
     
     public void setNAtoms(int[] n) {
@@ -119,13 +116,13 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     
     public static void main(String[] args) {
         Simulation sim = new Simulation();
-        AtomFactoryMono leafFactory = new AtomFactoryMono(sim);
+        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomSequencerSimple.FACTORY);
         int[] nA = new int[] {2, 1, 3};
         AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
-        Phase phase = new Phase();
-        Species species = new Species(sim, treeFactory);
+        Phase phase = new Phase(sim.space);
+        Species species = new Species(treeFactory);
         species.setNMolecules(1);
-        Atom atom = treeFactory.makeAtom();
+        treeFactory.makeAtom();
         sim.elementCoordinator.go();
         
         AtomIteratorTree iterator = new AtomIteratorTree();

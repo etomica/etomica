@@ -7,9 +7,9 @@ package etomica;
  */
 public abstract class CombiningRule implements Atom.AgentSource {
     
-    public abstract double sigma(AtomPair pair);
+    public abstract double sigma(Atom[] pair);
     
-    public abstract double epsilon(AtomPair pair);
+    public abstract double epsilon(Atom[] pair);
     
     public abstract Object makeAgent(Atom a);
     

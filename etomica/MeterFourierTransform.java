@@ -17,7 +17,7 @@ import etomica.utility.*;
  * What you say!
  */
 public class MeterFourierTransform extends MeterFunction {
-	AtomIterator iterator; 
+	AtomIteratorPhaseDependent iterator; 
 	int nMolecules;
 	double[] data;
 	public boolean REAL=true;		// toggle to meter the real/imaginary transform
@@ -35,10 +35,9 @@ public class MeterFourierTransform extends MeterFunction {
 	}
 	public void setPhase(Phase[] p) {
 		super.setPhase(p);
-		iterator = p.makeAtomIterator();
-		nPoints = p.atomCount();
-		resizeArrays();	
-		nMolecules = nPoints;
+		iterator = new AtomIteratorLeafAtoms();
+		setNDataPerPhase(p[0].atomCount());	
+		nMolecules = nDataPerPhase;
 	}
 
 	public Dimension getXDimension() {
@@ -49,12 +48,13 @@ public class MeterFourierTransform extends MeterFunction {
 	 * 
 	 * No doubt 
 	 */
-	public double[] getData() {
+	public double[] getDataAsArray(Phase aPhase) {
+        iterator.setPhase(aPhase);
 		iterator.reset();
 		Atom currentAtom;
 		data = new double[nMolecules];
 		for (int i=0;i<nMolecules;i++) {
-			currentAtom = iterator.next();
+			currentAtom = iterator.nextAtom();
 			// calculate the displacement from their home position.
 			data[i] = currentAtom.coord.position(0) - (i*Default.BOX_SIZE/nMolecules);
 			
@@ -64,9 +64,9 @@ public class MeterFourierTransform extends MeterFunction {
 		}
 		fourier.setData(data);
 		if(TRANSFORM)fourier.transform();
-		x=fourier.getIndex();
+//		x=fourier.getIndex();
 		if (REAL){return fourier.getReal();}
-		else {return fourier.getImaginary();}
+		return fourier.getImaginary();
 	}
 
 	public Dimension getDimension() {
@@ -80,7 +80,7 @@ public class MeterFourierTransform extends MeterFunction {
 	public void setTRANSFORM(boolean transform) {
 		TRANSFORM = transform;
 		if (TRANSFORM){xDataSource.setLabel("Wave Vector (k)");}
-		else {xDataSource.setXLabel("x");}
+		else {xDataSource.setLabel("x");}
 	}
 
 	
