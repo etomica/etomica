@@ -15,11 +15,11 @@ public class IntrospectionArrays {
     static Class[] validClasses = null;
     static int validCount = 0;
 
-    static Class[] introspect(String t, boolean b){
+    public static Class[] introspect(String t, boolean b){
         return introspect(etomica.Default.CLASS_DIRECTORY, t, b);
     }
     
-    static Class[] introspect(String path, String t, boolean b){
+    public static Class[] introspect(String path, String t, boolean b){
         final String title = t;
         final boolean checkInterfaces = b;
         validCount = 0;

@@ -14,7 +14,7 @@ import etomica.utility.Function;
  */
 public abstract class Meter extends MeterAbstract implements DataSource, DatumSource  {
     
-    public static final String VERSION = "Meter:01.03.24.0/"+MeterAbstract.VERSION;
+    public static final String VERSION = "Meter:01.03.24/"+MeterAbstract.VERSION;
     
     MeterAbstract.Accumulator accumulator = new MeterAbstract.Accumulator();
     private Function function;

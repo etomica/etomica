@@ -33,6 +33,9 @@ public class PropertySheet extends JInternalFrame {
 		    OPEN_ICON = new ImageIcon(new URL(etomica.Default.IMAGE_DIRECTORY+"TreeExpanded.gif"));
 		}
 		catch (java.net.MalformedURLException error) { }
+        PropertyEditorManager.registerEditor(etomica.DataSource.class, etomica.DataSourceEditor.class);
+        PropertyEditorManager.registerEditor(etomica.MCMove[].class, etomica.McMoveEditor.class);
+		
     }
     private PropertySheetPanel panel;
     private boolean started;
@@ -97,6 +100,7 @@ public class PropertySheet extends JInternalFrame {
 class PropertySheetPanel extends JPanel {
     JScrollPane sp,sp2;
     JTreeTable treeTable;
+    PropertyModel model;
     /**
      * Instance of (inner) thread class that is used to perform updates of displayed properties that might
      * change while the simulation is running (e.g., meter averages).
@@ -191,7 +195,7 @@ class PropertySheetPanel extends JPanel {
         PropertyNode rootNode = new PropertyNode(target);
         if(rootNode == null) return;
         addChildren(rootNode);
-        PropertyModel model = new PropertyModel(rootNode);
+        model = new PropertyModel(rootNode);
         treeTable = new JTreeTable(model);
         treeTable.getTree().putClientProperty("JTree.lineStyle","Angled");
 
@@ -285,6 +289,8 @@ class PropertySheetPanel extends JPanel {
         Object object = parentNode.object();
         if(object == null) return;
         
+        if(object.getClass().isArray()) {}
+        
         //Introspection to get array of all properties
         PropertyDescriptor[] properties = null;
         BeanInfo bi = null;
@@ -322,6 +328,7 @@ class PropertySheetPanel extends JPanel {
 	        PropertyEditor editor = null;
 
 	        String name = properties[i].getDisplayName();  //Localized display name 
+	        if(name.equals("dimension")) continue;         //skip getDimension()
 	        Class type = properties[i].getPropertyType();  //Type (class) of this property
 	        Method getter = properties[i].getReadMethod(); //method used to read value of property in this object
 	        Method setter = properties[i].getWriteMethod();//method used to set value of property
@@ -383,7 +390,9 @@ class PropertySheetPanel extends JPanel {
 	            }
 
                 //set the editor to the current value of the property
-	            editor.setValue(value);
+	            try {
+	                editor.setValue(value);
+	            } catch(NullPointerException e) {}
 	            
 	            //add listener that causes the wasModified method to be 
 	            //invoked when editor fires property-change event
@@ -437,9 +446,6 @@ class PropertySheetPanel extends JPanel {
 	        }
 
             MyLabel newLabel = new MyLabel(name, Label.LEFT);
-///	        group.labels[i] = new MyLabel(name, Label.LEFT);
-///	        group.views[i] = view;
-///	        group.unitViews[i] = unitView;
 	        
             PropertyNode child = new PropertyNode(value, newLabel, view, unitView, editor, properties[i]);
             
@@ -457,7 +463,11 @@ class PropertySheetPanel extends JPanel {
             
             parentNode.add(child);
 	    }//end of loop over properties
+
+        //notify model of the changes below this node
+	    model.nodeStructureChanged(parentNode);
 	    
+	    //if meter, set to display/update its values on table
 	    if(object instanceof Meter) {
 	        updateThread.add((Meter)object,currentEditor,averageEditor,errorEditor,
 	                                       currentView,  averageView,  errorView  );
@@ -572,13 +582,17 @@ class PropertySheetPanel extends JPanel {
 		        PropertyDescriptor property = node.descriptor();
 		        Object value = editor.getValue();
 		        
+		        //implement change in value stored in node
 		        node.setObject(value);
+		        
 		        Method setter = property.getWriteMethod();
 		        if(setter == null) continue;
 		        
+		        //write java code that implements change for writing to file, if requested later
 		        JavaWriter javaWriter = (JavaWriter)Etomica.javaWriters.get(target.parentSimulation());
                 javaWriter.propertyChange(target, setter, editor.getJavaInitializationString());
 		        
+		        //implement the change in the object being edited
 		        try {
 		            Object args[] = { value };
 		            args[0] = value;
@@ -601,11 +615,10 @@ class PropertySheetPanel extends JPanel {
 	            if(evt.getSource() instanceof DimensionedDoubleEditor) {
 	   //             node.view().repaint();
 	            }
-	        /*    if(node.getChildCount() > 0) {
-	                System.out.println("reconfiguring children");
+	            if(node.getChildCount() > 0) {
                     node.removeAllChildren();
 	                addChildren(node);
-	            }*/
+	            }
 		        break;//found editor; stop looking
 	        }//end of for(Enumeration loop
 	    }
@@ -651,96 +664,7 @@ class PropertySheetPanel extends JPanel {
 	        }
     }//end of wasModified method
 
-    /**
-     * When property event is fired, this method transmits the change to the actual
-     * instance of the object being edited.  Also checks for change in value of any
-     * other properties and repaints the sheet accordingly.
-     */
- /*   synchronized void wasModified(PropertyChangeEvent evt) {
-        
-        if (!processEvents) return;
-
-	    if (evt.getSource() instanceof PropertyEditor) {
-	        PropertyEditor editor = (PropertyEditor) evt.getSource();
-            //loop over all objects and properties to find the editor that made the change 
-	        groupLoop: for (java.util.Iterator iter=groups.iterator(); iter.hasNext(); ) {
-	            PropertyGroup g = (PropertyGroup)iter.next();
-	            
-	            for (int i = 0 ; i < g.editors.length; i++) {
-	                if (g.editors[i] == editor) {
-		                PropertyDescriptor property = g.properties[i];
-		                Object value = editor.getValue();
-		                g.values[i] = value;
-		                Method setter = property.getWriteMethod();
-		                if(setter == null) continue;
-		                try {
-		                    Object args[] = { value };
-		                    args[0] = value;
-		                    setter.invoke(g.target, args);
-		                } 
-		                catch (InvocationTargetException ex) {
-		                    if (ex.getTargetException() instanceof PropertyVetoException) {
-			                    //warning("Vetoed; reason is: " 
-			                    //        + ex.getTargetException().getMessage());
-			                    // temp dealock fix...I need to remove the deadlock.
-			                    System.err.println("WARNING: Vetoed; reason is: " 
-					                    + ex.getTargetException().getMessage());
-		                    }
-		                    else error("InvocationTargetException while updating " + property.getName(), ex.getTargetException());
-		                } 
-		                catch (Exception ex) {
-		                    error("Unexpected exception while updating " 
-		                            + property.getName(), ex);
-	                    }
-	                    if(evt.getSource() instanceof DimensionedDoubleEditor) {
-	            //            g.views[i].repaint();
-	                    }
-		                break groupLoop;//found editor; stop looking
-		            }//end if
-		        }//end of for(int loop
-	        }//end of for(Iterator loop
-	    }
-
-	    // Now re-read all the properties and update the editors
-	    // for any other properties that have changed.
-	    for (java.util.Iterator iter=groups.iterator(); iter.hasNext(); ) {
-	        PropertyGroup g = (PropertyGroup)iter.next();
-	        for (int i = 0; i < g.properties.length; i++) {
-	            Object o;
-	            Method setter = null;
-	            try {
-	                Method getter = g.properties[i].getReadMethod();
-	                setter = g.properties[i].getWriteMethod();
-	                Object args[] = { };
-	                o = getter.invoke(g.target, args);
-	            } 
-	            catch (Exception ex) { o = null; }
-	            if (o == g.values[i] || (o != null && o.equals(g.values[i])) ||  setter == null) {
-	                // The property is equal to its old value.
-    		        continue;
-	            }
-	            g.values[i] = o;
-	            // Make sure we have an editor for this property...
-	            if (g.editors[i] == null)
-		            continue;
-    	        
-	            // The property has changed!  Update the editor.
-	            g.editors[i].setValue(o);
-	            if (g.views[i] != null)
-		            g.views[i].repaint();
-	        }//end of for(int i) loop
-
-	        // Make sure the target bean gets repainted.
-	        if (Beans.isInstanceOf(g.target, Component.class)) {
-	            ((Component)(Beans.getInstanceOf(g.target, Component.class))).repaint();
-	        }
-	        
-	        //this ensures display is updated if editor changes units
-	        if(evt.getSource() instanceof DimensionedDoubleEditor) repaint();
-	    }//end of for(java.util.Iterator) loop
-    }//end of wasModified method
- 
-*/    
+   
     //----------------------------------------------------------------------
     // Log an error.
     private void error(String message, Throwable th) {

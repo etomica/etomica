@@ -22,7 +22,7 @@ import javax.swing.ButtonGroup;
 
 public final class Etomica {
 
-    public static String version() {return "01.03.04.0";}
+    public static String version() {return "01.03.04";}
     
     public static final SimulationEditorFrame simulationEditorFrame;
     public static java.util.LinkedList simulationList;

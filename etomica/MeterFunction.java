@@ -11,7 +11,7 @@ import etomica.utility.Histogram;
  */
 public abstract class MeterFunction extends MeterAbstract implements DataSource {
     
-    public static final String VERSION = "MeterFunction:01.03.25.0/"+MeterAbstract.VERSION;
+    public static final String VERSION = "MeterFunction:01.03.25/"+MeterAbstract.VERSION;
     /**
      * Abscissa values of the function
      */

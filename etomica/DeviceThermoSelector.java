@@ -9,7 +9,7 @@ import etomica.units.*;
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
-    public static final String getVersion() {return "DeviceThermoSelector:01.03.23.0/"+Device.VERSION;}
+    public String getVersion() {return "DeviceThermoSelector:01.03.23/"+Device.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */

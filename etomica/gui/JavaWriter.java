@@ -44,7 +44,7 @@ public final class JavaWriter {
         ElementWriter elementWriter = (ElementWriter)elements.get(element);
         if(elementWriter == null) return;
         String setterString = setter.toString().trim();
-        System.out.println(setterString);
+//        System.out.println(setterString);
         int i = setterString.lastIndexOf('(');//get string between . and (
         String initString = setterString.substring(0,i);
         i = initString.lastIndexOf('.');

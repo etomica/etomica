@@ -83,9 +83,11 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
     }
         
     public void actionPerformed(Phase p) {
-        actionPerformed(p, 1.0);
+        actionPerformed(p, expand, 1.0, r0);
     }
-    public void actionPerformed(Phase p, double deformationScale) {
+    public void actionPerformed(Phase p, boolean expand, double deformationScale, Space.Vector r) {
+        setExpand(expand);
+        setR0(r);
         double scale = expand ? lattice.scale : 1.0/lattice.scale;
         setDeformationScale(deformationScale);
         lnJTot = 0.0;
@@ -97,12 +99,12 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
             MyCell cell = null;
             if(expand) {
                 cell = lattice.getOriginalCell(s);
-                cell.transform(s,deformationScale);
+                cell.transform(s);
                 lnJTot += cell.lnJacobian;
             }
             else {
                 cell = lattice.getDeformedCell(s);
-                cell.revert(s,deformationScale);//works only for scale = 1.0
+                cell.revert(s);//works only for scale = 1.0
                 lnJTot -= cell.lnJacobian;
             }
             s.TE(phase.dimensions());
@@ -588,16 +590,16 @@ public class ActionPointVolume extends PhaseAction implements DisplayPhase.Drawa
             return L2 < (dx*dx + dy*dy);
         }
         
-        public void transform(Space2D.Vector r, double scale) {
+        public void transform(Space2D.Vector r) {
             double dx = r.x - origin.originalPosition.x;
             double dy = r.y - origin.originalPosition.y;
             double dxn = a11*dx + a12*dy;
             double dyn = a21*dx + a22*dy;
-            r.x = origin.originalPosition.x + scale*(deltaX + dxn);
-            r.y = origin.originalPosition.y + scale*(deltaY + dyn);
+            r.x = origin.originalPosition.x + (deltaX + dxn);
+            r.y = origin.originalPosition.y + (deltaY + dyn);
         }
-        //correct only for scale = 1.0
-        public void revert(Space2D.Vector r, double scale) {
+
+        public void revert(Space2D.Vector r) {
             double dx = r.x - origin.deformedPosition.x;
             double dy = r.y - origin.deformedPosition.y;
             double dxn = (a22*dx - a12*dy)/jacobian;

@@ -2,13 +2,14 @@ package etomica;
 
 import java.util.Random;
 
-public class IntegratorMC extends Integrator {
+public class IntegratorMC extends Integrator implements EtomicaElement {
     
     public String version() {return "IntegratorMC:01.02.10"+Integrator.VERSION;}
     
     private final Random rand = new Random();
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
+    private int moveCount;
     
 //need to update to include makeIterators
     public IntegratorMC() {
@@ -22,6 +23,25 @@ public class IntegratorMC extends Integrator {
         EtomicaInfo info = new EtomicaInfo("General Monte Carlo simulation");
         return info;
     }
+    
+    /**
+     * Adds all moves in array to integrator's set of moves.
+     */
+    public void setMCMoves(MCMove[] moves) {
+        for(int i=0; i<moves.length; i++) {
+            add(moves[i]);
+        }
+    }
+    
+    /**
+     * Constructs and returns array of all moves added to the integrator.  
+     */
+    public MCMove[] getMCMoves() {
+        MCMove[] moves = new MCMove[moveCount];
+        int i=0;
+        for(MCMove move=firstMove; move!=null; move=move.nextMove()) {moves[i++]=move;}
+        return moves;
+    }
 
     /**
      * Adds a basic MCMove to the set of moves performed by the integrator
@@ -32,6 +52,7 @@ public class IntegratorMC extends Integrator {
         lastMove = move;
         move.setParentIntegrator(this);
         move.setPhase(phase);
+        moveCount++;
     }
     
     /**

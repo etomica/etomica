@@ -14,7 +14,7 @@ import java.awt.event.*;
  */
 public class DisplayPlot extends Display implements DataSource.User, EtomicaElement {
     
-    public String getVersion() {return "DisplayPlot:01.03.24/"+Display.VERSION;}
+    public String getVersion() {return "DisplayPlot:01.04.29/"+Display.VERSION;}
 
     Plot plot;
     DataSource ySource, xSource;
@@ -22,6 +22,7 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
     DataSource.ValueType whichValueX, whichValue;
     private JButton resetButton = new JButton("Reset averages");
     private boolean makeResetButton = false;
+    private javax.swing.JPanel panel = new javax.swing.JPanel();
    
     public DisplayPlot() {
         this(Simulation.instance);
@@ -29,7 +30,7 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
     public DisplayPlot(Simulation sim) {
         super(sim);
         plot = new Plot();
-        add(plot);
+        panel.add(plot);
         setXUnit(new Unit(BaseUnit.Null.UNIT));
         setYUnit(new Unit(BaseUnit.Null.UNIT));
         setName("Data Plot");
@@ -45,12 +46,17 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
     public boolean isMakeResetButton() {return makeResetButton;}
     public void setMakeResetButton(boolean b) {
         if(b && !makeResetButton) { //asking for resetButton and not already made
-            add(resetButton);
+            panel.add(resetButton);
         }
-        else if(!b) remove(resetButton);
+        else if(!b) panel.remove(resetButton);
         makeResetButton = b;
     }
     
+    /**
+     * Overrides superclass method to return a JPanel holding the plot.
+     */
+    public java.awt.Component graphic(Object obj) {return panel;}
+
     /**
      * @deprecated.  Use setDataSource instead.
      */
@@ -61,11 +67,11 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
     public void setDataSource(DataSource s) {
         ySource = s;
         if(ySource == null) return;
+        plot.setYLabel(ySource.getLabel());
         if(ySource instanceof MeterFunction) {
             if(!(whichValue instanceof MeterAbstract.ValueType)) whichValue = MeterAbstract.ValueType.AVERAGE;
             final MeterFunction meter = (MeterFunction)ySource;
             plot.setXLabel(meter.getXLabel()+" ("+xUnit.symbol()+")");
-            plot.setYLabel(meter.getLabel());
             setWhichValue(getWhichValue());
             if(ySource instanceof MeterMultiFunction) {
                 int nF = ((MeterMultiFunction)meter).nFunctions();
@@ -82,7 +88,6 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
         else if(ySource instanceof Meter) {
             if(!(whichValue instanceof Meter.ValueType)) whichValue = Meter.ValueType.HISTORY;
             final Meter meter = (Meter)ySource;
-            plot.setYLabel(meter.getLabel());
             setWhichValue(getWhichValue());
             setLabel(meter.getLabel());
             resetButton.addActionListener(new ActionListener() {
@@ -99,8 +104,8 @@ public class DisplayPlot extends Display implements DataSource.User, EtomicaElem
     /**
      * Specifies whether lines join points in plot (true) or not (false)
      */
-    public void setConnected(boolean b) {plot.setConnected(b);}
-    public boolean getConnected() {return plot.getConnected();}
+    public void setConnectPoints(boolean b) {plot.setConnected(b);}
+    public boolean getConnectPoints() {return plot.getConnected();}
     
     public void doUpdate() {
         if(ySource == null) return;

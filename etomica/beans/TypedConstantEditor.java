@@ -12,7 +12,7 @@ import java.beans.PropertyEditorSupport;
  */
 public class TypedConstantEditor extends PropertyEditorSupport implements java.io.Serializable {
     
-    public static String version() {return "01.03.05.0";}
+    public static String version() {return "01.03.05";}
     
     Constants.TypedConstant[] choices;
     String[] labels;

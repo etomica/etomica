@@ -24,7 +24,7 @@ public class MCMovePointVolume extends MCMove {
         super();
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
-        setStepSize(0.10);
+        setStepSize(0.50);
         setPressure(Default.PRESSURE);
     }
     
@@ -38,11 +38,12 @@ public class MCMovePointVolume extends MCMove {
         vOld = phase.volume();
         hOld = phase.energy.potential() + pressure*vOld;
         r0 = phase.randomPosition();
+        double step = rand.nextDouble()*stepSizeMax;
         if(Math.random() < 0.5) { //transform square to distorted
-            action.actionPerformed(r0, true);
+            action.actionPerformed(phase, true, step, r0);
         }
         else { //transform distorted back to square
-            action.actionPerformed(r0, false);
+            action.actionPerformed(phase, false, step, r0);
         }
         vNew = phase.volume();
         hNew = phase.energy.potential() + pressure*vNew;
@@ -63,7 +64,7 @@ public class MCMovePointVolume extends MCMove {
         
     public static void main(String args[]) {
         
-        java.awt.Frame f = new java.awt.Frame();   //create a window
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
         
         Default.ATOM_SIZE = 1.0;
@@ -76,27 +77,35 @@ public class MCMovePointVolume extends MCMove {
         IntegratorMC integrator = new IntegratorMC(sim);
         MCMove mcMoveAtom = new MCMoveAtom();
         MCMovePointVolume mcMovePointVolume = new MCMovePointVolume();
+        MCMoveVolume mcMoveVolume = new MCMoveVolume();
         Controller controller = new Controller(sim);
         final Phase phase = new Phase(sim);
         final DisplayPhase displayPhase = new DisplayPhase(sim);
         displayPhase.setScale(0.7);
-        DeviceSlider slider = new DeviceSlider(mcMovePointVolume, "pressure");
+ //       DeviceSlider slider = new DeviceSlider(mcMovePointVolume, "pressure");
+        DeviceSlider slider = new DeviceSlider(mcMoveVolume, "pressure");
         slider.setMinimum(0);
         slider.setMaximum(100);
         
         Meter dMeter = new MeterDensity();
         DisplayBox box = new DisplayBox();
         box.setMeter(dMeter);
+        box.setWhichValue(MeterAbstract.ValueType.MOST_RECENT);
         
         mcMovePointVolume.setPhase(phase);
         integrator.add(mcMoveAtom);
-        integrator.add(mcMovePointVolume);
+   //     integrator.add(mcMovePointVolume);
+        integrator.add(mcMoveVolume);
 
         species.setNMolecules(40);
+        
+        DisplayPlot plot = new DisplayPlot();
+        plot.setDataSource(dMeter);
+        dMeter.setHistorying(true);
                 
 		Simulation.instance.elementCoordinator.go();
 		
-        f.add(Simulation.instance.panel()); //access the static instance of the simulation to
+        f.getContentPane().add(Simulation.instance.panel()); //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
         f.show();
