@@ -132,7 +132,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     /**
     * Extends IntegratorHard.Agent to hold a force vector.
     */
-    public static class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
+    public class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
     
         public final Space.Vector force;
         public boolean forceFree = true;
